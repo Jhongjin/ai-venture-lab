@@ -470,6 +470,37 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
+  async function updateRiskStatus(risk: Risk, status: string) {
+    if (!supabase) {
+      setMessage("Supabase is not configured.");
+      return;
+    }
+
+    if (!user || risk.created_by !== user.id) {
+      setMessage("Only the risk owner can update this risk.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("risks")
+      .update({ status })
+      .eq("id", risk.id)
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setRisks((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setMessage(`Risk marked ${status}.`);
+    router.refresh();
+  }
+
   async function copyIdeaBrief() {
     if (!ideaBrief) {
       return;
@@ -855,11 +886,29 @@ export function IdeaWorkbench({
           <div className="mt-4 grid gap-3">
             {selectedRisks.map((risk) => (
               <div key={risk.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-semibold text-slate-950">{risk.title}</span>
-                  <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
-                    {risk.severity}
-                  </span>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-950">{risk.title}</span>
+                    <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                      {risk.severity}
+                    </span>
+                    <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                      {risk.status}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {["open", "mitigating", "closed"].map((status) => (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => updateRiskStatus(risk, status)}
+                        disabled={isBusy || !user || risk.created_by !== user.id || risk.status === status}
+                        className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        {status}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{risk.mitigation}</p>
               </div>

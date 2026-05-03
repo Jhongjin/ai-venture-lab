@@ -14,3 +14,4 @@ Use this file for durable product, architecture, and operating decisions.
 | 2026-05-03 | Add copyable idea brief drafts | Operators need a fast handoff from scoring to PRD/research without retyping portfolio data | Full PRD generation is implemented |
 | 2026-05-03 | Add experiment planning to the workbench | Validated learning needs a concrete next test, not only a static idea score | Experiment results and status transitions are added |
 | 2026-05-03 | Add experiment status transitions | Operators need to see whether a test is planned, running, or done | Experiment outcomes are captured |
+| 2026-05-03 | Add risk status transitions | Risks need an operational lifecycle, not just a static note | Risk severity and ownership filters are expanded |

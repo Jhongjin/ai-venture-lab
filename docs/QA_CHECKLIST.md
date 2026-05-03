@@ -14,3 +14,4 @@ Use this checklist before merging meaningful changes.
 - Workbench clearly marks which ideas are editable by the current operator and which are read-only.
 - Authenticated operators can attach an experiment name and success metric to an idea.
 - Experiment owners can move experiments through planned, running, and done states.
+- Risk owners can move risks through open, mitigating, and closed states.
