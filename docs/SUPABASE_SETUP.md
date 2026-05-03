@@ -48,7 +48,7 @@ The initial migration enables RLS on every table.
 
 ## Auth Setup
 
-The console uses Supabase email magic links for operator access.
+The console supports Supabase email magic links and password sign-in for operator access.
 
 In Supabase:
 
@@ -64,6 +64,18 @@ http://localhost:3000
 ```
 
 In `Authentication` -> `Providers`, keep email enabled. New sign-ins can create ideas because write policies allow the `authenticated` role.
+
+## Fast Operator Login Without Email Delivery
+
+Supabase's built-in email provider is intentionally limited. If magic links do not arrive or the app shows `email rate limit exceeded`, use a dashboard-created operator account:
+
+1. Go to `Authentication` -> `Users`.
+2. Click `Add user`.
+3. Enter the operator email and a temporary strong password.
+4. Enable auto-confirm/confirmed user if the dashboard offers that option.
+5. In the app, use `Sign in with password`.
+
+For production or repeated testing with email links, configure custom SMTP in Supabase Auth.
 
 ## Next Hardening Pass
 

@@ -8,3 +8,4 @@
 | Secret exposure | Security | High | Keep `.env*` ignored except `.env.example`; review Vercel/Supabase env handling | Open |
 | Agent drift | Operations | Medium | Keep `AGENTS.md` short; store durable docs in `docs/`; run harness checks | Open |
 | Broad authenticated write policy | Security | Medium | Operator ownership policies now restrict updates and deletes to the row creator; add organization ownership before sensitive data | Mitigating |
+| Built-in auth email delivery limit | Operations | Medium | Add password sign-in for dashboard-created operators; configure custom SMTP before broader testing | Mitigating |

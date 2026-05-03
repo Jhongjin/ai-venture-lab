@@ -31,6 +31,7 @@ export function VentureConsoleActions() {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -81,11 +82,41 @@ export function VentureConsoleActions() {
     setIsAuthBusy(false);
 
     if (error) {
-      setAuthMessage(error.message);
+      setAuthMessage(formatAuthError(error.message));
       return;
     }
 
     setAuthMessage("Check your email for the Supabase magic link.");
+  }
+
+  async function handlePasswordSignIn() {
+    setAuthMessage(null);
+
+    if (!supabase) {
+      setAuthMessage("Supabase environment variables are not available in this deployment.");
+      return;
+    }
+
+    if (!email.trim() || !password) {
+      setAuthMessage("Enter email and password first.");
+      return;
+    }
+
+    setIsAuthBusy(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    setIsAuthBusy(false);
+
+    if (error) {
+      setAuthMessage(formatAuthError(error.message));
+      return;
+    }
+
+    setPassword("");
+    setAuthMessage("Signed in.");
+    router.refresh();
   }
 
   async function handleSignOut() {
@@ -188,10 +219,29 @@ export function VentureConsoleActions() {
                 className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              Password
+              <input
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                type="password"
+                placeholder="Optional for password sign-in"
+                className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={handlePasswordSignIn}
+              disabled={isAuthBusy}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <LogIn size={18} />
+              Sign in with password
+            </button>
             <button
               type="submit"
               disabled={isAuthBusy}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <LogIn size={18} />
               Send magic link
@@ -252,6 +302,18 @@ export function VentureConsoleActions() {
       </form>
     </section>
   );
+}
+
+function formatAuthError(message: string) {
+  if (message.toLowerCase().includes("rate limit")) {
+    return "Supabase email rate limit exceeded. Wait for the email quota to reset, configure custom SMTP, or use password sign-in with a dashboard-created operator account.";
+  }
+
+  if (message.toLowerCase().includes("invalid login credentials")) {
+    return "Invalid email or password. Create a confirmed user in Supabase Auth or check the password.";
+  }
+
+  return message;
 }
 
 function Field({
