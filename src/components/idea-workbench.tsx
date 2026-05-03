@@ -7,11 +7,14 @@ import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Decision, Experiment, Idea, Risk } from "@/lib/venture-data";
-import type { DecisionStatus, IdeaStage, RiskSeverity } from "@/lib/supabase/types";
+import type { Database, DecisionStatus, IdeaStage, RiskSeverity } from "@/lib/supabase/types";
+
+type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
 
 const stages: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
+const adminRoles = new Set(["owner", "admin"]);
 
 const stageLabels: Record<IdeaStage, string> = {
   intake: "Intake",
@@ -212,6 +215,7 @@ export function IdeaWorkbench({
   const [decisionReason, setDecisionReason] = useState("");
   const [experimentDraft, setExperimentDraft] = useState<ExperimentDraft>({ name: "", success_metric: "" });
   const [user, setUser] = useState<User | null>(null);
+  const [memberships, setMemberships] = useState<OrganizationMember[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
@@ -222,12 +226,25 @@ export function IdeaWorkbench({
       return;
     }
 
+    async function loadMemberships(nextUser: User | null) {
+      if (!supabase || !nextUser) {
+        setMemberships([]);
+        return;
+      }
+
+      const { data } = await supabase.from("organization_members").select("*");
+      setMemberships(data ?? []);
+    }
+
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
+      void loadMemberships(data.user);
     });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const nextUser = session?.user ?? null;
+      setUser(nextUser);
+      void loadMemberships(nextUser);
     });
 
     return () => data.subscription.unsubscribe();
@@ -248,7 +265,30 @@ export function IdeaWorkbench({
     [experiments, selectedIdea?.id],
   );
 
-  const canEdit = Boolean(user && selectedIdea?.created_by === user.id);
+  const canAdminSelectedOrganization = Boolean(
+    user &&
+      selectedIdea?.organization_id &&
+      memberships.some(
+        (membership) =>
+          membership.user_id === user.id &&
+          membership.organization_id === selectedIdea.organization_id &&
+          adminRoles.has(membership.role),
+      ),
+  );
+  const canEdit = Boolean(user && (selectedIdea?.created_by === user.id || canAdminSelectedOrganization));
+  function canManageRecord(record: { created_by: string | null; organization_id: string | null }) {
+    return Boolean(
+      user &&
+        (record.created_by === user.id ||
+          (record.organization_id &&
+            memberships.some(
+              (membership) =>
+                membership.user_id === user.id &&
+                membership.organization_id === record.organization_id &&
+                adminRoles.has(membership.role),
+            ))),
+    );
+  }
   const currentScore = editState ? scoreState(editState) : 0;
   const scoreRecommendation = recommendationForScore(currentScore);
   const missing =
@@ -336,6 +376,7 @@ export function IdeaWorkbench({
         severity: riskDraft.severity,
         mitigation: riskDraft.mitigation.trim(),
         status: "open",
+        organization_id: selectedIdea.organization_id,
       })
       .select()
       .single();
@@ -373,6 +414,7 @@ export function IdeaWorkbench({
           idea_id: selectedIdea.id,
           decision: editState.decision,
           reason: decisionReason.trim(),
+          organization_id: selectedIdea.organization_id,
         })
         .select()
         .single(),
@@ -418,6 +460,7 @@ export function IdeaWorkbench({
         name: experimentDraft.name.trim(),
         success_metric: experimentDraft.success_metric.trim(),
         status: "planned",
+        organization_id: selectedIdea.organization_id,
       })
       .select()
       .single();
@@ -440,8 +483,8 @@ export function IdeaWorkbench({
       return;
     }
 
-    if (!user || experiment.created_by !== user.id) {
-      setMessage("Only the experiment owner can update this experiment.");
+    if (!canManageRecord(experiment)) {
+      setMessage("Only the experiment owner or workspace admin can update this experiment.");
       return;
     }
 
@@ -476,8 +519,8 @@ export function IdeaWorkbench({
       return;
     }
 
-    if (!user || risk.created_by !== user.id) {
-      setMessage("Only the risk owner can update this risk.");
+    if (!canManageRecord(risk)) {
+      setMessage("Only the risk owner or workspace admin can update this risk.");
       return;
     }
 
@@ -548,6 +591,16 @@ export function IdeaWorkbench({
           {visibleIdeas.length > 0 ? (
             visibleIdeas.map((idea) => {
               const isOwned = Boolean(user && idea.created_by === user.id);
+              const isOrgAdmin = Boolean(
+                user &&
+                  idea.organization_id &&
+                  memberships.some(
+                    (membership) =>
+                      membership.user_id === user.id &&
+                      membership.organization_id === idea.organization_id &&
+                      adminRoles.has(membership.role),
+                  ),
+              );
 
               return (
             <button
@@ -571,10 +624,10 @@ export function IdeaWorkbench({
                   </span>
                   <span
                     className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-                      isOwned ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                      isOwned || isOrgAdmin ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
                     }`}
                   >
-                    {isOwned ? "Editable" : "Read-only"}
+                    {isOwned ? "Editable" : isOrgAdmin ? "Org admin" : "Read-only"}
                   </span>
                 </div>
               </div>
@@ -860,7 +913,7 @@ export function IdeaWorkbench({
                           key={status}
                           type="button"
                           onClick={() => updateExperimentStatus(experiment, status)}
-                          disabled={isBusy || !user || experiment.created_by !== user.id || experiment.status === status}
+                          disabled={isBusy || !canManageRecord(experiment) || experiment.status === status}
                           className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
                         >
                           {status}
@@ -902,7 +955,7 @@ export function IdeaWorkbench({
                         key={status}
                         type="button"
                         onClick={() => updateRiskStatus(risk, status)}
-                        disabled={isBusy || !user || risk.created_by !== user.id || risk.status === status}
+                        disabled={isBusy || !canManageRecord(risk) || risk.status === status}
                         className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
                       >
                         {status}

@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { LogIn, LogOut, PlusCircle, RefreshCw, ShieldCheck } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { Building2, Clock3, LogIn, LogOut, PlusCircle, RefreshCw, ShieldCheck, Users } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { Database } from "@/lib/supabase/types";
+
+type Organization = Database["public"]["Tables"]["organizations"]["Row"];
+type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
+type AuditEvent = Database["public"]["Tables"]["audit_events"]["Row"];
 
 type FormState = {
   name: string;
@@ -35,9 +40,89 @@ export function VentureConsoleActions() {
   const [user, setUser] = useState<User | null>(null);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [members, setMembers] = useState<OrganizationMember[]>([]);
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
+  const [activeOrganizationId, setActiveOrganizationId] = useState("");
   const [isAuthBusy, setIsAuthBusy] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isWorkspaceBusy, setIsWorkspaceBusy] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
+
+  const activeOrganization = useMemo(
+    () => organizations.find((organization) => organization.id === activeOrganizationId) ?? organizations[0] ?? null,
+    [activeOrganizationId, organizations],
+  );
+  const activeMembership = useMemo(
+    () => members.find((member) => member.organization_id === activeOrganization?.id && member.user_id === user?.id) ?? null,
+    [activeOrganization?.id, members, user?.id],
+  );
+  const activeMemberCount = useMemo(
+    () => members.filter((member) => member.organization_id === activeOrganization?.id).length,
+    [activeOrganization?.id, members],
+  );
+
+  const loadAuditEvents = useCallback(
+    async (organizationId: string) => {
+      if (!supabase || !organizationId) {
+        setAuditEvents([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("audit_events")
+        .select("*")
+        .eq("organization_id", organizationId)
+        .order("created_at", { ascending: false })
+        .limit(6);
+
+      if (error) {
+        setWorkspaceMessage(error.message);
+        return;
+      }
+
+      setAuditEvents(data ?? []);
+    },
+    [supabase],
+  );
+
+  const loadWorkspaceData = useCallback(async (operator: User | null, preferredOrganizationId = "") => {
+    if (!supabase || !operator) {
+      setOrganizations([]);
+      setMembers([]);
+      setAuditEvents([]);
+      setActiveOrganizationId("");
+      return;
+    }
+
+    const [organizationsResult, membersResult] = await Promise.all([
+      supabase.from("organizations").select("*").order("created_at", { ascending: true }),
+      supabase.from("organization_members").select("*").order("created_at", { ascending: true }),
+    ]);
+
+    if (organizationsResult.error || membersResult.error) {
+      setWorkspaceMessage(
+        organizationsResult.error?.message ?? membersResult.error?.message ?? "Workspace data could not be loaded.",
+      );
+      return;
+    }
+
+    const nextOrganizations = organizationsResult.data ?? [];
+    const nextMembers = membersResult.data ?? [];
+    const nextActiveId = preferredOrganizationId || nextOrganizations[0]?.id || "";
+
+    setOrganizations(nextOrganizations);
+    setMembers(nextMembers);
+    setActiveOrganizationId(nextActiveId);
+
+    if (!nextActiveId) {
+      setAuditEvents([]);
+      return;
+    }
+
+    await loadAuditEvents(nextActiveId);
+  }, [loadAuditEvents, supabase]);
 
   useEffect(() => {
     if (!supabase) {
@@ -46,17 +131,20 @@ export function VentureConsoleActions() {
 
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
+      void loadWorkspaceData(data.user);
     });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const nextUser = session?.user ?? null;
+      setUser(nextUser);
+      void loadWorkspaceData(nextUser);
       router.refresh();
     });
 
     return () => {
       data.subscription.unsubscribe();
     };
-  }, [router, supabase]);
+  }, [loadWorkspaceData, router, supabase]);
 
   async function handleSignIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -130,6 +218,40 @@ export function VentureConsoleActions() {
     setAuthMessage("Signed out.");
   }
 
+  async function handleCreateWorkspace() {
+    setWorkspaceMessage(null);
+
+    if (!supabase || !user) {
+      setWorkspaceMessage("Sign in before creating a workspace.");
+      return;
+    }
+
+    setIsWorkspaceBusy(true);
+    const { data, error } = await supabase
+      .from("organizations")
+      .insert({
+        name: "AI Venture Lab",
+        slug: `ai-venture-lab-${user.id.slice(0, 8)}`,
+      })
+      .select()
+      .single();
+    setIsWorkspaceBusy(false);
+
+    if (error) {
+      setWorkspaceMessage(error.message);
+      return;
+    }
+
+    setActiveOrganizationId(data.id);
+    setWorkspaceMessage("Workspace created.");
+    await loadWorkspaceData(user, data.id);
+  }
+
+  async function handleSelectWorkspace(organizationId: string) {
+    setActiveOrganizationId(organizationId);
+    await loadAuditEvents(organizationId);
+  }
+
   async function handleCreateIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaveMessage(null);
@@ -167,6 +289,7 @@ export function VentureConsoleActions() {
       mvp_speed: 0,
       differentiation: 0,
       regulatory_risk: 0,
+      organization_id: activeOrganization?.id ?? null,
     });
     setIsSaving(false);
 
@@ -176,13 +299,17 @@ export function VentureConsoleActions() {
     }
 
     setForm(emptyForm);
-    setSaveMessage("Idea saved. Refreshing portfolio.");
+    setSaveMessage(
+      activeOrganization ? `Idea saved to ${activeOrganization.name}. Refreshing portfolio.` : "Idea saved. Refreshing portfolio.",
+    );
+    await loadWorkspaceData(user, activeOrganization?.id ?? "");
     router.refresh();
   }
 
   return (
     <section className="grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="grid gap-6">
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-slate-950">Operator access</h2>
@@ -250,13 +377,104 @@ export function VentureConsoleActions() {
         )}
 
         {authMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{authMessage}</p> : null}
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-950">Workspace status</h2>
+              <p className="mt-1 text-sm text-slate-500">Records can now be attached to an organization boundary.</p>
+            </div>
+            <Building2 className={activeOrganization ? "text-blue-600" : "text-slate-500"} size={24} />
+          </div>
+
+          {!user ? (
+            <div className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+              Sign in to load workspace membership.
+            </div>
+          ) : activeOrganization ? (
+            <div className="grid gap-4">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                Active workspace
+                <select
+                  value={activeOrganization.id}
+                  onChange={(event) => {
+                    void handleSelectWorkspace(event.target.value);
+                  }}
+                  className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
+                  {organizations.map((organization) => (
+                    <option key={organization.id} value={organization.id}>
+                      {organization.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg bg-blue-50 p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">Role</div>
+                  <div className="mt-2 text-lg font-semibold capitalize text-blue-950">
+                    {activeMembership?.role ?? "member"}
+                  </div>
+                </div>
+                <div className="rounded-lg bg-slate-50 p-4">
+                  <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    <Users size={14} />
+                    Members
+                  </div>
+                  <div className="mt-2 text-lg font-semibold text-slate-950">{activeMemberCount}</div>
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
+                  <Clock3 size={16} />
+                  Recent audit
+                </div>
+                <div className="grid gap-2">
+                  {auditEvents.length > 0 ? (
+                    auditEvents.map((event) => (
+                      <div key={event.id} className="rounded-md bg-slate-50 p-3 text-sm leading-6 text-slate-600">
+                        <span className="font-semibold text-slate-950">{event.action}</span> {event.summary}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-500">
+                      No organization audit events yet.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-3">
+              <div className="rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+                No workspace membership was found for this operator.
+              </div>
+              <button
+                type="button"
+                onClick={handleCreateWorkspace}
+                disabled={isWorkspaceBusy}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
+                Create workspace
+              </button>
+            </div>
+          )}
+
+          {workspaceMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{workspaceMessage}</p> : null}
+        </div>
       </div>
 
       <form onSubmit={handleCreateIdea} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-slate-950">New idea intake</h2>
-            <p className="mt-1 text-sm text-slate-500">Capture a raw idea without jumping straight into build mode.</p>
+            <p className="mt-1 text-sm text-slate-500">
+              {activeOrganization
+                ? `Capture a raw idea inside ${activeOrganization.name}.`
+                : "Capture a raw idea without jumping straight into build mode."}
+            </p>
           </div>
           <button
             type="submit"
