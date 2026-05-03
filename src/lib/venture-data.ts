@@ -160,6 +160,10 @@ export async function getConsoleData(): Promise<ConsoleData> {
     };
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const [ideasResult, risksResult, decisionsResult, experimentsResult] = await Promise.all([
     supabase.from("ideas").select("*").order("created_at", { ascending: true }),
     supabase.from("risks").select("*").order("created_at", { ascending: true }),
@@ -174,12 +178,13 @@ export async function getConsoleData(): Promise<ConsoleData> {
       decisions: seedDecisions,
       experiments: seedExperiments,
       source: "seed",
-      error:
-        ideasResult.error?.message ??
-        risksResult.error?.message ??
-        decisionsResult.error?.message ??
-        experimentsResult.error?.message ??
-        "Unknown Supabase error",
+      error: user
+        ? ideasResult.error?.message ??
+          risksResult.error?.message ??
+          decisionsResult.error?.message ??
+          experimentsResult.error?.message ??
+          "Unknown Supabase error"
+        : null,
     };
   }
 
