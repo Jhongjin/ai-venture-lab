@@ -52,6 +52,17 @@ supabase/migrations/20260503000000_initial_harness.sql
 
 The app falls back to seed data when Supabase is not configured or the schema has not been applied yet.
 
+## Auth
+
+The console uses Supabase email magic links. Configure Supabase Auth URL settings:
+
+```text
+Site URL: https://ai-venture-lab.vercel.app
+Redirect URL: http://localhost:3000
+```
+
+Authenticated users can create ideas. The current policy is intentionally broad for the initial private lab; tighten it before storing sensitive data.
+
 ## Operating Model
 
 Use the repo in this order:

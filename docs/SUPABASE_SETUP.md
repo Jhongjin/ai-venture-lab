@@ -32,6 +32,25 @@ The initial migration enables RLS on every table.
 - Writes are limited to authenticated users.
 - Before storing sensitive care, finance, inheritance, or psychological coaching data, tighten policies around project membership and user ownership.
 
+## Auth Setup
+
+The console uses Supabase email magic links for operator access.
+
+In Supabase:
+
+1. Go to `Authentication` -> `URL Configuration`.
+2. Set `Site URL` to your production URL.
+3. Add redirect URLs for production and local development.
+
+Recommended values:
+
+```text
+https://ai-venture-lab.vercel.app
+http://localhost:3000
+```
+
+In `Authentication` -> `Providers`, keep email enabled. New sign-ins can create ideas because write policies allow the `authenticated` role.
+
 ## Next Hardening Pass
 
 - Add user profiles and organizations.

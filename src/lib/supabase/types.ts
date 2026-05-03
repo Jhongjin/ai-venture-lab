@@ -42,6 +42,7 @@ export type Database = {
           name: string;
         };
         Update: Partial<Database["public"]["Tables"]["ideas"]["Row"]>;
+        Relationships: [];
       };
       risks: {
         Row: {
@@ -59,6 +60,15 @@ export type Database = {
           title: string;
         };
         Update: Partial<Database["public"]["Tables"]["risks"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "risks_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       decisions: {
         Row: {
@@ -72,6 +82,15 @@ export type Database = {
           decision: DecisionStatus;
         };
         Update: Partial<Database["public"]["Tables"]["decisions"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "decisions_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       experiments: {
         Row: {
@@ -89,6 +108,15 @@ export type Database = {
           name: string;
         };
         Update: Partial<Database["public"]["Tables"]["experiments"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "experiments_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: Record<string, never>;

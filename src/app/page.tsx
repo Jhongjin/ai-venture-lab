@@ -13,6 +13,7 @@ import {
 
 import { getConsoleData, scoreIdea } from "@/lib/venture-data";
 import type { DecisionStatus, IdeaStage, RiskSeverity } from "@/lib/supabase/types";
+import { VentureConsoleActions } from "@/components/venture-console-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -104,6 +105,8 @@ export default async function Home() {
             Supabase read failed, so the console is showing seed data. Error: {error}
           </section>
         ) : null}
+
+        <VentureConsoleActions />
 
         <section className="grid gap-4 lg:grid-cols-5">
           {pipeline.map((item) => (
@@ -197,7 +200,7 @@ export default async function Home() {
                 Source: <span className="capitalize">{source}</span>
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Run the migration in `supabase/migrations` to switch from seed data to persisted portfolio data.
+                If this says seed, run the migration in `supabase/migrations` and confirm Vercel env values.
               </p>
             </div>
           </div>
@@ -259,7 +262,7 @@ export default async function Home() {
             Keep secrets out of git. Add only public anon Supabase values to client-visible variables.
           </div>
           <div className="flex items-center gap-2 font-semibold text-slate-900">
-            Next step: run Supabase migration
+            Next step: create first real idea workflow
             <ArrowRight size={16} />
           </div>
         </footer>

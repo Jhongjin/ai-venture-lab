@@ -1,0 +1,301 @@
+"use client";
+
+import { useEffect, useState, type FormEvent } from "react";
+import { LogIn, LogOut, PlusCircle, RefreshCw, ShieldCheck } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+
+type FormState = {
+  name: string;
+  one_liner: string;
+  target_user: string;
+  buyer: string;
+  signal: string;
+  risk_summary: string;
+  next_evidence: string;
+};
+
+const emptyForm: FormState = {
+  name: "",
+  one_liner: "",
+  target_user: "",
+  buyer: "",
+  signal: "",
+  risk_summary: "",
+  next_evidence: "",
+};
+
+export function VentureConsoleActions() {
+  const router = useRouter();
+  const supabase = getSupabaseBrowserClient();
+  const [email, setEmail] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+  const [authMessage, setAuthMessage] = useState<string | null>(null);
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [isAuthBusy, setIsAuthBusy] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      router.refresh();
+    });
+
+    return () => {
+      data.subscription.unsubscribe();
+    };
+  }, [router, supabase]);
+
+  async function handleSignIn(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setAuthMessage(null);
+
+    if (!supabase) {
+      setAuthMessage("Supabase environment variables are not available in this deployment.");
+      return;
+    }
+
+    if (!email.trim()) {
+      setAuthMessage("Enter an email address first.");
+      return;
+    }
+
+    setIsAuthBusy(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim(),
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    setIsAuthBusy(false);
+
+    if (error) {
+      setAuthMessage(error.message);
+      return;
+    }
+
+    setAuthMessage("Check your email for the Supabase magic link.");
+  }
+
+  async function handleSignOut() {
+    if (!supabase) {
+      return;
+    }
+
+    setIsAuthBusy(true);
+    await supabase.auth.signOut();
+    setIsAuthBusy(false);
+    setAuthMessage("Signed out.");
+  }
+
+  async function handleCreateIdea(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaveMessage(null);
+
+    if (!supabase) {
+      setSaveMessage("Supabase is not configured.");
+      return;
+    }
+
+    if (!user) {
+      setSaveMessage("Sign in before creating an idea.");
+      return;
+    }
+
+    if (!form.name.trim() || !form.one_liner.trim()) {
+      setSaveMessage("Name and one-liner are required.");
+      return;
+    }
+
+    setIsSaving(true);
+    const { error } = await supabase.from("ideas").insert({
+      name: form.name.trim(),
+      one_liner: form.one_liner.trim(),
+      target_user: form.target_user.trim(),
+      buyer: form.buyer.trim(),
+      signal: form.signal.trim(),
+      risk_summary: form.risk_summary.trim(),
+      next_evidence: form.next_evidence.trim(),
+      stage: "intake",
+      decision: "pending",
+      problem_intensity: 0,
+      frequency: 0,
+      reachability: 0,
+      willingness_to_pay: 0,
+      mvp_speed: 0,
+      differentiation: 0,
+      regulatory_risk: 0,
+    });
+    setIsSaving(false);
+
+    if (error) {
+      setSaveMessage(error.message);
+      return;
+    }
+
+    setForm(emptyForm);
+    setSaveMessage("Idea saved. Refreshing portfolio.");
+    router.refresh();
+  }
+
+  return (
+    <section className="grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
+      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-950">Operator access</h2>
+            <p className="mt-1 text-sm text-slate-500">Authenticated users can create venture lab records.</p>
+          </div>
+          <ShieldCheck className={user ? "text-emerald-600" : "text-slate-500"} size={24} />
+        </div>
+
+        {user ? (
+          <div className="grid gap-4">
+            <div className="rounded-lg bg-emerald-50 p-4">
+              <div className="text-sm font-semibold text-emerald-900">Signed in</div>
+              <div className="mt-1 break-all text-sm text-emerald-800">{user.email}</div>
+            </div>
+            <button
+              type="button"
+              onClick={handleSignOut}
+              disabled={isAuthBusy}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <LogOut size={18} />
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSignIn} className="grid gap-3">
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              Email
+              <input
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                type="email"
+                placeholder="you@example.com"
+                className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={isAuthBusy}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <LogIn size={18} />
+              Send magic link
+            </button>
+          </form>
+        )}
+
+        {authMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{authMessage}</p> : null}
+      </div>
+
+      <form onSubmit={handleCreateIdea} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-950">New idea intake</h2>
+            <p className="mt-1 text-sm text-slate-500">Capture a raw idea without jumping straight into build mode.</p>
+          </div>
+          <button
+            type="submit"
+            disabled={isSaving || !user}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
+            Save idea
+          </button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field label="Name" value={form.name} onChange={(value) => setForm({ ...form, name: value })} required />
+          <Field label="Buyer" value={form.buyer} onChange={(value) => setForm({ ...form, buyer: value })} />
+          <Field
+            label="One-liner"
+            value={form.one_liner}
+            onChange={(value) => setForm({ ...form, one_liner: value })}
+            required
+          />
+          <Field
+            label="Target user"
+            value={form.target_user}
+            onChange={(value) => setForm({ ...form, target_user: value })}
+          />
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <TextArea label="Signal" value={form.signal} onChange={(value) => setForm({ ...form, signal: value })} />
+          <TextArea
+            label="Risk summary"
+            value={form.risk_summary}
+            onChange={(value) => setForm({ ...form, risk_summary: value })}
+          />
+          <TextArea
+            label="Next evidence"
+            value={form.next_evidence}
+            onChange={(value) => setForm({ ...form, next_evidence: value })}
+          />
+        </div>
+
+        {saveMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{saveMessage}</p> : null}
+      </form>
+    </section>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  required = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+}) {
+  return (
+    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+      {label}
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        required={required}
+        className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+      />
+    </label>
+  );
+}
+
+function TextArea({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+      {label}
+      <textarea
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        rows={4}
+        className="min-h-28 resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-normal leading-6 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+      />
+    </label>
+  );
+}
