@@ -3,10 +3,12 @@ import type { Database } from "@/lib/supabase/types";
 
 export type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 export type Risk = Database["public"]["Tables"]["risks"]["Row"];
+export type Decision = Database["public"]["Tables"]["decisions"]["Row"];
 
 type ConsoleData = {
   ideas: Idea[];
   risks: Risk[];
+  decisions: Decision[];
   source: "supabase" | "seed";
   error: string | null;
 };
@@ -121,6 +123,8 @@ const seedRisks: Risk[] = [
   },
 ];
 
+const seedDecisions: Decision[] = [];
+
 export function scoreIdea(idea: Idea) {
   return (
     idea.problem_intensity +
@@ -140,28 +144,36 @@ export async function getConsoleData(): Promise<ConsoleData> {
     return {
       ideas: seedIdeas,
       risks: seedRisks,
+      decisions: seedDecisions,
       source: "seed",
       error: null,
     };
   }
 
-  const [ideasResult, risksResult] = await Promise.all([
+  const [ideasResult, risksResult, decisionsResult] = await Promise.all([
     supabase.from("ideas").select("*").order("created_at", { ascending: true }),
     supabase.from("risks").select("*").order("created_at", { ascending: true }),
+    supabase.from("decisions").select("*").order("decided_at", { ascending: false }),
   ]);
 
-  if (ideasResult.error || risksResult.error) {
+  if (ideasResult.error || risksResult.error || decisionsResult.error) {
     return {
       ideas: seedIdeas,
       risks: seedRisks,
+      decisions: seedDecisions,
       source: "seed",
-      error: ideasResult.error?.message ?? risksResult.error?.message ?? "Unknown Supabase error",
+      error:
+        ideasResult.error?.message ??
+        risksResult.error?.message ??
+        decisionsResult.error?.message ??
+        "Unknown Supabase error",
     };
   }
 
   return {
     ideas: ideasResult.data ?? [],
     risks: risksResult.data ?? [],
+    decisions: decisionsResult.data ?? [],
     source: "supabase",
     error: null,
   };

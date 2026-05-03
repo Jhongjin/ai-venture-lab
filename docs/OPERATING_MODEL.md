@@ -30,3 +30,14 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - No launch without QA and security review.
 - No sensitive feature without explicit data handling notes.
 - No factual market or regulatory claim without a source.
+
+## Console Loop
+
+The app now supports the first live operating loop:
+
+1. Create an idea through the intake form.
+2. Select it in the workbench.
+3. Score the core venture criteria.
+4. Move the stage and decision status.
+5. Attach risks.
+6. Record a decision reason.

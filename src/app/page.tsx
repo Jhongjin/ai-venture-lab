@@ -14,6 +14,7 @@ import {
 import { getConsoleData, scoreIdea } from "@/lib/venture-data";
 import type { DecisionStatus, IdeaStage, RiskSeverity } from "@/lib/supabase/types";
 import { VentureConsoleActions } from "@/components/venture-console-actions";
+import { IdeaWorkbench } from "@/components/idea-workbench";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,7 @@ const severityTone: Record<RiskSeverity, string> = {
 };
 
 export default async function Home() {
-  const { ideas, risks, source, error } = await getConsoleData();
+  const { ideas, risks, decisions, source, error } = await getConsoleData();
   const topIdea = [...ideas].sort((a, b) => scoreIdea(b) - scoreIdea(a))[0];
   const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
   const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
@@ -107,6 +108,8 @@ export default async function Home() {
         ) : null}
 
         <VentureConsoleActions />
+
+        <IdeaWorkbench initialIdeas={ideas} initialRisks={risks} initialDecisions={decisions} />
 
         <section className="grid gap-4 lg:grid-cols-5">
           {pipeline.map((item) => (

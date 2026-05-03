@@ -9,3 +9,4 @@ Use this file for durable product, architecture, and operating decisions.
 | 2026-05-03 | Use Supabase magic links for the first operator workflow | It works with the anon key, keeps writes behind `authenticated`, and avoids password handling in the first pass | Organization-scoped access is needed |
 | 2026-05-03 | Add `created_by` ownership to venture lab tables | Authenticated writes should not imply all authenticated operators can mutate every record | Multi-user organization model is added |
 | 2026-05-03 | Add password sign-in fallback for operators | Supabase built-in email delivery is rate-limited and can block early testing | Custom SMTP or OAuth is configured |
+| 2026-05-03 | Add an idea workbench before separate detail pages | Operators need one focused surface for scoring, staging, risks, and decisions before navigation complexity grows | Portfolio has enough records to need routing |
