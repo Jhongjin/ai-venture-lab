@@ -11,3 +11,4 @@ Use this file for durable product, architecture, and operating decisions.
 | 2026-05-03 | Add password sign-in fallback for operators | Supabase built-in email delivery is rate-limited and can block early testing | Custom SMTP or OAuth is configured |
 | 2026-05-03 | Add an idea workbench before separate detail pages | Operators need one focused surface for scoring, staging, risks, and decisions before navigation complexity grows | Portfolio has enough records to need routing |
 | 2026-05-03 | Show advisory score decisions and evidence gaps in the workbench | The lab should make the next action visible without pretending the score replaces judgment | Automated research or PRD generation is added |
+| 2026-05-03 | Add copyable idea brief drafts | Operators need a fast handoff from scoring to PRD/research without retyping portfolio data | Full PRD generation is implemented |

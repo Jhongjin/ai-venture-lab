@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { CheckCircle2, ClipboardList, Flag, RefreshCw, Save, ShieldAlert } from "lucide-react";
+import { CheckCircle2, Clipboard, ClipboardList, Flag, RefreshCw, Save, ShieldAlert } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -130,6 +130,54 @@ function missingEvidence(idea: Idea, state: EditState, riskCount: number) {
   return missing;
 }
 
+function buildIdeaBriefMarkdown({
+  idea,
+  state,
+  score,
+  recommendation,
+  risks,
+}: {
+  idea: Idea;
+  state: EditState;
+  score: number;
+  recommendation: DecisionStatus;
+  risks: Risk[];
+}) {
+  const riskLines =
+    risks.length > 0
+      ? risks.map((risk) => `- ${risk.title} (${risk.severity}): ${risk.mitigation || "Mitigation TBD"}`).join("\n")
+      : "- No linked risks yet.";
+
+  return `# Idea Brief: ${idea.name}
+
+## Summary
+
+- One-liner: ${idea.one_liner || "TBD"}
+- Target user: ${idea.target_user || "TBD"}
+- Buyer: ${idea.buyer || "TBD"}
+- Stage: ${stageLabels[state.stage]}
+- Decision: ${decisionLabels[state.decision]}
+- Score: ${score}
+- Suggested decision: ${decisionLabels[recommendation]}
+
+## Signal
+
+${state.signal || "TBD"}
+
+## Risk Summary
+
+${state.risk_summary || "TBD"}
+
+## Next Evidence
+
+${state.next_evidence || "TBD"}
+
+## Linked Risks
+
+${riskLines}
+`;
+}
+
 export function IdeaWorkbench({
   initialIdeas,
   initialRisks,
@@ -156,6 +204,7 @@ export function IdeaWorkbench({
   const [decisionReason, setDecisionReason] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
   const [filterMode, setFilterMode] = useState<"all" | "mine" | "read_only">("all");
 
@@ -190,6 +239,15 @@ export function IdeaWorkbench({
   const scoreRecommendation = recommendationForScore(currentScore);
   const missing =
     selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedRisks.filter((risk) => risk.idea_id).length) : [];
+  const ideaBrief = selectedIdea && editState
+    ? buildIdeaBriefMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        score: currentScore,
+        recommendation: scoreRecommendation,
+        risks: selectedRisks.filter((risk) => risk.idea_id === selectedIdea.id),
+      })
+    : "";
   const visibleIdeas = useMemo(() => {
     if (filterMode === "mine") {
       return ideas.filter((idea) => user && idea.created_by === user.id);
@@ -317,6 +375,15 @@ export function IdeaWorkbench({
     setDecisionReason("");
     setMessage("Decision recorded.");
     router.refresh();
+  }
+
+  async function copyIdeaBrief() {
+    if (!ideaBrief) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(ideaBrief);
+    setCopyMessage("Idea brief copied.");
   }
 
   if (!selectedIdea || !editState) {
@@ -639,6 +706,30 @@ export function IdeaWorkbench({
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">Idea brief draft</h2>
+              <p className="mt-1 text-sm text-slate-500">Copy this into the PRD or research workflow.</p>
+            </div>
+            <button
+              type="button"
+              onClick={copyIdeaBrief}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              <Clipboard size={18} />
+              Copy brief
+            </button>
+          </div>
+          <textarea
+            value={ideaBrief}
+            readOnly
+            rows={12}
+            className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+          />
+          {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
         </div>
 
         {message ? <p className="text-sm leading-6 text-slate-600">{message}</p> : null}
