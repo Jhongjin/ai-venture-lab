@@ -434,6 +434,42 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
+  async function updateExperimentStatus(experiment: Experiment, status: string) {
+    if (!supabase) {
+      setMessage("Supabase is not configured.");
+      return;
+    }
+
+    if (!user || experiment.created_by !== user.id) {
+      setMessage("Only the experiment owner can update this experiment.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from("experiments")
+      .update({
+        status,
+        started_at: status === "running" ? now : experiment.started_at,
+        ended_at: status === "done" ? now : experiment.ended_at,
+      })
+      .eq("id", experiment.id)
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setExperiments((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setMessage(`Experiment marked ${status}.`);
+    router.refresh();
+  }
+
   async function copyIdeaBrief() {
     if (!ideaBrief) {
       return;
@@ -780,11 +816,26 @@ export function IdeaWorkbench({
             {selectedExperiments.length > 0 ? (
               selectedExperiments.map((experiment) => (
                 <div key={experiment.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-semibold text-slate-950">{experiment.name}</span>
                     <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
                       {experiment.status}
                     </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {["planned", "running", "done"].map((status) => (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={() => updateExperimentStatus(experiment, status)}
+                          disabled={isBusy || !user || experiment.created_by !== user.id || experiment.status === status}
+                          className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {experiment.success_metric || "Success metric TBD"}
