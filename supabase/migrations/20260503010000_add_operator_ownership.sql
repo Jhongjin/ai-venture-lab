@@ -15,6 +15,19 @@ drop policy if exists "Allow authenticated writes to risks" on public.risks;
 drop policy if exists "Allow authenticated writes to decisions" on public.decisions;
 drop policy if exists "Allow authenticated writes to experiments" on public.experiments;
 
+drop policy if exists "Allow authenticated inserts to owned ideas" on public.ideas;
+drop policy if exists "Allow authenticated updates to owned ideas" on public.ideas;
+drop policy if exists "Allow authenticated deletes to owned ideas" on public.ideas;
+drop policy if exists "Allow authenticated inserts to owned risks" on public.risks;
+drop policy if exists "Allow authenticated updates to owned risks" on public.risks;
+drop policy if exists "Allow authenticated deletes to owned risks" on public.risks;
+drop policy if exists "Allow authenticated inserts to owned decisions" on public.decisions;
+drop policy if exists "Allow authenticated updates to owned decisions" on public.decisions;
+drop policy if exists "Allow authenticated deletes to owned decisions" on public.decisions;
+drop policy if exists "Allow authenticated inserts to owned experiments" on public.experiments;
+drop policy if exists "Allow authenticated updates to owned experiments" on public.experiments;
+drop policy if exists "Allow authenticated deletes to owned experiments" on public.experiments;
+
 create policy "Allow authenticated inserts to owned ideas"
 on public.ideas for insert
 to authenticated

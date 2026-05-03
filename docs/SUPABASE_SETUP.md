@@ -18,6 +18,8 @@ supabase/migrations/20260503000000_initial_harness.sql
 supabase/migrations/20260503010000_add_operator_ownership.sql
 ```
 
+The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
+
 This creates:
 
 - `ideas`
