@@ -65,6 +65,7 @@ export default async function Home() {
   const topIdea = [...ideas].sort((a, b) => scoreIdea(b) - scoreIdea(a))[0];
   const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
   const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
+  const activeExperiments = experiments.filter((experiment) => experiment.status !== "done").length;
 
   return (
     <main className="min-h-screen bg-[#f5f7fb] text-slate-950">
@@ -84,11 +85,13 @@ export default async function Home() {
               gates before launch.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:w-[560px]">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:w-[660px]">
             {[
               ["Ideas", String(ideas.length)],
               ["Open risks", String(openRisks)],
               ["High risks", String(highRisks)],
+              ["Active tests", String(activeExperiments)],
+              ["Decisions", String(decisions.length)],
               ["Data", source],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">

@@ -15,3 +15,4 @@ Use this checklist before merging meaningful changes.
 - Authenticated operators can attach an experiment name and success metric to an idea.
 - Experiment owners can move experiments through planned, running, and done states.
 - Risk owners can move risks through open, mitigating, and closed states.
+- Header metrics include idea, risk, experiment, decision, and data-source state.

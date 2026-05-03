@@ -11,6 +11,7 @@ The default UI should feel like a focused operating console.
 - Use icons for actions and state, not ornamental filler.
 - Keep text compact inside panels and buttons.
 - Use segmented controls for workbench filters such as all, mine, and read-only.
+- Header metrics should stay compact and scannable as operational objects grow.
 
 ## Visual Baseline
 
