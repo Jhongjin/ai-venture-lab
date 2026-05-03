@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Building2, Clock3, LogIn, LogOut, PlusCircle, RefreshCw, ShieldCheck, Users } from "lucide-react";
+import { Building2, Clock3, LogIn, LogOut, PlusCircle, RefreshCw, ShieldCheck, Trash2, Users } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -53,6 +53,7 @@ export function VentureConsoleActions() {
   const [isSaving, setIsSaving] = useState(false);
   const [isWorkspaceBusy, setIsWorkspaceBusy] = useState(false);
   const [isMemberBusy, setIsMemberBusy] = useState(false);
+  const [memberActionKey, setMemberActionKey] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
 
@@ -73,6 +74,10 @@ export function VentureConsoleActions() {
     [activeOrganization?.id, members],
   );
   const canManageMembers = activeMembership?.role === "owner" || activeMembership?.role === "admin";
+  const ownerCount = useMemo(
+    () => activeMembers.filter((member) => member.role === "owner").length,
+    [activeMembers],
+  );
 
   const loadAuditEvents = useCallback(
     async (organizationId: string) => {
@@ -300,6 +305,55 @@ export function VentureConsoleActions() {
     await loadWorkspaceData(user, activeOrganization.id);
   }
 
+  async function handleUpdateMemberRole(member: OrganizationMember, role: AddableOrganizationRole) {
+    setWorkspaceMessage(null);
+
+    if (!supabase || !user || !activeOrganization) {
+      setWorkspaceMessage("Select a workspace first.");
+      return;
+    }
+
+    setMemberActionKey(`${member.user_id}:role:${role}`);
+    const { error } = await supabase.rpc("update_organization_member_role", {
+      target_organization_id: activeOrganization.id,
+      target_user_id: member.user_id,
+      target_role: role,
+    });
+    setMemberActionKey(null);
+
+    if (error) {
+      setWorkspaceMessage(error.message);
+      return;
+    }
+
+    setWorkspaceMessage("Member role updated.");
+    await loadWorkspaceData(user, activeOrganization.id);
+  }
+
+  async function handleRemoveMember(member: OrganizationMember) {
+    setWorkspaceMessage(null);
+
+    if (!supabase || !user || !activeOrganization) {
+      setWorkspaceMessage("Select a workspace first.");
+      return;
+    }
+
+    setMemberActionKey(`${member.user_id}:remove`);
+    const { error } = await supabase.rpc("remove_organization_member", {
+      target_organization_id: activeOrganization.id,
+      target_user_id: member.user_id,
+    });
+    setMemberActionKey(null);
+
+    if (error) {
+      setWorkspaceMessage(error.message);
+      return;
+    }
+
+    setWorkspaceMessage("Member removed.");
+    await loadWorkspaceData(user, activeOrganization.id);
+  }
+
   async function handleCreateIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaveMessage(null);
@@ -481,11 +535,56 @@ export function VentureConsoleActions() {
                 <div className="grid gap-2">
                   {activeMembers.map((member) => (
                     <div key={`${member.organization_id}-${member.user_id}`} className="rounded-md bg-slate-50 p-3">
-                      <div className="break-all text-sm font-semibold text-slate-950">
-                        {member.email || member.user_id}
-                      </div>
-                      <div className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        {member.role}
+                      <div className="flex flex-col gap-3">
+                        <div>
+                          <div className="break-all text-sm font-semibold text-slate-950">
+                            {member.email || member.user_id}
+                          </div>
+                          <div className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                            {member.role}
+                            {member.user_id === user.id ? " / you" : ""}
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {memberRoles.map((role) => {
+                            const actionKey = `${member.user_id}:role:${role}`;
+                            const isLastOwner = member.role === "owner" && ownerCount <= 1;
+
+                            return (
+                              <button
+                                key={role}
+                                type="button"
+                                onClick={() => {
+                                  void handleUpdateMemberRole(member, role);
+                                }}
+                                disabled={
+                                  !canManageMembers ||
+                                  member.role === role ||
+                                  isLastOwner ||
+                                  memberActionKey === actionKey
+                                }
+                                className="inline-flex h-8 items-center justify-center rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                              >
+                                {memberActionKey === actionKey ? "..." : role}
+                              </button>
+                            );
+                          })}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void handleRemoveMember(member);
+                            }}
+                            disabled={
+                              !canManageMembers ||
+                              (member.role === "owner" && ownerCount <= 1) ||
+                              memberActionKey === `${member.user_id}:remove`
+                            }
+                            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-white px-2.5 text-xs font-semibold text-rose-700 shadow-sm transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-45"
+                          >
+                            <Trash2 size={13} />
+                            {memberActionKey === `${member.user_id}:remove` ? "..." : "Remove"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}

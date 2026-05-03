@@ -204,6 +204,21 @@ export type Database = {
         };
         Returns: Database["public"]["Tables"]["organization_members"]["Row"];
       };
+      remove_organization_member: {
+        Args: {
+          target_organization_id: string;
+          target_user_id: string;
+        };
+        Returns: undefined;
+      };
+      update_organization_member_role: {
+        Args: {
+          target_organization_id: string;
+          target_user_id: string;
+          target_role: OrganizationRole;
+        };
+        Returns: Database["public"]["Tables"]["organization_members"]["Row"];
+      };
       default_organization_id: {
         Args: Record<string, never>;
         Returns: string | null;
