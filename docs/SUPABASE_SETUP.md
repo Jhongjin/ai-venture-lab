@@ -15,6 +15,7 @@ Run the SQL in:
 
 ```text
 supabase/migrations/20260503000000_initial_harness.sql
+supabase/migrations/20260503010000_add_operator_ownership.sql
 ```
 
 This creates:
@@ -29,7 +30,8 @@ This creates:
 The initial migration enables RLS on every table.
 
 - Public read is allowed so the deployed console can render portfolio state.
-- Writes are limited to authenticated users.
+- Inserts are limited to authenticated users.
+- Updates and deletes are limited to rows created by the same authenticated user.
 - Before storing sensitive care, finance, inheritance, or psychological coaching data, tighten policies around project membership and user ownership.
 
 ## Auth Setup

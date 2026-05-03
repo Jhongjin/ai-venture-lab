@@ -7,4 +7,4 @@
 | Weak idea validation | Product | Medium | Require idea brief, score gate, and decision log before build | Open |
 | Secret exposure | Security | High | Keep `.env*` ignored except `.env.example`; review Vercel/Supabase env handling | Open |
 | Agent drift | Operations | Medium | Keep `AGENTS.md` short; store durable docs in `docs/`; run harness checks | Open |
-| Broad authenticated write policy | Security | Medium | Keep the project private for now; add organization/user ownership before storing sensitive data | Open |
+| Broad authenticated write policy | Security | Medium | Operator ownership policies now restrict updates and deletes to the row creator; add organization ownership before sensitive data | Mitigating |

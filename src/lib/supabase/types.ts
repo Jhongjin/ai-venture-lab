@@ -35,6 +35,7 @@ export type Database = {
           signal: string;
           risk_summary: string;
           next_evidence: string;
+          created_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -53,6 +54,7 @@ export type Database = {
           severity: RiskSeverity;
           mitigation: string;
           status: string;
+          created_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -76,6 +78,7 @@ export type Database = {
           idea_id: string | null;
           decision: DecisionStatus;
           reason: string;
+          created_by: string | null;
           decided_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["decisions"]["Row"]> & {
@@ -101,6 +104,7 @@ export type Database = {
           success_metric: string;
           started_at: string | null;
           ended_at: string | null;
+          created_by: string | null;
           created_at: string;
           updated_at: string;
         };
