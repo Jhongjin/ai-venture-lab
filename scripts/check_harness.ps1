@@ -7,10 +7,12 @@ $required = @(
   "docs/DECISION_LOG.md",
   "docs/RISK_REGISTER.md",
   "docs/QA_CHECKLIST.md",
+  "docs/SUPABASE_SETUP.md",
   "templates/IDEA_BRIEF.md",
   "templates/PRD.md",
   "templates/MVP_SPEC.md",
-  ".env.example"
+  ".env.example",
+  "supabase/migrations/20260503000000_initial_harness.sql"
 )
 
 $missing = @()

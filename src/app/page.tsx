@@ -3,6 +3,7 @@ import {
   ArrowRight,
   BadgeCheck,
   ClipboardCheck,
+  Database,
   FlaskConical,
   GitBranch,
   LockKeyhole,
@@ -10,33 +11,17 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const pipeline = [
+import { getConsoleData, scoreIdea } from "@/lib/venture-data";
+import type { DecisionStatus, IdeaStage, RiskSeverity } from "@/lib/supabase/types";
+
+export const dynamic = "force-dynamic";
+
+const pipeline: Array<{ label: string; value: string; tone: string }> = [
   { label: "Intake", value: "Idea brief", tone: "bg-blue-50 text-blue-700" },
   { label: "Research", value: "Market + risk", tone: "bg-emerald-50 text-emerald-700" },
   { label: "Score", value: "Kill or promote", tone: "bg-amber-50 text-amber-700" },
   { label: "Prototype", value: "MVP surface", tone: "bg-rose-50 text-rose-700" },
   { label: "Gate", value: "QA + security", tone: "bg-violet-50 text-violet-700" },
-];
-
-const ideas = [
-  {
-    name: "Care ops console",
-    stage: "Research",
-    signal: "High structural demand, regulated workflow",
-    risk: "Long-term care rules and PII handling",
-  },
-  {
-    name: "Conversation coach",
-    stage: "Score",
-    signal: "Fast MVP, clear daily utility",
-    risk: "Must avoid therapy or legal advice claims",
-  },
-  {
-    name: "Subscription agent",
-    stage: "Intake",
-    signal: "Clear money-saving hook",
-    risk: "Account access, payment data, consent",
-  },
 ];
 
 const gates = [
@@ -47,7 +32,38 @@ const gates = [
   "Prototype has a verification path",
 ];
 
-export default function Home() {
+const stageLabels: Record<IdeaStage, string> = {
+  intake: "Intake",
+  research: "Research",
+  score: "Score",
+  prd: "PRD",
+  prototype: "Prototype",
+  qa: "QA",
+  launch: "Launch",
+  paused: "Paused",
+};
+
+const decisionLabels: Record<DecisionStatus, string> = {
+  ship: "Ship",
+  pivot: "Pivot",
+  kill: "Kill",
+  research_more: "Research",
+  pending: "Pending",
+};
+
+const severityTone: Record<RiskSeverity, string> = {
+  low: "bg-slate-100 text-slate-700",
+  medium: "bg-amber-100 text-amber-800",
+  high: "bg-rose-100 text-rose-800",
+  critical: "bg-red-600 text-white",
+};
+
+export default async function Home() {
+  const { ideas, risks, source, error } = await getConsoleData();
+  const topIdea = [...ideas].sort((a, b) => scoreIdea(b) - scoreIdea(a))[0];
+  const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
+  const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
+
   return (
     <main className="min-h-screen bg-[#f5f7fb] text-slate-950">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-6 sm:px-8 lg:px-10">
@@ -66,22 +82,28 @@ export default function Home() {
               gates before launch.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:w-[520px]">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:w-[560px]">
             {[
-              ["Ideas", "3"],
-              ["Active gates", "5"],
-              ["Skills", "8"],
-              ["Decision", "pending"],
+              ["Ideas", String(ideas.length)],
+              ["Open risks", String(openRisks)],
+              ["High risks", String(highRisks)],
+              ["Data", source],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                   {label}
                 </div>
-                <div className="mt-2 text-2xl font-semibold text-slate-950">{value}</div>
+                <div className="mt-2 text-2xl font-semibold capitalize text-slate-950">{value}</div>
               </div>
             ))}
           </div>
         </header>
+
+        {error ? (
+          <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            Supabase read failed, so the console is showing seed data. Error: {error}
+          </section>
+        ) : null}
 
         <section className="grid gap-4 lg:grid-cols-5">
           {pipeline.map((item) => (
@@ -106,17 +128,26 @@ export default function Home() {
             <div className="grid gap-3">
               {ideas.map((idea) => (
                 <article
-                  key={idea.name}
-                  className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[1fr_120px]"
+                  key={idea.id}
+                  className="grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[1fr_132px]"
                 >
                   <div>
-                    <h3 className="text-base font-semibold text-slate-950">{idea.name}</h3>
-                    <p className="mt-2 text-sm text-slate-600">{idea.signal}</p>
-                    <p className="mt-1 text-sm text-slate-500">Risk: {idea.risk}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-base font-semibold text-slate-950">{idea.name}</h3>
+                      <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                        {decisionLabels[idea.decision]}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-600">{idea.signal || idea.one_liner}</p>
+                    <p className="mt-1 text-sm text-slate-500">Risk: {idea.risk_summary}</p>
+                    <p className="mt-1 text-sm text-slate-500">Next: {idea.next_evidence}</p>
                   </div>
-                  <div className="flex items-start md:justify-end">
+                  <div className="flex items-start gap-2 md:flex-col md:items-end">
                     <span className="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm">
-                      {idea.stage}
+                      {stageLabels[idea.stage]}
+                    </span>
+                    <span className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm">
+                      Score {scoreIdea(idea)}
                     </span>
                   </div>
                 </article>
@@ -137,6 +168,61 @@ export default function Home() {
                 <div key={gate} className="flex items-start gap-3 rounded-lg bg-white/7 p-3">
                   <BadgeCheck className="mt-0.5 shrink-0 text-emerald-300" size={18} />
                   <span className="text-sm leading-6 text-slate-100">{gate}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 rounded-lg bg-white/7 p-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
+                Current leader
+              </div>
+              <div className="mt-2 text-lg font-semibold">{topIdea?.name ?? "No idea yet"}</div>
+              <div className="mt-1 text-sm text-slate-300">
+                {topIdea ? `Score ${scoreIdea(topIdea)} with ${decisionLabels[topIdea.decision]} decision` : "Add an idea to start scoring."}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-950">Data connection</h2>
+                <p className="mt-1 text-sm text-slate-500">The console reads Supabase when env and schema are ready.</p>
+              </div>
+              <Database className={source === "supabase" ? "text-emerald-600" : "text-slate-500"} size={24} />
+            </div>
+            <div className="rounded-lg bg-slate-50 p-4">
+              <div className="text-sm font-semibold text-slate-950">
+                Source: <span className="capitalize">{source}</span>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Run the migration in `supabase/migrations` to switch from seed data to persisted portfolio data.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-950">Risk register</h2>
+                <p className="mt-1 text-sm text-slate-500">Launch blockers stay visible from the first prototype.</p>
+              </div>
+              <ShieldCheck className="text-emerald-600" size={24} />
+            </div>
+            <div className="grid gap-3">
+              {risks.map((risk) => (
+                <div key={risk.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-sm font-semibold text-slate-950">{risk.title}</h3>
+                    <span className={`rounded-md px-2 py-1 text-xs font-semibold ${severityTone[risk.severity]}`}>
+                      {risk.severity}
+                    </span>
+                    <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                      {risk.status}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{risk.mitigation}</p>
                 </div>
               ))}
             </div>
@@ -170,10 +256,10 @@ export default function Home() {
         <footer className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <LockKeyhole size={18} className="text-slate-500" />
-            Keep secrets out of git. Add Supabase values in Vercel environment variables.
+            Keep secrets out of git. Add only public anon Supabase values to client-visible variables.
           </div>
           <div className="flex items-center gap-2 font-semibold text-slate-900">
-            Next step: connect Vercel + Supabase
+            Next step: run Supabase migration
             <ArrowRight size={16} />
           </div>
         </footer>
