@@ -10,6 +10,7 @@ The default UI should feel like a focused operating console.
 - No decorative gradient blobs.
 - Use icons for actions and state, not ornamental filler.
 - Keep text compact inside panels and buttons.
+- Use segmented controls for workbench filters such as all, mine, and read-only.
 
 ## Visual Baseline
 

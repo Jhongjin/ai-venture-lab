@@ -111,6 +111,7 @@ export function IdeaWorkbench({
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+  const [filterMode, setFilterMode] = useState<"all" | "mine" | "read_only">("all");
 
   useEffect(() => {
     if (!supabase) {
@@ -139,6 +140,17 @@ export function IdeaWorkbench({
   );
 
   const canEdit = Boolean(user && selectedIdea?.created_by === user.id);
+  const visibleIdeas = useMemo(() => {
+    if (filterMode === "mine") {
+      return ideas.filter((idea) => user && idea.created_by === user.id);
+    }
+
+    if (filterMode === "read_only") {
+      return ideas.filter((idea) => !user || idea.created_by !== user.id);
+    }
+
+    return ideas;
+  }, [filterMode, ideas, user]);
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -272,8 +284,31 @@ export function IdeaWorkbench({
           <ClipboardList className="text-blue-600" size={24} />
         </div>
 
+        <div className="mb-4 grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
+          {[
+            ["all", "All"],
+            ["mine", "Mine"],
+            ["read_only", "Read-only"],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
+              className={`h-9 rounded-md text-sm font-semibold transition ${
+                filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-600 hover:text-slate-950"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="grid gap-3">
-          {ideas.map((idea) => (
+          {visibleIdeas.length > 0 ? (
+            visibleIdeas.map((idea) => {
+              const isOwned = Boolean(user && idea.created_by === user.id);
+
+              return (
             <button
               key={idea.id}
               type="button"
@@ -289,13 +324,28 @@ export function IdeaWorkbench({
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="font-semibold text-slate-950">{idea.name}</span>
-                <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
-                  {stageLabels[idea.stage]}
-                </span>
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                    {stageLabels[idea.stage]}
+                  </span>
+                  <span
+                    className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
+                      isOwned ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    {isOwned ? "Editable" : "Read-only"}
+                  </span>
+                </div>
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
             </button>
-          ))}
+              );
+            })
+          ) : (
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+              No ideas match this filter yet.
+            </div>
+          )}
         </div>
       </div>
 
@@ -305,7 +355,9 @@ export function IdeaWorkbench({
             <div>
               <h2 className="text-xl font-semibold text-slate-950">{selectedIdea.name}</h2>
               <p className="mt-1 text-sm text-slate-500">
-                {canEdit ? "Editable by current operator." : "Read-only unless you created this idea."}
+                {canEdit
+                  ? "Editable by current operator."
+                  : "Read-only unless you created this idea. Create a fresh idea to score it directly."}
               </p>
             </div>
             <button
