@@ -66,6 +66,7 @@ export default async function Home() {
   const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
   const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
   const activeExperiments = experiments.filter((experiment) => experiment.status !== "done").length;
+  const workspaceIdeas = ideas.filter((idea) => idea.organization_id).length;
 
   return (
     <main className="min-h-screen bg-[#f5f7fb] text-slate-950">
@@ -88,10 +89,10 @@ export default async function Home() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:w-[660px]">
             {[
               ["Ideas", String(ideas.length)],
+              ["Workspace", `${workspaceIdeas}/${ideas.length}`],
               ["Open risks", String(openRisks)],
               ["High risks", String(highRisks)],
               ["Active tests", String(activeExperiments)],
-              ["Decisions", String(decisions.length)],
               ["Data", source],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -150,6 +151,13 @@ export default async function Home() {
                       <h3 className="text-base font-semibold text-slate-950">{idea.name}</h3>
                       <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
                         {decisionLabels[idea.decision]}
+                      </span>
+                      <span
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm ${
+                          idea.organization_id ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {idea.organization_id ? "Workspace" : "Personal"}
                       </span>
                     </div>
                     <p className="mt-2 text-sm text-slate-600">{idea.signal || idea.one_liner}</p>
@@ -234,6 +242,13 @@ export default async function Home() {
                     </span>
                     <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
                       {risk.status}
+                    </span>
+                    <span
+                      className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                        risk.organization_id ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                      }`}
+                    >
+                      {risk.organization_id ? "Workspace" : "Personal"}
                     </span>
                   </div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{risk.mitigation}</p>
