@@ -44,10 +44,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
 ## Supabase
 
-Run the initial SQL migration in your Supabase SQL editor:
+Run the bootstrap SQL in your Supabase SQL editor:
 
 ```text
-supabase/migrations/20260503000000_initial_harness.sql
+supabase/bootstrap.sql
 ```
 
 The app falls back to seed data when Supabase is not configured or the schema has not been applied yet.

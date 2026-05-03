@@ -9,9 +9,19 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
 
-## Initial Schema
+## Recommended SQL Editor Setup
 
-Run the SQL in:
+For manual setup in Supabase SQL Editor, run the full bootstrap file:
+
+```text
+supabase/bootstrap.sql
+```
+
+This file is safe to re-run. It creates missing types, tables, triggers, policies, and seed rows without duplicating the seed data.
+
+## Migration Files
+
+If you are applying migrations manually instead of using the bootstrap file, run them in this order:
 
 ```text
 supabase/migrations/20260503000000_initial_harness.sql
