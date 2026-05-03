@@ -26,9 +26,11 @@ If you are applying migrations manually instead of using the bootstrap file, run
 ```text
 supabase/migrations/20260503000000_initial_harness.sql
 supabase/migrations/20260503010000_add_operator_ownership.sql
+supabase/migrations/20260503020000_add_organization_access_model.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
+The organization access migration is also safe to re-run. It adds team boundaries, membership helpers, and audit logging without removing the current public-read console behavior.
 
 This creates:
 
@@ -36,6 +38,9 @@ This creates:
 - `risks`
 - `decisions`
 - `experiments`
+- `organizations`
+- `organization_members`
+- `audit_events`
 
 ## RLS Posture
 
@@ -43,8 +48,8 @@ The initial migration enables RLS on every table.
 
 - Public read is allowed so the deployed console can render portfolio state.
 - Inserts are limited to authenticated users.
-- Updates and deletes are limited to rows created by the same authenticated user.
-- Before storing sensitive care, finance, inheritance, or psychological coaching data, tighten policies around project membership and user ownership.
+- Updates and deletes are limited to row owners, with organization admin support once a row is attached to an organization.
+- Before storing sensitive care, finance, inheritance, or psychological coaching data, remove public read and require organization membership for every read.
 
 ## Auth Setup
 
@@ -79,7 +84,8 @@ For production or repeated testing with email links, configure custom SMTP in Su
 
 ## Next Hardening Pass
 
-- Add user profiles and organizations.
-- Replace public read with organization-scoped read.
-- Add audit events for idea, risk, and decision changes.
+- Add user profiles and invitation flow.
+- Replace public read with organization-scoped authenticated reads.
 - Add deletion and retention rules before collecting real personal data.
+
+See `docs/ACCESS_MODEL.md` for the organization bootstrap query and the hardening path.

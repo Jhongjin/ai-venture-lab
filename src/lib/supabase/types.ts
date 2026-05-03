@@ -12,6 +12,7 @@ export type IdeaStage =
 
 export type DecisionStatus = "ship" | "pivot" | "kill" | "research_more" | "pending";
 export type RiskSeverity = "low" | "medium" | "high" | "critical";
+export type OrganizationRole = "owner" | "admin" | "member" | "viewer";
 
 export type Database = {
   public: {
@@ -35,6 +36,7 @@ export type Database = {
           signal: string;
           risk_summary: string;
           next_evidence: string;
+          organization_id: string | null;
           created_by: string | null;
           created_at: string;
           updated_at: string;
@@ -54,6 +56,7 @@ export type Database = {
           severity: RiskSeverity;
           mitigation: string;
           status: string;
+          organization_id: string | null;
           created_by: string | null;
           created_at: string;
           updated_at: string;
@@ -78,6 +81,7 @@ export type Database = {
           idea_id: string | null;
           decision: DecisionStatus;
           reason: string;
+          organization_id: string | null;
           created_by: string | null;
           decided_at: string;
         };
@@ -104,6 +108,7 @@ export type Database = {
           success_metric: string;
           started_at: string | null;
           ended_at: string | null;
+          organization_id: string | null;
           created_by: string | null;
           created_at: string;
           updated_at: string;
@@ -122,13 +127,92 @@ export type Database = {
           },
         ];
       };
+      organizations: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["organizations"]["Row"]> & {
+          name: string;
+          slug: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["organizations"]["Row"]>;
+        Relationships: [];
+      };
+      organization_members: {
+        Row: {
+          organization_id: string;
+          user_id: string;
+          role: OrganizationRole;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["organization_members"]["Row"]> & {
+          organization_id: string;
+          user_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["organization_members"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      audit_events: {
+        Row: {
+          id: string;
+          organization_id: string | null;
+          actor_id: string | null;
+          entity_table: string;
+          entity_id: string | null;
+          action: string;
+          summary: string;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["audit_events"]["Row"]> & {
+          entity_table: string;
+          action: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["audit_events"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "audit_events_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      default_organization_id: {
+        Args: Record<string, never>;
+        Returns: string | null;
+      };
+      is_organization_admin: {
+        Args: { target_organization_id: string };
+        Returns: boolean;
+      };
+      is_organization_member: {
+        Args: { target_organization_id: string };
+        Returns: boolean;
+      };
+    };
     Enums: {
       idea_stage: IdeaStage;
       decision_status: DecisionStatus;
       risk_severity: RiskSeverity;
+      organization_role: OrganizationRole;
     };
     CompositeTypes: Record<string, never>;
   };
