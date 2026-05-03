@@ -4,11 +4,13 @@ import type { Database } from "@/lib/supabase/types";
 export type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 export type Risk = Database["public"]["Tables"]["risks"]["Row"];
 export type Decision = Database["public"]["Tables"]["decisions"]["Row"];
+export type Experiment = Database["public"]["Tables"]["experiments"]["Row"];
 
 type ConsoleData = {
   ideas: Idea[];
   risks: Risk[];
   decisions: Decision[];
+  experiments: Experiment[];
   source: "supabase" | "seed";
   error: string | null;
 };
@@ -124,6 +126,7 @@ const seedRisks: Risk[] = [
 ];
 
 const seedDecisions: Decision[] = [];
+const seedExperiments: Experiment[] = [];
 
 export function scoreIdea(idea: Idea) {
   return (
@@ -145,27 +148,31 @@ export async function getConsoleData(): Promise<ConsoleData> {
       ideas: seedIdeas,
       risks: seedRisks,
       decisions: seedDecisions,
+      experiments: seedExperiments,
       source: "seed",
       error: null,
     };
   }
 
-  const [ideasResult, risksResult, decisionsResult] = await Promise.all([
+  const [ideasResult, risksResult, decisionsResult, experimentsResult] = await Promise.all([
     supabase.from("ideas").select("*").order("created_at", { ascending: true }),
     supabase.from("risks").select("*").order("created_at", { ascending: true }),
     supabase.from("decisions").select("*").order("decided_at", { ascending: false }),
+    supabase.from("experiments").select("*").order("created_at", { ascending: false }),
   ]);
 
-  if (ideasResult.error || risksResult.error || decisionsResult.error) {
+  if (ideasResult.error || risksResult.error || decisionsResult.error || experimentsResult.error) {
     return {
       ideas: seedIdeas,
       risks: seedRisks,
       decisions: seedDecisions,
+      experiments: seedExperiments,
       source: "seed",
       error:
         ideasResult.error?.message ??
         risksResult.error?.message ??
         decisionsResult.error?.message ??
+        experimentsResult.error?.message ??
         "Unknown Supabase error",
     };
   }
@@ -174,6 +181,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
     ideas: ideasResult.data ?? [],
     risks: risksResult.data ?? [],
     decisions: decisionsResult.data ?? [],
+    experiments: experimentsResult.data ?? [],
     source: "supabase",
     error: null,
   };

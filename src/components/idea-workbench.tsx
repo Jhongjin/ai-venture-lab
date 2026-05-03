@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { CheckCircle2, Clipboard, ClipboardList, Flag, RefreshCw, Save, ShieldAlert } from "lucide-react";
+import { Beaker, CheckCircle2, Clipboard, ClipboardList, Flag, RefreshCw, Save, ShieldAlert } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Decision, Idea, Risk } from "@/lib/venture-data";
+import type { Decision, Experiment, Idea, Risk } from "@/lib/venture-data";
 import type { DecisionStatus, IdeaStage, RiskSeverity } from "@/lib/supabase/types";
 
 const stages: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
@@ -53,6 +53,11 @@ type RiskDraft = {
   area: string;
   severity: RiskSeverity;
   mitigation: string;
+};
+
+type ExperimentDraft = {
+  name: string;
+  success_metric: string;
 };
 
 function toEditState(idea: Idea): EditState {
@@ -182,16 +187,19 @@ export function IdeaWorkbench({
   initialIdeas,
   initialRisks,
   initialDecisions,
+  initialExperiments,
 }: {
   initialIdeas: Idea[];
   initialRisks: Risk[];
   initialDecisions: Decision[];
+  initialExperiments: Experiment[];
 }) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
   const [ideas, setIdeas] = useState(initialIdeas);
   const [risks, setRisks] = useState(initialRisks);
   const [decisionLog, setDecisionLog] = useState(initialDecisions);
+  const [experiments, setExperiments] = useState(initialExperiments);
   const [selectedIdeaId, setSelectedIdeaId] = useState(initialIdeas[0]?.id ?? "");
   const selectedIdea = ideas.find((idea) => idea.id === selectedIdeaId) ?? ideas[0] ?? null;
   const [editState, setEditState] = useState<EditState | null>(selectedIdea ? toEditState(selectedIdea) : null);
@@ -202,6 +210,7 @@ export function IdeaWorkbench({
     mitigation: "",
   });
   const [decisionReason, setDecisionReason] = useState("");
+  const [experimentDraft, setExperimentDraft] = useState<ExperimentDraft>({ name: "", success_metric: "" });
   const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
@@ -232,6 +241,11 @@ export function IdeaWorkbench({
   const selectedDecisions = useMemo(
     () => decisionLog.filter((entry) => entry.idea_id === selectedIdea?.id).slice(0, 4),
     [decisionLog, selectedIdea?.id],
+  );
+
+  const selectedExperiments = useMemo(
+    () => experiments.filter((experiment) => experiment.idea_id === selectedIdea?.id).slice(0, 5),
+    [experiments, selectedIdea?.id],
   );
 
   const canEdit = Boolean(user && selectedIdea?.created_by === user.id);
@@ -374,6 +388,49 @@ export function IdeaWorkbench({
     setDecisionLog((current) => [decisionResult.data, ...current]);
     setDecisionReason("");
     setMessage("Decision recorded.");
+    router.refresh();
+  }
+
+  async function addExperiment(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!supabase || !selectedIdea) {
+      setMessage("Select an idea first.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("Sign in before adding experiments.");
+      return;
+    }
+
+    if (!experimentDraft.name.trim()) {
+      setMessage("Experiment name is required.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("experiments")
+      .insert({
+        idea_id: selectedIdea.id,
+        name: experimentDraft.name.trim(),
+        success_metric: experimentDraft.success_metric.trim(),
+        status: "planned",
+      })
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setExperiments((current) => [data, ...current]);
+    setExperimentDraft({ name: "", success_metric: "" });
+    setMessage("Experiment added.");
     router.refresh();
   }
 
@@ -688,6 +745,57 @@ export function IdeaWorkbench({
                 )}
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">Experiment plan</h2>
+              <p className="mt-1 text-sm text-slate-500">Define the next smallest test for the selected idea.</p>
+            </div>
+            <Beaker className="text-violet-600" size={22} />
+          </div>
+          <form onSubmit={addExperiment} className="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
+            <InputField
+              label="Experiment"
+              value={experimentDraft.name}
+              onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
+            />
+            <InputField
+              label="Success metric"
+              value={experimentDraft.success_metric}
+              onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
+            />
+            <button
+              type="submit"
+              disabled={isBusy || !user}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-violet-600 px-4 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Beaker size={18} />
+              Add test
+            </button>
+          </form>
+          <div className="mt-4 grid gap-3">
+            {selectedExperiments.length > 0 ? (
+              selectedExperiments.map((experiment) => (
+                <div key={experiment.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-950">{experiment.name}</span>
+                    <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                      {experiment.status}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {experiment.success_metric || "Success metric TBD"}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                No experiments attached yet.
+              </div>
+            )}
           </div>
         </div>
 

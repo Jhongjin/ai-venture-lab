@@ -12,3 +12,4 @@ Use this checklist before merging meaningful changes.
 - Decision log is updated for major changes.
 - Authenticated operators can create an idea and then update its stage, score, risks, and decision records.
 - Workbench clearly marks which ideas are editable by the current operator and which are read-only.
+- Authenticated operators can attach an experiment name and success metric to an idea.
