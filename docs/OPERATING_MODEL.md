@@ -41,3 +41,4 @@ The app now supports the first live operating loop:
 4. Move the stage and decision status.
 5. Attach risks.
 6. Record a decision reason.
+7. Use the suggested decision and evidence gaps as an advisory gate before PRD.

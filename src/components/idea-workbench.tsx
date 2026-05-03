@@ -84,6 +84,52 @@ function scoreState(state: EditState) {
   );
 }
 
+function recommendationForScore(score: number): DecisionStatus {
+  if (score >= 22) {
+    return "ship";
+  }
+
+  if (score >= 15) {
+    return "research_more";
+  }
+
+  if (score >= 9) {
+    return "pivot";
+  }
+
+  return "kill";
+}
+
+function missingEvidence(idea: Idea, state: EditState, riskCount: number) {
+  const missing = [];
+
+  if (!idea.one_liner.trim()) {
+    missing.push("one-liner");
+  }
+
+  if (!idea.target_user.trim()) {
+    missing.push("target user");
+  }
+
+  if (!idea.buyer.trim()) {
+    missing.push("buyer");
+  }
+
+  if (!state.signal.trim()) {
+    missing.push("signal");
+  }
+
+  if (!state.next_evidence.trim()) {
+    missing.push("next evidence");
+  }
+
+  if (riskCount === 0) {
+    missing.push("linked risk");
+  }
+
+  return missing;
+}
+
 export function IdeaWorkbench({
   initialIdeas,
   initialRisks,
@@ -140,6 +186,10 @@ export function IdeaWorkbench({
   );
 
   const canEdit = Boolean(user && selectedIdea?.created_by === user.id);
+  const currentScore = editState ? scoreState(editState) : 0;
+  const scoreRecommendation = recommendationForScore(currentScore);
+  const missing =
+    selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedRisks.filter((risk) => risk.idea_id).length) : [];
   const visibleIdeas = useMemo(() => {
     if (filterMode === "mine") {
       return ideas.filter((idea) => user && idea.created_by === user.id);
@@ -434,7 +484,37 @@ export function IdeaWorkbench({
             />
             <div className="rounded-lg bg-blue-50 p-4">
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">Score</div>
-              <div className="mt-2 text-3xl font-semibold text-blue-950">{scoreState(editState)}</div>
+              <div className="mt-2 text-3xl font-semibold text-blue-950">{currentScore}</div>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[0.65fr_1.35fr]">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Suggested decision
+              </div>
+              <div className="mt-2 text-2xl font-semibold text-slate-950">
+                {decisionLabels[scoreRecommendation]}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                The score gate is advisory. Record the final decision only after reviewing evidence and risk.
+              </p>
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-slate-950">Evidence gaps</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {missing.length > 0 ? (
+                  missing.map((item) => (
+                    <span key={item} className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-amber-800">
+                      {item}
+                    </span>
+                  ))
+                ) : (
+                  <span className="rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                    Ready for PRD review
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
