@@ -27,10 +27,12 @@ If you are applying migrations manually instead of using the bootstrap file, run
 supabase/migrations/20260503000000_initial_harness.sql
 supabase/migrations/20260503010000_add_operator_ownership.sql
 supabase/migrations/20260503020000_add_organization_access_model.sql
+supabase/migrations/20260503030000_private_workspace_reads.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
 The organization access migration is also safe to re-run. It adds team boundaries, membership helpers, and audit logging without removing the current public-read console behavior.
+The private workspace reads migration removes anonymous reads and requires an authenticated owner, global seed row, or organization membership to read portfolio records.
 
 This creates:
 
@@ -46,7 +48,8 @@ This creates:
 
 The initial migration enables RLS on every table.
 
-- Public read is allowed so the deployed console can render portfolio state.
+- Public read is allowed until `20260503030000_private_workspace_reads.sql` is applied.
+- After the private read migration, authenticated users can read rows they own, global seed rows, and rows in their organizations.
 - Inserts are limited to authenticated users.
 - Updates and deletes are limited to row owners, with organization admin support once a row is attached to an organization.
 - Before storing sensitive care, finance, inheritance, or psychological coaching data, remove public read and require organization membership for every read.
@@ -85,7 +88,7 @@ For production or repeated testing with email links, configure custom SMTP in Su
 ## Next Hardening Pass
 
 - Add user profiles and invitation flow.
-- Replace public read with organization-scoped authenticated reads.
+- Replace global seed visibility with explicit workspace-owned seed data.
 - Add deletion and retention rules before collecting real personal data.
 
 See `docs/ACCESS_MODEL.md` for the organization bootstrap query and the hardening path.

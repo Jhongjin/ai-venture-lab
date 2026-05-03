@@ -4,7 +4,8 @@ The venture lab starts with one operator, but the data model is prepared for tea
 
 ## Current Production Posture
 
-- Public reads are still enabled for portfolio tables so the deployed console can render before authenticated server-side reads are added.
+- Public reads are enabled until `20260503030000_private_workspace_reads.sql` is applied.
+- After the private read migration, server rendering uses Supabase SSR cookies so logged-in operators can read rows through authenticated RLS.
 - Authenticated writes require row ownership through `created_by = auth.uid()`.
 - Organization fields are additive. Existing rows can remain personal with `organization_id = null`.
 - Audit events are generated for idea, risk, decision, and experiment inserts, updates, and deletes after the organization migration is applied.
@@ -19,17 +20,17 @@ The venture lab starts with one operator, but the data model is prepared for tea
 
 Near-term:
 
-1. Keep public reads while the app is a public portfolio console.
-2. Attach new records to the operator's default organization when one exists.
-3. Let owners/admins manage records in their organization.
-4. Preserve personal rows for early single-operator testing.
+1. Attach new records to the operator's default organization when one exists.
+2. Let owners/admins manage records in their organization.
+3. Preserve global seed rows for early orientation.
+4. Keep personal rows readable only by their owner.
 
 Hardening pass before sensitive data:
 
-1. Move portfolio reads behind authenticated Supabase session context.
-2. Remove public read policies from `ideas`, `risks`, `decisions`, and `experiments`.
-3. Scope all reads to organization membership.
-4. Add invite flow, member removal, and retention rules.
+1. Attach or remove global seed rows.
+2. Scope every real row to organization membership.
+3. Add invite flow, member removal, and retention rules.
+4. Add admin-only audit export.
 
 ## Manual Operator Bootstrap
 

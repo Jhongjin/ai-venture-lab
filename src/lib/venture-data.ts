@@ -147,7 +147,7 @@ export function scoreIdea(idea: Idea) {
 }
 
 export async function getConsoleData(): Promise<ConsoleData> {
-  const supabase = getSupabaseServerClient();
+  const supabase = await getSupabaseServerClient();
 
   if (!supabase) {
     return {
