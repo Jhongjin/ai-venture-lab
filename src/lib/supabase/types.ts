@@ -148,6 +148,7 @@ export type Database = {
           organization_id: string;
           user_id: string;
           role: OrganizationRole;
+          email: string | null;
           created_at: string;
         };
         Insert: Partial<Database["public"]["Tables"]["organization_members"]["Row"]> & {
@@ -195,6 +196,14 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      add_organization_member_by_email: {
+        Args: {
+          target_organization_id: string;
+          target_email: string;
+          target_role?: OrganizationRole;
+        };
+        Returns: Database["public"]["Tables"]["organization_members"]["Row"];
+      };
       default_organization_id: {
         Args: Record<string, never>;
         Returns: string | null;

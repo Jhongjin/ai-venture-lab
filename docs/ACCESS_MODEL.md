@@ -15,6 +15,9 @@ The venture lab starts with one operator, but the data model is prepared for tea
 - `organizations`: workspace boundary for a venture lab or client project.
 - `organization_members`: user membership with `owner`, `admin`, `member`, or `viewer`.
 - `audit_events`: append-only operational trail for venture records.
+- `add_organization_member_by_email`: owner/admin RPC for adding an existing Supabase Auth user to a workspace.
+
+Member management intentionally starts with existing Auth users only. For a new collaborator, create or confirm the user in Supabase Auth first, then add that email from the workspace panel.
 
 ## Policy Direction
 
@@ -29,8 +32,9 @@ Hardening pass before sensitive data:
 
 1. Attach or remove global seed rows.
 2. Scope every real row to organization membership.
-3. Add invite flow, member removal, and retention rules.
-4. Add admin-only audit export.
+3. Add invite flow for users who do not already exist in Supabase Auth.
+4. Add member removal, last-owner protection, and retention rules.
+5. Add admin-only audit export.
 
 ## Manual Operator Bootstrap
 

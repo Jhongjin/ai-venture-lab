@@ -6,11 +6,12 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Database } from "@/lib/supabase/types";
+import type { Database, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
 type AuditEvent = Database["public"]["Tables"]["audit_events"]["Row"];
+type AddableOrganizationRole = Extract<OrganizationRole, "admin" | "member" | "viewer">;
 
 type FormState = {
   name: string;
@@ -32,6 +33,8 @@ const emptyForm: FormState = {
   next_evidence: "",
 };
 
+const memberRoles: AddableOrganizationRole[] = ["member", "viewer", "admin"];
+
 export function VentureConsoleActions() {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
@@ -44,9 +47,12 @@ export function VentureConsoleActions() {
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [activeOrganizationId, setActiveOrganizationId] = useState("");
+  const [memberEmail, setMemberEmail] = useState("");
+  const [memberRole, setMemberRole] = useState<AddableOrganizationRole>("member");
   const [isAuthBusy, setIsAuthBusy] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isWorkspaceBusy, setIsWorkspaceBusy] = useState(false);
+  const [isMemberBusy, setIsMemberBusy] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
 
@@ -62,6 +68,11 @@ export function VentureConsoleActions() {
     () => members.filter((member) => member.organization_id === activeOrganization?.id).length,
     [activeOrganization?.id, members],
   );
+  const activeMembers = useMemo(
+    () => members.filter((member) => member.organization_id === activeOrganization?.id),
+    [activeOrganization?.id, members],
+  );
+  const canManageMembers = activeMembership?.role === "owner" || activeMembership?.role === "admin";
 
   const loadAuditEvents = useCallback(
     async (organizationId: string) => {
@@ -252,6 +263,43 @@ export function VentureConsoleActions() {
     await loadAuditEvents(organizationId);
   }
 
+  async function handleAddMember(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setWorkspaceMessage(null);
+
+    if (!supabase || !user || !activeOrganization) {
+      setWorkspaceMessage("Select a workspace first.");
+      return;
+    }
+
+    if (!canManageMembers) {
+      setWorkspaceMessage("Only workspace owners and admins can add members.");
+      return;
+    }
+
+    if (!memberEmail.trim()) {
+      setWorkspaceMessage("Member email is required.");
+      return;
+    }
+
+    setIsMemberBusy(true);
+    const { error } = await supabase.rpc("add_organization_member_by_email", {
+      target_organization_id: activeOrganization.id,
+      target_email: memberEmail.trim(),
+      target_role: memberRole,
+    });
+    setIsMemberBusy(false);
+
+    if (error) {
+      setWorkspaceMessage(error.message);
+      return;
+    }
+
+    setMemberEmail("");
+    setWorkspaceMessage("Workspace member added.");
+    await loadWorkspaceData(user, activeOrganization.id);
+  }
+
   async function handleCreateIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaveMessage(null);
@@ -425,6 +473,57 @@ export function VentureConsoleActions() {
                   <div className="mt-2 text-lg font-semibold text-slate-950">{activeMemberCount}</div>
                 </div>
               </div>
+              <div>
+                <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
+                  <Users size={16} />
+                  Members
+                </div>
+                <div className="grid gap-2">
+                  {activeMembers.map((member) => (
+                    <div key={`${member.organization_id}-${member.user_id}`} className="rounded-md bg-slate-50 p-3">
+                      <div className="break-all text-sm font-semibold text-slate-950">
+                        {member.email || member.user_id}
+                      </div>
+                      <div className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                        {member.role}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <form onSubmit={handleAddMember} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="text-sm font-semibold text-slate-950">Add existing Auth user</div>
+                <div className="grid gap-3 sm:grid-cols-[1fr_132px]">
+                  <input
+                    value={memberEmail}
+                    onChange={(event) => setMemberEmail(event.target.value)}
+                    type="email"
+                    placeholder="member@example.com"
+                    disabled={!canManageMembers}
+                    className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-500"
+                  />
+                  <select
+                    value={memberRole}
+                    onChange={(event) => setMemberRole(event.target.value as AddableOrganizationRole)}
+                    disabled={!canManageMembers}
+                    className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-500"
+                  >
+                    {memberRoles.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isMemberBusy || !canManageMembers}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isMemberBusy ? <RefreshCw className="animate-spin" size={18} /> : <Users size={18} />}
+                  Add member
+                </button>
+              </form>
               <div>
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
                   <Clock3 size={16} />

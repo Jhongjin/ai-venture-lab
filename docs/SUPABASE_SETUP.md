@@ -28,11 +28,13 @@ supabase/migrations/20260503000000_initial_harness.sql
 supabase/migrations/20260503010000_add_operator_ownership.sql
 supabase/migrations/20260503020000_add_organization_access_model.sql
 supabase/migrations/20260503030000_private_workspace_reads.sql
+supabase/migrations/20260503040000_member_management_rpc.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
 The organization access migration is also safe to re-run. It adds team boundaries, membership helpers, and audit logging without removing the current public-read console behavior.
 The private workspace reads migration removes anonymous reads and requires an authenticated owner, global seed row, or organization membership to read portfolio records.
+The member management migration adds a safe RPC for workspace owners/admins to add existing Supabase Auth users by email.
 
 This creates:
 
@@ -90,5 +92,6 @@ For production or repeated testing with email links, configure custom SMTP in Su
 - Add user profiles and invitation flow.
 - Replace global seed visibility with explicit workspace-owned seed data.
 - Add deletion and retention rules before collecting real personal data.
+- Add last-owner protection before exposing owner role transfers.
 
 See `docs/ACCESS_MODEL.md` for the organization bootstrap query and the hardening path.
