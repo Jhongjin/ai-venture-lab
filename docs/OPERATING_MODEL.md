@@ -44,3 +44,4 @@ The app now supports the first live operating loop:
 7. Use the suggested decision and evidence gaps as an advisory gate before PRD.
 8. Copy the generated idea brief into downstream PRD or research workflows.
 9. Attach the next smallest experiment and success metric.
+10. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.

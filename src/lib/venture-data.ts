@@ -5,12 +5,14 @@ export type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 export type Risk = Database["public"]["Tables"]["risks"]["Row"];
 export type Decision = Database["public"]["Tables"]["decisions"]["Row"];
 export type Experiment = Database["public"]["Tables"]["experiments"]["Row"];
+export type OrchestrationRun = Database["public"]["Tables"]["orchestration_runs"]["Row"];
 
 type ConsoleData = {
   ideas: Idea[];
   risks: Risk[];
   decisions: Decision[];
   experiments: Experiment[];
+  orchestrationRuns: OrchestrationRun[];
   source: "supabase" | "seed";
   error: string | null;
 };
@@ -133,6 +135,7 @@ const seedRisks: Risk[] = [
 
 const seedDecisions: Decision[] = [];
 const seedExperiments: Experiment[] = [];
+const seedOrchestrationRuns: OrchestrationRun[] = [];
 
 export function scoreIdea(idea: Idea) {
   return (
@@ -155,6 +158,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
       risks: seedRisks,
       decisions: seedDecisions,
       experiments: seedExperiments,
+      orchestrationRuns: seedOrchestrationRuns,
       source: "seed",
       error: null,
     };
@@ -164,11 +168,12 @@ export async function getConsoleData(): Promise<ConsoleData> {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [ideasResult, risksResult, decisionsResult, experimentsResult] = await Promise.all([
+  const [ideasResult, risksResult, decisionsResult, experimentsResult, orchestrationRunsResult] = await Promise.all([
     supabase.from("ideas").select("*").order("created_at", { ascending: true }),
     supabase.from("risks").select("*").order("created_at", { ascending: true }),
     supabase.from("decisions").select("*").order("decided_at", { ascending: false }),
     supabase.from("experiments").select("*").order("created_at", { ascending: false }),
+    supabase.from("orchestration_runs").select("*").order("created_at", { ascending: false }),
   ]);
 
   if (ideasResult.error || risksResult.error || decisionsResult.error || experimentsResult.error) {
@@ -177,6 +182,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
       risks: seedRisks,
       decisions: seedDecisions,
       experiments: seedExperiments,
+      orchestrationRuns: seedOrchestrationRuns,
       source: "seed",
       error: user
         ? ideasResult.error?.message ??
@@ -193,7 +199,8 @@ export async function getConsoleData(): Promise<ConsoleData> {
     risks: risksResult.data ?? [],
     decisions: decisionsResult.data ?? [],
     experiments: experimentsResult.data ?? [],
+    orchestrationRuns: orchestrationRunsResult.error ? [] : orchestrationRunsResult.data ?? [],
     source: "supabase",
-    error: null,
+    error: user && orchestrationRunsResult.error ? `Orchestration read failed: ${orchestrationRunsResult.error.message}` : null,
   };
 }

@@ -13,6 +13,17 @@ export type IdeaStage =
 export type DecisionStatus = "ship" | "pivot" | "kill" | "research_more" | "pending";
 export type RiskSeverity = "low" | "medium" | "high" | "critical";
 export type OrganizationRole = "owner" | "admin" | "member" | "viewer";
+export type OrchestrationPhase =
+  | "strategy"
+  | "research"
+  | "product"
+  | "design"
+  | "build"
+  | "qa"
+  | "debug"
+  | "security"
+  | "launch";
+export type OrchestrationStatus = "planned" | "running" | "blocked" | "done" | "skipped";
 
 export type Database = {
   public: {
@@ -120,6 +131,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "experiments_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      orchestration_runs: {
+        Row: {
+          id: string;
+          idea_id: string;
+          organization_id: string | null;
+          phase: OrchestrationPhase;
+          status: OrchestrationStatus;
+          owner_role: string;
+          objective: string;
+          output: string;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["orchestration_runs"]["Row"]> & {
+          idea_id: string;
+          phase: OrchestrationPhase;
+        };
+        Update: Partial<Database["public"]["Tables"]["orchestration_runs"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "orchestration_runs_idea_id_fkey";
             columns: ["idea_id"];
             isOneToOne: false;
             referencedRelation: "ideas";

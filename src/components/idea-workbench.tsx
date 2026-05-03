@@ -1,20 +1,101 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Beaker, CheckCircle2, Clipboard, ClipboardList, Flag, RefreshCw, Save, ShieldAlert } from "lucide-react";
+import { Beaker, CheckCircle2, Clipboard, ClipboardList, Flag, Layers3, RefreshCw, Save, ShieldAlert } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Decision, Experiment, Idea, Risk } from "@/lib/venture-data";
-import type { Database, DecisionStatus, IdeaStage, RiskSeverity } from "@/lib/supabase/types";
+import type { Decision, Experiment, Idea, OrchestrationRun, Risk } from "@/lib/venture-data";
+import type {
+  Database,
+  DecisionStatus,
+  IdeaStage,
+  OrchestrationPhase,
+  OrchestrationStatus,
+  RiskSeverity,
+} from "@/lib/supabase/types";
 
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
 
 const stages: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
+const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
 const adminRoles = new Set(["owner", "admin"]);
+
+const orchestrationPhaseConfigs: Array<{
+  phase: OrchestrationPhase;
+  label: string;
+  ownerRole: string;
+  objective: string;
+}> = [
+  {
+    phase: "strategy",
+    label: "Strategy",
+    ownerRole: "strategy-reviewer",
+    objective: "Define opportunity, decision criteria, constraints, and next commitment.",
+  },
+  {
+    phase: "research",
+    label: "Research",
+    ownerRole: "market-research",
+    objective: "Validate user pain, market pull, competitors, and regulatory facts with sources.",
+  },
+  {
+    phase: "product",
+    label: "Product",
+    ownerRole: "prd-writer",
+    objective: "Turn validated evidence into the smallest PRD and acceptance criteria.",
+  },
+  {
+    phase: "design",
+    label: "Design",
+    ownerRole: "design-reviewer",
+    objective: "Map flows, screens, empty states, and usability risks before implementation.",
+  },
+  {
+    phase: "build",
+    label: "Build",
+    ownerRole: "prototype-builder",
+    objective: "Build the smallest useful prototype that can test the current assumption.",
+  },
+  {
+    phase: "qa",
+    label: "QA",
+    ownerRole: "qa-runner",
+    objective: "Verify the core journey, regression surface, and launch checklist.",
+  },
+  {
+    phase: "debug",
+    label: "Debug",
+    ownerRole: "qa-debug",
+    objective: "Reproduce failures, isolate cause, patch, and record the verification path.",
+  },
+  {
+    phase: "security",
+    label: "Security",
+    ownerRole: "security-reviewer",
+    objective: "Review PII, secrets, permissions, abuse paths, retention, and compliance claims.",
+  },
+  {
+    phase: "launch",
+    label: "Launch",
+    ownerRole: "launch-gate",
+    objective: "Make the ship, pivot, kill, or research-more decision with evidence attached.",
+  },
+];
+const phaseOrder = new Map(orchestrationPhaseConfigs.map((config, index) => [config.phase, index]));
+const phaseLabels = Object.fromEntries(
+  orchestrationPhaseConfigs.map((config) => [config.phase, config.label]),
+) as Record<OrchestrationPhase, string>;
+const runStatusTone: Record<OrchestrationStatus, string> = {
+  planned: "bg-slate-100 text-slate-700",
+  running: "bg-blue-100 text-blue-800",
+  blocked: "bg-rose-100 text-rose-800",
+  done: "bg-emerald-100 text-emerald-800",
+  skipped: "bg-amber-100 text-amber-800",
+};
 
 const stageLabels: Record<IdeaStage, string> = {
   intake: "Intake",
@@ -61,6 +142,12 @@ type RiskDraft = {
 type ExperimentDraft = {
   name: string;
   success_metric: string;
+};
+
+type RunDraft = {
+  phase: OrchestrationPhase;
+  owner_role: string;
+  objective: string;
 };
 
 function toEditState(idea: Idea): EditState {
@@ -191,11 +278,13 @@ export function IdeaWorkbench({
   initialRisks,
   initialDecisions,
   initialExperiments,
+  initialOrchestrationRuns,
 }: {
   initialIdeas: Idea[];
   initialRisks: Risk[];
   initialDecisions: Decision[];
   initialExperiments: Experiment[];
+  initialOrchestrationRuns: OrchestrationRun[];
 }) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
@@ -203,6 +292,7 @@ export function IdeaWorkbench({
   const [risks, setRisks] = useState(initialRisks);
   const [decisionLog, setDecisionLog] = useState(initialDecisions);
   const [experiments, setExperiments] = useState(initialExperiments);
+  const [orchestrationRuns, setOrchestrationRuns] = useState(initialOrchestrationRuns);
   const [selectedIdeaId, setSelectedIdeaId] = useState(initialIdeas[0]?.id ?? "");
   const selectedIdea = ideas.find((idea) => idea.id === selectedIdeaId) ?? ideas[0] ?? null;
   const [editState, setEditState] = useState<EditState | null>(selectedIdea ? toEditState(selectedIdea) : null);
@@ -214,6 +304,11 @@ export function IdeaWorkbench({
   });
   const [decisionReason, setDecisionReason] = useState("");
   const [experimentDraft, setExperimentDraft] = useState<ExperimentDraft>({ name: "", success_metric: "" });
+  const [runDraft, setRunDraft] = useState<RunDraft>({
+    phase: "strategy",
+    owner_role: "strategy-reviewer",
+    objective: orchestrationPhaseConfigs[0].objective,
+  });
   const [user, setUser] = useState<User | null>(null);
   const [memberships, setMemberships] = useState<OrganizationMember[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -263,6 +358,14 @@ export function IdeaWorkbench({
   const selectedExperiments = useMemo(
     () => experiments.filter((experiment) => experiment.idea_id === selectedIdea?.id).slice(0, 5),
     [experiments, selectedIdea?.id],
+  );
+
+  const selectedRuns = useMemo(
+    () =>
+      orchestrationRuns
+        .filter((run) => run.idea_id === selectedIdea?.id)
+        .sort((a, b) => (phaseOrder.get(a.phase) ?? 99) - (phaseOrder.get(b.phase) ?? 99)),
+    [orchestrationRuns, selectedIdea?.id],
   );
 
   const canAdminSelectedOrganization = Boolean(
@@ -477,6 +580,88 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
+  async function addOrchestrationRun(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!supabase || !selectedIdea) {
+      setMessage("Select an idea first.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("Sign in before adding orchestration runs.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("orchestration_runs")
+      .insert({
+        idea_id: selectedIdea.id,
+        phase: runDraft.phase,
+        owner_role: runDraft.owner_role.trim(),
+        objective: runDraft.objective.trim(),
+        status: "planned",
+        organization_id: selectedIdea.organization_id,
+      })
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setOrchestrationRuns((current) => [data, ...current]);
+    setMessage("Orchestration run added.");
+    router.refresh();
+  }
+
+  async function createRunbook() {
+    if (!supabase || !selectedIdea) {
+      setMessage("Select an idea first.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("Sign in before creating an orchestration runbook.");
+      return;
+    }
+
+    const existingPhases = new Set(selectedRuns.map((run) => run.phase));
+    const missingRuns = orchestrationPhaseConfigs
+      .filter((config) => !existingPhases.has(config.phase))
+      .map((config) => ({
+        idea_id: selectedIdea.id,
+        organization_id: selectedIdea.organization_id,
+        phase: config.phase,
+        owner_role: config.ownerRole,
+        objective: config.objective,
+        status: "planned" as OrchestrationStatus,
+      }));
+
+    if (missingRuns.length === 0) {
+      setMessage("Full orchestration runbook already exists for this idea.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase.from("orchestration_runs").insert(missingRuns).select();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setOrchestrationRuns((current) => [...(data ?? []), ...current]);
+    setMessage("Full orchestration runbook created.");
+    router.refresh();
+  }
+
   async function updateExperimentStatus(experiment: Experiment, status: string) {
     if (!supabase) {
       setMessage("Supabase is not configured.");
@@ -510,6 +695,37 @@ export function IdeaWorkbench({
 
     setExperiments((current) => current.map((item) => (item.id === data.id ? data : item)));
     setMessage(`Experiment marked ${status}.`);
+    router.refresh();
+  }
+
+  async function updateRunStatus(run: OrchestrationRun, status: OrchestrationStatus) {
+    if (!supabase) {
+      setMessage("Supabase is not configured.");
+      return;
+    }
+
+    if (!canManageRecord(run)) {
+      setMessage("Only the run owner or workspace admin can update this orchestration run.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("orchestration_runs")
+      .update({ status })
+      .eq("id", run.id)
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setMessage(`${phaseLabels[run.phase]} marked ${status}.`);
     router.refresh();
   }
 
@@ -783,6 +999,105 @@ export function IdeaWorkbench({
             />
           </div>
         </form>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">Orchestration board</h2>
+              <p className="mt-1 text-sm text-slate-500">Track each specialist pass from strategy through launch.</p>
+            </div>
+            <button
+              type="button"
+              onClick={createRunbook}
+              disabled={isBusy || !user}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Layers3 size={18} />
+              Create runbook
+            </button>
+          </div>
+
+          <form onSubmit={addOrchestrationRun} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="grid gap-3 md:grid-cols-[0.75fr_1fr]">
+              <SelectField
+                label="Phase"
+                value={runDraft.phase}
+                options={orchestrationPhaseConfigs.map((config) => config.phase)}
+                labels={phaseLabels}
+                disabled={!user}
+                onChange={(value) => {
+                  const nextPhase = value as OrchestrationPhase;
+                  const config = orchestrationPhaseConfigs.find((item) => item.phase === nextPhase);
+                  setRunDraft({
+                    phase: nextPhase,
+                    owner_role: config?.ownerRole ?? runDraft.owner_role,
+                    objective: config?.objective ?? runDraft.objective,
+                  });
+                }}
+              />
+              <InputField
+                label="Owner role"
+                value={runDraft.owner_role}
+                onChange={(value) => setRunDraft({ ...runDraft, owner_role: value })}
+              />
+            </div>
+            <TextArea
+              label="Objective"
+              value={runDraft.objective}
+              disabled={!user}
+              onChange={(value) => setRunDraft({ ...runDraft, objective: value })}
+            />
+            <button
+              type="submit"
+              disabled={isBusy || !user}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Layers3 size={18} />
+              Add phase
+            </button>
+          </form>
+
+          <div className="mt-4 grid gap-3">
+            {selectedRuns.length > 0 ? (
+              selectedRuns.map((run) => (
+                <div key={run.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-950">{phaseLabels[run.phase]}</span>
+                        <span className={`rounded-md px-2 py-1 text-xs font-semibold ${runStatusTone[run.status]}`}>
+                          {run.status}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">{run.objective || "Objective TBD"}</p>
+                      <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                        {run.owner_role || "unassigned"}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {orchestrationStatuses.map((status) => (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={() => updateRunStatus(run, status)}
+                          disabled={isBusy || !canManageRecord(run) || run.status === status}
+                          className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {run.output ? <p className="mt-3 text-sm leading-6 text-slate-600">{run.output}</p> : null}
+                </div>
+              ))
+            ) : (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                No orchestration runs attached yet.
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="grid gap-6 xl:grid-cols-2">
           <form onSubmit={addRisk} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">

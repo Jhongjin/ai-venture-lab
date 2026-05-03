@@ -14,7 +14,8 @@ $required = @(
   ".env.example",
   "supabase/bootstrap.sql",
   "supabase/migrations/20260503000000_initial_harness.sql",
-  "supabase/migrations/20260503010000_add_operator_ownership.sql"
+  "supabase/migrations/20260503010000_add_operator_ownership.sql",
+  "supabase/migrations/20260503060000_add_orchestration_runs.sql"
 )
 
 $missing = @()
