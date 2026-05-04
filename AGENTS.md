@@ -24,7 +24,7 @@ This repository is an operating system for turning raw app ideas into validated 
 - `docs/`: durable operating context and review artifacts.
 - `templates/`: reusable input/output templates for ideas and MVPs.
 - `.agents/skills/`: Codex skills for repeated workflows.
-- `.codex/agents/`: custom subagent role definitions.
+- `.codex/agents/`: custom subagent role definitions for strategy, research, product, design, build, QA, debug, security, and launch.
 - `.codex/hooks/`: deterministic local hook scripts.
 - `scripts/`: deterministic command-line gates.
 

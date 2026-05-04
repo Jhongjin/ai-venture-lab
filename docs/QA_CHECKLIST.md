@@ -30,4 +30,5 @@ Use this checklist before merging meaningful changes.
 - Failed magic link callback attempts show a clear operator-facing reason and clean auth query params from the URL.
 - Orchestration runs can be seeded with phase-specific output templates before saving role notes.
 - Launch readiness shows both percent complete and the next blocking gate.
+- `.codex/agents/` includes matching strategy, research, product, design, build, QA, debug, security, and launch role definitions.
 - Header metrics include idea, risk, experiment, decision, and data-source state.
