@@ -527,7 +527,11 @@ function buildLaunchChecklistMarkdown({
   artifacts: VentureArtifact[];
 }) {
   const hasPrd = artifacts.some((artifact) => artifact.artifact_type === "prd");
+  const hasApprovedPrd = artifacts.some((artifact) => artifact.artifact_type === "prd" && artifact.status === "approved");
   const hasMvpSpec = artifacts.some((artifact) => artifact.artifact_type === "mvp_spec");
+  const hasApprovedMvpSpec = artifacts.some(
+    (artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved",
+  );
   const highRiskLines = risks
     .filter((risk) => ["high", "critical"].includes(risk.severity))
     .map((risk) => `- [ ] ${risk.title} (${risk.severity}, ${risk.status})`);
@@ -548,7 +552,9 @@ function buildLaunchChecklistMarkdown({
 ## Product Artifacts
 
 - [${hasPrd ? "x" : " "}] PRD artifact saved
+- [${hasApprovedPrd ? "x" : " "}] PRD artifact approved
 - [${hasMvpSpec ? "x" : " "}] MVP spec artifact saved
+- [${hasApprovedMvpSpec ? "x" : " "}] MVP spec artifact approved
 - [${artifacts.some((artifact) => artifact.artifact_type === "idea_brief") ? "x" : " "}] Idea brief artifact saved
 
 ## Orchestration Gates
@@ -682,10 +688,14 @@ export function IdeaWorkbench({
     [orchestrationRuns, selectedIdea?.id],
   );
 
-  const selectedArtifacts = useMemo(
-    () => artifacts.filter((artifact) => artifact.idea_id === selectedIdea?.id).slice(0, 6),
+  const selectedArtifactRecords = useMemo(
+    () =>
+      artifacts
+        .filter((artifact) => artifact.idea_id === selectedIdea?.id)
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     [artifacts, selectedIdea?.id],
   );
+  const selectedArtifacts = useMemo(() => selectedArtifactRecords.slice(0, 8), [selectedArtifactRecords]);
 
   const canAdminSelectedOrganization = Boolean(
     user &&
@@ -750,7 +760,7 @@ export function IdeaWorkbench({
         risks: selectedRisks.filter((risk) => risk.idea_id === selectedIdea.id),
         experiments: selectedExperiments,
         runs: selectedRuns,
-        artifacts: selectedArtifacts,
+        artifacts: selectedArtifactRecords,
       })
     : "";
   const launchReadiness = selectedIdea && editState
@@ -761,14 +771,22 @@ export function IdeaWorkbench({
           detail: missing.length === 0 ? "No basic evidence gaps" : missing.join(", "),
         },
         {
-          label: "PRD saved",
-          passed: selectedArtifacts.some((artifact) => artifact.artifact_type === "prd"),
-          detail: "PRD artifact required",
+          label: "PRD approved",
+          passed: selectedArtifactRecords.some(
+            (artifact) => artifact.artifact_type === "prd" && artifact.status === "approved",
+          ),
+          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "prd")
+            ? "Draft saved, approval required"
+            : "PRD artifact required",
         },
         {
-          label: "MVP spec saved",
-          passed: selectedArtifacts.some((artifact) => artifact.artifact_type === "mvp_spec"),
-          detail: "MVP scope required",
+          label: "MVP spec approved",
+          passed: selectedArtifactRecords.some(
+            (artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved",
+          ),
+          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "mvp_spec")
+            ? "Draft saved, approval required"
+            : "MVP scope required",
         },
         {
           label: "Experiment planned",
@@ -1180,6 +1198,14 @@ export function IdeaWorkbench({
       return;
     }
 
+    const nextVersion =
+      Math.max(
+        0,
+        ...selectedArtifactRecords
+          .filter((artifact) => artifact.artifact_type === artifactType)
+          .map((artifact) => artifact.version ?? 1),
+      ) + 1;
+
     setIsBusy(true);
     setMessage(null);
     const { data, error } = await supabase
@@ -1188,6 +1214,8 @@ export function IdeaWorkbench({
         idea_id: selectedIdea.id,
         organization_id: selectedIdea.organization_id,
         artifact_type: artifactType,
+        status: "draft",
+        version: nextVersion,
         title,
         body,
         source,
@@ -1202,7 +1230,7 @@ export function IdeaWorkbench({
     }
 
     setArtifacts((current) => [data, ...current]);
-    setMessage(`${artifactLabels[artifactType]} artifact saved.`);
+    setMessage(`${artifactLabels[artifactType]} artifact v${nextVersion} saved.`);
     router.refresh();
   }
 
