@@ -33,6 +33,7 @@ supabase/migrations/20260503050000_member_lifecycle_rpc.sql
 supabase/migrations/20260503060000_add_orchestration_runs.sql
 supabase/migrations/20260504000000_add_venture_artifacts.sql
 supabase/migrations/20260504010000_add_artifact_lifecycle.sql
+supabase/migrations/20260504020000_add_artifact_status_notes.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
@@ -43,6 +44,7 @@ The member lifecycle migration adds owner/admin RPCs for role changes and remova
 The orchestration migration adds idea-level specialist runs for strategy, research, product, design, build, QA, debug, security, and launch.
 The artifact migration stores generated idea briefs, PRDs, MVP specs, launch checklists, and research notes.
 The artifact lifecycle migration adds draft, approved, archived, version, and approval metadata to saved artifacts.
+The artifact status notes migration stores approval, revision, and archive rationale.
 
 This creates:
 
@@ -79,8 +81,8 @@ In Supabase:
 Recommended values:
 
 ```text
-https://ai-venture-lab.vercel.app
-http://localhost:3000
+https://ai-venture-lab.vercel.app/auth/callback
+http://localhost:3000/auth/callback
 ```
 
 In `Authentication` -> `Providers`, keep email enabled. New sign-ins can create ideas because write policies allow the `authenticated` role.

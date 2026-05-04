@@ -58,10 +58,14 @@ The console uses Supabase email magic links. Configure Supabase Auth URL setting
 
 ```text
 Site URL: https://ai-venture-lab.vercel.app
-Redirect URL: http://localhost:3000
+Redirect URLs:
+- https://ai-venture-lab.vercel.app/auth/callback
+- http://localhost:3000/auth/callback
 ```
 
-Authenticated users can create ideas. The current policy is intentionally broad for the initial private lab; tighten it before storing sensitive data.
+Magic links route through `/auth/callback` so Supabase auth codes become app sessions before returning to the console. Password sign-in is only for existing Supabase Auth password users.
+
+Authenticated users can create ideas inside their workspace. Keep RLS enabled before storing sensitive data.
 
 ## Operating Model
 
@@ -75,3 +79,10 @@ Use the repo in this order:
 6. Run QA, security, and launch checks before pushing.
 
 See `docs/OPERATING_MODEL.md` for the full harness.
+
+## Agent Harness
+
+- `AGENTS.md` keeps short repo-wide operating rules.
+- `.agents/skills/` contains repeatable workflow skills.
+- `.codex/agents/` mirrors the app runbook roles from strategy through launch.
+- `.codex/hooks/` and `scripts/` provide deterministic checks.
