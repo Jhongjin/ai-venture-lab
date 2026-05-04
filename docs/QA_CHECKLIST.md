@@ -19,4 +19,5 @@ Use this checklist before merging meaningful changes.
 - Run owners can save orchestration outputs and see those outputs reflected in the generated PRD draft.
 - Authenticated operators can save generated idea briefs and PRDs as artifacts and copy them from the artifact library.
 - Authenticated operators can generate and save MVP spec and launch checklist artifacts from the same workbench evidence.
+- Artifact owners or workspace admins can move artifacts between draft, approved, and archived.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

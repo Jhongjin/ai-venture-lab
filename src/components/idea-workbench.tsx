@@ -14,6 +14,7 @@ import type {
   OrchestrationPhase,
   OrchestrationStatus,
   RiskSeverity,
+  VentureArtifactStatus,
   VentureArtifactType,
 } from "@/lib/supabase/types";
 
@@ -29,6 +30,16 @@ const artifactLabels: Record<VentureArtifactType, string> = {
   prd: "PRD",
   mvp_spec: "MVP spec",
   launch_checklist: "Launch checklist",
+};
+const artifactStatusLabels: Record<VentureArtifactStatus, string> = {
+  draft: "Draft",
+  approved: "Approved",
+  archived: "Archived",
+};
+const artifactStatusTone: Record<VentureArtifactStatus, string> = {
+  draft: "bg-slate-100 text-slate-700",
+  approved: "bg-emerald-100 text-emerald-800",
+  archived: "bg-amber-100 text-amber-800",
 };
 const adminRoles = new Set(["owner", "admin"]);
 
@@ -1145,6 +1156,41 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
+  async function updateArtifactStatus(artifact: VentureArtifact, status: VentureArtifactStatus) {
+    if (!supabase) {
+      setMessage("Supabase is not configured.");
+      return;
+    }
+
+    if (!canManageRecord(artifact)) {
+      setMessage("Only the artifact owner or workspace admin can update this artifact.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("venture_artifacts")
+      .update({
+        status,
+        approved_by: status === "approved" ? user?.id ?? null : null,
+        approved_at: status === "approved" ? new Date().toISOString() : null,
+      })
+      .eq("id", artifact.id)
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setArtifacts((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setMessage(`${artifact.title || artifactLabels[artifact.artifact_type]} marked ${artifactStatusLabels[status]}.`);
+    router.refresh();
+  }
+
   async function updateRiskStatus(risk: Risk, status: string) {
     if (!supabase) {
       setMessage("Supabase is not configured.");
@@ -1902,31 +1948,55 @@ export function IdeaWorkbench({
           </div>
           <div className="grid gap-3">
             {selectedArtifacts.length > 0 ? (
-              selectedArtifacts.map((artifact) => (
-                <div key={artifact.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-950">{artifact.title || "Untitled"}</span>
-                        <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
-                          {artifactLabels[artifact.artifact_type]}
-                        </span>
+              selectedArtifacts.map((artifact) => {
+                const status = artifact.status ?? "draft";
+
+                return (
+                  <div key={artifact.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-950">{artifact.title || "Untitled"}</span>
+                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                            {artifactLabels[artifact.artifact_type]}
+                          </span>
+                          <span className={`rounded-md px-2 py-1 text-xs font-semibold ${artifactStatusTone[status]}`}>
+                            {artifactStatusLabels[status]}
+                          </span>
+                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                            v{artifact.version ?? 1}
+                          </span>
+                        </div>
+                        <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                          {artifact.source || "manual"} / {new Date(artifact.created_at).toLocaleDateString()}
+                          {artifact.approved_at ? ` / approved ${new Date(artifact.approved_at).toLocaleDateString()}` : ""}
+                        </div>
                       </div>
-                      <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        {artifact.source || "manual"} / {new Date(artifact.created_at).toLocaleDateString()}
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => navigator.clipboard.writeText(artifact.body)}
+                          className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100"
+                        >
+                          <Clipboard size={14} />
+                          Copy
+                        </button>
+                        {(["draft", "approved", "archived"] as VentureArtifactStatus[]).map((nextStatus) => (
+                          <button
+                            key={nextStatus}
+                            type="button"
+                            onClick={() => updateArtifactStatus(artifact, nextStatus)}
+                            disabled={isBusy || !canManageRecord(artifact) || status === nextStatus}
+                            className="inline-flex h-9 items-center justify-center rounded-md bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                          >
+                            {artifactStatusLabels[nextStatus]}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => navigator.clipboard.writeText(artifact.body)}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100"
-                    >
-                      <Clipboard size={14} />
-                      Copy
-                    </button>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                 No artifacts saved yet.

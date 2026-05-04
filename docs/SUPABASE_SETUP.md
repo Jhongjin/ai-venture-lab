@@ -32,6 +32,7 @@ supabase/migrations/20260503040000_member_management_rpc.sql
 supabase/migrations/20260503050000_member_lifecycle_rpc.sql
 supabase/migrations/20260503060000_add_orchestration_runs.sql
 supabase/migrations/20260504000000_add_venture_artifacts.sql
+supabase/migrations/20260504010000_add_artifact_lifecycle.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
@@ -41,6 +42,7 @@ The member management migration adds a safe RPC for workspace owners/admins to a
 The member lifecycle migration adds owner/admin RPCs for role changes and removals while protecting the last workspace owner.
 The orchestration migration adds idea-level specialist runs for strategy, research, product, design, build, QA, debug, security, and launch.
 The artifact migration stores generated idea briefs, PRDs, MVP specs, launch checklists, and research notes.
+The artifact lifecycle migration adds draft, approved, archived, version, and approval metadata to saved artifacts.
 
 This creates:
 

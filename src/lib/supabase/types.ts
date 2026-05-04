@@ -25,6 +25,7 @@ export type OrchestrationPhase =
   | "launch";
 export type OrchestrationStatus = "planned" | "running" | "blocked" | "done" | "skipped";
 export type VentureArtifactType = "idea_brief" | "research_note" | "prd" | "mvp_spec" | "launch_checklist";
+export type VentureArtifactStatus = "draft" | "approved" | "archived";
 
 export type Database = {
   public: {
@@ -174,9 +175,13 @@ export type Database = {
           idea_id: string | null;
           organization_id: string | null;
           artifact_type: VentureArtifactType;
+          status: VentureArtifactStatus;
+          version: number;
           title: string;
           body: string;
           source: string;
+          approved_by: string | null;
+          approved_at: string | null;
           created_by: string | null;
           created_at: string;
           updated_at: string;
