@@ -592,6 +592,42 @@ ${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- [x] No high or critic
 `;
 }
 
+function summarizeArtifactLineChanges(currentBody: string, previousBody: string) {
+  const currentLines = splitComparableLines(currentBody);
+  const previousLines = splitComparableLines(previousBody);
+  const currentCounts = countLines(currentLines);
+  const previousCounts = countLines(previousLines);
+  let added = 0;
+  let removed = 0;
+
+  for (const [line, count] of currentCounts) {
+    added += Math.max(0, count - (previousCounts.get(line) ?? 0));
+  }
+
+  for (const [line, count] of previousCounts) {
+    removed += Math.max(0, count - (currentCounts.get(line) ?? 0));
+  }
+
+  return { added, removed };
+}
+
+function splitComparableLines(body: string) {
+  return body
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function countLines(lines: string[]) {
+  const counts = new Map<string, number>();
+
+  for (const line of lines) {
+    counts.set(line, (counts.get(line) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
 export function IdeaWorkbench({
   initialIdeas,
   initialRisks,
@@ -702,6 +738,33 @@ export function IdeaWorkbench({
     [artifacts, selectedIdea?.id],
   );
   const selectedArtifacts = useMemo(() => selectedArtifactRecords.slice(0, 8), [selectedArtifactRecords]);
+  const artifactVersionSummaries = useMemo(() => {
+    const summaries = new Map<string, { previous: VentureArtifact; added: number; removed: number }>();
+
+    for (const artifact of selectedArtifactRecords) {
+      const previous = selectedArtifactRecords
+        .filter(
+          (candidate) =>
+            candidate.id !== artifact.id &&
+            candidate.artifact_type === artifact.artifact_type &&
+            (candidate.version ?? 1) < (artifact.version ?? 1),
+        )
+        .sort(
+          (a, b) =>
+            (b.version ?? 1) - (a.version ?? 1) ||
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )[0];
+
+      if (previous) {
+        summaries.set(artifact.id, {
+          previous,
+          ...summarizeArtifactLineChanges(artifact.body, previous.body),
+        });
+      }
+    }
+
+    return summaries;
+  }, [selectedArtifactRecords]);
 
   const canAdminSelectedOrganization = Boolean(
     user &&
@@ -2071,6 +2134,7 @@ export function IdeaWorkbench({
             {selectedArtifacts.length > 0 ? (
               selectedArtifacts.map((artifact) => {
                 const status = artifact.status ?? "draft";
+                const versionSummary = artifactVersionSummaries.get(artifact.id);
 
                 return (
                   <div key={artifact.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
@@ -2094,6 +2158,11 @@ export function IdeaWorkbench({
                         </div>
                         {artifact.status_note ? (
                           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Gate note: {artifact.status_note}</p>
+                        ) : null}
+                        {versionSummary ? (
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            {`Compared with v${versionSummary.previous.version ?? 1}: +${versionSummary.added} / -${versionSummary.removed} changed lines`}
+                          </p>
                         ) : null}
                       </div>
                       <div className="flex flex-wrap gap-2">

@@ -23,4 +23,5 @@ Use this checklist before merging meaningful changes.
 - Launch readiness shows blocked gates for evidence, artifacts, experiments, QA, security, risks, and decisions.
 - Re-saving an artifact creates the next version and launch readiness requires approved PRD and MVP spec artifacts.
 - Artifact status changes can include a gate note explaining approval evidence, revision needs, or archive reason.
+- Revised artifacts show a previous-version line change summary when a comparable version exists.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

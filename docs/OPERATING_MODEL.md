@@ -52,3 +52,4 @@ The app now supports the first live operating loop:
 15. Use launch readiness to see which approved artifacts and gates still block build or release.
 16. Save revised artifacts as new versions instead of overwriting prior evidence.
 17. Record a status note when approving, reopening, or archiving an artifact.
+18. Compare revised artifacts against the previous version before promotion.

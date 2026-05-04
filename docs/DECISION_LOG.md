@@ -24,3 +24,4 @@ Use this file for durable product, architecture, and operating decisions.
 | 2026-05-04 | Version generated artifacts on save | Revised PRDs, MVP specs, and checklists should preserve previous evidence instead of overwriting it | Diffing and comments are needed |
 | 2026-05-04 | Require approved product artifacts for launch readiness | Saved drafts are useful evidence, but build and release gates should depend on reviewed PRD and MVP scope artifacts | Approval comments and reviewer assignment are needed |
 | 2026-05-04 | Store artifact status notes | Approval and archive actions need lightweight rationale without a separate review table yet | Dedicated review threads can come after artifact diffing |
+| 2026-05-04 | Show artifact version change summaries | Operators need fast review context before approving revised PRDs or MVP specs | Full side-by-side diffs can come after review notes stabilize |
