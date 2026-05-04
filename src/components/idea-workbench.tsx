@@ -1112,10 +1112,12 @@ export function IdeaWorkbench({
         },
       ]
     : [];
+  const passedLaunchReadinessCount = launchReadiness.filter((check) => check.passed).length;
   const launchReadinessScore =
     launchReadiness.length === 0
       ? 0
-      : Math.round((launchReadiness.filter((check) => check.passed).length / launchReadiness.length) * 100);
+      : Math.round((passedLaunchReadinessCount / launchReadiness.length) * 100);
+  const nextLaunchBlocker = launchReadiness.find((check) => !check.passed) ?? null;
   const visibleIdeas = useMemo(() => {
     if (filterMode === "mine") {
       return ideas.filter((idea) => user && idea.created_by === user.id);
@@ -1877,8 +1879,22 @@ export function IdeaWorkbench({
               <p className="mt-1 text-sm text-slate-500">A live gate summary from evidence, artifacts, risks, and runs.</p>
             </div>
             <div className="rounded-lg bg-slate-950 px-4 py-3 text-right text-white">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">Ready</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
+                Ready {passedLaunchReadinessCount}/{launchReadiness.length}
+              </div>
               <div className="mt-1 text-2xl font-semibold">{launchReadinessScore}%</div>
+            </div>
+          </div>
+          <div
+            className={`mb-4 border-l-4 pl-4 ${
+              nextLaunchBlocker ? "border-amber-300" : "border-emerald-300"
+            }`}
+          >
+            <div className="text-sm font-semibold text-slate-950">
+              {nextLaunchBlocker ? `Next unblocker: ${nextLaunchBlocker.label}` : "All current launch gates are clear"}
+            </div>
+            <div className="mt-1 text-sm leading-6 text-slate-600">
+              {nextLaunchBlocker ? nextLaunchBlocker.detail : "Record the final launch decision before release."}
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
