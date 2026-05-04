@@ -18,4 +18,5 @@ Use this checklist before merging meaningful changes.
 - Authenticated operators can create an idea-level orchestration runbook and move runs through planned, running, blocked, done, and skipped states.
 - Run owners can save orchestration outputs and see those outputs reflected in the generated PRD draft.
 - Authenticated operators can save generated idea briefs and PRDs as artifacts and copy them from the artifact library.
+- Authenticated operators can generate and save MVP spec and launch checklist artifacts from the same workbench evidence.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

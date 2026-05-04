@@ -407,6 +407,169 @@ ${state.next_evidence || "TBD"}
 `;
 }
 
+function buildMvpSpecMarkdown({
+  idea,
+  state,
+  experiments,
+  runs,
+}: {
+  idea: Idea;
+  state: EditState;
+  experiments: Experiment[];
+  runs: OrchestrationRun[];
+}) {
+  const buildRun = runs.find((run) => run.phase === "build");
+  const designRun = runs.find((run) => run.phase === "design");
+  const qaRun = runs.find((run) => run.phase === "qa");
+  const securityRun = runs.find((run) => run.phase === "security");
+  const experimentLines =
+    experiments.length > 0
+      ? experiments
+          .map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "Success metric TBD"}`)
+          .join("\n")
+      : "- Define one measurable experiment before build.";
+
+  return `# MVP Spec: ${idea.name}
+
+## Hypothesis
+
+If we build the smallest workflow for ${idea.target_user || "the target user"}, then we can validate ${
+    state.next_evidence || "the next evidence item"
+  }.
+
+## Must Have
+
+- One focused user journey tied to: ${idea.one_liner || "TBD"}
+- Data capture only for fields needed to test the hypothesis.
+- Visible risk and experiment tracking for the selected idea.
+- Authenticated workspace access.
+
+## Should Have
+
+- Clear empty and error states.
+- Copyable or saved artifacts for handoff.
+- Basic audit trail through Supabase records.
+
+## Not Yet
+
+- Broad multi-product navigation.
+- Advanced automation that touches external accounts.
+- Sensitive production data collection without security review.
+
+## Screens
+
+${designRun?.output || "Use the design orchestration output to define screens."}
+
+## Data Model
+
+- ideas
+- risks
+- decisions
+- experiments
+- orchestration_runs
+- venture_artifacts
+
+## Integrations
+
+- Supabase Auth and Postgres
+- Vercel deployment
+- Future AI/model calls only after the manual harness is reliable
+
+## Prototype Notes
+
+${buildRun?.output || "Use the build orchestration output to define implementation scope."}
+
+## Verification Plan
+
+${experimentLines}
+
+QA notes:
+
+${qaRun?.output || "QA run output TBD."}
+
+Security notes:
+
+${securityRun?.output || state.risk_summary || "Security run output TBD."}
+
+## Launch Gate
+
+- PRD artifact saved.
+- MVP spec artifact saved.
+- At least one experiment is planned.
+- QA and security runs are done or explicitly accepted as open risk.
+`;
+}
+
+function buildLaunchChecklistMarkdown({
+  idea,
+  state,
+  risks,
+  experiments,
+  runs,
+  artifacts,
+}: {
+  idea: Idea;
+  state: EditState;
+  risks: Risk[];
+  experiments: Experiment[];
+  runs: OrchestrationRun[];
+  artifacts: VentureArtifact[];
+}) {
+  const hasPrd = artifacts.some((artifact) => artifact.artifact_type === "prd");
+  const hasMvpSpec = artifacts.some((artifact) => artifact.artifact_type === "mvp_spec");
+  const highRiskLines = risks
+    .filter((risk) => ["high", "critical"].includes(risk.severity))
+    .map((risk) => `- [ ] ${risk.title} (${risk.severity}, ${risk.status})`);
+  const donePhases = new Set(runs.filter((run) => run.status === "done").map((run) => run.phase));
+  const plannedExperimentLines =
+    experiments.length > 0
+      ? experiments.map((experiment) => `- [ ] ${experiment.name}: ${experiment.success_metric || "Metric TBD"}`).join("\n")
+      : "- [ ] Add one measurable experiment.";
+
+  return `# Launch Checklist: ${idea.name}
+
+## Decision
+
+- Current decision: ${decisionLabels[state.decision]}
+- Current stage: ${stageLabels[state.stage]}
+- Next evidence: ${state.next_evidence || "TBD"}
+
+## Product Artifacts
+
+- [${hasPrd ? "x" : " "}] PRD artifact saved
+- [${hasMvpSpec ? "x" : " "}] MVP spec artifact saved
+- [${artifacts.some((artifact) => artifact.artifact_type === "idea_brief") ? "x" : " "}] Idea brief artifact saved
+
+## Orchestration Gates
+
+- [${donePhases.has("strategy") ? "x" : " "}] Strategy run complete
+- [${donePhases.has("research") ? "x" : " "}] Research run complete
+- [${donePhases.has("product") ? "x" : " "}] Product run complete
+- [${donePhases.has("design") ? "x" : " "}] Design run complete
+- [${donePhases.has("build") ? "x" : " "}] Build run complete
+- [${donePhases.has("qa") ? "x" : " "}] QA run complete
+- [${donePhases.has("security") ? "x" : " "}] Security run complete
+- [${donePhases.has("launch") ? "x" : " "}] Launch run complete
+
+## Experiment Gate
+
+${plannedExperimentLines}
+
+## Risk Gate
+
+${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- [x] No high or critical linked risks currently visible."}
+
+## Operational Gate
+
+- [ ] Core journey tested in production-like environment
+- [ ] Error and empty states reviewed
+- [ ] Supabase RLS verified for workspace records
+- [ ] Vercel environment variables verified
+- [ ] Rollback path named
+- [ ] Final decision recorded
+`;
+}
+
 export function IdeaWorkbench({
   initialIdeas,
   initialRisks,
@@ -559,6 +722,24 @@ export function IdeaWorkbench({
         risks: selectedRisks.filter((risk) => risk.idea_id === selectedIdea.id),
         experiments: selectedExperiments,
         runs: selectedRuns,
+      })
+    : "";
+  const mvpSpecDraft = selectedIdea && editState
+    ? buildMvpSpecMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        experiments: selectedExperiments,
+        runs: selectedRuns,
+      })
+    : "";
+  const launchChecklistDraft = selectedIdea && editState
+    ? buildLaunchChecklistMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        risks: selectedRisks.filter((risk) => risk.idea_id === selectedIdea.id),
+        experiments: selectedExperiments,
+        runs: selectedRuns,
+        artifacts: selectedArtifacts,
       })
     : "";
   const visibleIdeas = useMemo(() => {
@@ -1011,6 +1192,24 @@ export function IdeaWorkbench({
 
     await navigator.clipboard.writeText(prdDraft);
     setCopyMessage("PRD draft copied.");
+  }
+
+  async function copyMvpSpecDraft() {
+    if (!mvpSpecDraft) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(mvpSpecDraft);
+    setCopyMessage("MVP spec copied.");
+  }
+
+  async function copyLaunchChecklistDraft() {
+    if (!launchChecklistDraft) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(launchChecklistDraft);
+    setCopyMessage("Launch checklist copied.");
   }
 
   if (!selectedIdea || !editState) {
@@ -1615,6 +1814,85 @@ export function IdeaWorkbench({
             rows={18}
             className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
           />
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-2">
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-950">MVP spec draft</h2>
+                <p className="mt-1 text-sm text-slate-500">Generated from PRD evidence, experiments, and build gates.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={copyMvpSpecDraft}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  <Clipboard size={18} />
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    saveArtifactDraft("mvp_spec", `${selectedIdea.name} MVP spec`, mvpSpecDraft, "workbench")
+                  }
+                  disabled={isBusy || !user}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Save size={18} />
+                  Save
+                </button>
+              </div>
+            </div>
+            <textarea
+              value={mvpSpecDraft}
+              readOnly
+              rows={16}
+              className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+            />
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-950">Launch checklist draft</h2>
+                <p className="mt-1 text-sm text-slate-500">Generated from artifacts, orchestration gates, risks, and tests.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={copyLaunchChecklistDraft}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  <Clipboard size={18} />
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    saveArtifactDraft(
+                      "launch_checklist",
+                      `${selectedIdea.name} launch checklist`,
+                      launchChecklistDraft,
+                      "workbench",
+                    )
+                  }
+                  disabled={isBusy || !user}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Save size={18} />
+                  Save
+                </button>
+              </div>
+            </div>
+            <textarea
+              value={launchChecklistDraft}
+              readOnly
+              rows={16}
+              className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+            />
+          </div>
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">

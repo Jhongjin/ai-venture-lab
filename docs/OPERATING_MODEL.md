@@ -47,3 +47,4 @@ The app now supports the first live operating loop:
 10. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.
 11. Save each orchestration output and copy the generated PRD draft when the evidence is ready.
 12. Save generated briefs and PRDs into the artifact library before moving to MVP scope.
+13. Generate and save the MVP spec and launch checklist before build or release work starts.

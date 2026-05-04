@@ -18,3 +18,4 @@ Use this file for durable product, architecture, and operating decisions.
 | 2026-05-03 | Add idea-level orchestration runs | Strategy, research, product, design, build, QA, debug, security, and launch need visible ownership and status before the lab can scale | Run outputs and generated artifacts are stored |
 | 2026-05-04 | Generate PRD drafts from orchestration outputs | The workbench should turn saved specialist notes into a usable product artifact without another copy-paste pass | PRD drafts need persistence or export |
 | 2026-05-04 | Store generated venture artifacts | Idea briefs and PRDs should be durable workspace records, not only clipboard text | Artifact versioning is needed |
+| 2026-05-04 | Generate MVP spec and launch checklist drafts | PRD handoff should continue into build and release gates without leaving the workbench | Artifact versioning and approvals are needed |
