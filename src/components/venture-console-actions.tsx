@@ -41,6 +41,7 @@ export function VentureConsoleActions() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthLoaded, setIsAuthLoaded] = useState(() => !supabase);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -147,11 +148,13 @@ export function VentureConsoleActions() {
 
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
+      setIsAuthLoaded(true);
       void loadWorkspaceData(data.user);
     });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       const nextUser = session?.user ?? null;
+      setIsAuthLoaded(true);
       setUser(nextUser);
       void loadWorkspaceData(nextUser);
       router.refresh();
@@ -190,7 +193,7 @@ export function VentureConsoleActions() {
       return;
     }
 
-    setAuthMessage("Check your email for the Supabase magic link.");
+    setAuthMessage("Magic link sent. Open the email and click the link; this card will show Signed in after you return.");
   }
 
   async function handlePasswordSignIn() {
@@ -202,7 +205,7 @@ export function VentureConsoleActions() {
     }
 
     if (!email.trim() || !password) {
-      setAuthMessage("Enter email and password first.");
+      setAuthMessage("Password sign-in only works for an existing Supabase Auth user with a password. Enter both fields first.");
       return;
     }
 
@@ -415,12 +418,16 @@ export function VentureConsoleActions() {
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-slate-950">Operator access</h2>
-            <p className="mt-1 text-sm text-slate-500">Authenticated users can create venture lab records.</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Magic link uses email verification. Password sign-in is only for existing Supabase Auth users.
+            </p>
           </div>
           <ShieldCheck className={user ? "text-emerald-600" : "text-slate-500"} size={24} />
         </div>
 
-        {user ? (
+        {!isAuthLoaded ? (
+          <div className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">Checking current session...</div>
+        ) : user ? (
           <div className="grid gap-4">
             <div className="rounded-lg bg-emerald-50 p-4">
               <div className="text-sm font-semibold text-emerald-900">Signed in</div>
@@ -438,6 +445,9 @@ export function VentureConsoleActions() {
           </div>
         ) : (
           <form onSubmit={handleSignIn} className="grid gap-3">
+            <div className="rounded-lg bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+              Use magic link for a new email session. Use password only after creating a password-based user in Supabase Auth.
+            </div>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               Email
               <input
@@ -449,12 +459,12 @@ export function VentureConsoleActions() {
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              Password
+              Password for existing account
               <input
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 type="password"
-                placeholder="Optional for password sign-in"
+                placeholder="Existing Supabase Auth password only"
                 className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </label>
@@ -464,15 +474,15 @@ export function VentureConsoleActions() {
               disabled={isAuthBusy}
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <LogIn size={18} />
-              Sign in with password
+              {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
+              Sign in with existing password
             </button>
             <button
               type="submit"
               disabled={isAuthBusy}
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <LogIn size={18} />
+              {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
               Send magic link
             </button>
           </form>

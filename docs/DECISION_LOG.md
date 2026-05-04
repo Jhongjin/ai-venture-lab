@@ -26,3 +26,4 @@ Use this file for durable product, architecture, and operating decisions.
 | 2026-05-04 | Store artifact status notes | Approval and archive actions need lightweight rationale without a separate review table yet | Dedicated review threads can come after artifact diffing |
 | 2026-05-04 | Show artifact version change summaries | Operators need fast review context before approving revised PRDs or MVP specs | Full side-by-side diffs can come after review notes stabilize |
 | 2026-05-04 | Add artifact library filters | Versioned artifacts can grow quickly, so reviewers need low-friction type and status narrowing | Search and full-text artifact indexing can come later |
+| 2026-05-04 | Clarify operator auth paths | Magic link and password sign-in have different account assumptions, and operators need visible session status | A dedicated sign-up flow can be added if password onboarding becomes primary |

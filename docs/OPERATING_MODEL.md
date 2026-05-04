@@ -54,3 +54,4 @@ The app now supports the first live operating loop:
 17. Record a status note when approving, reopening, or archiving an artifact.
 18. Compare revised artifacts against the previous version before promotion.
 19. Filter the artifact library by type and lifecycle status during review.
+20. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
