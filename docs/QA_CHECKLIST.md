@@ -31,4 +31,5 @@ Use this checklist before merging meaningful changes.
 - Orchestration runs can be seeded with phase-specific output templates before saving role notes.
 - Launch readiness shows both percent complete and the next blocking gate.
 - `.codex/agents/` includes matching strategy, research, product, design, build, QA, debug, security, and launch role definitions.
+- Root-level magic link redirects with `?code=` are exchanged into a session and the URL is cleaned.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

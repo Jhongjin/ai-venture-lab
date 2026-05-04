@@ -60,3 +60,4 @@ The app now supports the first live operating loop:
 23. Use phase-specific output templates so strategy, research, product, design, build, QA, debug, security, and launch work produces comparable notes.
 24. Show the next launch blocker beside readiness percentage so operators can act on the first gate that needs attention.
 25. Keep matching `.codex/agents/` role definitions for every orchestration phase so agent delegation mirrors the app runbook.
+26. Exchange root-level `?code=` magic link redirects on the client as a fallback when Supabase sends the code to `/` instead of `/auth/callback`.

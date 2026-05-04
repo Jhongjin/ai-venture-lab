@@ -171,6 +171,56 @@ export function VentureConsoleActions() {
       return;
     }
 
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (!code) {
+      return;
+    }
+
+    const supabaseClient = supabase;
+    const authCode = code;
+
+    params.delete("code");
+    const nextQuery = params.toString();
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", nextUrl);
+
+    const exchangeTimer = window.setTimeout(() => {
+      async function completeRootMagicLink() {
+        setIsAuthBusy(true);
+        setAuthMessage("Completing magic link sign-in...");
+
+        const { data, error } = await supabaseClient.auth.exchangeCodeForSession(authCode);
+
+        setIsAuthBusy(false);
+
+        if (error) {
+          setAuthMessage(formatAuthCallbackMessage("callback_exchange_failed", error.message));
+          return;
+        }
+
+        const nextUser = data.user ?? null;
+
+        setUser(nextUser);
+        setAuthMessage("Signed in.");
+        await loadWorkspaceData(nextUser);
+        router.refresh();
+      }
+
+      void completeRootMagicLink();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(exchangeTimer);
+    };
+  }, [loadWorkspaceData, router, supabase]);
+
+  useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       setIsAuthLoaded(true);
