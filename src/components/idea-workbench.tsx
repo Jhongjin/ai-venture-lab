@@ -273,6 +273,132 @@ ${riskLines}
 `;
 }
 
+function buildPrdMarkdown({
+  idea,
+  state,
+  score,
+  recommendation,
+  risks,
+  experiments,
+  runs,
+}: {
+  idea: Idea;
+  state: EditState;
+  score: number;
+  recommendation: DecisionStatus;
+  risks: Risk[];
+  experiments: Experiment[];
+  runs: OrchestrationRun[];
+}) {
+  const riskLines =
+    risks.length > 0
+      ? risks.map((risk) => `- ${risk.title} (${risk.severity}, ${risk.status}): ${risk.mitigation || "TBD"}`).join("\n")
+      : "- No linked risks yet.";
+  const experimentLines =
+    experiments.length > 0
+      ? experiments
+          .map((experiment) => `- ${experiment.name} (${experiment.status}): ${experiment.success_metric || "Metric TBD"}`)
+          .join("\n")
+      : "- No experiments planned yet.";
+  const runLines =
+    runs.length > 0
+      ? runs
+          .map(
+            (run) =>
+              `### ${phaseLabels[run.phase]} (${run.status})\n\nOwner role: ${run.owner_role || "TBD"}\n\nObjective: ${
+                run.objective || "TBD"
+              }\n\nOutput:\n\n${run.output || "TBD"}`,
+          )
+          .join("\n\n")
+      : "No orchestration runs created yet.";
+
+  return `# PRD: ${idea.name}
+
+## Goal
+
+${idea.one_liner || "TBD"}
+
+## Users
+
+- Target user: ${idea.target_user || "TBD"}
+- Buyer: ${idea.buyer || "TBD"}
+
+## Problem Statement
+
+${state.signal || "TBD"}
+
+## Current Decision State
+
+- Stage: ${stageLabels[state.stage]}
+- Current decision: ${decisionLabels[state.decision]}
+- Venture score: ${score}
+- Suggested decision: ${decisionLabels[recommendation]}
+
+## Non-goals
+
+- Do not build beyond the smallest testable MVP until the evidence gaps are cleared.
+- Do not collect sensitive personal data without explicit data handling notes.
+
+## Requirements
+
+### Functional
+
+- Capture the core user problem and expected workflow.
+- Support the smallest prototype needed to test the next evidence item.
+- Keep risks, experiments, and decisions attached to the idea.
+
+### Non-functional
+
+- Keep the first version simple enough to test within 14 days.
+- Preserve auth, workspace, RLS, audit, and rollback paths.
+
+### Data
+
+- Idea records
+- Risks
+- Experiments
+- Decisions
+- Orchestration runs
+
+### Security and Privacy
+
+${state.risk_summary || "TBD"}
+
+## UX Notes
+
+Use the design orchestration output as the source of truth before build work begins.
+
+## Analytics
+
+- Activation: user reaches the key workflow outcome.
+- Validation: experiment success metric is met.
+- Risk: unresolved high or critical risks remain visible.
+
+## Verification Plan
+
+${experimentLines}
+
+## Orchestration Notes
+
+${runLines}
+
+## Launch Risks
+
+${riskLines}
+
+## Release Criteria
+
+- Evidence gaps are resolved or explicitly accepted.
+- High and critical risks are mitigated or blocked.
+- QA and security runs are marked done.
+- Final decision is recorded.
+
+## Open Questions
+
+${state.next_evidence || "TBD"}
+`;
+}
+
 export function IdeaWorkbench({
   initialIdeas,
   initialRisks,
@@ -309,6 +435,9 @@ export function IdeaWorkbench({
     owner_role: "strategy-reviewer",
     objective: orchestrationPhaseConfigs[0].objective,
   });
+  const [runOutputs, setRunOutputs] = useState<Record<string, string>>(
+    Object.fromEntries(initialOrchestrationRuns.map((run) => [run.id, run.output])),
+  );
   const [user, setUser] = useState<User | null>(null);
   const [memberships, setMemberships] = useState<OrganizationMember[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -403,6 +532,17 @@ export function IdeaWorkbench({
         score: currentScore,
         recommendation: scoreRecommendation,
         risks: selectedRisks.filter((risk) => risk.idea_id === selectedIdea.id),
+      })
+    : "";
+  const prdDraft = selectedIdea && editState
+    ? buildPrdMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        score: currentScore,
+        recommendation: scoreRecommendation,
+        risks: selectedRisks.filter((risk) => risk.idea_id === selectedIdea.id),
+        experiments: selectedExperiments,
+        runs: selectedRuns,
       })
     : "";
   const visibleIdeas = useMemo(() => {
@@ -615,6 +755,7 @@ export function IdeaWorkbench({
     }
 
     setOrchestrationRuns((current) => [data, ...current]);
+    setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
     setMessage("Orchestration run added.");
     router.refresh();
   }
@@ -658,6 +799,10 @@ export function IdeaWorkbench({
     }
 
     setOrchestrationRuns((current) => [...(data ?? []), ...current]);
+    setRunOutputs((current) => ({
+      ...current,
+      ...Object.fromEntries((data ?? []).map((run) => [run.id, run.output])),
+    }));
     setMessage("Full orchestration runbook created.");
     router.refresh();
   }
@@ -729,6 +874,38 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
+  async function saveRunOutput(run: OrchestrationRun) {
+    if (!supabase) {
+      setMessage("Supabase is not configured.");
+      return;
+    }
+
+    if (!canManageRecord(run)) {
+      setMessage("Only the run owner or workspace admin can save this orchestration output.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("orchestration_runs")
+      .update({ output: runOutputs[run.id] ?? "" })
+      .eq("id", run.id)
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
+    setMessage(`${phaseLabels[run.phase]} output saved.`);
+    router.refresh();
+  }
+
   async function updateRiskStatus(risk: Risk, status: string) {
     if (!supabase) {
       setMessage("Supabase is not configured.");
@@ -767,6 +944,15 @@ export function IdeaWorkbench({
 
     await navigator.clipboard.writeText(ideaBrief);
     setCopyMessage("Idea brief copied.");
+  }
+
+  async function copyPrdDraft() {
+    if (!prdDraft) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(prdDraft);
+    setCopyMessage("PRD draft copied.");
   }
 
   if (!selectedIdea || !editState) {
@@ -1088,7 +1274,23 @@ export function IdeaWorkbench({
                       ))}
                     </div>
                   </div>
-                  {run.output ? <p className="mt-3 text-sm leading-6 text-slate-600">{run.output}</p> : null}
+                  <div className="mt-4 grid gap-3">
+                    <TextArea
+                      label="Output"
+                      value={runOutputs[run.id] ?? run.output}
+                      disabled={!canManageRecord(run)}
+                      onChange={(value) => setRunOutputs((current) => ({ ...current, [run.id]: value }))}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => saveRunOutput(run)}
+                      disabled={isBusy || !canManageRecord(run) || (runOutputs[run.id] ?? run.output) === run.output}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                    >
+                      <Save size={16} />
+                      Save output
+                    </button>
+                  </div>
                 </div>
               ))
             ) : (
@@ -1306,6 +1508,31 @@ export function IdeaWorkbench({
             className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
           />
           {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">PRD draft</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Generated from score, evidence, risks, experiments, and orchestration outputs.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={copyPrdDraft}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              <Clipboard size={18} />
+              Copy PRD
+            </button>
+          </div>
+          <textarea
+            value={prdDraft}
+            readOnly
+            rows={18}
+            className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+          />
         </div>
 
         {message ? <p className="text-sm leading-6 text-slate-600">{message}</p> : null}

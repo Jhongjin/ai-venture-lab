@@ -16,4 +16,5 @@ Use this checklist before merging meaningful changes.
 - Experiment owners can move experiments through planned, running, and done states.
 - Risk owners can move risks through open, mitigating, and closed states.
 - Authenticated operators can create an idea-level orchestration runbook and move runs through planned, running, blocked, done, and skipped states.
+- Run owners can save orchestration outputs and see those outputs reflected in the generated PRD draft.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

@@ -16,3 +16,4 @@ Use this file for durable product, architecture, and operating decisions.
 | 2026-05-03 | Add experiment status transitions | Operators need to see whether a test is planned, running, or done | Experiment outcomes are captured |
 | 2026-05-03 | Add risk status transitions | Risks need an operational lifecycle, not just a static note | Risk severity and ownership filters are expanded |
 | 2026-05-03 | Add idea-level orchestration runs | Strategy, research, product, design, build, QA, debug, security, and launch need visible ownership and status before the lab can scale | Run outputs and generated artifacts are stored |
+| 2026-05-04 | Generate PRD drafts from orchestration outputs | The workbench should turn saved specialist notes into a usable product artifact without another copy-paste pass | PRD drafts need persistence or export |
