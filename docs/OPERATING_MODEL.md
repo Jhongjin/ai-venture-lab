@@ -55,3 +55,4 @@ The app now supports the first live operating loop:
 18. Compare revised artifacts against the previous version before promotion.
 19. Filter the artifact library by type and lifecycle status during review.
 20. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
+21. Route magic links through `/auth/callback` so Supabase auth codes become app sessions before returning home.

@@ -26,4 +26,5 @@ Use this checklist before merging meaningful changes.
 - Revised artifacts show a previous-version line change summary when a comparable version exists.
 - Artifact library filters narrow saved artifacts by type and lifecycle status without changing readiness inputs.
 - Operator access clearly distinguishes magic link login from existing password-account login and shows session status.
+- Magic link email redirect lands on `/auth/callback`, exchanges the code, and returns to the app as signed in.
 - Header metrics include idea, risk, experiment, decision, and data-source state.
