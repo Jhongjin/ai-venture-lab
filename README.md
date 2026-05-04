@@ -20,6 +20,10 @@ pnpm dev
 
 Open `http://localhost:3000`.
 
+## User Testing Guide
+
+Use `docs/USER_TEST_GUIDE.md` for the Korean walkthrough of the production console, including login, workspace setup, field-by-field sample inputs, scoring, risks, experiments, orchestration runs, artifact approvals, and launch-readiness testing.
+
 ## Quality Gate
 
 ```bash

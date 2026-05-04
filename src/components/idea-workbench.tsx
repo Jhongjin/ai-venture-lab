@@ -25,16 +25,16 @@ const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot"
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
 const artifactLabels: Record<VentureArtifactType, string> = {
-  idea_brief: "Idea brief",
-  research_note: "Research note",
+  idea_brief: "아이디어 브리프",
+  research_note: "리서치 노트",
   prd: "PRD",
-  mvp_spec: "MVP spec",
-  launch_checklist: "Launch checklist",
+  mvp_spec: "MVP 명세",
+  launch_checklist: "출시 체크리스트",
 };
 const artifactStatusLabels: Record<VentureArtifactStatus, string> = {
-  draft: "Draft",
-  approved: "Approved",
-  archived: "Archived",
+  draft: "초안",
+  approved: "승인됨",
+  archived: "보관됨",
 };
 const artifactStatusTone: Record<VentureArtifactStatus, string> = {
   draft: "bg-slate-100 text-slate-700",
@@ -42,11 +42,44 @@ const artifactStatusTone: Record<VentureArtifactStatus, string> = {
   archived: "bg-amber-100 text-amber-800",
 };
 const artifactStatusDefaultNotes: Record<VentureArtifactStatus, string> = {
-  draft: "Returned to draft for revision.",
-  approved: "Approved for the next gate.",
-  archived: "Archived from the active decision path.",
+  draft: "수정을 위해 초안 상태로 되돌렸습니다.",
+  approved: "다음 게이트 진행을 위해 승인했습니다.",
+  archived: "현재 판단 경로에서 보관 처리했습니다.",
 };
 const adminRoles = new Set(["owner", "admin"]);
+const riskSeverityLabels: Record<RiskSeverity, string> = {
+  low: "낮음",
+  medium: "보통",
+  high: "높음",
+  critical: "치명적",
+};
+const riskStatusLabels: Record<string, string> = {
+  open: "열림",
+  mitigating: "완화 중",
+  closed: "종료",
+};
+const filterModeLabels: Record<"all" | "mine" | "read_only", string> = {
+  all: "전체",
+  mine: "내 기록",
+  read_only: "읽기 전용",
+};
+const editabilityLabels = {
+  editable: "편집 가능",
+  orgAdmin: "조직 관리자",
+  readOnly: "읽기 전용",
+};
+const experimentStatusLabels: Record<string, string> = {
+  planned: "계획",
+  running: "진행 중",
+  done: "완료",
+};
+const runStatusLabels: Record<OrchestrationStatus, string> = {
+  planned: "계획",
+  running: "진행 중",
+  blocked: "차단",
+  done: "완료",
+  skipped: "건너뜀",
+};
 
 const orchestrationPhaseConfigs: Array<{
   phase: OrchestrationPhase;
@@ -56,57 +89,57 @@ const orchestrationPhaseConfigs: Array<{
 }> = [
   {
     phase: "strategy",
-    label: "Strategy",
+    label: "전략",
     ownerRole: "strategy-reviewer",
-    objective: "Define opportunity, decision criteria, constraints, and next commitment.",
+    objective: "기회, 판단 기준, 제약 조건, 다음 실행 약속을 정의합니다.",
   },
   {
     phase: "research",
-    label: "Research",
+    label: "리서치",
     ownerRole: "market-research",
-    objective: "Validate user pain, market pull, competitors, and regulatory facts with sources.",
+    objective: "사용자 고통, 시장 수요, 경쟁 서비스, 규제 사실을 출처와 함께 검증합니다.",
   },
   {
     phase: "product",
-    label: "Product",
+    label: "제품",
     ownerRole: "prd-writer",
-    objective: "Turn validated evidence into the smallest PRD and acceptance criteria.",
+    objective: "검증된 증거를 가장 작은 PRD와 수용 기준으로 전환합니다.",
   },
   {
     phase: "design",
-    label: "Design",
+    label: "디자인",
     ownerRole: "design-reviewer",
-    objective: "Map flows, screens, empty states, and usability risks before implementation.",
+    objective: "구현 전에 흐름, 화면, 빈 상태, 사용성 리스크를 정리합니다.",
   },
   {
     phase: "build",
-    label: "Build",
+    label: "개발",
     ownerRole: "prototype-builder",
-    objective: "Build the smallest useful prototype that can test the current assumption.",
+    objective: "현재 가설을 검증할 수 있는 가장 작은 유용한 프로토타입을 만듭니다.",
   },
   {
     phase: "qa",
     label: "QA",
     ownerRole: "qa-runner",
-    objective: "Verify the core journey, regression surface, and launch checklist.",
+    objective: "핵심 여정, 회귀 위험, 출시 체크리스트를 검증합니다.",
   },
   {
     phase: "debug",
-    label: "Debug",
+    label: "디버깅",
     ownerRole: "qa-debug",
-    objective: "Reproduce failures, isolate cause, patch, and record the verification path.",
+    objective: "실패를 재현하고 원인을 분리한 뒤 수정 및 검증 경로를 기록합니다.",
   },
   {
     phase: "security",
-    label: "Security",
+    label: "보안",
     ownerRole: "security-reviewer",
-    objective: "Review PII, secrets, permissions, abuse paths, retention, and compliance claims.",
+    objective: "개인정보, 비밀값, 권한, 악용 경로, 보관, 컴플라이언스 주장을 검토합니다.",
   },
   {
     phase: "launch",
-    label: "Launch",
+    label: "출시",
     ownerRole: "launch-gate",
-    objective: "Make the ship, pivot, kill, or research-more decision with evidence attached.",
+    objective: "증거를 바탕으로 진행, 전환, 중단, 추가 조사 판단을 내립니다.",
   },
 ];
 const phaseOrder = new Map(orchestrationPhaseConfigs.map((config, index) => [config.phase, index]));
@@ -122,22 +155,26 @@ const runStatusTone: Record<OrchestrationStatus, string> = {
 };
 
 const stageLabels: Record<IdeaStage, string> = {
-  intake: "Intake",
-  research: "Research",
-  score: "Score",
+  intake: "접수",
+  research: "리서치",
+  score: "점수화",
   prd: "PRD",
-  prototype: "Prototype",
+  prototype: "프로토타입",
   qa: "QA",
-  launch: "Launch",
-  paused: "Paused",
+  launch: "출시",
+  paused: "보류",
 };
 
 const decisionLabels: Record<DecisionStatus, string> = {
-  pending: "Pending",
-  research_more: "Research more",
-  ship: "Ship",
-  pivot: "Pivot",
-  kill: "Kill",
+  pending: "대기",
+  research_more: "추가 조사",
+  ship: "진행",
+  pivot: "전환",
+  kill: "중단",
+};
+const artifactSourceLabels: Record<string, string> = {
+  workbench: "워크벤치",
+  manual: "수동",
 };
 
 type EditState = Pick<
@@ -223,27 +260,27 @@ function missingEvidence(idea: Idea, state: EditState, riskCount: number) {
   const missing = [];
 
   if (!idea.one_liner.trim()) {
-    missing.push("one-liner");
+    missing.push("한 줄 설명");
   }
 
   if (!idea.target_user.trim()) {
-    missing.push("target user");
+    missing.push("대상 사용자");
   }
 
   if (!idea.buyer.trim()) {
-    missing.push("buyer");
+    missing.push("구매자");
   }
 
   if (!state.signal.trim()) {
-    missing.push("signal");
+    missing.push("수요 신호");
   }
 
   if (!state.next_evidence.trim()) {
-    missing.push("next evidence");
+    missing.push("다음 증거");
   }
 
   if (riskCount === 0) {
-    missing.push("linked risk");
+    missing.push("연결된 리스크");
   }
 
   return missing;
@@ -264,34 +301,36 @@ function buildIdeaBriefMarkdown({
 }) {
   const riskLines =
     risks.length > 0
-      ? risks.map((risk) => `- ${risk.title} (${risk.severity}): ${risk.mitigation || "Mitigation TBD"}`).join("\n")
-      : "- No linked risks yet.";
+      ? risks
+          .map((risk) => `- ${risk.title} (${riskSeverityLabels[risk.severity]}): ${risk.mitigation || "완화 방안 미정"}`)
+          .join("\n")
+      : "- 아직 연결된 리스크가 없습니다.";
 
-  return `# Idea Brief: ${idea.name}
+  return `# 아이디어 브리프: ${idea.name}
 
-## Summary
+## 요약
 
-- One-liner: ${idea.one_liner || "TBD"}
-- Target user: ${idea.target_user || "TBD"}
-- Buyer: ${idea.buyer || "TBD"}
-- Stage: ${stageLabels[state.stage]}
-- Decision: ${decisionLabels[state.decision]}
-- Score: ${score}
-- Suggested decision: ${decisionLabels[recommendation]}
+- 한 줄 설명: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+- 점수: ${score}
+- 추천 판단: ${decisionLabels[recommendation]}
 
-## Signal
+## 수요 신호
 
-${state.signal || "TBD"}
+${state.signal || "미정"}
 
-## Risk Summary
+## 리스크 요약
 
-${state.risk_summary || "TBD"}
+${state.risk_summary || "미정"}
 
-## Next Evidence
+## 다음에 확인할 증거
 
-${state.next_evidence || "TBD"}
+${state.next_evidence || "미정"}
 
-## Linked Risks
+## 연결된 리스크
 
 ${riskLines}
 `;
@@ -316,110 +355,122 @@ function buildPrdMarkdown({
 }) {
   const riskLines =
     risks.length > 0
-      ? risks.map((risk) => `- ${risk.title} (${risk.severity}, ${risk.status}): ${risk.mitigation || "TBD"}`).join("\n")
-      : "- No linked risks yet.";
+      ? risks
+          .map(
+            (risk) =>
+              `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
+                risk.mitigation || "미정"
+              }`,
+          )
+          .join("\n")
+      : "- 아직 연결된 리스크가 없습니다.";
   const experimentLines =
     experiments.length > 0
       ? experiments
-          .map((experiment) => `- ${experiment.name} (${experiment.status}): ${experiment.success_metric || "Metric TBD"}`)
+          .map(
+            (experiment) =>
+              `- ${experiment.name} (${experimentStatusLabels[experiment.status] ?? experiment.status}): ${
+                experiment.success_metric || "성공 지표 미정"
+              }`,
+          )
           .join("\n")
-      : "- No experiments planned yet.";
+      : "- 아직 계획된 실험이 없습니다.";
   const runLines =
     runs.length > 0
       ? runs
           .map(
             (run) =>
-              `### ${phaseLabels[run.phase]} (${run.status})\n\nOwner role: ${run.owner_role || "TBD"}\n\nObjective: ${
-                run.objective || "TBD"
-              }\n\nOutput:\n\n${run.output || "TBD"}`,
+              `### ${phaseLabels[run.phase]} (${runStatusLabels[run.status]})\n\n담당 역할: ${
+                run.owner_role || "미정"
+              }\n\n목표: ${run.objective || "미정"}\n\n산출물:\n\n${run.output || "미정"}`,
           )
           .join("\n\n")
-      : "No orchestration runs created yet.";
+      : "아직 오케스트레이션 실행 기록이 없습니다.";
 
   return `# PRD: ${idea.name}
 
-## Goal
+## 목표
 
-${idea.one_liner || "TBD"}
+${idea.one_liner || "미정"}
 
-## Users
+## 사용자
 
-- Target user: ${idea.target_user || "TBD"}
-- Buyer: ${idea.buyer || "TBD"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
 
-## Problem Statement
+## 문제 정의
 
-${state.signal || "TBD"}
+${state.signal || "미정"}
 
-## Current Decision State
+## 현재 판단 상태
 
-- Stage: ${stageLabels[state.stage]}
-- Current decision: ${decisionLabels[state.decision]}
-- Venture score: ${score}
-- Suggested decision: ${decisionLabels[recommendation]}
+- 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+- 벤처 점수: ${score}
+- 추천 판단: ${decisionLabels[recommendation]}
 
-## Non-goals
+## 하지 않을 것
 
-- Do not build beyond the smallest testable MVP until the evidence gaps are cleared.
-- Do not collect sensitive personal data without explicit data handling notes.
+- 증거 공백이 해결되기 전에는 검증 가능한 최소 MVP 범위를 넘기지 않습니다.
+- 데이터 처리 방침 없이 민감한 개인정보를 수집하지 않습니다.
 
-## Requirements
+## 요구사항
 
-### Functional
+### 기능 요구사항
 
-- Capture the core user problem and expected workflow.
-- Support the smallest prototype needed to test the next evidence item.
-- Keep risks, experiments, and decisions attached to the idea.
+- 핵심 사용자 문제와 예상 워크플로우를 기록합니다.
+- 다음 증거를 검증하는 데 필요한 최소 프로토타입을 지원합니다.
+- 리스크, 실험, 판단 기록을 아이디어에 연결합니다.
 
-### Non-functional
+### 비기능 요구사항
 
-- Keep the first version simple enough to test within 14 days.
-- Preserve auth, workspace, RLS, audit, and rollback paths.
+- 첫 버전은 14일 안에 테스트할 수 있을 만큼 작게 유지합니다.
+- 인증, 워크스페이스, RLS, 감사 로그, 롤백 경로를 유지합니다.
 
-### Data
+### 데이터
 
-- Idea records
-- Risks
-- Experiments
-- Decisions
-- Orchestration runs
+- 아이디어 기록
+- 리스크
+- 실험
+- 판단 기록
+- 오케스트레이션 실행
 
-### Security and Privacy
+### 보안과 개인정보
 
-${state.risk_summary || "TBD"}
+${state.risk_summary || "미정"}
 
-## UX Notes
+## UX 메모
 
-Use the design orchestration output as the source of truth before build work begins.
+개발 전에 디자인 오케스트레이션 산출물을 기준으로 화면과 상태를 확정합니다.
 
-## Analytics
+## 지표
 
-- Activation: user reaches the key workflow outcome.
-- Validation: experiment success metric is met.
-- Risk: unresolved high or critical risks remain visible.
+- 활성화: 사용자가 핵심 워크플로우 결과에 도달합니다.
+- 검증: 실험 성공 지표를 충족합니다.
+- 리스크: 해결되지 않은 높음/치명적 리스크가 계속 보입니다.
 
-## Verification Plan
+## 검증 계획
 
 ${experimentLines}
 
-## Orchestration Notes
+## 오케스트레이션 메모
 
 ${runLines}
 
-## Launch Risks
+## 출시 리스크
 
 ${riskLines}
 
-## Release Criteria
+## 릴리스 기준
 
-- Evidence gaps are resolved or explicitly accepted.
-- High and critical risks are mitigated or blocked.
-- QA and security runs are marked done.
-- Final decision is recorded.
+- 증거 공백이 해결되었거나 명시적으로 수용되었습니다.
+- 높음/치명적 리스크가 완화되었거나 차단 상태입니다.
+- QA와 보안 실행이 완료되었습니다.
+- 최종 판단이 기록되었습니다.
 
-## Open Questions
+## 열린 질문
 
-${state.next_evidence || "TBD"}
+${state.next_evidence || "미정"}
 `;
 }
 
@@ -441,42 +492,42 @@ function buildMvpSpecMarkdown({
   const experimentLines =
     experiments.length > 0
       ? experiments
-          .map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "Success metric TBD"}`)
+          .map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`)
           .join("\n")
-      : "- Define one measurable experiment before build.";
+      : "- 개발 전에 측정 가능한 실험을 하나 정의합니다.";
 
-  return `# MVP Spec: ${idea.name}
+  return `# MVP 명세: ${idea.name}
 
-## Hypothesis
+## 가설
 
-If we build the smallest workflow for ${idea.target_user || "the target user"}, then we can validate ${
-    state.next_evidence || "the next evidence item"
-  }.
+${idea.target_user || "대상 사용자"}를 위한 가장 작은 워크플로우를 만들면 ${
+    state.next_evidence || "다음 증거"
+  }를 검증할 수 있습니다.
 
-## Must Have
+## 반드시 포함
 
-- One focused user journey tied to: ${idea.one_liner || "TBD"}
-- Data capture only for fields needed to test the hypothesis.
-- Visible risk and experiment tracking for the selected idea.
-- Authenticated workspace access.
+- ${idea.one_liner || "미정"}에 연결된 하나의 집중된 사용자 여정
+- 가설 검증에 필요한 필드만 수집
+- 선택한 아이디어의 리스크와 실험 추적
+- 인증된 워크스페이스 접근
 
-## Should Have
+## 있으면 좋은 것
 
-- Clear empty and error states.
-- Copyable or saved artifacts for handoff.
-- Basic audit trail through Supabase records.
+- 명확한 빈 상태와 오류 상태
+- 복사 또는 저장 가능한 산출물
+- Supabase 기록 기반의 기본 감사 추적
 
-## Not Yet
+## 아직 하지 않을 것
 
-- Broad multi-product navigation.
-- Advanced automation that touches external accounts.
-- Sensitive production data collection without security review.
+- 여러 제품을 아우르는 넓은 탐색 구조
+- 외부 계정을 직접 조작하는 고급 자동화
+- 보안 검토 없는 민감한 운영 데이터 수집
 
-## Screens
+## 화면
 
-${designRun?.output || "Use the design orchestration output to define screens."}
+${designRun?.output || "디자인 오케스트레이션 산출물을 기준으로 화면을 정의합니다."}
 
-## Data Model
+## 데이터 모델
 
 - ideas
 - risks
@@ -485,34 +536,34 @@ ${designRun?.output || "Use the design orchestration output to define screens."}
 - orchestration_runs
 - venture_artifacts
 
-## Integrations
+## 연동
 
 - Supabase Auth and Postgres
-- Vercel deployment
-- Future AI/model calls only after the manual harness is reliable
+- Vercel 배포
+- 수동 하네스가 안정화된 뒤 AI/model 호출 추가
 
-## Prototype Notes
+## 프로토타입 메모
 
-${buildRun?.output || "Use the build orchestration output to define implementation scope."}
+${buildRun?.output || "개발 오케스트레이션 산출물을 기준으로 구현 범위를 정의합니다."}
 
-## Verification Plan
+## 검증 계획
 
 ${experimentLines}
 
-QA notes:
+QA 메모:
 
-${qaRun?.output || "QA run output TBD."}
+${qaRun?.output || "QA 실행 산출물 미정"}
 
-Security notes:
+보안 메모:
 
-${securityRun?.output || state.risk_summary || "Security run output TBD."}
+${securityRun?.output || state.risk_summary || "보안 실행 산출물 미정"}
 
-## Launch Gate
+## 출시 게이트
 
-- PRD artifact saved.
-- MVP spec artifact saved.
-- At least one experiment is planned.
-- QA and security runs are done or explicitly accepted as open risk.
+- PRD 산출물이 저장됨
+- MVP 명세 산출물이 저장됨
+- 최소 하나의 실험이 계획됨
+- QA와 보안 실행이 완료되었거나 열린 리스크로 명시 수용됨
 `;
 }
 
@@ -543,266 +594,266 @@ function buildLaunchChecklistMarkdown({
   const donePhases = new Set(runs.filter((run) => run.status === "done").map((run) => run.phase));
   const plannedExperimentLines =
     experiments.length > 0
-      ? experiments.map((experiment) => `- [ ] ${experiment.name}: ${experiment.success_metric || "Metric TBD"}`).join("\n")
-      : "- [ ] Add one measurable experiment.";
+      ? experiments.map((experiment) => `- [ ] ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
+      : "- [ ] 측정 가능한 실험을 하나 추가합니다.";
 
-  return `# Launch Checklist: ${idea.name}
+  return `# 출시 체크리스트: ${idea.name}
 
-## Decision
+## 판단
 
-- Current decision: ${decisionLabels[state.decision]}
-- Current stage: ${stageLabels[state.stage]}
-- Next evidence: ${state.next_evidence || "TBD"}
+- 현재 판단: ${decisionLabels[state.decision]}
+- 현재 단계: ${stageLabels[state.stage]}
+- 다음 증거: ${state.next_evidence || "미정"}
 
-## Product Artifacts
+## 제품 산출물
 
-- [${hasPrd ? "x" : " "}] PRD artifact saved
-- [${hasApprovedPrd ? "x" : " "}] PRD artifact approved
-- [${hasMvpSpec ? "x" : " "}] MVP spec artifact saved
-- [${hasApprovedMvpSpec ? "x" : " "}] MVP spec artifact approved
-- [${artifacts.some((artifact) => artifact.artifact_type === "idea_brief") ? "x" : " "}] Idea brief artifact saved
+- [${hasPrd ? "x" : " "}] PRD 산출물 저장
+- [${hasApprovedPrd ? "x" : " "}] PRD 산출물 승인
+- [${hasMvpSpec ? "x" : " "}] MVP 명세 산출물 저장
+- [${hasApprovedMvpSpec ? "x" : " "}] MVP 명세 산출물 승인
+- [${artifacts.some((artifact) => artifact.artifact_type === "idea_brief") ? "x" : " "}] 아이디어 브리프 산출물 저장
 
-## Orchestration Gates
+## 오케스트레이션 게이트
 
-- [${donePhases.has("strategy") ? "x" : " "}] Strategy run complete
-- [${donePhases.has("research") ? "x" : " "}] Research run complete
-- [${donePhases.has("product") ? "x" : " "}] Product run complete
-- [${donePhases.has("design") ? "x" : " "}] Design run complete
-- [${donePhases.has("build") ? "x" : " "}] Build run complete
-- [${donePhases.has("qa") ? "x" : " "}] QA run complete
-- [${donePhases.has("security") ? "x" : " "}] Security run complete
-- [${donePhases.has("launch") ? "x" : " "}] Launch run complete
+- [${donePhases.has("strategy") ? "x" : " "}] 전략 실행 완료
+- [${donePhases.has("research") ? "x" : " "}] 리서치 실행 완료
+- [${donePhases.has("product") ? "x" : " "}] 제품 실행 완료
+- [${donePhases.has("design") ? "x" : " "}] 디자인 실행 완료
+- [${donePhases.has("build") ? "x" : " "}] 개발 실행 완료
+- [${donePhases.has("qa") ? "x" : " "}] QA 실행 완료
+- [${donePhases.has("security") ? "x" : " "}] 보안 실행 완료
+- [${donePhases.has("launch") ? "x" : " "}] 출시 실행 완료
 
-## Experiment Gate
+## 실험 게이트
 
 ${plannedExperimentLines}
 
-## Risk Gate
+## 리스크 게이트
 
-${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- [x] No high or critical linked risks currently visible."}
+${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- [x] 현재 높음/치명적 연결 리스크가 없습니다."}
 
-## Operational Gate
+## 운영 게이트
 
-- [ ] Core journey tested in production-like environment
-- [ ] Error and empty states reviewed
-- [ ] Supabase RLS verified for workspace records
-- [ ] Vercel environment variables verified
-- [ ] Rollback path named
-- [ ] Final decision recorded
+- [ ] 운영 환경과 유사한 환경에서 핵심 여정 테스트
+- [ ] 오류 상태와 빈 상태 검토
+- [ ] 워크스페이스 기록의 Supabase RLS 검증
+- [ ] Vercel 환경변수 검증
+- [ ] 롤백 경로 지정
+- [ ] 최종 판단 기록
 `;
 }
 
 function buildRunOutputTemplate(run: OrchestrationRun, idea: Idea, state: EditState) {
   const context = [
-    `Idea: ${idea.name}`,
-    `Stage: ${stageLabels[state.stage]}`,
-    `Decision: ${decisionLabels[state.decision]}`,
-    `Next evidence: ${state.next_evidence || "TBD"}`,
+    `아이디어: ${idea.name}`,
+    `단계: ${stageLabels[state.stage]}`,
+    `판단: ${decisionLabels[state.decision]}`,
+    `다음 증거: ${state.next_evidence || "미정"}`,
   ].join("\n");
 
   const templates: Record<OrchestrationPhase, string> = {
-    strategy: `# Strategy Output
+    strategy: `# 전략 산출물
 
 ${context}
 
-## Opportunity
-- User pain:
-- Buyer:
-- Trigger:
+## 기회
+- 사용자 고통:
+- 구매자:
+- 발생 계기:
 
-## Decision Criteria
-- Must prove:
-- Kill condition:
-- Promote condition:
+## 판단 기준
+- 반드시 증명할 것:
+- 중단 조건:
+- 승격 조건:
 
-## Constraints
-- Time:
-- Budget:
-- Legal/security:
+## 제약 조건
+- 시간:
+- 예산:
+- 법무/보안:
 
-## Next Commitment
-- Owner:
-- Action:
-- Due:
+## 다음 실행 약속
+- 담당자:
+- 실행:
+- 기한:
 `,
-    research: `# Research Output
+    research: `# 리서치 산출물
 
 ${context}
 
-## Sources Checked
-- Source:
-- Source:
-- Source:
+## 확인한 출처
+- 출처:
+- 출처:
+- 출처:
 
-## Market Evidence
-- User pain:
-- Existing alternatives:
-- Willingness-to-pay signal:
+## 시장 증거
+- 사용자 고통:
+- 기존 대안:
+- 지불 의사 신호:
 
-## Risk Evidence
-- Regulatory:
-- Privacy:
-- Competitive:
+## 리스크 증거
+- 규제:
+- 개인정보:
+- 경쟁:
 
-## Confidence
-- What is now known:
-- What is still unknown:
-- Next evidence:
+## 확신도
+- 알게 된 것:
+- 아직 모르는 것:
+- 다음 증거:
 `,
-    product: `# Product Output
+    product: `# 제품 산출물
 
 ${context}
 
-## User Story
-As a:
-I want:
-So that:
+## 사용자 이야기
+사용자로서:
+나는:
+그 이유는:
 
-## MVP Requirements
-- Must have:
-- Should have:
-- Not yet:
+## MVP 요구사항
+- 반드시 포함:
+- 있으면 좋음:
+- 아직 제외:
 
-## Acceptance Criteria
-- Given/when/then:
-- Given/when/then:
+## 수용 기준
+- 조건/행동/결과:
+- 조건/행동/결과:
 
-## Analytics
-- Activation:
-- Success metric:
-- Failure signal:
+## 지표
+- 활성화:
+- 성공 지표:
+- 실패 신호:
 `,
-    design: `# Design Output
+    design: `# 디자인 산출물
 
 ${context}
 
-## Primary Flow
-1. Entry:
-2. Core action:
-3. Success state:
+## 주요 흐름
+1. 진입:
+2. 핵심 행동:
+3. 성공 상태:
 
-## Screens And States
-- Empty:
-- Loading:
-- Error:
-- Success:
+## 화면과 상태
+- 빈 상태:
+- 로딩:
+- 오류:
+- 성공:
 
-## Usability Risks
-- Mobile:
-- Accessibility:
-- Confusing copy:
+## 사용성 리스크
+- 모바일:
+- 접근성:
+- 혼동되는 문구:
 
-## Design Decision
-- Ship as-is:
-- Revise before build:
+## 디자인 판단
+- 그대로 진행:
+- 개발 전 수정:
 `,
-    build: `# Build Output
+    build: `# 개발 산출물
 
 ${context}
 
-## Implementation Scope
-- Files/modules:
-- Data changes:
-- External services:
+## 구현 범위
+- 파일/모듈:
+- 데이터 변경:
+- 외부 서비스:
 
-## Plan
-1. Build:
-2. Verify:
-3. Deploy:
+## 계획
+1. 구현:
+2. 검증:
+3. 배포:
 
-## Guardrails
-- Feature flag or rollback:
-- Secrets/env:
-- Migration risk:
+## 안전장치
+- 기능 플래그 또는 롤백:
+- 비밀값/환경변수:
+- 마이그레이션 리스크:
 
-## Done When
-- User-visible result:
-- Tests:
-- Deployment:
+## 완료 기준
+- 사용자에게 보이는 결과:
+- 테스트:
+- 배포:
 `,
-    qa: `# QA Output
+    qa: `# QA 산출물
 
 ${context}
 
-## Core Journey
-- Steps tested:
-- Result:
+## 핵심 여정
+- 테스트한 단계:
+- 결과:
 
-## Regression Surface
-- Auth:
-- Data writes:
-- Artifact/run workflow:
-- Mobile layout:
+## 회귀 확인 범위
+- 인증:
+- 데이터 쓰기:
+- 산출물/실행 워크플로우:
+- 모바일 레이아웃:
 
-## Failures
-- Issue:
-- Repro:
-- Severity:
+## 실패
+- 이슈:
+- 재현:
+- 심각도:
 
-## Verdict
-- Pass/block:
-- Evidence:
+## 판정
+- 통과/차단:
+- 증거:
 `,
-    debug: `# Debug Output
+    debug: `# 디버깅 산출물
 
 ${context}
 
-## Reproduction
-- Environment:
-- Steps:
-- Expected:
-- Actual:
+## 재현
+- 환경:
+- 단계:
+- 기대 결과:
+- 실제 결과:
 
-## Diagnosis
-- Suspected cause:
-- Evidence:
+## 진단
+- 추정 원인:
+- 증거:
 
-## Fix
-- Change:
-- Verification:
-- Residual risk:
+## 수정
+- 변경:
+- 검증:
+- 남은 리스크:
 `,
-    security: `# Security Output
+    security: `# 보안 산출물
 
 ${context}
 
-## Data Classification
-- PII:
-- Secrets:
-- Sensitive business data:
+## 데이터 분류
+- 개인정보:
+- 비밀값:
+- 민감한 비즈니스 데이터:
 
-## Access Control
-- Auth requirement:
-- RLS/permissions:
-- Admin actions:
+## 접근 제어
+- 인증 요구:
+- RLS/권한:
+- 관리자 행동:
 
-## Abuse And Privacy
-- Abuse path:
-- Retention:
-- Consent/notice:
+## 악용과 개인정보
+- 악용 경로:
+- 보관:
+- 동의/고지:
 
-## Verdict
-- Pass/block:
-- Required mitigation:
+## 판정
+- 통과/차단:
+- 필요한 완화:
 `,
-    launch: `# Launch Output
+    launch: `# 출시 산출물
 
 ${context}
 
-## Readiness
-- Approved PRD:
-- Approved MVP spec:
-- QA gate:
-- Security gate:
+## 준비 상태
+- 승인된 PRD:
+- 승인된 MVP 명세:
+- QA 게이트:
+- 보안 게이트:
 
-## Decision
-- Ship/pivot/kill/research more:
-- Reason:
+## 판단
+- 진행/전환/중단/추가 조사:
+- 이유:
 
-## Release Plan
-- Owner:
-- Rollback:
-- First metric to watch:
+## 릴리스 계획
+- 담당자:
+- 롤백:
+- 먼저 볼 지표:
 `,
   };
 
@@ -1061,54 +1112,54 @@ export function IdeaWorkbench({
   const launchReadiness = selectedIdea && editState
     ? [
         {
-          label: "Evidence complete",
+          label: "기본 증거 완료",
           passed: missing.length === 0,
-          detail: missing.length === 0 ? "No basic evidence gaps" : missing.join(", "),
+          detail: missing.length === 0 ? "필수 증거 공백이 없습니다." : missing.join(", "),
         },
         {
-          label: "PRD approved",
+          label: "PRD 승인",
           passed: selectedArtifactRecords.some(
             (artifact) => artifact.artifact_type === "prd" && artifact.status === "approved",
           ),
           detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "prd")
-            ? "Draft saved, approval required"
-            : "PRD artifact required",
+            ? "초안은 저장되어 있고 승인이 필요합니다."
+            : "PRD 산출물이 필요합니다.",
         },
         {
-          label: "MVP spec approved",
+          label: "MVP 명세 승인",
           passed: selectedArtifactRecords.some(
             (artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved",
           ),
           detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "mvp_spec")
-            ? "Draft saved, approval required"
-            : "MVP scope required",
+            ? "초안은 저장되어 있고 승인이 필요합니다."
+            : "MVP 범위 정의가 필요합니다.",
         },
         {
-          label: "Experiment planned",
+          label: "실험 계획",
           passed: selectedExperiments.length > 0,
-          detail: selectedExperiments[0]?.success_metric || "Success metric required",
+          detail: selectedExperiments[0]?.success_metric || "성공 지표가 필요합니다.",
         },
         {
-          label: "QA gate",
+          label: "QA 게이트",
           passed: selectedRuns.some((run) => run.phase === "qa" && run.status === "done"),
-          detail: "QA run must be done",
+          detail: "QA 단계가 완료 상태여야 합니다.",
         },
         {
-          label: "Security gate",
+          label: "보안 게이트",
           passed: selectedRuns.some((run) => run.phase === "security" && run.status === "done"),
-          detail: "Security run must be done",
+          detail: "보안 단계가 완료 상태여야 합니다.",
         },
         {
-          label: "High risks closed",
+          label: "높은 리스크 정리",
           passed: selectedRisks
             .filter((risk) => risk.idea_id === selectedIdea.id)
             .every((risk) => !["high", "critical"].includes(risk.severity) || risk.status === "closed"),
-          detail: "High and critical risks must be closed or accepted",
+          detail: "높음/치명적 리스크는 종료 또는 수용 판단이 필요합니다.",
         },
         {
-          label: "Decision recorded",
+          label: "최종 판단 기록",
           passed: editState.decision !== "pending" && selectedDecisions.length > 0,
-          detail: `${decisionLabels[editState.decision]} / ${selectedDecisions.length} record(s)`,
+          detail: `${decisionLabels[editState.decision]} / 기록 ${selectedDecisions.length}개`,
         },
       ]
     : [];
@@ -1134,12 +1185,12 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!supabase || !selectedIdea || !editState) {
-      setMessage("Select an idea first.");
+      setMessage("먼저 아이디어를 선택하세요.");
       return;
     }
 
     if (!canEdit) {
-      setMessage("This idea is read-only for the current operator.");
+      setMessage("현재 운영자에게는 이 아이디어가 읽기 전용입니다.");
       return;
     }
 
@@ -1159,7 +1210,7 @@ export function IdeaWorkbench({
     }
 
     setIdeas((current) => current.map((idea) => (idea.id === data.id ? data : idea)));
-    setMessage("Idea updated.");
+    setMessage("아이디어 점수와 상태를 저장했습니다.");
     router.refresh();
   }
 
@@ -1167,17 +1218,17 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!supabase || !selectedIdea) {
-      setMessage("Select an idea first.");
+      setMessage("먼저 아이디어를 선택하세요.");
       return;
     }
 
     if (!user) {
-      setMessage("Sign in before adding risk records.");
+      setMessage("리스크를 추가하려면 먼저 로그인하세요.");
       return;
     }
 
     if (!riskDraft.title.trim()) {
-      setMessage("Risk title is required.");
+      setMessage("리스크 제목은 필수입니다.");
       return;
     }
 
@@ -1205,18 +1256,18 @@ export function IdeaWorkbench({
 
     setRisks((current) => [data, ...current]);
     setRiskDraft({ title: "", area: "", severity: "medium", mitigation: "" });
-    setMessage("Risk added.");
+    setMessage("리스크를 추가했습니다.");
     router.refresh();
   }
 
   async function recordDecision() {
     if (!supabase || !selectedIdea || !editState) {
-      setMessage("Select an idea first.");
+      setMessage("먼저 아이디어를 선택하세요.");
       return;
     }
 
     if (!canEdit) {
-      setMessage("Only the owner can record a decision for this idea.");
+      setMessage("아이디어 작성자 또는 워크스페이스 관리자만 판단을 기록할 수 있습니다.");
       return;
     }
 
@@ -1238,14 +1289,14 @@ export function IdeaWorkbench({
     setIsBusy(false);
 
     if (ideaResult.error || decisionResult.error) {
-      setMessage(ideaResult.error?.message ?? decisionResult.error?.message ?? "Decision could not be recorded.");
+      setMessage(ideaResult.error?.message ?? decisionResult.error?.message ?? "판단을 기록하지 못했습니다.");
       return;
     }
 
     setIdeas((current) => current.map((idea) => (idea.id === ideaResult.data.id ? ideaResult.data : idea)));
     setDecisionLog((current) => [decisionResult.data, ...current]);
     setDecisionReason("");
-    setMessage("Decision recorded.");
+    setMessage("판단을 기록했습니다.");
     router.refresh();
   }
 
@@ -1253,17 +1304,17 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!supabase || !selectedIdea) {
-      setMessage("Select an idea first.");
+      setMessage("먼저 아이디어를 선택하세요.");
       return;
     }
 
     if (!user) {
-      setMessage("Sign in before adding experiments.");
+      setMessage("실험을 추가하려면 먼저 로그인하세요.");
       return;
     }
 
     if (!experimentDraft.name.trim()) {
-      setMessage("Experiment name is required.");
+      setMessage("실험 이름은 필수입니다.");
       return;
     }
 
@@ -1289,7 +1340,7 @@ export function IdeaWorkbench({
 
     setExperiments((current) => [data, ...current]);
     setExperimentDraft({ name: "", success_metric: "" });
-    setMessage("Experiment added.");
+    setMessage("실험을 추가했습니다.");
     router.refresh();
   }
 
@@ -1297,12 +1348,12 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!supabase || !selectedIdea) {
-      setMessage("Select an idea first.");
+      setMessage("먼저 아이디어를 선택하세요.");
       return;
     }
 
     if (!user) {
-      setMessage("Sign in before adding orchestration runs.");
+      setMessage("오케스트레이션 단계를 추가하려면 먼저 로그인하세요.");
       return;
     }
 
@@ -1329,18 +1380,18 @@ export function IdeaWorkbench({
 
     setOrchestrationRuns((current) => [data, ...current]);
     setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
-    setMessage("Orchestration run added.");
+    setMessage("오케스트레이션 단계를 추가했습니다.");
     router.refresh();
   }
 
   async function createRunbook() {
     if (!supabase || !selectedIdea) {
-      setMessage("Select an idea first.");
+      setMessage("먼저 아이디어를 선택하세요.");
       return;
     }
 
     if (!user) {
-      setMessage("Sign in before creating an orchestration runbook.");
+      setMessage("오케스트레이션 런북을 만들려면 먼저 로그인하세요.");
       return;
     }
 
@@ -1357,7 +1408,7 @@ export function IdeaWorkbench({
       }));
 
     if (missingRuns.length === 0) {
-      setMessage("Full orchestration runbook already exists for this idea.");
+      setMessage("이 아이디어에는 이미 전체 오케스트레이션 런북이 있습니다.");
       return;
     }
 
@@ -1376,18 +1427,18 @@ export function IdeaWorkbench({
       ...current,
       ...Object.fromEntries((data ?? []).map((run) => [run.id, run.output])),
     }));
-    setMessage("Full orchestration runbook created.");
+    setMessage("전체 오케스트레이션 런북을 만들었습니다.");
     router.refresh();
   }
 
   async function updateExperimentStatus(experiment: Experiment, status: string) {
     if (!supabase) {
-      setMessage("Supabase is not configured.");
+      setMessage("Supabase가 설정되어 있지 않습니다.");
       return;
     }
 
     if (!canManageRecord(experiment)) {
-      setMessage("Only the experiment owner or workspace admin can update this experiment.");
+      setMessage("실험 작성자 또는 워크스페이스 관리자만 이 실험을 수정할 수 있습니다.");
       return;
     }
 
@@ -1412,18 +1463,18 @@ export function IdeaWorkbench({
     }
 
     setExperiments((current) => current.map((item) => (item.id === data.id ? data : item)));
-    setMessage(`Experiment marked ${status}.`);
+    setMessage(`실험 상태를 ${experimentStatusLabels[status] ?? status}(으)로 변경했습니다.`);
     router.refresh();
   }
 
   async function updateRunStatus(run: OrchestrationRun, status: OrchestrationStatus) {
     if (!supabase) {
-      setMessage("Supabase is not configured.");
+      setMessage("Supabase가 설정되어 있지 않습니다.");
       return;
     }
 
     if (!canManageRecord(run)) {
-      setMessage("Only the run owner or workspace admin can update this orchestration run.");
+      setMessage("단계 작성자 또는 워크스페이스 관리자만 이 오케스트레이션 단계를 수정할 수 있습니다.");
       return;
     }
 
@@ -1443,18 +1494,18 @@ export function IdeaWorkbench({
     }
 
     setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
-    setMessage(`${phaseLabels[run.phase]} marked ${status}.`);
+    setMessage(`${phaseLabels[run.phase]} 상태를 ${runStatusLabels[status]}(으)로 변경했습니다.`);
     router.refresh();
   }
 
   async function saveRunOutput(run: OrchestrationRun) {
     if (!supabase) {
-      setMessage("Supabase is not configured.");
+      setMessage("Supabase가 설정되어 있지 않습니다.");
       return;
     }
 
     if (!canManageRecord(run)) {
-      setMessage("Only the run owner or workspace admin can save this orchestration output.");
+      setMessage("단계 작성자 또는 워크스페이스 관리자만 이 산출물을 저장할 수 있습니다.");
       return;
     }
 
@@ -1475,23 +1526,23 @@ export function IdeaWorkbench({
 
     setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
     setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
-    setMessage(`${phaseLabels[run.phase]} output saved.`);
+    setMessage(`${phaseLabels[run.phase]} 산출물을 저장했습니다.`);
     router.refresh();
   }
 
   async function saveArtifactDraft(artifactType: VentureArtifactType, title: string, body: string, source: string) {
     if (!supabase || !selectedIdea) {
-      setMessage("Select an idea first.");
+      setMessage("먼저 아이디어를 선택하세요.");
       return;
     }
 
     if (!user) {
-      setMessage("Sign in before saving artifacts.");
+      setMessage("산출물을 저장하려면 먼저 로그인하세요.");
       return;
     }
 
     if (!body.trim()) {
-      setMessage("Artifact body is empty.");
+      setMessage("저장할 산출물 본문이 비어 있습니다.");
       return;
     }
 
@@ -1516,7 +1567,7 @@ export function IdeaWorkbench({
         title,
         body,
         source,
-        status_note: "Initial generated draft.",
+        status_note: "워크벤치에서 생성한 초기 초안입니다.",
       })
       .select()
       .single();
@@ -1528,18 +1579,18 @@ export function IdeaWorkbench({
     }
 
     setArtifacts((current) => [data, ...current]);
-    setMessage(`${artifactLabels[artifactType]} artifact v${nextVersion} saved.`);
+    setMessage(`${artifactLabels[artifactType]} v${nextVersion}을 저장했습니다.`);
     router.refresh();
   }
 
   async function updateArtifactStatus(artifact: VentureArtifact, status: VentureArtifactStatus) {
     if (!supabase) {
-      setMessage("Supabase is not configured.");
+      setMessage("Supabase가 설정되어 있지 않습니다.");
       return;
     }
 
     if (!canManageRecord(artifact)) {
-      setMessage("Only the artifact owner or workspace admin can update this artifact.");
+      setMessage("산출물 작성자 또는 워크스페이스 관리자만 이 산출물을 수정할 수 있습니다.");
       return;
     }
 
@@ -1570,18 +1621,18 @@ export function IdeaWorkbench({
       delete next[data.id];
       return next;
     });
-    setMessage(`${artifact.title || artifactLabels[artifact.artifact_type]} marked ${artifactStatusLabels[status]}.`);
+    setMessage(`${artifact.title || artifactLabels[artifact.artifact_type]} 상태를 ${artifactStatusLabels[status]}(으)로 변경했습니다.`);
     router.refresh();
   }
 
   async function updateRiskStatus(risk: Risk, status: string) {
     if (!supabase) {
-      setMessage("Supabase is not configured.");
+      setMessage("Supabase가 설정되어 있지 않습니다.");
       return;
     }
 
     if (!canManageRecord(risk)) {
-      setMessage("Only the risk owner or workspace admin can update this risk.");
+      setMessage("리스크 작성자 또는 워크스페이스 관리자만 이 리스크를 수정할 수 있습니다.");
       return;
     }
 
@@ -1601,7 +1652,7 @@ export function IdeaWorkbench({
     }
 
     setRisks((current) => current.map((item) => (item.id === data.id ? data : item)));
-    setMessage(`Risk marked ${status}.`);
+    setMessage(`리스크 상태를 ${riskStatusLabels[status] ?? status}(으)로 변경했습니다.`);
     router.refresh();
   }
 
@@ -1611,7 +1662,7 @@ export function IdeaWorkbench({
     }
 
     await navigator.clipboard.writeText(ideaBrief);
-    setCopyMessage("Idea brief copied.");
+    setCopyMessage("아이디어 브리프를 클립보드에 복사했습니다.");
   }
 
   async function copyPrdDraft() {
@@ -1620,7 +1671,7 @@ export function IdeaWorkbench({
     }
 
     await navigator.clipboard.writeText(prdDraft);
-    setCopyMessage("PRD draft copied.");
+    setCopyMessage("PRD 초안을 클립보드에 복사했습니다.");
   }
 
   async function copyMvpSpecDraft() {
@@ -1629,7 +1680,7 @@ export function IdeaWorkbench({
     }
 
     await navigator.clipboard.writeText(mvpSpecDraft);
-    setCopyMessage("MVP spec copied.");
+    setCopyMessage("MVP 명세를 클립보드에 복사했습니다.");
   }
 
   async function copyLaunchChecklistDraft() {
@@ -1638,7 +1689,7 @@ export function IdeaWorkbench({
     }
 
     await navigator.clipboard.writeText(launchChecklistDraft);
-    setCopyMessage("Launch checklist copied.");
+    setCopyMessage("출시 체크리스트를 클립보드에 복사했습니다.");
   }
 
   if (!selectedIdea || !editState) {
@@ -1650,17 +1701,17 @@ export function IdeaWorkbench({
       <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-slate-950">Idea workbench</h2>
-            <p className="mt-1 text-sm text-slate-500">Select an idea, score it, and move it through the lab.</p>
+            <h2 className="text-xl font-semibold text-slate-950">아이디어 워크벤치</h2>
+            <p className="mt-1 text-sm text-slate-500">아이디어를 선택하고 점수화한 뒤 실험실 단계를 이동시킵니다.</p>
           </div>
           <ClipboardList className="text-blue-600" size={24} />
         </div>
 
         <div className="mb-4 grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
           {[
-            ["all", "All"],
-            ["mine", "Mine"],
-            ["read_only", "Read-only"],
+            ["all", filterModeLabels.all],
+            ["mine", filterModeLabels.mine],
+            ["read_only", filterModeLabels.read_only],
           ].map(([value, label]) => (
             <button
               key={value}
@@ -1715,7 +1766,7 @@ export function IdeaWorkbench({
                       isOwned || isOrgAdmin ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
                     }`}
                   >
-                    {isOwned ? "Editable" : isOrgAdmin ? "Org admin" : "Read-only"}
+                    {isOwned ? editabilityLabels.editable : isOrgAdmin ? editabilityLabels.orgAdmin : editabilityLabels.readOnly}
                   </span>
                 </div>
               </div>
@@ -1725,7 +1776,7 @@ export function IdeaWorkbench({
             })
           ) : (
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-              No ideas match this filter yet.
+              이 필터에 맞는 아이디어가 아직 없습니다.
             </div>
           )}
         </div>
@@ -1738,8 +1789,8 @@ export function IdeaWorkbench({
               <h2 className="text-xl font-semibold text-slate-950">{selectedIdea.name}</h2>
               <p className="mt-1 text-sm text-slate-500">
                 {canEdit
-                  ? "Editable by current operator."
-                  : "Read-only unless you created this idea. Create a fresh idea to score it directly."}
+                  ? "현재 운영자가 편집할 수 있습니다."
+                  : "직접 만든 아이디어가 아니면 읽기 전용입니다. 새 아이디어를 만들면 바로 점수화할 수 있습니다."}
               </p>
             </div>
             <button
@@ -1748,13 +1799,13 @@ export function IdeaWorkbench({
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isBusy ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
-              Save score
+              점수 저장
             </button>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <SelectField
-              label="Stage"
+              label="단계"
               value={editState.stage}
               options={stages}
               labels={stageLabels}
@@ -1762,7 +1813,7 @@ export function IdeaWorkbench({
               onChange={(value) => setEditState({ ...editState, stage: value as IdeaStage })}
             />
             <SelectField
-              label="Decision"
+              label="판단"
               value={editState.decision}
               options={decisions}
               labels={decisionLabels}
@@ -1773,49 +1824,49 @@ export function IdeaWorkbench({
 
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             <ScoreInput
-              label="Problem"
+              label="문제 강도"
               value={editState.problem_intensity}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, problem_intensity: value })}
             />
             <ScoreInput
-              label="Frequency"
+              label="발생 빈도"
               value={editState.frequency}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, frequency: value })}
             />
             <ScoreInput
-              label="Reachability"
+              label="도달 가능성"
               value={editState.reachability}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, reachability: value })}
             />
             <ScoreInput
-              label="Willingness"
+              label="지불 의향"
               value={editState.willingness_to_pay}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, willingness_to_pay: value })}
             />
             <ScoreInput
-              label="MVP speed"
+              label="MVP 속도"
               value={editState.mvp_speed}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, mvp_speed: value })}
             />
             <ScoreInput
-              label="Differentiation"
+              label="차별성"
               value={editState.differentiation}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, differentiation: value })}
             />
             <ScoreInput
-              label="Risk penalty"
+              label="리스크 감점"
               value={editState.regulatory_risk}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
             />
             <div className="rounded-lg bg-blue-50 p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">Score</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">점수</div>
               <div className="mt-2 text-3xl font-semibold text-blue-950">{currentScore}</div>
             </div>
           </div>
@@ -1823,17 +1874,17 @@ export function IdeaWorkbench({
           <div className="mt-5 grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[0.65fr_1.35fr]">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                Suggested decision
+                추천 판단
               </div>
               <div className="mt-2 text-2xl font-semibold text-slate-950">
                 {decisionLabels[scoreRecommendation]}
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                The score gate is advisory. Record the final decision only after reviewing evidence and risk.
+                점수 게이트는 참고용입니다. 증거와 리스크를 검토한 뒤 최종 판단을 기록하세요.
               </p>
             </div>
             <div>
-              <div className="text-sm font-semibold text-slate-950">Evidence gaps</div>
+              <div className="text-sm font-semibold text-slate-950">증거 공백</div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {missing.length > 0 ? (
                   missing.map((item) => (
@@ -1843,7 +1894,7 @@ export function IdeaWorkbench({
                   ))
                 ) : (
                   <span className="rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
-                    Ready for PRD review
+                    PRD 검토 준비 완료
                   </span>
                 )}
               </div>
@@ -1852,19 +1903,19 @@ export function IdeaWorkbench({
 
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             <TextArea
-              label="Signal"
+              label="수요 신호"
               value={editState.signal}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, signal: value })}
             />
             <TextArea
-              label="Risk summary"
+              label="리스크 요약"
               value={editState.risk_summary}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, risk_summary: value })}
             />
             <TextArea
-              label="Next evidence"
+              label="다음 증거"
               value={editState.next_evidence}
               disabled={!canEdit}
               onChange={(value) => setEditState({ ...editState, next_evidence: value })}
@@ -1875,12 +1926,12 @@ export function IdeaWorkbench({
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">Launch readiness</h2>
-              <p className="mt-1 text-sm text-slate-500">A live gate summary from evidence, artifacts, risks, and runs.</p>
+              <h2 className="text-lg font-semibold text-slate-950">출시 준비도</h2>
+              <p className="mt-1 text-sm text-slate-500">증거, 산출물, 리스크, 실행 단계를 기준으로 게이트 상태를 요약합니다.</p>
             </div>
             <div className="rounded-lg bg-slate-950 px-4 py-3 text-right text-white">
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
-                Ready {passedLaunchReadinessCount}/{launchReadiness.length}
+                준비 {passedLaunchReadinessCount}/{launchReadiness.length}
               </div>
               <div className="mt-1 text-2xl font-semibold">{launchReadinessScore}%</div>
             </div>
@@ -1891,10 +1942,10 @@ export function IdeaWorkbench({
             }`}
           >
             <div className="text-sm font-semibold text-slate-950">
-              {nextLaunchBlocker ? `Next unblocker: ${nextLaunchBlocker.label}` : "All current launch gates are clear"}
+              {nextLaunchBlocker ? `다음 해소 항목: ${nextLaunchBlocker.label}` : "현재 출시 게이트가 모두 통과 상태입니다."}
             </div>
             <div className="mt-1 text-sm leading-6 text-slate-600">
-              {nextLaunchBlocker ? nextLaunchBlocker.detail : "Record the final launch decision before release."}
+              {nextLaunchBlocker ? nextLaunchBlocker.detail : "출시 전 최종 판단을 기록하세요."}
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
@@ -1918,8 +1969,8 @@ export function IdeaWorkbench({
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">Orchestration board</h2>
-              <p className="mt-1 text-sm text-slate-500">Track each specialist pass from strategy through launch.</p>
+              <h2 className="text-lg font-semibold text-slate-950">오케스트레이션 보드</h2>
+              <p className="mt-1 text-sm text-slate-500">전략부터 출시까지 각 전문 역할의 실행 단계를 추적합니다.</p>
             </div>
             <button
               type="button"
@@ -1928,14 +1979,14 @@ export function IdeaWorkbench({
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Layers3 size={18} />
-              Create runbook
+              런북 만들기
             </button>
           </div>
 
           <form onSubmit={addOrchestrationRun} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
             <div className="grid gap-3 md:grid-cols-[0.75fr_1fr]">
               <SelectField
-                label="Phase"
+                label="단계"
                 value={runDraft.phase}
                 options={orchestrationPhaseConfigs.map((config) => config.phase)}
                 labels={phaseLabels}
@@ -1951,13 +2002,13 @@ export function IdeaWorkbench({
                 }}
               />
               <InputField
-                label="Owner role"
+                label="담당 역할"
                 value={runDraft.owner_role}
                 onChange={(value) => setRunDraft({ ...runDraft, owner_role: value })}
               />
             </div>
             <TextArea
-              label="Objective"
+              label="목표"
               value={runDraft.objective}
               disabled={!user}
               onChange={(value) => setRunDraft({ ...runDraft, objective: value })}
@@ -1968,7 +2019,7 @@ export function IdeaWorkbench({
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Layers3 size={18} />
-              Add phase
+              단계 추가
             </button>
           </form>
 
@@ -1981,12 +2032,12 @@ export function IdeaWorkbench({
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">{phaseLabels[run.phase]}</span>
                         <span className={`rounded-md px-2 py-1 text-xs font-semibold ${runStatusTone[run.status]}`}>
-                          {run.status}
+                          {runStatusLabels[run.status]}
                         </span>
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">{run.objective || "Objective TBD"}</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">{run.objective || "목표 미정"}</p>
                       <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        {run.owner_role || "unassigned"}
+                        {run.owner_role || "담당 미정"}
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -1998,14 +2049,14 @@ export function IdeaWorkbench({
                           disabled={isBusy || !canManageRecord(run) || run.status === status}
                           className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
                         >
-                          {status}
+                          {runStatusLabels[status]}
                         </button>
                       ))}
                     </div>
                   </div>
                   <div className="mt-4 grid gap-3">
                     <TextArea
-                      label="Output"
+                      label="산출물"
                       value={runOutputs[run.id] ?? run.output}
                       disabled={!canManageRecord(run)}
                       onChange={(value) => setRunOutputs((current) => ({ ...current, [run.id]: value }))}
@@ -2023,7 +2074,7 @@ export function IdeaWorkbench({
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
                       >
                         <ClipboardList size={16} />
-                        Use template
+                        템플릿 사용
                       </button>
                       <button
                         type="button"
@@ -2032,7 +2083,7 @@ export function IdeaWorkbench({
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
                       >
                         <Save size={16} />
-                        Save output
+                        산출물 저장
                       </button>
                     </div>
                   </div>
@@ -2040,7 +2091,7 @@ export function IdeaWorkbench({
               ))
             ) : (
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                No orchestration runs attached yet.
+                아직 연결된 오케스트레이션 단계가 없습니다.
               </div>
             )}
           </div>
@@ -2050,31 +2101,32 @@ export function IdeaWorkbench({
           <form onSubmit={addRisk} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold text-slate-950">Add risk</h2>
-                <p className="mt-1 text-sm text-slate-500">Attach launch blockers to the selected idea.</p>
+                <h2 className="text-lg font-semibold text-slate-950">리스크 추가</h2>
+                <p className="mt-1 text-sm text-slate-500">선택한 아이디어의 출시 차단 요인을 기록합니다.</p>
               </div>
               <ShieldAlert className="text-rose-600" size={22} />
             </div>
             <div className="grid gap-3">
               <InputField
-                label="Title"
+                label="제목"
                 value={riskDraft.title}
                 onChange={(value) => setRiskDraft({ ...riskDraft, title: value })}
               />
               <InputField
-                label="Area"
+                label="영역"
                 value={riskDraft.area}
                 onChange={(value) => setRiskDraft({ ...riskDraft, area: value })}
               />
               <SelectField
-                label="Severity"
+                label="심각도"
                 value={riskDraft.severity}
                 options={riskSeverities}
+                labels={riskSeverityLabels}
                 disabled={!user}
                 onChange={(value) => setRiskDraft({ ...riskDraft, severity: value as RiskSeverity })}
               />
               <TextArea
-                label="Mitigation"
+                label="완화 방안"
                 value={riskDraft.mitigation}
                 disabled={!user}
                 onChange={(value) => setRiskDraft({ ...riskDraft, mitigation: value })}
@@ -2085,7 +2137,7 @@ export function IdeaWorkbench({
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-rose-600 px-4 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Flag size={18} />
-                Add risk
+                리스크 추가
               </button>
             </div>
           </form>
@@ -2093,14 +2145,14 @@ export function IdeaWorkbench({
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold text-slate-950">Record decision</h2>
-                <p className="mt-1 text-sm text-slate-500">Write down why this idea moves or stops.</p>
+                <h2 className="text-lg font-semibold text-slate-950">판단 기록</h2>
+                <p className="mt-1 text-sm text-slate-500">이 아이디어를 진행하거나 멈추는 이유를 남깁니다.</p>
               </div>
               <CheckCircle2 className="text-emerald-600" size={22} />
             </div>
             <div className="grid gap-3">
               <TextArea
-                label="Reason"
+                label="판단 근거"
                 value={decisionReason}
                 disabled={!canEdit}
                 onChange={(value) => setDecisionReason(value)}
@@ -2112,7 +2164,7 @@ export function IdeaWorkbench({
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <CheckCircle2 size={18} />
-                Record {decisionLabels[editState.decision]}
+                {decisionLabels[editState.decision]} 기록
               </button>
               <div className="mt-2 grid gap-2">
                 {selectedDecisions.length > 0 ? (
@@ -2123,7 +2175,7 @@ export function IdeaWorkbench({
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-500">No decisions recorded yet.</div>
+                  <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-500">아직 기록된 판단이 없습니다.</div>
                 )}
               </div>
             </div>
@@ -2133,19 +2185,19 @@ export function IdeaWorkbench({
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">Experiment plan</h2>
-              <p className="mt-1 text-sm text-slate-500">Define the next smallest test for the selected idea.</p>
+              <h2 className="text-lg font-semibold text-slate-950">실험 계획</h2>
+              <p className="mt-1 text-sm text-slate-500">선택한 아이디어에서 다음에 수행할 가장 작은 검증 실험을 정의합니다.</p>
             </div>
             <Beaker className="text-violet-600" size={22} />
           </div>
           <form onSubmit={addExperiment} className="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
             <InputField
-              label="Experiment"
+              label="실험"
               value={experimentDraft.name}
               onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
             />
             <InputField
-              label="Success metric"
+              label="성공 지표"
               value={experimentDraft.success_metric}
               onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
             />
@@ -2155,7 +2207,7 @@ export function IdeaWorkbench({
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-violet-600 px-4 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Beaker size={18} />
-              Add test
+              실험 추가
             </button>
           </form>
           <div className="mt-4 grid gap-3">
@@ -2166,7 +2218,7 @@ export function IdeaWorkbench({
                     <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-semibold text-slate-950">{experiment.name}</span>
                     <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
-                      {experiment.status}
+                      {experimentStatusLabels[experiment.status] ?? experiment.status}
                     </span>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -2178,26 +2230,26 @@ export function IdeaWorkbench({
                           disabled={isBusy || !canManageRecord(experiment) || experiment.status === status}
                           className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
                         >
-                          {status}
+                          {experimentStatusLabels[status] ?? status}
                         </button>
                       ))}
                     </div>
                   </div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {experiment.success_metric || "Success metric TBD"}
+                    {experiment.success_metric || "성공 지표 미정"}
                   </p>
                 </div>
               ))
             ) : (
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                No experiments attached yet.
+                아직 연결된 실험이 없습니다.
               </div>
             )}
           </div>
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-950">Relevant risks</h2>
+          <h2 className="text-lg font-semibold text-slate-950">관련 리스크</h2>
           <div className="mt-4 grid gap-3">
             {selectedRisks.map((risk) => (
               <div key={risk.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
@@ -2205,10 +2257,10 @@ export function IdeaWorkbench({
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-semibold text-slate-950">{risk.title}</span>
                     <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
-                      {risk.severity}
+                      {riskSeverityLabels[risk.severity]}
                     </span>
                     <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
-                      {risk.status}
+                      {riskStatusLabels[risk.status] ?? risk.status}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -2220,7 +2272,7 @@ export function IdeaWorkbench({
                         disabled={isBusy || !canManageRecord(risk) || risk.status === status}
                         className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
                       >
-                        {status}
+                        {riskStatusLabels[status] ?? status}
                       </button>
                     ))}
                   </div>
@@ -2234,8 +2286,8 @@ export function IdeaWorkbench({
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">Idea brief draft</h2>
-              <p className="mt-1 text-sm text-slate-500">Copy this into the PRD or research workflow.</p>
+              <h2 className="text-lg font-semibold text-slate-950">아이디어 브리프 초안</h2>
+              <p className="mt-1 text-sm text-slate-500">PRD 또는 리서치 워크플로우에 넣을 수 있는 요약 초안입니다.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -2244,18 +2296,18 @@ export function IdeaWorkbench({
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
               >
                 <Clipboard size={18} />
-                Copy brief
+                브리프 복사
               </button>
               <button
                 type="button"
                 onClick={() =>
-                  saveArtifactDraft("idea_brief", `${selectedIdea.name} idea brief`, ideaBrief, "workbench")
+                  saveArtifactDraft("idea_brief", `${selectedIdea.name} 아이디어 브리프`, ideaBrief, "workbench")
                 }
                 disabled={isBusy || !user}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Save size={18} />
-                Save artifact
+                산출물 저장
               </button>
             </div>
           </div>
@@ -2271,9 +2323,9 @@ export function IdeaWorkbench({
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">PRD draft</h2>
+              <h2 className="text-lg font-semibold text-slate-950">PRD 초안</h2>
               <p className="mt-1 text-sm text-slate-500">
-                Generated from score, evidence, risks, experiments, and orchestration outputs.
+                점수, 증거, 리스크, 실험, 오케스트레이션 산출물을 바탕으로 생성됩니다.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -2283,7 +2335,7 @@ export function IdeaWorkbench({
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
               >
                 <Clipboard size={18} />
-                Copy PRD
+                PRD 복사
               </button>
               <button
                 type="button"
@@ -2292,7 +2344,7 @@ export function IdeaWorkbench({
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Save size={18} />
-                Save artifact
+                산출물 저장
               </button>
             </div>
           </div>
@@ -2308,8 +2360,8 @@ export function IdeaWorkbench({
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-slate-950">MVP spec draft</h2>
-                <p className="mt-1 text-sm text-slate-500">Generated from PRD evidence, experiments, and build gates.</p>
+                <h2 className="text-lg font-semibold text-slate-950">MVP 명세 초안</h2>
+                <p className="mt-1 text-sm text-slate-500">PRD 증거, 실험, 개발 게이트를 바탕으로 생성됩니다.</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -2318,18 +2370,18 @@ export function IdeaWorkbench({
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
                 >
                   <Clipboard size={18} />
-                  Copy
+                  복사
                 </button>
                 <button
                   type="button"
                   onClick={() =>
-                    saveArtifactDraft("mvp_spec", `${selectedIdea.name} MVP spec`, mvpSpecDraft, "workbench")
+                    saveArtifactDraft("mvp_spec", `${selectedIdea.name} MVP 명세`, mvpSpecDraft, "workbench")
                   }
                   disabled={isBusy || !user}
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save size={18} />
-                  Save
+                  저장
                 </button>
               </div>
             </div>
@@ -2344,8 +2396,8 @@ export function IdeaWorkbench({
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-slate-950">Launch checklist draft</h2>
-                <p className="mt-1 text-sm text-slate-500">Generated from artifacts, orchestration gates, risks, and tests.</p>
+                <h2 className="text-lg font-semibold text-slate-950">출시 체크리스트 초안</h2>
+                <p className="mt-1 text-sm text-slate-500">산출물, 오케스트레이션 게이트, 리스크, 실험을 바탕으로 생성됩니다.</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -2354,14 +2406,14 @@ export function IdeaWorkbench({
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
                 >
                   <Clipboard size={18} />
-                  Copy
+                  복사
                 </button>
                 <button
                   type="button"
                   onClick={() =>
                     saveArtifactDraft(
                       "launch_checklist",
-                      `${selectedIdea.name} launch checklist`,
+                      `${selectedIdea.name} 출시 체크리스트`,
                       launchChecklistDraft,
                       "workbench",
                     )
@@ -2370,7 +2422,7 @@ export function IdeaWorkbench({
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save size={18} />
-                  Save
+                  저장
                 </button>
               </div>
             </div>
@@ -2386,18 +2438,18 @@ export function IdeaWorkbench({
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">Artifact library</h2>
-              <p className="mt-1 text-sm text-slate-500">Saved idea artifacts for the selected workspace record.</p>
+              <h2 className="text-lg font-semibold text-slate-950">산출물 라이브러리</h2>
+              <p className="mt-1 text-sm text-slate-500">선택한 워크스페이스 기록에 저장된 아이디어 산출물입니다.</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                Type
+                유형
                 <select
                   value={artifactTypeFilter}
                   onChange={(event) => setArtifactTypeFilter(event.target.value as VentureArtifactType | "all")}
                   className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm normal-case tracking-normal text-slate-800 outline-none transition focus:border-slate-500"
                 >
-                  <option value="all">All types</option>
+                  <option value="all">전체 유형</option>
                   {Object.entries(artifactLabels).map(([value, label]) => (
                     <option key={value} value={value}>
                       {label}
@@ -2406,13 +2458,13 @@ export function IdeaWorkbench({
                 </select>
               </label>
               <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                Status
+                상태
                 <select
                   value={artifactStatusFilter}
                   onChange={(event) => setArtifactStatusFilter(event.target.value as VentureArtifactStatus | "all")}
                   className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm normal-case tracking-normal text-slate-800 outline-none transition focus:border-slate-500"
                 >
-                  <option value="all">All statuses</option>
+                  <option value="all">전체 상태</option>
                   {(["draft", "approved", "archived"] as VentureArtifactStatus[]).map((status) => (
                     <option key={status} value={status}>
                       {artifactStatusLabels[status]}
@@ -2433,7 +2485,7 @@ export function IdeaWorkbench({
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-950">{artifact.title || "Untitled"}</span>
+                          <span className="text-sm font-semibold text-slate-950">{artifact.title || "제목 없음"}</span>
                           <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
                             {artifactLabels[artifact.artifact_type]}
                           </span>
@@ -2445,15 +2497,16 @@ export function IdeaWorkbench({
                           </span>
                         </div>
                         <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                          {artifact.source || "manual"} / {new Date(artifact.created_at).toLocaleDateString()}
-                          {artifact.approved_at ? ` / approved ${new Date(artifact.approved_at).toLocaleDateString()}` : ""}
+                          {artifactSourceLabels[artifact.source || "manual"] ?? artifact.source ?? "수동"} /{" "}
+                          {new Date(artifact.created_at).toLocaleDateString()}
+                          {artifact.approved_at ? ` / 승인 ${new Date(artifact.approved_at).toLocaleDateString()}` : ""}
                         </div>
                         {artifact.status_note ? (
-                          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Gate note: {artifact.status_note}</p>
+                          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">게이트 메모: {artifact.status_note}</p>
                         ) : null}
                         {versionSummary ? (
                           <p className="mt-2 text-sm leading-6 text-slate-600">
-                            {`Compared with v${versionSummary.previous.version ?? 1}: +${versionSummary.added} / -${versionSummary.removed} changed lines`}
+                            {`v${versionSummary.previous.version ?? 1} 대비 변경: +${versionSummary.added} / -${versionSummary.removed}줄`}
                           </p>
                         ) : null}
                       </div>
@@ -2464,7 +2517,7 @@ export function IdeaWorkbench({
                           className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100"
                         >
                           <Clipboard size={14} />
-                          Copy
+                          복사
                         </button>
                         {(["draft", "approved", "archived"] as VentureArtifactStatus[]).map((nextStatus) => (
                           <button
@@ -2480,7 +2533,7 @@ export function IdeaWorkbench({
                       </div>
                     </div>
                     <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      Status note
+                      상태 메모
                       <textarea
                         value={artifactStatusNotes[artifact.id] ?? artifact.status_note ?? ""}
                         onChange={(event) =>
@@ -2491,7 +2544,7 @@ export function IdeaWorkbench({
                         }
                         rows={2}
                         disabled={isBusy || !canManageRecord(artifact)}
-                        placeholder="Approval evidence, reviewer comment, or archive reason"
+                        placeholder="승인 근거, 리뷰어 코멘트, 보관 사유"
                         className="mt-2 w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm normal-case leading-6 tracking-normal text-slate-800 outline-none transition focus:border-slate-500 disabled:cursor-not-allowed disabled:bg-slate-100"
                       />
                     </label>
@@ -2500,7 +2553,7 @@ export function IdeaWorkbench({
               })
             ) : (
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                {selectedArtifactRecords.length > 0 ? "No artifacts match the current filters." : "No artifacts saved yet."}
+                {selectedArtifactRecords.length > 0 ? "현재 필터에 맞는 산출물이 없습니다." : "아직 저장된 산출물이 없습니다."}
               </div>
             )}
           </div>

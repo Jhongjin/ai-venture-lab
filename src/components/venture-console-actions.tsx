@@ -34,6 +34,12 @@ const emptyForm: FormState = {
 };
 
 const memberRoles: AddableOrganizationRole[] = ["member", "viewer", "admin"];
+const organizationRoleLabels: Record<OrganizationRole, string> = {
+  owner: "소유자",
+  admin: "관리자",
+  member: "멤버",
+  viewer: "뷰어",
+};
 const workspaceRecordTables = [
   "ideas",
   "risks",
@@ -150,9 +156,9 @@ export function VentureConsoleActions() {
       supabase.from("organization_members").select("*").order("created_at", { ascending: true }),
     ]);
 
-    if (organizationsResult.error || membersResult.error) {
+      if (organizationsResult.error || membersResult.error) {
       setWorkspaceMessage(
-        organizationsResult.error?.message ?? membersResult.error?.message ?? "Workspace data could not be loaded.",
+        organizationsResult.error?.message ?? membersResult.error?.message ?? "워크스페이스 데이터를 불러오지 못했습니다.",
       );
       return;
     }
@@ -223,7 +229,7 @@ export function VentureConsoleActions() {
     const exchangeTimer = window.setTimeout(() => {
       async function completeRootMagicLink() {
         setIsAuthBusy(true);
-        setAuthMessage("Completing magic link sign-in...");
+        setAuthMessage("매직 링크 로그인을 완료하는 중입니다...");
 
         const { data, error } = await supabaseClient.auth.exchangeCodeForSession(authCode);
 
@@ -237,7 +243,7 @@ export function VentureConsoleActions() {
         const nextUser = data.user ?? null;
 
         setUser(nextUser);
-        setAuthMessage("Signed in.");
+        setAuthMessage("로그인되었습니다.");
         await loadWorkspaceData(nextUser);
         router.refresh();
       }
@@ -279,12 +285,12 @@ export function VentureConsoleActions() {
     setAuthMessage(null);
 
     if (!supabase) {
-      setAuthMessage("Supabase environment variables are not available in this deployment.");
+      setAuthMessage("이 배포 환경에서 Supabase 환경변수를 찾을 수 없습니다.");
       return;
     }
 
     if (!email.trim()) {
-      setAuthMessage("Enter an email address first.");
+      setAuthMessage("이메일 주소를 먼저 입력하세요.");
       return;
     }
 
@@ -302,19 +308,19 @@ export function VentureConsoleActions() {
       return;
     }
 
-    setAuthMessage("Magic link sent. Open the email and click the link; this card will show Signed in after you return.");
+    setAuthMessage("매직 링크를 보냈습니다. 이메일의 링크를 열고 돌아오면 이 카드에 로그인 상태가 표시됩니다.");
   }
 
   async function handlePasswordSignIn() {
     setAuthMessage(null);
 
     if (!supabase) {
-      setAuthMessage("Supabase environment variables are not available in this deployment.");
+      setAuthMessage("이 배포 환경에서 Supabase 환경변수를 찾을 수 없습니다.");
       return;
     }
 
     if (!email.trim() || !password) {
-      setAuthMessage("Password sign-in only works for an existing Supabase Auth user with a password. Enter both fields first.");
+      setAuthMessage("비밀번호 로그인은 Supabase Auth에 비밀번호가 있는 기존 사용자만 사용할 수 있습니다. 이메일과 비밀번호를 모두 입력하세요.");
       return;
     }
 
@@ -331,7 +337,7 @@ export function VentureConsoleActions() {
     }
 
     setPassword("");
-    setAuthMessage("Signed in.");
+    setAuthMessage("로그인되었습니다.");
     router.refresh();
   }
 
@@ -343,14 +349,14 @@ export function VentureConsoleActions() {
     setIsAuthBusy(true);
     await supabase.auth.signOut();
     setIsAuthBusy(false);
-    setAuthMessage("Signed out.");
+    setAuthMessage("로그아웃되었습니다.");
   }
 
   async function handleCreateWorkspace() {
     setWorkspaceMessage(null);
 
     if (!supabase || !user) {
-      setWorkspaceMessage("Sign in before creating a workspace.");
+      setWorkspaceMessage("워크스페이스를 만들려면 먼저 로그인하세요.");
       return;
     }
 
@@ -371,7 +377,7 @@ export function VentureConsoleActions() {
     }
 
     setActiveOrganizationId(data.id);
-    setWorkspaceMessage("Workspace created.");
+    setWorkspaceMessage("워크스페이스를 만들었습니다.");
     await loadWorkspaceData(user, data.id);
   }
 
@@ -379,7 +385,7 @@ export function VentureConsoleActions() {
     setWorkspaceMessage(null);
 
     if (!supabase || !user || !activeOrganization) {
-      setWorkspaceMessage("Create or select a workspace first.");
+      setWorkspaceMessage("워크스페이스를 먼저 만들거나 선택하세요.");
       return;
     }
 
@@ -402,7 +408,7 @@ export function VentureConsoleActions() {
       return;
     }
 
-    setWorkspaceMessage(`Attached ${personalRecordCount} personal record(s) to ${activeOrganization.name}.`);
+    setWorkspaceMessage(`${personalRecordCount}개의 개인 기록을 ${activeOrganization.name}에 연결했습니다.`);
     await loadWorkspaceData(user, activeOrganization.id);
     router.refresh();
   }
@@ -417,17 +423,17 @@ export function VentureConsoleActions() {
     setWorkspaceMessage(null);
 
     if (!supabase || !user || !activeOrganization) {
-      setWorkspaceMessage("Select a workspace first.");
+      setWorkspaceMessage("워크스페이스를 먼저 선택하세요.");
       return;
     }
 
     if (!canManageMembers) {
-      setWorkspaceMessage("Only workspace owners and admins can add members.");
+      setWorkspaceMessage("워크스페이스 소유자와 관리자만 멤버를 추가할 수 있습니다.");
       return;
     }
 
     if (!memberEmail.trim()) {
-      setWorkspaceMessage("Member email is required.");
+      setWorkspaceMessage("멤버 이메일을 입력하세요.");
       return;
     }
 
@@ -445,7 +451,7 @@ export function VentureConsoleActions() {
     }
 
     setMemberEmail("");
-    setWorkspaceMessage("Workspace member added.");
+    setWorkspaceMessage("워크스페이스 멤버를 추가했습니다.");
     await loadWorkspaceData(user, activeOrganization.id);
   }
 
@@ -453,7 +459,7 @@ export function VentureConsoleActions() {
     setWorkspaceMessage(null);
 
     if (!supabase || !user || !activeOrganization) {
-      setWorkspaceMessage("Select a workspace first.");
+      setWorkspaceMessage("워크스페이스를 먼저 선택하세요.");
       return;
     }
 
@@ -470,7 +476,7 @@ export function VentureConsoleActions() {
       return;
     }
 
-    setWorkspaceMessage("Member role updated.");
+    setWorkspaceMessage("멤버 역할을 변경했습니다.");
     await loadWorkspaceData(user, activeOrganization.id);
   }
 
@@ -478,7 +484,7 @@ export function VentureConsoleActions() {
     setWorkspaceMessage(null);
 
     if (!supabase || !user || !activeOrganization) {
-      setWorkspaceMessage("Select a workspace first.");
+      setWorkspaceMessage("워크스페이스를 먼저 선택하세요.");
       return;
     }
 
@@ -494,7 +500,7 @@ export function VentureConsoleActions() {
       return;
     }
 
-    setWorkspaceMessage("Member removed.");
+    setWorkspaceMessage("멤버를 제거했습니다.");
     await loadWorkspaceData(user, activeOrganization.id);
   }
 
@@ -503,17 +509,17 @@ export function VentureConsoleActions() {
     setSaveMessage(null);
 
     if (!supabase) {
-      setSaveMessage("Supabase is not configured.");
+      setSaveMessage("Supabase가 설정되어 있지 않습니다.");
       return;
     }
 
     if (!user) {
-      setSaveMessage("Sign in before creating an idea.");
+      setSaveMessage("아이디어를 저장하려면 먼저 로그인하세요.");
       return;
     }
 
     if (!form.name.trim() || !form.one_liner.trim()) {
-      setSaveMessage("Name and one-liner are required.");
+      setSaveMessage("아이디어 이름과 한 줄 설명은 필수입니다.");
       return;
     }
 
@@ -547,8 +553,8 @@ export function VentureConsoleActions() {
     setForm(emptyForm);
     setSaveMessage(
       activeOrganization
-        ? `Idea saved to ${activeOrganization.name}. Refreshing portfolio.`
-        : "Idea saved as a personal record. Create a workspace to attach future records.",
+        ? `${activeOrganization.name}에 아이디어를 저장했습니다. 포트폴리오를 갱신합니다.`
+        : "개인 기록으로 아이디어를 저장했습니다. 워크스페이스를 만들면 이후 기록을 연결할 수 있습니다.",
     );
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
@@ -561,20 +567,20 @@ export function VentureConsoleActions() {
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-slate-950">Operator access</h2>
+            <h2 className="text-xl font-semibold text-slate-950">운영자 로그인</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Magic link uses email verification. Password sign-in is only for existing Supabase Auth users.
+              매직 링크는 이메일 인증을 사용합니다. 비밀번호 로그인은 Supabase Auth에 등록된 기존 사용자용입니다.
             </p>
           </div>
           <ShieldCheck className={user ? "text-emerald-600" : "text-slate-500"} size={24} />
         </div>
 
         {!isAuthLoaded ? (
-          <div className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">Checking current session...</div>
+          <div className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">현재 세션을 확인하는 중입니다...</div>
         ) : user ? (
           <div className="grid gap-4">
             <div className="rounded-lg bg-emerald-50 p-4">
-              <div className="text-sm font-semibold text-emerald-900">Signed in</div>
+              <div className="text-sm font-semibold text-emerald-900">로그인됨</div>
               <div className="mt-1 break-all text-sm text-emerald-800">{user.email}</div>
             </div>
             <button
@@ -584,16 +590,16 @@ export function VentureConsoleActions() {
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <LogOut size={18} />
-              Sign out
+              로그아웃
             </button>
           </div>
         ) : (
           <form onSubmit={handleSignIn} className="grid gap-3">
             <div className="rounded-lg bg-blue-50 p-4 text-sm leading-6 text-blue-900">
-              Use magic link for a new email session. Use password only after creating a password-based user in Supabase Auth.
+              새 이메일 세션은 매직 링크를 사용하세요. 비밀번호는 Supabase Auth에서 비밀번호 기반 사용자를 만든 뒤에만 사용합니다.
             </div>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              Email
+              이메일
               <input
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
@@ -603,12 +609,12 @@ export function VentureConsoleActions() {
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              Password for existing account
+              기존 계정 비밀번호
               <input
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 type="password"
-                placeholder="Existing Supabase Auth password only"
+                placeholder="Supabase Auth 기존 비밀번호"
                 className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </label>
@@ -619,7 +625,7 @@ export function VentureConsoleActions() {
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
-              Sign in with existing password
+              기존 비밀번호로 로그인
             </button>
             <button
               type="submit"
@@ -627,7 +633,7 @@ export function VentureConsoleActions() {
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
-              Send magic link
+              매직 링크 보내기
             </button>
           </form>
         )}
@@ -638,20 +644,20 @@ export function VentureConsoleActions() {
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-slate-950">Workspace status</h2>
-              <p className="mt-1 text-sm text-slate-500">Records can now be attached to an organization boundary.</p>
+              <h2 className="text-xl font-semibold text-slate-950">워크스페이스 상태</h2>
+              <p className="mt-1 text-sm text-slate-500">기록을 조직 단위 경계에 연결할 수 있습니다.</p>
             </div>
             <Building2 className={activeOrganization ? "text-blue-600" : "text-slate-500"} size={24} />
           </div>
 
           {!user ? (
             <div className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-              Sign in to load workspace membership.
+              워크스페이스 멤버십을 불러오려면 로그인하세요.
             </div>
           ) : activeOrganization ? (
             <div className="grid gap-4">
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                Active workspace
+                활성 워크스페이스
                 <select
                   value={activeOrganization.id}
                   onChange={(event) => {
@@ -668,15 +674,15 @@ export function VentureConsoleActions() {
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg bg-blue-50 p-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">Role</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">역할</div>
                   <div className="mt-2 text-lg font-semibold capitalize text-blue-950">
-                    {activeMembership?.role ?? "member"}
+                    {activeMembership ? organizationRoleLabels[activeMembership.role] : organizationRoleLabels.member}
                   </div>
                 </div>
                 <div className="rounded-lg bg-slate-50 p-4">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                     <Users size={14} />
-                    Members
+                    멤버
                   </div>
                   <div className="mt-2 text-lg font-semibold text-slate-950">{activeMemberCount}</div>
                 </div>
@@ -684,11 +690,10 @@ export function VentureConsoleActions() {
               {personalRecordCount > 0 ? (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
                   <div className="text-sm font-semibold text-amber-950">
-                    {personalRecordCount} personal record(s) are outside this workspace.
+                    {personalRecordCount}개의 개인 기록이 아직 워크스페이스 밖에 있습니다.
                   </div>
                   <p className="mt-1 text-sm leading-6 text-amber-900">
-                    Attach them when you want the portfolio, risks, decisions, experiments, runs, and artifacts to share
-                    the same workspace boundary.
+                    포트폴리오, 리스크, 판단, 실험, 실행, 산출물을 같은 워크스페이스 경계로 묶고 싶을 때 연결하세요.
                   </p>
                   <button
                     type="button"
@@ -697,14 +702,14 @@ export function VentureConsoleActions() {
                     className="mt-3 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-amber-900 px-4 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
-                    Attach personal records
+                    개인 기록 연결
                   </button>
                 </div>
               ) : null}
               <div>
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
                   <Users size={16} />
-                  Members
+                  멤버
                 </div>
                 <div className="grid gap-2">
                   {activeMembers.map((member) => (
@@ -715,8 +720,8 @@ export function VentureConsoleActions() {
                             {member.email || member.user_id}
                           </div>
                           <div className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            {member.role}
-                            {member.user_id === user.id ? " / you" : ""}
+                            {organizationRoleLabels[member.role]}
+                            {member.user_id === user.id ? " / 나" : ""}
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -739,7 +744,7 @@ export function VentureConsoleActions() {
                                 }
                                 className="inline-flex h-8 items-center justify-center rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
                               >
-                                {memberActionKey === actionKey ? "..." : role}
+                                {memberActionKey === actionKey ? "..." : organizationRoleLabels[role]}
                               </button>
                             );
                           })}
@@ -756,7 +761,7 @@ export function VentureConsoleActions() {
                             className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-white px-2.5 text-xs font-semibold text-rose-700 shadow-sm transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-45"
                           >
                             <Trash2 size={13} />
-                            {memberActionKey === `${member.user_id}:remove` ? "..." : "Remove"}
+                            {memberActionKey === `${member.user_id}:remove` ? "..." : "제거"}
                           </button>
                         </div>
                       </div>
@@ -765,7 +770,7 @@ export function VentureConsoleActions() {
                 </div>
               </div>
               <form onSubmit={handleAddMember} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <div className="text-sm font-semibold text-slate-950">Add existing Auth user</div>
+                <div className="text-sm font-semibold text-slate-950">기존 Auth 사용자 추가</div>
                 <div className="grid gap-3 sm:grid-cols-[1fr_132px]">
                   <input
                     value={memberEmail}
@@ -783,7 +788,7 @@ export function VentureConsoleActions() {
                   >
                     {memberRoles.map((role) => (
                       <option key={role} value={role}>
-                        {role}
+                        {organizationRoleLabels[role]}
                       </option>
                     ))}
                   </select>
@@ -794,13 +799,13 @@ export function VentureConsoleActions() {
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isMemberBusy ? <RefreshCw className="animate-spin" size={18} /> : <Users size={18} />}
-                  Add member
+                  멤버 추가
                 </button>
               </form>
               <div>
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
                   <Clock3 size={16} />
-                  Recent audit
+                  최근 감사 로그
                 </div>
                 <div className="grid gap-2">
                   {auditEvents.length > 0 ? (
@@ -811,7 +816,7 @@ export function VentureConsoleActions() {
                     ))
                   ) : (
                     <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-500">
-                      No organization audit events yet.
+                      아직 조직 감사 로그가 없습니다.
                     </div>
                   )}
                 </div>
@@ -820,9 +825,9 @@ export function VentureConsoleActions() {
           ) : (
             <div className="grid gap-3">
               <div className="rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-                No workspace membership was found for this operator.
+                이 운영자에게 연결된 워크스페이스가 없습니다.
                 {personalRecordCount > 0
-                  ? ` ${personalRecordCount} personal record(s) can be attached after a workspace is created.`
+                  ? ` 워크스페이스를 만든 뒤 ${personalRecordCount}개의 개인 기록을 연결할 수 있습니다.`
                   : ""}
               </div>
               <button
@@ -832,7 +837,7 @@ export function VentureConsoleActions() {
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
-                Create workspace
+                워크스페이스 만들기
               </button>
             </div>
           )}
@@ -844,11 +849,11 @@ export function VentureConsoleActions() {
       <form onSubmit={handleCreateIdea} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-slate-950">New idea intake</h2>
+            <h2 className="text-xl font-semibold text-slate-950">새 아이디어 입력</h2>
             <p className="mt-1 text-sm text-slate-500">
               {activeOrganization
-                ? `Capture a raw idea inside ${activeOrganization.name}.`
-                : "Capture a raw idea without jumping straight into build mode."}
+                ? `${activeOrganization.name} 안에 원시 아이디어를 기록합니다.`
+                : "바로 개발로 들어가지 않고 원시 아이디어를 먼저 기록합니다."}
             </p>
           </div>
           <button
@@ -857,35 +862,35 @@ export function VentureConsoleActions() {
             className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
-            Save idea
+            아이디어 저장
           </button>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Name" value={form.name} onChange={(value) => setForm({ ...form, name: value })} required />
-          <Field label="Buyer" value={form.buyer} onChange={(value) => setForm({ ...form, buyer: value })} />
+          <Field label="이름" value={form.name} onChange={(value) => setForm({ ...form, name: value })} required />
+          <Field label="구매자" value={form.buyer} onChange={(value) => setForm({ ...form, buyer: value })} />
           <Field
-            label="One-liner"
+            label="한 줄 설명"
             value={form.one_liner}
             onChange={(value) => setForm({ ...form, one_liner: value })}
             required
           />
           <Field
-            label="Target user"
+            label="대상 사용자"
             value={form.target_user}
             onChange={(value) => setForm({ ...form, target_user: value })}
           />
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <TextArea label="Signal" value={form.signal} onChange={(value) => setForm({ ...form, signal: value })} />
+          <TextArea label="수요 신호" value={form.signal} onChange={(value) => setForm({ ...form, signal: value })} />
           <TextArea
-            label="Risk summary"
+            label="리스크 요약"
             value={form.risk_summary}
             onChange={(value) => setForm({ ...form, risk_summary: value })}
           />
           <TextArea
-            label="Next evidence"
+            label="다음 증거"
             value={form.next_evidence}
             onChange={(value) => setForm({ ...form, next_evidence: value })}
           />
@@ -899,11 +904,11 @@ export function VentureConsoleActions() {
 
 function formatAuthError(message: string) {
   if (message.toLowerCase().includes("rate limit")) {
-    return "Supabase email rate limit exceeded. Wait for the email quota to reset, configure custom SMTP, or use password sign-in with a dashboard-created operator account.";
+    return "Supabase 이메일 전송 제한에 걸렸습니다. 할당량이 초기화될 때까지 기다리거나, 커스텀 SMTP를 설정하거나, 대시보드에서 만든 운영자 계정으로 비밀번호 로그인을 사용하세요.";
   }
 
   if (message.toLowerCase().includes("invalid login credentials")) {
-    return "Invalid email or password. Create a confirmed user in Supabase Auth or check the password.";
+    return "이메일 또는 비밀번호가 올바르지 않습니다. Supabase Auth에서 확인된 사용자를 만들었는지, 비밀번호가 맞는지 확인하세요.";
   }
 
   return message;
@@ -911,19 +916,19 @@ function formatAuthError(message: string) {
 
 function formatAuthCallbackMessage(error: string, description: string | null) {
   if (error === "missing_callback_state") {
-    return "Magic link callback was missing its login code. Request a fresh link and open the newest email.";
+    return "매직 링크 콜백에 로그인 코드가 없습니다. 새 링크를 요청한 뒤 가장 최근 이메일을 여세요.";
   }
 
   if (error === "callback_exchange_failed") {
     const normalizedDescription = description?.toLowerCase() ?? "";
 
     if (normalizedDescription.includes("verifier")) {
-      return "Magic link opened, but the original browser session was not found. Request the link again, then open it in the same browser profile where you clicked Send magic link.";
+      return "매직 링크는 열렸지만 원래 브라우저 세션을 찾지 못했습니다. 링크를 다시 요청한 뒤 매직 링크를 보낸 같은 브라우저 프로필에서 여세요.";
     }
 
     return description
-      ? `Magic link callback failed: ${description}`
-      : "Magic link callback failed. Request a fresh link and try again.";
+      ? `매직 링크 콜백 실패: ${description}`
+      : "매직 링크 콜백에 실패했습니다. 새 링크를 요청한 뒤 다시 시도하세요.";
   }
 
   return description ? `${error}: ${description}` : error;
