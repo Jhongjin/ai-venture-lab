@@ -57,3 +57,4 @@ The app now supports the first live operating loop:
 20. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
 21. Route magic links through `/auth/callback` so Supabase auth codes become app sessions before returning home.
 22. Surface callback exchange failures in the operator card so auth setup issues can be fixed without guessing.
+23. Use phase-specific output templates so strategy, research, product, design, build, QA, debug, security, and launch work produces comparable notes.

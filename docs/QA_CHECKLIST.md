@@ -28,4 +28,5 @@ Use this checklist before merging meaningful changes.
 - Operator access clearly distinguishes magic link login from existing password-account login and shows session status.
 - Magic link email redirect lands on `/auth/callback`, exchanges the code, and returns to the app as signed in.
 - Failed magic link callback attempts show a clear operator-facing reason and clean auth query params from the URL.
+- Orchestration runs can be seeded with phase-specific output templates before saving role notes.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

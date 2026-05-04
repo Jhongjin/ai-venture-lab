@@ -592,6 +592,223 @@ ${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- [x] No high or critic
 `;
 }
 
+function buildRunOutputTemplate(run: OrchestrationRun, idea: Idea, state: EditState) {
+  const context = [
+    `Idea: ${idea.name}`,
+    `Stage: ${stageLabels[state.stage]}`,
+    `Decision: ${decisionLabels[state.decision]}`,
+    `Next evidence: ${state.next_evidence || "TBD"}`,
+  ].join("\n");
+
+  const templates: Record<OrchestrationPhase, string> = {
+    strategy: `# Strategy Output
+
+${context}
+
+## Opportunity
+- User pain:
+- Buyer:
+- Trigger:
+
+## Decision Criteria
+- Must prove:
+- Kill condition:
+- Promote condition:
+
+## Constraints
+- Time:
+- Budget:
+- Legal/security:
+
+## Next Commitment
+- Owner:
+- Action:
+- Due:
+`,
+    research: `# Research Output
+
+${context}
+
+## Sources Checked
+- Source:
+- Source:
+- Source:
+
+## Market Evidence
+- User pain:
+- Existing alternatives:
+- Willingness-to-pay signal:
+
+## Risk Evidence
+- Regulatory:
+- Privacy:
+- Competitive:
+
+## Confidence
+- What is now known:
+- What is still unknown:
+- Next evidence:
+`,
+    product: `# Product Output
+
+${context}
+
+## User Story
+As a:
+I want:
+So that:
+
+## MVP Requirements
+- Must have:
+- Should have:
+- Not yet:
+
+## Acceptance Criteria
+- Given/when/then:
+- Given/when/then:
+
+## Analytics
+- Activation:
+- Success metric:
+- Failure signal:
+`,
+    design: `# Design Output
+
+${context}
+
+## Primary Flow
+1. Entry:
+2. Core action:
+3. Success state:
+
+## Screens And States
+- Empty:
+- Loading:
+- Error:
+- Success:
+
+## Usability Risks
+- Mobile:
+- Accessibility:
+- Confusing copy:
+
+## Design Decision
+- Ship as-is:
+- Revise before build:
+`,
+    build: `# Build Output
+
+${context}
+
+## Implementation Scope
+- Files/modules:
+- Data changes:
+- External services:
+
+## Plan
+1. Build:
+2. Verify:
+3. Deploy:
+
+## Guardrails
+- Feature flag or rollback:
+- Secrets/env:
+- Migration risk:
+
+## Done When
+- User-visible result:
+- Tests:
+- Deployment:
+`,
+    qa: `# QA Output
+
+${context}
+
+## Core Journey
+- Steps tested:
+- Result:
+
+## Regression Surface
+- Auth:
+- Data writes:
+- Artifact/run workflow:
+- Mobile layout:
+
+## Failures
+- Issue:
+- Repro:
+- Severity:
+
+## Verdict
+- Pass/block:
+- Evidence:
+`,
+    debug: `# Debug Output
+
+${context}
+
+## Reproduction
+- Environment:
+- Steps:
+- Expected:
+- Actual:
+
+## Diagnosis
+- Suspected cause:
+- Evidence:
+
+## Fix
+- Change:
+- Verification:
+- Residual risk:
+`,
+    security: `# Security Output
+
+${context}
+
+## Data Classification
+- PII:
+- Secrets:
+- Sensitive business data:
+
+## Access Control
+- Auth requirement:
+- RLS/permissions:
+- Admin actions:
+
+## Abuse And Privacy
+- Abuse path:
+- Retention:
+- Consent/notice:
+
+## Verdict
+- Pass/block:
+- Required mitigation:
+`,
+    launch: `# Launch Output
+
+${context}
+
+## Readiness
+- Approved PRD:
+- Approved MVP spec:
+- QA gate:
+- Security gate:
+
+## Decision
+- Ship/pivot/kill/research more:
+- Reason:
+
+## Release Plan
+- Owner:
+- Rollback:
+- First metric to watch:
+`,
+  };
+
+  return templates[run.phase].trim();
+}
+
 function summarizeArtifactLineChanges(currentBody: string, previousBody: string) {
   const currentLines = splitComparableLines(currentBody);
   const previousLines = splitComparableLines(previousBody);
@@ -1777,15 +1994,31 @@ export function IdeaWorkbench({
                       disabled={!canManageRecord(run)}
                       onChange={(value) => setRunOutputs((current) => ({ ...current, [run.id]: value }))}
                     />
-                    <button
-                      type="button"
-                      onClick={() => saveRunOutput(run)}
-                      disabled={isBusy || !canManageRecord(run) || (runOutputs[run.id] ?? run.output) === run.output}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
-                    >
-                      <Save size={16} />
-                      Save output
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setRunOutputs((current) => ({
+                            ...current,
+                            [run.id]: buildRunOutputTemplate(run, selectedIdea, editState),
+                          }))
+                        }
+                        disabled={isBusy || !canManageRecord(run)}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        <ClipboardList size={16} />
+                        Use template
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => saveRunOutput(run)}
+                        disabled={isBusy || !canManageRecord(run) || (runOutputs[run.id] ?? run.output) === run.output}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        <Save size={16} />
+                        Save output
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
