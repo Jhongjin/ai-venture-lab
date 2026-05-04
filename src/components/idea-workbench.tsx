@@ -41,6 +41,11 @@ const artifactStatusTone: Record<VentureArtifactStatus, string> = {
   approved: "bg-emerald-100 text-emerald-800",
   archived: "bg-amber-100 text-amber-800",
 };
+const artifactStatusDefaultNotes: Record<VentureArtifactStatus, string> = {
+  draft: "Returned to draft for revision.",
+  approved: "Approved for the next gate.",
+  archived: "Archived from the active decision path.",
+};
 const adminRoles = new Set(["owner", "admin"]);
 
 const orchestrationPhaseConfigs: Array<{
@@ -629,6 +634,7 @@ export function IdeaWorkbench({
   const [runOutputs, setRunOutputs] = useState<Record<string, string>>(
     Object.fromEntries(initialOrchestrationRuns.map((run) => [run.id, run.output])),
   );
+  const [artifactStatusNotes, setArtifactStatusNotes] = useState<Record<string, string>>({});
   const [user, setUser] = useState<User | null>(null);
   const [memberships, setMemberships] = useState<OrganizationMember[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -1219,6 +1225,7 @@ export function IdeaWorkbench({
         title,
         body,
         source,
+        status_note: "Initial generated draft.",
       })
       .select()
       .single();
@@ -1247,10 +1254,12 @@ export function IdeaWorkbench({
 
     setIsBusy(true);
     setMessage(null);
+    const statusNote = artifactStatusNotes[artifact.id] ?? artifact.status_note ?? "";
     const { data, error } = await supabase
       .from("venture_artifacts")
       .update({
         status,
+        status_note: statusNote.trim() || artifactStatusDefaultNotes[status],
         approved_by: status === "approved" ? user?.id ?? null : null,
         approved_at: status === "approved" ? new Date().toISOString() : null,
       })
@@ -1265,6 +1274,11 @@ export function IdeaWorkbench({
     }
 
     setArtifacts((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setArtifactStatusNotes((current) => {
+      const next = { ...current };
+      delete next[data.id];
+      return next;
+    });
     setMessage(`${artifact.title || artifactLabels[artifact.artifact_type]} marked ${artifactStatusLabels[status]}.`);
     router.refresh();
   }
@@ -2078,6 +2092,9 @@ export function IdeaWorkbench({
                           {artifact.source || "manual"} / {new Date(artifact.created_at).toLocaleDateString()}
                           {artifact.approved_at ? ` / approved ${new Date(artifact.approved_at).toLocaleDateString()}` : ""}
                         </div>
+                        {artifact.status_note ? (
+                          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Gate note: {artifact.status_note}</p>
+                        ) : null}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <button
@@ -2101,6 +2118,22 @@ export function IdeaWorkbench({
                         ))}
                       </div>
                     </div>
+                    <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                      Status note
+                      <textarea
+                        value={artifactStatusNotes[artifact.id] ?? artifact.status_note ?? ""}
+                        onChange={(event) =>
+                          setArtifactStatusNotes((current) => ({
+                            ...current,
+                            [artifact.id]: event.target.value,
+                          }))
+                        }
+                        rows={2}
+                        disabled={isBusy || !canManageRecord(artifact)}
+                        placeholder="Approval evidence, reviewer comment, or archive reason"
+                        className="mt-2 w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm normal-case leading-6 tracking-normal text-slate-800 outline-none transition focus:border-slate-500 disabled:cursor-not-allowed disabled:bg-slate-100"
+                      />
+                    </label>
                   </div>
                 );
               })

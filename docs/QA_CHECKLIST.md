@@ -22,4 +22,5 @@ Use this checklist before merging meaningful changes.
 - Artifact owners or workspace admins can move artifacts between draft, approved, and archived.
 - Launch readiness shows blocked gates for evidence, artifacts, experiments, QA, security, risks, and decisions.
 - Re-saving an artifact creates the next version and launch readiness requires approved PRD and MVP spec artifacts.
+- Artifact status changes can include a gate note explaining approval evidence, revision needs, or archive reason.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

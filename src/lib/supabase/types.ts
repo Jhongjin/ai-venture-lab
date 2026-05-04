@@ -180,6 +180,7 @@ export type Database = {
           title: string;
           body: string;
           source: string;
+          status_note: string;
           approved_by: string | null;
           approved_at: string | null;
           created_by: string | null;

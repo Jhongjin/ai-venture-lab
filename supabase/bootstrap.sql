@@ -1298,6 +1298,9 @@ add column if not exists approved_by uuid references auth.users(id) on delete se
 alter table public.venture_artifacts
 add column if not exists approved_at timestamptz;
 
+alter table public.venture_artifacts
+add column if not exists status_note text not null default '';
+
 do $$
 begin
   if not exists (
