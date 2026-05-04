@@ -142,6 +142,31 @@ export function VentureConsoleActions() {
   }, [loadAuditEvents, supabase]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get("auth_error");
+
+    if (!authError) {
+      return;
+    }
+
+    const callbackMessage = formatAuthCallbackMessage(authError, params.get("auth_error_description"));
+    params.delete("auth_error");
+    params.delete("auth_error_description");
+
+    const nextQuery = params.toString();
+    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", nextUrl);
+
+    const messageTimer = window.setTimeout(() => {
+      setAuthMessage(callbackMessage);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(messageTimer);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!supabase) {
       return;
     }
@@ -740,6 +765,26 @@ function formatAuthError(message: string) {
   }
 
   return message;
+}
+
+function formatAuthCallbackMessage(error: string, description: string | null) {
+  if (error === "missing_callback_state") {
+    return "Magic link callback was missing its login code. Request a fresh link and open the newest email.";
+  }
+
+  if (error === "callback_exchange_failed") {
+    const normalizedDescription = description?.toLowerCase() ?? "";
+
+    if (normalizedDescription.includes("verifier")) {
+      return "Magic link opened, but the original browser session was not found. Request the link again, then open it in the same browser profile where you clicked Send magic link.";
+    }
+
+    return description
+      ? `Magic link callback failed: ${description}`
+      : "Magic link callback failed. Request a fresh link and try again.";
+  }
+
+  return description ? `${error}: ${description}` : error;
 }
 
 function Field({
