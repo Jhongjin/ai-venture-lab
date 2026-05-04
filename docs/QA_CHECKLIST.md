@@ -20,4 +20,5 @@ Use this checklist before merging meaningful changes.
 - Authenticated operators can save generated idea briefs and PRDs as artifacts and copy them from the artifact library.
 - Authenticated operators can generate and save MVP spec and launch checklist artifacts from the same workbench evidence.
 - Artifact owners or workspace admins can move artifacts between draft, approved, and archived.
+- Launch readiness shows blocked gates for evidence, artifacts, experiments, QA, security, risks, and decisions.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

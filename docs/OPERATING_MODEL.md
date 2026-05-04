@@ -49,3 +49,4 @@ The app now supports the first live operating loop:
 12. Save generated briefs and PRDs into the artifact library before moving to MVP scope.
 13. Generate and save the MVP spec and launch checklist before build or release work starts.
 14. Promote artifacts from draft to approved only after the relevant gates are complete.
+15. Use launch readiness to see which gates still block build or release.

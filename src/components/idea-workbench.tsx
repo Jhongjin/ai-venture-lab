@@ -753,6 +753,56 @@ export function IdeaWorkbench({
         artifacts: selectedArtifacts,
       })
     : "";
+  const launchReadiness = selectedIdea && editState
+    ? [
+        {
+          label: "Evidence complete",
+          passed: missing.length === 0,
+          detail: missing.length === 0 ? "No basic evidence gaps" : missing.join(", "),
+        },
+        {
+          label: "PRD saved",
+          passed: selectedArtifacts.some((artifact) => artifact.artifact_type === "prd"),
+          detail: "PRD artifact required",
+        },
+        {
+          label: "MVP spec saved",
+          passed: selectedArtifacts.some((artifact) => artifact.artifact_type === "mvp_spec"),
+          detail: "MVP scope required",
+        },
+        {
+          label: "Experiment planned",
+          passed: selectedExperiments.length > 0,
+          detail: selectedExperiments[0]?.success_metric || "Success metric required",
+        },
+        {
+          label: "QA gate",
+          passed: selectedRuns.some((run) => run.phase === "qa" && run.status === "done"),
+          detail: "QA run must be done",
+        },
+        {
+          label: "Security gate",
+          passed: selectedRuns.some((run) => run.phase === "security" && run.status === "done"),
+          detail: "Security run must be done",
+        },
+        {
+          label: "High risks closed",
+          passed: selectedRisks
+            .filter((risk) => risk.idea_id === selectedIdea.id)
+            .every((risk) => !["high", "critical"].includes(risk.severity) || risk.status === "closed"),
+          detail: "High and critical risks must be closed or accepted",
+        },
+        {
+          label: "Decision recorded",
+          passed: editState.decision !== "pending" && selectedDecisions.length > 0,
+          detail: `${decisionLabels[editState.decision]} / ${selectedDecisions.length} record(s)`,
+        },
+      ]
+    : [];
+  const launchReadinessScore =
+    launchReadiness.length === 0
+      ? 0
+      : Math.round((launchReadiness.filter((check) => check.passed).length / launchReadiness.length) * 100);
   const visibleIdeas = useMemo(() => {
     if (filterMode === "mine") {
       return ideas.filter((idea) => user && idea.created_by === user.id);
@@ -1488,6 +1538,35 @@ export function IdeaWorkbench({
             />
           </div>
         </form>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">Launch readiness</h2>
+              <p className="mt-1 text-sm text-slate-500">A live gate summary from evidence, artifacts, risks, and runs.</p>
+            </div>
+            <div className="rounded-lg bg-slate-950 px-4 py-3 text-right text-white">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">Ready</div>
+              <div className="mt-1 text-2xl font-semibold">{launchReadinessScore}%</div>
+            </div>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {launchReadiness.map((check) => (
+              <div key={check.label} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2
+                    className={check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400"}
+                    size={18}
+                  />
+                  <div>
+                    <div className="text-sm font-semibold text-slate-950">{check.label}</div>
+                    <div className="mt-1 text-sm leading-6 text-slate-600">{check.detail}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
