@@ -53,3 +53,4 @@ The app now supports the first live operating loop:
 16. Save revised artifacts as new versions instead of overwriting prior evidence.
 17. Record a status note when approving, reopening, or archiving an artifact.
 18. Compare revised artifacts against the previous version before promotion.
+19. Filter the artifact library by type and lifecycle status during review.

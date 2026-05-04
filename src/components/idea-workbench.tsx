@@ -677,6 +677,8 @@ export function IdeaWorkbench({
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
   const [filterMode, setFilterMode] = useState<"all" | "mine" | "read_only">("all");
+  const [artifactTypeFilter, setArtifactTypeFilter] = useState<VentureArtifactType | "all">("all");
+  const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
 
   useEffect(() => {
     if (!supabase) {
@@ -737,7 +739,14 @@ export function IdeaWorkbench({
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     [artifacts, selectedIdea?.id],
   );
-  const selectedArtifacts = useMemo(() => selectedArtifactRecords.slice(0, 8), [selectedArtifactRecords]);
+  const selectedArtifacts = useMemo(
+    () =>
+      selectedArtifactRecords
+        .filter((artifact) => artifactTypeFilter === "all" || artifact.artifact_type === artifactTypeFilter)
+        .filter((artifact) => artifactStatusFilter === "all" || (artifact.status ?? "draft") === artifactStatusFilter)
+        .slice(0, 8),
+    [artifactStatusFilter, artifactTypeFilter, selectedArtifactRecords],
+  );
   const artifactVersionSummaries = useMemo(() => {
     const summaries = new Map<string, { previous: VentureArtifact; added: number; removed: number }>();
 
@@ -2126,9 +2135,43 @@ export function IdeaWorkbench({
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="mb-5">
-            <h2 className="text-lg font-semibold text-slate-950">Artifact library</h2>
-            <p className="mt-1 text-sm text-slate-500">Saved idea artifacts for the selected workspace record.</p>
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">Artifact library</h2>
+              <p className="mt-1 text-sm text-slate-500">Saved idea artifacts for the selected workspace record.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Type
+                <select
+                  value={artifactTypeFilter}
+                  onChange={(event) => setArtifactTypeFilter(event.target.value as VentureArtifactType | "all")}
+                  className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm normal-case tracking-normal text-slate-800 outline-none transition focus:border-slate-500"
+                >
+                  <option value="all">All types</option>
+                  {Object.entries(artifactLabels).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                Status
+                <select
+                  value={artifactStatusFilter}
+                  onChange={(event) => setArtifactStatusFilter(event.target.value as VentureArtifactStatus | "all")}
+                  className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm normal-case tracking-normal text-slate-800 outline-none transition focus:border-slate-500"
+                >
+                  <option value="all">All statuses</option>
+                  {(["draft", "approved", "archived"] as VentureArtifactStatus[]).map((status) => (
+                    <option key={status} value={status}>
+                      {artifactStatusLabels[status]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
           <div className="grid gap-3">
             {selectedArtifacts.length > 0 ? (
@@ -2208,7 +2251,7 @@ export function IdeaWorkbench({
               })
             ) : (
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                No artifacts saved yet.
+                {selectedArtifactRecords.length > 0 ? "No artifacts match the current filters." : "No artifacts saved yet."}
               </div>
             )}
           </div>
