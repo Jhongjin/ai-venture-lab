@@ -34,6 +34,14 @@ const emptyForm: FormState = {
 };
 
 const memberRoles: AddableOrganizationRole[] = ["member", "viewer", "admin"];
+const workspaceRecordTables = [
+  "ideas",
+  "risks",
+  "decisions",
+  "experiments",
+  "orchestration_runs",
+  "venture_artifacts",
+] as const;
 
 export function VentureConsoleActions() {
   const router = useRouter();
@@ -55,6 +63,7 @@ export function VentureConsoleActions() {
   const [isWorkspaceBusy, setIsWorkspaceBusy] = useState(false);
   const [isMemberBusy, setIsMemberBusy] = useState(false);
   const [memberActionKey, setMemberActionKey] = useState<string | null>(null);
+  const [personalRecordCount, setPersonalRecordCount] = useState(0);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
 
@@ -78,6 +87,28 @@ export function VentureConsoleActions() {
   const ownerCount = useMemo(
     () => activeMembers.filter((member) => member.role === "owner").length,
     [activeMembers],
+  );
+
+  const loadPersonalRecordCount = useCallback(
+    async (operator: User | null) => {
+      if (!supabase || !operator) {
+        setPersonalRecordCount(0);
+        return;
+      }
+
+      const results = await Promise.all(
+        workspaceRecordTables.map((table) =>
+          supabase
+            .from(table)
+            .select("id", { count: "exact", head: true })
+            .eq("created_by", operator.id)
+            .is("organization_id", null),
+        ),
+      );
+
+      setPersonalRecordCount(results.reduce((sum, result) => sum + (result.count ?? 0), 0));
+    },
+    [supabase],
   );
 
   const loadAuditEvents = useCallback(
@@ -110,6 +141,7 @@ export function VentureConsoleActions() {
       setMembers([]);
       setAuditEvents([]);
       setActiveOrganizationId("");
+      setPersonalRecordCount(0);
       return;
     }
 
@@ -135,11 +167,13 @@ export function VentureConsoleActions() {
 
     if (!nextActiveId) {
       setAuditEvents([]);
+      await loadPersonalRecordCount(operator);
       return;
     }
 
     await loadAuditEvents(nextActiveId);
-  }, [loadAuditEvents, supabase]);
+    await loadPersonalRecordCount(operator);
+  }, [loadAuditEvents, loadPersonalRecordCount, supabase]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -341,6 +375,38 @@ export function VentureConsoleActions() {
     await loadWorkspaceData(user, data.id);
   }
 
+  async function handleAttachPersonalRecords() {
+    setWorkspaceMessage(null);
+
+    if (!supabase || !user || !activeOrganization) {
+      setWorkspaceMessage("Create or select a workspace first.");
+      return;
+    }
+
+    setIsWorkspaceBusy(true);
+    const results = await Promise.all(
+      workspaceRecordTables.map((table) =>
+        supabase
+          .from(table)
+          .update({ organization_id: activeOrganization.id })
+          .eq("created_by", user.id)
+          .is("organization_id", null),
+      ),
+    );
+    setIsWorkspaceBusy(false);
+
+    const error = results.find((result) => result.error)?.error;
+
+    if (error) {
+      setWorkspaceMessage(error.message);
+      return;
+    }
+
+    setWorkspaceMessage(`Attached ${personalRecordCount} personal record(s) to ${activeOrganization.name}.`);
+    await loadWorkspaceData(user, activeOrganization.id);
+    router.refresh();
+  }
+
   async function handleSelectWorkspace(organizationId: string) {
     setActiveOrganizationId(organizationId);
     await loadAuditEvents(organizationId);
@@ -480,8 +546,11 @@ export function VentureConsoleActions() {
 
     setForm(emptyForm);
     setSaveMessage(
-      activeOrganization ? `Idea saved to ${activeOrganization.name}. Refreshing portfolio.` : "Idea saved. Refreshing portfolio.",
+      activeOrganization
+        ? `Idea saved to ${activeOrganization.name}. Refreshing portfolio.`
+        : "Idea saved as a personal record. Create a workspace to attach future records.",
     );
+    await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
     router.refresh();
   }
@@ -612,6 +681,26 @@ export function VentureConsoleActions() {
                   <div className="mt-2 text-lg font-semibold text-slate-950">{activeMemberCount}</div>
                 </div>
               </div>
+              {personalRecordCount > 0 ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                  <div className="text-sm font-semibold text-amber-950">
+                    {personalRecordCount} personal record(s) are outside this workspace.
+                  </div>
+                  <p className="mt-1 text-sm leading-6 text-amber-900">
+                    Attach them when you want the portfolio, risks, decisions, experiments, runs, and artifacts to share
+                    the same workspace boundary.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleAttachPersonalRecords}
+                    disabled={isWorkspaceBusy}
+                    className="mt-3 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-amber-900 px-4 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
+                    Attach personal records
+                  </button>
+                </div>
+              ) : null}
               <div>
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
                   <Users size={16} />
@@ -732,6 +821,9 @@ export function VentureConsoleActions() {
             <div className="grid gap-3">
               <div className="rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-900">
                 No workspace membership was found for this operator.
+                {personalRecordCount > 0
+                  ? ` ${personalRecordCount} personal record(s) can be attached after a workspace is created.`
+                  : ""}
               </div>
               <button
                 type="button"
