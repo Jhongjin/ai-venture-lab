@@ -6,7 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Decision, Experiment, Idea, OrchestrationRun, Risk } from "@/lib/venture-data";
+import type { Decision, Experiment, Idea, OrchestrationRun, Risk, VentureArtifact } from "@/lib/venture-data";
 import type {
   Database,
   DecisionStatus,
@@ -14,6 +14,7 @@ import type {
   OrchestrationPhase,
   OrchestrationStatus,
   RiskSeverity,
+  VentureArtifactType,
 } from "@/lib/supabase/types";
 
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
@@ -22,6 +23,13 @@ const stages: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", 
 const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
+const artifactLabels: Record<VentureArtifactType, string> = {
+  idea_brief: "Idea brief",
+  research_note: "Research note",
+  prd: "PRD",
+  mvp_spec: "MVP spec",
+  launch_checklist: "Launch checklist",
+};
 const adminRoles = new Set(["owner", "admin"]);
 
 const orchestrationPhaseConfigs: Array<{
@@ -405,12 +413,14 @@ export function IdeaWorkbench({
   initialDecisions,
   initialExperiments,
   initialOrchestrationRuns,
+  initialArtifacts,
 }: {
   initialIdeas: Idea[];
   initialRisks: Risk[];
   initialDecisions: Decision[];
   initialExperiments: Experiment[];
   initialOrchestrationRuns: OrchestrationRun[];
+  initialArtifacts: VentureArtifact[];
 }) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
@@ -419,6 +429,7 @@ export function IdeaWorkbench({
   const [decisionLog, setDecisionLog] = useState(initialDecisions);
   const [experiments, setExperiments] = useState(initialExperiments);
   const [orchestrationRuns, setOrchestrationRuns] = useState(initialOrchestrationRuns);
+  const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [selectedIdeaId, setSelectedIdeaId] = useState(initialIdeas[0]?.id ?? "");
   const selectedIdea = ideas.find((idea) => idea.id === selectedIdeaId) ?? ideas[0] ?? null;
   const [editState, setEditState] = useState<EditState | null>(selectedIdea ? toEditState(selectedIdea) : null);
@@ -495,6 +506,11 @@ export function IdeaWorkbench({
         .filter((run) => run.idea_id === selectedIdea?.id)
         .sort((a, b) => (phaseOrder.get(a.phase) ?? 99) - (phaseOrder.get(b.phase) ?? 99)),
     [orchestrationRuns, selectedIdea?.id],
+  );
+
+  const selectedArtifacts = useMemo(
+    () => artifacts.filter((artifact) => artifact.idea_id === selectedIdea?.id).slice(0, 6),
+    [artifacts, selectedIdea?.id],
   );
 
   const canAdminSelectedOrganization = Boolean(
@@ -903,6 +919,48 @@ export function IdeaWorkbench({
     setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
     setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
     setMessage(`${phaseLabels[run.phase]} output saved.`);
+    router.refresh();
+  }
+
+  async function saveArtifactDraft(artifactType: VentureArtifactType, title: string, body: string, source: string) {
+    if (!supabase || !selectedIdea) {
+      setMessage("Select an idea first.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("Sign in before saving artifacts.");
+      return;
+    }
+
+    if (!body.trim()) {
+      setMessage("Artifact body is empty.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("venture_artifacts")
+      .insert({
+        idea_id: selectedIdea.id,
+        organization_id: selectedIdea.organization_id,
+        artifact_type: artifactType,
+        title,
+        body,
+        source,
+      })
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setArtifacts((current) => [data, ...current]);
+    setMessage(`${artifactLabels[artifactType]} artifact saved.`);
     router.refresh();
   }
 
@@ -1492,14 +1550,27 @@ export function IdeaWorkbench({
               <h2 className="text-lg font-semibold text-slate-950">Idea brief draft</h2>
               <p className="mt-1 text-sm text-slate-500">Copy this into the PRD or research workflow.</p>
             </div>
-            <button
-              type="button"
-              onClick={copyIdeaBrief}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              <Clipboard size={18} />
-              Copy brief
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={copyIdeaBrief}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                <Clipboard size={18} />
+                Copy brief
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  saveArtifactDraft("idea_brief", `${selectedIdea.name} idea brief`, ideaBrief, "workbench")
+                }
+                disabled={isBusy || !user}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Save size={18} />
+                Save artifact
+              </button>
+            </div>
           </div>
           <textarea
             value={ideaBrief}
@@ -1518,14 +1589,25 @@ export function IdeaWorkbench({
                 Generated from score, evidence, risks, experiments, and orchestration outputs.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={copyPrdDraft}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              <Clipboard size={18} />
-              Copy PRD
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={copyPrdDraft}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                <Clipboard size={18} />
+                Copy PRD
+              </button>
+              <button
+                type="button"
+                onClick={() => saveArtifactDraft("prd", `${selectedIdea.name} PRD`, prdDraft, "workbench")}
+                disabled={isBusy || !user}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Save size={18} />
+                Save artifact
+              </button>
+            </div>
           </div>
           <textarea
             value={prdDraft}
@@ -1533,6 +1615,46 @@ export function IdeaWorkbench({
             rows={18}
             className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
           />
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="mb-5">
+            <h2 className="text-lg font-semibold text-slate-950">Artifact library</h2>
+            <p className="mt-1 text-sm text-slate-500">Saved idea artifacts for the selected workspace record.</p>
+          </div>
+          <div className="grid gap-3">
+            {selectedArtifacts.length > 0 ? (
+              selectedArtifacts.map((artifact) => (
+                <div key={artifact.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-950">{artifact.title || "Untitled"}</span>
+                        <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                          {artifactLabels[artifact.artifact_type]}
+                        </span>
+                      </div>
+                      <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                        {artifact.source || "manual"} / {new Date(artifact.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard.writeText(artifact.body)}
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100"
+                    >
+                      <Clipboard size={14} />
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                No artifacts saved yet.
+              </div>
+            )}
+          </div>
         </div>
 
         {message ? <p className="text-sm leading-6 text-slate-600">{message}</p> : null}

@@ -24,6 +24,7 @@ export type OrchestrationPhase =
   | "security"
   | "launch";
 export type OrchestrationStatus = "planned" | "running" | "blocked" | "done" | "skipped";
+export type VentureArtifactType = "idea_brief" | "research_note" | "prd" | "mvp_spec" | "launch_checklist";
 
 export type Database = {
   public: {
@@ -160,6 +161,33 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "orchestration_runs_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      venture_artifacts: {
+        Row: {
+          id: string;
+          idea_id: string | null;
+          organization_id: string | null;
+          artifact_type: VentureArtifactType;
+          title: string;
+          body: string;
+          source: string;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["venture_artifacts"]["Row"]> & {
+          artifact_type: VentureArtifactType;
+        };
+        Update: Partial<Database["public"]["Tables"]["venture_artifacts"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "venture_artifacts_idea_id_fkey";
             columns: ["idea_id"];
             isOneToOne: false;
             referencedRelation: "ideas";

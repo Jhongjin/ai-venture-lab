@@ -61,7 +61,7 @@ const severityTone: Record<RiskSeverity, string> = {
 };
 
 export default async function Home() {
-  const { ideas, risks, decisions, experiments, orchestrationRuns, source, error } = await getConsoleData();
+  const { ideas, risks, decisions, experiments, orchestrationRuns, artifacts, source, error } = await getConsoleData();
   const topIdea = [...ideas].sort((a, b) => scoreIdea(b) - scoreIdea(a))[0];
   const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
   const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
@@ -94,6 +94,7 @@ export default async function Home() {
               ["Open risks", String(openRisks)],
               ["High risks", String(highRisks)],
               ["Active work", String(activeExperiments + activeRuns)],
+              ["Artifacts", String(artifacts.length)],
               ["Data", source],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -120,6 +121,7 @@ export default async function Home() {
           initialDecisions={decisions}
           initialExperiments={experiments}
           initialOrchestrationRuns={orchestrationRuns}
+          initialArtifacts={artifacts}
         />
 
         <section className="grid gap-4 lg:grid-cols-5">

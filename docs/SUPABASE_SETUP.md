@@ -31,6 +31,7 @@ supabase/migrations/20260503030000_private_workspace_reads.sql
 supabase/migrations/20260503040000_member_management_rpc.sql
 supabase/migrations/20260503050000_member_lifecycle_rpc.sql
 supabase/migrations/20260503060000_add_orchestration_runs.sql
+supabase/migrations/20260504000000_add_venture_artifacts.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
@@ -39,6 +40,7 @@ The private workspace reads migration removes anonymous reads and requires an au
 The member management migration adds a safe RPC for workspace owners/admins to add existing Supabase Auth users by email.
 The member lifecycle migration adds owner/admin RPCs for role changes and removals while protecting the last workspace owner.
 The orchestration migration adds idea-level specialist runs for strategy, research, product, design, build, QA, debug, security, and launch.
+The artifact migration stores generated idea briefs, PRDs, MVP specs, launch checklists, and research notes.
 
 This creates:
 
@@ -47,6 +49,7 @@ This creates:
 - `decisions`
 - `experiments`
 - `orchestration_runs`
+- `venture_artifacts`
 - `organizations`
 - `organization_members`
 - `audit_events`
