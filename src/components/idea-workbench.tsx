@@ -6390,7 +6390,7 @@ export function IdeaWorkbench({
                     표시 {filteredImplementationTasks.length}/{selectedImplementationTasks.length}
                   </div>
                 </div>
-                <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr_1fr_auto_auto_auto]">
+                <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr_1fr_auto_auto_auto_auto]">
                   <SelectField
                     label="상태"
                     value={implementationStatusFilter}
@@ -6443,6 +6443,28 @@ export function IdeaWorkbench({
                     >
                       <Code2 size={15} />
                       실행 프롬프트
+                    </button>
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!selectedIdea) {
+                          return;
+                        }
+
+                        saveArtifactDraft(
+                          "dev_runbook",
+                          `${selectedIdea.name} 필터된 구현 실행 프롬프트`,
+                          filteredImplementationRunPromptDraft,
+                          "filtered_implementation_run",
+                        );
+                      }}
+                      disabled={isBusy || !user || !selectedIdea}
+                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+                    >
+                      <Save size={15} />
+                      저장
                     </button>
                   </div>
                 </div>
