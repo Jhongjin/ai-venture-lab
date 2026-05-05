@@ -46,6 +46,7 @@ Use this checklist before merging meaningful changes.
 - Build readiness shows approved PRD, approved MVP spec, backend decision, approved design brief, approved technical spec, development runbook, implementation tasks, and high-risk status before coding starts.
 - App development process is split into setup/artifacts, task board, and completion/handoff tabs so operators do not need to scroll through every development control at once.
 - Operators can copy and save a Codex implementation handoff that includes build scope, backend boundary, quality gates, forbidden shortcuts, and completion report format.
+- Operators can copy and save a role prompt pack that gives strategy, research, product, design, build, QA, debug, security, and launch roles a shared context and role-specific return format.
 - Authenticated operators can generate implementation tasks from the app development process panel.
 - Authenticated operators can manually add implementation tasks with title, type, priority, owner role, and acceptance criteria.
 - Operators can see the next recommended implementation action and copy a single task ticket or open backlog.

@@ -26,6 +26,7 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - MVP scope: `templates/MVP_SPEC.md`
 - Technical spec: `templates/TECH_SPEC.md`
 - Development runbook: `templates/DEV_RUNBOOK.md`
+- Role prompt pack: generated `dev_runbook` artifact for strategy, research, product, design, build, QA, debug, security, and launch handoffs
 - Design brief: `templates/DESIGN_BRIEF.md`
 - Backend decision guide: `docs/BACKEND_DECISION_GUIDE.md`
 - Decision history: `docs/DECISION_LOG.md`
@@ -103,16 +104,17 @@ The app now supports the first live operating loop:
 42. Keep app development work split into setup/artifacts, task board, and completion/handoff tabs so operators do not lose context in a long scroll.
 43. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
 44. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
-45. Generate implementation tasks from approved or draft development artifacts before coding starts.
-46. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
-47. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
-48. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
-49. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
-50. Require completion evidence for every done implementation task before development can be considered complete.
-51. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
-52. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
-53. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
-54. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
-55. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
-56. Capture experiment results as research notes so completed tests change the next decision and next action.
-57. Use the validation summary to decide whether the next artifact should be PRD, another experiment, a pivot, or an explicit kill decision.
+45. Generate a role prompt pack when multiple specialist passes are needed so strategy, research, product, design, build, QA, debug, security, and launch all work from the same context and return format.
+46. Generate implementation tasks from approved or draft development artifacts before coding starts.
+47. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
+48. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
+49. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
+50. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
+51. Require completion evidence for every done implementation task before development can be considered complete.
+52. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
+53. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
+54. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
+55. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
+56. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
+57. Capture experiment results as research notes so completed tests change the next decision and next action.
+58. Use the validation summary to decide whether the next artifact should be PRD, another experiment, a pivot, or an explicit kill decision.
