@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Added PRD readiness handoff artifacts | Current commit | Pending production deploy | `pnpm quality:full` |
 | 2026-05-06 | Added validation evidence coach | Current commit | Pending production deploy | `pnpm quality:full` |
 | 2026-05-06 | Added saved extraction portfolio reports | Current commit | Pending production deploy | `pnpm quality:full` |
 | 2026-05-06 | Added extraction candidate comparison matrix | Current commit | Pending production deploy | `pnpm lint`, `pnpm typecheck` |
@@ -66,6 +67,6 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 
 ## Next Jobs
 
-1. Add idea-to-PRD readiness handoff improvements.
+1. Add MVP slicing and development kickoff guidance.
 2. Add browser-level interactive smoke before a public beta.
 3. Prepare GitHub Actions once workflow-scope access is available.

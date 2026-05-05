@@ -375,6 +375,7 @@ const artifactSourceLabels: Record<string, string> = {
   extracted_idea_package: "발굴 아이디어 패키지",
   extracted_research_brief: "발굴 리서치 브리프",
   extraction_portfolio: "발굴 비교 리포트",
+  prd_readiness_handoff: "PRD 전환 핸드오프",
   development_process: "앱 개발 프로세스",
   development_report: "개발 완료 보고서",
   filtered_implementation_run: "필터 실행 프롬프트",
@@ -1565,6 +1566,112 @@ ${decisionLines}
 - 최종 판단:
 - 판단 근거:
 - 다음 행동:
+`;
+}
+
+function buildPrdHandoffMarkdown({
+  idea,
+  state,
+  score,
+  recommendation,
+  prdReadinessScore,
+  prdReadinessChecks,
+  validationEvidenceCoach,
+  risks,
+  experiments,
+  decisions,
+  nextPrdBlocker,
+}: {
+  idea: Idea;
+  state: EditState;
+  score: number;
+  recommendation: DecisionStatus;
+  prdReadinessScore: number;
+  prdReadinessChecks: GateCheck[];
+  validationEvidenceCoach: ValidationEvidenceCoach | null;
+  risks: Risk[];
+  experiments: Experiment[];
+  decisions: Decision[];
+  nextPrdBlocker: GateCheck | null;
+}) {
+  const readinessLines = prdReadinessChecks
+    .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
+    .join("\n");
+  const highRiskLines = risks
+    .filter((risk) => ["high", "critical"].includes(risk.severity))
+    .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`);
+  const experimentLines =
+    experiments.length > 0
+      ? experiments
+          .map(
+            (experiment) =>
+              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
+                experiment.success_metric || "성공 지표 미정"
+              }`,
+          )
+          .join("\n")
+      : "- 연결된 실험이 없습니다.";
+  const decisionLines =
+    decisions.length > 0
+      ? decisions.map((decision) => `- ${decisionLabels[decision.decision]}: ${decision.reason || "근거 미기록"}`).join("\n")
+      : "- 판단 기록이 없습니다.";
+  const handoffDecision =
+    prdReadinessScore >= 100
+      ? "PRD 작성 가능"
+      : prdReadinessScore >= 70
+        ? "조건부 PRD 작성"
+        : "검증 보강 후 PRD";
+
+  return `# PRD 전환 핸드오프: ${idea.name}
+
+## 전환 판단
+
+- 핸드오프 판단: ${handoffDecision}
+- PRD 준비도: ${prdReadinessScore}%
+- 검증 증거 점수: ${validationEvidenceCoach ? `${validationEvidenceCoach.score}% / ${validationEvidenceCoach.label}` : "미계산"}
+- 점수 기반 추천: ${decisionLabels[recommendation]}
+- 현재 운영 판단: ${decisionLabels[state.decision]}
+- 벤처 점수: ${score}
+- 다음 차단 항목: ${nextPrdBlocker ? `${nextPrdBlocker.label} - ${nextPrdBlocker.detail}` : "없음"}
+
+## PRD에 고정할 문제 범위
+
+- 아이디어: ${idea.name}
+- 한 줄 설명: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자/승인자: ${idea.buyer || "미정"}
+- 핵심 수요 신호: ${state.signal || "미정"}
+- 다음 증거/검증 초점: ${state.next_evidence || validationEvidenceCoach?.nextFocus?.action || "미정"}
+
+## 준비도 체크
+
+${readinessLines || "- 준비도 체크가 없습니다."}
+
+## 실험과 판단 근거
+
+${experimentLines}
+
+${decisionLines}
+
+## 높은 리스크
+
+${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 높음/치명 리스크가 없습니다."}
+
+## PRD 작성자 지시
+
+1. 검증된 문제, 사용자, 구매자만 PRD 범위에 포함합니다.
+2. MVP는 1개 핵심 여정과 1개 성공 지표로 제한합니다.
+3. 제외 범위와 중단 기준을 PRD에 명시합니다.
+4. 열려 있는 높은 리스크는 수용 조건 또는 차단 조건으로 분리합니다.
+5. 디자인/개발 단계로 넘기기 전에 PRD와 MVP 명세를 각각 승인 상태로 바꿉니다.
+
+## 제품 산출물로 넘길 결정
+
+- 포함 범위:
+- 제외 범위:
+- 1차 성공 지표:
+- No-go 기준:
+- 승인자:
 `;
 }
 
@@ -4460,6 +4567,21 @@ export function IdeaWorkbench({
   const prdReadinessScore =
     prdReadinessChecks.length === 0 ? 0 : Math.round((passedPrdReadinessCount / prdReadinessChecks.length) * 100);
   const nextPrdBlocker = prdReadinessChecks.find((check) => !check.passed) ?? null;
+  const prdHandoffDraft = selectedIdea && editState
+    ? buildPrdHandoffMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        score: currentScore,
+        recommendation: scoreRecommendation,
+        prdReadinessScore,
+        prdReadinessChecks,
+        validationEvidenceCoach,
+        risks: selectedIdeaRisks,
+        experiments: selectedExperiments,
+        decisions: selectedDecisions,
+        nextPrdBlocker,
+      })
+    : "";
   const designReadinessChecks: GateCheck[] = selectedIdea && editState
     ? [
         {
@@ -7851,6 +7973,31 @@ export function IdeaWorkbench({
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => copyDraft(prdHandoffDraft, "PRD 전환 핸드오프")}
+              disabled={!prdHandoffDraft}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-950 px-3 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Clipboard size={16} />
+              핸드오프 복사
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                saveArtifactDraft(
+                  "research_note",
+                  `${selectedIdea.name} PRD 전환 핸드오프`,
+                  prdHandoffDraft,
+                  "prd_readiness_handoff",
+                )
+              }
+              disabled={isBusy || !user || !prdHandoffDraft}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-3 text-sm font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Save size={16} />
+              핸드오프 저장
+            </button>
             <button
               type="button"
               onClick={() => setArtifactPanel("validation")}
