@@ -448,6 +448,7 @@ export function VentureConsoleShell({
             activeTask={activeConsoleTask}
             onActiveTaskChange={handleConsoleTaskChange}
             showSidebar={false}
+            existingIdeas={initialIdeas}
           />
         </div>
         <div className={activeTask.startsWith("workbench:") ? "" : "hidden"}>

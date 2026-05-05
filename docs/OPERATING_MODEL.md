@@ -45,42 +45,43 @@ The app now supports the first live operating loop:
 
 1. Discover idea candidates from pasted conversations or notes.
 2. Save a strong candidate as a validation package with an idea record, initial risk, and planned 7-day experiment.
-3. Create an idea through the intake form when manual entry is better.
-4. Select it in the workbench.
-5. Score the core venture criteria.
-6. Move the stage and decision status.
-7. Attach risks.
-8. Record a decision reason.
-9. Use the suggested decision and evidence gaps as an advisory gate before PRD.
-10. Copy the generated idea brief into downstream PRD or research workflows.
-11. Attach the next smallest experiment and success metric.
-12. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.
-13. Save each orchestration output and copy the generated PRD draft when the evidence is ready.
-14. Save generated briefs and PRDs into the artifact library before moving to MVP scope.
-15. Generate and save the MVP spec, backend decision, design brief, technical spec, development runbook, and launch checklist before build or release work starts.
-16. Promote artifacts from draft to approved only after the relevant gates are complete.
-17. Use launch readiness to see which approved artifacts and gates still block build or release.
-18. Save revised artifacts as new versions instead of overwriting prior evidence.
-19. Record a status note when approving, reopening, or archiving an artifact.
-20. Compare revised artifacts against the previous version before promotion.
-21. Filter the artifact library by type and lifecycle status during review.
-22. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
-23. Route magic links through `/auth/callback` so Supabase auth codes become app sessions before returning home.
-24. Surface callback exchange failures in the operator card so auth setup issues can be fixed without guessing.
-25. Use phase-specific output templates so strategy, research, product, design, build, QA, debug, security, and launch work produces comparable notes.
-26. Show the next launch blocker beside readiness percentage so operators can act on the first gate that needs attention.
-27. Keep matching `.codex/agents/` role definitions for every orchestration phase so agent delegation mirrors the app runbook.
-28. Exchange root-level `?code=` magic link redirects on the client as a fallback when Supabase sends the code to `/` instead of `/auth/callback`.
-29. Let operators attach owned personal records to the active workspace after creating an organization boundary.
-30. Before development, write the technical boundary: Next.js server/client split, Supabase tables/RLS, Vercel envs, UI states, quality gates, smoke path, and rollback path.
-31. For each new app idea, choose the backend deliberately. Supabase remains the default for this lab, while Firebase is a strong option for mobile, realtime, Google Analytics/Crashlytics/Cloud Messaging, App Check, and Firebase SQL Connect/Postgres experiments.
-32. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
-33. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
-34. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
-35. Generate implementation tasks from approved or draft development artifacts before coding starts.
-36. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
-37. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
-38. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
-39. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
-40. Require completion evidence for every done implementation task before development can be considered complete.
-41. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
+3. Check similar existing ideas before saving a candidate so duplicate records do not fragment the evidence trail.
+4. Create an idea through the intake form when manual entry is better.
+5. Select it in the workbench.
+6. Score the core venture criteria.
+7. Move the stage and decision status.
+8. Attach risks.
+9. Record a decision reason.
+10. Use the suggested decision and evidence gaps as an advisory gate before PRD.
+11. Copy the generated idea brief into downstream PRD or research workflows.
+12. Attach the next smallest experiment and success metric.
+13. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.
+14. Save each orchestration output and copy the generated PRD draft when the evidence is ready.
+15. Save generated briefs and PRDs into the artifact library before moving to MVP scope.
+16. Generate and save the MVP spec, backend decision, design brief, technical spec, development runbook, and launch checklist before build or release work starts.
+17. Promote artifacts from draft to approved only after the relevant gates are complete.
+18. Use launch readiness to see which approved artifacts and gates still block build or release.
+19. Save revised artifacts as new versions instead of overwriting prior evidence.
+20. Record a status note when approving, reopening, or archiving an artifact.
+21. Compare revised artifacts against the previous version before promotion.
+22. Filter the artifact library by type and lifecycle status during review.
+23. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
+24. Route magic links through `/auth/callback` so Supabase auth codes become app sessions before returning home.
+25. Surface callback exchange failures in the operator card so auth setup issues can be fixed without guessing.
+26. Use phase-specific output templates so strategy, research, product, design, build, QA, debug, security, and launch work produces comparable notes.
+27. Show the next launch blocker beside readiness percentage so operators can act on the first gate that needs attention.
+28. Keep matching `.codex/agents/` role definitions for every orchestration phase so agent delegation mirrors the app runbook.
+29. Exchange root-level `?code=` magic link redirects on the client as a fallback when Supabase sends the code to `/` instead of `/auth/callback`.
+30. Let operators attach owned personal records to the active workspace after creating an organization boundary.
+31. Before development, write the technical boundary: Next.js server/client split, Supabase tables/RLS, Vercel envs, UI states, quality gates, smoke path, and rollback path.
+32. For each new app idea, choose the backend deliberately. Supabase remains the default for this lab, while Firebase is a strong option for mobile, realtime, Google Analytics/Crashlytics/Cloud Messaging, App Check, and Firebase SQL Connect/Postgres experiments.
+33. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
+34. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
+35. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
+36. Generate implementation tasks from approved or draft development artifacts before coding starts.
+37. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
+38. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
+39. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
+40. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
+41. Require completion evidence for every done implementation task before development can be considered complete.
+42. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.

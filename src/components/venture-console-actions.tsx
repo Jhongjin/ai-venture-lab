@@ -66,6 +66,12 @@ type ExtractedIdea = FormState & {
   validationRationale: string;
 };
 
+type SimilarIdeaMatch = {
+  idea: Idea;
+  score: number;
+  reason: string;
+};
+
 const emptyForm: FormState = {
   name: "",
   one_liner: "",
@@ -463,6 +469,77 @@ function inferRecommendation(
   return "보류";
 }
 
+function normalizeMatchText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getMatchTokens(value: string) {
+  return new Set(
+    normalizeMatchText(value)
+      .split(" ")
+      .map((token) => token.trim())
+      .filter((token) => token.length >= 2),
+  );
+}
+
+function tokenOverlapScore(left: string, right: string) {
+  const leftTokens = getMatchTokens(left);
+  const rightTokens = getMatchTokens(right);
+
+  if (leftTokens.size === 0 || rightTokens.size === 0) {
+    return 0;
+  }
+
+  let overlap = 0;
+
+  for (const token of leftTokens) {
+    if (rightTokens.has(token)) {
+      overlap += 1;
+    }
+  }
+
+  return Math.round((overlap / Math.max(leftTokens.size, rightTokens.size)) * 100);
+}
+
+function findSimilarIdea(candidate: ExtractedIdea, existingIdeas: Idea[]): SimilarIdeaMatch | null {
+  const candidateName = normalizeMatchText(candidate.name);
+  const candidateText = `${candidate.name} ${candidate.one_liner} ${candidate.target_user} ${candidate.buyer} ${candidate.signal}`;
+
+  const matches = existingIdeas
+    .map((idea) => {
+      const ideaName = normalizeMatchText(idea.name);
+      const ideaText = `${idea.name} ${idea.one_liner} ${idea.target_user} ${idea.buyer} ${idea.signal}`;
+      const nameScore =
+        candidateName && ideaName && candidateName === ideaName
+          ? 100
+          : candidateName && ideaName && (candidateName.includes(ideaName) || ideaName.includes(candidateName))
+            ? 86
+            : tokenOverlapScore(candidate.name, idea.name);
+      const textScore = tokenOverlapScore(candidateText, ideaText);
+      const targetScore = tokenOverlapScore(candidate.target_user, idea.target_user);
+      const score = Math.max(nameScore, Math.round(textScore * 0.7 + targetScore * 0.3));
+
+      return {
+        idea,
+        score,
+        reason:
+          nameScore >= 86
+            ? "이름이 거의 같습니다."
+            : targetScore >= 55
+              ? "대상 사용자와 문제 단서가 겹칩니다."
+              : "문제 설명의 핵심 단어가 겹칩니다.",
+      };
+    })
+    .filter((match) => match.score >= 52)
+    .sort((a, b) => b.score - a.score);
+
+  return matches[0] ?? null;
+}
+
 function splitIdeaBlocks(source: string) {
   const lines = source
     .split(/\r?\n/)
@@ -563,10 +640,12 @@ export function VentureConsoleActions({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
   showSidebar = true,
+  existingIdeas = [],
 }: {
   activeTask?: ConsoleActionTask;
   onActiveTaskChange?: (task: ConsoleActionTask) => void;
   showSidebar?: boolean;
+  existingIdeas?: Idea[];
 } = {}) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
@@ -635,6 +714,20 @@ export function VentureConsoleActions({
     }, null),
     [extractedIdeas],
   );
+  const similarIdeaMatches = useMemo(() => {
+    const matches = new Map<string, SimilarIdeaMatch>();
+
+    for (const candidate of extractedIdeas) {
+      const match = findSimilarIdea(candidate, existingIdeas);
+
+      if (match) {
+        matches.set(candidate.id, match);
+      }
+    }
+
+    return matches;
+  }, [existingIdeas, extractedIdeas]);
+  const duplicateCandidateCount = similarIdeaMatches.size;
   const consoleTasks: Array<{
     id: ConsoleActionTask;
     label: string;
@@ -1651,6 +1744,12 @@ export function VentureConsoleActions({
                 </button>
               </div>
               {extractMessage ? <p className="text-sm leading-6 text-slate-600">{extractMessage}</p> : null}
+              {duplicateCandidateCount > 0 ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
+                  {duplicateCandidateCount}개 후보가 기존 포트폴리오와 유사합니다. 저장 전 기존 기록을 확장할지, 새
+                  아이디어로 분리할지 확인하세요.
+                </div>
+              ) : null}
             </div>
 
             <div className="grid content-start gap-3">
@@ -1693,7 +1792,10 @@ export function VentureConsoleActions({
                     </div>
                   ) : null}
 
-                  {extractedIdeas.map((candidate) => (
+                  {extractedIdeas.map((candidate) => {
+                    const similarIdea = similarIdeaMatches.get(candidate.id);
+
+                    return (
                     <article key={candidate.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
@@ -1738,6 +1840,12 @@ export function VentureConsoleActions({
                           </button>
                         </div>
                       </div>
+                      {similarIdea ? (
+                        <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
+                          <span className="font-semibold text-amber-950">기존 유사 기록:</span>{" "}
+                          {similarIdea.idea.name} · 유사도 {similarIdea.score}% · {similarIdea.reason}
+                        </div>
+                      ) : null}
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
                         <div className="rounded-md bg-white p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">대상</div>
@@ -1797,7 +1905,8 @@ export function VentureConsoleActions({
                         ))}
                       </div>
                     </article>
-                  ))}
+                    );
+                  })}
                 </>
               ) : (
                 <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
