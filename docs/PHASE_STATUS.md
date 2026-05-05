@@ -21,6 +21,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-05 | Added local release-readiness command | Current commit | Skipped, script/docs-only | `pnpm quality:full`, `pnpm release:check` |
 | 2026-05-05 | Added app development release safeguards | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added extraction proceed/research/pivot/kill gates | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added route smoke checks | Current commit | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:routes` |
@@ -44,5 +45,5 @@ None required for the current unblocked work.
 
 ## Next Jobs
 
-1. Add a local release-readiness command that checks required build/release evidence without GitHub Actions.
+1. Add lightweight operator-facing release evidence examples to the user guide.
 2. Prepare GitHub Actions once workflow-scope access is available.

@@ -53,6 +53,7 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - No design handoff without checking the design readiness gate for journey, MVP scope, backend boundary, and screen states.
 - No coding start without checking the build readiness gate for approved PRD, MVP, design, technical spec, runbook, tasks, and high-risk status.
 - No coding start without recording Vercel environment-variable boundaries, backend rules allowed/denied checks, deploy-log location, and rollback criteria.
+- No repository handoff without `pnpm release:check` passing when build or release guardrails change.
 - No launch without QA and security review.
 - No sensitive feature without explicit data handling notes.
 - No factual market or regulatory claim without a source.
@@ -138,3 +139,4 @@ The app now supports the first live operating loop:
 62. Record Vercel Preview/Production variable scope, public/server secret boundaries, and redeploy status in the technical spec or runbook.
 63. Record Supabase RLS or Firebase Security Rules/IAM allowed and denied checks before moving backend or release tasks to done.
 64. Save Vercel inspect URLs or deploy logs with release evidence so production issues can be traced and rolled back.
+65. Run `pnpm release:check` locally while GitHub Actions is blocked so release-safety drift is caught before push.

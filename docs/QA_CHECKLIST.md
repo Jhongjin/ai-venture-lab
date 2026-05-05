@@ -9,6 +9,7 @@ Use this checklist before merging meaningful changes.
 - `pnpm typecheck` passes.
 - `pnpm build` passes.
 - `pnpm harness:check` passes.
+- `pnpm release:check` passes.
 - `pnpm quality:full` passes before major product or harness changes.
 - `pnpm smoke:prod` passes after production deployment.
 - `pnpm smoke:routes` passes after route/auth callback changes or before release checkpoints.

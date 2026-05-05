@@ -9,8 +9,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "quality": "pnpm lint && pnpm typecheck && pnpm build",
-    "quality:full": "pnpm lint && pnpm typecheck && pnpm harness:check && pnpm build",
+    "quality:full": "pnpm lint && pnpm typecheck && pnpm harness:check && pnpm release:check && pnpm build",
     "harness:check": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/check_harness.ps1",
+    "release:check": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/check_release_readiness.ps1",
     "smoke:prod": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_production.ps1",
     "smoke:routes": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_routes.ps1",
     "idea:score": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/score_idea.ps1"

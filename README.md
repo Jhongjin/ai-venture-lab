@@ -31,9 +31,10 @@ pnpm lint
 pnpm typecheck
 pnpm build
 pnpm harness:check
+pnpm release:check
 ```
 
-`pnpm quality` runs lint, typecheck, and build together.
+`pnpm quality` runs lint, typecheck, and build together. `pnpm quality:full` also runs the harness and release-readiness checks before building.
 
 ## Environment
 

@@ -1,0 +1,98 @@
+$ErrorActionPreference = "Stop"
+
+$checks = @(
+  @{
+    Path = "src/components/idea-workbench.tsx"
+    Terms = @(
+      "Vercel inspect URL",
+      "Security Rules",
+      "Production",
+      "hasEnvironmentChecklist",
+      "hasBackendRulesChecklist",
+      "hasReleaseOpsChecklist"
+    )
+  },
+  @{
+    Path = "templates/TECH_SPEC.md"
+    Terms = @(
+      "Allowed/denied policy checks",
+      "Vercel Preview variables",
+      "Vercel Production variables",
+      "Vercel deploy log or inspect URL",
+      "Last known good deployment"
+    )
+  },
+  @{
+    Path = "templates/DEV_RUNBOOK.md"
+    Terms = @(
+      "Backend rules allowed/denied test plan",
+      "Vercel environment variables",
+      "Preview/Production deploy log or inspect link",
+      "DB correction or revert SQL"
+    )
+  },
+  @{
+    Path = "templates/LAUNCH_CHECKLIST.md"
+    Terms = @(
+      "Vercel Preview/Production deploy log or inspect URL",
+      "allowed and denied cases",
+      "Last known good deployment"
+    )
+  },
+  @{
+    Path = "docs/DEVELOPMENT_HARNESS.md"
+    Terms = @(
+      "Backend rules evidence",
+      "No release handoff without a Preview/Production deploy log or Vercel inspect URL",
+      "No environment-variable change without recording Preview/Production scope",
+      "Save the Vercel inspect URL or deploy log location"
+    )
+  },
+  @{
+    Path = ".agents/skills/app-development-orchestrator/SKILL.md"
+    Terms = @(
+      "environment variables",
+      "backend rules allowed/denied checks",
+      "deploy-log location",
+      "rollback criteria"
+    )
+  },
+  @{
+    Path = ".agents/skills/prototype-builder/SKILL.md"
+    Terms = @(
+      "Preview/Production environment variables",
+      "deploy-log location",
+      "allowed and denied backend-rule evidence"
+    )
+  },
+  @{
+    Path = ".agents/skills/security-privacy-review/SKILL.md"
+    Terms = @(
+      "allowed and denied evidence",
+      "deploy logs",
+      "Missing allowed/denied verification"
+    )
+  }
+)
+
+$missing = @()
+
+foreach ($check in $checks) {
+  if (-not (Test-Path -LiteralPath $check.Path)) {
+    $missing += "$($check.Path): file missing"
+    continue
+  }
+
+  $content = Get-Content -LiteralPath $check.Path -Raw
+  foreach ($term in $check.Terms) {
+    if (-not $content.Contains($term)) {
+      $missing += "$($check.Path): missing '$term'"
+    }
+  }
+}
+
+if ($missing.Count -gt 0) {
+  Write-Error ("Release readiness check failed:`n" + ($missing -join "`n"))
+}
+
+Write-Host "Release readiness check passed."
