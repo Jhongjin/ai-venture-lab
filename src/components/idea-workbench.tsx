@@ -335,6 +335,20 @@ export type WorkbenchTask =
   | "development"
   | "launch";
 
+type ArtifactPanel = "validation" | "product" | "library";
+
+const artifactPanelLabels: Record<ArtifactPanel, string> = {
+  validation: "검증 산출물",
+  product: "제품 산출물",
+  library: "라이브러리",
+};
+
+const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
+  validation: "아이디어 브리프, 리서치, 7일 스프린트, 근거, 실험 학습을 정리합니다.",
+  product: "PRD, MVP 명세, 출시 체크리스트를 생성합니다.",
+  library: "저장된 산출물을 필터링하고 승인 상태를 관리합니다.",
+};
+
 function sortWorkbenchIdeas(nextIdeas: Idea[]) {
   return [...nextIdeas].sort(
     (a, b) =>
@@ -2786,6 +2800,7 @@ export function IdeaWorkbench({
   const [artifactTypeFilter, setArtifactTypeFilter] = useState<VentureArtifactType | "all">("all");
   const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
   const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>("score");
+  const [artifactPanel, setArtifactPanel] = useState<ArtifactPanel>("validation");
   const activeTask = controlledActiveTask ?? localActiveTask;
   const updateActiveTask = useCallback((task: WorkbenchTask) => {
     setLocalActiveTask(task);
@@ -5645,9 +5660,34 @@ export function IdeaWorkbench({
           </div>
         </div>
 
+        <div className={activeTask === "artifacts" ? "rounded-lg border border-slate-200 bg-white p-4 shadow-sm" : "hidden"}>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">산출물 작업</h2>
+              <p className="mt-1 text-sm text-slate-500">{artifactPanelDescriptions[artifactPanel]}</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2 rounded-md bg-slate-100 p-1">
+              {(Object.keys(artifactPanelLabels) as ArtifactPanel[]).map((panel) => (
+                <button
+                  key={panel}
+                  type="button"
+                  onClick={() => setArtifactPanel(panel)}
+                  className={`h-10 rounded-md px-3 text-sm font-semibold transition ${
+                    artifactPanel === panel
+                      ? "bg-white text-slate-950 shadow-sm"
+                      : "text-slate-600 hover:bg-white/70 hover:text-slate-950"
+                  }`}
+                >
+                  {artifactPanelLabels[panel]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div
           className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
-            activeTask === "artifacts" ? "" : "hidden"
+            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -5688,7 +5728,7 @@ export function IdeaWorkbench({
 
         <div
           className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
-            activeTask === "artifacts" ? "" : "hidden"
+            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -5730,7 +5770,7 @@ export function IdeaWorkbench({
 
         <div
           className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
-            activeTask === "artifacts" ? "" : "hidden"
+            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -5777,7 +5817,7 @@ export function IdeaWorkbench({
 
         <div
           className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
-            activeTask === "artifacts" ? "" : "hidden"
+            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -5846,7 +5886,7 @@ export function IdeaWorkbench({
 
         <div
           className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
-            activeTask === "artifacts" ? "" : "hidden"
+            activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"
           }`}
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -5884,7 +5924,7 @@ export function IdeaWorkbench({
           />
         </div>
 
-        <div className={activeTask === "artifacts" ? "grid gap-6 xl:grid-cols-2" : "hidden"}>
+        <div className={activeTask === "artifacts" && artifactPanel === "product" ? "grid gap-6 xl:grid-cols-2" : "hidden"}>
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -5965,7 +6005,7 @@ export function IdeaWorkbench({
 
         <div
           className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
-            activeTask === "artifacts" ? "" : "hidden"
+            activeTask === "artifacts" && artifactPanel === "library" ? "" : "hidden"
           }`}
         >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">

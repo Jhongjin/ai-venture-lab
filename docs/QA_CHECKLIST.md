@@ -50,6 +50,7 @@ Use this checklist before merging meaningful changes.
 - Re-saving an artifact creates the next version and launch readiness requires approved PRD and MVP spec artifacts.
 - Artifact status changes can include a gate note explaining approval evidence, revision needs, or archive reason.
 - Revised artifacts show a previous-version line change summary when a comparable version exists.
+- Artifact sub-tabs separate validation drafts, product drafts, and library review so users do not need to scroll through every artifact generator at once.
 - Artifact library filters narrow saved artifacts by type and lifecycle status without changing readiness inputs.
 - Operator access clearly distinguishes magic link login from existing password-account login and shows session status.
 - Magic link email redirect lands on `/auth/callback`, exchanges the code, and returns to the app as signed in.

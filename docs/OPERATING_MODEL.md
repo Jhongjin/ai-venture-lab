@@ -69,29 +69,30 @@ The app now supports the first live operating loop:
 20. Save revised artifacts as new versions instead of overwriting prior evidence.
 21. Record a status note when approving, reopening, or archiving an artifact.
 22. Compare revised artifacts against the previous version before promotion.
-23. Filter the artifact library by type and lifecycle status during review.
-24. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
-25. Route magic links through `/auth/callback` so Supabase auth codes become app sessions before returning home.
-26. Surface callback exchange failures in the operator card so auth setup issues can be fixed without guessing.
-27. Use phase-specific output templates so strategy, research, product, design, build, QA, debug, security, and launch work produces comparable notes.
-28. Show the next launch blocker beside readiness percentage so operators can act on the first gate that needs attention.
-29. Keep matching `.codex/agents/` role definitions for every orchestration phase so agent delegation mirrors the app runbook.
-30. Exchange root-level `?code=` magic link redirects on the client as a fallback when Supabase sends the code to `/` instead of `/auth/callback`.
-31. Let operators attach owned personal records to the active workspace after creating an organization boundary.
-32. Before development, write the technical boundary: Next.js server/client split, Supabase tables/RLS, Vercel envs, UI states, quality gates, smoke path, and rollback path.
-33. For each new app idea, choose the backend deliberately. Supabase remains the default for this lab, while Firebase is a strong option for mobile, realtime, Google Analytics/Crashlytics/Cloud Messaging, App Check, and Firebase SQL Connect/Postgres experiments.
-34. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
-35. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
-36. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
-37. Generate implementation tasks from approved or draft development artifacts before coding starts.
-38. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
-39. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
-40. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
-41. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
-42. Require completion evidence for every done implementation task before development can be considered complete.
-43. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
-44. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
-45. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
-46. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
-47. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
-48. Capture experiment results as research notes so completed tests change the next decision and next action.
+23. Use artifact sub-tabs to keep validation drafts, product drafts, and the artifact library separate enough for operators to avoid long-scroll confusion.
+24. Filter the artifact library by type and lifecycle status during review.
+25. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
+26. Route magic links through `/auth/callback` so Supabase auth codes become app sessions before returning home.
+27. Surface callback exchange failures in the operator card so auth setup issues can be fixed without guessing.
+28. Use phase-specific output templates so strategy, research, product, design, build, QA, debug, security, and launch work produces comparable notes.
+29. Show the next launch blocker beside readiness percentage so operators can act on the first gate that needs attention.
+30. Keep matching `.codex/agents/` role definitions for every orchestration phase so agent delegation mirrors the app runbook.
+31. Exchange root-level `?code=` magic link redirects on the client as a fallback when Supabase sends the code to `/` instead of `/auth/callback`.
+32. Let operators attach owned personal records to the active workspace after creating an organization boundary.
+33. Before development, write the technical boundary: Next.js server/client split, Supabase tables/RLS, Vercel envs, UI states, quality gates, smoke path, and rollback path.
+34. For each new app idea, choose the backend deliberately. Supabase remains the default for this lab, while Firebase is a strong option for mobile, realtime, Google Analytics/Crashlytics/Cloud Messaging, App Check, and Firebase SQL Connect/Postgres experiments.
+35. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
+36. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
+37. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
+38. Generate implementation tasks from approved or draft development artifacts before coding starts.
+39. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
+40. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
+41. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
+42. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
+43. Require completion evidence for every done implementation task before development can be considered complete.
+44. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
+45. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
+46. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
+47. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
+48. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
+49. Capture experiment results as research notes so completed tests change the next decision and next action.
