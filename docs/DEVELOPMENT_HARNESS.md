@@ -41,6 +41,8 @@ pnpm build
 pnpm harness:check
 ```
 
+Use `pnpm quality:full` before commits that touch product behavior; it runs lint, typecheck, harness check, and production build in one command.
+
 Add browser or Playwright smoke checks when the user-facing workflow changes.
 
 ## Security Gates

@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "quality": "pnpm lint && pnpm typecheck && pnpm build",
+    "quality:full": "pnpm lint && pnpm typecheck && pnpm harness:check && pnpm build",
     "harness:check": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/check_harness.ps1",
     "idea:score": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/score_idea.ps1"
   },
