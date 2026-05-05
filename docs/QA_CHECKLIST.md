@@ -65,6 +65,7 @@ Use this checklist before merging meaningful changes.
 - Backend task evidence includes Supabase RLS or Firebase Security Rules/IAM allowed and denied checks.
 - Launch readiness requires implementation tasks to exist, have no blocked tasks, all be done, and all done tasks have evidence.
 - Operators can copy and save a development completion report from the app development panel.
+- Development completion reports include a release evidence summary for backend, data, security, and deploy tasks.
 - Supabase accepts the expanded `venture_artifacts.artifact_type` values: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
 - Artifact owners or workspace admins can move artifacts between draft, approved, and archived.
 - Launch readiness shows blocked gates for evidence, research brief, artifacts, backend choice, design, technical spec, development runbook, experiments, QA, security, risks, and decisions.

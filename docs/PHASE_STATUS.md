@@ -21,6 +21,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-05 | Added release evidence summary to completion reports | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added implementation-task evidence quality hints | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added operator release evidence examples | Current commit | Skipped, docs-only | `pnpm quality:full` |
 | 2026-05-05 | Added local release-readiness command | Current commit | Skipped, script/docs-only | `pnpm quality:full`, `pnpm release:check` |
@@ -47,5 +48,5 @@ None required for the current unblocked work.
 
 ## Next Jobs
 
-1. Add a compact release evidence summary to the development completion report.
+1. Add evidence-quality filtering or sorting for implementation tasks.
 2. Prepare GitHub Actions once workflow-scope access is available.

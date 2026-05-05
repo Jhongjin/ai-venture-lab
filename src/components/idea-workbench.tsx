@@ -2767,6 +2767,23 @@ function buildDevelopmentCompletionReportMarkdown({
     .join("\n");
   const completedTaskCount = implementationTasks.filter((task) => task.status === "done").length;
   const taskEvidenceCount = implementationTasks.filter((task) => task.status === "done" && task.evidence.trim()).length;
+  const releaseEvidenceTasks = implementationTasks.filter((task) =>
+    ["backend", "data", "security", "deploy"].includes(task.task_type),
+  );
+  const releaseEvidenceLines =
+    releaseEvidenceTasks.length > 0
+      ? releaseEvidenceTasks
+          .map((task) => {
+            const checklist = getImplementationEvidenceChecklist(task, task.evidence ?? "");
+            const passed = checklist.filter((item) => item.passed).length;
+            const missing = checklist.filter((item) => !item.passed).map((item) => item.label);
+
+            return `- ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / 증거 품질 ${passed}/${checklist.length}
+  - 보강 필요: ${missing.length > 0 ? missing.join(", ") : "없음"}
+  - 완료 증거: ${task.evidence.trim() || "미기록"}`;
+          })
+          .join("\n")
+      : "- 릴리스 안전장치와 직접 연결된 백엔드, 데이터, 보안, 배포 태스크가 아직 없습니다.";
 
   return `# 개발 완료 보고서: ${idea.name}
 
@@ -2788,6 +2805,10 @@ ${gateLines || "- 게이트가 아직 계산되지 않았습니다."}
 ## 구현 태스크와 증거
 
 ${taskLines}
+
+## 릴리스 증거 요약
+
+${releaseEvidenceLines}
 
 ## 산출물 상태
 
