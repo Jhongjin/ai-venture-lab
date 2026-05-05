@@ -25,6 +25,7 @@
 - Tables:
 - RLS policies:
 - Ownership model:
+- Allowed/denied policy checks:
 - Migrations:
 - Rollback or repair path:
 
@@ -40,10 +41,12 @@
 
 ### Environment
 
-- Vercel variables:
+- Vercel Preview variables:
+- Vercel Production variables:
 - Local variables:
-- Public variables:
-- Secret variables:
+- Public client variables:
+- Server-only secret variables:
+- Redeploy required after env changes:
 
 ## Implementation Plan
 
@@ -64,6 +67,7 @@
 ## Observability
 
 - Logs:
+- Vercel deploy log or inspect URL:
 - Audit events:
 - Metrics:
 - Alerts:
@@ -76,6 +80,14 @@
 - Harness:
 - Browser smoke:
 - Production smoke:
+- Backend rules allowed case:
+- Backend rules denied case:
+
+## Rollback
+
+- Last known good deployment:
+- DB correction or revert SQL:
+- User-facing rollback trigger:
 
 ## Risks
 

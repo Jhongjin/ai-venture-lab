@@ -11,7 +11,8 @@ Before implementation, define:
 - Next.js boundary: Server Components, Client Components, Server Actions, Route Handlers
 - Supabase boundary: tables, RLS, `using`, `with check`, grants, indexes, migrations
 - Firebase boundary when selected: Auth, Firestore/SQL Connect, Security Rules/IAM, Cloud Functions, App Check, Storage, Hosting
-- Vercel boundary: environment variables, preview, production, rollback
+- Vercel boundary: Preview/Production environment variables, public/server secret split, deploy logs or inspect URL, production alias, rollback
+- Backend rules evidence: at least one allowed case and one denied case for Supabase RLS or Firebase Security Rules/IAM
 - UI states: empty, loading, success, error, permission denied, read-only, mobile
 - Verification ladder and production smoke path
 
@@ -24,13 +25,14 @@ Before implementation, define:
 5. Copy the next recommended task ticket or open backlog when handing work to Codex, GitHub Issues, or a human implementer.
 6. Shape a single vertical slice.
 7. Add or update data model and authorization rules.
-8. Implement read/write path with authorization at the boundary.
-9. Add UI state coverage and error recovery.
-10. Move each implementation task through todo, doing, blocked, and done with completion evidence.
-11. Save a development completion report once implementation, QA, and security gates are reviewed.
-12. Run focused verification, then full quality gates.
-13. Deploy preview, smoke test, then deploy production.
-14. Record decision, risk, and rollback notes.
+8. Record allowed and denied backend-rule checks before marking backend work done.
+9. Implement read/write path with authorization at the boundary.
+10. Add UI state coverage and error recovery.
+11. Move each implementation task through todo, doing, blocked, and done with completion evidence.
+12. Save a development completion report once implementation, QA, and security gates are reviewed.
+13. Run focused verification, then full quality gates.
+14. Deploy preview, save deploy logs or Vercel inspect URL, smoke test, then deploy production.
+15. Record decision, risk, environment-variable changes, and rollback notes.
 
 ## Quality Gates
 
@@ -58,6 +60,8 @@ Use `pnpm smoke:prod` after production deploy to confirm the public app shell re
 - No AI action without edit/retry/discard or human review path.
 - No done implementation task without evidence.
 - No production launch while any implementation task is blocked.
+- No release handoff without a Preview/Production deploy log or Vercel inspect URL.
+- No environment-variable change without recording Preview/Production scope and whether redeploy happened.
 
 ## Production Smoke Template
 
@@ -67,6 +71,7 @@ Use `pnpm smoke:prod` after production deploy to confirm the public app shell re
 4. Confirm the database or UI reflects the new state without manual refresh unless refresh is expected.
 5. Confirm the denied/read-only path does not mutate data.
 6. Confirm rollback target or previous deployment is known.
+7. Save the Vercel inspect URL or deploy log location with the completion evidence.
 
 CLI baseline:
 

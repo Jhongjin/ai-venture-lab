@@ -8,6 +8,10 @@
 - Approved MVP spec:
 - Design brief or DESIGN.md:
 - RLS/migration plan:
+- Backend rules allowed/denied test plan:
+- Vercel environment variables:
+- Preview/Production deploy log or inspect link:
+- Rollback target and trigger:
 
 ## Build Steps
 
@@ -38,7 +42,13 @@ pnpm harness:check
 
 - Preview URL:
 - Production URL:
+- Vercel inspect URL or deploy log:
+- Environment variables changed:
+- Backend rules changed:
+- Backend rules allowed case:
+- Backend rules denied case:
 - Rollback:
+- DB correction or revert SQL:
 
 ## Incident Notes
 
@@ -46,3 +56,5 @@ pnpm harness:check
 - Escalation:
 - User-facing impact:
 - Rollback trigger:
+- Last known good deployment:
+- Log location:

@@ -15,6 +15,7 @@ Use this skill when an idea has enough evidence to become a product slice. Keep 
    - Save the backend decision.
    - Review design readiness for core journey, PRD, MVP scope, backend boundary, and screen states.
    - Save design brief, technical spec, and development runbook.
+   - Confirm Vercel Preview/Production environment variables, client/server secret boundaries, backend rules, deploy logs, and rollback notes before coding.
 3. Use `개발 태스크` before coding:
    - Generate baseline implementation tasks.
    - Add manual tasks for bugs, design polish, deployment fixes, customer validation, rollback, or research follow-up.
@@ -29,6 +30,7 @@ Use this skill when an idea has enough evidence to become a product slice. Keep 
 
 - No coding without backend decision, design brief, technical spec, and development runbook.
 - No build start without checking build readiness.
+- No build start when environment variables, backend rules allowed/denied checks, deploy-log location, or rollback criteria are missing.
 - No launch recommendation without QA, security, high-risk status, implementation evidence, and final decision.
 - No AI automation without user control, retry, edit, discard, privacy notice, and human fallback.
 
@@ -39,6 +41,7 @@ When asked to hand off work, return:
 - selected idea and goal
 - required artifacts and approvals
 - backend decision and auth/data boundary
+- environment variable boundary, backend rules tests, deployment log or Vercel inspect link, and rollback path
 - UI states to implement
 - implementation tasks in priority order
 - role prompt pack when strategy, research, product, design, build, QA, debug, security, or launch work is delegated

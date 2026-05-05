@@ -23,6 +23,7 @@ Before implementation:
 - Keep authentication and authorization checks at the mutation/read boundary, not only in page layout or navigation.
 - For Supabase writes, confirm RLS, `using`, and `with check` policies before relying on client-side checks.
 - For Firebase writes, confirm Security Rules, IAM/server SDK trust boundaries, App Check needs, and emulator or preview checks.
+- Confirm Vercel Preview/Production environment variables, public/client versus server-only secret boundaries, deploy-log location, and rollback target before marking build work ready.
 - Avoid new dependencies unless they remove meaningful complexity and fit the existing stack.
 
 Implementation shape:
@@ -33,11 +34,12 @@ Implementation shape:
 - Keep `use client` boundaries small and local to interactivity.
 - Make the happy path and at least one failure path visible to the operator.
 - Add migrations and rollback notes whenever the data model changes.
+- Record allowed and denied backend-rule evidence before moving backend tasks to done.
 
 After implementation:
 
 - Run relevant checks.
-- Save or update completion evidence: commit/PR, preview URL, smoke result, skipped check, unresolved risk, or rollback note.
+- Save or update completion evidence: commit/PR, preview URL, Vercel inspect URL or deploy log, smoke result, skipped check, unresolved risk, backend-rule evidence, or rollback note.
 - Report changed files and verification results.
 - Include a manual smoke path the operator can test in production.
 - Report any skipped checks and why.

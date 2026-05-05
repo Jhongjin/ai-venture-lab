@@ -50,6 +50,7 @@ Use this checklist before merging meaningful changes.
 - Backend scorecard compares Supabase, Firebase, Firebase SQL Connect, and Hybrid using idea context, experiments, and risks before saving backend decision.
 - Design readiness shows journey, PRD, MVP scope, backend choice, screen-state coverage, and design execution before design handoff.
 - Build readiness shows approved PRD, approved MVP spec, backend decision, approved design brief, approved technical spec, development runbook, implementation tasks, and high-risk status before coding starts.
+- Build readiness shows Vercel environment-variable boundaries, backend rules allowed/denied checks, and rollback/deploy-log evidence before coding starts.
 - App development process is split into setup/artifacts, task board, and completion/handoff tabs so operators do not need to scroll through every development control at once.
 - Operators can copy and save a Codex implementation handoff that includes build scope, backend boundary, quality gates, forbidden shortcuts, and completion report format.
 - Operators can copy and save a role prompt pack that gives strategy, research, product, design, build, QA, debug, security, and launch roles a shared context and role-specific return format.
@@ -58,6 +59,8 @@ Use this checklist before merging meaningful changes.
 - Operators can see the next recommended implementation action and copy a single task ticket or open backlog.
 - Implementation task owners can move tasks through todo, doing, blocked, and done states.
 - Implementation task owners can save completion evidence without losing the current selected idea.
+- Release task evidence includes Preview/Production URL, Vercel inspect URL or deploy logs, rollback criteria, and production smoke results.
+- Backend task evidence includes Supabase RLS or Firebase Security Rules/IAM allowed and denied checks.
 - Launch readiness requires implementation tasks to exist, have no blocked tasks, all be done, and all done tasks have evidence.
 - Operators can copy and save a development completion report from the app development panel.
 - Supabase accepts the expanded `venture_artifacts.artifact_type` values: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
@@ -84,3 +87,4 @@ Use this checklist before merging meaningful changes.
 - Shell metrics and recommended next steps update immediately after idea, risk, experiment, run, artifact, and implementation task changes.
 - Shell sidebar shows top priority ideas using venture score, experiments, approved product artifacts, high-risk blockers, and kill decisions.
 - Generated development plans include technical spec, data/RLS checks, quality gates, and rollback notes.
+- Generated development plans include environment-variable checks, backend-rule verification, Vercel deploy logs or inspect links, and rollback criteria.

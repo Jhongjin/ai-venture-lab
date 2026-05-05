@@ -48,6 +48,7 @@ This repository is an operating system for turning raw app ideas into validated 
 - Important decisions and risks are logged.
 - Code changes pass `pnpm quality:full` when they touch product behavior, harness logic, or deployment flow.
 - Production deployments pass `pnpm smoke:prod`.
+- Build or release handoffs include environment-variable boundaries, backend allowed/denied checks, deploy logs or Vercel inspect links, and rollback notes.
 - Any skipped task or verification is explicitly reported with the reason and whether it is optional, blocked, or deferred.
 
 ## Loop Discipline
