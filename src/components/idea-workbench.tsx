@@ -3546,6 +3546,31 @@ export function IdeaWorkbench({
     [selectedImplementationTasks],
   );
   const nextImplementationTask = selectedOpenImplementationTasks[0] ?? null;
+  const implementationEvidenceSummaries = useMemo(
+    () =>
+      selectedImplementationTasks
+        .map((task) => {
+          const evidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
+          const checklist = getImplementationEvidenceChecklist(task, evidence);
+          const missing = checklist.filter((item) => !item.passed).map((item) => item.label);
+
+          return {
+            task,
+            missing,
+            passedCount: checklist.length - missing.length,
+            totalCount: checklist.length,
+          };
+        })
+        .sort(
+          (a, b) =>
+            b.missing.length - a.missing.length ||
+            implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
+            implementationTaskActionRank[a.task.status] - implementationTaskActionRank[b.task.status] ||
+            a.task.sort_order - b.task.sort_order,
+        ),
+    [implementationTaskEvidence, selectedImplementationTasks],
+  );
+  const implementationEvidenceIssues = implementationEvidenceSummaries.filter((summary) => summary.missing.length > 0);
   const artifactVersionSummaries = useMemo(() => {
     const summaries = new Map<string, { previous: VentureArtifact; added: number; removed: number }>();
 
@@ -5958,6 +5983,45 @@ export function IdeaWorkbench({
                       백로그 복사
                     </button>
                   </div>
+                </div>
+              </div>
+            ) : null}
+
+            {implementationEvidenceSummaries.length > 0 ? (
+              <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h4 className="text-sm font-semibold text-amber-950">증거 보강 우선순위</h4>
+                    <p className="mt-1 text-sm leading-6 text-amber-900">
+                      완료 전에 커밋, 검증, 권한, 배포, 롤백 증거가 약한 태스크부터 보강합니다.
+                    </p>
+                  </div>
+                  <div className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-amber-900 shadow-sm">
+                    보강 필요 {implementationEvidenceIssues.length}/{implementationEvidenceSummaries.length}
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-2 lg:grid-cols-2">
+                  {implementationEvidenceIssues.length > 0 ? (
+                    implementationEvidenceIssues.slice(0, 4).map((summary) => (
+                      <div key={summary.task.id} className="rounded-md border border-amber-100 bg-white px-3 py-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>
+                          <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
+                            {summary.passedCount}/{summary.totalCount}
+                          </span>
+                          <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+                            {implementationTaskTypeLabels[summary.task.task_type]}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs leading-5 text-slate-600">보강 필요: {summary.missing.join(", ")}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-md border border-emerald-100 bg-white px-3 py-2 text-sm text-emerald-800">
+                      현재 모든 태스크의 증거 힌트가 충족되어 있습니다.
+                    </div>
+                  )}
                 </div>
               </div>
             ) : null}
