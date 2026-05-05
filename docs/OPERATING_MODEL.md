@@ -62,7 +62,7 @@ The app now supports the first live operating loop:
 1. Discover idea candidates from pasted conversations or notes.
 2. Save a strong candidate as a validation package with an idea record, initial risk, planned 7-day experiment, idea brief, research brief, and validation sprint artifacts.
 3. Check similar existing ideas before saving a candidate so duplicate records do not fragment the evidence trail.
-4. Check validation-package readiness on extracted candidates so problem signal, user/buyer separation, measurable metric, risk, first MVP scope, and duplicate risk are visible before saving.
+4. Check validation-package readiness and source excerpts on extracted candidates so problem signal, user/buyer separation, measurable metric, risk, first MVP scope, duplicate risk, and origin text are visible before saving.
 5. Create an idea through the intake form when manual entry is better.
 6. Select it in the workbench.
 7. Score the core venture criteria.

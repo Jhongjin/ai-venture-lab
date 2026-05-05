@@ -52,6 +52,7 @@ type InitialIdeaScores = Pick<
 
 type ExtractedIdea = FormState & {
   id: string;
+  sourceBlock: string;
   confidence: number;
   evidence: string[];
   validationScore: number;
@@ -634,6 +635,10 @@ ${candidate.one_liner}
 
 ${candidate.signal}
 
+## 원문 근거
+
+${candidate.sourceBlock}
+
 ## 핵심 가설
 
 ${candidate.assumptions.map((item) => `- ${item}`).join("\n")}
@@ -664,6 +669,10 @@ ${candidate.next_evidence}
 ## 확인된 단서
 
 ${candidate.evidence.map((item) => `- ${item}`).join("\n")}
+
+## 원문 근거
+
+${candidate.sourceBlock}
 
 ## 검증 질문
 
@@ -696,6 +705,10 @@ ${candidate.validationRationale}
 ## 실험
 
 ${candidate.sevenDayExperiment}
+
+## 원문 근거
+
+${candidate.sourceBlock}
 
 ## 성공 지표
 
@@ -796,6 +809,7 @@ function extractIdeasFromText(source: string): ExtractedIdea[] {
 
       return {
         id: `${index}-${name}`,
+        sourceBlock: block,
         name,
         one_liner: oneLiner,
         target_user,
@@ -2121,6 +2135,10 @@ export function VentureConsoleActions({
                           <p className="mt-2 text-sm leading-6 text-slate-700">
                             <span className="font-semibold text-slate-950">성공 지표:</span> {candidate.successMetric}
                           </p>
+                        </div>
+                        <div className="rounded-md bg-white p-3 md:col-span-2">
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">원문 근거</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">{compactText(candidate.sourceBlock, 360)}</p>
                         </div>
                         <div className="rounded-md bg-white p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">첫 프로토타입</div>
