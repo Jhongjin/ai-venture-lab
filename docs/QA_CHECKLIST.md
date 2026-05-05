@@ -32,6 +32,7 @@ Use this checklist before merging meaningful changes.
 - Authenticated operators can save generated idea briefs and PRDs as artifacts and copy them from the artifact library.
 - Authenticated operators can generate and save MVP spec and launch checklist artifacts from the same workbench evidence.
 - Authenticated operators can save backend decision, design brief, technical spec, and development runbook artifacts from the app development process panel.
+- Operators can copy and save a Codex implementation handoff that includes build scope, backend boundary, quality gates, forbidden shortcuts, and completion report format.
 - Supabase accepts the expanded `venture_artifacts.artifact_type` values: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
 - Artifact owners or workspace admins can move artifacts between draft, approved, and archived.
 - Launch readiness shows blocked gates for evidence, artifacts, backend choice, design, technical spec, development runbook, experiments, QA, security, risks, and decisions.
