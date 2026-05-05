@@ -437,6 +437,21 @@ type ExperimentResultDraft = {
   next_action: string;
 };
 
+type ValidationEvidenceCheck = {
+  label: string;
+  passed: boolean;
+  detail: string;
+  action: string;
+};
+
+type ValidationEvidenceCoach = {
+  score: number;
+  label: string;
+  checks: ValidationEvidenceCheck[];
+  nextFocus: ValidationEvidenceCheck | null;
+  prompt: string;
+};
+
 type ImplementationTaskDraft = {
   title: string;
   task_type: ImplementationTaskType;
@@ -633,6 +648,12 @@ function inferIdeaDomain(idea: Idea, state: EditState) {
   return "generic";
 }
 
+function includesAnyNormalized(text: string, terms: string[]) {
+  const normalized = text.toLowerCase();
+
+  return terms.some((term) => normalized.includes(term.toLowerCase()));
+}
+
 function buildValidationPlan({
   idea,
   state,
@@ -799,6 +820,165 @@ function buildValidationPlan({
       status === "리스크 선검증"
         ? "리스크 초안을 먼저 저장한 뒤 완화 조건을 정하세요."
         : "첫 실험을 저장하고 진행 중으로 바꾼 뒤 실제 사용자 증거를 모으세요.",
+  };
+}
+
+function buildValidationEvidenceCoach({
+  idea,
+  state,
+  risks,
+  experiments,
+  artifacts,
+}: {
+  idea: Idea;
+  state: EditState;
+  score: number;
+  risks: Risk[];
+  experiments: Experiment[];
+  artifacts: VentureArtifact[];
+  decisions: Decision[];
+}): ValidationEvidenceCoach {
+  const domain = inferIdeaDomain(idea, state);
+  const combinedText = [
+    idea.name,
+    idea.one_liner,
+    idea.target_user,
+    idea.buyer,
+    state.signal,
+    state.risk_summary,
+    state.next_evidence,
+    ...artifacts.map((artifact) => `${artifact.title} ${artifact.body}`),
+  ].join(" ");
+  const doneExperiments = experiments.filter((experiment) => experiment.status === "done");
+  const runningExperiments = experiments.filter((experiment) => experiment.status === "running");
+  const evidenceArtifacts = artifacts.filter((artifact) =>
+    ["evidence_capture", "experiment_result", "validation_summary"].includes(artifact.source || ""),
+  );
+  const openHighRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+  const domainQuestions: Record<string, string[]> = {
+    care: [
+      "가족, 센터, 요양보호사 중 누가 오늘 가장 답답해하는지 실제 사례를 시간순으로 묻기",
+      "현재 카카오톡, 전화, 수기 기록으로 처리하는 시간과 누락 사례를 숫자로 받기",
+      "민감 돌봄 기록을 앱에 남길 때 필요한 동의와 책임 경계를 확인하기",
+    ],
+    subscription: [
+      "최근 3개월 반복 결제 목록을 보고 실제 낭비 또는 해지 실패 사례를 확인하기",
+      "해지를 대신해주는 것과 안내만 해주는 것 중 어떤 수준에 비용을 낼지 묻기",
+      "결제/이메일 데이터 접근에 대한 허용 범위와 불안 요인을 확인하기",
+    ],
+    conversation: [
+      "다가오는 실제 대화 1건을 고르고 전후 자신감 점수 변화를 기록하기",
+      "제안 스크립트를 실제로 사용했는지와 결과가 나아졌는지 확인하기",
+      "상담/법률 조언으로 오해하지 않는 안전 문구를 검증하기",
+    ],
+    media: [
+      "최근 사진/영상이 갤러리에만 쌓인 실제 상황과 다시 보는 빈도를 확인하기",
+      "수동 제작 샘플을 보여주고 저장, 공유, 반복 제작 의향을 측정하기",
+      "얼굴, 아동, 위치 정보가 포함된 미디어 처리 불안을 확인하기",
+    ],
+    local: [
+      "최근 빌리거나 도움받고 싶었던 물건/일을 3건 이상 수집하기",
+      "이웃 인증, 보증금, 분쟁 처리 조건 중 거래 전 꼭 필요한 장치를 고르게 하기",
+      "500m 단위 공급/수요가 같은 시간대에 맞는지 소규모 단지에서 확인하기",
+    ],
+    generic: [
+      "최근 이 문제가 발생한 실제 사례를 시간순으로 묻기",
+      "현재 대안, 비용, 실패 지점을 숫자와 함께 받기",
+      "수동 결과물 또는 랜딩 페이지로 지불/신청 의향을 확인하기",
+    ],
+  };
+  const checks: ValidationEvidenceCheck[] = [
+    {
+      label: "문제 빈도",
+      passed:
+        (state.problem_intensity >= 4 && state.frequency >= 3) ||
+        includesAnyNormalized(combinedText, ["매일", "매주", "반복", "주 1회", "월 1회", "자주"]),
+      detail: "문제가 반복되고 강도가 높은지 확인합니다.",
+      action: "최근 30일 기준 발생 횟수와 마지막 사례를 물어보세요.",
+    },
+    {
+      label: "실제 사례",
+      passed:
+        state.signal.trim().length >= 60 ||
+        evidenceArtifacts.length > 0 ||
+        includesAnyNormalized(combinedText, ["사례", "인터뷰", "관찰", "고객", "사용자 5명"]),
+      detail: "추상 의견이 아니라 실제 행동/사건 근거가 필요합니다.",
+      action: "사용자가 마지막으로 이 문제를 겪은 상황을 시간순으로 기록하세요.",
+    },
+    {
+      label: "구매자와 지불",
+      passed:
+        Boolean(idea.buyer.trim()) &&
+        state.willingness_to_pay >= 3 &&
+        includesAnyNormalized(combinedText, ["가격", "지불", "구매", "예산", "만원", "원", "구독"]),
+      detail: "누가 돈을 내고 어떤 예산에서 결제하는지 확인합니다.",
+      action: "월 비용, 건당 비용, 절감액 기반 수수료 중 어떤 모델이 가능한지 묻습니다.",
+    },
+    {
+      label: "도달 채널",
+      passed: Boolean(idea.target_user.trim()) && state.reachability >= 3,
+      detail: "초기 인터뷰와 파일럿 대상을 실제로 만날 수 있어야 합니다.",
+      action: "이번 주 연락 가능한 타겟 5명과 접근 채널을 적으세요.",
+    },
+    {
+      label: "대안/경쟁",
+      passed:
+        includesAnyNormalized(combinedText, ["대안", "경쟁", "엑셀", "카카오", "전화", "수동", "현재 방식", "우회"]) ||
+        artifacts.some((artifact) => artifact.source === "extracted_research_brief"),
+      detail: "현재 대체재를 알아야 차별성과 가격을 판단할 수 있습니다.",
+      action: "사용자가 지금 쓰는 대안 3개와 각 대안의 불만을 표로 정리하세요.",
+    },
+    {
+      label: "행동 증거",
+      passed: doneExperiments.length > 0 || runningExperiments.length > 0 || evidenceArtifacts.length >= 2,
+      detail: "말이 아니라 클릭, 신청, 저장, 공유, 결제 의향 같은 행동 신호가 필요합니다.",
+      action: "가장 작은 수동 MVP나 랜딩 테스트를 실행하고 결과를 실험 기록으로 남기세요.",
+    },
+    {
+      label: "리스크 수용",
+      passed: openHighRisks.length === 0 && Boolean(state.risk_summary.trim()),
+      detail: "고위험 리스크가 남아 있으면 PRD보다 완화 조건을 먼저 정합니다.",
+      action: "높음/치명 리스크를 종료하거나 수용 조건과 차단 범위를 기록하세요.",
+    },
+  ];
+  const passedCount = checks.filter((check) => check.passed).length;
+  const evidenceScore = Math.round((passedCount / checks.length) * 100);
+  const nextFocus = checks.find((check) => !check.passed) ?? null;
+  const label =
+    evidenceScore >= 86
+      ? "개발 전환 근거 양호"
+      : evidenceScore >= 65
+        ? "스프린트 실행 가능"
+        : evidenceScore >= 45
+          ? "핵심 증거 보강"
+          : "인터뷰부터 재정렬";
+  const prompt = `# 검증 증거 수집 프롬프트: ${idea.name}
+
+## 이번에 보강할 증거
+
+${nextFocus ? `- ${nextFocus.label}: ${nextFocus.action}` : "- 현재 핵심 증거가 대부분 충족되었습니다. 완료된 실험 결과와 최종 판단 근거를 정리하세요."}
+
+## 질문 세트
+
+${(domainQuestions[domain] ?? domainQuestions.generic).map((question) => `- ${question}`).join("\n")}
+
+## 기록 형식
+
+- 대상/출처:
+- 최근 실제 사례:
+- 현재 대안:
+- 비용/시간 손실:
+- 지불 또는 승인 조건:
+- 새로 발견한 리스크:
+- 진행/전환/중단에 주는 영향:
+`;
+
+  return {
+    score: evidenceScore,
+    label,
+    checks,
+    nextFocus,
+    prompt,
   };
 }
 
@@ -3947,6 +4127,17 @@ export function IdeaWorkbench({
         missing,
       })
     : null;
+  const validationEvidenceCoach = selectedIdea && editState
+    ? buildValidationEvidenceCoach({
+        idea: selectedIdea,
+        state: editState,
+        score: currentScore,
+        risks: selectedIdeaRisks,
+        experiments: selectedExperiments,
+        artifacts: selectedArtifactRecords,
+        decisions: selectedDecisions,
+      })
+    : null;
   const ideaBrief = selectedIdea && editState
     ? buildIdeaBriefMarkdown({
         idea: selectedIdea,
@@ -5540,6 +5731,27 @@ export function IdeaWorkbench({
     setMessage("검증 상태 기반 판단 근거 초안을 채웠습니다. 최종 판단을 확인한 뒤 기록하세요.");
   }
 
+  function loadEvidenceCoachPrompt() {
+    if (!validationEvidenceCoach) {
+      return;
+    }
+
+    setEvidenceDraft({
+      title: validationEvidenceCoach.nextFocus
+        ? `${validationEvidenceCoach.nextFocus.label} 보강`
+        : "검증 증거 보강",
+      source: "인터뷰/관찰/외부 자료",
+      evidence: validationEvidenceCoach.prompt,
+      implication:
+        validationEvidenceCoach.nextFocus?.action ??
+        "현재 증거를 최종 진행, 추가 조사, 전환, 중단 판단에 연결합니다.",
+      confidence: "medium",
+    });
+    setArtifactPanel("validation");
+    updateActiveTask("artifacts");
+    setMessage("검증 증거 코치 프롬프트를 근거 직접 기록 폼에 채웠습니다.");
+  }
+
   return (
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
       {showSidebar ? (
@@ -5952,6 +6164,66 @@ export function IdeaWorkbench({
                   </ul>
                 </div>
               </div>
+
+              {validationEvidenceCoach ? (
+                <div className="mt-4 rounded-md border border-blue-200 bg-white p-3">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+                        검증 증거 코치
+                      </div>
+                      <h4 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h4>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">
+                        {validationEvidenceCoach.nextFocus
+                          ? `다음 보강: ${validationEvidenceCoach.nextFocus.label} - ${validationEvidenceCoach.nextFocus.action}`
+                          : "핵심 증거가 충분합니다. 실험 결과와 최종 판단을 정리하세요."}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <div className="rounded-md bg-blue-950 px-3 py-2 text-right text-white">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-200">증거</div>
+                        <div className="text-2xl font-semibold">{validationEvidenceCoach.score}%</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+                    {validationEvidenceCoach.checks.map((check) => (
+                      <div
+                        key={check.label}
+                        className={`rounded-md border px-3 py-2 ${
+                          check.passed ? "border-emerald-100 bg-emerald-50" : "border-amber-100 bg-amber-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={`h-2 w-2 rounded-full ${check.passed ? "bg-emerald-500" : "bg-amber-500"}`} />
+                          <span className="text-xs font-semibold text-slate-950">{check.label}</span>
+                        </div>
+                        <p className="mt-1 text-xs leading-5 text-slate-600">{check.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(validationEvidenceCoach.prompt, "검증 증거 수집 프롬프트")}
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 transition hover:bg-blue-50"
+                    >
+                      <Clipboard size={15} />
+                      프롬프트 복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={loadEvidenceCoachPrompt}
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-blue-600 px-3 text-xs font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      <Save size={15} />
+                      근거 폼 채우기
+                    </button>
+                  </div>
+                </div>
+              ) : null}
 
               <p className="mt-3 text-sm leading-6 text-blue-900">{validationPlan.nextAction}</p>
             </div>
