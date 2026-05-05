@@ -1,7 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Building2, Clock3, LogIn, LogOut, PlusCircle, RefreshCw, ShieldCheck, Trash2, Users } from "lucide-react";
+import {
+  Building2,
+  Clock3,
+  LogIn,
+  LogOut,
+  PlusCircle,
+  RefreshCw,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  Users,
+} from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -24,7 +35,13 @@ type FormState = {
   next_evidence: string;
 };
 
-export type ConsoleActionTask = "auth" | "workspace" | "idea";
+export type ConsoleActionTask = "auth" | "workspace" | "extract" | "idea";
+
+type ExtractedIdea = FormState & {
+  id: string;
+  confidence: number;
+  evidence: string[];
+};
 
 const emptyForm: FormState = {
   name: "",
@@ -51,6 +68,173 @@ const workspaceRecordTables = [
   "orchestration_runs",
   "venture_artifacts",
 ] as const;
+
+const sampleIdeaSource = `아이디어: 구독 관리 에이전트
+페인 포인트: 사람들은 OTT, 소프트웨어, 유료 서비스 해지 시점을 놓치고 돈을 낭비합니다.
+솔루션: 카드 내역이나 이메일에서 반복 결제를 찾아내고 해지 절차를 안내하는 개인 지출 에이전트.
+타겟층: 디지털 구독이 많은 바쁜 소비자.
+
+아이디어: 돌봄 운영 콘솔
+페인 포인트: 가족, 요양보호사, 센터 사이의 일정과 돌봄 기록이 흩어져 신뢰 문제가 생깁니다.
+솔루션: 가족, 요양보호사, 센터 간 돌봄 일정과 기록을 관리하는 운영 콘솔.
+타겟층: 돌봄을 조율하는 가족과 소규모 방문요양센터.
+
+아이디어: 상황별 대화 코치
+페인 포인트: 연봉 협상, 가족 갈등, 고객 응대처럼 중요한 대화를 어떻게 시작할지 막막합니다.
+솔루션: 상대 성향과 목적을 입력하면 스크립트와 역할극을 제공하는 대화 코칭 도구.
+타겟층: 어려운 대화를 앞둔 직장인과 개인 사용자.`;
+
+function compactText(value: string, maxLength = 180) {
+  return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
+}
+
+function stripLabel(value: string) {
+  return value
+    .replace(/^#{1,4}\s*/, "")
+    .replace(/^\d+[\.\)]\s*/, "")
+    .replace(/^아이디어\s*[:：]\s*/, "")
+    .replace(/^["“”']|["“”']$/g, "")
+    .trim();
+}
+
+function findLabeledValue(block: string, labels: string[]) {
+  const pattern = new RegExp(`(?:^|\\n)\\s*(?:${labels.join("|")})\\s*[:：]\\s*([^\\n]+)`, "i");
+  const match = block.match(pattern);
+
+  return match ? compactText(match[1]) : "";
+}
+
+function inferText(block: string, type: "target" | "buyer" | "risk" | "next") {
+  if (type === "target") {
+    if (/요양|간병|돌봄|시니어/.test(block)) {
+      return "돌봄을 조율하는 가족과 소규모 케어 운영자";
+    }
+    if (/구독|ott|결제|해지/.test(block)) {
+      return "디지털 구독과 반복 결제가 많은 소비자";
+    }
+    if (/대화|협상|갈등|관계|심리/.test(block)) {
+      return "중요한 대화를 앞둔 직장인과 개인 사용자";
+    }
+    if (/로컬|이웃|공유|대여|심부름/.test(block)) {
+      return "동네 기반으로 도구나 짧은 도움을 필요로 하는 생활 사용자";
+    }
+    if (/영상|사진|콘텐츠|숏폼|브이로그/.test(block)) {
+      return "사진과 영상을 많이 남기지만 편집 시간이 부족한 사용자";
+    }
+
+    return "반복 문제를 겪는 초기 타겟 사용자";
+  }
+
+  if (type === "buyer") {
+    if (/센터|b2b|팀|기업|업무/.test(block)) {
+      return "소규모 팀 또는 운영 조직";
+    }
+    if (/가족|부모|시니어|요양/.test(block)) {
+      return "가족 돌봄 관리자 또는 케어센터";
+    }
+
+    return "문제 해결에 직접 비용을 지불할 개인 사용자";
+  }
+
+  if (type === "risk") {
+    if (/금융|자산|투자|계좌|카드|결제/.test(block)) {
+      return "금융 조언 오인, 결제 데이터 처리, 계정 접근 동의가 핵심 리스크입니다.";
+    }
+    if (/요양|간병|돌봄|시니어|의료/.test(block)) {
+      return "개인정보, 의료·요양 규정, 돌봄 책임 소재가 핵심 리스크입니다.";
+    }
+    if (/대화|심리|상담|관계|갈등/.test(block)) {
+      return "상담·의료·법률 조언처럼 보이는 표현과 민감 대화 데이터 처리가 핵심 리스크입니다.";
+    }
+    if (/로컬|공유|대여|이웃|심부름/.test(block)) {
+      return "신원 확인, 분쟁 처리, 안전 사고, 물품 파손 책임이 핵심 리스크입니다.";
+    }
+    if (/영상|사진|콘텐츠|브이로그|숏폼/.test(block)) {
+      return "초상권, 저작권, 아동 사진, 민감 미디어 처리 정책이 핵심 리스크입니다.";
+    }
+
+    return "개인정보, 권한, 책임 소재, 규제 표현을 먼저 검토해야 합니다.";
+  }
+
+  if (/요양|간병|돌봄|센터/.test(block)) {
+    return "실제 보호자와 케어센터 5명에게 현재 조율 방식과 비용 지불 의향을 확인합니다.";
+  }
+  if (/구독|결제|해지/.test(block)) {
+    return "사용자 5명의 실제 구독 내역 정리 과정을 관찰하고 수동 해지 안내 MVP를 테스트합니다.";
+  }
+  if (/대화|협상|갈등/.test(block)) {
+    return "반복 빈도가 높은 대화 상황 하나를 정하고 스크립트 사용 전후 자신감 변화를 측정합니다.";
+  }
+
+  return "가장 고통이 큰 사용자 5명에게 문제 빈도, 현재 대안, 지불 의향을 확인합니다.";
+}
+
+function splitIdeaBlocks(source: string) {
+  const lines = source
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const blocks: string[] = [];
+  let current: string[] = [];
+
+  for (const line of lines) {
+    const startsIdea =
+      /^(#{1,4}\s*)?\d+[\.\)]\s+/.test(line) ||
+      /^#{1,4}\s+/.test(line) ||
+      /^아이디어\s*[:：]/.test(line);
+
+    if (startsIdea && current.length > 0) {
+      blocks.push(current.join("\n"));
+      current = [line];
+      continue;
+    }
+
+    current.push(line);
+  }
+
+  if (current.length > 0) {
+    blocks.push(current.join("\n"));
+  }
+
+  return blocks
+    .filter((block) => /(아이디어|페인|솔루션|타겟|사용자|앱|서비스|플랫폼|에이전트|콘솔|코치|매니저|대시보드)/i.test(block))
+    .slice(0, 8);
+}
+
+function extractIdeasFromText(source: string): ExtractedIdea[] {
+  return splitIdeaBlocks(source).map((block, index) => {
+    const lines = block.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const rawName = findLabeledValue(block, ["아이디어", "서비스명", "앱"]) || stripLabel(lines[0] ?? `아이디어 ${index + 1}`);
+    const name = compactText(rawName.replace(/\(.+\)/, ""), 42) || `아이디어 ${index + 1}`;
+    const oneLiner =
+      findLabeledValue(block, ["솔루션", "기능", "핵심", "차별점"]) ||
+      compactText(lines.find((line) => /앱|서비스|플랫폼|에이전트|콘솔|도구|코치|매니저/.test(line)) ?? block, 150);
+    const target_user = findLabeledValue(block, ["타겟층", "타겟", "대상 사용자", "사용자"]) || inferText(block, "target");
+    const buyer = findLabeledValue(block, ["구매자", "BM", "비즈니스 모델", "타겟 고객"]) || inferText(block, "buyer");
+    const signal = findLabeledValue(block, ["페인 포인트", "문제", "수요", "핵심"]) || compactText(block, 180);
+    const risk_summary = findLabeledValue(block, ["리스크", "주의점", "제약"]) || inferText(block, "risk");
+    const next_evidence = findLabeledValue(block, ["다음 증거", "검증", "다음 단계"]) || inferText(block, "next");
+    const evidence = [
+      signal ? "문제 신호" : "",
+      oneLiner ? "솔루션 단서" : "",
+      target_user ? "타겟 단서" : "",
+      risk_summary ? "리스크 추론" : "",
+    ].filter(Boolean);
+
+    return {
+      id: `${index}-${name}`,
+      name,
+      one_liner: oneLiner,
+      target_user,
+      buyer,
+      signal,
+      risk_summary,
+      next_evidence,
+      confidence: Math.min(95, 45 + evidence.length * 12 + Math.min(lines.length, 8)),
+      evidence,
+    };
+  });
+}
 
 export function VentureConsoleActions({
   activeTask: controlledActiveTask,
@@ -83,12 +267,18 @@ export function VentureConsoleActions({
   const [personalRecordCount, setPersonalRecordCount] = useState(0);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
+  const [rawIdeaSource, setRawIdeaSource] = useState("");
+  const [extractedIdeas, setExtractedIdeas] = useState<ExtractedIdea[]>([]);
+  const [extractMessage, setExtractMessage] = useState<string | null>(null);
   const [localActiveTask, setLocalActiveTask] = useState<ConsoleActionTask>("auth");
   const activeTask = controlledActiveTask ?? localActiveTask;
-  const updateActiveTask = useCallback((task: ConsoleActionTask) => {
-    setLocalActiveTask(task);
-    onActiveTaskChange?.(task);
-  }, [onActiveTaskChange]);
+  const updateActiveTask = useCallback(
+    (task: ConsoleActionTask) => {
+      setLocalActiveTask(task);
+      onActiveTaskChange?.(task);
+    },
+    [onActiveTaskChange],
+  );
 
   const activeOrganization = useMemo(
     () => organizations.find((organization) => organization.id === activeOrganizationId) ?? organizations[0] ?? null,
@@ -128,6 +318,12 @@ export function VentureConsoleActions({
       label: "워크스페이스",
       description: "기록을 팀 경계와 멤버십에 연결합니다.",
       status: activeOrganization ? "연결됨" : "선택",
+    },
+    {
+      id: "extract",
+      label: "아이디어 추출",
+      description: "대화와 메모에서 후보 아이디어를 뽑습니다.",
+      status: extractedIdeas.length > 0 ? `${extractedIdeas.length}개` : "붙여넣기",
     },
     {
       id: "idea",
@@ -198,7 +394,7 @@ export function VentureConsoleActions({
       supabase.from("organization_members").select("*").order("created_at", { ascending: true }),
     ]);
 
-      if (organizationsResult.error || membersResult.error) {
+    if (organizationsResult.error || membersResult.error) {
       setWorkspaceMessage(
         organizationsResult.error?.message ?? membersResult.error?.message ?? "워크스페이스 데이터를 불러오지 못했습니다.",
       );
@@ -617,6 +813,38 @@ export function VentureConsoleActions({
     router.refresh();
   }
 
+  function handleExtractIdeas() {
+    const source = rawIdeaSource.trim();
+
+    if (!source) {
+      setExtractMessage("대화 내용이나 메모를 먼저 붙여넣으세요.");
+      setExtractedIdeas([]);
+      return;
+    }
+
+    const nextIdeas = extractIdeasFromText(source);
+    setExtractedIdeas(nextIdeas);
+    setExtractMessage(
+      nextIdeas.length > 0
+        ? `${nextIdeas.length}개의 앱 아이디어 후보를 추출했습니다. 마음에 드는 후보를 입력 폼으로 보내세요.`
+        : "아이디어 후보를 찾지 못했습니다. '아이디어:', '페인 포인트:', '솔루션:' 같은 단서를 포함해 다시 시도하세요.",
+    );
+  }
+
+  function loadExtractedIdea(candidate: ExtractedIdea) {
+    setForm({
+      name: candidate.name,
+      one_liner: candidate.one_liner,
+      target_user: candidate.target_user,
+      buyer: candidate.buyer,
+      signal: candidate.signal,
+      risk_summary: candidate.risk_summary,
+      next_evidence: candidate.next_evidence,
+    });
+    setSaveMessage(`'${candidate.name}' 후보를 입력 폼에 채웠습니다. 검토 후 저장하세요.`);
+    updateActiveTask("idea");
+  }
+
   return (
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]" : "grid gap-6"}>
       {showSidebar ? (
@@ -948,6 +1176,110 @@ export function VentureConsoleActions({
           )}
 
           {workspaceMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{workspaceMessage}</p> : null}
+        </div>
+
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "extract" ? "" : "hidden"
+          }`}
+        >
+          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-950">자동 아이디어 추출</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                대화, 회의록, 메모를 붙여넣으면 앱 아이디어 후보를 구조화합니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleExtractIdeas}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              <Sparkles size={18} />
+              후보 추출
+            </button>
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(360px,1.1fr)]">
+            <div className="grid gap-3">
+              <textarea
+                value={rawIdeaSource}
+                onChange={(event) => setRawIdeaSource(event.target.value)}
+                rows={18}
+                placeholder="Gemini/ChatGPT 대화, 회의록, 메모를 여기에 붙여넣으세요. 아이디어:, 페인 포인트:, 솔루션:, 타겟층: 같은 단서가 있으면 더 잘 추출됩니다."
+                className="min-h-[360px] resize-y rounded-md border border-slate-300 bg-white px-3 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRawIdeaSource(sampleIdeaSource)}
+                  className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  샘플 넣기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRawIdeaSource("");
+                    setExtractedIdeas([]);
+                    setExtractMessage(null);
+                  }}
+                  className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  비우기
+                </button>
+              </div>
+              {extractMessage ? <p className="text-sm leading-6 text-slate-600">{extractMessage}</p> : null}
+            </div>
+
+            <div className="grid content-start gap-3">
+              {extractedIdeas.length > 0 ? (
+                extractedIdeas.map((candidate) => (
+                  <article key={candidate.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-base font-semibold text-slate-950">{candidate.name}</h3>
+                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-blue-700 shadow-sm">
+                            신뢰 {candidate.confidence}%
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">{candidate.one_liner}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => loadExtractedIdea(candidate)}
+                        className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      >
+                        입력 폼으로 보내기
+                      </button>
+                    </div>
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
+                      <div className="rounded-md bg-white p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">대상</div>
+                        <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.target_user}</p>
+                      </div>
+                      <div className="rounded-md bg-white p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">구매자</div>
+                        <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.buyer}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {candidate.evidence.map((item) => (
+                        <span key={item} className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
+                  추출된 후보가 여기에 표시됩니다. 샘플을 넣어 흐름을 먼저 확인해도 좋습니다.
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
       <form

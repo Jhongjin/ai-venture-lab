@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Beaker, ClipboardList, Flag, Layers3, Rocket, Save, ShieldCheck, UserRound, Users } from "lucide-react";
+import { Beaker, ClipboardList, Flag, Layers3, Rocket, Save, ShieldCheck, Sparkles, UserRound, Users } from "lucide-react";
 
 import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
 import { VentureConsoleActions, type ConsoleActionTask } from "@/components/venture-console-actions";
@@ -29,6 +29,13 @@ const shellTasks: Array<{
     description: "팀 경계와 멤버십",
     group: "운영 준비",
     icon: Users,
+  },
+  {
+    id: "console:extract",
+    label: "아이디어 추출",
+    description: "대화/메모에서 후보 발굴",
+    group: "운영 준비",
+    icon: Sparkles,
   },
   {
     id: "console:idea",
@@ -104,6 +111,10 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     summary: "개인 기록을 팀 단위 경계로 묶고, 함께 볼 사람의 권한을 정합니다.",
     checklist: ["워크스페이스 생성 또는 선택", "개인 기록 연결 여부 확인", "필요한 멤버만 추가"],
   },
+  "console:extract": {
+    summary: "흩어진 대화와 메모에서 앱 아이디어 후보를 자동으로 구조화합니다.",
+    checklist: ["대화 원문 붙여넣기", "후보 추출 실행", "좋은 후보를 입력 폼으로 보내기"],
+  },
   "console:idea": {
     summary: "바로 개발하지 말고 문제, 구매자, 증거, 리스크를 먼저 원시 기록으로 남깁니다.",
     checklist: ["이름과 한 줄 설명 입력", "구매자와 대상 사용자 구분", "다음에 확인할 증거 기록"],
@@ -163,7 +174,8 @@ function recommendNextTask({
 
   const nextByTask: Partial<Record<ShellTask, ShellTask>> = {
     "console:auth": "console:workspace",
-    "console:workspace": "console:idea",
+    "console:workspace": "console:extract",
+    "console:extract": "console:idea",
     "console:idea": ideaCount > 0 ? "workbench:score" : "console:idea",
     "workbench:select": "workbench:score",
     "workbench:score": "workbench:risk",
@@ -264,6 +276,7 @@ export function VentureConsoleShell({
   const taskStatuses: Record<ShellTask, string> = {
     "console:auth": "접근",
     "console:workspace": "팀",
+    "console:extract": "추출",
     "console:idea": "입력",
     "workbench:select": `${ideaCount}개`,
     "workbench:score": "점수",
@@ -306,7 +319,7 @@ export function VentureConsoleShell({
             <div className="grid gap-2">
               {shellTasks
                 .filter((task) => task.group === group)
-                .map((task, index) => {
+                .map((task) => {
                   const Icon = task.icon;
                   const isActive = activeTask === task.id;
 
@@ -327,7 +340,7 @@ export function VentureConsoleShell({
                           isActive ? "bg-blue-600 text-white" : "bg-white text-slate-700 shadow-sm"
                         }`}
                       >
-                        {group === "운영 준비" ? index + 1 : index + 4}
+                        {shellTasks.findIndex((item) => item.id === task.id) + 1}
                       </span>
                       <span className="min-w-0">
                         <span className="flex items-center gap-2 text-sm font-semibold">
