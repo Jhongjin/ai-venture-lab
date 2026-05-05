@@ -32,8 +32,8 @@ const shellTasks: Array<{
   },
   {
     id: "console:extract",
-    label: "아이디어 추출",
-    description: "대화/메모에서 후보 발굴",
+    label: "아이디어 발굴",
+    description: "후보와 검증 계획",
     group: "운영 준비",
     icon: Sparkles,
   },
@@ -112,8 +112,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["워크스페이스 생성 또는 선택", "개인 기록 연결 여부 확인", "필요한 멤버만 추가"],
   },
   "console:extract": {
-    summary: "흩어진 대화와 메모에서 앱 아이디어 후보를 자동으로 구조화합니다.",
-    checklist: ["대화 원문 붙여넣기", "후보 추출 실행", "좋은 후보를 입력 폼으로 보내기"],
+    summary: "흩어진 대화와 메모에서 앱 후보, 검증 점수, 핵심 가설, 7일 실험, 중단 기준을 함께 만듭니다.",
+    checklist: ["대화 원문 붙여넣기", "후보 발굴 실행", "검증 점수와 리스크 확인", "좋은 후보를 입력 폼으로 보내기"],
   },
   "console:idea": {
     summary: "바로 개발하지 말고 문제, 구매자, 증거, 리스크를 먼저 원시 기록으로 남깁니다.",
@@ -276,7 +276,7 @@ export function VentureConsoleShell({
   const taskStatuses: Record<ShellTask, string> = {
     "console:auth": "접근",
     "console:workspace": "팀",
-    "console:extract": "추출",
+    "console:extract": "발굴",
     "console:idea": "입력",
     "workbench:select": `${ideaCount}개`,
     "workbench:score": "점수",

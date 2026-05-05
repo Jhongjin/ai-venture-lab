@@ -41,6 +41,16 @@ type ExtractedIdea = FormState & {
   id: string;
   confidence: number;
   evidence: string[];
+  validationScore: number;
+  riskLevel: "낮음" | "보통" | "높음";
+  recommendation: "우선 검증" | "리스크 선검증" | "추가 조사" | "보류";
+  assumptions: string[];
+  validationQuestions: string[];
+  sevenDayExperiment: string;
+  killCriteria: string;
+  firstPrototypeScope: string;
+  pricingHypothesis: string;
+  validationRationale: string;
 };
 
 const emptyForm: FormState = {
@@ -169,6 +179,205 @@ function inferText(block: string, type: "target" | "buyer" | "risk" | "next") {
   return "가장 고통이 큰 사용자 5명에게 문제 빈도, 현재 대안, 지불 의향을 확인합니다.";
 }
 
+function countKeywordHits(block: string, keywords: string[]) {
+  return keywords.reduce((count, keyword) => count + (block.includes(keyword) ? 1 : 0), 0);
+}
+
+function inferRiskLevel(block: string): ExtractedIdea["riskLevel"] {
+  const highRiskHits = countKeywordHits(block, [
+    "금융",
+    "투자",
+    "계좌",
+    "카드",
+    "결제",
+    "해지",
+    "의료",
+    "요양",
+    "간병",
+    "법률",
+    "상담",
+    "보험",
+    "개인정보",
+    "계정",
+    "아동",
+    "상속",
+  ]);
+
+  if (highRiskHits >= 3) {
+    return "높음";
+  }
+
+  if (highRiskHits >= 1 || /규제|권한|보안|민감|책임/.test(block)) {
+    return "보통";
+  }
+
+  return "낮음";
+}
+
+function inferAssumptions(block: string, name: string, targetUser: string, buyer: string) {
+  const outcome = /요양|간병|돌봄/.test(block)
+    ? "조율 시간과 책임 불안을 줄인다"
+    : /구독|결제|해지/.test(block)
+      ? "새는 지출을 발견하고 해지 행동까지 이어진다"
+      : /대화|협상|갈등|관계/.test(block)
+        ? "중요한 대화 전 준비 시간이 줄고 자신감이 오른다"
+        : /영상|사진|콘텐츠|숏폼/.test(block)
+          ? "편집 없이도 다시 볼 만한 결과물이 만들어진다"
+          : "현재 대안보다 빠르고 믿을 수 있는 결과를 만든다";
+
+  return [
+    `${targetUser}가 이 문제를 반복적으로 겪고 있고 현재 대안에 불만이 있다.`,
+    `${buyer}가 ${outcome}는 결과에 비용 또는 시간을 지불할 의향이 있다.`,
+    `${name}은 완전 자동화 전에 수동 운영 MVP로도 핵심 가치를 검증할 수 있다.`,
+  ];
+}
+
+function inferValidationQuestions(block: string, targetUser: string, buyer: string) {
+  const domainQuestion = /요양|간병|돌봄/.test(block)
+    ? "돌봄 기록, 일정, 가족 커뮤니케이션 중 가장 자주 깨지는 지점은 어디인가?"
+    : /구독|결제|해지/.test(block)
+      ? "최근 3개월 안에 해지하지 못해 손해 본 구독이 있었고, 해지 대행에 얼마까지 맡길 수 있는가?"
+      : /대화|협상|갈등|관계/.test(block)
+        ? "실제 대화 직전 어떤 자료나 문장이 있으면 행동으로 옮길 가능성이 가장 높은가?"
+        : /로컬|이웃|공유|대여|심부름/.test(block)
+          ? "낯선 이웃과 거래할 때 신뢰를 만들 최소 조건은 무엇인가?"
+          : "현재 문제를 해결하기 위해 이미 돈, 시간, 사람을 쓰고 있는가?";
+
+  return [
+    `${targetUser}는 이 문제를 얼마나 자주 겪고, 한 번 발생할 때 비용이나 시간이 얼마나 드는가?`,
+    `${buyer}는 구매 결정을 혼자 하는가, 아니면 승인자나 예산 제약이 있는가?`,
+    domainQuestion,
+    "첫 사용 이후 다시 돌아오게 만드는 반복 트리거는 무엇인가?",
+  ];
+}
+
+function inferSevenDayExperiment(block: string, name: string) {
+  if (/요양|간병|돌봄/.test(block)) {
+    return "1일차 보호자/센터 5명 인터뷰, 2일차 카카오톡/시트 기반 돌봄 기록 템플릿 제작, 3~5일차 실제 기록 3건을 수동 운영, 6일차 비용 지불 의향 확인, 7일차 진행/전환/중단 판단.";
+  }
+
+  if (/구독|결제|해지/.test(block)) {
+    return "1일차 사용자 5명의 구독 목록 수집, 2일차 수동 감사 리포트 제작, 3~5일차 해지 안내를 수동으로 제공, 6일차 절감액과 유료 전환 의향 측정, 7일차 자동화 범위 결정.";
+  }
+
+  if (/대화|협상|갈등|관계/.test(block)) {
+    return "1일차 고빈도 대화 상황 1개 선택, 2일차 스크립트 템플릿 제작, 3~5일차 사용자 5명이 실제 대화 전 리허설, 6일차 자신감/결과 변화 측정, 7일차 반복 사용 의향 판단.";
+  }
+
+  if (/영상|사진|콘텐츠|숏폼/.test(block)) {
+    return "1일차 샘플 앨범 5개 수집, 2일차 수동 편집 기준 정의, 3~5일차 1분 결과물 3개 제작, 6일차 공유/저장 의향 측정, 7일차 자동 편집 범위 결정.";
+  }
+
+  return `1일차 ${name}의 핵심 사용자 5명 인터뷰, 2일차 수동 결과물 템플릿 제작, 3~5일차 실제 요청 3건 처리, 6일차 지불 의향과 재사용 의향 확인, 7일차 진행/전환/중단 판단.`;
+}
+
+function inferKillCriteria(block: string) {
+  if (/요양|간병|돌봄|의료|금융|투자|법률|상담|보험/.test(block)) {
+    return "사용자 5명 중 3명 이상이 반복 고통을 인정하지 않거나, 필수 데이터/권한/규제 리스크를 합법적이고 설명 가능한 방식으로 처리할 수 없으면 중단합니다.";
+  }
+
+  return "사용자 5명 중 3명 이상이 현재 대안보다 낫다고 느끼지 않거나, 수동 MVP 결과물에 비용 또는 재사용 의향을 보이지 않으면 중단합니다.";
+}
+
+function inferFirstPrototypeScope(block: string) {
+  if (/요양|간병|돌봄/.test(block)) {
+    return "가족 초대, 돌봄 일정, 일일 기록, 이슈 알림만 있는 웹 콘솔. 초기에는 운영자가 기록 정리와 알림을 수동 보조합니다.";
+  }
+
+  if (/구독|결제|해지/.test(block)) {
+    return "사용자가 구독 목록을 직접 붙여넣으면 절감 리포트와 해지 체크리스트를 생성하는 감사 도구. 실제 해지는 수동 안내로 제한합니다.";
+  }
+
+  if (/대화|협상|갈등|관계/.test(block)) {
+    return "상황, 상대 성향, 목표를 입력하면 3개 스크립트와 역할극 질문을 제공하는 단일 플로우.";
+  }
+
+  if (/로컬|이웃|공유|대여|심부름/.test(block)) {
+    return "동네 인증, 요청 등록, 수락, 완료 확인, 분쟁 메모만 있는 폐쇄형 베타 보드.";
+  }
+
+  if (/영상|사진|콘텐츠|숏폼/.test(block)) {
+    return "사진 20장과 짧은 메모를 업로드하면 운영자가 1분 스토리보드와 결과물을 반환하는 반자동 MVP.";
+  }
+
+  return "가입, 문제 입력, 수동 결과물 전달, 피드백 수집만 포함한 가장 작은 검증 화면.";
+}
+
+function inferPricingHypothesis(block: string, buyer: string) {
+  if (/센터|기업|팀|B2B|업무/.test(`${block} ${buyer}`)) {
+    return "초기에는 조직당 월 5만~20만원 또는 운영 건당 과금으로 검증합니다.";
+  }
+
+  if (/구독|결제|해지/.test(block)) {
+    return "절감액의 10~20% 또는 월 4,900~9,900원 구독으로 지불 의향을 확인합니다.";
+  }
+
+  if (/로컬|공유|대여|심부름/.test(block)) {
+    return "거래 수수료 5~15% 또는 신뢰 인증/보험 옵션 유료화를 검증합니다.";
+  }
+
+  return "개인 사용자는 월 4,900~14,900원, 전문가/팀 사용자는 좌석당 월 1만~3만원으로 테스트합니다.";
+}
+
+function scoreExtractedIdea({
+  block,
+  evidenceCount,
+  riskLevel,
+  buyer,
+}: {
+  block: string;
+  evidenceCount: number;
+  riskLevel: ExtractedIdea["riskLevel"];
+  buyer: string;
+}) {
+  const painHits = countKeywordHits(block, [
+    "불편",
+    "막막",
+    "낭비",
+    "놓치",
+    "반복",
+    "시간",
+    "비용",
+    "고통",
+    "흩어",
+    "불안",
+    "실수",
+    "조율",
+    "귀찮",
+  ]);
+  const actionHits = countKeywordHits(block, ["대행", "자동", "안내", "관리", "코칭", "콘솔", "대시보드", "매칭", "추천"]);
+  const explicitBuyer = /센터|기업|팀|가족|소비자|전문직|사용자|구매|BM|비즈니스/.test(buyer);
+  const riskPenalty = riskLevel === "높음" ? 12 : riskLevel === "보통" ? 6 : 0;
+  const rawScore =
+    42 +
+    evidenceCount * 4 +
+    Math.min(painHits, 6) * 4 +
+    Math.min(actionHits, 5) * 3 +
+    (explicitBuyer ? 9 : 0) -
+    riskPenalty;
+
+  return Math.max(30, Math.min(92, rawScore));
+}
+
+function inferRecommendation(
+  validationScore: number,
+  riskLevel: ExtractedIdea["riskLevel"],
+): ExtractedIdea["recommendation"] {
+  if (validationScore >= 74 && riskLevel === "높음") {
+    return "리스크 선검증";
+  }
+
+  if (validationScore >= 72) {
+    return "우선 검증";
+  }
+
+  if (validationScore >= 58) {
+    return "추가 조사";
+  }
+
+  return "보류";
+}
+
 function splitIdeaBlocks(source: string) {
   const lines = source
     .split(/\r?\n/)
@@ -202,38 +411,64 @@ function splitIdeaBlocks(source: string) {
 }
 
 function extractIdeasFromText(source: string): ExtractedIdea[] {
-  return splitIdeaBlocks(source).map((block, index) => {
-    const lines = block.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-    const rawName = findLabeledValue(block, ["아이디어", "서비스명", "앱"]) || stripLabel(lines[0] ?? `아이디어 ${index + 1}`);
-    const name = compactText(rawName.replace(/\(.+\)/, ""), 42) || `아이디어 ${index + 1}`;
-    const oneLiner =
-      findLabeledValue(block, ["솔루션", "기능", "핵심", "차별점"]) ||
-      compactText(lines.find((line) => /앱|서비스|플랫폼|에이전트|콘솔|도구|코치|매니저/.test(line)) ?? block, 150);
-    const target_user = findLabeledValue(block, ["타겟층", "타겟", "대상 사용자", "사용자"]) || inferText(block, "target");
-    const buyer = findLabeledValue(block, ["구매자", "BM", "비즈니스 모델", "타겟 고객"]) || inferText(block, "buyer");
-    const signal = findLabeledValue(block, ["페인 포인트", "문제", "수요", "핵심"]) || compactText(block, 180);
-    const risk_summary = findLabeledValue(block, ["리스크", "주의점", "제약"]) || inferText(block, "risk");
-    const next_evidence = findLabeledValue(block, ["다음 증거", "검증", "다음 단계"]) || inferText(block, "next");
-    const evidence = [
-      signal ? "문제 신호" : "",
-      oneLiner ? "솔루션 단서" : "",
-      target_user ? "타겟 단서" : "",
-      risk_summary ? "리스크 추론" : "",
-    ].filter(Boolean);
+  return splitIdeaBlocks(source)
+    .map((block, index) => {
+      const lines = block.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const rawName = findLabeledValue(block, ["아이디어", "서비스명", "앱"]) || stripLabel(lines[0] ?? `아이디어 ${index + 1}`);
+      const name = compactText(rawName.replace(/\(.+\)/, ""), 42) || `아이디어 ${index + 1}`;
+      const oneLiner =
+        findLabeledValue(block, ["솔루션", "기능", "핵심", "차별점"]) ||
+        compactText(lines.find((line) => /앱|서비스|플랫폼|에이전트|콘솔|도구|코치|매니저/.test(line)) ?? block, 150);
+      const target_user = findLabeledValue(block, ["타겟층", "타겟", "대상 사용자", "사용자"]) || inferText(block, "target");
+      const buyer = findLabeledValue(block, ["구매자", "BM", "비즈니스 모델", "타겟 고객"]) || inferText(block, "buyer");
+      const signal = findLabeledValue(block, ["페인 포인트", "문제", "수요", "핵심"]) || compactText(block, 180);
+      const risk_summary = findLabeledValue(block, ["리스크", "주의점", "제약"]) || inferText(block, "risk");
+      const next_evidence = findLabeledValue(block, ["다음 증거", "검증", "다음 단계"]) || inferText(block, "next");
+      const evidence = [
+        signal ? "문제 신호" : "",
+        oneLiner ? "솔루션 단서" : "",
+        target_user ? "타겟 단서" : "",
+        buyer ? "구매자 단서" : "",
+        risk_summary ? "리스크 추론" : "",
+      ].filter(Boolean);
+      const riskLevel = inferRiskLevel(block);
+      const validationScore = scoreExtractedIdea({
+        block,
+        evidenceCount: evidence.length,
+        riskLevel,
+        buyer,
+      });
+      const recommendation = inferRecommendation(validationScore, riskLevel);
+      const assumptions = inferAssumptions(block, name, target_user, buyer);
+      const validationQuestions = inferValidationQuestions(block, target_user, buyer);
 
-    return {
-      id: `${index}-${name}`,
-      name,
-      one_liner: oneLiner,
-      target_user,
-      buyer,
-      signal,
-      risk_summary,
-      next_evidence,
-      confidence: Math.min(95, 45 + evidence.length * 12 + Math.min(lines.length, 8)),
-      evidence,
-    };
-  });
+      return {
+        id: `${index}-${name}`,
+        name,
+        one_liner: oneLiner,
+        target_user,
+        buyer,
+        signal,
+        risk_summary,
+        next_evidence,
+        confidence: Math.min(95, 45 + evidence.length * 10 + Math.min(lines.length, 8)),
+        evidence,
+        validationScore,
+        riskLevel,
+        recommendation,
+        assumptions,
+        validationQuestions,
+        sevenDayExperiment: inferSevenDayExperiment(block, name),
+        killCriteria: inferKillCriteria(block),
+        firstPrototypeScope: inferFirstPrototypeScope(block),
+        pricingHypothesis: inferPricingHypothesis(block, buyer),
+        validationRationale:
+          riskLevel === "높음"
+            ? "수요가 보여도 규제, 권한, 책임 구조를 먼저 통과해야 합니다."
+            : "문제, 대상, 구매자, 첫 실험 단서가 있어 초기 검증 대상으로 볼 수 있습니다.",
+      };
+    })
+    .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
 }
 
 export function VentureConsoleActions({
@@ -301,6 +536,16 @@ export function VentureConsoleActions({
     () => activeMembers.filter((member) => member.role === "owner").length,
     [activeMembers],
   );
+  const recommendedExtractedIdea = useMemo(
+    () => extractedIdeas.reduce<ExtractedIdea | null>((best, idea) => {
+      if (!best) {
+        return idea;
+      }
+
+      return idea.validationScore > best.validationScore ? idea : best;
+    }, null),
+    [extractedIdeas],
+  );
   const consoleTasks: Array<{
     id: ConsoleActionTask;
     label: string;
@@ -321,8 +566,8 @@ export function VentureConsoleActions({
     },
     {
       id: "extract",
-      label: "아이디어 추출",
-      description: "대화와 메모에서 후보 아이디어를 뽑습니다.",
+      label: "아이디어 발굴",
+      description: "후보와 검증 계획을 만듭니다.",
       status: extractedIdeas.length > 0 ? `${extractedIdeas.length}개` : "붙여넣기",
     },
     {
@@ -837,11 +1082,13 @@ export function VentureConsoleActions({
       one_liner: candidate.one_liner,
       target_user: candidate.target_user,
       buyer: candidate.buyer,
-      signal: candidate.signal,
-      risk_summary: candidate.risk_summary,
-      next_evidence: candidate.next_evidence,
+      signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
+      risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
+      next_evidence: `7일 검증 실험\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+        "\n- ",
+      )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
     });
-    setSaveMessage(`'${candidate.name}' 후보를 입력 폼에 채웠습니다. 검토 후 저장하세요.`);
+    setSaveMessage(`'${candidate.name}' 후보를 검증 메모까지 포함해 입력 폼에 채웠습니다. 검토 후 저장하세요.`);
     updateActiveTask("idea");
   }
 
@@ -1185,9 +1432,9 @@ export function VentureConsoleActions({
         >
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-slate-950">자동 아이디어 추출</h2>
+              <h2 className="text-xl font-semibold text-slate-950">자동 아이디어 발굴</h2>
               <p className="mt-1 text-sm text-slate-500">
-                대화, 회의록, 메모를 붙여넣으면 앱 아이디어 후보를 구조화합니다.
+                대화, 회의록, 메모를 붙여넣으면 후보와 검증 계획을 함께 구조화합니다.
               </p>
             </div>
             <button
@@ -1196,7 +1443,7 @@ export function VentureConsoleActions({
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
               <Sparkles size={18} />
-              후보 추출
+              후보 발굴
             </button>
           </div>
 
@@ -1234,45 +1481,121 @@ export function VentureConsoleActions({
 
             <div className="grid content-start gap-3">
               {extractedIdeas.length > 0 ? (
-                extractedIdeas.map((candidate) => (
-                  <article key={candidate.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-base font-semibold text-slate-950">{candidate.name}</h3>
-                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-blue-700 shadow-sm">
-                            신뢰 {candidate.confidence}%
-                          </span>
+                <>
+                  {recommendedExtractedIdea ? (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">추천 후보</div>
+                      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <div className="text-base font-semibold text-blue-950">{recommendedExtractedIdea.name}</div>
+                          <p className="mt-1 text-sm leading-6 text-blue-900">
+                            검증 점수 {recommendedExtractedIdea.validationScore}/100 ·{" "}
+                            {recommendedExtractedIdea.recommendation}. {recommendedExtractedIdea.validationRationale}
+                          </p>
                         </div>
-                        <p className="mt-2 text-sm leading-6 text-slate-600">{candidate.one_liner}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => loadExtractedIdea(candidate)}
-                        className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
-                      >
-                        입력 폼으로 보내기
-                      </button>
-                    </div>
-                    <div className="mt-3 grid gap-3 md:grid-cols-2">
-                      <div className="rounded-md bg-white p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">대상</div>
-                        <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.target_user}</p>
-                      </div>
-                      <div className="rounded-md bg-white p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">구매자</div>
-                        <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.buyer}</p>
+                        <button
+                          type="button"
+                          onClick={() => loadExtractedIdea(recommendedExtractedIdea)}
+                          className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
+                        >
+                          추천 후보 보내기
+                        </button>
                       </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {candidate.evidence.map((item) => (
-                        <span key={item} className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
-                          {item}
+                  ) : null}
+
+                  {extractedIdeas.map((candidate) => (
+                    <article key={candidate.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-base font-semibold text-slate-950">{candidate.name}</h3>
+                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-blue-700 shadow-sm">
+                              검증 {candidate.validationScore}/100
+                            </span>
+                            <span
+                              className={`rounded-md px-2 py-1 text-xs font-semibold shadow-sm ${
+                                candidate.riskLevel === "높음"
+                                  ? "bg-rose-50 text-rose-700"
+                                  : candidate.riskLevel === "보통"
+                                    ? "bg-amber-50 text-amber-800"
+                                    : "bg-emerald-50 text-emerald-800"
+                              }`}
+                            >
+                              리스크 {candidate.riskLevel}
+                            </span>
+                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                              신뢰 {candidate.confidence}%
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-slate-600">{candidate.one_liner}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => loadExtractedIdea(candidate)}
+                          className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
+                        >
+                          입력 폼으로 보내기
+                        </button>
+                      </div>
+                      <div className="mt-3 grid gap-3 md:grid-cols-2">
+                        <div className="rounded-md bg-white p-3">
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">대상</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.target_user}</p>
+                        </div>
+                        <div className="rounded-md bg-white p-3">
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">구매자</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.buyer}</p>
+                        </div>
+                        <div className="rounded-md bg-white p-3">
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">핵심 가설</div>
+                          <ul className="mt-1 grid gap-1 text-sm leading-6 text-slate-700">
+                            {candidate.assumptions.map((item) => (
+                              <li key={item}>- {item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="rounded-md bg-white p-3">
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">검증 질문</div>
+                          <ul className="mt-1 grid gap-1 text-sm leading-6 text-slate-700">
+                            {candidate.validationQuestions.slice(0, 3).map((item) => (
+                              <li key={item}>- {item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="rounded-md bg-white p-3 md:col-span-2">
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">7일 실험</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.sevenDayExperiment}</p>
+                        </div>
+                        <div className="rounded-md bg-white p-3">
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">첫 프로토타입</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.firstPrototypeScope}</p>
+                        </div>
+                        <div className="rounded-md bg-white p-3">
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">중단 기준</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.killCriteria}</p>
+                        </div>
+                        <div className="rounded-md bg-white p-3 md:col-span-2">
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">가격/구매 가설</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.pricingHypothesis}</p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                          {candidate.recommendation}
                         </span>
-                      ))}
-                    </div>
-                  </article>
-                ))
+                        {candidate.evidence.map((item) => (
+                          <span
+                            key={item}
+                            className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </article>
+                  ))}
+                </>
               ) : (
                 <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
                   추출된 후보가 여기에 표시됩니다. 샘플을 넣어 흐름을 먼저 확인해도 좋습니다.
