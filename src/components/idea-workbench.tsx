@@ -247,6 +247,7 @@ const artifactSourceLabels: Record<string, string> = {
   workbench: "워크벤치",
   manual: "수동",
   evidence_capture: "근거 캡처",
+  experiment_result: "실험 결과",
   validation_sprint: "7일 검증 스프린트",
   development_process: "앱 개발 프로세스",
   development_report: "개발 완료 보고서",
@@ -299,6 +300,14 @@ type EvidenceDraft = {
   evidence: string;
   implication: string;
   confidence: EvidenceConfidence;
+};
+
+type ExperimentResultDraft = {
+  experiment_id: string;
+  result: string;
+  learning: string;
+  next_decision: DecisionStatus;
+  next_action: string;
 };
 
 type ImplementationTaskDraft = {
@@ -1040,6 +1049,54 @@ ${draft.implication || "미정"}
 ## 다음 행동
 
 ${state.next_evidence || "이 근거가 진행, 추가 조사, 전환, 중단 중 어떤 판단을 강화하는지 결정하세요."}
+`;
+}
+
+function buildExperimentResultMarkdown({
+  idea,
+  state,
+  experiment,
+  draft,
+}: {
+  idea: Idea;
+  state: EditState;
+  experiment: Experiment;
+  draft: ExperimentResultDraft;
+}) {
+  return `# 실험 결과: ${experiment.name}
+
+## 아이디어 맥락
+
+- 아이디어: ${idea.name}
+- 한 줄 설명: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+
+## 실험
+
+- 이름: ${experiment.name}
+- 상태: ${experimentStatusLabels[experiment.status] ?? experiment.status}
+- 성공 지표: ${experiment.success_metric || "미정"}
+- 시작: ${experiment.started_at || "미정"}
+- 종료: ${experiment.ended_at || "미정"}
+
+## 결과
+
+${draft.result || "미정"}
+
+## 배운 점
+
+${draft.learning || "미정"}
+
+## 다음 판단
+
+- ${decisionLabels[draft.next_decision]}
+
+## 다음 행동
+
+${draft.next_action || state.next_evidence || "다음 실험, PRD 수정, 리스크 완화, 중단/전환 중 하나를 기록하세요."}
 `;
 }
 
@@ -2701,6 +2758,13 @@ export function IdeaWorkbench({
     implication: "",
     confidence: "medium",
   });
+  const [experimentResultDraft, setExperimentResultDraft] = useState<ExperimentResultDraft>({
+    experiment_id: "",
+    result: "",
+    learning: "",
+    next_decision: "research_more",
+    next_action: "",
+  });
   const [runOutputs, setRunOutputs] = useState<Record<string, string>>(
     Object.fromEntries(initialOrchestrationRuns.map((run) => [run.id, run.output])),
   );
@@ -3004,6 +3068,21 @@ export function IdeaWorkbench({
         idea: selectedIdea,
         state: editState,
         draft: evidenceDraft,
+      })
+    : "";
+  const selectedExperimentForResult =
+    selectedExperiments.find((experiment) => experiment.id === experimentResultDraft.experiment_id) ??
+    selectedExperiments[0] ??
+    null;
+  const experimentResultNoteDraft = selectedIdea && editState && selectedExperimentForResult
+    ? buildExperimentResultMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        experiment: selectedExperimentForResult,
+        draft: {
+          ...experimentResultDraft,
+          experiment_id: selectedExperimentForResult.id,
+        },
       })
     : "";
   const prdDraft = selectedIdea && editState
@@ -3842,6 +3921,42 @@ export function IdeaWorkbench({
         evidence: "",
         implication: "",
         confidence: "medium",
+      });
+    }
+  }
+
+  async function saveExperimentResultNote(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!selectedExperimentForResult) {
+      setMessage("결과를 기록할 실험을 먼저 추가하세요.");
+      return;
+    }
+
+    if (!experimentResultDraft.result.trim()) {
+      setMessage("실험 결과를 입력하세요.");
+      return;
+    }
+
+    if (!experimentResultDraft.learning.trim()) {
+      setMessage("실험에서 배운 점을 입력하세요.");
+      return;
+    }
+
+    const saved = await saveArtifactDraft(
+      "research_note",
+      `${selectedExperimentForResult.name} 실험 결과`,
+      experimentResultNoteDraft,
+      "experiment_result",
+    );
+
+    if (saved) {
+      setExperimentResultDraft({
+        experiment_id: selectedExperimentForResult.id,
+        result: "",
+        learning: "",
+        next_decision: "research_more",
+        next_action: "",
       });
     }
   }
@@ -5407,6 +5522,90 @@ export function IdeaWorkbench({
               </div>
             )}
           </div>
+          <form onSubmit={saveExperimentResultNote} className="mt-6 rounded-lg border border-violet-100 bg-violet-50 p-4">
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-slate-950">실험 결과 기록</h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  완료한 실험의 결과와 배운 점을 리서치 노트로 남겨 다음 판단에 연결합니다.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => copyDraft(experimentResultNoteDraft, "실험 결과")}
+                disabled={!experimentResultNoteDraft}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white px-3 text-sm font-semibold text-violet-800 transition hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Clipboard size={16} />
+                결과 복사
+              </button>
+            </div>
+            <div className="grid gap-4">
+              <div className="grid gap-4 lg:grid-cols-2">
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  대상 실험
+                  <select
+                    value={selectedExperimentForResult?.id ?? ""}
+                    disabled={selectedExperiments.length === 0}
+                    onChange={(event) =>
+                      setExperimentResultDraft((current) => ({ ...current, experiment_id: event.target.value }))
+                    }
+                    className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-500"
+                  >
+                    {selectedExperiments.length > 0 ? (
+                      selectedExperiments.map((experiment) => (
+                        <option key={experiment.id} value={experiment.id}>
+                          {experiment.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">실험을 먼저 추가하세요</option>
+                    )}
+                  </select>
+                </label>
+                <SelectField
+                  label="다음 판단"
+                  value={experimentResultDraft.next_decision}
+                  options={decisions}
+                  labels={decisionLabels}
+                  disabled={selectedExperiments.length === 0}
+                  onChange={(value) =>
+                    setExperimentResultDraft((current) => ({ ...current, next_decision: value }))
+                  }
+                />
+              </div>
+              <div className="grid gap-4 lg:grid-cols-2">
+                <TextArea
+                  label="결과"
+                  value={experimentResultDraft.result}
+                  disabled={selectedExperiments.length === 0}
+                  onChange={(value) => setExperimentResultDraft((current) => ({ ...current, result: value }))}
+                />
+                <TextArea
+                  label="배운 점"
+                  value={experimentResultDraft.learning}
+                  disabled={selectedExperiments.length === 0}
+                  onChange={(value) => setExperimentResultDraft((current) => ({ ...current, learning: value }))}
+                />
+              </div>
+              <TextArea
+                label="다음 행동"
+                value={experimentResultDraft.next_action}
+                disabled={selectedExperiments.length === 0}
+                onChange={(value) => setExperimentResultDraft((current) => ({ ...current, next_action: value }))}
+              />
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isBusy || !user || selectedExperiments.length === 0}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-violet-700 px-4 text-sm font-semibold text-white transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Save size={18} />
+                  결과 저장
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
 
         <div

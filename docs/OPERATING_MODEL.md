@@ -20,6 +20,7 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - Research brief: generated `research_note` artifact in the workbench
 - 7-day validation sprint: generated `research_note` artifact with interview recruiting, alternatives, pricing, and decision criteria
 - Evidence note: manual `research_note` artifact for interviews, external sources, pricing signals, and competitor observations
+- Experiment result: manual `research_note` artifact for result, learning, next decision, and next action
 - Product requirements: `templates/PRD.md`
 - MVP scope: `templates/MVP_SPEC.md`
 - Technical spec: `templates/TECH_SPEC.md`
@@ -58,37 +59,39 @@ The app now supports the first live operating loop:
 10. Use the suggested decision and evidence gaps as an advisory gate before PRD.
 11. Save the generated idea brief, research brief, 7-day validation sprint, and at least one manual evidence note so problem evidence, alternatives, price, regulation, privacy checks, and field execution are explicit before PRD.
 12. Attach the next smallest experiment and success metric.
-13. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.
-14. Save each orchestration output and copy the generated PRD draft when the evidence is ready.
-15. Save generated briefs, research notes, and PRDs into the artifact library before moving to MVP scope.
-16. Generate and save the MVP spec, backend decision, design brief, technical spec, development runbook, and launch checklist before build or release work starts.
-17. Promote artifacts from draft to approved only after the relevant gates are complete.
-18. Use launch readiness to see which approved artifacts and gates still block build or release.
-19. Save revised artifacts as new versions instead of overwriting prior evidence.
-20. Record a status note when approving, reopening, or archiving an artifact.
-21. Compare revised artifacts against the previous version before promotion.
-22. Filter the artifact library by type and lifecycle status during review.
-23. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
-24. Route magic links through `/auth/callback` so Supabase auth codes become app sessions before returning home.
-25. Surface callback exchange failures in the operator card so auth setup issues can be fixed without guessing.
-26. Use phase-specific output templates so strategy, research, product, design, build, QA, debug, security, and launch work produces comparable notes.
-27. Show the next launch blocker beside readiness percentage so operators can act on the first gate that needs attention.
-28. Keep matching `.codex/agents/` role definitions for every orchestration phase so agent delegation mirrors the app runbook.
-29. Exchange root-level `?code=` magic link redirects on the client as a fallback when Supabase sends the code to `/` instead of `/auth/callback`.
-30. Let operators attach owned personal records to the active workspace after creating an organization boundary.
-31. Before development, write the technical boundary: Next.js server/client split, Supabase tables/RLS, Vercel envs, UI states, quality gates, smoke path, and rollback path.
-32. For each new app idea, choose the backend deliberately. Supabase remains the default for this lab, while Firebase is a strong option for mobile, realtime, Google Analytics/Crashlytics/Cloud Messaging, App Check, and Firebase SQL Connect/Postgres experiments.
-33. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
-34. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
-35. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
-36. Generate implementation tasks from approved or draft development artifacts before coding starts.
-37. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
-38. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
-39. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
-40. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
-41. Require completion evidence for every done implementation task before development can be considered complete.
-42. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
-43. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
-44. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
-45. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
-46. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
+13. Record experiment results as research notes so the next decision is based on what was learned, not only the plan.
+14. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.
+15. Save each orchestration output and copy the generated PRD draft when the evidence is ready.
+16. Save generated briefs, research notes, and PRDs into the artifact library before moving to MVP scope.
+17. Generate and save the MVP spec, backend decision, design brief, technical spec, development runbook, and launch checklist before build or release work starts.
+18. Promote artifacts from draft to approved only after the relevant gates are complete.
+19. Use launch readiness to see which approved artifacts and gates still block build or release.
+20. Save revised artifacts as new versions instead of overwriting prior evidence.
+21. Record a status note when approving, reopening, or archiving an artifact.
+22. Compare revised artifacts against the previous version before promotion.
+23. Filter the artifact library by type and lifecycle status during review.
+24. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
+25. Route magic links through `/auth/callback` so Supabase auth codes become app sessions before returning home.
+26. Surface callback exchange failures in the operator card so auth setup issues can be fixed without guessing.
+27. Use phase-specific output templates so strategy, research, product, design, build, QA, debug, security, and launch work produces comparable notes.
+28. Show the next launch blocker beside readiness percentage so operators can act on the first gate that needs attention.
+29. Keep matching `.codex/agents/` role definitions for every orchestration phase so agent delegation mirrors the app runbook.
+30. Exchange root-level `?code=` magic link redirects on the client as a fallback when Supabase sends the code to `/` instead of `/auth/callback`.
+31. Let operators attach owned personal records to the active workspace after creating an organization boundary.
+32. Before development, write the technical boundary: Next.js server/client split, Supabase tables/RLS, Vercel envs, UI states, quality gates, smoke path, and rollback path.
+33. For each new app idea, choose the backend deliberately. Supabase remains the default for this lab, while Firebase is a strong option for mobile, realtime, Google Analytics/Crashlytics/Cloud Messaging, App Check, and Firebase SQL Connect/Postgres experiments.
+34. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
+35. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
+36. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
+37. Generate implementation tasks from approved or draft development artifacts before coding starts.
+38. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
+39. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
+40. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
+41. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
+42. Require completion evidence for every done implementation task before development can be considered complete.
+43. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
+44. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
+45. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
+46. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
+47. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
+48. Capture experiment results as research notes so completed tests change the next decision and next action.

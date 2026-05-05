@@ -28,6 +28,7 @@ Use this checklist before merging meaningful changes.
 - Workbench clearly marks which ideas are editable by the current operator and which are read-only.
 - Authenticated operators can attach an experiment name and success metric to an idea.
 - Experiment owners can move experiments through planned, running, and done states.
+- Authenticated operators can save experiment result, learning, next decision, and next action as a `research_note` artifact.
 - Risk owners can move risks through open, mitigating, and closed states.
 - Authenticated operators can create an idea-level orchestration runbook and move runs through planned, running, blocked, done, and skipped states.
 - Run owners can save orchestration outputs and see those outputs reflected in the generated PRD draft.
