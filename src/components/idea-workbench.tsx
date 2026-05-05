@@ -248,6 +248,7 @@ const artifactSourceLabels: Record<string, string> = {
   manual: "수동",
   evidence_capture: "근거 캡처",
   experiment_result: "실험 결과",
+  validation_summary: "검증 완료 요약",
   validation_sprint: "7일 검증 스프린트",
   development_process: "앱 개발 프로세스",
   development_report: "개발 완료 보고서",
@@ -344,7 +345,7 @@ const artifactPanelLabels: Record<ArtifactPanel, string> = {
 };
 
 const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
-  validation: "아이디어 브리프, 리서치, 7일 스프린트, 근거, 실험 학습을 정리합니다.",
+  validation: "아이디어 브리프, 리서치, 7일 스프린트, 근거, 검증 완료 요약을 정리합니다.",
   product: "PRD, MVP 명세, 출시 체크리스트를 생성합니다.",
   library: "저장된 산출물을 필터링하고 승인 상태를 관리합니다.",
 };
@@ -1111,6 +1112,129 @@ ${draft.learning || "미정"}
 ## 다음 행동
 
 ${draft.next_action || state.next_evidence || "다음 실험, PRD 수정, 리스크 완화, 중단/전환 중 하나를 기록하세요."}
+`;
+}
+
+function buildValidationSummaryMarkdown({
+  idea,
+  state,
+  score,
+  recommendation,
+  risks,
+  experiments,
+  artifacts,
+  decisions,
+}: {
+  idea: Idea;
+  state: EditState;
+  score: number;
+  recommendation: DecisionStatus;
+  risks: Risk[];
+  experiments: Experiment[];
+  artifacts: VentureArtifact[];
+  decisions: Decision[];
+}) {
+  const researchArtifacts = artifacts.filter((artifact) => artifact.artifact_type === "research_note");
+  const riskLines =
+    risks.length > 0
+      ? risks
+          .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`)
+          .join("\n")
+      : "- 연결된 리스크가 없습니다.";
+  const experimentLines =
+    experiments.length > 0
+      ? experiments
+          .map(
+            (experiment) =>
+              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
+                experiment.success_metric || "성공 지표 미정"
+              }`,
+          )
+          .join("\n")
+      : "- 연결된 실험이 없습니다.";
+  const researchLines =
+    researchArtifacts.length > 0
+      ? researchArtifacts
+          .slice(0, 8)
+          .map((artifact) => `- ${artifact.title || "제목 없음"} (${artifactSourceLabels[artifact.source] ?? artifact.source})`)
+          .join("\n")
+      : "- 저장된 리서치 노트가 없습니다.";
+  const decisionLines =
+    decisions.length > 0
+      ? decisions
+          .slice(0, 5)
+          .map((decision) => `- ${decisionLabels[decision.decision]}: ${decision.reason || "근거 미기록"}`)
+          .join("\n")
+      : "- 판단 기록이 없습니다.";
+  const openHighRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+  const doneExperiments = experiments.filter((experiment) => experiment.status === "done");
+  const suggestedGate =
+    openHighRisks.length > 0
+      ? "추가 조사"
+      : doneExperiments.length > 0 && score >= 18
+        ? "진행"
+        : score >= 14
+          ? "추가 조사"
+          : "중단 또는 전환";
+
+  return `# 검증 완료 요약: ${idea.name}
+
+## 결론 초안
+
+- 추천 게이트: ${suggestedGate}
+- 점수 기반 추천: ${decisionLabels[recommendation]}
+- 현재 판단: ${decisionLabels[state.decision]}
+- 현재 단계: ${stageLabels[state.stage]}
+- 벤처 점수: ${score}
+- 다음 증거: ${state.next_evidence || "미정"}
+
+## 아이디어
+
+- 한 줄 설명: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+
+## 핵심 수요 신호
+
+${state.signal || "미정"}
+
+## 리서치/근거 산출물
+
+${researchLines}
+
+## 실험 상태
+
+${experimentLines}
+
+## 리스크 상태
+
+${riskLines}
+
+## 판단 기록
+
+${decisionLines}
+
+## 진행 조건
+
+- 리서치 노트가 1개 이상 저장되어 있다.
+- 실험이 완료되었거나, 완료 전이라면 다음 실험이 명확하다.
+- 높음/치명 리스크가 닫혔거나 수용 조건이 문서화되었다.
+- 구매자 또는 승인자가 명확하다.
+- PRD로 옮겨도 되는 문제 범위가 하나로 좁혀졌다.
+
+## 보류 조건
+
+- 최근 실제 사례가 부족하다.
+- 구매자, 가격, 승인 경로가 모호하다.
+- 실험은 계획만 있고 결과 학습이 없다.
+- 리스크가 열려 있는데 완화 조건이 없다.
+- MVP 범위가 아직 2주 이상 걸릴 만큼 넓다.
+
+## 최종 운영자 메모
+
+- 최종 판단:
+- 판단 근거:
+- 다음 행동:
 `;
 }
 
@@ -3098,6 +3222,18 @@ export function IdeaWorkbench({
           ...experimentResultDraft,
           experiment_id: selectedExperimentForResult.id,
         },
+      })
+    : "";
+  const validationSummaryDraft = selectedIdea && editState
+    ? buildValidationSummaryMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        score: currentScore,
+        recommendation: scoreRecommendation,
+        risks: selectedIdeaRisks,
+        experiments: selectedExperiments,
+        artifacts: selectedArtifactRecords,
+        decisions: selectedDecisions,
       })
     : "";
   const prdDraft = selectedIdea && editState
@@ -5882,6 +6018,53 @@ export function IdeaWorkbench({
               </button>
             </div>
           </form>
+        </div>
+
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
+          }`}
+        >
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">검증 완료 요약</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                저장된 근거, 실험, 리스크, 판단 기록을 묶어 PRD 진입 여부를 정리합니다.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => copyDraft(validationSummaryDraft, "검증 완료 요약")}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                <Clipboard size={18} />
+                요약 복사
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  saveArtifactDraft(
+                    "research_note",
+                    `${selectedIdea.name} 검증 완료 요약`,
+                    validationSummaryDraft,
+                    "validation_summary",
+                  )
+                }
+                disabled={isBusy || !user}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Save size={18} />
+                산출물 저장
+              </button>
+            </div>
+          </div>
+          <textarea
+            value={validationSummaryDraft}
+            readOnly
+            rows={16}
+            className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+          />
         </div>
 
         <div
