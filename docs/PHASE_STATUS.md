@@ -21,6 +21,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-05 | Added development handoff history hints | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added saved filtered implementation handoff artifacts | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added filtered implementation run prompts | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added filtered development backlog export | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
@@ -54,5 +55,5 @@ None required for the current unblocked work.
 
 ## Next Jobs
 
-1. Add development handoff history hints in the artifact library.
+1. Add saved-view metadata guidance for future task filters.
 2. Prepare GitHub Actions once workflow-scope access is available.

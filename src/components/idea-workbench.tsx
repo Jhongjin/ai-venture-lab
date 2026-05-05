@@ -374,6 +374,7 @@ const artifactSourceLabels: Record<string, string> = {
   validation_sprint: "7일 검증 스프린트",
   development_process: "앱 개발 프로세스",
   development_report: "개발 완료 보고서",
+  filtered_implementation_run: "필터 실행 프롬프트",
 };
 const evidenceConfidenceOptions = ["low", "medium", "high"] as const;
 type EvidenceConfidence = (typeof evidenceConfidenceOptions)[number];
@@ -3738,6 +3739,17 @@ export function IdeaWorkbench({
         .filter((artifact) => artifactStatusFilter === "all" || (artifact.status ?? "draft") === artifactStatusFilter)
         .slice(0, 8),
     [artifactStatusFilter, artifactTypeFilter, selectedArtifactRecords],
+  );
+  const recentDevelopmentHandoffArtifacts = useMemo(
+    () =>
+      selectedArtifactRecords
+        .filter(
+          (artifact) =>
+            artifact.artifact_type === "dev_runbook" &&
+            ["filtered_implementation_run", "development_process"].includes(artifact.source || ""),
+        )
+        .slice(0, 3),
+    [selectedArtifactRecords],
   );
   const selectedImplementationTasks = useMemo(
     () =>
@@ -7737,6 +7749,45 @@ export function IdeaWorkbench({
               </label>
             </div>
           </div>
+          {recentDevelopmentHandoffArtifacts.length > 0 ? (
+            <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50 p-4">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-blue-950">최근 개발 핸드오프</h3>
+                  <p className="mt-1 text-sm leading-6 text-blue-900">
+                    필터 실행 프롬프트와 개발 런북 저장본을 먼저 보여줍니다. 최신본을 복사해 다음 구현 루프에 넘기세요.
+                  </p>
+                </div>
+                <span className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-blue-800 shadow-sm">
+                  {recentDevelopmentHandoffArtifacts.length}개
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2 lg:grid-cols-3">
+                {recentDevelopmentHandoffArtifacts.map((artifact) => (
+                  <div key={artifact.id} className="rounded-md border border-blue-100 bg-white p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-slate-950">{artifact.title || "제목 없음"}</span>
+                      <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-800">
+                        v{artifact.version ?? 1}
+                      </span>
+                    </div>
+                    <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                      {artifactSourceLabels[artifact.source || "manual"] ?? artifact.source ?? "수동"} /{" "}
+                      {new Date(artifact.created_at).toLocaleDateString()}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard.writeText(artifact.body)}
+                      className="mt-3 inline-flex h-8 items-center justify-center gap-2 rounded-md bg-slate-950 px-2.5 text-xs font-semibold text-white transition hover:bg-slate-800"
+                    >
+                      <Clipboard size={14} />
+                      핸드오프 복사
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
           <div className="grid gap-3">
             {selectedArtifacts.length > 0 ? (
               selectedArtifacts.map((artifact) => {
@@ -7758,6 +7809,11 @@ export function IdeaWorkbench({
                           <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
                             v{artifact.version ?? 1}
                           </span>
+                          {artifact.source === "filtered_implementation_run" ? (
+                            <span className="rounded-md bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+                              필터 저장본
+                            </span>
+                          ) : null}
                         </div>
                         <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                           {artifactSourceLabels[artifact.source || "manual"] ?? artifact.source ?? "수동"} /{" "}
