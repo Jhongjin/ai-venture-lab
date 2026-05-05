@@ -1155,6 +1155,31 @@ ${rows || "| - | 후보 없음 | - | - | - | - | - |"}
 `;
 }
 
+function buildExtractionReportBody(items: ExtractionPortfolioItem[], source: string, organizationName: string | null) {
+  const sourceExcerpt = redactSensitiveSource(source).trim().slice(0, 4000);
+  const generatedAt = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+
+  return `${buildExtractionPortfolioMarkdown(items)}
+
+## 발굴 조건
+
+- 생성 시각: ${generatedAt}
+- 워크스페이스: ${organizationName ?? "개인 기록"}
+- 후보 수: ${items.length}개
+
+## 원문 근거 요약
+
+${sourceExcerpt || "원문 근거가 비어 있습니다."}
+
+## 다음 처리
+
+1. 진행 후보는 검증 패키지로 저장합니다.
+2. 추가 조사 후보는 부족한 증거를 보강한 뒤 다시 발굴합니다.
+3. 전환 검토 후보는 기존 아이디어 병합 또는 세그먼트 축소를 먼저 판단합니다.
+4. 중단 후보는 새 증거가 생길 때까지 실행 목록에서 제외합니다.
+`;
+}
+
 export function VentureConsoleActions({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
@@ -1193,6 +1218,8 @@ export function VentureConsoleActions({
   const [extractedIdeas, setExtractedIdeas] = useState<ExtractedIdea[]>([]);
   const [extractMessage, setExtractMessage] = useState<string | null>(null);
   const [isAiExtracting, setIsAiExtracting] = useState(false);
+  const [isSavingExtractionReport, setIsSavingExtractionReport] = useState(false);
+  const [extractionReports, setExtractionReports] = useState<VentureArtifact[]>([]);
   const [localActiveTask, setLocalActiveTask] = useState<ConsoleActionTask>("auth");
   const activeTask = controlledActiveTask ?? localActiveTask;
   const updateActiveTask = useCallback(
@@ -1387,6 +1414,30 @@ export function VentureConsoleActions({
     },
     [supabase],
   );
+  const loadExtractionReports = useCallback(
+    async (operator: User | null, organizationId = "") => {
+      if (!supabase || !operator) {
+        setExtractionReports([]);
+        return;
+      }
+
+      let query = supabase
+        .from("venture_artifacts")
+        .select("*")
+        .eq("source", "extraction_portfolio")
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      query = organizationId ? query.eq("organization_id", organizationId) : query.is("organization_id", null);
+
+      const { data, error } = await query;
+
+      if (!error) {
+        setExtractionReports(data ?? []);
+      }
+    },
+    [supabase],
+  );
 
   const loadWorkspaceData = useCallback(async (operator: User | null, preferredOrganizationId = "") => {
     if (!supabase || !operator) {
@@ -1531,6 +1582,16 @@ export function VentureConsoleActions({
       data.subscription.unsubscribe();
     };
   }, [loadWorkspaceData, router, supabase, updateActiveTask]);
+
+  useEffect(() => {
+    const reportTimer = window.setTimeout(() => {
+      void loadExtractionReports(user, activeOrganization?.id ?? "");
+    }, 0);
+
+    return () => {
+      window.clearTimeout(reportTimer);
+    };
+  }, [activeOrganization?.id, loadExtractionReports, user]);
 
   async function handleSignIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -1913,6 +1974,68 @@ export function VentureConsoleActions({
 
     await navigator.clipboard.writeText(extractionPortfolioMarkdown);
     setExtractMessage("후보 비교 실행 요약을 클립보드에 복사했습니다.");
+  }
+
+  async function copyExtractionReport(report: VentureArtifact) {
+    await navigator.clipboard.writeText(report.body);
+    setExtractMessage(`'${report.title || "발굴 리포트"}' 본문을 클립보드에 복사했습니다.`);
+  }
+
+  async function saveExtractionPortfolioReport() {
+    if (extractionPortfolioItems.length === 0) {
+      setExtractMessage("저장할 후보 비교 리포트가 없습니다. 먼저 후보를 발굴하세요.");
+      return;
+    }
+
+    if (!supabase) {
+      setExtractMessage("Supabase가 설정되어 있지 않습니다.");
+      return;
+    }
+
+    if (!user) {
+      setExtractMessage("발굴 리포트를 저장하려면 먼저 로그인하세요.");
+      return;
+    }
+
+    setIsSavingExtractionReport(true);
+    setExtractMessage(null);
+
+    const titleDate = new Date().toLocaleString("ko-KR", {
+      timeZone: "Asia/Seoul",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const { data, error } = await supabase
+      .from("venture_artifacts")
+      .insert({
+        idea_id: null,
+        organization_id: activeOrganization?.id ?? null,
+        artifact_type: "research_note",
+        status: "draft",
+        version: 1,
+        title: `아이디어 발굴 리포트 ${titleDate}`,
+        body: buildExtractionReportBody(extractionPortfolioItems, rawIdeaSource, activeOrganization?.name ?? null),
+        source: "extraction_portfolio",
+        status_note: "자동 아이디어 발굴 후보 비교와 원문 근거를 저장한 리포트입니다.",
+      })
+      .select()
+      .single();
+
+    setIsSavingExtractionReport(false);
+
+    if (error) {
+      setExtractMessage(error.message);
+      return;
+    }
+
+    setExtractionReports((current) => [data, ...current.filter((report) => report.id !== data.id)].slice(0, 3));
+    window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: data }));
+    setExtractMessage("발굴 리포트를 산출물 기록으로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
+    await loadPersonalRecordCount(user);
+    await loadWorkspaceData(user, activeOrganization?.id ?? "");
+    router.refresh();
   }
 
   function loadExtractedIdea(candidate: ExtractedIdea) {
@@ -2511,15 +2634,28 @@ export function VentureConsoleActions({
                           게이트, 준비도, 중복 위험을 함께 봐서 저장, 보강, 전환, 중단 순서를 정합니다.
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void copyExtractionPortfolio();
-                        }}
-                        className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-                      >
-                        실행 요약 복사
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void copyExtractionPortfolio();
+                          }}
+                          className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                        >
+                          실행 요약 복사
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void saveExtractionPortfolioReport();
+                          }}
+                          disabled={isSavingExtractionReport || !user}
+                          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {isSavingExtractionReport ? <RefreshCw className="animate-spin" size={16} /> : <ClipboardList size={16} />}
+                          리포트 저장
+                        </button>
+                      </div>
                     </div>
                     <div className="mt-4 grid gap-2 sm:grid-cols-4">
                       {([
@@ -2565,6 +2701,37 @@ export function VentureConsoleActions({
                         </div>
                       ))}
                     </div>
+                    {extractionReports.length > 0 ? (
+                      <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                          최근 저장 리포트
+                        </div>
+                        <div className="mt-2 grid gap-2">
+                          {extractionReports.map((report) => (
+                            <div
+                              key={report.id}
+                              className="flex flex-col gap-2 rounded-md bg-white p-3 sm:flex-row sm:items-center sm:justify-between"
+                            >
+                              <div>
+                                <div className="text-sm font-semibold text-slate-950">{report.title || "발굴 리포트"}</div>
+                                <div className="mt-0.5 text-xs text-slate-500">
+                                  {new Date(report.created_at).toLocaleDateString()} · {report.status === "approved" ? "승인" : "초안"}
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  void copyExtractionReport(report);
+                                }}
+                                className="inline-flex h-9 items-center justify-center rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                              >
+                                본문 복사
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
 
                   {extractedIdeas.map((candidate) => {

@@ -131,7 +131,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: [
       "대화 원문 붙여넣기",
       "후보 발굴 실행",
-      "검증 점수와 리스크 확인",
+      "후보 비교 매트릭스와 게이트 확인",
+      "발굴 리포트를 저장해 원문과 판단 근거 보존",
       "좋은 후보를 입력 폼으로 보내거나 검증 패키지로 바로 저장",
     ],
   },

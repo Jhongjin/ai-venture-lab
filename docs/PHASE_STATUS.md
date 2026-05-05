@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Added saved extraction portfolio reports | Current commit | Pending production deploy | `pnpm quality:full` |
 | 2026-05-06 | Added extraction candidate comparison matrix | Current commit | Pending production deploy | `pnpm lint`, `pnpm typecheck` |
 | 2026-05-06 | Added optional OpenAI-backed idea extraction with local fallback | Current commit | Pending production deploy | `pnpm quality:full`, local `pnpm smoke:routes` |
 | 2026-05-05 | Added artifact source filtering | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
@@ -64,6 +65,6 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 
 ## Next Jobs
 
-1. Add extraction history and candidate comparison artifacts so each source note can be audited later.
+1. Add stronger validation sprint evidence prompts and scoring hints.
 2. Add browser-level interactive smoke before a public beta.
 3. Prepare GitHub Actions once workflow-scope access is available.
