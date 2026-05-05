@@ -348,6 +348,7 @@ export type WorkbenchTask =
   | "launch";
 
 type ArtifactPanel = "validation" | "product" | "library";
+type DevelopmentPanel = "setup" | "tasks" | "handoff";
 
 const artifactPanelLabels: Record<ArtifactPanel, string> = {
   validation: "검증 산출물",
@@ -359,6 +360,18 @@ const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
   validation: "아이디어 브리프, 리서치, 7일 스프린트, 근거, 검증 완료 요약을 정리합니다.",
   product: "PRD, MVP 명세, 출시 체크리스트를 생성합니다.",
   library: "저장된 산출물을 필터링하고 승인 상태를 관리합니다.",
+};
+
+const developmentPanelLabels: Record<DevelopmentPanel, string> = {
+  setup: "준비와 산출물",
+  tasks: "개발 태스크",
+  handoff: "완료와 핸드오프",
+};
+
+const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
+  setup: "백엔드, 디자인, 개발 착수 게이트와 주요 개발 산출물을 정리합니다.",
+  tasks: "구현 작업을 상태별로 쪼개고 완료 증거를 기록합니다.",
+  handoff: "개발 완료 게이트, 실행 계획, Codex 구현 프롬프트를 확인합니다.",
 };
 
 function sortWorkbenchIdeas(nextIdeas: Idea[]) {
@@ -3071,6 +3084,7 @@ export function IdeaWorkbench({
   const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
   const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>("score");
   const [artifactPanel, setArtifactPanel] = useState<ArtifactPanel>("validation");
+  const [developmentPanel, setDevelopmentPanel] = useState<DevelopmentPanel>("setup");
   const activeTask = controlledActiveTask ?? localActiveTask;
   const updateActiveTask = useCallback((task: WorkbenchTask) => {
     setLocalActiveTask(task);
@@ -5288,6 +5302,27 @@ export function IdeaWorkbench({
             <Code2 className="text-blue-600" size={22} />
           </div>
 
+          <div className="mb-5 rounded-lg bg-slate-100 p-1">
+            <div className="grid gap-1 sm:grid-cols-3">
+              {(Object.keys(developmentPanelLabels) as DevelopmentPanel[]).map((panel) => (
+                <button
+                  key={panel}
+                  type="button"
+                  onClick={() => setDevelopmentPanel(panel)}
+                  className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                    developmentPanel === panel
+                      ? "bg-white text-slate-950 shadow-sm"
+                      : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
+                  }`}
+                >
+                  {developmentPanelLabels[panel]}
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="mb-5 text-sm leading-6 text-slate-600">{developmentPanelDescriptions[developmentPanel]}</p>
+
+          <div className={developmentPanel === "setup" ? "" : "hidden"}>
           <div className="grid gap-3 lg:grid-cols-4">
             {[
               ["기획", "PRD, MVP 범위, 성공 지표, 제외 범위를 확정합니다."],
@@ -5444,8 +5479,13 @@ export function IdeaWorkbench({
               </div>
             ))}
           </div>
+          </div>
 
-          <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <div
+            className={`mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4 ${
+              developmentPanel === "tasks" ? "" : "hidden"
+            }`}
+          >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h3 className="text-base font-semibold text-slate-950">개발 태스크 보드</h3>
@@ -5681,6 +5721,7 @@ export function IdeaWorkbench({
             ) : null}
           </div>
 
+          <div className={developmentPanel === "handoff" ? "" : "hidden"}>
           <div className="mt-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -5791,6 +5832,7 @@ export function IdeaWorkbench({
               rows={14}
               className="mt-4 w-full resize-y rounded-md border border-blue-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
             />
+          </div>
           </div>
         </div>
 
