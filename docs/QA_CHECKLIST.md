@@ -22,6 +22,8 @@ Use this checklist before merging meaningful changes.
 - Production smoke is run after deploy for user-facing workflow changes.
 - Security and privacy risks are updated.
 - Decision log is updated for major changes.
+- Agent loop reports distinguish completed, skipped optional, deferred, and externally blocked work before moving to the next job.
+- Completed repository changes are committed and pushed before starting the next independent job.
 - Authenticated operators can create an idea and then update its stage, score, risks, and decision records.
 - Operators can paste conversation notes into idea discovery and extract candidate ideas with validation score, risk level, assumptions, validation questions, 7-day experiment, success metric, kill criteria, prototype scope, and pricing hypothesis.
 - Extracted candidates show the source excerpt that produced the candidate so operators can audit the generated brief before saving.

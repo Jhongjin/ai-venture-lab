@@ -11,6 +11,8 @@ This repository is an operating system for turning raw app ideas into validated 
 ## Working Agreements
 
 - Start every non-trivial task by identifying the current phase: strategy, research, product, design, build, QA, debug, security, or launch.
+- Run work in loops: finish a coherent job, report the result, commit and push, then move to the next job until the current phase is complete.
+- Skip optional work when it is not needed for the current phase; carry non-skippable external work as a named next user action and continue with unblocked work.
 - Keep `AGENTS.md` short. Put durable knowledge in `docs/`, repeatable workflows in `.agents/skills/`, and deterministic checks in `scripts/`.
 - Use `docs/DECISION_LOG.md` for durable product and technical decisions.
 - Use `docs/RISK_REGISTER.md` for legal, privacy, security, medical, financial, or operational risks.
@@ -46,7 +48,16 @@ This repository is an operating system for turning raw app ideas into validated 
 - Important decisions and risks are logged.
 - Code changes pass `pnpm quality:full` when they touch product behavior, harness logic, or deployment flow.
 - Production deployments pass `pnpm smoke:prod`.
-- Any skipped verification is explicitly reported with the reason.
+- Any skipped task or verification is explicitly reported with the reason and whether it is optional, blocked, or deferred.
+
+## Loop Discipline
+
+- Finish one coherent job before starting the next one.
+- Report after each job with changed surface, validation, commit hash, deployment state, and next job.
+- Commit and push every completed job that changes repository state.
+- Deploy user-facing changes to Vercel and run production smoke.
+- If SQL, external dashboard work, credentials, or user confirmation is required, state the exact action and continue with tasks that do not depend on it.
+- Do not wait on optional cleanup, polish, or broad refactors when the current phase can advance safely without them.
 
 ## UI Standards
 

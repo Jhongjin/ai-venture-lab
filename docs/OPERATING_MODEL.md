@@ -56,6 +56,19 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - No sensitive feature without explicit data handling notes.
 - No factual market or regulatory claim without a source.
 
+## Agent Work Loop
+
+Use this loop for every implementation or harness phase:
+
+1. Pick one coherent next job that advances the active phase.
+2. Skip optional work that is not required for the phase outcome.
+3. If a non-skippable item needs SQL, dashboard setup, credentials, or user confirmation, record it as the next user action and continue with independent work.
+4. Complete the job, run the right quality gates, and update docs or decision logs.
+5. Report the completed job, skipped/deferred work, validation result, and next job.
+6. Commit and push the completed job.
+7. Deploy and production-smoke user-facing changes.
+8. Repeat until the phase gate is complete or the only remaining work is blocked by a named external action.
+
 ## Console Loop
 
 The app now supports the first live operating loop:
