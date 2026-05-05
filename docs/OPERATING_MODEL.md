@@ -42,6 +42,7 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - No implementation without a technical boundary and verification plan.
 - No implementation without a saved backend decision, design brief, technical spec, and development runbook.
 - No backend commitment without comparing Supabase, Firebase, Firebase SQL Connect, or hybrid fit.
+- No backend decision artifact without checking the app development backend scorecard.
 - No launch without QA and security review.
 - No sensitive feature without explicit data handling notes.
 - No factual market or regulatory claim without a source.
@@ -86,19 +87,20 @@ The app now supports the first live operating loop:
 34. Let operators attach owned personal records to the active workspace after creating an organization boundary.
 35. Before development, write the technical boundary: Next.js server/client split, Supabase tables/RLS, Vercel envs, UI states, quality gates, smoke path, and rollback path.
 36. For each new app idea, choose the backend deliberately. Supabase remains the default for this lab, while Firebase is a strong option for mobile, realtime, Google Analytics/Crashlytics/Cloud Messaging, App Check, and Firebase SQL Connect/Postgres experiments.
-37. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
-38. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
-39. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
-40. Generate implementation tasks from approved or draft development artifacts before coding starts.
-41. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
-42. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
-43. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
-44. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
-45. Require completion evidence for every done implementation task before development can be considered complete.
-46. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
-47. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
-48. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
-49. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
-50. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
-51. Capture experiment results as research notes so completed tests change the next decision and next action.
-52. Use the validation summary to decide whether the next artifact should be PRD, another experiment, a pivot, or an explicit kill decision.
+37. Use the backend scorecard to compare Supabase, Firebase, Firebase SQL Connect, and Hybrid before saving the backend decision artifact.
+38. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
+39. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
+40. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
+41. Generate implementation tasks from approved or draft development artifacts before coding starts.
+42. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
+43. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
+44. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
+45. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
+46. Require completion evidence for every done implementation task before development can be considered complete.
+47. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
+48. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
+49. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
+50. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
+51. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
+52. Capture experiment results as research notes so completed tests change the next decision and next action.
+53. Use the validation summary to decide whether the next artifact should be PRD, another experiment, a pivot, or an explicit kill decision.

@@ -51,6 +51,17 @@ AI Venture Lab itself stays on Supabase for now because it already uses Postgres
 | Hosting | Vercel-first Next.js | Firebase App Hosting or Google Cloud-centered |
 | AI/agent workflow | SQL/RLS plus app code | Firebase Genkit, SQL Connect, Google AI integration |
 
+## Scorecard Signals
+
+The app development panel scores four candidates: Supabase, Firebase, Firebase SQL Connect, and Hybrid.
+
+- Supabase score rises when the idea mentions operations, consoles, centers, approvals, permissions, workflow, reports, audits, B2B, SQL, or relational data.
+- Firebase score rises when the idea mentions mobile, iOS, Android, native apps, push, notifications, camera, location, realtime, chat, sync, offline, analytics, Crashlytics, Remote Config, Test Lab, App Check, or Google ecosystem needs.
+- Firebase SQL Connect score rises when PostgreSQL and Firebase/Google client SDK advantages are both relevant.
+- Hybrid score rises only when relational operations and mobile/realtime product experience are both central enough to justify extra complexity.
+
+Treat the score as an advisory prompt, not an automatic architecture decision. The final backend decision artifact must still record auth boundary, data authorization boundary, local development, deployment, rollback, and exit plan.
+
 ## Required Output
 
 Every technical spec must include a backend choice:
