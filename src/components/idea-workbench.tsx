@@ -2757,28 +2757,47 @@ function buildImplementationBacklogMarkdown({
   idea,
   state,
   tasks,
+  viewName = "열린 태스크",
+  filterSummary = "상태: 완료 제외 / 담당: 전체 / 증거: 전체",
+  evidenceByTaskId = {},
+  emptyMessage = "대상 개발 태스크가 없습니다.",
 }: {
   idea: Idea;
   state: EditState;
   tasks: ImplementationTask[];
+  viewName?: string;
+  filterSummary?: string;
+  evidenceByTaskId?: Record<string, string>;
+  emptyMessage?: string;
 }) {
   const lines =
     tasks.length > 0
       ? sortImplementationTasksForAction(tasks)
           .map(
-            (task, index) =>
-              `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${implementationTaskStatusLabels[task.status]} / ${task.owner_role || "owner 미정"}`,
+            (task, index) => {
+              const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
+              const checklist = getImplementationEvidenceChecklist(task, evidence);
+              const passedCount = checklist.filter((item) => item.passed).length;
+              const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+
+              return [
+                `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${implementationTaskStatusLabels[task.status]} / ${task.owner_role || "owner 미정"} / 증거 ${passedCount}/${checklist.length}`,
+                `   - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n     ") || "미정"}`,
+                `   - 증거 공백: ${missingLabels.length > 0 ? missingLabels.join(", ") : "없음"}`,
+              ].join("\n");
+            },
           )
           .join("\n")
-      : "열린 개발 태스크가 없습니다.";
+      : emptyMessage;
 
-  return `# 개발 백로그: ${idea.name}
+  return `# 개발 백로그: ${idea.name} - ${viewName}
 
 ## 제품 상태
 
 - 한 줄 설명: ${idea.one_liner || "미정"}
 - 현재 단계: ${stageLabels[state.stage]}
 - 현재 판단: ${decisionLabels[state.decision]}
+- 보기: ${filterSummary}
 
 ## 열린 태스크 우선순위
 
@@ -3951,6 +3970,23 @@ export function IdeaWorkbench({
         idea: selectedIdea,
         state: editState,
         tasks: selectedOpenImplementationTasks,
+        viewName: "열린 태스크",
+        filterSummary: "상태: 완료 제외 / 담당: 전체 / 증거: 전체",
+        evidenceByTaskId: implementationTaskEvidence,
+        emptyMessage: "열린 개발 태스크가 없습니다.",
+      })
+    : "";
+  const filteredImplementationBacklogDraft = selectedIdea && editState
+    ? buildImplementationBacklogMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        tasks: filteredImplementationTasks,
+        viewName: "필터된 태스크",
+        filterSummary: `상태: ${implementationStatusFilterLabels[implementationStatusFilter]} / 담당: ${
+          implementationOwnerFilterLabels[activeImplementationOwnerFilter]
+        } / 증거: ${implementationEvidenceFilterLabels[implementationEvidenceFilter]}`,
+        evidenceByTaskId: implementationTaskEvidence,
+        emptyMessage: "현재 필터 조건에 맞는 개발 태스크가 없습니다.",
       })
     : "";
   const implementationTaskDrafts = selectedIdea && editState
@@ -6140,7 +6176,7 @@ export function IdeaWorkbench({
                       className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 transition hover:bg-blue-50"
                     >
                       <ClipboardList size={15} />
-                      백로그 복사
+                      열린 백로그
                     </button>
                   </div>
                 </div>
@@ -6247,7 +6283,7 @@ export function IdeaWorkbench({
                     표시 {filteredImplementationTasks.length}/{selectedImplementationTasks.length}
                   </div>
                 </div>
-                <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr_1fr_auto]">
+                <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr_1fr_auto_auto]">
                   <SelectField
                     label="상태"
                     value={implementationStatusFilter}
@@ -6280,6 +6316,16 @@ export function IdeaWorkbench({
                       className="inline-flex h-11 w-full items-center justify-center rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:w-auto"
                     >
                       초기화
+                    </button>
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(filteredImplementationBacklogDraft, "필터된 개발 백로그")}
+                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 lg:w-auto"
+                    >
+                      <ClipboardList size={15} />
+                      필터 복사
                     </button>
                   </div>
                 </div>

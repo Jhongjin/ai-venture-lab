@@ -21,6 +21,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-05 | Added filtered development backlog export | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added implementation task board filters | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added blocked-task owner and next-action hints | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added evidence-priority summary for implementation tasks | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
@@ -51,5 +52,5 @@ None required for the current unblocked work.
 
 ## Next Jobs
 
-1. Add filtered development backlog export so narrowed views can be copied into Codex or issue trackers.
+1. Add role-specific implementation run prompts for filtered task handoff.
 2. Prepare GitHub Actions once workflow-scope access is available.
