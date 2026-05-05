@@ -114,6 +114,17 @@ const implementationTaskStatusLabels: Record<ImplementationTaskStatus, string> =
   blocked: "차단",
   done: "완료",
 };
+const implementationStatusFilterOptions: ImplementationStatusFilter[] = ["all", ...implementationTaskStatuses];
+const implementationStatusFilterLabels: Record<ImplementationStatusFilter, string> = {
+  all: "전체 상태",
+  ...implementationTaskStatusLabels,
+};
+const implementationEvidenceFilterOptions: ImplementationEvidenceFilter[] = ["all", "missing", "complete"];
+const implementationEvidenceFilterLabels: Record<ImplementationEvidenceFilter, string> = {
+  all: "전체 증거",
+  missing: "증거 공백 있음",
+  complete: "증거 힌트 충족",
+};
 const implementationTaskStatusTone: Record<ImplementationTaskStatus, string> = {
   todo: "bg-slate-100 text-slate-700",
   doing: "bg-blue-100 text-blue-800",
@@ -155,6 +166,8 @@ type EvidenceRequirement = {
   label: string;
   terms: string[];
 };
+type ImplementationStatusFilter = ImplementationTaskStatus | "all";
+type ImplementationEvidenceFilter = "all" | "missing" | "complete";
 const sharedImplementationEvidenceRequirements: EvidenceRequirement[] = [
   { label: "커밋/PR", terms: ["commit", "커밋", "PR", "pull request"] },
   { label: "검증 결과", terms: ["pnpm", "lint", "typecheck", "build", "quality", "검증"] },
@@ -2666,6 +2679,10 @@ function getImplementationEvidenceChecklist(task: ImplementationTask, evidence: 
   }));
 }
 
+function getImplementationTaskOwnerRole(task: ImplementationTask) {
+  return task.owner_role.trim() || "owner 미정";
+}
+
 function getBlockedImplementationTaskHint(task: ImplementationTask) {
   const playbook = implementationBlockerPlaybooks[task.task_type];
 
@@ -3438,6 +3455,9 @@ export function IdeaWorkbench({
   const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>("score");
   const [artifactPanel, setArtifactPanel] = useState<ArtifactPanel>("validation");
   const [developmentPanel, setDevelopmentPanel] = useState<DevelopmentPanel>("setup");
+  const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
+  const [implementationOwnerFilter, setImplementationOwnerFilter] = useState("all");
+  const [implementationEvidenceFilter, setImplementationEvidenceFilter] = useState<ImplementationEvidenceFilter>("all");
   const activeTask = controlledActiveTask ?? localActiveTask;
   const updateActiveTask = useCallback((task: WorkbenchTask) => {
     setLocalActiveTask(task);
@@ -3668,6 +3688,49 @@ export function IdeaWorkbench({
         ),
     [implementationTaskEvidence, selectedImplementationTasks],
   );
+  const implementationOwnerOptions = useMemo(
+    () =>
+      ["all", ...Array.from(new Set(selectedImplementationTasks.map((task) => getImplementationTaskOwnerRole(task)))).sort((a, b) =>
+        a.localeCompare(b),
+      )],
+    [selectedImplementationTasks],
+  );
+  const implementationOwnerFilterLabels = useMemo(
+    () =>
+      Object.fromEntries(
+        implementationOwnerOptions.map((option) => [option, option === "all" ? "전체 담당" : option]),
+      ) as Record<string, string>,
+    [implementationOwnerOptions],
+  );
+  const activeImplementationOwnerFilter = implementationOwnerOptions.includes(implementationOwnerFilter)
+    ? implementationOwnerFilter
+    : "all";
+  const filteredImplementationTasks = useMemo(
+    () =>
+      selectedImplementationTasks.filter((task) => {
+        const currentEvidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
+        const hasEvidenceGap = getImplementationEvidenceChecklist(task, currentEvidence).some((item) => !item.passed);
+        const matchesStatus = implementationStatusFilter === "all" || task.status === implementationStatusFilter;
+        const matchesOwner =
+          activeImplementationOwnerFilter === "all" || getImplementationTaskOwnerRole(task) === activeImplementationOwnerFilter;
+        const matchesEvidence =
+          implementationEvidenceFilter === "all" ||
+          (implementationEvidenceFilter === "missing" && hasEvidenceGap) ||
+          (implementationEvidenceFilter === "complete" && !hasEvidenceGap);
+
+        return matchesStatus && matchesOwner && matchesEvidence;
+      }),
+    [
+      activeImplementationOwnerFilter,
+      implementationEvidenceFilter,
+      implementationTaskEvidence,
+      implementationStatusFilter,
+      selectedImplementationTasks,
+    ],
+  );
+  const visibleImplementationStatuses =
+    implementationStatusFilter === "all" ? implementationTaskStatuses : [implementationStatusFilter];
+
   const artifactVersionSummaries = useMemo(() => {
     const summaries = new Map<string, { previous: VentureArtifact; added: number; removed: number }>();
 
@@ -6171,9 +6234,68 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
-            <div className="mt-4 grid gap-3 xl:grid-cols-4">
-              {implementationTaskStatuses.map((status) => {
-                const tasksInStatus = selectedImplementationTasks.filter((task) => task.status === status);
+            {selectedImplementationTasks.length > 0 ? (
+              <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-950">태스크 필터</h4>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      상태, 담당 역할, 증거 품질을 좁혀서 현재 처리할 카드만 봅니다.
+                    </p>
+                  </div>
+                  <div className="rounded-md bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
+                    표시 {filteredImplementationTasks.length}/{selectedImplementationTasks.length}
+                  </div>
+                </div>
+                <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr_1fr_auto]">
+                  <SelectField
+                    label="상태"
+                    value={implementationStatusFilter}
+                    options={implementationStatusFilterOptions}
+                    labels={implementationStatusFilterLabels}
+                    onChange={setImplementationStatusFilter}
+                  />
+                  <SelectField
+                    label="담당"
+                    value={activeImplementationOwnerFilter}
+                    options={implementationOwnerOptions}
+                    labels={implementationOwnerFilterLabels}
+                    onChange={setImplementationOwnerFilter}
+                  />
+                  <SelectField
+                    label="증거"
+                    value={implementationEvidenceFilter}
+                    options={implementationEvidenceFilterOptions}
+                    labels={implementationEvidenceFilterLabels}
+                    onChange={setImplementationEvidenceFilter}
+                  />
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImplementationStatusFilter("all");
+                        setImplementationOwnerFilter("all");
+                        setImplementationEvidenceFilter("all");
+                      }}
+                      className="inline-flex h-11 w-full items-center justify-center rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:w-auto"
+                    >
+                      초기화
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {selectedImplementationTasks.length > 0 && filteredImplementationTasks.length === 0 ? (
+              <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                현재 필터 조건에 맞는 태스크가 없습니다. 필터를 초기화하거나 다른 조건으로 좁혀 보세요.
+              </div>
+            ) : null}
+
+            {filteredImplementationTasks.length > 0 ? (
+              <div className="mt-4 grid gap-3 xl:grid-cols-4">
+                {visibleImplementationStatuses.map((status) => {
+                  const tasksInStatus = filteredImplementationTasks.filter((task) => task.status === status);
 
                 return (
                   <section key={status} className="min-h-44 rounded-lg border border-slate-200 bg-white p-3">
@@ -6282,7 +6404,8 @@ export function IdeaWorkbench({
                   </section>
                 );
               })}
-            </div>
+              </div>
+            ) : null}
 
             {selectedImplementationTasks.length === 0 ? (
               <p className="mt-3 text-sm leading-6 text-slate-600">

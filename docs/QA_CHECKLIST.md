@@ -63,6 +63,7 @@ Use this checklist before merging meaningful changes.
 - Implementation task cards show evidence quality hints by task type before owners mark work done.
 - Implementation task board shows a prioritized list of tasks with missing evidence hints.
 - Blocked implementation tasks show owner, next-action, unblock-evidence, and escalation hints.
+- Operators can filter implementation task cards by status, owner role, and evidence gaps.
 - Release task evidence includes Preview/Production URL, Vercel inspect URL or deploy logs, rollback criteria, and production smoke results.
 - Backend task evidence includes Supabase RLS or Firebase Security Rules/IAM allowed and denied checks.
 - Launch readiness requires implementation tasks to exist, have no blocked tasks, all be done, and all done tasks have evidence.
