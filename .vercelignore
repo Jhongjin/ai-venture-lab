@@ -1,0 +1,8 @@
+# Do not upload local environment files through Vercel CLI deploys.
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+.env.test
+.env.example

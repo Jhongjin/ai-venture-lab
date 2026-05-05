@@ -16,6 +16,7 @@ $required = @(
   "templates/DEV_RUNBOOK.md",
   "templates/DESIGN_BRIEF.md",
   "DESIGN.md",
+  ".vercelignore",
   ".env.example",
   "supabase/bootstrap.sql",
   "supabase/migrations/20260503000000_initial_harness.sql",
