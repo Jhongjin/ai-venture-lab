@@ -30,17 +30,27 @@ This repository is an operating system for turning raw app ideas into validated 
 
 ## Default Workflow
 
-1. Intake the idea with `templates/IDEA_BRIEF.md`.
-2. Research market, user pain, competitors, and regulation.
-3. Score with `scripts/score_idea.ps1`.
-4. Write an MVP PRD only after the idea passes the score gate.
-5. Build the smallest testable prototype.
-6. Run `pnpm quality` and update docs before completion.
-7. End with one decision: `ship`, `pivot`, `kill`, or `research_more`.
+1. Start in the console flow: auth, workspace, idea extraction or manual intake.
+2. Use automatic idea discovery for pasted conversations, then check duplicates, validation readiness, and redacted source excerpts before saving a validation package.
+3. Score the selected idea, attach risks, record decisions, and create the smallest experiment.
+4. Save durable validation artifacts: idea brief, research brief, 7-day validation sprint, evidence notes, experiment result, and validation summary.
+5. Promote to PRD only after checking PRD readiness.
+6. Move to app development only after saving or approving MVP spec, backend decision, design brief, technical spec, development runbook, and implementation tasks.
+7. Use the role prompt pack and Codex implementation handoff when splitting strategy, research, product, design, build, QA, debug, security, and launch work.
+8. Use the shell priority candidates to choose what to clear next: risk, experiment, validation, or development.
+9. End with one decision: `ship`, `pivot`, `kill`, or `research_more`.
 
 ## Done Means
 
 - The requested artifact exists in the right folder.
 - Important decisions and risks are logged.
-- Code changes pass `pnpm lint`, `pnpm typecheck`, and, when feasible, `pnpm build`.
+- Code changes pass `pnpm quality:full` when they touch product behavior, harness logic, or deployment flow.
+- Production deployments pass `pnpm smoke:prod`.
 - Any skipped verification is explicitly reported with the reason.
+
+## UI Standards
+
+- Keep the app as an operator console: left step menu, right task surface, compact forms, visible next action.
+- Avoid long-scroll workflows when a tab, sub-panel, or sidebar status can preserve context.
+- Show empty, loading, success, error, permission, read-only, desktop, and mobile states for user-facing changes.
+- Never persist raw source excerpts that may contain obvious contact or identifier patterns; use the extraction redaction path.

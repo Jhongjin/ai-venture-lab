@@ -70,6 +70,7 @@ Use this checklist before merging meaningful changes.
 - Launch readiness shows both percent complete and the next blocking gate.
 - `.codex/agents/` includes matching strategy, research, product, design, build, QA, debug, security, and launch role definitions.
 - `.agents/skills/app-development-orchestrator` reflects the app development tabs, readiness gates, backend scorecard, task board, QA/security, deployment, and Codex handoff workflow.
+- `AGENTS.md` reflects extraction, validation packages, artifacts, app development gates, role prompt pack, priority candidates, `pnpm quality:full`, and production smoke expectations.
 - Root-level magic link redirects with `?code=` are exchanged into a session and the URL is cleaned.
 - Operators can attach owned personal records to a newly created workspace.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

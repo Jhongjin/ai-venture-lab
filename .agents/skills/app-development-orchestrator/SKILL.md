@@ -21,6 +21,7 @@ Use this skill when an idea has enough evidence to become a product slice. Keep 
    - Track `todo`, `doing`, `blocked`, and `done` with evidence.
 4. Use `완료와 핸드오프` for execution:
    - Copy the Codex implementation handoff before giving work to a coding agent.
+   - Copy or save the role prompt pack when specialist passes need shared context.
    - Keep scope to one vertical slice and one measurable next evidence item.
    - Save the development completion report only after tasks, evidence, QA, security, and launch readiness are reviewed.
 
@@ -40,5 +41,6 @@ When asked to hand off work, return:
 - backend decision and auth/data boundary
 - UI states to implement
 - implementation tasks in priority order
+- role prompt pack when strategy, research, product, design, build, QA, debug, security, or launch work is delegated
 - quality commands and manual smoke path
 - risks, skipped checks, and rollback notes
