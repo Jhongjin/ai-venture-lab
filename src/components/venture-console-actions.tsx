@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   Building2,
+  ClipboardList,
   Clock3,
   LogIn,
   LogOut,
@@ -116,6 +117,14 @@ type ExtractionGate = {
   blockers: string[];
   readinessScore: number;
   rank: number;
+};
+
+type ExtractionPortfolioItem = {
+  candidate: ExtractedIdea;
+  gate: ExtractionGate;
+  similarIdea: SimilarIdeaMatch | null;
+  readinessScore: number;
+  nextGap: string;
 };
 
 const extractionGateRanks: Record<ExtractionGateId, number> = {
@@ -1107,6 +1116,45 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
     .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
 }
 
+function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
+  const rows = items
+    .map(
+      (item, index) =>
+        `| ${index + 1} | ${item.candidate.name} | ${item.gate.label} | ${item.candidate.validationScore}/100 | ${item.readinessScore}% | ${
+          item.similarIdea ? `${item.similarIdea.idea.name} ${item.similarIdea.score}%` : "없음"
+        } | ${item.gate.nextAction} |`,
+    )
+    .join("\n");
+  const gateSummary = (["proceed", "research", "pivot", "kill"] as ExtractionGateId[])
+    .map((gateId) => {
+      const count = items.filter((item) => item.gate.id === gateId).length;
+      const label = gateId === "proceed" ? "진행 후보" : gateId === "research" ? "추가 조사" : gateId === "pivot" ? "전환 검토" : "중단 후보";
+
+      return `- ${label}: ${count}개`;
+    })
+    .join("\n");
+
+  return `# 아이디어 발굴 실행 요약
+
+## 게이트 분포
+
+${gateSummary}
+
+## 실행 순서
+
+| 순서 | 후보 | 게이트 | 검증 점수 | 준비도 | 중복 신호 | 다음 행동 |
+| --- | --- | --- | --- | --- | --- | --- |
+${rows || "| - | 후보 없음 | - | - | - | - | - |"}
+
+## 운영 원칙
+
+- 진행 후보는 검증 패키지로 저장한 뒤 워크벤치에서 점수와 첫 실험을 확정합니다.
+- 추가 조사 후보는 부족한 문제 신호, 구매자, 지표, 리스크, MVP 범위를 보강합니다.
+- 전환 검토 후보는 기존 기록 병합, 세그먼트 축소, 구매자 변경 중 하나를 먼저 결정합니다.
+- 중단 후보는 새 증거가 생길 때까지 저장하지 않습니다.
+`;
+}
+
 export function VentureConsoleActions({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
@@ -1224,6 +1272,44 @@ export function VentureConsoleActions({
     ? extractedIdeaGates.get(recommendedExtractedIdea.id) ?? null
     : null;
   const recommendedGateStyle = recommendedExtractionGate ? extractionGateStyles[recommendedExtractionGate.id] : null;
+  const extractionPortfolioItems = useMemo<ExtractionPortfolioItem[]>(
+    () =>
+      extractedIdeas
+        .map((candidate) => {
+          const similarIdea = similarIdeaMatches.get(candidate.id) ?? null;
+          const readinessChecks = buildCandidateReadiness(candidate, similarIdea);
+          const gate = extractedIdeaGates.get(candidate.id) ?? buildExtractionGate(candidate, readinessChecks, similarIdea);
+          const passedReadinessCount = readinessChecks.filter((check) => check.passed).length;
+          const nextReadinessGap = readinessChecks.find((check) => !check.passed);
+
+          return {
+            candidate,
+            gate,
+            similarIdea,
+            readinessScore: Math.round((passedReadinessCount / readinessChecks.length) * 100),
+            nextGap: nextReadinessGap ? nextReadinessGap.label : "저장 가능",
+          };
+        })
+        .sort(
+          (left, right) =>
+            right.gate.rank - left.gate.rank ||
+            right.candidate.validationScore - left.candidate.validationScore ||
+            right.candidate.confidence - left.candidate.confidence,
+        ),
+    [extractedIdeaGates, extractedIdeas, similarIdeaMatches],
+  );
+  const extractionGateCounts = useMemo(
+    () =>
+      extractionPortfolioItems.reduce<Record<ExtractionGateId, number>>(
+        (counts, item) => ({ ...counts, [item.gate.id]: counts[item.gate.id] + 1 }),
+        { proceed: 0, research: 0, pivot: 0, kill: 0 },
+      ),
+    [extractionPortfolioItems],
+  );
+  const extractionPortfolioMarkdown = useMemo(
+    () => buildExtractionPortfolioMarkdown(extractionPortfolioItems),
+    [extractionPortfolioItems],
+  );
   const consoleTasks: Array<{
     id: ConsoleActionTask;
     label: string;
@@ -1819,6 +1905,16 @@ export function VentureConsoleActions({
     }
   }
 
+  async function copyExtractionPortfolio() {
+    if (extractionPortfolioItems.length === 0) {
+      setExtractMessage("복사할 후보 비교 요약이 없습니다. 먼저 후보를 발굴하세요.");
+      return;
+    }
+
+    await navigator.clipboard.writeText(extractionPortfolioMarkdown);
+    setExtractMessage("후보 비교 실행 요약을 클립보드에 복사했습니다.");
+  }
+
   function loadExtractedIdea(candidate: ExtractedIdea) {
     setForm({
       name: candidate.name,
@@ -2402,6 +2498,74 @@ export function VentureConsoleActions({
                       </div>
                     </div>
                   ) : null}
+
+                  <div className="rounded-lg border border-slate-200 bg-white p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                          <ClipboardList size={15} />
+                          후보 비교 매트릭스
+                        </div>
+                        <h3 className="mt-1 text-base font-semibold text-slate-950">무엇부터 검증할지 정렬합니다</h3>
+                        <p className="mt-1 text-sm leading-6 text-slate-600">
+                          게이트, 준비도, 중복 위험을 함께 봐서 저장, 보강, 전환, 중단 순서를 정합니다.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void copyExtractionPortfolio();
+                        }}
+                        className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                      >
+                        실행 요약 복사
+                      </button>
+                    </div>
+                    <div className="mt-4 grid gap-2 sm:grid-cols-4">
+                      {([
+                        ["proceed", "진행 후보"],
+                        ["research", "추가 조사"],
+                        ["pivot", "전환 검토"],
+                        ["kill", "중단 후보"],
+                      ] as Array<[ExtractionGateId, string]>).map(([gateId, label]) => {
+                        const style = extractionGateStyles[gateId];
+
+                        return (
+                          <div key={gateId} className={`rounded-md border px-3 py-2 ${style.panel}`}>
+                            <div className="text-xs font-semibold text-slate-700">{label}</div>
+                            <div className={`mt-1 inline-flex rounded-md px-2 py-1 text-lg font-semibold ${style.score}`}>
+                              {extractionGateCounts[gateId]}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-4 grid gap-2">
+                      {extractionPortfolioItems.slice(0, 5).map((item, index) => (
+                        <div
+                          key={`${item.candidate.id}-portfolio`}
+                          className="grid gap-2 rounded-md bg-slate-50 p-3 lg:grid-cols-[2rem_minmax(0,0.8fr)_0.7fr_minmax(0,1.2fr)] lg:items-center"
+                        >
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-800 shadow-sm">
+                            {index + 1}
+                          </span>
+                          <div>
+                            <div className="text-sm font-semibold text-slate-950">{item.candidate.name}</div>
+                            <div className="mt-0.5 text-xs text-slate-500">
+                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · 보강 {item.nextGap}
+                            </div>
+                          </div>
+                          <span className={`w-fit rounded-md px-2 py-1 text-xs font-semibold ${extractionGateStyles[item.gate.id].badge}`}>
+                            {item.gate.label}
+                          </span>
+                          <div className="text-sm leading-6 text-slate-600">
+                            {item.gate.nextAction}
+                            {item.similarIdea ? ` / 중복: ${item.similarIdea.idea.name} ${item.similarIdea.score}%` : ""}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
                   {extractedIdeas.map((candidate) => {
                     const similarIdea = similarIdeaMatches.get(candidate.id);
