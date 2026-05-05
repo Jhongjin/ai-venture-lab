@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { Beaker, ClipboardList, Code2, Flag, Layers3, Rocket, Save, ShieldCheck, Sparkles, UserRound, Users } from "lucide-react";
 
 import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
@@ -216,6 +216,16 @@ function recommendNextTask({
   return shellTasks.find((task) => task.id === nextId) ?? null;
 }
 
+function upsertById<T extends { id: string }>(records: T[], nextRecord: T) {
+  return records.some((record) => record.id === nextRecord.id)
+    ? records.map((record) => (record.id === nextRecord.id ? nextRecord : record))
+    : [nextRecord, ...records];
+}
+
+function upsertManyById<T extends { id: string }>(records: T[], nextRecords: T[]) {
+  return nextRecords.reduce((current, record) => upsertById(current, record), records);
+}
+
 export function VentureConsoleShell({
   initialIdeas,
   initialRisks,
@@ -236,7 +246,12 @@ export function VentureConsoleShell({
   source: "supabase" | "seed";
 }) {
   const [activeTask, setActiveTask] = useState<ShellTask>("console:idea");
-  const [createdIdeaIds, setCreatedIdeaIds] = useState<Set<string>>(() => new Set());
+  const [ideas, setIdeas] = useState(initialIdeas);
+  const [risks, setRisks] = useState(initialRisks);
+  const [experiments, setExperiments] = useState(initialExperiments);
+  const [orchestrationRuns, setOrchestrationRuns] = useState(initialOrchestrationRuns);
+  const [artifacts, setArtifacts] = useState(initialArtifacts);
+  const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
   const handleConsoleTaskChange = useCallback((task: ConsoleActionTask) => {
     setActiveTask(`console:${task}`);
   }, []);
@@ -244,25 +259,74 @@ export function VentureConsoleShell({
     setActiveTask(`workbench:${task}`);
   }, []);
   useEffect(() => {
-    function handleIdeaCreated(event: Event) {
-      const createdIdea = (event as CustomEvent<Idea>).detail;
+    function handleRecordEvent<T extends { id: string }>(event: Event, setter: Dispatch<SetStateAction<T[]>>) {
+      const record = (event as CustomEvent<T>).detail;
 
-      if (!createdIdea?.id) {
+      if (!record?.id) {
         return;
       }
 
-      setCreatedIdeaIds((current) => {
-        const next = new Set(current);
-        next.add(createdIdea.id);
-        return next;
-      });
-      setActiveTask("workbench:score");
+      setter((current) => upsertById(current, record));
     }
 
+    function handleRecordListEvent<T extends { id: string }>(event: Event, setter: Dispatch<SetStateAction<T[]>>) {
+      const records = (event as CustomEvent<T[]>).detail;
+
+      if (!Array.isArray(records) || records.length === 0) {
+        return;
+      }
+
+      setter((current) => upsertManyById(current, records));
+    }
+
+    function handleIdeaCreated(event: Event) {
+      handleRecordEvent<Idea>(event, setIdeas);
+      setActiveTask("workbench:score");
+    }
+    const handleIdeaUpdated = (event: Event) => handleRecordEvent<Idea>(event, setIdeas);
+    const handleRiskCreated = (event: Event) => handleRecordEvent<Risk>(event, setRisks);
+    const handleRiskUpdated = (event: Event) => handleRecordEvent<Risk>(event, setRisks);
+    const handleExperimentCreated = (event: Event) => handleRecordEvent<Experiment>(event, setExperiments);
+    const handleExperimentUpdated = (event: Event) => handleRecordEvent<Experiment>(event, setExperiments);
+    const handleRunCreated = (event: Event) => handleRecordEvent<OrchestrationRun>(event, setOrchestrationRuns);
+    const handleRunsCreated = (event: Event) => handleRecordListEvent<OrchestrationRun>(event, setOrchestrationRuns);
+    const handleRunUpdated = (event: Event) => handleRecordEvent<OrchestrationRun>(event, setOrchestrationRuns);
+    const handleArtifactCreated = (event: Event) => handleRecordEvent<VentureArtifact>(event, setArtifacts);
+    const handleArtifactUpdated = (event: Event) => handleRecordEvent<VentureArtifact>(event, setArtifacts);
+    const handleTaskCreated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
+    const handleTasksCreated = (event: Event) => handleRecordListEvent<ImplementationTask>(event, setImplementationTasks);
+    const handleTaskUpdated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
+
     window.addEventListener("venture:idea-created", handleIdeaCreated);
+    window.addEventListener("venture:idea-updated", handleIdeaUpdated);
+    window.addEventListener("venture:risk-created", handleRiskCreated);
+    window.addEventListener("venture:risk-updated", handleRiskUpdated);
+    window.addEventListener("venture:experiment-created", handleExperimentCreated);
+    window.addEventListener("venture:experiment-updated", handleExperimentUpdated);
+    window.addEventListener("venture:run-created", handleRunCreated);
+    window.addEventListener("venture:runs-created", handleRunsCreated);
+    window.addEventListener("venture:run-updated", handleRunUpdated);
+    window.addEventListener("venture:artifact-created", handleArtifactCreated);
+    window.addEventListener("venture:artifact-updated", handleArtifactUpdated);
+    window.addEventListener("venture:task-created", handleTaskCreated);
+    window.addEventListener("venture:tasks-created", handleTasksCreated);
+    window.addEventListener("venture:task-updated", handleTaskUpdated);
 
     return () => {
       window.removeEventListener("venture:idea-created", handleIdeaCreated);
+      window.removeEventListener("venture:idea-updated", handleIdeaUpdated);
+      window.removeEventListener("venture:risk-created", handleRiskCreated);
+      window.removeEventListener("venture:risk-updated", handleRiskUpdated);
+      window.removeEventListener("venture:experiment-created", handleExperimentCreated);
+      window.removeEventListener("venture:experiment-updated", handleExperimentUpdated);
+      window.removeEventListener("venture:run-created", handleRunCreated);
+      window.removeEventListener("venture:runs-created", handleRunsCreated);
+      window.removeEventListener("venture:run-updated", handleRunUpdated);
+      window.removeEventListener("venture:artifact-created", handleArtifactCreated);
+      window.removeEventListener("venture:artifact-updated", handleArtifactUpdated);
+      window.removeEventListener("venture:task-created", handleTaskCreated);
+      window.removeEventListener("venture:tasks-created", handleTasksCreated);
+      window.removeEventListener("venture:task-updated", handleTaskUpdated);
     };
   }, []);
   const activeConsoleTask = activeTask.startsWith("console:")
@@ -271,24 +335,16 @@ export function VentureConsoleShell({
   const activeWorkbenchTask = activeTask.startsWith("workbench:")
     ? (activeTask.replace("workbench:", "") as WorkbenchTask)
     : "select";
-  const ideaCount = useMemo(() => {
-    const ids = new Set(initialIdeas.map((idea) => idea.id));
-
-    for (const id of createdIdeaIds) {
-      ids.add(id);
-    }
-
-    return ids.size;
-  }, [createdIdeaIds, initialIdeas]);
-  const openRisks = initialRisks.filter((risk) => risk.status.toLowerCase() === "open").length;
-  const highRisks = initialRisks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
-  const experimentCount = initialExperiments.length;
-  const runCount = initialOrchestrationRuns.length;
-  const artifactCount = initialArtifacts.length;
-  const implementationTaskCount = initialImplementationTasks.length;
-  const activeWork = initialExperiments.filter((experiment) => experiment.status !== "done").length +
-    initialOrchestrationRuns.filter((run) => ["planned", "running", "blocked"].includes(run.status)).length +
-    initialImplementationTasks.filter((task) => task.status !== "done").length;
+  const ideaCount = ideas.length;
+  const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
+  const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
+  const experimentCount = experiments.length;
+  const runCount = orchestrationRuns.length;
+  const artifactCount = artifacts.length;
+  const implementationTaskCount = implementationTasks.length;
+  const activeWork = experiments.filter((experiment) => experiment.status !== "done").length +
+    orchestrationRuns.filter((run) => ["planned", "running", "blocked"].includes(run.status)).length +
+    implementationTasks.filter((task) => task.status !== "done").length;
   const activeTaskIndex = shellTasks.findIndex((task) => task.id === activeTask);
   const activeTaskConfig = shellTasks[activeTaskIndex] ?? shellTasks[0];
   const ActiveIcon = activeTaskConfig.icon;
@@ -333,7 +389,7 @@ export function VentureConsoleShell({
             ["리스크", String(openRisks)],
             ["고위험", String(highRisks)],
             ["작업", String(activeWork)],
-            ["산출물", String(initialArtifacts.length)],
+            ["산출물", String(artifacts.length)],
             ["데이터", source === "supabase" ? "DB" : "시드"],
           ].map(([label, value]) => (
             <div key={label} className="rounded-md bg-slate-50 p-3">
@@ -448,18 +504,18 @@ export function VentureConsoleShell({
             activeTask={activeConsoleTask}
             onActiveTaskChange={handleConsoleTaskChange}
             showSidebar={false}
-            existingIdeas={initialIdeas}
+            existingIdeas={ideas}
           />
         </div>
         <div className={activeTask.startsWith("workbench:") ? "" : "hidden"}>
           <IdeaWorkbench
-            initialIdeas={initialIdeas}
-            initialRisks={initialRisks}
+            initialIdeas={ideas}
+            initialRisks={risks}
             initialDecisions={initialDecisions}
-            initialExperiments={initialExperiments}
-            initialOrchestrationRuns={initialOrchestrationRuns}
-            initialArtifacts={initialArtifacts}
-            initialImplementationTasks={initialImplementationTasks}
+            initialExperiments={experiments}
+            initialOrchestrationRuns={orchestrationRuns}
+            initialArtifacts={artifacts}
+            initialImplementationTasks={implementationTasks}
             activeTask={activeWorkbenchTask}
             onActiveTaskChange={handleWorkbenchTaskChange}
             showSidebar={false}

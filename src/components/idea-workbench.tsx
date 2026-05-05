@@ -327,6 +327,20 @@ function upsertWorkbenchIdea(current: Idea[], nextIdea: Idea) {
   return sortWorkbenchIdeas(nextIdeas);
 }
 
+function emitVentureEvent<T>(eventName: string, detail: T) {
+  window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
+}
+
+function upsertRecordById<T extends { id: string }>(records: T[], nextRecord: T) {
+  return records.some((record) => record.id === nextRecord.id)
+    ? records.map((record) => (record.id === nextRecord.id ? nextRecord : record))
+    : [nextRecord, ...records];
+}
+
+function upsertRecordsById<T extends { id: string }>(records: T[], nextRecords: T[]) {
+  return nextRecords.reduce((current, record) => upsertRecordById(current, record), records);
+}
+
 function toEditState(idea: Idea): EditState {
   return {
     stage: idea.stage,
@@ -2322,6 +2336,32 @@ export function IdeaWorkbench({
   }, [onActiveTaskChange]);
 
   useEffect(() => {
+    function handleRecordEvent<T extends { id: string }>(
+      event: Event,
+      setter: (updater: (current: T[]) => T[]) => void,
+    ) {
+      const record = (event as CustomEvent<T>).detail;
+
+      if (!record?.id) {
+        return;
+      }
+
+      setter((current) => upsertRecordById(current, record));
+    }
+
+    function handleRecordListEvent<T extends { id: string }>(
+      event: Event,
+      setter: (updater: (current: T[]) => T[]) => void,
+    ) {
+      const records = (event as CustomEvent<T[]>).detail;
+
+      if (!Array.isArray(records) || records.length === 0) {
+        return;
+      }
+
+      setter((current) => upsertRecordsById(current, records));
+    }
+
     function handleIdeaCreated(event: Event) {
       const createdIdea = (event as CustomEvent<Idea>).detail;
 
@@ -2336,11 +2376,50 @@ export function IdeaWorkbench({
       setFilterMode("all");
       setMessage("새 아이디어를 워크벤치에 바로 추가하고 선택했습니다.");
     }
+    const handleIdeaUpdated = (event: Event) => handleRecordEvent<Idea>(event, setIdeas);
+    const handleRiskCreated = (event: Event) => handleRecordEvent<Risk>(event, setRisks);
+    const handleRiskUpdated = (event: Event) => handleRecordEvent<Risk>(event, setRisks);
+    const handleExperimentCreated = (event: Event) => handleRecordEvent<Experiment>(event, setExperiments);
+    const handleExperimentUpdated = (event: Event) => handleRecordEvent<Experiment>(event, setExperiments);
+    const handleRunCreated = (event: Event) => handleRecordEvent<OrchestrationRun>(event, setOrchestrationRuns);
+    const handleRunsCreated = (event: Event) => handleRecordListEvent<OrchestrationRun>(event, setOrchestrationRuns);
+    const handleRunUpdated = (event: Event) => handleRecordEvent<OrchestrationRun>(event, setOrchestrationRuns);
+    const handleArtifactCreated = (event: Event) => handleRecordEvent<VentureArtifact>(event, setArtifacts);
+    const handleArtifactUpdated = (event: Event) => handleRecordEvent<VentureArtifact>(event, setArtifacts);
+    const handleTaskCreated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
+    const handleTasksCreated = (event: Event) => handleRecordListEvent<ImplementationTask>(event, setImplementationTasks);
+    const handleTaskUpdated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
 
     window.addEventListener("venture:idea-created", handleIdeaCreated);
+    window.addEventListener("venture:idea-updated", handleIdeaUpdated);
+    window.addEventListener("venture:risk-created", handleRiskCreated);
+    window.addEventListener("venture:risk-updated", handleRiskUpdated);
+    window.addEventListener("venture:experiment-created", handleExperimentCreated);
+    window.addEventListener("venture:experiment-updated", handleExperimentUpdated);
+    window.addEventListener("venture:run-created", handleRunCreated);
+    window.addEventListener("venture:runs-created", handleRunsCreated);
+    window.addEventListener("venture:run-updated", handleRunUpdated);
+    window.addEventListener("venture:artifact-created", handleArtifactCreated);
+    window.addEventListener("venture:artifact-updated", handleArtifactUpdated);
+    window.addEventListener("venture:task-created", handleTaskCreated);
+    window.addEventListener("venture:tasks-created", handleTasksCreated);
+    window.addEventListener("venture:task-updated", handleTaskUpdated);
 
     return () => {
       window.removeEventListener("venture:idea-created", handleIdeaCreated);
+      window.removeEventListener("venture:idea-updated", handleIdeaUpdated);
+      window.removeEventListener("venture:risk-created", handleRiskCreated);
+      window.removeEventListener("venture:risk-updated", handleRiskUpdated);
+      window.removeEventListener("venture:experiment-created", handleExperimentCreated);
+      window.removeEventListener("venture:experiment-updated", handleExperimentUpdated);
+      window.removeEventListener("venture:run-created", handleRunCreated);
+      window.removeEventListener("venture:runs-created", handleRunsCreated);
+      window.removeEventListener("venture:run-updated", handleRunUpdated);
+      window.removeEventListener("venture:artifact-created", handleArtifactCreated);
+      window.removeEventListener("venture:artifact-updated", handleArtifactUpdated);
+      window.removeEventListener("venture:task-created", handleTaskCreated);
+      window.removeEventListener("venture:tasks-created", handleTasksCreated);
+      window.removeEventListener("venture:task-updated", handleTaskUpdated);
     };
   }, [updateActiveTask]);
 
@@ -2918,6 +2997,7 @@ export function IdeaWorkbench({
     }
 
     setIdeas((current) => current.map((idea) => (idea.id === data.id ? data : idea)));
+    emitVentureEvent("venture:idea-updated", data);
     setMessage("아이디어 점수와 상태를 저장했습니다.");
     router.refresh();
   }
@@ -2963,6 +3043,7 @@ export function IdeaWorkbench({
     }
 
     setRisks((current) => [data, ...current]);
+    emitVentureEvent("venture:risk-created", data);
     setRiskDraft({ title: "", area: "", severity: "medium", mitigation: "" });
     setMessage("리스크를 추가했습니다.");
     router.refresh();
@@ -3003,6 +3084,8 @@ export function IdeaWorkbench({
 
     setIdeas((current) => current.map((idea) => (idea.id === ideaResult.data.id ? ideaResult.data : idea)));
     setDecisionLog((current) => [decisionResult.data, ...current]);
+    emitVentureEvent("venture:idea-updated", ideaResult.data);
+    emitVentureEvent("venture:decision-created", decisionResult.data);
     setDecisionReason("");
     setMessage("판단을 기록했습니다.");
     router.refresh();
@@ -3047,6 +3130,7 @@ export function IdeaWorkbench({
     }
 
     setExperiments((current) => [data, ...current]);
+    emitVentureEvent("venture:experiment-created", data);
     setExperimentDraft({ name: "", success_metric: "" });
     setMessage("실험을 추가했습니다.");
     router.refresh();
@@ -3088,6 +3172,7 @@ export function IdeaWorkbench({
 
     setOrchestrationRuns((current) => [data, ...current]);
     setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
+    emitVentureEvent("venture:run-created", data);
     setMessage("오케스트레이션 단계를 추가했습니다.");
     router.refresh();
   }
@@ -3135,6 +3220,7 @@ export function IdeaWorkbench({
       ...current,
       ...Object.fromEntries((data ?? []).map((run) => [run.id, run.output])),
     }));
+    emitVentureEvent("venture:runs-created", data ?? []);
     setMessage("전체 오케스트레이션 런북을 만들었습니다.");
     router.refresh();
   }
@@ -3171,6 +3257,7 @@ export function IdeaWorkbench({
     }
 
     setExperiments((current) => current.map((item) => (item.id === data.id ? data : item)));
+    emitVentureEvent("venture:experiment-updated", data);
     setMessage(`실험 상태를 ${experimentStatusLabels[status] ?? status}(으)로 변경했습니다.`);
     router.refresh();
   }
@@ -3202,6 +3289,7 @@ export function IdeaWorkbench({
     }
 
     setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
+    emitVentureEvent("venture:run-updated", data);
     setMessage(`${phaseLabels[run.phase]} 상태를 ${runStatusLabels[status]}(으)로 변경했습니다.`);
     router.refresh();
   }
@@ -3234,6 +3322,7 @@ export function IdeaWorkbench({
 
     setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
     setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
+    emitVentureEvent("venture:run-updated", data);
     setMessage(`${phaseLabels[run.phase]} 산출물을 저장했습니다.`);
     router.refresh();
   }
@@ -3287,6 +3376,7 @@ export function IdeaWorkbench({
     }
 
     setArtifacts((current) => [data, ...current]);
+    emitVentureEvent("venture:artifact-created", data);
     setMessage(`${artifactLabels[artifactType]} v${nextVersion}을 저장했습니다.`);
     router.refresh();
   }
@@ -3324,6 +3414,7 @@ export function IdeaWorkbench({
     }
 
     setArtifacts((current) => current.map((item) => (item.id === data.id ? data : item)));
+    emitVentureEvent("venture:artifact-updated", data);
     setArtifactStatusNotes((current) => {
       const next = { ...current };
       delete next[data.id];
@@ -3384,6 +3475,7 @@ export function IdeaWorkbench({
     }
 
     setImplementationTasks((current) => [...current, ...(data ?? [])]);
+    emitVentureEvent("venture:tasks-created", data ?? []);
     setMessage(`${missingDrafts.length}개의 개발 태스크를 만들었습니다.`);
     router.refresh();
   }
@@ -3433,6 +3525,7 @@ export function IdeaWorkbench({
     }
 
     setImplementationTasks((current) => [...current, data]);
+    emitVentureEvent("venture:task-created", data);
     setImplementationTaskDraft({
       title: "",
       task_type: "frontend",
@@ -3471,6 +3564,7 @@ export function IdeaWorkbench({
     }
 
     setImplementationTasks((current) => current.map((item) => (item.id === data.id ? data : item)));
+    emitVentureEvent("venture:task-updated", data);
     setMessage(`${task.title} 상태를 ${implementationTaskStatusLabels[status]}(으)로 변경했습니다.`);
     router.refresh();
   }
@@ -3502,6 +3596,7 @@ export function IdeaWorkbench({
     }
 
     setImplementationTasks((current) => current.map((item) => (item.id === data.id ? data : item)));
+    emitVentureEvent("venture:task-updated", data);
     setImplementationTaskEvidence((current) => {
       const next = { ...current };
       delete next[data.id];
@@ -3538,6 +3633,7 @@ export function IdeaWorkbench({
     }
 
     setRisks((current) => current.map((item) => (item.id === data.id ? data : item)));
+    emitVentureEvent("venture:risk-updated", data);
     setMessage(`리스크 상태를 ${riskStatusLabels[status] ?? status}(으)로 변경했습니다.`);
     router.refresh();
   }

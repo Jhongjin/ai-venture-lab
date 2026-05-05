@@ -1354,6 +1354,12 @@ export function VentureConsoleActions({
     }
 
     window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: idea }));
+    if (riskResult.data) {
+      window.dispatchEvent(new CustomEvent("venture:risk-created", { detail: riskResult.data }));
+    }
+    if (experimentResult.data) {
+      window.dispatchEvent(new CustomEvent("venture:experiment-created", { detail: experimentResult.data }));
+    }
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
     router.refresh();

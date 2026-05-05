@@ -85,3 +85,4 @@ The app now supports the first live operating loop:
 40. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
 41. Require completion evidence for every done implementation task before development can be considered complete.
 42. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
+43. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
