@@ -23,6 +23,8 @@ type Organization = Database["public"]["Tables"]["organizations"]["Row"];
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
 type AuditEvent = Database["public"]["Tables"]["audit_events"]["Row"];
 type Idea = Database["public"]["Tables"]["ideas"]["Row"];
+type VentureArtifact = Database["public"]["Tables"]["venture_artifacts"]["Row"];
+type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["Insert"];
 type AddableOrganizationRole = Extract<OrganizationRole, "admin" | "member" | "viewer">;
 
 type FormState = {
@@ -594,6 +596,135 @@ function buildCandidateReadiness(
       detail: similarIdea
         ? `${similarIdea.idea.name}와 유사도 ${similarIdea.score}%입니다. 기존 기록 확장 여부를 확인하세요.`
         : "기존 포트폴리오와 강하게 겹치는 후보가 없습니다.",
+    },
+  ];
+}
+
+function buildExtractedIdeaArtifacts(
+  candidate: ExtractedIdea,
+  idea: Idea,
+  organizationId: string | null,
+): VentureArtifactInsert[] {
+  const base = {
+    idea_id: idea.id,
+    organization_id: organizationId,
+    status: "draft" as const,
+    version: 1,
+    status_note: "자동 아이디어 발굴에서 검증 패키지로 생성됨",
+  };
+
+  return [
+    {
+      ...base,
+      artifact_type: "idea_brief",
+      title: `${candidate.name} 아이디어 브리프`,
+      source: "extracted_idea_package",
+      body: `# 아이디어 브리프: ${candidate.name}
+
+## 한 줄 설명
+
+${candidate.one_liner}
+
+## 대상과 구매자
+
+- 대상 사용자: ${candidate.target_user}
+- 구매자: ${candidate.buyer}
+
+## 문제 신호
+
+${candidate.signal}
+
+## 핵심 가설
+
+${candidate.assumptions.map((item) => `- ${item}`).join("\n")}
+
+## 초기 점수
+
+- 검증 점수: ${candidate.validationScore}/100
+- 신뢰도: ${candidate.confidence}%
+- 추천: ${candidate.recommendation}
+- 리스크: ${candidate.riskLevel}
+
+## 리스크 요약
+
+${candidate.risk_summary}
+
+## 다음 증거
+
+${candidate.next_evidence}
+`,
+    },
+    {
+      ...base,
+      artifact_type: "research_note",
+      title: `${candidate.name} 리서치 브리프`,
+      source: "extracted_research_brief",
+      body: `# 리서치 브리프: ${candidate.name}
+
+## 확인된 단서
+
+${candidate.evidence.map((item) => `- ${item}`).join("\n")}
+
+## 검증 질문
+
+${candidate.validationQuestions.map((item) => `- ${item}`).join("\n")}
+
+## 가격/구매 가설
+
+${candidate.pricingHypothesis}
+
+## 첫 프로토타입 범위
+
+${candidate.firstPrototypeScope}
+
+## 중단 기준
+
+${candidate.killCriteria}
+
+## 판단 메모
+
+${candidate.validationRationale}
+`,
+    },
+    {
+      ...base,
+      artifact_type: "research_note",
+      title: `${candidate.name} 7일 검증 스프린트`,
+      source: "validation_sprint",
+      body: `# 7일 검증 스프린트: ${candidate.name}
+
+## 실험
+
+${candidate.sevenDayExperiment}
+
+## 성공 지표
+
+${candidate.successMetric}
+
+## Day 1-2 모집
+
+- 대상 사용자: ${candidate.target_user}
+- 질문: 최근 이 문제가 실제로 발생한 사례를 확인합니다.
+
+## Day 3-4 대안 조사
+
+- 현재 우회 방법, 경쟁 서비스, 수동 해결책을 확인합니다.
+
+## Day 5 가격/구매 검증
+
+${candidate.pricingHypothesis}
+
+## Day 6 프로토타입 반응
+
+${candidate.firstPrototypeScope}
+
+## Day 7 판단
+
+- 진행: 성공 지표를 충족하고 높은 리스크가 완화됩니다.
+- 추가 조사: 문제는 있으나 구매/도달/운영 근거가 부족합니다.
+- 전환: 사용자는 있으나 다른 구매자, 채널, 수동 서비스가 더 적합합니다.
+- 중단: ${candidate.killCriteria}
+`,
     },
   ];
 }
@@ -1372,7 +1503,7 @@ export function VentureConsoleActions({
       return;
     }
 
-    const [riskResult, experimentResult] = await Promise.all([
+    const [riskResult, experimentResult, artifactResult] = await Promise.all([
       supabase
         .from("risks")
         .insert({
@@ -1397,18 +1528,24 @@ export function VentureConsoleActions({
         })
         .select()
         .single(),
+      supabase
+        .from("venture_artifacts")
+        .insert(buildExtractedIdeaArtifacts(candidate, idea, activeOrganization?.id ?? null))
+        .select(),
     ]);
 
     setExtractSaveKey(null);
 
-    if (riskResult.error || experimentResult.error) {
+    if (riskResult.error || experimentResult.error || artifactResult.error) {
       setExtractMessage(
         `아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${
-          riskResult.error?.message ?? experimentResult.error?.message
+          riskResult.error?.message ?? experimentResult.error?.message ?? artifactResult.error?.message
         }`,
       );
     } else {
-      setExtractMessage(`'${candidate.name}' 후보를 아이디어, 리스크, 7일 실험까지 검증 패키지로 저장했습니다.`);
+      setExtractMessage(
+        `'${candidate.name}' 후보를 아이디어, 리스크, 7일 실험, 검증 산출물 ${artifactResult.data?.length ?? 0}개까지 패키지로 저장했습니다.`,
+      );
     }
 
     window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: idea }));
@@ -1417,6 +1554,11 @@ export function VentureConsoleActions({
     }
     if (experimentResult.data) {
       window.dispatchEvent(new CustomEvent("venture:experiment-created", { detail: experimentResult.data }));
+    }
+    if (artifactResult.data) {
+      for (const artifact of artifactResult.data as VentureArtifact[]) {
+        window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: artifact }));
+      }
     }
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");

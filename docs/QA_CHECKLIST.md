@@ -24,7 +24,7 @@ Use this checklist before merging meaningful changes.
 - Decision log is updated for major changes.
 - Authenticated operators can create an idea and then update its stage, score, risks, and decision records.
 - Operators can paste conversation notes into idea discovery and extract candidate ideas with validation score, risk level, assumptions, validation questions, 7-day experiment, success metric, kill criteria, prototype scope, and pricing hypothesis.
-- Authenticated operators can save an extracted candidate as a validation package that creates the idea, an initial risk, and a planned experiment.
+- Authenticated operators can save an extracted candidate as a validation package that creates the idea, an initial risk, a planned experiment, an idea brief, a research brief, and a 7-day validation sprint artifact.
 - Extracted candidates show likely duplicate or similar existing ideas before saving.
 - Extracted candidates show validation-package readiness across problem signal, user/buyer separation, measurable success metric, risk, first MVP scope, and duplicate risk.
 - Workbench clearly marks which ideas are editable by the current operator and which are read-only.
