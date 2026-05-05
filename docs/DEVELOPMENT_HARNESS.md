@@ -39,11 +39,12 @@ pnpm lint
 pnpm typecheck
 pnpm build
 pnpm harness:check
+pnpm smoke:prod
 ```
 
 Use `pnpm quality:full` before commits that touch product behavior; it runs lint, typecheck, harness check, and production build in one command.
 
-Add browser or Playwright smoke checks when the user-facing workflow changes.
+Use `pnpm smoke:prod` after production deploy to confirm the public app shell returns HTTP 200 and includes the expected operator workflow text. Add browser or Playwright smoke checks when a user-facing workflow needs interaction-level verification.
 
 ## Security Gates
 
@@ -66,3 +67,9 @@ Add browser or Playwright smoke checks when the user-facing workflow changes.
 4. Confirm the database or UI reflects the new state without manual refresh unless refresh is expected.
 5. Confirm the denied/read-only path does not mutate data.
 6. Confirm rollback target or previous deployment is known.
+
+CLI baseline:
+
+```powershell
+pnpm smoke:prod
+```

@@ -10,6 +10,7 @@ Use this checklist before merging meaningful changes.
 - `pnpm build` passes.
 - `pnpm harness:check` passes.
 - `pnpm quality:full` passes before major product or harness changes.
+- `pnpm smoke:prod` passes after production deployment.
 - New data paths have a manual smoke path.
 - Auth/RLS changes verify both allowed and denied cases.
 - Firebase Security Rules changes verify both allowed and denied cases.
