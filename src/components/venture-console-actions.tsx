@@ -69,6 +69,30 @@ type ExtractedIdea = FormState & {
   validationRationale: string;
 };
 
+type AiExtractedIdeaCandidate = {
+  name?: string;
+  one_liner?: string;
+  target_user?: string;
+  buyer?: string;
+  signal?: string;
+  risk_summary?: string;
+  next_evidence?: string;
+  assumptions?: string[];
+  validation_questions?: string[];
+  seven_day_experiment?: string;
+  success_metric?: string;
+  kill_criteria?: string;
+  first_prototype_scope?: string;
+  pricing_hypothesis?: string;
+};
+
+type AiExtractIdeasResponse = {
+  mode?: string;
+  model?: string;
+  error?: string;
+  candidates?: AiExtractedIdeaCandidate[];
+};
+
 type SimilarIdeaMatch = {
   idea: Idea;
   score: number;
@@ -1001,6 +1025,88 @@ function extractIdeasFromText(source: string): ExtractedIdea[] {
     .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
 }
 
+function firstText(values: Array<string | undefined>, fallback: string, maxLength = 180) {
+  return compactText(values.find((value) => value && value.trim()) ?? fallback, maxLength);
+}
+
+function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCandidate[]): ExtractedIdea[] {
+  return candidates
+    .slice(0, 8)
+    .map((candidate, index) => {
+      const name = firstText([candidate.name], `AI 후보 ${index + 1}`, 42);
+      const sourceBlock = [
+        `AI 후보: ${name}`,
+        candidate.signal ? `문제 신호: ${candidate.signal}` : "",
+        candidate.one_liner ? `솔루션: ${candidate.one_liner}` : "",
+        candidate.target_user ? `대상 사용자: ${candidate.target_user}` : "",
+        candidate.buyer ? `구매자: ${candidate.buyer}` : "",
+        candidate.risk_summary ? `리스크: ${candidate.risk_summary}` : "",
+        `원문 요약 근거: ${compactText(source, 900)}`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+      const blockForInference = `${sourceBlock}\n${source}`;
+      const oneLiner = firstText([candidate.one_liner], compactText(source, 150), 150);
+      const target_user = firstText([candidate.target_user], inferText(blockForInference, "target"), 160);
+      const buyer = firstText([candidate.buyer], inferText(blockForInference, "buyer"), 160);
+      const signal = firstText([candidate.signal], inferText(blockForInference, "next"), 220);
+      const risk_summary = firstText([candidate.risk_summary], inferText(blockForInference, "risk"), 240);
+      const next_evidence = firstText([candidate.next_evidence], inferText(blockForInference, "next"), 240);
+      const riskLevel = inferRiskLevel(blockForInference);
+      const evidence = [
+        signal ? "AI 문제 신호" : "",
+        oneLiner ? "AI 솔루션 구조화" : "",
+        target_user ? "AI 타겟 추론" : "",
+        buyer ? "AI 구매자 추론" : "",
+        risk_summary ? "AI 리스크 추론" : "",
+      ].filter(Boolean);
+      const validationScore = scoreExtractedIdea({
+        block: blockForInference,
+        evidenceCount: evidence.length + 1,
+        riskLevel,
+        buyer,
+      });
+      const assumptions =
+        candidate.assumptions && candidate.assumptions.length >= 3
+          ? candidate.assumptions.slice(0, 4).map((item) => compactText(item, 220))
+          : inferAssumptions(blockForInference, name, target_user, buyer);
+      const validationQuestions =
+        candidate.validation_questions && candidate.validation_questions.length >= 3
+          ? candidate.validation_questions.slice(0, 5).map((item) => compactText(item, 240))
+          : inferValidationQuestions(blockForInference, target_user, buyer);
+
+      return {
+        id: `ai-${index}-${name}`,
+        sourceBlock,
+        name,
+        one_liner: oneLiner,
+        target_user,
+        buyer,
+        signal,
+        risk_summary,
+        next_evidence,
+        confidence: Math.min(96, 76 + Math.min(evidence.length, 5) * 3),
+        evidence,
+        validationScore,
+        initialScores: inferInitialScores(blockForInference, riskLevel, buyer),
+        riskLevel,
+        recommendation: inferRecommendation(validationScore, riskLevel),
+        assumptions,
+        validationQuestions,
+        sevenDayExperiment: firstText([candidate.seven_day_experiment], inferSevenDayExperiment(blockForInference, name), 520),
+        successMetric: firstText([candidate.success_metric], inferSuccessMetric(blockForInference), 320),
+        killCriteria: firstText([candidate.kill_criteria], inferKillCriteria(blockForInference), 360),
+        firstPrototypeScope: firstText([candidate.first_prototype_scope], inferFirstPrototypeScope(blockForInference), 360),
+        pricingHypothesis: firstText([candidate.pricing_hypothesis], inferPricingHypothesis(blockForInference, buyer), 260),
+        validationRationale:
+          riskLevel === "높음"
+            ? "AI가 수요는 구조화했지만 규제, 개인정보, 운영 책임 검증을 먼저 요구합니다."
+            : "AI가 문제, 대상, 구매자, 첫 실험을 구조화해 검증 후보로 볼 수 있습니다.",
+      };
+    })
+    .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
+}
+
 export function VentureConsoleActions({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
@@ -1038,6 +1144,7 @@ export function VentureConsoleActions({
   const [rawIdeaSource, setRawIdeaSource] = useState("");
   const [extractedIdeas, setExtractedIdeas] = useState<ExtractedIdea[]>([]);
   const [extractMessage, setExtractMessage] = useState<string | null>(null);
+  const [isAiExtracting, setIsAiExtracting] = useState(false);
   const [localActiveTask, setLocalActiveTask] = useState<ConsoleActionTask>("auth");
   const activeTask = controlledActiveTask ?? localActiveTask;
   const updateActiveTask = useCallback(
@@ -1647,6 +1754,71 @@ export function VentureConsoleActions({
     );
   }
 
+  async function handleAiExtractIdeas() {
+    const source = rawIdeaSource.trim();
+
+    if (!source) {
+      setExtractMessage("대화 내용이나 메모를 먼저 붙여넣으세요.");
+      setExtractedIdeas([]);
+      return;
+    }
+
+    setIsAiExtracting(true);
+    setExtractMessage("AI 추출 엔진으로 원문을 구조화하는 중입니다. 키가 없거나 실패하면 규칙 기반 엔진으로 전환합니다.");
+
+    try {
+      const response = await fetch("/api/ideas/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source,
+          existingIdeas: existingIdeas.slice(0, 20).map((idea) => ({
+            name: idea.name,
+            one_liner: idea.one_liner,
+            target_user: idea.target_user,
+            buyer: idea.buyer,
+          })),
+        }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as AiExtractIdeasResponse;
+
+      if (!response.ok || !payload.candidates?.length) {
+        const fallbackIdeas = extractIdeasFromText(source);
+        setExtractedIdeas(fallbackIdeas);
+        setExtractMessage(
+          fallbackIdeas.length > 0
+            ? `AI 추출을 사용할 수 없어 규칙 기반 엔진으로 ${fallbackIdeas.length}개 후보를 만들었습니다. 사유: ${
+                payload.error ?? `HTTP ${response.status}`
+              }`
+            : `AI 추출을 사용할 수 없고 규칙 기반 후보도 찾지 못했습니다. 사유: ${
+                payload.error ?? `HTTP ${response.status}`
+              }`,
+        );
+        return;
+      }
+
+      const aiIdeas = hydrateAiExtractedIdeas(source, payload.candidates);
+      setExtractedIdeas(aiIdeas);
+      setExtractMessage(
+        `${payload.model ?? "OpenAI"} AI 엔진으로 ${aiIdeas.length}개 후보를 구조화했습니다. 추천 후보의 게이트와 중복 위험을 확인하세요.`,
+      );
+    } catch (error) {
+      const fallbackIdeas = extractIdeasFromText(source);
+      setExtractedIdeas(fallbackIdeas);
+      setExtractMessage(
+        fallbackIdeas.length > 0
+          ? `AI 추출 요청 중 오류가 발생해 규칙 기반 엔진으로 ${fallbackIdeas.length}개 후보를 만들었습니다. ${
+              error instanceof Error ? error.message : ""
+            }`
+          : `AI 추출 요청 중 오류가 발생했고 규칙 기반 후보도 찾지 못했습니다. ${
+              error instanceof Error ? error.message : ""
+            }`,
+      );
+    } finally {
+      setIsAiExtracting(false);
+    }
+  }
+
   function loadExtractedIdea(candidate: ExtractedIdea) {
     setForm({
       name: candidate.name,
@@ -2113,14 +2285,27 @@ export function VentureConsoleActions({
                 대화, 회의록, 메모를 붙여넣으면 후보와 검증 계획을 함께 구조화합니다.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleExtractIdeas}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              <Sparkles size={18} />
-              후보 발굴
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  void handleAiExtractIdeas();
+                }}
+                disabled={isAiExtracting}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
+                AI 후보 발굴
+              </button>
+              <button
+                type="button"
+                onClick={handleExtractIdeas}
+                disabled={isAiExtracting}
+                className="inline-flex h-11 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                규칙 기반
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(360px,1.1fr)]">
@@ -2160,8 +2345,9 @@ export function VentureConsoleActions({
                 </div>
               ) : null}
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600">
-                원문 근거도 산출물에 저장됩니다. 이메일, 전화번호, 계좌, 카드번호, 신분 정보로 보이는 패턴은 저장 시 자동
-                익명화됩니다.
+                AI 후보 발굴은 서버의 OpenAI 키가 있을 때 구조화 추출을 사용합니다. 키가 없거나 호출이 실패하면 규칙
+                기반 엔진으로 자동 전환됩니다. 원문 근거의 이메일, 전화번호, 계좌, 카드번호, 신분 정보로 보이는 패턴은
+                저장 시 자동 익명화됩니다.
               </div>
             </div>
 

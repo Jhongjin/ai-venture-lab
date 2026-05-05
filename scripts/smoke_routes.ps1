@@ -9,7 +9,9 @@ Add-Type -AssemblyName System.Net.Http
 function Invoke-RouteSmokeRequest {
   param(
     [string]$Path,
-    [bool]$AllowRedirect = $false
+    [bool]$AllowRedirect = $false,
+    [string]$Method = "GET",
+    [string]$Body = $null
   )
 
   $handler = [System.Net.Http.HttpClientHandler]::new()
@@ -18,7 +20,14 @@ function Invoke-RouteSmokeRequest {
 
   try {
     $uri = [System.Uri]::new([System.Uri]::new($BaseUrl), $Path)
-    $response = $client.GetAsync($uri).GetAwaiter().GetResult()
+    if ($Method -eq "POST") {
+      $contentBody = if ($null -eq $Body) { "" } else { $Body }
+      $requestContent = [System.Net.Http.StringContent]::new($contentBody, [System.Text.Encoding]::UTF8, "application/json")
+      $response = $client.PostAsync($uri, $requestContent).GetAwaiter().GetResult()
+      $requestContent.Dispose()
+    } else {
+      $response = $client.GetAsync($uri).GetAwaiter().GetResult()
+    }
     $content = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
 
     return [PSCustomObject]@{
@@ -67,6 +76,16 @@ if ($redirectCodes -notcontains $callback.StatusCode) {
 $location = [string]$callback.Location
 if (-not $location.Contains("auth_error=missing_callback_state")) {
   Write-Error "Route smoke failed for /auth/callback: missing auth_error=missing_callback_state in redirect location."
+}
+
+$extractApi = Invoke-RouteSmokeRequest -Path "/api/ideas/extract" -Method "POST" -Body "{}"
+
+if ($extractApi.StatusCode -ne 400) {
+  Write-Error "Route smoke failed for /api/ideas/extract: expected HTTP 400 for missing source but received $($extractApi.StatusCode)."
+}
+
+if (-not $extractApi.Content.Contains("source is required")) {
+  Write-Error "Route smoke failed for /api/ideas/extract: missing source validation message."
 }
 
 Write-Host "Route smoke passed for $BaseUrl"

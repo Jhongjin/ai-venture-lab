@@ -4,9 +4,9 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 ## Current Phase
 
-- Phase: Platform hardening and app-development orchestration
-- Goal: Make AI Venture Lab reliable enough to move ideas from discovery through validation, app planning, implementation handoff, QA/security, deployment, and launch judgment.
-- Status: Complete for the current unblocked scope
+- Phase: Core product intelligence buildout
+- Goal: Add the intelligence layer that turns messy notes and conversations into ranked app candidates, validation packages, and execution-ready next actions.
+- Status: In progress
 
 ## Loop Rules
 
@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Added optional OpenAI-backed idea extraction with local fallback | Current commit | Pending production deploy | `pnpm quality:full`, local `pnpm smoke:routes` |
 | 2026-05-05 | Added artifact source filtering | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added development handoff history hints | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added saved filtered implementation handoff artifacts | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
@@ -58,9 +59,10 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 ## Next User Actions
 
-None required for the completed unblocked phase. Optional: grant GitHub token `workflow` scope if GitHub Actions should be pushed and managed from this workspace.
+Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Production to enable server-side AI extraction. Without it, the app automatically falls back to the local rules engine.
 
 ## Next Jobs
 
-1. Prepare GitHub Actions once workflow-scope access is available.
+1. Add extraction history and candidate comparison artifacts so each source note can be audited later.
 2. Add browser-level interactive smoke before a public beta.
+3. Prepare GitHub Actions once workflow-scope access is available.
