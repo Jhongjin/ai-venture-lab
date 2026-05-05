@@ -120,7 +120,12 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   },
   "console:extract": {
     summary: "흩어진 대화와 메모에서 앱 후보, 검증 점수, 핵심 가설, 7일 실험, 중단 기준을 함께 만듭니다.",
-    checklist: ["대화 원문 붙여넣기", "후보 발굴 실행", "검증 점수와 리스크 확인", "좋은 후보를 입력 폼으로 보내기"],
+    checklist: [
+      "대화 원문 붙여넣기",
+      "후보 발굴 실행",
+      "검증 점수와 리스크 확인",
+      "좋은 후보를 입력 폼으로 보내거나 검증 패키지로 바로 저장",
+    ],
   },
   "console:idea": {
     summary: "바로 개발하지 말고 문제, 구매자, 증거, 리스크를 먼저 원시 기록으로 남깁니다.",

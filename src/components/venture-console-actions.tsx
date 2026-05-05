@@ -37,16 +37,29 @@ type FormState = {
 
 export type ConsoleActionTask = "auth" | "workspace" | "extract" | "idea";
 
+type InitialIdeaScores = Pick<
+  Idea,
+  | "problem_intensity"
+  | "frequency"
+  | "reachability"
+  | "willingness_to_pay"
+  | "mvp_speed"
+  | "differentiation"
+  | "regulatory_risk"
+>;
+
 type ExtractedIdea = FormState & {
   id: string;
   confidence: number;
   evidence: string[];
   validationScore: number;
+  initialScores: InitialIdeaScores;
   riskLevel: "낮음" | "보통" | "높음";
   recommendation: "우선 검증" | "리스크 선검증" | "추가 조사" | "보류";
   assumptions: string[];
   validationQuestions: string[];
   sevenDayExperiment: string;
+  successMetric: string;
   killCriteria: string;
   firstPrototypeScope: string;
   pricingHypothesis: string;
@@ -319,6 +332,77 @@ function inferPricingHypothesis(block: string, buyer: string) {
   return "개인 사용자는 월 4,900~14,900원, 전문가/팀 사용자는 좌석당 월 1만~3만원으로 테스트합니다.";
 }
 
+function inferSuccessMetric(block: string) {
+  if (/요양|간병|돌봄/.test(block)) {
+    return "보호자/센터 5명 중 3명 이상이 현재 방식보다 조율 시간이 줄었다고 평가하고, 2명 이상이 월 비용 지불 의향을 밝힘";
+  }
+
+  if (/구독|결제|해지/.test(block)) {
+    return "사용자 5명 중 3명 이상이 최소 1개 이상의 불필요한 구독을 발견하고, 2명 이상이 절감액 기반 과금에 동의함";
+  }
+
+  if (/대화|협상|갈등|관계/.test(block)) {
+    return "사용자 5명 중 3명 이상이 실제 대화 전 자신감이 상승했다고 답하고, 2명 이상이 다음 대화에도 재사용 의향을 밝힘";
+  }
+
+  if (/영상|사진|콘텐츠|숏폼/.test(block)) {
+    return "사용자 5명 중 3명 이상이 결과물을 저장 또는 공유하고, 2명 이상이 반복 생성 의향을 밝힘";
+  }
+
+  return "핵심 사용자 5명 중 3명 이상이 현재 대안보다 낫다고 평가하고, 2명 이상이 비용 또는 재사용 의향을 밝힘";
+}
+
+function inferInitialScores(block: string, riskLevel: ExtractedIdea["riskLevel"], buyer: string): InitialIdeaScores {
+  const painHits = countKeywordHits(block, ["불편", "막막", "낭비", "놓치", "불안", "고통", "실수", "책임", "비용"]);
+  const frequencyHits = countKeywordHits(block, ["매일", "매주", "반복", "수많은", "자주", "항상", "계속"]);
+  const reachableHits = countKeywordHits(block, ["센터", "가족", "직장인", "소비자", "전문직", "팀", "사용자", "보호자"]);
+  const paidHits = countKeywordHits(block, ["비용", "절감", "구매", "BM", "지불", "유료", "센터", "기업", "팀"]);
+  const fastMvpHits = countKeywordHits(block, ["수동", "템플릿", "리포트", "스크립트", "콘솔", "체크리스트", "프로토타입"]);
+  const differentiationHits = countKeywordHits(block, ["대행", "자동", "AI", "개인화", "매칭", "코칭", "운영", "추천"]);
+
+  return {
+    problem_intensity: Math.min(5, 2 + Math.min(painHits, 3)),
+    frequency: Math.min(5, 2 + Math.min(frequencyHits, 3)),
+    reachability: Math.min(5, 2 + Math.min(reachableHits, 3)),
+    willingness_to_pay: Math.min(5, 2 + Math.min(paidHits + (/센터|기업|팀|B2B/.test(buyer) ? 1 : 0), 3)),
+    mvp_speed: Math.max(1, Math.min(5, 3 + Math.min(fastMvpHits, 2) - (riskLevel === "높음" ? 1 : 0))),
+    differentiation: Math.min(5, 2 + Math.min(differentiationHits, 3)),
+    regulatory_risk: riskLevel === "높음" ? 4 : riskLevel === "보통" ? 3 : 1,
+  };
+}
+
+function inferRiskSeverity(riskLevel: ExtractedIdea["riskLevel"]) {
+  if (riskLevel === "높음") {
+    return "high";
+  }
+
+  if (riskLevel === "보통") {
+    return "medium";
+  }
+
+  return "low";
+}
+
+function inferRiskArea(block: string) {
+  if (/요양|간병|의료|돌봄|건강/.test(block)) {
+    return "규제/개인정보";
+  }
+
+  if (/금융|결제|계좌|카드|투자|보험/.test(block)) {
+    return "금융/결제";
+  }
+
+  if (/대화|상담|심리|갈등|관계/.test(block)) {
+    return "민감 대화/조언";
+  }
+
+  if (/로컬|공유|대여|심부름/.test(block)) {
+    return "신뢰/운영";
+  }
+
+  return "제품/보안";
+}
+
 function scoreExtractedIdea({
   block,
   evidenceCount,
@@ -438,6 +522,7 @@ function extractIdeasFromText(source: string): ExtractedIdea[] {
         riskLevel,
         buyer,
       });
+      const initialScores = inferInitialScores(block, riskLevel, buyer);
       const recommendation = inferRecommendation(validationScore, riskLevel);
       const assumptions = inferAssumptions(block, name, target_user, buyer);
       const validationQuestions = inferValidationQuestions(block, target_user, buyer);
@@ -454,11 +539,13 @@ function extractIdeasFromText(source: string): ExtractedIdea[] {
         confidence: Math.min(95, 45 + evidence.length * 10 + Math.min(lines.length, 8)),
         evidence,
         validationScore,
+        initialScores,
         riskLevel,
         recommendation,
         assumptions,
         validationQuestions,
         sevenDayExperiment: inferSevenDayExperiment(block, name),
+        successMetric: inferSuccessMetric(block),
         killCriteria: inferKillCriteria(block),
         firstPrototypeScope: inferFirstPrototypeScope(block),
         pricingHypothesis: inferPricingHypothesis(block, buyer),
@@ -499,6 +586,7 @@ export function VentureConsoleActions({
   const [isWorkspaceBusy, setIsWorkspaceBusy] = useState(false);
   const [isMemberBusy, setIsMemberBusy] = useState(false);
   const [memberActionKey, setMemberActionKey] = useState<string | null>(null);
+  const [extractSaveKey, setExtractSaveKey] = useState<string | null>(null);
   const [personalRecordCount, setPersonalRecordCount] = useState(0);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
@@ -1092,6 +1180,91 @@ export function VentureConsoleActions({
     updateActiveTask("idea");
   }
 
+  async function saveExtractedIdeaPackage(candidate: ExtractedIdea) {
+    setExtractMessage(null);
+
+    if (!supabase) {
+      setExtractMessage("Supabase가 설정되어 있지 않습니다.");
+      return;
+    }
+
+    if (!user) {
+      setExtractMessage("후보를 저장하려면 먼저 로그인하세요.");
+      return;
+    }
+
+    setExtractSaveKey(candidate.id);
+    const { data: idea, error: ideaError } = await supabase
+      .from("ideas")
+      .insert({
+        name: candidate.name.trim(),
+        one_liner: candidate.one_liner.trim(),
+        target_user: candidate.target_user.trim(),
+        buyer: candidate.buyer.trim(),
+        signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
+        risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
+        next_evidence: `7일 검증 실험\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+          "\n- ",
+        )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
+        stage: "research",
+        decision: "research_more",
+        ...candidate.initialScores,
+        organization_id: activeOrganization?.id ?? null,
+      })
+      .select()
+      .single();
+
+    if (ideaError || !idea) {
+      setExtractSaveKey(null);
+      setExtractMessage(ideaError?.message ?? "아이디어를 저장하지 못했습니다.");
+      return;
+    }
+
+    const [riskResult, experimentResult] = await Promise.all([
+      supabase
+        .from("risks")
+        .insert({
+          idea_id: idea.id,
+          title: `${candidate.name} 핵심 리스크`,
+          area: inferRiskArea(`${candidate.name} ${candidate.one_liner} ${candidate.risk_summary}`),
+          severity: inferRiskSeverity(candidate.riskLevel),
+          mitigation: candidate.risk_summary,
+          status: "open",
+          organization_id: activeOrganization?.id ?? null,
+        })
+        .select()
+        .single(),
+      supabase
+        .from("experiments")
+        .insert({
+          idea_id: idea.id,
+          name: `${candidate.name} 7일 검증`,
+          success_metric: candidate.successMetric,
+          status: "planned",
+          organization_id: activeOrganization?.id ?? null,
+        })
+        .select()
+        .single(),
+    ]);
+
+    setExtractSaveKey(null);
+
+    if (riskResult.error || experimentResult.error) {
+      setExtractMessage(
+        `아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${
+          riskResult.error?.message ?? experimentResult.error?.message
+        }`,
+      );
+    } else {
+      setExtractMessage(`'${candidate.name}' 후보를 아이디어, 리스크, 7일 실험까지 검증 패키지로 저장했습니다.`);
+    }
+
+    window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: idea }));
+    await loadPersonalRecordCount(user);
+    await loadWorkspaceData(user, activeOrganization?.id ?? "");
+    router.refresh();
+  }
+
   return (
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]" : "grid gap-6"}>
       {showSidebar ? (
@@ -1493,13 +1666,28 @@ export function VentureConsoleActions({
                             {recommendedExtractedIdea.recommendation}. {recommendedExtractedIdea.validationRationale}
                           </p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => loadExtractedIdea(recommendedExtractedIdea)}
-                          className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
-                        >
-                          추천 후보 보내기
-                        </button>
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => loadExtractedIdea(recommendedExtractedIdea)}
+                            className="inline-flex h-10 items-center justify-center rounded-md border border-blue-200 bg-white px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-50"
+                          >
+                            입력 폼으로 보내기
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => saveExtractedIdeaPackage(recommendedExtractedIdea)}
+                            disabled={extractSaveKey === recommendedExtractedIdea.id || !user}
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {extractSaveKey === recommendedExtractedIdea.id ? (
+                              <RefreshCw className="animate-spin" size={16} />
+                            ) : (
+                              <PlusCircle size={16} />
+                            )}
+                            검증 패키지 저장
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ) : null}
@@ -1530,13 +1718,24 @@ export function VentureConsoleActions({
                           </div>
                           <p className="mt-2 text-sm leading-6 text-slate-600">{candidate.one_liner}</p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => loadExtractedIdea(candidate)}
-                          className="inline-flex h-10 shrink-0 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
-                        >
-                          입력 폼으로 보내기
-                        </button>
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => loadExtractedIdea(candidate)}
+                            className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                          >
+                            입력 폼으로 보내기
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => saveExtractedIdeaPackage(candidate)}
+                            disabled={extractSaveKey === candidate.id || !user}
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {extractSaveKey === candidate.id ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
+                            패키지 저장
+                          </button>
+                        </div>
                       </div>
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
                         <div className="rounded-md bg-white p-3">
@@ -1566,6 +1765,9 @@ export function VentureConsoleActions({
                         <div className="rounded-md bg-white p-3 md:col-span-2">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">7일 실험</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.sevenDayExperiment}</p>
+                          <p className="mt-2 text-sm leading-6 text-slate-700">
+                            <span className="font-semibold text-slate-950">성공 지표:</span> {candidate.successMetric}
+                          </p>
                         </div>
                         <div className="rounded-md bg-white p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">첫 프로토타입</div>
