@@ -39,6 +39,8 @@ Use this checklist before merging meaningful changes.
 - Authenticated operators can generate and save MVP spec and launch checklist artifacts from the same workbench evidence.
 - Authenticated operators can save backend decision, design brief, technical spec, and development runbook artifacts from the app development process panel.
 - Backend scorecard compares Supabase, Firebase, Firebase SQL Connect, and Hybrid using idea context, experiments, and risks before saving backend decision.
+- Design readiness shows journey, PRD, MVP scope, backend choice, screen-state coverage, and design execution before design handoff.
+- Build readiness shows approved PRD, approved MVP spec, backend decision, approved design brief, approved technical spec, development runbook, implementation tasks, and high-risk status before coding starts.
 - Operators can copy and save a Codex implementation handoff that includes build scope, backend boundary, quality gates, forbidden shortcuts, and completion report format.
 - Authenticated operators can generate implementation tasks from the app development process panel.
 - Authenticated operators can manually add implementation tasks with title, type, priority, owner role, and acceptance criteria.

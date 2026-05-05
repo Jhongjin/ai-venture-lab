@@ -1621,6 +1621,12 @@ function buildAppDevelopmentPlanMarkdown({
 - 검증 실험: ${primaryExperiment ? `${primaryExperiment.name} / ${primaryExperiment.success_metric || "성공 지표 미정"}` : "측정 가능한 실험 필요"}
 - 다음 증거: ${state.next_evidence || "미정"}
 
+## 0.1 준비도 게이트
+
+- 디자인 준비도: 핵심 여정, PRD, MVP 범위, 백엔드 결정, 빈 상태/로딩/오류/권한/모바일/접근성 커버리지를 확인합니다.
+- 개발 착수 준비도: 승인된 PRD, 승인된 MVP 명세, 백엔드 결정, 승인된 디자인 브리프, 승인된 기술 명세, 개발 런북, 구현 태스크, 높은 리스크 상태를 확인합니다.
+- 준비도 게이트는 출시 준비도보다 앞선 작업 게이트입니다. 부족한 항목이 있으면 코드 작업보다 산출물 또는 리스크 정리를 우선합니다.
+
 ## 0.5 백엔드 선택
 
 현재 AI Venture Lab 운영 콘솔은 Supabase를 유지합니다. 새 앱 아이디어를 실제 제품으로 만들 때는 docs/BACKEND_DECISION_GUIDE.md를 기준으로 Supabase, Firebase, Firebase SQL Connect, 또는 하이브리드를 다시 선택합니다.
@@ -3480,6 +3486,31 @@ export function IdeaWorkbench({
   const hasEvidenceCaptureArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "evidence_capture");
   const hasExperimentResultArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "experiment_result");
   const hasValidationSummaryArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "validation_summary");
+  const hasPrdArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "prd");
+  const hasApprovedPrdArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.artifact_type === "prd" && artifact.status === "approved",
+  );
+  const hasMvpSpecArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "mvp_spec");
+  const hasApprovedMvpSpecArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved",
+  );
+  const hasBackendDecisionArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.artifact_type === "backend_decision",
+  );
+  const hasDesignBriefArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "design_brief");
+  const hasApprovedDesignBriefArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.artifact_type === "design_brief" && artifact.status === "approved",
+  );
+  const hasTechSpecArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "tech_spec");
+  const hasApprovedTechSpecArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.artifact_type === "tech_spec" && artifact.status === "approved",
+  );
+  const hasDevRunbookArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "dev_runbook");
+  const hasDesignStateCoverage = selectedArtifactRecords.some(
+    (artifact) =>
+      artifact.artifact_type === "design_brief" &&
+      ["빈 상태", "로딩", "오류", "권한", "모바일", "접근성"].every((term) => artifact.body.includes(term)),
+  );
   const completedImplementationTasks = selectedImplementationTasks.filter((task) => task.status === "done");
   const implementationTasksWithEvidence = completedImplementationTasks.filter((task) => task.evidence.trim());
   const hasBlockedImplementationTasks = selectedImplementationTasks.some((task) => task.status === "blocked");
@@ -3553,6 +3584,128 @@ export function IdeaWorkbench({
   const prdReadinessScore =
     prdReadinessChecks.length === 0 ? 0 : Math.round((passedPrdReadinessCount / prdReadinessChecks.length) * 100);
   const nextPrdBlocker = prdReadinessChecks.find((check) => !check.passed) ?? null;
+  const designReadinessChecks: GateCheck[] = selectedIdea && editState
+    ? [
+        {
+          label: "핵심 여정 고정",
+          passed: Boolean(selectedIdea.one_liner.trim() && selectedIdea.target_user.trim() && editState.next_evidence.trim()),
+          detail:
+            selectedIdea.one_liner.trim() && selectedIdea.target_user.trim() && editState.next_evidence.trim()
+              ? "사용자, 가치 제안, 다음 증거가 한 흐름으로 연결되어 있습니다."
+              : "한 줄 설명, 대상 사용자, 다음 증거를 먼저 고정하세요.",
+        },
+        {
+          label: "PRD 산출물",
+          passed: hasPrdArtifact,
+          detail: hasPrdArtifact ? "제품 요구사항 초안이 저장되어 있습니다." : "검증 산출물에서 PRD를 저장하세요.",
+        },
+        {
+          label: "MVP 범위",
+          passed: hasMvpSpecArtifact,
+          detail: hasMvpSpecArtifact ? "MVP 포함/제외 범위가 저장되어 있습니다." : "MVP 명세를 저장하세요.",
+        },
+        {
+          label: "백엔드 선택",
+          passed: hasBackendDecisionArtifact,
+          detail: hasBackendDecisionArtifact
+            ? "데이터/인증/운영 경계가 백엔드 결정에 기록되어 있습니다."
+            : "백엔드 선택 스코어카드를 보고 결정을 저장하세요.",
+        },
+        {
+          label: "디자인 상태 커버리지",
+          passed: hasDesignStateCoverage,
+          detail: hasDesignStateCoverage
+            ? "빈 상태, 로딩, 오류, 권한, 모바일, 접근성 상태가 디자인 브리프에 포함되어 있습니다."
+            : "디자인 브리프에 빈 상태, 로딩, 오류, 권한, 모바일, 접근성을 명시하세요.",
+        },
+        {
+          label: "디자인 실행",
+          passed: selectedRuns.some((run) => run.phase === "design" && run.status === "done") || hasDesignBriefArtifact,
+          detail:
+            selectedRuns.some((run) => run.phase === "design" && run.status === "done") || hasDesignBriefArtifact
+              ? "디자인 오케스트레이션 또는 브리프가 준비되어 있습니다."
+              : "오케스트레이션에서 디자인 단계를 완료하거나 디자인 브리프를 저장하세요.",
+        },
+      ]
+    : [];
+  const passedDesignReadinessCount = designReadinessChecks.filter((check) => check.passed).length;
+  const designReadinessScore =
+    designReadinessChecks.length === 0
+      ? 0
+      : Math.round((passedDesignReadinessCount / designReadinessChecks.length) * 100);
+  const buildReadinessChecks: GateCheck[] = selectedIdea
+    ? [
+        {
+          label: "PRD 승인",
+          passed: hasApprovedPrdArtifact,
+          detail: hasApprovedPrdArtifact
+            ? "제품 요구사항이 승인되어 개발 입력으로 쓸 수 있습니다."
+            : hasPrdArtifact
+              ? "PRD 초안은 있고 승인이 필요합니다."
+              : "PRD 산출물을 먼저 저장하세요.",
+        },
+        {
+          label: "MVP 명세 승인",
+          passed: hasApprovedMvpSpecArtifact,
+          detail: hasApprovedMvpSpecArtifact
+            ? "첫 수직 슬라이스 범위가 승인되었습니다."
+            : hasMvpSpecArtifact
+              ? "MVP 명세 초안은 있고 승인이 필요합니다."
+              : "MVP 명세를 먼저 저장하세요.",
+        },
+        {
+          label: "백엔드 결정",
+          passed: hasBackendDecisionArtifact,
+          detail: hasBackendDecisionArtifact
+            ? "Supabase/Firebase 선택 근거가 기록되어 있습니다."
+            : "백엔드 선택 스코어카드에서 결정을 저장하세요.",
+        },
+        {
+          label: "디자인 승인",
+          passed: hasApprovedDesignBriefArtifact,
+          detail: hasApprovedDesignBriefArtifact
+            ? "구현 전 화면 흐름과 상태가 승인되었습니다."
+            : hasDesignBriefArtifact
+              ? "디자인 브리프 초안은 있고 승인이 필요합니다."
+              : "디자인 브리프를 저장하세요.",
+        },
+        {
+          label: "기술 명세 승인",
+          passed: hasApprovedTechSpecArtifact,
+          detail: hasApprovedTechSpecArtifact
+            ? "데이터 모델, 권한, 검증 명령이 승인되었습니다."
+            : hasTechSpecArtifact
+              ? "기술 명세 초안은 있고 승인이 필요합니다."
+              : "기술 명세를 저장하세요.",
+        },
+        {
+          label: "개발 런북",
+          passed: hasDevRunbookArtifact,
+          detail: hasDevRunbookArtifact
+            ? "구현 순서와 로컬/배포 검증 경로가 있습니다."
+            : "개발 런북을 저장하세요.",
+        },
+        {
+          label: "태스크 분해",
+          passed: selectedImplementationTasks.length > 0,
+          detail:
+            selectedImplementationTasks.length > 0
+              ? `${selectedImplementationTasks.length}개 구현 태스크로 쪼개져 있습니다.`
+              : "기본 태스크를 생성하세요.",
+        },
+        {
+          label: "높은 리스크",
+          passed: unresolvedHighRiskCount === 0,
+          detail:
+            unresolvedHighRiskCount === 0
+              ? "열린 높음/치명 리스크가 없습니다."
+              : `${unresolvedHighRiskCount}개 높음/치명 리스크가 남아 있습니다.`,
+        },
+      ]
+    : [];
+  const passedBuildReadinessCount = buildReadinessChecks.filter((check) => check.passed).length;
+  const buildReadinessScore =
+    buildReadinessChecks.length === 0 ? 0 : Math.round((passedBuildReadinessCount / buildReadinessChecks.length) * 100);
   const implementationGateChecks: GateCheck[] = selectedIdea
     ? [
         {
@@ -5154,6 +5307,23 @@ export function IdeaWorkbench({
             ))}
           </div>
 
+          <div className="mt-5 grid gap-4 xl:grid-cols-2">
+            <GateChecklistPanel
+              eyebrow="design gate"
+              title="디자인 준비도"
+              description="화면을 그리기 전에 사용자 여정, MVP 범위, 데이터 경계, 상태 설계가 준비됐는지 확인합니다."
+              score={designReadinessScore}
+              checks={designReadinessChecks}
+            />
+            <GateChecklistPanel
+              eyebrow="build gate"
+              title="개발 착수 준비도"
+              description="코드 작업을 시작하기 전에 승인된 기획/디자인/기술 입력과 리스크 상태를 확인합니다."
+              score={buildReadinessScore}
+              checks={buildReadinessChecks}
+            />
+          </div>
+
           <div className="mt-5 flex flex-wrap gap-2">
             <button
               type="button"
@@ -6729,6 +6899,55 @@ function ScoreInput({
         onChange={(event) => onChange(clampScore(Number(event.target.value)))}
       />
     </label>
+  );
+}
+
+function GateChecklistPanel({
+  eyebrow,
+  title,
+  description,
+  score,
+  checks,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  score: number;
+  checks: GateCheck[];
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{eyebrow}</div>
+          <h3 className="mt-1 text-base font-semibold text-slate-950">{title}</h3>
+          <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+        </div>
+        <div className="shrink-0 rounded-md bg-slate-950 px-3 py-2 text-center text-white">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">준비</div>
+          <div className="text-2xl font-semibold">{score}%</div>
+        </div>
+      </div>
+      <div className="mt-4 h-2 rounded-full bg-white">
+        <div className="h-2 rounded-full bg-blue-600" style={{ width: `${score}%` }} />
+      </div>
+      <div className="mt-4 grid gap-3">
+        {checks.map((check) => (
+          <div key={check.label} className="rounded-md border border-slate-200 bg-white p-3">
+            <div className="flex items-start gap-2">
+              <CheckCircle2
+                size={18}
+                className={check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400"}
+              />
+              <div>
+                <div className="text-sm font-semibold text-slate-950">{check.label}</div>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{check.detail}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
