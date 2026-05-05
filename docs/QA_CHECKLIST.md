@@ -8,6 +8,14 @@ Use this checklist before merging meaningful changes.
 - `pnpm lint` passes.
 - `pnpm typecheck` passes.
 - `pnpm build` passes.
+- `pnpm harness:check` passes.
+- New data paths have a manual smoke path.
+- Auth/RLS changes verify both allowed and denied cases.
+- Server/client boundary changes do not expose secrets or service-role access.
+- UI changes cover empty, loading, success, error, permission denied, read-only, desktop, and mobile states.
+- Form validation errors appear near the relevant input and describe the next action.
+- Production-like behavior is checked with `next build` before deploy.
+- Production smoke is run after deploy for user-facing workflow changes.
 - Security and privacy risks are updated.
 - Decision log is updated for major changes.
 - Authenticated operators can create an idea and then update its stage, score, risks, and decision records.
@@ -34,3 +42,4 @@ Use this checklist before merging meaningful changes.
 - Root-level magic link redirects with `?code=` are exchanged into a session and the URL is cleaned.
 - Operators can attach owned personal records to a newly created workspace.
 - Header metrics include idea, risk, experiment, decision, and data-source state.
+- Generated development plans include technical spec, data/RLS checks, quality gates, and rollback notes.

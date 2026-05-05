@@ -19,14 +19,19 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - Idea brief: `templates/IDEA_BRIEF.md`
 - Product requirements: `templates/PRD.md`
 - MVP scope: `templates/MVP_SPEC.md`
+- Technical spec: `templates/TECH_SPEC.md`
+- Development runbook: `templates/DEV_RUNBOOK.md`
+- Design brief: `templates/DESIGN_BRIEF.md`
 - Decision history: `docs/DECISION_LOG.md`
 - Risk register: `docs/RISK_REGISTER.md`
+- Development harness: `docs/DEVELOPMENT_HARNESS.md`
 - Launch gate: `templates/LAUNCH_CHECKLIST.md`
 
 ## Gates
 
 - No PRD without an idea brief.
 - No build without an MVP spec.
+- No implementation without a technical boundary and verification plan.
 - No launch without QA and security review.
 - No sensitive feature without explicit data handling notes.
 - No factual market or regulatory claim without a source.
@@ -62,3 +67,4 @@ The app now supports the first live operating loop:
 25. Keep matching `.codex/agents/` role definitions for every orchestration phase so agent delegation mirrors the app runbook.
 26. Exchange root-level `?code=` magic link redirects on the client as a fallback when Supabase sends the code to `/` instead of `/auth/callback`.
 27. Let operators attach owned personal records to the active workspace after creating an organization boundary.
+28. Before development, write the technical boundary: Next.js server/client split, Supabase tables/RLS, Vercel envs, UI states, quality gates, smoke path, and rollback path.

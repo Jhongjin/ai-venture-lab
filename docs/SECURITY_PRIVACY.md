@@ -6,6 +6,9 @@
 - Do not store real personal data in early prototypes.
 - Do not scrape or ingest private data without explicit user consent.
 - Do not build regulated advice flows without a domain review.
+- Do not expose private env vars, service-role keys, auth tokens, or raw sensitive logs to the browser.
+- Do not rely on UI checks alone for authorization.
+- Enable RLS on every Supabase table exposed through the browser-facing Data API.
 
 ## Sensitive Domains
 
@@ -24,3 +27,22 @@ Extra review is required for:
 - Who can access it?
 - How can the user delete it?
 - What happens if the model is wrong?
+- Which role can select, insert, update, and delete each row?
+- Do insert/update policies prevent ownership or organization spoofing?
+- What is logged, retained, exported, or sent to AI tools?
+- How does the operator roll back a bad deployment or data migration?
+
+## Supabase Gate
+
+- Public-schema tables have RLS enabled.
+- Policies are scoped to `authenticated` unless anonymous access is intentional.
+- `insert` and `update` policies use `with check` for user or organization ownership.
+- `service_role` is only used server-side and never in client bundles.
+- Allowed and denied paths are tested before launch.
+
+## AI Gate
+
+- AI output is advisory unless a reviewed PRD explicitly allows action.
+- User can edit, retry, discard, or override generated output.
+- Prompt input and output are treated as sensitive when they contain personal, care, finance, legal, family, or workplace data.
+- Prompt injection and data poisoning paths are listed before enabling automation.
