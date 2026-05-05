@@ -225,6 +225,7 @@ const artifactSourceLabels: Record<string, string> = {
   workbench: "워크벤치",
   manual: "수동",
   development_process: "앱 개발 프로세스",
+  development_report: "개발 완료 보고서",
 };
 
 type EditState = Pick<
@@ -267,6 +268,12 @@ type ImplementationTaskDraft = {
   priority: ImplementationTaskPriority;
   owner_role: string;
   acceptance_criteria: string;
+};
+
+type GateCheck = {
+  label: string;
+  passed: boolean;
+  detail: string;
 };
 
 export type WorkbenchTask =
@@ -1570,6 +1577,121 @@ function buildImplementationTaskDrafts({
   ];
 }
 
+function buildDevelopmentCompletionReportMarkdown({
+  idea,
+  state,
+  risks,
+  experiments,
+  runs,
+  artifacts,
+  implementationTasks,
+  implementationGateChecks,
+  launchReadiness,
+  nextLaunchBlocker,
+}: {
+  idea: Idea;
+  state: EditState;
+  risks: Risk[];
+  experiments: Experiment[];
+  runs: OrchestrationRun[];
+  artifacts: VentureArtifact[];
+  implementationTasks: ImplementationTask[];
+  implementationGateChecks: GateCheck[];
+  launchReadiness: GateCheck[];
+  nextLaunchBlocker: GateCheck | null;
+}) {
+  const taskLines =
+    implementationTasks.length > 0
+      ? implementationTasks
+          .map(
+            (task) =>
+              `- [${task.status === "done" ? "x" : " "}] ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / ${implementationTaskPriorityLabels[task.priority]}\n  - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n    ")}\n  - 완료 증거: ${task.evidence.trim() || "미기록"}`,
+          )
+          .join("\n")
+      : "- 아직 생성된 개발 태스크가 없습니다.";
+  const riskLines =
+    risks.length > 0
+      ? risks.map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`).join("\n")
+      : "- 연결된 리스크가 없습니다.";
+  const experimentLines =
+    experiments.length > 0
+      ? experiments.map((experiment) => `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
+      : "- 연결된 실험이 없습니다.";
+  const artifactLines =
+    artifacts.length > 0
+      ? artifacts
+          .slice(0, 12)
+          .map(
+            (artifact) =>
+              `- ${artifactLabels[artifact.artifact_type]} v${artifact.version ?? 1}: ${artifact.title || "제목 없음"} (${artifactStatusLabels[artifact.status]})`,
+          )
+          .join("\n")
+      : "- 저장된 산출물이 없습니다.";
+  const doneRunLines =
+    runs.filter((run) => run.status === "done").length > 0
+      ? runs
+          .filter((run) => run.status === "done")
+          .map((run) => `- ${phaseLabels[run.phase]}: ${run.owner_role || "owner 미정"}`)
+          .join("\n")
+      : "- 완료된 오케스트레이션 단계가 없습니다.";
+  const gateLines = implementationGateChecks
+    .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
+    .join("\n");
+  const launchLines = launchReadiness
+    .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
+    .join("\n");
+  const completedTaskCount = implementationTasks.filter((task) => task.status === "done").length;
+  const taskEvidenceCount = implementationTasks.filter((task) => task.status === "done" && task.evidence.trim()).length;
+
+  return `# 개발 완료 보고서: ${idea.name}
+
+## 요약
+
+- 제품 가치: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+- 개발 태스크: ${completedTaskCount}/${implementationTasks.length} 완료
+- 완료 증거: ${taskEvidenceCount}/${completedTaskCount} 기록
+- 다음 출시 차단 항목: ${nextLaunchBlocker ? `${nextLaunchBlocker.label} - ${nextLaunchBlocker.detail}` : "없음"}
+
+## 개발 완료 게이트
+
+${gateLines || "- 게이트가 아직 계산되지 않았습니다."}
+
+## 구현 태스크와 증거
+
+${taskLines}
+
+## 산출물 상태
+
+${artifactLines}
+
+## 리스크 상태
+
+${riskLines}
+
+## 실험 상태
+
+${experimentLines}
+
+## 완료된 오케스트레이션 단계
+
+${doneRunLines}
+
+## 출시 준비도
+
+${launchLines || "- 출시 준비도 항목이 아직 없습니다."}
+
+## 완료 판단 메모
+
+- 모든 완료 태스크에는 커밋, PR, Preview URL, 검증 명령, 스모크 결과, 남은 리스크 중 최소 하나의 증거가 필요합니다.
+- 차단 태스크가 있으면 출시 판단은 보류합니다.
+- 프로덕션 배포 후 로그인, 저장, 조회, 권한 차단, 모바일 화면을 다시 확인합니다.
+`;
+}
+
 function buildLaunchChecklistMarkdown({
   idea,
   state,
@@ -2325,6 +2447,60 @@ export function IdeaWorkbench({
   ) ?? selectedArtifactRecords.find((artifact) =>
     ["tech_spec", "dev_runbook", "mvp_spec", "prd"].includes(artifact.artifact_type),
   );
+  const completedImplementationTasks = selectedImplementationTasks.filter((task) => task.status === "done");
+  const implementationTasksWithEvidence = completedImplementationTasks.filter((task) => task.evidence.trim());
+  const hasBlockedImplementationTasks = selectedImplementationTasks.some((task) => task.status === "blocked");
+  const implementationGateChecks: GateCheck[] = selectedIdea
+    ? [
+        {
+          label: "개발 태스크 생성",
+          passed: selectedImplementationTasks.length > 0,
+          detail:
+            selectedImplementationTasks.length > 0
+              ? `${selectedImplementationTasks.length}개의 구현 태스크가 있습니다.`
+              : "앱 개발 프로세스에서 기본 개발 태스크를 생성하세요.",
+        },
+        {
+          label: "차단 태스크 없음",
+          passed: !hasBlockedImplementationTasks,
+          detail: hasBlockedImplementationTasks
+            ? `${selectedImplementationTasks.filter((task) => task.status === "blocked").length}개 태스크가 차단 상태입니다.`
+            : "현재 차단 상태의 태스크가 없습니다.",
+        },
+        {
+          label: "모든 태스크 완료",
+          passed:
+            selectedImplementationTasks.length > 0 &&
+            completedImplementationTasks.length === selectedImplementationTasks.length,
+          detail:
+            selectedImplementationTasks.length > 0
+              ? `${completedImplementationTasks.length}/${selectedImplementationTasks.length}개 완료`
+              : "완료할 태스크가 아직 없습니다.",
+        },
+        {
+          label: "완료 증거 기록",
+          passed:
+            completedImplementationTasks.length > 0 &&
+            implementationTasksWithEvidence.length === completedImplementationTasks.length,
+          detail:
+            completedImplementationTasks.length > 0
+              ? `${implementationTasksWithEvidence.length}/${completedImplementationTasks.length}개 완료 태스크에 증거가 있습니다.`
+              : "완료된 태스크가 생기면 커밋, PR, 스모크 결과, 배포 URL 같은 증거를 기록하세요.",
+        },
+        {
+          label: "QA와 보안 단계 완료",
+          passed:
+            selectedRuns.some((run) => run.phase === "qa" && run.status === "done") &&
+            selectedRuns.some((run) => run.phase === "security" && run.status === "done"),
+          detail: "QA와 보안 오케스트레이션이 모두 완료되어야 합니다.",
+        },
+      ]
+    : [];
+  const passedImplementationGateCount = implementationGateChecks.filter((check) => check.passed).length;
+  const implementationGateScore =
+    implementationGateChecks.length === 0
+      ? 0
+      : Math.round((passedImplementationGateCount / implementationGateChecks.length) * 100);
   const launchChecklistDraft = selectedIdea && editState
     ? buildLaunchChecklistMarkdown({
         idea: selectedIdea,
@@ -2422,12 +2598,10 @@ export function IdeaWorkbench({
         },
         {
           label: "개발 태스크 완료",
-          passed:
-            selectedImplementationTasks.length > 0 &&
-            selectedImplementationTasks.every((task) => task.status === "done"),
+          passed: implementationGateChecks.every((check) => check.passed),
           detail:
             selectedImplementationTasks.length > 0
-              ? `${selectedImplementationTasks.filter((task) => task.status === "done").length}/${selectedImplementationTasks.length}개 완료`
+              ? `개발 완료 게이트 ${passedImplementationGateCount}/${implementationGateChecks.length}개 통과`
               : "앱 개발 프로세스에서 기본 개발 태스크를 생성하세요.",
         },
         {
@@ -2463,6 +2637,20 @@ export function IdeaWorkbench({
       ? 0
       : Math.round((passedLaunchReadinessCount / launchReadiness.length) * 100);
   const nextLaunchBlocker = launchReadiness.find((check) => !check.passed) ?? null;
+  const developmentCompletionReportDraft = selectedIdea && editState
+    ? buildDevelopmentCompletionReportMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        risks: selectedIdeaRisks,
+        experiments: selectedExperiments,
+        runs: selectedRuns,
+        artifacts: selectedArtifactRecords,
+        implementationTasks: selectedImplementationTasks,
+        implementationGateChecks,
+        launchReadiness,
+        nextLaunchBlocker,
+      })
+    : "";
   const doneRunCount = selectedRuns.filter((run) => run.status === "done").length;
   const workbenchTasks: Array<{
     id: WorkbenchTask;
@@ -3872,6 +4060,67 @@ export function IdeaWorkbench({
                 먼저 PRD, MVP 명세, 기술 명세, 개발 런북을 저장한 뒤 기본 태스크를 생성하면 구현 작업이 자동으로 분해됩니다.
               </p>
             ) : null}
+          </div>
+
+          <div className="mt-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-emerald-950">개발 완료 게이트</h3>
+                <p className="mt-1 text-sm leading-6 text-emerald-900">
+                  구현 태스크, 완료 증거, QA/보안 단계를 기준으로 개발 완료 보고서를 만듭니다.
+                </p>
+              </div>
+              <div className="rounded-lg bg-emerald-950 px-4 py-3 text-right text-white">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">
+                  통과 {passedImplementationGateCount}/{implementationGateChecks.length}
+                </div>
+                <div className="mt-1 text-2xl font-semibold">{implementationGateScore}%</div>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              {implementationGateChecks.map((check) => (
+                <div key={check.label} className="rounded-lg border border-emerald-100 bg-white p-3">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2
+                      size={18}
+                      className={check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400"}
+                    />
+                    <div>
+                      <div className="text-sm font-semibold text-slate-950">{check.label}</div>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">{check.detail}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => copyDraft(developmentCompletionReportDraft, "개발 완료 보고서")}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-white px-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50"
+              >
+                <Clipboard size={16} />
+                보고서 복사
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  saveArtifactDraft(
+                    "dev_runbook",
+                    `${selectedIdea.name} 개발 완료 보고서`,
+                    developmentCompletionReportDraft,
+                    "development_report",
+                  )
+                }
+                disabled={isBusy || !user}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-700 px-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Save size={16} />
+                보고서 저장
+              </button>
+            </div>
           </div>
 
           <textarea

@@ -25,9 +25,10 @@ Before implementation, define:
 6. Implement read/write path with authorization at the boundary.
 7. Add UI state coverage and error recovery.
 8. Move each implementation task through todo, doing, blocked, and done with completion evidence.
-9. Run focused verification, then full quality gates.
-10. Deploy preview, smoke test, then deploy production.
-11. Record decision, risk, and rollback notes.
+9. Save a development completion report once implementation, QA, and security gates are reviewed.
+10. Run focused verification, then full quality gates.
+11. Deploy preview, smoke test, then deploy production.
+12. Record decision, risk, and rollback notes.
 
 ## Quality Gates
 
@@ -50,6 +51,8 @@ Add browser or Playwright smoke checks when the user-facing workflow changes.
 - No Firebase server SDK path without IAM and server-side trust review.
 - No sensitive workflow without consent, retention, deletion, and audit notes.
 - No AI action without edit/retry/discard or human review path.
+- No done implementation task without evidence.
+- No production launch while any implementation task is blocked.
 
 ## Production Smoke Template
 

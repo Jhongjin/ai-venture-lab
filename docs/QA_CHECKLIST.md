@@ -36,7 +36,8 @@ Use this checklist before merging meaningful changes.
 - Authenticated operators can generate implementation tasks from the app development process panel.
 - Implementation task owners can move tasks through todo, doing, blocked, and done states.
 - Implementation task owners can save completion evidence without losing the current selected idea.
-- Launch readiness requires implementation tasks to exist and all of them to be done.
+- Launch readiness requires implementation tasks to exist, have no blocked tasks, all be done, and all done tasks have evidence.
+- Operators can copy and save a development completion report from the app development panel.
 - Supabase accepts the expanded `venture_artifacts.artifact_type` values: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
 - Artifact owners or workspace admins can move artifacts between draft, approved, and archived.
 - Launch readiness shows blocked gates for evidence, artifacts, backend choice, design, technical spec, development runbook, experiments, QA, security, risks, and decisions.
