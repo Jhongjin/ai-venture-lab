@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { Beaker, ClipboardList, Code2, Flag, Layers3, Rocket, Save, ShieldCheck, Sparkles, UserRound, Users } from "lucide-react";
 
 import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
@@ -216,6 +216,19 @@ function recommendNextTask({
   return shellTasks.find((task) => task.id === nextId) ?? null;
 }
 
+function scoreIdea(idea: Idea) {
+  return Math.max(
+    0,
+    idea.problem_intensity +
+      idea.frequency +
+      idea.reachability +
+      idea.willingness_to_pay +
+      idea.mvp_speed +
+      idea.differentiation -
+      idea.regulatory_risk,
+  );
+}
+
 function upsertById<T extends { id: string }>(records: T[], nextRecord: T) {
   return records.some((record) => record.id === nextRecord.id)
     ? records.map((record) => (record.id === nextRecord.id ? nextRecord : record))
@@ -342,6 +355,52 @@ export function VentureConsoleShell({
   const runCount = orchestrationRuns.length;
   const artifactCount = artifacts.length;
   const implementationTaskCount = implementationTasks.length;
+  const prioritizedIdeas = useMemo(
+    () =>
+      ideas
+        .map((idea) => {
+          const ideaRisks = risks.filter((risk) => risk.idea_id === idea.id);
+          const openHighRiskCount = ideaRisks.filter(
+            (risk) => risk.status !== "closed" && ["high", "critical"].includes(risk.severity),
+          ).length;
+          const ideaExperiments = experiments.filter((experiment) => experiment.idea_id === idea.id);
+          const ideaArtifacts = artifacts.filter((artifact) => artifact.idea_id === idea.id);
+          const approvedProductArtifactCount = ideaArtifacts.filter(
+            (artifact) =>
+              artifact.status === "approved" && ["prd", "mvp_spec", "design_brief", "tech_spec"].includes(artifact.artifact_type),
+          ).length;
+          const ventureScore = scoreIdea(idea);
+          const priorityScore =
+            ventureScore +
+            Math.min(6, ideaExperiments.length * 2) +
+            Math.min(8, approvedProductArtifactCount * 2) -
+            openHighRiskCount * 5 -
+            (idea.decision === "kill" ? 12 : 0);
+          const nextAction =
+            openHighRiskCount > 0
+              ? "리스크 먼저"
+              : ideaExperiments.length === 0
+                ? "실험 먼저"
+                : approvedProductArtifactCount > 0
+                  ? "개발 후보"
+                  : "검증 후보";
+
+          return {
+            idea,
+            ventureScore,
+            priorityScore,
+            nextAction,
+            openHighRiskCount,
+          };
+        })
+        .sort(
+          (left, right) =>
+            right.priorityScore - left.priorityScore ||
+            new Date(right.idea.created_at).getTime() - new Date(left.idea.created_at).getTime(),
+        )
+        .slice(0, 3),
+    [artifacts, experiments, ideas, risks],
+  );
   const activeWork = experiments.filter((experiment) => experiment.status !== "done").length +
     orchestrationRuns.filter((run) => ["planned", "running", "blocked"].includes(run.status)).length +
     implementationTasks.filter((task) => task.status !== "done").length;
@@ -398,6 +457,33 @@ export function VentureConsoleShell({
             </div>
           ))}
         </div>
+
+        {prioritizedIdeas.length > 0 ? (
+          <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">우선 검토 후보</div>
+            <div className="grid gap-2">
+              {prioritizedIdeas.map((item, index) => (
+                <button
+                  key={item.idea.id}
+                  type="button"
+                  onClick={() => setActiveTask("workbench:select")}
+                  className="grid grid-cols-[1.6rem_minmax(0,1fr)_auto] items-center gap-2 rounded-md bg-white p-2 text-left shadow-sm transition hover:bg-blue-50"
+                >
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-950 text-xs font-semibold text-white">
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold text-slate-950">{item.idea.name}</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-slate-500">
+                      점수 {item.ventureScore} · {item.openHighRiskCount > 0 ? `고위험 ${item.openHighRiskCount}` : "고위험 없음"}
+                    </span>
+                  </span>
+                  <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">{item.nextAction}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {["운영 준비", "아이디어 실행"].map((group) => (
           <div key={group} className="mt-4">

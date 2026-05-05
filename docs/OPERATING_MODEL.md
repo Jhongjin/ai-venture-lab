@@ -113,8 +113,9 @@ The app now supports the first live operating loop:
 51. Require completion evidence for every done implementation task before development can be considered complete.
 52. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
 53. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
-54. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
-55. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
-56. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
-57. Capture experiment results as research notes so completed tests change the next decision and next action.
-58. Use the validation summary to decide whether the next artifact should be PRD, another experiment, a pivot, or an explicit kill decision.
+54. Use the shell priority candidates to decide which ideas need risk clearing, experiments, validation artifacts, or development handoff first.
+55. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
+56. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
+57. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.
+58. Capture experiment results as research notes so completed tests change the next decision and next action.
+59. Use the validation summary to decide whether the next artifact should be PRD, another experiment, a pivot, or an explicit kill decision.

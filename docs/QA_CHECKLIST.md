@@ -74,4 +74,5 @@ Use this checklist before merging meaningful changes.
 - Operators can attach owned personal records to a newly created workspace.
 - Header metrics include idea, risk, experiment, decision, and data-source state.
 - Shell metrics and recommended next steps update immediately after idea, risk, experiment, run, artifact, and implementation task changes.
+- Shell sidebar shows top priority ideas using venture score, experiments, approved product artifacts, high-risk blockers, and kill decisions.
 - Generated development plans include technical spec, data/RLS checks, quality gates, and rollback notes.
