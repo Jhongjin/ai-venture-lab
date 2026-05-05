@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Beaker, ClipboardList, Flag, Layers3, Rocket, Save, ShieldCheck, UserRound, Users } from "lucide-react";
 
 import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
@@ -113,11 +113,34 @@ export function VentureConsoleShell({
   source: "supabase" | "seed";
 }) {
   const [activeTask, setActiveTask] = useState<ShellTask>("console:idea");
+  const [createdIdeaIds, setCreatedIdeaIds] = useState<Set<string>>(() => new Set());
   const handleConsoleTaskChange = useCallback((task: ConsoleActionTask) => {
     setActiveTask(`console:${task}`);
   }, []);
   const handleWorkbenchTaskChange = useCallback((task: WorkbenchTask) => {
     setActiveTask(`workbench:${task}`);
+  }, []);
+  useEffect(() => {
+    function handleIdeaCreated(event: Event) {
+      const createdIdea = (event as CustomEvent<Idea>).detail;
+
+      if (!createdIdea?.id) {
+        return;
+      }
+
+      setCreatedIdeaIds((current) => {
+        const next = new Set(current);
+        next.add(createdIdea.id);
+        return next;
+      });
+      setActiveTask("workbench:score");
+    }
+
+    window.addEventListener("venture:idea-created", handleIdeaCreated);
+
+    return () => {
+      window.removeEventListener("venture:idea-created", handleIdeaCreated);
+    };
   }, []);
   const activeConsoleTask = activeTask.startsWith("console:")
     ? (activeTask.replace("console:", "") as ConsoleActionTask)
@@ -125,10 +148,37 @@ export function VentureConsoleShell({
   const activeWorkbenchTask = activeTask.startsWith("workbench:")
     ? (activeTask.replace("workbench:", "") as WorkbenchTask)
     : "select";
+  const ideaCount = useMemo(() => {
+    const ids = new Set(initialIdeas.map((idea) => idea.id));
+
+    for (const id of createdIdeaIds) {
+      ids.add(id);
+    }
+
+    return ids.size;
+  }, [createdIdeaIds, initialIdeas]);
   const openRisks = initialRisks.filter((risk) => risk.status.toLowerCase() === "open").length;
   const highRisks = initialRisks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
   const activeWork = initialExperiments.filter((experiment) => experiment.status !== "done").length +
     initialOrchestrationRuns.filter((run) => ["planned", "running", "blocked"].includes(run.status)).length;
+  const activeTaskIndex = shellTasks.findIndex((task) => task.id === activeTask);
+  const activeTaskConfig = shellTasks[activeTaskIndex] ?? shellTasks[0];
+  const ActiveIcon = activeTaskConfig.icon;
+  const previousTask = activeTaskIndex > 0 ? shellTasks[activeTaskIndex - 1] : null;
+  const nextTask = activeTaskIndex >= 0 && activeTaskIndex < shellTasks.length - 1 ? shellTasks[activeTaskIndex + 1] : null;
+  const taskStatuses: Record<ShellTask, string> = {
+    "console:auth": "접근",
+    "console:workspace": "팀",
+    "console:idea": "입력",
+    "workbench:select": `${ideaCount}개`,
+    "workbench:score": "점수",
+    "workbench:risk": `${openRisks}개`,
+    "workbench:decision": "기록",
+    "workbench:experiment": `${initialExperiments.length}개`,
+    "workbench:orchestration": `${initialOrchestrationRuns.length}개`,
+    "workbench:artifacts": `${initialArtifacts.length}개`,
+    "workbench:launch": highRisks > 0 ? "점검" : "확인",
+  };
 
   return (
     <section className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
@@ -141,7 +191,7 @@ export function VentureConsoleShell({
 
         <div className="mb-4 grid grid-cols-2 gap-2">
           {[
-            ["아이디어", String(initialIdeas.length)],
+            ["아이디어", String(ideaCount)],
             ["리스크", String(openRisks)],
             ["고위험", String(highRisks)],
             ["작업", String(activeWork)],
@@ -171,7 +221,7 @@ export function VentureConsoleShell({
                       type="button"
                       onClick={() => setActiveTask(task.id)}
                       aria-current={isActive ? "step" : undefined}
-                      className={`grid grid-cols-[2rem_minmax(0,1fr)] items-center gap-3 rounded-lg border p-3 text-left transition ${
+                      className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
                         isActive
                           ? "border-blue-300 bg-blue-50 text-blue-950"
                           : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white"
@@ -191,6 +241,13 @@ export function VentureConsoleShell({
                         </span>
                         <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
                       </span>
+                      <span
+                        className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                          isActive ? "bg-white text-blue-700" : "bg-white text-slate-600"
+                        }`}
+                      >
+                        {taskStatuses[task.id]}
+                      </span>
                     </button>
                   );
                 })}
@@ -200,6 +257,41 @@ export function VentureConsoleShell({
       </aside>
 
       <div className="min-w-0">
+        <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+                <ActiveIcon size={20} />
+              </span>
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  {activeTaskConfig.group}
+                </div>
+                <h2 className="mt-1 text-2xl font-semibold text-slate-950">{activeTaskConfig.label}</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-500">{activeTaskConfig.description}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => previousTask && setActiveTask(previousTask.id)}
+                disabled={!previousTask}
+                className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                이전
+              </button>
+              <button
+                type="button"
+                onClick={() => nextTask && setActiveTask(nextTask.id)}
+                disabled={!nextTask}
+                className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                다음 작업
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div className={activeTask.startsWith("console:") ? "" : "hidden"}>
           <VentureConsoleActions
             activeTask={activeConsoleTask}
