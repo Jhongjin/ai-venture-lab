@@ -19,6 +19,7 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - Idea brief: `templates/IDEA_BRIEF.md`
 - Research brief: generated `research_note` artifact in the workbench
 - 7-day validation sprint: generated `research_note` artifact with interview recruiting, alternatives, pricing, and decision criteria
+- Evidence note: manual `research_note` artifact for interviews, external sources, pricing signals, and competitor observations
 - Product requirements: `templates/PRD.md`
 - MVP scope: `templates/MVP_SPEC.md`
 - Technical spec: `templates/TECH_SPEC.md`
@@ -55,7 +56,7 @@ The app now supports the first live operating loop:
 8. Attach risks.
 9. Record a decision reason.
 10. Use the suggested decision and evidence gaps as an advisory gate before PRD.
-11. Save the generated idea brief, research brief, and 7-day validation sprint so problem evidence, alternatives, price, regulation, privacy checks, and field execution are explicit before PRD.
+11. Save the generated idea brief, research brief, 7-day validation sprint, and at least one manual evidence note so problem evidence, alternatives, price, regulation, privacy checks, and field execution are explicit before PRD.
 12. Attach the next smallest experiment and success metric.
 13. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.
 14. Save each orchestration output and copy the generated PRD draft when the evidence is ready.
@@ -90,3 +91,4 @@ The app now supports the first live operating loop:
 43. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
 44. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
 45. Use the 7-day validation sprint whenever the operator needs copy-ready recruiting messages, day-by-day validation actions, and a Day 7 proceed/research/pivot/kill decision.
+46. Capture interview notes, external URLs, pricing signals, and competitor observations as evidence notes instead of leaving them in chat or browser history.

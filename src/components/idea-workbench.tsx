@@ -246,8 +246,17 @@ const decisionLabels: Record<DecisionStatus, string> = {
 const artifactSourceLabels: Record<string, string> = {
   workbench: "워크벤치",
   manual: "수동",
+  evidence_capture: "근거 캡처",
+  validation_sprint: "7일 검증 스프린트",
   development_process: "앱 개발 프로세스",
   development_report: "개발 완료 보고서",
+};
+const evidenceConfidenceOptions = ["low", "medium", "high"] as const;
+type EvidenceConfidence = (typeof evidenceConfidenceOptions)[number];
+const evidenceConfidenceLabels: Record<EvidenceConfidence, string> = {
+  low: "낮음",
+  medium: "보통",
+  high: "높음",
 };
 
 type EditState = Pick<
@@ -282,6 +291,14 @@ type RunDraft = {
   phase: OrchestrationPhase;
   owner_role: string;
   objective: string;
+};
+
+type EvidenceDraft = {
+  title: string;
+  source: string;
+  evidence: string;
+  implication: string;
+  confidence: EvidenceConfidence;
 };
 
 type ImplementationTaskDraft = {
@@ -981,6 +998,48 @@ ${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 현재 높음/치명 
 판정:
 다음 행동:
 \`\`\`
+`;
+}
+
+function buildEvidenceNoteMarkdown({
+  idea,
+  state,
+  draft,
+}: {
+  idea: Idea;
+  state: EditState;
+  draft: EvidenceDraft;
+}) {
+  return `# 근거 기록: ${draft.title || "제목 미정"}
+
+## 아이디어 맥락
+
+- 아이디어: ${idea.name}
+- 한 줄 설명: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+
+## 출처
+
+${draft.source || "미정"}
+
+## 관찰한 근거
+
+${draft.evidence || "미정"}
+
+## 해석과 영향
+
+${draft.implication || "미정"}
+
+## 확신도
+
+- ${evidenceConfidenceLabels[draft.confidence]}
+
+## 다음 행동
+
+${state.next_evidence || "이 근거가 진행, 추가 조사, 전환, 중단 중 어떤 판단을 강화하는지 결정하세요."}
 `;
 }
 
@@ -2635,6 +2694,13 @@ export function IdeaWorkbench({
     owner_role: "strategy-reviewer",
     objective: orchestrationPhaseConfigs[0].objective,
   });
+  const [evidenceDraft, setEvidenceDraft] = useState<EvidenceDraft>({
+    title: "",
+    source: "",
+    evidence: "",
+    implication: "",
+    confidence: "medium",
+  });
   const [runOutputs, setRunOutputs] = useState<Record<string, string>>(
     Object.fromEntries(initialOrchestrationRuns.map((run) => [run.id, run.output])),
   );
@@ -2931,6 +2997,13 @@ export function IdeaWorkbench({
         recommendation: scoreRecommendation,
         risks: selectedIdeaRisks,
         experiments: selectedExperiments,
+      })
+    : "";
+  const evidenceNoteDraft = selectedIdea && editState
+    ? buildEvidenceNoteMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        draft: evidenceDraft,
       })
     : "";
   const prdDraft = selectedIdea && editState
@@ -3685,17 +3758,17 @@ export function IdeaWorkbench({
   async function saveArtifactDraft(artifactType: VentureArtifactType, title: string, body: string, source: string) {
     if (!supabase || !selectedIdea) {
       setMessage("먼저 아이디어를 선택하세요.");
-      return;
+      return false;
     }
 
     if (!user) {
       setMessage("산출물을 저장하려면 먼저 로그인하세요.");
-      return;
+      return false;
     }
 
     if (!body.trim()) {
       setMessage("저장할 산출물 본문이 비어 있습니다.");
-      return;
+      return false;
     }
 
     const nextVersion =
@@ -3727,13 +3800,50 @@ export function IdeaWorkbench({
 
     if (error) {
       setMessage(error.message);
-      return;
+      return false;
     }
 
     setArtifacts((current) => [data, ...current]);
     emitVentureEvent("venture:artifact-created", data);
     setMessage(`${artifactLabels[artifactType]} v${nextVersion}을 저장했습니다.`);
     router.refresh();
+    return true;
+  }
+
+  async function saveEvidenceNote(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!selectedIdea) {
+      setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    if (!evidenceDraft.title.trim()) {
+      setMessage("근거 제목은 필수입니다.");
+      return;
+    }
+
+    if (!evidenceDraft.evidence.trim()) {
+      setMessage("관찰한 근거를 입력하세요.");
+      return;
+    }
+
+    const saved = await saveArtifactDraft(
+      "research_note",
+      `${selectedIdea.name} 근거 - ${evidenceDraft.title.trim()}`,
+      evidenceNoteDraft,
+      "evidence_capture",
+    );
+
+    if (saved) {
+      setEvidenceDraft({
+        title: "",
+        source: "",
+        evidence: "",
+        implication: "",
+        confidence: "medium",
+      });
+    }
   }
 
   async function updateArtifactStatus(artifact: VentureArtifact, status: VentureArtifactStatus) {
@@ -5464,6 +5574,75 @@ export function IdeaWorkbench({
             rows={18}
             className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
           />
+        </div>
+
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "artifacts" ? "" : "hidden"
+          }`}
+        >
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">근거 직접 기록</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                인터뷰 메모, 외부 자료, 가격 신호, 경쟁 대안 관찰을 리서치 노트로 저장합니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => copyDraft(evidenceNoteDraft, "근거 기록")}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+            >
+              <Clipboard size={18} />
+              미리보기 복사
+            </button>
+          </div>
+          <form onSubmit={saveEvidenceNote} className="grid gap-4">
+            <div className="grid gap-4 lg:grid-cols-[1fr_1fr_180px]">
+              <InputField
+                label="근거 제목"
+                value={evidenceDraft.title}
+                onChange={(value) => setEvidenceDraft((current) => ({ ...current, title: value }))}
+              />
+              <InputField
+                label="출처/URL/인터뷰 대상"
+                value={evidenceDraft.source}
+                onChange={(value) => setEvidenceDraft((current) => ({ ...current, source: value }))}
+              />
+              <SelectField
+                label="확신도"
+                value={evidenceDraft.confidence}
+                options={[...evidenceConfidenceOptions]}
+                labels={evidenceConfidenceLabels}
+                onChange={(value) => setEvidenceDraft((current) => ({ ...current, confidence: value }))}
+              />
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <TextArea
+                label="관찰한 근거"
+                value={evidenceDraft.evidence}
+                onChange={(value) => setEvidenceDraft((current) => ({ ...current, evidence: value }))}
+              />
+              <TextArea
+                label="해석과 영향"
+                value={evidenceDraft.implication}
+                onChange={(value) => setEvidenceDraft((current) => ({ ...current, implication: value }))}
+              />
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-slate-500">
+                저장하면 산출물 라이브러리에 `리서치 노트`로 남고 출시 준비도 리서치 게이트에 반영됩니다.
+              </p>
+              <button
+                type="submit"
+                disabled={isBusy || !user}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Save size={18} />
+                근거 저장
+              </button>
+            </div>
+          </form>
         </div>
 
         <div
