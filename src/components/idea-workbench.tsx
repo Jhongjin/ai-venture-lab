@@ -661,6 +661,177 @@ ${riskLines}
 `;
 }
 
+function buildResearchBriefMarkdown({
+  idea,
+  state,
+  score,
+  recommendation,
+  risks,
+  experiments,
+  runs,
+}: {
+  idea: Idea;
+  state: EditState;
+  score: number;
+  recommendation: DecisionStatus;
+  risks: Risk[];
+  experiments: Experiment[];
+  runs: OrchestrationRun[];
+}) {
+  const riskLines =
+    risks.length > 0
+      ? risks
+          .map(
+            (risk) =>
+              `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
+                risk.mitigation || "완화 방안 미정"
+              }`,
+          )
+          .join("\n")
+      : "- 아직 연결된 리스크가 없습니다. 보안, 개인정보, 규제, 운영 책임 리스크를 먼저 적어보세요.";
+  const experimentLines =
+    experiments.length > 0
+      ? experiments
+          .map(
+            (experiment) =>
+              `- ${experiment.name} (${experimentStatusLabels[experiment.status] ?? experiment.status}): ${
+                experiment.success_metric || "성공 지표 미정"
+              }`,
+          )
+          .join("\n")
+      : "- 아직 실험이 없습니다. 5명 인터뷰, 랜딩/대기자, 수동 컨시어지, 가격 민감도 테스트 중 하나를 선택하세요.";
+  const researchRunLines =
+    runs.filter((run) => ["strategy", "research"].includes(run.phase)).length > 0
+      ? runs
+          .filter((run) => ["strategy", "research"].includes(run.phase))
+          .map(
+            (run) =>
+              `### ${phaseLabels[run.phase]} (${runStatusLabels[run.status]})\n\n목표: ${
+                run.objective || "미정"
+              }\n\n산출물:\n\n${run.output || "미정"}`,
+          )
+          .join("\n\n")
+      : "전략/리서치 오케스트레이션 기록이 아직 없습니다.";
+
+  return `# 리서치 브리프: ${idea.name}
+
+## 1. 검증 목표
+
+- 한 줄 설명: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+- 점수: ${score}
+- 추천 판단: ${decisionLabels[recommendation]}
+- 이번 리서치의 핵심 질문: ${state.next_evidence || "사용자가 실제로 반복 문제를 겪고 돈이나 시간을 낼 만큼 중요한가?"}
+
+## 2. 가장 위험한 가정
+
+1. ${idea.target_user || "대상 사용자"}가 최근 30일 안에 이 문제를 실제로 겪었다.
+2. 현재 대안은 느리거나 비싸거나 불안하거나 책임 추적이 어렵다.
+3. ${idea.buyer || "구매자"}가 이 문제를 해결하기 위해 예산, 시간, 내부 승인을 쓸 수 있다.
+4. 첫 MVP는 완전 자동화 없이도 핵심 가치를 전달할 수 있다.
+5. 개인정보, 규제, 보안 리스크를 낮은 비용으로 통제할 수 있다.
+
+## 3. 데스크 리서치 체크리스트
+
+### 시장과 사용자
+
+- 검색 키워드:
+  - "${idea.name}"
+  - "${idea.one_liner || "핵심 문제"}"
+  - "${idea.target_user || "대상 사용자"} workflow"
+  - "${idea.buyer || "구매자"} budget"
+- 확인할 것:
+  - 이 문제가 이미 커뮤니티, 리뷰, Q&A, 채용 공고, 정부/협회 자료에서 반복적으로 드러나는가?
+  - 사용자가 현재 어떤 도구, 사람, 엑셀, 카카오톡, 이메일, 전화로 우회하고 있는가?
+  - 구매자가 누구인지 사용자와 구매자가 분리되는지 확인한다.
+
+### 경쟁과 대안
+
+| 유형 | 후보 | 사용자가 얻는 가치 | 약점 | 우리 MVP 차별점 |
+| --- | --- | --- | --- | --- |
+| 직접 경쟁 | 조사 필요 | 조사 필요 | 조사 필요 | 조사 필요 |
+| 간접 대안 | 스프레드시트/메신저/수동 운영 | 낮은 도입 비용 | 반복, 추적, 책임 공백 | 단일 기록과 다음 행동 |
+| 전문 서비스 | 대행사/컨설턴트/센터 | 신뢰와 책임 | 비용, 대기, 표준화 한계 | 작은 반복 문제 자동화 |
+| 아무것도 안 함 | 현재 방식 유지 | 전환 비용 없음 | 손실이 계속 누적 | 손실을 수치화 |
+
+### 가격과 구매 의향
+
+- 현재 문제의 월간 비용: 시간, 인건비, 오류 비용, 기회비용으로 환산한다.
+- 가격 앵커:
+  - 개인/소규모: 월 9,900원, 29,000원, 49,000원 중 거부감 확인
+  - 업무/조직: 좌석당 월 과금, 작업당 과금, 절감액 기반 과금 비교
+- 반드시 물어볼 질문:
+  - "이 문제가 해결되면 누가 결제할까요?"
+  - "오늘 당장 해결된다면 얼마까지 현실적인가요?"
+  - "도입하려면 누구의 허가가 필요한가요?"
+
+### 규제, 보안, 개인정보
+
+- 수집 데이터: 이름, 연락처, 일정, 건강, 금융, 위치, 대화, 사진, 민감한 문서 중 무엇이 포함되는가?
+- 보관 기간과 삭제 요청 경로를 먼저 정한다.
+- 법률/의료/금융/심리/노무 판단처럼 자격이나 면책이 필요한 영역인지 확인한다.
+- 자동화가 사용자를 대신해 외부 계정을 조작하면 약관, 동의, 로그, 취소 경로를 검토한다.
+
+## 4. 인터뷰 스크립트
+
+1. 최근에 이 문제가 발생한 실제 사례를 시간순으로 설명해주세요.
+2. 그때 어떤 도구나 사람에게 의존했나요?
+3. 가장 오래 걸린 단계와 가장 불안했던 단계는 무엇이었나요?
+4. 해결하지 못했을 때 비용이나 손실은 무엇이었나요?
+5. 이미 비용을 낸 적이 있다면 얼마였고, 왜 냈나요?
+6. 첫 버전에서 없어도 되는 기능은 무엇인가요?
+7. 이 결과물을 누가 최종 승인하거나 결제하나요?
+8. 이 서비스를 써보지 않을 이유가 있다면 무엇인가요?
+
+## 5. 증거 수집 표
+
+| 증거 | 목표 수량 | 통과 기준 | 현재 상태 | 다음 행동 |
+| --- | ---: | --- | --- | --- |
+| 문제 인터뷰 | 5명 | 3명 이상이 최근 실제 사례를 말함 | 미수집 | 대상자 리스트 작성 |
+| 현재 대안 캡처 | 5건 | 3개 이상 반복 우회 방식 확인 | 미수집 | 스크린샷/메모 수집 |
+| 가격 신호 | 5명 | 2명 이상 구체 금액 또는 승인자 언급 | 미수집 | 가격 질문 추가 |
+| 경쟁/대안 조사 | 5개 | 직접/간접 대안의 약점 확인 | 미수집 | 대안 표 작성 |
+| 리스크 확인 | 3개 | 높음/치명 리스크 완화 조건 작성 | 진행 중 | 리스크 상태 갱신 |
+
+## 6. 연결된 리스크
+
+${riskLines}
+
+## 7. 연결된 실험
+
+${experimentLines}
+
+## 8. 오케스트레이션 메모
+
+${researchRunLines}
+
+## 9. Go / No-Go 기준
+
+### Go
+
+- 인터뷰 5명 중 3명 이상이 최근 실제 문제를 말한다.
+- 구매자 또는 승인자가 명확하다.
+- 사용자가 현재 대안의 비용, 불편, 불안을 구체적으로 말한다.
+- 높음/치명 리스크에 대한 완화 조건이 문서화된다.
+- 7일 안에 수동 또는 반자동 MVP로 검증할 수 있다.
+
+### No-Go 또는 Pivot
+
+- 사용자가 문제를 일반론으로만 말하고 최근 사례를 말하지 못한다.
+- 구매자가 없거나 결제/승인 경로가 모호하다.
+- 규제/보안 리스크가 MVP 범위에서 통제되지 않는다.
+- 이미 충분히 싼 대안이 있고 사용자가 전환 이유를 말하지 못한다.
+- MVP가 2주 이상 걸려야만 검증 가능하다.
+
+## 10. 다음 리서치 액션
+
+${state.next_evidence || "인터뷰 대상자 5명, 경쟁/대안 5개, 가격 질문 3개를 먼저 채우세요."}
+`;
+}
+
 function buildPrdMarkdown({
   idea,
   state,
@@ -1010,6 +1181,7 @@ function buildAppDevelopmentPlanMarkdown({
   artifacts: VentureArtifact[];
 }) {
   const hasPrd = artifacts.some((artifact) => artifact.artifact_type === "prd");
+  const hasResearchNote = artifacts.some((artifact) => artifact.artifact_type === "research_note");
   const hasMvpSpec = artifacts.some((artifact) => artifact.artifact_type === "mvp_spec");
   const hasBackendDecision = artifacts.some((artifact) => artifact.artifact_type === "backend_decision");
   const hasDesignBrief = artifacts.some((artifact) => artifact.artifact_type === "design_brief");
@@ -1023,6 +1195,7 @@ function buildAppDevelopmentPlanMarkdown({
 
 - 현재 단계: ${stageLabels[state.stage]}
 - 현재 판단: ${decisionLabels[state.decision]}
+- 리서치 브리프 저장: ${hasResearchNote ? "완료" : "권장"}
 - PRD 저장: ${hasPrd ? "완료" : "필요"}
 - MVP 명세 저장: ${hasMvpSpec ? "완료" : "필요"}
 - 백엔드 결정 저장: ${hasBackendDecision ? "완료" : "필요"}
@@ -1861,6 +2034,7 @@ function buildLaunchChecklistMarkdown({
     (artifact) => artifact.artifact_type === "tech_spec" && artifact.status === "approved",
   );
   const hasDevRunbook = artifacts.some((artifact) => artifact.artifact_type === "dev_runbook");
+  const hasResearchNote = artifacts.some((artifact) => artifact.artifact_type === "research_note");
   const doneImplementationTaskCount = implementationTasks.filter((task) => task.status === "done").length;
   const highRiskLines = risks
     .filter((risk) => ["high", "critical"].includes(risk.severity))
@@ -1892,6 +2066,7 @@ function buildLaunchChecklistMarkdown({
 - [${hasApprovedTechSpec ? "x" : " "}] 기술 명세 산출물 승인
 - [${hasDevRunbook ? "x" : " "}] 개발 런북 산출물 저장
 - [${artifacts.some((artifact) => artifact.artifact_type === "idea_brief") ? "x" : " "}] 아이디어 브리프 산출물 저장
+- [${hasResearchNote ? "x" : " "}] 리서치 브리프 산출물 저장
 - [${implementationTasks.length > 0 ? "x" : " "}] 구현 태스크 생성
 - [${implementationTasks.length > 0 && doneImplementationTaskCount === implementationTasks.length ? "x" : " "}] 구현 태스크 완료 (${doneImplementationTaskCount}/${implementationTasks.length})
 
@@ -2585,6 +2760,17 @@ export function IdeaWorkbench({
         risks: selectedIdeaRisks,
       })
     : "";
+  const researchBriefDraft = selectedIdea && editState
+    ? buildResearchBriefMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        score: currentScore,
+        recommendation: scoreRecommendation,
+        risks: selectedIdeaRisks,
+        experiments: selectedExperiments,
+        runs: selectedRuns,
+      })
+    : "";
   const prdDraft = selectedIdea && editState
     ? buildPrdMarkdown({
         idea: selectedIdea,
@@ -2774,6 +2960,13 @@ export function IdeaWorkbench({
           detail: missing.length === 0 ? "필수 증거 공백이 없습니다." : missing.join(", "),
         },
         {
+          label: "리서치 브리프 저장",
+          passed: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note"),
+          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note")
+            ? "인터뷰, 경쟁/대안, 가격, 규제 체크가 문서화되어 있습니다."
+            : "산출물 단계에서 리서치 브리프를 저장하세요.",
+        },
+        {
           label: "PRD 승인",
           passed: selectedArtifactRecords.some(
             (artifact) => artifact.artifact_type === "prd" && artifact.status === "approved",
@@ -2924,7 +3117,7 @@ export function IdeaWorkbench({
     {
       id: "artifacts",
       label: "산출물",
-      description: "브리프, PRD, MVP 명세를 저장합니다.",
+      description: "브리프, 리서치 노트, PRD, MVP 명세를 저장합니다.",
       status: selectedArtifactRecords.length > 0 ? `${selectedArtifactRecords.length}개` : "대기",
     },
     {
@@ -5020,6 +5213,48 @@ export function IdeaWorkbench({
             className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
           />
           {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
+        </div>
+
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "artifacts" ? "" : "hidden"
+          }`}
+        >
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">리서치 브리프 초안</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                인터뷰, 경쟁/대안, 가격, 규제, 개인정보 검증을 한 문서로 정리합니다.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => copyDraft(researchBriefDraft, "리서치 브리프")}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                <Clipboard size={18} />
+                리서치 복사
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  saveArtifactDraft("research_note", `${selectedIdea.name} 리서치 브리프`, researchBriefDraft, "workbench")
+                }
+                disabled={isBusy || !user}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Save size={18} />
+                산출물 저장
+              </button>
+            </div>
+          </div>
+          <textarea
+            value={researchBriefDraft}
+            readOnly
+            rows={18}
+            className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+          />
         </div>
 
         <div

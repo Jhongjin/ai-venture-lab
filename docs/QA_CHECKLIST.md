@@ -31,7 +31,7 @@ Use this checklist before merging meaningful changes.
 - Risk owners can move risks through open, mitigating, and closed states.
 - Authenticated operators can create an idea-level orchestration runbook and move runs through planned, running, blocked, done, and skipped states.
 - Run owners can save orchestration outputs and see those outputs reflected in the generated PRD draft.
-- Authenticated operators can save generated idea briefs and PRDs as artifacts and copy them from the artifact library.
+- Authenticated operators can save generated idea briefs, research briefs, and PRDs as artifacts and copy them from the artifact library.
 - Authenticated operators can generate and save MVP spec and launch checklist artifacts from the same workbench evidence.
 - Authenticated operators can save backend decision, design brief, technical spec, and development runbook artifacts from the app development process panel.
 - Operators can copy and save a Codex implementation handoff that includes build scope, backend boundary, quality gates, forbidden shortcuts, and completion report format.
@@ -44,7 +44,7 @@ Use this checklist before merging meaningful changes.
 - Operators can copy and save a development completion report from the app development panel.
 - Supabase accepts the expanded `venture_artifacts.artifact_type` values: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
 - Artifact owners or workspace admins can move artifacts between draft, approved, and archived.
-- Launch readiness shows blocked gates for evidence, artifacts, backend choice, design, technical spec, development runbook, experiments, QA, security, risks, and decisions.
+- Launch readiness shows blocked gates for evidence, research brief, artifacts, backend choice, design, technical spec, development runbook, experiments, QA, security, risks, and decisions.
 - Re-saving an artifact creates the next version and launch readiness requires approved PRD and MVP spec artifacts.
 - Artifact status changes can include a gate note explaining approval evidence, revision needs, or archive reason.
 - Revised artifacts show a previous-version line change summary when a comparable version exists.

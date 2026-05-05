@@ -17,6 +17,7 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 ## Artifacts
 
 - Idea brief: `templates/IDEA_BRIEF.md`
+- Research brief: generated `research_note` artifact in the workbench
 - Product requirements: `templates/PRD.md`
 - MVP scope: `templates/MVP_SPEC.md`
 - Technical spec: `templates/TECH_SPEC.md`
@@ -30,7 +31,7 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 
 ## Gates
 
-- No PRD without an idea brief.
+- No PRD without an idea brief and a research brief.
 - No build without an MVP spec.
 - No implementation without a technical boundary and verification plan.
 - No implementation without a saved backend decision, design brief, technical spec, and development runbook.
@@ -53,11 +54,11 @@ The app now supports the first live operating loop:
 8. Attach risks.
 9. Record a decision reason.
 10. Use the suggested decision and evidence gaps as an advisory gate before PRD.
-11. Copy the generated idea brief into downstream PRD or research workflows.
+11. Save the generated idea brief and research brief so problem evidence, alternatives, price, regulation, and privacy checks are explicit before PRD.
 12. Attach the next smallest experiment and success metric.
 13. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.
 14. Save each orchestration output and copy the generated PRD draft when the evidence is ready.
-15. Save generated briefs and PRDs into the artifact library before moving to MVP scope.
+15. Save generated briefs, research notes, and PRDs into the artifact library before moving to MVP scope.
 16. Generate and save the MVP spec, backend decision, design brief, technical spec, development runbook, and launch checklist before build or release work starts.
 17. Promote artifacts from draft to approved only after the relevant gates are complete.
 18. Use launch readiness to see which approved artifacts and gates still block build or release.
@@ -86,3 +87,4 @@ The app now supports the first live operating loop:
 41. Require completion evidence for every done implementation task before development can be considered complete.
 42. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
 43. Keep the shell metrics and recommended next step in sync with saved records so operators do not need to refresh to trust the cockpit.
+44. Use the research brief as the required bridge between raw idea evidence and product requirements, especially for interview scripts, competitor alternatives, willingness-to-pay, and regulated data handling.
