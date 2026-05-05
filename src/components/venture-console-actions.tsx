@@ -11,6 +11,7 @@ import type { Database, OrganizationRole } from "@/lib/supabase/types";
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
 type AuditEvent = Database["public"]["Tables"]["audit_events"]["Row"];
+type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 type AddableOrganizationRole = Extract<OrganizationRole, "admin" | "member" | "viewer">;
 
 type FormState = {
@@ -524,25 +525,29 @@ export function VentureConsoleActions() {
     }
 
     setIsSaving(true);
-    const { error } = await supabase.from("ideas").insert({
-      name: form.name.trim(),
-      one_liner: form.one_liner.trim(),
-      target_user: form.target_user.trim(),
-      buyer: form.buyer.trim(),
-      signal: form.signal.trim(),
-      risk_summary: form.risk_summary.trim(),
-      next_evidence: form.next_evidence.trim(),
-      stage: "intake",
-      decision: "pending",
-      problem_intensity: 0,
-      frequency: 0,
-      reachability: 0,
-      willingness_to_pay: 0,
-      mvp_speed: 0,
-      differentiation: 0,
-      regulatory_risk: 0,
-      organization_id: activeOrganization?.id ?? null,
-    });
+    const { data, error } = await supabase
+      .from("ideas")
+      .insert({
+        name: form.name.trim(),
+        one_liner: form.one_liner.trim(),
+        target_user: form.target_user.trim(),
+        buyer: form.buyer.trim(),
+        signal: form.signal.trim(),
+        risk_summary: form.risk_summary.trim(),
+        next_evidence: form.next_evidence.trim(),
+        stage: "intake",
+        decision: "pending",
+        problem_intensity: 0,
+        frequency: 0,
+        reachability: 0,
+        willingness_to_pay: 0,
+        mvp_speed: 0,
+        differentiation: 0,
+        regulatory_risk: 0,
+        organization_id: activeOrganization?.id ?? null,
+      })
+      .select()
+      .single();
     setIsSaving(false);
 
     if (error) {
@@ -551,9 +556,12 @@ export function VentureConsoleActions() {
     }
 
     setForm(emptyForm);
+    if (data) {
+      window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: data }));
+    }
     setSaveMessage(
       activeOrganization
-        ? `${activeOrganization.name}에 아이디어를 저장했습니다. 포트폴리오를 갱신합니다.`
+        ? `${activeOrganization.name}에 아이디어를 저장했습니다. 워크벤치에 바로 반영했습니다.`
         : "개인 기록으로 아이디어를 저장했습니다. 워크스페이스를 만들면 이후 기록을 연결할 수 있습니다.",
     );
     await loadPersonalRecordCount(user);

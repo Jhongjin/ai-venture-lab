@@ -20,10 +20,13 @@ export const dynamic = "force-dynamic";
 
 const pipeline: Array<{ label: string; value: string; tone: string }> = [
   { label: "접수", value: "아이디어 브리프", tone: "bg-blue-50 text-blue-700" },
-  { label: "조사", value: "시장 + 리스크", tone: "bg-emerald-50 text-emerald-700" },
+  { label: "리서치", value: "시장 + 리스크", tone: "bg-emerald-50 text-emerald-700" },
   { label: "점수화", value: "중단 또는 승격", tone: "bg-amber-50 text-amber-700" },
+  { label: "PRD", value: "제품 명세", tone: "bg-indigo-50 text-indigo-700" },
   { label: "프로토타입", value: "MVP 화면", tone: "bg-rose-50 text-rose-700" },
-  { label: "출시 게이트", value: "QA + 보안", tone: "bg-violet-50 text-violet-700" },
+  { label: "QA", value: "검수", tone: "bg-cyan-50 text-cyan-700" },
+  { label: "출시", value: "QA + 보안", tone: "bg-violet-50 text-violet-700" },
+  { label: "보류", value: "재검토", tone: "bg-slate-100 text-slate-700" },
 ];
 
 const gates = [
@@ -36,7 +39,7 @@ const gates = [
 
 const stageLabels: Record<IdeaStage, string> = {
   intake: "접수",
-  research: "조사",
+  research: "리서치",
   score: "점수화",
   prd: "PRD",
   prototype: "프로토타입",
@@ -123,7 +126,7 @@ export default async function Home() {
           initialArtifacts={artifacts}
         />
 
-        <section className="grid gap-4 lg:grid-cols-5">
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {pipeline.map((item) => (
             <div key={item.label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <span className={`inline-flex rounded-md px-2.5 py-1 text-xs font-semibold ${item.tone}`}>

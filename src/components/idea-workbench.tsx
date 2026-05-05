@@ -21,6 +21,7 @@ import type {
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
 
 const stages: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
+const stageRank = new Map(stages.map((stage, index) => [stage, index]));
 const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
@@ -210,6 +211,24 @@ type RunDraft = {
   owner_role: string;
   objective: string;
 };
+
+function sortWorkbenchIdeas(nextIdeas: Idea[]) {
+  return [...nextIdeas].sort(
+    (a, b) =>
+      (stageRank.get(a.stage) ?? 99) - (stageRank.get(b.stage) ?? 99) ||
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
+      a.name.localeCompare(b.name),
+  );
+}
+
+function upsertWorkbenchIdea(current: Idea[], nextIdea: Idea) {
+  const exists = current.some((idea) => idea.id === nextIdea.id);
+  const nextIdeas = exists
+    ? current.map((idea) => (idea.id === nextIdea.id ? nextIdea : idea))
+    : [nextIdea, ...current];
+
+  return sortWorkbenchIdeas(nextIdeas);
+}
 
 function toEditState(idea: Idea): EditState {
   return {
@@ -913,13 +932,13 @@ export function IdeaWorkbench({
 }) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
-  const [ideas, setIdeas] = useState(initialIdeas);
+  const [ideas, setIdeas] = useState(() => sortWorkbenchIdeas(initialIdeas));
   const [risks, setRisks] = useState(initialRisks);
   const [decisionLog, setDecisionLog] = useState(initialDecisions);
   const [experiments, setExperiments] = useState(initialExperiments);
   const [orchestrationRuns, setOrchestrationRuns] = useState(initialOrchestrationRuns);
   const [artifacts, setArtifacts] = useState(initialArtifacts);
-  const [selectedIdeaId, setSelectedIdeaId] = useState(initialIdeas[0]?.id ?? "");
+  const [selectedIdeaId, setSelectedIdeaId] = useState(() => sortWorkbenchIdeas(initialIdeas)[0]?.id ?? "");
   const selectedIdea = ideas.find((idea) => idea.id === selectedIdeaId) ?? ideas[0] ?? null;
   const [editState, setEditState] = useState<EditState | null>(selectedIdea ? toEditState(selectedIdea) : null);
   const [riskDraft, setRiskDraft] = useState<RiskDraft>({
@@ -947,6 +966,28 @@ export function IdeaWorkbench({
   const [filterMode, setFilterMode] = useState<"all" | "mine" | "read_only">("all");
   const [artifactTypeFilter, setArtifactTypeFilter] = useState<VentureArtifactType | "all">("all");
   const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
+
+  useEffect(() => {
+    function handleIdeaCreated(event: Event) {
+      const createdIdea = (event as CustomEvent<Idea>).detail;
+
+      if (!createdIdea?.id) {
+        return;
+      }
+
+      setIdeas((current) => upsertWorkbenchIdea(current, createdIdea));
+      setSelectedIdeaId(createdIdea.id);
+      setEditState(toEditState(createdIdea));
+      setFilterMode("all");
+      setMessage("새 아이디어를 워크벤치에 바로 추가하고 선택했습니다.");
+    }
+
+    window.addEventListener("venture:idea-created", handleIdeaCreated);
+
+    return () => {
+      window.removeEventListener("venture:idea-created", handleIdeaCreated);
+    };
+  }, []);
 
   useEffect(() => {
     if (!supabase) {
@@ -1171,14 +1212,14 @@ export function IdeaWorkbench({
   const nextLaunchBlocker = launchReadiness.find((check) => !check.passed) ?? null;
   const visibleIdeas = useMemo(() => {
     if (filterMode === "mine") {
-      return ideas.filter((idea) => user && idea.created_by === user.id);
+      return sortWorkbenchIdeas(ideas.filter((idea) => user && idea.created_by === user.id));
     }
 
     if (filterMode === "read_only") {
-      return ideas.filter((idea) => !user || idea.created_by !== user.id);
+      return sortWorkbenchIdeas(ideas.filter((idea) => !user || idea.created_by !== user.id));
     }
 
-    return ideas;
+    return sortWorkbenchIdeas(ideas);
   }, [filterMode, ideas, user]);
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {

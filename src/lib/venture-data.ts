@@ -1,5 +1,5 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/supabase/types";
+import type { Database, IdeaStage } from "@/lib/supabase/types";
 
 export type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 export type Risk = Database["public"]["Tables"]["risks"]["Row"];
@@ -20,14 +20,68 @@ type ConsoleData = {
 };
 
 const now = new Date("2026-05-03T00:00:00.000Z").toISOString();
+export const workflowStageOrder: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
+
+const workflowStageRank = new Map(workflowStageOrder.map((stage, index) => [stage, index]));
+
+const localizedIdeaSeeds: Record<
+  string,
+  Pick<Idea, "name" | "one_liner" | "target_user" | "buyer" | "signal" | "risk_summary" | "next_evidence">
+> = {
+  "Care ops console": {
+    name: "돌봄 운영 콘솔",
+    one_liner: "가족, 요양보호사, 센터 간 돌봄 일정과 기록을 관리하는 신뢰 기반 운영 콘솔입니다.",
+    target_user: "돌봄을 조율하는 가족과 소규모 방문요양센터",
+    buyer: "방문요양센터 또는 가족 돌봄 관리자",
+    signal: "규제 업무와 가족 커뮤니케이션이 겹치는 구조적 수요가 큽니다.",
+    risk_summary: "장기요양 규정, 개인정보 처리, 운영 책임 소재가 핵심 리스크입니다.",
+    next_evidence: "방문요양센터와 가족 커뮤니케이션의 실제 제약을 확인합니다.",
+  },
+  "Conversation coach": {
+    name: "대화 코칭",
+    one_liner: "중요한 일상 대화를 미리 연습하고 스크립트를 준비하는 역할극 코치입니다.",
+    target_user: "어려운 대화를 준비하는 직장인과 개인 사용자",
+    buyer: "개인 전문가 또는 소규모 팀",
+    signal: "MVP 구현이 빠르고 일상 효용이 명확합니다.",
+    risk_summary: "상담, 법률, 의료, HR 조언처럼 보이는 주장을 피해야 합니다.",
+    next_evidence: "반복 빈도가 높은 세부 상황 하나를 고르고 측정 가능한 결과를 정의합니다.",
+  },
+  "Subscription agent": {
+    name: "구독 관리 에이전트",
+    one_liner: "반복 결제를 찾아내고 낮은 마찰로 해지 절차를 안내하는 개인 지출 에이전트입니다.",
+    target_user: "디지털 구독이 많은 바쁜 소비자",
+    buyer: "개인 소비자",
+    signal: "절약 금액이 바로 보이는 명확한 후킹 포인트가 있습니다.",
+    risk_summary: "계정 접근, 결제 데이터, 동의, 해지 안정성이 핵심 리스크입니다.",
+    next_evidence: "동의, 계정 접근, 결제 데이터 처리 제약을 맵핑합니다.",
+  },
+};
+
+const localizedRiskSeeds: Record<string, Pick<Risk, "title" | "area" | "mitigation">> = {
+  "Personal data leakage": {
+    title: "개인정보 유출",
+    area: "개인정보",
+    mitigation: "초기 프로토타입에서는 실제 개인정보를 쓰지 않고 출시 전 보관 정책을 문서화합니다.",
+  },
+  "Regulated advice claims": {
+    title: "규제 대상 조언 주장",
+    area: "법무",
+    mitigation: "자격 검토 없이 의료, 법률, 금융, 심리상담 조언으로 보이는 표현을 피합니다.",
+  },
+  "Secret exposure": {
+    title: "비밀값 노출",
+    area: "보안",
+    mitigation: "Vercel 환경변수를 사용하고 .env 파일은 git에 넣지 않습니다.",
+  },
+};
 
 const seedIdeas: Idea[] = [
   {
     id: "seed-care-ops",
-    name: "Care ops console",
-    one_liner: "A trust and operations console for family-caregiver-care center communication.",
-    target_user: "Families coordinating elder care and small care centers",
-    buyer: "Care centers or family coordinators",
+    name: "돌봄 운영 콘솔",
+    one_liner: "가족, 요양보호사, 센터 간 돌봄 일정과 기록을 관리하는 신뢰 기반 운영 콘솔입니다.",
+    target_user: "돌봄을 조율하는 가족과 소규모 방문요양센터",
+    buyer: "방문요양센터 또는 가족 돌봄 관리자",
     stage: "research",
     decision: "research_more",
     problem_intensity: 5,
@@ -37,9 +91,9 @@ const seedIdeas: Idea[] = [
     mvp_speed: 3,
     differentiation: 4,
     regulatory_risk: 4,
-    signal: "High structural demand with a regulated workflow.",
-    risk_summary: "Long-term care rules, PII handling, and operational accountability.",
-    next_evidence: "Confirm workflow constraints around care centers and family communications.",
+    signal: "규제 업무와 가족 커뮤니케이션이 겹치는 구조적 수요가 큽니다.",
+    risk_summary: "장기요양 규정, 개인정보 처리, 운영 책임 소재가 핵심 리스크입니다.",
+    next_evidence: "방문요양센터와 가족 커뮤니케이션의 실제 제약을 확인합니다.",
     organization_id: null,
     created_by: null,
     created_at: now,
@@ -47,10 +101,10 @@ const seedIdeas: Idea[] = [
   },
   {
     id: "seed-conversation-coach",
-    name: "Conversation coach",
-    one_liner: "Role-play and script preparation for high-stakes daily conversations.",
-    target_user: "Professionals preparing difficult conversations",
-    buyer: "Individual professionals or small teams",
+    name: "대화 코칭",
+    one_liner: "중요한 일상 대화를 미리 연습하고 스크립트를 준비하는 역할극 코치입니다.",
+    target_user: "어려운 대화를 준비하는 직장인과 개인 사용자",
+    buyer: "개인 전문가 또는 소규모 팀",
     stage: "score",
     decision: "research_more",
     problem_intensity: 4,
@@ -60,9 +114,9 @@ const seedIdeas: Idea[] = [
     mvp_speed: 5,
     differentiation: 3,
     regulatory_risk: 2,
-    signal: "Fast MVP path with clear daily utility.",
-    risk_summary: "Avoid therapy, legal, medical, or HR advice claims.",
-    next_evidence: "Pick one high-frequency niche and define a measurable outcome.",
+    signal: "MVP 구현이 빠르고 일상 효용이 명확합니다.",
+    risk_summary: "상담, 법률, 의료, HR 조언처럼 보이는 주장을 피해야 합니다.",
+    next_evidence: "반복 빈도가 높은 세부 상황 하나를 고르고 측정 가능한 결과를 정의합니다.",
     organization_id: null,
     created_by: null,
     created_at: now,
@@ -70,10 +124,10 @@ const seedIdeas: Idea[] = [
   },
   {
     id: "seed-subscription-agent",
-    name: "Subscription agent",
-    one_liner: "Find recurring charges and guide users through low-friction cancellation.",
-    target_user: "Busy consumers with many digital subscriptions",
-    buyer: "Consumers",
+    name: "구독 관리 에이전트",
+    one_liner: "반복 결제를 찾아내고 낮은 마찰로 해지 절차를 안내하는 개인 지출 에이전트입니다.",
+    target_user: "디지털 구독이 많은 바쁜 소비자",
+    buyer: "개인 소비자",
     stage: "intake",
     decision: "research_more",
     problem_intensity: 4,
@@ -83,9 +137,9 @@ const seedIdeas: Idea[] = [
     mvp_speed: 4,
     differentiation: 3,
     regulatory_risk: 4,
-    signal: "Clear money-saving hook.",
-    risk_summary: "Account access, payment data, consent, and cancellation reliability.",
-    next_evidence: "Map consent, account access, and payment data constraints.",
+    signal: "절약 금액이 바로 보이는 명확한 후킹 포인트가 있습니다.",
+    risk_summary: "계정 접근, 결제 데이터, 동의, 해지 안정성이 핵심 리스크입니다.",
+    next_evidence: "동의, 계정 접근, 결제 데이터 처리 제약을 맵핑합니다.",
     organization_id: null,
     created_by: null,
     created_at: now,
@@ -97,10 +151,10 @@ const seedRisks: Risk[] = [
   {
     id: "seed-risk-pii",
     idea_id: null,
-    title: "Personal data leakage",
-    area: "Privacy",
+    title: "개인정보 유출",
+    area: "개인정보",
     severity: "high",
-    mitigation: "Avoid real PII in early prototypes and document retention before launch.",
+    mitigation: "초기 프로토타입에서는 실제 개인정보를 쓰지 않고 출시 전 보관 정책을 문서화합니다.",
     status: "open",
     organization_id: null,
     created_by: null,
@@ -110,10 +164,10 @@ const seedRisks: Risk[] = [
   {
     id: "seed-risk-advice",
     idea_id: null,
-    title: "Regulated advice claims",
-    area: "Legal",
+    title: "규제 대상 조언 주장",
+    area: "법무",
     severity: "high",
-    mitigation: "Avoid medical, legal, financial, or therapy claims without qualified review.",
+    mitigation: "자격 검토 없이 의료, 법률, 금융, 심리상담 조언으로 보이는 표현을 피합니다.",
     status: "open",
     organization_id: null,
     created_by: null,
@@ -123,10 +177,10 @@ const seedRisks: Risk[] = [
   {
     id: "seed-risk-secrets",
     idea_id: null,
-    title: "Secret exposure",
-    area: "Security",
+    title: "비밀값 노출",
+    area: "보안",
     severity: "high",
-    mitigation: "Use Vercel environment variables and keep .env files out of git.",
+    mitigation: "Vercel 환경변수를 사용하고 .env 파일은 git에 넣지 않습니다.",
     status: "open",
     organization_id: null,
     created_by: null,
@@ -139,6 +193,23 @@ const seedDecisions: Decision[] = [];
 const seedExperiments: Experiment[] = [];
 const seedOrchestrationRuns: OrchestrationRun[] = [];
 const seedArtifacts: VentureArtifact[] = [];
+
+export function localizeIdeaRecord(idea: Idea): Idea {
+  return { ...idea, ...(localizedIdeaSeeds[idea.name] ?? {}) };
+}
+
+export function localizeRiskRecord(risk: Risk): Risk {
+  return { ...risk, ...(localizedRiskSeeds[risk.title] ?? {}) };
+}
+
+export function sortIdeasByWorkflow(ideas: Idea[]) {
+  return [...ideas].sort(
+    (a, b) =>
+      (workflowStageRank.get(a.stage) ?? 99) - (workflowStageRank.get(b.stage) ?? 99) ||
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
+      a.name.localeCompare(b.name),
+  );
+}
 
 export function scoreIdea(idea: Idea) {
   return (
@@ -157,7 +228,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
 
   if (!supabase) {
     return {
-      ideas: seedIdeas,
+      ideas: sortIdeasByWorkflow(seedIdeas),
       risks: seedRisks,
       decisions: seedDecisions,
       experiments: seedExperiments,
@@ -184,7 +255,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
 
   if (ideasResult.error || risksResult.error || decisionsResult.error || experimentsResult.error) {
     return {
-      ideas: seedIdeas,
+      ideas: sortIdeasByWorkflow(seedIdeas),
       risks: seedRisks,
       decisions: seedDecisions,
       experiments: seedExperiments,
@@ -202,8 +273,8 @@ export async function getConsoleData(): Promise<ConsoleData> {
   }
 
   return {
-    ideas: ideasResult.data ?? [],
-    risks: risksResult.data ?? [],
+    ideas: sortIdeasByWorkflow((ideasResult.data ?? []).map(localizeIdeaRecord)),
+    risks: (risksResult.data ?? []).map(localizeRiskRecord),
     decisions: decisionsResult.data ?? [],
     experiments: experimentsResult.data ?? [],
     orchestrationRuns: orchestrationRunsResult.error ? [] : orchestrationRunsResult.data ?? [],

@@ -254,10 +254,10 @@ insert into public.ideas (
   next_evidence
 )
 select
-  'Care ops console',
-  'A trust and operations console for family-caregiver-care center communication.',
-  'Families coordinating elder care and small care centers',
-  'Care centers or family coordinators',
+  '돌봄 운영 콘솔',
+  '가족, 요양보호사, 센터 간 돌봄 일정과 기록을 관리하는 신뢰 기반 운영 콘솔입니다.',
+  '돌봄을 조율하는 가족과 소규모 방문요양센터',
+  '방문요양센터 또는 가족 돌봄 관리자',
   'research',
   'research_more',
   5,
@@ -267,10 +267,10 @@ select
   3,
   4,
   4,
-  'High structural demand with a regulated workflow.',
-  'Long-term care rules, PII handling, and operational accountability.',
-  'Confirm workflow constraints around care centers and family communications.'
-where not exists (select 1 from public.ideas where name = 'Care ops console');
+  '규제 업무와 가족 커뮤니케이션이 겹치는 구조적 수요가 큽니다.',
+  '장기요양 규정, 개인정보 처리, 운영 책임 소재가 핵심 리스크입니다.',
+  '방문요양센터와 가족 커뮤니케이션의 실제 제약을 확인합니다.'
+where not exists (select 1 from public.ideas where name in ('돌봄 운영 콘솔', 'Care ops console'));
 
 insert into public.ideas (
   name,
@@ -291,10 +291,10 @@ insert into public.ideas (
   next_evidence
 )
 select
-  'Conversation coach',
-  'Role-play and script preparation for high-stakes daily conversations.',
-  'Professionals preparing difficult conversations',
-  'Individual professionals or small teams',
+  '대화 코칭',
+  '중요한 일상 대화를 미리 연습하고 스크립트를 준비하는 역할극 코치입니다.',
+  '어려운 대화를 준비하는 직장인과 개인 사용자',
+  '개인 전문가 또는 소규모 팀',
   'score',
   'research_more',
   4,
@@ -304,10 +304,10 @@ select
   5,
   3,
   2,
-  'Fast MVP path with clear daily utility.',
-  'Avoid therapy, legal, medical, or HR advice claims.',
-  'Pick one high-frequency niche and define a measurable outcome.'
-where not exists (select 1 from public.ideas where name = 'Conversation coach');
+  'MVP 구현이 빠르고 일상 효용이 명확합니다.',
+  '상담, 법률, 의료, HR 조언처럼 보이는 주장을 피해야 합니다.',
+  '반복 빈도가 높은 세부 상황 하나를 고르고 측정 가능한 결과를 정의합니다.'
+where not exists (select 1 from public.ideas where name in ('대화 코칭', 'Conversation coach'));
 
 insert into public.ideas (
   name,
@@ -328,10 +328,10 @@ insert into public.ideas (
   next_evidence
 )
 select
-  'Subscription agent',
-  'Find recurring charges and guide users through low-friction cancellation.',
-  'Busy consumers with many digital subscriptions',
-  'Consumers',
+  '구독 관리 에이전트',
+  '반복 결제를 찾아내고 낮은 마찰로 해지 절차를 안내하는 개인 지출 에이전트입니다.',
+  '디지털 구독이 많은 바쁜 소비자',
+  '개인 소비자',
   'intake',
   'research_more',
   4,
@@ -341,22 +341,22 @@ select
   4,
   3,
   4,
-  'Clear money-saving hook.',
-  'Account access, payment data, consent, and cancellation reliability.',
-  'Map consent, account access, and payment data constraints.'
-where not exists (select 1 from public.ideas where name = 'Subscription agent');
+  '절약 금액이 바로 보이는 명확한 후킹 포인트가 있습니다.',
+  '계정 접근, 결제 데이터, 동의, 해지 안정성이 핵심 리스크입니다.',
+  '동의, 계정 접근, 결제 데이터 처리 제약을 맵핑합니다.'
+where not exists (select 1 from public.ideas where name in ('구독 관리 에이전트', 'Subscription agent'));
 
 insert into public.risks (title, area, severity, mitigation, status)
-select 'Personal data leakage', 'Privacy', 'high', 'Avoid real PII in early prototypes and document retention before launch.', 'open'
-where not exists (select 1 from public.risks where title = 'Personal data leakage');
+select '개인정보 유출', '개인정보', 'high', '초기 프로토타입에서는 실제 개인정보를 쓰지 않고 출시 전 보관 정책을 문서화합니다.', 'open'
+where not exists (select 1 from public.risks where title in ('개인정보 유출', 'Personal data leakage'));
 
 insert into public.risks (title, area, severity, mitigation, status)
-select 'Regulated advice claims', 'Legal', 'high', 'Avoid medical, legal, financial, or therapy claims without qualified review.', 'open'
-where not exists (select 1 from public.risks where title = 'Regulated advice claims');
+select '규제 대상 조언 주장', '법무', 'high', '자격 검토 없이 의료, 법률, 금융, 심리상담 조언으로 보이는 표현을 피합니다.', 'open'
+where not exists (select 1 from public.risks where title in ('규제 대상 조언 주장', 'Regulated advice claims'));
 
 insert into public.risks (title, area, severity, mitigation, status)
-select 'Secret exposure', 'Security', 'high', 'Use Vercel environment variables and keep .env files out of git.', 'open'
-where not exists (select 1 from public.risks where title = 'Secret exposure');
+select '비밀값 노출', '보안', 'high', 'Vercel 환경변수를 사용하고 .env 파일은 git에 넣지 않습니다.', 'open'
+where not exists (select 1 from public.risks where title in ('비밀값 노출', 'Secret exposure'));
 
 do $$
 begin
