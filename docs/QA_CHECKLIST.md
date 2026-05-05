@@ -65,6 +65,7 @@ Use this checklist before merging meaningful changes.
 - Blocked implementation tasks show owner, next-action, unblock-evidence, and escalation hints.
 - Operators can filter implementation task cards by status, owner role, and evidence gaps.
 - Operators can copy the currently filtered implementation backlog with filter summary and evidence gaps.
+- Operators can copy a role-specific implementation run prompt from the current task filter.
 - Release task evidence includes Preview/Production URL, Vercel inspect URL or deploy logs, rollback criteria, and production smoke results.
 - Backend task evidence includes Supabase RLS or Firebase Security Rules/IAM allowed and denied checks.
 - Launch readiness requires implementation tasks to exist, have no blocked tasks, all be done, and all done tasks have evidence.

@@ -263,6 +263,16 @@ const implementationBlockerPlaybooks: Record<ImplementationTaskType, BlockerPlay
     escalation: "운영 장애 가능성이 있으면 직전 정상 배포로 되돌리는 기준을 우선 기록합니다.",
   },
 };
+const implementationRunFocus: Record<ImplementationTaskType, string> = {
+  planning: "PRD/MVP 범위, 제외 범위, 중단 기준, 승인 증거를 잠급니다.",
+  design: "핵심 화면, 상태 UX, 모바일/접근성, 첫 가치 도달 흐름을 구체화합니다.",
+  frontend: "입력, 저장, 조회, 상태 메시지, 모바일 레이아웃을 실제 사용자 여정 기준으로 구현합니다.",
+  backend: "데이터 모델, API/Server Action 경계, RLS 또는 Security Rules 허용/차단을 검증합니다.",
+  data: "스키마, 마이그레이션, 샘플 데이터, 롤백/보정 계획을 안전하게 다룹니다.",
+  qa: "핵심 경로, 인증 전/후, 읽기 전용, 빈/오류/로딩 상태와 회귀를 검증합니다.",
+  security: "PII, 비밀값, 권한 우회, abuse, 보관/삭제 경로를 출시 차단 관점으로 봅니다.",
+  deploy: "Preview/Production, Vercel 로그, 환경변수, production smoke, 롤백 기준을 확인합니다.",
+};
 
 const orchestrationPhaseConfigs: Array<{
   phase: OrchestrationPhase;
@@ -2812,6 +2822,93 @@ ${lines}
 `;
 }
 
+function buildFilteredImplementationRunPromptMarkdown({
+  idea,
+  state,
+  tasks,
+  filterSummary,
+  evidenceByTaskId = {},
+}: {
+  idea: Idea;
+  state: EditState;
+  tasks: ImplementationTask[];
+  filterSummary: string;
+  evidenceByTaskId?: Record<string, string>;
+}) {
+  const sortedTasks = sortImplementationTasksForAction(tasks);
+  const roleLines =
+    sortedTasks.length > 0
+      ? Array.from(new Set(sortedTasks.map((task) => `${getImplementationTaskOwnerRole(task)}|${task.task_type}`)))
+          .map((entry) => {
+            const [ownerRole, taskType] = entry.split("|") as [string, ImplementationTaskType];
+
+            return `- ${ownerRole}: ${implementationTaskTypeLabels[taskType]} - ${implementationRunFocus[taskType]}`;
+          })
+          .join("\n")
+      : "- 현재 필터 조건에 맞는 실행 태스크가 없습니다.";
+  const taskLines =
+    sortedTasks.length > 0
+      ? sortedTasks
+          .map((task, index) => {
+            const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
+            const checklist = getImplementationEvidenceChecklist(task, evidence);
+            const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+            const blockerHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
+
+            return [
+              `## ${index + 1}. ${task.title}`,
+              `- 담당 역할: ${getImplementationTaskOwnerRole(task)}`,
+              `- 유형/우선순위/상태: ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${implementationTaskStatusLabels[task.status]}`,
+              `- 수용 기준:\n${task.acceptance_criteria.trim() || "  - 미정"}`,
+              `- 증거 공백: ${missingLabels.length > 0 ? missingLabels.join(", ") : "없음"}`,
+              blockerHint
+                ? `- 차단 해소: ${blockerHint.nextAction}\n- 해소 증거: ${blockerHint.unblockEvidence}\n- 에스컬레이션: ${blockerHint.escalation}`
+                : "- 차단 해소: 해당 없음",
+            ].join("\n");
+          })
+          .join("\n\n")
+      : "현재 필터 조건에 맞는 실행 태스크가 없습니다.";
+
+  return `# Codex 구현 실행 프롬프트: ${idea.name}
+
+너는 이 프로젝트의 구현 에이전트입니다. 아래 필터 조건에 해당하는 태스크만 처리하고, 범위를 벗어나는 리팩터링이나 기능 확장은 하지 않습니다.
+
+## 공통 컨텍스트
+
+- 제품 가치: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+- 다음 증거: ${state.next_evidence || "미정"}
+- 필터 조건: ${filterSummary}
+
+## 역할별 초점
+
+${roleLines}
+
+## 작업 목록
+
+${taskLines}
+
+## 실행 규칙
+
+- 기존 코드베이스 패턴, 파일 구조, 디자인 시스템을 우선합니다.
+- 서로 다른 작업자가 있을 수 있으므로 사용자 또는 다른 작업자의 변경을 되돌리지 않습니다.
+- SQL, RLS, Firebase Rules, Vercel 환경변수처럼 사용자가 직접 처리해야 하는 작업은 명확한 코드 블록과 실행 위치를 분리해 보고합니다.
+- GitHub Actions workflow 변경은 현재 token scope가 풀릴 때까지 보류합니다.
+- 완료 전 pnpm lint, pnpm typecheck, 필요한 경우 pnpm quality:full 또는 production smoke 결과를 남깁니다.
+
+## 완료 보고 형식
+
+- 변경 요약
+- 수정 파일
+- 검증 결과
+- 남은 차단/SQL/외부 작업
+- 커밋/PR 또는 배포 증거
+`;
+}
+
 function buildDevelopmentCompletionReportMarkdown({
   idea,
   state,
@@ -3976,17 +4073,27 @@ export function IdeaWorkbench({
         emptyMessage: "열린 개발 태스크가 없습니다.",
       })
     : "";
+  const implementationFilterSummary = `상태: ${implementationStatusFilterLabels[implementationStatusFilter]} / 담당: ${
+    implementationOwnerFilterLabels[activeImplementationOwnerFilter]
+  } / 증거: ${implementationEvidenceFilterLabels[implementationEvidenceFilter]}`;
   const filteredImplementationBacklogDraft = selectedIdea && editState
     ? buildImplementationBacklogMarkdown({
         idea: selectedIdea,
         state: editState,
         tasks: filteredImplementationTasks,
         viewName: "필터된 태스크",
-        filterSummary: `상태: ${implementationStatusFilterLabels[implementationStatusFilter]} / 담당: ${
-          implementationOwnerFilterLabels[activeImplementationOwnerFilter]
-        } / 증거: ${implementationEvidenceFilterLabels[implementationEvidenceFilter]}`,
+        filterSummary: implementationFilterSummary,
         evidenceByTaskId: implementationTaskEvidence,
         emptyMessage: "현재 필터 조건에 맞는 개발 태스크가 없습니다.",
+      })
+    : "";
+  const filteredImplementationRunPromptDraft = selectedIdea && editState
+    ? buildFilteredImplementationRunPromptMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        tasks: filteredImplementationTasks,
+        filterSummary: implementationFilterSummary,
+        evidenceByTaskId: implementationTaskEvidence,
       })
     : "";
   const implementationTaskDrafts = selectedIdea && editState
@@ -6283,7 +6390,7 @@ export function IdeaWorkbench({
                     표시 {filteredImplementationTasks.length}/{selectedImplementationTasks.length}
                   </div>
                 </div>
-                <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr_1fr_auto_auto]">
+                <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr_1fr_auto_auto_auto]">
                   <SelectField
                     label="상태"
                     value={implementationStatusFilter}
@@ -6326,6 +6433,16 @@ export function IdeaWorkbench({
                     >
                       <ClipboardList size={15} />
                       필터 복사
+                    </button>
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(filteredImplementationRunPromptDraft, "필터된 구현 실행 프롬프트")}
+                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50 lg:w-auto"
+                    >
+                      <Code2 size={15} />
+                      실행 프롬프트
                     </button>
                   </div>
                 </div>
