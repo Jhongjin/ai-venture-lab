@@ -81,6 +81,61 @@ type CandidateReadinessCheck = {
   detail: string;
 };
 
+type ExtractionGateId = "proceed" | "research" | "pivot" | "kill";
+
+type ExtractionGate = {
+  id: ExtractionGateId;
+  label: string;
+  summary: string;
+  nextAction: string;
+  threshold: string;
+  blockers: string[];
+  readinessScore: number;
+  rank: number;
+};
+
+const extractionGateRanks: Record<ExtractionGateId, number> = {
+  proceed: 4,
+  research: 3,
+  pivot: 2,
+  kill: 1,
+};
+
+const extractionGateStyles: Record<
+  ExtractionGateId,
+  {
+    badge: string;
+    panel: string;
+    title: string;
+    score: string;
+  }
+> = {
+  proceed: {
+    badge: "bg-emerald-50 text-emerald-800",
+    panel: "border-emerald-200 bg-emerald-50",
+    title: "text-emerald-950",
+    score: "bg-emerald-950 text-white",
+  },
+  research: {
+    badge: "bg-blue-50 text-blue-700",
+    panel: "border-blue-200 bg-blue-50",
+    title: "text-blue-950",
+    score: "bg-blue-950 text-white",
+  },
+  pivot: {
+    badge: "bg-amber-50 text-amber-800",
+    panel: "border-amber-200 bg-amber-50",
+    title: "text-amber-950",
+    score: "bg-amber-950 text-white",
+  },
+  kill: {
+    badge: "bg-rose-50 text-rose-700",
+    panel: "border-rose-200 bg-rose-50",
+    title: "text-rose-950",
+    score: "bg-rose-950 text-white",
+  },
+};
+
 const emptyForm: FormState = {
   name: "",
   one_liner: "",
@@ -624,11 +679,86 @@ function buildCandidateReadiness(
   ];
 }
 
+function hasReadiness(checks: CandidateReadinessCheck[], label: string) {
+  return checks.find((check) => check.label === label)?.passed ?? false;
+}
+
+function buildExtractionGate(
+  candidate: ExtractedIdea,
+  readinessChecks: CandidateReadinessCheck[],
+  similarIdea: SimilarIdeaMatch | null,
+): ExtractionGate {
+  const passedCount = readinessChecks.filter((check) => check.passed).length;
+  const readinessScore = Math.round((passedCount / readinessChecks.length) * 100);
+  const blockers = readinessChecks.filter((check) => !check.passed).map((check) => check.label);
+  const hasCoreProblem = hasReadiness(readinessChecks, "문제 신호");
+  const hasUserBuyer = hasReadiness(readinessChecks, "사용자/구매자");
+  const hasMetric = hasReadiness(readinessChecks, "검증 지표");
+  const hasMvp = hasReadiness(readinessChecks, "첫 MVP");
+  const hasDuplicateBlocker = Boolean(similarIdea && similarIdea.score >= 70);
+  const hasSensitiveBlocker = !hasReadiness(readinessChecks, "민감정보");
+  const corePassCount = [hasCoreProblem, hasUserBuyer, hasMetric, hasMvp].filter(Boolean).length;
+
+  let id: ExtractionGateId = "research";
+  let summary = "증거를 더 모은 뒤 저장 또는 점수화할 후보입니다.";
+  let nextAction = blockers[0] ? `${blockers[0]} 보강 후 7일 검증 패키지로 저장` : "인터뷰와 대체재 조사를 먼저 붙인 뒤 저장";
+
+  if (candidate.validationScore <= 44 || corePassCount <= 1) {
+    id = "kill";
+    summary = "핵심 문제, 구매자, 실험 단서가 약해 지금은 중단 후보입니다.";
+    nextAction = "문제 신호가 새로 확인될 때까지 저장하지 말고 후보 목록에서 보류";
+  } else if (hasDuplicateBlocker) {
+    id = "pivot";
+    summary = "기존 기록과 강하게 겹쳐 새 아이디어보다 병합 또는 포지션 전환을 먼저 봐야 합니다.";
+    nextAction = `${similarIdea?.idea.name ?? "기존 아이디어"} 기록을 확장할지, 대상/구매자/범위를 바꿀지 결정`;
+  } else if (candidate.validationScore < 58 || (corePassCount <= 2 && readinessScore < 72)) {
+    id = "pivot";
+    summary = "문제는 보이지만 사용자, 구매자, 실험 범위 중 하나가 흔들려 재정의가 필요합니다.";
+    nextAction = blockers[0] ? `${blockers[0]}를 다시 정의하고 한 줄 설명을 좁히기` : "대상 세그먼트와 첫 MVP 범위를 다시 좁히기";
+  } else if (
+    candidate.validationScore >= 72 &&
+    readinessScore >= 80 &&
+    candidate.riskLevel !== "높음" &&
+    !hasSensitiveBlocker
+  ) {
+    id = "proceed";
+    summary = "문제, 구매자, 실험, MVP 범위가 충분해 검증 패키지로 저장할 후보입니다.";
+    nextAction = "검증 패키지 저장 후 워크벤치에서 점수와 첫 실험을 확정";
+  } else {
+    id = "research";
+    summary =
+      candidate.riskLevel === "높음"
+        ? "수요가 보여도 규제, 개인정보, 운영 책임을 먼저 검증해야 합니다."
+        : "점수나 준비도 일부가 부족해 추가 증거를 붙인 뒤 진행 여부를 봐야 합니다.";
+    nextAction = blockers[0] ? `${blockers[0]} 보강 후 저장` : "인터뷰, 가격 신호, 대체재 증거를 추가";
+  }
+
+  const thresholdByGate: Record<ExtractionGateId, string> = {
+    proceed: "72점 이상, 준비도 80% 이상, 고위험/중복 없음",
+    research: "58-71점 또는 준비도 미달, 증거 보강 필요",
+    pivot: "45-57점, 강한 중복, 대상/구매자/범위 재정의",
+    kill: "44점 이하 또는 핵심 문제/MVP 신호 부족",
+  };
+
+  return {
+    id,
+    label: id === "proceed" ? "진행 후보" : id === "research" ? "추가 조사" : id === "pivot" ? "전환 검토" : "중단 후보",
+    summary,
+    nextAction,
+    threshold: thresholdByGate[id],
+    blockers,
+    readinessScore,
+    rank: extractionGateRanks[id] * 1000 + readinessScore * 2 + candidate.validationScore,
+  };
+}
+
 function buildExtractedIdeaArtifacts(
   candidate: ExtractedIdea,
   idea: Idea,
   organizationId: string | null,
+  extractionGate?: ExtractionGate,
 ): VentureArtifactInsert[] {
+  const gate = extractionGate ?? buildExtractionGate(candidate, buildCandidateReadiness(candidate, null), null);
   const redactedSourceBlock = redactSensitiveSource(candidate.sourceBlock);
   const sourceBlock =
     redactedSourceBlock === candidate.sourceBlock
@@ -678,6 +808,8 @@ ${candidate.assumptions.map((item) => `- ${item}`).join("\n")}
 - 검증 점수: ${candidate.validationScore}/100
 - 신뢰도: ${candidate.confidence}%
 - 추천: ${candidate.recommendation}
+- 게이트 판정: ${gate.label}
+- 다음 작업: ${gate.nextAction}
 - 리스크: ${candidate.riskLevel}
 
 ## 리스크 요약
@@ -937,16 +1069,6 @@ export function VentureConsoleActions({
     () => activeMembers.filter((member) => member.role === "owner").length,
     [activeMembers],
   );
-  const recommendedExtractedIdea = useMemo(
-    () => extractedIdeas.reduce<ExtractedIdea | null>((best, idea) => {
-      if (!best) {
-        return idea;
-      }
-
-      return idea.validationScore > best.validationScore ? idea : best;
-    }, null),
-    [extractedIdeas],
-  );
   const similarIdeaMatches = useMemo(() => {
     const matches = new Map<string, SimilarIdeaMatch>();
 
@@ -961,6 +1083,40 @@ export function VentureConsoleActions({
     return matches;
   }, [existingIdeas, extractedIdeas]);
   const duplicateCandidateCount = similarIdeaMatches.size;
+  const extractedIdeaGates = useMemo(() => {
+    const gates = new Map<string, ExtractionGate>();
+
+    for (const candidate of extractedIdeas) {
+      const similarIdea = similarIdeaMatches.get(candidate.id) ?? null;
+      gates.set(candidate.id, buildExtractionGate(candidate, buildCandidateReadiness(candidate, similarIdea), similarIdea));
+    }
+
+    return gates;
+  }, [extractedIdeas, similarIdeaMatches]);
+  const recommendedExtractedIdea = useMemo(
+    () =>
+      extractedIdeas.reduce<ExtractedIdea | null>((best, idea) => {
+        if (!best) {
+          return idea;
+        }
+
+        const ideaGate = extractedIdeaGates.get(idea.id);
+        const bestGate = extractedIdeaGates.get(best.id);
+        const ideaRank = ideaGate?.rank ?? idea.validationScore;
+        const bestRank = bestGate?.rank ?? best.validationScore;
+
+        if (ideaRank !== bestRank) {
+          return ideaRank > bestRank ? idea : best;
+        }
+
+        return idea.confidence > best.confidence ? idea : best;
+      }, null),
+    [extractedIdeaGates, extractedIdeas],
+  );
+  const recommendedExtractionGate = recommendedExtractedIdea
+    ? extractedIdeaGates.get(recommendedExtractedIdea.id) ?? null
+    : null;
+  const recommendedGateStyle = recommendedExtractionGate ? extractionGateStyles[recommendedExtractionGate.id] : null;
   const consoleTasks: Array<{
     id: ConsoleActionTask;
     label: string;
@@ -1521,6 +1677,9 @@ export function VentureConsoleActions({
     }
 
     setExtractSaveKey(candidate.id);
+    const similarIdea = similarIdeaMatches.get(candidate.id) ?? null;
+    const readinessChecks = buildCandidateReadiness(candidate, similarIdea);
+    const extractionGate = buildExtractionGate(candidate, readinessChecks, similarIdea);
     const { data: idea, error: ideaError } = await supabase
       .from("ideas")
       .insert({
@@ -1532,7 +1691,7 @@ export function VentureConsoleActions({
         risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
         next_evidence: `7일 검증 실험\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
           "\n- ",
-        )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
+        )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n게이트 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
         stage: "research",
         decision: "research_more",
         ...candidate.initialScores,
@@ -1574,7 +1733,7 @@ export function VentureConsoleActions({
         .single(),
       supabase
         .from("venture_artifacts")
-        .insert(buildExtractedIdeaArtifacts(candidate, idea, activeOrganization?.id ?? null))
+        .insert(buildExtractedIdeaArtifacts(candidate, idea, activeOrganization?.id ?? null, extractionGate))
         .select(),
     ]);
 
@@ -2011,14 +2170,26 @@ export function VentureConsoleActions({
                 <>
                   {recommendedExtractedIdea ? (
                     <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">추천 후보</div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="text-xs font-semibold text-blue-700">추천 후보</div>
+                        {recommendedExtractionGate && recommendedGateStyle ? (
+                          <span className={`rounded-md px-2 py-1 text-xs font-semibold ${recommendedGateStyle.badge}`}>
+                            {recommendedExtractionGate.label}
+                          </span>
+                        ) : null}
+                      </div>
                       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                           <div className="text-base font-semibold text-blue-950">{recommendedExtractedIdea.name}</div>
                           <p className="mt-1 text-sm leading-6 text-blue-900">
                             검증 점수 {recommendedExtractedIdea.validationScore}/100 ·{" "}
-                            {recommendedExtractedIdea.recommendation}. {recommendedExtractedIdea.validationRationale}
+                            {recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
                           </p>
+                          {recommendedExtractionGate ? (
+                            <p className="mt-1 text-sm leading-6 text-blue-900">
+                              다음 작업: {recommendedExtractionGate.nextAction}
+                            </p>
+                          ) : null}
                         </div>
                         <div className="flex shrink-0 flex-wrap gap-2">
                           <button
@@ -2052,6 +2223,9 @@ export function VentureConsoleActions({
                     const passedReadinessCount = readinessChecks.filter((check) => check.passed).length;
                     const readinessScore = Math.round((passedReadinessCount / readinessChecks.length) * 100);
                     const nextReadinessGap = readinessChecks.find((check) => !check.passed);
+                    const extractionGate =
+                      extractedIdeaGates.get(candidate.id) ?? buildExtractionGate(candidate, readinessChecks, similarIdea ?? null);
+                    const gateStyle = extractionGateStyles[extractionGate.id];
 
                     return (
                     <article key={candidate.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
@@ -2078,6 +2252,9 @@ export function VentureConsoleActions({
                             </span>
                             <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
                               패키지 {passedReadinessCount}/{readinessChecks.length}
+                            </span>
+                            <span className={`rounded-md px-2 py-1 text-xs font-semibold shadow-sm ${gateStyle.badge}`}>
+                              {extractionGate.label}
                             </span>
                           </div>
                           <p className="mt-2 text-sm leading-6 text-slate-600">{candidate.one_liner}</p>
@@ -2107,6 +2284,36 @@ export function VentureConsoleActions({
                           {similarIdea.idea.name} · 유사도 {similarIdea.score}% · {similarIdea.reason}
                         </div>
                       ) : null}
+                      <div className={`mt-3 rounded-md border p-3 ${gateStyle.panel}`}>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <div className={`text-sm font-semibold ${gateStyle.title}`}>
+                              게이트 판정: {extractionGate.label}
+                            </div>
+                            <p className="mt-1 text-sm leading-6 text-slate-700">{extractionGate.summary}</p>
+                            <p className="mt-1 text-sm leading-6 text-slate-700">
+                              <span className="font-semibold text-slate-950">다음 작업:</span>{" "}
+                              {extractionGate.nextAction}
+                            </p>
+                          </div>
+                          <div className={`shrink-0 rounded-md px-3 py-2 text-right ${gateStyle.score}`}>
+                            <div className="text-[10px] font-semibold">기준</div>
+                            <div className="mt-1 max-w-[160px] text-xs leading-5">{extractionGate.threshold}</div>
+                          </div>
+                        </div>
+                        {extractionGate.blockers.length > 0 ? (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {extractionGate.blockers.map((blocker) => (
+                              <span
+                                key={blocker}
+                                className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-700 shadow-sm"
+                              >
+                                보강 필요: {blocker}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
                       <div className="mt-3 rounded-md border border-emerald-100 bg-emerald-50 p-3">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                           <div>

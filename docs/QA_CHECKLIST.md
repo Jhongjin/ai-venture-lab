@@ -33,6 +33,7 @@ Use this checklist before merging meaningful changes.
 - Extracted candidate source excerpts are redacted for obvious email, phone, card, account, password, passport, and identity-number patterns before they are saved into artifacts.
 - Extracted candidates show likely duplicate or similar existing ideas before saving.
 - Extracted candidates show validation-package readiness across problem signal, user/buyer separation, measurable success metric, risk, first MVP scope, duplicate risk, and sensitive-source risk.
+- Extracted candidates show a proceed/research/pivot/kill gate with threshold, next action, blockers, and the gate is used when selecting the recommended candidate.
 - Workbench clearly marks which ideas are editable by the current operator and which are read-only.
 - Authenticated operators can attach an experiment name and success metric to an idea.
 - Experiment owners can move experiments through planned, running, and done states.
