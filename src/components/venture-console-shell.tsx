@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Beaker, ClipboardList, Flag, Layers3, Rocket, Save, ShieldCheck, Sparkles, UserRound, Users } from "lucide-react";
+import { Beaker, ClipboardList, Code2, Flag, Layers3, Rocket, Save, ShieldCheck, Sparkles, UserRound, Users } from "lucide-react";
 
 import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
 import { VentureConsoleActions, type ConsoleActionTask } from "@/components/venture-console-actions";
@@ -94,6 +94,13 @@ const shellTasks: Array<{
     icon: ClipboardList,
   },
   {
+    id: "workbench:development",
+    label: "앱 개발",
+    description: "기획부터 배포까지",
+    group: "아이디어 실행",
+    icon: Code2,
+  },
+  {
     id: "workbench:launch",
     label: "출시 준비도",
     description: "게이트 통과 상태",
@@ -147,6 +154,10 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     summary: "브리프, PRD, MVP 명세, 출시 체크리스트를 저장하고 승인 상태를 관리합니다.",
     checklist: ["필요 산출물 저장", "PRD와 MVP 명세 승인", "상태 메모 작성"],
   },
+  "workbench:development": {
+    summary: "검증된 아이디어를 실제 앱으로 만들기 위해 기획, 디자인, 개발, QA, 보안, 배포 실행 계획을 만듭니다.",
+    checklist: ["개발 런북 만들기", "앱 개발 실행 계획 저장", "Preview와 Production 게이트 확인"],
+  },
   "workbench:launch": {
     summary: "출시 준비도에서 남은 차단 항목을 확인하고 최종 판단을 기록합니다.",
     checklist: ["100%가 아닌 항목 확인", "높은 리스크 종료 또는 수용", "최종 판단 기록"],
@@ -182,8 +193,9 @@ function recommendNextTask({
     "workbench:risk": openRisks > 0 ? "workbench:decision" : "workbench:experiment",
     "workbench:decision": experimentCount > 0 ? "workbench:orchestration" : "workbench:experiment",
     "workbench:experiment": runCount > 0 ? "workbench:artifacts" : "workbench:orchestration",
-    "workbench:orchestration": artifactCount > 0 ? "workbench:launch" : "workbench:artifacts",
-    "workbench:artifacts": "workbench:launch",
+    "workbench:orchestration": artifactCount > 0 ? "workbench:development" : "workbench:artifacts",
+    "workbench:artifacts": "workbench:development",
+    "workbench:development": "workbench:launch",
     "workbench:launch": "console:idea",
   };
   const nextId = nextByTask[activeTask];
@@ -285,6 +297,7 @@ export function VentureConsoleShell({
     "workbench:experiment": `${experimentCount}개`,
     "workbench:orchestration": `${runCount}개`,
     "workbench:artifacts": `${artifactCount}개`,
+    "workbench:development": "계획",
     "workbench:launch": highRisks > 0 ? "점검" : "확인",
   };
 

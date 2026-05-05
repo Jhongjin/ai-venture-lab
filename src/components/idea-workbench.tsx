@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Beaker, CheckCircle2, Clipboard, ClipboardList, Flag, Layers3, RefreshCw, Save, ShieldAlert } from "lucide-react";
+import { Beaker, CheckCircle2, Clipboard, ClipboardList, Code2, Flag, Layers3, RefreshCw, Save, ShieldAlert } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -176,6 +176,7 @@ const decisionLabels: Record<DecisionStatus, string> = {
 const artifactSourceLabels: Record<string, string> = {
   workbench: "워크벤치",
   manual: "수동",
+  development_process: "앱 개발 프로세스",
 };
 
 type EditState = Pick<
@@ -220,6 +221,7 @@ export type WorkbenchTask =
   | "experiment"
   | "orchestration"
   | "artifacts"
+  | "development"
   | "launch";
 
 function sortWorkbenchIdeas(nextIdeas: Idea[]) {
@@ -788,6 +790,120 @@ ${securityRun?.output || state.risk_summary || "보안 실행 산출물 미정"}
 - MVP 명세 산출물이 저장됨
 - 최소 하나의 실험이 계획됨
 - QA와 보안 실행이 완료되었거나 열린 리스크로 명시 수용됨
+`;
+}
+
+function buildAppDevelopmentPlanMarkdown({
+  idea,
+  state,
+  experiments,
+  runs,
+  artifacts,
+}: {
+  idea: Idea;
+  state: EditState;
+  experiments: Experiment[];
+  runs: OrchestrationRun[];
+  artifacts: VentureArtifact[];
+}) {
+  const hasPrd = artifacts.some((artifact) => artifact.artifact_type === "prd");
+  const hasMvpSpec = artifacts.some((artifact) => artifact.artifact_type === "mvp_spec");
+  const donePhases = new Set(runs.filter((run) => run.status === "done").map((run) => run.phase));
+  const primaryExperiment = experiments[0];
+
+  return `# 앱 개발 실행 계획: ${idea.name}
+
+## 0. 개발 진입 조건
+
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+- PRD 저장: ${hasPrd ? "완료" : "필요"}
+- MVP 명세 저장: ${hasMvpSpec ? "완료" : "필요"}
+- 검증 실험: ${primaryExperiment ? `${primaryExperiment.name} / ${primaryExperiment.success_metric || "성공 지표 미정"}` : "측정 가능한 실험 필요"}
+- 다음 증거: ${state.next_evidence || "미정"}
+
+## 1. 기획
+
+### 목표
+
+${idea.one_liner || "아이디어의 핵심 사용자 가치가 아직 비어 있습니다."}
+
+### 해야 할 일
+
+- 대상 사용자와 구매자를 분리해 PRD에 고정합니다.
+- 핵심 사용자 여정 1개와 성공 지표 1개만 선택합니다.
+- 하지 않을 기능과 중단 기준을 명시합니다.
+
+### 산출물
+
+- PRD
+- MVP 명세
+- 실험 성공 기준
+
+## 2. 디자인
+
+### 화면
+
+- 진입 화면
+- 핵심 입력 화면
+- 결과/산출물 화면
+- 빈 상태, 오류 상태, 권한 없음 상태
+
+### 체크
+
+- 사용자가 첫 가치까지 도달하는 클릭 수를 줄입니다.
+- 모바일에서 입력 필드와 버튼이 겹치지 않게 검증합니다.
+- 민감 데이터 입력 전 고지와 동의를 분리합니다.
+
+## 3. 개발
+
+### 기본 아키텍처
+
+- Next.js 앱 라우터
+- Supabase Auth, Postgres, RLS
+- Vercel 배포
+- 서버 액션 또는 API는 권한 확인 후 쓰기 수행
+
+### 구현 순서
+
+1. 데이터 모델과 RLS를 먼저 확정합니다.
+2. 핵심 여정의 입력, 저장, 조회를 구현합니다.
+3. 빈 상태, 오류 상태, 로딩 상태를 추가합니다.
+4. 실험 지표를 남길 이벤트 또는 기록 구조를 붙입니다.
+5. QA와 보안 체크를 통과한 뒤 프로덕션 배포합니다.
+
+## 4. QA와 디버깅
+
+- 인증 전/후 주요 버튼 상태 확인
+- 새 기록 생성 후 화면 즉시 반영 확인
+- 읽기 전용, 내 기록, 워크스페이스 권한 확인
+- 실패한 저장 요청의 오류 메시지 확인
+- 모바일 폭에서 레이아웃 확인
+
+## 5. 보안과 개인정보
+
+${state.risk_summary || "보안/개인정보 리스크가 아직 정리되지 않았습니다."}
+
+- Vercel 환경변수만 사용하고 클라이언트에 비밀값을 노출하지 않습니다.
+- Supabase RLS와 정책을 출시 전 SQL로 재확인합니다.
+- 민감 데이터는 최소 수집, 보관 기간, 삭제 경로를 정합니다.
+
+## 6. 배포와 롤백
+
+- Vercel Preview에서 핵심 여정을 먼저 확인합니다.
+- Production 배포 후 로그인, 저장, 조회, 산출물 저장을 스모크 테스트합니다.
+- 장애 시 직전 배포로 롤백하고 DB 변경은 되돌릴 스크립트를 준비합니다.
+
+## 7. 현재 오케스트레이션 상태
+
+- 전략: ${donePhases.has("strategy") ? "완료" : "필요"}
+- 리서치: ${donePhases.has("research") ? "완료" : "필요"}
+- 제품: ${donePhases.has("product") ? "완료" : "필요"}
+- 디자인: ${donePhases.has("design") ? "완료" : "필요"}
+- 개발: ${donePhases.has("build") ? "완료" : "필요"}
+- QA: ${donePhases.has("qa") ? "완료" : "필요"}
+- 보안: ${donePhases.has("security") ? "완료" : "필요"}
+- 출시: ${donePhases.has("launch") ? "완료" : "필요"}
 `;
 }
 
@@ -1371,6 +1487,15 @@ export function IdeaWorkbench({
         runs: selectedRuns,
       })
     : "";
+  const developmentPlanDraft = selectedIdea && editState
+    ? buildAppDevelopmentPlanMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        experiments: selectedExperiments,
+        runs: selectedRuns,
+        artifacts: selectedArtifactRecords,
+      })
+    : "";
   const launchChecklistDraft = selectedIdea && editState
     ? buildLaunchChecklistMarkdown({
         idea: selectedIdea,
@@ -1487,6 +1612,12 @@ export function IdeaWorkbench({
       label: "산출물",
       description: "브리프, PRD, MVP 명세를 저장합니다.",
       status: selectedArtifactRecords.length > 0 ? `${selectedArtifactRecords.length}개` : "대기",
+    },
+    {
+      id: "development",
+      label: "앱 개발",
+      description: "기획, 디자인, 개발, 배포 실행 계획입니다.",
+      status: selectedArtifactRecords.some((artifact) => artifact.source === "development_process") ? "계획됨" : "대기",
     },
     {
       id: "launch",
@@ -2020,6 +2151,15 @@ export function IdeaWorkbench({
     setCopyMessage("MVP 명세를 클립보드에 복사했습니다.");
   }
 
+  async function copyDevelopmentPlanDraft() {
+    if (!developmentPlanDraft) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(developmentPlanDraft);
+    setCopyMessage("앱 개발 실행 계획을 클립보드에 복사했습니다.");
+  }
+
   async function copyLaunchChecklistDraft() {
     if (!launchChecklistDraft) {
       return;
@@ -2493,6 +2633,85 @@ export function IdeaWorkbench({
             />
           </div>
         </form>
+
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "development" ? "" : "hidden"
+          }`}
+        >
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">앱 개발 프로세스</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                검증된 아이디어를 기획, 디자인, 개발, QA, 보안, 배포로 옮기는 실행 계획입니다.
+              </p>
+            </div>
+            <Code2 className="text-blue-600" size={22} />
+          </div>
+
+          <div className="grid gap-3 lg:grid-cols-4">
+            {[
+              ["기획", "PRD, MVP 범위, 성공 지표, 제외 범위를 확정합니다."],
+              ["디자인", "핵심 여정, 화면 상태, 모바일/접근성 리스크를 정리합니다."],
+              ["개발", "데이터 모델, RLS, 입력/저장/조회, 이벤트 기록을 구현합니다."],
+              ["배포", "Preview, 스모크 테스트, 프로덕션 배포, 롤백 경로를 확인합니다."],
+            ].map(([label, detail], index) => (
+              <div key={label} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                    {index + 1}
+                  </span>
+                  <div className="text-sm font-semibold text-slate-950">{label}</div>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{detail}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={createRunbook}
+              disabled={isBusy || !user}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Layers3 size={18} />
+              개발 런북 만들기
+            </button>
+            <button
+              type="button"
+              onClick={copyDevelopmentPlanDraft}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+            >
+              <Clipboard size={18} />
+              계획 복사
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                saveArtifactDraft(
+                  "mvp_spec",
+                  `${selectedIdea.name} 앱 개발 실행 계획`,
+                  developmentPlanDraft,
+                  "development_process",
+                )
+              }
+              disabled={isBusy || !user}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Save size={18} />
+              개발 계획 저장
+            </button>
+          </div>
+
+          <textarea
+            value={developmentPlanDraft}
+            readOnly
+            rows={24}
+            className="mt-4 w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+          />
+          {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
+        </div>
 
         <div className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "launch" ? "" : "hidden"}`}>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
