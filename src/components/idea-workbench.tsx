@@ -151,6 +151,49 @@ const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {
   security: "보안",
   deploy: "배포",
 };
+type EvidenceRequirement = {
+  label: string;
+  terms: string[];
+};
+const sharedImplementationEvidenceRequirements: EvidenceRequirement[] = [
+  { label: "커밋/PR", terms: ["commit", "커밋", "PR", "pull request"] },
+  { label: "검증 결과", terms: ["pnpm", "lint", "typecheck", "build", "quality", "검증"] },
+];
+const implementationEvidenceRequirements: Record<ImplementationTaskType, EvidenceRequirement[]> = {
+  planning: [
+    { label: "PRD/MVP 범위", terms: ["PRD", "MVP", "범위", "scope"] },
+    { label: "중단 기준", terms: ["중단", "kill", "no-go", "No-go"] },
+  ],
+  design: [
+    { label: "핵심 화면", terms: ["화면", "screen", "flow", "여정"] },
+    { label: "상태/모바일", terms: ["빈 상태", "오류", "모바일", "accessibility", "접근성"] },
+  ],
+  frontend: [
+    { label: "사용자 여정", terms: ["스모크", "smoke", "저장", "조회", "journey"] },
+    { label: "상태 UX", terms: ["로딩", "오류", "성공", "권한", "read-only"] },
+  ],
+  backend: [
+    { label: "허용/차단", terms: ["허용", "차단", "allowed", "denied"] },
+    { label: "RLS/Rules", terms: ["RLS", "Security Rules", "IAM", "with check"] },
+  ],
+  data: [
+    { label: "마이그레이션", terms: ["migration", "마이그레이션", "SQL", "schema"] },
+    { label: "되돌림/보정", terms: ["rollback", "롤백", "보정", "revert"] },
+  ],
+  qa: [
+    { label: "스모크 경로", terms: ["smoke", "스모크", "수동", "browser"] },
+    { label: "실패/회귀", terms: ["실패", "회귀", "regression", "재현"] },
+  ],
+  security: [
+    { label: "비밀값/PII", terms: ["secret", "비밀값", "PII", "개인정보", "NEXT_PUBLIC"] },
+    { label: "권한 차단", terms: ["권한", "차단", "RLS", "Security Rules", "abuse"] },
+  ],
+  deploy: [
+    { label: "Preview/Production", terms: ["Preview", "Production", "프로덕션"] },
+    { label: "Vercel 로그", terms: ["Vercel inspect", "deploy log", "배포 로그", "빌드 로그"] },
+    { label: "롤백 기준", terms: ["rollback", "롤백", "last known good", "직전"] },
+  ],
+};
 
 const orchestrationPhaseConfigs: Array<{
   phase: OrchestrationPhase;
@@ -2555,6 +2598,16 @@ function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
       a.title.localeCompare(b.title),
   );
+}
+
+function getImplementationEvidenceChecklist(task: ImplementationTask, evidence: string) {
+  const normalizedEvidence = evidence.toLowerCase();
+  const requirements = [...sharedImplementationEvidenceRequirements, ...implementationEvidenceRequirements[task.task_type]];
+
+  return requirements.map((requirement) => ({
+    ...requirement,
+    passed: requirement.terms.some((term) => normalizedEvidence.includes(term.toLowerCase())),
+  }));
 }
 
 function buildImplementationTaskTicketMarkdown({
@@ -5903,7 +5956,15 @@ export function IdeaWorkbench({
 
                     <div className="grid gap-3">
                       {tasksInStatus.length > 0 ? (
-                        tasksInStatus.map((task) => (
+                        tasksInStatus.map((task) => {
+                          const currentTaskEvidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
+                          const evidenceChecklist = getImplementationEvidenceChecklist(task, currentTaskEvidence);
+                          const passedEvidenceCount = evidenceChecklist.filter((item) => item.passed).length;
+                          const missingEvidenceLabels = evidenceChecklist
+                            .filter((item) => !item.passed)
+                            .map((item) => item.label);
+
+                          return (
                           <div key={task.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-sm font-semibold text-slate-950">{task.title}</span>
@@ -5919,7 +5980,7 @@ export function IdeaWorkbench({
                             </div>
                             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{task.acceptance_criteria}</p>
                             <textarea
-                              value={implementationTaskEvidence[task.id] ?? task.evidence ?? ""}
+                              value={currentTaskEvidence}
                               onChange={(event) =>
                                 setImplementationTaskEvidence((current) => ({
                                   ...current,
@@ -5931,6 +5992,22 @@ export function IdeaWorkbench({
                               placeholder="완료 증거, PR/커밋, 스모크 결과, 남은 리스크"
                               className="mt-3 w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm leading-6 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
                             />
+                            <div
+                              className={`mt-2 rounded-md border px-3 py-2 text-xs leading-5 ${
+                                missingEvidenceLabels.length === 0
+                                  ? "border-emerald-100 bg-emerald-50 text-emerald-900"
+                                  : "border-amber-100 bg-amber-50 text-amber-900"
+                              }`}
+                            >
+                              <div className="font-semibold">
+                                증거 품질 {passedEvidenceCount}/{evidenceChecklist.length}
+                              </div>
+                              <div className="mt-1">
+                                {missingEvidenceLabels.length === 0
+                                  ? "필수 증거 힌트가 모두 포함되어 있습니다."
+                                  : `보강 필요: ${missingEvidenceLabels.join(", ")}`}
+                              </div>
+                            </div>
                             <div className="mt-3 flex flex-wrap gap-2">
                               <button
                                 type="button"
@@ -5957,7 +6034,8 @@ export function IdeaWorkbench({
                               ))}
                             </div>
                           </div>
-                        ))
+                          );
+                        })
                       ) : (
                         <div className="rounded-md border border-dashed border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-500">
                           아직 {implementationTaskStatusLabels[status]} 상태의 태스크가 없습니다.
