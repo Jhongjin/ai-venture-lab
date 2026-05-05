@@ -315,6 +315,201 @@ function missingEvidence(idea: Idea, state: EditState, riskCount: number) {
   return missing;
 }
 
+function inferIdeaDomain(idea: Idea, state: EditState) {
+  const text = `${idea.name} ${idea.one_liner} ${idea.target_user} ${idea.buyer} ${state.signal} ${state.risk_summary} ${state.next_evidence}`;
+
+  if (/요양|간병|돌봄|시니어/.test(text)) {
+    return "care";
+  }
+
+  if (/구독|결제|해지|카드|반복/.test(text)) {
+    return "subscription";
+  }
+
+  if (/대화|협상|갈등|관계|코칭|역할극/.test(text)) {
+    return "conversation";
+  }
+
+  if (/영상|사진|콘텐츠|숏폼|브이로그/.test(text)) {
+    return "media";
+  }
+
+  if (/로컬|이웃|공유|대여|심부름/.test(text)) {
+    return "local";
+  }
+
+  return "generic";
+}
+
+function buildValidationPlan({
+  idea,
+  state,
+  score,
+  risks,
+  missing,
+}: {
+  idea: Idea;
+  state: EditState;
+  score: number;
+  risks: Risk[];
+  missing: string[];
+}) {
+  const domain = inferIdeaDomain(idea, state);
+  const openHighRiskCount = risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed").length;
+  const status =
+    missing.length > 0
+      ? "증거 공백 해소"
+      : openHighRiskCount > 0
+        ? "리스크 선검증"
+        : score >= 22
+          ? "MVP 후보"
+          : score >= 15
+            ? "추가 조사"
+            : "중단 또는 전환 검토";
+  const statusDetail =
+    missing.length > 0
+      ? `${missing[0]}부터 채워야 다음 단계 판단이 안정적입니다.`
+      : openHighRiskCount > 0
+        ? "높음/치명적 리스크가 남아 있어 제품 범위보다 안전장치를 먼저 확정해야 합니다."
+        : "기본 증거가 정리되어 실험 결과를 기준으로 다음 판단을 내릴 수 있습니다.";
+
+  const experimentsByDomain: Record<string, ExperimentDraft[]> = {
+    care: [
+      {
+        name: "보호자-센터 조율 수동 파일럿",
+        success_metric: "보호자/센터 5명 중 3명 이상이 현재 방식보다 확인 시간이 줄었다고 응답하고, 2명 이상이 월 3만원 이상 지불 의향을 밝힘.",
+      },
+      {
+        name: "돌봄 기록 템플릿 반복 사용 테스트",
+        success_metric: "3일 연속 기록 완료율 70% 이상, 누락/문의 감소 사례 2건 이상 확인.",
+      },
+    ],
+    subscription: [
+      {
+        name: "구독 감사 리포트 수동 MVP",
+        success_metric: "사용자 5명 중 3명 이상이 실제 절감 후보를 발견하고, 2명 이상이 절감액 기반 수수료 또는 월 구독에 동의.",
+      },
+      {
+        name: "해지 체크리스트 완료 테스트",
+        success_metric: "해지 후보 10건 중 6건 이상이 사용자의 직접 행동으로 완료되고, 실패 사유가 분류됨.",
+      },
+    ],
+    conversation: [
+      {
+        name: "실제 대화 전 리허설 테스트",
+        success_metric: "사용자 5명 중 3명 이상이 대화 전 자신감이 2점 이상 상승하고, 2명 이상이 다음 상황에서도 재사용 의향을 밝힘.",
+      },
+      {
+        name: "스크립트 선택률 테스트",
+        success_metric: "상황별 스크립트 3안 중 하나를 실제로 사용한 비율 60% 이상.",
+      },
+    ],
+    media: [
+      {
+        name: "수동 하이라이트 영상 파일럿",
+        success_metric: "샘플 사용자 5명 중 3명 이상이 결과물을 저장 또는 공유하고, 2명 이상이 반복 제작 의향을 밝힘.",
+      },
+      {
+        name: "스토리보드 만족도 테스트",
+        success_metric: "편집 전 스토리보드 승인률 70% 이상, 수정 요청이 2회 이하.",
+      },
+    ],
+    local: [
+      {
+        name: "폐쇄형 단지 거래 파일럿",
+        success_metric: "등록 요청 10건 중 4건 이상 매칭, 완료 후 신뢰/안전 불안 점수 2점 이하.",
+      },
+      {
+        name: "보증금/인증 조건 테스트",
+        success_metric: "사용자 5명 중 3명 이상이 거래 전 필요한 인증 조건을 명확히 선택.",
+      },
+    ],
+    generic: [
+      {
+        name: "5명 문제 인터뷰와 수동 결과물 테스트",
+        success_metric: "5명 중 3명 이상이 주 1회 이상 문제를 겪고, 2명 이상이 수동 결과물에 비용 또는 재사용 의향을 밝힘.",
+      },
+      {
+        name: "랜딩 페이지 구매 의향 테스트",
+        success_metric: "타겟 방문자 30명 중 5명 이상이 대기자 등록 또는 상담 신청.",
+      },
+    ],
+  };
+
+  const risksByDomain: Record<string, RiskDraft[]> = {
+    care: [
+      {
+        title: "돌봄 개인정보와 책임 소재",
+        area: "개인정보/운영",
+        severity: "high",
+        mitigation: "초기 파일럿은 가명 데이터와 동의받은 샘플만 사용하고, 가족/센터/요양보호사별 책임 범위를 문서화합니다.",
+      },
+    ],
+    subscription: [
+      {
+        title: "결제 데이터와 계정 접근",
+        area: "보안/동의",
+        severity: "high",
+        mitigation: "초기 MVP는 직접 계정 접속을 하지 않고 사용자가 제공한 캡처/CSV만 처리하며, 해지는 안내로 제한합니다.",
+      },
+    ],
+    conversation: [
+      {
+        title: "전문 상담 또는 법률 조언 오인",
+        area: "법무/콘텐츠",
+        severity: "medium",
+        mitigation: "앱 문구를 연습/커뮤니케이션 보조로 제한하고, 의료·법률·심리상담 판단으로 보이는 표현을 금지합니다.",
+      },
+    ],
+    media: [
+      {
+        title: "초상권과 민감 미디어 처리",
+        area: "개인정보/저작권",
+        severity: "medium",
+        mitigation: "업로드 전 동의 안내, 아동/타인 얼굴 포함 여부 체크, 원본 보관 기간 제한을 적용합니다.",
+      },
+    ],
+    local: [
+      {
+        title: "오프라인 거래 안전과 분쟁",
+        area: "운영/신뢰",
+        severity: "high",
+        mitigation: "초기 베타는 초대된 사용자로 제한하고, 보증금·완료 확인·분쟁 기록을 필수로 둡니다.",
+      },
+    ],
+    generic: [
+      {
+        title: "검증 없는 범위 확장",
+        area: "제품",
+        severity: "medium",
+        mitigation: "첫 MVP는 하나의 반복 문제와 하나의 성공 지표만 지원하고, 추가 기능은 실험 통과 후 반영합니다.",
+      },
+    ],
+  };
+
+  return {
+    status,
+    statusDetail,
+    hypotheses: [
+      `${idea.target_user || "대상 사용자"}가 ${state.signal || idea.one_liner || "이 문제"}를 반복적으로 겪는다.`,
+      `${idea.buyer || "구매자"}가 현재 대안보다 빠르거나 믿을 수 있는 결과에 지불 의향을 보인다.`,
+      `첫 MVP는 ${state.next_evidence || "다음 증거"}를 확인하는 데 필요한 범위만 포함한다.`,
+    ],
+    interviewQuestions: [
+      "최근 이 문제가 발생한 실제 사례를 시간순으로 설명해줄 수 있나요?",
+      "지금은 어떤 방식으로 해결하고 있고, 그 방식에서 가장 싫은 부분은 무엇인가요?",
+      "이 문제가 해결되면 누가 비용을 내고, 얼마까지 현실적인가요?",
+      "첫 버전에서 반드시 없어도 되는 기능은 무엇인가요?",
+    ],
+    experiments: experimentsByDomain[domain],
+    risks: risksByDomain[domain],
+    nextAction:
+      status === "리스크 선검증"
+        ? "리스크 초안을 먼저 저장한 뒤 완화 조건을 정하세요."
+        : "첫 실험을 저장하고 진행 중으로 바꾼 뒤 실제 사용자 증거를 모으세요.",
+  };
+}
+
 function buildIdeaBriefMarkdown({
   idea,
   state,
@@ -1139,6 +1334,15 @@ export function IdeaWorkbench({
   const scoreRecommendation = recommendationForScore(currentScore);
   const missing =
     selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedIdeaRisks.length) : [];
+  const validationPlan = selectedIdea && editState
+    ? buildValidationPlan({
+        idea: selectedIdea,
+        state: editState,
+        score: currentScore,
+        risks: selectedIdeaRisks,
+        missing,
+      })
+    : null;
   const ideaBrief = selectedIdea && editState
     ? buildIdeaBriefMarkdown({
         idea: selectedIdea,
@@ -1825,6 +2029,32 @@ export function IdeaWorkbench({
     setCopyMessage("출시 체크리스트를 클립보드에 복사했습니다.");
   }
 
+  function loadExperimentSuggestion(suggestion: ExperimentDraft) {
+    setExperimentDraft(suggestion);
+    updateActiveTask("experiment");
+    setMessage("추천 실험을 실험 입력란에 채웠습니다. 성공 지표를 검토한 뒤 저장하세요.");
+  }
+
+  function loadRiskSuggestion(suggestion: RiskDraft) {
+    setRiskDraft(suggestion);
+    updateActiveTask("risk");
+    setMessage("추천 리스크를 리스크 입력란에 채웠습니다. 완화 방안을 검토한 뒤 저장하세요.");
+  }
+
+  function loadDecisionTemplate() {
+    if (!validationPlan) {
+      return;
+    }
+
+    setDecisionReason(
+      `${validationPlan.status}: ${validationPlan.statusDetail}\n\n다음 행동: ${validationPlan.nextAction}\n\n확인할 핵심 가설\n- ${validationPlan.hypotheses.join(
+        "\n- ",
+      )}`,
+    );
+    updateActiveTask("decision");
+    setMessage("검증 상태 기반 판단 근거 초안을 채웠습니다. 최종 판단을 확인한 뒤 기록하세요.");
+  }
+
   return (
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
       {showSidebar ? (
@@ -2169,6 +2399,78 @@ export function IdeaWorkbench({
               </div>
             </div>
           </div>
+
+          {validationPlan ? (
+            <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">검증 설계</div>
+                  <h3 className="mt-1 text-lg font-semibold text-blue-950">{validationPlan.status}</h3>
+                  <p className="mt-1 text-sm leading-6 text-blue-900">{validationPlan.statusDetail}</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => loadExperimentSuggestion(validationPlan.experiments[0])}
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
+                  >
+                    첫 실험 채우기
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => loadRiskSuggestion(validationPlan.risks[0])}
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-white px-4 text-sm font-semibold text-blue-800 shadow-sm transition hover:bg-blue-100"
+                  >
+                    핵심 리스크 채우기
+                  </button>
+                  <button
+                    type="button"
+                    onClick={loadDecisionTemplate}
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-white px-4 text-sm font-semibold text-blue-800 shadow-sm transition hover:bg-blue-100"
+                  >
+                    판단 근거 채우기
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 xl:grid-cols-3">
+                <div className="rounded-md bg-white p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">핵심 가설</div>
+                  <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
+                    {validationPlan.hypotheses.map((item) => (
+                      <li key={item}>- {item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="rounded-md bg-white p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">추천 실험</div>
+                  <div className="mt-2 grid gap-2">
+                    {validationPlan.experiments.map((experiment) => (
+                      <button
+                        key={experiment.name}
+                        type="button"
+                        onClick={() => loadExperimentSuggestion(experiment)}
+                        className="rounded-md border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-blue-200 hover:bg-blue-50"
+                      >
+                        <div className="text-sm font-semibold text-slate-950">{experiment.name}</div>
+                        <div className="mt-1 text-xs leading-5 text-slate-600">{experiment.success_metric}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-md bg-white p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">인터뷰 질문</div>
+                  <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
+                    {validationPlan.interviewQuestions.map((item) => (
+                      <li key={item}>- {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <p className="mt-3 text-sm leading-6 text-blue-900">{validationPlan.nextAction}</p>
+            </div>
+          ) : null}
 
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             <TextArea
