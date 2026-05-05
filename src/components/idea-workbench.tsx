@@ -212,6 +212,8 @@ type RunDraft = {
   objective: string;
 };
 
+type WorkbenchTask = "score" | "risk" | "decision" | "experiment" | "orchestration" | "artifacts" | "launch";
+
 function sortWorkbenchIdeas(nextIdeas: Idea[]) {
   return [...nextIdeas].sort(
     (a, b) =>
@@ -966,6 +968,7 @@ export function IdeaWorkbench({
   const [filterMode, setFilterMode] = useState<"all" | "mine" | "read_only">("all");
   const [artifactTypeFilter, setArtifactTypeFilter] = useState<VentureArtifactType | "all">("all");
   const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
+  const [activeTask, setActiveTask] = useState<WorkbenchTask>("score");
 
   useEffect(() => {
     function handleIdeaCreated(event: Event) {
@@ -978,6 +981,7 @@ export function IdeaWorkbench({
       setIdeas((current) => upsertWorkbenchIdea(current, createdIdea));
       setSelectedIdeaId(createdIdea.id);
       setEditState(toEditState(createdIdea));
+      setActiveTask("score");
       setFilterMode("all");
       setMessage("새 아이디어를 워크벤치에 바로 추가하고 선택했습니다.");
     }
@@ -1020,6 +1024,10 @@ export function IdeaWorkbench({
 
   const selectedRisks = useMemo(
     () => risks.filter((risk) => risk.idea_id === selectedIdea?.id || risk.idea_id === null),
+    [risks, selectedIdea?.id],
+  );
+  const selectedIdeaRisks = useMemo(
+    () => risks.filter((risk) => risk.idea_id === selectedIdea?.id),
     [risks, selectedIdea?.id],
   );
 
@@ -1111,14 +1119,14 @@ export function IdeaWorkbench({
   const currentScore = editState ? scoreState(editState) : 0;
   const scoreRecommendation = recommendationForScore(currentScore);
   const missing =
-    selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedRisks.filter((risk) => risk.idea_id).length) : [];
+    selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedIdeaRisks.length) : [];
   const ideaBrief = selectedIdea && editState
     ? buildIdeaBriefMarkdown({
         idea: selectedIdea,
         state: editState,
         score: currentScore,
         recommendation: scoreRecommendation,
-        risks: selectedRisks.filter((risk) => risk.idea_id === selectedIdea.id),
+        risks: selectedIdeaRisks,
       })
     : "";
   const prdDraft = selectedIdea && editState
@@ -1127,7 +1135,7 @@ export function IdeaWorkbench({
         state: editState,
         score: currentScore,
         recommendation: scoreRecommendation,
-        risks: selectedRisks.filter((risk) => risk.idea_id === selectedIdea.id),
+        risks: selectedIdeaRisks,
         experiments: selectedExperiments,
         runs: selectedRuns,
       })
@@ -1144,7 +1152,7 @@ export function IdeaWorkbench({
     ? buildLaunchChecklistMarkdown({
         idea: selectedIdea,
         state: editState,
-        risks: selectedRisks.filter((risk) => risk.idea_id === selectedIdea.id),
+        risks: selectedIdeaRisks,
         experiments: selectedExperiments,
         runs: selectedRuns,
         artifacts: selectedArtifactRecords,
@@ -1192,9 +1200,7 @@ export function IdeaWorkbench({
         },
         {
           label: "높은 리스크 정리",
-          passed: selectedRisks
-            .filter((risk) => risk.idea_id === selectedIdea.id)
-            .every((risk) => !["high", "critical"].includes(risk.severity) || risk.status === "closed"),
+          passed: selectedIdeaRisks.every((risk) => !["high", "critical"].includes(risk.severity) || risk.status === "closed"),
           detail: "높음/치명적 리스크는 종료 또는 수용 판단이 필요합니다.",
         },
         {
@@ -1210,6 +1216,56 @@ export function IdeaWorkbench({
       ? 0
       : Math.round((passedLaunchReadinessCount / launchReadiness.length) * 100);
   const nextLaunchBlocker = launchReadiness.find((check) => !check.passed) ?? null;
+  const doneRunCount = selectedRuns.filter((run) => run.status === "done").length;
+  const workbenchTasks: Array<{
+    id: WorkbenchTask;
+    label: string;
+    description: string;
+    status: string;
+  }> = [
+    {
+      id: "score",
+      label: "점수화",
+      description: "단계, 판단, 점수, 증거를 정리합니다.",
+      status: currentScore > 0 ? `${currentScore}점` : "대기",
+    },
+    {
+      id: "risk",
+      label: "리스크",
+      description: "차단 요인과 완화 상태를 관리합니다.",
+      status: selectedIdeaRisks.length > 0 ? `${selectedIdeaRisks.length}개` : "대기",
+    },
+    {
+      id: "decision",
+      label: "판단 기록",
+      description: "진행, 전환, 중단 근거를 남깁니다.",
+      status: selectedDecisions.length > 0 ? `${selectedDecisions.length}개` : "대기",
+    },
+    {
+      id: "experiment",
+      label: "실험",
+      description: "가장 작은 검증 계획을 정의합니다.",
+      status: selectedExperiments.length > 0 ? `${selectedExperiments.length}개` : "대기",
+    },
+    {
+      id: "orchestration",
+      label: "오케스트레이션",
+      description: "전략부터 출시까지 역할 실행을 추적합니다.",
+      status: selectedRuns.length > 0 ? `${doneRunCount}/${selectedRuns.length}` : "대기",
+    },
+    {
+      id: "artifacts",
+      label: "산출물",
+      description: "브리프, PRD, MVP 명세를 저장합니다.",
+      status: selectedArtifactRecords.length > 0 ? `${selectedArtifactRecords.length}개` : "대기",
+    },
+    {
+      id: "launch",
+      label: "출시 준비도",
+      description: "출시 게이트 통과 상태를 확인합니다.",
+      status: `${launchReadinessScore}%`,
+    },
+  ];
   const visibleIdeas = useMemo(() => {
     if (filterMode === "mine") {
       return sortWorkbenchIdeas(ideas.filter((idea) => user && idea.created_by === user.id));
@@ -1738,8 +1794,9 @@ export function IdeaWorkbench({
   }
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
+      <aside className="grid gap-4 lg:sticky lg:top-6 lg:self-start">
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-slate-950">아이디어 워크벤치</h2>
@@ -1783,36 +1840,41 @@ export function IdeaWorkbench({
               );
 
               return (
-            <button
-              key={idea.id}
-              type="button"
-              onClick={() => {
-                setSelectedIdeaId(idea.id);
-                setEditState(toEditState(idea));
-              }}
-              className={`rounded-lg border p-4 text-left transition ${
-                idea.id === selectedIdea.id
-                  ? "border-blue-300 bg-blue-50"
-                  : "border-slate-200 bg-slate-50 hover:border-slate-300"
-              }`}
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="font-semibold text-slate-950">{idea.name}</span>
-                <div className="flex flex-wrap gap-2">
-                  <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
-                    {stageLabels[idea.stage]}
-                  </span>
-                  <span
-                    className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-                      isOwned || isOrgAdmin ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
-                    }`}
-                  >
-                    {isOwned ? editabilityLabels.editable : isOrgAdmin ? editabilityLabels.orgAdmin : editabilityLabels.readOnly}
-                  </span>
-                </div>
-              </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
-            </button>
+                <button
+                  key={idea.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedIdeaId(idea.id);
+                    setEditState(toEditState(idea));
+                    setActiveTask("score");
+                  }}
+                  className={`rounded-lg border p-4 text-left transition ${
+                    idea.id === selectedIdea.id
+                      ? "border-blue-300 bg-blue-50"
+                      : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-semibold text-slate-950">{idea.name}</span>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                        {stageLabels[idea.stage]}
+                      </span>
+                      <span
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
+                          isOwned || isOrgAdmin ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {isOwned
+                          ? editabilityLabels.editable
+                          : isOrgAdmin
+                            ? editabilityLabels.orgAdmin
+                            : editabilityLabels.readOnly}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
+                </button>
               );
             })
           ) : (
@@ -1821,10 +1883,55 @@ export function IdeaWorkbench({
             </div>
           )}
         </div>
-      </div>
+        </div>
 
-      <div className="grid gap-6">
-        <form onSubmit={saveIdea} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-slate-950">작업 순서</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-500">단계를 고르면 오른쪽 작업 화면만 바뀝니다.</p>
+          </div>
+          <div className="grid gap-2">
+            {workbenchTasks.map((task, index) => (
+              <button
+                key={task.id}
+                type="button"
+                onClick={() => setActiveTask(task.id)}
+                aria-current={activeTask === task.id ? "step" : undefined}
+                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
+                  activeTask === task.id
+                    ? "border-blue-300 bg-blue-50 text-blue-950"
+                    : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white"
+                }`}
+              >
+                <span
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
+                    activeTask === task.id ? "bg-blue-600 text-white" : "bg-white text-slate-700 shadow-sm"
+                  }`}
+                >
+                  {index + 1}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">{task.label}</span>
+                  <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
+                </span>
+                <span
+                  className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                    activeTask === task.id ? "bg-white text-blue-700" : "bg-white text-slate-600"
+                  }`}
+                >
+                  {task.status}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </aside>
+
+      <div className="grid min-w-0 gap-6">
+        <form
+          onSubmit={saveIdea}
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "score" ? "" : "hidden"}`}
+        >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-slate-950">{selectedIdea.name}</h2>
@@ -1964,7 +2071,7 @@ export function IdeaWorkbench({
           </div>
         </form>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "launch" ? "" : "hidden"}`}>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">출시 준비도</h2>
@@ -2007,7 +2114,11 @@ export function IdeaWorkbench({
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "orchestration" ? "" : "hidden"
+          }`}
+        >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">오케스트레이션 보드</h2>
@@ -2138,8 +2249,11 @@ export function IdeaWorkbench({
           </div>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-2">
-          <form onSubmit={addRisk} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div className={activeTask === "risk" || activeTask === "decision" ? "grid gap-6" : "hidden"}>
+          <form
+            onSubmit={addRisk}
+            className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "risk" ? "" : "hidden"}`}
+          >
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-slate-950">리스크 추가</h2>
@@ -2183,7 +2297,11 @@ export function IdeaWorkbench({
             </div>
           </form>
 
-          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div
+            className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+              activeTask === "decision" ? "" : "hidden"
+            }`}
+          >
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-slate-950">판단 기록</h2>
@@ -2223,7 +2341,11 @@ export function IdeaWorkbench({
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "experiment" ? "" : "hidden"
+          }`}
+        >
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">실험 계획</h2>
@@ -2289,7 +2411,9 @@ export function IdeaWorkbench({
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "risk" ? "" : "hidden"}`}
+        >
           <h2 className="text-lg font-semibold text-slate-950">관련 리스크</h2>
           <div className="mt-4 grid gap-3">
             {selectedRisks.map((risk) => (
@@ -2324,7 +2448,11 @@ export function IdeaWorkbench({
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "artifacts" ? "" : "hidden"
+          }`}
+        >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">아이디어 브리프 초안</h2>
@@ -2361,7 +2489,11 @@ export function IdeaWorkbench({
           {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "artifacts" ? "" : "hidden"
+          }`}
+        >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">PRD 초안</h2>
@@ -2397,7 +2529,7 @@ export function IdeaWorkbench({
           />
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-2">
+        <div className={activeTask === "artifacts" ? "grid gap-6 xl:grid-cols-2" : "hidden"}>
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -2476,7 +2608,11 @@ export function IdeaWorkbench({
           </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "artifacts" ? "" : "hidden"
+          }`}
+        >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">산출물 라이브러리</h2>

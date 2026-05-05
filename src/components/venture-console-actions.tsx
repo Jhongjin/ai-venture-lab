@@ -24,6 +24,8 @@ type FormState = {
   next_evidence: string;
 };
 
+type ConsoleActionTask = "auth" | "workspace" | "idea";
+
 const emptyForm: FormState = {
   name: "",
   one_liner: "",
@@ -73,6 +75,7 @@ export function VentureConsoleActions() {
   const [personalRecordCount, setPersonalRecordCount] = useState(0);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
+  const [activeTask, setActiveTask] = useState<ConsoleActionTask>("auth");
 
   const activeOrganization = useMemo(
     () => organizations.find((organization) => organization.id === activeOrganizationId) ?? organizations[0] ?? null,
@@ -95,6 +98,31 @@ export function VentureConsoleActions() {
     () => activeMembers.filter((member) => member.role === "owner").length,
     [activeMembers],
   );
+  const consoleTasks: Array<{
+    id: ConsoleActionTask;
+    label: string;
+    description: string;
+    status: string;
+  }> = [
+    {
+      id: "auth",
+      label: "운영자 로그인",
+      description: "매직 링크 또는 기존 비밀번호로 접근합니다.",
+      status: user ? "완료" : "필수",
+    },
+    {
+      id: "workspace",
+      label: "워크스페이스",
+      description: "기록을 팀 경계와 멤버십에 연결합니다.",
+      status: activeOrganization ? "연결됨" : "선택",
+    },
+    {
+      id: "idea",
+      label: "새 아이디어",
+      description: "원시 아이디어를 먼저 접수합니다.",
+      status: user ? "입력" : "로그인 필요",
+    },
+  ];
 
   const loadPersonalRecordCount = useCallback(
     async (operator: User | null) => {
@@ -244,6 +272,9 @@ export function VentureConsoleActions() {
         const nextUser = data.user ?? null;
 
         setUser(nextUser);
+        if (nextUser) {
+          setActiveTask("idea");
+        }
         setAuthMessage("로그인되었습니다.");
         await loadWorkspaceData(nextUser);
         router.refresh();
@@ -265,6 +296,7 @@ export function VentureConsoleActions() {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       setIsAuthLoaded(true);
+      setActiveTask(data.user ? "idea" : "auth");
       void loadWorkspaceData(data.user);
     });
 
@@ -272,6 +304,7 @@ export function VentureConsoleActions() {
       const nextUser = session?.user ?? null;
       setIsAuthLoaded(true);
       setUser(nextUser);
+      setActiveTask(nextUser ? "idea" : "auth");
       void loadWorkspaceData(nextUser);
       router.refresh();
     });
@@ -338,6 +371,7 @@ export function VentureConsoleActions() {
     }
 
     setPassword("");
+    setActiveTask("idea");
     setAuthMessage("로그인되었습니다.");
     router.refresh();
   }
@@ -350,6 +384,7 @@ export function VentureConsoleActions() {
     setIsAuthBusy(true);
     await supabase.auth.signOut();
     setIsAuthBusy(false);
+    setActiveTask("auth");
     setAuthMessage("로그아웃되었습니다.");
   }
 
@@ -570,9 +605,52 @@ export function VentureConsoleActions() {
   }
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
-      <div className="grid gap-6">
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 lg:self-start">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-slate-950">운영 준비</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-500">로그인부터 아이디어 접수까지 한 단계씩 처리합니다.</p>
+        </div>
+        <div className="grid gap-2">
+          {consoleTasks.map((task, index) => (
+            <button
+              key={task.id}
+              type="button"
+              onClick={() => setActiveTask(task.id)}
+              aria-current={activeTask === task.id ? "step" : undefined}
+              className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
+                activeTask === task.id
+                  ? "border-blue-300 bg-blue-50 text-blue-950"
+                  : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white"
+              }`}
+            >
+              <span
+                className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
+                  activeTask === task.id ? "bg-blue-600 text-white" : "bg-white text-slate-700 shadow-sm"
+                }`}
+              >
+                {index + 1}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold">{task.label}</span>
+                <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
+              </span>
+              <span
+                className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                  activeTask === task.id ? "bg-white text-blue-700" : "bg-white text-slate-600"
+                }`}
+              >
+                {task.status}
+              </span>
+            </button>
+          ))}
+        </div>
+      </aside>
+
+      <div className="grid min-w-0 gap-6">
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "auth" ? "" : "hidden"}`}
+        >
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-semibold text-slate-950">운영자 로그인</h2>
@@ -649,7 +727,11 @@ export function VentureConsoleActions() {
         {authMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{authMessage}</p> : null}
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "workspace" ? "" : "hidden"
+          }`}
+        >
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold text-slate-950">워크스페이스 상태</h2>
@@ -852,9 +934,11 @@ export function VentureConsoleActions() {
 
           {workspaceMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{workspaceMessage}</p> : null}
         </div>
-      </div>
 
-      <form onSubmit={handleCreateIdea} className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <form
+        onSubmit={handleCreateIdea}
+        className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "idea" ? "" : "hidden"}`}
+      >
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-slate-950">새 아이디어 입력</h2>
@@ -906,6 +990,7 @@ export function VentureConsoleActions() {
 
         {saveMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{saveMessage}</p> : null}
       </form>
+      </div>
     </section>
   );
 }
