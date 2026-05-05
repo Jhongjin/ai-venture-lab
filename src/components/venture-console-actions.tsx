@@ -553,12 +553,19 @@ function hasNumericSignal(value: string) {
   return /\d|명|일|%|퍼센트|건|회|만원|원/.test(value);
 }
 
+function hasSensitiveSourceSignal(value: string) {
+  return /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}|\d{2,3}[-\s]?\d{3,4}[-\s]?\d{4}|주민등록|계좌|카드번호|비밀번호|여권/iu.test(
+    value,
+  );
+}
+
 function buildCandidateReadiness(
   candidate: ExtractedIdea,
   similarIdea: SimilarIdeaMatch | null,
 ): CandidateReadinessCheck[] {
   const target = normalizeMatchText(candidate.target_user);
   const buyer = normalizeMatchText(candidate.buyer);
+  const hasSensitiveSource = hasSensitiveSourceSignal(candidate.sourceBlock);
 
   return [
     {
@@ -597,6 +604,13 @@ function buildCandidateReadiness(
       detail: similarIdea
         ? `${similarIdea.idea.name}와 유사도 ${similarIdea.score}%입니다. 기존 기록 확장 여부를 확인하세요.`
         : "기존 포트폴리오와 강하게 겹치는 후보가 없습니다.",
+    },
+    {
+      label: "민감정보",
+      passed: !hasSensitiveSource,
+      detail: hasSensitiveSource
+        ? "원문 근거에 이메일, 전화번호, 계좌, 카드, 신분 정보 단서가 있을 수 있습니다. 저장 전 익명화하세요."
+        : "원문 근거에서 명백한 연락처/식별번호 패턴은 보이지 않습니다.",
     },
   ];
 }
@@ -1970,6 +1984,10 @@ export function VentureConsoleActions({
                   아이디어로 분리할지 확인하세요.
                 </div>
               ) : null}
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600">
+                원문 근거도 산출물에 저장됩니다. 이메일, 전화번호, 계좌, 카드번호, 신분 정보가 섞여 있다면 저장 전에
+                메모를 익명화하세요.
+              </div>
             </div>
 
             <div className="grid content-start gap-3">
