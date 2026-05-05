@@ -1,28 +1,77 @@
 # PRD
 
-## Goal
+## Problem
 
-## Users
+### User
 
-## Problem Statement
+### Buyer
 
-## Non-goals
+### Trigger and Context
 
-## User Stories
+### Current Workaround
 
-1. As a user, I want ...
+### Cost of the Problem
 
-## Requirements
+## Evidence
 
-### Functional
+### Known
 
-### Non-functional
+### Assumed
 
-### Data
+### Missing
 
-### Security and Privacy
+## Outcome
+
+### User Outcome
+
+### Business Outcome
+
+### Success Metric
+
+## Scope
+
+### Must Have
+
+### Should Have
+
+### Not Now
+
+### No-gos
+
+### Kill Criteria
+
+## User Stories and Acceptance Criteria
+
+1. As a [user], I want [action] so that [outcome].
+   - Given ...
+   - When ...
+   - Then ...
 
 ## UX Notes
+
+### Primary Journey
+
+### Screen States
+
+### Accessibility Risks
+
+## Data and Analytics
+
+### Tables or Events
+
+### Retention
+
+### Privacy Classification
+
+## Security and Operations
+
+### Permissions
+
+### Secrets
+
+### Audit and Support
+
+### Rollback
 
 ## Analytics
 
