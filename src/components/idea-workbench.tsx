@@ -130,6 +130,17 @@ const implementationTaskPriorityTone: Record<ImplementationTaskPriority, string>
   medium: "bg-amber-100 text-amber-800",
   high: "bg-rose-100 text-rose-800",
 };
+const implementationTaskActionRank: Record<ImplementationTaskStatus, number> = {
+  blocked: 0,
+  doing: 1,
+  todo: 2,
+  done: 3,
+};
+const implementationTaskPriorityRank: Record<ImplementationTaskPriority, number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+};
 const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {
   planning: "기획",
   design: "디자인",
@@ -1588,6 +1599,106 @@ function buildImplementationTaskDrafts({
   ];
 }
 
+function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
+  return [...tasks].sort(
+    (a, b) =>
+      implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
+      implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
+      a.sort_order - b.sort_order ||
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
+      a.title.localeCompare(b.title),
+  );
+}
+
+function buildImplementationTaskTicketMarkdown({
+  idea,
+  state,
+  task,
+}: {
+  idea: Idea;
+  state: EditState;
+  task: ImplementationTask;
+}) {
+  return `# ${task.title}
+
+## 컨텍스트
+
+- 아이디어: ${idea.name}
+- 한 줄 설명: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+
+## 태스크
+
+- 유형: ${implementationTaskTypeLabels[task.task_type]}
+- 우선순위: ${implementationTaskPriorityLabels[task.priority]}
+- 상태: ${implementationTaskStatusLabels[task.status]}
+- 담당 역할: ${task.owner_role || "owner 미정"}
+
+## 수용 기준
+
+${task.acceptance_criteria.trim() || "- 수용 기준이 아직 없습니다."}
+
+## 완료 증거로 남길 것
+
+- 커밋 또는 PR
+- Preview 또는 Production URL
+- 검증 명령 결과
+- 핵심 여정 스모크 결과
+- 남은 리스크와 롤백 메모
+
+## 기본 검증
+
+\`\`\`powershell
+pnpm lint
+pnpm typecheck
+pnpm harness:check
+pnpm build
+\`\`\`
+`;
+}
+
+function buildImplementationBacklogMarkdown({
+  idea,
+  state,
+  tasks,
+}: {
+  idea: Idea;
+  state: EditState;
+  tasks: ImplementationTask[];
+}) {
+  const lines =
+    tasks.length > 0
+      ? sortImplementationTasksForAction(tasks)
+          .map(
+            (task, index) =>
+              `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${implementationTaskStatusLabels[task.status]} / ${task.owner_role || "owner 미정"}`,
+          )
+          .join("\n")
+      : "열린 개발 태스크가 없습니다.";
+
+  return `# 개발 백로그: ${idea.name}
+
+## 제품 상태
+
+- 한 줄 설명: ${idea.one_liner || "미정"}
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+
+## 열린 태스크 우선순위
+
+${lines}
+
+## 실행 규칙
+
+- 차단 태스크를 먼저 해소합니다.
+- 진행 중 태스크는 완료 증거를 붙여 완료로 옮깁니다.
+- 할 일 태스크는 우선순위가 높은 것부터 진행합니다.
+- 완료 처리 전 커밋, PR, 배포 URL, 스모크 결과, 남은 리스크 중 최소 하나를 증거로 남깁니다.
+`;
+}
+
 function buildDevelopmentCompletionReportMarkdown({
   idea,
   state,
@@ -2316,6 +2427,11 @@ export function IdeaWorkbench({
         ),
     [implementationTasks, selectedIdea?.id],
   );
+  const selectedOpenImplementationTasks = useMemo(
+    () => sortImplementationTasksForAction(selectedImplementationTasks.filter((task) => task.status !== "done")),
+    [selectedImplementationTasks],
+  );
+  const nextImplementationTask = selectedOpenImplementationTasks[0] ?? null;
   const artifactVersionSummaries = useMemo(() => {
     const summaries = new Map<string, { previous: VentureArtifact; added: number; removed: number }>();
 
@@ -2447,6 +2563,20 @@ export function IdeaWorkbench({
         experiments: selectedExperiments,
         runs: selectedRuns,
         artifacts: selectedArtifactRecords,
+      })
+    : "";
+  const implementationTaskTicketDraft = selectedIdea && editState && nextImplementationTask
+    ? buildImplementationTaskTicketMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        task: nextImplementationTask,
+      })
+    : "";
+  const implementationBacklogDraft = selectedIdea && editState
+    ? buildImplementationBacklogMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        tasks: selectedOpenImplementationTasks,
       })
     : "";
   const implementationTaskDrafts = selectedIdea && editState
@@ -4099,6 +4229,83 @@ export function IdeaWorkbench({
                 </button>
               </div>
             </form>
+
+            {selectedImplementationTasks.length > 0 ? (
+              <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <h4 className="text-sm font-semibold text-blue-950">다음 개발 액션</h4>
+                    {nextImplementationTask ? (
+                      <>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className="text-base font-semibold text-slate-950">{nextImplementationTask.title}</span>
+                          <span
+                            className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                              implementationTaskStatusTone[nextImplementationTask.status]
+                            }`}
+                          >
+                            {implementationTaskStatusLabels[nextImplementationTask.status]}
+                          </span>
+                          <span
+                            className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                              implementationTaskPriorityTone[nextImplementationTask.priority]
+                            }`}
+                          >
+                            {implementationTaskPriorityLabels[nextImplementationTask.priority]}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-blue-900">
+                          {nextImplementationTask.status === "blocked"
+                            ? "차단 상태입니다. 먼저 차단 사유와 해소 증거를 기록하세요."
+                            : nextImplementationTask.status === "doing"
+                              ? "이미 진행 중입니다. 완료 증거를 붙이고 완료로 이동하세요."
+                              : "바로 시작하기 좋은 다음 태스크입니다. 진행 시작 후 증거를 남기세요."}
+                        </p>
+                        <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+                          {nextImplementationTask.owner_role || "owner 미정"}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="mt-2 text-sm leading-6 text-blue-900">
+                        열린 개발 태스크가 없습니다. 개발 완료 게이트와 출시 준비도를 확인하세요.
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {nextImplementationTask ? (
+                      <>
+                        {nextImplementationTask.status === "todo" ? (
+                          <button
+                            type="button"
+                            onClick={() => updateImplementationTaskStatus(nextImplementationTask, "doing")}
+                            disabled={isBusy || !canManageRecord(nextImplementationTask)}
+                            className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-blue-600 px-3 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            진행 시작
+                          </button>
+                        ) : null}
+                        <button
+                          type="button"
+                          onClick={() => copyDraft(implementationTaskTicketDraft, "다음 개발 티켓")}
+                          className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 transition hover:bg-blue-50"
+                        >
+                          <Clipboard size={15} />
+                          티켓 복사
+                        </button>
+                      </>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(implementationBacklogDraft, "열린 개발 백로그")}
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 transition hover:bg-blue-50"
+                    >
+                      <ClipboardList size={15} />
+                      백로그 복사
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <div className="mt-4 grid gap-3 xl:grid-cols-4">
               {implementationTaskStatuses.map((status) => {

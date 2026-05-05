@@ -21,15 +21,16 @@ Before implementation, define:
 2. Choose the backend using `docs/BACKEND_DECISION_GUIDE.md`.
 3. Generate implementation tasks from the app development process panel.
 4. Add manual tasks for work not covered by the generated baseline: bugs, design polish, deployment fixes, customer validation, and rollback tasks.
-5. Shape a single vertical slice.
-6. Add or update data model and authorization rules.
-7. Implement read/write path with authorization at the boundary.
-8. Add UI state coverage and error recovery.
-9. Move each implementation task through todo, doing, blocked, and done with completion evidence.
-10. Save a development completion report once implementation, QA, and security gates are reviewed.
-11. Run focused verification, then full quality gates.
-12. Deploy preview, smoke test, then deploy production.
-13. Record decision, risk, and rollback notes.
+5. Copy the next recommended task ticket or open backlog when handing work to Codex, GitHub Issues, or a human implementer.
+6. Shape a single vertical slice.
+7. Add or update data model and authorization rules.
+8. Implement read/write path with authorization at the boundary.
+9. Add UI state coverage and error recovery.
+10. Move each implementation task through todo, doing, blocked, and done with completion evidence.
+11. Save a development completion report once implementation, QA, and security gates are reviewed.
+12. Run focused verification, then full quality gates.
+13. Deploy preview, smoke test, then deploy production.
+14. Record decision, risk, and rollback notes.
 
 ## Quality Gates
 

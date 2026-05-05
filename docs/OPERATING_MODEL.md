@@ -79,7 +79,8 @@ The app now supports the first live operating loop:
 34. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
 35. Generate implementation tasks from approved or draft development artifacts before coding starts.
 36. Add manual implementation tasks when real work appears outside the generated baseline, such as bugs, design polish, deployment fixes, customer validation, or rollback work.
-37. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
-38. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
-39. Require completion evidence for every done implementation task before development can be considered complete.
-40. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
+37. Use the next development action and copied ticket/backlog text to hand work to Codex, GitHub Issues, or a human implementer.
+38. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
+39. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.
+40. Require completion evidence for every done implementation task before development can be considered complete.
+41. Save a development completion report after task, QA, security, and launch readiness gates have been reviewed.
