@@ -7,8 +7,10 @@ This harness turns an approved MVP scope into a production-shaped vertical slice
 Before implementation, define:
 
 - User-visible workflow and done criteria
+- Backend choice: Supabase, Firebase, Firebase SQL Connect, or hybrid
 - Next.js boundary: Server Components, Client Components, Server Actions, Route Handlers
 - Supabase boundary: tables, RLS, `using`, `with check`, grants, indexes, migrations
+- Firebase boundary when selected: Auth, Firestore/SQL Connect, Security Rules/IAM, Cloud Functions, App Check, Storage, Hosting
 - Vercel boundary: environment variables, preview, production, rollback
 - UI states: empty, loading, success, error, permission denied, read-only, mobile
 - Verification ladder and production smoke path
@@ -16,13 +18,14 @@ Before implementation, define:
 ## Build Order
 
 1. Confirm PRD, MVP spec, and design brief.
-2. Shape a single vertical slice.
-3. Add or update data model and RLS.
-4. Implement read/write path with authorization at the boundary.
-5. Add UI state coverage and error recovery.
-6. Run focused verification, then full quality gates.
-7. Deploy preview, smoke test, then deploy production.
-8. Record decision, risk, and rollback notes.
+2. Choose the backend using `docs/BACKEND_DECISION_GUIDE.md`.
+3. Shape a single vertical slice.
+4. Add or update data model and authorization rules.
+5. Implement read/write path with authorization at the boundary.
+6. Add UI state coverage and error recovery.
+7. Run focused verification, then full quality gates.
+8. Deploy preview, smoke test, then deploy production.
+9. Record decision, risk, and rollback notes.
 
 ## Quality Gates
 
@@ -41,6 +44,8 @@ Add browser or Playwright smoke checks when the user-facing workflow changes.
 - No private env var in client code.
 - No new exposed table without RLS.
 - No ownership-changing insert/update without `with check`.
+- No Firestore collection write without Security Rules and allowed/denied tests.
+- No Firebase server SDK path without IAM and server-side trust review.
 - No sensitive workflow without consent, retention, deletion, and audit notes.
 - No AI action without edit/retry/discard or human review path.
 

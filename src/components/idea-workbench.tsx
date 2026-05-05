@@ -926,6 +926,26 @@ function buildAppDevelopmentPlanMarkdown({
 - 검증 실험: ${primaryExperiment ? `${primaryExperiment.name} / ${primaryExperiment.success_metric || "성공 지표 미정"}` : "측정 가능한 실험 필요"}
 - 다음 증거: ${state.next_evidence || "미정"}
 
+## 0.5 백엔드 선택
+
+현재 AI Venture Lab 운영 콘솔은 Supabase를 유지합니다. 새 앱 아이디어를 실제 제품으로 만들 때는 docs/BACKEND_DECISION_GUIDE.md를 기준으로 Supabase, Firebase, Firebase SQL Connect, 또는 하이브리드를 다시 선택합니다.
+
+### 기본 선택지
+
+- Supabase: 관계형 데이터, SQL, RLS, 운영 콘솔, B2B 워크플로우에 적합합니다.
+- Firebase: 모바일/웹 동시 개발, 실시간/오프라인, Google Analytics, Crashlytics, Cloud Messaging, Remote Config, Test Lab, App Check가 중요할 때 적합합니다.
+- Firebase SQL Connect: PostgreSQL이 필요하지만 Firebase SDK, realtime sync, Google Cloud/Firebase 운영 경험도 필요한 경우 검토합니다.
+
+### 선택 기록
+
+- 선택한 백엔드:
+- 선택 이유:
+- 제외한 백엔드와 이유:
+- 인증 경계:
+- 데이터 권한 경계:
+- 로컬 개발/에뮬레이터:
+- 배포/롤백:
+
 ## 1. 기획
 
 ### 목표
@@ -983,7 +1003,7 @@ ${idea.name}의 MVP 화면을 설계한다. 대상 사용자는 ${idea.target_us
 
 ### 기술 명세 프롬프트
 
-${idea.name}의 첫 개발 범위를 기술 명세로 작성한다. 반드시 Next.js App Router 기준으로 Server Component, Client Component, Server Action 또는 Route Handler의 경계를 나누고, Supabase 테이블/RLS/소유권 정책, Vercel 환경변수, UI 상태, 검증 명령, 수동 스모크 경로, 롤백 경로를 포함한다. 범위는 ${state.next_evidence || "다음 증거"}를 검증하는 데 필요한 수직 슬라이스로 제한한다.
+${idea.name}의 첫 개발 범위를 기술 명세로 작성한다. 반드시 Supabase, Firebase, Firebase SQL Connect, 하이브리드 중 하나를 선택하고 선택 이유를 기록한다. Next.js App Router 기준으로 Server Component, Client Component, Server Action 또는 Route Handler의 경계를 나누고, 선택한 백엔드의 권한 모델, 환경변수, UI 상태, 검증 명령, 수동 스모크 경로, 롤백 경로를 포함한다. 범위는 ${state.next_evidence || "다음 증거"}를 검증하는 데 필요한 수직 슬라이스로 제한한다.
 
 ### 기본 아키텍처
 
@@ -1009,6 +1029,14 @@ ${idea.name}의 첫 개발 범위를 기술 명세로 작성한다. 반드시 Ne
 - select/insert/update/delete별 정책을 나눠 작성합니다.
 - insert/update에는 사용자 또는 조직 소유권 with check 조건을 둡니다.
 - 허용 케이스와 차단 케이스를 모두 테스트합니다.
+
+### Firebase 체크
+
+- Firestore/Storage를 쓰면 Security Rules를 먼저 작성합니다.
+- Rules는 request.auth, 소유권, 조직 멤버십, 입력 데이터 형태를 검증합니다.
+- 서버 SDK/Admin SDK를 쓰면 IAM과 서버 전용 경계를 검토합니다.
+- 공개 클라이언트에서 Firebase 리소스를 직접 호출하면 App Check를 검토합니다.
+- SQL Connect를 쓰면 schema/query/mutation, auth, region, 가격, realtime/offline 동작을 확인합니다.
 
 ### 품질 게이트
 
@@ -1275,6 +1303,15 @@ ${context}
 
 ${context}
 
+## 백엔드 선택
+- 선택한 백엔드:
+- 선택 이유:
+- 제외한 백엔드와 이유:
+- Supabase 적합성:
+- Firebase 적합성:
+- Firebase SQL Connect 적합성:
+- 하이브리드 리스크:
+
 ## 기술 경계
 - Server Component:
 - Client Component:
@@ -1288,6 +1325,15 @@ ${context}
 - insert/update/delete 정책:
 - with check 조건:
 - 허용/거부 테스트:
+
+## Firebase 경계
+- Firebase 제품:
+- Firestore/SQL Connect/Realtime Database 모델:
+- Security Rules 또는 IAM:
+- App Check:
+- Cloud Functions:
+- Storage:
+- Emulator/Preview 검증:
 
 ## 구현 범위
 - 파일/모듈:

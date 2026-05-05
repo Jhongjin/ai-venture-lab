@@ -28,6 +28,8 @@ Launch blockers:
 - Sensitive data readable from a client path without RLS or server authorization.
 - Public-schema table exposed through Supabase Data API without RLS.
 - Insert/update policies that let users write rows for another user or organization.
+- Firestore/Storage path exposed to clients without Security Rules and allowed/denied tests.
+- Firebase server SDK or Admin SDK used in an untrusted client or without IAM review.
 - Missing consent, retention, or deletion path for sensitive personal data.
 - Regulated medical, legal, financial, care, therapy, inheritance, or employment claims presented as qualified advice.
 - AI output that can take irreversible action without user review.

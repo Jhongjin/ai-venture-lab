@@ -30,6 +30,15 @@ For Next.js/Supabase work, check:
 - Queries avoid unnecessary waterfalls and stale UI after mutations.
 - Generated UI has empty, loading, success, error, permission, read-only, and mobile behavior.
 
+For Firebase work, check:
+
+- Firestore/Storage Security Rules match the user, ownership, organization, and data validation model.
+- Emulator or preview checks cover allowed and denied cases.
+- Server SDK or Admin SDK code is server-only and uses IAM/secret boundaries.
+- App Check is considered for public clients that directly call Firebase resources.
+- Cloud Functions validate auth, input, authorization, idempotency, logging, and rollback.
+- SQL Connect schema/queries/mutations have auth, generated type safety, and pricing/region notes.
+
 For test coverage, ask for the smallest useful verification:
 
 - Unit or pure function tests for deterministic logic.

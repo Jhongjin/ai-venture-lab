@@ -13,6 +13,7 @@
 - Browser: no service role, no private secrets, no hidden assumptions about auth.
 - Server: validate user, organization, ownership, and input.
 - Database: RLS enabled, grants limited, `using` and `with check` policies present.
+- Firebase: Security Rules present for client access, IAM reviewed for server SDKs, App Check considered for public clients.
 - Logs: do not log secrets, tokens, magic links, raw PII, or sensitive prompts.
 - Exports: redact sensitive fields unless the user explicitly requested the export and has permission.
 

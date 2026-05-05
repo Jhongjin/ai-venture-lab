@@ -18,6 +18,15 @@ Use these as source-informed anchors for implementation prompts and code changes
 - Keep service role access server-side only and avoid it in ordinary client workflows.
 - Confirm both allowed and denied cases during QA.
 
+## Firebase
+
+- Consider Firebase when mobile-first delivery, realtime/offline sync, push notifications, analytics, crash reporting, remote config, test distribution, or Google Cloud integration are central to the app.
+- Use Firebase App Hosting for Firebase-centered full-stack Next.js experiments, and keep Vercel when Vercel-native Next.js operations are the priority.
+- Use Firestore or Realtime Database when document/realtime sync is the natural model.
+- Use Firebase SQL Connect when the app needs PostgreSQL plus Firebase SDKs, realtime sync, local tooling, and Google Cloud integration.
+- Security Rules protect client access to Firestore/Storage; server SDKs require IAM and trusted backend review because they bypass Security Rules.
+- Consider App Check for public clients that directly access Firebase resources.
+
 ## Vercel
 
 - Keep secrets in environment variables, not source code.

@@ -17,8 +17,10 @@ Before implementation:
 - Use the repo `DESIGN.md` or the active design brief as the visual contract.
 - Keep AI features behind a clear human review, retry, or override path unless the PRD explicitly says otherwise.
 - Choose the data boundary first: Server Component, Client Component, Server Action, Route Handler, or Supabase client.
+- Choose the backend deliberately: Supabase, Firebase, Firebase SQL Connect, or hybrid. Use `docs/BACKEND_DECISION_GUIDE.md`.
 - Keep authentication and authorization checks at the mutation/read boundary, not only in page layout or navigation.
 - For Supabase writes, confirm RLS, `using`, and `with check` policies before relying on client-side checks.
+- For Firebase writes, confirm Security Rules, IAM/server SDK trust boundaries, App Check needs, and emulator or preview checks.
 - Avoid new dependencies unless they remove meaningful complexity and fit the existing stack.
 
 Implementation shape:

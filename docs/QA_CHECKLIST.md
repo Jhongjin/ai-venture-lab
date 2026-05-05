@@ -11,6 +11,8 @@ Use this checklist before merging meaningful changes.
 - `pnpm harness:check` passes.
 - New data paths have a manual smoke path.
 - Auth/RLS changes verify both allowed and denied cases.
+- Firebase Security Rules changes verify both allowed and denied cases.
+- Firebase App Check, Auth, Firestore/Storage, SQL Connect, or Cloud Functions changes include emulator or preview checks when feasible.
 - Server/client boundary changes do not expose secrets or service-role access.
 - UI changes cover empty, loading, success, error, permission denied, read-only, desktop, and mobile states.
 - Form validation errors appear near the relevant input and describe the next action.

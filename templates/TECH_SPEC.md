@@ -4,6 +4,16 @@
 
 ## Architecture
 
+### Backend Choice
+
+- Selected backend:
+- Why this backend:
+- Rejected backend and why:
+- Supabase fit:
+- Firebase fit:
+- Firebase SQL Connect fit:
+- Hybrid risk:
+
 ### Next.js Boundary
 
 - Server Components:
@@ -17,6 +27,16 @@
 - Ownership model:
 - Migrations:
 - Rollback or repair path:
+
+### Firebase Boundary
+
+- Firebase products:
+- Firestore/SQL Connect/Realtime Database model:
+- Security Rules or IAM:
+- App Check:
+- Cloud Functions:
+- Storage:
+- Emulator or preview plan:
 
 ### Environment
 
