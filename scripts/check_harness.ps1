@@ -59,6 +59,7 @@ $required = @(
   ".codex/hooks/post_edit_check.ps1",
   "scripts/run_quality_gate.ps1",
   "scripts/score_idea.ps1",
+  "scripts/smoke_routes.ps1",
   "scripts/smoke_production.ps1"
 )
 

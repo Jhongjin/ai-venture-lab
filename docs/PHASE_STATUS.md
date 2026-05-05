@@ -21,6 +21,8 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-05 | Added route smoke checks | Current commit | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:routes` |
+| 2026-05-05 | Added phase status ledger | `4745c1b` | Skipped, docs/script-only | `pnpm quality:full` |
 | 2026-05-05 | Formalized the agent work loop in repo guidance | `c420fde` | Skipped, docs-only | `pnpm quality:full` |
 | 2026-05-05 | Expanded harness file checks | `a3a0c41` | Skipped, script/docs-only | `pnpm quality:full` |
 | 2026-05-05 | Added shell priority candidates | `a77de32` | Production | `pnpm quality:full`, `pnpm smoke:prod` |
@@ -40,7 +42,6 @@ None required for the current unblocked work.
 
 ## Next Jobs
 
-1. Add a repeatable browser or route smoke layer when the UI workflow stabilizes.
-2. Improve extraction-to-validation ranking with clearer proceed/research/pivot/kill thresholds.
-3. Add deeper app-development handoff checks for environment variables, backend rules, rollback, and deployment logs.
-4. Prepare GitHub Actions once workflow-scope access is available.
+1. Improve extraction-to-validation ranking with clearer proceed/research/pivot/kill thresholds.
+2. Add deeper app-development handoff checks for environment variables, backend rules, rollback, and deployment logs.
+3. Prepare GitHub Actions once workflow-scope access is available.

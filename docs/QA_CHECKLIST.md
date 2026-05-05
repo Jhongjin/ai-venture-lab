@@ -11,6 +11,7 @@ Use this checklist before merging meaningful changes.
 - `pnpm harness:check` passes.
 - `pnpm quality:full` passes before major product or harness changes.
 - `pnpm smoke:prod` passes after production deployment.
+- `pnpm smoke:routes` passes after route/auth callback changes or before release checkpoints.
 - New data paths have a manual smoke path.
 - Auth/RLS changes verify both allowed and denied cases.
 - Firebase Security Rules changes verify both allowed and denied cases.
@@ -75,6 +76,7 @@ Use this checklist before merging meaningful changes.
 - `.agents/skills/app-development-orchestrator` reflects the app development tabs, readiness gates, backend scorecard, task board, QA/security, deployment, and Codex handoff workflow.
 - `AGENTS.md` reflects extraction, validation packages, artifacts, app development gates, role prompt pack, priority candidates, `pnpm quality:full`, and production smoke expectations.
 - `pnpm harness:check` covers the current docs, templates, migrations, skills, hooks, subagent definitions, and scripts that make up the operating harness.
+- Route smoke checks the home app shell and missing-code auth callback redirect without adding browser automation dependencies.
 - Root-level magic link redirects with `?code=` are exchanged into a session and the URL is cleaned.
 - Operators can attach owned personal records to a newly created workspace.
 - Header metrics include idea, risk, experiment, decision, and data-source state.

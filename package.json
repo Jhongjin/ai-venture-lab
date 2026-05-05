@@ -12,6 +12,7 @@
     "quality:full": "pnpm lint && pnpm typecheck && pnpm harness:check && pnpm build",
     "harness:check": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/check_harness.ps1",
     "smoke:prod": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_production.ps1",
+    "smoke:routes": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_routes.ps1",
     "idea:score": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/score_idea.ps1"
   },
   "dependencies": {
