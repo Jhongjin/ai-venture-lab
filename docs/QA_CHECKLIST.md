@@ -31,7 +31,7 @@ Use this checklist before merging meaningful changes.
 - Risk owners can move risks through open, mitigating, and closed states.
 - Authenticated operators can create an idea-level orchestration runbook and move runs through planned, running, blocked, done, and skipped states.
 - Run owners can save orchestration outputs and see those outputs reflected in the generated PRD draft.
-- Authenticated operators can save generated idea briefs, research briefs, and PRDs as artifacts and copy them from the artifact library.
+- Authenticated operators can save generated idea briefs, research briefs, 7-day validation sprints, and PRDs as artifacts and copy them from the artifact library.
 - Authenticated operators can generate and save MVP spec and launch checklist artifacts from the same workbench evidence.
 - Authenticated operators can save backend decision, design brief, technical spec, and development runbook artifacts from the app development process panel.
 - Operators can copy and save a Codex implementation handoff that includes build scope, backend boundary, quality gates, forbidden shortcuts, and completion report format.
