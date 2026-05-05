@@ -26,6 +26,7 @@ Use this checklist before merging meaningful changes.
 - Operators can paste conversation notes into idea discovery and extract candidate ideas with validation score, risk level, assumptions, validation questions, 7-day experiment, success metric, kill criteria, prototype scope, and pricing hypothesis.
 - Extracted candidates show the source excerpt that produced the candidate so operators can audit the generated brief before saving.
 - Authenticated operators can save an extracted candidate as a validation package that creates the idea, an initial risk, a planned experiment, an idea brief, a research brief, and a 7-day validation sprint artifact.
+- Extracted candidate source excerpts are redacted for obvious email, phone, card, account, password, passport, and identity-number patterns before they are saved into artifacts.
 - Extracted candidates show likely duplicate or similar existing ideas before saving.
 - Extracted candidates show validation-package readiness across problem signal, user/buyer separation, measurable success metric, risk, first MVP scope, duplicate risk, and sensitive-source risk.
 - Workbench clearly marks which ideas are editable by the current operator and which are read-only.

@@ -54,4 +54,5 @@ Extra review is required for:
 - AI output is advisory unless a reviewed PRD explicitly allows action.
 - User can edit, retry, discard, or override generated output.
 - Prompt input and output are treated as sensitive when they contain personal, care, finance, legal, family, or workplace data.
+- Source excerpts saved from automatic idea extraction are redacted for obvious email, phone, card, account, password, passport, and identity-number patterns before becoming durable artifacts.
 - Prompt injection and data poisoning paths are listed before enabling automation.

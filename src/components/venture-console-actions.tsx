@@ -559,6 +559,15 @@ function hasSensitiveSourceSignal(value: string) {
   );
 }
 
+function redactSensitiveSource(value: string) {
+  return value
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/giu, "[redacted-email]")
+    .replace(/\b\d{6}[-\s]?\d{7}\b/g, "[redacted-id]")
+    .replace(/\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/g, "[redacted-card]")
+    .replace(/\b\d{2,3}[-\s]?\d{3,4}[-\s]?\d{4}\b/g, "[redacted-phone]")
+    .replace(/(계좌|카드번호|비밀번호|여권)\s*[:：]?\s*[A-Z0-9\-_\t ]{4,}/giu, "$1 [redacted-sensitive]");
+}
+
 function buildCandidateReadiness(
   candidate: ExtractedIdea,
   similarIdea: SimilarIdeaMatch | null,
@@ -609,7 +618,7 @@ function buildCandidateReadiness(
       label: "민감정보",
       passed: !hasSensitiveSource,
       detail: hasSensitiveSource
-        ? "원문 근거에 이메일, 전화번호, 계좌, 카드, 신분 정보 단서가 있을 수 있습니다. 저장 전 익명화하세요."
+        ? "원문 근거에 이메일, 전화번호, 계좌, 카드, 신분 정보 단서가 있을 수 있어 저장 산출물에는 자동 익명화가 적용됩니다."
         : "원문 근거에서 명백한 연락처/식별번호 패턴은 보이지 않습니다.",
     },
   ];
@@ -620,6 +629,13 @@ function buildExtractedIdeaArtifacts(
   idea: Idea,
   organizationId: string | null,
 ): VentureArtifactInsert[] {
+  const redactedSourceBlock = redactSensitiveSource(candidate.sourceBlock);
+  const sourceBlock =
+    redactedSourceBlock === candidate.sourceBlock
+      ? redactedSourceBlock
+      : `${redactedSourceBlock}
+
+> 자동 익명화: 원문 근거에서 연락처, 카드, 계좌, 신분 정보로 보이는 패턴을 치환했습니다.`;
   const base = {
     idea_id: idea.id,
     organization_id: organizationId,
@@ -651,7 +667,7 @@ ${candidate.signal}
 
 ## 원문 근거
 
-${candidate.sourceBlock}
+${sourceBlock}
 
 ## 핵심 가설
 
@@ -686,7 +702,7 @@ ${candidate.evidence.map((item) => `- ${item}`).join("\n")}
 
 ## 원문 근거
 
-${candidate.sourceBlock}
+${sourceBlock}
 
 ## 검증 질문
 
@@ -722,7 +738,7 @@ ${candidate.sevenDayExperiment}
 
 ## 원문 근거
 
-${candidate.sourceBlock}
+${sourceBlock}
 
 ## 성공 지표
 
@@ -1985,8 +2001,8 @@ export function VentureConsoleActions({
                 </div>
               ) : null}
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600">
-                원문 근거도 산출물에 저장됩니다. 이메일, 전화번호, 계좌, 카드번호, 신분 정보가 섞여 있다면 저장 전에
-                메모를 익명화하세요.
+                원문 근거도 산출물에 저장됩니다. 이메일, 전화번호, 계좌, 카드번호, 신분 정보로 보이는 패턴은 저장 시 자동
+                익명화됩니다.
               </div>
             </div>
 
@@ -2156,7 +2172,9 @@ export function VentureConsoleActions({
                         </div>
                         <div className="rounded-md bg-white p-3 md:col-span-2">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">원문 근거</div>
-                          <p className="mt-1 text-sm leading-6 text-slate-700">{compactText(candidate.sourceBlock, 360)}</p>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">
+                            {compactText(redactSensitiveSource(candidate.sourceBlock), 360)}
+                          </p>
                         </div>
                         <div className="rounded-md bg-white p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">첫 프로토타입</div>
