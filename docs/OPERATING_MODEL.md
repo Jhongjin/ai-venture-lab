@@ -33,6 +33,7 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - No PRD without an idea brief.
 - No build without an MVP spec.
 - No implementation without a technical boundary and verification plan.
+- No implementation without a saved backend decision, design brief, technical spec, and development runbook.
 - No backend commitment without comparing Supabase, Firebase, Firebase SQL Connect, or hybrid fit.
 - No launch without QA and security review.
 - No sensitive feature without explicit data handling notes.
@@ -54,7 +55,7 @@ The app now supports the first live operating loop:
 10. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.
 11. Save each orchestration output and copy the generated PRD draft when the evidence is ready.
 12. Save generated briefs and PRDs into the artifact library before moving to MVP scope.
-13. Generate and save the MVP spec and launch checklist before build or release work starts.
+13. Generate and save the MVP spec, backend decision, design brief, technical spec, development runbook, and launch checklist before build or release work starts.
 14. Promote artifacts from draft to approved only after the relevant gates are complete.
 15. Use launch readiness to see which approved artifacts and gates still block build or release.
 16. Save revised artifacts as new versions instead of overwriting prior evidence.
@@ -71,3 +72,5 @@ The app now supports the first live operating loop:
 27. Let operators attach owned personal records to the active workspace after creating an organization boundary.
 28. Before development, write the technical boundary: Next.js server/client split, Supabase tables/RLS, Vercel envs, UI states, quality gates, smoke path, and rollback path.
 29. For each new app idea, choose the backend deliberately. Supabase remains the default for this lab, while Firebase is a strong option for mobile, realtime, Google Analytics/Crashlytics/Cloud Messaging, App Check, and Firebase SQL Connect/Postgres experiments.
+30. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
+31. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.

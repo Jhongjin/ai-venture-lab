@@ -8,6 +8,10 @@ create table if not exists public.venture_artifacts (
       'research_note',
       'prd',
       'mvp_spec',
+      'backend_decision',
+      'design_brief',
+      'tech_spec',
+      'dev_runbook',
       'launch_checklist'
     )
   ),

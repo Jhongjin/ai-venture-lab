@@ -24,7 +24,16 @@ export type OrchestrationPhase =
   | "security"
   | "launch";
 export type OrchestrationStatus = "planned" | "running" | "blocked" | "done" | "skipped";
-export type VentureArtifactType = "idea_brief" | "research_note" | "prd" | "mvp_spec" | "launch_checklist";
+export type VentureArtifactType =
+  | "idea_brief"
+  | "research_note"
+  | "prd"
+  | "mvp_spec"
+  | "backend_decision"
+  | "design_brief"
+  | "tech_spec"
+  | "dev_runbook"
+  | "launch_checklist";
 export type VentureArtifactStatus = "draft" | "approved" | "archived";
 
 export type Database = {
