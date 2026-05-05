@@ -194,6 +194,62 @@ const implementationEvidenceRequirements: Record<ImplementationTaskType, Evidenc
     { label: "롤백 기준", terms: ["rollback", "롤백", "last known good", "직전"] },
   ],
 };
+type BlockerPlaybook = {
+  fallbackOwner: string;
+  nextAction: string;
+  unblockEvidence: string;
+  escalation: string;
+};
+const implementationBlockerPlaybooks: Record<ImplementationTaskType, BlockerPlaybook> = {
+  planning: {
+    fallbackOwner: "prd-writer",
+    nextAction: "PRD 범위, 중단 기준, 의사결정권자를 먼저 확정하세요.",
+    unblockEvidence: "승인된 PRD/MVP 범위와 no-go 기준을 증거에 남기면 해소로 봅니다.",
+    escalation: "범위 충돌이 남으면 founder/operator 판단으로 올립니다.",
+  },
+  design: {
+    fallbackOwner: "design-reviewer",
+    nextAction: "핵심 화면, 빈 상태, 오류 상태, 모바일 흐름 중 빠진 화면을 지정하세요.",
+    unblockEvidence: "화면 목록, 주요 여정, 접근성/모바일 확인 결과를 증거에 남깁니다.",
+    escalation: "사용자 흐름이 갈리면 PRD 작성자와 스코프를 다시 잠급니다.",
+  },
+  frontend: {
+    fallbackOwner: "prototype-builder",
+    nextAction: "막힌 사용자 여정과 재현 경로를 하나로 좁히고 상태 UX를 확인하세요.",
+    unblockEvidence: "수정 커밋, 스모크 경로, 성공/오류/권한 상태 확인 결과를 남깁니다.",
+    escalation: "API나 권한 문제라면 백엔드 담당자에게 넘깁니다.",
+  },
+  backend: {
+    fallbackOwner: "backend-builder",
+    nextAction: "RLS 또는 Security Rules의 허용/차단 조건을 먼저 재현하세요.",
+    unblockEvidence: "허용 케이스와 차단 케이스, SQL/Rules 변경, 검증 명령을 남깁니다.",
+    escalation: "운영 데이터 접근 범위가 불명확하면 보안/데이터 담당자와 함께 봅니다.",
+  },
+  data: {
+    fallbackOwner: "data-modeler",
+    nextAction: "스키마, 마이그레이션, 롤백/보정 계획 중 막힌 지점을 분리하세요.",
+    unblockEvidence: "SQL 또는 migration, 샘플 데이터 확인, 되돌림 계획을 남깁니다.",
+    escalation: "기존 데이터 손상 가능성이 있으면 수동 백업 확인 후 진행합니다.",
+  },
+  qa: {
+    fallbackOwner: "qa-runner",
+    nextAction: "실패한 경로를 재현 가능한 한 줄 시나리오로 줄이세요.",
+    unblockEvidence: "실패 재현, 수정 커밋, 재실행 결과, 남은 회귀 리스크를 남깁니다.",
+    escalation: "반복 실패면 해당 구현 담당자에게 재배정합니다.",
+  },
+  security: {
+    fallbackOwner: "security-reviewer",
+    nextAction: "비밀값, PII, 권한 우회, abuse case 중 차단 원인을 분류하세요.",
+    unblockEvidence: "노출 범위, 차단 규칙, allowed/denied 검증, 남은 리스크를 남깁니다.",
+    escalation: "개인정보나 비밀값 노출 가능성이 있으면 출시 판단을 중지합니다.",
+  },
+  deploy: {
+    fallbackOwner: "release-manager",
+    nextAction: "Preview/Production 배포 상태, 환경변수, Vercel 로그를 먼저 확인하세요.",
+    unblockEvidence: "배포 URL, Vercel inspect 또는 로그, production smoke, 롤백 기준을 남깁니다.",
+    escalation: "운영 장애 가능성이 있으면 직전 정상 배포로 되돌리는 기준을 우선 기록합니다.",
+  },
+};
 
 const orchestrationPhaseConfigs: Array<{
   phase: OrchestrationPhase;
@@ -2610,6 +2666,17 @@ function getImplementationEvidenceChecklist(task: ImplementationTask, evidence: 
   }));
 }
 
+function getBlockedImplementationTaskHint(task: ImplementationTask) {
+  const playbook = implementationBlockerPlaybooks[task.task_type];
+
+  return {
+    ownerRole: task.owner_role.trim() || playbook.fallbackOwner,
+    nextAction: playbook.nextAction,
+    unblockEvidence: playbook.unblockEvidence,
+    escalation: playbook.escalation,
+  };
+}
+
 function buildImplementationTaskTicketMarkdown({
   idea,
   state,
@@ -2635,6 +2702,13 @@ function buildImplementationTaskTicketMarkdown({
 - 우선순위: ${implementationTaskPriorityLabels[task.priority]}
 - 상태: ${implementationTaskStatusLabels[task.status]}
 - 담당 역할: ${task.owner_role || "owner 미정"}
+
+${task.status === "blocked" ? `## 차단 해소 힌트
+
+- 담당: ${getBlockedImplementationTaskHint(task).ownerRole}
+- 다음 액션: ${getBlockedImplementationTaskHint(task).nextAction}
+- 해소 증거: ${getBlockedImplementationTaskHint(task).unblockEvidence}
+- 에스컬레이션: ${getBlockedImplementationTaskHint(task).escalation}` : ""}
 
 ## 수용 기준
 
@@ -3571,6 +3645,29 @@ export function IdeaWorkbench({
     [implementationTaskEvidence, selectedImplementationTasks],
   );
   const implementationEvidenceIssues = implementationEvidenceSummaries.filter((summary) => summary.missing.length > 0);
+  const blockedImplementationSummaries = useMemo(
+    () =>
+      selectedImplementationTasks
+        .filter((task) => task.status === "blocked")
+        .map((task) => {
+          const evidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
+          const checklist = getImplementationEvidenceChecklist(task, evidence);
+          const missing = checklist.filter((item) => !item.passed).map((item) => item.label);
+
+          return {
+            task,
+            hint: getBlockedImplementationTaskHint(task),
+            missing,
+          };
+        })
+        .sort(
+          (a, b) =>
+            implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
+            b.missing.length - a.missing.length ||
+            a.task.sort_order - b.task.sort_order,
+        ),
+    [implementationTaskEvidence, selectedImplementationTasks],
+  );
   const artifactVersionSummaries = useMemo(() => {
     const summaries = new Map<string, { previous: VentureArtifact; added: number; removed: number }>();
 
@@ -5987,6 +6084,54 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
+            {blockedImplementationSummaries.length > 0 ? (
+              <div className="mt-4 rounded-lg border border-rose-100 bg-rose-50 p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h4 className="text-sm font-semibold text-rose-950">차단 해소 큐</h4>
+                    <p className="mt-1 text-sm leading-6 text-rose-900">
+                      막힌 태스크는 담당 역할, 다음 액션, 해소 증거를 먼저 정리한 뒤 진행 상태로 되돌립니다.
+                    </p>
+                  </div>
+                  <div className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-rose-900 shadow-sm">
+                    차단 {blockedImplementationSummaries.length}개
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-2 lg:grid-cols-2">
+                  {blockedImplementationSummaries.slice(0, 4).map((summary) => (
+                    <div key={summary.task.id} className="rounded-md border border-rose-100 bg-white px-3 py-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>
+                        <span className="rounded-md bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-800">
+                          {implementationTaskPriorityLabels[summary.task.priority]}
+                        </span>
+                        <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+                          담당 {summary.hint.ownerRole}
+                        </span>
+                      </div>
+                      <div className="mt-2 grid gap-2 text-xs leading-5 text-slate-700">
+                        <p>
+                          <span className="font-semibold text-slate-950">다음 액션:</span> {summary.hint.nextAction}
+                        </p>
+                        <p>
+                          <span className="font-semibold text-slate-950">해소 증거:</span> {summary.hint.unblockEvidence}
+                        </p>
+                        <p>
+                          <span className="font-semibold text-slate-950">에스컬레이션:</span> {summary.hint.escalation}
+                        </p>
+                      </div>
+                      {summary.missing.length > 0 ? (
+                        <div className="mt-2 rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
+                          추가 증거 필요: {summary.missing.join(", ")}
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             {implementationEvidenceSummaries.length > 0 ? (
               <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -6048,6 +6193,7 @@ export function IdeaWorkbench({
                           const missingEvidenceLabels = evidenceChecklist
                             .filter((item) => !item.passed)
                             .map((item) => item.label);
+                          const blockedHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
 
                           return (
                           <div key={task.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -6063,6 +6209,12 @@ export function IdeaWorkbench({
                             <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                               {task.owner_role || "owner 미정"}
                             </div>
+                            {blockedHint ? (
+                              <div className="mt-2 rounded-md border border-rose-100 bg-white px-3 py-2 text-xs leading-5 text-rose-900">
+                                <div className="font-semibold">차단 해소 다음 액션</div>
+                                <div className="mt-1">{blockedHint.nextAction}</div>
+                              </div>
+                            ) : null}
                             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{task.acceptance_criteria}</p>
                             <textarea
                               value={currentTaskEvidence}

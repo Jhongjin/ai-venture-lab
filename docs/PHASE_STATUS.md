@@ -21,6 +21,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-05 | Added blocked-task owner and next-action hints | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added evidence-priority summary for implementation tasks | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added release evidence summary to completion reports | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
 | 2026-05-05 | Added implementation-task evidence quality hints | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
@@ -49,5 +50,5 @@ None required for the current unblocked work.
 
 ## Next Jobs
 
-1. Add structured owner/next-action hints for blocked implementation tasks.
+1. Add app-development progress filters for owner, status, and evidence gaps.
 2. Prepare GitHub Actions once workflow-scope access is available.
