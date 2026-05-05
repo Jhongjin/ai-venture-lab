@@ -35,6 +35,17 @@ export type VentureArtifactType =
   | "dev_runbook"
   | "launch_checklist";
 export type VentureArtifactStatus = "draft" | "approved" | "archived";
+export type ImplementationTaskStatus = "todo" | "doing" | "blocked" | "done";
+export type ImplementationTaskPriority = "low" | "medium" | "high";
+export type ImplementationTaskType =
+  | "planning"
+  | "design"
+  | "frontend"
+  | "backend"
+  | "data"
+  | "qa"
+  | "security"
+  | "deploy";
 
 export type Database = {
   public: {
@@ -206,6 +217,46 @@ export type Database = {
             columns: ["idea_id"];
             isOneToOne: false;
             referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      implementation_tasks: {
+        Row: {
+          id: string;
+          idea_id: string;
+          organization_id: string | null;
+          source_artifact_id: string | null;
+          title: string;
+          task_type: ImplementationTaskType;
+          priority: ImplementationTaskPriority;
+          status: ImplementationTaskStatus;
+          owner_role: string;
+          acceptance_criteria: string;
+          evidence: string;
+          sort_order: number;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["implementation_tasks"]["Row"]> & {
+          idea_id: string;
+          title: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["implementation_tasks"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "implementation_tasks_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "implementation_tasks_source_artifact_id_fkey";
+            columns: ["source_artifact_id"];
+            isOneToOne: false;
+            referencedRelation: "venture_artifacts";
             referencedColumns: ["id"];
           },
         ];

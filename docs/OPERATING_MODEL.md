@@ -77,3 +77,6 @@ The app now supports the first live operating loop:
 32. Save development-stage artifacts as first-class venture artifacts: `backend_decision`, `design_brief`, `tech_spec`, and `dev_runbook`.
 33. Treat launch readiness as blocked until backend choice is recorded, design/technical specs are approved, and the development runbook exists.
 34. Generate a Codex implementation handoff before actual build work so the coding agent receives scope, constraints, quality gates, forbidden shortcuts, and completion reporting rules.
+35. Generate implementation tasks from approved or draft development artifacts before coding starts.
+36. Move implementation tasks through `todo`, `doing`, `blocked`, and `done`, with completion evidence such as commits, PRs, preview URLs, smoke results, or unresolved risks.
+37. Treat launch readiness as blocked until implementation tasks exist and every task has reached `done`.

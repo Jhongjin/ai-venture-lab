@@ -5,7 +5,15 @@ import { Beaker, ClipboardList, Code2, Flag, Layers3, Rocket, Save, ShieldCheck,
 
 import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
 import { VentureConsoleActions, type ConsoleActionTask } from "@/components/venture-console-actions";
-import type { Decision, Experiment, Idea, OrchestrationRun, Risk, VentureArtifact } from "@/lib/venture-data";
+import type {
+  Decision,
+  Experiment,
+  Idea,
+  ImplementationTask,
+  OrchestrationRun,
+  Risk,
+  VentureArtifact,
+} from "@/lib/venture-data";
 
 type ShellTask = `console:${ConsoleActionTask}` | `workbench:${WorkbenchTask}`;
 
@@ -215,6 +223,7 @@ export function VentureConsoleShell({
   initialExperiments,
   initialOrchestrationRuns,
   initialArtifacts,
+  initialImplementationTasks,
   source,
 }: {
   initialIdeas: Idea[];
@@ -223,6 +232,7 @@ export function VentureConsoleShell({
   initialExperiments: Experiment[];
   initialOrchestrationRuns: OrchestrationRun[];
   initialArtifacts: VentureArtifact[];
+  initialImplementationTasks: ImplementationTask[];
   source: "supabase" | "seed";
 }) {
   const [activeTask, setActiveTask] = useState<ShellTask>("console:idea");
@@ -275,8 +285,10 @@ export function VentureConsoleShell({
   const experimentCount = initialExperiments.length;
   const runCount = initialOrchestrationRuns.length;
   const artifactCount = initialArtifacts.length;
+  const implementationTaskCount = initialImplementationTasks.length;
   const activeWork = initialExperiments.filter((experiment) => experiment.status !== "done").length +
-    initialOrchestrationRuns.filter((run) => ["planned", "running", "blocked"].includes(run.status)).length;
+    initialOrchestrationRuns.filter((run) => ["planned", "running", "blocked"].includes(run.status)).length +
+    initialImplementationTasks.filter((task) => task.status !== "done").length;
   const activeTaskIndex = shellTasks.findIndex((task) => task.id === activeTask);
   const activeTaskConfig = shellTasks[activeTaskIndex] ?? shellTasks[0];
   const ActiveIcon = activeTaskConfig.icon;
@@ -302,7 +314,7 @@ export function VentureConsoleShell({
     "workbench:experiment": `${experimentCount}개`,
     "workbench:orchestration": `${runCount}개`,
     "workbench:artifacts": `${artifactCount}개`,
-    "workbench:development": "계획",
+    "workbench:development": implementationTaskCount > 0 ? `${implementationTaskCount}개` : "계획",
     "workbench:launch": highRisks > 0 ? "점검" : "확인",
   };
 
@@ -446,6 +458,7 @@ export function VentureConsoleShell({
             initialExperiments={initialExperiments}
             initialOrchestrationRuns={initialOrchestrationRuns}
             initialArtifacts={initialArtifacts}
+            initialImplementationTasks={initialImplementationTasks}
             activeTask={activeWorkbenchTask}
             onActiveTaskChange={handleWorkbenchTaskChange}
             showSidebar={false}

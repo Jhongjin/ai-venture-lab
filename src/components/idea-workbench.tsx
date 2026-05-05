@@ -6,11 +6,22 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Decision, Experiment, Idea, OrchestrationRun, Risk, VentureArtifact } from "@/lib/venture-data";
+import type {
+  Decision,
+  Experiment,
+  Idea,
+  ImplementationTask,
+  OrchestrationRun,
+  Risk,
+  VentureArtifact,
+} from "@/lib/venture-data";
 import type {
   Database,
   DecisionStatus,
   IdeaStage,
+  ImplementationTaskPriority,
+  ImplementationTaskStatus,
+  ImplementationTaskType,
   OrchestrationPhase,
   OrchestrationStatus,
   RiskSeverity,
@@ -25,6 +36,7 @@ const stageRank = new Map(stages.map((stage, index) => [stage, index]));
 const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
+const implementationTaskStatuses: ImplementationTaskStatus[] = ["todo", "doing", "blocked", "done"];
 const artifactLabels: Record<VentureArtifactType, string> = {
   idea_brief: "아이디어 브리프",
   research_note: "리서치 노트",
@@ -84,6 +96,38 @@ const runStatusLabels: Record<OrchestrationStatus, string> = {
   blocked: "차단",
   done: "완료",
   skipped: "건너뜀",
+};
+const implementationTaskStatusLabels: Record<ImplementationTaskStatus, string> = {
+  todo: "할 일",
+  doing: "진행 중",
+  blocked: "차단",
+  done: "완료",
+};
+const implementationTaskStatusTone: Record<ImplementationTaskStatus, string> = {
+  todo: "bg-slate-100 text-slate-700",
+  doing: "bg-blue-100 text-blue-800",
+  blocked: "bg-rose-100 text-rose-800",
+  done: "bg-emerald-100 text-emerald-800",
+};
+const implementationTaskPriorityLabels: Record<ImplementationTaskPriority, string> = {
+  low: "낮음",
+  medium: "보통",
+  high: "높음",
+};
+const implementationTaskPriorityTone: Record<ImplementationTaskPriority, string> = {
+  low: "bg-slate-100 text-slate-700",
+  medium: "bg-amber-100 text-amber-800",
+  high: "bg-rose-100 text-rose-800",
+};
+const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {
+  planning: "기획",
+  design: "디자인",
+  frontend: "프론트",
+  backend: "백엔드",
+  data: "데이터",
+  qa: "QA",
+  security: "보안",
+  deploy: "배포",
 };
 
 const orchestrationPhaseConfigs: Array<{
@@ -215,6 +259,14 @@ type RunDraft = {
   phase: OrchestrationPhase;
   owner_role: string;
   objective: string;
+};
+
+type ImplementationTaskDraft = {
+  title: string;
+  task_type: ImplementationTaskType;
+  priority: ImplementationTaskPriority;
+  owner_role: string;
+  acceptance_criteria: string;
 };
 
 export type WorkbenchTask =
@@ -1404,6 +1456,120 @@ ${donePhases.length > 0 ? donePhases.map((phase) => `- ${phase}`).join("\n") : "
 `;
 }
 
+function buildImplementationTaskDrafts({
+  idea,
+  state,
+  risks,
+  experiments,
+  artifacts,
+}: {
+  idea: Idea;
+  state: EditState;
+  risks: Risk[];
+  experiments: Experiment[];
+  artifacts: VentureArtifact[];
+}): ImplementationTaskDraft[] {
+  const hasHighRisk = risks.some((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+  const hasApprovedPrd = artifacts.some((artifact) => artifact.artifact_type === "prd" && artifact.status === "approved");
+  const hasApprovedMvp = artifacts.some((artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved");
+  const hasBackendDecision = artifacts.some((artifact) => artifact.artifact_type === "backend_decision");
+  const primaryExperiment = experiments[0];
+
+  return [
+    {
+      title: "PRD와 MVP 범위 잠금",
+      task_type: "planning",
+      priority: hasApprovedPrd && hasApprovedMvp ? "medium" : "high",
+      owner_role: "product-builder",
+      acceptance_criteria: [
+        `현재 판단은 ${decisionLabels[state.decision]}이고, 첫 릴리스 범위가 한 문장으로 고정되어야 합니다.`,
+        "포함 범위, 제외 범위, 성공 지표, 중단 기준이 PRD 또는 MVP 명세에 남아 있어야 합니다.",
+      ].join("\n"),
+    },
+    {
+      title: "핵심 사용자 여정 와이어프레임 정리",
+      task_type: "design",
+      priority: "medium",
+      owner_role: "design-reviewer",
+      acceptance_criteria: [
+        `${idea.target_user || "대상 사용자"}가 첫 가치를 얻는 화면 흐름을 3-5단계로 고정합니다.`,
+        "빈 상태, 오류, 저장 성공, 읽기 전용, 모바일 화면 조건을 적습니다.",
+      ].join("\n"),
+    },
+    {
+      title: "백엔드 권한 경계 구현",
+      task_type: "backend",
+      priority: hasBackendDecision ? "medium" : "high",
+      owner_role: "backend-architect",
+      acceptance_criteria: [
+        "Supabase RLS 또는 Firebase Security Rules의 허용/차단 조건이 문서와 코드에 반영됩니다.",
+        "클라이언트에서 서비스 역할 키나 서버 전용 비밀값을 사용하지 않습니다.",
+      ].join("\n"),
+    },
+    {
+      title: "데이터 모델과 마이그레이션 작성",
+      task_type: "data",
+      priority: "high",
+      owner_role: "data-modeler",
+      acceptance_criteria: [
+        "핵심 엔티티, 소유권, 조직 경계, 감사 로그 또는 변경 이력이 정의됩니다.",
+        "마이그레이션은 재실행 가능하고, 필요한 인덱스와 제약 조건을 포함합니다.",
+      ].join("\n"),
+    },
+    {
+      title: "핵심 입력/저장/조회 화면 구현",
+      task_type: "frontend",
+      priority: "high",
+      owner_role: "frontend-builder",
+      acceptance_criteria: [
+        `${idea.one_liner || "핵심 가치"}를 검증하는 최소 입력 폼과 결과 화면이 동작합니다.`,
+        "저장 후 새로고침 없이 목록과 선택 상태가 즉시 갱신됩니다.",
+      ].join("\n"),
+    },
+    {
+      title: "상태 UX와 폼 검증 추가",
+      task_type: "frontend",
+      priority: "medium",
+      owner_role: "ux-polisher",
+      acceptance_criteria: [
+        "필수 입력 오류, 저장 중, 성공, 실패, 권한 없음, 읽기 전용 상태가 같은 화면 안에서 이해됩니다.",
+        "모바일 폭에서 버튼, 긴 텍스트, 입력 필드가 겹치지 않습니다.",
+      ].join("\n"),
+    },
+    {
+      title: primaryExperiment ? "실험 성공 지표 계측" : "첫 실험 성공 지표 정의",
+      task_type: "qa",
+      priority: primaryExperiment ? "medium" : "high",
+      owner_role: "qa-runner",
+      acceptance_criteria: primaryExperiment
+        ? `실험 "${primaryExperiment.name}"의 성공 지표를 수동 또는 이벤트 로그로 확인할 수 있어야 합니다.\n성공 지표: ${primaryExperiment.success_metric || "미정"}`
+        : "첫 실험 이름과 성공 지표가 저장되고, QA 스모크에서 확인할 수 있어야 합니다.",
+    },
+    {
+      title: hasHighRisk ? "높은 리스크 완화 검증" : "보안/개인정보 기본 점검",
+      task_type: "security",
+      priority: hasHighRisk ? "high" : "medium",
+      owner_role: "security-reviewer",
+      acceptance_criteria: hasHighRisk
+        ? risks
+            .filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed")
+            .map((risk) => `- ${risk.title}: ${risk.mitigation || "완화 방안 필요"}`)
+            .join("\n")
+        : "개인정보 최소 수집, 비밀값 노출, 권한 우회, 로그 민감정보 여부를 확인합니다.",
+    },
+    {
+      title: "Vercel Preview/Production 스모크와 롤백 기록",
+      task_type: "deploy",
+      priority: "medium",
+      owner_role: "release-manager",
+      acceptance_criteria: [
+        "Preview URL에서 핵심 여정이 통과하고, Production 배포 후 동일 스모크가 통과합니다.",
+        "환경변수, DB 변경, 롤백 방법, 남은 리스크가 완료 보고에 기록됩니다.",
+      ].join("\n"),
+    },
+  ];
+}
+
 function buildLaunchChecklistMarkdown({
   idea,
   state,
@@ -1411,6 +1577,7 @@ function buildLaunchChecklistMarkdown({
   experiments,
   runs,
   artifacts,
+  implementationTasks,
 }: {
   idea: Idea;
   state: EditState;
@@ -1418,6 +1585,7 @@ function buildLaunchChecklistMarkdown({
   experiments: Experiment[];
   runs: OrchestrationRun[];
   artifacts: VentureArtifact[];
+  implementationTasks: ImplementationTask[];
 }) {
   const hasPrd = artifacts.some((artifact) => artifact.artifact_type === "prd");
   const hasApprovedPrd = artifacts.some((artifact) => artifact.artifact_type === "prd" && artifact.status === "approved");
@@ -1435,6 +1603,7 @@ function buildLaunchChecklistMarkdown({
     (artifact) => artifact.artifact_type === "tech_spec" && artifact.status === "approved",
   );
   const hasDevRunbook = artifacts.some((artifact) => artifact.artifact_type === "dev_runbook");
+  const doneImplementationTaskCount = implementationTasks.filter((task) => task.status === "done").length;
   const highRiskLines = risks
     .filter((risk) => ["high", "critical"].includes(risk.severity))
     .map((risk) => `- [ ] ${risk.title} (${risk.severity}, ${risk.status})`);
@@ -1465,6 +1634,8 @@ function buildLaunchChecklistMarkdown({
 - [${hasApprovedTechSpec ? "x" : " "}] 기술 명세 산출물 승인
 - [${hasDevRunbook ? "x" : " "}] 개발 런북 산출물 저장
 - [${artifacts.some((artifact) => artifact.artifact_type === "idea_brief") ? "x" : " "}] 아이디어 브리프 산출물 저장
+- [${implementationTasks.length > 0 ? "x" : " "}] 구현 태스크 생성
+- [${implementationTasks.length > 0 && doneImplementationTaskCount === implementationTasks.length ? "x" : " "}] 구현 태스크 완료 (${doneImplementationTaskCount}/${implementationTasks.length})
 
 ## 오케스트레이션 게이트
 
@@ -1838,6 +2009,7 @@ export function IdeaWorkbench({
   initialExperiments,
   initialOrchestrationRuns,
   initialArtifacts,
+  initialImplementationTasks,
   activeTask: controlledActiveTask,
   onActiveTaskChange,
   showSidebar = true,
@@ -1848,6 +2020,7 @@ export function IdeaWorkbench({
   initialExperiments: Experiment[];
   initialOrchestrationRuns: OrchestrationRun[];
   initialArtifacts: VentureArtifact[];
+  initialImplementationTasks: ImplementationTask[];
   activeTask?: WorkbenchTask;
   onActiveTaskChange?: (task: WorkbenchTask) => void;
   showSidebar?: boolean;
@@ -1860,6 +2033,7 @@ export function IdeaWorkbench({
   const [experiments, setExperiments] = useState(initialExperiments);
   const [orchestrationRuns, setOrchestrationRuns] = useState(initialOrchestrationRuns);
   const [artifacts, setArtifacts] = useState(initialArtifacts);
+  const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
   const [selectedIdeaId, setSelectedIdeaId] = useState(() => sortWorkbenchIdeas(initialIdeas)[0]?.id ?? "");
   const selectedIdea = ideas.find((idea) => idea.id === selectedIdeaId) ?? ideas[0] ?? null;
   const [editState, setEditState] = useState<EditState | null>(selectedIdea ? toEditState(selectedIdea) : null);
@@ -1880,6 +2054,7 @@ export function IdeaWorkbench({
     Object.fromEntries(initialOrchestrationRuns.map((run) => [run.id, run.output])),
   );
   const [artifactStatusNotes, setArtifactStatusNotes] = useState<Record<string, string>>({});
+  const [implementationTaskEvidence, setImplementationTaskEvidence] = useState<Record<string, string>>({});
   const [user, setUser] = useState<User | null>(null);
   const [memberships, setMemberships] = useState<OrganizationMember[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -1988,6 +2163,18 @@ export function IdeaWorkbench({
         .filter((artifact) => artifactStatusFilter === "all" || (artifact.status ?? "draft") === artifactStatusFilter)
         .slice(0, 8),
     [artifactStatusFilter, artifactTypeFilter, selectedArtifactRecords],
+  );
+  const selectedImplementationTasks = useMemo(
+    () =>
+      implementationTasks
+        .filter((task) => task.idea_id === selectedIdea?.id)
+        .sort(
+          (a, b) =>
+            a.sort_order - b.sort_order ||
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
+            a.title.localeCompare(b.title),
+        ),
+    [implementationTasks, selectedIdea?.id],
   );
   const artifactVersionSummaries = useMemo(() => {
     const summaries = new Map<string, { previous: VentureArtifact; added: number; removed: number }>();
@@ -2122,6 +2309,22 @@ export function IdeaWorkbench({
         artifacts: selectedArtifactRecords,
       })
     : "";
+  const implementationTaskDrafts = selectedIdea && editState
+    ? buildImplementationTaskDrafts({
+        idea: selectedIdea,
+        state: editState,
+        risks: selectedIdeaRisks,
+        experiments: selectedExperiments,
+        artifacts: selectedArtifactRecords,
+      })
+    : [];
+  const implementationTaskSourceArtifact = selectedArtifactRecords.find(
+    (artifact) =>
+      artifact.status === "approved" &&
+      ["tech_spec", "dev_runbook", "mvp_spec", "prd"].includes(artifact.artifact_type),
+  ) ?? selectedArtifactRecords.find((artifact) =>
+    ["tech_spec", "dev_runbook", "mvp_spec", "prd"].includes(artifact.artifact_type),
+  );
   const launchChecklistDraft = selectedIdea && editState
     ? buildLaunchChecklistMarkdown({
         idea: selectedIdea,
@@ -2130,6 +2333,7 @@ export function IdeaWorkbench({
         experiments: selectedExperiments,
         runs: selectedRuns,
         artifacts: selectedArtifactRecords,
+        implementationTasks: selectedImplementationTasks,
       })
     : "";
   const developmentArtifactDrafts: Array<{
@@ -2217,6 +2421,16 @@ export function IdeaWorkbench({
             : "앱 개발 프로세스에서 개발 런북을 저장하세요.",
         },
         {
+          label: "개발 태스크 완료",
+          passed:
+            selectedImplementationTasks.length > 0 &&
+            selectedImplementationTasks.every((task) => task.status === "done"),
+          detail:
+            selectedImplementationTasks.length > 0
+              ? `${selectedImplementationTasks.filter((task) => task.status === "done").length}/${selectedImplementationTasks.length}개 완료`
+              : "앱 개발 프로세스에서 기본 개발 태스크를 생성하세요.",
+        },
+        {
           label: "실험 계획",
           passed: selectedExperiments.length > 0,
           detail: selectedExperiments[0]?.success_metric || "성공 지표가 필요합니다.",
@@ -2302,7 +2516,12 @@ export function IdeaWorkbench({
       id: "development",
       label: "앱 개발",
       description: "기획, 디자인, 개발, 배포 실행 계획입니다.",
-      status: selectedArtifactRecords.some((artifact) => artifact.source === "development_process") ? "계획됨" : "대기",
+      status:
+        selectedImplementationTasks.length > 0
+          ? `${selectedImplementationTasks.filter((task) => task.status === "done").length}/${selectedImplementationTasks.length}`
+          : selectedArtifactRecords.some((artifact) => artifact.source === "development_process")
+            ? "계획됨"
+            : "대기",
     },
     {
       id: "launch",
@@ -2775,6 +2994,128 @@ export function IdeaWorkbench({
       return next;
     });
     setMessage(`${artifact.title || artifactLabels[artifact.artifact_type]} 상태를 ${artifactStatusLabels[status]}(으)로 변경했습니다.`);
+    router.refresh();
+  }
+
+  async function createImplementationTasks() {
+    if (!supabase || !selectedIdea) {
+      setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("개발 태스크를 만들려면 먼저 로그인하세요.");
+      return;
+    }
+
+    const existingTitles = new Set(selectedImplementationTasks.map((task) => task.title.trim().toLowerCase()));
+    const missingDrafts = implementationTaskDrafts.filter((task) => !existingTitles.has(task.title.trim().toLowerCase()));
+
+    if (missingDrafts.length === 0) {
+      setMessage("이 아이디어에는 이미 기본 개발 태스크가 있습니다.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("implementation_tasks")
+      .insert(
+        missingDrafts.map((task, index) => ({
+          idea_id: selectedIdea.id,
+          organization_id: selectedIdea.organization_id,
+          source_artifact_id: implementationTaskSourceArtifact?.id ?? null,
+          title: task.title,
+          task_type: task.task_type,
+          priority: task.priority,
+          status: "todo" as ImplementationTaskStatus,
+          owner_role: task.owner_role,
+          acceptance_criteria: task.acceptance_criteria,
+          evidence: "",
+          sort_order: selectedImplementationTasks.length + index,
+        })),
+      )
+      .select();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(
+        error.code === "42P01"
+          ? "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요."
+          : error.message,
+      );
+      return;
+    }
+
+    setImplementationTasks((current) => [...current, ...(data ?? [])]);
+    setMessage(`${missingDrafts.length}개의 개발 태스크를 만들었습니다.`);
+    router.refresh();
+  }
+
+  async function updateImplementationTaskStatus(task: ImplementationTask, status: ImplementationTaskStatus) {
+    if (!supabase) {
+      setMessage("Supabase가 설정되어 있지 않습니다.");
+      return;
+    }
+
+    if (!canManageRecord(task)) {
+      setMessage("태스크 작성자 또는 워크스페이스 관리자만 이 태스크를 수정할 수 있습니다.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("implementation_tasks")
+      .update({ status })
+      .eq("id", task.id)
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setImplementationTasks((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setMessage(`${task.title} 상태를 ${implementationTaskStatusLabels[status]}(으)로 변경했습니다.`);
+    router.refresh();
+  }
+
+  async function saveImplementationTaskEvidence(task: ImplementationTask) {
+    if (!supabase) {
+      setMessage("Supabase가 설정되어 있지 않습니다.");
+      return;
+    }
+
+    if (!canManageRecord(task)) {
+      setMessage("태스크 작성자 또는 워크스페이스 관리자만 이 증거를 저장할 수 있습니다.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("implementation_tasks")
+      .update({ evidence: implementationTaskEvidence[task.id] ?? task.evidence ?? "" })
+      .eq("id", task.id)
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setImplementationTasks((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setImplementationTaskEvidence((current) => {
+      const next = { ...current };
+      delete next[data.id];
+      return next;
+    });
+    setMessage("개발 태스크 증거를 저장했습니다.");
     router.refresh();
   }
 
@@ -3424,6 +3765,113 @@ export function IdeaWorkbench({
                 </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-slate-950">개발 태스크 보드</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  저장된 PRD, 명세, 런북을 바탕으로 실제 구현 작업을 쪼개고 완료 증거를 남깁니다.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={createImplementationTasks}
+                disabled={isBusy || !user}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <ClipboardList size={16} />
+                기본 태스크 생성
+              </button>
+            </div>
+
+            <div className="mt-4 grid gap-3 xl:grid-cols-4">
+              {implementationTaskStatuses.map((status) => {
+                const tasksInStatus = selectedImplementationTasks.filter((task) => task.status === status);
+
+                return (
+                  <section key={status} className="min-h-44 rounded-lg border border-slate-200 bg-white p-3">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className={`rounded-md px-2 py-1 text-xs font-semibold ${implementationTaskStatusTone[status]}`}>
+                        {implementationTaskStatusLabels[status]}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-500">{tasksInStatus.length}개</span>
+                    </div>
+
+                    <div className="grid gap-3">
+                      {tasksInStatus.length > 0 ? (
+                        tasksInStatus.map((task) => (
+                          <div key={task.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-semibold text-slate-950">{task.title}</span>
+                              <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                                {implementationTaskTypeLabels[task.task_type]}
+                              </span>
+                              <span className={`rounded-md px-2 py-1 text-xs font-semibold ${implementationTaskPriorityTone[task.priority]}`}>
+                                {implementationTaskPriorityLabels[task.priority]}
+                              </span>
+                            </div>
+                            <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                              {task.owner_role || "owner 미정"}
+                            </div>
+                            <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{task.acceptance_criteria}</p>
+                            <textarea
+                              value={implementationTaskEvidence[task.id] ?? task.evidence ?? ""}
+                              onChange={(event) =>
+                                setImplementationTaskEvidence((current) => ({
+                                  ...current,
+                                  [task.id]: event.target.value,
+                                }))
+                              }
+                              disabled={isBusy || !canManageRecord(task)}
+                              rows={3}
+                              placeholder="완료 증거, PR/커밋, 스모크 결과, 남은 리스크"
+                              className="mt-3 w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm leading-6 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                            />
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                onClick={() => saveImplementationTaskEvidence(task)}
+                                disabled={
+                                  isBusy ||
+                                  !canManageRecord(task) ||
+                                  (implementationTaskEvidence[task.id] ?? task.evidence ?? "") === (task.evidence ?? "")
+                                }
+                                className="inline-flex h-8 items-center justify-center rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                              >
+                                증거 저장
+                              </button>
+                              {implementationTaskStatuses.map((nextStatus) => (
+                                <button
+                                  key={nextStatus}
+                                  type="button"
+                                  onClick={() => updateImplementationTaskStatus(task, nextStatus)}
+                                  disabled={isBusy || !canManageRecord(task) || task.status === nextStatus}
+                                  className="inline-flex h-8 items-center justify-center rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                                >
+                                  {implementationTaskStatusLabels[nextStatus]}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="rounded-md border border-dashed border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-500">
+                          아직 {implementationTaskStatusLabels[status]} 상태의 태스크가 없습니다.
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+
+            {selectedImplementationTasks.length === 0 ? (
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                먼저 PRD, MVP 명세, 기술 명세, 개발 런북을 저장한 뒤 기본 태스크를 생성하면 구현 작업이 자동으로 분해됩니다.
+              </p>
+            ) : null}
           </div>
 
           <textarea

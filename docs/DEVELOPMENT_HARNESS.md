@@ -19,13 +19,15 @@ Before implementation, define:
 
 1. Confirm PRD, MVP spec, and design brief.
 2. Choose the backend using `docs/BACKEND_DECISION_GUIDE.md`.
-3. Shape a single vertical slice.
-4. Add or update data model and authorization rules.
-5. Implement read/write path with authorization at the boundary.
-6. Add UI state coverage and error recovery.
-7. Run focused verification, then full quality gates.
-8. Deploy preview, smoke test, then deploy production.
-9. Record decision, risk, and rollback notes.
+3. Generate implementation tasks from the app development process panel.
+4. Shape a single vertical slice.
+5. Add or update data model and authorization rules.
+6. Implement read/write path with authorization at the boundary.
+7. Add UI state coverage and error recovery.
+8. Move each implementation task through todo, doing, blocked, and done with completion evidence.
+9. Run focused verification, then full quality gates.
+10. Deploy preview, smoke test, then deploy production.
+11. Record decision, risk, and rollback notes.
 
 ## Quality Gates
 

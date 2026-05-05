@@ -6,7 +6,8 @@ import { getConsoleData } from "@/lib/venture-data";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const { ideas, risks, decisions, experiments, orchestrationRuns, artifacts, source, error } = await getConsoleData();
+  const { ideas, risks, decisions, experiments, orchestrationRuns, artifacts, implementationTasks, source, error } =
+    await getConsoleData();
 
   return (
     <main className="min-h-screen bg-[#f5f7fb] text-slate-950">
@@ -42,6 +43,7 @@ export default async function Home() {
           initialExperiments={experiments}
           initialOrchestrationRuns={orchestrationRuns}
           initialArtifacts={artifacts}
+          initialImplementationTasks={implementationTasks}
           source={source}
         />
       </div>

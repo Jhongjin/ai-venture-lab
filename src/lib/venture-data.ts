@@ -7,6 +7,7 @@ export type Decision = Database["public"]["Tables"]["decisions"]["Row"];
 export type Experiment = Database["public"]["Tables"]["experiments"]["Row"];
 export type OrchestrationRun = Database["public"]["Tables"]["orchestration_runs"]["Row"];
 export type VentureArtifact = Database["public"]["Tables"]["venture_artifacts"]["Row"];
+export type ImplementationTask = Database["public"]["Tables"]["implementation_tasks"]["Row"];
 
 type ConsoleData = {
   ideas: Idea[];
@@ -15,6 +16,7 @@ type ConsoleData = {
   experiments: Experiment[];
   orchestrationRuns: OrchestrationRun[];
   artifacts: VentureArtifact[];
+  implementationTasks: ImplementationTask[];
   source: "supabase" | "seed";
   error: string | null;
 };
@@ -193,6 +195,7 @@ const seedDecisions: Decision[] = [];
 const seedExperiments: Experiment[] = [];
 const seedOrchestrationRuns: OrchestrationRun[] = [];
 const seedArtifacts: VentureArtifact[] = [];
+const seedImplementationTasks: ImplementationTask[] = [];
 
 export function localizeIdeaRecord(idea: Idea): Idea {
   return { ...idea, ...(localizedIdeaSeeds[idea.name] ?? {}) };
@@ -234,6 +237,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
       experiments: seedExperiments,
       orchestrationRuns: seedOrchestrationRuns,
       artifacts: seedArtifacts,
+      implementationTasks: seedImplementationTasks,
       source: "seed",
       error: null,
     };
@@ -243,14 +247,22 @@ export async function getConsoleData(): Promise<ConsoleData> {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [ideasResult, risksResult, decisionsResult, experimentsResult, orchestrationRunsResult, artifactsResult] =
-    await Promise.all([
+  const [
+    ideasResult,
+    risksResult,
+    decisionsResult,
+    experimentsResult,
+    orchestrationRunsResult,
+    artifactsResult,
+    implementationTasksResult,
+  ] = await Promise.all([
       supabase.from("ideas").select("*").order("created_at", { ascending: true }),
       supabase.from("risks").select("*").order("created_at", { ascending: true }),
       supabase.from("decisions").select("*").order("decided_at", { ascending: false }),
       supabase.from("experiments").select("*").order("created_at", { ascending: false }),
       supabase.from("orchestration_runs").select("*").order("created_at", { ascending: false }),
       supabase.from("venture_artifacts").select("*").order("created_at", { ascending: false }),
+      supabase.from("implementation_tasks").select("*").order("sort_order", { ascending: true }),
     ]);
 
   if (ideasResult.error || risksResult.error || decisionsResult.error || experimentsResult.error) {
@@ -261,6 +273,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
       experiments: seedExperiments,
       orchestrationRuns: seedOrchestrationRuns,
       artifacts: seedArtifacts,
+      implementationTasks: seedImplementationTasks,
       source: "seed",
       error: user
         ? ideasResult.error?.message ??
@@ -279,12 +292,15 @@ export async function getConsoleData(): Promise<ConsoleData> {
     experiments: experimentsResult.data ?? [],
     orchestrationRuns: orchestrationRunsResult.error ? [] : orchestrationRunsResult.data ?? [],
     artifacts: artifactsResult.error ? [] : artifactsResult.data ?? [],
+    implementationTasks: implementationTasksResult.error ? [] : implementationTasksResult.data ?? [],
     source: "supabase",
     error:
       user && orchestrationRunsResult.error
         ? `Orchestration read failed: ${orchestrationRunsResult.error.message}`
         : user && artifactsResult.error
           ? `Artifact read failed: ${artifactsResult.error.message}`
+          : user && implementationTasksResult.error && implementationTasksResult.error.code !== "42P01"
+            ? `Implementation task read failed: ${implementationTasksResult.error.message}`
           : null,
   };
 }

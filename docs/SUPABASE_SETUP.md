@@ -34,6 +34,8 @@ supabase/migrations/20260503060000_add_orchestration_runs.sql
 supabase/migrations/20260504000000_add_venture_artifacts.sql
 supabase/migrations/20260504010000_add_artifact_lifecycle.sql
 supabase/migrations/20260504020000_add_artifact_status_notes.sql
+supabase/migrations/20260505000000_expand_venture_artifact_types.sql
+supabase/migrations/20260505010000_add_implementation_tasks.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
@@ -45,6 +47,8 @@ The orchestration migration adds idea-level specialist runs for strategy, resear
 The artifact migration stores generated idea briefs, PRDs, MVP specs, launch checklists, and research notes.
 The artifact lifecycle migration adds draft, approved, archived, version, and approval metadata to saved artifacts.
 The artifact status notes migration stores approval, revision, and archive rationale.
+The expanded artifact type migration adds backend decision, design brief, technical spec, and development runbook artifact types.
+The implementation task migration adds a task board for implementation work, completion evidence, and launch readiness gating.
 
 This creates:
 
@@ -54,6 +58,7 @@ This creates:
 - `experiments`
 - `orchestration_runs`
 - `venture_artifacts`
+- `implementation_tasks`
 - `organizations`
 - `organization_members`
 - `audit_events`

@@ -90,6 +90,7 @@ const workspaceRecordTables = [
   "experiments",
   "orchestration_runs",
   "venture_artifacts",
+  "implementation_tasks",
 ] as const;
 
 const sampleIdeaSource = `아이디어: 구독 관리 에이전트
