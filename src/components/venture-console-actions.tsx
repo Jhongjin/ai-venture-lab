@@ -24,7 +24,7 @@ type FormState = {
   next_evidence: string;
 };
 
-type ConsoleActionTask = "auth" | "workspace" | "idea";
+export type ConsoleActionTask = "auth" | "workspace" | "idea";
 
 const emptyForm: FormState = {
   name: "",
@@ -52,7 +52,15 @@ const workspaceRecordTables = [
   "venture_artifacts",
 ] as const;
 
-export function VentureConsoleActions() {
+export function VentureConsoleActions({
+  activeTask: controlledActiveTask,
+  onActiveTaskChange,
+  showSidebar = true,
+}: {
+  activeTask?: ConsoleActionTask;
+  onActiveTaskChange?: (task: ConsoleActionTask) => void;
+  showSidebar?: boolean;
+} = {}) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
   const [email, setEmail] = useState("");
@@ -75,7 +83,12 @@ export function VentureConsoleActions() {
   const [personalRecordCount, setPersonalRecordCount] = useState(0);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
-  const [activeTask, setActiveTask] = useState<ConsoleActionTask>("auth");
+  const [localActiveTask, setLocalActiveTask] = useState<ConsoleActionTask>("auth");
+  const activeTask = controlledActiveTask ?? localActiveTask;
+  const updateActiveTask = useCallback((task: ConsoleActionTask) => {
+    setLocalActiveTask(task);
+    onActiveTaskChange?.(task);
+  }, [onActiveTaskChange]);
 
   const activeOrganization = useMemo(
     () => organizations.find((organization) => organization.id === activeOrganizationId) ?? organizations[0] ?? null,
@@ -273,7 +286,7 @@ export function VentureConsoleActions() {
 
         setUser(nextUser);
         if (nextUser) {
-          setActiveTask("idea");
+          updateActiveTask("idea");
         }
         setAuthMessage("로그인되었습니다.");
         await loadWorkspaceData(nextUser);
@@ -286,7 +299,7 @@ export function VentureConsoleActions() {
     return () => {
       window.clearTimeout(exchangeTimer);
     };
-  }, [loadWorkspaceData, router, supabase]);
+  }, [loadWorkspaceData, router, supabase, updateActiveTask]);
 
   useEffect(() => {
     if (!supabase) {
@@ -296,7 +309,7 @@ export function VentureConsoleActions() {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       setIsAuthLoaded(true);
-      setActiveTask(data.user ? "idea" : "auth");
+      updateActiveTask(data.user ? "idea" : "auth");
       void loadWorkspaceData(data.user);
     });
 
@@ -304,7 +317,7 @@ export function VentureConsoleActions() {
       const nextUser = session?.user ?? null;
       setIsAuthLoaded(true);
       setUser(nextUser);
-      setActiveTask(nextUser ? "idea" : "auth");
+      updateActiveTask(nextUser ? "idea" : "auth");
       void loadWorkspaceData(nextUser);
       router.refresh();
     });
@@ -312,7 +325,7 @@ export function VentureConsoleActions() {
     return () => {
       data.subscription.unsubscribe();
     };
-  }, [loadWorkspaceData, router, supabase]);
+  }, [loadWorkspaceData, router, supabase, updateActiveTask]);
 
   async function handleSignIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -371,7 +384,7 @@ export function VentureConsoleActions() {
     }
 
     setPassword("");
-    setActiveTask("idea");
+    updateActiveTask("idea");
     setAuthMessage("로그인되었습니다.");
     router.refresh();
   }
@@ -384,7 +397,7 @@ export function VentureConsoleActions() {
     setIsAuthBusy(true);
     await supabase.auth.signOut();
     setIsAuthBusy(false);
-    setActiveTask("auth");
+    updateActiveTask("auth");
     setAuthMessage("로그아웃되었습니다.");
   }
 
@@ -605,7 +618,8 @@ export function VentureConsoleActions() {
   }
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+    <section className={showSidebar ? "grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]" : "grid gap-6"}>
+      {showSidebar ? (
       <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 lg:self-start">
         <div className="mb-4">
           <h2 className="text-lg font-semibold text-slate-950">운영 준비</h2>
@@ -616,7 +630,7 @@ export function VentureConsoleActions() {
             <button
               key={task.id}
               type="button"
-              onClick={() => setActiveTask(task.id)}
+              onClick={() => updateActiveTask(task.id)}
               aria-current={activeTask === task.id ? "step" : undefined}
               className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
                 activeTask === task.id
@@ -646,6 +660,7 @@ export function VentureConsoleActions() {
           ))}
         </div>
       </aside>
+      ) : null}
 
       <div className="grid min-w-0 gap-6">
         <div

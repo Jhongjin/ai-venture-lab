@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { Beaker, CheckCircle2, Clipboard, ClipboardList, Flag, Layers3, RefreshCw, Save, ShieldAlert } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
@@ -212,7 +212,15 @@ type RunDraft = {
   objective: string;
 };
 
-type WorkbenchTask = "score" | "risk" | "decision" | "experiment" | "orchestration" | "artifacts" | "launch";
+export type WorkbenchTask =
+  | "select"
+  | "score"
+  | "risk"
+  | "decision"
+  | "experiment"
+  | "orchestration"
+  | "artifacts"
+  | "launch";
 
 function sortWorkbenchIdeas(nextIdeas: Idea[]) {
   return [...nextIdeas].sort(
@@ -924,6 +932,9 @@ export function IdeaWorkbench({
   initialExperiments,
   initialOrchestrationRuns,
   initialArtifacts,
+  activeTask: controlledActiveTask,
+  onActiveTaskChange,
+  showSidebar = true,
 }: {
   initialIdeas: Idea[];
   initialRisks: Risk[];
@@ -931,6 +942,9 @@ export function IdeaWorkbench({
   initialExperiments: Experiment[];
   initialOrchestrationRuns: OrchestrationRun[];
   initialArtifacts: VentureArtifact[];
+  activeTask?: WorkbenchTask;
+  onActiveTaskChange?: (task: WorkbenchTask) => void;
+  showSidebar?: boolean;
 }) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
@@ -968,7 +982,12 @@ export function IdeaWorkbench({
   const [filterMode, setFilterMode] = useState<"all" | "mine" | "read_only">("all");
   const [artifactTypeFilter, setArtifactTypeFilter] = useState<VentureArtifactType | "all">("all");
   const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
-  const [activeTask, setActiveTask] = useState<WorkbenchTask>("score");
+  const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>("score");
+  const activeTask = controlledActiveTask ?? localActiveTask;
+  const updateActiveTask = useCallback((task: WorkbenchTask) => {
+    setLocalActiveTask(task);
+    onActiveTaskChange?.(task);
+  }, [onActiveTaskChange]);
 
   useEffect(() => {
     function handleIdeaCreated(event: Event) {
@@ -981,7 +1000,7 @@ export function IdeaWorkbench({
       setIdeas((current) => upsertWorkbenchIdea(current, createdIdea));
       setSelectedIdeaId(createdIdea.id);
       setEditState(toEditState(createdIdea));
-      setActiveTask("score");
+      updateActiveTask("score");
       setFilterMode("all");
       setMessage("새 아이디어를 워크벤치에 바로 추가하고 선택했습니다.");
     }
@@ -991,7 +1010,7 @@ export function IdeaWorkbench({
     return () => {
       window.removeEventListener("venture:idea-created", handleIdeaCreated);
     };
-  }, []);
+  }, [updateActiveTask]);
 
   useEffect(() => {
     if (!supabase) {
@@ -1224,6 +1243,12 @@ export function IdeaWorkbench({
     status: string;
   }> = [
     {
+      id: "select",
+      label: "아이디어 선택",
+      description: "평가할 아이디어를 고릅니다.",
+      status: selectedIdea ? "선택됨" : "필수",
+    },
+    {
       id: "score",
       label: "점수화",
       description: "단계, 판단, 점수, 증거를 정리합니다.",
@@ -1277,6 +1302,17 @@ export function IdeaWorkbench({
 
     return sortWorkbenchIdeas(ideas);
   }, [filterMode, ideas, user]);
+
+  if (!selectedIdea || !editState) {
+    return (
+      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-semibold text-slate-950">아이디어 워크벤치</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          아직 평가할 아이디어가 없습니다. 왼쪽 메뉴에서 새 아이디어를 먼저 접수하세요.
+        </p>
+      </section>
+    );
+  }
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -1789,12 +1825,9 @@ export function IdeaWorkbench({
     setCopyMessage("출시 체크리스트를 클립보드에 복사했습니다.");
   }
 
-  if (!selectedIdea || !editState) {
-    return null;
-  }
-
   return (
-    <section className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
+    <section className={showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
+      {showSidebar ? (
       <aside className="grid gap-4 lg:sticky lg:top-6 lg:self-start">
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between gap-4">
@@ -1846,7 +1879,7 @@ export function IdeaWorkbench({
                   onClick={() => {
                     setSelectedIdeaId(idea.id);
                     setEditState(toEditState(idea));
-                    setActiveTask("score");
+                    updateActiveTask("score");
                   }}
                   className={`rounded-lg border p-4 text-left transition ${
                     idea.id === selectedIdea.id
@@ -1895,7 +1928,7 @@ export function IdeaWorkbench({
               <button
                 key={task.id}
                 type="button"
-                onClick={() => setActiveTask(task.id)}
+                onClick={() => updateActiveTask(task.id)}
                 aria-current={activeTask === task.id ? "step" : undefined}
                 className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
                   activeTask === task.id
@@ -1926,8 +1959,96 @@ export function IdeaWorkbench({
           </div>
         </div>
       </aside>
+      ) : null}
 
       <div className="grid min-w-0 gap-6">
+        <div
+          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            activeTask === "select" ? "" : "hidden"
+          }`}
+        >
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-950">아이디어 선택</h2>
+              <p className="mt-1 text-sm text-slate-500">평가하거나 실행할 아이디어를 먼저 고릅니다.</p>
+            </div>
+            <ClipboardList className="text-blue-600" size={24} />
+          </div>
+
+          <div className="mb-4 grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
+            {[
+              ["all", filterModeLabels.all],
+              ["mine", filterModeLabels.mine],
+              ["read_only", filterModeLabels.read_only],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
+                className={`h-9 rounded-md text-sm font-semibold transition ${
+                  filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-600 hover:text-slate-950"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {visibleIdeas.map((idea) => {
+              const isOwned = Boolean(user && idea.created_by === user.id);
+              const isOrgAdmin = Boolean(
+                user &&
+                  idea.organization_id &&
+                  memberships.some(
+                    (membership) =>
+                      membership.user_id === user.id &&
+                      membership.organization_id === idea.organization_id &&
+                      adminRoles.has(membership.role),
+                  ),
+              );
+
+              return (
+                <button
+                  key={idea.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedIdeaId(idea.id);
+                    setEditState(toEditState(idea));
+                    updateActiveTask("score");
+                  }}
+                  className={`rounded-lg border p-4 text-left transition ${
+                    idea.id === selectedIdea.id
+                      ? "border-blue-300 bg-blue-50"
+                      : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-semibold text-slate-950">{idea.name}</span>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                        {stageLabels[idea.stage]}
+                      </span>
+                      <span
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
+                          isOwned || isOrgAdmin ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {isOwned
+                          ? editabilityLabels.editable
+                          : isOrgAdmin
+                            ? editabilityLabels.orgAdmin
+                            : editabilityLabels.readOnly}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <form
           onSubmit={saveIdea}
           className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "score" ? "" : "hidden"}`}
