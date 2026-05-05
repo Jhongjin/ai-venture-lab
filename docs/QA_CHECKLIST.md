@@ -68,6 +68,7 @@ Use this checklist before merging meaningful changes.
 - Operators can copy a role-specific implementation run prompt from the current task filter.
 - Operators can save a filtered implementation run prompt as a versioned development runbook artifact.
 - Artifact library highlights recent development handoffs and marks filtered run prompt artifacts.
+- Artifact library can filter artifacts by type, status, and source.
 - Release task evidence includes Preview/Production URL, Vercel inspect URL or deploy logs, rollback criteria, and production smoke results.
 - Backend task evidence includes Supabase RLS or Firebase Security Rules/IAM allowed and denied checks.
 - Launch readiness requires implementation tasks to exist, have no blocked tasks, all be done, and all done tasks have evidence.
