@@ -4,6 +4,7 @@ $required = @(
   "AGENTS.md",
   "README.md",
   "docs/OPERATING_MODEL.md",
+  "docs/PHASE_STATUS.md",
   "docs/DECISION_LOG.md",
   "docs/RISK_REGISTER.md",
   "docs/BACKEND_DECISION_GUIDE.md",
