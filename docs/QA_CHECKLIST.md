@@ -35,6 +35,7 @@ Use this checklist before merging meaningful changes.
 - Authenticated operators can save generated idea briefs, research briefs, 7-day validation sprints, and PRDs as artifacts and copy them from the artifact library.
 - Authenticated operators can manually capture an interview note, external source, pricing signal, or competitor observation as a `research_note` artifact.
 - Authenticated operators can save a validation summary that rolls up research notes, experiments, risks, and decision history before PRD.
+- Product artifact tab shows PRD readiness, next missing validation item, and shortcut buttons back to validation artifacts, experiments, risks, and decisions.
 - Authenticated operators can generate and save MVP spec and launch checklist artifacts from the same workbench evidence.
 - Authenticated operators can save backend decision, design brief, technical spec, and development runbook artifacts from the app development process panel.
 - Operators can copy and save a Codex implementation handoff that includes build scope, backend boundary, quality gates, forbidden shortcuts, and completion report format.

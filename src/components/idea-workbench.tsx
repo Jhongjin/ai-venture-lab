@@ -3325,9 +3325,85 @@ export function IdeaWorkbench({
   ) ?? selectedArtifactRecords.find((artifact) =>
     ["tech_spec", "dev_runbook", "mvp_spec", "prd"].includes(artifact.artifact_type),
   );
+  const hasIdeaBriefArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "idea_brief");
+  const hasResearchNoteArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note");
+  const hasValidationSprintArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "validation_sprint");
+  const hasEvidenceCaptureArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "evidence_capture");
+  const hasExperimentResultArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "experiment_result");
+  const hasValidationSummaryArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "validation_summary");
   const completedImplementationTasks = selectedImplementationTasks.filter((task) => task.status === "done");
   const implementationTasksWithEvidence = completedImplementationTasks.filter((task) => task.evidence.trim());
   const hasBlockedImplementationTasks = selectedImplementationTasks.some((task) => task.status === "blocked");
+  const hasCompletedExperiment = selectedExperiments.some((experiment) => experiment.status === "done");
+  const highRiskCount = selectedIdeaRisks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
+  const unresolvedHighRiskCount = selectedIdeaRisks.filter(
+    (risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed",
+  ).length;
+  const prdReadinessChecks: GateCheck[] = selectedIdea && editState
+    ? [
+        {
+          label: "기본 입력",
+          passed: missing.length === 0,
+          detail: missing.length === 0 ? "한 줄 설명, 대상 사용자, 구매자, 수요 신호가 채워져 있습니다." : missing.join(", "),
+        },
+        {
+          label: "아이디어 브리프",
+          passed: hasIdeaBriefArtifact,
+          detail: hasIdeaBriefArtifact ? "짧은 요약 산출물이 저장되어 있습니다." : "검증 산출물에서 아이디어 브리프를 저장하세요.",
+        },
+        {
+          label: "리서치 근거",
+          passed: hasResearchNoteArtifact,
+          detail: hasResearchNoteArtifact ? "리서치 노트가 1개 이상 저장되어 있습니다." : "리서치 브리프 또는 근거 노트를 저장하세요.",
+        },
+        {
+          label: "검증 스프린트",
+          passed: hasValidationSprintArtifact,
+          detail: hasValidationSprintArtifact ? "7일 검증 실행 계획이 저장되어 있습니다." : "7일 검증 스프린트를 저장하세요.",
+        },
+        {
+          label: "현장 근거",
+          passed: hasEvidenceCaptureArtifact || hasExperimentResultArtifact,
+          detail:
+            hasEvidenceCaptureArtifact || hasExperimentResultArtifact
+              ? "수동 근거 또는 실험 결과가 기록되어 있습니다."
+              : "인터뷰, 외부 자료, 가격 신호, 실험 결과 중 하나를 저장하세요.",
+        },
+        {
+          label: "실험 학습",
+          passed: hasCompletedExperiment || hasExperimentResultArtifact,
+          detail:
+            hasCompletedExperiment || hasExperimentResultArtifact
+              ? "완료된 실험 또는 실험 결과 노트가 있습니다."
+              : "실험을 완료하거나 실험 결과 기록을 저장하세요.",
+        },
+        {
+          label: "높은 리스크 통제",
+          passed: unresolvedHighRiskCount === 0,
+          detail:
+            highRiskCount === 0
+              ? "높음/치명 리스크가 없습니다."
+              : `${highRiskCount - unresolvedHighRiskCount}/${highRiskCount}개 높은 리스크가 종료되었습니다.`,
+        },
+        {
+          label: "판단 기록",
+          passed: editState.decision !== "pending" && selectedDecisions.length > 0,
+          detail:
+            editState.decision !== "pending" && selectedDecisions.length > 0
+              ? `${decisionLabels[editState.decision]} 판단과 기록 ${selectedDecisions.length}개가 있습니다.`
+              : "진행, 추가 조사, 전환, 중단 중 하나로 판단 근거를 남기세요.",
+        },
+        {
+          label: "검증 완료 요약",
+          passed: hasValidationSummaryArtifact,
+          detail: hasValidationSummaryArtifact ? "PRD 진입 전 요약 메모가 저장되어 있습니다." : "검증 완료 요약을 저장하세요.",
+        },
+      ]
+    : [];
+  const passedPrdReadinessCount = prdReadinessChecks.filter((check) => check.passed).length;
+  const prdReadinessScore =
+    prdReadinessChecks.length === 0 ? 0 : Math.round((passedPrdReadinessCount / prdReadinessChecks.length) * 100);
+  const nextPrdBlocker = prdReadinessChecks.find((check) => !check.passed) ?? null;
   const implementationGateChecks: GateCheck[] = selectedIdea
     ? [
         {
@@ -3426,10 +3502,17 @@ export function IdeaWorkbench({
         },
         {
           label: "리서치 브리프 저장",
-          passed: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note"),
-          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note")
+          passed: hasResearchNoteArtifact,
+          detail: hasResearchNoteArtifact
             ? "인터뷰, 경쟁/대안, 가격, 규제 체크가 문서화되어 있습니다."
             : "산출물 단계에서 리서치 브리프를 저장하세요.",
+        },
+        {
+          label: "검증 완료 요약 저장",
+          passed: hasValidationSummaryArtifact,
+          detail: hasValidationSummaryArtifact
+            ? "PRD 진입 전 검증 메모가 저장되어 있습니다."
+            : "검증 산출물에서 완료 요약을 저장하세요.",
         },
         {
           label: "PRD 승인",
@@ -6065,6 +6148,92 @@ export function IdeaWorkbench({
             rows={16}
             className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
           />
+        </div>
+
+        <div
+          className={`rounded-lg border border-blue-100 bg-blue-50 p-6 shadow-sm ${
+            activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"
+          }`}
+        >
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-blue-950">PRD 진입 준비도</h2>
+              <p className="mt-1 text-sm leading-6 text-blue-900">
+                검증 근거가 제품 요구사항으로 넘어갈 만큼 정리되었는지 먼저 확인합니다.
+              </p>
+              <div
+                className={`mt-4 rounded-md border px-4 py-3 text-sm leading-6 ${
+                  nextPrdBlocker ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"
+                }`}
+              >
+                {nextPrdBlocker ? (
+                  <>
+                    <span className="font-semibold">다음 보강 항목: {nextPrdBlocker.label}</span>
+                    <span className="block">{nextPrdBlocker.detail}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-semibold">PRD로 넘어갈 준비가 되었습니다.</span>
+                    <span className="block">검증 완료 요약을 기준으로 제품 범위를 좁혀 저장하세요.</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="rounded-lg bg-blue-950 px-5 py-4 text-right text-white">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-200">
+                통과 {passedPrdReadinessCount}/{prdReadinessChecks.length}
+              </div>
+              <div className="mt-1 text-3xl font-semibold">{prdReadinessScore}%</div>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {prdReadinessChecks.map((check) => (
+              <div key={check.label} className="rounded-lg border border-blue-100 bg-white p-3">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2
+                    size={18}
+                    className={check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400"}
+                  />
+                  <div>
+                    <div className="text-sm font-semibold text-slate-950">{check.label}</div>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">{check.detail}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setArtifactPanel("validation")}
+              className="inline-flex h-10 items-center justify-center rounded-md bg-blue-700 px-3 text-sm font-semibold text-white transition hover:bg-blue-800"
+            >
+              검증 산출물 보강
+            </button>
+            <button
+              type="button"
+              onClick={() => updateActiveTask("experiment")}
+              className="inline-flex h-10 items-center justify-center rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
+            >
+              실험 확인
+            </button>
+            <button
+              type="button"
+              onClick={() => updateActiveTask("risk")}
+              className="inline-flex h-10 items-center justify-center rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
+            >
+              리스크 확인
+            </button>
+            <button
+              type="button"
+              onClick={() => updateActiveTask("decision")}
+              className="inline-flex h-10 items-center justify-center rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
+            >
+              판단 기록
+            </button>
+          </div>
         </div>
 
         <div
