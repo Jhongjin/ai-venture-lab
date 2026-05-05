@@ -37,6 +37,17 @@ const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot"
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
 const implementationTaskStatuses: ImplementationTaskStatus[] = ["todo", "doing", "blocked", "done"];
+const implementationTaskTypes: ImplementationTaskType[] = [
+  "planning",
+  "design",
+  "frontend",
+  "backend",
+  "data",
+  "qa",
+  "security",
+  "deploy",
+];
+const implementationTaskPriorities: ImplementationTaskPriority[] = ["low", "medium", "high"];
 const artifactLabels: Record<VentureArtifactType, string> = {
   idea_brief: "아이디어 브리프",
   research_note: "리서치 노트",
@@ -2177,6 +2188,13 @@ export function IdeaWorkbench({
   );
   const [artifactStatusNotes, setArtifactStatusNotes] = useState<Record<string, string>>({});
   const [implementationTaskEvidence, setImplementationTaskEvidence] = useState<Record<string, string>>({});
+  const [implementationTaskDraft, setImplementationTaskDraft] = useState<ImplementationTaskDraft>({
+    title: "",
+    task_type: "frontend",
+    priority: "medium",
+    owner_role: "prototype-builder",
+    acceptance_criteria: "",
+  });
   const [user, setUser] = useState<User | null>(null);
   const [memberships, setMemberships] = useState<OrganizationMember[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -3240,6 +3258,62 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
+  async function addImplementationTask(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!supabase || !selectedIdea) {
+      setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("개발 태스크를 추가하려면 먼저 로그인하세요.");
+      return;
+    }
+
+    if (!implementationTaskDraft.title.trim()) {
+      setMessage("태스크 제목은 필수입니다.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase
+      .from("implementation_tasks")
+      .insert({
+        idea_id: selectedIdea.id,
+        organization_id: selectedIdea.organization_id,
+        source_artifact_id: implementationTaskSourceArtifact?.id ?? null,
+        title: implementationTaskDraft.title.trim(),
+        task_type: implementationTaskDraft.task_type,
+        priority: implementationTaskDraft.priority,
+        status: "todo",
+        owner_role: implementationTaskDraft.owner_role.trim(),
+        acceptance_criteria: implementationTaskDraft.acceptance_criteria.trim(),
+        evidence: "",
+        sort_order: selectedImplementationTasks.length,
+      })
+      .select()
+      .single();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setImplementationTasks((current) => [...current, data]);
+    setImplementationTaskDraft({
+      title: "",
+      task_type: "frontend",
+      priority: "medium",
+      owner_role: "prototype-builder",
+      acceptance_criteria: "",
+    });
+    setMessage("개발 태스크를 추가했습니다.");
+    router.refresh();
+  }
+
   async function updateImplementationTaskStatus(task: ImplementationTask, status: ImplementationTaskStatus) {
     if (!supabase) {
       setMessage("Supabase가 설정되어 있지 않습니다.");
@@ -3973,6 +4047,58 @@ export function IdeaWorkbench({
                 기본 태스크 생성
               </button>
             </div>
+
+            <form onSubmit={addImplementationTask} className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+              <div className="mb-3">
+                <h4 className="text-sm font-semibold text-slate-950">직접 태스크 추가</h4>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  자동 생성 태스크 밖의 버그, 디자인 수정, 배포 작업, 고객 검증 작업을 바로 추가합니다.
+                </p>
+              </div>
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_0.8fr_0.7fr_0.9fr]">
+                <InputField
+                  label="태스크 제목"
+                  value={implementationTaskDraft.title}
+                  onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, title: value }))}
+                />
+                <SelectField
+                  label="유형"
+                  value={implementationTaskDraft.task_type}
+                  options={implementationTaskTypes}
+                  labels={implementationTaskTypeLabels}
+                  onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, task_type: value }))}
+                />
+                <SelectField
+                  label="우선순위"
+                  value={implementationTaskDraft.priority}
+                  options={implementationTaskPriorities}
+                  labels={implementationTaskPriorityLabels}
+                  onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, priority: value }))}
+                />
+                <InputField
+                  label="담당 역할"
+                  value={implementationTaskDraft.owner_role}
+                  onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, owner_role: value }))}
+                />
+              </div>
+              <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                <TextArea
+                  label="수용 기준"
+                  value={implementationTaskDraft.acceptance_criteria}
+                  onChange={(value) =>
+                    setImplementationTaskDraft((current) => ({ ...current, acceptance_criteria: value }))
+                  }
+                />
+                <button
+                  type="submit"
+                  disabled={isBusy || !user}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Save size={16} />
+                  태스크 추가
+                </button>
+              </div>
+            </form>
 
             <div className="mt-4 grid gap-3 xl:grid-cols-4">
               {implementationTaskStatuses.map((status) => {

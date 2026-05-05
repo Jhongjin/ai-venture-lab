@@ -34,6 +34,7 @@ Use this checklist before merging meaningful changes.
 - Authenticated operators can save backend decision, design brief, technical spec, and development runbook artifacts from the app development process panel.
 - Operators can copy and save a Codex implementation handoff that includes build scope, backend boundary, quality gates, forbidden shortcuts, and completion report format.
 - Authenticated operators can generate implementation tasks from the app development process panel.
+- Authenticated operators can manually add implementation tasks with title, type, priority, owner role, and acceptance criteria.
 - Implementation task owners can move tasks through todo, doing, blocked, and done states.
 - Implementation task owners can save completion evidence without losing the current selected idea.
 - Launch readiness requires implementation tasks to exist, have no blocked tasks, all be done, and all done tasks have evidence.
