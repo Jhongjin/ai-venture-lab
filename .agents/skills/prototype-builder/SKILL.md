@@ -9,6 +9,7 @@ Use this skill when the idea is ready to become a working product slice. A proto
 
 Before implementation:
 
+- Check the app development `개발 착수 준비도` gate when available. Do not start coding while approved PRD, approved MVP spec, backend decision, approved design brief, technical spec, development runbook, generated tasks, or unresolved high-risk status are unclear.
 - Confirm the MVP spec or write the smallest one needed.
 - Identify the core journey and done criteria.
 - Keep data mocked unless real integration is explicitly requested.
@@ -18,6 +19,7 @@ Before implementation:
 - Keep AI features behind a clear human review, retry, or override path unless the PRD explicitly says otherwise.
 - Choose the data boundary first: Server Component, Client Component, Server Action, Route Handler, or Supabase client.
 - Choose the backend deliberately: Supabase, Firebase, Firebase SQL Connect, or hybrid. Use `docs/BACKEND_DECISION_GUIDE.md`.
+- If the backend is not yet fixed, compare Supabase, Firebase, Firebase SQL Connect, and hybrid against the current app shape before writing implementation code.
 - Keep authentication and authorization checks at the mutation/read boundary, not only in page layout or navigation.
 - For Supabase writes, confirm RLS, `using`, and `with check` policies before relying on client-side checks.
 - For Firebase writes, confirm Security Rules, IAM/server SDK trust boundaries, App Check needs, and emulator or preview checks.
@@ -26,6 +28,7 @@ Before implementation:
 Implementation shape:
 
 - Build a vertical slice: UI state, data write/read, error path, permission path, and smoke test path.
+- Keep the slice traceable to implementation tasks. If the task board exists, update task status and completion evidence instead of leaving progress only in chat.
 - Prefer server-side data access for sensitive reads and writes.
 - Keep `use client` boundaries small and local to interactivity.
 - Make the happy path and at least one failure path visible to the operator.
@@ -34,6 +37,7 @@ Implementation shape:
 After implementation:
 
 - Run relevant checks.
+- Save or update completion evidence: commit/PR, preview URL, smoke result, skipped check, unresolved risk, or rollback note.
 - Report changed files and verification results.
 - Include a manual smoke path the operator can test in production.
 - Report any skipped checks and why.

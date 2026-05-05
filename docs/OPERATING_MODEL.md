@@ -33,6 +33,12 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - Development harness: `docs/DEVELOPMENT_HARNESS.md`
 - Launch gate: `templates/LAUNCH_CHECKLIST.md`
 
+## Skills
+
+- `app-development-orchestrator`: coordinates PRD-to-build gates, backend choice, task board, QA/security, deployment, and Codex handoff.
+- `ux-review`: reviews screens, flows, design prompts, state coverage, mobile, accessibility, and Stitch/Figma-style generation briefs.
+- `prototype-builder`: implements a scoped vertical slice after backend, design, technical, task, and risk gates are clear.
+
 ## Gates
 
 - No PRD without an idea brief and a research brief.

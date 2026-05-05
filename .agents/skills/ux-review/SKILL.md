@@ -7,6 +7,8 @@ description: Use when reviewing screens, flows, wireframes, prototypes, dashboar
 
 Use this skill for app screens, design prompts, DESIGN.md files, prototypes, and production UI changes.
 
+Before design handoff, check the app development `디자인 준비도` gate when available. The design is not ready if the core journey, PRD, MVP scope, backend boundary, screen-state coverage, or design execution notes are missing.
+
 Start from the user's task:
 
 - Who is trying to do what?
@@ -21,16 +23,20 @@ For AI-generated design prompts, provide a structured brief:
 - Information architecture
 - Component inventory
 - Empty, loading, error, success, permission, and read-only states
+- Mobile single-column behavior and desktop density rules
 - Visual system: color roles, type scale, spacing, radius, elevation, density
 - Platform and responsive constraints
 - Accessibility and contrast requirements
 - Things to avoid
+
+When preparing prompts for visual generators such as Stitch, Figma assistants, or image-to-code tools, ask for an actual usable app screen first, not a marketing hero. Require the first viewport to show the core task, primary action, empty/error states, and any sensitive-data trust notice.
 
 When a durable visual system is needed, create or update a `DESIGN.md`-style source of truth with machine-readable tokens and human-readable rationale.
 
 Review for:
 
 - Primary workflow clarity
+- Whether the current view matches the left-step/right-task workflow when the product is an operator console
 - State coverage: empty, loading, success, error
 - Mobile and desktop fit
 - Information hierarchy
