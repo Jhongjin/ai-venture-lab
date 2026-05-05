@@ -25,6 +25,7 @@ Use this checklist before merging meaningful changes.
 - Operators can paste conversation notes into idea discovery and extract candidate ideas with validation score, risk level, assumptions, validation questions, 7-day experiment, success metric, kill criteria, prototype scope, and pricing hypothesis.
 - Authenticated operators can save an extracted candidate as a validation package that creates the idea, an initial risk, and a planned experiment.
 - Extracted candidates show likely duplicate or similar existing ideas before saving.
+- Extracted candidates show validation-package readiness across problem signal, user/buyer separation, measurable success metric, risk, first MVP scope, and duplicate risk.
 - Workbench clearly marks which ideas are editable by the current operator and which are read-only.
 - Authenticated operators can attach an experiment name and success metric to an idea.
 - Experiment owners can move experiments through planned, running, and done states.

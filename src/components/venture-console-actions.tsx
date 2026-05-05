@@ -72,6 +72,12 @@ type SimilarIdeaMatch = {
   reason: string;
 };
 
+type CandidateReadinessCheck = {
+  label: string;
+  passed: boolean;
+  detail: string;
+};
+
 const emptyForm: FormState = {
   name: "",
   one_liner: "",
@@ -538,6 +544,58 @@ function findSimilarIdea(candidate: ExtractedIdea, existingIdeas: Idea[]): Simil
     .sort((a, b) => b.score - a.score);
 
   return matches[0] ?? null;
+}
+
+function hasNumericSignal(value: string) {
+  return /\d|명|일|%|퍼센트|건|회|만원|원/.test(value);
+}
+
+function buildCandidateReadiness(
+  candidate: ExtractedIdea,
+  similarIdea: SimilarIdeaMatch | null,
+): CandidateReadinessCheck[] {
+  const target = normalizeMatchText(candidate.target_user);
+  const buyer = normalizeMatchText(candidate.buyer);
+
+  return [
+    {
+      label: "문제 신호",
+      passed: candidate.signal.trim().length >= 20,
+      detail: candidate.signal.trim().length >= 20 ? "반복 문제 단서가 있습니다." : "페인 포인트나 현재 우회 방법을 더 적으세요.",
+    },
+    {
+      label: "사용자/구매자",
+      passed: Boolean(target && buyer && target !== buyer),
+      detail:
+        target && buyer && target !== buyer
+          ? "사용자와 구매자가 분리되어 있습니다."
+          : "사용자, 구매자, 승인자를 더 분리하세요.",
+    },
+    {
+      label: "검증 지표",
+      passed: hasNumericSignal(candidate.successMetric),
+      detail: hasNumericSignal(candidate.successMetric)
+        ? "성공 기준에 수량, 기간, 비율, 비용 단서가 있습니다."
+        : "성공 지표에 명수, 기간, 전환율, 비용 같은 숫자를 넣으세요.",
+    },
+    {
+      label: "리스크",
+      passed: candidate.risk_summary.trim().length >= 20,
+      detail: candidate.risk_summary.trim().length >= 20 ? "초기 리스크를 함께 저장할 수 있습니다." : "개인정보, 규제, 운영 리스크를 보강하세요.",
+    },
+    {
+      label: "첫 MVP",
+      passed: candidate.firstPrototypeScope.trim().length >= 20,
+      detail: candidate.firstPrototypeScope.trim().length >= 20 ? "첫 프로토타입 범위가 있습니다." : "7일 안에 만들 최소 범위를 정하세요.",
+    },
+    {
+      label: "중복 위험",
+      passed: !similarIdea || similarIdea.score < 70,
+      detail: similarIdea
+        ? `${similarIdea.idea.name}와 유사도 ${similarIdea.score}%입니다. 기존 기록 확장 여부를 확인하세요.`
+        : "기존 포트폴리오와 강하게 겹치는 후보가 없습니다.",
+    },
+  ];
 }
 
 function splitIdeaBlocks(source: string) {
@@ -1800,6 +1858,10 @@ export function VentureConsoleActions({
 
                   {extractedIdeas.map((candidate) => {
                     const similarIdea = similarIdeaMatches.get(candidate.id);
+                    const readinessChecks = buildCandidateReadiness(candidate, similarIdea ?? null);
+                    const passedReadinessCount = readinessChecks.filter((check) => check.passed).length;
+                    const readinessScore = Math.round((passedReadinessCount / readinessChecks.length) * 100);
+                    const nextReadinessGap = readinessChecks.find((check) => !check.passed);
 
                     return (
                     <article key={candidate.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
@@ -1823,6 +1885,9 @@ export function VentureConsoleActions({
                             </span>
                             <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600 shadow-sm">
                               신뢰 {candidate.confidence}%
+                            </span>
+                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
+                              패키지 {passedReadinessCount}/{readinessChecks.length}
                             </span>
                           </div>
                           <p className="mt-2 text-sm leading-6 text-slate-600">{candidate.one_liner}</p>
@@ -1852,6 +1917,37 @@ export function VentureConsoleActions({
                           {similarIdea.idea.name} · 유사도 {similarIdea.score}% · {similarIdea.reason}
                         </div>
                       ) : null}
+                      <div className="mt-3 rounded-md border border-emerald-100 bg-emerald-50 p-3">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <div className="text-sm font-semibold text-emerald-950">검증 패키지 준비도</div>
+                            <p className="mt-1 text-sm leading-6 text-emerald-900">
+                              {nextReadinessGap
+                                ? `다음 보강: ${nextReadinessGap.label} - ${nextReadinessGap.detail}`
+                                : "아이디어, 리스크, 7일 실험으로 저장할 준비가 좋습니다."}
+                            </p>
+                          </div>
+                          <div className="shrink-0 rounded-md bg-emerald-950 px-3 py-2 text-right text-white">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-200">
+                              준비
+                            </div>
+                            <div className="text-2xl font-semibold">{readinessScore}%</div>
+                          </div>
+                        </div>
+                        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                          {readinessChecks.map((check) => (
+                            <div key={check.label} className="rounded-md bg-white px-3 py-2">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`h-2 w-2 rounded-full ${check.passed ? "bg-emerald-500" : "bg-slate-300"}`}
+                                />
+                                <span className="text-xs font-semibold text-slate-950">{check.label}</span>
+                              </div>
+                              <p className="mt-1 text-xs leading-5 text-slate-600">{check.detail}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
                         <div className="rounded-md bg-white p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">대상</div>
