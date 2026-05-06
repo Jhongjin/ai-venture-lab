@@ -27,9 +27,11 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-06 | Added product telemetry funnel and taxonomy | Current commit | Production alias | `pnpm quality:full`, production smoke pending deploy |
-| 2026-05-06 | Added product telemetry ingest adapter | Current commit | Production alias | `pnpm quality:full`, route smoke pending deploy |
-| 2026-05-06 | Added learning telemetry dashboard and event capture | Current commit | Production `2mG3B8h47DPs9oURaRDnEVRN5Mv4` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
+| 2026-05-06 | Re-deployed product telemetry ingest with Production secrets | `5414835` | Production `2AM2imxYxi3oh7gMs6KDG756pn1d` | `pnpm smoke:prod`, `pnpm smoke:routes`, `node .\scripts\smoke_browser.mjs` |
+| 2026-05-06 | Added authenticated telemetry ingest smoke harness | Current commit | Skipped, script/docs-only | `pnpm quality:full`, direct `smoke_routes.ps1`, direct `smoke_production.ps1`, missing-secret guard |
+| 2026-05-06 | Added product telemetry funnel and taxonomy | `5414835` | Production `2AM2imxYxi3oh7gMs6KDG756pn1d` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `node .\scripts\smoke_browser.mjs` |
+| 2026-05-06 | Added product telemetry ingest adapter | `1efc76e` | Production `2AM2imxYxi3oh7gMs6KDG756pn1d` | `pnpm quality:full`, route smoke |
+| 2026-05-06 | Added learning telemetry dashboard and event capture | `809929d` | Production `2mG3B8h47DPs9oURaRDnEVRN5Mv4` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Closed core public beta readiness phase | Current commit | Skipped, docs-only | `pnpm quality:full` |
 | 2026-05-06 | Added post-launch learning loop | `f3f39d9` | Production `3hEuawDqF1GatK6UkD7jS4mTSN76` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added QA acceptance matrix | `75be6c9` | Production `2igHVoFtCvHJV6YTCWQNmMNQcm9k` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
@@ -87,7 +89,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 | GitHub Actions workflow push | External blocker | Current GitHub token lacks `workflow` scope | User can grant workflow scope later; local `pnpm quality:full` remains the required gate |
 | Browser-level authenticated write smoke execution | Deferred | Requires stable beta test account credentials and safe disposable workspace data | Run `pnpm smoke:browser:auth` before external beta |
 | Telemetry production RLS confirmation | External DB check | The app can deploy without it, but event writes require the `telemetry_events` insert/select policies | Run or confirm `supabase/migrations/20260506010000_add_learning_telemetry.sql` in Supabase |
-| Product telemetry secret provisioning | External env setup | External MVP ingest requires server-only secrets not committed to git | Add `SUPABASE_SERVICE_ROLE_KEY` and `TELEMETRY_INGEST_SECRET` to Vercel Production |
+| Authenticated telemetry smoke execution | Deferred | Requires the operator-held telemetry secret and a disposable idea id; secrets are not pulled into the repo | Run `pnpm smoke:telemetry` from a terminal that has `TELEMETRY_INGEST_SECRET` and `TELEMETRY_SMOKE_IDEA_ID` set |
 
 ## Next User Actions
 
@@ -95,11 +97,11 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 
 Required for learning telemetry writes: confirm `telemetry_events` table and RLS policies from `supabase/migrations/20260506010000_add_learning_telemetry.sql` are applied in Supabase Production.
 
-Required for external MVP event ingest: add `SUPABASE_SERVICE_ROLE_KEY` and `TELEMETRY_INGEST_SECRET` to Vercel Production. Keep `TELEMETRY_INGEST_SECRET` only in trusted server environments, never in browser bundles.
+Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and `TELEMETRY_INGEST_SECRET` are present in Vercel Production. Keep `TELEMETRY_INGEST_SECRET` only in trusted server environments, never in browser bundles.
 
 ## Next Jobs
 
 1. Run authenticated browser write smoke with a stable beta operator account.
-2. Add authenticated write smoke for telemetry ingest once Production secrets are provisioned.
+2. Run `pnpm smoke:telemetry` with a disposable idea id and the operator-held telemetry secret.
 3. Prepare GitHub Actions once workflow-scope access is available.
 4. Tune server-side AI extraction prompts after `OPENAI_API_KEY` production usage has real examples.

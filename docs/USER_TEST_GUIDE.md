@@ -444,6 +444,16 @@ Authorization: Bearer <TELEMETRY_INGEST_SECRET>
 8. `제품 이벤트 퍼널`에서 방문, 가입 시작, 가입 완료, 핵심 행동, 활성화, 결제 신호 단계별 건수와 전 단계 대비 전환율을 확인합니다.
 9. `이벤트 택소노미`에서 아직 수집되지 않은 필수 이벤트가 무엇인지 확인하고, `퍼널 저장`으로 리서치 노트에 남깁니다.
 
+운영 수집 API만 빠르게 검증하려면 아래 스모크를 사용합니다. 비밀값은 코드에 저장하지 말고 현재 터미널 환경변수로만 넣습니다.
+
+```powershell
+$env:TELEMETRY_INGEST_SECRET="Vercel에 등록한 TELEMETRY_INGEST_SECRET"
+$env:TELEMETRY_SMOKE_IDEA_ID="학습 루프 카드나 Supabase ideas 테이블에서 복사한 idea id"
+pnpm smoke:telemetry
+```
+
+성공하면 `Inserted telemetry event id`가 출력됩니다. 이후 `학습 루프`를 새로고침하고 `제품 이벤트` 카운트, `최근 이벤트`, `제품 이벤트 퍼널`의 `핵심 행동` 단계가 늘어났는지 확인합니다.
+
 이벤트에는 본문 내용 전체를 저장하지 않고 유형, 상태, 길이, 개수 같은 운영 메타데이터만 저장합니다. 실제 사용자 행동 이벤트를 붙일 때도 같은 원칙을 유지해야 합니다.
 
 운영 DB에는 `supabase/migrations/20260506010000_add_learning_telemetry.sql`와 동일한 테이블/인덱스/RLS 정책이 적용되어 있어야 합니다. 행동을 수행했는데 이벤트가 쌓이지 않으면 먼저 `telemetry_events` RLS insert/select 정책을 확인합니다.
