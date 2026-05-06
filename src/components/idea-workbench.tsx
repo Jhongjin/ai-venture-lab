@@ -376,6 +376,7 @@ const artifactSourceLabels: Record<string, string> = {
   extracted_research_brief: "발굴 리서치 브리프",
   extraction_portfolio: "발굴 비교 리포트",
   prd_readiness_handoff: "PRD 전환 핸드오프",
+  mvp_slice_plan: "MVP 슬라이스 플랜",
   development_process: "앱 개발 프로세스",
   development_report: "개발 완료 보고서",
   filtered_implementation_run: "필터 실행 프롬프트",
@@ -2007,6 +2008,176 @@ ${securityRun?.output || state.risk_summary || "보안 실행 산출물 미정"}
 - MVP 명세 산출물이 저장됨
 - 최소 하나의 실험이 계획됨
 - QA와 보안 실행이 완료되었거나 열린 리스크로 명시 수용됨
+`;
+}
+
+function buildMvpSlicePlanMarkdown({
+  idea,
+  state,
+  experiments,
+  risks,
+  artifacts,
+}: {
+  idea: Idea;
+  state: EditState;
+  experiments: Experiment[];
+  risks: Risk[];
+  artifacts: VentureArtifact[];
+}) {
+  const experimentLines =
+    experiments.length > 0
+      ? experiments
+          .slice(0, 5)
+          .map(
+            (experiment) =>
+              `- ${experiment.name} (${experimentStatusLabels[experiment.status] ?? experiment.status}): ${
+                experiment.success_metric || "성공 지표 미정"
+              }`,
+          )
+          .join("\n")
+      : "- 아직 연결된 실험이 없습니다. Slice 0에서 인터뷰, 랜딩, 컨시어지 테스트 중 하나를 먼저 만듭니다.";
+  const highRiskLines = risks
+    .filter((risk) => ["high", "critical"].includes(risk.severity))
+    .map(
+      (risk) =>
+        `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
+          risk.mitigation || "완화 조건 미정"
+        }`,
+    );
+  const approvedArtifactLines = artifacts
+    .filter((artifact) => artifact.status === "approved")
+    .slice(0, 6)
+    .map((artifact) => `- ${artifactLabels[artifact.artifact_type]}: ${artifact.title}`);
+  const firstExperiment = experiments.find((experiment) => experiment.success_metric.trim()) ?? experiments[0] ?? null;
+  const primaryMetric = firstExperiment?.success_metric || state.next_evidence || "사용자가 핵심 여정을 완료하고 다음 테스트 또는 구매 의향을 남깁니다.";
+
+  return `# MVP 슬라이스 플랜: ${idea.name}
+
+## 제품 전환 원칙
+
+- 목표: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자/승인자: ${idea.buyer || "미정"}
+- 첫 성공 지표: ${primaryMetric}
+- 범위 원칙: 일정은 고정하고 기능을 줄입니다. 자동화보다 검증 속도를 우선합니다.
+- 개발 진입 조건: 문제, 구매자, 수요 신호, 다음 증거가 한 문장으로 연결되어야 합니다.
+
+## 현재 검증 재료
+
+- 수요 신호: ${state.signal || "미정"}
+- 리스크 요약: ${state.risk_summary || "미정"}
+- 다음 증거: ${state.next_evidence || "미정"}
+
+### 연결된 실험
+
+${experimentLines}
+
+### 승인된 산출물
+
+${approvedArtifactLines.length > 0 ? approvedArtifactLines.join("\n") : "- 승인된 제품 산출물이 없습니다. PRD, 디자인 브리프, 기술 명세 중 최소 하나를 승인하세요."}
+
+### 높은 리스크
+
+${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 높음/치명 리스크가 없습니다."}
+
+## Slice 0. 수동/컨시어지 검증
+
+목적: 앱을 만들기 전에 사람이 같은 결과를 직접 제공해 사용자의 실제 행동을 확인합니다.
+
+포함:
+
+- 인터뷰, 수동 리포트, 스프레드시트, 노션/폼, 카카오톡/이메일 운영
+- 사용자가 원하는 입력과 결과물 샘플 수집
+- 구매자에게 가격, 예산, 승인 경로 질문
+
+수용 기준:
+
+- ${idea.target_user || "대상 사용자"} 5명 이상에게 최근 실제 사례를 확인합니다.
+- 3명 이상이 현재 대안보다 낫다고 평가합니다.
+- 2명 이상이 지불, 재사용, 도입, 소개 중 하나의 행동 의향을 보입니다.
+
+No-go:
+
+- 실제 사례 없이 "있으면 좋겠다"만 반복됩니다.
+- 구매자 또는 승인자가 불명확합니다.
+- 민감정보 처리 없이는 결과를 줄 수 없습니다.
+
+## Slice 1. 얇은 제품 슬라이스
+
+목적: 수동 검증에서 반복된 한 가지 여정만 제품화합니다.
+
+포함:
+
+- 인증된 사용자와 워크스페이스 경계
+- 핵심 입력 1개, 저장, 조회, 편집, 상태 메시지
+- 결과물 복사 또는 저장
+- 최소 감사 흔적과 권한 차단
+
+제외:
+
+- 다중 페르소나별 복잡한 권한
+- 결제, 추천 알고리즘, 외부 계정 직접 조작
+- 전체 운영 자동화와 관리자 백오피스
+
+수용 기준:
+
+- 사용자가 3분 안에 핵심 입력을 저장하고 결과를 확인합니다.
+- 저장 직후 새로고침 없이 목록과 상세가 갱신됩니다.
+- 빈 상태, 로딩, 성공, 오류, 읽기 전용 상태가 있습니다.
+
+## Slice 2. AI/자동화 슬라이스
+
+목적: 반복된 수동 단계를 AI 보조 기능으로 바꿉니다.
+
+포함:
+
+- 입력 내용을 요약, 분류, 초안 생성, 다음 질문 추천
+- 생성 결과의 신뢰도, 근거, 수정/폐기 버튼
+- 사람 승인 후 저장되는 human-in-the-loop 흐름
+
+제외:
+
+- 사용자의 돈, 계정, 개인정보를 자동으로 조작하는 실행
+- 법률, 의료, 금융 판단을 최종 결론처럼 제시하는 기능
+- 근거 없는 자동 승인
+
+수용 기준:
+
+- AI 결과가 사용자 시간을 줄인다는 정성 피드백을 받습니다.
+- 결과가 DB에 저장되기 전 사용자가 검토하거나 수정할 수 있습니다.
+- 민감정보는 최소 수집하고 프롬프트/로그 보관 범위를 명시합니다.
+
+## Slice 3. 출시 하드닝
+
+목적: 작은 제품을 안전하게 배포하고 되돌릴 수 있게 만듭니다.
+
+포함:
+
+- QA 스모크: 로그인, 저장, 조회, 편집, 산출물 저장
+- 보안 스모크: RLS 또는 Security Rules 허용/차단 검증
+- Vercel Production 배포 로그, 환경변수 경계, 롤백 기준
+- 높은 리스크의 종료 또는 명시적 수용 기록
+
+수용 기준:
+
+- pnpm quality:full과 프로덕션 스모크가 통과합니다.
+- 배포 URL, 커밋, 검증 명령, 남은 리스크가 개발 완료 보고서에 남습니다.
+- 장애 시 직전 정상 배포로 되돌릴 기준이 있습니다.
+
+## 우선순위 결정
+
+1. Slice 0이 실패하면 개발하지 않습니다.
+2. Slice 1은 사용자가 반복 요구한 한 가지 여정만 만듭니다.
+3. Slice 2는 Slice 1에서 반복 사용이 확인된 뒤 붙입니다.
+4. Slice 3은 베타 사용자에게 열기 전 반드시 완료합니다.
+
+## 다음 개발 태스크 후보
+
+- PRD/MVP 범위 잠금: 포함, 제외, No-go, 성공 지표 승인
+- 핵심 화면 설계: 첫 입력, 결과, 빈 상태, 오류, 읽기 전용
+- 데이터와 권한: 사용자/워크스페이스 경계, 저장/조회/차단 검증
+- 첫 수직 슬라이스 구현: ${idea.one_liner || "핵심 사용자 여정"}
+- QA/보안/배포 증거 기록
 `;
 }
 
@@ -4326,6 +4497,15 @@ export function IdeaWorkbench({
         state: editState,
         experiments: selectedExperiments,
         runs: selectedRuns,
+      })
+    : "";
+  const mvpSlicePlanDraft = selectedIdea && editState
+    ? buildMvpSlicePlanMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        experiments: selectedExperiments,
+        risks: selectedIdeaRisks,
+        artifacts: selectedArtifactRecords,
       })
     : "";
   const developmentPlanDraft = selectedIdea && editState
@@ -8070,6 +8250,50 @@ export function IdeaWorkbench({
         </div>
 
         <div className={activeTask === "artifacts" && artifactPanel === "product" ? "grid gap-6 xl:grid-cols-2" : "hidden"}>
+          <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-6 shadow-sm xl:col-span-2">
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-indigo-950">MVP 슬라이스 플랜</h2>
+                <p className="mt-1 text-sm leading-6 text-indigo-900">
+                  개발 범위를 수동 검증, 얇은 제품, AI/자동화, 출시 하드닝으로 나눠 첫 구현이 커지지 않게 합니다.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => copyDraft(mvpSlicePlanDraft, "MVP 슬라이스 플랜")}
+                  disabled={!mvpSlicePlanDraft}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-indigo-950 px-4 text-sm font-semibold text-white transition hover:bg-indigo-900 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Clipboard size={18} />
+                  플랜 복사
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    saveArtifactDraft(
+                      "mvp_spec",
+                      `${selectedIdea.name} MVP 슬라이스 플랜`,
+                      mvpSlicePlanDraft,
+                      "mvp_slice_plan",
+                    )
+                  }
+                  disabled={isBusy || !user || !mvpSlicePlanDraft}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-indigo-200 bg-white px-4 text-sm font-semibold text-indigo-900 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Save size={18} />
+                  플랜 저장
+                </button>
+              </div>
+            </div>
+            <textarea
+              value={mvpSlicePlanDraft}
+              readOnly
+              rows={18}
+              className="w-full resize-y rounded-md border border-indigo-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+            />
+          </div>
+
           <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
