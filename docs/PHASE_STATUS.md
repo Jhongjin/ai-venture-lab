@@ -27,7 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-06 | Added design generation prompt for app builders | Current commit | Pending production deploy | Pending |
+| 2026-05-06 | Added design generation prompt for app builders | `814d8cc` | Production `3tkMUk24xjekGq41ah7gc85LKMmP` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added one-click development artifact package save | `3b1c5e8` | Production `2Sc3JTq2Co6U5VhAcvXvjq7raB3X` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added optional authenticated browser smoke scaffold | `5a0ffed` | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:browser` |
 | 2026-05-06 | Added browser smoke screenshot artifact handling | `98108bd` | Skipped, script/docs-only | `pnpm smoke:browser` |
