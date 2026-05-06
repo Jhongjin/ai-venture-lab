@@ -462,6 +462,7 @@ const artifactSourceLabels: Record<string, string> = {
   qa_acceptance_matrix: "QA 검수 매트릭스",
   post_launch_learning: "출시 후 학습 루프",
   telemetry_adapter: "제품 이벤트 어댑터",
+  product_telemetry_funnel: "제품 이벤트 퍼널",
 };
 const evidenceConfidenceOptions = ["low", "medium", "high"] as const;
 type EvidenceConfidence = (typeof evidenceConfidenceOptions)[number];
@@ -531,6 +532,86 @@ const telemetryCategoryTone: Record<string, string> = {
   launch: "bg-teal-50 text-teal-800",
   learning: "bg-lime-50 text-lime-800",
 };
+const productTelemetryFunnelSteps = [
+  {
+    eventName: "product_page_view",
+    label: "방문",
+    question: "타겟 사용자가 실제 화면까지 도착하는가",
+    nextAction: "유입 채널과 첫 화면 문구를 확인합니다.",
+  },
+  {
+    eventName: "product_signup_started",
+    label: "가입 시작",
+    question: "가치를 기대하고 가입 흐름을 시작하는가",
+    nextAction: "CTA, 인증 마찰, 권한 요청을 줄입니다.",
+  },
+  {
+    eventName: "product_signup_completed",
+    label: "가입 완료",
+    question: "가입/온보딩을 끝까지 통과하는가",
+    nextAction: "이탈 구간과 이메일/매직링크 상태를 점검합니다.",
+  },
+  {
+    eventName: "product_core_action",
+    label: "핵심 행동",
+    question: "MVP가 약속한 첫 가치를 실제로 수행하는가",
+    nextAction: "첫 기록 생성, 첫 분석 완료 같은 핵심 행동을 더 앞으로 당깁니다.",
+  },
+  {
+    eventName: "product_activation",
+    label: "활성화",
+    question: "한 번의 사용을 넘어 쓸 이유를 발견하는가",
+    nextAction: "반복 사용을 만드는 알림, 저장, 공유, 협업 루프를 검증합니다.",
+  },
+  {
+    eventName: "product_payment_signal",
+    label: "결제 신호",
+    question: "가격, 업그레이드, 구매 문의 같은 지불 의향이 있는가",
+    nextAction: "가격 질문, 결제 대기 목록, 수동 청구 실험으로 이어갑니다.",
+  },
+] as const;
+const productTelemetryTaxonomy = [
+  {
+    eventName: "product_page_view",
+    label: "방문",
+    when: "MVP의 주요 페이지나 첫 화면이 열릴 때",
+  },
+  {
+    eventName: "product_core_action",
+    label: "핵심 행동",
+    when: "사용자가 제품의 핵심 가치를 만드는 행동을 완료할 때",
+  },
+  {
+    eventName: "product_activation",
+    label: "활성화",
+    when: "첫 가치 도달, 초대, 저장, 반복 예약 등 활성화 기준을 충족할 때",
+  },
+  {
+    eventName: "product_retention_ping",
+    label: "재방문",
+    when: "24시간 이후 재방문, 두 번째 세션, 반복 작업이 발생할 때",
+  },
+  {
+    eventName: "product_payment_signal",
+    label: "결제 신호",
+    when: "가격 클릭, 결제 시작, 견적 문의, 유료 기능 접근 시도 때",
+  },
+  {
+    eventName: "product_feedback",
+    label: "피드백",
+    when: "사용자가 평가, 의견, 요청, 불만을 남길 때",
+  },
+  {
+    eventName: "product_error",
+    label: "오류",
+    when: "핵심 흐름에서 에러, 권한 실패, 저장 실패가 발생할 때",
+  },
+  {
+    eventName: "product_churn_signal",
+    label: "이탈 신호",
+    when: "탈퇴, 알림 해제, 반복 실패, 장기 미사용이 감지될 때",
+  },
+] as const;
 
 type EditState = Pick<
   Idea,
@@ -6324,6 +6405,63 @@ curl -X POST "https://ai-venture-lab.vercel.app/api/telemetry/ingest" \\
 `;
 }
 
+function buildProductTelemetryFunnelMarkdown({
+  idea,
+  events,
+}: {
+  idea: Idea;
+  events: TelemetryEvent[];
+}) {
+  const counts = productTelemetryFunnelSteps.map((step, index) => {
+    const count = events.filter((event) => event.event_name === step.eventName).length;
+    const previousCount =
+      index === 0 ? count : events.filter((event) => event.event_name === productTelemetryFunnelSteps[index - 1].eventName).length;
+    const fromPrevious = index === 0 || previousCount === 0 ? null : Math.round((count / previousCount) * 100);
+
+    return {
+      ...step,
+      count,
+      fromPrevious,
+    };
+  });
+  const taxonomyRows = productTelemetryTaxonomy
+    .map((item) => {
+      const count = events.filter((event) => event.event_name === item.eventName).length;
+
+      return `| ${item.label} | ${item.eventName} | ${count > 0 ? `${count}개 수집` : "대기"} | ${item.when} |`;
+    })
+    .join("\n");
+  const funnelRows = counts
+    .map(
+      (item, index) =>
+        `| ${index + 1} | ${item.label} | ${item.eventName} | ${item.count} | ${
+          item.fromPrevious === null ? "-" : `${item.fromPrevious}%`
+        } | ${item.nextAction} |`,
+    )
+    .join("\n");
+
+  return `# 제품 이벤트 퍼널 리포트: ${idea.name}
+
+## 퍼널
+
+| 순서 | 단계 | 이벤트 | 건수 | 전 단계 전환율 | 다음 액션 |
+| --- | --- | --- | --- | --- | --- |
+${funnelRows}
+
+## 이벤트 택소노미
+
+| 신호 | 이벤트 이름 | 상태 | 기록 시점 |
+| --- | --- | --- | --- |
+${taxonomyRows}
+
+## 운영 원칙
+
+- 직접 식별 정보는 이벤트 속성에 넣지 않습니다.
+- 전환율이 낮은 단계는 새 기능 개발보다 마찰 제거를 먼저 검증합니다.
+- 핵심 행동과 활성화 이벤트가 없으면 Day 7/14/30 판단을 보류합니다.
+`;
+}
+
 function splitComparableLines(body: string) {
   return body
     .split(/\r?\n/)
@@ -6710,6 +6848,31 @@ export function IdeaWorkbench({
   const selectedProductTelemetryEvents = selectedTelemetryEvents.filter(
     (event) => event.event_category === "product" || event.event_name.startsWith("product_"),
   );
+  const productTelemetryFunnelDraft = selectedIdea
+    ? buildProductTelemetryFunnelMarkdown({
+        idea: selectedIdea,
+        events: selectedProductTelemetryEvents,
+      })
+    : "";
+  const productTelemetryFunnelRows = productTelemetryFunnelSteps.map((step, index) => {
+    const count = selectedProductTelemetryEvents.filter((event) => event.event_name === step.eventName).length;
+    const previousStep = productTelemetryFunnelSteps[index - 1];
+    const previousCount = previousStep
+      ? selectedProductTelemetryEvents.filter((event) => event.event_name === previousStep.eventName).length
+      : count;
+    const conversion = index === 0 || previousCount === 0 ? null : Math.round((count / previousCount) * 100);
+
+    return {
+      ...step,
+      count,
+      conversion,
+    };
+  });
+  const productTelemetryMaxCount = Math.max(1, ...productTelemetryFunnelRows.map((row) => row.count));
+  const productTelemetryTaxonomyRows = productTelemetryTaxonomy.map((item) => ({
+    ...item,
+    count: selectedProductTelemetryEvents.filter((event) => event.event_name === item.eventName).length,
+  }));
   const learningSignalCards = [
     {
       label: "제품 이벤트",
@@ -11254,6 +11417,106 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <p className="mt-2 text-sm leading-6 text-emerald-900">{action}</p>
               </div>
             ))}
+          </div>
+
+          <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.65fr)]">
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-950">제품 이벤트 퍼널</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    방문부터 결제 신호까지 실제 MVP 행동이 어디서 끊기는지 봅니다.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => copyDraft(productTelemetryFunnelDraft, "제품 이벤트 퍼널 리포트")}
+                    disabled={!productTelemetryFunnelDraft}
+                    className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Clipboard size={14} />
+                    퍼널 복사
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      saveArtifactDraft(
+                        "research_note",
+                        `${selectedIdea.name} 제품 이벤트 퍼널`,
+                        productTelemetryFunnelDraft,
+                        "product_telemetry_funnel",
+                      )
+                    }
+                    disabled={isBusy || !user || !productTelemetryFunnelDraft}
+                    className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Save size={14} />
+                    퍼널 저장
+                  </button>
+                </div>
+              </div>
+              <div className="grid gap-3">
+                {productTelemetryFunnelRows.map((row, index) => {
+                  const width = Math.max(4, Math.round((row.count / productTelemetryMaxCount) * 100));
+
+                  return (
+                    <div key={row.eventName} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-700 shadow-sm">
+                            {index + 1}
+                          </span>
+                          <div>
+                            <div className="text-sm font-semibold text-slate-950">{row.label}</div>
+                            <div className="text-xs text-slate-500">{row.eventName}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-slate-950">{row.count}건</div>
+                          <div className="text-xs text-slate-500">
+                            {row.conversion === null ? "기준 단계" : `전 단계 대비 ${row.conversion}%`}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
+                        <div className="h-full rounded-full bg-fuchsia-600" style={{ width: `${width}%` }} />
+                      </div>
+                      <p className="mt-2 text-xs leading-5 text-slate-500">{row.question}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="mb-3">
+                <h3 className="text-base font-semibold text-slate-950">이벤트 택소노미</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  MVP 서버에서 어떤 이벤트를 보내야 Day 7/14/30 판단이 가능한지 점검합니다.
+                </p>
+              </div>
+              <div className="grid gap-2">
+                {productTelemetryTaxonomyRows.map((item) => (
+                  <div key={item.eventName} className="rounded-md bg-white p-3 shadow-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <div className="text-sm font-semibold text-slate-950">{item.label}</div>
+                        <div className="mt-0.5 text-xs text-slate-500">{item.eventName}</div>
+                      </div>
+                      <span
+                        className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                          item.count > 0 ? "bg-emerald-50 text-emerald-800" : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {item.count > 0 ? `${item.count}개` : "대기"}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-slate-500">{item.when}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(360px,0.65fr)]">

@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Added product telemetry funnel and taxonomy | Current commit | Production alias | `pnpm quality:full`, production smoke pending deploy |
 | 2026-05-06 | Added product telemetry ingest adapter | Current commit | Production alias | `pnpm quality:full`, route smoke pending deploy |
 | 2026-05-06 | Added learning telemetry dashboard and event capture | Current commit | Production `2mG3B8h47DPs9oURaRDnEVRN5Mv4` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Closed core public beta readiness phase | Current commit | Skipped, docs-only | `pnpm quality:full` |
@@ -99,6 +100,6 @@ Required for external MVP event ingest: add `SUPABASE_SERVICE_ROLE_KEY` and `TEL
 ## Next Jobs
 
 1. Run authenticated browser write smoke with a stable beta operator account.
-2. Add per-idea telemetry event taxonomy presets and conversion funnel charts.
+2. Add authenticated write smoke for telemetry ingest once Production secrets are provisioned.
 3. Prepare GitHub Actions once workflow-scope access is available.
 4. Tune server-side AI extraction prompts after `OPENAI_API_KEY` production usage has real examples.
