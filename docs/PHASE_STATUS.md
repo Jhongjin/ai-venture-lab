@@ -27,7 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-06 | Added release decision packet | Current commit | Pending production deploy | Pending |
+| 2026-05-06 | Added release decision packet | `2864983` | Production `4Xn1xGLyYHKSJP3L4dwNLbjjBF5C` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added artifact approval review summaries | `78728c1` | Production `AZozcZkst16gxofeYYL7AQGMUhs4` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added implementation dependency gate | `3058361` | Production `BStiaT3PxRdAzjGz1sEaZjM9g5wG` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added backend execution checklist | `9987128` | Production `HNHi9Jwhydvg23fLTpmYtCC9SYrM` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
