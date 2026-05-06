@@ -444,6 +444,7 @@ const artifactSourceLabels: Record<string, string> = {
   development_process: "앱 개발 프로세스",
   development_report: "개발 완료 보고서",
   filtered_implementation_run: "필터 실행 프롬프트",
+  mvp_build_command: "MVP 빌드 명령",
 };
 const evidenceConfidenceOptions = ["low", "medium", "high"] as const;
 type EvidenceConfidence = (typeof evidenceConfidenceOptions)[number];
@@ -3701,6 +3702,167 @@ ${experimentLines}
 ## Codex 실행 지시
 
 위 파일 트리와 완료 기준만 구현합니다. 마케팅 랜딩 페이지, 결제, 고급 AI 자동화, 관리자 대시보드, 복잡한 알림은 첫 슬라이스에서 제외합니다. 변경 후에는 파일 목록, 검증 명령, 남은 리스크, 배포 URL, 롤백 조건을 보고합니다.
+`;
+}
+
+function buildMvpBuildCommandPacketMarkdown({
+  idea,
+  state,
+  appBlueprint,
+  scaffoldManifest,
+  implementationHandoff,
+  releaseDecisionPacket,
+  implementationTasks,
+  dependencyStatuses,
+  backendCandidateScores,
+  artifactReviewQueue,
+}: {
+  idea: Idea;
+  state: EditState;
+  appBlueprint: string;
+  scaffoldManifest: string;
+  implementationHandoff: string;
+  releaseDecisionPacket: ReleaseDecisionPacket | null;
+  implementationTasks: ImplementationTask[];
+  dependencyStatuses: ImplementationDependencyStatus[];
+  backendCandidateScores: BackendCandidateScore[];
+  artifactReviewQueue: ArtifactReviewItem[];
+}) {
+  const recommendedBackend = backendCandidateScores[0]?.label ?? "Supabase";
+  const openDependencyStatuses = dependencyStatuses.filter((status) => status.task.status !== "done");
+  const readyTasks = openDependencyStatuses.filter((status) => status.ready).slice(0, 5);
+  const waitingTasks = openDependencyStatuses.filter((status) => !status.ready).slice(0, 5);
+  const approvedArtifacts = artifactReviewQueue.filter((item) => item.status === "approved");
+  const nextReleaseBlocker = releaseDecisionPacket?.blockers[0] ?? "출시 판단 패킷이 아직 없습니다.";
+  const launchInstruction =
+    releaseDecisionPacket?.recommendation === "ship"
+      ? "출시 하드닝까지 진행 가능하지만 Production 반영 전 smoke, inspect URL, 롤백 기준을 완료 보고에 남깁니다."
+      : "공개 출시 작업은 보류하고, 아래 차단 항목을 해소하는 MVP/검증 범위만 구현합니다.";
+  const readyTaskLines =
+    readyTasks.length > 0
+      ? readyTasks
+          .map(
+            (status, index) =>
+              `${index + 1}. ${status.task.title} / ${implementationTaskTypeLabels[status.task.task_type]} / ${implementationTaskPriorityLabels[status.task.priority]}\n   - 수용 기준: ${status.task.acceptance_criteria.trim() || "미정"}\n   - 다음 행동: ${status.nextAction}`,
+          )
+          .join("\n")
+      : "1. 바로 시작 가능한 태스크가 없습니다. 선행 조건 또는 산출물 승인을 먼저 닫습니다.";
+  const waitingTaskLines =
+    waitingTasks.length > 0
+      ? waitingTasks
+          .map(
+            (status) =>
+              `- ${status.task.title}: ${status.blockers.join(", ") || status.gate}\n  - 대기 해소: ${status.nextAction}`,
+          )
+          .join("\n")
+      : "- 선행 조건 때문에 대기 중인 태스크가 없습니다.";
+  const taskSnapshotLines =
+    implementationTasks.length > 0
+      ? implementationTasks
+          .map(
+            (task) =>
+              `- ${task.title}: ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / ${implementationTaskPriorityLabels[task.priority]}`,
+          )
+          .join("\n")
+      : "- 구현 태스크가 없습니다. 먼저 기본 태스크를 생성하세요.";
+  const artifactQueueLines =
+    artifactReviewQueue
+      .map((item) => `- [${item.status === "approved" ? "x" : " "}] ${item.label}: ${item.detail}`)
+      .join("\n");
+
+  return `# MVP 빌드 명령 패킷: ${idea.name}
+
+이 패킷은 실제 구현 세션의 첫 메시지로 사용합니다. 구현자는 이 문서의 순서, 제외 범위, 검증 명령을 우선하고, 승인되지 않은 확장은 만들지 않습니다.
+
+## 0. 현재 명령
+
+- 제품 가치: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 현재 단계/판단: ${stageLabels[state.stage]} / ${decisionLabels[state.decision]}
+- 추천 백엔드: ${recommendedBackend}
+- 출시 권고: ${releaseDecisionPacket ? decisionLabels[releaseDecisionPacket.recommendation] : "미계산"}
+- 출시 지침: ${launchInstruction}
+- 첫 차단 항목: ${nextReleaseBlocker}
+
+## 1. 구현자 시작 프롬프트
+
+너는 ${idea.name}의 첫 MVP를 구현하는 선임 개발 에이전트다. 목표는 "${state.next_evidence || idea.one_liner || "다음 증거"}"를 검증하는 하나의 수직 슬라이스를 완성하는 것이다.
+
+반드시 다음 순서를 지킨다.
+
+1. 승인된 산출물과 태스크만 읽고 범위를 잠근다.
+2. 데이터 모델, 권한 경계, 환경변수를 먼저 확인한다.
+3. 핵심 입력, 저장, 조회, 오류/빈 상태, 권한 상태를 한 흐름으로 구현한다.
+4. 모바일 390px와 데스크톱 1440px에서 겹침 없는지 확인한다.
+5. 완료 전 lint, typecheck, build, 핵심 스모크를 실행한다.
+6. 배포가 필요한 변경은 Preview/Production URL, Vercel inspect URL, 롤백 기준을 보고한다.
+
+하지 않는다.
+
+- 마케팅 랜딩 페이지 중심으로 만들지 않는다.
+- 결제, 대규모 관리자, 외부 계정 자동 조작, 고급 AI 자동화는 승인 산출물에 없으면 만들지 않는다.
+- RLS 또는 Security Rules 없이 쓰기 기능을 만들지 않는다.
+- 사용자의 기존 변경을 되돌리지 않는다.
+
+## 2. 바로 시작 가능한 태스크
+
+${readyTaskLines}
+
+## 3. 선행 조건 대기 태스크
+
+${waitingTaskLines}
+
+## 4. 전체 태스크 스냅샷
+
+${taskSnapshotLines}
+
+## 5. 산출물 승인 상태
+
+- 승인된 핵심 산출물: ${approvedArtifacts.length}/${artifactReviewQueue.length}
+
+${artifactQueueLines}
+
+## 6. 필수 검증 명령
+
+\`\`\`bash
+pnpm lint
+pnpm typecheck
+pnpm build
+pnpm harness:check
+pnpm release:check
+\`\`\`
+
+브라우저/배포 변경이 있으면 추가로 실행합니다.
+
+\`\`\`bash
+pnpm smoke:routes
+pnpm smoke:browser
+pnpm smoke:prod
+\`\`\`
+
+## 7. 완료 보고 형식
+
+- 변경 요약
+- 수정 파일
+- 실행한 검증 명령과 결과
+- 권한/RLS 또는 Security Rules 허용/차단 증거
+- Preview/Production URL과 Vercel inspect URL
+- 남은 차단 항목
+- 롤백 기준
+- 다음 작업
+
+## 8. 앱 블루프린트 요약 원문
+
+${appBlueprint}
+
+## 9. 스캐폴드 매니페스트 원문
+
+${scaffoldManifest}
+
+## 10. 구현 핸드오프 원문
+
+${implementationHandoff}
 `;
 }
 
@@ -6969,6 +7131,20 @@ export function IdeaWorkbench({
       })
     : null;
   const releaseDecisionPacketDraft = releaseDecisionPacket?.markdown ?? "";
+  const mvpBuildCommandPacketDraft = selectedIdea && editState
+    ? buildMvpBuildCommandPacketMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        appBlueprint: appBlueprintDraft,
+        scaffoldManifest: scaffoldManifestDraft,
+        implementationHandoff: implementationHandoffDraft,
+        releaseDecisionPacket,
+        implementationTasks: selectedImplementationTasks,
+        dependencyStatuses: implementationDependencyStatuses,
+        backendCandidateScores,
+        artifactReviewQueue,
+      })
+    : "";
   const developmentCompletionReportDraft = selectedIdea && editState
     ? buildDevelopmentCompletionReportMarkdown({
         idea: selectedIdea,
@@ -9794,6 +9970,50 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               readOnly
               rows={14}
               className="mt-4 w-full resize-y rounded-md border border-blue-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+            />
+          </div>
+
+          <div className="mt-5 rounded-lg border border-cyan-100 bg-cyan-50 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-cyan-950">MVP 빌드 명령 패킷</h3>
+                <p className="mt-1 text-sm leading-6 text-cyan-900">
+                  승인 산출물, 개발 실행 순서, 출시 판단을 합쳐 실제 구현 세션의 첫 메시지로 넘기는 명령서입니다.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => copyDraft(mvpBuildCommandPacketDraft, "MVP 빌드 명령 패킷")}
+                  disabled={!mvpBuildCommandPacketDraft}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-cyan-200 bg-white px-3 text-sm font-semibold text-cyan-900 transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Clipboard size={16} />
+                  명령 복사
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    saveArtifactDraft(
+                      "dev_runbook",
+                      `${selectedIdea.name} MVP 빌드 명령 패킷`,
+                      mvpBuildCommandPacketDraft,
+                      "mvp_build_command",
+                    )
+                  }
+                  disabled={isBusy || !user || !mvpBuildCommandPacketDraft}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-cyan-700 px-3 text-sm font-semibold text-white transition hover:bg-cyan-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Save size={16} />
+                  명령 저장
+                </button>
+              </div>
+            </div>
+            <textarea
+              value={mvpBuildCommandPacketDraft}
+              readOnly
+              rows={16}
+              className="mt-4 w-full resize-y rounded-md border border-cyan-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
             />
           </div>
 
