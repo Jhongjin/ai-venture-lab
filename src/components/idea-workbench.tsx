@@ -6384,6 +6384,30 @@ curl -X POST "https://ai-venture-lab.vercel.app/api/telemetry/ingest" \\
   }'
 \`\`\`
 
+## 서버 환경변수
+
+\`\`\`env
+${buildTelemetryEnvSnippet()}
+\`\`\`
+
+## Next.js 서버 라우트 예시
+
+\`\`\`ts
+${buildTelemetryNextRouteSnippet(idea)}
+\`\`\`
+
+## 브라우저 호출 helper 예시
+
+\`\`\`ts
+${buildTelemetryClientHelperSnippet()}
+\`\`\`
+
+## 스모크 명령
+
+\`\`\`powershell
+${buildTelemetrySmokeCommandSnippet(idea)}
+\`\`\`
+
 ## 권장 이벤트 이름
 
 - product_page_view
@@ -6403,6 +6427,108 @@ curl -X POST "https://ai-venture-lab.vercel.app/api/telemetry/ingest" \\
 - \`anonymousId\`와 \`sessionId\`는 API에서 해시되어 저장됩니다.
 - \`properties\`에는 이메일, 전화번호, 이름, 카드, 계좌, 원문 대화 같은 직접 식별 정보를 넣지 마세요.
 `;
+}
+
+function buildTelemetryEnvSnippet() {
+  return `# Server-only. Do not prefix with NEXT_PUBLIC.
+TELEMETRY_INGEST_SECRET=replace-with-shared-server-secret`;
+}
+
+function buildTelemetryEventNameUnion() {
+  return productTelemetryTaxonomy.map((event) => `  | "${event.eventName}"`).join("\n");
+}
+
+function buildTelemetryNextRouteSnippet(idea: Idea) {
+  return `// app/api/product-events/route.ts
+import { NextResponse } from "next/server";
+
+type ProductEventName =
+${buildTelemetryEventNameUnion()};
+
+const ventureTelemetryEndpoint = "https://ai-venture-lab.vercel.app/api/telemetry/ingest";
+const ventureIdeaId = "${idea.id}";
+
+export async function POST(request: Request) {
+  const secret = process.env.TELEMETRY_INGEST_SECRET;
+
+  if (!secret) {
+    return NextResponse.json({ ok: false, error: "missing telemetry secret" }, { status: 503 });
+  }
+
+  const body = (await request.json().catch(() => ({}))) as {
+    eventName?: ProductEventName;
+    anonymousId?: string;
+    sessionId?: string;
+    properties?: Record<string, unknown>;
+  };
+
+  if (!body.eventName) {
+    return NextResponse.json({ ok: false, error: "eventName is required" }, { status: 400 });
+  }
+
+  const response = await fetch(ventureTelemetryEndpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: \`Bearer \${secret}\`,
+    },
+    body: JSON.stringify({
+      ideaId: ventureIdeaId,
+      eventName: body.eventName,
+      eventCategory: "product",
+      source: "mvp-production",
+      anonymousId: body.anonymousId,
+      sessionId: body.sessionId,
+      properties: body.properties ?? {},
+    }),
+  });
+
+  if (!response.ok) {
+    return NextResponse.json({ ok: false, accepted: false }, { status: 202 });
+  }
+
+  return NextResponse.json({ ok: true });
+}`;
+}
+
+function buildTelemetryClientHelperSnippet() {
+  return `// lib/product-telemetry.ts
+type ProductEventName =
+${buildTelemetryEventNameUnion()};
+
+function getOrCreateStorageId(storage: Storage, key: string) {
+  const existing = storage.getItem(key);
+  if (existing) return existing;
+
+  const next = crypto.randomUUID();
+  storage.setItem(key, next);
+  return next;
+}
+
+export async function trackProductEvent(
+  eventName: ProductEventName,
+  properties: Record<string, unknown> = {},
+) {
+  await fetch("/api/product-events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      eventName,
+      anonymousId: getOrCreateStorageId(localStorage, "anonymous_id"),
+      sessionId: getOrCreateStorageId(sessionStorage, "session_id"),
+      properties,
+    }),
+    keepalive: true,
+  }).catch(() => {
+    // Analytics must never block the product flow.
+  });
+}`;
+}
+
+function buildTelemetrySmokeCommandSnippet(idea: Idea) {
+  return `$env:TELEMETRY_INGEST_SECRET="Vercel에 등록한 TELEMETRY_INGEST_SECRET"
+$env:TELEMETRY_SMOKE_IDEA_ID="${idea.id}"
+pnpm smoke:telemetry`;
 }
 
 function buildProductTelemetryFunnelMarkdown({
@@ -6845,6 +6971,10 @@ export function IdeaWorkbench({
       })
     : "";
   const telemetryAdapterGuideDraft = selectedIdea ? buildTelemetryAdapterGuideMarkdown(selectedIdea) : "";
+  const telemetryEnvSnippet = selectedIdea ? buildTelemetryEnvSnippet() : "";
+  const telemetryNextRouteSnippet = selectedIdea ? buildTelemetryNextRouteSnippet(selectedIdea) : "";
+  const telemetryClientHelperSnippet = selectedIdea ? buildTelemetryClientHelperSnippet() : "";
+  const telemetrySmokeCommandSnippet = selectedIdea ? buildTelemetrySmokeCommandSnippet(selectedIdea) : "";
   const selectedProductTelemetryEvents = selectedTelemetryEvents.filter(
     (event) => event.event_category === "product" || event.event_name.startsWith("product_"),
   );
@@ -11402,6 +11532,57 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   외부 앱 이벤트는 이 ID로 현재 아이디어의 학습 루프에 연결됩니다.
                 </p>
               </div>
+            </div>
+            <div className="mt-3 grid gap-3 xl:grid-cols-2">
+              {[
+                {
+                  label: "1. 서버 환경변수",
+                  detail: "외부 MVP 서버에만 넣고 브라우저 번들에는 절대 노출하지 않습니다.",
+                  action: "환경변수 복사",
+                  body: telemetryEnvSnippet,
+                },
+                {
+                  label: "2. Next.js 서버 라우트",
+                  detail: "브라우저 요청을 서버에서 받아 AI Venture Lab 수집 API로 중계합니다.",
+                  action: "라우트 복사",
+                  body: telemetryNextRouteSnippet,
+                },
+                {
+                  label: "3. 브라우저 helper",
+                  detail: "제품 화면에서는 비밀값 없이 내부 서버 라우트만 호출합니다.",
+                  action: "helper 복사",
+                  body: telemetryClientHelperSnippet,
+                },
+                {
+                  label: "4. 운영 스모크",
+                  detail: "수집 API, 서비스 롤 키, RLS 저장 경로를 한 번에 검증합니다.",
+                  action: "스모크 복사",
+                  body: telemetrySmokeCommandSnippet,
+                },
+              ].map((snippet) => (
+                <div key={snippet.label} className="rounded-lg bg-white p-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-700">
+                        {snippet.label}
+                      </div>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">{snippet.detail}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(snippet.body, snippet.label)}
+                      disabled={!snippet.body}
+                      className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-fuchsia-200 bg-fuchsia-50 px-3 text-xs font-semibold text-fuchsia-900 transition hover:bg-fuchsia-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Code2 size={14} />
+                      {snippet.action}
+                    </button>
+                  </div>
+                  <pre className="mt-3 max-h-36 overflow-auto rounded-md bg-slate-950 p-3 text-xs leading-5 text-slate-100">
+                    <code>{snippet.body}</code>
+                  </pre>
+                </div>
+              ))}
             </div>
           </div>
 
