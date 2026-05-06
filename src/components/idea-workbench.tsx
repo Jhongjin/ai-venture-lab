@@ -481,6 +481,22 @@ type BackendCandidateScore = {
   cautions: string[];
 };
 
+type BackendExecutionCheck = {
+  label: string;
+  detail: string;
+  evidence: string;
+  tone: "required" | "recommended";
+};
+
+type BackendExecutionPlan = {
+  backend: BackendCandidateScore;
+  envVars: string[];
+  checks: BackendExecutionCheck[];
+  localCommand: string;
+  productionGate: string;
+  rollback: string;
+};
+
 export type WorkbenchTask =
   | "select"
   | "score"
@@ -588,6 +604,18 @@ const artifactReviewBlueprint: Array<
     missingDetail: "MVP 명세가 없습니다.",
     draftDetail: "MVP 명세 초안은 있으나 승인 전입니다.",
     approvedDetail: "MVP 명세가 승인되었습니다.",
+  },
+  {
+    id: "backend-decision",
+    label: "백엔드 결정",
+    artifactType: "backend_decision",
+    requiredStatus: "approved",
+    action: "Supabase, Firebase, SQL Connect, Hybrid 중 하나를 선택하고 권한 검증 조건을 승인합니다.",
+    task: "development",
+    developmentPanel: "setup",
+    missingDetail: "백엔드 결정 산출물이 없습니다.",
+    draftDetail: "백엔드 결정 초안은 있으나 승인 전입니다.",
+    approvedDetail: "백엔드 결정이 승인되었습니다.",
   },
   {
     id: "design-brief",
@@ -2730,6 +2758,191 @@ ${candidateRows}
 - 배포 로그: Vercel inspect URL 또는 Preview/Production 빌드 로그
 - 배포/롤백:
 - 남은 리스크: ${state.risk_summary || "미정"}
+`;
+}
+
+function buildBackendExecutionPlan(backend: BackendCandidateScore): BackendExecutionPlan {
+  const sharedChecks: BackendExecutionCheck[] = [
+    {
+      label: "클라이언트/서버 키 경계",
+      detail: "브라우저에 노출되는 공개 설정과 서버 전용 비밀값을 분리합니다.",
+      evidence: "Vercel Production env 목록에서 NEXT_PUBLIC 또는 공개 Firebase config와 서버 전용 키 경계를 기록",
+      tone: "required",
+    },
+    {
+      label: "허용/차단 테스트",
+      detail: "로그인 사용자 본인/조직 데이터 접근은 허용하고 타인 데이터 접근은 차단합니다.",
+      evidence: "허용 케이스 1개와 차단 케이스 1개의 실행 결과 또는 스크린샷/로그",
+      tone: "required",
+    },
+    {
+      label: "Preview/Production 재검증",
+      detail: "Preview와 Production에서 같은 권한 경계와 환경변수가 적용되는지 확인합니다.",
+      evidence: "Vercel inspect URL, smoke 명령, 배포 URL",
+      tone: "required",
+    },
+  ];
+
+  if (backend.key === "firebase") {
+    return {
+      backend,
+      envVars: [
+        "NEXT_PUBLIC_FIREBASE_API_KEY",
+        "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+        "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+        "FIREBASE_SERVICE_ACCOUNT 또는 Google Cloud IAM 서버 자격 증명",
+      ],
+      checks: [
+        {
+          label: "Security Rules",
+          detail: "Firestore/Storage Rules에서 request.auth, uid, 조직 멤버십, 입력 데이터 형태를 검증합니다.",
+          evidence: "Emulator 또는 Preview에서 본인 문서 write 허용, 다른 uid write 거부 결과",
+          tone: "required",
+        },
+        {
+          label: "App Check",
+          detail: "공개 클라이언트에서 Firebase 리소스를 직접 호출한다면 App Check 적용 여부를 결정합니다.",
+          evidence: "App Check 설정 또는 MVP 기간 미적용 사유",
+          tone: "recommended",
+        },
+        ...sharedChecks,
+      ],
+      localCommand: "firebase emulators:start && pnpm lint && pnpm typecheck && pnpm build",
+      productionGate: "Security Rules 배포 후 Preview/Production에서 본인 write와 타인 write 차단을 재확인합니다.",
+      rollback: "직전 Rules 배포본과 Vercel 직전 Ready 배포로 되돌립니다.",
+    };
+  }
+
+  if (backend.key === "firebase_sql_connect") {
+    return {
+      backend,
+      envVars: [
+        "NEXT_PUBLIC_FIREBASE_API_KEY",
+        "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+        "FIREBASE_SERVICE_ACCOUNT 또는 Google Cloud IAM 서버 자격 증명",
+        "SQL_CONNECT_INSTANCE / generated SDK 설정",
+      ],
+      checks: [
+        {
+          label: "Schema/Connector 권한",
+          detail: "SQL Connect schema, query, mutation이 인증 사용자와 조직 경계를 반영하는지 확인합니다.",
+          evidence: "허용 query/mutation과 차단 query/mutation 결과",
+          tone: "required",
+        },
+        {
+          label: "Region/가격",
+          detail: "Cloud SQL region, Firebase region, 예상 쿼리 비용과 cold path를 MVP 범위에 맞춥니다.",
+          evidence: "선택 region, 가격 메모, 데이터 보관/삭제 기준",
+          tone: "recommended",
+        },
+        ...sharedChecks,
+      ],
+      localCommand: "firebase emulators:start && pnpm lint && pnpm typecheck && pnpm build",
+      productionGate: "generated SDK와 connector 배포 후 Preview에서 권한/쿼리 shape를 재확인합니다.",
+      rollback: "직전 connector/schema 배포본과 Vercel 직전 Ready 배포로 되돌립니다.",
+    };
+  }
+
+  if (backend.key === "hybrid") {
+    return {
+      backend,
+      envVars: [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+        "SUPABASE_SERVICE_ROLE_KEY 서버 전용",
+        "FIREBASE_SERVICE_ACCOUNT 서버 전용",
+      ],
+      checks: [
+        {
+          label: "데이터 소유권 분리",
+          detail: "어떤 데이터가 Supabase에 남고 어떤 이벤트/실시간 데이터가 Firebase로 가는지 경계를 고정합니다.",
+          evidence: "데이터 분리 표와 동기화 실패 시 우선 소스",
+          tone: "required",
+        },
+        {
+          label: "이중 권한 검증",
+          detail: "Supabase RLS와 Firebase Rules/IAM을 각각 허용/차단 케이스로 검증합니다.",
+          evidence: "Supabase allowed/denied, Firebase allowed/denied 결과",
+          tone: "required",
+        },
+        ...sharedChecks,
+      ],
+      localCommand: "pnpm lint && pnpm typecheck && pnpm build && pnpm smoke:routes",
+      productionGate: "두 백엔드가 모두 Preview/Production에서 같은 사용자 경계를 적용하는지 확인합니다.",
+      rollback: "Vercel 직전 Ready 배포와 각 백엔드의 직전 정책/Rules 배포본으로 되돌립니다.",
+    };
+  }
+
+  return {
+    backend,
+    envVars: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY 서버 전용"],
+    checks: [
+      {
+        label: "RLS 활성화",
+        detail: "모든 사용자 기록 테이블에서 RLS를 켜고 owner/workspace 정책을 적용합니다.",
+        evidence: "SQL Editor 또는 migration에서 RLS/policy 적용 로그",
+        tone: "required",
+      },
+      {
+        label: "Service role 차단 경계",
+        detail: "service role key는 서버 전용 작업에만 쓰고 클라이언트 번들에 노출하지 않습니다.",
+        evidence: "Vercel env 공개/서버 키 경계 메모와 NEXT_PUBLIC 사용 목록",
+        tone: "required",
+      },
+      ...sharedChecks,
+    ],
+    localCommand: "pnpm lint && pnpm typecheck && pnpm build && pnpm smoke:routes",
+    productionGate: "RLS 정책 적용 후 Production에서 로그인 사용자 insert/update와 타인 데이터 차단을 재확인합니다.",
+    rollback: "직전 migration/policy 백업과 Vercel 직전 Ready 배포로 되돌립니다.",
+  };
+}
+
+function buildBackendExecutionPlanMarkdown({
+  idea,
+  plan,
+}: {
+  idea: Idea;
+  plan: BackendExecutionPlan;
+}) {
+  return `# 백엔드 실행 체크리스트: ${idea.name}
+
+## 선택
+
+- 권장 백엔드: ${plan.backend.label}
+- 점수: ${plan.backend.score}
+- 요약: ${plan.backend.summary}
+
+## 환경변수
+
+${plan.envVars.map((envVar) => `- ${envVar}`).join("\n")}
+
+## 권한/보안 체크
+
+${plan.checks
+  .map(
+    (check) => `### ${check.label}
+
+- 구분: ${check.tone === "required" ? "필수" : "권장"}
+- 확인: ${check.detail}
+- 증거: ${check.evidence}
+`,
+  )
+  .join("\n")}
+
+## 로컬 검증 명령
+
+\`\`\`bash
+${plan.localCommand}
+\`\`\`
+
+## Production 게이트
+
+${plan.productionGate}
+
+## 롤백
+
+${plan.rollback}
 `;
 }
 
@@ -5438,6 +5651,13 @@ export function IdeaWorkbench({
         candidates: backendCandidateScores,
       })
     : "";
+  const backendExecutionPlan = backendCandidateScores[0] ? buildBackendExecutionPlan(backendCandidateScores[0]) : null;
+  const backendExecutionPlanDraft = selectedIdea && backendExecutionPlan
+    ? buildBackendExecutionPlanMarkdown({
+        idea: selectedIdea,
+        plan: backendExecutionPlan,
+      })
+    : "";
   const designBriefDraft = selectedIdea && editState
     ? buildDesignBriefMarkdown({
         idea: selectedIdea,
@@ -5948,6 +6168,12 @@ export function IdeaWorkbench({
           title: `${selectedIdea.name} 백엔드 결정`,
           body: backendDecisionDraft,
           description: "Supabase, Firebase, SQL Connect, 하이브리드 중 어떤 백엔드를 쓸지 기록합니다.",
+        },
+        {
+          artifactType: "backend_decision",
+          title: `${selectedIdea.name} 백엔드 실행 체크리스트`,
+          body: backendExecutionPlanDraft,
+          description: "선택한 백엔드의 환경변수, 권한 규칙, 검증 명령, 롤백 기준을 실행 문서로 고정합니다.",
         },
         {
           artifactType: "design_brief",
@@ -7862,6 +8088,103 @@ export function IdeaWorkbench({
                 </div>
               ))}
             </div>
+
+            {backendExecutionPlan ? (
+              <div className="mt-4 rounded-lg border border-indigo-200 bg-white p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">
+                      execution checklist
+                    </div>
+                    <h4 className="mt-1 text-base font-semibold text-slate-950">백엔드 실행 체크리스트</h4>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      현재 권장안은 {backendExecutionPlan.backend.label}입니다. 개발 착수 전에 환경변수, 권한 규칙,
+                      허용/차단 검증, 운영 롤백 기준을 같은 산출물로 남깁니다.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(backendExecutionPlanDraft, "백엔드 실행 체크리스트")}
+                      disabled={!backendExecutionPlanDraft}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-indigo-200 bg-white px-3 text-sm font-semibold text-indigo-800 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Clipboard size={16} />
+                      체크리스트 복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveArtifactDraft(
+                          "backend_decision",
+                          `${selectedIdea.name} 백엔드 실행 체크리스트`,
+                          backendExecutionPlanDraft,
+                          "backend_execution_checklist",
+                        )
+                      }
+                      disabled={isBusy || !user || !backendExecutionPlanDraft}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Save size={16} />
+                      체크리스트 저장
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_1.4fr]">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="text-sm font-semibold text-slate-950">필수 환경변수</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {backendExecutionPlan.envVars.map((envVar) => (
+                        <span
+                          key={envVar}
+                          className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-mono text-xs font-semibold text-slate-700"
+                        >
+                          {envVar}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div className="text-sm font-semibold text-slate-950">검증 체크</div>
+                    <div className="mt-3 grid gap-2">
+                      {backendExecutionPlan.checks.map((check) => (
+                        <div key={check.label} className="rounded-md border border-slate-200 bg-white p-3">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                                check.tone === "required"
+                                  ? "bg-rose-50 text-rose-700"
+                                  : "bg-blue-50 text-blue-700"
+                              }`}
+                            >
+                              {check.tone === "required" ? "필수" : "권장"}
+                            </span>
+                            <span className="text-sm font-semibold text-slate-950">{check.label}</span>
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-slate-600">{check.detail}</p>
+                          <p className="mt-1 text-xs leading-5 text-slate-500">증거: {check.evidence}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-3 lg:grid-cols-3">
+                  {[
+                    ["로컬 검증", backendExecutionPlan.localCommand],
+                    ["프로덕션 게이트", backendExecutionPlan.productionGate],
+                    ["롤백 기준", backendExecutionPlan.rollback],
+                  ].map(([label, detail]) => (
+                    <div key={label} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <div className="text-sm font-semibold text-slate-950">{label}</div>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">{detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="mt-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
