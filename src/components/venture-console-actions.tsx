@@ -106,6 +106,13 @@ type CandidateReadinessCheck = {
   detail: string;
 };
 
+type CandidateStrategyLens = {
+  label: string;
+  score: number;
+  detail: string;
+  tone: "good" | "watch" | "risk";
+};
+
 type ExtractionGateId = "proceed" | "research" | "pivot" | "kill";
 
 type ExtractionGate = {
@@ -507,6 +514,94 @@ function inferRiskArea(block: string) {
   return "제품/보안";
 }
 
+function clampPercent(value: number) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function lensTone(score: number): CandidateStrategyLens["tone"] {
+  if (score >= 74) {
+    return "good";
+  }
+
+  if (score >= 55) {
+    return "watch";
+  }
+
+  return "risk";
+}
+
+function buildCandidateStrategyLens(candidate: ExtractedIdea): CandidateStrategyLens[] {
+  const combinedText = `${candidate.name} ${candidate.one_liner} ${candidate.target_user} ${candidate.buyer} ${candidate.signal} ${candidate.risk_summary} ${candidate.next_evidence} ${candidate.firstPrototypeScope} ${candidate.pricingHypothesis}`;
+  const paidHits = countKeywordHits(combinedText, ["구독", "월", "수수료", "절감", "유료", "결제", "비용", "좌석", "기업", "센터"]);
+  const distributionHits = countKeywordHits(combinedText, ["센터", "팀", "조직", "커뮤니티", "전문직", "가족", "보호자", "크리에이터", "대행사"]);
+  const automationHits = countKeywordHits(combinedText, ["AI", "자동", "대행", "추천", "매칭", "생성", "에이전트", "코칭", "분석"]);
+  const privacyHits = countKeywordHits(combinedText, ["개인정보", "금융", "의료", "건강", "계좌", "카드", "상담", "심리", "미성년", "위치"]);
+  const riskPenalty = candidate.riskLevel === "높음" ? 28 : candidate.riskLevel === "보통" ? 14 : 4;
+  const feasibilityBase = candidate.initialScores.mvp_speed * 14 + candidate.initialScores.differentiation * 6;
+  const hasNumericMetric = hasNumericSignal(candidate.successMetric);
+
+  return [
+    {
+      label: "시장 신호",
+      score: clampPercent(candidate.validationScore + (hasNumericMetric ? 6 : -8)),
+      detail: hasNumericMetric ? "검증 지표에 숫자가 있어 첫 실험으로 옮기기 좋습니다." : "성공 기준을 숫자로 더 좁혀야 합니다.",
+      tone: lensTone(candidate.validationScore + (hasNumericMetric ? 6 : -8)),
+    },
+    {
+      label: "수익화",
+      score: clampPercent(45 + paidHits * 10 + (candidate.buyer.trim().length > 8 ? 10 : 0)),
+      detail: paidHits > 0 ? "가격/구매 단서가 있어 결제 의향 실험을 붙일 수 있습니다." : "누가 어떤 예산으로 지불하는지 보강하세요.",
+      tone: lensTone(45 + paidHits * 10 + (candidate.buyer.trim().length > 8 ? 10 : 0)),
+    },
+    {
+      label: "MVP 난이도",
+      score: clampPercent(feasibilityBase - riskPenalty),
+      detail:
+        candidate.initialScores.mvp_speed >= 4
+          ? "수동/템플릿/콘솔 형태로 얇게 시작할 수 있습니다."
+          : "첫 버전 범위를 더 줄여야 개발 리스크가 낮아집니다.",
+      tone: lensTone(feasibilityBase - riskPenalty),
+    },
+    {
+      label: "도달 채널",
+      score: clampPercent(42 + distributionHits * 11 + (candidate.target_user.trim().length > 8 ? 8 : 0)),
+      detail: distributionHits > 0 ? "초기 인터뷰와 파일럿을 찾을 세그먼트 단서가 있습니다." : "첫 10명을 어디서 만날지 채널을 정하세요.",
+      tone: lensTone(42 + distributionHits * 11 + (candidate.target_user.trim().length > 8 ? 8 : 0)),
+    },
+    {
+      label: "자동화 레버리지",
+      score: clampPercent(42 + automationHits * 9),
+      detail: automationHits > 0 ? "AI/자동화가 반복 비용을 줄이는 핵심 가치로 보입니다." : "자동화 전에 수동 서비스로도 가치가 생기는지 확인하세요.",
+      tone: lensTone(42 + automationHits * 9),
+    },
+    {
+      label: "보안 부담",
+      score: clampPercent(90 - privacyHits * 11 - riskPenalty),
+      detail: privacyHits > 0 ? "민감 데이터 경계, 보관, 삭제, 권한 검증이 먼저 필요합니다." : "초기 버전은 비교적 낮은 데이터 부담으로 시작할 수 있습니다.",
+      tone: lensTone(90 - privacyHits * 11 - riskPenalty),
+    },
+  ];
+}
+
+function getCandidateStrategyScore(candidate: ExtractedIdea) {
+  const lenses = buildCandidateStrategyLens(candidate);
+
+  return clampPercent(lenses.reduce((total, lens) => total + lens.score, 0) / lenses.length);
+}
+
+function buildCandidateStrategyLensMarkdown(candidate: ExtractedIdea) {
+  const lenses = buildCandidateStrategyLens(candidate);
+
+  return `## 사업/개발 렌즈
+
+- 종합 점수: ${getCandidateStrategyScore(candidate)}%
+
+| 렌즈 | 점수 | 판단 |
+| --- | --- | --- |
+${lenses.map((lens) => `| ${lens.label} | ${lens.score}% | ${lens.detail} |`).join("\n")}
+`;
+}
+
 function scoreExtractedIdea({
   block,
   evidenceCount,
@@ -845,6 +940,8 @@ ${candidate.assumptions.map((item) => `- ${item}`).join("\n")}
 - 다음 작업: ${gate.nextAction}
 - 리스크: ${candidate.riskLevel}
 
+${buildCandidateStrategyLensMarkdown(candidate)}
+
 ## 리스크 요약
 
 ${candidate.risk_summary}
@@ -1120,7 +1217,9 @@ function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
   const rows = items
     .map(
       (item, index) =>
-        `| ${index + 1} | ${item.candidate.name} | ${item.gate.label} | ${item.candidate.validationScore}/100 | ${item.readinessScore}% | ${
+        `| ${index + 1} | ${item.candidate.name} | ${item.gate.label} | ${item.candidate.validationScore}/100 | ${getCandidateStrategyScore(
+          item.candidate,
+        )}% | ${item.readinessScore}% | ${
           item.similarIdea ? `${item.similarIdea.idea.name} ${item.similarIdea.score}%` : "없음"
         } | ${item.gate.nextAction} |`,
     )
@@ -1142,9 +1241,9 @@ ${gateSummary}
 
 ## 실행 순서
 
-| 순서 | 후보 | 게이트 | 검증 점수 | 준비도 | 중복 신호 | 다음 행동 |
-| --- | --- | --- | --- | --- | --- | --- |
-${rows || "| - | 후보 없음 | - | - | - | - | - |"}
+| 순서 | 후보 | 게이트 | 검증 점수 | 사업/개발 | 준비도 | 중복 신호 | 다음 행동 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+${rows || "| - | 후보 없음 | - | - | - | - | - | - |"}
 
 ## 운영 원칙
 
@@ -2773,7 +2872,8 @@ export function VentureConsoleActions({
                           <div>
                             <div className="text-sm font-semibold text-slate-950">{item.candidate.name}</div>
                             <div className="mt-0.5 text-xs text-slate-500">
-                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · 보강 {item.nextGap}
+                              검증 {item.candidate.validationScore}/100 · 사업/개발 {getCandidateStrategyScore(item.candidate)}% · 준비{" "}
+                              {item.readinessScore}% · 보강 {item.nextGap}
                             </div>
                           </div>
                           <span className={`w-fit rounded-md px-2 py-1 text-xs font-semibold ${extractionGateStyles[item.gate.id].badge}`}>
@@ -2828,6 +2928,8 @@ export function VentureConsoleActions({
                     const extractionGate =
                       extractedIdeaGates.get(candidate.id) ?? buildExtractionGate(candidate, readinessChecks, similarIdea ?? null);
                     const gateStyle = extractionGateStyles[extractionGate.id];
+                    const strategyLenses = buildCandidateStrategyLens(candidate);
+                    const strategyScore = getCandidateStrategyScore(candidate);
 
                     return (
                     <article key={candidate.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
@@ -2854,6 +2956,9 @@ export function VentureConsoleActions({
                             </span>
                             <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
                               패키지 {passedReadinessCount}/{readinessChecks.length}
+                            </span>
+                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-indigo-700 shadow-sm">
+                              사업/개발 {strategyScore}%
                             </span>
                             <span className={`rounded-md px-2 py-1 text-xs font-semibold shadow-sm ${gateStyle.badge}`}>
                               {extractionGate.label}
@@ -2915,6 +3020,41 @@ export function VentureConsoleActions({
                             ))}
                           </div>
                         ) : null}
+                      </div>
+                      <div className="mt-3 rounded-md border border-indigo-100 bg-indigo-50 p-3">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <div className="text-sm font-semibold text-indigo-950">사업/개발 스코어카드</div>
+                            <p className="mt-1 text-sm leading-6 text-indigo-900">
+                              수요, 수익화, MVP 난이도, 도달 채널, 자동화 가치, 보안 부담을 함께 봅니다.
+                            </p>
+                          </div>
+                          <div className="shrink-0 rounded-md bg-indigo-950 px-3 py-2 text-right text-white">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-indigo-200">종합</div>
+                            <div className="text-2xl font-semibold">{strategyScore}%</div>
+                          </div>
+                        </div>
+                        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                          {strategyLenses.map((lens) => (
+                            <div key={lens.label} className="rounded-md bg-white px-3 py-2">
+                              <div className="flex items-center justify-between gap-3">
+                                <span className="text-xs font-semibold text-slate-950">{lens.label}</span>
+                                <span
+                                  className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                                    lens.tone === "good"
+                                      ? "bg-emerald-50 text-emerald-800"
+                                      : lens.tone === "watch"
+                                        ? "bg-amber-50 text-amber-800"
+                                        : "bg-rose-50 text-rose-700"
+                                  }`}
+                                >
+                                  {lens.score}%
+                                </span>
+                              </div>
+                              <p className="mt-1 text-xs leading-5 text-slate-600">{lens.detail}</p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                       <div className="mt-3 rounded-md border border-emerald-100 bg-emerald-50 p-3">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
