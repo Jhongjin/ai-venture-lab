@@ -103,6 +103,32 @@ type ExtractionRunMeta = {
   note: string;
 };
 
+type ExtractionReplayMode = "openai" | "fallback" | "unavailable";
+
+type ExtractionReplayItem = {
+  id: string;
+  source: "both" | "rules" | "ai";
+  primaryCandidate: ExtractedIdea;
+  matchedName: string | null;
+  overlapScore: number;
+  verdict: string;
+  nextAction: string;
+};
+
+type ExtractionReplaySummary = {
+  generatedAt: string;
+  sourceLength: number;
+  rulesCount: number;
+  aiCount: number;
+  consensusCount: number;
+  rulesOnlyCount: number;
+  aiOnlyCount: number;
+  aiMode: ExtractionReplayMode;
+  model: string | null;
+  note: string;
+  items: ExtractionReplayItem[];
+};
+
 type SimilarIdeaMatch = {
   idea: Idea;
   score: number;
@@ -1239,6 +1265,161 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
     .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
 }
 
+function candidateComparisonText(candidate: ExtractedIdea) {
+  return [
+    candidate.name,
+    candidate.one_liner,
+    candidate.target_user,
+    candidate.buyer,
+    candidate.signal,
+    candidate.firstPrototypeScope,
+  ].join(" ");
+}
+
+function candidateSimilarityScore(left: ExtractedIdea, right: ExtractedIdea) {
+  const nameScore = tokenOverlapScore(left.name, right.name);
+  const problemScore = tokenOverlapScore(candidateComparisonText(left), candidateComparisonText(right));
+  const userScore = tokenOverlapScore(`${left.target_user} ${left.buyer}`, `${right.target_user} ${right.buyer}`);
+
+  return Math.max(nameScore, Math.round(problemScore * 0.65 + userScore * 0.35));
+}
+
+function findBestCandidateMatch(candidate: ExtractedIdea, pool: ExtractedIdea[], usedIds = new Set<string>()) {
+  return pool
+    .filter((item) => !usedIds.has(item.id))
+    .map((item) => ({ item, score: candidateSimilarityScore(candidate, item) }))
+    .sort((a, b) => b.score - a.score)[0];
+}
+
+function buildExtractionReplaySummary({
+  sourceLength,
+  rulesIdeas,
+  aiIdeas,
+  aiMode,
+  model,
+  note,
+}: {
+  sourceLength: number;
+  rulesIdeas: ExtractedIdea[];
+  aiIdeas: ExtractedIdea[];
+  aiMode: ExtractionReplayMode;
+  model: string | null;
+  note: string;
+}): ExtractionReplaySummary {
+  const usedAiIds = new Set<string>();
+  const items: ExtractionReplayItem[] = [];
+
+  for (const rulesCandidate of rulesIdeas) {
+    const match = findBestCandidateMatch(rulesCandidate, aiIdeas, usedAiIds);
+
+    if (match && match.score >= 52) {
+      usedAiIds.add(match.item.id);
+      const primaryCandidate =
+        match.item.validationScore >= rulesCandidate.validationScore || match.item.confidence >= rulesCandidate.confidence
+          ? match.item
+          : rulesCandidate;
+
+      items.push({
+        id: `both-${rulesCandidate.id}-${match.item.id}`,
+        source: "both",
+        primaryCandidate,
+        matchedName: primaryCandidate.id === match.item.id ? rulesCandidate.name : match.item.name,
+        overlapScore: match.score,
+        verdict: "공통 후보",
+        nextAction: "두 엔진이 모두 포착했습니다. 검증 패키지 저장 또는 워크벤치 점수화 우선순위로 봅니다.",
+      });
+      continue;
+    }
+
+    items.push({
+      id: `rules-${rulesCandidate.id}`,
+      source: "rules",
+      primaryCandidate: rulesCandidate,
+      matchedName: null,
+      overlapScore: 0,
+      verdict: "규칙 단독",
+      nextAction: "원문 라벨이나 키워드가 강한 후보입니다. AI 누락 가능성이 있으니 문제/구매자 증거를 보강합니다.",
+    });
+  }
+
+  for (const aiCandidate of aiIdeas) {
+    if (usedAiIds.has(aiCandidate.id)) {
+      continue;
+    }
+
+    items.push({
+      id: `ai-${aiCandidate.id}`,
+      source: "ai",
+      primaryCandidate: aiCandidate,
+      matchedName: null,
+      overlapScore: 0,
+      verdict: "AI 단독",
+      nextAction: "AI가 문맥에서 추론한 후보입니다. 원문 근거와 과잉 해석 여부를 먼저 확인합니다.",
+    });
+  }
+
+  const sortedItems = items.sort((a, b) => {
+    const sourceRank = { both: 3, ai: 2, rules: 1 };
+
+    return (
+      sourceRank[b.source] - sourceRank[a.source] ||
+      b.primaryCandidate.validationScore - a.primaryCandidate.validationScore ||
+      b.primaryCandidate.confidence - a.primaryCandidate.confidence
+    );
+  });
+  const consensusCount = sortedItems.filter((item) => item.source === "both").length;
+  const rulesOnlyCount = sortedItems.filter((item) => item.source === "rules").length;
+  const aiOnlyCount = sortedItems.filter((item) => item.source === "ai").length;
+
+  return {
+    generatedAt: new Date().toISOString(),
+    sourceLength,
+    rulesCount: rulesIdeas.length,
+    aiCount: aiIdeas.length,
+    consensusCount,
+    rulesOnlyCount,
+    aiOnlyCount,
+    aiMode,
+    model,
+    note,
+    items: sortedItems,
+  };
+}
+
+function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
+  const generatedAt = new Date(summary.generatedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+  const rows = summary.items
+    .map(
+      (item, index) =>
+        `| ${index + 1} | ${item.primaryCandidate.name} | ${item.verdict} | ${
+          item.matchedName ?? "-"
+        } | ${item.overlapScore || "-"} | ${item.primaryCandidate.validationScore}/100 | ${item.nextAction} |`,
+    )
+    .join("\n");
+
+  return `# 추출 리플레이 비교
+
+## 실행 메타
+
+- 실행 시각: ${generatedAt}
+- 입력 길이: ${summary.sourceLength}자
+- 규칙 기반 후보: ${summary.rulesCount}개
+- AI 후보: ${summary.aiCount}개
+- 공통 후보: ${summary.consensusCount}개
+- 규칙 단독: ${summary.rulesOnlyCount}개
+- AI 단독: ${summary.aiOnlyCount}개
+- AI 모드: ${summary.aiMode}
+- 모델: ${summary.model ?? "해당 없음"}
+- 실행 메모: ${summary.note}
+
+## 비교 결과
+
+| 순서 | 후보 | 판정 | 매칭 후보 | 유사도 | 검증 점수 | 다음 행동 |
+| --- | --- | --- | --- | --- | --- | --- |
+${rows || "| - | 후보 없음 | - | - | - | - | - |"}
+`;
+}
+
 function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
   const rows = items
     .map(
@@ -1285,6 +1466,7 @@ function buildExtractionReportBody(
   source: string,
   organizationName: string | null,
   runMeta: ExtractionRunMeta | null,
+  replaySummary: ExtractionReplaySummary | null,
 ) {
   const sourceExcerpt = redactSensitiveSource(source).trim().slice(0, 4000);
   const generatedAt = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
@@ -1304,6 +1486,8 @@ function buildExtractionReportBody(
 - 입력 길이: ${runMeta?.sourceLength ?? source.length}자
 - 추출 시각: ${metaGeneratedAt}
 - 실행 메모: ${runMeta?.note ?? "수동 또는 이전 방식으로 생성된 후보입니다."}
+
+${replaySummary ? buildExtractionReplayMarkdown(replaySummary) : "## 추출 리플레이 비교\n\n- 이번 리포트에는 리플레이 비교가 포함되지 않았습니다."}
 
 ## 원문 근거 요약
 
@@ -1355,8 +1539,10 @@ export function VentureConsoleActions({
   const [rawIdeaSource, setRawIdeaSource] = useState("");
   const [extractedIdeas, setExtractedIdeas] = useState<ExtractedIdea[]>([]);
   const [extractionRunMeta, setExtractionRunMeta] = useState<ExtractionRunMeta | null>(null);
+  const [extractionReplay, setExtractionReplay] = useState<ExtractionReplaySummary | null>(null);
   const [extractMessage, setExtractMessage] = useState<string | null>(null);
   const [isAiExtracting, setIsAiExtracting] = useState(false);
+  const [isReplayingExtraction, setIsReplayingExtraction] = useState(false);
   const [isSavingExtractionReport, setIsSavingExtractionReport] = useState(false);
   const [extractionReports, setExtractionReports] = useState<VentureArtifact[]>([]);
   const [localActiveTask, setLocalActiveTask] = useState<ConsoleActionTask>("auth");
@@ -1480,8 +1666,11 @@ export function VentureConsoleActions({
     [extractionPortfolioItems],
   );
   const extractionPortfolioMarkdown = useMemo(
-    () => buildExtractionPortfolioMarkdown(extractionPortfolioItems),
-    [extractionPortfolioItems],
+    () =>
+      [extractionReplay ? buildExtractionReplayMarkdown(extractionReplay) : "", buildExtractionPortfolioMarkdown(extractionPortfolioItems)]
+        .filter(Boolean)
+        .join("\n\n"),
+    [extractionPortfolioItems, extractionReplay],
   );
   const consoleTasks: Array<{
     id: ConsoleActionTask;
@@ -2036,11 +2225,13 @@ export function VentureConsoleActions({
       setExtractMessage("대화 내용이나 메모를 먼저 붙여넣으세요.");
       setExtractedIdeas([]);
       setExtractionRunMeta(null);
+      setExtractionReplay(null);
       return;
     }
 
     const nextIdeas = extractIdeasFromText(source);
     setExtractedIdeas(nextIdeas);
+    setExtractionReplay(null);
     setExtractionRunMeta(
       createExtractionRunMeta({
         engine: "rules",
@@ -2064,9 +2255,11 @@ export function VentureConsoleActions({
       setExtractMessage("대화 내용이나 메모를 먼저 붙여넣으세요.");
       setExtractedIdeas([]);
       setExtractionRunMeta(null);
+      setExtractionReplay(null);
       return;
     }
 
+    setExtractionReplay(null);
     setIsAiExtracting(true);
     setExtractMessage("AI 추출 엔진으로 원문을 구조화하는 중입니다. 키가 없거나 실패하면 규칙 기반 엔진으로 전환합니다.");
 
@@ -2152,6 +2345,90 @@ export function VentureConsoleActions({
     }
   }
 
+  async function handleReplayExtractionComparison() {
+    const source = rawIdeaSource.trim();
+
+    if (!source) {
+      setExtractMessage("리플레이할 대화 내용이나 메모를 먼저 붙여넣으세요.");
+      setExtractedIdeas([]);
+      setExtractionRunMeta(null);
+      setExtractionReplay(null);
+      return;
+    }
+
+    setIsReplayingExtraction(true);
+    setExtractMessage("같은 원문을 규칙 기반과 AI 기반으로 재실행해 후보 일치도를 비교하는 중입니다.");
+
+    try {
+      const rulesIdeas = extractIdeasFromText(source);
+      let aiIdeas: ExtractedIdea[] = [];
+      let aiMode: ExtractionReplayMode = "unavailable";
+      let model: string | null = null;
+      let replayNote = "AI 추출을 사용할 수 없어 규칙 기반 결과만 감사했습니다.";
+
+      try {
+        const response = await fetch("/api/ideas/extract", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            source,
+            existingIdeas: existingIdeas.slice(0, 20).map((idea) => ({
+              name: idea.name,
+              one_liner: idea.one_liner,
+              target_user: idea.target_user,
+              buyer: idea.buyer,
+            })),
+          }),
+        });
+        const payload = (await response.json().catch(() => ({}))) as AiExtractIdeasResponse;
+
+        model = payload.model ?? null;
+
+        if (response.ok && payload.candidates?.length) {
+          aiIdeas = hydrateAiExtractedIdeas(source, payload.candidates);
+          aiMode = payload.mode === "openai" ? "openai" : "fallback";
+          replayNote = `${payload.model ?? "OpenAI"} 결과와 규칙 기반 결과를 비교했습니다.`;
+        } else {
+          replayNote = payload.error ?? `AI 추출 HTTP ${response.status}로 규칙 기반 결과만 비교했습니다.`;
+        }
+      } catch (error) {
+        replayNote = `AI 추출 요청 중 오류가 발생해 규칙 기반 결과만 비교했습니다. ${
+          error instanceof Error ? error.message : ""
+        }`;
+      }
+
+      const replaySummary = buildExtractionReplaySummary({
+        sourceLength: source.length,
+        rulesIdeas,
+        aiIdeas,
+        aiMode,
+        model,
+        note: replayNote,
+      });
+      const replayCandidates = replaySummary.items.map((item) => item.primaryCandidate).slice(0, 8);
+      const nextIdeas = replayCandidates.length > 0 ? replayCandidates : rulesIdeas;
+
+      setExtractedIdeas(nextIdeas);
+      setExtractionReplay(replaySummary);
+      setExtractionRunMeta(
+        createExtractionRunMeta({
+          engine: aiIdeas.length > 0 ? "openai" : "fallback",
+          model,
+          sourceLength: source.length,
+          candidateCount: nextIdeas.length,
+          note: `리플레이 비교 완료: 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 규칙 단독 ${replaySummary.rulesOnlyCount}개.`,
+        }),
+      );
+      setExtractMessage(
+        nextIdeas.length > 0
+          ? `리플레이 완료. 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 규칙 단독 ${replaySummary.rulesOnlyCount}개 후보를 비교했습니다.`
+          : "리플레이를 실행했지만 후보를 찾지 못했습니다. 원문에 아이디어, 문제, 솔루션 단서를 더 넣어보세요.",
+      );
+    } finally {
+      setIsReplayingExtraction(false);
+    }
+  }
+
   async function copyExtractionPortfolio() {
     if (extractionPortfolioItems.length === 0) {
       setExtractMessage("복사할 후보 비교 요약이 없습니다. 먼저 후보를 발굴하세요.");
@@ -2202,7 +2479,13 @@ export function VentureConsoleActions({
         status: "draft",
         version: 1,
         title: `아이디어 발굴 리포트 ${titleDate}`,
-        body: buildExtractionReportBody(extractionPortfolioItems, rawIdeaSource, activeOrganization?.name ?? null, extractionRunMeta),
+        body: buildExtractionReportBody(
+          extractionPortfolioItems,
+          rawIdeaSource,
+          activeOrganization?.name ?? null,
+          extractionRunMeta,
+          extractionReplay,
+        ),
         source: "extraction_portfolio",
         status_note: "자동 아이디어 발굴 후보 비교와 원문 근거를 저장한 리포트입니다.",
       })
@@ -2758,7 +3041,7 @@ export function VentureConsoleActions({
                 onClick={() => {
                   void handleAiExtractIdeas();
                 }}
-                disabled={isAiExtracting}
+                disabled={isAiExtracting || isReplayingExtraction}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
@@ -2766,8 +3049,19 @@ export function VentureConsoleActions({
               </button>
               <button
                 type="button"
+                onClick={() => {
+                  void handleReplayExtractionComparison();
+                }}
+                disabled={isAiExtracting || isReplayingExtraction}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isReplayingExtraction ? <RefreshCw className="animate-spin" size={18} /> : <RefreshCw size={18} />}
+                비교 리플레이
+              </button>
+              <button
+                type="button"
                 onClick={handleExtractIdeas}
-                disabled={isAiExtracting}
+                disabled={isAiExtracting || isReplayingExtraction}
                 className="inline-flex h-11 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 규칙 기반
@@ -2798,6 +3092,7 @@ export function VentureConsoleActions({
                     setRawIdeaSource("");
                     setExtractedIdeas([]);
                     setExtractionRunMeta(null);
+                    setExtractionReplay(null);
                     setExtractMessage(null);
                   }}
                   className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
@@ -2816,6 +3111,66 @@ export function VentureConsoleActions({
                     <span>후보: {extractionRunMeta.candidateCount}개</span>
                   </div>
                   <p className="mt-1 text-blue-800">{extractionRunMeta.note}</p>
+                </div>
+              ) : null}
+              {extractionReplay ? (
+                <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm leading-6 text-indigo-900">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="font-semibold text-indigo-950">추출 리플레이 비교</div>
+                      <p className="mt-1 text-indigo-800">
+                        같은 원문을 규칙 기반과 AI 기반으로 재실행해 공통 후보와 누락 후보를 나눕니다.
+                      </p>
+                    </div>
+                    <span className="w-fit rounded-md bg-indigo-950 px-2 py-1 text-xs font-semibold text-white">
+                      공통 {extractionReplay.consensusCount}개
+                    </span>
+                  </div>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-4">
+                    <div className="rounded-md bg-white px-3 py-2">
+                      <div className="text-xs font-semibold text-slate-500">규칙 후보</div>
+                      <div className="text-lg font-semibold text-slate-950">{extractionReplay.rulesCount}</div>
+                    </div>
+                    <div className="rounded-md bg-white px-3 py-2">
+                      <div className="text-xs font-semibold text-slate-500">AI 후보</div>
+                      <div className="text-lg font-semibold text-slate-950">{extractionReplay.aiCount}</div>
+                    </div>
+                    <div className="rounded-md bg-white px-3 py-2">
+                      <div className="text-xs font-semibold text-slate-500">AI 단독</div>
+                      <div className="text-lg font-semibold text-slate-950">{extractionReplay.aiOnlyCount}</div>
+                    </div>
+                    <div className="rounded-md bg-white px-3 py-2">
+                      <div className="text-xs font-semibold text-slate-500">규칙 단독</div>
+                      <div className="text-lg font-semibold text-slate-950">{extractionReplay.rulesOnlyCount}</div>
+                    </div>
+                  </div>
+                  <div className="mt-3 grid gap-2">
+                    {extractionReplay.items.slice(0, 4).map((item) => (
+                      <div key={item.id} className="rounded-md bg-white px-3 py-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-950">{item.primaryCandidate.name}</span>
+                          <span
+                            className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                              item.source === "both"
+                                ? "bg-emerald-50 text-emerald-800"
+                                : item.source === "ai"
+                                  ? "bg-blue-50 text-blue-700"
+                                  : "bg-amber-50 text-amber-800"
+                            }`}
+                          >
+                            {item.verdict}
+                          </span>
+                          {item.overlapScore ? (
+                            <span className="rounded-md bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-600">
+                              유사도 {item.overlapScore}%
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-1 text-xs leading-5 text-slate-600">{item.nextAction}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-indigo-800">{extractionReplay.note}</p>
                 </div>
               ) : null}
               {duplicateCandidateCount > 0 ? (
