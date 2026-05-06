@@ -1325,6 +1325,13 @@ export function VentureConsoleActions({
         ),
     [extractedIdeaGates, extractedIdeas, similarIdeaMatches],
   );
+  const bulkSavableExtractionItems = useMemo(
+    () =>
+      extractionPortfolioItems
+        .filter((item) => ["proceed", "research"].includes(item.gate.id) && !item.similarIdea && item.readinessScore >= 70)
+        .slice(0, 3),
+    [extractionPortfolioItems],
+  );
   const extractionGateCounts = useMemo(
     () =>
       extractionPortfolioItems.reduce<Record<ExtractionGateId, number>>(
@@ -2054,6 +2061,87 @@ export function VentureConsoleActions({
     updateActiveTask("idea");
   }
 
+  async function createExtractedIdeaPackage(candidate: ExtractedIdea, extractionGate: ExtractionGate) {
+    if (!supabase) {
+      throw new Error("Supabase가 설정되어 있지 않습니다.");
+    }
+
+    const organizationId = activeOrganization?.id ?? null;
+    const { data: idea, error: ideaError } = await supabase
+      .from("ideas")
+      .insert({
+        name: candidate.name.trim(),
+        one_liner: candidate.one_liner.trim(),
+        target_user: candidate.target_user.trim(),
+        buyer: candidate.buyer.trim(),
+        signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
+        risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
+        next_evidence: `7일 검증 실험\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+          "\n- ",
+        )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n게이트 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
+        stage: "research",
+        decision: "research_more",
+        ...candidate.initialScores,
+        organization_id: organizationId,
+      })
+      .select()
+      .single();
+
+    if (ideaError || !idea) {
+      throw new Error(ideaError?.message ?? "아이디어를 저장하지 못했습니다.");
+    }
+
+    const [riskResult, experimentResult, artifactResult] = await Promise.all([
+      supabase
+        .from("risks")
+        .insert({
+          idea_id: idea.id,
+          title: `${candidate.name} 핵심 리스크`,
+          area: inferRiskArea(`${candidate.name} ${candidate.one_liner} ${candidate.risk_summary}`),
+          severity: inferRiskSeverity(candidate.riskLevel),
+          mitigation: candidate.risk_summary,
+          status: "open",
+          organization_id: organizationId,
+        })
+        .select()
+        .single(),
+      supabase
+        .from("experiments")
+        .insert({
+          idea_id: idea.id,
+          name: `${candidate.name} 7일 검증`,
+          success_metric: candidate.successMetric,
+          status: "planned",
+          organization_id: organizationId,
+        })
+        .select()
+        .single(),
+      supabase
+        .from("venture_artifacts")
+        .insert(buildExtractedIdeaArtifacts(candidate, idea, organizationId, extractionGate))
+        .select(),
+    ]);
+
+    window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: idea }));
+    if (riskResult.data) {
+      window.dispatchEvent(new CustomEvent("venture:risk-created", { detail: riskResult.data }));
+    }
+    if (experimentResult.data) {
+      window.dispatchEvent(new CustomEvent("venture:experiment-created", { detail: experimentResult.data }));
+    }
+    if (artifactResult.data) {
+      for (const artifact of artifactResult.data as VentureArtifact[]) {
+        window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: artifact }));
+      }
+    }
+
+    return {
+      idea,
+      artifactCount: artifactResult.data?.length ?? 0,
+      partialError: riskResult.error?.message ?? experimentResult.error?.message ?? artifactResult.error?.message ?? null,
+    };
+  }
+
   async function saveExtractedIdeaPackage(candidate: ExtractedIdea) {
     setExtractMessage(null);
 
@@ -2071,89 +2159,70 @@ export function VentureConsoleActions({
     const similarIdea = similarIdeaMatches.get(candidate.id) ?? null;
     const readinessChecks = buildCandidateReadiness(candidate, similarIdea);
     const extractionGate = buildExtractionGate(candidate, readinessChecks, similarIdea);
-    const { data: idea, error: ideaError } = await supabase
-      .from("ideas")
-      .insert({
-        name: candidate.name.trim(),
-        one_liner: candidate.one_liner.trim(),
-        target_user: candidate.target_user.trim(),
-        buyer: candidate.buyer.trim(),
-        signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
-        risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-        next_evidence: `7일 검증 실험\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
-          "\n- ",
-        )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n게이트 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
-        stage: "research",
-        decision: "research_more",
-        ...candidate.initialScores,
-        organization_id: activeOrganization?.id ?? null,
-      })
-      .select()
-      .single();
 
-    if (ideaError || !idea) {
-      setExtractSaveKey(null);
-      setExtractMessage(ideaError?.message ?? "아이디어를 저장하지 못했습니다.");
+    try {
+      const result = await createExtractedIdeaPackage(candidate, extractionGate);
+
+      if (result.partialError) {
+        setExtractMessage(`아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${result.partialError}`);
+      } else {
+        setExtractMessage(
+          `'${candidate.name}' 후보를 아이디어, 리스크, 7일 실험, 검증 산출물 ${result.artifactCount}개까지 패키지로 저장했습니다.`,
+        );
+      }
+    } catch (error) {
+      setExtractMessage(error instanceof Error ? error.message : "후보 패키지를 저장하지 못했습니다.");
+    }
+
+    setExtractSaveKey(null);
+    await loadPersonalRecordCount(user);
+    await loadWorkspaceData(user, activeOrganization?.id ?? "");
+    router.refresh();
+  }
+
+  async function saveBulkExtractedIdeaPackages() {
+    setExtractMessage(null);
+
+    if (!supabase) {
+      setExtractMessage("Supabase가 설정되어 있지 않습니다.");
       return;
     }
 
-    const [riskResult, experimentResult, artifactResult] = await Promise.all([
-      supabase
-        .from("risks")
-        .insert({
-          idea_id: idea.id,
-          title: `${candidate.name} 핵심 리스크`,
-          area: inferRiskArea(`${candidate.name} ${candidate.one_liner} ${candidate.risk_summary}`),
-          severity: inferRiskSeverity(candidate.riskLevel),
-          mitigation: candidate.risk_summary,
-          status: "open",
-          organization_id: activeOrganization?.id ?? null,
-        })
-        .select()
-        .single(),
-      supabase
-        .from("experiments")
-        .insert({
-          idea_id: idea.id,
-          name: `${candidate.name} 7일 검증`,
-          success_metric: candidate.successMetric,
-          status: "planned",
-          organization_id: activeOrganization?.id ?? null,
-        })
-        .select()
-        .single(),
-      supabase
-        .from("venture_artifacts")
-        .insert(buildExtractedIdeaArtifacts(candidate, idea, activeOrganization?.id ?? null, extractionGate))
-        .select(),
-    ]);
-
-    setExtractSaveKey(null);
-
-    if (riskResult.error || experimentResult.error || artifactResult.error) {
-      setExtractMessage(
-        `아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${
-          riskResult.error?.message ?? experimentResult.error?.message ?? artifactResult.error?.message
-        }`,
-      );
-    } else {
-      setExtractMessage(
-        `'${candidate.name}' 후보를 아이디어, 리스크, 7일 실험, 검증 산출물 ${artifactResult.data?.length ?? 0}개까지 패키지로 저장했습니다.`,
-      );
+    if (!user) {
+      setExtractMessage("후보를 저장하려면 먼저 로그인하세요.");
+      return;
     }
 
-    window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: idea }));
-    if (riskResult.data) {
-      window.dispatchEvent(new CustomEvent("venture:risk-created", { detail: riskResult.data }));
+    if (bulkSavableExtractionItems.length === 0) {
+      setExtractMessage("일괄 저장할 진행/추가 조사 후보가 없습니다. 중복 후보나 준비도 70% 미만 후보는 제외됩니다.");
+      return;
     }
-    if (experimentResult.data) {
-      window.dispatchEvent(new CustomEvent("venture:experiment-created", { detail: experimentResult.data }));
-    }
-    if (artifactResult.data) {
-      for (const artifact of artifactResult.data as VentureArtifact[]) {
-        window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: artifact }));
+
+    setExtractSaveKey("bulk");
+    const savedNames: string[] = [];
+    const partialErrors: string[] = [];
+
+    for (const item of bulkSavableExtractionItems) {
+      try {
+        const result = await createExtractedIdeaPackage(item.candidate, item.gate);
+        savedNames.push(item.candidate.name);
+
+        if (result.partialError) {
+          partialErrors.push(`${item.candidate.name}: ${result.partialError}`);
+        }
+      } catch (error) {
+        partialErrors.push(`${item.candidate.name}: ${error instanceof Error ? error.message : "저장 실패"}`);
       }
     }
+
+    setExtractSaveKey(null);
+    setExtractMessage(
+      savedNames.length > 0
+        ? `상위 후보 ${savedNames.length}개를 검증 패키지로 저장했습니다: ${savedNames.join(", ")}${
+            partialErrors.length > 0 ? ` / 일부 보강 필요: ${partialErrors.join(" | ")}` : ""
+          }`
+        : `일괄 저장에 실패했습니다: ${partialErrors.join(" | ")}`,
+    );
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
     router.refresh();
@@ -2607,7 +2676,7 @@ export function VentureConsoleActions({
                           <button
                             type="button"
                             onClick={() => saveExtractedIdeaPackage(recommendedExtractedIdea)}
-                            disabled={extractSaveKey === recommendedExtractedIdea.id || !user}
+                            disabled={Boolean(extractSaveKey) || !user}
                             className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {extractSaveKey === recommendedExtractedIdea.id ? (
@@ -2655,8 +2724,24 @@ export function VentureConsoleActions({
                           {isSavingExtractionReport ? <RefreshCw className="animate-spin" size={16} /> : <ClipboardList size={16} />}
                           리포트 저장
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void saveBulkExtractedIdeaPackages();
+                          }}
+                          disabled={Boolean(extractSaveKey) || !user || bulkSavableExtractionItems.length === 0}
+                          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {extractSaveKey === "bulk" ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
+                          상위 {bulkSavableExtractionItems.length}개 저장
+                        </button>
                       </div>
                     </div>
+                    {bulkSavableExtractionItems.length > 0 ? (
+                      <p className="mt-3 text-sm leading-6 text-slate-600">
+                        일괄 저장은 중복 신호가 없고 준비도 70% 이상인 진행/추가 조사 후보만 최대 3개 저장합니다.
+                      </p>
+                    ) : null}
                     <div className="mt-4 grid gap-2 sm:grid-cols-4">
                       {([
                         ["proceed", "진행 후보"],
@@ -2787,7 +2872,7 @@ export function VentureConsoleActions({
                           <button
                             type="button"
                             onClick={() => saveExtractedIdeaPackage(candidate)}
-                            disabled={extractSaveKey === candidate.id || !user}
+                            disabled={Boolean(extractSaveKey) || !user}
                             className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {extractSaveKey === candidate.id ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
