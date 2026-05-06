@@ -152,6 +152,19 @@ const implementationTaskPriorityRank: Record<ImplementationTaskPriority, number>
   medium: 1,
   low: 2,
 };
+const implementationTaskExecutionOrder: ImplementationTaskType[] = [
+  "planning",
+  "design",
+  "data",
+  "backend",
+  "frontend",
+  "qa",
+  "security",
+  "deploy",
+];
+const implementationTaskExecutionRank = new Map(
+  implementationTaskExecutionOrder.map((taskType, index) => [taskType, index]),
+);
 const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {
   planning: "기획",
   design: "디자인",
@@ -272,6 +285,55 @@ const implementationRunFocus: Record<ImplementationTaskType, string> = {
   qa: "핵심 경로, 인증 전/후, 읽기 전용, 빈/오류/로딩 상태와 회귀를 검증합니다.",
   security: "PII, 비밀값, 권한 우회, abuse, 보관/삭제 경로를 출시 차단 관점으로 봅니다.",
   deploy: "Preview/Production, Vercel 로그, 환경변수, production smoke, 롤백 기준을 확인합니다.",
+};
+const implementationDependencyRules: Record<
+  ImplementationTaskType,
+  {
+    prerequisites: ImplementationTaskType[];
+    gate: string;
+    nextAction: string;
+  }
+> = {
+  planning: {
+    prerequisites: [],
+    gate: "제품 범위 잠금",
+    nextAction: "PRD, MVP 범위, 제외 범위, 성공 지표, 중단 기준을 먼저 고정합니다.",
+  },
+  design: {
+    prerequisites: ["planning"],
+    gate: "기획 범위 승인",
+    nextAction: "Slice 1 사용자 여정, 빈 상태, 오류, 모바일, 접근성 상태를 확정합니다.",
+  },
+  data: {
+    prerequisites: ["planning"],
+    gate: "데이터 경계 확정",
+    nextAction: "엔티티, 소유권, 조직 경계, 마이그레이션, 샘플 데이터를 먼저 정의합니다.",
+  },
+  backend: {
+    prerequisites: ["data"],
+    gate: "데이터 모델 준비",
+    nextAction: "API/Server Action, RLS 또는 Security Rules 허용/차단 조건을 구현합니다.",
+  },
+  frontend: {
+    prerequisites: ["design", "backend"],
+    gate: "화면 흐름과 저장 경계 준비",
+    nextAction: "핵심 입력, 저장, 조회, 상태 메시지를 첫 수직 슬라이스로 구현합니다.",
+  },
+  qa: {
+    prerequisites: ["frontend", "backend"],
+    gate: "핵심 여정 구현",
+    nextAction: "핵심 여정, 오류 상태, 모바일, 회귀 스모크를 검증합니다.",
+  },
+  security: {
+    prerequisites: ["backend", "data"],
+    gate: "권한/데이터 경계 구현",
+    nextAction: "개인정보, 비밀값, 권한 우회, 로그 민감정보, 고위험 리스크를 검토합니다.",
+  },
+  deploy: {
+    prerequisites: ["qa", "security"],
+    gate: "QA/보안 완료",
+    nextAction: "Preview/Production 배포, smoke, inspect URL, 롤백 기준을 기록합니다.",
+  },
 };
 
 const orchestrationPhaseConfigs: Array<{
@@ -462,6 +524,16 @@ type ImplementationTaskDraft = {
   priority: ImplementationTaskPriority;
   owner_role: string;
   acceptance_criteria: string;
+};
+
+type ImplementationDependencyStatus = {
+  task: ImplementationTask;
+  ready: boolean;
+  blockers: string[];
+  completedPrerequisites: ImplementationTaskType[];
+  missingPrerequisites: ImplementationTaskType[];
+  gate: string;
+  nextAction: string;
 };
 
 type GateCheck = {
@@ -4170,6 +4242,16 @@ function buildImplementationTaskDrafts({
       ].join("\n"),
     },
     {
+      title: "데이터 모델과 마이그레이션 작성",
+      task_type: "data",
+      priority: "high",
+      owner_role: "data-modeler",
+      acceptance_criteria: [
+        "Slice 1 핵심 엔티티, 소유권, 조직 경계, 감사 로그 또는 변경 이력이 정의됩니다.",
+        "마이그레이션은 재실행 가능하고, 필요한 인덱스와 제약 조건을 포함합니다.",
+      ].join("\n"),
+    },
+    {
       title: "백엔드 권한 경계 구현",
       task_type: "backend",
       priority: hasBackendDecision ? "medium" : "high",
@@ -4178,16 +4260,6 @@ function buildImplementationTaskDrafts({
         "Slice 1에 필요한 테이블, 문서, 함수, 정책만 구현합니다.",
         "Supabase RLS 또는 Firebase Security Rules의 허용/차단 조건이 문서와 코드에 반영됩니다.",
         "클라이언트에서 서비스 역할 키나 서버 전용 비밀값을 사용하지 않습니다.",
-      ].join("\n"),
-    },
-    {
-      title: "데이터 모델과 마이그레이션 작성",
-      task_type: "data",
-      priority: "high",
-      owner_role: "data-modeler",
-      acceptance_criteria: [
-        "Slice 1 핵심 엔티티, 소유권, 조직 경계, 감사 로그 또는 변경 이력이 정의됩니다.",
-        "마이그레이션은 재실행 가능하고, 필요한 인덱스와 제약 조건을 포함합니다.",
       ].join("\n"),
     },
     {
@@ -4254,6 +4326,129 @@ function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
       a.title.localeCompare(b.title),
   );
+}
+
+function sortImplementationTasksForExecution(tasks: ImplementationTask[]) {
+  return [...tasks].sort(
+    (a, b) =>
+      (implementationTaskExecutionRank.get(a.task_type) ?? 99) -
+        (implementationTaskExecutionRank.get(b.task_type) ?? 99) ||
+      implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
+      implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
+      a.sort_order - b.sort_order ||
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
+      a.title.localeCompare(b.title),
+  );
+}
+
+function buildImplementationDependencyStatuses(tasks: ImplementationTask[]): ImplementationDependencyStatus[] {
+  const taskTypes = new Set(tasks.map((task) => task.task_type));
+  const completedTypes = new Set(tasks.filter((task) => task.status === "done").map((task) => task.task_type));
+
+  return sortImplementationTasksForExecution(tasks).map((task) => {
+    const rule = implementationDependencyRules[task.task_type];
+    const completedPrerequisites: ImplementationTaskType[] = [];
+    const missingPrerequisites: ImplementationTaskType[] = [];
+    const blockers = rule.prerequisites.flatMap((prerequisite) => {
+      if (completedTypes.has(prerequisite)) {
+        completedPrerequisites.push(prerequisite);
+        return [];
+      }
+
+      missingPrerequisites.push(prerequisite);
+
+      return [
+        taskTypes.has(prerequisite)
+          ? `${implementationTaskTypeLabels[prerequisite]} 태스크 완료 필요`
+          : `${implementationTaskTypeLabels[prerequisite]} 태스크 생성 필요`,
+      ];
+    });
+
+    if (task.status === "blocked") {
+      blockers.unshift("현재 차단 상태입니다. 차단 해소 큐의 다음 액션과 해소 증거를 먼저 남기세요.");
+    }
+
+    return {
+      task,
+      ready: task.status !== "done" && blockers.length === 0,
+      blockers,
+      completedPrerequisites,
+      missingPrerequisites,
+      gate: rule.gate,
+      nextAction: rule.nextAction,
+    };
+  });
+}
+
+function buildImplementationDependencyPlanMarkdown({
+  idea,
+  state,
+  statuses,
+}: {
+  idea: Idea;
+  state: EditState;
+  statuses: ImplementationDependencyStatus[];
+}) {
+  const readyStatuses = statuses.filter((status) => status.ready);
+  const waitingStatuses = statuses.filter((status) => status.task.status !== "done" && !status.ready);
+  const completedStatuses = statuses.filter((status) => status.task.status === "done");
+  const nextStatus = readyStatuses[0] ?? null;
+  const lineForStatus = (status: ImplementationDependencyStatus, index: number) =>
+    `${index + 1}. ${status.task.title}
+   - 유형/상태/우선순위: ${implementationTaskTypeLabels[status.task.task_type]} / ${
+     implementationTaskStatusLabels[status.task.status]
+   } / ${implementationTaskPriorityLabels[status.task.priority]}
+   - 게이트: ${status.gate}
+   - 다음 액션: ${status.nextAction}
+   - 선행 조건: ${
+     implementationDependencyRules[status.task.task_type].prerequisites
+       .map((prerequisite) => implementationTaskTypeLabels[prerequisite])
+       .join(", ") || "없음"
+   }
+   - 막힘: ${status.blockers.join(", ") || "없음"}`;
+
+  return `# 개발 실행 순서 게이트: ${idea.name}
+
+## 현재 문맥
+
+- 단계: ${stageLabels[state.stage]}
+- 판단: ${decisionLabels[state.decision]}
+- 한 줄 설명: ${idea.one_liner || "미정"}
+
+## 권장 다음 태스크
+
+${nextStatus ? lineForStatus(nextStatus, 0) : "열린 태스크 중 선행 조건을 모두 통과한 항목이 없습니다."}
+
+## 바로 시작 가능
+
+${readyStatuses.length > 0 ? readyStatuses.map(lineForStatus).join("\n\n") : "- 바로 시작 가능한 태스크가 없습니다."}
+
+## 선행 조건 대기
+
+${waitingStatuses.length > 0 ? waitingStatuses.map(lineForStatus).join("\n\n") : "- 선행 조건에 막힌 태스크가 없습니다."}
+
+## 완료된 게이트
+
+${
+  completedStatuses.length > 0
+    ? completedStatuses
+        .map(
+          (status) =>
+            `- ${status.task.title}: ${implementationTaskTypeLabels[status.task.task_type]} / ${
+              implementationTaskStatusLabels[status.task.status]
+            }`,
+        )
+        .join("\n")
+    : "- 완료된 태스크가 없습니다."
+}
+
+## 실행 원칙
+
+- 기획 범위가 잠기기 전에는 디자인, 데이터, 백엔드, 프론트 구현을 확장하지 않습니다.
+- 데이터 모델이 준비되기 전에는 백엔드 권한과 API 구현을 완료 처리하지 않습니다.
+- 디자인과 백엔드 경계가 준비되기 전에는 프론트 수직 슬라이스를 완료 처리하지 않습니다.
+- QA와 보안이 완료되기 전에는 Production 배포 태스크를 완료 처리하지 않습니다.
+`;
 }
 
 function getImplementationEvidenceChecklist(task: ImplementationTask, evidence: string) {
@@ -5367,7 +5562,24 @@ export function IdeaWorkbench({
     () => sortImplementationTasksForAction(selectedImplementationTasks.filter((task) => task.status !== "done")),
     [selectedImplementationTasks],
   );
-  const nextImplementationTask = selectedOpenImplementationTasks[0] ?? null;
+  const implementationDependencyStatuses = useMemo(
+    () => buildImplementationDependencyStatuses(selectedImplementationTasks),
+    [selectedImplementationTasks],
+  );
+  const readyImplementationDependencyStatuses = implementationDependencyStatuses.filter((status) => status.ready);
+  const waitingImplementationDependencyStatuses = implementationDependencyStatuses.filter(
+    (status) => status.task.status !== "done" && !status.ready,
+  );
+  const nextImplementationTask = readyImplementationDependencyStatuses[0]?.task ?? selectedOpenImplementationTasks[0] ?? null;
+  const nextImplementationDependencyStatus =
+    implementationDependencyStatuses.find((status) => status.task.id === nextImplementationTask?.id) ?? null;
+  const implementationDependencyPlanDraft = selectedIdea && editState
+    ? buildImplementationDependencyPlanMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        statuses: implementationDependencyStatuses,
+      })
+    : "";
   const implementationEvidenceSummaries = useMemo(
     () =>
       selectedImplementationTasks
@@ -8498,8 +8710,15 @@ export function IdeaWorkbench({
                             ? "차단 상태입니다. 먼저 차단 사유와 해소 증거를 기록하세요."
                             : nextImplementationTask.status === "doing"
                               ? "이미 진행 중입니다. 완료 증거를 붙이고 완료로 이동하세요."
-                              : "바로 시작하기 좋은 다음 태스크입니다. 진행 시작 후 증거를 남기세요."}
+                              : nextImplementationDependencyStatus && !nextImplementationDependencyStatus.ready
+                                ? "선행 조건에 막혀 있습니다. 아래 실행 순서 게이트에서 먼저 완료할 태스크를 확인하세요."
+                                : "바로 시작하기 좋은 다음 태스크입니다. 진행 시작 후 증거를 남기세요."}
                         </p>
+                        {nextImplementationDependencyStatus?.blockers.length ? (
+                          <div className="mt-2 rounded-md bg-white px-3 py-2 text-xs font-semibold leading-5 text-blue-900">
+                            선행 조건: {nextImplementationDependencyStatus.blockers.join(", ")}
+                          </div>
+                        ) : null}
                         <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
                           {nextImplementationTask.owner_role || "owner 미정"}
                         </div>
@@ -8541,6 +8760,125 @@ export function IdeaWorkbench({
                       <ClipboardList size={15} />
                       열린 백로그
                     </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {implementationDependencyStatuses.length > 0 ? (
+              <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50 p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-700">
+                      execution order
+                    </div>
+                    <h4 className="mt-1 text-sm font-semibold text-violet-950">개발 실행 순서 게이트</h4>
+                    <p className="mt-1 text-sm leading-6 text-violet-900">
+                      태스크를 기획, 디자인, 데이터, 백엔드, 프론트, QA, 보안, 배포 순서로 정렬하고 선행 조건을 통과한
+                      작업만 다음 실행 후보로 올립니다.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-violet-900 shadow-sm">
+                      시작 가능 {readyImplementationDependencyStatuses.length}개
+                    </span>
+                    <span className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-violet-900 shadow-sm">
+                      대기 {waitingImplementationDependencyStatuses.length}개
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(implementationDependencyPlanDraft, "개발 실행 순서 게이트")}
+                      disabled={!implementationDependencyPlanDraft}
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white px-3 text-xs font-semibold text-violet-800 transition hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Clipboard size={15} />
+                      순서 복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveArtifactDraft(
+                          "dev_runbook",
+                          `${selectedIdea.name} 개발 실행 순서 게이트`,
+                          implementationDependencyPlanDraft,
+                          "implementation_dependency_plan",
+                        )
+                      }
+                      disabled={isBusy || !user || !implementationDependencyPlanDraft}
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-violet-950 px-3 text-xs font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Save size={15} />
+                      순서 저장
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 lg:grid-cols-8">
+                  {implementationTaskExecutionOrder.map((taskType, index) => {
+                    const doneCount = selectedImplementationTasks.filter(
+                      (task) => task.task_type === taskType && task.status === "done",
+                    ).length;
+                    const totalCount = selectedImplementationTasks.filter((task) => task.task_type === taskType).length;
+
+                    return (
+                      <div key={taskType} className="rounded-lg border border-violet-100 bg-white p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-violet-600">
+                          {String(index + 1).padStart(2, "0")}
+                        </div>
+                        <div className="mt-1 text-sm font-semibold text-slate-950">
+                          {implementationTaskTypeLabels[taskType]}
+                        </div>
+                        <div className="mt-2 text-xs font-semibold text-slate-500">
+                          {doneCount}/{totalCount} 완료
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                  <div className="rounded-lg border border-violet-100 bg-white p-3">
+                    <div className="text-sm font-semibold text-violet-950">바로 시작 가능</div>
+                    <div className="mt-3 grid gap-2">
+                      {readyImplementationDependencyStatuses.slice(0, 4).map((status) => (
+                        <div key={status.task.id} className="rounded-md bg-violet-50 px-3 py-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-semibold text-slate-950">{status.task.title}</span>
+                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-violet-800">
+                              {implementationTaskTypeLabels[status.task.task_type]}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">{status.nextAction}</p>
+                        </div>
+                      ))}
+                      {readyImplementationDependencyStatuses.length === 0 ? (
+                        <div className="rounded-md border border-dashed border-violet-200 bg-violet-50 px-3 py-2 text-sm leading-6 text-violet-900">
+                          먼저 선행 조건을 완료해야 시작 가능한 태스크가 생깁니다.
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-violet-100 bg-white p-3">
+                    <div className="text-sm font-semibold text-violet-950">선행 조건 대기</div>
+                    <div className="mt-3 grid gap-2">
+                      {waitingImplementationDependencyStatuses.slice(0, 4).map((status) => (
+                        <div key={status.task.id} className="rounded-md bg-slate-50 px-3 py-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-semibold text-slate-950">{status.task.title}</span>
+                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-700">
+                              {implementationTaskTypeLabels[status.task.task_type]}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">{status.blockers.join(", ")}</p>
+                        </div>
+                      ))}
+                      {waitingImplementationDependencyStatuses.length === 0 ? (
+                        <div className="rounded-md border border-dashed border-violet-200 bg-violet-50 px-3 py-2 text-sm leading-6 text-violet-900">
+                          선행 조건에 막힌 열린 태스크가 없습니다.
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </div>
