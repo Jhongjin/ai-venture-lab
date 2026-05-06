@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Added post-launch learning loop | Current commit | Pending production deploy | Pending |
 | 2026-05-06 | Added QA acceptance matrix | `75be6c9` | Production `2igHVoFtCvHJV6YTCWQNmMNQcm9k` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added MVP build command packet | `f55ab6e` | Production `DGYx1NBtDdxoxcbbWcN2pyWBptqA` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added release decision packet | `2864983` | Production `4Xn1xGLyYHKSJP3L4dwNLbjjBF5C` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
