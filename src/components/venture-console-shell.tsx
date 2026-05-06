@@ -1,7 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
-import { Beaker, ClipboardList, Code2, Flag, Layers3, Rocket, Save, ShieldCheck, Sparkles, UserRound, Users } from "lucide-react";
+import {
+  Activity,
+  Beaker,
+  ClipboardList,
+  Code2,
+  Flag,
+  Layers3,
+  Rocket,
+  Save,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+  Users,
+} from "lucide-react";
 
 import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
 import { VentureConsoleActions, type ConsoleActionTask } from "@/components/venture-console-actions";
@@ -12,6 +25,7 @@ import type {
   ImplementationTask,
   OrchestrationRun,
   Risk,
+  TelemetryEvent,
   VentureArtifact,
 } from "@/lib/venture-data";
 
@@ -115,6 +129,13 @@ const shellTasks: Array<{
     group: "아이디어 실행",
     icon: Rocket,
   },
+  {
+    id: "workbench:learning",
+    label: "학습 루프",
+    description: "출시 후 행동 신호",
+    group: "아이디어 실행",
+    icon: Activity,
+  },
 ];
 
 const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> = {
@@ -176,6 +197,10 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     summary: "출시 준비도에서 남은 차단 항목을 확인하고 최종 판단을 기록합니다.",
     checklist: ["100%가 아닌 항목 확인", "높은 리스크 종료 또는 수용", "최종 판단 기록"],
   },
+  "workbench:learning": {
+    summary: "출시 이후 실제 행동 이벤트를 모아 다음 빌드, 보강, 전환, 중단 판단으로 연결합니다.",
+    checklist: ["최근 이벤트 확인", "Day 7/14/30 판단 신호 점검", "학습 리포트 저장"],
+  },
 };
 
 function recommendNextTask({
@@ -210,7 +235,8 @@ function recommendNextTask({
     "workbench:orchestration": artifactCount > 0 ? "workbench:development" : "workbench:artifacts",
     "workbench:artifacts": "workbench:development",
     "workbench:development": "workbench:launch",
-    "workbench:launch": "console:idea",
+    "workbench:launch": "workbench:learning",
+    "workbench:learning": "console:idea",
   };
   const nextId = nextByTask[activeTask];
 
@@ -248,6 +274,7 @@ export function VentureConsoleShell({
   initialOrchestrationRuns,
   initialArtifacts,
   initialImplementationTasks,
+  initialTelemetryEvents,
   source,
 }: {
   initialIdeas: Idea[];
@@ -257,6 +284,7 @@ export function VentureConsoleShell({
   initialOrchestrationRuns: OrchestrationRun[];
   initialArtifacts: VentureArtifact[];
   initialImplementationTasks: ImplementationTask[];
+  initialTelemetryEvents: TelemetryEvent[];
   source: "supabase" | "seed";
 }) {
   const [activeTask, setActiveTask] = useState<ShellTask>("console:idea");
@@ -266,6 +294,7 @@ export function VentureConsoleShell({
   const [orchestrationRuns, setOrchestrationRuns] = useState(initialOrchestrationRuns);
   const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
+  const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
   const handleConsoleTaskChange = useCallback((task: ConsoleActionTask) => {
     setActiveTask(`console:${task}`);
   }, []);
@@ -310,6 +339,7 @@ export function VentureConsoleShell({
     const handleTaskCreated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
     const handleTasksCreated = (event: Event) => handleRecordListEvent<ImplementationTask>(event, setImplementationTasks);
     const handleTaskUpdated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
+    const handleTelemetryCreated = (event: Event) => handleRecordEvent<TelemetryEvent>(event, setTelemetryEvents);
 
     window.addEventListener("venture:idea-created", handleIdeaCreated);
     window.addEventListener("venture:idea-updated", handleIdeaUpdated);
@@ -325,6 +355,7 @@ export function VentureConsoleShell({
     window.addEventListener("venture:task-created", handleTaskCreated);
     window.addEventListener("venture:tasks-created", handleTasksCreated);
     window.addEventListener("venture:task-updated", handleTaskUpdated);
+    window.addEventListener("venture:telemetry-created", handleTelemetryCreated);
 
     return () => {
       window.removeEventListener("venture:idea-created", handleIdeaCreated);
@@ -341,6 +372,7 @@ export function VentureConsoleShell({
       window.removeEventListener("venture:task-created", handleTaskCreated);
       window.removeEventListener("venture:tasks-created", handleTasksCreated);
       window.removeEventListener("venture:task-updated", handleTaskUpdated);
+      window.removeEventListener("venture:telemetry-created", handleTelemetryCreated);
     };
   }, []);
   const activeConsoleTask = activeTask.startsWith("console:")
@@ -356,6 +388,7 @@ export function VentureConsoleShell({
   const runCount = orchestrationRuns.length;
   const artifactCount = artifacts.length;
   const implementationTaskCount = implementationTasks.length;
+  const telemetryEventCount = telemetryEvents.length;
   const prioritizedIdeas = useMemo(
     () =>
       ideas
@@ -432,6 +465,7 @@ export function VentureConsoleShell({
     "workbench:artifacts": `${artifactCount}개`,
     "workbench:development": implementationTaskCount > 0 ? `${implementationTaskCount}개` : "계획",
     "workbench:launch": highRisks > 0 ? "점검" : "확인",
+    "workbench:learning": telemetryEventCount > 0 ? `${telemetryEventCount}개` : "대기",
   };
 
   return (
@@ -603,6 +637,7 @@ export function VentureConsoleShell({
             initialOrchestrationRuns={orchestrationRuns}
             initialArtifacts={artifacts}
             initialImplementationTasks={implementationTasks}
+            initialTelemetryEvents={telemetryEvents}
             activeTask={activeWorkbenchTask}
             onActiveTaskChange={handleWorkbenchTaskChange}
             showSidebar={false}

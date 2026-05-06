@@ -8,6 +8,7 @@ export type Experiment = Database["public"]["Tables"]["experiments"]["Row"];
 export type OrchestrationRun = Database["public"]["Tables"]["orchestration_runs"]["Row"];
 export type VentureArtifact = Database["public"]["Tables"]["venture_artifacts"]["Row"];
 export type ImplementationTask = Database["public"]["Tables"]["implementation_tasks"]["Row"];
+export type TelemetryEvent = Database["public"]["Tables"]["telemetry_events"]["Row"];
 
 type ConsoleData = {
   ideas: Idea[];
@@ -17,6 +18,7 @@ type ConsoleData = {
   orchestrationRuns: OrchestrationRun[];
   artifacts: VentureArtifact[];
   implementationTasks: ImplementationTask[];
+  telemetryEvents: TelemetryEvent[];
   source: "supabase" | "seed";
   error: string | null;
 };
@@ -196,6 +198,7 @@ const seedExperiments: Experiment[] = [];
 const seedOrchestrationRuns: OrchestrationRun[] = [];
 const seedArtifacts: VentureArtifact[] = [];
 const seedImplementationTasks: ImplementationTask[] = [];
+const seedTelemetryEvents: TelemetryEvent[] = [];
 
 export function localizeIdeaRecord(idea: Idea): Idea {
   return { ...idea, ...(localizedIdeaSeeds[idea.name] ?? {}) };
@@ -238,6 +241,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
       orchestrationRuns: seedOrchestrationRuns,
       artifacts: seedArtifacts,
       implementationTasks: seedImplementationTasks,
+      telemetryEvents: seedTelemetryEvents,
       source: "seed",
       error: null,
     };
@@ -255,6 +259,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
     orchestrationRunsResult,
     artifactsResult,
     implementationTasksResult,
+    telemetryEventsResult,
   ] = await Promise.all([
       supabase.from("ideas").select("*").order("created_at", { ascending: true }),
       supabase.from("risks").select("*").order("created_at", { ascending: true }),
@@ -263,6 +268,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
       supabase.from("orchestration_runs").select("*").order("created_at", { ascending: false }),
       supabase.from("venture_artifacts").select("*").order("created_at", { ascending: false }),
       supabase.from("implementation_tasks").select("*").order("sort_order", { ascending: true }),
+      supabase.from("telemetry_events").select("*").order("occurred_at", { ascending: false }).limit(250),
     ]);
 
   if (ideasResult.error || risksResult.error || decisionsResult.error || experimentsResult.error) {
@@ -274,6 +280,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
       orchestrationRuns: seedOrchestrationRuns,
       artifacts: seedArtifacts,
       implementationTasks: seedImplementationTasks,
+      telemetryEvents: seedTelemetryEvents,
       source: "seed",
       error: user
         ? ideasResult.error?.message ??
@@ -293,6 +300,7 @@ export async function getConsoleData(): Promise<ConsoleData> {
     orchestrationRuns: orchestrationRunsResult.error ? [] : orchestrationRunsResult.data ?? [],
     artifacts: artifactsResult.error ? [] : artifactsResult.data ?? [],
     implementationTasks: implementationTasksResult.error ? [] : implementationTasksResult.data ?? [],
+    telemetryEvents: telemetryEventsResult.error ? [] : telemetryEventsResult.data ?? [],
     source: "supabase",
     error:
       user && orchestrationRunsResult.error
@@ -301,6 +309,8 @@ export async function getConsoleData(): Promise<ConsoleData> {
           ? `Artifact read failed: ${artifactsResult.error.message}`
           : user && implementationTasksResult.error && implementationTasksResult.error.code !== "42P01"
             ? `Implementation task read failed: ${implementationTasksResult.error.message}`
+          : user && telemetryEventsResult.error && telemetryEventsResult.error.code !== "42P01"
+            ? `Telemetry read failed: ${telemetryEventsResult.error.message}`
           : null,
   };
 }

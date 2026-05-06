@@ -261,6 +261,38 @@ export type Database = {
           },
         ];
       };
+      telemetry_events: {
+        Row: {
+          id: string;
+          organization_id: string | null;
+          idea_id: string | null;
+          actor_id: string | null;
+          event_name: string;
+          event_category: string;
+          properties: Json;
+          occurred_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["telemetry_events"]["Row"]> & {
+          event_name: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["telemetry_events"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "telemetry_events_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "telemetry_events_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       organizations: {
         Row: {
           id: string;

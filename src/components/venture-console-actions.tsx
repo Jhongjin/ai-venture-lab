@@ -18,7 +18,7 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Database, OrganizationRole } from "@/lib/supabase/types";
+import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
@@ -26,6 +26,7 @@ type AuditEvent = Database["public"]["Tables"]["audit_events"]["Row"];
 type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 type VentureArtifact = Database["public"]["Tables"]["venture_artifacts"]["Row"];
 type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["Insert"];
+type TelemetryEvent = Database["public"]["Tables"]["telemetry_events"]["Row"];
 type AddableOrganizationRole = Extract<OrganizationRole, "admin" | "member" | "viewer">;
 
 type FormState = {
@@ -1555,6 +1556,49 @@ export function VentureConsoleActions({
     [onActiveTaskChange],
   );
 
+  async function recordTelemetryEvent({
+    eventName,
+    eventCategory,
+    idea,
+    organizationId,
+    properties = {},
+  }: {
+    eventName: string;
+    eventCategory: string;
+    idea?: Idea | null;
+    organizationId?: string | null;
+    properties?: Record<string, Json>;
+  }) {
+    if (!supabase || !user) {
+      return;
+    }
+
+    const sanitizedProperties = Object.fromEntries(
+      Object.entries(properties).filter(([, value]) => value !== undefined),
+    ) as Record<string, Json>;
+    const { data, error } = await supabase
+      .from("telemetry_events")
+      .insert({
+        organization_id: organizationId ?? idea?.organization_id ?? null,
+        idea_id: idea?.id ?? null,
+        actor_id: user.id,
+        event_name: eventName,
+        event_category: eventCategory,
+        properties: sanitizedProperties,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn("Failed to record telemetry event", error.message);
+      return;
+    }
+
+    if (data) {
+      window.dispatchEvent(new CustomEvent<TelemetryEvent>("venture:telemetry-created", { detail: data }));
+    }
+  }
+
   const activeOrganization = useMemo(
     () => organizations.find((organization) => organization.id === activeOrganizationId) ?? organizations[0] ?? null,
     [activeOrganizationId, organizations],
@@ -2207,6 +2251,16 @@ export function VentureConsoleActions({
     setForm(emptyForm);
     if (data) {
       window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: data }));
+      void recordTelemetryEvent({
+        eventName: "idea_created",
+        eventCategory: "intake",
+        idea: data,
+        properties: {
+          source: "manual",
+          has_workspace: Boolean(data.organization_id),
+          filled_field_count: Object.values(form).filter((value) => value.trim()).length,
+        },
+      });
     }
     setSaveMessage(
       activeOrganization
@@ -2596,6 +2650,19 @@ export function VentureConsoleActions({
         window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: artifact }));
       }
     }
+    void recordTelemetryEvent({
+      eventName: "idea_package_created",
+      eventCategory: "extraction",
+      idea,
+      organizationId,
+      properties: {
+        gate: extractionGate.id,
+        validation_score: candidate.validationScore,
+        risk_created: Boolean(riskResult.data),
+        experiment_created: Boolean(experimentResult.data),
+        artifact_count: artifactResult.data?.length ?? 0,
+      },
+    });
 
     return {
       idea,

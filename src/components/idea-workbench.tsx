@@ -1,7 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { Beaker, CheckCircle2, Clipboard, ClipboardList, Code2, Flag, Layers3, RefreshCw, Save, ShieldAlert } from "lucide-react";
+import {
+  Activity,
+  Beaker,
+  CheckCircle2,
+  Clipboard,
+  ClipboardList,
+  Code2,
+  Flag,
+  Layers3,
+  RefreshCw,
+  Save,
+  ShieldAlert,
+} from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -13,6 +25,7 @@ import type {
   ImplementationTask,
   OrchestrationRun,
   Risk,
+  TelemetryEvent,
   VentureArtifact,
 } from "@/lib/venture-data";
 import type {
@@ -22,6 +35,7 @@ import type {
   ImplementationTaskPriority,
   ImplementationTaskStatus,
   ImplementationTaskType,
+  Json,
   OrchestrationPhase,
   OrchestrationStatus,
   RiskSeverity,
@@ -455,6 +469,54 @@ const evidenceConfidenceLabels: Record<EvidenceConfidence, string> = {
   medium: "보통",
   high: "높음",
 };
+const telemetryEventLabels: Record<string, string> = {
+  idea_created: "아이디어 생성",
+  idea_package_created: "검증 패키지 저장",
+  idea_updated: "점수/상태 저장",
+  risk_created: "리스크 추가",
+  risk_status_updated: "리스크 상태 변경",
+  decision_recorded: "판단 기록",
+  experiment_created: "실험 생성",
+  experiment_status_updated: "실험 상태 변경",
+  experiment_result_saved: "실험 결과 저장",
+  runbook_created: "런북 생성",
+  run_created: "단계 추가",
+  run_status_updated: "단계 상태 변경",
+  run_output_saved: "단계 산출물 저장",
+  artifact_saved: "산출물 저장",
+  artifact_package_saved: "산출물 패키지 저장",
+  artifact_status_updated: "산출물 상태 변경",
+  implementation_tasks_created: "개발 태스크 생성",
+  implementation_task_created: "개발 태스크 추가",
+  implementation_task_status_updated: "개발 태스크 상태 변경",
+  implementation_task_evidence_saved: "개발 태스크 증거 저장",
+};
+const telemetryCategoryLabels: Record<string, string> = {
+  intake: "접수",
+  extraction: "발굴",
+  scoring: "점수화",
+  risk: "리스크",
+  decision: "판단",
+  experiment: "실험",
+  orchestration: "오케스트레이션",
+  artifact: "산출물",
+  development: "개발",
+  launch: "출시",
+  learning: "학습",
+};
+const telemetryCategoryTone: Record<string, string> = {
+  intake: "bg-blue-50 text-blue-700",
+  extraction: "bg-violet-50 text-violet-800",
+  scoring: "bg-sky-50 text-sky-800",
+  risk: "bg-rose-50 text-rose-700",
+  decision: "bg-emerald-50 text-emerald-800",
+  experiment: "bg-amber-50 text-amber-800",
+  orchestration: "bg-indigo-50 text-indigo-800",
+  artifact: "bg-slate-100 text-slate-700",
+  development: "bg-cyan-50 text-cyan-800",
+  launch: "bg-teal-50 text-teal-800",
+  learning: "bg-lime-50 text-lime-800",
+};
 
 type EditState = Pick<
   Idea,
@@ -594,7 +656,8 @@ export type WorkbenchTask =
   | "orchestration"
   | "artifacts"
   | "development"
-  | "launch";
+  | "launch"
+  | "learning";
 
 type ArtifactPanel = "validation" | "product" | "library";
 type DevelopmentPanel = "setup" | "tasks" | "handoff";
@@ -6091,6 +6154,92 @@ ${summary.recommendation}
 `;
 }
 
+function formatTelemetryTime(value: string) {
+  return new Date(value).toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatTelemetryProperties(properties: Json) {
+  if (!properties || typeof properties !== "object" || Array.isArray(properties)) {
+    return "";
+  }
+
+  return Object.entries(properties)
+    .filter(([, value]) => value !== undefined && value !== null && typeof value !== "object")
+    .slice(0, 4)
+    .map(([key, value]) => `${key}: ${String(value)}`)
+    .join(" · ");
+}
+
+function eventCountForWindow(events: TelemetryEvent[], days: number) {
+  const threshold = Date.now() - days * 24 * 60 * 60 * 1000;
+
+  return events.filter((event) => new Date(event.occurred_at).getTime() >= threshold).length;
+}
+
+function buildLearningTelemetryReportMarkdown({
+  idea,
+  events,
+  openRisks,
+  experiments,
+  implementationTasks,
+}: {
+  idea: Idea;
+  events: TelemetryEvent[];
+  openRisks: Risk[];
+  experiments: Experiment[];
+  implementationTasks: ImplementationTask[];
+}) {
+  const recentEvents = events.slice(0, 12);
+  const eventRows = recentEvents
+    .map(
+      (event, index) =>
+        `| ${index + 1} | ${formatTelemetryTime(event.occurred_at)} | ${
+          telemetryEventLabels[event.event_name] ?? event.event_name
+        } | ${telemetryCategoryLabels[event.event_category] ?? event.event_category} | ${formatTelemetryProperties(event.properties) || "-"} |`,
+    )
+    .join("\n");
+  const doneTasks = implementationTasks.filter((task) => task.status === "done").length;
+
+  return `# 출시 후 학습 리포트: ${idea.name}
+
+## 현재 상태
+
+- 최근 7일 이벤트: ${eventCountForWindow(events, 7)}개
+- 최근 14일 이벤트: ${eventCountForWindow(events, 14)}개
+- 최근 30일 이벤트: ${eventCountForWindow(events, 30)}개
+- 열린 리스크: ${openRisks.length}개
+- 실험: ${experiments.length}개
+- 개발 태스크 완료: ${doneTasks}/${implementationTasks.length}
+
+## Day 7 판단
+
+- 확인 신호: 핵심 행동 이벤트, 첫 사용 완료, 반복 방문, 오류/차단 기록
+- 권장 행동: 이벤트가 적으면 온보딩/첫 가치 도달을 줄이고, 실험 결과를 하나 더 기록합니다.
+
+## Day 14 판단
+
+- 확인 신호: 반복 사용, 지불 의향, 리스크 종료, 지원 요청 패턴
+- 권장 행동: 반복 사용이 약하면 사용자 세그먼트나 첫 화면을 좁힙니다.
+
+## Day 30 판단
+
+- 확인 신호: 유지율, 유료 전환, 추천/공유, 운영 비용, 보안/개인정보 사고 없음
+- 권장 행동: 충분한 신호가 있으면 다음 빌드 범위를 승인하고, 약하면 전환 또는 중단 판단을 기록합니다.
+
+## 최근 이벤트
+
+| 순서 | 시각 | 이벤트 | 범주 | 속성 |
+| --- | --- | --- | --- | --- |
+${eventRows || "| - | 이벤트 없음 | - | - | - |"}
+`;
+}
+
 function splitComparableLines(body: string) {
   return body
     .split(/\r?\n/)
@@ -6116,6 +6265,7 @@ export function IdeaWorkbench({
   initialOrchestrationRuns,
   initialArtifacts,
   initialImplementationTasks,
+  initialTelemetryEvents,
   activeTask: controlledActiveTask,
   onActiveTaskChange,
   showSidebar = true,
@@ -6127,6 +6277,7 @@ export function IdeaWorkbench({
   initialOrchestrationRuns: OrchestrationRun[];
   initialArtifacts: VentureArtifact[];
   initialImplementationTasks: ImplementationTask[];
+  initialTelemetryEvents: TelemetryEvent[];
   activeTask?: WorkbenchTask;
   onActiveTaskChange?: (task: WorkbenchTask) => void;
   showSidebar?: boolean;
@@ -6140,6 +6291,7 @@ export function IdeaWorkbench({
   const [orchestrationRuns, setOrchestrationRuns] = useState(initialOrchestrationRuns);
   const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
+  const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
   const [selectedIdeaId, setSelectedIdeaId] = useState(() => sortWorkbenchIdeas(initialIdeas)[0]?.id ?? "");
   const selectedIdea = ideas.find((idea) => idea.id === selectedIdeaId) ?? ideas[0] ?? null;
   const [editState, setEditState] = useState<EditState | null>(selectedIdea ? toEditState(selectedIdea) : null);
@@ -6203,6 +6355,48 @@ export function IdeaWorkbench({
     onActiveTaskChange?.(task);
   }, [onActiveTaskChange]);
 
+  async function recordTelemetryEvent({
+    eventName,
+    eventCategory,
+    properties = {},
+    idea = selectedIdea,
+  }: {
+    eventName: string;
+    eventCategory: string;
+    properties?: Record<string, Json>;
+    idea?: Idea | null;
+  }) {
+    if (!supabase || !user) {
+      return;
+    }
+
+    const sanitizedProperties = Object.fromEntries(
+      Object.entries(properties).filter(([, value]) => value !== undefined),
+    ) as Record<string, Json>;
+    const { data, error } = await supabase
+      .from("telemetry_events")
+      .insert({
+        organization_id: idea?.organization_id ?? null,
+        idea_id: idea?.id ?? null,
+        actor_id: user.id,
+        event_name: eventName,
+        event_category: eventCategory,
+        properties: sanitizedProperties,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.warn("Failed to record telemetry event", error.message);
+      return;
+    }
+
+    if (data) {
+      setTelemetryEvents((current) => upsertRecordById(current, data));
+      emitVentureEvent<TelemetryEvent>("venture:telemetry-created", data);
+    }
+  }
+
   useEffect(() => {
     function handleRecordEvent<T extends { id: string }>(
       event: Event,
@@ -6257,6 +6451,7 @@ export function IdeaWorkbench({
     const handleTaskCreated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
     const handleTasksCreated = (event: Event) => handleRecordListEvent<ImplementationTask>(event, setImplementationTasks);
     const handleTaskUpdated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
+    const handleTelemetryCreated = (event: Event) => handleRecordEvent<TelemetryEvent>(event, setTelemetryEvents);
 
     window.addEventListener("venture:idea-created", handleIdeaCreated);
     window.addEventListener("venture:idea-updated", handleIdeaUpdated);
@@ -6272,6 +6467,7 @@ export function IdeaWorkbench({
     window.addEventListener("venture:task-created", handleTaskCreated);
     window.addEventListener("venture:tasks-created", handleTasksCreated);
     window.addEventListener("venture:task-updated", handleTaskUpdated);
+    window.addEventListener("venture:telemetry-created", handleTelemetryCreated);
 
     return () => {
       window.removeEventListener("venture:idea-created", handleIdeaCreated);
@@ -6288,6 +6484,7 @@ export function IdeaWorkbench({
       window.removeEventListener("venture:task-created", handleTaskCreated);
       window.removeEventListener("venture:tasks-created", handleTasksCreated);
       window.removeEventListener("venture:task-updated", handleTaskUpdated);
+      window.removeEventListener("venture:telemetry-created", handleTelemetryCreated);
     };
   }, [updateActiveTask]);
 
@@ -6408,6 +6605,45 @@ export function IdeaWorkbench({
         ),
     [implementationTasks, selectedIdea?.id],
   );
+  const selectedTelemetryEvents = useMemo(
+    () =>
+      telemetryEvents
+        .filter((event) => event.idea_id === selectedIdea?.id)
+        .sort((a, b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime()),
+    [selectedIdea?.id, telemetryEvents],
+  );
+  const openSelectedIdeaRisks = selectedIdeaRisks.filter((risk) => risk.status !== "closed");
+  const learningTelemetryReportDraft = selectedIdea
+    ? buildLearningTelemetryReportMarkdown({
+        idea: selectedIdea,
+        events: selectedTelemetryEvents,
+        openRisks: openSelectedIdeaRisks,
+        experiments: selectedExperiments,
+        implementationTasks: selectedImplementationTasks,
+      })
+    : "";
+  const learningSignalCards = [
+    {
+      label: "최근 7일",
+      value: `${eventCountForWindow(selectedTelemetryEvents, 7)}개`,
+      detail: "첫 가치 도달, 저장, 상태 변경 같은 초기 행동 신호",
+    },
+    {
+      label: "최근 14일",
+      value: `${eventCountForWindow(selectedTelemetryEvents, 14)}개`,
+      detail: "반복 사용, 실험 결과, 리스크 해소 신호",
+    },
+    {
+      label: "최근 30일",
+      value: `${eventCountForWindow(selectedTelemetryEvents, 30)}개`,
+      detail: "유지, 전환, 다음 빌드 판단에 필요한 누적 신호",
+    },
+    {
+      label: "열린 리스크",
+      value: `${openSelectedIdeaRisks.length}개`,
+      detail: "학습 루프에서 계속 감시해야 하는 차단 요인",
+    },
+  ];
   const selectedOpenImplementationTasks = useMemo(
     () => sortImplementationTasksForAction(selectedImplementationTasks.filter((task) => task.status !== "done")),
     [selectedImplementationTasks],
@@ -7559,6 +7795,12 @@ export function IdeaWorkbench({
       description: "출시 게이트 통과 상태를 확인합니다.",
       status: `${launchReadinessScore}%`,
     },
+    {
+      id: "learning",
+      label: "학습 루프",
+      description: "출시 후 행동 신호를 읽습니다.",
+      status: selectedTelemetryEvents.length > 0 ? `${selectedTelemetryEvents.length}개` : "대기",
+    },
   ];
   const visibleIdeas = useMemo(() => {
     if (filterMode === "mine") {
@@ -7613,6 +7855,17 @@ export function IdeaWorkbench({
 
     setIdeas((current) => current.map((idea) => (idea.id === data.id ? data : idea)));
     emitVentureEvent("venture:idea-updated", data);
+    void recordTelemetryEvent({
+      eventName: "idea_updated",
+      eventCategory: "scoring",
+      idea: data,
+      properties: {
+        stage: data.stage,
+        decision: data.decision,
+        score: scoreState(toEditState(data)),
+        regulatory_risk: data.regulatory_risk,
+      },
+    });
     setMessage("아이디어 점수와 상태를 저장했습니다.");
     router.refresh();
   }
@@ -7659,6 +7912,15 @@ export function IdeaWorkbench({
 
     setRisks((current) => [data, ...current]);
     emitVentureEvent("venture:risk-created", data);
+    void recordTelemetryEvent({
+      eventName: "risk_created",
+      eventCategory: "risk",
+      properties: {
+        severity: data.severity,
+        status: data.status,
+        area: data.area || "미정",
+      },
+    });
     setRiskDraft({ title: "", area: "", severity: "medium", mitigation: "" });
     setMessage("리스크를 추가했습니다.");
     router.refresh();
@@ -7701,6 +7963,15 @@ export function IdeaWorkbench({
     setDecisionLog((current) => [decisionResult.data, ...current]);
     emitVentureEvent("venture:idea-updated", ideaResult.data);
     emitVentureEvent("venture:decision-created", decisionResult.data);
+    void recordTelemetryEvent({
+      eventName: "decision_recorded",
+      eventCategory: "decision",
+      idea: ideaResult.data,
+      properties: {
+        decision: decisionResult.data.decision,
+        reason_length: decisionResult.data.reason.length,
+      },
+    });
     setDecisionReason("");
     setMessage("판단을 기록했습니다.");
     router.refresh();
@@ -7746,6 +8017,15 @@ export function IdeaWorkbench({
 
     setExperiments((current) => [data, ...current]);
     emitVentureEvent("venture:experiment-created", data);
+    void recordTelemetryEvent({
+      eventName: "experiment_created",
+      eventCategory: "experiment",
+      properties: {
+        status: data.status,
+        name_length: data.name.length,
+        success_metric_length: data.success_metric.length,
+      },
+    });
     setExperimentDraft({ name: "", success_metric: "" });
     setMessage("실험을 추가했습니다.");
     router.refresh();
@@ -7788,6 +8068,15 @@ export function IdeaWorkbench({
     setOrchestrationRuns((current) => [data, ...current]);
     setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
     emitVentureEvent("venture:run-created", data);
+    void recordTelemetryEvent({
+      eventName: "run_created",
+      eventCategory: "orchestration",
+      properties: {
+        phase: data.phase,
+        status: data.status,
+        owner_role: data.owner_role || "미정",
+      },
+    });
     setMessage("오케스트레이션 단계를 추가했습니다.");
     router.refresh();
   }
@@ -7836,6 +8125,14 @@ export function IdeaWorkbench({
       ...Object.fromEntries((data ?? []).map((run) => [run.id, run.output])),
     }));
     emitVentureEvent("venture:runs-created", data ?? []);
+    void recordTelemetryEvent({
+      eventName: "runbook_created",
+      eventCategory: "orchestration",
+      properties: {
+        run_count: data?.length ?? 0,
+        missing_phase_count: missingRuns.length,
+      },
+    });
     setMessage("전체 오케스트레이션 런북을 만들었습니다.");
     router.refresh();
   }
@@ -7873,6 +8170,14 @@ export function IdeaWorkbench({
 
     setExperiments((current) => current.map((item) => (item.id === data.id ? data : item)));
     emitVentureEvent("venture:experiment-updated", data);
+    void recordTelemetryEvent({
+      eventName: "experiment_status_updated",
+      eventCategory: "experiment",
+      properties: {
+        status: data.status,
+        previous_status: experiment.status,
+      },
+    });
     setMessage(`실험 상태를 ${experimentStatusLabels[status] ?? status}(으)로 변경했습니다.`);
     router.refresh();
   }
@@ -7905,6 +8210,15 @@ export function IdeaWorkbench({
 
     setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
     emitVentureEvent("venture:run-updated", data);
+    void recordTelemetryEvent({
+      eventName: "run_status_updated",
+      eventCategory: "orchestration",
+      properties: {
+        phase: data.phase,
+        status: data.status,
+        previous_status: run.status,
+      },
+    });
     setMessage(`${phaseLabels[run.phase]} 상태를 ${runStatusLabels[status]}(으)로 변경했습니다.`);
     router.refresh();
   }
@@ -7938,6 +8252,14 @@ export function IdeaWorkbench({
     setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
     setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
     emitVentureEvent("venture:run-updated", data);
+    void recordTelemetryEvent({
+      eventName: "run_output_saved",
+      eventCategory: "orchestration",
+      properties: {
+        phase: data.phase,
+        output_length: data.output.length,
+      },
+    });
     setMessage(`${phaseLabels[run.phase]} 산출물을 저장했습니다.`);
     router.refresh();
   }
@@ -7992,6 +8314,17 @@ export function IdeaWorkbench({
 
     setArtifacts((current) => [data, ...current]);
     emitVentureEvent("venture:artifact-created", data);
+    void recordTelemetryEvent({
+      eventName: "artifact_saved",
+      eventCategory: source === "post_launch_learning" ? "learning" : source.includes("launch") ? "launch" : "artifact",
+      properties: {
+        artifact_type: data.artifact_type,
+        source: data.source || "manual",
+        version: data.version ?? 1,
+        title_length: data.title.length,
+        body_length: data.body.length,
+      },
+    });
     setMessage(`${artifactLabels[artifactType]} v${nextVersion}을 저장했습니다.`);
     router.refresh();
     return true;
@@ -8059,6 +8392,14 @@ export function IdeaWorkbench({
 
     setArtifacts((current) => [...savedArtifacts, ...current]);
     savedArtifacts.forEach((artifact) => emitVentureEvent("venture:artifact-created", artifact));
+    void recordTelemetryEvent({
+      eventName: "artifact_package_saved",
+      eventCategory: "development",
+      properties: {
+        artifact_count: savedArtifacts.length,
+        source: "development_package",
+      },
+    });
     setMessage(`개발 패키지 산출물 ${savedArtifacts.length}개를 저장했습니다.`);
     router.refresh();
   }
@@ -8125,6 +8466,16 @@ export function IdeaWorkbench({
     );
 
     if (saved) {
+      void recordTelemetryEvent({
+        eventName: "experiment_result_saved",
+        eventCategory: "experiment",
+        properties: {
+          experiment_id: selectedExperimentForResult.id,
+          result_length: experimentResultDraft.result.length,
+          learning_length: experimentResultDraft.learning.length,
+          next_decision: experimentResultDraft.next_decision,
+        },
+      });
       setExperimentResultDraft({
         experiment_id: selectedExperimentForResult.id,
         result: "",
@@ -8192,6 +8543,15 @@ export function IdeaWorkbench({
 
     setArtifacts((current) => current.map((item) => (item.id === data.id ? data : item)));
     emitVentureEvent("venture:artifact-updated", data);
+    void recordTelemetryEvent({
+      eventName: "artifact_status_updated",
+      eventCategory: "artifact",
+      properties: {
+        artifact_type: data.artifact_type,
+        status: data.status,
+        version: data.version ?? 1,
+      },
+    });
     setArtifactStatusNotes((current) => {
       const next = { ...current };
       delete next[data.id];
@@ -8253,6 +8613,14 @@ export function IdeaWorkbench({
 
     setImplementationTasks((current) => [...current, ...(data ?? [])]);
     emitVentureEvent("venture:tasks-created", data ?? []);
+    void recordTelemetryEvent({
+      eventName: "implementation_tasks_created",
+      eventCategory: "development",
+      properties: {
+        task_count: data?.length ?? 0,
+        source_artifact: implementationTaskSourceArtifact ? "yes" : "no",
+      },
+    });
     setMessage(`${missingDrafts.length}개의 개발 태스크를 만들었습니다.`);
     router.refresh();
   }
@@ -8303,6 +8671,15 @@ export function IdeaWorkbench({
 
     setImplementationTasks((current) => [...current, data]);
     emitVentureEvent("venture:task-created", data);
+    void recordTelemetryEvent({
+      eventName: "implementation_task_created",
+      eventCategory: "development",
+      properties: {
+        task_type: data.task_type,
+        priority: data.priority,
+        owner_role: data.owner_role || "미정",
+      },
+    });
     setImplementationTaskDraft({
       title: "",
       task_type: "frontend",
@@ -8342,6 +8719,15 @@ export function IdeaWorkbench({
 
     setImplementationTasks((current) => current.map((item) => (item.id === data.id ? data : item)));
     emitVentureEvent("venture:task-updated", data);
+    void recordTelemetryEvent({
+      eventName: "implementation_task_status_updated",
+      eventCategory: "development",
+      properties: {
+        task_type: data.task_type,
+        status: data.status,
+        previous_status: task.status,
+      },
+    });
     setMessage(`${task.title} 상태를 ${implementationTaskStatusLabels[status]}(으)로 변경했습니다.`);
     router.refresh();
   }
@@ -8374,6 +8760,15 @@ export function IdeaWorkbench({
 
     setImplementationTasks((current) => current.map((item) => (item.id === data.id ? data : item)));
     emitVentureEvent("venture:task-updated", data);
+    void recordTelemetryEvent({
+      eventName: "implementation_task_evidence_saved",
+      eventCategory: "development",
+      properties: {
+        task_type: data.task_type,
+        evidence_length: data.evidence.length,
+        status: data.status,
+      },
+    });
     setImplementationTaskEvidence((current) => {
       const next = { ...current };
       delete next[data.id];
@@ -8411,6 +8806,15 @@ export function IdeaWorkbench({
 
     setRisks((current) => current.map((item) => (item.id === data.id ? data : item)));
     emitVentureEvent("venture:risk-updated", data);
+    void recordTelemetryEvent({
+      eventName: "risk_status_updated",
+      eventCategory: "risk",
+      properties: {
+        severity: data.severity,
+        status: data.status,
+        previous_status: risk.status,
+      },
+    });
     setMessage(`리스크 상태를 ${riskStatusLabels[status] ?? status}(으)로 변경했습니다.`);
     router.refresh();
   }
@@ -10630,6 +11034,127 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        <div className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "learning" ? "" : "hidden"}`}>
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                <Activity size={16} />
+                Learning telemetry
+              </div>
+              <h2 className="text-lg font-semibold text-slate-950">학습 루프</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                워크벤치에서 발생한 주요 행동을 이벤트로 모아 출시 후 Day 7, 14, 30 판단 리포트로 연결합니다.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
+                disabled={!learningTelemetryReportDraft}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-white px-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Clipboard size={16} />
+                리포트 복사
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  saveArtifactDraft(
+                    "research_note",
+                    `${selectedIdea.name} 학습 리포트`,
+                    learningTelemetryReportDraft,
+                    "post_launch_learning",
+                  )
+                }
+                disabled={isBusy || !user || !learningTelemetryReportDraft}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-700 px-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Save size={16} />
+                리포트 저장
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-4">
+            {learningSignalCards.map((card) => (
+              <div key={card.label} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{card.label}</div>
+                <div className="mt-2 text-2xl font-semibold text-slate-950">{card.value}</div>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            {[
+              ["Day 7", "첫 행동 완료율", "이벤트가 적으면 온보딩, 첫 화면, 핵심 액션을 더 짧게 만듭니다."],
+              ["Day 14", "반복 사용과 지불 신호", "반복 이벤트와 실험 결과를 보고 세그먼트 축소 또는 가격 검증으로 이동합니다."],
+              ["Day 30", "유지와 다음 빌드", "충분한 사용/지불/추천 신호가 있으면 다음 MVP 슬라이스를 승인합니다."],
+            ].map(([label, signal, action]) => (
+              <div key={label} className="rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
+                <h3 className="mt-2 text-sm font-semibold text-emerald-950">{signal}</h3>
+                <p className="mt-2 text-sm leading-6 text-emerald-900">{action}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(360px,0.65fr)]">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h3 className="text-base font-semibold text-slate-950">최근 이벤트</h3>
+                <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                  {selectedTelemetryEvents.length}개
+                </span>
+              </div>
+              <div className="grid gap-2">
+                {selectedTelemetryEvents.slice(0, 12).map((event) => (
+                  <div key={event.id} className="rounded-md bg-white p-3 shadow-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-950">
+                          {telemetryEventLabels[event.event_name] ?? event.event_name}
+                        </span>
+                        <span
+                          className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                            telemetryCategoryTone[event.event_category] ?? "bg-slate-100 text-slate-700"
+                          }`}
+                        >
+                          {telemetryCategoryLabels[event.event_category] ?? event.event_category}
+                        </span>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-500">{formatTelemetryTime(event.occurred_at)}</span>
+                    </div>
+                    {formatTelemetryProperties(event.properties) ? (
+                      <p className="mt-2 text-xs leading-5 text-slate-500">{formatTelemetryProperties(event.properties)}</p>
+                    ) : null}
+                  </div>
+                ))}
+                {selectedTelemetryEvents.length === 0 ? (
+                  <div className="rounded-md bg-white p-4 text-sm leading-6 text-slate-600 shadow-sm">
+                    아직 이 아이디어에 연결된 이벤트가 없습니다. 점수 저장, 리스크 추가, 실험/산출물 저장 같은 행동을 하면 자동으로 쌓입니다.
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <div className="mb-3">
+                <h3 className="text-base font-semibold text-slate-950">학습 리포트 초안</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  운영 이벤트를 제품 판단 언어로 바꿔 다음 빌드 범위에 넘깁니다.
+                </p>
+              </div>
+              <textarea
+                value={learningTelemetryReportDraft}
+                readOnly
+                rows={22}
+                className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+              />
+            </div>
           </div>
         </div>
 
