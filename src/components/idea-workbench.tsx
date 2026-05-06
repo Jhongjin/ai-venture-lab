@@ -494,6 +494,21 @@ export type WorkbenchTask =
 
 type ArtifactPanel = "validation" | "product" | "library";
 type DevelopmentPanel = "setup" | "tasks" | "handoff";
+type ArtifactReviewStatus = "approved" | "draft" | "missing";
+
+type ArtifactReviewItem = {
+  id: string;
+  label: string;
+  artifactType: VentureArtifactType;
+  requiredStatus: VentureArtifactStatus;
+  status: ArtifactReviewStatus;
+  artifact: VentureArtifact | null;
+  detail: string;
+  action: string;
+  task: WorkbenchTask;
+  panel?: ArtifactPanel;
+  developmentPanel?: DevelopmentPanel;
+};
 
 const artifactPanelLabels: Record<ArtifactPanel, string> = {
   validation: "검증 산출물",
@@ -519,6 +534,111 @@ const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   handoff: "개발 완료 게이트, 실행 계획, Codex 구현 프롬프트를 확인합니다.",
 };
 
+const artifactReviewBlueprint: Array<
+  Omit<ArtifactReviewItem, "status" | "artifact" | "detail"> & {
+    missingDetail: string;
+    draftDetail: string;
+    approvedDetail: string;
+  }
+> = [
+  {
+    id: "idea-brief",
+    label: "아이디어 브리프",
+    artifactType: "idea_brief",
+    requiredStatus: "approved",
+    action: "문제, 대상, 구매자, 리스크 요약을 승인 가능한 브리프로 잠급니다.",
+    task: "artifacts",
+    panel: "validation",
+    missingDetail: "아이디어 브리프가 없습니다.",
+    draftDetail: "아이디어 브리프 초안은 있으나 승인 전입니다.",
+    approvedDetail: "아이디어 브리프가 승인되었습니다.",
+  },
+  {
+    id: "research-note",
+    label: "리서치 노트",
+    artifactType: "research_note",
+    requiredStatus: "approved",
+    action: "인터뷰, 대체재, 가격 신호, 리플레이 리포트를 승인 근거로 정리합니다.",
+    task: "artifacts",
+    panel: "validation",
+    missingDetail: "리서치 노트나 발굴 리포트가 없습니다.",
+    draftDetail: "리서치 초안은 있으나 승인 전입니다.",
+    approvedDetail: "리서치 노트가 승인되었습니다.",
+  },
+  {
+    id: "prd",
+    label: "PRD",
+    artifactType: "prd",
+    requiredStatus: "approved",
+    action: "목표, 제외 범위, 수용 기준, no-go 조건을 승인합니다.",
+    task: "artifacts",
+    panel: "product",
+    missingDetail: "PRD 산출물이 없습니다.",
+    draftDetail: "PRD 초안은 있으나 승인 전입니다.",
+    approvedDetail: "PRD가 승인되었습니다.",
+  },
+  {
+    id: "mvp-spec",
+    label: "MVP 명세",
+    artifactType: "mvp_spec",
+    requiredStatus: "approved",
+    action: "MVP 슬라이스, 첫 화면, 제외 범위, 성공 기준을 승인합니다.",
+    task: "artifacts",
+    panel: "product",
+    missingDetail: "MVP 명세가 없습니다.",
+    draftDetail: "MVP 명세 초안은 있으나 승인 전입니다.",
+    approvedDetail: "MVP 명세가 승인되었습니다.",
+  },
+  {
+    id: "design-brief",
+    label: "디자인 브리프",
+    artifactType: "design_brief",
+    requiredStatus: "approved",
+    action: "핵심 화면, 빈/오류/권한 상태, 모바일 흐름을 승인합니다.",
+    task: "development",
+    developmentPanel: "setup",
+    missingDetail: "디자인 브리프가 없습니다.",
+    draftDetail: "디자인 브리프 초안은 있으나 승인 전입니다.",
+    approvedDetail: "디자인 브리프가 승인되었습니다.",
+  },
+  {
+    id: "tech-spec",
+    label: "기술 명세",
+    artifactType: "tech_spec",
+    requiredStatus: "approved",
+    action: "데이터 모델, 권한, 환경변수, 검증 명령을 승인합니다.",
+    task: "development",
+    developmentPanel: "setup",
+    missingDetail: "기술 명세가 없습니다.",
+    draftDetail: "기술 명세 초안은 있으나 승인 전입니다.",
+    approvedDetail: "기술 명세가 승인되었습니다.",
+  },
+  {
+    id: "dev-runbook",
+    label: "개발 런북",
+    artifactType: "dev_runbook",
+    requiredStatus: "approved",
+    action: "구현 순서, 담당 역할, 검증/배포 루프를 승인합니다.",
+    task: "development",
+    developmentPanel: "handoff",
+    missingDetail: "개발 런북이 없습니다.",
+    draftDetail: "개발 런북 초안은 있으나 승인 전입니다.",
+    approvedDetail: "개발 런북이 승인되었습니다.",
+  },
+  {
+    id: "launch-checklist",
+    label: "출시 체크리스트",
+    artifactType: "launch_checklist",
+    requiredStatus: "approved",
+    action: "QA, 보안, 배포, 롤백 기준을 승인하고 출시 판단으로 넘깁니다.",
+    task: "artifacts",
+    panel: "product",
+    missingDetail: "출시 체크리스트가 없습니다.",
+    draftDetail: "출시 체크리스트 초안은 있으나 승인 전입니다.",
+    approvedDetail: "출시 체크리스트가 승인되었습니다.",
+  },
+];
+
 function sortWorkbenchIdeas(nextIdeas: Idea[]) {
   return [...nextIdeas].sort(
     (a, b) =>
@@ -535,6 +655,40 @@ function upsertWorkbenchIdea(current: Idea[], nextIdea: Idea) {
     : [nextIdea, ...current];
 
   return sortWorkbenchIdeas(nextIdeas);
+}
+
+function getLatestArtifactByType(artifacts: VentureArtifact[], artifactType: VentureArtifactType) {
+  return (
+    [...artifacts]
+      .filter((artifact) => artifact.artifact_type === artifactType)
+      .sort(
+        (a, b) =>
+          new Date(b.updated_at ?? b.created_at).getTime() - new Date(a.updated_at ?? a.created_at).getTime() ||
+          (b.version ?? 1) - (a.version ?? 1),
+      )[0] ?? null
+  );
+}
+
+function buildArtifactReviewQueue(artifacts: VentureArtifact[]): ArtifactReviewItem[] {
+  return artifactReviewBlueprint.map((item) => {
+    const artifact = getLatestArtifactByType(artifacts, item.artifactType);
+    const status: ArtifactReviewStatus = artifact ? (artifact.status === item.requiredStatus ? "approved" : "draft") : "missing";
+    const detail = status === "approved" ? item.approvedDetail : status === "draft" ? item.draftDetail : item.missingDetail;
+
+    return {
+      id: item.id,
+      label: item.label,
+      artifactType: item.artifactType,
+      requiredStatus: item.requiredStatus,
+      status,
+      artifact,
+      detail,
+      action: item.action,
+      task: item.task,
+      panel: item.panel,
+      developmentPanel: item.developmentPanel,
+    };
+  });
 }
 
 function emitVentureEvent<T>(eventName: string, detail: T) {
@@ -4942,6 +5096,10 @@ export function IdeaWorkbench({
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     [artifacts, selectedIdea?.id],
   );
+  const artifactReviewQueue = useMemo(() => buildArtifactReviewQueue(selectedArtifactRecords), [selectedArtifactRecords]);
+  const approvedArtifactReviewCount = artifactReviewQueue.filter((item) => item.status === "approved").length;
+  const nextArtifactReviewItem = artifactReviewQueue.find((item) => item.status !== "approved") ?? null;
+  const artifactReviewProgress = Math.round((approvedArtifactReviewCount / artifactReviewQueue.length) * 100);
   const artifactSourceOptions = useMemo(
     () =>
       ["all", ...Array.from(new Set(selectedArtifactRecords.map((artifact) => artifact.source || "manual"))).sort((a, b) =>
@@ -6604,6 +6762,29 @@ export function IdeaWorkbench({
         next_action: "",
       });
     }
+  }
+
+  function focusArtifactReviewItem(item: ArtifactReviewItem) {
+    if (item.artifact) {
+      setArtifactTypeFilter(item.artifactType);
+      setArtifactStatusFilter("all");
+      setArtifactSourceFilter("all");
+      setArtifactPanel("library");
+      updateActiveTask("artifacts");
+      setMessage(`${item.label} 산출물을 라이브러리에서 확인하세요.`);
+      return;
+    }
+
+    if (item.task === "development") {
+      setDevelopmentPanel(item.developmentPanel ?? "setup");
+      updateActiveTask("development");
+      setMessage(`${item.label} 생성을 위해 개발 프로세스 화면으로 이동했습니다.`);
+      return;
+    }
+
+    setArtifactPanel(item.panel ?? "product");
+    updateActiveTask("artifacts");
+    setMessage(`${item.label} 생성을 위해 ${artifactPanelLabels[item.panel ?? "product"]} 화면으로 이동했습니다.`);
   }
 
   async function updateArtifactStatus(artifact: VentureArtifact, status: VentureArtifactStatus) {
@@ -9618,6 +9799,84 @@ export function IdeaWorkbench({
               </label>
             </div>
           </div>
+          {selectedIdea ? (
+            <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">Review queue</div>
+                  <h3 className="mt-1 text-base font-semibold text-indigo-950">앱 제작 산출물 승인 큐</h3>
+                  <p className="mt-1 text-sm leading-6 text-indigo-900">
+                    아이디어 검증에서 개발/출시까지 필요한 산출물을 순서대로 확인합니다.
+                  </p>
+                  {nextArtifactReviewItem ? (
+                    <div className="mt-3 rounded-md bg-white p-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-950">
+                          다음 처리: {nextArtifactReviewItem.label}
+                        </span>
+                        <span
+                          className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                            nextArtifactReviewItem.status === "draft"
+                              ? "bg-amber-50 text-amber-800"
+                              : "bg-rose-50 text-rose-700"
+                          }`}
+                        >
+                          {nextArtifactReviewItem.status === "draft" ? "승인 대기" : "생성 필요"}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">{nextArtifactReviewItem.detail}</p>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">{nextArtifactReviewItem.action}</p>
+                    </div>
+                  ) : (
+                    <div className="mt-3 rounded-md bg-emerald-50 p-3 text-sm leading-6 text-emerald-900">
+                      모든 핵심 산출물이 승인되었습니다. 출시 판단과 배포 검증으로 넘어갈 수 있습니다.
+                    </div>
+                  )}
+                </div>
+                <div className="shrink-0 rounded-lg bg-indigo-950 px-4 py-3 text-right text-white">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-200">
+                    승인 {approvedArtifactReviewCount}/{artifactReviewQueue.length}
+                  </div>
+                  <div className="mt-1 text-3xl font-semibold">{artifactReviewProgress}%</div>
+                  {nextArtifactReviewItem ? (
+                    <button
+                      type="button"
+                      onClick={() => focusArtifactReviewItem(nextArtifactReviewItem)}
+                      className="mt-3 inline-flex h-9 items-center justify-center rounded-md bg-white px-3 text-xs font-semibold text-indigo-900 transition hover:bg-indigo-100"
+                    >
+                      다음 항목 열기
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+              <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+                {artifactReviewQueue.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => focusArtifactReviewItem(item)}
+                    className="rounded-md bg-white px-3 py-2 text-left transition hover:bg-indigo-100"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-slate-950">{item.label}</span>
+                      <span
+                        className={`rounded-md px-2 py-1 text-[11px] font-semibold ${
+                          item.status === "approved"
+                            ? "bg-emerald-50 text-emerald-800"
+                            : item.status === "draft"
+                              ? "bg-amber-50 text-amber-800"
+                              : "bg-rose-50 text-rose-700"
+                        }`}
+                      >
+                        {item.status === "approved" ? "승인" : item.status === "draft" ? "초안" : "없음"}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{item.detail}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
           {recentDevelopmentHandoffArtifacts.length > 0 ? (
             <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50 p-4">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
