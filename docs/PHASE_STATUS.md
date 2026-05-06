@@ -4,9 +4,9 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 ## Current Phase
 
-- Phase: Core product intelligence buildout
-- Goal: Add the intelligence layer that turns messy notes and conversations into ranked app candidates, validation packages, and execution-ready next actions.
-- Status: Completed
+- Phase: Public beta readiness
+- Goal: Add browser-level smoke, beta checklists, and release confidence gates before broader usage.
+- Status: In progress
 
 ## Loop Rules
 
@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Added browser-level beta smoke harness | Current commit | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:browser` |
 | 2026-05-06 | Added implementation agent run packages | `48de7c3` | Production `dpl_xsbb9d7SMFtSyUheymiwdof55Bkm` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
 | 2026-05-06 | Added development kickoff guardrails | `602f5c4` | Production `dpl_F9yQJGcVFNfWQcBqw81nKmXSyMB7` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
 | 2026-05-06 | Added MVP slice planner | `dea14ed` | Production `dpl_FDaMV9rPosmHp4BeRuGN2LYzK7pJ` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
@@ -62,7 +63,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 | Item | Type | Reason | Next Handling |
 | --- | --- | --- | --- |
 | GitHub Actions workflow push | External blocker | Current GitHub token lacks `workflow` scope | User can grant workflow scope later; local `pnpm quality:full` remains the required gate |
-| Browser-level interactive smoke automation | Deferred | Current production smoke covers HTTP/app-shell only; no Playwright dependency is installed yet | Add when UI regression risk becomes higher or before a public beta |
+| Browser-level authenticated write smoke | Deferred | Requires stable test account, email/magic-link handling, and safe disposable workspace data | Add before external beta with a seeded test operator |
 
 ## Next User Actions
 
@@ -70,6 +71,6 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 
 ## Next Jobs
 
-1. Public-beta browser-level interactive smoke when UI regression risk becomes higher.
+1. Add screenshot/artifact directory handling if visual evidence needs to be archived.
 2. Prepare GitHub Actions once workflow-scope access is available.
 3. Tune server-side AI extraction prompts after `OPENAI_API_KEY` production usage has real examples.
