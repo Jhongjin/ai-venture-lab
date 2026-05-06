@@ -6,7 +6,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 - Phase: Core product intelligence buildout
 - Goal: Add the intelligence layer that turns messy notes and conversations into ranked app candidates, validation packages, and execution-ready next actions.
-- Status: In progress
+- Status: Completed
 
 ## Loop Rules
 
@@ -19,20 +19,20 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 ## Phase Completion
 
-- Completed on: 2026-05-05
-- Covered scope: idea extraction and validation gates, Korean UX, app planning/design/development orchestration, implementation task board, evidence quality gates, filtered task handoffs, versioned runbook artifacts, local release checks, Vercel production smoke.
-- Remaining items are not blocking this phase because they require external access or later beta-level browser automation.
+- Completed on: 2026-05-06
+- Covered scope: idea extraction and validation gates, saved extraction portfolio reports, validation evidence coaching, PRD handoff, MVP slicing, Korean UX, app planning/design/development orchestration, development kickoff guardrails, implementation run packages, implementation task board, evidence quality gates, filtered task handoffs, versioned runbook artifacts, local release checks, Vercel production smoke.
+- Remaining items are not blocking this phase because they require external access, optional AI tuning, or later beta-level browser automation.
 
 ## Completed Jobs
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-06 | Added implementation agent run packages | Current commit | Pending production deploy | `pnpm quality:full` |
-| 2026-05-06 | Added development kickoff guardrails | Current commit | Pending production deploy | `pnpm quality:full` |
-| 2026-05-06 | Added MVP slice planner | Current commit | Pending production deploy | `pnpm quality:full` |
-| 2026-05-06 | Added PRD readiness handoff artifacts | Current commit | Pending production deploy | `pnpm quality:full` |
-| 2026-05-06 | Added validation evidence coach | Current commit | Pending production deploy | `pnpm quality:full` |
-| 2026-05-06 | Added saved extraction portfolio reports | Current commit | Pending production deploy | `pnpm quality:full` |
+| 2026-05-06 | Added implementation agent run packages | `48de7c3` | Production `dpl_xsbb9d7SMFtSyUheymiwdof55Bkm` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
+| 2026-05-06 | Added development kickoff guardrails | `602f5c4` | Production `dpl_F9yQJGcVFNfWQcBqw81nKmXSyMB7` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
+| 2026-05-06 | Added MVP slice planner | `dea14ed` | Production `dpl_FDaMV9rPosmHp4BeRuGN2LYzK7pJ` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
+| 2026-05-06 | Added PRD readiness handoff artifacts | `2ff32f2` | Production `dpl_3DGFMeUpdmHpV5fxy7UPW1EKj8iP` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
+| 2026-05-06 | Added validation evidence coach | `e5c08f0` | Production `dpl_EFhJyFX5xXo6B6F53MUYjYvaAud7` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
+| 2026-05-06 | Added saved extraction portfolio reports | `b22baac` | Production `dpl_BagnfW2URR5KisnQGMrzZDkSazrV` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
 | 2026-05-06 | Added extraction candidate comparison matrix | Current commit | Pending production deploy | `pnpm lint`, `pnpm typecheck` |
 | 2026-05-06 | Added optional OpenAI-backed idea extraction with local fallback | Current commit | Pending production deploy | `pnpm quality:full`, local `pnpm smoke:routes` |
 | 2026-05-05 | Added artifact source filtering | Current commit | Production | `pnpm quality:full`, `pnpm smoke:prod` |
@@ -70,6 +70,6 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 
 ## Next Jobs
 
-1. Add public-beta interactive smoke checklist and optional browser automation.
-2. Add browser-level interactive smoke before a public beta.
-3. Prepare GitHub Actions once workflow-scope access is available.
+1. Public-beta browser-level interactive smoke when UI regression risk becomes higher.
+2. Prepare GitHub Actions once workflow-scope access is available.
+3. Tune server-side AI extraction prompts after `OPENAI_API_KEY` production usage has real examples.
