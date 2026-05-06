@@ -378,6 +378,7 @@ const artifactSourceLabels: Record<string, string> = {
   prd_readiness_handoff: "PRD 전환 핸드오프",
   mvp_slice_plan: "MVP 슬라이스 플랜",
   development_kickoff: "개발 킥오프 브리프",
+  agent_run_package: "구현 실행 패키지",
   development_process: "앱 개발 프로세스",
   development_report: "개발 완료 보고서",
   filtered_implementation_run: "필터 실행 프롬프트",
@@ -3142,6 +3143,140 @@ ${taskLines}
 `;
 }
 
+function buildAgentRunPackageMarkdown({
+  idea,
+  state,
+  artifacts,
+  tasks,
+  nextTask,
+  risks,
+  experiments,
+  readinessChecks,
+  filterSummary,
+}: {
+  idea: Idea;
+  state: EditState;
+  artifacts: VentureArtifact[];
+  tasks: ImplementationTask[];
+  nextTask: ImplementationTask | null;
+  risks: Risk[];
+  experiments: Experiment[];
+  readinessChecks: GateCheck[];
+  filterSummary: string;
+}) {
+  const approvedArtifacts = artifacts
+    .filter((artifact) => artifact.status === "approved")
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const sourceLines =
+    approvedArtifacts.length > 0
+      ? approvedArtifacts
+          .slice(0, 10)
+          .map(
+            (artifact) =>
+              `- ${artifactLabels[artifact.artifact_type]} / ${artifactSourceLabels[artifact.source] ?? artifact.source}: ${
+                artifact.title || "제목 없음"
+              } / v${artifact.version ?? 1}`,
+          )
+          .join("\n")
+      : "- 승인된 산출물이 없습니다. 실행 전 PRD, MVP 명세, 디자인 브리프, 기술 명세 중 필요한 항목을 승인하세요.";
+  const taskLines =
+    tasks.length > 0
+      ? sortImplementationTasksForAction(tasks)
+          .slice(0, 8)
+          .map((task, index) => {
+            const checklist = getImplementationEvidenceChecklist(task, task.evidence ?? "");
+            const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+
+            return [
+              `${index + 1}. ${task.title}`,
+              `   - 유형/상태/우선순위: ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / ${implementationTaskPriorityLabels[task.priority]}`,
+              `   - 담당 역할: ${task.owner_role || "owner 미정"}`,
+              `   - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n     ") || "미정"}`,
+              `   - 증거 공백: ${missingLabels.length > 0 ? missingLabels.join(", ") : "없음"}`,
+            ].join("\n");
+          })
+          .join("\n")
+      : "- 현재 실행할 개발 태스크가 없습니다. 기본 태스크를 생성하거나 필터를 초기화하세요.";
+  const blockerLines = readinessChecks
+    .filter((check) => !check.passed)
+    .map((check) => `- ${check.label}: ${check.detail}`);
+  const riskLines = risks
+    .filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed")
+    .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`);
+  const experimentLines =
+    experiments.length > 0
+      ? experiments
+          .slice(0, 5)
+          .map(
+            (experiment) =>
+              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
+                experiment.success_metric || "성공 지표 미정"
+              }`,
+          )
+          .join("\n")
+      : "- 연결된 실험이 없습니다.";
+
+  return `# 구현 실행 패키지: ${idea.name}
+
+너는 이 제품의 구현 에이전트입니다. 아래 패키지에 포함된 승인 산출물과 태스크만 기준으로 작업합니다.
+
+## 실행 모드
+
+- 현재 필터: ${filterSummary}
+- 다음 1순위 태스크: ${nextTask ? nextTask.title : "없음"}
+- 제품 가치: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 현재 단계/판단: ${stageLabels[state.stage]} / ${decisionLabels[state.decision]}
+- 다음 증거: ${state.next_evidence || "미정"}
+
+## 승인된 원천 산출물
+
+${sourceLines}
+
+## 시작 전 미해결 게이트
+
+${blockerLines.length > 0 ? blockerLines.join("\n") : "- 개발 착수 게이트가 통과 상태입니다."}
+
+## 실행 태스크
+
+${taskLines}
+
+## 실험 기준
+
+${experimentLines}
+
+## 열린 높은 리스크
+
+${riskLines.length > 0 ? riskLines.join("\n") : "- 열린 높음/치명 리스크가 없습니다."}
+
+## 범위 규칙
+
+- MVP 슬라이스 플랜이 있으면 Slice 1 얇은 제품 구현만 처리합니다.
+- Slice 2 AI/자동화, 결제, 외부 계정 직접 조작, 복잡한 관리자 기능은 별도 승인 전까지 만들지 않습니다.
+- 사용자가 직접 해야 하는 SQL, 환경변수, Vercel 설정, GitHub workflow scope 작업은 코드 블록과 실행 위치를 분리해 보고합니다.
+- 다른 작업자의 변경을 되돌리지 않고 현재 코드베이스 패턴을 따릅니다.
+
+## 검증 명령
+
+- pnpm lint
+- pnpm typecheck
+- pnpm harness:check
+- 필요 시 pnpm quality:full
+- 배포 후 pnpm smoke:prod, pnpm smoke:routes
+
+## 완료 보고
+
+- 변경 요약:
+- 수정 파일:
+- 검증 결과:
+- 배포/스모크:
+- SQL/환경변수/외부 작업:
+- 남은 리스크:
+- 다음 작업:
+`;
+}
+
 function buildImplementationTaskDrafts({
   idea,
   state,
@@ -5056,6 +5191,22 @@ export function IdeaWorkbench({
         risks: selectedIdeaRisks,
         experiments: selectedExperiments,
         artifacts: selectedArtifactRecords,
+      })
+    : "";
+  const agentRunPackageTasks = filteredImplementationTasks.some((task) => task.status !== "done")
+    ? filteredImplementationTasks.filter((task) => task.status !== "done")
+    : selectedOpenImplementationTasks;
+  const agentRunPackageDraft = selectedIdea && editState
+    ? buildAgentRunPackageMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        artifacts: selectedArtifactRecords,
+        tasks: agentRunPackageTasks,
+        nextTask: nextImplementationTask,
+        risks: selectedIdeaRisks,
+        experiments: selectedExperiments,
+        readinessChecks: buildReadinessChecks,
+        filterSummary: implementationFilterSummary,
       })
     : "";
   const implementationGateChecks: GateCheck[] = selectedIdea
@@ -7117,6 +7268,52 @@ export function IdeaWorkbench({
                 </div>
               </div>
             ) : null}
+
+            <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-950">구현 실행 패키지</h4>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                    승인된 산출물, 현재 필터의 개발 태스크, 남은 게이트, 검증 명령을 한 번에 묶어 구현 에이전트에게 넘깁니다.
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                      태스크 {agentRunPackageTasks.length}개
+                    </span>
+                    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                      승인 산출물 {selectedArtifactRecords.filter((artifact) => artifact.status === "approved").length}개
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => copyDraft(agentRunPackageDraft, "구현 실행 패키지")}
+                    disabled={!agentRunPackageDraft}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Clipboard size={16} />
+                    패키지 복사
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      saveArtifactDraft(
+                        "dev_runbook",
+                        `${selectedIdea.name} 구현 실행 패키지`,
+                        agentRunPackageDraft,
+                        "agent_run_package",
+                      )
+                    }
+                    disabled={isBusy || !user || !agentRunPackageDraft}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Save size={16} />
+                    패키지 저장
+                  </button>
+                </div>
+              </div>
+            </div>
 
             {blockedImplementationSummaries.length > 0 ? (
               <div className="mt-4 rounded-lg border border-rose-100 bg-rose-50 p-4">

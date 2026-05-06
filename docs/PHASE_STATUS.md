@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Added implementation agent run packages | Current commit | Pending production deploy | `pnpm quality:full` |
 | 2026-05-06 | Added development kickoff guardrails | Current commit | Pending production deploy | `pnpm quality:full` |
 | 2026-05-06 | Added MVP slice planner | Current commit | Pending production deploy | `pnpm quality:full` |
 | 2026-05-06 | Added PRD readiness handoff artifacts | Current commit | Pending production deploy | `pnpm quality:full` |
@@ -69,6 +70,6 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 
 ## Next Jobs
 
-1. Add implementation agent run packaging from approved artifacts.
+1. Add public-beta interactive smoke checklist and optional browser automation.
 2. Add browser-level interactive smoke before a public beta.
 3. Prepare GitHub Actions once workflow-scope access is available.
