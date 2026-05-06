@@ -88,4 +88,14 @@ if (-not $extractApi.Content.Contains("source is required")) {
   Write-Error "Route smoke failed for /api/ideas/extract: missing source validation message."
 }
 
+$telemetryApi = Invoke-RouteSmokeRequest -Path "/api/telemetry/ingest" -Method "POST" -Body "{}"
+
+if ($telemetryApi.StatusCode -ne 401) {
+  Write-Error "Route smoke failed for /api/telemetry/ingest: expected HTTP 401 without telemetry secret but received $($telemetryApi.StatusCode)."
+}
+
+if (-not $telemetryApi.Content.Contains("Valid telemetry secret is required")) {
+  Write-Error "Route smoke failed for /api/telemetry/ingest: missing telemetry secret validation message."
+}
+
 Write-Host "Route smoke passed for $BaseUrl"

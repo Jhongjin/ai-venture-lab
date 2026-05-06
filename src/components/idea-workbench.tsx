@@ -461,6 +461,7 @@ const artifactSourceLabels: Record<string, string> = {
   mvp_build_command: "MVP 빌드 명령",
   qa_acceptance_matrix: "QA 검수 매트릭스",
   post_launch_learning: "출시 후 학습 루프",
+  telemetry_adapter: "제품 이벤트 어댑터",
 };
 const evidenceConfidenceOptions = ["low", "medium", "high"] as const;
 type EvidenceConfidence = (typeof evidenceConfidenceOptions)[number];
@@ -473,6 +474,17 @@ const telemetryEventLabels: Record<string, string> = {
   idea_created: "아이디어 생성",
   idea_package_created: "검증 패키지 저장",
   idea_updated: "점수/상태 저장",
+  product_page_view: "제품 화면 조회",
+  product_signup_started: "가입 시작",
+  product_signup_completed: "가입 완료",
+  product_core_action: "핵심 행동",
+  product_activation: "활성화",
+  product_retention_ping: "재방문",
+  product_payment_signal: "결제 신호",
+  product_feedback: "사용자 피드백",
+  product_error: "제품 오류",
+  product_churn_signal: "이탈 신호",
+  product_event: "제품 이벤트",
   risk_created: "리스크 추가",
   risk_status_updated: "리스크 상태 변경",
   decision_recorded: "판단 기록",
@@ -495,6 +507,7 @@ const telemetryCategoryLabels: Record<string, string> = {
   intake: "접수",
   extraction: "발굴",
   scoring: "점수화",
+  product: "제품 사용",
   risk: "리스크",
   decision: "판단",
   experiment: "실험",
@@ -508,6 +521,7 @@ const telemetryCategoryTone: Record<string, string> = {
   intake: "bg-blue-50 text-blue-700",
   extraction: "bg-violet-50 text-violet-800",
   scoring: "bg-sky-50 text-sky-800",
+  product: "bg-fuchsia-50 text-fuchsia-800",
   risk: "bg-rose-50 text-rose-700",
   decision: "bg-emerald-50 text-emerald-800",
   experiment: "bg-amber-50 text-amber-800",
@@ -6240,6 +6254,76 @@ ${eventRows || "| - | 이벤트 없음 | - | - | - |"}
 `;
 }
 
+function buildTelemetryAdapterGuideMarkdown(idea: Idea) {
+  return `# MVP 제품 이벤트 연결 가이드: ${idea.name}
+
+## 서버 라우트
+
+\`\`\`http
+POST https://ai-venture-lab.vercel.app/api/telemetry/ingest
+Content-Type: application/json
+Authorization: Bearer <TELEMETRY_INGEST_SECRET>
+\`\`\`
+
+## 기본 payload
+
+\`\`\`json
+{
+  "ideaId": "${idea.id}",
+  "eventName": "product_core_action",
+  "eventCategory": "product",
+  "source": "mvp-production",
+  "anonymousId": "stable-user-or-device-id",
+  "sessionId": "current-session-id",
+  "properties": {
+    "action": "created_first_record",
+    "path": "/dashboard",
+    "plan": "free"
+  }
+}
+\`\`\`
+
+## curl 예시
+
+\`\`\`bash
+curl -X POST "https://ai-venture-lab.vercel.app/api/telemetry/ingest" \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer $TELEMETRY_INGEST_SECRET" \\
+  -d '{
+    "ideaId": "${idea.id}",
+    "eventName": "product_core_action",
+    "eventCategory": "product",
+    "source": "mvp-production",
+    "anonymousId": "user-123",
+    "sessionId": "session-abc",
+    "properties": {
+      "action": "created_first_record",
+      "path": "/dashboard"
+    }
+  }'
+\`\`\`
+
+## 권장 이벤트 이름
+
+- product_page_view
+- product_signup_started
+- product_signup_completed
+- product_core_action
+- product_activation
+- product_retention_ping
+- product_payment_signal
+- product_feedback
+- product_error
+- product_churn_signal
+
+## 보안 원칙
+
+- \`TELEMETRY_INGEST_SECRET\`은 서버 전용입니다. 브라우저 번들, 모바일 앱, 공개 저장소에 넣지 마세요.
+- \`anonymousId\`와 \`sessionId\`는 API에서 해시되어 저장됩니다.
+- \`properties\`에는 이메일, 전화번호, 이름, 카드, 계좌, 원문 대화 같은 직접 식별 정보를 넣지 마세요.
+`;
+}
+
 function splitComparableLines(body: string) {
   return body
     .split(/\r?\n/)
@@ -6622,7 +6706,16 @@ export function IdeaWorkbench({
         implementationTasks: selectedImplementationTasks,
       })
     : "";
+  const telemetryAdapterGuideDraft = selectedIdea ? buildTelemetryAdapterGuideMarkdown(selectedIdea) : "";
+  const selectedProductTelemetryEvents = selectedTelemetryEvents.filter(
+    (event) => event.event_category === "product" || event.event_name.startsWith("product_"),
+  );
   const learningSignalCards = [
+    {
+      label: "제품 이벤트",
+      value: `${selectedProductTelemetryEvents.length}개`,
+      detail: "실제 MVP/외부 앱에서 수집된 사용자 행동 신호",
+    },
     {
       label: "최근 7일",
       value: `${eventCountForWindow(selectedTelemetryEvents, 7)}개`,
@@ -11078,7 +11171,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-5">
             {learningSignalCards.map((card) => (
               <div key={card.label} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{card.label}</div>
@@ -11086,6 +11179,67 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
               </div>
             ))}
+          </div>
+
+          <div className="mt-4 rounded-lg border border-fuchsia-100 bg-fuchsia-50 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-700">
+                  Product event adapter
+                </div>
+                <h3 className="mt-1 text-base font-semibold text-fuchsia-950">MVP 사용 이벤트 연결</h3>
+                <p className="mt-1 text-sm leading-6 text-fuchsia-900">
+                  출시된 앱의 서버에서 이 아이디어 ID로 제품 사용 이벤트를 보내면 학습 루프에 함께 표시됩니다.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => copyDraft(telemetryAdapterGuideDraft, "제품 이벤트 어댑터 가이드")}
+                  disabled={!telemetryAdapterGuideDraft}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-fuchsia-200 bg-white px-3 text-sm font-semibold text-fuchsia-900 transition hover:bg-fuchsia-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Clipboard size={16} />
+                  가이드 복사
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    saveArtifactDraft(
+                      "tech_spec",
+                      `${selectedIdea.name} 제품 이벤트 어댑터 가이드`,
+                      telemetryAdapterGuideDraft,
+                      "telemetry_adapter",
+                    )
+                  }
+                  disabled={isBusy || !user || !telemetryAdapterGuideDraft}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-fuchsia-700 px-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Save size={16} />
+                  가이드 저장
+                </button>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,0.7fr)]">
+              <div className="rounded-lg bg-white p-3">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Endpoint</div>
+                <code className="mt-2 block break-all rounded-md bg-slate-950 px-3 py-2 text-xs leading-5 text-white">
+                  POST https://ai-venture-lab.vercel.app/api/telemetry/ingest
+                </code>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  헤더에는 서버 전용 `TELEMETRY_INGEST_SECRET`을 Bearer 토큰으로 넣습니다.
+                </p>
+              </div>
+              <div className="rounded-lg bg-white p-3">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Idea ID</div>
+                <code className="mt-2 block break-all rounded-md bg-slate-100 px-3 py-2 text-xs leading-5 text-slate-700">
+                  {selectedIdea.id}
+                </code>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  외부 앱 이벤트는 이 ID로 현재 아이디어의 학습 루프에 연결됩니다.
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="mt-4 grid gap-3 lg:grid-cols-3">

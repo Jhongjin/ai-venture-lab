@@ -383,6 +383,43 @@ Firebase를 선택한 앱이면 백엔드 규칙 줄을 이렇게 바꿉니다.
 
 `학습 루프` 메뉴는 출시 전후에 어떤 행동이 실제로 쌓였는지 확인하는 운영 대시보드입니다.
 
+2단계부터는 내부 운영 이벤트뿐 아니라 실제 MVP나 외부 앱 서버에서 발생한 제품 사용 이벤트도 받을 수 있습니다. 외부 앱은 AI Venture Lab DB에 직접 접속하지 않고, 서버 전용 API로 이벤트를 보냅니다.
+
+필요한 Production 환경변수:
+
+| 환경변수 | 위치 | 용도 |
+| --- | --- | --- |
+| `SUPABASE_SERVICE_ROLE_KEY` | Vercel 서버 전용 | 수집 API가 RLS를 우회해 검증된 이벤트를 저장 |
+| `TELEMETRY_INGEST_SECRET` | Vercel 서버 전용, 외부 MVP 서버에도 동일하게 보관 | 이벤트 수집 API 호출 인증 |
+
+수집 API:
+
+```http
+POST https://ai-venture-lab.vercel.app/api/telemetry/ingest
+Content-Type: application/json
+Authorization: Bearer <TELEMETRY_INGEST_SECRET>
+```
+
+예시 payload:
+
+```json
+{
+  "ideaId": "선택한 아이디어 ID",
+  "eventName": "product_core_action",
+  "eventCategory": "product",
+  "source": "mvp-production",
+  "anonymousId": "stable-user-or-device-id",
+  "sessionId": "current-session-id",
+  "properties": {
+    "action": "created_first_record",
+    "path": "/dashboard",
+    "plan": "free"
+  }
+}
+```
+
+`anonymousId`, `sessionId`, `user-agent`는 API에서 해시되어 저장됩니다. `properties`에는 이메일, 전화번호, 이름, 계좌, 카드, 원문 대화 같은 직접 식별 정보를 넣지 않습니다.
+
 자동 기록되는 주요 이벤트:
 
 | 이벤트 | 언제 기록되는지 |
@@ -393,6 +430,7 @@ Firebase를 선택한 앱이면 백엔드 규칙 줄을 이렇게 바꿉니다.
 | 오케스트레이션 기록 | 런북 생성, 단계 추가, 단계 상태/산출물 저장 |
 | 산출물 저장/승인 | 브리프, PRD, MVP, 개발/출시 산출물 저장 또는 상태 변경 |
 | 개발 태스크 기록 | 태스크 생성, 상태 변경, 완료 증거 저장 |
+| 제품 사용 기록 | 외부 MVP 서버가 보낸 화면 조회, 핵심 행동, 활성화, 결제 신호, 피드백, 오류, 이탈 신호 |
 
 테스트 순서:
 
@@ -401,6 +439,8 @@ Firebase를 선택한 앱이면 백엔드 규칙 줄을 이렇게 바꿉니다.
 3. 최근 7일, 14일, 30일 이벤트 카운트가 표시되는지 확인합니다.
 4. `최근 이벤트` 목록에서 이벤트 이름, 범주, 시각, 속성이 보이는지 확인합니다.
 5. `학습 리포트 초안`을 검토하고 `리포트 저장`을 눌러 리서치 노트로 저장합니다.
+6. `MVP 사용 이벤트 연결` 카드에서 API endpoint, 현재 아이디어 ID, payload 예시를 복사합니다.
+7. 외부 MVP 서버에서 테스트 이벤트를 보낸 뒤 `제품 이벤트` 카운트와 최근 이벤트 목록이 갱신되는지 확인합니다.
 
 이벤트에는 본문 내용 전체를 저장하지 않고 유형, 상태, 길이, 개수 같은 운영 메타데이터만 저장합니다. 실제 사용자 행동 이벤트를 붙일 때도 같은 원칙을 유지해야 합니다.
 
