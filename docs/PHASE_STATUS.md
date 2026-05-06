@@ -5,8 +5,8 @@ Use this file as the lightweight phase ledger for the agent work loop.
 ## Current Phase
 
 - Phase: Public beta readiness
-- Goal: Add browser-level smoke, beta checklists, and release confidence gates before broader usage.
-- Status: In progress
+- Goal: Add idea-to-MVP validation, app build command, QA, release, and learning-loop gates before broader usage.
+- Status: Completed
 
 ## Loop Rules
 
@@ -20,13 +20,14 @@ Use this file as the lightweight phase ledger for the agent work loop.
 ## Phase Completion
 
 - Completed on: 2026-05-06
-- Covered scope: idea extraction and validation gates, saved extraction portfolio reports, validation evidence coaching, PRD handoff, MVP slicing, Korean UX, app planning/design/development orchestration, development kickoff guardrails, implementation run packages, implementation task board, evidence quality gates, filtered task handoffs, versioned runbook artifacts, local release checks, Vercel production smoke.
+- Covered scope: idea extraction and validation gates, saved extraction portfolio reports, validation evidence coaching, PRD handoff, MVP slicing, Korean UX, app planning/design/development orchestration, development kickoff guardrails, implementation run packages, implementation task board, evidence quality gates, filtered task handoffs, artifact approval reviews, release decision packets, MVP build command packets, QA acceptance matrices, post-launch learning loops, versioned runbook artifacts, local release checks, Vercel production smoke.
 - Remaining items are not blocking this phase because they require external access, optional AI tuning, or later beta-level browser automation.
 
 ## Completed Jobs
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Closed core public beta readiness phase | Current commit | Skipped, docs-only | `pnpm quality:full` |
 | 2026-05-06 | Added post-launch learning loop | `f3f39d9` | Production `3hEuawDqF1GatK6UkD7jS4mTSN76` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added QA acceptance matrix | `75be6c9` | Production `2igHVoFtCvHJV6YTCWQNmMNQcm9k` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added MVP build command packet | `f55ab6e` | Production `DGYx1NBtDdxoxcbbWcN2pyWBptqA` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
@@ -89,6 +90,7 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 
 ## Next Jobs
 
-1. Prepare GitHub Actions once workflow-scope access is available.
-2. Run authenticated browser write smoke with a stable beta operator account.
+1. Run authenticated browser write smoke with a stable beta operator account.
+2. Prepare GitHub Actions once workflow-scope access is available.
 3. Tune server-side AI extraction prompts after `OPENAI_API_KEY` production usage has real examples.
+4. Add production learning telemetry only after real beta users define which events matter.
