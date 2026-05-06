@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Added extraction run metadata | Current commit | Pending production deploy | Pending |
 | 2026-05-06 | Added MVP scaffold manifest | `caef916` | Production `k6M2buEpQfam66eoy4MJBUiQSuoV` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added extraction business/development scorecard | `b2d694d` | Production `3ghP4ELrQJjz9mh42nEuof4i41XB` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added bulk extraction package save | `b789935` | Production `F1XxGBXBL42ZwYuk7Tt1CtzMKY3K` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |

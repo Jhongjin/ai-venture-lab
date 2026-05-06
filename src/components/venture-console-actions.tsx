@@ -94,6 +94,15 @@ type AiExtractIdeasResponse = {
   candidates?: AiExtractedIdeaCandidate[];
 };
 
+type ExtractionRunMeta = {
+  engine: "openai" | "rules" | "fallback";
+  model: string | null;
+  sourceLength: number;
+  candidateCount: number;
+  generatedAt: string;
+  note: string;
+};
+
 type SimilarIdeaMatch = {
   idea: Idea;
   score: number;
@@ -220,6 +229,23 @@ const sampleIdeaSource = `아이디어: 구독 관리 에이전트
 
 function compactText(value: string, maxLength = 180) {
   return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
+}
+
+function createExtractionRunMeta({
+  engine,
+  model,
+  sourceLength,
+  candidateCount,
+  note,
+}: Omit<ExtractionRunMeta, "generatedAt">): ExtractionRunMeta {
+  return {
+    engine,
+    model,
+    sourceLength,
+    candidateCount,
+    generatedAt: new Date().toISOString(),
+    note,
+  };
 }
 
 function stripLabel(value: string) {
@@ -1254,9 +1280,17 @@ ${rows || "| - | 후보 없음 | - | - | - | - | - | - |"}
 `;
 }
 
-function buildExtractionReportBody(items: ExtractionPortfolioItem[], source: string, organizationName: string | null) {
+function buildExtractionReportBody(
+  items: ExtractionPortfolioItem[],
+  source: string,
+  organizationName: string | null,
+  runMeta: ExtractionRunMeta | null,
+) {
   const sourceExcerpt = redactSensitiveSource(source).trim().slice(0, 4000);
   const generatedAt = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+  const metaGeneratedAt = runMeta
+    ? new Date(runMeta.generatedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
+    : generatedAt;
 
   return `${buildExtractionPortfolioMarkdown(items)}
 
@@ -1265,6 +1299,11 @@ function buildExtractionReportBody(items: ExtractionPortfolioItem[], source: str
 - 생성 시각: ${generatedAt}
 - 워크스페이스: ${organizationName ?? "개인 기록"}
 - 후보 수: ${items.length}개
+- 추출 엔진: ${runMeta?.engine ?? "미기록"}
+- 모델: ${runMeta?.model ?? "해당 없음"}
+- 입력 길이: ${runMeta?.sourceLength ?? source.length}자
+- 추출 시각: ${metaGeneratedAt}
+- 실행 메모: ${runMeta?.note ?? "수동 또는 이전 방식으로 생성된 후보입니다."}
 
 ## 원문 근거 요약
 
@@ -1315,6 +1354,7 @@ export function VentureConsoleActions({
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
   const [rawIdeaSource, setRawIdeaSource] = useState("");
   const [extractedIdeas, setExtractedIdeas] = useState<ExtractedIdea[]>([]);
+  const [extractionRunMeta, setExtractionRunMeta] = useState<ExtractionRunMeta | null>(null);
   const [extractMessage, setExtractMessage] = useState<string | null>(null);
   const [isAiExtracting, setIsAiExtracting] = useState(false);
   const [isSavingExtractionReport, setIsSavingExtractionReport] = useState(false);
@@ -1995,11 +2035,21 @@ export function VentureConsoleActions({
     if (!source) {
       setExtractMessage("대화 내용이나 메모를 먼저 붙여넣으세요.");
       setExtractedIdeas([]);
+      setExtractionRunMeta(null);
       return;
     }
 
     const nextIdeas = extractIdeasFromText(source);
     setExtractedIdeas(nextIdeas);
+    setExtractionRunMeta(
+      createExtractionRunMeta({
+        engine: "rules",
+        model: null,
+        sourceLength: source.length,
+        candidateCount: nextIdeas.length,
+        note: "운영자가 규칙 기반 추출을 직접 실행했습니다.",
+      }),
+    );
     setExtractMessage(
       nextIdeas.length > 0
         ? `${nextIdeas.length}개의 앱 아이디어 후보를 추출했습니다. 마음에 드는 후보를 입력 폼으로 보내세요.`
@@ -2013,6 +2063,7 @@ export function VentureConsoleActions({
     if (!source) {
       setExtractMessage("대화 내용이나 메모를 먼저 붙여넣으세요.");
       setExtractedIdeas([]);
+      setExtractionRunMeta(null);
       return;
     }
 
@@ -2038,6 +2089,15 @@ export function VentureConsoleActions({
       if (!response.ok || !payload.candidates?.length) {
         const fallbackIdeas = extractIdeasFromText(source);
         setExtractedIdeas(fallbackIdeas);
+        setExtractionRunMeta(
+          createExtractionRunMeta({
+            engine: "fallback",
+            model: payload.model ?? null,
+            sourceLength: source.length,
+            candidateCount: fallbackIdeas.length,
+            note: payload.error ?? `OpenAI HTTP ${response.status} 이후 규칙 기반으로 전환했습니다.`,
+          }),
+        );
         setExtractMessage(
           fallbackIdeas.length > 0
             ? `AI 추출을 사용할 수 없어 규칙 기반 엔진으로 ${fallbackIdeas.length}개 후보를 만들었습니다. 사유: ${
@@ -2052,12 +2112,32 @@ export function VentureConsoleActions({
 
       const aiIdeas = hydrateAiExtractedIdeas(source, payload.candidates);
       setExtractedIdeas(aiIdeas);
+      setExtractionRunMeta(
+        createExtractionRunMeta({
+          engine: "openai",
+          model: payload.model ?? "OpenAI",
+          sourceLength: source.length,
+          candidateCount: aiIdeas.length,
+          note: "OpenAI Responses API 구조화 출력으로 후보를 생성했습니다.",
+        }),
+      );
       setExtractMessage(
         `${payload.model ?? "OpenAI"} AI 엔진으로 ${aiIdeas.length}개 후보를 구조화했습니다. 추천 후보의 게이트와 중복 위험을 확인하세요.`,
       );
     } catch (error) {
       const fallbackIdeas = extractIdeasFromText(source);
       setExtractedIdeas(fallbackIdeas);
+      setExtractionRunMeta(
+        createExtractionRunMeta({
+          engine: "fallback",
+          model: null,
+          sourceLength: source.length,
+          candidateCount: fallbackIdeas.length,
+          note: `AI 추출 요청 중 오류가 발생해 규칙 기반으로 전환했습니다. ${
+            error instanceof Error ? error.message : ""
+          }`,
+        }),
+      );
       setExtractMessage(
         fallbackIdeas.length > 0
           ? `AI 추출 요청 중 오류가 발생해 규칙 기반 엔진으로 ${fallbackIdeas.length}개 후보를 만들었습니다. ${
@@ -2122,7 +2202,7 @@ export function VentureConsoleActions({
         status: "draft",
         version: 1,
         title: `아이디어 발굴 리포트 ${titleDate}`,
-        body: buildExtractionReportBody(extractionPortfolioItems, rawIdeaSource, activeOrganization?.name ?? null),
+        body: buildExtractionReportBody(extractionPortfolioItems, rawIdeaSource, activeOrganization?.name ?? null, extractionRunMeta),
         source: "extraction_portfolio",
         status_note: "자동 아이디어 발굴 후보 비교와 원문 근거를 저장한 리포트입니다.",
       })
@@ -2717,6 +2797,7 @@ export function VentureConsoleActions({
                   onClick={() => {
                     setRawIdeaSource("");
                     setExtractedIdeas([]);
+                    setExtractionRunMeta(null);
                     setExtractMessage(null);
                   }}
                   className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
@@ -2725,6 +2806,18 @@ export function VentureConsoleActions({
                 </button>
               </div>
               {extractMessage ? <p className="text-sm leading-6 text-slate-600">{extractMessage}</p> : null}
+              {extractionRunMeta ? (
+                <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm leading-6 text-blue-900">
+                  <div className="font-semibold text-blue-950">최근 추출 실행</div>
+                  <div className="mt-1 grid gap-1 sm:grid-cols-2">
+                    <span>엔진: {extractionRunMeta.engine}</span>
+                    <span>모델: {extractionRunMeta.model ?? "해당 없음"}</span>
+                    <span>입력: {extractionRunMeta.sourceLength.toLocaleString()}자</span>
+                    <span>후보: {extractionRunMeta.candidateCount}개</span>
+                  </div>
+                  <p className="mt-1 text-blue-800">{extractionRunMeta.note}</p>
+                </div>
+              ) : null}
               {duplicateCandidateCount > 0 ? (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
                   {duplicateCandidateCount}개 후보가 기존 포트폴리오와 유사합니다. 저장 전 기존 기록을 확장할지, 새
