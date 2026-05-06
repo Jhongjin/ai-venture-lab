@@ -598,6 +598,20 @@ type ArtifactReviewItem = {
   developmentPanel?: DevelopmentPanel;
 };
 
+type ArtifactReviewIntensity = "new" | "minor" | "moderate" | "major";
+
+type ArtifactReviewSummary = {
+  previous: VentureArtifact | null;
+  added: number;
+  removed: number;
+  addedSections: string[];
+  removedSections: string[];
+  intensity: ArtifactReviewIntensity;
+  intensityLabel: string;
+  recommendation: string;
+  checks: string[];
+};
+
 const artifactPanelLabels: Record<ArtifactPanel, string> = {
   validation: "검증 산출물",
   product: "제품 산출물",
@@ -608,6 +622,23 @@ const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
   validation: "아이디어 브리프, 리서치, 7일 스프린트, 근거, 검증 완료 요약을 정리합니다.",
   product: "PRD, MVP 명세, 출시 체크리스트를 생성합니다.",
   library: "저장된 산출물을 필터링하고 승인 상태를 관리합니다.",
+};
+const artifactReviewIntensityTone: Record<ArtifactReviewIntensity, string> = {
+  new: "bg-blue-50 text-blue-800",
+  minor: "bg-emerald-50 text-emerald-800",
+  moderate: "bg-amber-50 text-amber-800",
+  major: "bg-rose-50 text-rose-800",
+};
+const artifactApprovalReviewChecks: Record<VentureArtifactType, string[]> = {
+  idea_brief: ["문제와 대상 사용자가 현재 점수/리스크와 일치하는지 확인", "다음 증거가 실제 실행 가능한지 확인"],
+  research_note: ["출처와 관찰 사실이 추정과 분리되어 있는지 확인", "개인정보나 원문 민감정보가 남아 있지 않은지 확인"],
+  prd: ["사용자, 문제, 범위, 제외 범위, 수용 기준이 서로 모순되지 않는지 확인", "성공 지표와 중단 기준이 측정 가능한지 확인"],
+  mvp_spec: ["Slice 1 범위가 얇은 제품으로 제한되어 있는지 확인", "AI/자동화, 결제, 외부 계정 조작 등 제외 범위가 명확한지 확인"],
+  backend_decision: ["환경변수 공개/서버 경계와 권한 규칙이 선택 백엔드에 맞는지 확인", "허용/차단 검증과 롤백 기준이 포함되어 있는지 확인"],
+  design_brief: ["핵심 여정, 빈 상태, 오류, 모바일, 접근성 상태가 빠지지 않았는지 확인", "화면 흐름이 MVP 범위 밖으로 커지지 않았는지 확인"],
+  tech_spec: ["데이터 모델, API/Server Action, 권한 경계, 검증 명령이 연결되어 있는지 확인", "마이그레이션과 롤백 경로가 운영 가능한지 확인"],
+  dev_runbook: ["작업 순서, 담당 역할, 품질 게이트, 완료 보고 형식이 실행 가능하게 적혀 있는지 확인", "사용자 액션과 자동 처리 가능한 작업이 분리되어 있는지 확인"],
+  launch_checklist: ["QA, 보안, 높은 리스크, 최종 판단 기록이 출시 전에 닫히는지 확인", "Production smoke와 롤백 기준이 남아 있는지 확인"],
 };
 
 const developmentPanelLabels: Record<DevelopmentPanel, string> = {
@@ -5241,6 +5272,81 @@ function summarizeArtifactLineChanges(currentBody: string, previousBody: string)
   return { added, removed };
 }
 
+function extractMarkdownSectionTitles(body: string) {
+  return body
+    .split(/\r?\n/)
+    .map((line) => line.trim().match(/^#{1,3}\s+(.+)$/)?.[1]?.trim())
+    .filter((section): section is string => Boolean(section));
+}
+
+function summarizeArtifactReview(artifact: VentureArtifact, previous: VentureArtifact | null): ArtifactReviewSummary {
+  const lineChanges = previous ? summarizeArtifactLineChanges(artifact.body, previous.body) : { added: 0, removed: 0 };
+  const currentSections = new Set(extractMarkdownSectionTitles(artifact.body));
+  const previousSections = new Set(previous ? extractMarkdownSectionTitles(previous.body) : []);
+  const addedSections = [...currentSections].filter((section) => !previousSections.has(section));
+  const removedSections = [...previousSections].filter((section) => !currentSections.has(section));
+  const totalChanged = lineChanges.added + lineChanges.removed;
+  const intensity: ArtifactReviewIntensity = !previous
+    ? "new"
+    : lineChanges.removed > 8 || removedSections.length > 0 || totalChanged >= 24
+      ? "major"
+      : totalChanged >= 8 || addedSections.length >= 3
+        ? "moderate"
+        : "minor";
+  const intensityLabel: Record<ArtifactReviewIntensity, string> = {
+    new: "신규",
+    minor: "낮음",
+    moderate: "중간",
+    major: "높음",
+  };
+  const recommendation: Record<ArtifactReviewIntensity, string> = {
+    new: "최초 버전입니다. 승인 전 필수 항목이 모두 들어 있는지 한 번에 확인하세요.",
+    minor: "변경 폭이 작습니다. 상태 메모에 승인 근거를 짧게 남기면 충분합니다.",
+    moderate: "변경 폭이 있습니다. 추가/변경된 섹션과 수용 기준을 확인한 뒤 승인하세요.",
+    major: "큰 변경 또는 삭제가 있습니다. 이전 승인 내용과 충돌하지 않는지 리뷰 후 승인하세요.",
+  };
+
+  return {
+    previous,
+    added: lineChanges.added,
+    removed: lineChanges.removed,
+    addedSections,
+    removedSections,
+    intensity,
+    intensityLabel: intensityLabel[intensity],
+    recommendation: recommendation[intensity],
+    checks: artifactApprovalReviewChecks[artifact.artifact_type],
+  };
+}
+
+function buildArtifactReviewMemo(artifact: VentureArtifact, summary: ArtifactReviewSummary) {
+  return `# 산출물 리뷰 메모: ${artifact.title || artifactLabels[artifact.artifact_type]}
+
+## 기본 정보
+
+- 유형: ${artifactLabels[artifact.artifact_type]}
+- 상태: ${artifactStatusLabels[artifact.status ?? "draft"]}
+- 현재 버전: v${artifact.version ?? 1}
+- 이전 비교: ${summary.previous ? `v${summary.previous.version ?? 1}` : "최초 버전"}
+- 리뷰 강도: ${summary.intensityLabel}
+
+## 변경 요약
+
+- 추가 라인: ${summary.added}
+- 삭제 라인: ${summary.removed}
+- 추가 섹션: ${summary.addedSections.join(", ") || "없음"}
+- 삭제 섹션: ${summary.removedSections.join(", ") || "없음"}
+
+## 승인 전 체크
+
+${summary.checks.map((check) => `- ${check}`).join("\n")}
+
+## 권장 판단
+
+${summary.recommendation}
+`;
+}
+
 function splitComparableLines(body: string) {
   return body
     .split(/\r?\n/)
@@ -5694,6 +5800,29 @@ export function IdeaWorkbench({
           ...summarizeArtifactLineChanges(artifact.body, previous.body),
         });
       }
+    }
+
+    return summaries;
+  }, [selectedArtifactRecords]);
+  const artifactReviewSummaries = useMemo(() => {
+    const summaries = new Map<string, ArtifactReviewSummary>();
+
+    for (const artifact of selectedArtifactRecords) {
+      const previous =
+        selectedArtifactRecords
+          .filter(
+            (candidate) =>
+              candidate.id !== artifact.id &&
+              candidate.artifact_type === artifact.artifact_type &&
+              (candidate.version ?? 1) < (artifact.version ?? 1),
+          )
+          .sort(
+            (a, b) =>
+              (b.version ?? 1) - (a.version ?? 1) ||
+              new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+          )[0] ?? null;
+
+      summaries.set(artifact.id, summarizeArtifactReview(artifact, previous));
     }
 
     return summaries;
@@ -10582,6 +10711,7 @@ export function IdeaWorkbench({
               selectedArtifacts.map((artifact) => {
                 const status = artifact.status ?? "draft";
                 const versionSummary = artifactVersionSummaries.get(artifact.id);
+                const reviewSummary = artifactReviewSummaries.get(artifact.id);
 
                 return (
                   <div key={artifact.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
@@ -10617,6 +10747,46 @@ export function IdeaWorkbench({
                             {`v${versionSummary.previous.version ?? 1} 대비 변경: +${versionSummary.added} / -${versionSummary.removed}줄`}
                           </p>
                         ) : null}
+                        {reviewSummary ? (
+                          <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span
+                                className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                                  artifactReviewIntensityTone[reviewSummary.intensity]
+                                }`}
+                              >
+                                리뷰 강도 {reviewSummary.intensityLabel}
+                              </span>
+                              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                                비교 {reviewSummary.previous ? `v${reviewSummary.previous.version ?? 1}` : "최초 버전"}
+                              </span>
+                            </div>
+                            <p className="mt-2 text-sm leading-6 text-slate-600">{reviewSummary.recommendation}</p>
+                            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                              <div className="rounded-md bg-slate-50 px-3 py-2">
+                                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                                  섹션 변화
+                                </div>
+                                <p className="mt-1 text-xs leading-5 text-slate-600">
+                                  추가: {reviewSummary.addedSections.slice(0, 4).join(", ") || "없음"}
+                                </p>
+                                <p className="mt-1 text-xs leading-5 text-slate-600">
+                                  삭제: {reviewSummary.removedSections.slice(0, 4).join(", ") || "없음"}
+                                </p>
+                              </div>
+                              <div className="rounded-md bg-slate-50 px-3 py-2">
+                                <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                                  승인 전 확인
+                                </div>
+                                <ul className="mt-1 grid gap-1 text-xs leading-5 text-slate-600">
+                                  {reviewSummary.checks.slice(0, 3).map((check) => (
+                                    <li key={check}>- {check}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <button
@@ -10627,6 +10797,16 @@ export function IdeaWorkbench({
                           <Clipboard size={14} />
                           복사
                         </button>
+                        {reviewSummary ? (
+                          <button
+                            type="button"
+                            onClick={() => copyDraft(buildArtifactReviewMemo(artifact, reviewSummary), "산출물 리뷰 메모")}
+                            className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100"
+                          >
+                            <ClipboardList size={14} />
+                            리뷰 메모
+                          </button>
+                        ) : null}
                         {(["draft", "approved", "archived"] as VentureArtifactStatus[]).map((nextStatus) => (
                           <button
                             key={nextStatus}
