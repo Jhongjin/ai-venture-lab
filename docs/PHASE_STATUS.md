@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-06 | Added optional authenticated browser smoke scaffold | Current commit | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:browser` |
 | 2026-05-06 | Added browser smoke screenshot artifact handling | Current commit | Skipped, script/docs-only | `pnpm smoke:browser` |
 | 2026-05-06 | Added browser-level beta smoke harness | Current commit | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:browser` |
 | 2026-05-06 | Added implementation agent run packages | `48de7c3` | Production `dpl_xsbb9d7SMFtSyUheymiwdof55Bkm` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
@@ -64,7 +65,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 | Item | Type | Reason | Next Handling |
 | --- | --- | --- | --- |
 | GitHub Actions workflow push | External blocker | Current GitHub token lacks `workflow` scope | User can grant workflow scope later; local `pnpm quality:full` remains the required gate |
-| Browser-level authenticated write smoke | Deferred | Requires stable test account, email/magic-link handling, and safe disposable workspace data | Add before external beta with a seeded test operator |
+| Browser-level authenticated write smoke execution | Deferred | Requires stable beta test account credentials and safe disposable workspace data | Run `pnpm smoke:browser:auth` before external beta |
 
 ## Next User Actions
 
@@ -73,5 +74,5 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 ## Next Jobs
 
 1. Prepare GitHub Actions once workflow-scope access is available.
-2. Add authenticated write smoke with a stable test operator account.
+2. Run authenticated browser write smoke with a stable beta operator account.
 3. Tune server-side AI extraction prompts after `OPENAI_API_KEY` production usage has real examples.

@@ -53,6 +53,35 @@ If Chromium is not installed on a fresh machine:
 pnpm exec playwright install chromium
 ```
 
+## Authenticated Browser Smoke
+
+Run this with a disposable Supabase Auth user before external beta. The script logs in with password auth and verifies the workspace panel. It only writes data when the write flag is explicitly enabled.
+
+Login/workspace visibility only:
+
+```powershell
+$env:BROWSER_SMOKE_EMAIL="beta-operator@example.com"
+$env:BROWSER_SMOKE_PASSWORD="..."
+pnpm smoke:browser:auth
+```
+
+Create one timestamped disposable idea:
+
+```powershell
+$env:BROWSER_SMOKE_EMAIL="beta-operator@example.com"
+$env:BROWSER_SMOKE_PASSWORD="..."
+$env:BROWSER_SMOKE_ALLOW_WRITE="1"
+pnpm smoke:browser:auth
+```
+
+If the disposable account has no workspace and you want the smoke test to create one:
+
+```powershell
+$env:BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE="1"
+```
+
+Do not commit these environment variables. Use a beta-only account so generated records can be deleted safely after a test pass.
+
 ## Manual Beta Pass
 
 1. Sign in with Supabase magic link.

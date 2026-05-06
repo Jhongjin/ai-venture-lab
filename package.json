@@ -15,6 +15,7 @@
     "smoke:prod": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_production.ps1",
     "smoke:routes": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_routes.ps1",
     "smoke:browser": "node ./scripts/smoke_browser.mjs",
+    "smoke:browser:auth": "node ./scripts/smoke_browser_auth.mjs",
     "idea:score": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/score_idea.ps1"
   },
   "dependencies": {
