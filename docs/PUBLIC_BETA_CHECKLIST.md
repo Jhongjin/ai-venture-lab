@@ -45,6 +45,8 @@ Capture a screenshot:
 $env:BROWSER_SMOKE_SCREENSHOT="artifacts/browser-smoke.png"; pnpm smoke:browser
 ```
 
+The script creates the screenshot directory automatically. Local screenshot artifacts are ignored by git.
+
 If Chromium is not installed on a fresh machine:
 
 ```powershell

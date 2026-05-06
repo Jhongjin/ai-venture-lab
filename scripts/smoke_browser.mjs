@@ -1,4 +1,6 @@
 import { chromium } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
+import path from "node:path";
 
 const baseUrl = process.env.BROWSER_SMOKE_URL || process.env.SMOKE_URL || "https://ai-venture-lab.vercel.app";
 const headless = process.env.BROWSER_SMOKE_HEADLESS !== "0";
@@ -32,6 +34,17 @@ async function clickFirst(locator, label) {
   }
 }
 
+async function prepareScreenshotPath(targetPath) {
+  if (!targetPath) {
+    return null;
+  }
+
+  const resolvedPath = path.resolve(targetPath);
+  await mkdir(path.dirname(resolvedPath), { recursive: true });
+
+  return resolvedPath;
+}
+
 async function waitForAnyVisible(candidates, label, waitMs = 15000) {
   const deadline = Date.now() + waitMs;
   const lastErrors = [];
@@ -54,6 +67,7 @@ async function waitForAnyVisible(candidates, label, waitMs = 15000) {
 }
 
 async function main() {
+  const resolvedScreenshotPath = await prepareScreenshotPath(screenshotPath);
   const browser = await chromium.launch({ headless });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -108,8 +122,9 @@ async function main() {
       await waitForVisible(page.getByText(/구현 실행 패키지/), "implementation run package");
     }
 
-    if (screenshotPath) {
-      await page.screenshot({ path: screenshotPath, fullPage: true });
+    if (resolvedScreenshotPath) {
+      await page.screenshot({ path: resolvedScreenshotPath, fullPage: true });
+      console.log(`Browser smoke screenshot saved to ${resolvedScreenshotPath}`);
     }
 
     if (pageErrors.length > 0) {
