@@ -5298,6 +5298,27 @@ export function IdeaWorkbench({
         },
       ]
     : [];
+  const developmentPackageDrafts: Array<{
+    artifactType: VentureArtifactType;
+    title: string;
+    body: string;
+    source: string;
+  }> = selectedIdea
+    ? [
+        ...developmentArtifactDrafts.map((draft) => ({
+          artifactType: draft.artifactType,
+          title: draft.title,
+          body: draft.body,
+          source: "development_process",
+        })),
+        {
+          artifactType: "dev_runbook",
+          title: `${selectedIdea.name} 개발 런북`,
+          body: developmentPlanDraft,
+          source: "development_process",
+        },
+      ]
+    : [];
   const launchReadiness = selectedIdea && editState
     ? [
         {
@@ -5926,6 +5947,72 @@ export function IdeaWorkbench({
     setMessage(`${artifactLabels[artifactType]} v${nextVersion}을 저장했습니다.`);
     router.refresh();
     return true;
+  }
+
+  async function saveDevelopmentPackageDrafts() {
+    if (!supabase || !selectedIdea) {
+      setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("개발 패키지를 저장하려면 먼저 로그인하세요.");
+      return;
+    }
+
+    const packageDrafts = developmentPackageDrafts.filter((draft) => draft.body.trim());
+
+    if (packageDrafts.length === 0) {
+      setMessage("저장할 개발 패키지 산출물이 없습니다.");
+      return;
+    }
+
+    const versionOffsets = new Map<VentureArtifactType, number>();
+    const rows = packageDrafts.map((draft) => {
+      const previousVersion =
+        Math.max(
+          0,
+          ...selectedArtifactRecords
+            .filter((artifact) => artifact.artifact_type === draft.artifactType)
+            .map((artifact) => artifact.version ?? 1),
+        ) + (versionOffsets.get(draft.artifactType) ?? 0);
+
+      versionOffsets.set(draft.artifactType, (versionOffsets.get(draft.artifactType) ?? 0) + 1);
+
+      return {
+        idea_id: selectedIdea.id,
+        organization_id: selectedIdea.organization_id,
+        artifact_type: draft.artifactType,
+        status: "draft" as VentureArtifactStatus,
+        version: previousVersion + 1,
+        title: draft.title,
+        body: draft.body,
+        source: draft.source,
+        status_note: "앱 개발 패키지로 일괄 생성한 초안입니다.",
+      };
+    });
+
+    setIsBusy(true);
+    setMessage(null);
+    const { data, error } = await supabase.from("venture_artifacts").insert(rows).select();
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    const savedArtifacts = data ?? [];
+
+    if (savedArtifacts.length === 0) {
+      setMessage("개발 패키지를 저장하지 못했습니다.");
+      return;
+    }
+
+    setArtifacts((current) => [...savedArtifacts, ...current]);
+    savedArtifacts.forEach((artifact) => emitVentureEvent("venture:artifact-created", artifact));
+    setMessage(`개발 패키지 산출물 ${savedArtifacts.length}개를 저장했습니다.`);
+    router.refresh();
   }
 
   async function saveEvidenceNote(event: FormEvent<HTMLFormElement>) {
@@ -6962,6 +7049,15 @@ export function IdeaWorkbench({
             >
               <Save size={18} />
               개발 런북 저장
+            </button>
+            <button
+              type="button"
+              onClick={saveDevelopmentPackageDrafts}
+              disabled={isBusy || !user}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <ClipboardList size={18} />
+              개발 패키지 저장
             </button>
           </div>
 

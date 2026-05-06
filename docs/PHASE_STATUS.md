@@ -27,9 +27,10 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-06 | Added optional authenticated browser smoke scaffold | Current commit | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:browser` |
-| 2026-05-06 | Added browser smoke screenshot artifact handling | Current commit | Skipped, script/docs-only | `pnpm smoke:browser` |
-| 2026-05-06 | Added browser-level beta smoke harness | Current commit | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:browser` |
+| 2026-05-06 | Added one-click development artifact package save | Current commit | Pending production deploy | Pending |
+| 2026-05-06 | Added optional authenticated browser smoke scaffold | `5a0ffed` | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:browser` |
+| 2026-05-06 | Added browser smoke screenshot artifact handling | `98108bd` | Skipped, script/docs-only | `pnpm smoke:browser` |
+| 2026-05-06 | Added browser-level beta smoke harness | `dc71fe2` | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:browser` |
 | 2026-05-06 | Added implementation agent run packages | `48de7c3` | Production `dpl_xsbb9d7SMFtSyUheymiwdof55Bkm` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
 | 2026-05-06 | Added development kickoff guardrails | `602f5c4` | Production `dpl_F9yQJGcVFNfWQcBqw81nKmXSyMB7` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
 | 2026-05-06 | Added MVP slice planner | `dea14ed` | Production `dpl_FDaMV9rPosmHp4BeRuGN2LYzK7pJ` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` |
