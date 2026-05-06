@@ -377,6 +377,7 @@ const artifactSourceLabels: Record<string, string> = {
   extraction_portfolio: "발굴 비교 리포트",
   prd_readiness_handoff: "PRD 전환 핸드오프",
   mvp_slice_plan: "MVP 슬라이스 플랜",
+  development_kickoff: "개발 킥오프 브리프",
   development_process: "앱 개발 프로세스",
   development_report: "개발 완료 보고서",
   filtered_implementation_run: "필터 실행 프롬프트",
@@ -3016,6 +3017,131 @@ ${rolePrompts}
 `;
 }
 
+function buildDevelopmentKickoffMarkdown({
+  idea,
+  state,
+  readinessChecks,
+  taskDrafts,
+  risks,
+  experiments,
+  artifacts,
+}: {
+  idea: Idea;
+  state: EditState;
+  readinessChecks: GateCheck[];
+  taskDrafts: ImplementationTaskDraft[];
+  risks: Risk[];
+  experiments: Experiment[];
+  artifacts: VentureArtifact[];
+}) {
+  const passedCount = readinessChecks.filter((check) => check.passed).length;
+  const failedChecks = readinessChecks.filter((check) => !check.passed);
+  const mvpSliceArtifact = artifacts.find((artifact) => artifact.source === "mvp_slice_plan");
+  const approvedProductArtifacts = artifacts.filter(
+    (artifact) =>
+      artifact.status === "approved" &&
+      ["prd", "mvp_spec", "design_brief", "tech_spec", "backend_decision"].includes(artifact.artifact_type),
+  );
+  const highRiskLines = risks
+    .filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed")
+    .map(
+      (risk) =>
+        `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`,
+    );
+  const experimentLines =
+    experiments.length > 0
+      ? experiments
+          .slice(0, 4)
+          .map(
+            (experiment) =>
+              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
+                experiment.success_metric || "성공 지표 미정"
+              }`,
+          )
+          .join("\n")
+      : "- 연결된 실험이 없습니다. 개발 전 성공 지표를 먼저 고정하세요.";
+  const taskLines =
+    taskDrafts.length > 0
+      ? taskDrafts
+          .map(
+            (task, index) =>
+              `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${
+                implementationTaskPriorityLabels[task.priority]
+              } / ${task.owner_role}`,
+          )
+          .join("\n")
+      : "생성 가능한 기본 태스크가 없습니다.";
+  const blockedLines =
+    failedChecks.length > 0
+      ? failedChecks.map((check) => `- ${check.label}: ${check.detail}`).join("\n")
+      : "- 개발 착수 전 필수 게이트가 통과 상태입니다.";
+
+  return `# 개발 킥오프 브리프: ${idea.name}
+
+## 킥오프 판정
+
+- 개발 착수 준비도: ${passedCount}/${readinessChecks.length}
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}
+- 제품 가치: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 다음 증거: ${state.next_evidence || "미정"}
+
+## 시작 전 차단 항목
+
+${blockedLines}
+
+## 범위 잠금
+
+- 기준 산출물: ${mvpSliceArtifact ? `${mvpSliceArtifact.title} v${mvpSliceArtifact.version ?? 1}` : "MVP 슬라이스 플랜 미저장"}
+- 이번 개발은 Slice 1 얇은 제품 슬라이스만 구현합니다.
+- Slice 2 AI/자동화는 Slice 1 사용 증거가 생기기 전까지 보류합니다.
+- 인증, 저장, 조회, 권한 차단, 상태 UX, 배포 스모크가 없는 기능 추가는 하지 않습니다.
+- 결제, 외부 계정 직접 조작, 민감 데이터 자동 처리, 복잡한 관리자 백오피스는 제외합니다.
+
+## 승인된 입력
+
+${
+  approvedProductArtifacts.length > 0
+    ? approvedProductArtifacts
+        .map((artifact) => `- ${artifactLabels[artifact.artifact_type]}: ${artifact.title}`)
+        .join("\n")
+    : "- 승인된 제품/기술 산출물이 없습니다."
+}
+
+## 검증과 실험 기준
+
+${experimentLines}
+
+## 높은 리스크
+
+${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 열린 높음/치명 리스크가 없습니다."}
+
+## 기본 구현 태스크 후보
+
+${taskLines}
+
+## 구현자 지시
+
+1. 가장 먼저 범위 잠금 태스크를 완료하고 포함/제외/No-go/성공 지표를 증거로 남깁니다.
+2. 기존 코드 패턴을 따르고 사용자 또는 다른 작업자의 변경을 되돌리지 않습니다.
+3. 데이터 모델과 권한 경계는 UI보다 먼저 검증 가능한 형태로 정리합니다.
+4. 완료 증거에는 커밋, 검증 명령, Preview 또는 Production URL, Vercel inspect 또는 배포 로그, RLS/Rules 허용/차단 결과, 롤백 기준을 남깁니다.
+5. 막히는 작업은 차단 상태로 옮기고 차단 사유, 필요한 SQL/환경변수/외부 작업, 해소 조건을 적습니다.
+
+## 완료 보고 형식
+
+- 변경 요약:
+- 구현 범위:
+- 제외한 범위:
+- 검증 결과:
+- 배포/롤백:
+- 남은 리스크:
+- 다음 작업:
+`;
+}
+
 function buildImplementationTaskDrafts({
   idea,
   state,
@@ -3032,18 +3158,23 @@ function buildImplementationTaskDrafts({
   const hasHighRisk = risks.some((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
   const hasApprovedPrd = artifacts.some((artifact) => artifact.artifact_type === "prd" && artifact.status === "approved");
   const hasApprovedMvp = artifacts.some((artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved");
+  const hasMvpSlicePlan = artifacts.some((artifact) => artifact.source === "mvp_slice_plan");
   const hasBackendDecision = artifacts.some((artifact) => artifact.artifact_type === "backend_decision");
   const primaryExperiment = experiments[0];
 
   return [
     {
-      title: "PRD와 MVP 범위 잠금",
+      title: "PRD와 MVP 슬라이스 범위 잠금",
       task_type: "planning",
-      priority: hasApprovedPrd && hasApprovedMvp ? "medium" : "high",
+      priority: hasApprovedPrd && hasApprovedMvp && hasMvpSlicePlan ? "medium" : "high",
       owner_role: "product-builder",
       acceptance_criteria: [
         `현재 판단은 ${decisionLabels[state.decision]}이고, 첫 릴리스 범위가 한 문장으로 고정되어야 합니다.`,
+        hasMvpSlicePlan
+          ? "MVP 슬라이스 플랜의 Slice 0, Slice 1, Slice 2, Slice 3 순서가 개발 범위에 반영되어야 합니다."
+          : "MVP 슬라이스 플랜을 먼저 저장하고, 수동 검증과 얇은 제품 슬라이스를 분리해야 합니다.",
         "포함 범위, 제외 범위, 성공 지표, 중단 기준이 PRD 또는 MVP 명세에 남아 있어야 합니다.",
+        "이번 개발은 Slice 1 얇은 제품까지만 구현하고, Slice 2 AI/자동화는 별도 승인 전까지 제외합니다.",
       ].join("\n"),
     },
     {
@@ -3052,7 +3183,7 @@ function buildImplementationTaskDrafts({
       priority: "medium",
       owner_role: "design-reviewer",
       acceptance_criteria: [
-        `${idea.target_user || "대상 사용자"}가 첫 가치를 얻는 화면 흐름을 3-5단계로 고정합니다.`,
+        `${idea.target_user || "대상 사용자"}가 Slice 1에서 첫 가치를 얻는 화면 흐름을 3-5단계로 고정합니다.`,
         "빈 상태, 오류, 저장 성공, 읽기 전용, 모바일 화면 조건을 적습니다.",
       ].join("\n"),
     },
@@ -3062,6 +3193,7 @@ function buildImplementationTaskDrafts({
       priority: hasBackendDecision ? "medium" : "high",
       owner_role: "backend-architect",
       acceptance_criteria: [
+        "Slice 1에 필요한 테이블, 문서, 함수, 정책만 구현합니다.",
         "Supabase RLS 또는 Firebase Security Rules의 허용/차단 조건이 문서와 코드에 반영됩니다.",
         "클라이언트에서 서비스 역할 키나 서버 전용 비밀값을 사용하지 않습니다.",
       ].join("\n"),
@@ -3072,7 +3204,7 @@ function buildImplementationTaskDrafts({
       priority: "high",
       owner_role: "data-modeler",
       acceptance_criteria: [
-        "핵심 엔티티, 소유권, 조직 경계, 감사 로그 또는 변경 이력이 정의됩니다.",
+        "Slice 1 핵심 엔티티, 소유권, 조직 경계, 감사 로그 또는 변경 이력이 정의됩니다.",
         "마이그레이션은 재실행 가능하고, 필요한 인덱스와 제약 조건을 포함합니다.",
       ].join("\n"),
     },
@@ -3082,8 +3214,9 @@ function buildImplementationTaskDrafts({
       priority: "high",
       owner_role: "frontend-builder",
       acceptance_criteria: [
-        `${idea.one_liner || "핵심 가치"}를 검증하는 최소 입력 폼과 결과 화면이 동작합니다.`,
+        `${idea.one_liner || "핵심 가치"}를 검증하는 Slice 1 최소 입력 폼과 결과 화면이 동작합니다.`,
         "저장 후 새로고침 없이 목록과 선택 상태가 즉시 갱신됩니다.",
+        "AI 자동화, 결제, 외부 계정 조작, 복잡한 관리자 화면은 구현하지 않습니다.",
       ].join("\n"),
     },
     {
@@ -4639,6 +4772,7 @@ export function IdeaWorkbench({
   const hasApprovedMvpSpecArtifact = selectedArtifactRecords.some(
     (artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved",
   );
+  const hasMvpSlicePlanArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "mvp_slice_plan");
   const hasBackendDecisionArtifact = selectedArtifactRecords.some(
     (artifact) => artifact.artifact_type === "backend_decision",
   );
@@ -4832,6 +4966,13 @@ export function IdeaWorkbench({
               : "MVP 명세를 먼저 저장하세요.",
         },
         {
+          label: "MVP 슬라이스 플랜",
+          passed: hasMvpSlicePlanArtifact,
+          detail: hasMvpSlicePlanArtifact
+            ? "수동 검증, 얇은 제품, AI/자동화, 출시 하드닝 순서가 저장되어 있습니다."
+            : "제품 산출물에서 MVP 슬라이스 플랜을 저장하세요.",
+        },
+        {
           label: "백엔드 결정",
           passed: hasBackendDecisionArtifact,
           detail: hasBackendDecisionArtifact
@@ -4905,6 +5046,18 @@ export function IdeaWorkbench({
   const passedBuildReadinessCount = buildReadinessChecks.filter((check) => check.passed).length;
   const buildReadinessScore =
     buildReadinessChecks.length === 0 ? 0 : Math.round((passedBuildReadinessCount / buildReadinessChecks.length) * 100);
+  const nextBuildBlocker = buildReadinessChecks.find((check) => !check.passed) ?? null;
+  const developmentKickoffDraft = selectedIdea && editState
+    ? buildDevelopmentKickoffMarkdown({
+        idea: selectedIdea,
+        state: editState,
+        readinessChecks: buildReadinessChecks,
+        taskDrafts: implementationTaskDrafts,
+        risks: selectedIdeaRisks,
+        experiments: selectedExperiments,
+        artifacts: selectedArtifactRecords,
+      })
+    : "";
   const implementationGateChecks: GateCheck[] = selectedIdea
     ? [
         {
@@ -6752,6 +6905,72 @@ export function IdeaWorkbench({
               developmentPanel === "tasks" ? "" : "hidden"
             }`}
           >
+            <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">
+                    kickoff guardrail
+                  </div>
+                  <h3 className="mt-1 text-base font-semibold text-indigo-950">개발 킥오프 브리프</h3>
+                  <p className="mt-1 text-sm leading-6 text-indigo-900">
+                    구현 태스크를 만들기 전에 범위, 금지 범위, 차단 항목, 완료 증거를 한 문서로 잠급니다.
+                  </p>
+                  <div
+                    className={`mt-3 rounded-md border px-3 py-2 text-sm leading-6 ${
+                      nextBuildBlocker
+                        ? "border-amber-200 bg-amber-50 text-amber-950"
+                        : "border-emerald-200 bg-emerald-50 text-emerald-950"
+                    }`}
+                  >
+                    {nextBuildBlocker ? (
+                      <>
+                        <span className="font-semibold">다음 차단 항목: {nextBuildBlocker.label}</span>
+                        <span className="block">{nextBuildBlocker.detail}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold">개발 착수 입력이 잠겼습니다.</span>
+                        <span className="block">기본 태스크를 생성하고 가장 작은 Slice 1 구현부터 진행하세요.</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
+                  <div className="rounded-lg bg-indigo-950 px-4 py-3 text-right text-white">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-200">
+                      준비 {passedBuildReadinessCount}/{buildReadinessChecks.length}
+                    </div>
+                    <div className="mt-1 text-3xl font-semibold">{buildReadinessScore}%</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => copyDraft(developmentKickoffDraft, "개발 킥오프 브리프")}
+                    disabled={!developmentKickoffDraft}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-950 px-3 text-sm font-semibold text-white transition hover:bg-indigo-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Clipboard size={16} />
+                    브리프 복사
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      saveArtifactDraft(
+                        "dev_runbook",
+                        `${selectedIdea.name} 개발 킥오프 브리프`,
+                        developmentKickoffDraft,
+                        "development_kickoff",
+                      )
+                    }
+                    disabled={isBusy || !user || !developmentKickoffDraft}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-indigo-200 bg-white px-3 text-sm font-semibold text-indigo-900 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Save size={16} />
+                    브리프 저장
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h3 className="text-base font-semibold text-slate-950">개발 태스크 보드</h3>
