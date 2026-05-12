@@ -11481,11 +11481,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-700">
-                  Product event adapter
+                  Developer handoff
                 </div>
-                <h3 className="mt-1 text-base font-semibold text-fuchsia-950">MVP 사용 이벤트 연결</h3>
+                <h3 className="mt-1 text-base font-semibold text-fuchsia-950">MVP 사용 신호 연결</h3>
                 <p className="mt-1 text-sm leading-6 text-fuchsia-900">
-                  출시된 앱의 서버에서 이 아이디어 ID로 제품 사용 이벤트를 보내면 성과 확인 화면에 함께 표시됩니다.
+                  출시된 앱의 사용자 행동을 받아오는 개발팀 전달용 정보입니다. 경영진은 아래 퍼널과 최근 이벤트 숫자만 확인하면 됩니다.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -11496,7 +11496,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-fuchsia-200 bg-white px-3 text-sm font-semibold text-fuchsia-900 transition hover:bg-fuchsia-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Clipboard size={16} />
-                  가이드 복사
+                  전달 가이드 복사
                 </button>
                 <button
                   type="button"
@@ -11512,81 +11512,89 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-fuchsia-700 px-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save size={16} />
-                  가이드 저장
+                  전달 가이드 저장
                 </button>
               </div>
             </div>
-            <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,0.7fr)]">
-              <div className="rounded-lg bg-white p-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Endpoint</div>
-                <code className="mt-2 block break-all rounded-md bg-slate-950 px-3 py-2 text-xs leading-5 text-white">
-                  POST https://ai-venture-lab.vercel.app/api/telemetry/ingest
-                </code>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  헤더에는 서버 전용 `TELEMETRY_INGEST_SECRET`을 Bearer 토큰으로 넣습니다.
-                </p>
-              </div>
-              <div className="rounded-lg bg-white p-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Idea ID</div>
-                <code className="mt-2 block break-all rounded-md bg-slate-100 px-3 py-2 text-xs leading-5 text-slate-700">
-                  {selectedIdea.id}
-                </code>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  외부 앱 이벤트는 이 ID로 현재 아이디어의 성과 확인 화면에 연결됩니다.
-                </p>
-              </div>
-            </div>
-            <div className="mt-3 grid gap-3 xl:grid-cols-2">
-              {[
-                {
-                  label: "1. 서버 환경변수",
-                  detail: "외부 MVP 서버에만 넣고 브라우저 번들에는 절대 노출하지 않습니다.",
-                  action: "환경변수 복사",
-                  body: telemetryEnvSnippet,
-                },
-                {
-                  label: "2. Next.js 서버 라우트",
-                  detail: "브라우저 요청을 서버에서 받아 AI Venture Lab 수집 API로 중계합니다.",
-                  action: "라우트 복사",
-                  body: telemetryNextRouteSnippet,
-                },
-                {
-                  label: "3. 브라우저 helper",
-                  detail: "제품 화면에서는 비밀값 없이 내부 서버 라우트만 호출합니다.",
-                  action: "helper 복사",
-                  body: telemetryClientHelperSnippet,
-                },
-                {
-                  label: "4. 운영 스모크",
-                  detail: "수집 API, 서비스 롤 키, RLS 저장 경로를 한 번에 검증합니다.",
-                  action: "스모크 복사",
-                  body: telemetrySmokeCommandSnippet,
-                },
-              ].map((snippet) => (
-                <div key={snippet.label} className="rounded-lg bg-white p-3">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-700">
-                        {snippet.label}
-                      </div>
-                      <p className="mt-1 text-sm leading-6 text-slate-600">{snippet.detail}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => copyDraft(snippet.body, snippet.label)}
-                      disabled={!snippet.body}
-                      className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-fuchsia-200 bg-fuchsia-50 px-3 text-xs font-semibold text-fuchsia-900 transition hover:bg-fuchsia-100 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <Code2 size={14} />
-                      {snippet.action}
-                    </button>
-                  </div>
-                  <pre className="mt-3 max-h-36 overflow-auto rounded-md bg-slate-950 p-3 text-xs leading-5 text-slate-100">
-                    <code>{snippet.body}</code>
-                  </pre>
+            <details className="mt-4 rounded-lg border border-fuchsia-200 bg-white/70 p-3">
+              <summary className="cursor-pointer text-sm font-semibold text-fuchsia-950">
+                개발팀 전달 정보 열기
+              </summary>
+              <p className="mt-2 text-sm leading-6 text-fuchsia-900">
+                아래 값은 개발자나 Codex 작업 세션에 전달할 때만 열어 확인합니다. 비밀값은 브라우저나 문서에 저장하지 않습니다.
+              </p>
+              <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,0.7fr)]">
+                <div className="rounded-lg bg-white p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Endpoint</div>
+                  <code className="mt-2 block break-all rounded-md bg-slate-950 px-3 py-2 text-xs leading-5 text-white">
+                    POST https://ai-venture-lab.vercel.app/api/telemetry/ingest
+                  </code>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    헤더에는 서버 전용 `TELEMETRY_INGEST_SECRET`을 Bearer 토큰으로 넣습니다.
+                  </p>
                 </div>
-              ))}
-            </div>
+                <div className="rounded-lg bg-white p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Idea ID</div>
+                  <code className="mt-2 block break-all rounded-md bg-slate-100 px-3 py-2 text-xs leading-5 text-slate-700">
+                    {selectedIdea.id}
+                  </code>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    외부 앱 이벤트는 이 ID로 현재 아이디어의 성과 확인 화면에 연결됩니다.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 grid gap-3 xl:grid-cols-2">
+                {[
+                  {
+                    label: "1. 서버 환경변수",
+                    detail: "외부 MVP 서버에만 넣고 브라우저 번들에는 절대 노출하지 않습니다.",
+                    action: "환경변수 복사",
+                    body: telemetryEnvSnippet,
+                  },
+                  {
+                    label: "2. Next.js 서버 라우트",
+                    detail: "브라우저 요청을 서버에서 받아 AI Venture Lab 수집 API로 중계합니다.",
+                    action: "라우트 복사",
+                    body: telemetryNextRouteSnippet,
+                  },
+                  {
+                    label: "3. 브라우저 helper",
+                    detail: "제품 화면에서는 비밀값 없이 내부 서버 라우트만 호출합니다.",
+                    action: "helper 복사",
+                    body: telemetryClientHelperSnippet,
+                  },
+                  {
+                    label: "4. 운영 스모크",
+                    detail: "수집 API, 서비스 롤 키, RLS 저장 경로를 한 번에 검증합니다.",
+                    action: "스모크 복사",
+                    body: telemetrySmokeCommandSnippet,
+                  },
+                ].map((snippet) => (
+                  <div key={snippet.label} className="rounded-lg bg-white p-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-700">
+                          {snippet.label}
+                        </div>
+                        <p className="mt-1 text-sm leading-6 text-slate-600">{snippet.detail}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => copyDraft(snippet.body, snippet.label)}
+                        disabled={!snippet.body}
+                        className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-fuchsia-200 bg-fuchsia-50 px-3 text-xs font-semibold text-fuchsia-900 transition hover:bg-fuchsia-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Code2 size={14} />
+                        {snippet.action}
+                      </button>
+                    </div>
+                    <pre className="mt-3 max-h-36 overflow-auto rounded-md bg-slate-950 p-3 text-xs leading-5 text-slate-100">
+                      <code>{snippet.body}</code>
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            </details>
           </div>
 
           <div className="mt-4 grid gap-3 lg:grid-cols-3">
