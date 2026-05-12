@@ -756,6 +756,7 @@ export type WorkbenchTask =
 
 type ArtifactPanel = "validation" | "product" | "library";
 type DevelopmentPanel = "setup" | "tasks" | "handoff";
+type GuidedExecutionStep = "package" | "execute" | "report";
 type ArtifactReviewStatus = "approved" | "draft" | "missing";
 
 type ArtifactReviewItem = {
@@ -837,6 +838,18 @@ const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   setup: "실제 제작을 시작하기 전 필요한 결정, 디자인, 데이터, 보안 조건을 정리합니다.",
   tasks: "실행할 일을 상태별로 쪼개고 완료 근거를 기록합니다.",
   handoff: "제작 완료 조건, 실행 계획, 다음 담당자에게 넘길 내용을 확인합니다.",
+};
+
+const guidedExecutionStepLabels: Record<GuidedExecutionStep, string> = {
+  package: "AI 실행 패키지",
+  execute: "AI 실행 할 일",
+  report: "AI 완료 보고",
+};
+
+const guidedExecutionStepDescriptions: Record<GuidedExecutionStep, string> = {
+  package: "AI가 기획, 디자인, 기술, 실행 문서와 기본 태스크를 한 번에 준비합니다.",
+  execute: "AI가 쪼갠 다음 실행 할 일만 보고 진행 상태와 완료 증거를 남깁니다.",
+  report: "AI가 개발 완료 보고와 출시 직전 전달 문서를 정리합니다.",
 };
 
 const artifactReviewBlueprint: Array<
@@ -7933,6 +7946,53 @@ export function IdeaWorkbench({
         },
       ]
     : [];
+  const hasFullExecutionRunbook = orchestrationPhaseConfigs.every((config) =>
+    selectedRuns.some((run) => run.phase === config.phase),
+  );
+  const hasCoreExecutionPackage =
+    hasBackendDecisionArtifact && hasDesignBriefArtifact && hasTechSpecArtifact && hasDevRunbookArtifact;
+  const guidedExecutionStep: GuidedExecutionStep =
+    !hasFullExecutionRunbook || !hasCoreExecutionPackage || selectedImplementationTasks.length === 0
+      ? "package"
+      : implementationGateScore < 100
+        ? "execute"
+        : "report";
+  const visibleDevelopmentPanel: DevelopmentPanel =
+    experienceMode === "guided"
+      ? guidedExecutionStep === "package"
+        ? "setup"
+        : guidedExecutionStep === "execute"
+          ? "tasks"
+          : "handoff"
+      : developmentPanel;
+  const guidedExecutionProgress = [
+    {
+      id: "package" as const,
+      label: guidedExecutionStepLabels.package,
+      detail: `런북 ${hasFullExecutionRunbook ? "완료" : "필요"} · 핵심 산출물 ${
+        hasCoreExecutionPackage ? "완료" : "필요"
+      } · 태스크 ${selectedImplementationTasks.length > 0 ? `${selectedImplementationTasks.length}개` : "미생성"}`,
+      done: hasFullExecutionRunbook && hasCoreExecutionPackage && selectedImplementationTasks.length > 0,
+      active: guidedExecutionStep === "package",
+    },
+    {
+      id: "execute" as const,
+      label: guidedExecutionStepLabels.execute,
+      detail:
+        selectedImplementationTasks.length > 0
+          ? `완료 ${completedImplementationTasks.length}/${selectedImplementationTasks.length} · 차단 ${selectedImplementationTasks.filter((task) => task.status === "blocked").length}`
+          : "실행 할 일 준비 전",
+      done: selectedImplementationTasks.length > 0 && implementationGateScore >= 100,
+      active: guidedExecutionStep === "execute",
+    },
+    {
+      id: "report" as const,
+      label: guidedExecutionStepLabels.report,
+      detail: `완료 게이트 ${passedImplementationGateCount}/${implementationGateChecks.length}`,
+      done: implementationGateScore >= 100,
+      active: guidedExecutionStep === "report",
+    },
+  ];
   const launchReadiness = selectedIdea && editState
     ? [
         {
@@ -8792,6 +8852,179 @@ export function IdeaWorkbench({
     });
     setMessage(`개발 패키지 산출물 ${savedArtifacts.length}개를 저장했습니다.`);
     router.refresh();
+  }
+
+  async function runAiExecutionAutopilot() {
+    if (!supabase || !selectedIdea) {
+      setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("AI 실행 패키지를 만들려면 먼저 로그인하세요.");
+      return;
+    }
+
+    const existingPhases = new Set(selectedRuns.map((run) => run.phase));
+    const missingRuns = orchestrationPhaseConfigs
+      .filter((config) => !existingPhases.has(config.phase))
+      .map((config) => ({
+        idea_id: selectedIdea.id,
+        organization_id: selectedIdea.organization_id,
+        phase: config.phase,
+        owner_role: config.ownerRole,
+        objective: config.objective,
+        status: "planned" as OrchestrationStatus,
+      }));
+
+    const existingArtifactTitles = new Set(
+      selectedArtifactRecords.map((artifact) => artifact.title.trim().toLowerCase()),
+    );
+    const packageDrafts = developmentPackageDrafts.filter(
+      (draft) => draft.body.trim() && !existingArtifactTitles.has(draft.title.trim().toLowerCase()),
+    );
+    const versionOffsets = new Map<VentureArtifactType, number>();
+    const artifactRows = packageDrafts.map((draft) => {
+      const previousVersion =
+        Math.max(
+          0,
+          ...selectedArtifactRecords
+            .filter((artifact) => artifact.artifact_type === draft.artifactType)
+            .map((artifact) => artifact.version ?? 1),
+        ) + (versionOffsets.get(draft.artifactType) ?? 0);
+
+      versionOffsets.set(draft.artifactType, (versionOffsets.get(draft.artifactType) ?? 0) + 1);
+
+      return {
+        idea_id: selectedIdea.id,
+        organization_id: selectedIdea.organization_id,
+        artifact_type: draft.artifactType,
+        status: "draft" as VentureArtifactStatus,
+        version: previousVersion + 1,
+        title: draft.title,
+        body: draft.body,
+        source: draft.source,
+        status_note: "AI 실행 패키지에서 자동 생성한 초안입니다.",
+      };
+    });
+
+    const existingTaskTitles = new Set(selectedImplementationTasks.map((task) => task.title.trim().toLowerCase()));
+    const taskRows = implementationTaskDrafts
+      .filter((task) => !existingTaskTitles.has(task.title.trim().toLowerCase()))
+      .map((task, index) => ({
+        idea_id: selectedIdea.id,
+        organization_id: selectedIdea.organization_id,
+        source_artifact_id: implementationTaskSourceArtifact?.id ?? null,
+        title: task.title,
+        task_type: task.task_type,
+        priority: task.priority,
+        status: "todo" as ImplementationTaskStatus,
+        owner_role: task.owner_role,
+        acceptance_criteria: task.acceptance_criteria,
+        evidence: "",
+        sort_order: selectedImplementationTasks.length + index,
+      }));
+
+    if (missingRuns.length === 0 && artifactRows.length === 0 && taskRows.length === 0) {
+      setMessage("이미 AI 실행 패키지에 필요한 문서와 태스크가 준비되어 있습니다.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+
+    try {
+      let insertedRuns: OrchestrationRun[] = [];
+      let insertedArtifacts: VentureArtifact[] = [];
+      let insertedTasks: ImplementationTask[] = [];
+
+      if (missingRuns.length > 0) {
+        const { data, error } = await supabase.from("orchestration_runs").insert(missingRuns).select();
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        insertedRuns = data ?? [];
+      }
+
+      if (artifactRows.length > 0) {
+        const { data, error } = await supabase.from("venture_artifacts").insert(artifactRows).select();
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        insertedArtifacts = (data ?? []) as VentureArtifact[];
+      }
+
+      if (taskRows.length > 0) {
+        const { data, error } = await supabase.from("implementation_tasks").insert(taskRows).select();
+
+        if (error) {
+          throw new Error(
+            error.code === "42P01"
+              ? "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요."
+              : error.message,
+          );
+        }
+
+        insertedTasks = (data ?? []) as ImplementationTask[];
+      }
+
+      if (insertedRuns.length > 0) {
+        setOrchestrationRuns((current) => [...insertedRuns, ...current]);
+        setRunOutputs((current) => ({
+          ...current,
+          ...Object.fromEntries(insertedRuns.map((run) => [run.id, run.output])),
+        }));
+        emitVentureEvent("venture:runs-created", insertedRuns);
+        void recordTelemetryEvent({
+          eventName: "runbook_created",
+          eventCategory: "orchestration",
+          properties: {
+            run_count: insertedRuns.length,
+            missing_phase_count: insertedRuns.length,
+          },
+        });
+      }
+
+      if (insertedArtifacts.length > 0) {
+        setArtifacts((current) => [...insertedArtifacts, ...current]);
+        insertedArtifacts.forEach((artifact) => emitVentureEvent("venture:artifact-created", artifact));
+        void recordTelemetryEvent({
+          eventName: "artifact_package_saved",
+          eventCategory: "development",
+          properties: {
+            artifact_count: insertedArtifacts.length,
+            source: "ai_execution_package",
+          },
+        });
+      }
+
+      if (insertedTasks.length > 0) {
+        setImplementationTasks((current) => [...current, ...insertedTasks]);
+        emitVentureEvent("venture:tasks-created", insertedTasks);
+        void recordTelemetryEvent({
+          eventName: "implementation_tasks_created",
+          eventCategory: "development",
+          properties: {
+            task_count: insertedTasks.length,
+            source_artifact: implementationTaskSourceArtifact ? "yes" : "no",
+          },
+        });
+      }
+
+      setDevelopmentPanel(insertedTasks.length > 0 || selectedImplementationTasks.length > 0 ? "tasks" : "setup");
+      setMessage(
+        `AI 실행 패키지를 준비했습니다. 런북 ${insertedRuns.length}개 단계, 산출물 ${insertedArtifacts.length}개, 실행 할 일 ${insertedTasks.length}개를 만들었습니다.`,
+      );
+      router.refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "AI 실행 패키지를 만들지 못했습니다.");
+    } finally {
+      setIsBusy(false);
+    }
   }
 
   async function saveEvidenceNote(event: FormEvent<HTMLFormElement>) {
@@ -9875,25 +10108,114 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <Code2 className="text-blue-600" size={22} />
           </div>
 
-          <div className="mb-5 rounded-lg bg-slate-100 p-1">
-            <div className="grid gap-1 sm:grid-cols-3">
-              {(Object.keys(developmentPanelLabels) as DevelopmentPanel[]).map((panel) => (
-                <button
-                  key={panel}
-                  type="button"
-                  onClick={() => setDevelopmentPanel(panel)}
-                  className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
-                    developmentPanel === panel
-                      ? "bg-white text-slate-950 shadow-sm"
-                      : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
-                  }`}
-                >
-                  {developmentPanelLabels[panel]}
-                </button>
-              ))}
+          {experienceMode === "full" ? (
+            <div className="mb-5 rounded-lg bg-slate-100 p-1">
+              <div className="grid gap-1 sm:grid-cols-3">
+                {(Object.keys(developmentPanelLabels) as DevelopmentPanel[]).map((panel) => (
+                  <button
+                    key={panel}
+                    type="button"
+                    onClick={() => setDevelopmentPanel(panel)}
+                    className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                      visibleDevelopmentPanel === panel
+                        ? "bg-white text-slate-950 shadow-sm"
+                        : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
+                    }`}
+                  >
+                    {developmentPanelLabels[panel]}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          <p className="mb-5 text-sm leading-6 text-slate-600">{developmentPanelDescriptions[developmentPanel]}</p>
+          ) : (
+            <div className="mb-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                    AI execution autopilot
+                  </div>
+                  <h3 className="mt-1 text-base font-semibold text-emerald-950">
+                    {guidedExecutionStepLabels[guidedExecutionStep]}
+                  </h3>
+                  <p className="mt-1 text-sm leading-6 text-emerald-900">
+                    {guidedExecutionStepDescriptions[guidedExecutionStep]}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {guidedExecutionStep === "package" ? (
+                    <button
+                      type="button"
+                      onClick={runAiExecutionAutopilot}
+                      disabled={isBusy || !user}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Layers3 size={18} />
+                      AI 실행 패키지 만들기
+                    </button>
+                  ) : guidedExecutionStep === "execute" ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        nextImplementationTask
+                          ? copyDraft(implementationTaskTicketDraft, "다음 실행 티켓")
+                          : copyDraft(implementationBacklogDraft, "열린 개발 백로그")
+                      }
+                      disabled={Boolean(nextImplementationTask) ? !implementationTaskTicketDraft : !implementationBacklogDraft}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <ClipboardList size={18} />
+                      {nextImplementationTask ? "다음 실행 티켓 복사" : "열린 실행 요약 복사"}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveArtifactDraft(
+                          "dev_runbook",
+                          `${selectedIdea.name} 개발 완료 보고서`,
+                          developmentCompletionReportDraft,
+                          "development_report",
+                        )
+                      }
+                      disabled={isBusy || !user || !developmentCompletionReportDraft}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Save size={18} />
+                      개발 완료 보고서 저장
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                {guidedExecutionProgress.map((step, index) => (
+                  <div
+                    key={step.id}
+                    className={`rounded-lg border p-3 ${
+                      step.active
+                        ? "border-emerald-300 bg-white"
+                        : step.done
+                          ? "border-emerald-100 bg-white/90"
+                          : "border-white/60 bg-white/60"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                          step.active || step.done ? "bg-emerald-700 text-white" : "bg-slate-200 text-slate-700"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+                      <div className="text-sm font-semibold text-slate-950">{step.label}</div>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{step.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="mb-5 text-sm leading-6 text-slate-600">{developmentPanelDescriptions[visibleDevelopmentPanel]}</p>
 
           {experienceMode === "guided" ? (
             <div className="mb-5 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
@@ -9902,7 +10224,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           ) : null}
 
-          <div className={developmentPanel === "setup" ? "" : "hidden"}>
+          <div className={visibleDevelopmentPanel === "setup" ? "" : "hidden"}>
           <div className="grid gap-3 lg:grid-cols-4">
             {[
               ["기획", "PRD, MVP 범위, 성공 지표, 제외 범위를 확정합니다."],
@@ -10331,7 +10653,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           <div
             className={`mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4 ${
-              developmentPanel === "tasks" ? "" : "hidden"
+              visibleDevelopmentPanel === "tasks" ? "" : "hidden"
             }`}
           >
             <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
@@ -10418,57 +10740,59 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </button>
             </div>
 
-            <form onSubmit={addImplementationTask} className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-              <div className="mb-3">
-                <h4 className="text-sm font-semibold text-slate-950">직접 태스크 추가</h4>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  자동 생성 태스크 밖의 버그, 디자인 수정, 배포 작업, 고객 검증 작업을 바로 추가합니다.
-                </p>
-              </div>
-              <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_0.8fr_0.7fr_0.9fr]">
-                <InputField
-                  label="태스크 제목"
-                  value={implementationTaskDraft.title}
-                  onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, title: value }))}
-                />
-                <SelectField
-                  label="유형"
-                  value={implementationTaskDraft.task_type}
-                  options={implementationTaskTypes}
-                  labels={implementationTaskTypeLabels}
-                  onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, task_type: value }))}
-                />
-                <SelectField
-                  label="우선순위"
-                  value={implementationTaskDraft.priority}
-                  options={implementationTaskPriorities}
-                  labels={implementationTaskPriorityLabels}
-                  onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, priority: value }))}
-                />
-                <InputField
-                  label="담당 역할"
-                  value={implementationTaskDraft.owner_role}
-                  onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, owner_role: value }))}
-                />
-              </div>
-              <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-                <TextArea
-                  label="수용 기준"
-                  value={implementationTaskDraft.acceptance_criteria}
-                  onChange={(value) =>
-                    setImplementationTaskDraft((current) => ({ ...current, acceptance_criteria: value }))
-                  }
-                />
-                <button
-                  type="submit"
-                  disabled={isBusy || !user}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Save size={16} />
-                  태스크 추가
-                </button>
-              </div>
-            </form>
+            {experienceMode === "full" ? (
+              <form onSubmit={addImplementationTask} className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+                <div className="mb-3">
+                  <h4 className="text-sm font-semibold text-slate-950">직접 태스크 추가</h4>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                    자동 생성 태스크 밖의 버그, 디자인 수정, 배포 작업, 고객 검증 작업을 바로 추가합니다.
+                  </p>
+                </div>
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_0.8fr_0.7fr_0.9fr]">
+                  <InputField
+                    label="태스크 제목"
+                    value={implementationTaskDraft.title}
+                    onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, title: value }))}
+                  />
+                  <SelectField
+                    label="유형"
+                    value={implementationTaskDraft.task_type}
+                    options={implementationTaskTypes}
+                    labels={implementationTaskTypeLabels}
+                    onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, task_type: value }))}
+                  />
+                  <SelectField
+                    label="우선순위"
+                    value={implementationTaskDraft.priority}
+                    options={implementationTaskPriorities}
+                    labels={implementationTaskPriorityLabels}
+                    onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, priority: value }))}
+                  />
+                  <InputField
+                    label="담당 역할"
+                    value={implementationTaskDraft.owner_role}
+                    onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, owner_role: value }))}
+                  />
+                </div>
+                <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                  <TextArea
+                    label="수용 기준"
+                    value={implementationTaskDraft.acceptance_criteria}
+                    onChange={(value) =>
+                      setImplementationTaskDraft((current) => ({ ...current, acceptance_criteria: value }))
+                    }
+                  />
+                  <button
+                    type="submit"
+                    disabled={isBusy || !user}
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Save size={16} />
+                    태스크 추가
+                  </button>
+                </div>
+              </form>
+            ) : null}
 
             {selectedImplementationTasks.length > 0 ? (
               <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-4">
@@ -10554,7 +10878,42 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             ) : null}
 
-            {implementationDependencyStatuses.length > 0 ? (
+            {experienceMode === "guided" && selectedImplementationTasks.length > 0 ? (
+              <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-950">AI가 정리한 실행 순서</h4>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      아래 열린 할 일만 위에서부터 처리하면 됩니다. 자세한 보드와 수동 태스크 관리는 전체 보기에서만 엽니다.
+                    </p>
+                  </div>
+                  <span className="rounded-md bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
+                    열린 할 일 {selectedOpenImplementationTasks.length}개
+                  </span>
+                </div>
+                <div className="mt-3 grid gap-2">
+                  {selectedOpenImplementationTasks.slice(0, 5).map((task, index) => (
+                    <div key={task.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-700 shadow-sm">
+                          {index + 1}
+                        </span>
+                        <span className="text-sm font-semibold text-slate-950">{task.title}</span>
+                        <span className={`rounded-md px-2 py-1 text-xs font-semibold ${implementationTaskStatusTone[task.status]}`}>
+                          {implementationTaskStatusLabels[task.status]}
+                        </span>
+                        <span className={`rounded-md px-2 py-1 text-xs font-semibold ${implementationTaskPriorityTone[task.priority]}`}>
+                          {implementationTaskPriorityLabels[task.priority]}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">{task.acceptance_criteria}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {experienceMode === "full" && implementationDependencyStatuses.length > 0 ? (
               <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50 p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
@@ -10719,7 +11078,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
 
-            {blockedImplementationSummaries.length > 0 ? (
+            {experienceMode === "full" && blockedImplementationSummaries.length > 0 ? (
               <div className="mt-4 rounded-lg border border-rose-100 bg-rose-50 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -10767,7 +11126,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             ) : null}
 
-            {implementationEvidenceSummaries.length > 0 ? (
+            {experienceMode === "full" && implementationEvidenceSummaries.length > 0 ? (
               <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -10806,7 +11165,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             ) : null}
 
-            {selectedImplementationTasks.length > 0 ? (
+            {experienceMode === "full" && selectedImplementationTasks.length > 0 ? (
               <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -10900,13 +11259,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             ) : null}
 
-            {selectedImplementationTasks.length > 0 && filteredImplementationTasks.length === 0 ? (
+            {experienceMode === "full" && selectedImplementationTasks.length > 0 && filteredImplementationTasks.length === 0 ? (
               <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
                 현재 필터 조건에 맞는 태스크가 없습니다. 필터를 초기화하거나 다른 조건으로 좁혀 보세요.
               </div>
             ) : null}
 
-            {filteredImplementationTasks.length > 0 ? (
+            {experienceMode === "full" && filteredImplementationTasks.length > 0 ? (
               <div className="mt-4 grid gap-3 xl:grid-cols-4">
                 {visibleImplementationStatuses.map((status) => {
                   const tasksInStatus = filteredImplementationTasks.filter((task) => task.status === status);
@@ -11028,7 +11387,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
           </div>
 
-          <div className={developmentPanel === "handoff" ? "" : "hidden"}>
+          <div className={visibleDevelopmentPanel === "handoff" ? "" : "hidden"}>
           <div className="mt-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -11090,187 +11449,199 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           </div>
 
-          <textarea
-            value={developmentPlanDraft}
-            readOnly
-            rows={24}
-            className="mt-4 w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-          />
-          {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
-
-          <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h3 className="text-base font-semibold text-blue-950">Codex 구현 핸드오프</h3>
-                <p className="mt-1 text-sm leading-6 text-blue-900">
-                  검증된 아이디어를 실제 앱 개발 작업으로 넘길 때 쓰는 구현 프롬프트입니다.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => copyDraft(implementationHandoffDraft, "Codex 구현 핸드오프")}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
-                >
-                  <Clipboard size={16} />
-                  복사
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    saveArtifactDraft(
-                      "dev_runbook",
-                      `${selectedIdea.name} Codex 구현 핸드오프`,
-                      implementationHandoffDraft,
-                      "development_process",
-                    )
-                  }
-                  disabled={isBusy || !user}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Save size={16} />
-                  저장
-                </button>
-              </div>
+          {experienceMode === "guided" ? (
+            <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-4">
+              <div className="text-sm font-semibold text-blue-950">개발 전달 패키지는 AI가 이미 준비했습니다.</div>
+              <p className="mt-2 text-sm leading-6 text-blue-900">
+                지금은 개발 완료 보고서만 저장하고 출시 판단으로 넘어가면 됩니다. Codex 핸드오프, 빌드 명령, QA 매트릭스,
+                역할별 프롬프트는 전체 보기에서만 확인하세요.
+              </p>
             </div>
-            <textarea
-              value={implementationHandoffDraft}
-              readOnly
-              rows={14}
-              className="mt-4 w-full resize-y rounded-md border border-blue-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-            />
-          </div>
+          ) : (
+            <>
+              <textarea
+                value={developmentPlanDraft}
+                readOnly
+                rows={24}
+                className="mt-4 w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+              />
+              {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
 
-          <div className="mt-5 rounded-lg border border-cyan-100 bg-cyan-50 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h3 className="text-base font-semibold text-cyan-950">MVP 빌드 명령 패킷</h3>
-                <p className="mt-1 text-sm leading-6 text-cyan-900">
-                  승인 산출물, 개발 실행 순서, 출시 판단을 합쳐 실제 구현 세션의 첫 메시지로 넘기는 명령서입니다.
-                </p>
+              <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h3 className="text-base font-semibold text-blue-950">Codex 구현 핸드오프</h3>
+                    <p className="mt-1 text-sm leading-6 text-blue-900">
+                      검증된 아이디어를 실제 앱 개발 작업으로 넘길 때 쓰는 구현 프롬프트입니다.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(implementationHandoffDraft, "Codex 구현 핸드오프")}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
+                    >
+                      <Clipboard size={16} />
+                      복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveArtifactDraft(
+                          "dev_runbook",
+                          `${selectedIdea.name} Codex 구현 핸드오프`,
+                          implementationHandoffDraft,
+                          "development_process",
+                        )
+                      }
+                      disabled={isBusy || !user}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Save size={16} />
+                      저장
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  value={implementationHandoffDraft}
+                  readOnly
+                  rows={14}
+                  className="mt-4 w-full resize-y rounded-md border border-blue-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                />
               </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => copyDraft(mvpBuildCommandPacketDraft, "MVP 빌드 명령 패킷")}
-                  disabled={!mvpBuildCommandPacketDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-cyan-200 bg-white px-3 text-sm font-semibold text-cyan-900 transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Clipboard size={16} />
-                  명령 복사
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    saveArtifactDraft(
-                      "dev_runbook",
-                      `${selectedIdea.name} MVP 빌드 명령 패킷`,
-                      mvpBuildCommandPacketDraft,
-                      "mvp_build_command",
-                    )
-                  }
-                  disabled={isBusy || !user || !mvpBuildCommandPacketDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-cyan-700 px-3 text-sm font-semibold text-white transition hover:bg-cyan-800 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Save size={16} />
-                  명령 저장
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={mvpBuildCommandPacketDraft}
-              readOnly
-              rows={16}
-              className="mt-4 w-full resize-y rounded-md border border-cyan-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-            />
-          </div>
 
-          <div className="mt-5 rounded-lg border border-amber-100 bg-amber-50 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h3 className="text-base font-semibold text-amber-950">QA 검수 매트릭스</h3>
-                <p className="mt-1 text-sm leading-6 text-amber-900">
-                  구현 완료 직후 확인할 핵심 여정, 권한, 보안, 디버깅, 배포 스모크를 한 번에 정리합니다.
-                </p>
+              <div className="mt-5 rounded-lg border border-cyan-100 bg-cyan-50 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h3 className="text-base font-semibold text-cyan-950">MVP 빌드 명령 패킷</h3>
+                    <p className="mt-1 text-sm leading-6 text-cyan-900">
+                      승인 산출물, 개발 실행 순서, 출시 판단을 합쳐 실제 구현 세션의 첫 메시지로 넘기는 명령서입니다.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(mvpBuildCommandPacketDraft, "MVP 빌드 명령 패킷")}
+                      disabled={!mvpBuildCommandPacketDraft}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-cyan-200 bg-white px-3 text-sm font-semibold text-cyan-900 transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Clipboard size={16} />
+                      명령 복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveArtifactDraft(
+                          "dev_runbook",
+                          `${selectedIdea.name} MVP 빌드 명령 패킷`,
+                          mvpBuildCommandPacketDraft,
+                          "mvp_build_command",
+                        )
+                      }
+                      disabled={isBusy || !user || !mvpBuildCommandPacketDraft}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-cyan-700 px-3 text-sm font-semibold text-white transition hover:bg-cyan-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Save size={16} />
+                      명령 저장
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  value={mvpBuildCommandPacketDraft}
+                  readOnly
+                  rows={16}
+                  className="mt-4 w-full resize-y rounded-md border border-cyan-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                />
               </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => copyDraft(qaAcceptanceMatrixDraft, "QA 검수 매트릭스")}
-                  disabled={!qaAcceptanceMatrixDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-amber-200 bg-white px-3 text-sm font-semibold text-amber-900 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Clipboard size={16} />
-                  매트릭스 복사
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    saveArtifactDraft(
-                      "dev_runbook",
-                      `${selectedIdea.name} QA 검수 매트릭스`,
-                      qaAcceptanceMatrixDraft,
-                      "qa_acceptance_matrix",
-                    )
-                  }
-                  disabled={isBusy || !user || !qaAcceptanceMatrixDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Save size={16} />
-                  매트릭스 저장
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={qaAcceptanceMatrixDraft}
-              readOnly
-              rows={14}
-              className="mt-4 w-full resize-y rounded-md border border-amber-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-            />
-          </div>
 
-          <div className="mt-5 rounded-lg border border-violet-100 bg-violet-50 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h3 className="text-base font-semibold text-violet-950">역할별 프롬프트 팩</h3>
-                <p className="mt-1 text-sm leading-6 text-violet-900">
-                  전략, 리서치, 제품, 디자인, 개발, QA, 디버깅, 보안, 출시 역할에 같은 문맥을 나눠주는 실행 지시서입니다.
-                </p>
+              <div className="mt-5 rounded-lg border border-amber-100 bg-amber-50 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h3 className="text-base font-semibold text-amber-950">QA 검수 매트릭스</h3>
+                    <p className="mt-1 text-sm leading-6 text-amber-900">
+                      구현 완료 직후 확인할 핵심 여정, 권한, 보안, 디버깅, 배포 스모크를 한 번에 정리합니다.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(qaAcceptanceMatrixDraft, "QA 검수 매트릭스")}
+                      disabled={!qaAcceptanceMatrixDraft}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-amber-200 bg-white px-3 text-sm font-semibold text-amber-900 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Clipboard size={16} />
+                      매트릭스 복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveArtifactDraft(
+                          "dev_runbook",
+                          `${selectedIdea.name} QA 검수 매트릭스`,
+                          qaAcceptanceMatrixDraft,
+                          "qa_acceptance_matrix",
+                        )
+                      }
+                      disabled={isBusy || !user || !qaAcceptanceMatrixDraft}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Save size={16} />
+                      매트릭스 저장
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  value={qaAcceptanceMatrixDraft}
+                  readOnly
+                  rows={14}
+                  className="mt-4 w-full resize-y rounded-md border border-amber-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                />
               </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => copyDraft(rolePromptPackDraft, "역할별 프롬프트 팩")}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white px-3 text-sm font-semibold text-violet-800 transition hover:bg-violet-50"
-                >
-                  <Clipboard size={16} />
-                  복사
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    saveArtifactDraft(
-                      "dev_runbook",
-                      `${selectedIdea.name} 역할별 프롬프트 팩`,
-                      rolePromptPackDraft,
-                      "development_process",
-                    )
-                  }
-                  disabled={isBusy || !user}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-violet-700 px-3 text-sm font-semibold text-white transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Save size={16} />
-                  저장
-                </button>
+
+              <div className="mt-5 rounded-lg border border-violet-100 bg-violet-50 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h3 className="text-base font-semibold text-violet-950">역할별 프롬프트 팩</h3>
+                    <p className="mt-1 text-sm leading-6 text-violet-900">
+                      전략, 리서치, 제품, 디자인, 개발, QA, 디버깅, 보안, 출시 역할에 같은 문맥을 나눠주는 실행 지시서입니다.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(rolePromptPackDraft, "역할별 프롬프트 팩")}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white px-3 text-sm font-semibold text-violet-800 transition hover:bg-violet-50"
+                    >
+                      <Clipboard size={16} />
+                      복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveArtifactDraft(
+                          "dev_runbook",
+                          `${selectedIdea.name} 역할별 프롬프트 팩`,
+                          rolePromptPackDraft,
+                          "development_process",
+                        )
+                      }
+                      disabled={isBusy || !user}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-violet-700 px-3 text-sm font-semibold text-white transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Save size={16} />
+                      저장
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  value={rolePromptPackDraft}
+                  readOnly
+                  rows={16}
+                  className="mt-4 w-full resize-y rounded-md border border-violet-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                />
               </div>
-            </div>
-            <textarea
-              value={rolePromptPackDraft}
-              readOnly
-              rows={16}
-              className="mt-4 w-full resize-y rounded-md border border-violet-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-            />
-          </div>
+            </>
+          )}
           </div>
         </div>
 
