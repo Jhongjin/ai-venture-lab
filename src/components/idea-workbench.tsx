@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Save,
   ShieldAlert,
+  Trash2,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
@@ -6707,7 +6708,9 @@ export function IdeaWorkbench({
   const [artifactTypeFilter, setArtifactTypeFilter] = useState<VentureArtifactType | "all">("all");
   const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
   const [artifactSourceFilter, setArtifactSourceFilter] = useState("all");
-  const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>("score");
+  const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>(() =>
+    sortWorkbenchIdeas(initialIdeas)[0] ? "score" : "select",
+  );
   const [artifactPanel, setArtifactPanel] = useState<ArtifactPanel>("validation");
   const [developmentPanel, setDevelopmentPanel] = useState<DevelopmentPanel>("setup");
   const [experienceMode, setExperienceMode] = useState<"guided" | "full">("guided");
@@ -7235,6 +7238,98 @@ export function IdeaWorkbench({
             ))),
     );
   }
+
+  async function deleteIdeaRecord(idea: Idea) {
+    if (!supabase) {
+      setMessage("Supabase 연결을 먼저 확인해 주세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("아이디어를 삭제하려면 먼저 로그인해 주세요.");
+      return;
+    }
+
+    if (!canManageRecord(idea)) {
+      setMessage("이 아이디어를 삭제할 권한이 없습니다.");
+      return;
+    }
+
+    if (ideas.length <= 1) {
+      setMessage("마지막 아이디어는 아직 삭제할 수 없어요. 새 후보를 하나 더 만든 뒤 정리해 주세요.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `"${idea.name}" 아이디어와 연결된 리스크, 판단, 실험, 산출물, 실행 기록까지 함께 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+
+    const relatedTables = [
+      "telemetry_events",
+      "implementation_tasks",
+      "venture_artifacts",
+      "orchestration_runs",
+      "experiments",
+      "decisions",
+      "risks",
+    ] as const;
+
+    for (const table of relatedTables) {
+      const { error } = await supabase.from(table).delete().eq("idea_id", idea.id);
+
+      if (error) {
+        setIsBusy(false);
+        setMessage(`${idea.name} 삭제 중 ${table} 정리에서 막혔습니다: ${error.message}`);
+        return;
+      }
+    }
+
+    const { error } = await supabase.from("ideas").delete().eq("id", idea.id);
+
+    if (error) {
+      setIsBusy(false);
+      setMessage(`${idea.name} 아이디어를 삭제하지 못했습니다: ${error.message}`);
+      return;
+    }
+
+    const remainingIdeas = sortWorkbenchIdeas(ideas.filter((currentIdea) => currentIdea.id !== idea.id));
+    const deletingSelectedIdea = selectedIdeaId === idea.id || selectedIdea?.id === idea.id;
+    const nextSelectedIdea = deletingSelectedIdea
+      ? (remainingIdeas[0] ?? null)
+      : (remainingIdeas.find((currentIdea) => currentIdea.id === selectedIdeaId) ?? remainingIdeas[0] ?? null);
+
+    setIdeas(remainingIdeas);
+    setRisks((current) => current.filter((risk) => risk.idea_id !== idea.id));
+    setDecisionLog((current) => current.filter((entry) => entry.idea_id !== idea.id));
+    setExperiments((current) => current.filter((experiment) => experiment.idea_id !== idea.id));
+    setOrchestrationRuns((current) => current.filter((run) => run.idea_id !== idea.id));
+    setArtifacts((current) => current.filter((artifact) => artifact.idea_id !== idea.id));
+    setImplementationTasks((current) => current.filter((task) => task.idea_id !== idea.id));
+    setTelemetryEvents((current) => current.filter((event) => event.idea_id !== idea.id));
+    setSelectedIdeaId(nextSelectedIdea?.id ?? "");
+    setEditState(nextSelectedIdea ? toEditState(nextSelectedIdea) : null);
+    setIsBusy(false);
+
+    if (nextSelectedIdea) {
+      if (deletingSelectedIdea) {
+        updateActiveTask("score");
+      }
+      setMessage(`"${idea.name}" 아이디어를 삭제했고, 다음 아이디어로 이동했습니다.`);
+    } else {
+      updateActiveTask("select");
+      setMessage(`"${idea.name}" 아이디어를 삭제했습니다.`);
+    }
+
+    router.refresh();
+  }
+
   const currentScore = editState ? scoreState(editState) : 0;
   const scoreRecommendation = recommendationForScore(currentScore);
   const missing =
@@ -9831,6 +9926,17 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   : "직접 만든 아이디어가 아니면 읽기 전용입니다. 새 아이디어를 만들면 바로 평가할 수 있습니다."}
               </p>
             </div>
+            {canEdit ? (
+              <button
+                type="button"
+                onClick={() => void deleteIdeaRecord(selectedIdea)}
+                disabled={isBusy}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-rose-200 bg-white px-4 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Trash2 size={18} />
+                아이디어 삭제
+              </button>
+            ) : null}
             <button
               type="submit"
               disabled={isBusy || !canEdit}
