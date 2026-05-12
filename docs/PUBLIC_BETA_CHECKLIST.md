@@ -84,7 +84,7 @@ Do not commit these environment variables. Use a beta-only account so generated 
 
 ## Manual Beta Pass
 
-1. Sign in with Supabase magic link.
+1. Sign in with a dashboard-created Supabase password account.
 2. Create or select a workspace.
 3. Use `아이디어 발굴` with the sample source and save a validation package.
 4. Create a manual idea and confirm it appears without a page refresh.

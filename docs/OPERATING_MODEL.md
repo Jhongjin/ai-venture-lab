@@ -103,8 +103,8 @@ The app now supports the first live operating loop:
 26. Compare revised artifacts against the previous version before promotion.
 27. Use artifact sub-tabs to keep validation drafts, product drafts, and the artifact library separate enough for operators to avoid long-scroll confusion.
 28. Filter the artifact library by type and lifecycle status during review.
-29. Treat magic link as the default operator sign-in path; password sign-in is only for existing Supabase Auth password users.
-30. Route magic links through `/auth/callback` so Supabase auth codes become app sessions before returning home.
+29. Treat dashboard-created password accounts as the default operator sign-in path; magic links are a fallback for environments with reliable SMTP.
+30. Route fallback email links through `/auth/callback` so Supabase auth codes become app sessions before returning home.
 31. Surface callback exchange failures in the operator card so auth setup issues can be fixed without guessing.
 32. Use phase-specific output templates so strategy, research, product, design, build, QA, debug, security, and launch work produces comparable notes.
 33. Show the next launch blocker beside readiness percentage so operators can act on the first gate that needs attention.

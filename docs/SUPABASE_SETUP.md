@@ -75,7 +75,7 @@ The initial migration enables RLS on every table.
 
 ## Auth Setup
 
-The console supports Supabase email magic links and password sign-in for operator access.
+The console uses password sign-in as the default operator access path. Email magic links remain available as a fallback, but they require reliable Supabase Auth email delivery or custom SMTP.
 
 In Supabase:
 
@@ -90,19 +90,19 @@ https://ai-venture-lab.vercel.app/auth/callback
 http://localhost:3000/auth/callback
 ```
 
-In `Authentication` -> `Providers`, keep email enabled. New sign-ins can create ideas because write policies allow the `authenticated` role.
+In `Authentication` -> `Providers`, keep email enabled. For an internal operator console, create users from the dashboard instead of opening public self-service signup.
 
-## Fast Operator Login Without Email Delivery
+## Default Operator Login Without Email Delivery
 
-Supabase's built-in email provider is intentionally limited. If magic links do not arrive or the app shows `email rate limit exceeded`, use a dashboard-created operator account:
+Supabase's built-in email provider is intentionally limited. Use a dashboard-created operator account for repeatable testing and day-to-day operation:
 
 1. Go to `Authentication` -> `Users`.
 2. Click `Add user`.
 3. Enter the operator email and a temporary strong password.
 4. Enable auto-confirm/confirmed user if the dashboard offers that option.
-5. In the app, use `Sign in with password`.
+5. In the app, enter the same email and password, then click `비밀번호로 로그인`.
 
-For production or repeated testing with email links, configure custom SMTP in Supabase Auth.
+For production or repeated testing with email links, configure custom SMTP in Supabase Auth. Password login does not require Supabase to send a login email.
 
 ## Next Hardening Pass
 

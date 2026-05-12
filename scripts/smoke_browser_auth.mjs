@@ -134,10 +134,10 @@ async function main() {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
     await waitForVisible(page.getByRole("heading", { name: /아이디어-MVP 실행 센터/ }), "main heading");
 
-    await clickFirst(page.getByRole("button", { name: /운영자 로그인/ }), "operator login navigation");
+    await clickFirst(page.getByRole("button", { name: /로그인/ }), "operator login navigation");
     await fillFirst(page.getByLabel(/이메일/), email, "email input");
-    await fillFirst(page.getByLabel(/기존 계정 비밀번호/), password, "password input");
-    await clickFirst(page.getByRole("button", { name: /기존 비밀번호로 로그인/ }), "password sign-in button");
+    await fillFirst(page.getByLabel(/비밀번호/), password, "password input");
+    await clickFirst(page.getByRole("button", { name: /비밀번호로 로그인/ }), "password sign-in button");
     await waitForVisible(page.getByText(/로그인됨/), "signed-in state", 25000);
     await waitForVisible(page.getByText(new RegExp(escapeRegExp(email))), "signed-in email", 10000);
 

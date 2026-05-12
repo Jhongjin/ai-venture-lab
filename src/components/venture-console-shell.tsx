@@ -42,7 +42,7 @@ const shellTasks: Array<{
   {
     id: "console:auth",
     label: "로그인",
-    description: "이메일로 접속",
+    description: "계정으로 접속",
     group: "시작",
     icon: UserRound,
   },
@@ -141,8 +141,8 @@ const shellTasks: Array<{
 
 const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> = {
   "console:auth": {
-    summary: "이메일 주소로 접속 링크를 받아 안전하게 들어옵니다. 별도 인증키를 다루지 않아도 됩니다.",
-    checklist: ["이메일 입력", "받은 메일의 로그인 링크 열기", "이 화면에 로그인 상태가 표시되는지 확인"],
+    summary: "관리자가 만든 계정의 이메일과 비밀번호로 접속합니다. 별도 인증키나 메일 링크를 다루지 않아도 됩니다.",
+    checklist: ["관리자 계정 준비", "이메일과 비밀번호 입력", "로그인 상태 확인"],
   },
   "console:workspace": {
     summary: "개인 기록을 팀 단위 공간에 묶어 함께 볼 수 있는 범위를 정합니다.",

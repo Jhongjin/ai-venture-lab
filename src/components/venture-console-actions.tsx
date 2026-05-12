@@ -1725,7 +1725,7 @@ export function VentureConsoleActions({
     {
       id: "auth",
       label: "로그인",
-      description: "이메일 링크로 안전하게 접속합니다.",
+      description: "관리자 계정으로 접속합니다.",
       status: user ? "완료" : "필수",
     },
     {
@@ -1972,8 +1972,7 @@ export function VentureConsoleActions({
     };
   }, [activeOrganization?.id, loadExtractionReports, user]);
 
-  async function handleSignIn(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleEmailLinkSignIn() {
     setAuthMessage(null);
 
     if (!supabase) {
@@ -2003,7 +2002,8 @@ export function VentureConsoleActions({
     setAuthMessage("로그인 링크를 보냈습니다. 이메일의 링크를 열고 돌아오면 이 카드에 로그인 상태가 표시됩니다.");
   }
 
-  async function handlePasswordSignIn() {
+  async function handlePasswordSignIn(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault();
     setAuthMessage(null);
 
     if (!supabase) {
@@ -2012,7 +2012,7 @@ export function VentureConsoleActions({
     }
 
     if (!email.trim() || !password) {
-      setAuthMessage("비밀번호 로그인은 관리자가 미리 만든 기존 계정에서만 사용할 수 있습니다. 이메일과 비밀번호를 모두 입력하세요.");
+      setAuthMessage("관리자가 만든 계정의 이메일과 비밀번호를 모두 입력하세요.");
       return;
     }
 
@@ -2810,7 +2810,7 @@ export function VentureConsoleActions({
           <div>
             <h2 className="text-xl font-semibold text-slate-950">로그인</h2>
             <p className="mt-1 text-sm text-slate-500">
-              이메일 주소만 입력하면 접속 링크를 받을 수 있습니다. 별도 인증키는 필요 없습니다.
+              관리자가 만든 계정의 이메일과 비밀번호로 접속합니다. 별도 인증키나 메일 링크는 필요 없습니다.
             </p>
           </div>
           <ShieldCheck className={user ? "text-emerald-600" : "text-slate-500"} size={24} />
@@ -2835,16 +2835,16 @@ export function VentureConsoleActions({
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSignIn} className="grid gap-3">
+          <form onSubmit={handlePasswordSignIn} className="grid gap-3">
             <div className="rounded-lg bg-blue-50 p-4 text-sm leading-6 text-blue-900">
-              <div className="font-semibold text-blue-950">로그인은 3단계로 끝납니다.</div>
+              <div className="font-semibold text-blue-950">비밀번호 로그인으로 진행합니다.</div>
               <ol className="mt-2 grid gap-1">
-                <li>1. 이메일 주소를 입력합니다.</li>
-                <li>2. 받은 메일의 로그인 링크를 누릅니다.</li>
-                <li>3. 이 화면으로 돌아오면 로그인 상태가 표시됩니다.</li>
+                <li>1. 관리자가 Supabase에서 만든 계정을 준비합니다.</li>
+                <li>2. 이메일과 비밀번호를 입력합니다.</li>
+                <li>3. 로그인 후 팀 공간과 아이디어 접수를 진행합니다.</li>
               </ol>
               <p className="mt-2">
-                일반 사용자는 이메일 로그인 링크만 사용하면 됩니다. 비밀번호 로그인은 관리자가 미리 만든 계정이 있을 때만 펼쳐서 사용하세요.
+                계정이 없다면 Supabase의 Authentication &gt; Users에서 사용자를 추가하고 이메일 확인 완료 상태로 만들어 주세요.
               </p>
             </div>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -2857,37 +2857,40 @@ export function VentureConsoleActions({
                 className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              비밀번호
+              <input
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                type="password"
+                placeholder="관리자가 발급한 계정 비밀번호"
+                className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </label>
             <button
               type="submit"
               disabled={isAuthBusy}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
-              이메일 로그인 링크 받기
+              비밀번호로 로그인
             </button>
             <details className="rounded-lg border border-slate-200 bg-slate-50 p-3">
               <summary className="cursor-pointer text-sm font-semibold text-slate-700">
-                기존 비밀번호 계정으로 접속
+                이메일 링크가 꼭 필요할 때만 사용
               </summary>
-              <div className="mt-3 grid gap-3">
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  비밀번호
-                  <input
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    type="password"
-                    placeholder="관리자가 만든 기존 계정 비밀번호"
-                    className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  />
-                </label>
+              <div className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
+                <p>
+                  이메일 링크는 SMTP 설정과 발송 제한의 영향을 받습니다. 운영 테스트는 위의 비밀번호 로그인을 기본으로 사용하세요.
+                </p>
                 <button
                   type="button"
-                  onClick={handlePasswordSignIn}
+                  onClick={handleEmailLinkSignIn}
                   disabled={isAuthBusy}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
-                  비밀번호로 로그인
+                  이메일 로그인 링크 받기
                 </button>
               </div>
             </details>
