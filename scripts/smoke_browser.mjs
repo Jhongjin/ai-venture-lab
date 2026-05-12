@@ -100,7 +100,7 @@ async function main() {
     await clickFirst(page.getByRole("button", { name: /아이디어 찾기/ }), "idea extraction navigation");
     await waitForVisible(page.getByRole("heading", { name: /아이디어 찾기/ }), "idea extraction panel");
     await clickFirst(page.getByRole("button", { name: /샘플 넣기/ }), "sample source button");
-    await clickFirst(page.getByRole("button", { name: /규칙 기반/ }), "rules extraction button");
+    await clickFirst(page.getByRole("button", { name: /AI 후보 발굴/ }), "ai extraction button");
     await waitForVisible(page.getByText(/후보 비교 매트릭스/), "candidate comparison matrix", 20000);
     await waitForVisible(page.getByText(/검증 패키지/), "validation package result", 20000);
 

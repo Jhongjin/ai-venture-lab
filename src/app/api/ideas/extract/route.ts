@@ -81,6 +81,14 @@ function getOpenAIErrorMessage(payload: OpenAIResponse) {
   return toText(payload.error.message, 500) || "OpenAI request failed.";
 }
 
+function createFallbackResponse(error: string, fallbackStatus?: number) {
+  return NextResponse.json({
+    error,
+    mode: "local_fallback",
+    fallbackStatus: fallbackStatus ?? null,
+  });
+}
+
 const ideaExtractionSchema = {
   type: "object",
   additionalProperties: false,
@@ -148,12 +156,9 @@ export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    return NextResponse.json(
-      {
-        error: "OPENAI_API_KEY is not configured. Falling back to the local extraction engine is recommended.",
-        mode: "local_fallback",
-      },
-      { status: 503 },
+    return createFallbackResponse(
+      "OPENAI_API_KEY is not configured. Falling back to the local extraction engine is recommended.",
+      503,
     );
   }
 
@@ -213,32 +218,23 @@ export async function POST(request: Request) {
   const payload = (await openaiResponse.json().catch(() => ({}))) as OpenAIResponse;
 
   if (!openaiResponse.ok) {
-    return NextResponse.json(
-      {
-        error: getOpenAIErrorMessage(payload) ?? `OpenAI request failed with HTTP ${openaiResponse.status}.`,
-        mode: "local_fallback",
-      },
-      { status: openaiResponse.status },
+    return createFallbackResponse(
+      getOpenAIErrorMessage(payload) ?? `OpenAI request failed with HTTP ${openaiResponse.status}.`,
+      openaiResponse.status,
     );
   }
 
   const outputText = extractOutputText(payload);
 
   if (!outputText) {
-    return NextResponse.json(
-      { error: "OpenAI response did not include structured text output.", mode: "local_fallback" },
-      { status: 502 },
-    );
+    return createFallbackResponse("OpenAI response did not include structured text output.", 502);
   }
 
   try {
     const parsed = JSON.parse(outputText) as unknown;
 
     if (!isRecord(parsed) || !Array.isArray(parsed.candidates)) {
-      return NextResponse.json(
-        { error: "OpenAI structured output did not contain candidates.", mode: "local_fallback" },
-        { status: 502 },
-      );
+      return createFallbackResponse("OpenAI structured output did not contain candidates.", 502);
     }
 
     return NextResponse.json({
@@ -247,9 +243,6 @@ export async function POST(request: Request) {
       candidates: parsed.candidates,
     });
   } catch {
-    return NextResponse.json(
-      { error: "OpenAI structured output was not parseable JSON.", mode: "local_fallback" },
-      { status: 502 },
-    );
+    return createFallbackResponse("OpenAI structured output was not parseable JSON.", 502);
   }
 }
