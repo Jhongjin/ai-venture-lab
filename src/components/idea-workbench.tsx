@@ -9872,42 +9872,62 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   ),
               );
 
+              const isManageable = isOwned || isOrgAdmin;
+
               return (
-                <button
+                <div
                   key={idea.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedIdeaId(idea.id);
-                    setEditState(toEditState(idea));
-                    updateActiveTask("score");
-                  }}
-                  className={`rounded-lg border p-4 text-left transition ${
+                  className={`rounded-lg border p-4 transition ${
                     idea.id === selectedIdea.id
                       ? "border-blue-300 bg-blue-50"
                       : "border-slate-200 bg-slate-50 hover:border-slate-300"
                   }`}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-semibold text-slate-950">{idea.name}</span>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
-                        {stageLabels[idea.stage]}
-                      </span>
-                      <span
-                        className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-                          isOwned || isOrgAdmin ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
-                        }`}
-                      >
-                        {isOwned
-                          ? editabilityLabels.editable
-                          : isOrgAdmin
-                            ? editabilityLabels.orgAdmin
-                            : editabilityLabels.readOnly}
-                      </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedIdeaId(idea.id);
+                      setEditState(toEditState(idea));
+                      updateActiveTask("score");
+                    }}
+                    className="w-full text-left"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-semibold text-slate-950">{idea.name}</span>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                          {stageLabels[idea.stage]}
+                        </span>
+                        <span
+                          className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
+                            isManageable ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {isOwned
+                            ? editabilityLabels.editable
+                            : isOrgAdmin
+                              ? editabilityLabels.orgAdmin
+                              : editabilityLabels.readOnly}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
-                </button>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
+                  </button>
+
+                  {isManageable ? (
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => void deleteIdeaRecord(idea)}
+                        disabled={isBusy}
+                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Trash2 size={14} />
+                        삭제
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               );
             })}
           </div>
