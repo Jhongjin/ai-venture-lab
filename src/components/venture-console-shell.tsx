@@ -17,7 +17,11 @@ import {
 } from "lucide-react";
 
 import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
-import { VentureConsoleActions, type ConsoleActionTask } from "@/components/venture-console-actions";
+import {
+  VentureConsoleActions,
+  type ConsoleActionTask,
+  type ConsoleWorkflowStatus,
+} from "@/components/venture-console-actions";
 import type {
   Decision,
   Experiment,
@@ -30,13 +34,13 @@ import type {
 } from "@/lib/venture-data";
 
 type ShellTask = `console:${ConsoleActionTask}` | `workbench:${WorkbenchTask}`;
-const shellTaskGroups = ["시작", "검증", "제작", "출시 후"] as const;
+type ShellTaskGroup = "시작" | "검증" | "제작" | "출시 후";
 
 const shellTasks: Array<{
   id: ShellTask;
   label: string;
   description: string;
-  group: (typeof shellTaskGroups)[number];
+  group: ShellTaskGroup;
   icon: typeof UserRound;
 }> = [
   {
@@ -204,40 +208,150 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   },
 };
 
-function recommendNextTask({
+type TaskTransitionOption = {
+  id: ShellTask;
+  cta: string;
+  hint: string;
+  variant: "primary" | "optional";
+};
+
+function createTransition(
+  id: ShellTask,
+  cta: string,
+  hint: string,
+  variant: TaskTransitionOption["variant"] = "primary",
+): TaskTransitionOption {
+  return { id, cta, hint, variant };
+}
+
+function getNextTaskOptions({
   activeTask,
   ideaCount,
-  runCount,
   artifactCount,
+  runCount,
+  openRisks,
 }: {
   activeTask: ShellTask;
   ideaCount: number;
-  runCount: number;
   artifactCount: number;
+  runCount: number;
+  openRisks: number;
 }) {
-  if (ideaCount === 0 && activeTask.startsWith("workbench:")) {
-    return shellTasks.find((task) => task.id === "console:idea") ?? null;
+  switch (activeTask) {
+    case "console:auth":
+      return [];
+    case "console:workspace":
+      return [];
+    case "console:extract":
+      return [];
+    case "console:idea":
+      return [];
+    case "workbench:select":
+      return ideaCount > 0
+        ? [createTransition("workbench:score", "다음: 사업성 평가", "한 아이디어를 골라 수요와 속도를 점검합니다.")]
+        : [];
+    case "workbench:score":
+      return [
+        createTransition("workbench:experiment", "다음: 검증 실험", "7일 안에 확인할 가장 작은 실험으로 옮깁니다."),
+        createTransition(
+          "workbench:risk",
+          "선택: 위험 먼저 보기",
+          "법무, 개인정보, 운영 이슈가 먼저 보이면 여기서 보강합니다.",
+          "optional",
+        ),
+      ];
+    case "workbench:risk":
+      return [
+        createTransition("workbench:experiment", "다음: 검증 실험", "리스크를 적었다면 이제 실제 검증 실험으로 갑니다."),
+        createTransition(
+          "workbench:decision",
+          "건너뛰고 진행 판단",
+          "리스크 점검이 충분하면 바로 진행/보류 판단으로 넘어갑니다.",
+          "optional",
+        ),
+      ];
+    case "workbench:experiment":
+      return [
+        createTransition("workbench:decision", "다음: 진행 판단", "실험 계획과 점수를 근거로 결정합니다."),
+        ...(openRisks === 0
+          ? [
+              createTransition(
+                "workbench:risk",
+                "선택: 위험 확인",
+                "아직 리스크를 적지 않았다면 여기서 한 번 보강합니다.",
+                "optional",
+              ),
+            ]
+          : []),
+      ];
+    case "workbench:decision":
+      return [
+        createTransition("workbench:artifacts", "다음: 기획서 만들기", "보고서, PRD, MVP 범위를 문서로 남깁니다."),
+        ...(artifactCount > 0
+          ? [
+              createTransition(
+                "workbench:development",
+                "건너뛰고 제작 준비",
+                "이미 필요한 문서가 있으면 바로 제작 준비로 이동합니다.",
+                "optional",
+              ),
+            ]
+          : []),
+      ];
+    case "workbench:artifacts":
+      return [createTransition("workbench:development", "다음: 제작 준비", "디자인, 개발, 배포 준비를 구체화합니다.")];
+    case "workbench:development":
+      return [
+        createTransition("workbench:orchestration", "다음: 실행 관리", "전략, 디자인, 개발, QA 역할을 배정합니다."),
+        ...(runCount > 0
+          ? [
+              createTransition(
+                "workbench:launch",
+                "건너뛰고 출시 판단",
+                "이미 실행 관리 기록이 있으면 출시 판단으로 바로 갈 수 있습니다.",
+                "optional",
+              ),
+            ]
+          : []),
+      ];
+    case "workbench:orchestration":
+      return [createTransition("workbench:launch", "다음: 출시 판단", "남은 차단 항목을 확인하고 출시 여부를 정합니다.")];
+    case "workbench:launch":
+      return [createTransition("workbench:learning", "다음: 성과 확인", "출시 후 행동 신호를 보고 다음 사이클을 정합니다.")];
+    case "workbench:learning":
+      return [createTransition("console:idea", "다음: 새 아이디어 접수", "이제 다음 후보를 다시 검토합니다.")];
+    default:
+      return [];
   }
+}
 
-  const nextByTask: Partial<Record<ShellTask, ShellTask>> = {
-    "console:auth": "console:workspace",
-    "console:workspace": "console:extract",
-    "console:extract": "console:idea",
-    "console:idea": ideaCount > 0 ? "workbench:select" : "console:idea",
-    "workbench:select": "workbench:score",
-    "workbench:score": "workbench:risk",
-    "workbench:risk": "workbench:experiment",
-    "workbench:experiment": "workbench:decision",
-    "workbench:decision": artifactCount > 0 ? "workbench:development" : "workbench:artifacts",
-    "workbench:artifacts": "workbench:development",
-    "workbench:development": runCount > 0 ? "workbench:launch" : "workbench:orchestration",
-    "workbench:orchestration": "workbench:launch",
-    "workbench:launch": "workbench:learning",
-    "workbench:learning": "console:idea",
-  };
-  const nextId = nextByTask[activeTask];
-
-  return shellTasks.find((task) => task.id === nextId) ?? null;
+function getCurrentStepBlocker({
+  activeTask,
+  consoleStatus,
+  ideaCount,
+}: {
+  activeTask: ShellTask;
+  consoleStatus: ConsoleWorkflowStatus;
+  ideaCount: number;
+}) {
+  switch (activeTask) {
+    case "console:auth":
+      return "이 화면 안에서 로그인하면 다음 단계가 자동으로 열립니다.";
+    case "console:workspace":
+      return consoleStatus.hasWorkspace
+        ? "워크스페이스를 선택하면 아이디어 찾기 단계로 자동 이동합니다."
+        : "워크스페이스를 만들거나 선택하면 다음 단계가 자동으로 열립니다.";
+    case "console:extract":
+      return consoleStatus.hasExtractedIdeas
+        ? "추천 후보를 입력 폼으로 보내면 아이디어 접수 단계로 자동 이동합니다."
+        : "후보를 발굴하거나 샘플을 넣어 결과를 만든 뒤 다음 단계가 열립니다.";
+    case "console:idea":
+      return ideaCount > 0
+        ? "아이디어를 저장하면 검증 단계가 자동으로 열립니다."
+        : "아이디어를 최소 1개 저장해야 검증 단계가 열립니다.";
+    default:
+      return null;
+  }
 }
 
 function scoreIdea(idea: Idea) {
@@ -285,6 +399,13 @@ export function VentureConsoleShell({
   source: "supabase" | "seed";
 }) {
   const [activeTask, setActiveTask] = useState<ShellTask>("console:auth");
+  const [consoleStatus, setConsoleStatus] = useState<ConsoleWorkflowStatus>({
+    isAuthLoaded: false,
+    isAuthenticated: false,
+    hasWorkspace: false,
+    hasExtractedIdeas: false,
+    hasIdeaSource: false,
+  });
   const [ideas, setIdeas] = useState(initialIdeas);
   const [risks, setRisks] = useState(initialRisks);
   const [experiments, setExperiments] = useState(initialExperiments);
@@ -439,13 +560,21 @@ export function VentureConsoleShell({
   const activeTaskConfig = shellTasks[activeTaskIndex] ?? shellTasks[0];
   const ActiveIcon = activeTaskConfig.icon;
   const previousTask = activeTaskIndex > 0 ? shellTasks[activeTaskIndex - 1] : null;
-  const recommendedTask = recommendNextTask({
+  const nextTaskOptions = getNextTaskOptions({
     activeTask,
     ideaCount,
-    runCount,
     artifactCount,
+    runCount,
+    openRisks,
   });
+  const primaryNextTask = nextTaskOptions.find((option) => option.variant === "primary") ?? null;
+  const optionalNextTasks = nextTaskOptions.filter((option) => option.variant === "optional");
   const activeGuidance = taskGuidance[activeTask];
+  const currentStepBlocker = getCurrentStepBlocker({
+    activeTask,
+    consoleStatus,
+    ideaCount,
+  });
   const taskStatuses: Record<ShellTask, string> = {
     "console:auth": "접근",
     "console:workspace": "팀",
@@ -462,6 +591,14 @@ export function VentureConsoleShell({
     "workbench:launch": highRisks > 0 ? "점검" : "확인",
     "workbench:learning": telemetryEventCount > 0 ? `${telemetryEventCount}개` : "대기",
   };
+  const completedTasks = shellTasks.slice(0, Math.max(activeTaskIndex, 0));
+  const availableTaskIds = new Set<ShellTask>([
+    ...completedTasks.map((task) => task.id),
+    activeTaskConfig.id,
+    ...nextTaskOptions.map((task) => task.id),
+  ]);
+  const lockedTasks = shellTasks.filter((task) => !availableTaskIds.has(task.id));
+  const stepNumber = activeTaskIndex + 1;
 
   return (
     <section className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
@@ -470,7 +607,7 @@ export function VentureConsoleShell({
           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">AI Venture Lab</div>
           <h2 className="mt-2 text-2xl font-semibold text-slate-950">의사결정 흐름</h2>
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            아이디어를 접수하고, 검증하고, 제작과 출시 판단까지 한 단계씩 진행합니다.
+            한 번에 하나의 단계만 보고, 끝난 뒤 다음 단계로 넘어가는 방식으로 진행합니다.
           </p>
         </div>
 
@@ -517,55 +654,145 @@ export function VentureConsoleShell({
           </div>
         ) : null}
 
-        {shellTaskGroups.map((group) => (
-          <div key={group} className="mt-4">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{group}</div>
-            <div className="grid gap-2">
-              {shellTasks
-                .filter((task) => task.group === group)
-                .map((task) => {
-                  const Icon = task.icon;
-                  const isActive = activeTask === task.id;
+        <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">현재 단계</div>
+          <button
+            type="button"
+            onClick={() => setActiveTask(activeTaskConfig.id)}
+            aria-current="step"
+            className="mt-2 grid w-full grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-blue-300 bg-white p-3 text-left shadow-sm"
+          >
+            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+              {stepNumber}
+            </span>
+            <span className="min-w-0">
+              <span className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                <ActiveIcon size={15} />
+                {activeTaskConfig.label}
+              </span>
+              <span className="mt-0.5 block text-xs leading-5 text-slate-500">{activeTaskConfig.description}</span>
+            </span>
+            <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+              {taskStatuses[activeTaskConfig.id]}
+            </span>
+          </button>
+        </div>
 
-                  return (
-                    <button
-                      key={task.id}
-                      type="button"
-                      onClick={() => setActiveTask(task.id)}
-                      aria-current={isActive ? "step" : undefined}
-                      className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
-                        isActive
-                          ? "border-blue-300 bg-blue-50 text-blue-950"
-                          : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white"
+        {nextTaskOptions.length > 0 ? (
+          <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">다음에 할 수 있는 단계</div>
+            <div className="mt-2 grid gap-2">
+              {nextTaskOptions.map((option) => {
+                const task = shellTasks.find((item) => item.id === option.id);
+
+                if (!task) {
+                  return null;
+                }
+
+                const Icon = task.icon;
+
+                return (
+                  <button
+                    key={task.id}
+                    type="button"
+                    onClick={() => setActiveTask(task.id)}
+                    className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
+                      option.variant === "primary"
+                        ? "border-emerald-200 bg-white hover:border-emerald-300 hover:bg-emerald-50"
+                        : "border-amber-200 bg-white hover:border-amber-300 hover:bg-amber-50"
+                    }`}
+                  >
+                    <span
+                      className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
+                        option.variant === "primary" ? "bg-emerald-600 text-white" : "bg-amber-500 text-white"
                       }`}
                     >
-                      <span
-                        className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                          isActive ? "bg-blue-600 text-white" : "bg-white text-slate-700 shadow-sm"
-                        }`}
-                      >
-                        {shellTasks.findIndex((item) => item.id === task.id) + 1}
+                      {shellTasks.findIndex((item) => item.id === task.id) + 1}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                        <Icon size={15} />
+                        {task.label}
                       </span>
-                      <span className="min-w-0">
-                        <span className="flex items-center gap-2 text-sm font-semibold">
-                          <Icon size={15} />
-                          {task.label}
-                        </span>
-                        <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
-                      </span>
-                      <span
-                        className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                          isActive ? "bg-white text-blue-700" : "bg-white text-slate-600"
-                        }`}
-                      >
-                        {taskStatuses[task.id]}
-                      </span>
-                    </button>
-                  );
-                })}
+                      <span className="mt-0.5 block text-xs leading-5 text-slate-500">{option.hint}</span>
+                    </span>
+                    <span
+                      className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                        option.variant === "primary"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-amber-50 text-amber-800"
+                      }`}
+                    >
+                      {option.variant === "primary" ? "다음" : "선택"}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        ))}
+        ) : currentStepBlocker ? (
+          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-800">다음 단계는 아직 잠겨 있습니다</div>
+            <p className="mt-2 text-sm leading-6 text-amber-900">{currentStepBlocker}</p>
+          </div>
+        ) : null}
+
+        {completedTasks.length > 0 ? (
+          <details className="mt-4 rounded-lg border border-slate-200 bg-white p-3">
+            <summary className="cursor-pointer list-none text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              완료한 단계 다시 보기
+            </summary>
+            <div className="mt-3 grid gap-2">
+              {completedTasks.map((task) => {
+                const Icon = task.icon;
+
+                return (
+                  <button
+                    key={task.id}
+                    type="button"
+                    onClick={() => setActiveTask(task.id)}
+                    className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-slate-300 hover:bg-white"
+                  >
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-700 shadow-sm">
+                      {shellTasks.findIndex((item) => item.id === task.id) + 1}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                        <Icon size={15} />
+                        {task.label}
+                      </span>
+                      <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
+                    </span>
+                    <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">완료</span>
+                  </button>
+                );
+              })}
+            </div>
+          </details>
+        ) : null}
+
+        {lockedTasks.length > 0 ? (
+          <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">뒤 단계는 잠겨 있습니다</div>
+            <div className="mt-2 grid gap-2">
+              {lockedTasks.slice(0, 6).map((task) => (
+                <div
+                  key={task.id}
+                  className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-slate-200 bg-white/70 p-3 text-left opacity-80"
+                >
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500">
+                    {shellTasks.findIndex((item) => item.id === task.id) + 1}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-slate-700">{task.label}</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
+                  </span>
+                  <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-500">잠김</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </aside>
 
       <div className="min-w-0">
@@ -578,7 +805,7 @@ export function VentureConsoleShell({
                 </span>
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    {activeTaskConfig.group}
+                    {activeTaskConfig.group} · {stepNumber}/{shellTasks.length}
                   </div>
                   <h2 className="mt-1 text-2xl font-semibold text-slate-950">{activeTaskConfig.label}</h2>
                   <p className="mt-1 text-sm leading-6 text-slate-500">{activeTaskConfig.description}</p>
@@ -594,9 +821,15 @@ export function VentureConsoleShell({
                     </span>
                   ))}
                 </div>
+                <p className="mt-3 text-xs leading-5 text-slate-500">
+                  지금 단계가 끝나면 아래의 다음 단계만 열립니다. 선택 단계는 필요할 때만 건너뛸 수 있습니다.
+                </p>
+                {currentStepBlocker ? (
+                  <p className="mt-2 text-xs leading-5 text-amber-700">{currentStepBlocker}</p>
+                ) : null}
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-start justify-end gap-2">
               <button
                 type="button"
                 onClick={() => previousTask && setActiveTask(previousTask.id)}
@@ -605,14 +838,25 @@ export function VentureConsoleShell({
               >
                 이전
               </button>
-              <button
-                type="button"
-                onClick={() => recommendedTask && setActiveTask(recommendedTask.id)}
-                disabled={!recommendedTask}
-                className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-45"
-              >
-                {recommendedTask ? `추천 다음: ${recommendedTask.label}` : "다음 작업"}
-              </button>
+              {primaryNextTask ? (
+                <button
+                  type="button"
+                  onClick={() => setActiveTask(primaryNextTask.id)}
+                  className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  {primaryNextTask.cta}
+                </button>
+              ) : null}
+              {optionalNextTasks.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setActiveTask(option.id)}
+                  className="inline-flex h-10 items-center justify-center rounded-md border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
+                >
+                  {option.cta}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -621,6 +865,7 @@ export function VentureConsoleShell({
           <VentureConsoleActions
             activeTask={activeConsoleTask}
             onActiveTaskChange={handleConsoleTaskChange}
+            onWorkflowStatusChange={setConsoleStatus}
             showSidebar={false}
             existingIdeas={ideas}
           />

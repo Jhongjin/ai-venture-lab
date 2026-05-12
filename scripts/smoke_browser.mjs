@@ -25,15 +25,6 @@ async function waitForVisible(locator, label, waitMs = 15000) {
   }
 }
 
-async function clickFirst(locator, label) {
-  await waitForVisible(locator, label);
-  try {
-    await locator.first().click({ timeout: 10000 });
-  } catch (error) {
-    fail(`could not click ${label}. ${error instanceof Error ? error.message : ""}`);
-  }
-}
-
 async function prepareScreenshotPath(targetPath) {
   if (!targetPath) {
     return null;
@@ -43,27 +34,6 @@ async function prepareScreenshotPath(targetPath) {
   await mkdir(path.dirname(resolvedPath), { recursive: true });
 
   return resolvedPath;
-}
-
-async function waitForAnyVisible(candidates, label, waitMs = 15000) {
-  const deadline = Date.now() + waitMs;
-  const lastErrors = [];
-
-  while (Date.now() < deadline) {
-    for (const candidate of candidates) {
-      try {
-        if (await candidate.locator.first().isVisible({ timeout: 500 })) {
-          return candidate.name;
-        }
-      } catch (error) {
-        lastErrors.push(error instanceof Error ? error.message : String(error));
-      }
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 250));
-  }
-
-  fail(`missing visible UI: ${label}. ${lastErrors.slice(-2).join(" | ")}`);
 }
 
 async function main() {
@@ -95,32 +65,13 @@ async function main() {
 
     await waitForVisible(page.getByRole("heading", { name: /아이디어 실행 보드/ }), "main heading");
     await waitForVisible(page.getByText(/저장소/), "data source card");
-    await waitForVisible(page.getByRole("button", { name: /아이디어 찾기/ }), "idea extraction navigation");
-
-    await clickFirst(page.getByRole("button", { name: /아이디어 찾기/ }), "idea extraction navigation");
-    await waitForVisible(page.getByRole("heading", { name: /아이디어 찾기/ }), "idea extraction panel");
-    await clickFirst(page.getByRole("button", { name: /샘플 넣기/ }), "sample source button");
-    await clickFirst(page.getByRole("button", { name: /AI 후보 발굴/ }), "ai extraction button");
-    await waitForVisible(page.getByText(/후보 비교 매트릭스/), "candidate comparison matrix", 20000);
-    await waitForVisible(page.getByText(/검증 패키지/), "validation package result", 20000);
-
-    await clickFirst(page.getByRole("button", { name: /아이디어 접수/ }), "new idea navigation");
-    await waitForVisible(page.getByRole("heading", { name: /아이디어 접수/ }), "new idea form");
-    await waitForVisible(page.getByLabel(/이름/), "idea name input");
-
-    await clickFirst(page.getByRole("button", { name: /제작 준비/ }), "app development navigation");
-    const developmentResult = await waitForAnyVisible(
-      [
-        { name: "development-panel", locator: page.getByRole("heading", { name: /제작 준비 프로세스/ }) },
-        { name: "empty-workbench", locator: page.getByText(/아직 검토할 아이디어가 없습니다/) },
-      ],
-      "development panel or empty workbench state",
+    await waitForVisible(page.getByRole("heading", { name: /^로그인$/ }).first(), "login step heading");
+    await waitForVisible(page.getByText(/뒤 단계는 잠겨 있습니다/), "locked future steps");
+    await waitForVisible(
+      page.getByText(/이 화면 안에서 로그인하면 다음 단계가 자동으로 열립니다/),
+      "auth blocker guidance",
     );
-
-    if (developmentResult === "development-panel") {
-      await waitForVisible(page.getByText(/개발 킥오프 브리프/), "development kickoff brief");
-      await waitForVisible(page.getByText(/구현 실행 패키지/), "implementation run package");
-    }
+    await waitForVisible(page.getByRole("button", { name: /비밀번호로 로그인/ }), "password sign-in button");
 
     if (resolvedScreenshotPath) {
       await page.screenshot({ path: resolvedScreenshotPath, fullPage: true });

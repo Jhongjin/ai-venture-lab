@@ -40,6 +40,13 @@ type FormState = {
 };
 
 export type ConsoleActionTask = "auth" | "workspace" | "extract" | "idea";
+export type ConsoleWorkflowStatus = {
+  isAuthLoaded: boolean;
+  isAuthenticated: boolean;
+  hasWorkspace: boolean;
+  hasExtractedIdeas: boolean;
+  hasIdeaSource: boolean;
+};
 
 type InitialIdeaScores = Pick<
   Idea,
@@ -1506,11 +1513,13 @@ ${sourceExcerpt || "원문 근거가 비어 있습니다."}
 export function VentureConsoleActions({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
+  onWorkflowStatusChange,
   showSidebar = true,
   existingIdeas = [],
 }: {
   activeTask?: ConsoleActionTask;
   onActiveTaskChange?: (task: ConsoleActionTask) => void;
+  onWorkflowStatusChange?: (status: ConsoleWorkflowStatus) => void;
   showSidebar?: boolean;
   existingIdeas?: Idea[];
 } = {}) {
@@ -1548,6 +1557,7 @@ export function VentureConsoleActions({
   const [extractionReports, setExtractionReports] = useState<VentureArtifact[]>([]);
   const [localActiveTask, setLocalActiveTask] = useState<ConsoleActionTask>("auth");
   const activeTask = controlledActiveTask ?? localActiveTask;
+  const hasWorkspace = organizations.length > 0 && Boolean(activeOrganizationId || organizations[0]?.id);
   const updateActiveTask = useCallback(
     (task: ConsoleActionTask) => {
       setLocalActiveTask(task);
@@ -1555,6 +1565,16 @@ export function VentureConsoleActions({
     },
     [onActiveTaskChange],
   );
+
+  useEffect(() => {
+    onWorkflowStatusChange?.({
+      isAuthLoaded,
+      isAuthenticated: Boolean(user),
+      hasWorkspace,
+      hasExtractedIdeas: extractedIdeas.length > 0,
+      hasIdeaSource: rawIdeaSource.trim().length > 0,
+    });
+  }, [extractedIdeas.length, hasWorkspace, isAuthLoaded, onWorkflowStatusChange, rawIdeaSource, user]);
 
   async function recordTelemetryEvent({
     eventName,
@@ -2078,8 +2098,9 @@ export function VentureConsoleActions({
     }
 
     setActiveOrganizationId(data.id);
-    setWorkspaceMessage("워크스페이스를 만들었습니다.");
+    setWorkspaceMessage("워크스페이스를 만들었습니다. 이제 아이디어 찾기 단계로 이동합니다.");
     await loadWorkspaceData(user, data.id);
+    updateActiveTask("extract");
   }
 
   async function handleAttachPersonalRecords() {
@@ -2117,6 +2138,7 @@ export function VentureConsoleActions({
   async function handleSelectWorkspace(organizationId: string) {
     setActiveOrganizationId(organizationId);
     await loadAuditEvents(organizationId);
+    updateActiveTask("extract");
   }
 
   async function handleAddMember(event: FormEvent<HTMLFormElement>) {
