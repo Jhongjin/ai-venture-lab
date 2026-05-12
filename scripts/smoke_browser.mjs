@@ -68,7 +68,7 @@ async function main() {
     await waitForVisible(page.getByRole("heading", { name: /^로그인$/ }).first(), "login step heading");
     await waitForVisible(page.getByText(/뒤 단계는 잠겨 있습니다/), "locked future steps");
     await waitForVisible(
-      page.getByText(/이 화면 안에서 로그인하면 다음 단계가 자동으로 열립니다/),
+      page.getByText(/이 화면 안에서 로그인하면 바로 아이디어 찾기 단계가 열립니다/),
       "auth blocker guidance",
     );
     await waitForVisible(page.getByRole("button", { name: /비밀번호로 로그인/ }), "password sign-in button");
