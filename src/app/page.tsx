@@ -20,12 +20,12 @@ export default async function Home() {
                 AI Venture Lab
               </div>
               <h1 className="text-3xl font-semibold tracking-normal text-slate-950 sm:text-4xl">
-                아이디어-MVP 실행 센터
+                아이디어 실행 보드
               </h1>
             </div>
             <p className="max-w-3xl text-sm leading-6 text-slate-600">
-              앱 아이디어를 선별하고, 가능성이 높은 아이디어를 명세와 프로토타입으로 전환한 뒤 QA, 디버깅,
-              개인정보, 보안 게이트를 통과시켜 출시 판단까지 이어가는 운영 하네스입니다.
+              신사업과 앱 아이디어를 접수하고, 수요·리스크·검증 증거를 모아 제작 여부와 출시 판단까지
+              한 화면에서 관리합니다.
             </p>
           </div>
         </header>

@@ -30,195 +30,192 @@ import type {
 } from "@/lib/venture-data";
 
 type ShellTask = `console:${ConsoleActionTask}` | `workbench:${WorkbenchTask}`;
+const shellTaskGroups = ["시작", "검증", "제작", "출시 후"] as const;
 
 const shellTasks: Array<{
   id: ShellTask;
   label: string;
   description: string;
-  group: string;
+  group: (typeof shellTaskGroups)[number];
   icon: typeof UserRound;
 }> = [
   {
     id: "console:auth",
-    label: "운영자 로그인",
-    description: "접근 상태 확인",
-    group: "운영 준비",
+    label: "로그인",
+    description: "이메일로 접속",
+    group: "시작",
     icon: UserRound,
   },
   {
     id: "console:workspace",
-    label: "워크스페이스",
-    description: "팀 경계와 멤버십",
-    group: "운영 준비",
+    label: "팀 공간",
+    description: "함께 보는 범위",
+    group: "시작",
     icon: Users,
   },
   {
     id: "console:extract",
-    label: "아이디어 발굴",
-    description: "후보와 검증 계획",
-    group: "운영 준비",
+    label: "아이디어 찾기",
+    description: "대화와 메모에서 후보 추출",
+    group: "시작",
     icon: Sparkles,
   },
   {
     id: "console:idea",
-    label: "새 아이디어",
-    description: "원시 아이디어 접수",
-    group: "운영 준비",
+    label: "아이디어 접수",
+    description: "한 줄로 먼저 기록",
+    group: "시작",
     icon: Save,
   },
   {
     id: "workbench:select",
-    label: "아이디어 선택",
-    description: "평가 대상 고르기",
-    group: "아이디어 실행",
+    label: "후보 선택",
+    description: "검토할 아이디어 고르기",
+    group: "검증",
     icon: ClipboardList,
   },
   {
     id: "workbench:score",
-    label: "점수화",
-    description: "판단, 점수, 증거",
-    group: "아이디어 실행",
+    label: "사업성 평가",
+    description: "수요, 돈, 속도 점검",
+    group: "검증",
     icon: Beaker,
   },
   {
     id: "workbench:risk",
-    label: "리스크",
-    description: "차단 요인 관리",
-    group: "아이디어 실행",
+    label: "위험 확인",
+    description: "법무, 운영, 보안 리스크",
+    group: "검증",
     icon: Flag,
   },
   {
-    id: "workbench:decision",
-    label: "판단 기록",
-    description: "진행/전환/중단 근거",
-    group: "아이디어 실행",
-    icon: ShieldCheck,
-  },
-  {
     id: "workbench:experiment",
-    label: "실험",
-    description: "검증 계획",
-    group: "아이디어 실행",
+    label: "검증 실험",
+    description: "7일 안에 확인할 증거",
+    group: "검증",
     icon: Beaker,
   },
   {
-    id: "workbench:orchestration",
-    label: "오케스트레이션",
-    description: "전략부터 출시까지",
-    group: "아이디어 실행",
-    icon: Layers3,
+    id: "workbench:decision",
+    label: "진행 판단",
+    description: "진행, 보류, 중단 결정",
+    group: "검증",
+    icon: ShieldCheck,
   },
   {
     id: "workbench:artifacts",
-    label: "산출물",
-    description: "브리프, PRD, MVP",
-    group: "아이디어 실행",
+    label: "기획서 만들기",
+    description: "보고서, PRD, MVP 자료",
+    group: "제작",
     icon: ClipboardList,
   },
   {
     id: "workbench:development",
-    label: "앱 개발",
-    description: "기획부터 배포까지",
-    group: "아이디어 실행",
+    label: "제작 준비",
+    description: "디자인, 개발, 배포 준비",
+    group: "제작",
     icon: Code2,
   },
   {
+    id: "workbench:orchestration",
+    label: "실행 관리",
+    description: "담당 역할과 상태 확인",
+    group: "제작",
+    icon: Layers3,
+  },
+  {
     id: "workbench:launch",
-    label: "출시 준비도",
-    description: "게이트 통과 상태",
-    group: "아이디어 실행",
+    label: "출시 판단",
+    description: "출시 전 남은 조건",
+    group: "제작",
     icon: Rocket,
   },
   {
     id: "workbench:learning",
-    label: "학습 루프",
+    label: "성과 확인",
     description: "출시 후 행동 신호",
-    group: "아이디어 실행",
+    group: "출시 후",
     icon: Activity,
   },
 ];
 
 const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> = {
   "console:auth": {
-    summary: "매직 링크 또는 기존 비밀번호로 운영자 세션을 먼저 확보합니다.",
-    checklist: ["로그인 상태가 표시되는지 확인", "이메일 제한 오류가 나면 기존 비밀번호 로그인 사용"],
+    summary: "이메일 주소로 접속 링크를 받아 안전하게 들어옵니다. 별도 인증키를 다루지 않아도 됩니다.",
+    checklist: ["이메일 입력", "받은 메일의 로그인 링크 열기", "이 화면에 로그인 상태가 표시되는지 확인"],
   },
   "console:workspace": {
-    summary: "개인 기록을 팀 단위 경계로 묶고, 함께 볼 사람의 권한을 정합니다.",
-    checklist: ["워크스페이스 생성 또는 선택", "개인 기록 연결 여부 확인", "필요한 멤버만 추가"],
+    summary: "개인 기록을 팀 단위 공간에 묶어 함께 볼 수 있는 범위를 정합니다.",
+    checklist: ["팀 공간 생성 또는 선택", "내 기록 연결 여부 확인", "함께 볼 사람만 추가"],
   },
   "console:extract": {
-    summary: "흩어진 대화와 메모에서 앱 후보, 검증 점수, 핵심 가설, 7일 실험, 중단 기준을 함께 만듭니다.",
+    summary: "회의록, 대화, 메모에서 앱 후보와 검증 계획을 자동으로 뽑아냅니다.",
     checklist: [
       "대화 원문 붙여넣기",
       "후보 발굴 실행",
       "후보 비교 매트릭스와 게이트 확인",
-      "발굴 리포트를 저장해 원문과 판단 근거 보존",
-      "좋은 후보를 입력 폼으로 보내거나 검증 패키지로 바로 저장",
+      "발굴 리포트 저장",
+      "좋은 후보를 아이디어로 등록",
     ],
   },
   "console:idea": {
-    summary: "바로 개발하지 말고 문제, 구매자, 증거, 리스크를 먼저 원시 기록으로 남깁니다.",
+    summary: "바로 제작으로 들어가지 말고 문제, 구매자, 증거, 리스크를 먼저 짧게 남깁니다.",
     checklist: ["이름과 한 줄 설명 입력", "구매자와 대상 사용자 구분", "다음에 확인할 증거 기록"],
   },
   "workbench:select": {
-    summary: "평가할 아이디어를 하나 고른 뒤 실행 단계를 진행합니다.",
-    checklist: ["내 기록 또는 전체 필터 확인", "편집 가능 여부 확인", "점수화할 아이디어 선택"],
+    summary: "오늘 검토할 아이디어를 하나 고른 뒤 평가와 검증을 진행합니다.",
+    checklist: ["전체 또는 내 기록 확인", "편집 가능 여부 확인", "평가할 후보 선택"],
   },
   "workbench:score": {
-    summary: "문제 강도, 빈도, 도달성, 지불 의향, MVP 속도, 차별성, 리스크 감점을 숫자로 맞춥니다.",
-    checklist: ["단계와 판단 상태 선택", "증거 공백 제거", "점수 저장"],
+    summary: "수요 강도, 빈도, 도달성, 지불 의향, 제작 속도, 차별성, 위험 감점을 숫자로 맞춥니다.",
+    checklist: ["현재 단계와 판단 선택", "증거 공백 확인", "평가 저장"],
   },
   "workbench:risk": {
-    summary: "출시를 막을 수 있는 개인정보, 규제, 운영 책임, 보안 리스크를 먼저 밖으로 꺼냅니다.",
+    summary: "법무, 개인정보, 운영 책임, 보안처럼 출시를 막을 수 있는 위험을 먼저 꺼냅니다.",
     checklist: ["리스크 제목과 영역 입력", "심각도 선택", "완화 방안 또는 수용 조건 기록"],
   },
   "workbench:decision": {
-    summary: "점수만으로 결정하지 않고, 왜 진행/전환/중단하는지 근거를 남깁니다.",
-    checklist: ["현재 판단이 맞는지 확인", "판단 근거 작성", "판단 기록 저장"],
+    summary: "점수만 보지 않고 왜 진행, 보류, 전환, 중단하는지 회의용 근거를 남깁니다.",
+    checklist: ["현재 판단 확인", "판단 근거 작성", "최종 기록 저장"],
   },
   "workbench:experiment": {
-    summary: "가장 작은 검증 실험 하나를 만들고 성공 기준을 숫자나 관찰 조건으로 정합니다.",
-    checklist: ["실험 이름 입력", "성공 지표 작성", "상태를 진행 중/완료로 업데이트"],
+    summary: "7일 안에 확인할 가장 작은 실험을 만들고 성공 기준을 숫자나 관찰 조건으로 정합니다.",
+    checklist: ["실험 이름 입력", "성공 기준 작성", "진행 상태 업데이트"],
   },
   "workbench:orchestration": {
-    summary: "전략, 리서치, 제품, 디자인, 개발, QA, 디버깅, 보안, 출시 역할을 실행 기록으로 남깁니다.",
-    checklist: ["런북 만들기", "각 역할 산출물 작성", "완료된 단계 상태 변경"],
+    summary: "전략, 리서치, 제품, 디자인, 개발, QA, 보안, 출시 담당 역할과 진행 상태를 관리합니다.",
+    checklist: ["실행 계획 만들기", "역할별 결과 작성", "완료된 단계 상태 변경"],
   },
   "workbench:artifacts": {
-    summary: "브리프, PRD, MVP 명세, 출시 체크리스트를 저장하고 승인 상태를 관리합니다.",
-    checklist: ["필요 산출물 저장", "PRD와 MVP 명세 승인", "상태 메모 작성"],
+    summary: "회의 보고용 브리프, PRD, MVP 범위, 출시 체크리스트를 저장하고 승인 상태를 관리합니다.",
+    checklist: ["필요 자료 저장", "PRD와 MVP 범위 승인", "상태 메모 작성"],
   },
   "workbench:development": {
-    summary: "검증된 아이디어를 실제 앱으로 만들기 위해 기획, 디자인, 개발, QA, 보안, 배포 실행 계획을 만듭니다.",
-    checklist: ["개발 런북 만들기", "앱 개발 실행 계획 저장", "Preview와 Production 게이트 확인"],
+    summary: "검증된 아이디어를 실제 앱으로 만들기 위해 기획, 디자인, 개발, QA, 보안, 배포 준비를 정리합니다.",
+    checklist: ["제작 준비 자료 만들기", "개발 실행 계획 저장", "배포 전 확인 조건 점검"],
   },
   "workbench:launch": {
-    summary: "출시 준비도에서 남은 차단 항목을 확인하고 최종 판단을 기록합니다.",
-    checklist: ["100%가 아닌 항목 확인", "높은 리스크 종료 또는 수용", "최종 판단 기록"],
+    summary: "출시 전 남은 차단 항목을 확인하고 최종 출시 판단을 기록합니다.",
+    checklist: ["남은 항목 확인", "높은 위험 종료 또는 수용", "최종 판단 기록"],
   },
   "workbench:learning": {
-    summary: "출시 이후 실제 행동 이벤트를 모아 다음 빌드, 보강, 전환, 중단 판단으로 연결합니다.",
-    checklist: ["최근 이벤트 확인", "Day 7/14/30 판단 신호 점검", "학습 리포트 저장"],
+    summary: "출시 이후 실제 사용 행동을 모아 다음 투자, 보강, 전환, 중단 판단으로 연결합니다.",
+    checklist: ["최근 사용 신호 확인", "Day 7/14/30 판단 신호 점검", "학습 리포트 저장"],
   },
 };
 
 function recommendNextTask({
   activeTask,
   ideaCount,
-  openRisks,
-  experimentCount,
   runCount,
   artifactCount,
 }: {
   activeTask: ShellTask;
   ideaCount: number;
-  openRisks: number;
-  experimentCount: number;
   runCount: number;
   artifactCount: number;
 }) {
-  if (ideaCount === 0 && activeTask !== "console:idea") {
+  if (ideaCount === 0 && activeTask.startsWith("workbench:")) {
     return shellTasks.find((task) => task.id === "console:idea") ?? null;
   }
 
@@ -226,15 +223,15 @@ function recommendNextTask({
     "console:auth": "console:workspace",
     "console:workspace": "console:extract",
     "console:extract": "console:idea",
-    "console:idea": ideaCount > 0 ? "workbench:score" : "console:idea",
+    "console:idea": ideaCount > 0 ? "workbench:select" : "console:idea",
     "workbench:select": "workbench:score",
     "workbench:score": "workbench:risk",
-    "workbench:risk": openRisks > 0 ? "workbench:decision" : "workbench:experiment",
-    "workbench:decision": experimentCount > 0 ? "workbench:orchestration" : "workbench:experiment",
-    "workbench:experiment": runCount > 0 ? "workbench:artifacts" : "workbench:orchestration",
-    "workbench:orchestration": artifactCount > 0 ? "workbench:development" : "workbench:artifacts",
+    "workbench:risk": "workbench:experiment",
+    "workbench:experiment": "workbench:decision",
+    "workbench:decision": artifactCount > 0 ? "workbench:development" : "workbench:artifacts",
     "workbench:artifacts": "workbench:development",
-    "workbench:development": "workbench:launch",
+    "workbench:development": runCount > 0 ? "workbench:launch" : "workbench:orchestration",
+    "workbench:orchestration": "workbench:launch",
     "workbench:launch": "workbench:learning",
     "workbench:learning": "console:idea",
   };
@@ -324,7 +321,7 @@ export function VentureConsoleShell({
 
     function handleIdeaCreated(event: Event) {
       handleRecordEvent<Idea>(event, setIdeas);
-      setActiveTask("workbench:score");
+      setActiveTask("workbench:select");
     }
     const handleIdeaUpdated = (event: Event) => handleRecordEvent<Idea>(event, setIdeas);
     const handleRiskCreated = (event: Event) => handleRecordEvent<Risk>(event, setRisks);
@@ -445,8 +442,6 @@ export function VentureConsoleShell({
   const recommendedTask = recommendNextTask({
     activeTask,
     ideaCount,
-    openRisks,
-    experimentCount,
     runCount,
     artifactCount,
   });
@@ -455,15 +450,15 @@ export function VentureConsoleShell({
     "console:auth": "접근",
     "console:workspace": "팀",
     "console:extract": "발굴",
-    "console:idea": "입력",
+    "console:idea": "접수",
     "workbench:select": `${ideaCount}개`,
-    "workbench:score": "점수",
+    "workbench:score": "평가",
     "workbench:risk": `${openRisks}개`,
-    "workbench:decision": "기록",
     "workbench:experiment": `${experimentCount}개`,
-    "workbench:orchestration": `${runCount}개`,
+    "workbench:decision": "판단",
     "workbench:artifacts": `${artifactCount}개`,
-    "workbench:development": implementationTaskCount > 0 ? `${implementationTaskCount}개` : "계획",
+    "workbench:development": implementationTaskCount > 0 ? `${implementationTaskCount}개` : "준비",
+    "workbench:orchestration": `${runCount}개`,
     "workbench:launch": highRisks > 0 ? "점검" : "확인",
     "workbench:learning": telemetryEventCount > 0 ? `${telemetryEventCount}개` : "대기",
   };
@@ -473,8 +468,10 @@ export function VentureConsoleShell({
       <aside className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:self-start">
         <div className="mb-4">
           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">AI Venture Lab</div>
-          <h2 className="mt-2 text-2xl font-semibold text-slate-950">실행 메뉴</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">왼쪽에서 작업을 고르고 오른쪽에서만 입력합니다.</p>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-950">의사결정 흐름</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            아이디어를 접수하고, 검증하고, 제작과 출시 판단까지 한 단계씩 진행합니다.
+          </p>
         </div>
 
         <div className="mb-4 grid grid-cols-2 gap-2">
@@ -482,9 +479,9 @@ export function VentureConsoleShell({
             ["아이디어", String(ideaCount)],
             ["리스크", String(openRisks)],
             ["고위험", String(highRisks)],
-            ["작업", String(activeWork)],
-            ["산출물", String(artifacts.length)],
-            ["데이터", source === "supabase" ? "DB" : "시드"],
+            ["진행 중", String(activeWork)],
+            ["자료", String(artifacts.length)],
+            ["저장소", source === "supabase" ? "DB" : "예시"],
           ].map(([label, value]) => (
             <div key={label} className="rounded-md bg-slate-50 p-3">
               <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
@@ -495,7 +492,7 @@ export function VentureConsoleShell({
 
         {prioritizedIdeas.length > 0 ? (
           <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">우선 검토 후보</div>
+            <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">오늘 먼저 볼 후보</div>
             <div className="grid gap-2">
               {prioritizedIdeas.map((item, index) => (
                 <button
@@ -520,7 +517,7 @@ export function VentureConsoleShell({
           </div>
         ) : null}
 
-        {["운영 준비", "아이디어 실행"].map((group) => (
+        {shellTaskGroups.map((group) => (
           <div key={group} className="mt-4">
             <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{group}</div>
             <div className="grid gap-2">
@@ -588,7 +585,7 @@ export function VentureConsoleShell({
                 </div>
               </div>
               <div className="rounded-lg bg-slate-50 p-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">입력 가이드</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계에서 할 일</div>
                 <p className="mt-2 text-sm leading-6 text-slate-700">{activeGuidance.summary}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {activeGuidance.checklist.map((item) => (

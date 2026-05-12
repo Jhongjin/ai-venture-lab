@@ -1724,27 +1724,27 @@ export function VentureConsoleActions({
   }> = [
     {
       id: "auth",
-      label: "운영자 로그인",
-      description: "매직 링크 또는 기존 비밀번호로 접근합니다.",
+      label: "로그인",
+      description: "이메일 링크로 안전하게 접속합니다.",
       status: user ? "완료" : "필수",
     },
     {
       id: "workspace",
-      label: "워크스페이스",
-      description: "기록을 팀 경계와 멤버십에 연결합니다.",
+      label: "팀 공간",
+      description: "함께 볼 기록 범위를 정합니다.",
       status: activeOrganization ? "연결됨" : "선택",
     },
     {
       id: "extract",
-      label: "아이디어 발굴",
-      description: "후보와 검증 계획을 만듭니다.",
+      label: "아이디어 찾기",
+      description: "대화와 메모에서 후보를 뽑습니다.",
       status: extractedIdeas.length > 0 ? `${extractedIdeas.length}개` : "붙여넣기",
     },
     {
       id: "idea",
-      label: "새 아이디어",
-      description: "원시 아이디어를 먼저 접수합니다.",
-      status: user ? "입력" : "로그인 필요",
+      label: "아이디어 접수",
+      description: "짧은 기록부터 남깁니다.",
+      status: user ? "접수" : "로그인 필요",
     },
   ];
 
@@ -1977,7 +1977,7 @@ export function VentureConsoleActions({
     setAuthMessage(null);
 
     if (!supabase) {
-      setAuthMessage("이 배포 환경에서 Supabase 환경변수를 찾을 수 없습니다.");
+      setAuthMessage("로그인 환경 설정을 찾을 수 없습니다. 관리자에게 배포 설정 확인을 요청하세요.");
       return;
     }
 
@@ -2000,19 +2000,19 @@ export function VentureConsoleActions({
       return;
     }
 
-    setAuthMessage("매직 링크를 보냈습니다. 이메일의 링크를 열고 돌아오면 이 카드에 로그인 상태가 표시됩니다.");
+    setAuthMessage("로그인 링크를 보냈습니다. 이메일의 링크를 열고 돌아오면 이 카드에 로그인 상태가 표시됩니다.");
   }
 
   async function handlePasswordSignIn() {
     setAuthMessage(null);
 
     if (!supabase) {
-      setAuthMessage("이 배포 환경에서 Supabase 환경변수를 찾을 수 없습니다.");
+      setAuthMessage("로그인 환경 설정을 찾을 수 없습니다. 관리자에게 배포 설정 확인을 요청하세요.");
       return;
     }
 
     if (!email.trim() || !password) {
-      setAuthMessage("비밀번호 로그인은 Supabase Auth에 비밀번호가 있는 기존 사용자만 사용할 수 있습니다. 이메일과 비밀번호를 모두 입력하세요.");
+      setAuthMessage("비밀번호 로그인은 관리자가 미리 만든 기존 계정에서만 사용할 수 있습니다. 이메일과 비밀번호를 모두 입력하세요.");
       return;
     }
 
@@ -2203,7 +2203,7 @@ export function VentureConsoleActions({
     setSaveMessage(null);
 
     if (!supabase) {
-      setSaveMessage("Supabase가 설정되어 있지 않습니다.");
+      setSaveMessage("저장소가 설정되어 있지 않습니다.");
       return;
     }
 
@@ -2505,7 +2505,7 @@ export function VentureConsoleActions({
     }
 
     if (!supabase) {
-      setExtractMessage("Supabase가 설정되어 있지 않습니다.");
+      setExtractMessage("저장소가 설정되어 있지 않습니다.");
       return;
     }
 
@@ -2579,7 +2579,7 @@ export function VentureConsoleActions({
 
   async function createExtractedIdeaPackage(candidate: ExtractedIdea, extractionGate: ExtractionGate) {
     if (!supabase) {
-      throw new Error("Supabase가 설정되어 있지 않습니다.");
+      throw new Error("저장소가 설정되어 있지 않습니다.");
     }
 
     const organizationId = activeOrganization?.id ?? null;
@@ -2675,7 +2675,7 @@ export function VentureConsoleActions({
     setExtractMessage(null);
 
     if (!supabase) {
-      setExtractMessage("Supabase가 설정되어 있지 않습니다.");
+      setExtractMessage("저장소가 설정되어 있지 않습니다.");
       return;
     }
 
@@ -2713,7 +2713,7 @@ export function VentureConsoleActions({
     setExtractMessage(null);
 
     if (!supabase) {
-      setExtractMessage("Supabase가 설정되어 있지 않습니다.");
+      setExtractMessage("저장소가 설정되어 있지 않습니다.");
       return;
     }
 
@@ -2762,8 +2762,8 @@ export function VentureConsoleActions({
       {showSidebar ? (
       <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 lg:self-start">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-slate-950">운영 준비</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">로그인부터 아이디어 접수까지 한 단계씩 처리합니다.</p>
+          <h2 className="text-lg font-semibold text-slate-950">시작 준비</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-500">로그인부터 아이디어 접수까지 순서대로 처리합니다.</p>
         </div>
         <div className="grid gap-2">
           {consoleTasks.map((task, index) => (
@@ -2808,9 +2808,9 @@ export function VentureConsoleActions({
         >
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-slate-950">운영자 로그인</h2>
+            <h2 className="text-xl font-semibold text-slate-950">로그인</h2>
             <p className="mt-1 text-sm text-slate-500">
-              매직 링크는 이메일 인증을 사용합니다. 비밀번호 로그인은 Supabase Auth에 등록된 기존 사용자용입니다.
+              이메일 주소만 입력하면 접속 링크를 받을 수 있습니다. 별도 인증키는 필요 없습니다.
             </p>
           </div>
           <ShieldCheck className={user ? "text-emerald-600" : "text-slate-500"} size={24} />
@@ -2837,7 +2837,7 @@ export function VentureConsoleActions({
         ) : (
           <form onSubmit={handleSignIn} className="grid gap-3">
             <div className="rounded-lg bg-blue-50 p-4 text-sm leading-6 text-blue-900">
-              새 이메일 세션은 매직 링크를 사용하세요. 비밀번호는 Supabase Auth에서 비밀번호 기반 사용자를 만든 뒤에만 사용합니다.
+              일반 사용자는 이메일 로그인 링크만 사용하면 됩니다. 비밀번호 로그인은 관리자가 미리 만든 계정이 있을 때만 펼쳐서 사용하세요.
             </div>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               이메일
@@ -2849,33 +2849,40 @@ export function VentureConsoleActions({
                 className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              기존 계정 비밀번호
-              <input
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                type="password"
-                placeholder="Supabase Auth 기존 비밀번호"
-                className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              />
-            </label>
-            <button
-              type="button"
-              onClick={handlePasswordSignIn}
-              disabled={isAuthBusy}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
-              기존 비밀번호로 로그인
-            </button>
             <button
               type="submit"
               disabled={isAuthBusy}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
-              매직 링크 보내기
+              이메일 로그인 링크 받기
             </button>
+            <details className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <summary className="cursor-pointer text-sm font-semibold text-slate-700">
+                기존 비밀번호 계정으로 접속
+              </summary>
+              <div className="mt-3 grid gap-3">
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  비밀번호
+                  <input
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    type="password"
+                    placeholder="관리자가 만든 기존 계정 비밀번호"
+                    className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={handlePasswordSignIn}
+                  disabled={isAuthBusy}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
+                  비밀번호로 로그인
+                </button>
+              </div>
+            </details>
           </form>
         )}
 
@@ -2889,8 +2896,8 @@ export function VentureConsoleActions({
         >
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-slate-950">워크스페이스 상태</h2>
-              <p className="mt-1 text-sm text-slate-500">기록을 조직 단위 경계에 연결할 수 있습니다.</p>
+              <h2 className="text-xl font-semibold text-slate-950">팀 공간 상태</h2>
+              <p className="mt-1 text-sm text-slate-500">기록을 함께 볼 팀 단위 공간에 연결할 수 있습니다.</p>
             </div>
             <Building2 className={activeOrganization ? "text-blue-600" : "text-slate-500"} size={24} />
           </div>
@@ -3097,7 +3104,7 @@ export function VentureConsoleActions({
         >
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-slate-950">자동 아이디어 발굴</h2>
+              <h2 className="text-xl font-semibold text-slate-950">아이디어 찾기</h2>
               <p className="mt-1 text-sm text-slate-500">
                 대화, 회의록, 메모를 붙여넣으면 후보와 검증 계획을 함께 구조화합니다.
               </p>
@@ -3685,7 +3692,7 @@ export function VentureConsoleActions({
       >
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-slate-950">새 아이디어 입력</h2>
+            <h2 className="text-xl font-semibold text-slate-950">아이디어 접수</h2>
             <p className="mt-1 text-sm text-slate-500">
               {activeOrganization
                 ? `${activeOrganization.name} 안에 원시 아이디어를 기록합니다.`
@@ -3741,11 +3748,11 @@ export function VentureConsoleActions({
 
 function formatAuthError(message: string) {
   if (message.toLowerCase().includes("rate limit")) {
-    return "Supabase 이메일 전송 제한에 걸렸습니다. 할당량이 초기화될 때까지 기다리거나, 커스텀 SMTP를 설정하거나, 대시보드에서 만든 운영자 계정으로 비밀번호 로그인을 사용하세요.";
+    return "이메일 로그인 발송 제한에 걸렸습니다. 잠시 기다렸다 다시 시도하거나, 관리자가 미리 만든 비밀번호 계정으로 접속하세요.";
   }
 
   if (message.toLowerCase().includes("invalid login credentials")) {
-    return "이메일 또는 비밀번호가 올바르지 않습니다. Supabase Auth에서 확인된 사용자를 만들었는지, 비밀번호가 맞는지 확인하세요.";
+    return "이메일 또는 비밀번호가 올바르지 않습니다. 관리자가 만든 기존 계정인지, 비밀번호가 맞는지 확인하세요.";
   }
 
   return message;

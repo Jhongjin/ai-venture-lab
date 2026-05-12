@@ -4,9 +4,9 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 ## Current Phase
 
-- Phase: Public beta readiness
-- Goal: Add idea-to-MVP validation, app build command, QA, release, and learning-loop gates before broader usage.
-- Status: Completed
+- Phase: Manager-facing beta usability
+- Goal: Turn the developer-oriented command center into a business decision workflow for executives and non-technical managers.
+- Status: In progress
 
 ## Loop Rules
 
@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-12 | Refined manager-oriented login, navigation, and guide copy | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-12 | Added full product funnel telemetry smoke | Current commit | Production alias after deploy | Missing-secret guard, `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-06 | Added external MVP telemetry integration kit | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-06 | Re-deployed product telemetry ingest with Production secrets | `5414835` | Production `2AM2imxYxi3oh7gMs6KDG756pn1d` | `pnpm smoke:prod`, `pnpm smoke:routes`, `node .\scripts\smoke_browser.mjs` |
@@ -103,8 +104,8 @@ Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and `TELEME
 
 ## Next Jobs
 
-1. Run authenticated browser write smoke with a stable beta operator account.
-2. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret.
-3. Prepare GitHub Actions once workflow-scope access is available.
-4. Tune server-side AI extraction prompts after `OPENAI_API_KEY` production usage has real examples.
-5. Redesign login, navigation, and completion flows for executives and non-technical managers.
+1. Redesign detailed workbench panels so `사업성 평가`, `기획서 만들기`, `제작 준비`, `성과 확인` read like manager workflows, not developer consoles.
+2. Add an executive summary/home state that answers “오늘 무엇을 결정해야 하나?” before any detailed form.
+3. Run authenticated browser write smoke with a stable beta operator account.
+4. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret when a full product-funnel demo is needed.
+5. Prepare GitHub Actions once workflow-scope access is available.
