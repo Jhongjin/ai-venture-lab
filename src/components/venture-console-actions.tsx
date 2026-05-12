@@ -1921,9 +1921,9 @@ export function VentureConsoleActions({
 
         setUser(nextUser);
         if (nextUser) {
-          updateActiveTask("idea");
+          updateActiveTask("workspace");
         }
-        setAuthMessage("로그인되었습니다.");
+        setAuthMessage("로그인되었습니다. 팀 공간을 확인한 뒤 다음 단계로 진행하세요.");
         await loadWorkspaceData(nextUser);
         router.refresh();
       }
@@ -1944,15 +1944,21 @@ export function VentureConsoleActions({
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       setIsAuthLoaded(true);
-      updateActiveTask(data.user ? "idea" : "auth");
+      updateActiveTask(data.user ? "workspace" : "auth");
       void loadWorkspaceData(data.user);
     });
 
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       const nextUser = session?.user ?? null;
       setIsAuthLoaded(true);
       setUser(nextUser);
-      updateActiveTask(nextUser ? "idea" : "auth");
+
+      if (!nextUser) {
+        updateActiveTask("auth");
+      } else if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
+        updateActiveTask("workspace");
+      }
+
       void loadWorkspaceData(nextUser);
       router.refresh();
     });
@@ -2029,8 +2035,8 @@ export function VentureConsoleActions({
     }
 
     setPassword("");
-    updateActiveTask("idea");
-    setAuthMessage("로그인되었습니다.");
+    updateActiveTask("workspace");
+    setAuthMessage("로그인되었습니다. 팀 공간을 확인한 뒤 다음 단계로 진행하세요.");
     router.refresh();
   }
 
