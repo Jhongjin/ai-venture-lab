@@ -93,22 +93,22 @@ async function main() {
   try {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
 
-    await waitForVisible(page.getByRole("heading", { name: /아이디어-MVP 실행 센터/ }), "main heading");
-    await waitForVisible(page.getByText(/Supabase/), "data source card");
-    await waitForVisible(page.getByRole("button", { name: /아이디어 발굴/ }), "idea extraction navigation");
+    await waitForVisible(page.getByRole("heading", { name: /아이디어 실행 보드/ }), "main heading");
+    await waitForVisible(page.getByText(/저장소/), "data source card");
+    await waitForVisible(page.getByRole("button", { name: /아이디어 찾기/ }), "idea extraction navigation");
 
-    await clickFirst(page.getByRole("button", { name: /아이디어 발굴/ }), "idea extraction navigation");
-    await waitForVisible(page.getByRole("heading", { name: /자동 아이디어 발굴/ }), "idea extraction panel");
+    await clickFirst(page.getByRole("button", { name: /아이디어 찾기/ }), "idea extraction navigation");
+    await waitForVisible(page.getByRole("heading", { name: /아이디어 찾기/ }), "idea extraction panel");
     await clickFirst(page.getByRole("button", { name: /샘플 넣기/ }), "sample source button");
     await clickFirst(page.getByRole("button", { name: /규칙 기반/ }), "rules extraction button");
     await waitForVisible(page.getByText(/후보 비교 매트릭스/), "candidate comparison matrix", 20000);
     await waitForVisible(page.getByText(/검증 패키지/), "validation package result", 20000);
 
-    await clickFirst(page.getByRole("button", { name: /새 아이디어/ }), "new idea navigation");
-    await waitForVisible(page.getByRole("heading", { name: /새 아이디어 입력/ }), "new idea form");
+    await clickFirst(page.getByRole("button", { name: /아이디어 접수/ }), "new idea navigation");
+    await waitForVisible(page.getByRole("heading", { name: /아이디어 접수/ }), "new idea form");
     await waitForVisible(page.getByLabel(/이름/), "idea name input");
 
-    await clickFirst(page.getByRole("button", { name: /앱 개발/ }), "app development navigation");
+    await clickFirst(page.getByRole("button", { name: /제작 준비/ }), "app development navigation");
     const developmentResult = await waitForAnyVisible(
       [
         { name: "development-panel", locator: page.getByRole("heading", { name: /앱 개발 프로세스/ }) },

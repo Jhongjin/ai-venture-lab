@@ -14,7 +14,7 @@ $content = [string]$response.Content
 $requiredText = @(
   "<!DOCTYPE html>",
   "_next/static",
-  "Supabase"
+  "AI Venture Lab"
 )
 
 $missing = @()

@@ -51,8 +51,7 @@ if ($homeResponse.StatusCode -ne 200) {
 $requiredHomeText = @(
   "<!DOCTYPE html>",
   "_next/static",
-  "AI Venture Lab",
-  "Supabase"
+  "AI Venture Lab"
 )
 
 $missingHomeText = @()

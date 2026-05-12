@@ -27,7 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-12 | Refined manager-oriented login, navigation, and guide copy | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
+| 2026-05-12 | Refined manager-oriented login, navigation, and guide copy | Current commit | Production `FDPRsS6LESA9LWaZe7XG3BdkWa52` | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-12 | Added full product funnel telemetry smoke | Current commit | Production alias after deploy | Missing-secret guard, `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-06 | Added external MVP telemetry integration kit | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-06 | Re-deployed product telemetry ingest with Production secrets | `5414835` | Production `2AM2imxYxi3oh7gMs6KDG756pn1d` | `pnpm smoke:prod`, `pnpm smoke:routes`, `node .\scripts\smoke_browser.mjs` |
