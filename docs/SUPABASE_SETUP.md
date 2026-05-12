@@ -36,6 +36,8 @@ supabase/migrations/20260504010000_add_artifact_lifecycle.sql
 supabase/migrations/20260504020000_add_artifact_status_notes.sql
 supabase/migrations/20260505000000_expand_venture_artifact_types.sql
 supabase/migrations/20260505010000_add_implementation_tasks.sql
+supabase/migrations/20260506010000_add_learning_telemetry.sql
+supabase/migrations/20260512010000_repair_workspace_creation_policy.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
@@ -49,6 +51,8 @@ The artifact lifecycle migration adds draft, approved, archived, version, and ap
 The artifact status notes migration stores approval, revision, and archive rationale.
 The expanded artifact type migration adds backend decision, design brief, technical spec, and development runbook artifact types.
 The implementation task migration adds a task board for implementation work, completion evidence, and launch readiness gating.
+The learning telemetry migration stores post-launch product events for Day 7/14/30 learning loops.
+The workspace creation repair migration refreshes organization RLS, owner auto-membership, and creator read access for the team-space step.
 
 This creates:
 
@@ -103,6 +107,16 @@ Supabase's built-in email provider is intentionally limited. Use a dashboard-cre
 5. In the app, enter the same email and password, then click `비밀번호로 로그인`.
 
 For production or repeated testing with email links, configure custom SMTP in Supabase Auth. Password login does not require Supabase to send a login email.
+
+## Workspace Creation RLS Repair
+
+If `워크스페이스 만들기` returns a row-level security error for `organizations`, run this migration in the Supabase SQL Editor:
+
+```text
+supabase/migrations/20260512010000_repair_workspace_creation_policy.sql
+```
+
+Then refresh the app and click `워크스페이스 만들기` again.
 
 ## Next Hardening Pass
 

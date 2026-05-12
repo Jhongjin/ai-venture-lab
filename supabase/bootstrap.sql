@@ -625,7 +625,10 @@ drop policy if exists "Allow authenticated users to insert audit events" on publ
 create policy "Allow members to read their organizations"
 on public.organizations for select
 to authenticated
-using (public.is_organization_member(id));
+using (
+  created_by = auth.uid()
+  or public.is_organization_member(id)
+);
 
 create policy "Allow authenticated users to create organizations"
 on public.organizations for insert
@@ -646,7 +649,10 @@ using (public.is_organization_admin(id));
 create policy "Allow members to read organization memberships"
 on public.organization_members for select
 to authenticated
-using (public.is_organization_member(organization_id));
+using (
+  user_id = auth.uid()
+  or public.is_organization_member(organization_id)
+);
 
 create policy "Allow organization creators to add themselves"
 on public.organization_members for insert

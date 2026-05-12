@@ -2066,13 +2066,14 @@ export function VentureConsoleActions({
       .insert({
         name: "AI Venture Lab",
         slug: `ai-venture-lab-${user.id.slice(0, 8)}`,
+        created_by: user.id,
       })
       .select()
       .single();
     setIsWorkspaceBusy(false);
 
     if (error) {
-      setWorkspaceMessage(error.message);
+      setWorkspaceMessage(formatWorkspaceError(error.message));
       return;
     }
 
@@ -3770,6 +3771,20 @@ function formatAuthError(message: string) {
 
   if (message.toLowerCase().includes("invalid login credentials")) {
     return "이메일 또는 비밀번호가 올바르지 않습니다. 관리자가 만든 기존 계정인지, 비밀번호가 맞는지 확인하세요.";
+  }
+
+  return message;
+}
+
+function formatWorkspaceError(message: string) {
+  const normalizedMessage = message.toLowerCase();
+
+  if (normalizedMessage.includes("row-level security") && normalizedMessage.includes("organizations")) {
+    return "팀 공간 생성 권한 정책이 아직 맞지 않습니다. Supabase SQL Editor에서 최신 워크스페이스 정책 SQL을 실행한 뒤 다시 시도하세요.";
+  }
+
+  if (normalizedMessage.includes("duplicate key") && normalizedMessage.includes("organizations_slug")) {
+    return "이미 이 계정용 팀 공간이 만들어져 있습니다. 새로고침 후 팀 공간 목록을 다시 확인하세요.";
   }
 
   return message;
