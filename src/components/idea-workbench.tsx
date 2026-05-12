@@ -6528,7 +6528,10 @@ export async function trackProductEvent(
 function buildTelemetrySmokeCommandSnippet(idea: Idea) {
   return `$env:TELEMETRY_INGEST_SECRET="Vercel에 등록한 TELEMETRY_INGEST_SECRET"
 $env:TELEMETRY_SMOKE_IDEA_ID="${idea.id}"
-pnpm smoke:telemetry`;
+pnpm smoke:telemetry
+
+# 방문부터 결제 신호까지 전체 제품 퍼널을 한 번에 검증할 때
+pnpm smoke:telemetry:funnel`;
 }
 
 function buildProductTelemetryFunnelMarkdown({

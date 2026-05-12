@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-12 | Added full product funnel telemetry smoke | Current commit | Production alias after deploy | Missing-secret guard, `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-06 | Added external MVP telemetry integration kit | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-06 | Re-deployed product telemetry ingest with Production secrets | `5414835` | Production `2AM2imxYxi3oh7gMs6KDG756pn1d` | `pnpm smoke:prod`, `pnpm smoke:routes`, `node .\scripts\smoke_browser.mjs` |
 | 2026-05-06 | Added authenticated telemetry ingest smoke harness | Current commit | Skipped, script/docs-only | `pnpm quality:full`, direct `smoke_routes.ps1`, direct `smoke_production.ps1`, missing-secret guard |
@@ -103,6 +104,7 @@ Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and `TELEME
 ## Next Jobs
 
 1. Run authenticated browser write smoke with a stable beta operator account.
-2. Run `pnpm smoke:telemetry` with a disposable idea id and the operator-held telemetry secret.
+2. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret.
 3. Prepare GitHub Actions once workflow-scope access is available.
 4. Tune server-side AI extraction prompts after `OPENAI_API_KEY` production usage has real examples.
+5. Redesign login, navigation, and completion flows for executives and non-technical managers.
