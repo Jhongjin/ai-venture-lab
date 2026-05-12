@@ -284,7 +284,7 @@ export function VentureConsoleShell({
   initialTelemetryEvents: TelemetryEvent[];
   source: "supabase" | "seed";
 }) {
-  const [activeTask, setActiveTask] = useState<ShellTask>("console:idea");
+  const [activeTask, setActiveTask] = useState<ShellTask>("console:auth");
   const [ideas, setIdeas] = useState(initialIdeas);
   const [risks, setRisks] = useState(initialRisks);
   const [experiments, setExperiments] = useState(initialExperiments);
