@@ -426,7 +426,7 @@ const runStatusTone: Record<OrchestrationStatus, string> = {
 const stageLabels: Record<IdeaStage, string> = {
   intake: "접수",
   research: "리서치",
-  score: "점수화",
+  score: "평가",
   prd: "PRD",
   prototype: "프로토타입",
   qa: "QA",
@@ -455,14 +455,14 @@ const artifactSourceLabels: Record<string, string> = {
   mvp_slice_plan: "MVP 슬라이스 플랜",
   development_kickoff: "개발 킥오프 브리프",
   agent_run_package: "구현 실행 패키지",
-  development_process: "앱 개발 프로세스",
+  development_process: "제작 준비 프로세스",
   development_report: "개발 완료 보고서",
   filtered_implementation_run: "필터 실행 프롬프트",
   mvp_build_command: "MVP 빌드 명령",
   qa_acceptance_matrix: "QA 검수 매트릭스",
-  post_launch_learning: "출시 후 학습 루프",
+  post_launch_learning: "출시 후 성과 확인",
   telemetry_adapter: "제품 이벤트 어댑터",
-  product_telemetry_funnel: "제품 이벤트 퍼널",
+  product_telemetry_funnel: "제품 사용 퍼널",
 };
 const evidenceConfidenceOptions = ["low", "medium", "high"] as const;
 type EvidenceConfidence = (typeof evidenceConfidenceOptions)[number];
@@ -507,16 +507,16 @@ const telemetryEventLabels: Record<string, string> = {
 const telemetryCategoryLabels: Record<string, string> = {
   intake: "접수",
   extraction: "발굴",
-  scoring: "점수화",
+  scoring: "사업성 평가",
   product: "제품 사용",
-  risk: "리스크",
+  risk: "위험",
   decision: "판단",
-  experiment: "실험",
-  orchestration: "오케스트레이션",
-  artifact: "산출물",
-  development: "개발",
+  experiment: "검증 실험",
+  orchestration: "실행 관리",
+  artifact: "기획 자료",
+  development: "제작",
   launch: "출시",
-  learning: "학습",
+  learning: "성과 확인",
 };
 const telemetryCategoryTone: Record<string, string> = {
   intake: "bg-blue-50 text-blue-700",
@@ -787,15 +787,15 @@ type ArtifactReviewSummary = {
 };
 
 const artifactPanelLabels: Record<ArtifactPanel, string> = {
-  validation: "검증 산출물",
-  product: "제품 산출물",
-  library: "라이브러리",
+  validation: "검증 자료",
+  product: "기획서",
+  library: "자료 보관함",
 };
 
 const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
   validation: "아이디어 브리프, 리서치, 7일 스프린트, 근거, 검증 완료 요약을 정리합니다.",
   product: "PRD, MVP 명세, 출시 체크리스트를 생성합니다.",
-  library: "저장된 산출물을 필터링하고 승인 상태를 관리합니다.",
+  library: "저장된 자료를 필터링하고 승인 상태를 관리합니다.",
 };
 const releaseDecisionTone: Record<DecisionStatus, string> = {
   pending: "bg-slate-100 text-slate-700",
@@ -828,15 +828,15 @@ const artifactApprovalReviewChecks: Record<VentureArtifactType, string[]> = {
 };
 
 const developmentPanelLabels: Record<DevelopmentPanel, string> = {
-  setup: "준비와 산출물",
-  tasks: "개발 태스크",
-  handoff: "완료와 핸드오프",
+  setup: "제작 준비",
+  tasks: "실행 할 일",
+  handoff: "완료 보고",
 };
 
 const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
-  setup: "백엔드, 디자인, 개발 착수 게이트와 주요 개발 산출물을 정리합니다.",
-  tasks: "구현 작업을 상태별로 쪼개고 완료 증거를 기록합니다.",
-  handoff: "개발 완료 게이트, 실행 계획, Codex 구현 프롬프트를 확인합니다.",
+  setup: "실제 제작을 시작하기 전 필요한 결정, 디자인, 데이터, 보안 조건을 정리합니다.",
+  tasks: "실행할 일을 상태별로 쪼개고 완료 근거를 기록합니다.",
+  handoff: "제작 완료 조건, 실행 계획, 다음 담당자에게 넘길 내용을 확인합니다.",
 };
 
 const artifactReviewBlueprint: Array<
@@ -7030,7 +7030,7 @@ export function IdeaWorkbench({
     {
       label: "열린 리스크",
       value: `${openSelectedIdeaRisks.length}개`,
-      detail: "학습 루프에서 계속 감시해야 하는 차단 요인",
+      detail: "성과 확인에서 계속 감시해야 하는 차단 요인",
     },
   ];
   const selectedOpenImplementationTasks = useMemo(
@@ -7811,8 +7811,8 @@ export function IdeaWorkbench({
           passed: selectedImplementationTasks.length > 0,
           detail:
             selectedImplementationTasks.length > 0
-              ? `${selectedImplementationTasks.length}개의 구현 태스크가 있습니다.`
-              : "앱 개발 프로세스에서 기본 개발 태스크를 생성하세요.",
+              ? `${selectedImplementationTasks.length}개의 실행 할 일이 있습니다.`
+              : "제작 준비 프로세스에서 기본 실행 할 일을 생성하세요.",
         },
         {
           label: "차단 태스크 없음",
@@ -8000,8 +8000,8 @@ export function IdeaWorkbench({
           label: "개발 런북 저장",
           passed: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "dev_runbook"),
           detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "dev_runbook")
-            ? "개발 실행 순서와 게이트가 기록되어 있습니다."
-            : "앱 개발 프로세스에서 개발 런북을 저장하세요.",
+            ? "제작 실행 순서와 게이트가 기록되어 있습니다."
+            : "제작 준비 프로세스에서 개발 런북을 저장하세요.",
         },
         {
           label: "개발 태스크 완료",
@@ -8009,7 +8009,7 @@ export function IdeaWorkbench({
           detail:
             selectedImplementationTasks.length > 0
               ? `개발 완료 게이트 ${passedImplementationGateCount}/${implementationGateChecks.length}개 통과`
-              : "앱 개발 프로세스에서 기본 개발 태스크를 생성하세요.",
+              : "제작 준비 프로세스에서 기본 실행 할 일을 생성하세요.",
         },
         {
           label: "실험 계획",
@@ -8127,19 +8127,19 @@ export function IdeaWorkbench({
   }> = [
     {
       id: "select",
-      label: "아이디어 선택",
-      description: "평가할 아이디어를 고릅니다.",
+      label: "후보 선택",
+      description: "오늘 검토할 아이디어를 고릅니다.",
       status: selectedIdea ? "선택됨" : "필수",
     },
     {
       id: "score",
-      label: "점수화",
-      description: "단계, 판단, 점수, 증거를 정리합니다.",
+      label: "사업성 평가",
+      description: "단계, 판단, 점수, 근거를 정리합니다.",
       status: currentScore > 0 ? `${currentScore}점` : "대기",
     },
     {
       id: "risk",
-      label: "리스크",
+      label: "위험 확인",
       description: "차단 요인과 완화 상태를 관리합니다.",
       status: selectedIdeaRisks.length > 0 ? `${selectedIdeaRisks.length}개` : "대기",
     },
@@ -8151,25 +8151,25 @@ export function IdeaWorkbench({
     },
     {
       id: "experiment",
-      label: "실험",
+      label: "검증 실험",
       description: "가장 작은 검증 계획을 정의합니다.",
       status: selectedExperiments.length > 0 ? `${selectedExperiments.length}개` : "대기",
     },
     {
       id: "orchestration",
-      label: "오케스트레이션",
+      label: "실행 관리",
       description: "전략부터 출시까지 역할 실행을 추적합니다.",
       status: selectedRuns.length > 0 ? `${doneRunCount}/${selectedRuns.length}` : "대기",
     },
     {
       id: "artifacts",
-      label: "산출물",
+      label: "기획서 만들기",
       description: "브리프, 리서치 노트, PRD, MVP 명세를 저장합니다.",
       status: selectedArtifactRecords.length > 0 ? `${selectedArtifactRecords.length}개` : "대기",
     },
     {
       id: "development",
-      label: "앱 개발",
+      label: "제작 준비",
       description: "기획, 디자인, 개발, 배포 실행 계획입니다.",
       status:
         selectedImplementationTasks.length > 0
@@ -8180,13 +8180,13 @@ export function IdeaWorkbench({
     },
     {
       id: "launch",
-      label: "출시 준비도",
+      label: "출시 판단",
       description: "출시 게이트 통과 상태를 확인합니다.",
       status: `${launchReadinessScore}%`,
     },
     {
       id: "learning",
-      label: "학습 루프",
+      label: "성과 확인",
       description: "출시 후 행동 신호를 읽습니다.",
       status: selectedTelemetryEvents.length > 0 ? `${selectedTelemetryEvents.length}개` : "대기",
     },
@@ -8206,9 +8206,9 @@ export function IdeaWorkbench({
   if (!selectedIdea || !editState) {
     return (
       <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-slate-950">아이디어 워크벤치</h2>
+        <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          아직 평가할 아이디어가 없습니다. 왼쪽 메뉴에서 새 아이디어를 먼저 접수하세요.
+          아직 검토할 아이디어가 없습니다. 왼쪽 의사결정 흐름에서 아이디어를 먼저 접수하세요.
         </p>
       </section>
     );
@@ -9338,8 +9338,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-slate-950">아이디어 워크벤치</h2>
-            <p className="mt-1 text-sm text-slate-500">아이디어를 선택하고 점수화한 뒤 실험실 단계를 이동시킵니다.</p>
+            <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
+            <p className="mt-1 text-sm text-slate-500">오늘 검토할 아이디어를 고르고 평가, 위험, 실험, 판단 순서로 이동시킵니다.</p>
           </div>
           <ClipboardList className="text-blue-600" size={24} />
         </div>
@@ -9565,7 +9565,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <p className="mt-1 text-sm text-slate-500">
                 {canEdit
                   ? "현재 운영자가 편집할 수 있습니다."
-                  : "직접 만든 아이디어가 아니면 읽기 전용입니다. 새 아이디어를 만들면 바로 점수화할 수 있습니다."}
+                  : "직접 만든 아이디어가 아니면 읽기 전용입니다. 새 아이디어를 만들면 바로 평가할 수 있습니다."}
               </p>
             </div>
             <button
@@ -9837,9 +9837,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">앱 개발 프로세스</h2>
+              <h2 className="text-lg font-semibold text-slate-950">제작 준비 프로세스</h2>
               <p className="mt-1 text-sm text-slate-500">
-                검증된 아이디어를 기획, 디자인, 개발, QA, 보안, 배포로 옮기는 실행 계획입니다.
+                검증된 아이디어를 실제 앱 제작으로 넘기기 전에 기획, 디자인, 개발, QA, 보안, 배포 조건을 정리합니다.
               </p>
             </div>
             <Code2 className="text-blue-600" size={22} />
@@ -10473,7 +10473,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       </>
                     ) : (
                       <p className="mt-2 text-sm leading-6 text-blue-900">
-                        열린 개발 태스크가 없습니다. 개발 완료 게이트와 출시 준비도를 확인하세요.
+                        열린 실행 할 일이 없습니다. 개발 완료 게이트와 출시 판단을 확인하세요.
                       </p>
                     )}
                   </div>
@@ -11236,8 +11236,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "launch" ? "" : "hidden"}`}>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">출시 준비도</h2>
-              <p className="mt-1 text-sm text-slate-500">증거, 산출물, 리스크, 실행 단계를 기준으로 게이트 상태를 요약합니다.</p>
+              <h2 className="text-lg font-semibold text-slate-950">출시 판단</h2>
+              <p className="mt-1 text-sm text-slate-500">증거, 기획 자료, 위험, 실행 단계를 기준으로 출시 전 남은 조건을 요약합니다.</p>
             </div>
             <div className="rounded-lg bg-slate-950 px-4 py-3 text-right text-white">
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
@@ -11358,9 +11358,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
-                  Learning loop
+                  Performance review
                 </div>
-                <h3 className="mt-1 text-base font-semibold text-emerald-950">출시 후 학습 루프</h3>
+                <h3 className="mt-1 text-base font-semibold text-emerald-950">출시 후 성과 확인</h3>
                 <p className="mt-1 text-sm leading-6 text-emerald-900">
                   첫 공개 후 7일, 14일, 30일에 어떤 신호로 진행/보강/전환/중단을 판단할지 정리합니다.
                 </p>
@@ -11368,19 +11368,19 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => copyDraft(postLaunchLearningLoopDraft, "출시 후 학습 루프")}
+                  onClick={() => copyDraft(postLaunchLearningLoopDraft, "출시 후 성과 확인")}
                   disabled={!postLaunchLearningLoopDraft}
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-white px-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Clipboard size={16} />
-                  루프 복사
+                  기준 복사
                 </button>
                 <button
                   type="button"
                   onClick={() =>
                     saveArtifactDraft(
                       "launch_checklist",
-                      `${selectedIdea.name} 출시 후 학습 루프`,
+                      `${selectedIdea.name} 출시 후 성과 확인`,
                       postLaunchLearningLoopDraft,
                       "post_launch_learning",
                     )
@@ -11389,7 +11389,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-700 px-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save size={16} />
-                  루프 저장
+                  기준 저장
                 </button>
               </div>
             </div>
@@ -11431,11 +11431,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div>
               <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
                 <Activity size={16} />
-                Learning telemetry
+                Usage signals
               </div>
-              <h2 className="text-lg font-semibold text-slate-950">학습 루프</h2>
+              <h2 className="text-lg font-semibold text-slate-950">성과 확인</h2>
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                워크벤치에서 발생한 주요 행동을 이벤트로 모아 출시 후 Day 7, 14, 30 판단 리포트로 연결합니다.
+                워크벤치와 실제 MVP에서 발생한 행동 신호를 모아 출시 후 Day 7, 14, 30 판단 리포트로 연결합니다.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -11485,7 +11485,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
                 <h3 className="mt-1 text-base font-semibold text-fuchsia-950">MVP 사용 이벤트 연결</h3>
                 <p className="mt-1 text-sm leading-6 text-fuchsia-900">
-                  출시된 앱의 서버에서 이 아이디어 ID로 제품 사용 이벤트를 보내면 학습 루프에 함께 표시됩니다.
+                  출시된 앱의 서버에서 이 아이디어 ID로 제품 사용 이벤트를 보내면 성과 확인 화면에 함께 표시됩니다.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -11532,7 +11532,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   {selectedIdea.id}
                 </code>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  외부 앱 이벤트는 이 ID로 현재 아이디어의 학습 루프에 연결됩니다.
+                  외부 앱 이벤트는 이 ID로 현재 아이디어의 성과 확인 화면에 연결됩니다.
                 </p>
               </div>
             </div>
@@ -11607,7 +11607,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="rounded-lg border border-slate-200 bg-white p-4">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-slate-950">제품 이벤트 퍼널</h3>
+                  <h3 className="text-base font-semibold text-slate-950">제품 사용 퍼널</h3>
                   <p className="mt-1 text-sm leading-6 text-slate-500">
                     방문부터 결제 신호까지 실제 MVP 행동이 어디서 끊기는지 봅니다.
                   </p>
@@ -11615,7 +11615,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => copyDraft(productTelemetryFunnelDraft, "제품 이벤트 퍼널 리포트")}
+                    onClick={() => copyDraft(productTelemetryFunnelDraft, "제품 사용 퍼널 리포트")}
                     disabled={!productTelemetryFunnelDraft}
                     className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
@@ -11627,7 +11627,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     onClick={() =>
                       saveArtifactDraft(
                         "research_note",
-                        `${selectedIdea.name} 제품 이벤트 퍼널`,
+                        `${selectedIdea.name} 제품 사용 퍼널`,
                         productTelemetryFunnelDraft,
                         "product_telemetry_funnel",
                       )
@@ -11675,7 +11675,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
               <div className="mb-3">
-                <h3 className="text-base font-semibold text-slate-950">이벤트 택소노미</h3>
+                <h3 className="text-base font-semibold text-slate-950">수집해야 할 행동 신호</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-500">
                   MVP 서버에서 어떤 이벤트를 보내야 Day 7/14/30 판단이 가능한지 점검합니다.
                 </p>
@@ -11766,8 +11766,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">오케스트레이션 보드</h2>
-              <p className="mt-1 text-sm text-slate-500">전략부터 출시까지 각 전문 역할의 실행 단계를 추적합니다.</p>
+              <h2 className="text-lg font-semibold text-slate-950">실행 관리 보드</h2>
+              <p className="mt-1 text-sm text-slate-500">전략부터 출시까지 담당 역할과 진행 상태를 추적합니다.</p>
             </div>
             <button
               type="button"
@@ -11776,7 +11776,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Layers3 size={18} />
-              런북 만들기
+              실행 계획 만들기
             </button>
           </div>
 
@@ -12143,7 +12143,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div
           className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "risk" ? "" : "hidden"}`}
         >
-          <h2 className="text-lg font-semibold text-slate-950">관련 리스크</h2>
+          <h2 className="text-lg font-semibold text-slate-950">위험 목록</h2>
           <div className="mt-4 grid gap-3">
             {selectedRisks.map((risk) => (
               <div key={risk.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
@@ -12180,7 +12180,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className={activeTask === "artifacts" ? "rounded-lg border border-slate-200 bg-white p-4 shadow-sm" : "hidden"}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">산출물 작업</h2>
+              <h2 className="text-lg font-semibold text-slate-950">기획서 만들기</h2>
               <p className="mt-1 text-sm text-slate-500">{artifactPanelDescriptions[artifactPanel]}</p>
             </div>
             <div className="grid grid-cols-3 gap-2 rounded-md bg-slate-100 p-1">

@@ -111,8 +111,8 @@ async function main() {
     await clickFirst(page.getByRole("button", { name: /제작 준비/ }), "app development navigation");
     const developmentResult = await waitForAnyVisible(
       [
-        { name: "development-panel", locator: page.getByRole("heading", { name: /앱 개발 프로세스/ }) },
-        { name: "empty-workbench", locator: page.getByText(/아직 평가할 아이디어가 없습니다/) },
+        { name: "development-panel", locator: page.getByRole("heading", { name: /제작 준비 프로세스/ }) },
+        { name: "empty-workbench", locator: page.getByText(/아직 검토할 아이디어가 없습니다/) },
       ],
       "development panel or empty workbench state",
     );
