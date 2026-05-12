@@ -1941,9 +1941,9 @@ export function VentureConsoleActions({
 
         setUser(nextUser);
         if (nextUser) {
-          updateActiveTask("workspace");
+          updateActiveTask("extract");
         }
-        setAuthMessage("로그인되었습니다. 팀 공간을 확인한 뒤 다음 단계로 진행하세요.");
+        setAuthMessage("로그인되었습니다. 바로 아이디어 찾기부터 시작하세요. 협업이 필요하면 나중에 팀 공간을 열 수 있습니다.");
         await loadWorkspaceData(nextUser);
         router.refresh();
       }
@@ -1964,7 +1964,7 @@ export function VentureConsoleActions({
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
       setIsAuthLoaded(true);
-      updateActiveTask(data.user ? "workspace" : "auth");
+      updateActiveTask(data.user ? "extract" : "auth");
       void loadWorkspaceData(data.user);
     });
 
@@ -1976,7 +1976,7 @@ export function VentureConsoleActions({
       if (!nextUser) {
         updateActiveTask("auth");
       } else if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
-        updateActiveTask("workspace");
+        updateActiveTask("extract");
       }
 
       void loadWorkspaceData(nextUser);
@@ -2055,8 +2055,8 @@ export function VentureConsoleActions({
     }
 
     setPassword("");
-    updateActiveTask("workspace");
-    setAuthMessage("로그인되었습니다. 팀 공간을 확인한 뒤 다음 단계로 진행하세요.");
+    updateActiveTask("extract");
+    setAuthMessage("로그인되었습니다. 바로 아이디어 찾기부터 시작하세요. 협업이 필요하면 팀 공간을 나중에 연결하면 됩니다.");
     router.refresh();
   }
 
@@ -2098,7 +2098,7 @@ export function VentureConsoleActions({
     }
 
     setActiveOrganizationId(data.id);
-    setWorkspaceMessage("워크스페이스를 만들었습니다. 이제 아이디어 찾기 단계로 이동합니다.");
+    setWorkspaceMessage("협업 공간을 만들었습니다. 필요할 때만 팀으로 같이 보면 됩니다. 이제 아이디어 찾기로 돌아갑니다.");
     await loadWorkspaceData(user, data.id);
     updateActiveTask("extract");
   }
@@ -2130,7 +2130,7 @@ export function VentureConsoleActions({
       return;
     }
 
-    setWorkspaceMessage(`${personalRecordCount}개의 개인 기록을 ${activeOrganization.name}에 연결했습니다.`);
+    setWorkspaceMessage(`${personalRecordCount}개의 개인 기록을 ${activeOrganization.name} 협업 공간에 연결했습니다.`);
     await loadWorkspaceData(user, activeOrganization.id);
     router.refresh();
   }
@@ -2138,6 +2138,7 @@ export function VentureConsoleActions({
   async function handleSelectWorkspace(organizationId: string) {
     setActiveOrganizationId(organizationId);
     await loadAuditEvents(organizationId);
+    setWorkspaceMessage("협업 공간을 선택했습니다. 이제 AI 후보 발굴을 계속 진행하면 됩니다.");
     updateActiveTask("extract");
   }
 
@@ -2762,7 +2763,7 @@ export function VentureConsoleActions({
       <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 lg:self-start">
         <div className="mb-4">
           <h2 className="text-lg font-semibold text-slate-950">시작 준비</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">로그인부터 아이디어 접수까지 순서대로 처리합니다.</p>
+          <p className="mt-1 text-sm leading-6 text-slate-500">AI가 초안을 만들고, 필요한 순간에만 사용자가 보완합니다.</p>
         </div>
         <div className="grid gap-2">
           {consoleTasks.map((task, index) => (
@@ -2840,7 +2841,7 @@ export function VentureConsoleActions({
               <ol className="mt-2 grid gap-1">
                 <li>1. 관리자가 Supabase에서 만든 계정을 준비합니다.</li>
                 <li>2. 이메일과 비밀번호를 입력합니다.</li>
-                <li>3. 로그인 후 팀 공간과 아이디어 접수를 진행합니다.</li>
+                <li>3. 로그인 후 바로 AI 후보 발굴부터 시작합니다.</li>
               </ol>
               <p className="mt-2">
                 계정이 없다면 Supabase의 Authentication &gt; Users에서 사용자를 추가하고 이메일 확인 완료 상태로 만들어 주세요.
@@ -2906,8 +2907,8 @@ export function VentureConsoleActions({
         >
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-slate-950">팀 공간 상태</h2>
-              <p className="mt-1 text-sm text-slate-500">기록을 함께 볼 팀 단위 공간에 연결할 수 있습니다.</p>
+              <h2 className="text-xl font-semibold text-slate-950">협업 공간 상태</h2>
+              <p className="mt-1 text-sm text-slate-500">기본은 혼자 진행합니다. 팀으로 함께 볼 때만 협업 공간을 연결하세요.</p>
             </div>
             <Building2 className={activeOrganization ? "text-blue-600" : "text-slate-500"} size={24} />
           </div>
@@ -3202,7 +3203,7 @@ export function VentureConsoleActions({
                   <div className="mt-3 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm leading-6 text-indigo-900">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <div className="font-semibold text-indigo-950">추출 결과 점검</div>
+                        <div className="font-semibold text-indigo-950">후보 점검 결과</div>
                         <p className="mt-1 text-indigo-800">
                           같은 원문을 내부 기준 추출과 AI 추출로 비교해, AI가 놓친 후보나 과하게 넓힌 후보가 없는지 살펴봅니다.
                         </p>
@@ -3303,7 +3304,7 @@ export function VentureConsoleActions({
                             onClick={() => loadExtractedIdea(recommendedExtractedIdea)}
                             className="inline-flex h-10 items-center justify-center rounded-md border border-blue-200 bg-white px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-50"
                           >
-                            입력 폼으로 보내기
+                            AI 초안 반영
                           </button>
                           <button
                             type="button"
@@ -3365,7 +3366,7 @@ export function VentureConsoleActions({
                           className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           {extractSaveKey === "bulk" ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
-                          상위 {bulkSavableExtractionItems.length}개 저장
+                          추천 {bulkSavableExtractionItems.length}개 저장
                         </button>
                       </div>
                     </div>
@@ -3452,6 +3453,12 @@ export function VentureConsoleActions({
                     ) : null}
                   </div>
 
+                  <details className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <summary className="cursor-pointer text-sm font-semibold text-slate-800">후보별 상세 보기</summary>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      추천 후보와 비교 매트릭스만으로 판단이 되지 않을 때만 개별 후보의 상세 근거와 실험안을 펼쳐서 확인하세요.
+                    </p>
+                    <div className="mt-3 grid gap-3">
                   {extractedIdeas.map((candidate) => {
                     const similarIdea = similarIdeaMatches.get(candidate.id);
                     const readinessChecks = buildCandidateReadiness(candidate, similarIdea ?? null);
@@ -3505,7 +3512,7 @@ export function VentureConsoleActions({
                             onClick={() => loadExtractedIdea(candidate)}
                             className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
                           >
-                            입력 폼으로 보내기
+                            AI 초안 반영
                           </button>
                           <button
                             type="button"
@@ -3687,6 +3694,8 @@ export function VentureConsoleActions({
                     </article>
                     );
                   })}
+                    </div>
+                  </details>
                 </>
               ) : (
                 <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
@@ -3706,8 +3715,8 @@ export function VentureConsoleActions({
             <h2 className="text-xl font-semibold text-slate-950">아이디어 접수</h2>
             <p className="mt-1 text-sm text-slate-500">
               {activeOrganization
-                ? `${activeOrganization.name} 안에 원시 아이디어를 기록합니다.`
-                : "바로 개발로 들어가지 않고 원시 아이디어를 먼저 기록합니다."}
+                ? `${activeOrganization.name} 안에 AI가 정리한 초안을 검토하고 저장합니다.`
+                : "AI가 만든 초안을 검토하고, 필요한 경우만 보완한 뒤 저장합니다."}
             </p>
           </div>
           <button
@@ -3720,35 +3729,49 @@ export function VentureConsoleActions({
           </button>
         </div>
 
+        <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+          이름과 한 줄 설명만 먼저 확인하면 저장할 수 있습니다. 구매자, 대상 사용자, 수요 신호, 리스크, 다음 증거는
+          AI 초안을 그대로 쓰거나 필요할 때만 직접 보완하세요.
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="이름" value={form.name} onChange={(value) => setForm({ ...form, name: value })} required />
-          <Field label="구매자" value={form.buyer} onChange={(value) => setForm({ ...form, buyer: value })} />
           <Field
             label="한 줄 설명"
             value={form.one_liner}
             onChange={(value) => setForm({ ...form, one_liner: value })}
             required
           />
-          <Field
-            label="대상 사용자"
-            value={form.target_user}
-            onChange={(value) => setForm({ ...form, target_user: value })}
-          />
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <TextArea label="수요 신호" value={form.signal} onChange={(value) => setForm({ ...form, signal: value })} />
-          <TextArea
-            label="리스크 요약"
-            value={form.risk_summary}
-            onChange={(value) => setForm({ ...form, risk_summary: value })}
-          />
-          <TextArea
-            label="다음 증거"
-            value={form.next_evidence}
-            onChange={(value) => setForm({ ...form, next_evidence: value })}
-          />
-        </div>
+        <details className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-slate-800">추가 입력 열기</summary>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            아래 항목은 AI가 채운 초안을 보완하거나, 직접 판단을 더하고 싶을 때만 입력하세요.
+          </p>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <Field label="구매자" value={form.buyer} onChange={(value) => setForm({ ...form, buyer: value })} />
+            <Field
+              label="대상 사용자"
+              value={form.target_user}
+              onChange={(value) => setForm({ ...form, target_user: value })}
+            />
+          </div>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
+            <TextArea label="수요 신호" value={form.signal} onChange={(value) => setForm({ ...form, signal: value })} />
+            <TextArea
+              label="리스크 요약"
+              value={form.risk_summary}
+              onChange={(value) => setForm({ ...form, risk_summary: value })}
+            />
+            <TextArea
+              label="다음 증거"
+              value={form.next_evidence}
+              onChange={(value) => setForm({ ...form, next_evidence: value })}
+            />
+          </div>
+        </details>
 
         {saveMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{saveMessage}</p> : null}
       </form>

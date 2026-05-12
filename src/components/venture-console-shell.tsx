@@ -42,6 +42,7 @@ const shellTasks: Array<{
   description: string;
   group: ShellTaskGroup;
   icon: typeof UserRound;
+  optional?: boolean;
 }> = [
   {
     id: "console:auth",
@@ -52,10 +53,11 @@ const shellTasks: Array<{
   },
   {
     id: "console:workspace",
-    label: "팀 공간",
-    description: "함께 보는 범위",
+    label: "협업 설정",
+    description: "팀 공간 연결은 선택",
     group: "시작",
     icon: Users,
+    optional: true,
   },
   {
     id: "console:extract",
@@ -149,22 +151,22 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["관리자 계정 준비", "이메일과 비밀번호 입력", "로그인 상태 확인"],
   },
   "console:workspace": {
-    summary: "개인 기록을 팀 단위 공간에 묶어 함께 볼 수 있는 범위를 정합니다.",
-    checklist: ["팀 공간 생성 또는 선택", "내 기록 연결 여부 확인", "함께 볼 사람만 추가"],
+    summary: "기본은 혼자 진행합니다. 팀 초대나 기록 공유가 필요할 때만 협업 공간을 연결합니다.",
+    checklist: ["혼자 쓸 때는 건너뛰기", "팀 공간 생성 또는 선택", "필요할 때만 멤버 추가"],
   },
   "console:extract": {
-    summary: "회의록, 대화, 메모에서 앱 후보와 검증 계획을 자동으로 뽑아냅니다.",
+    summary: "회의록, 대화, 메모에서 AI가 앱 후보와 검증 계획 초안을 자동으로 뽑아냅니다.",
     checklist: [
       "대화 원문 붙여넣기",
       "후보 발굴 실행",
-      "후보 비교 매트릭스와 게이트 확인",
-      "발굴 리포트 저장",
-      "좋은 후보를 아이디어로 등록",
+      "추천 후보 1개 먼저 확인",
+      "필요하면 비교 결과 펼쳐 보기",
+      "좋은 후보를 아이디어 초안으로 반영",
     ],
   },
   "console:idea": {
-    summary: "바로 제작으로 들어가지 말고 문제, 구매자, 증거, 리스크를 먼저 짧게 남깁니다.",
-    checklist: ["이름과 한 줄 설명 입력", "구매자와 대상 사용자 구분", "다음에 확인할 증거 기록"],
+    summary: "AI가 채운 초안을 검토하고, 꼭 필요한 의견만 보완한 뒤 저장합니다.",
+    checklist: ["이름과 한 줄 설명 확인", "필요할 때만 추가 항목 보완", "아이디어 저장"],
   },
   "workbench:select": {
     summary: "오늘 검토할 아이디어를 하나 고른 뒤 평가와 검증을 진행합니다.",
@@ -336,11 +338,11 @@ function getCurrentStepBlocker({
 }) {
   switch (activeTask) {
     case "console:auth":
-      return "이 화면 안에서 로그인하면 다음 단계가 자동으로 열립니다.";
+      return "이 화면 안에서 로그인하면 바로 아이디어 찾기 단계가 열립니다. 협업 설정은 나중에 선택할 수 있습니다.";
     case "console:workspace":
       return consoleStatus.hasWorkspace
-        ? "워크스페이스를 선택하면 아이디어 찾기 단계로 자동 이동합니다."
-        : "워크스페이스를 만들거나 선택하면 다음 단계가 자동으로 열립니다.";
+        ? "협업 공간을 연결했습니다. 다시 AI 후보 발굴로 돌아가 계속 진행하면 됩니다."
+        : "이 단계는 선택 기능입니다. 팀으로 같이 볼 때만 워크스페이스를 만들거나 선택하세요.";
     case "console:extract":
       return consoleStatus.hasExtractedIdeas
         ? "추천 후보를 입력 폼으로 보내면 아이디어 접수 단계로 자동 이동합니다."
@@ -413,12 +415,17 @@ export function VentureConsoleShell({
   const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
   const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
+  const [visitedTaskIds, setVisitedTaskIds] = useState<ShellTask[]>(["console:auth"]);
+  const goToTask = useCallback((task: ShellTask) => {
+    setVisitedTaskIds((current) => (current.includes(task) ? current : [...current, task]));
+    setActiveTask(task);
+  }, []);
   const handleConsoleTaskChange = useCallback((task: ConsoleActionTask) => {
-    setActiveTask(`console:${task}`);
-  }, []);
+    goToTask(`console:${task}`);
+  }, [goToTask]);
   const handleWorkbenchTaskChange = useCallback((task: WorkbenchTask) => {
-    setActiveTask(`workbench:${task}`);
-  }, []);
+    goToTask(`workbench:${task}`);
+  }, [goToTask]);
   useEffect(() => {
     function handleRecordEvent<T extends { id: string }>(event: Event, setter: Dispatch<SetStateAction<T[]>>) {
       const record = (event as CustomEvent<T>).detail;
@@ -442,7 +449,7 @@ export function VentureConsoleShell({
 
     function handleIdeaCreated(event: Event) {
       handleRecordEvent<Idea>(event, setIdeas);
-      setActiveTask("workbench:select");
+      goToTask("workbench:select");
     }
     const handleIdeaUpdated = (event: Event) => handleRecordEvent<Idea>(event, setIdeas);
     const handleRiskCreated = (event: Event) => handleRecordEvent<Risk>(event, setRisks);
@@ -492,7 +499,7 @@ export function VentureConsoleShell({
       window.removeEventListener("venture:task-updated", handleTaskUpdated);
       window.removeEventListener("venture:telemetry-created", handleTelemetryCreated);
     };
-  }, []);
+  }, [goToTask]);
   const activeConsoleTask = activeTask.startsWith("console:")
     ? (activeTask.replace("console:", "") as ConsoleActionTask)
     : "idea";
@@ -577,7 +584,7 @@ export function VentureConsoleShell({
   });
   const taskStatuses: Record<ShellTask, string> = {
     "console:auth": "접근",
-    "console:workspace": "팀",
+    "console:workspace": "선택",
     "console:extract": "발굴",
     "console:idea": "접수",
     "workbench:select": `${ideaCount}개`,
@@ -591,23 +598,44 @@ export function VentureConsoleShell({
     "workbench:launch": highRisks > 0 ? "점검" : "확인",
     "workbench:learning": telemetryEventCount > 0 ? `${telemetryEventCount}개` : "대기",
   };
-  const completedTasks = shellTasks.slice(0, Math.max(activeTaskIndex, 0));
+  const requiredShellTasks = shellTasks.filter((task) => !task.optional);
+  const supportTasks = consoleStatus.isAuthenticated
+    ? shellTasks.filter(
+        (task) =>
+          task.optional &&
+          task.id !== activeTask &&
+          !nextTaskOptions.some((option) => option.id === task.id) &&
+          !visitedTaskIds.includes(task.id),
+      )
+    : [];
+  const completedTasks = shellTasks.filter((task) => visitedTaskIds.includes(task.id) && task.id !== activeTask);
   const availableTaskIds = new Set<ShellTask>([
     ...completedTasks.map((task) => task.id),
     activeTaskConfig.id,
     ...nextTaskOptions.map((task) => task.id),
+    ...supportTasks.map((task) => task.id),
   ]);
   const lockedTasks = shellTasks.filter((task) => !availableTaskIds.has(task.id));
-  const stepNumber = activeTaskIndex + 1;
+  const stepNumber = activeTaskConfig.optional
+    ? null
+    : requiredShellTasks.findIndex((task) => task.id === activeTaskConfig.id) + 1;
+
+  function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
+    if (task.optional) {
+      return "선택";
+    }
+
+    return String(requiredShellTasks.findIndex((item) => item.id === task.id) + 1);
+  }
 
   return (
     <section className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
       <aside className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:self-start">
         <div className="mb-4">
           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">AI Venture Lab</div>
-          <h2 className="mt-2 text-2xl font-semibold text-slate-950">의사결정 흐름</h2>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-950">AI 실행 흐름</h2>
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            한 번에 하나의 단계만 보고, 끝난 뒤 다음 단계로 넘어가는 방식으로 진행합니다.
+            AI가 초안을 만들고, 필요한 순간에만 사람이 의견을 보완하는 방식으로 한 단계씩 진행합니다.
           </p>
         </div>
 
@@ -635,7 +663,7 @@ export function VentureConsoleShell({
                 <button
                   key={item.idea.id}
                   type="button"
-                  onClick={() => setActiveTask("workbench:select")}
+                  onClick={() => goToTask("workbench:select")}
                   className="grid grid-cols-[1.6rem_minmax(0,1fr)_auto] items-center gap-2 rounded-md bg-white p-2 text-left shadow-sm transition hover:bg-blue-50"
                 >
                   <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-950 text-xs font-semibold text-white">
@@ -658,12 +686,12 @@ export function VentureConsoleShell({
           <div className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">현재 단계</div>
           <button
             type="button"
-            onClick={() => setActiveTask(activeTaskConfig.id)}
+            onClick={() => goToTask(activeTaskConfig.id)}
             aria-current="step"
             className="mt-2 grid w-full grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-blue-300 bg-white p-3 text-left shadow-sm"
           >
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
-              {stepNumber}
+              {stepNumber ?? "선택"}
             </span>
             <span className="min-w-0">
               <span className="flex items-center gap-2 text-sm font-semibold text-slate-950">
@@ -677,6 +705,38 @@ export function VentureConsoleShell({
             </span>
           </button>
         </div>
+
+        {supportTasks.length > 0 ? (
+          <div className="mt-4 rounded-lg border border-violet-200 bg-violet-50 p-3">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-700">선택 기능</div>
+            <div className="mt-2 grid gap-2">
+              {supportTasks.map((task) => {
+                const Icon = task.icon;
+
+                return (
+                  <button
+                    key={task.id}
+                    type="button"
+                    onClick={() => goToTask(task.id)}
+                    className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-violet-200 bg-white p-3 text-left transition hover:bg-violet-50"
+                  >
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-violet-100 text-xs font-semibold text-violet-700">
+                      선택
+                    </span>
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                        <Icon size={15} />
+                        {task.label}
+                      </span>
+                      <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
+                    </span>
+                    <span className="rounded-md bg-violet-50 px-2 py-1 text-xs font-semibold text-violet-700">옵션</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
 
         {nextTaskOptions.length > 0 ? (
           <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -695,7 +755,7 @@ export function VentureConsoleShell({
                   <button
                     key={task.id}
                     type="button"
-                    onClick={() => setActiveTask(task.id)}
+                    onClick={() => goToTask(task.id)}
                     className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
                       option.variant === "primary"
                         ? "border-emerald-200 bg-white hover:border-emerald-300 hover:bg-emerald-50"
@@ -707,7 +767,7 @@ export function VentureConsoleShell({
                         option.variant === "primary" ? "bg-emerald-600 text-white" : "bg-amber-500 text-white"
                       }`}
                     >
-                      {shellTasks.findIndex((item) => item.id === task.id) + 1}
+                      {getTaskOrderLabel(task)}
                     </span>
                     <span className="min-w-0">
                       <span className="flex items-center gap-2 text-sm font-semibold text-slate-950">
@@ -750,11 +810,11 @@ export function VentureConsoleShell({
                   <button
                     key={task.id}
                     type="button"
-                    onClick={() => setActiveTask(task.id)}
+                    onClick={() => goToTask(task.id)}
                     className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-slate-300 hover:bg-white"
                   >
                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-700 shadow-sm">
-                      {shellTasks.findIndex((item) => item.id === task.id) + 1}
+                      {getTaskOrderLabel(task)}
                     </span>
                     <span className="min-w-0">
                       <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
@@ -781,7 +841,7 @@ export function VentureConsoleShell({
                   className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-slate-200 bg-white/70 p-3 text-left opacity-80"
                 >
                   <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-500">
-                    {shellTasks.findIndex((item) => item.id === task.id) + 1}
+                    {getTaskOrderLabel(task)}
                   </span>
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold text-slate-700">{task.label}</span>
@@ -805,7 +865,9 @@ export function VentureConsoleShell({
                 </span>
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    {activeTaskConfig.group} · {stepNumber}/{shellTasks.length}
+                    {activeTaskConfig.optional
+                      ? "선택 기능 · 협업"
+                      : `${activeTaskConfig.group} · ${stepNumber}/${requiredShellTasks.length}`}
                   </div>
                   <h2 className="mt-1 text-2xl font-semibold text-slate-950">{activeTaskConfig.label}</h2>
                   <p className="mt-1 text-sm leading-6 text-slate-500">{activeTaskConfig.description}</p>
@@ -832,7 +894,7 @@ export function VentureConsoleShell({
             <div className="flex flex-wrap items-start justify-end gap-2">
               <button
                 type="button"
-                onClick={() => previousTask && setActiveTask(previousTask.id)}
+                onClick={() => previousTask && goToTask(previousTask.id)}
                 disabled={!previousTask}
                 className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
               >
@@ -841,7 +903,7 @@ export function VentureConsoleShell({
               {primaryNextTask ? (
                 <button
                   type="button"
-                  onClick={() => setActiveTask(primaryNextTask.id)}
+                  onClick={() => goToTask(primaryNextTask.id)}
                   className="inline-flex h-10 items-center justify-center rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
                 >
                   {primaryNextTask.cta}
@@ -851,7 +913,7 @@ export function VentureConsoleShell({
                 <button
                   key={option.id}
                   type="button"
-                  onClick={() => setActiveTask(option.id)}
+                  onClick={() => goToTask(option.id)}
                   className="inline-flex h-10 items-center justify-center rounded-md border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-900 transition hover:bg-amber-100"
                 >
                   {option.cta}

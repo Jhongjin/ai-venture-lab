@@ -6697,6 +6697,7 @@ export function IdeaWorkbench({
   const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>("score");
   const [artifactPanel, setArtifactPanel] = useState<ArtifactPanel>("validation");
   const [developmentPanel, setDevelopmentPanel] = useState<DevelopmentPanel>("setup");
+  const [experienceMode, setExperienceMode] = useState<"guided" | "full">("guided");
   const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
   const [implementationOwnerFilter, setImplementationOwnerFilter] = useState("all");
   const [implementationEvidenceFilter, setImplementationEvidenceFilter] = useState<ImplementationEvidenceFilter>("all");
@@ -9468,6 +9469,35 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
       ) : null}
 
       <div className="grid min-w-0 gap-6">
+        {!showSidebar ? (
+          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-sm font-semibold text-slate-950">AI 자동 실행 보기</div>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  기본은 간단 보기입니다. AI가 만든 초안과 다음 액션만 먼저 보고, 필요할 때만 상세 실행 패널을 펼치세요.
+                </p>
+              </div>
+              <div className="inline-flex rounded-lg bg-slate-100 p-1">
+                {[
+                  ["guided", "간단 보기"],
+                  ["full", "전체 보기"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setExperienceMode(value as "guided" | "full")}
+                    className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                      experienceMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
         <div
           className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
             activeTask === "select" ? "" : "hidden"
@@ -9865,6 +9895,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
           <p className="mb-5 text-sm leading-6 text-slate-600">{developmentPanelDescriptions[developmentPanel]}</p>
 
+          {experienceMode === "guided" ? (
+            <div className="mb-5 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+              이 단계에서는 AI가 기획, 디자인, 개발 초안과 실행 패키지를 자동으로 만듭니다. 우선은 준비도, 디자인 프롬프트,
+              개발 런북만 확인하고 저장하세요. 백엔드 비교, 앱 블루프린트, 스캐폴드 문서는 필요할 때만 전체 보기에서 확인하면 됩니다.
+            </div>
+          ) : null}
+
           <div className={developmentPanel === "setup" ? "" : "hidden"}>
           <div className="grid gap-3 lg:grid-cols-4">
             {[
@@ -9993,6 +10030,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </button>
           </div>
 
+          {experienceMode === "full" ? (
+          <>
           <div className="mt-5 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
@@ -10286,6 +10325,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             ))}
           </div>
+          </>
+          ) : null}
           </div>
 
           <div
@@ -11477,6 +11518,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ))}
           </div>
 
+          {experienceMode === "guided" ? (
+            <div className="mt-4 rounded-lg border border-fuchsia-100 bg-fuchsia-50 p-4">
+              <div className="text-sm font-semibold text-fuchsia-950">개발 전달 정보는 필요할 때만 확인하세요.</div>
+              <p className="mt-2 text-sm leading-6 text-fuchsia-900">
+                지금은 퍼널과 최근 이벤트 숫자만 보면 됩니다. 실제 제품 서버 연결, 비밀키, 라우트 코드는 전체 보기에서만 확인하세요.
+              </p>
+            </div>
+          ) : (
           <div className="mt-4 rounded-lg border border-fuchsia-100 bg-fuchsia-50 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -11596,6 +11645,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </details>
           </div>
+          )}
 
           <div className="mt-4 grid gap-3 lg:grid-cols-3">
             {[
