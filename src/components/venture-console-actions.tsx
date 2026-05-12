@@ -1398,16 +1398,16 @@ function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
     )
     .join("\n");
 
-  return `# 추출 리플레이 비교
+  return `# 추출 결과 점검
 
 ## 실행 메타
 
 - 실행 시각: ${generatedAt}
 - 입력 길이: ${summary.sourceLength}자
-- 규칙 기반 후보: ${summary.rulesCount}개
+- 기준 추출 후보: ${summary.rulesCount}개
 - AI 후보: ${summary.aiCount}개
 - 공통 후보: ${summary.consensusCount}개
-- 규칙 단독: ${summary.rulesOnlyCount}개
+- 기준 추출 단독: ${summary.rulesOnlyCount}개
 - AI 단독: ${summary.aiOnlyCount}개
 - AI 모드: ${summary.aiMode}
 - 모델: ${summary.model ?? "해당 없음"}
@@ -1488,7 +1488,7 @@ function buildExtractionReportBody(
 - 추출 시각: ${metaGeneratedAt}
 - 실행 메모: ${runMeta?.note ?? "수동 또는 이전 방식으로 생성된 후보입니다."}
 
-${replaySummary ? buildExtractionReplayMarkdown(replaySummary) : "## 추출 리플레이 비교\n\n- 이번 리포트에는 리플레이 비교가 포함되지 않았습니다."}
+${replaySummary ? buildExtractionReplayMarkdown(replaySummary) : "## 추출 결과 점검\n\n- 이번 리포트에는 결과 점검이 포함되지 않았습니다."}
 
 ## 원문 근거 요약
 
@@ -2279,36 +2279,6 @@ export function VentureConsoleActions({
     router.refresh();
   }
 
-  function handleExtractIdeas() {
-    const source = rawIdeaSource.trim();
-
-    if (!source) {
-      setExtractMessage("대화 내용이나 메모를 먼저 붙여넣으세요.");
-      setExtractedIdeas([]);
-      setExtractionRunMeta(null);
-      setExtractionReplay(null);
-      return;
-    }
-
-    const nextIdeas = extractIdeasFromText(source);
-    setExtractedIdeas(nextIdeas);
-    setExtractionReplay(null);
-    setExtractionRunMeta(
-      createExtractionRunMeta({
-        engine: "rules",
-        model: null,
-        sourceLength: source.length,
-        candidateCount: nextIdeas.length,
-        note: "운영자가 규칙 기반 추출을 직접 실행했습니다.",
-      }),
-    );
-    setExtractMessage(
-      nextIdeas.length > 0
-        ? `${nextIdeas.length}개의 앱 아이디어 후보를 추출했습니다. 마음에 드는 후보를 입력 폼으로 보내세요.`
-        : "아이디어 후보를 찾지 못했습니다. '아이디어:', '페인 포인트:', '솔루션:' 같은 단서를 포함해 다시 시도하세요.",
-    );
-  }
-
   async function handleAiExtractIdeas() {
     const source = rawIdeaSource.trim();
 
@@ -2322,7 +2292,7 @@ export function VentureConsoleActions({
 
     setExtractionReplay(null);
     setIsAiExtracting(true);
-    setExtractMessage("AI 추출 엔진으로 원문을 구조화하는 중입니다. 키가 없거나 실패하면 규칙 기반 엔진으로 전환합니다.");
+    setExtractMessage("AI가 원문을 읽고 후보를 정리하는 중입니다. 문제가 생기면 내부 안전장치로 계속 진행합니다.");
 
     try {
       const response = await fetch("/api/ideas/extract", {
@@ -2349,15 +2319,15 @@ export function VentureConsoleActions({
             model: payload.model ?? null,
             sourceLength: source.length,
             candidateCount: fallbackIdeas.length,
-            note: payload.error ?? `OpenAI HTTP ${response.status} 이후 규칙 기반으로 전환했습니다.`,
+            note: payload.error ?? `OpenAI HTTP ${response.status} 이후 내부 안전장치로 계속 진행했습니다.`,
           }),
         );
         setExtractMessage(
           fallbackIdeas.length > 0
-            ? `AI 추출을 사용할 수 없어 규칙 기반 엔진으로 ${fallbackIdeas.length}개 후보를 만들었습니다. 사유: ${
+            ? `AI 추출을 끝까지 사용할 수 없어 내부 안전장치로 ${fallbackIdeas.length}개 후보를 정리했습니다. 사유: ${
                 payload.error ?? `HTTP ${response.status}`
               }`
-            : `AI 추출을 사용할 수 없고 규칙 기반 후보도 찾지 못했습니다. 사유: ${
+            : `AI 추출을 끝까지 사용할 수 없었고 내부 안전장치로도 후보를 찾지 못했습니다. 사유: ${
                 payload.error ?? `HTTP ${response.status}`
               }`,
         );
@@ -2387,17 +2357,17 @@ export function VentureConsoleActions({
           model: null,
           sourceLength: source.length,
           candidateCount: fallbackIdeas.length,
-          note: `AI 추출 요청 중 오류가 발생해 규칙 기반으로 전환했습니다. ${
+          note: `AI 추출 요청 중 오류가 발생해 내부 안전장치로 계속 진행했습니다. ${
             error instanceof Error ? error.message : ""
           }`,
         }),
       );
       setExtractMessage(
         fallbackIdeas.length > 0
-          ? `AI 추출 요청 중 오류가 발생해 규칙 기반 엔진으로 ${fallbackIdeas.length}개 후보를 만들었습니다. ${
+          ? `AI 추출 요청 중 오류가 발생해 내부 안전장치로 ${fallbackIdeas.length}개 후보를 정리했습니다. ${
               error instanceof Error ? error.message : ""
             }`
-          : `AI 추출 요청 중 오류가 발생했고 규칙 기반 후보도 찾지 못했습니다. ${
+          : `AI 추출 요청 중 오류가 발생했고 내부 안전장치로도 후보를 찾지 못했습니다. ${
               error instanceof Error ? error.message : ""
             }`,
       );
@@ -2410,7 +2380,7 @@ export function VentureConsoleActions({
     const source = rawIdeaSource.trim();
 
     if (!source) {
-      setExtractMessage("리플레이할 대화 내용이나 메모를 먼저 붙여넣으세요.");
+      setExtractMessage("점검할 대화 내용이나 메모를 먼저 붙여넣으세요.");
       setExtractedIdeas([]);
       setExtractionRunMeta(null);
       setExtractionReplay(null);
@@ -2418,14 +2388,14 @@ export function VentureConsoleActions({
     }
 
     setIsReplayingExtraction(true);
-    setExtractMessage("같은 원문을 규칙 기반과 AI 기반으로 재실행해 후보 일치도를 비교하는 중입니다.");
+    setExtractMessage("같은 원문을 내부 기준과 AI 결과로 다시 비교해 누락되거나 과한 후보가 없는지 점검하는 중입니다.");
 
     try {
       const rulesIdeas = extractIdeasFromText(source);
       let aiIdeas: ExtractedIdea[] = [];
       let aiMode: ExtractionReplayMode = "unavailable";
       let model: string | null = null;
-      let replayNote = "AI 추출을 사용할 수 없어 규칙 기반 결과만 감사했습니다.";
+      let replayNote = "AI 추출을 사용할 수 없어 내부 기준 결과만 점검했습니다.";
 
       try {
         const response = await fetch("/api/ideas/extract", {
@@ -2448,12 +2418,12 @@ export function VentureConsoleActions({
         if (response.ok && payload.candidates?.length) {
           aiIdeas = hydrateAiExtractedIdeas(source, payload.candidates);
           aiMode = payload.mode === "openai" ? "openai" : "fallback";
-          replayNote = `${payload.model ?? "OpenAI"} 결과와 규칙 기반 결과를 비교했습니다.`;
+          replayNote = `${payload.model ?? "OpenAI"} 결과와 내부 기준 추출을 비교했습니다.`;
         } else {
-          replayNote = payload.error ?? `AI 추출 HTTP ${response.status}로 규칙 기반 결과만 비교했습니다.`;
+          replayNote = payload.error ?? `AI 추출 HTTP ${response.status}로 내부 기준 결과만 비교했습니다.`;
         }
       } catch (error) {
-        replayNote = `AI 추출 요청 중 오류가 발생해 규칙 기반 결과만 비교했습니다. ${
+        replayNote = `AI 추출 요청 중 오류가 발생해 내부 기준 결과만 비교했습니다. ${
           error instanceof Error ? error.message : ""
         }`;
       }
@@ -2477,13 +2447,13 @@ export function VentureConsoleActions({
           model,
           sourceLength: source.length,
           candidateCount: nextIdeas.length,
-          note: `리플레이 비교 완료: 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 규칙 단독 ${replaySummary.rulesOnlyCount}개.`,
+          note: `결과 점검 완료: 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 기준 추출 단독 ${replaySummary.rulesOnlyCount}개.`,
         }),
       );
       setExtractMessage(
         nextIdeas.length > 0
-          ? `리플레이 완료. 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 규칙 단독 ${replaySummary.rulesOnlyCount}개 후보를 비교했습니다.`
-          : "리플레이를 실행했지만 후보를 찾지 못했습니다. 원문에 아이디어, 문제, 솔루션 단서를 더 넣어보세요.",
+          ? `결과 점검 완료. 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 기준 추출 단독 ${replaySummary.rulesOnlyCount}개 후보를 비교했습니다.`
+          : "결과 점검을 실행했지만 후보를 찾지 못했습니다. 원문에 아이디어, 문제, 솔루션 단서를 더 넣어보세요.",
       );
     } finally {
       setIsReplayingExtraction(false);
@@ -3139,25 +3109,6 @@ export function VentureConsoleActions({
                 {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
                 AI 후보 발굴
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  void handleReplayExtractionComparison();
-                }}
-                disabled={isAiExtracting || isReplayingExtraction}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isReplayingExtraction ? <RefreshCw className="animate-spin" size={18} /> : <RefreshCw size={18} />}
-                비교 리플레이
-              </button>
-              <button
-                type="button"
-                onClick={handleExtractIdeas}
-                disabled={isAiExtracting || isReplayingExtraction}
-                className="inline-flex h-11 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                규칙 기반
-              </button>
             </div>
           </div>
 
@@ -3205,66 +3156,87 @@ export function VentureConsoleActions({
                   <p className="mt-1 text-blue-800">{extractionRunMeta.note}</p>
                 </div>
               ) : null}
-              {extractionReplay ? (
-                <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm leading-6 text-indigo-900">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <div className="font-semibold text-indigo-950">추출 리플레이 비교</div>
-                      <p className="mt-1 text-indigo-800">
-                        같은 원문을 규칙 기반과 AI 기반으로 재실행해 공통 후보와 누락 후보를 나눕니다.
-                      </p>
-                    </div>
-                    <span className="w-fit rounded-md bg-indigo-950 px-2 py-1 text-xs font-semibold text-white">
-                      공통 {extractionReplay.consensusCount}개
-                    </span>
-                  </div>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-4">
-                    <div className="rounded-md bg-white px-3 py-2">
-                      <div className="text-xs font-semibold text-slate-500">규칙 후보</div>
-                      <div className="text-lg font-semibold text-slate-950">{extractionReplay.rulesCount}</div>
-                    </div>
-                    <div className="rounded-md bg-white px-3 py-2">
-                      <div className="text-xs font-semibold text-slate-500">AI 후보</div>
-                      <div className="text-lg font-semibold text-slate-950">{extractionReplay.aiCount}</div>
-                    </div>
-                    <div className="rounded-md bg-white px-3 py-2">
-                      <div className="text-xs font-semibold text-slate-500">AI 단독</div>
-                      <div className="text-lg font-semibold text-slate-950">{extractionReplay.aiOnlyCount}</div>
-                    </div>
-                    <div className="rounded-md bg-white px-3 py-2">
-                      <div className="text-xs font-semibold text-slate-500">규칙 단독</div>
-                      <div className="text-lg font-semibold text-slate-950">{extractionReplay.rulesOnlyCount}</div>
-                    </div>
-                  </div>
-                  <div className="mt-3 grid gap-2">
-                    {extractionReplay.items.slice(0, 4).map((item) => (
-                      <div key={item.id} className="rounded-md bg-white px-3 py-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-950">{item.primaryCandidate.name}</span>
-                          <span
-                            className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                              item.source === "both"
-                                ? "bg-emerald-50 text-emerald-800"
-                                : item.source === "ai"
-                                  ? "bg-blue-50 text-blue-700"
-                                  : "bg-amber-50 text-amber-800"
-                            }`}
-                          >
-                            {item.verdict}
-                          </span>
-                          {item.overlapScore ? (
-                            <span className="rounded-md bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-600">
-                              유사도 {item.overlapScore}%
-                            </span>
-                          ) : null}
-                        </div>
-                        <p className="mt-1 text-xs leading-5 text-slate-600">{item.nextAction}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="mt-2 text-xs leading-5 text-indigo-800">{extractionReplay.note}</p>
+              <details className="rounded-lg border border-slate-200 bg-white p-3">
+                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-800">
+                  고급 점검 열기
+                </summary>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  일반 사용자는 보통 볼 필요 없습니다. AI 결과가 너무 넓거나 빠진 것 같을 때만 내부 기준과 비교해 점검합니다.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void handleReplayExtractionComparison();
+                    }}
+                    disabled={isAiExtracting || isReplayingExtraction}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isReplayingExtraction ? <RefreshCw className="animate-spin" size={16} /> : <RefreshCw size={16} />}
+                    결과 점검
+                  </button>
                 </div>
-              ) : null}
+                {extractionReplay ? (
+                  <div className="mt-3 rounded-lg border border-indigo-100 bg-indigo-50 p-3 text-sm leading-6 text-indigo-900">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="font-semibold text-indigo-950">추출 결과 점검</div>
+                        <p className="mt-1 text-indigo-800">
+                          같은 원문을 내부 기준 추출과 AI 추출로 비교해, AI가 놓친 후보나 과하게 넓힌 후보가 없는지 살펴봅니다.
+                        </p>
+                      </div>
+                      <span className="w-fit rounded-md bg-indigo-950 px-2 py-1 text-xs font-semibold text-white">
+                        공통 {extractionReplay.consensusCount}개
+                      </span>
+                    </div>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-4">
+                      <div className="rounded-md bg-white px-3 py-2">
+                        <div className="text-xs font-semibold text-slate-500">기준 추출</div>
+                        <div className="text-lg font-semibold text-slate-950">{extractionReplay.rulesCount}</div>
+                      </div>
+                      <div className="rounded-md bg-white px-3 py-2">
+                        <div className="text-xs font-semibold text-slate-500">AI 추출</div>
+                        <div className="text-lg font-semibold text-slate-950">{extractionReplay.aiCount}</div>
+                      </div>
+                      <div className="rounded-md bg-white px-3 py-2">
+                        <div className="text-xs font-semibold text-slate-500">AI만 포착</div>
+                        <div className="text-lg font-semibold text-slate-950">{extractionReplay.aiOnlyCount}</div>
+                      </div>
+                      <div className="rounded-md bg-white px-3 py-2">
+                        <div className="text-xs font-semibold text-slate-500">기준만 포착</div>
+                        <div className="text-lg font-semibold text-slate-950">{extractionReplay.rulesOnlyCount}</div>
+                      </div>
+                    </div>
+                    <div className="mt-3 grid gap-2">
+                      {extractionReplay.items.slice(0, 4).map((item) => (
+                        <div key={item.id} className="rounded-md bg-white px-3 py-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-semibold text-slate-950">{item.primaryCandidate.name}</span>
+                            <span
+                              className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                                item.source === "both"
+                                  ? "bg-emerald-50 text-emerald-800"
+                                  : item.source === "ai"
+                                    ? "bg-blue-50 text-blue-700"
+                                    : "bg-amber-50 text-amber-800"
+                              }`}
+                            >
+                              {item.verdict}
+                            </span>
+                            {item.overlapScore ? (
+                              <span className="rounded-md bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-600">
+                                유사도 {item.overlapScore}%
+                              </span>
+                            ) : null}
+                          </div>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">{item.nextAction}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-indigo-800">{extractionReplay.note}</p>
+                  </div>
+                ) : null}
+              </details>
               {duplicateCandidateCount > 0 ? (
                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
                   {duplicateCandidateCount}개 후보가 기존 포트폴리오와 유사합니다. 저장 전 기존 기록을 확장할지, 새
@@ -3272,9 +3244,8 @@ export function VentureConsoleActions({
                 </div>
               ) : null}
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600">
-                AI 후보 발굴은 서버의 OpenAI 키가 있을 때 구조화 추출을 사용합니다. 키가 없거나 호출이 실패하면 규칙
-                기반 엔진으로 자동 전환됩니다. 원문 근거의 이메일, 전화번호, 계좌, 카드번호, 신분 정보로 보이는 패턴은
-                저장 시 자동 익명화됩니다.
+                AI 후보 발굴이 기본입니다. 서버 상태가 불안정하거나 AI 호출이 실패하면 내부 안전장치가 자동으로 이어받습니다.
+                원문 근거의 이메일, 전화번호, 계좌, 카드번호, 신분 정보로 보이는 패턴은 저장 시 자동 익명화됩니다.
               </div>
             </div>
 
