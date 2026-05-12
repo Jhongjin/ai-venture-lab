@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-12 | Clarified email-link login copy for non-technical operators | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-12 | Made login the default first step for non-technical operators | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-12 | Hid developer-only telemetry details behind a manager-facing handoff panel | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-12 | Refined workbench panels for manager-facing decision language | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |

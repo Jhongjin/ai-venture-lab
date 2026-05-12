@@ -1906,7 +1906,7 @@ export function VentureConsoleActions({
     const exchangeTimer = window.setTimeout(() => {
       async function completeRootMagicLink() {
         setIsAuthBusy(true);
-        setAuthMessage("매직 링크 로그인을 완료하는 중입니다...");
+        setAuthMessage("이메일 로그인 링크를 확인하는 중입니다...");
 
         const { data, error } = await supabaseClient.auth.exchangeCodeForSession(authCode);
 
@@ -2837,7 +2837,15 @@ export function VentureConsoleActions({
         ) : (
           <form onSubmit={handleSignIn} className="grid gap-3">
             <div className="rounded-lg bg-blue-50 p-4 text-sm leading-6 text-blue-900">
-              일반 사용자는 이메일 로그인 링크만 사용하면 됩니다. 비밀번호 로그인은 관리자가 미리 만든 계정이 있을 때만 펼쳐서 사용하세요.
+              <div className="font-semibold text-blue-950">로그인은 3단계로 끝납니다.</div>
+              <ol className="mt-2 grid gap-1">
+                <li>1. 이메일 주소를 입력합니다.</li>
+                <li>2. 받은 메일의 로그인 링크를 누릅니다.</li>
+                <li>3. 이 화면으로 돌아오면 로그인 상태가 표시됩니다.</li>
+              </ol>
+              <p className="mt-2">
+                일반 사용자는 이메일 로그인 링크만 사용하면 됩니다. 비밀번호 로그인은 관리자가 미리 만든 계정이 있을 때만 펼쳐서 사용하세요.
+              </p>
             </div>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               이메일
@@ -3760,19 +3768,19 @@ function formatAuthError(message: string) {
 
 function formatAuthCallbackMessage(error: string, description: string | null) {
   if (error === "missing_callback_state") {
-    return "매직 링크 콜백에 로그인 코드가 없습니다. 새 링크를 요청한 뒤 가장 최근 이메일을 여세요.";
+    return "로그인 링크에 필요한 코드가 없습니다. 새 링크를 요청한 뒤 가장 최근 이메일을 여세요.";
   }
 
   if (error === "callback_exchange_failed") {
     const normalizedDescription = description?.toLowerCase() ?? "";
 
     if (normalizedDescription.includes("verifier")) {
-      return "매직 링크는 열렸지만 원래 브라우저 세션을 찾지 못했습니다. 링크를 다시 요청한 뒤 매직 링크를 보낸 같은 브라우저 프로필에서 여세요.";
+      return "로그인 링크는 열렸지만 원래 브라우저 세션을 찾지 못했습니다. 링크를 다시 요청한 뒤 로그인 링크를 보낸 같은 브라우저 프로필에서 여세요.";
     }
 
     return description
-      ? `매직 링크 콜백 실패: ${description}`
-      : "매직 링크 콜백에 실패했습니다. 새 링크를 요청한 뒤 다시 시도하세요.";
+      ? `로그인 링크 확인 실패: ${description}`
+      : "로그인 링크 확인에 실패했습니다. 새 링크를 요청한 뒤 다시 시도하세요.";
   }
 
   return description ? `${error}: ${description}` : error;
