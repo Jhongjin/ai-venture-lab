@@ -9903,36 +9903,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             activeTask === "select" ? "" : "hidden"
           }`}
         >
-          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_320px]">
-            <section className="avl-card-dark p-6 text-white">
-              {embedded ? (
-                <div className="mb-5 flex flex-col gap-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 lg:flex-row lg:items-center lg:justify-between">
-                  <div>
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200">candidate spotlight</div>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">
-                      여기서는 지금 평가를 시작할 후보 1개만 고르면 됩니다. 추천 흐름과 비교 후보 큐를 나눠서 보여주기 때문에, 세부 비교보다 먼저 하나를 선택하면 충분합니다.
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-2 text-xs font-semibold text-slate-200">
-                    <ClipboardList size={15} />
-                    {visibleIdeas.length}개 후보
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <div className="avl-kicker bg-white/10 text-violet-200">candidate spotlight</div>
-                    <h2 className="mt-4 text-3xl font-semibold">후보 선택</h2>
-                    <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                      여기서는 지금 평가를 시작할 후보 1개만 고르면 됩니다. 많은 정보를 한 번에 보기보다, 선택한 후보의
-                      다음 행동이 바로 보이도록 정리했습니다.
-                    </p>
-                  </div>
-                  <ClipboardList className="text-violet-200" size={24} />
-                </div>
-              )}
+          <div className="grid gap-5 xl:grid-cols-[260px_minmax(0,1fr)]">
+            <aside className="avl-card p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">candidate queue</div>
+              <h3 className="mt-3 text-lg font-semibold text-slate-950">오늘 검토할 후보</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                여기서는 후보를 많이 펼쳐두지 않고, 지금 평가를 시작할 1개만 고릅니다.
+              </p>
 
-              <div className={`${embedded ? "mt-0" : "mt-6"} avl-segmented grid grid-cols-3 gap-2 p-1`}>
+              <div className="mt-4 avl-segmented grid grid-cols-3 gap-2 p-1">
                 {[
                   ["all", filterModeLabels.all],
                   ["mine", filterModeLabels.mine],
@@ -9943,12 +9922,34 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
                     className={`h-10 rounded-xl text-sm font-semibold transition ${
-                      filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-300 hover:text-white"
+                      filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
                     }`}
                   >
                     {label}
                   </button>
                 ))}
+              </div>
+
+              <div className="mt-4 rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-3">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">visible</div>
+                <div className="mt-1 text-2xl font-semibold text-slate-950">{visibleIdeas.length}</div>
+                <p className="mt-1 text-sm leading-6 text-slate-600">현재 필터 기준으로 보이는 후보 수입니다.</p>
+              </div>
+            </aside>
+
+            <section className="avl-card p-6 text-slate-900">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="avl-kicker">candidate selection</div>
+                  <h2 className="mt-4 text-3xl font-semibold text-slate-950">후보 선택</h2>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
+                    지금 바로 평가를 시작할 후보 1개만 고르면 충분합니다. 나머지는 비교 큐로 남겨두고, 하나를 선택한 뒤 다음 단계로 넘어갑니다.
+                  </p>
+                </div>
+                <div className="inline-flex h-11 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">
+                  <ClipboardList size={16} />
+                  {visibleIdeas.length}개 후보
+                </div>
               </div>
 
               {selectedIdea ? (() => {
@@ -9967,147 +9968,150 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 const comparisonIdeas = visibleIdeas.filter((idea) => idea.id !== selectedIdea.id).slice(0, 4);
 
                 return (
-                  <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-                    <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-5">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">지금 선택된 후보</div>
-                          <h3 className="mt-2 text-2xl font-semibold text-white">{selectedIdea.name}</h3>
-                          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                            {selectedIdea.one_liner || selectedIdea.signal}
-                          </p>
+                  <div className="mt-6 grid gap-4">
+                    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
+                      <div className="avl-card-soft p-5">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선택된 후보</div>
+                            <h3 className="mt-2 text-2xl font-semibold text-slate-950">{selectedIdea.name}</h3>
+                            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
+                              {selectedIdea.one_liner || selectedIdea.signal}
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                              {stageLabels[selectedIdea.stage]}
+                            </span>
+                            <span
+                              className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                isManageable ? "bg-emerald-100 text-emerald-800" : "border border-slate-200 bg-white text-slate-600"
+                              }`}
+                            >
+                              {isOwned
+                                ? editabilityLabels.editable
+                                : isOrgAdmin
+                                  ? editabilityLabels.orgAdmin
+                                  : editabilityLabels.readOnly}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-slate-200">
-                            {stageLabels[selectedIdea.stage]}
-                          </span>
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              isManageable ? "bg-emerald-500/15 text-emerald-200" : "bg-white/10 text-slate-300"
-                            }`}
-                          >
-                            {isOwned
-                              ? editabilityLabels.editable
-                              : isOrgAdmin
-                                ? editabilityLabels.orgAdmin
-                                : editabilityLabels.readOnly}
-                          </span>
-                        </div>
-                      </div>
 
-                      <div className="mt-4 grid gap-3 md:grid-cols-3">
-                        <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">현재 단계</div>
-                          <div className="mt-2 text-lg font-semibold text-white">{stageLabels[selectedIdea.stage]}</div>
-                          <p className="mt-1 text-sm leading-6 text-slate-300">이 후보를 선택한 뒤 다음 단계에서 점수와 판단을 맞춥니다.</p>
+                        <div className="mt-4 grid gap-3 md:grid-cols-3">
+                          <div className="rounded-[18px] border border-slate-200 bg-white p-4">
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">현재 단계</div>
+                            <div className="mt-2 text-lg font-semibold text-slate-950">{stageLabels[selectedIdea.stage]}</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">이 후보를 선택한 뒤 점수와 판단을 먼저 맞춥니다.</p>
+                          </div>
+                          <div className="rounded-[18px] border border-slate-200 bg-white p-4">
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">추천 동작</div>
+                            <div className="mt-2 text-lg font-semibold text-slate-950">사업성 평가 시작</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">문제 강도, 지불 의향, MVP 속도만 먼저 맞추면 됩니다.</p>
+                          </div>
+                          <div className="rounded-[18px] border border-slate-200 bg-white p-4">
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">후보 수</div>
+                            <div className="mt-2 text-lg font-semibold text-slate-950">{visibleIdeas.length}개</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">오늘은 1개만 보고, 나머지는 비교 후보로 남겨둡니다.</p>
+                          </div>
                         </div>
-                        <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">추천 동작</div>
-                          <div className="mt-2 text-lg font-semibold text-white">사업성 평가 시작</div>
-                          <p className="mt-1 text-sm leading-6 text-slate-300">문제 강도, 지불 의향, MVP 속도만 먼저 확인하면 됩니다.</p>
-                        </div>
-                        <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">후보 수</div>
-                          <div className="mt-2 text-lg font-semibold text-white">{visibleIdeas.length}개</div>
-                          <p className="mt-1 text-sm leading-6 text-slate-300">나머지는 비교 후보 큐에 남겨두고, 오늘 볼 1개만 고릅니다.</p>
-                        </div>
-                      </div>
 
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => updateActiveTask("score")}
-                          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
-                        >
-                          사업성 평가 시작
-                        </button>
-                        {isManageable ? (
+                        <div className="mt-5 flex flex-wrap gap-2">
                           <button
                             type="button"
-                            onClick={() => void deleteIdeaRecord(selectedIdea)}
-                            disabled={isBusy}
-                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+                            onClick={() => updateActiveTask("score")}
+                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
                           >
-                            <Trash2 size={16} />
-                            삭제
+                            사업성 평가 시작
                           </button>
-                        ) : null}
-                      </div>
-
-                      <div className="mt-5">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">비교 후보 큐</div>
-                        <div className="mt-3 grid gap-3 md:grid-cols-2">
-                          {comparisonIdeas.length > 0 ? (
-                            comparisonIdeas.map((idea, index) => {
-                              const isOwnedComparison = Boolean(user && idea.created_by === user.id);
-                              const isOrgAdminComparison = Boolean(
-                                user &&
-                                  idea.organization_id &&
-                                  memberships.some(
-                                    (membership) =>
-                                      membership.user_id === user.id &&
-                                      membership.organization_id === idea.organization_id &&
-                                      adminRoles.has(membership.role),
-                                  ),
-                              );
-
-                              return (
-                                <button
-                                  key={idea.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedIdeaId(idea.id);
-                                    setEditState(toEditState(idea));
-                                  }}
-                                  className="rounded-[20px] border border-white/10 bg-white/[0.05] p-4 text-left transition hover:border-violet-300/50 hover:bg-white/[0.09]"
-                                >
-                                  <div className="flex items-center justify-between gap-3">
-                                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm font-semibold text-white">
-                                      {index + 2}
-                                    </span>
-                                    <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-slate-200">
-                                      {isOwnedComparison
-                                        ? editabilityLabels.editable
-                                        : isOrgAdminComparison
-                                          ? editabilityLabels.orgAdmin
-                                          : editabilityLabels.readOnly}
-                                    </span>
-                                  </div>
-                                  <div className="mt-3 text-base font-semibold text-white">{idea.name}</div>
-                                  <p className="mt-2 text-sm leading-6 text-slate-300">{idea.one_liner || idea.signal}</p>
-                                </button>
-                              );
-                            })
-                          ) : (
-                            <div className="rounded-[20px] border border-dashed border-white/10 bg-black/20 p-4 text-sm leading-6 text-slate-300 md:col-span-2">
-                              지금은 이 후보 1개만 보면 충분합니다. 새 아이디어를 더 넣거나, 나중에 다른 후보를 다시 비교해도 됩니다.
-                            </div>
-                          )}
+                          {isManageable ? (
+                            <button
+                              type="button"
+                              onClick={() => void deleteIdeaRecord(selectedIdea)}
+                              disabled={isBusy}
+                              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <Trash2 size={16} />
+                              삭제
+                            </button>
+                          ) : null}
                         </div>
                       </div>
-                    </div>
 
-                    <div className="grid gap-4">
-                      <div className="avl-band p-4 text-slate-900">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">운영자 브리프</div>
-                        <p className="mt-3 text-sm leading-6 text-slate-700">
-                          여기서는 가장 가능성 높은 후보를 하나만 고르면 충분합니다. 세부 비교는 사업성 평가와 리스크 확인에서 이어집니다.
+                      <aside className="avl-card-soft p-5">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">지금 결정할 것</div>
+                        <p className="mt-3 text-sm leading-6 text-slate-600">
+                          가장 가능성 높은 후보 1개를 골라 사업성 평가로 넘기면 됩니다. 세부 비교는 그다음 단계에서 이어집니다.
                         </p>
-                      </div>
-                      <div className="avl-band-dark p-4">
-                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">next move</div>
-                        <div className="mt-3 rounded-2xl border border-white/8 bg-black/20 p-4">
-                          <div className="text-sm font-semibold text-white">추천 흐름</div>
-                          <p className="mt-2 text-sm leading-6 text-slate-300">
-                            후보를 고른 뒤 바로 `사업성 평가`로 넘어가 점수를 맞추고, 이어서 검증 실험 초안을 AI가 채우게 두는 흐름이 가장 자연스럽습니다.
+                        <div className="mt-4 rounded-[18px] border border-slate-200 bg-white p-4">
+                          <div className="text-sm font-semibold text-slate-950">다음 흐름</div>
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            후보 선택 → 사업성 평가 → 위험 확인 순으로 가면 판단 근거가 가장 빠르게 정리됩니다.
                           </p>
                         </div>
+                      </aside>
+                    </div>
+
+                    <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">비교 후보</div>
+                          <h4 className="mt-1 text-lg font-semibold text-slate-950">나중에 다시 볼 큐</h4>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 md:grid-cols-2">
+                        {comparisonIdeas.length > 0 ? (
+                          comparisonIdeas.map((idea, index) => {
+                            const isOwnedComparison = Boolean(user && idea.created_by === user.id);
+                            const isOrgAdminComparison = Boolean(
+                              user &&
+                                idea.organization_id &&
+                                memberships.some(
+                                  (membership) =>
+                                    membership.user_id === user.id &&
+                                    membership.organization_id === idea.organization_id &&
+                                    adminRoles.has(membership.role),
+                                ),
+                            );
+
+                            return (
+                              <button
+                                key={idea.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedIdeaId(idea.id);
+                                  setEditState(toEditState(idea));
+                                }}
+                                className="rounded-[18px] border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:shadow-sm"
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+                                    {index + 2}
+                                  </span>
+                                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                    {isOwnedComparison
+                                      ? editabilityLabels.editable
+                                      : isOrgAdminComparison
+                                        ? editabilityLabels.orgAdmin
+                                        : editabilityLabels.readOnly}
+                                  </span>
+                                </div>
+                                <div className="mt-3 text-base font-semibold text-slate-950">{idea.name}</div>
+                                <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <div className="rounded-[18px] border border-dashed border-slate-300 bg-white p-4 text-sm leading-6 text-slate-600 md:col-span-2">
+                            지금은 이 후보 1개만 보면 충분합니다. 새 아이디어를 더 넣거나, 나중에 다른 후보를 다시 비교해도 됩니다.
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 );
               })() : (
-                <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6 text-sm leading-7 text-slate-300">
+                <div className="mt-6 rounded-[22px] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-7 text-slate-600">
                   아직 선택할 아이디어가 없습니다. 먼저 `아이디어 접수`에서 새 아이디어를 저장하거나, 아이디어 찾기에서 후보를 초안으로 반영하세요.
                 </div>
               )}
@@ -10119,16 +10123,16 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           onSubmit={saveIdea}
           className={`grid gap-5 ${activeTask === "score" ? "" : "hidden"}`}
         >
-          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_340px]">
-            <section className="avl-card-dark p-6 text-white">
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <section className="avl-card p-6 text-slate-900">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="avl-kicker bg-white/10 text-violet-200">score canvas</div>
-                  <h2 className="mt-4 text-3xl font-semibold">{selectedIdea.name}</h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                  <div className="avl-kicker">score canvas</div>
+                  <h2 className="mt-4 text-3xl font-semibold text-slate-950">{selectedIdea.name}</h2>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
                     {selectedIdea.one_liner || selectedIdea.signal}
                   </p>
-                  <p className="mt-3 text-sm leading-6 text-slate-400">
+                  <p className="mt-3 text-sm leading-6 text-slate-500">
                     {canEdit
                       ? "AI 초안을 바탕으로 점수와 판단을 맞춘 뒤 저장합니다."
                       : "이 기록은 보기 전용입니다. 네가 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."}
@@ -10140,7 +10144,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => void deleteIdeaRecord(selectedIdea)}
                       disabled={isBusy}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Trash2 size={18} />
                       삭제
@@ -10149,7 +10153,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <button
                     type="submit"
                     disabled={isBusy || !canEdit}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isBusy ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
                     점수 저장
@@ -10158,7 +10162,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
 
               <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
-                <div className="avl-band p-5 text-slate-900">
+                <div className="avl-card-soft p-5 text-slate-900">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">평가 입력</div>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <SelectField
@@ -10231,7 +10235,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="avl-band p-5 text-slate-900">
+                  <div className="avl-card-soft p-5 text-slate-900">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">AI 추천 판단</div>
                     <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreRecommendation]}</div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -10252,28 +10256,28 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   </div>
 
-                  <div className="avl-band-dark p-5">
-                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">operator brief</div>
-                    <div className="mt-3 rounded-2xl border border-white/8 bg-black/20 p-4">
-                      <div className="text-sm font-semibold text-white">이번 단계에서 할 일</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-300">
+                  <div className="avl-card-soft p-5">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계에서 할 일</div>
+                    <div className="mt-3 rounded-[18px] border border-slate-200 bg-white p-4">
+                      <div className="text-sm font-semibold text-slate-950">판단 방향 정하기</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
                         점수 7개를 대략 맞추고, `판단`을 한 번 정한 뒤 저장하세요. 세부 실험과 리스크 채우기는 다음 검증 단계에서 계속 이어집니다.
                       </p>
                     </div>
                     {validationPlan ? (
-                      <div className="mt-3 rounded-2xl border border-white/8 bg-black/20 p-4">
-                        <div className="text-sm font-semibold text-white">{validationPlan.status}</div>
-                        <p className="mt-2 text-sm leading-6 text-slate-300">{validationPlan.statusDetail}</p>
-                        <p className="mt-3 text-sm leading-6 text-violet-200">{validationPlan.nextAction}</p>
+                      <div className="mt-3 rounded-[18px] border border-slate-200 bg-white p-4">
+                        <div className="text-sm font-semibold text-slate-950">{validationPlan.status}</div>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">{validationPlan.statusDetail}</p>
+                        <p className="mt-3 text-sm leading-6 text-sky-700">{validationPlan.nextAction}</p>
                       </div>
                     ) : null}
                   </div>
                 </div>
               </div>
 
-              <details className="mt-5 rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
-                <summary className="cursor-pointer list-none text-sm font-semibold text-white">추가 메모 열기</summary>
-                <p className="mt-2 text-sm leading-6 text-slate-300">
+              <details className="mt-5 rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">추가 메모 열기</summary>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
                   AI가 채운 초안을 사람 판단으로 보강하고 싶을 때만 여기를 수정하세요.
                 </p>
                 <div className="mt-4 grid gap-4 md:grid-cols-3">
@@ -10322,7 +10326,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <section className="avl-card p-5">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="avl-kicker bg-violet-100 text-violet-700">validation package</div>
+                  <div className="avl-kicker">validation package</div>
                   <h3 className="mt-3 text-xl font-semibold text-slate-950">{validationPlan.status}</h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{validationPlan.statusDetail}</p>
                 </div>
