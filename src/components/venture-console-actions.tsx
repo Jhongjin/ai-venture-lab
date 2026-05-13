@@ -3085,14 +3085,14 @@ export function VentureConsoleActions({
           {workspaceMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{workspaceMessage}</p> : null}
         </div>
 
-        <div className={`${activeTask === "extract" ? "" : "hidden"} ${embedded ? "space-y-5" : "avl-card-dark p-6"}`}>
+        <div className={`${activeTask === "extract" ? "" : "hidden"} ${embedded ? "space-y-5" : "space-y-5"}`}>
           {!embedded ? (
-            <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div className="avl-card-soft flex flex-col gap-3 p-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <div className="avl-kicker">AI source ingest</div>
-                <h2 className="mt-3 text-2xl font-semibold text-white">아이디어 찾기</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
-                  회의록, 대화, 메모를 가져오면 AI가 후보를 구조화하고 바로 다음으로 넘길 추천 후보 1개와 비교 후보 큐를 먼저 보여줍니다.
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">idea intake</div>
+                <h2 className="mt-2 text-xl font-semibold text-slate-950">아이디어 찾기</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                  원문을 넣으면 AI가 바로 접수할 후보 1개와 비교 후보를 나눠 정리합니다.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -3102,7 +3102,7 @@ export function VentureConsoleActions({
                     void handleAiExtractIdeas();
                   }}
                   disabled={isAiExtracting || isReplayingExtraction}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
                   AI 후보 발굴
@@ -3112,21 +3112,20 @@ export function VentureConsoleActions({
           ) : null}
 
           <div className="space-y-5">
-            <section className={`${embedded ? "avl-card-soft p-6 text-slate-900" : "avl-card-soft p-6 text-slate-900"}`}>
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
+            <section className={`${embedded ? "avl-card-soft p-5 text-slate-900" : "avl-card-soft p-5 text-slate-900"}`}>
+              <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
                 <div className="grid gap-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">원문 입력</div>
-                      <h3 className="mt-2 text-xl font-semibold text-slate-950">대화나 메모 붙여넣기</h3>
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Source</div>
+                      <h3 className="mt-2 text-lg font-semibold text-slate-950">대화나 메모 붙여넣기</h3>
                     </div>
                     <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
                       {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length.toLocaleString()}자 입력됨` : "원문 대기"}
                     </div>
                   </div>
                   <p className="text-sm leading-6 text-slate-600">
-                    회의 메모, Gemini/ChatGPT 대화, 브레인스토밍 문장을 그대로 넣으면 됩니다. 제품명이 아니라 문제,
-                    대상, 해결 방식이 보일수록 AI가 더 안정적으로 구조화합니다.
+                    회의 메모나 AI 대화를 그대로 넣고, 문제와 대상이 보이게만 적어주면 됩니다.
                   </p>
                   <textarea
                     value={rawIdeaSource}
@@ -3186,8 +3185,8 @@ export function VentureConsoleActions({
                     <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI 추천 후보</div>
-                          <h3 className="mt-2 text-2xl font-semibold text-slate-950">{recommendedExtractedIdea.name}</h3>
+                          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">추천 후보</div>
+                          <h3 className="mt-2 text-xl font-semibold text-slate-950">{recommendedExtractedIdea.name}</h3>
                         </div>
                         {recommendedExtractionGate && recommendedGateStyle ? (
                           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${recommendedGateStyle.badge}`}>
@@ -3196,30 +3195,25 @@ export function VentureConsoleActions({
                         ) : null}
                       </div>
                       <p className="mt-3 text-sm leading-7 text-slate-700">{recommendedExtractedIdea.one_liner}</p>
-                      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">검증 점수</div>
-                          <div className="mt-2 text-2xl font-semibold text-slate-950">{recommendedExtractedIdea.validationScore}</div>
-                        </div>
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">사업/개발</div>
-                          <div className="mt-2 text-2xl font-semibold text-slate-950">
-                            {recommendedPortfolioItem ? getCandidateStrategyScore(recommendedPortfolioItem.candidate) : getCandidateStrategyScore(recommendedExtractedIdea)}%
-                          </div>
-                        </div>
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">패키지 준비</div>
-                          <div className="mt-2 text-2xl font-semibold text-slate-950">{recommendedPortfolioItem?.readinessScore ?? 0}%</div>
-                        </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                          검증 {recommendedExtractedIdea.validationScore}/100
+                        </span>
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                          사업/개발 {recommendedPortfolioItem ? getCandidateStrategyScore(recommendedPortfolioItem.candidate) : getCandidateStrategyScore(recommendedExtractedIdea)}%
+                        </span>
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                          준비 {recommendedPortfolioItem?.readinessScore ?? 0}%
+                        </span>
                       </div>
                       <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">AI가 먼저 본 판단</div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">추천 이유</div>
                         <p className="mt-2 text-sm leading-6 text-slate-700">
                           {recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
                         </p>
                         {recommendedExtractionGate ? (
                           <p className="mt-2 text-sm leading-6 text-slate-600">
-                            <span className="font-semibold text-slate-900">다음 작업:</span> {recommendedExtractionGate.nextAction}
+                            <span className="font-semibold text-slate-900">다음:</span> {recommendedExtractionGate.nextAction}
                           </p>
                         ) : null}
                       </div>
@@ -3244,24 +3238,17 @@ export function VentureConsoleActions({
                     </section>
                   ) : (
                     <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음 출력</div>
-                      <h3 className="mt-2 text-2xl font-semibold text-slate-950">추천 후보가 여기에 나타납니다</h3>
-                      <p className="mt-3 text-sm leading-7 text-slate-700">
-                        이 단계의 목표는 많은 아이디어를 한꺼번에 보는 것이 아니라, 지금 바로 접수할 후보 1개를 먼저
-                        고르는 것입니다.
-                      </p>
-                      <ol className="mt-5 grid gap-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Next output</div>
+                      <h3 className="mt-2 text-lg font-semibold text-slate-950">추천 후보가 여기에 나타납니다</h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-700">원문을 실행하면 지금 바로 검토할 후보 1개가 먼저 나타납니다.</p>
+                      <ol className="mt-4 grid gap-2">
                         <li className="grid grid-cols-[1.4rem_minmax(0,1fr)] gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
                           <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-semibold text-slate-700">1</span>
                           <span>원문을 넣고 AI 후보 발굴을 실행합니다.</span>
                         </li>
                         <li className="grid grid-cols-[1.4rem_minmax(0,1fr)] gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
                           <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-semibold text-slate-700">2</span>
-                          <span>추천 1개와 비교 후보 큐가 자동으로 분리됩니다.</span>
-                        </li>
-                        <li className="grid grid-cols-[1.4rem_minmax(0,1fr)] gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
-                          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white text-[11px] font-semibold text-slate-700">3</span>
-                          <span>추천 후보를 아이디어 초안으로 반영하거나 패키지로 저장하면 됩니다.</span>
+                          <span>추천 후보 1개를 보고, 필요하면 비교 후보만 펼쳐 확인합니다.</span>
                         </li>
                       </ol>
                     </section>
@@ -3292,9 +3279,7 @@ export function VentureConsoleActions({
                         </p>
                       </div>
                     </div>
-                    <p className="mt-4 text-sm leading-6 text-slate-600">
-                      추천이 너무 넓거나 빠졌다고 느껴질 때만 비교 점검을 열어 확인하면 됩니다.
-                    </p>
+                    <p className="mt-4 text-sm leading-6 text-slate-600">추천이 너무 넓거나 빠졌다고 느껴질 때만 열어 보면 됩니다.</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -3330,8 +3315,8 @@ export function VentureConsoleActions({
 
             {extractedIdeas.length > 0 ? (
               <>
-                <section className="avl-card-soft p-5 text-slate-900">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <details className="avl-card-soft p-5 text-slate-900">
+                  <summary className="flex cursor-pointer list-none flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                         <ClipboardList size={15} />
@@ -3339,51 +3324,47 @@ export function VentureConsoleActions({
                       </div>
                       <h3 className="mt-2 text-lg font-semibold text-slate-950">비교 후보 큐</h3>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        추천 1개 외에 함께 볼 후보를 정리합니다. 여기서는 지금 저장할 것과 나중에 다시 볼 것을 빠르게 구분하면 됩니다.
+                        추천 1개 외의 후보는 필요할 때만 펼쳐서 확인합니다.
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void copyExtractionPortfolio();
-                        }}
-                        className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-                      >
-                        실행 요약 복사
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void saveExtractionPortfolioReport();
-                        }}
-                        disabled={isSavingExtractionReport || !user}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {isSavingExtractionReport ? <RefreshCw className="animate-spin" size={16} /> : <ClipboardList size={16} />}
-                        리포트 저장
-                      </button>
+                      {([
+                        ["proceed", "진행 후보"],
+                        ["research", "추가 조사"],
+                        ["pivot", "전환 검토"],
+                        ["kill", "중단 후보"],
+                      ] as Array<[ExtractionGateId, string]>).map(([gateId, label]) => (
+                        <span
+                          key={gateId}
+                          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700"
+                        >
+                          {label} {extractionGateCounts[gateId]}
+                        </span>
+                      ))}
                     </div>
-                  </div>
+                  </summary>
 
-                  <div className="mt-4 grid gap-2 sm:grid-cols-4">
-                    {([
-                      ["proceed", "진행 후보"],
-                      ["research", "추가 조사"],
-                      ["pivot", "전환 검토"],
-                      ["kill", "중단 후보"],
-                    ] as Array<[ExtractionGateId, string]>).map(([gateId, label]) => {
-                      const style = extractionGateStyles[gateId];
-
-                      return (
-                        <div key={gateId} className={`rounded-2xl border px-3 py-3 ${style.panel}`}>
-                          <div className="text-xs font-semibold text-slate-700">{label}</div>
-                          <div className={`mt-2 inline-flex rounded-xl px-2.5 py-1 text-lg font-semibold ${style.score}`}>
-                            {extractionGateCounts[gateId]}
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void copyExtractionPortfolio();
+                      }}
+                      className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                    >
+                      실행 요약 복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void saveExtractionPortfolioReport();
+                      }}
+                      disabled={isSavingExtractionReport || !user}
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isSavingExtractionReport ? <RefreshCw className="animate-spin" size={16} /> : <ClipboardList size={16} />}
+                      리포트 저장
+                    </button>
                   </div>
 
                   <div className="mt-4 grid gap-3">
@@ -3454,11 +3435,11 @@ export function VentureConsoleActions({
                       추천 {bulkSavableExtractionItems.length}개 저장
                     </button>
                   </div>
-                </section>
+                </details>
 
-                <details className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
-                  <summary className="cursor-pointer list-none text-sm font-semibold text-white">후보별 상세 보기</summary>
-                  <p className="mt-3 text-sm leading-6 text-slate-300">
+                <details className="rounded-[24px] border border-slate-200 bg-slate-50 p-5">
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">후보별 상세 보기</summary>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
                     추천 후보만으로 판단이 어렵다면 여기서 각 후보의 가설, 실험안, 원문 근거를 펼쳐서 확인하세요.
                   </p>
                   <div className="mt-4 grid gap-4">

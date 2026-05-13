@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4f6fb;
+  --background: #f6f8fb;
   --foreground: #0f172a;
   --avl-accent: #4f8cff;
   --avl-accent-strong: #2563eb;
@@ -20,8 +20,8 @@
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(79, 140, 255, 0.08), transparent 18%),
-    linear-gradient(180deg, #f8fafc 0%, #f4f6fb 48%, #eef2f8 100%);
+    radial-gradient(circle at top left, rgba(79, 140, 255, 0.05), transparent 16%),
+    linear-gradient(180deg, #f8fafc 0%, #f6f8fb 52%, #f1f5f9 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
@@ -29,38 +29,38 @@ body {
 @layer components {
   .avl-card {
     border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: 20px;
+    border-radius: 16px;
     background: linear-gradient(180deg, var(--avl-surface) 0%, var(--avl-surface-soft) 100%);
     box-shadow:
       0 1px 2px rgba(15, 23, 42, 0.04),
-      0 14px 30px -24px rgba(15, 23, 42, 0.14);
+      0 10px 20px -18px rgba(15, 23, 42, 0.12);
   }
 
   .avl-card-soft {
     border: 1px solid rgba(203, 213, 225, 0.9);
-    border-radius: 18px;
+    border-radius: 16px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
-    box-shadow: 0 10px 24px -22px rgba(15, 23, 42, 0.16);
+    box-shadow: 0 8px 20px -20px rgba(15, 23, 42, 0.14);
   }
 
   .avl-card-dark {
     border: 1px solid rgba(15, 23, 42, 0.08);
-    border-radius: 20px;
+    border-radius: 16px;
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%) padding-box,
       linear-gradient(135deg, rgba(148, 163, 184, 0.25) 0%, rgba(226, 232, 240, 0.9) 100%) border-box;
     box-shadow:
-      0 18px 32px -24px rgba(15, 23, 42, 0.16),
+      0 14px 24px -22px rgba(15, 23, 42, 0.14),
       inset 0 1px 0 rgba(255, 255, 255, 0.8);
   }
 
   .avl-band {
     border: 1px solid rgba(203, 213, 225, 0.9);
-    border-radius: 18px;
+    border-radius: 16px;
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%) padding-box,
       linear-gradient(135deg, rgba(79, 140, 255, 0.14) 0%, rgba(226, 232, 240, 0.95) 100%) border-box;
-    box-shadow: 0 12px 28px -24px rgba(15, 23, 42, 0.14);
+    box-shadow: 0 10px 22px -22px rgba(15, 23, 42, 0.12);
   }
 
   .avl-band-dark {

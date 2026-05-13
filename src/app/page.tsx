@@ -32,32 +32,31 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto grid w-full max-w-[1480px] gap-4 px-4 py-4 sm:px-6">
-        <header className="avl-card-soft overflow-hidden px-5 py-4 sm:px-6">
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-center">
-            <div className="max-w-4xl">
-              <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">
+        <header className="avl-card-soft overflow-hidden px-5 py-3 sm:px-6">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="max-w-3xl">
+              <div className="mb-1.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">
                 <FlaskConical size={16} />
                 AI Venture Lab
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-[20px] font-semibold tracking-tight text-slate-950 sm:text-[24px] sm:leading-[28px]">
+                <h1 className="text-[17px] font-semibold tracking-tight text-slate-950 sm:text-[19px]">
                   아이디어 실행 보드
                 </h1>
-                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500">
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-500">
                   Solo-first workspace
                 </span>
               </div>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 sm:text-[13px]">
-                AI가 초안을 만들고, 사용자는 필요한 판단만 보완하는 실행형 작업공간입니다. 아이디어 발굴부터
-                검증, 제작, 출시 판단까지 한 흐름으로 이어갑니다.
+              <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-600">
+                발굴부터 출시 판단까지 한 흐름으로 이어가는 작업공간입니다.
               </p>
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-4">
               {headerStats.map(([label, value]) => (
-                <div key={label} className="rounded-[14px] border border-slate-200 bg-slate-50/80 px-3 py-2.5">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>
-                  <div className="mt-1 text-lg font-semibold text-slate-950">{value}</div>
+                <div key={label} className="rounded-[14px] border border-slate-200 bg-slate-50/80 px-3 py-1.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>
+                  <div className="mt-1 text-[15px] font-semibold text-slate-950">{value}</div>
                 </div>
               ))}
             </div>
