@@ -64,14 +64,32 @@ async function main() {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
 
     await waitForVisible(page.getByRole("heading", { name: /아이디어 실행 보드/ }), "main heading");
-    await waitForVisible(page.getByText(/후속 신호|Workflow Progress/).first(), "workspace summary card");
-    await waitForVisible(page.getByRole("heading", { name: /^로그인$/ }).first(), "login step heading");
-    await waitForVisible(page.getByText(/뒤 단계는 잠겨 있습니다/), "locked future steps");
-    await waitForVisible(
-      page.getByText(/이 화면 안에서 로그인하면 바로 아이디어 찾기 단계가 열립니다/),
-      "auth blocker guidance",
-    );
-    await waitForVisible(page.getByRole("button", { name: /비밀번호로 로그인/ }), "password sign-in button");
+    await waitForVisible(page.getByText(/AI Operator|이번 단계에서 할 일/).first(), "operator guidance");
+    await waitForVisible(page.getByText(/선택 기능|시작/).first(), "workflow rail");
+
+    const loginHeading = page.getByRole("heading", { name: /^로그인$/ }).first();
+    const extractHeading = page.getByRole("heading", { name: /^아이디어 찾기$/ }).first();
+    const loginButton = page.getByRole("button", { name: /비밀번호로 로그인/ }).first();
+    const extractButton = page.getByRole("button", { name: /AI 후보 발굴/ }).first();
+
+    const stageVisible = await Promise.race([
+      loginHeading
+        .waitFor({ state: "visible", timeout: 8000 })
+        .then(() => "login")
+        .catch(() => null),
+      extractHeading
+        .waitFor({ state: "visible", timeout: 8000 })
+        .then(() => "extract")
+        .catch(() => null),
+    ]);
+
+    if (stageVisible === "login") {
+      await waitForVisible(loginButton, "password sign-in button");
+    } else if (stageVisible === "extract") {
+      await waitForVisible(extractButton, "ai extraction button");
+    } else {
+      fail("unable to detect either login or extract stage");
+    }
 
     if (resolvedScreenshotPath) {
       await page.screenshot({ path: resolvedScreenshotPath, fullPage: true });
