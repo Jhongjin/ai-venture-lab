@@ -3254,61 +3254,62 @@ export function VentureConsoleActions({
                     </section>
                   )}
 
-                  <details className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
-                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">점검 정보 열기</summary>
-                    <div className="mt-3 grid gap-3 md:grid-cols-2">
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">실행 상태</div>
-                        <div className="mt-2 text-sm font-semibold text-slate-950">
-                          {extractionRunMeta
-                            ? extractionRunMeta.engine === "openai"
-                              ? "OpenAI 추출"
-                              : extractionRunMeta.engine === "fallback"
-                                ? "AI 실패 후 내부 안전장치"
-                                : "내부 안전장치"
-                            : "실행 전"}
-                        </div>
-                        <p className="mt-2 text-xs leading-5 text-slate-600">
-                          {extractionRunMeta?.note ?? "아직 실행하지 않았습니다."}
-                        </p>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">실행 상태</div>
+                      <div className="mt-2 text-sm font-semibold text-slate-950">
+                        {extractionRunMeta
+                          ? extractionRunMeta.engine === "openai"
+                            ? "OpenAI 추출"
+                            : extractionRunMeta.engine === "fallback"
+                              ? "AI 실패 후 내부 안전장치"
+                              : "내부 안전장치"
+                          : "실행 전"}
                       </div>
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">개인정보 보호</div>
-                        <p className="mt-2 text-sm leading-6 text-slate-700">
-                          이메일, 전화번호, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
-                        </p>
-                      </div>
+                      <p className="mt-2 text-xs leading-5 text-slate-600">
+                        {extractionRunMeta?.note ?? "아직 실행하지 않았습니다."}
+                      </p>
                     </div>
-                    <p className="mt-4 text-sm leading-6 text-slate-600">추천이 너무 넓거나 빠졌다고 느껴질 때만 열어 보면 됩니다.</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">개인정보 보호</div>
+                      <p className="mt-2 text-xs leading-5 text-slate-600">
+                        이메일, 전화번호, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
+                      </p>
+                    </div>
+                    <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">결과 점검</div>
                       <button
                         type="button"
                         onClick={() => {
                           void handleReplayExtractionComparison();
                         }}
                         disabled={isAiExtracting || isReplayingExtraction}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {isReplayingExtraction ? <RefreshCw className="animate-spin" size={16} /> : <RefreshCw size={16} />}
                         결과 점검
                       </button>
                     </div>
-                    {extractionReplay ? (
-                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                          <div className="text-xs font-semibold text-slate-500">공통 후보</div>
-                          <div className="mt-1 text-lg font-semibold text-slate-950">{extractionReplay.consensusCount}</div>
+                  </div>
+                  {extractionReplay ? (
+                    <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">비교 결과</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">추천이 너무 넓거나 빠졌다고 느껴질 때만 이 결과를 보면 됩니다.</p>
                         </div>
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                          <div className="text-xs font-semibold text-slate-500">AI만 포착</div>
-                          <div className="mt-1 text-lg font-semibold text-slate-950">{extractionReplay.aiOnlyCount}</div>
-                        </div>
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs leading-6 text-slate-600 sm:col-span-2">
-                          {extractionReplay.note}
+                        <div className="flex flex-wrap gap-2">
+                          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                            공통 {extractionReplay.consensusCount}
+                          </span>
+                          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                            AI만 {extractionReplay.aiOnlyCount}
+                          </span>
                         </div>
                       </div>
-                    ) : null}
-                  </details>
+                      <p className="mt-3 text-xs leading-6 text-slate-600">{extractionReplay.note}</p>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </section>
@@ -3740,7 +3741,6 @@ export function VentureConsoleActions({
                     value={form.name}
                     onChange={(value) => setForm({ ...form, name: value })}
                     required
-                    tone="dark"
                     hint="AI가 추천한 후보명을 그대로 두거나, 네가 이해하기 쉬운 이름으로 다듬어도 됩니다."
                   />
                   <Field
@@ -3748,16 +3748,15 @@ export function VentureConsoleActions({
                     value={form.one_liner}
                     onChange={(value) => setForm({ ...form, one_liner: value })}
                     required
-                    tone="dark"
                     hint="사용자 문제와 해결 방식이 한 문장에 같이 보이도록만 정리하면 충분합니다."
                   />
                 </div>
 
                 <details className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
-                  <summary className="cursor-pointer list-none text-sm font-semibold text-white">
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
                     추가 입력 열기
                   </summary>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
                     아래는 AI가 채운 초안을 사람이 다듬는 공간입니다. 필요가 없으면 그냥 두고 저장해도 됩니다.
                   </p>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -3765,13 +3764,11 @@ export function VentureConsoleActions({
                       label="구매자"
                       value={form.buyer}
                       onChange={(value) => setForm({ ...form, buyer: value })}
-                      tone="dark"
                     />
                     <Field
                       label="대상 사용자"
                       value={form.target_user}
                       onChange={(value) => setForm({ ...form, target_user: value })}
-                      tone="dark"
                     />
                   </div>
 
@@ -3780,45 +3777,42 @@ export function VentureConsoleActions({
                       label="수요 신호"
                       value={form.signal}
                       onChange={(value) => setForm({ ...form, signal: value })}
-                      tone="dark"
                     />
                     <TextArea
                       label="리스크 요약"
                       value={form.risk_summary}
                       onChange={(value) => setForm({ ...form, risk_summary: value })}
-                      tone="dark"
                     />
                     <TextArea
                       label="다음 증거"
                       value={form.next_evidence}
                       onChange={(value) => setForm({ ...form, next_evidence: value })}
-                      tone="dark"
                     />
                   </div>
                 </details>
               </div>
 
               <div className="grid gap-4">
-                <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">AI가 먼저 정리한 것</div>
+                <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI가 먼저 정리한 것</div>
                   <div className="mt-3 grid gap-3">
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">저장 기준</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-200">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">저장 기준</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-700">
                         이름과 한 줄 설명만 비어 있지 않으면 이 단계는 통과입니다.
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">구매자/대상</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-200">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">구매자/대상</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-700">
                         {form.buyer || form.target_user
                           ? `${form.buyer || "구매자 미정"} / ${form.target_user || "대상 사용자 미정"}`
                           : "AI 초안이 아직 비어 있으면, 저장 뒤 다음 단계에서 다시 구체화해도 됩니다."}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">다음 액션</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-200">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 액션</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-700">
                         저장 후에는 워크벤치가 이 초안을 바로 선택하고, 다음으로 사업성 평가와 첫 검증 실험 설계가 열립니다.
                       </p>
                     </div>
@@ -3846,20 +3840,20 @@ export function VentureConsoleActions({
               </p>
             </section>
 
-            <section className="avl-band-dark p-5">
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">operator status</div>
+            <section className="avl-card-soft p-5 text-slate-900">
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">operator status</div>
               <div className="mt-3 grid gap-3">
                 {([
                   ["필수 입력", Boolean(form.name && form.one_liner)],
                   ["구매자/대상 보강", Boolean(form.buyer && form.target_user)],
                   ["검증 메모 보강", Boolean(form.signal || form.risk_summary || form.next_evidence)],
                 ] as Array<[string, boolean]>).map(([label, passed]) => (
-                  <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-3">
+                  <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                     <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-semibold text-white">{label}</span>
+                      <span className="text-sm font-semibold text-slate-900">{label}</span>
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          passed ? "bg-emerald-500/15 text-emerald-200" : "bg-white/10 text-slate-300"
+                          passed ? "bg-emerald-100 text-emerald-800" : "bg-white text-slate-500 border border-slate-200"
                         }`}
                       >
                         {passed ? "준비됨" : "선택"}
@@ -3872,7 +3866,7 @@ export function VentureConsoleActions({
           </div>
         </div>
 
-        {saveMessage ? <p className="text-sm leading-6 text-slate-300">{saveMessage}</p> : null}
+        {saveMessage ? <p className="text-sm leading-6 text-slate-600">{saveMessage}</p> : null}
       </form>
       </div>
     </section>
