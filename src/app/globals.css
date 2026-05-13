@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
+  --background: #f5f6f8;
   --foreground: #0f172a;
-  --avl-accent: #4f8cff;
-  --avl-accent-strong: #2563eb;
+  --avl-accent: #334155;
+  --avl-accent-strong: #111827;
   --avl-surface: rgba(255, 255, 255, 0.98);
-  --avl-surface-soft: rgba(248, 250, 252, 0.96);
+  --avl-surface-soft: rgba(250, 250, 250, 0.98);
   --avl-ink: #0f172a;
   --avl-muted: #64748b;
 }
@@ -19,75 +19,62 @@
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, rgba(79, 140, 255, 0.04), transparent 18%),
-    linear-gradient(180deg, #fbfdff 0%, #f8fafc 48%, #f3f6fb 100%);
+  background: #f5f6f8;
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 @layer components {
   .avl-card {
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 12px;
-    background: linear-gradient(180deg, var(--avl-surface) 0%, var(--avl-surface-soft) 100%);
-    box-shadow:
-      0 1px 2px rgba(15, 23, 42, 0.04),
-      0 8px 16px -18px rgba(15, 23, 42, 0.08);
+    background: var(--avl-surface);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   }
 
   .avl-card-soft {
-    border: 1px solid rgba(203, 213, 225, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 12px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
-    box-shadow: 0 6px 16px -20px rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   }
 
   .avl-card-dark {
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 12px;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%) padding-box,
-      linear-gradient(135deg, rgba(148, 163, 184, 0.25) 0%, rgba(226, 232, 240, 0.9) 100%) border-box;
-    box-shadow:
-      0 10px 18px -20px rgba(15, 23, 42, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   }
 
   .avl-band {
-    border: 1px solid rgba(203, 213, 225, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 12px;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%) padding-box,
-      linear-gradient(135deg, rgba(79, 140, 255, 0.14) 0%, rgba(226, 232, 240, 0.95) 100%) border-box;
-    box-shadow: 0 8px 16px -20px rgba(15, 23, 42, 0.08);
+    background: rgba(250, 250, 250, 0.98);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
   }
 
   .avl-band-dark {
-    border: 1px solid rgba(203, 213, 225, 0.9);
-    border-radius: 18px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    background: rgba(248, 250, 252, 0.98);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
   }
 
   .avl-segmented {
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    border-radius: 16px;
-    background: rgba(248, 250, 252, 0.9);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    background: rgba(250, 250, 250, 0.98);
   }
 
   .avl-kicker {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    border-radius: 999px;
-    background: rgba(79, 140, 255, 0.12);
-    color: #2563eb;
-    padding: 0.35rem 0.7rem;
-    font-size: 0.75rem;
+    color: #475569;
+    padding: 0;
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
   }
 }
