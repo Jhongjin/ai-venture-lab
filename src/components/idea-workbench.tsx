@@ -6637,6 +6637,7 @@ export function IdeaWorkbench({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
   showSidebar = true,
+  embedded = false,
 }: {
   initialIdeas: Idea[];
   initialRisks: Risk[];
@@ -6651,6 +6652,7 @@ export function IdeaWorkbench({
   activeTask?: WorkbenchTask;
   onActiveTaskChange?: (task: WorkbenchTask) => void;
   showSidebar?: boolean;
+  embedded?: boolean;
 }) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
@@ -9865,11 +9867,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
       <div className="grid min-w-0 gap-6">
         {!showSidebar ? (
-          <div className="avl-band-dark p-4 text-white">
+          <div className={`text-white ${embedded ? "rounded-[20px] border border-white/8 bg-white/[0.03] p-4" : "avl-band-dark p-4"}`}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="avl-kicker mb-2 bg-white/10 text-violet-200">AI autopilot</div>
-                <div className="text-sm font-semibold text-white">AI 자동 실행 보기</div>
+                <div className={`mb-2 ${embedded ? "text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200" : "avl-kicker bg-white/10 text-violet-200"}`}>
+                  AI autopilot
+                </div>
+                <div className="text-sm font-semibold text-white">{embedded ? "실행 보기 전환" : "AI 자동 실행 보기"}</div>
                 <p className="mt-1 text-sm leading-6 text-slate-300">
                   기본은 간단 보기입니다. AI가 만든 초안과 다음 액션만 먼저 보고, 필요할 때만 상세 실행 패널을 펼치세요.
                 </p>
@@ -9901,19 +9905,34 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         >
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_320px]">
             <section className="avl-card-dark p-6 text-white">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <div className="avl-kicker bg-white/10 text-violet-200">candidate spotlight</div>
-                  <h2 className="mt-4 text-3xl font-semibold">후보 선택</h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                    여기서는 지금 평가를 시작할 후보 1개만 고르면 됩니다. 많은 정보를 한 번에 보기보다, 선택한 후보의
-                    다음 행동이 바로 보이도록 정리했습니다.
-                  </p>
+              {embedded ? (
+                <div className="mb-5 flex flex-col gap-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200">candidate spotlight</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      여기서는 지금 평가를 시작할 후보 1개만 고르면 됩니다. 추천 흐름과 비교 후보 큐를 나눠서 보여주기 때문에, 세부 비교보다 먼저 하나를 선택하면 충분합니다.
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-2 text-xs font-semibold text-slate-200">
+                    <ClipboardList size={15} />
+                    {visibleIdeas.length}개 후보
+                  </div>
                 </div>
-                <ClipboardList className="text-violet-200" size={24} />
-              </div>
+              ) : (
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <div className="avl-kicker bg-white/10 text-violet-200">candidate spotlight</div>
+                    <h2 className="mt-4 text-3xl font-semibold">후보 선택</h2>
+                    <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                      여기서는 지금 평가를 시작할 후보 1개만 고르면 됩니다. 많은 정보를 한 번에 보기보다, 선택한 후보의
+                      다음 행동이 바로 보이도록 정리했습니다.
+                    </p>
+                  </div>
+                  <ClipboardList className="text-violet-200" size={24} />
+                </div>
+              )}
 
-              <div className="mt-6 avl-segmented grid grid-cols-3 gap-2 p-1">
+              <div className={`${embedded ? "mt-0" : "mt-6"} avl-segmented grid grid-cols-3 gap-2 p-1`}>
                 {[
                   ["all", filterModeLabels.all],
                   ["mine", filterModeLabels.mine],

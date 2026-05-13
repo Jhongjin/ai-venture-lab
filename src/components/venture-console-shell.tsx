@@ -972,6 +972,7 @@ export function VentureConsoleShell({
             onActiveTaskChange={handleConsoleTaskChange}
             onWorkflowStatusChange={setConsoleStatus}
             showSidebar={false}
+            embedded
             existingIdeas={ideas}
           />
         </div>
@@ -990,6 +991,7 @@ export function VentureConsoleShell({
             activeTask={activeWorkbenchTask}
             onActiveTaskChange={handleWorkbenchTaskChange}
             showSidebar={false}
+            embedded
           />
         </div>
       </div>

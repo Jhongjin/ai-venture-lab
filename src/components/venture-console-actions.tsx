@@ -1515,12 +1515,14 @@ export function VentureConsoleActions({
   onActiveTaskChange,
   onWorkflowStatusChange,
   showSidebar = true,
+  embedded = false,
   existingIdeas = [],
 }: {
   activeTask?: ConsoleActionTask;
   onActiveTaskChange?: (task: ConsoleActionTask) => void;
   onWorkflowStatusChange?: (status: ConsoleWorkflowStatus) => void;
   showSidebar?: boolean;
+  embedded?: boolean;
   existingIdeas?: Idea[];
 } = {}) {
   const router = useRouter();
@@ -2772,7 +2774,7 @@ export function VentureConsoleActions({
   }
 
   return (
-    <section className={showSidebar ? "grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]" : "grid gap-6"}>
+    <section className={showSidebar ? "grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]" : embedded ? "grid gap-5" : "grid gap-6"}>
       {showSidebar ? (
       <aside className="avl-card-dark p-5 text-white lg:sticky lg:top-6 lg:self-start">
         <div className="mb-4">
@@ -3126,29 +3128,56 @@ export function VentureConsoleActions({
         </div>
 
         <div className={`avl-card-dark p-6 ${activeTask === "extract" ? "" : "hidden"}`}>
-          <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <div className="avl-kicker">AI source ingest</div>
-              <h2 className="mt-3 text-2xl font-semibold text-white">아이디어 찾기</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
-                회의록, 대화, 메모를 가져오면 AI가 후보를 구조화하고, 바로 저장할 추천 1개와 비교 후보 큐를
-                나눠서 보여줍니다.
-              </p>
+          {embedded ? (
+            <div className="mb-5 flex flex-col gap-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200">AI source ingest</div>
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  원문을 붙여넣으면 AI가 후보를 구조화하고, 추천 1개와 비교 후보 큐로 나눠 바로 다음 단계로 넘길 수 있게 정리합니다.
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300">
+                  {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length.toLocaleString()}자 입력됨` : "원문 대기"}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void handleAiExtractIdeas();
+                  }}
+                  disabled={isAiExtracting || isReplayingExtraction}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
+                  AI 후보 발굴
+                </button>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  void handleAiExtractIdeas();
-                }}
-                disabled={isAiExtracting || isReplayingExtraction}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
-                AI 후보 발굴
-              </button>
+          ) : (
+            <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <div className="avl-kicker">AI source ingest</div>
+                <h2 className="mt-3 text-2xl font-semibold text-white">아이디어 찾기</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
+                  회의록, 대화, 메모를 가져오면 AI가 후보를 구조화하고, 바로 저장할 추천 1개와 비교 후보 큐를
+                  나눠서 보여줍니다.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    void handleAiExtractIdeas();
+                  }}
+                  disabled={isAiExtracting || isReplayingExtraction}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
+                  AI 후보 발굴
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,0.96fr)_minmax(360px,1.04fr)]">
             <div className="grid gap-4">
@@ -3838,25 +3867,46 @@ export function VentureConsoleActions({
       >
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_340px]">
           <section className="avl-card-dark p-6 text-white">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <div className="avl-kicker bg-white/10 text-violet-200">intake canvas</div>
-                <h2 className="mt-4 text-3xl font-semibold">아이디어 접수</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                  {activeOrganization
-                    ? `${activeOrganization.name} 안에 저장할 초안을 정리합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 넘길 수 있습니다.`
-                    : "AI가 먼저 만든 초안을 검토하고, 꼭 필요한 의견만 보태서 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 됩니다."}
-                </p>
+            {embedded ? (
+              <div className="mb-5 flex flex-col gap-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200">intake canvas</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                    {activeOrganization
+                      ? `${activeOrganization.name} 안에 저장할 초안을 정리합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 넘길 수 있습니다.`
+                      : "AI가 만든 초안을 검토하고, 꼭 필요한 의견만 보완한 뒤 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 충분합니다."}
+                  </p>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSaving || !user}
+                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
+                  아이디어 저장
+                </button>
               </div>
-              <button
-                type="submit"
-                disabled={isSaving || !user}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
-                아이디어 저장
-              </button>
-            </div>
+            ) : (
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="avl-kicker bg-white/10 text-violet-200">intake canvas</div>
+                  <h2 className="mt-4 text-3xl font-semibold">아이디어 접수</h2>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                    {activeOrganization
+                      ? `${activeOrganization.name} 안에 저장할 초안을 정리합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 넘길 수 있습니다.`
+                      : "AI가 먼저 만든 초안을 검토하고, 꼭 필요한 의견만 보태서 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 됩니다."}
+                  </p>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSaving || !user}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
+                  아이디어 저장
+                </button>
+              </div>
+            )}
 
             <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
               <div className="grid gap-4">
