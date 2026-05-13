@@ -12680,178 +12680,285 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div className={activeTask === "risk" || activeTask === "decision" ? "grid gap-6" : "hidden"}>
-          <form
-            onSubmit={addRisk}
-            className={`avl-card p-6 ${activeTask === "risk" ? "" : "hidden"}`}
-          >
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-950">리스크 추가</h2>
-                <p className="mt-1 text-sm text-slate-500">선택한 아이디어의 출시 차단 요인을 기록합니다.</p>
+          <div className={`grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px] ${activeTask === "risk" ? "" : "hidden"}`}>
+            <form onSubmit={addRisk} className="avl-card p-6">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div>
+                  <div className="avl-kicker">risk register</div>
+                  <h2 className="mt-3 text-2xl font-semibold text-slate-950">위험 확인</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">지금 막을 수 있는 출시 차단 요인만 먼저 기록합니다. 위험을 길게 늘어놓기보다, 오늘 대응할 것부터 적어두면 충분합니다.</p>
+                </div>
+                <ShieldAlert className="text-rose-600" size={22} />
               </div>
-              <ShieldAlert className="text-rose-600" size={22} />
-            </div>
-            <div className="grid gap-3">
-              <InputField
-                label="제목"
-                value={riskDraft.title}
-                onChange={(value) => setRiskDraft({ ...riskDraft, title: value })}
-              />
-              <InputField
-                label="영역"
-                value={riskDraft.area}
-                onChange={(value) => setRiskDraft({ ...riskDraft, area: value })}
-              />
-              <SelectField
-                label="심각도"
-                value={riskDraft.severity}
-                options={riskSeverities}
-                labels={riskSeverityLabels}
-                disabled={!user}
-                onChange={(value) => setRiskDraft({ ...riskDraft, severity: value as RiskSeverity })}
-              />
-              <TextArea
-                label="완화 방안"
-                value={riskDraft.mitigation}
-                disabled={!user}
-                onChange={(value) => setRiskDraft({ ...riskDraft, mitigation: value })}
-              />
-              <button
-                type="submit"
-                disabled={isBusy || !user}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-rose-600 px-4 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Flag size={18} />
-                리스크 추가
-              </button>
-            </div>
-          </form>
+              <div className="grid gap-4 md:grid-cols-2">
+                <InputField
+                  label="제목"
+                  value={riskDraft.title}
+                  onChange={(value) => setRiskDraft({ ...riskDraft, title: value })}
+                />
+                <InputField
+                  label="영역"
+                  value={riskDraft.area}
+                  onChange={(value) => setRiskDraft({ ...riskDraft, area: value })}
+                />
+                <SelectField
+                  label="심각도"
+                  value={riskDraft.severity}
+                  options={riskSeverities}
+                  labels={riskSeverityLabels}
+                  disabled={!user}
+                  onChange={(value) => setRiskDraft({ ...riskDraft, severity: value as RiskSeverity })}
+                />
+                <div className="rounded-[18px] border border-slate-200 bg-slate-50 p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">현재 위험 수</div>
+                  <div className="mt-2 text-3xl font-semibold text-slate-950">{selectedRisks.length}</div>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                    열린 위험 {selectedRisks.filter((risk) => risk.status === "open").length}개, 대응 중 {selectedRisks.filter((risk) => risk.status === "mitigating").length}개입니다.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4">
+                <TextArea
+                  label="완화 방안"
+                  value={riskDraft.mitigation}
+                  disabled={!user}
+                  onChange={(value) => setRiskDraft({ ...riskDraft, mitigation: value })}
+                />
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <button
+                  type="submit"
+                  disabled={isBusy || !user}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Flag size={18} />
+                  리스크 추가
+                </button>
+              </div>
+            </form>
 
-          <div
-            className={`avl-card p-6 ${
-              activeTask === "decision" ? "" : "hidden"
-            }`}
-          >
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-950">판단 기록</h2>
-                <p className="mt-1 text-sm text-slate-500">이 아이디어를 진행하거나 멈추는 이유를 남깁니다.</p>
+            <aside className="grid gap-4">
+              <section className="avl-card-soft p-5">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계에서 할 일</div>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  지금 당장 출시를 막을 수 있는 요인만 적어두고, 심각도와 완화 방안만 맞추면 됩니다.
+                </p>
+              </section>
+              <section className="avl-card-soft p-5">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 흐름</div>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  핵심 위험을 적은 뒤에는 `검증 실험`에서 가장 작은 확인 행동을 붙여보면 판단이 훨씬 빨라집니다.
+                </p>
+              </section>
+            </aside>
+
+            <section className="avl-card p-6 xl:col-span-2">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">risk list</div>
+                  <h3 className="mt-1 text-lg font-semibold text-slate-950">기록된 위험</h3>
+                </div>
               </div>
-              <CheckCircle2 className="text-emerald-600" size={22} />
-            </div>
-            <div className="grid gap-3">
-              <TextArea
-                label="판단 근거"
-                value={decisionReason}
-                disabled={!canEdit}
-                onChange={(value) => setDecisionReason(value)}
-              />
-              <button
-                type="button"
-                onClick={recordDecision}
-                disabled={isBusy || !canEdit}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <CheckCircle2 size={18} />
-                {decisionLabels[editState.decision]} 기록
-              </button>
-              <div className="mt-2 grid gap-2">
+              <div className="mt-4 grid gap-3">
+                {selectedRisks.length > 0 ? (
+                  selectedRisks.map((risk) => (
+                    <div key={risk.id} className="rounded-[18px] border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-950">{risk.title}</span>
+                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                            {riskSeverityLabels[risk.severity]}
+                          </span>
+                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                            {riskStatusLabels[risk.status] ?? risk.status}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {["open", "mitigating", "closed"].map((status) => (
+                            <button
+                              key={status}
+                              type="button"
+                              onClick={() => updateRiskStatus(risk, status)}
+                              disabled={isBusy || !canManageRecord(risk) || risk.status === status}
+                              className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                            >
+                              {riskStatusLabels[status] ?? status}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">{risk.mitigation}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-[18px] border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                    아직 기록된 위험이 없습니다. 출시를 막을 수 있는 핵심 위험만 먼저 추가해도 충분합니다.
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          <div className={`grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px] ${activeTask === "decision" ? "" : "hidden"}`}>
+            <section className="avl-card p-6">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div>
+                  <div className="avl-kicker">decision log</div>
+                  <h2 className="mt-3 text-2xl font-semibold text-slate-950">판단 기록</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">이 아이디어를 진행, 보류, 중단 중 어디에 둘지 근거를 한 줄로 남깁니다.</p>
+                </div>
+                <CheckCircle2 className="text-emerald-600" size={22} />
+              </div>
+              <div className="grid gap-4">
+                <TextArea
+                  label="판단 근거"
+                  value={decisionReason}
+                  disabled={!canEdit}
+                  onChange={(value) => setDecisionReason(value)}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={recordDecision}
+                    disabled={isBusy || !canEdit}
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <CheckCircle2 size={18} />
+                    {decisionLabels[editState.decision]} 기록
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <aside className="grid gap-4">
+              <section className="avl-card-soft p-5">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">현재 판단</div>
+                <div className="mt-3 text-2xl font-semibold text-slate-950">{decisionLabels[editState.decision]}</div>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  지금까지 입력한 점수와 위험을 바탕으로 남길 판단입니다. 문장 하나면 충분합니다.
+                </p>
+              </section>
+            </aside>
+
+            <section className="avl-card p-6 xl:col-span-2">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">history</div>
+              <h3 className="mt-1 text-lg font-semibold text-slate-950">기록된 판단</h3>
+              <div className="mt-4 grid gap-2">
                 {selectedDecisions.length > 0 ? (
                   selectedDecisions.map((entry) => (
-                    <div key={entry.id} className="rounded-md bg-slate-50 p-3 text-sm text-slate-600">
+                    <div key={entry.id} className="rounded-[18px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
                       <span className="font-semibold text-slate-950">{decisionLabels[entry.decision]}</span>
                       {entry.reason ? ` - ${entry.reason}` : ""}
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-500">아직 기록된 판단이 없습니다.</div>
+                  <div className="rounded-[18px] border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">아직 기록된 판단이 없습니다.</div>
                 )}
               </div>
-            </div>
+            </section>
           </div>
         </div>
 
-        <div
-          className={`avl-card p-6 ${
-            activeTask === "experiment" ? "" : "hidden"
-          }`}
-        >
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">실험 계획</h2>
-              <p className="mt-1 text-sm text-slate-500">선택한 아이디어에서 다음에 수행할 가장 작은 검증 실험을 정의합니다.</p>
-            </div>
-            <Beaker className="text-violet-600" size={22} />
-          </div>
-          <form onSubmit={addExperiment} className="grid gap-3 md:grid-cols-[1fr_1fr_auto] md:items-end">
-            <InputField
-              label="실험"
-              value={experimentDraft.name}
-              onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
-            />
-            <InputField
-              label="성공 지표"
-              value={experimentDraft.success_metric}
-              onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
-            />
-            <button
-              type="submit"
-              disabled={isBusy || !user}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-violet-600 px-4 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Beaker size={18} />
-              실험 추가
-            </button>
-          </form>
-          <div className="mt-4 grid gap-3">
-            {selectedExperiments.length > 0 ? (
-              selectedExperiments.map((experiment) => (
-                <div key={experiment.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-950">{experiment.name}</span>
-                    <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
-                      {experimentStatusLabels[experiment.status] ?? experiment.status}
-                    </span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {["planned", "running", "done"].map((status) => (
-                        <button
-                          key={status}
-                          type="button"
-                          onClick={() => updateExperimentStatus(experiment, status)}
-                          disabled={isBusy || !canManageRecord(experiment) || experiment.status === status}
-                          className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
-                        >
-                          {experimentStatusLabels[status] ?? status}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {experiment.success_metric || "성공 지표 미정"}
-                  </p>
+        <div className={`grid gap-5 ${activeTask === "experiment" ? "" : "hidden"}`}>
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <section className="avl-card p-6">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div>
+                  <div className="avl-kicker">experiment plan</div>
+                  <h2 className="mt-3 text-2xl font-semibold text-slate-950">검증 실험</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">다음에 수행할 가장 작은 실험 하나와 성공 기준 하나만 정합니다.</p>
                 </div>
-              ))
-            ) : (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                아직 연결된 실험이 없습니다.
+                <Beaker className="text-sky-600" size={22} />
               </div>
-            )}
+              <form onSubmit={addExperiment} className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                <InputField
+                  label="실험"
+                  value={experimentDraft.name}
+                  onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
+                />
+                <InputField
+                  label="성공 지표"
+                  value={experimentDraft.success_metric}
+                  onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
+                />
+                <button
+                  type="submit"
+                  disabled={isBusy || !user}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Beaker size={18} />
+                  실험 추가
+                </button>
+              </form>
+
+              <div className="mt-5 grid gap-3">
+                {selectedExperiments.length > 0 ? (
+                  selectedExperiments.map((experiment) => (
+                    <div key={experiment.id} className="rounded-[18px] border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-950">{experiment.name}</span>
+                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                            {experimentStatusLabels[experiment.status] ?? experiment.status}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {["planned", "running", "done"].map((status) => (
+                            <button
+                              key={status}
+                              type="button"
+                              onClick={() => updateExperimentStatus(experiment, status)}
+                              disabled={isBusy || !canManageRecord(experiment) || experiment.status === status}
+                              className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                            >
+                              {experimentStatusLabels[status] ?? status}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {experiment.success_metric || "성공 지표 미정"}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-[18px] border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
+                    아직 연결된 실험이 없습니다.
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <aside className="grid gap-4">
+              <section className="avl-card-soft p-5">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계에서 할 일</div>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  실험 이름 하나, 성공 지표 하나면 충분합니다. 완벽한 계획보다 당장 실행 가능한 첫 행동이 중요합니다.
+                </p>
+              </section>
+              <section className="avl-card-soft p-5">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 흐름</div>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  실험을 추가한 뒤 결과를 남기면, 다음 판단과 출시 준비도가 더 자연스럽게 연결됩니다.
+                </p>
+              </section>
+            </aside>
           </div>
-          <form onSubmit={saveExperimentResultNote} className="mt-6 rounded-lg border border-violet-100 bg-violet-50 p-4">
+
+          <form onSubmit={saveExperimentResultNote} className="avl-card p-6">
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h3 className="text-base font-semibold text-slate-950">실험 결과 기록</h3>
-                <p className="mt-1 text-sm text-slate-600">
-                  완료한 실험의 결과와 배운 점을 리서치 노트로 남겨 다음 판단에 연결합니다.
+                <div className="avl-kicker">result note</div>
+                <h3 className="mt-3 text-xl font-semibold text-slate-950">실험 결과 기록</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  완료한 실험의 결과와 배운 점을 남겨 다음 판단으로 이어갑니다.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => copyDraft(experimentResultNoteDraft, "실험 결과")}
                 disabled={!experimentResultNoteDraft}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white px-3 text-sm font-semibold text-violet-800 transition hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Clipboard size={16} />
                 결과 복사
@@ -12915,7 +13022,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <button
                   type="submit"
                   disabled={isBusy || !user || selectedExperiments.length === 0}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-violet-700 px-4 text-sm font-semibold text-white transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save size={18} />
                   결과 저장
@@ -12923,43 +13030,6 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
           </form>
-        </div>
-
-        <div
-          className={`avl-card p-6 ${activeTask === "risk" ? "" : "hidden"}`}
-        >
-          <h2 className="text-lg font-semibold text-slate-950">위험 목록</h2>
-          <div className="mt-4 grid gap-3">
-            {selectedRisks.map((risk) => (
-              <div key={risk.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-slate-950">{risk.title}</span>
-                    <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
-                      {riskSeverityLabels[risk.severity]}
-                    </span>
-                    <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
-                      {riskStatusLabels[risk.status] ?? risk.status}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {["open", "mitigating", "closed"].map((status) => (
-                      <button
-                        key={status}
-                        type="button"
-                        onClick={() => updateRiskStatus(risk, status)}
-                        disabled={isBusy || !canManageRecord(risk) || risk.status === status}
-                        className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
-                      >
-                        {riskStatusLabels[status] ?? status}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{risk.mitigation}</p>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className={activeTask === "artifacts" ? "avl-card p-4" : "hidden"}>
