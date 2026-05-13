@@ -3834,72 +3834,171 @@ export function VentureConsoleActions({
 
       <form
         onSubmit={handleCreateIdea}
-        className={`avl-card p-6 ${activeTask === "idea" ? "" : "hidden"}`}
+        className={`grid gap-5 ${activeTask === "idea" ? "" : "hidden"}`}
       >
-        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-950">아이디어 접수</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              {activeOrganization
-                ? `${activeOrganization.name} 안에 AI가 정리한 초안을 검토하고 저장합니다.`
-                : "AI가 만든 초안을 검토하고, 필요한 경우만 보완한 뒤 저장합니다."}
-            </p>
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_340px]">
+          <section className="avl-card-dark p-6 text-white">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <div className="avl-kicker bg-white/10 text-violet-200">intake canvas</div>
+                <h2 className="mt-4 text-3xl font-semibold">아이디어 접수</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                  {activeOrganization
+                    ? `${activeOrganization.name} 안에 저장할 초안을 정리합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 넘길 수 있습니다.`
+                    : "AI가 먼저 만든 초안을 검토하고, 꼭 필요한 의견만 보태서 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 됩니다."}
+                </p>
+              </div>
+              <button
+                type="submit"
+                disabled={isSaving || !user}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
+                아이디어 저장
+              </button>
+            </div>
+
+            <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
+              <div className="grid gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Field
+                    label="이름"
+                    value={form.name}
+                    onChange={(value) => setForm({ ...form, name: value })}
+                    required
+                    tone="dark"
+                    hint="AI가 추천한 후보명을 그대로 두거나, 네가 이해하기 쉬운 이름으로 다듬어도 됩니다."
+                  />
+                  <Field
+                    label="한 줄 설명"
+                    value={form.one_liner}
+                    onChange={(value) => setForm({ ...form, one_liner: value })}
+                    required
+                    tone="dark"
+                    hint="사용자 문제와 해결 방식이 한 문장에 같이 보이도록만 정리하면 충분합니다."
+                  />
+                </div>
+
+                <details className="rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-white">
+                    추가 입력 열기
+                  </summary>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                    아래는 AI가 채운 초안을 사람이 다듬는 공간입니다. 필요가 없으면 그냥 두고 저장해도 됩니다.
+                  </p>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <Field
+                      label="구매자"
+                      value={form.buyer}
+                      onChange={(value) => setForm({ ...form, buyer: value })}
+                      tone="dark"
+                    />
+                    <Field
+                      label="대상 사용자"
+                      value={form.target_user}
+                      onChange={(value) => setForm({ ...form, target_user: value })}
+                      tone="dark"
+                    />
+                  </div>
+
+                  <div className="mt-4 grid gap-4 md:grid-cols-3">
+                    <TextArea
+                      label="수요 신호"
+                      value={form.signal}
+                      onChange={(value) => setForm({ ...form, signal: value })}
+                      tone="dark"
+                    />
+                    <TextArea
+                      label="리스크 요약"
+                      value={form.risk_summary}
+                      onChange={(value) => setForm({ ...form, risk_summary: value })}
+                      tone="dark"
+                    />
+                    <TextArea
+                      label="다음 증거"
+                      value={form.next_evidence}
+                      onChange={(value) => setForm({ ...form, next_evidence: value })}
+                      tone="dark"
+                    />
+                  </div>
+                </details>
+              </div>
+
+              <div className="grid gap-4">
+                <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">AI가 먼저 정리한 것</div>
+                  <div className="mt-3 grid gap-3">
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">저장 기준</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-200">
+                        이름과 한 줄 설명만 비어 있지 않으면 이 단계는 통과입니다.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">구매자/대상</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-200">
+                        {form.buyer || form.target_user
+                          ? `${form.buyer || "구매자 미정"} / ${form.target_user || "대상 사용자 미정"}`
+                          : "AI 초안이 아직 비어 있으면, 저장 뒤 다음 단계에서 다시 구체화해도 됩니다."}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/8 bg-white/[0.04] p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">다음 액션</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-200">
+                        저장 후에는 워크벤치가 이 초안을 바로 선택하고, 다음으로 사업성 평가와 첫 검증 실험 설계가 열립니다.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="avl-band p-4 text-slate-900">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">사람이 확인할 포인트</div>
+                  <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
+                    <li>- 이름이 회의 메모 제목처럼 길지 않은지</li>
+                    <li>- 한 줄 설명에 문제와 해결이 같이 들어있는지</li>
+                    <li>- 추가 입력은 정말 의견을 보태고 싶을 때만 수정할 것</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div className="grid gap-4">
+            <section className="avl-band p-5 text-slate-900">
+              <div className="avl-kicker bg-violet-100 text-violet-700">next step</div>
+              <h3 className="mt-4 text-lg font-semibold text-slate-950">저장하면 바로 워크벤치로 이동합니다</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                새 아이디어는 저장되는 순간 워크벤치에 추가되고, 바로 선택된 상태로 `사업성 평가` 단계에서 이어서 검토할 수 있습니다.
+              </p>
+            </section>
+
+            <section className="avl-band-dark p-5">
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">operator status</div>
+              <div className="mt-3 grid gap-3">
+                {([
+                  ["필수 입력", Boolean(form.name && form.one_liner)],
+                  ["구매자/대상 보강", Boolean(form.buyer && form.target_user)],
+                  ["검증 메모 보강", Boolean(form.signal || form.risk_summary || form.next_evidence)],
+                ] as Array<[string, boolean]>).map(([label, passed]) => (
+                  <div key={label} className="rounded-2xl border border-white/8 bg-black/20 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-semibold text-white">{label}</span>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          passed ? "bg-emerald-500/15 text-emerald-200" : "bg-white/10 text-slate-300"
+                        }`}
+                      >
+                        {passed ? "준비됨" : "선택"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
-          <button
-            type="submit"
-            disabled={isSaving || !user}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
-            아이디어 저장
-          </button>
         </div>
 
-        <div className="avl-band mb-4 p-4 text-sm leading-6 text-blue-900">
-          이름과 한 줄 설명만 먼저 확인하면 저장할 수 있습니다. 구매자, 대상 사용자, 수요 신호, 리스크, 다음 증거는
-          AI 초안을 그대로 쓰거나 필요할 때만 직접 보완하세요.
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field label="이름" value={form.name} onChange={(value) => setForm({ ...form, name: value })} required />
-          <Field
-            label="한 줄 설명"
-            value={form.one_liner}
-            onChange={(value) => setForm({ ...form, one_liner: value })}
-            required
-          />
-        </div>
-
-        <details className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-          <summary className="cursor-pointer text-sm font-semibold text-slate-800">추가 입력 열기</summary>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            아래 항목은 AI가 채운 초안을 보완하거나, 직접 판단을 더하고 싶을 때만 입력하세요.
-          </p>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <Field label="구매자" value={form.buyer} onChange={(value) => setForm({ ...form, buyer: value })} />
-            <Field
-              label="대상 사용자"
-              value={form.target_user}
-              onChange={(value) => setForm({ ...form, target_user: value })}
-            />
-          </div>
-
-          <div className="mt-4 grid gap-4 md:grid-cols-3">
-            <TextArea label="수요 신호" value={form.signal} onChange={(value) => setForm({ ...form, signal: value })} />
-            <TextArea
-              label="리스크 요약"
-              value={form.risk_summary}
-              onChange={(value) => setForm({ ...form, risk_summary: value })}
-            />
-            <TextArea
-              label="다음 증거"
-              value={form.next_evidence}
-              onChange={(value) => setForm({ ...form, next_evidence: value })}
-            />
-          </div>
-        </details>
-
-        {saveMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{saveMessage}</p> : null}
+        {saveMessage ? <p className="text-sm leading-6 text-slate-300">{saveMessage}</p> : null}
       </form>
       </div>
     </section>
@@ -3957,21 +4056,32 @@ function Field({
   value,
   onChange,
   required = false,
+  tone = "light",
+  hint,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
+  tone?: "light" | "dark";
+  hint?: string;
 }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+    <label className={`grid gap-2 text-sm font-semibold ${tone === "dark" ? "text-slate-200" : "text-slate-700"}`}>
       {label}
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}
-        className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        className={`h-11 rounded-xl px-3 text-sm font-normal outline-none transition ${
+          tone === "dark"
+            ? "border border-white/10 bg-white/[0.06] text-white focus:border-violet-300 focus:ring-2 focus:ring-violet-400/25"
+            : "border border-slate-300 bg-white text-slate-950 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        }`}
       />
+      {hint ? (
+        <span className={`text-xs leading-5 ${tone === "dark" ? "text-slate-400" : "text-slate-500"}`}>{hint}</span>
+      ) : null}
     </label>
   );
 }
@@ -3980,19 +4090,25 @@ function TextArea({
   label,
   value,
   onChange,
+  tone = "light",
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  tone?: "light" | "dark";
 }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-slate-700">
+    <label className={`grid gap-2 text-sm font-semibold ${tone === "dark" ? "text-slate-200" : "text-slate-700"}`}>
       {label}
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={4}
-        className="min-h-28 resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-normal leading-6 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        className={`min-h-28 resize-y rounded-xl px-3 py-2 text-sm font-normal leading-6 outline-none transition ${
+          tone === "dark"
+            ? "border border-white/10 bg-white/[0.06] text-white focus:border-violet-300 focus:ring-2 focus:ring-violet-400/25"
+            : "border border-slate-300 bg-white text-slate-950 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        }`}
       />
     </label>
   );

@@ -9895,295 +9895,461 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         ) : null}
         <div
-          className={`avl-card p-6 ${
+          className={`grid gap-5 ${
             activeTask === "select" ? "" : "hidden"
           }`}
         >
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-950">아이디어 선택</h2>
-              <p className="mt-1 text-sm text-slate-500">평가하거나 실행할 아이디어를 먼저 고릅니다.</p>
-            </div>
-            <ClipboardList className="text-blue-600" size={24} />
-          </div>
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_320px]">
+            <section className="avl-card-dark p-6 text-white">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="avl-kicker bg-white/10 text-violet-200">candidate spotlight</div>
+                  <h2 className="mt-4 text-3xl font-semibold">후보 선택</h2>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                    여기서는 지금 평가를 시작할 후보 1개만 고르면 됩니다. 많은 정보를 한 번에 보기보다, 선택한 후보의
+                    다음 행동이 바로 보이도록 정리했습니다.
+                  </p>
+                </div>
+                <ClipboardList className="text-violet-200" size={24} />
+              </div>
 
-          <div className="avl-segmented mb-4 grid grid-cols-3 gap-2 p-1">
-            {[
-              ["all", filterModeLabels.all],
-              ["mine", filterModeLabels.mine],
-              ["read_only", filterModeLabels.read_only],
-            ].map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
-                className={`h-9 rounded-md text-sm font-semibold transition ${
-                  filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-300 hover:text-white"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            {visibleIdeas.map((idea) => {
-              const isOwned = Boolean(user && idea.created_by === user.id);
-              const isOrgAdmin = Boolean(
-                user &&
-                  idea.organization_id &&
-                  memberships.some(
-                    (membership) =>
-                      membership.user_id === user.id &&
-                      membership.organization_id === idea.organization_id &&
-                      adminRoles.has(membership.role),
-                  ),
-              );
-
-              const isManageable = isOwned || isOrgAdmin;
-
-              return (
-                <div
-                  key={idea.id}
-                  className={`rounded-[18px] border p-4 transition ${
-                    idea.id === selectedIdea.id
-                      ? "border-violet-300 bg-violet-50/75 shadow-[0_18px_36px_-28px_rgba(88,28,135,0.4)]"
-                      : "border-slate-200/80 bg-white/80 hover:border-violet-200 hover:bg-white"
-                  }`}
-                >
+              <div className="mt-6 avl-segmented grid grid-cols-3 gap-2 p-1">
+                {[
+                  ["all", filterModeLabels.all],
+                  ["mine", filterModeLabels.mine],
+                  ["read_only", filterModeLabels.read_only],
+                ].map(([value, label]) => (
                   <button
+                    key={value}
                     type="button"
-                    onClick={() => {
-                      setSelectedIdeaId(idea.id);
-                      setEditState(toEditState(idea));
-                      updateActiveTask("score");
-                    }}
-                    className="w-full text-left"
+                    onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
+                    className={`h-10 rounded-xl text-sm font-semibold transition ${
+                      filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-300 hover:text-white"
+                    }`}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-semibold text-slate-950">{idea.name}</span>
-                      <div className="flex flex-wrap gap-2">
-                        <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
-                          {stageLabels[idea.stage]}
-                        </span>
-                        <span
-                          className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-                            isManageable ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
-                          }`}
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {selectedIdea ? (() => {
+                const isOwned = Boolean(user && selectedIdea.created_by === user.id);
+                const isOrgAdmin = Boolean(
+                  user &&
+                    selectedIdea.organization_id &&
+                    memberships.some(
+                      (membership) =>
+                        membership.user_id === user.id &&
+                        membership.organization_id === selectedIdea.organization_id &&
+                        adminRoles.has(membership.role),
+                    ),
+                );
+                const isManageable = isOwned || isOrgAdmin;
+                const comparisonIdeas = visibleIdeas.filter((idea) => idea.id !== selectedIdea.id).slice(0, 4);
+
+                return (
+                  <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
+                    <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-5">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">지금 선택된 후보</div>
+                          <h3 className="mt-2 text-2xl font-semibold text-white">{selectedIdea.name}</h3>
+                          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                            {selectedIdea.one_liner || selectedIdea.signal}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-slate-200">
+                            {stageLabels[selectedIdea.stage]}
+                          </span>
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                              isManageable ? "bg-emerald-500/15 text-emerald-200" : "bg-white/10 text-slate-300"
+                            }`}
+                          >
+                            {isOwned
+                              ? editabilityLabels.editable
+                              : isOrgAdmin
+                                ? editabilityLabels.orgAdmin
+                                : editabilityLabels.readOnly}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 md:grid-cols-3">
+                        <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">현재 단계</div>
+                          <div className="mt-2 text-lg font-semibold text-white">{stageLabels[selectedIdea.stage]}</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-300">이 후보를 선택한 뒤 다음 단계에서 점수와 판단을 맞춥니다.</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">추천 동작</div>
+                          <div className="mt-2 text-lg font-semibold text-white">사업성 평가 시작</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-300">문제 강도, 지불 의향, MVP 속도만 먼저 확인하면 됩니다.</p>
+                        </div>
+                        <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">후보 수</div>
+                          <div className="mt-2 text-lg font-semibold text-white">{visibleIdeas.length}개</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-300">나머지는 비교 후보 큐에 남겨두고, 오늘 볼 1개만 고릅니다.</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => updateActiveTask("score")}
+                          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
                         >
-                          {isOwned
-                            ? editabilityLabels.editable
-                            : isOrgAdmin
-                              ? editabilityLabels.orgAdmin
-                              : editabilityLabels.readOnly}
-                        </span>
+                          사업성 평가 시작
+                        </button>
+                        {isManageable ? (
+                          <button
+                            type="button"
+                            onClick={() => void deleteIdeaRecord(selectedIdea)}
+                            disabled={isBusy}
+                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Trash2 size={16} />
+                            삭제
+                          </button>
+                        ) : null}
+                      </div>
+
+                      <div className="mt-5">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">비교 후보 큐</div>
+                        <div className="mt-3 grid gap-3 md:grid-cols-2">
+                          {comparisonIdeas.length > 0 ? (
+                            comparisonIdeas.map((idea, index) => {
+                              const isOwnedComparison = Boolean(user && idea.created_by === user.id);
+                              const isOrgAdminComparison = Boolean(
+                                user &&
+                                  idea.organization_id &&
+                                  memberships.some(
+                                    (membership) =>
+                                      membership.user_id === user.id &&
+                                      membership.organization_id === idea.organization_id &&
+                                      adminRoles.has(membership.role),
+                                  ),
+                              );
+
+                              return (
+                                <button
+                                  key={idea.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedIdeaId(idea.id);
+                                    setEditState(toEditState(idea));
+                                  }}
+                                  className="rounded-[20px] border border-white/10 bg-white/[0.05] p-4 text-left transition hover:border-violet-300/50 hover:bg-white/[0.09]"
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm font-semibold text-white">
+                                      {index + 2}
+                                    </span>
+                                    <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-slate-200">
+                                      {isOwnedComparison
+                                        ? editabilityLabels.editable
+                                        : isOrgAdminComparison
+                                          ? editabilityLabels.orgAdmin
+                                          : editabilityLabels.readOnly}
+                                    </span>
+                                  </div>
+                                  <div className="mt-3 text-base font-semibold text-white">{idea.name}</div>
+                                  <p className="mt-2 text-sm leading-6 text-slate-300">{idea.one_liner || idea.signal}</p>
+                                </button>
+                              );
+                            })
+                          ) : (
+                            <div className="rounded-[20px] border border-dashed border-white/10 bg-black/20 p-4 text-sm leading-6 text-slate-300 md:col-span-2">
+                              지금은 이 후보 1개만 보면 충분합니다. 새 아이디어를 더 넣거나, 나중에 다른 후보를 다시 비교해도 됩니다.
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
-                  </button>
 
-                  {isManageable ? (
-                    <div className="mt-3 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => void deleteIdeaRecord(idea)}
-                        disabled={isBusy}
-                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <Trash2 size={14} />
-                        삭제
-                      </button>
+                    <div className="grid gap-4">
+                      <div className="avl-band p-4 text-slate-900">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">운영자 브리프</div>
+                        <p className="mt-3 text-sm leading-6 text-slate-700">
+                          여기서는 가장 가능성 높은 후보를 하나만 고르면 충분합니다. 세부 비교는 사업성 평가와 리스크 확인에서 이어집니다.
+                        </p>
+                      </div>
+                      <div className="avl-band-dark p-4">
+                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">next move</div>
+                        <div className="mt-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                          <div className="text-sm font-semibold text-white">추천 흐름</div>
+                          <p className="mt-2 text-sm leading-6 text-slate-300">
+                            후보를 고른 뒤 바로 `사업성 평가`로 넘어가 점수를 맞추고, 이어서 검증 실험 초안을 AI가 채우게 두는 흐름이 가장 자연스럽습니다.
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  ) : null}
+                  </div>
+                );
+              })() : (
+                <div className="mt-6 rounded-[24px] border border-dashed border-white/10 bg-black/20 p-6 text-sm leading-7 text-slate-300">
+                  아직 선택할 아이디어가 없습니다. 먼저 `아이디어 접수`에서 새 아이디어를 저장하거나, 아이디어 찾기에서 후보를 초안으로 반영하세요.
                 </div>
-              );
-            })}
+              )}
+            </section>
           </div>
         </div>
 
         <form
           onSubmit={saveIdea}
-          className={`avl-card p-6 ${activeTask === "score" ? "" : "hidden"}`}
+          className={`grid gap-5 ${activeTask === "score" ? "" : "hidden"}`}
         >
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-950">{selectedIdea.name}</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                {canEdit
-                  ? "현재 운영자가 편집할 수 있습니다."
-                  : "직접 만든 아이디어가 아니면 읽기 전용입니다. 새 아이디어를 만들면 바로 평가할 수 있습니다."}
-              </p>
-            </div>
-            {canEdit ? (
-              <button
-                type="button"
-                onClick={() => void deleteIdeaRecord(selectedIdea)}
-                disabled={isBusy}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-rose-200 bg-white px-4 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Trash2 size={18} />
-                아이디어 삭제
-              </button>
-            ) : null}
-            <button
-              type="submit"
-              disabled={isBusy || !canEdit}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isBusy ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
-              점수 저장
-            </button>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <SelectField
-              label="단계"
-              value={editState.stage}
-              options={stages}
-              labels={stageLabels}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, stage: value as IdeaStage })}
-            />
-            <SelectField
-              label="판단"
-              value={editState.decision}
-              options={decisions}
-              labels={decisionLabels}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, decision: value as DecisionStatus })}
-            />
-          </div>
-
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            <ScoreInput
-              label="문제 강도"
-              value={editState.problem_intensity}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, problem_intensity: value })}
-            />
-            <ScoreInput
-              label="발생 빈도"
-              value={editState.frequency}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, frequency: value })}
-            />
-            <ScoreInput
-              label="도달 가능성"
-              value={editState.reachability}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, reachability: value })}
-            />
-            <ScoreInput
-              label="지불 의향"
-              value={editState.willingness_to_pay}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, willingness_to_pay: value })}
-            />
-            <ScoreInput
-              label="MVP 속도"
-              value={editState.mvp_speed}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, mvp_speed: value })}
-            />
-            <ScoreInput
-              label="차별성"
-              value={editState.differentiation}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, differentiation: value })}
-            />
-            <ScoreInput
-              label="리스크 감점"
-              value={editState.regulatory_risk}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
-            />
-            <div className="rounded-lg bg-blue-50 p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">점수</div>
-              <div className="mt-2 text-3xl font-semibold text-blue-950">{currentScore}</div>
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 md:grid-cols-[0.65fr_1.35fr]">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                추천 판단
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_340px]">
+            <section className="avl-card-dark p-6 text-white">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="avl-kicker bg-white/10 text-violet-200">score canvas</div>
+                  <h2 className="mt-4 text-3xl font-semibold">{selectedIdea.name}</h2>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                    {selectedIdea.one_liner || selectedIdea.signal}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-slate-400">
+                    {canEdit
+                      ? "AI 초안을 바탕으로 점수와 판단을 맞춘 뒤 저장합니다."
+                      : "이 기록은 보기 전용입니다. 네가 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {canEdit ? (
+                    <button
+                      type="button"
+                      onClick={() => void deleteIdeaRecord(selectedIdea)}
+                      disabled={isBusy}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Trash2 size={18} />
+                      삭제
+                    </button>
+                  ) : null}
+                  <button
+                    type="submit"
+                    disabled={isBusy || !canEdit}
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isBusy ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
+                    점수 저장
+                  </button>
+                </div>
               </div>
-              <div className="mt-2 text-2xl font-semibold text-slate-950">
-                {decisionLabels[scoreRecommendation]}
+
+              <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+                <div className="avl-band p-5 text-slate-900">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">평가 입력</div>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <SelectField
+                      label="단계"
+                      value={editState.stage}
+                      options={stages}
+                      labels={stageLabels}
+                      disabled={!canEdit}
+                      onChange={(value) => setEditState({ ...editState, stage: value as IdeaStage })}
+                    />
+                    <SelectField
+                      label="판단"
+                      value={editState.decision}
+                      options={decisions}
+                      labels={decisionLabels}
+                      disabled={!canEdit}
+                      onChange={(value) => setEditState({ ...editState, decision: value as DecisionStatus })}
+                    />
+                  </div>
+
+                  <div className="mt-5 grid gap-3 md:grid-cols-2">
+                    <ScoreInput
+                      label="문제 강도"
+                      value={editState.problem_intensity}
+                      disabled={!canEdit}
+                      onChange={(value) => setEditState({ ...editState, problem_intensity: value })}
+                    />
+                    <ScoreInput
+                      label="발생 빈도"
+                      value={editState.frequency}
+                      disabled={!canEdit}
+                      onChange={(value) => setEditState({ ...editState, frequency: value })}
+                    />
+                    <ScoreInput
+                      label="도달 가능성"
+                      value={editState.reachability}
+                      disabled={!canEdit}
+                      onChange={(value) => setEditState({ ...editState, reachability: value })}
+                    />
+                    <ScoreInput
+                      label="지불 의향"
+                      value={editState.willingness_to_pay}
+                      disabled={!canEdit}
+                      onChange={(value) => setEditState({ ...editState, willingness_to_pay: value })}
+                    />
+                    <ScoreInput
+                      label="MVP 속도"
+                      value={editState.mvp_speed}
+                      disabled={!canEdit}
+                      onChange={(value) => setEditState({ ...editState, mvp_speed: value })}
+                    />
+                    <ScoreInput
+                      label="차별성"
+                      value={editState.differentiation}
+                      disabled={!canEdit}
+                      onChange={(value) => setEditState({ ...editState, differentiation: value })}
+                    />
+                    <ScoreInput
+                      label="리스크 감점"
+                      value={editState.regulatory_risk}
+                      disabled={!canEdit}
+                      onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
+                    />
+                    <div className="rounded-[18px] border border-violet-100 bg-white p-4">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-700">현재 점수</div>
+                      <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">점수는 참고용이고, 최종 판단은 근거와 리스크를 같이 봐서 정합니다.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-4">
+                  <div className="avl-band p-5 text-slate-900">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">AI 추천 판단</div>
+                    <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreRecommendation]}</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      점수상으로는 현재 이 판단이 가장 자연스럽습니다. 다만 사람 검토에서 반대 근거가 있으면 판단을 바꿔도 됩니다.
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {missing.length > 0 ? (
+                        missing.map((item) => (
+                          <span key={item} className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                            {item}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                          PRD 검토 준비 완료
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="avl-band-dark p-5">
+                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">operator brief</div>
+                    <div className="mt-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                      <div className="text-sm font-semibold text-white">이번 단계에서 할 일</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-300">
+                        점수 7개를 대략 맞추고, `판단`을 한 번 정한 뒤 저장하세요. 세부 실험과 리스크 채우기는 다음 검증 단계에서 계속 이어집니다.
+                      </p>
+                    </div>
+                    {validationPlan ? (
+                      <div className="mt-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+                        <div className="text-sm font-semibold text-white">{validationPlan.status}</div>
+                        <p className="mt-2 text-sm leading-6 text-slate-300">{validationPlan.statusDetail}</p>
+                        <p className="mt-3 text-sm leading-6 text-violet-200">{validationPlan.nextAction}</p>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
               </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                점수 게이트는 참고용입니다. 증거와 리스크를 검토한 뒤 최종 판단을 기록하세요.
-              </p>
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-950">증거 공백</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {missing.length > 0 ? (
-                  missing.map((item) => (
-                    <span key={item} className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-amber-800">
-                      {item}
-                    </span>
-                  ))
-                ) : (
-                  <span className="rounded-md bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
-                    PRD 검토 준비 완료
-                  </span>
-                )}
-              </div>
+
+              <details className="mt-5 rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
+                <summary className="cursor-pointer list-none text-sm font-semibold text-white">추가 메모 열기</summary>
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  AI가 채운 초안을 사람 판단으로 보강하고 싶을 때만 여기를 수정하세요.
+                </p>
+                <div className="mt-4 grid gap-4 md:grid-cols-3">
+                  <TextArea
+                    label="수요 신호"
+                    value={editState.signal}
+                    disabled={!canEdit}
+                    onChange={(value) => setEditState({ ...editState, signal: value })}
+                  />
+                  <TextArea
+                    label="리스크 요약"
+                    value={editState.risk_summary}
+                    disabled={!canEdit}
+                    onChange={(value) => setEditState({ ...editState, risk_summary: value })}
+                  />
+                  <TextArea
+                    label="다음 증거"
+                    value={editState.next_evidence}
+                    disabled={!canEdit}
+                    onChange={(value) => setEditState({ ...editState, next_evidence: value })}
+                  />
+                </div>
+              </details>
+            </section>
+
+            <div className="grid gap-4">
+              <section className="avl-band p-5 text-slate-900">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">결정 가이드</div>
+                <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
+                  <li>- 문제 강도와 빈도가 높으면 검증 우선순위가 올라갑니다.</li>
+                  <li>- MVP 속도와 차별성이 모두 낮으면 범위를 줄이는 쪽이 좋습니다.</li>
+                  <li>- 리스크 감점이 크면 다음 단계에서 실험보다 리스크 확인을 먼저 보세요.</li>
+                </ul>
+              </section>
+
+              <section className="avl-band-dark p-5">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">next move</div>
+                <p className="mt-3 text-sm leading-6 text-slate-300">
+                  점수 저장 후에는 `검증 실험` 단계에서 첫 실험과 성공 지표를 AI가 채워줍니다. 여기서는 완벽하게 쓰기보다 판단 방향만 정하면 충분합니다.
+                </p>
+              </section>
             </div>
           </div>
 
           {validationPlan ? (
-            <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50 p-4">
+            <section className="avl-card p-5">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">검증 설계</div>
-                  <h3 className="mt-1 text-lg font-semibold text-blue-950">{validationPlan.status}</h3>
-                  <p className="mt-1 text-sm leading-6 text-blue-900">{validationPlan.statusDetail}</p>
+                  <div className="avl-kicker bg-violet-100 text-violet-700">validation package</div>
+                  <h3 className="mt-3 text-xl font-semibold text-slate-950">{validationPlan.status}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{validationPlan.statusDetail}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={() => loadExperimentSuggestion(validationPlan.experiments[0])}
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
                     첫 실험 채우기
                   </button>
                   <button
                     type="button"
                     onClick={() => loadRiskSuggestion(validationPlan.risks[0])}
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-white px-4 text-sm font-semibold text-blue-800 shadow-sm transition hover:bg-blue-100"
+                    className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
                   >
                     핵심 리스크 채우기
                   </button>
                   <button
                     type="button"
                     onClick={loadDecisionTemplate}
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-white px-4 text-sm font-semibold text-blue-800 shadow-sm transition hover:bg-blue-100"
+                    className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
                   >
                     판단 근거 채우기
                   </button>
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 xl:grid-cols-3">
-                <div className="rounded-md bg-white p-3">
+              <div className="mt-4 grid gap-4 xl:grid-cols-3">
+                <div className="avl-card-soft p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">핵심 가설</div>
-                  <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
+                  <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                     {validationPlan.hypotheses.map((item) => (
                       <li key={item}>- {item}</li>
                     ))}
                   </ul>
                 </div>
-                <div className="rounded-md bg-white p-3">
+                <div className="avl-card-soft p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">추천 실험</div>
-                  <div className="mt-2 grid gap-2">
+                  <div className="mt-3 grid gap-2">
                     {validationPlan.experiments.map((experiment) => (
                       <button
                         key={experiment.name}
                         type="button"
                         onClick={() => loadExperimentSuggestion(experiment)}
-                        className="rounded-md border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-blue-200 hover:bg-blue-50"
+                        className="rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-violet-200 hover:bg-violet-50/50"
                       >
                         <div className="text-sm font-semibold text-slate-950">{experiment.name}</div>
                         <div className="mt-1 text-xs leading-5 text-slate-600">{experiment.success_metric}</div>
@@ -10191,9 +10357,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     ))}
                   </div>
                 </div>
-                <div className="rounded-md bg-white p-3">
+                <div className="avl-card-soft p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">인터뷰 질문</div>
-                  <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
+                  <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                     {validationPlan.interviewQuestions.map((item) => (
                       <li key={item}>- {item}</li>
                     ))}
@@ -10202,12 +10368,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
 
               {validationEvidenceCoach ? (
-                <div className="mt-4 rounded-md border border-blue-200 bg-white p-3">
+                <div className="mt-4 avl-band p-4 text-slate-900">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
-                        검증 증거 코치
-                      </div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">검증 증거 코치</div>
                       <h4 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h4>
                       <p className="mt-1 text-sm leading-6 text-slate-600">
                         {validationEvidenceCoach.nextFocus
@@ -10215,11 +10379,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           : "핵심 증거가 충분합니다. 실험 결과와 최종 판단을 정리하세요."}
                       </p>
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <div className="rounded-md bg-blue-950 px-3 py-2 text-right text-white">
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-blue-200">증거</div>
-                        <div className="text-2xl font-semibold">{validationEvidenceCoach.score}%</div>
-                      </div>
+                    <div className="rounded-xl bg-slate-950 px-3 py-2 text-right text-white">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">증거</div>
+                      <div className="text-2xl font-semibold">{validationEvidenceCoach.score}%</div>
                     </div>
                   </div>
 
@@ -10227,7 +10389,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     {validationEvidenceCoach.checks.map((check) => (
                       <div
                         key={check.label}
-                        className={`rounded-md border px-3 py-2 ${
+                        className={`rounded-xl border px-3 py-2 ${
                           check.passed ? "border-emerald-100 bg-emerald-50" : "border-amber-100 bg-amber-50"
                         }`}
                       >
@@ -10244,7 +10406,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(validationEvidenceCoach.prompt, "검증 증거 수집 프롬프트")}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 transition hover:bg-blue-50"
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 transition hover:bg-slate-50"
                     >
                       <Clipboard size={15} />
                       프롬프트 복사
@@ -10252,7 +10414,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={loadEvidenceCoachPrompt}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-blue-600 px-3 text-xs font-semibold text-white transition hover:bg-blue-700"
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-slate-950 px-3 text-xs font-semibold text-white transition hover:bg-slate-800"
                     >
                       <Save size={15} />
                       근거 폼 채우기
@@ -10260,31 +10422,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                 </div>
               ) : null}
-
-              <p className="mt-3 text-sm leading-6 text-blue-900">{validationPlan.nextAction}</p>
-            </div>
+            </section>
           ) : null}
-
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            <TextArea
-              label="수요 신호"
-              value={editState.signal}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, signal: value })}
-            />
-            <TextArea
-              label="리스크 요약"
-              value={editState.risk_summary}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, risk_summary: value })}
-            />
-            <TextArea
-              label="다음 증거"
-              value={editState.next_evidence}
-              disabled={!canEdit}
-              onChange={(value) => setEditState({ ...editState, next_evidence: value })}
-            />
-          </div>
         </form>
 
         <div
