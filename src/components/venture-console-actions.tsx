@@ -2760,10 +2760,11 @@ export function VentureConsoleActions({
   return (
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]" : "grid gap-6"}>
       {showSidebar ? (
-      <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 lg:self-start">
+      <aside className="avl-card-dark p-5 text-white lg:sticky lg:top-6 lg:self-start">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-slate-950">시작 준비</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">AI가 초안을 만들고, 필요한 순간에만 사용자가 보완합니다.</p>
+          <div className="avl-kicker mb-3 bg-white/10 text-violet-200">AI setup</div>
+          <h2 className="text-lg font-semibold text-white">시작 준비</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-300">AI가 초안을 만들고, 필요한 순간에만 사용자가 보완합니다.</p>
         </div>
         <div className="grid gap-2">
           {consoleTasks.map((task, index) => (
@@ -2772,29 +2773,31 @@ export function VentureConsoleActions({
               type="button"
               onClick={() => updateActiveTask(task.id)}
               aria-current={activeTask === task.id ? "step" : undefined}
-              className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
-                activeTask === task.id
-                  ? "border-blue-300 bg-blue-50 text-blue-950"
-                  : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white"
-              }`}
-            >
-              <span
-                className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                  activeTask === task.id ? "bg-blue-600 text-white" : "bg-white text-slate-700 shadow-sm"
+                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[18px] border p-3 text-left transition ${
+                  activeTask === task.id
+                    ? "border-violet-300/70 bg-white text-slate-950 shadow-[0_20px_36px_-28px_rgba(187,166,255,0.8)]"
+                    : "border-white/10 bg-white/5 text-white hover:border-violet-300/40 hover:bg-white/10"
                 }`}
               >
-                {index + 1}
-              </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold">{task.label}</span>
-                <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
-              </span>
-              <span
-                className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                  activeTask === task.id ? "bg-white text-blue-700" : "bg-white text-slate-600"
-                }`}
-              >
-                {task.status}
+                <span
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
+                    activeTask === task.id ? "bg-violet-600 text-white" : "bg-white/10 text-slate-100"
+                  }`}
+                >
+                  {index + 1}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">{task.label}</span>
+                  <span className={`mt-0.5 block text-xs leading-5 ${activeTask === task.id ? "text-slate-500" : "text-slate-400"}`}>
+                    {task.description}
+                  </span>
+                </span>
+                <span
+                  className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                    activeTask === task.id ? "bg-violet-50 text-violet-700" : "bg-white/10 text-slate-200"
+                  }`}
+                >
+                  {task.status}
               </span>
             </button>
           ))}
@@ -2804,7 +2807,7 @@ export function VentureConsoleActions({
 
       <div className="grid min-w-0 gap-6">
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "auth" ? "" : "hidden"}`}
+          className={`avl-card p-6 ${activeTask === "auth" ? "" : "hidden"}`}
         >
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
@@ -2836,7 +2839,7 @@ export function VentureConsoleActions({
           </div>
         ) : (
           <form onSubmit={handlePasswordSignIn} className="grid gap-3">
-            <div className="rounded-lg bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+            <div className="avl-band p-4 text-sm leading-6 text-blue-900">
               <div className="font-semibold text-blue-950">비밀번호 로그인으로 진행합니다.</div>
               <ol className="mt-2 grid gap-1">
                 <li>1. 관리자가 Supabase에서 만든 계정을 준비합니다.</li>
@@ -2901,7 +2904,7 @@ export function VentureConsoleActions({
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "workspace" ? "" : "hidden"
           }`}
         >
@@ -3109,7 +3112,7 @@ export function VentureConsoleActions({
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "extract" ? "" : "hidden"
           }`}
         >
@@ -3168,7 +3171,7 @@ export function VentureConsoleActions({
               </div>
               {extractMessage ? <p className="text-sm leading-6 text-slate-600">{extractMessage}</p> : null}
               {extractionRunMeta ? (
-                <div className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm leading-6 text-blue-900">
+                <div className="avl-band p-3 text-sm leading-6 text-blue-900">
                   <div className="font-semibold text-blue-950">최근 추출 실행</div>
                   <div className="mt-1 grid gap-1 sm:grid-cols-2">
                     <span>엔진: {extractionRunMeta.engine}</span>
@@ -3708,7 +3711,7 @@ export function VentureConsoleActions({
 
       <form
         onSubmit={handleCreateIdea}
-        className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "idea" ? "" : "hidden"}`}
+        className={`avl-card p-6 ${activeTask === "idea" ? "" : "hidden"}`}
       >
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -3729,7 +3732,7 @@ export function VentureConsoleActions({
           </button>
         </div>
 
-        <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+        <div className="avl-band mb-4 p-4 text-sm leading-6 text-blue-900">
           이름과 한 줄 설명만 먼저 확인하면 저장할 수 있습니다. 구매자, 대상 사용자, 수요 신호, 리스크, 다음 증거는
           AI 초안을 그대로 쓰거나 필요할 때만 직접 보완하세요.
         </div>

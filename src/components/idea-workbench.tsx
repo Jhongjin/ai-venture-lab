@@ -8403,7 +8403,7 @@ export function IdeaWorkbench({
 
   if (!selectedIdea || !editState) {
     return (
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="avl-card p-6">
         <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           아직 검토할 아이디어가 없습니다. 왼쪽 의사결정 흐름에서 아이디어를 먼저 접수하세요.
@@ -9706,16 +9706,17 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
       {showSidebar ? (
       <aside className="grid gap-4 lg:sticky lg:top-6 lg:self-start">
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="avl-card-dark p-6 text-white">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
-            <p className="mt-1 text-sm text-slate-500">오늘 검토할 아이디어를 고르고 평가, 위험, 실험, 판단 순서로 이동시킵니다.</p>
+            <div className="avl-kicker mb-3 bg-white/10 text-violet-200">Agentic workspace</div>
+            <h2 className="text-xl font-semibold text-white">후보 선택</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-300">오늘 검토할 아이디어를 고르고 평가, 위험, 실험, 판단 순서로 이동시킵니다.</p>
           </div>
-          <ClipboardList className="text-blue-600" size={24} />
+          <ClipboardList className="text-violet-200" size={24} />
         </div>
 
-        <div className="mb-4 grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
+        <div className="avl-segmented mb-4 grid grid-cols-3 gap-2 p-1">
           {[
             ["all", filterModeLabels.all],
             ["mine", filterModeLabels.mine],
@@ -9725,10 +9726,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               key={value}
               type="button"
               onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
-              className={`h-9 rounded-md text-sm font-semibold transition ${
-                filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-600 hover:text-slate-950"
-              }`}
-            >
+                className={`h-9 rounded-md text-sm font-semibold transition ${
+                  filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-300 hover:text-white"
+                }`}
+              >
               {label}
             </button>
           ))}
@@ -9745,10 +9746,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               return (
                 <div
                   key={idea.id}
-                  className={`rounded-lg border p-4 text-left transition ${
+                  className={`rounded-[18px] border p-4 text-left transition ${
                     idea.id === selectedIdea.id
-                      ? "border-blue-300 bg-blue-50"
-                      : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                      ? "border-violet-300/70 bg-white text-slate-950 shadow-[0_20px_36px_-28px_rgba(187,166,255,0.85)]"
+                      : "border-white/10 bg-white/5 text-white hover:border-violet-300/40 hover:bg-white/10"
                   }`}
                 >
                   <button
@@ -9761,14 +9762,26 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     className="w-full text-left"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-semibold text-slate-950">{idea.name}</span>
+                      <span className={`font-semibold ${idea.id === selectedIdea.id ? "text-slate-950" : "text-white"}`}>
+                        {idea.name}
+                      </span>
                       <div className="flex flex-wrap gap-2">
-                        <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                        <span
+                          className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
+                            idea.id === selectedIdea.id ? "bg-violet-50 text-violet-700" : "bg-white/10 text-slate-200"
+                          }`}
+                        >
                           {stageLabels[idea.stage]}
                         </span>
                         <span
                           className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-                            isManageable ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                            idea.id === selectedIdea.id
+                              ? isManageable
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-slate-200 text-slate-600"
+                              : isManageable
+                                ? "bg-emerald-500/15 text-emerald-200"
+                                : "bg-white/10 text-slate-200"
                           }`}
                         >
                           {isOwned
@@ -9779,7 +9792,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </span>
                       </div>
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
+                    <p className={`mt-2 text-sm leading-6 ${idea.id === selectedIdea.id ? "text-slate-600" : "text-slate-300"}`}>
+                      {idea.one_liner || idea.signal}
+                    </p>
                   </button>
                   {isManageable ? (
                     <div className="mt-3 flex justify-end">
@@ -9798,14 +9813,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               );
             })
           ) : (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+            <div className="avl-card-soft p-4 text-sm text-slate-600">
               이 필터에 맞는 아이디어가 아직 없습니다.
             </div>
           )}
         </div>
         </div>
 
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="avl-card p-5">
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-slate-950">작업 순서</h2>
             <p className="mt-1 text-sm leading-6 text-slate-500">단계를 고르면 오른쪽 작업 화면만 바뀝니다.</p>
@@ -9817,15 +9832,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 type="button"
                 onClick={() => updateActiveTask(task.id)}
                 aria-current={activeTask === task.id ? "step" : undefined}
-                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border p-3 text-left transition ${
+                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[18px] border p-3 text-left transition ${
                   activeTask === task.id
-                    ? "border-blue-300 bg-blue-50 text-blue-950"
-                    : "border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 hover:bg-white"
+                    ? "border-violet-300/50 bg-violet-50/90 text-violet-950 shadow-[0_20px_36px_-30px_rgba(88,28,135,0.35)]"
+                    : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-violet-200 hover:bg-white"
                 }`}
               >
                 <span
                   className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                    activeTask === task.id ? "bg-blue-600 text-white" : "bg-white text-slate-700 shadow-sm"
+                    activeTask === task.id ? "bg-violet-600 text-white" : "bg-white text-slate-700 shadow-sm"
                   }`}
                 >
                   {index + 1}
@@ -9836,7 +9851,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </span>
                 <span
                   className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                    activeTask === task.id ? "bg-white text-blue-700" : "bg-white text-slate-600"
+                    activeTask === task.id ? "bg-violet-50 text-violet-700" : "bg-white text-slate-600"
                   }`}
                 >
                   {task.status}
@@ -9850,15 +9865,16 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
       <div className="grid min-w-0 gap-6">
         {!showSidebar ? (
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="avl-band-dark p-4 text-white">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className="text-sm font-semibold text-slate-950">AI 자동 실행 보기</div>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
+                <div className="avl-kicker mb-2 bg-white/10 text-violet-200">AI autopilot</div>
+                <div className="text-sm font-semibold text-white">AI 자동 실행 보기</div>
+                <p className="mt-1 text-sm leading-6 text-slate-300">
                   기본은 간단 보기입니다. AI가 만든 초안과 다음 액션만 먼저 보고, 필요할 때만 상세 실행 패널을 펼치세요.
                 </p>
               </div>
-              <div className="inline-flex rounded-lg bg-slate-100 p-1">
+              <div className="avl-segmented inline-flex p-1">
                 {[
                   ["guided", "간단 보기"],
                   ["full", "전체 보기"],
@@ -9868,7 +9884,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={() => setExperienceMode(value as "guided" | "full")}
                     className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
-                      experienceMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                      experienceMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-300 hover:text-white"
                     }`}
                   >
                     {label}
@@ -9879,7 +9895,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         ) : null}
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "select" ? "" : "hidden"
           }`}
         >
@@ -9891,7 +9907,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <ClipboardList className="text-blue-600" size={24} />
           </div>
 
-          <div className="mb-4 grid grid-cols-3 gap-2 rounded-lg bg-slate-100 p-1">
+          <div className="avl-segmented mb-4 grid grid-cols-3 gap-2 p-1">
             {[
               ["all", filterModeLabels.all],
               ["mine", filterModeLabels.mine],
@@ -9902,7 +9918,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 type="button"
                 onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
                 className={`h-9 rounded-md text-sm font-semibold transition ${
-                  filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-600 hover:text-slate-950"
+                  filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-300 hover:text-white"
                 }`}
               >
                 {label}
@@ -9929,10 +9945,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               return (
                 <div
                   key={idea.id}
-                  className={`rounded-lg border p-4 transition ${
+                  className={`rounded-[18px] border p-4 transition ${
                     idea.id === selectedIdea.id
-                      ? "border-blue-300 bg-blue-50"
-                      : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                      ? "border-violet-300 bg-violet-50/75 shadow-[0_18px_36px_-28px_rgba(88,28,135,0.4)]"
+                      : "border-slate-200/80 bg-white/80 hover:border-violet-200 hover:bg-white"
                   }`}
                 >
                   <button
@@ -9987,7 +10003,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
         <form
           onSubmit={saveIdea}
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "score" ? "" : "hidden"}`}
+          className={`avl-card p-6 ${activeTask === "score" ? "" : "hidden"}`}
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -10272,7 +10288,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </form>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "development" ? "" : "hidden"
           }`}
         >
@@ -11823,7 +11839,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "launch" ? "" : "hidden"}`}>
+        <div className={`avl-card p-6 ${activeTask === "launch" ? "" : "hidden"}`}>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">출시 판단</h2>
@@ -12016,7 +12032,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "learning" ? "" : "hidden"}`}>
+        <div className={`avl-card p-6 ${activeTask === "learning" ? "" : "hidden"}`}>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
@@ -12367,7 +12383,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "orchestration" ? "" : "hidden"
           }`}
         >
@@ -12504,7 +12520,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className={activeTask === "risk" || activeTask === "decision" ? "grid gap-6" : "hidden"}>
           <form
             onSubmit={addRisk}
-            className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "risk" ? "" : "hidden"}`}
+            className={`avl-card p-6 ${activeTask === "risk" ? "" : "hidden"}`}
           >
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
@@ -12550,7 +12566,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </form>
 
           <div
-            className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+            className={`avl-card p-6 ${
               activeTask === "decision" ? "" : "hidden"
             }`}
           >
@@ -12594,7 +12610,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "experiment" ? "" : "hidden"
           }`}
         >
@@ -12748,7 +12764,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${activeTask === "risk" ? "" : "hidden"}`}
+          className={`avl-card p-6 ${activeTask === "risk" ? "" : "hidden"}`}
         >
           <h2 className="text-lg font-semibold text-slate-950">위험 목록</h2>
           <div className="mt-4 grid gap-3">
@@ -12784,7 +12800,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div className={activeTask === "artifacts" ? "rounded-lg border border-slate-200 bg-white p-4 shadow-sm" : "hidden"}>
+        <div className={activeTask === "artifacts" ? "avl-card p-4" : "hidden"}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">기획서 만들기</h2>
@@ -12810,7 +12826,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
@@ -12851,7 +12867,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
@@ -12893,7 +12909,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
@@ -12940,7 +12956,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
@@ -13009,7 +13025,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
@@ -13167,7 +13183,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"
           }`}
         >
@@ -13251,7 +13267,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             />
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="avl-card p-6">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-slate-950">MVP 명세 초안</h2>
@@ -13287,7 +13303,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             />
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="avl-card p-6">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-slate-950">출시 체크리스트 초안</h2>
@@ -13330,7 +13346,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`rounded-lg border border-slate-200 bg-white p-6 shadow-sm ${
+          className={`avl-card p-6 ${
             activeTask === "artifacts" && artifactPanel === "library" ? "" : "hidden"
           }`}
         >
