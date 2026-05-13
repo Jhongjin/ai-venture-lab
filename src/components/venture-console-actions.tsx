@@ -3089,10 +3089,10 @@ export function VentureConsoleActions({
           {!embedded ? (
             <div className="avl-card-soft flex flex-col gap-3 p-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">idea intake</div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">source ingest</div>
                 <h2 className="mt-2 text-xl font-semibold text-slate-950">아이디어 찾기</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                  원문을 넣으면 AI가 바로 접수할 후보 1개와 비교 후보를 나눠 정리합니다.
+                  원문 하나를 넣고, 지금 바로 검토할 추천 후보 1개를 먼저 받습니다.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -3207,7 +3207,7 @@ export function VentureConsoleActions({
                         </span>
                       </div>
                       <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">추천 이유</div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">왜 이 후보인가</div>
                         <p className="mt-2 text-sm leading-6 text-slate-700">
                           {recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
                         </p>
@@ -3254,62 +3254,65 @@ export function VentureConsoleActions({
                     </section>
                   )}
 
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">실행 상태</div>
-                      <div className="mt-2 text-sm font-semibold text-slate-950">
-                        {extractionRunMeta
-                          ? extractionRunMeta.engine === "openai"
-                            ? "OpenAI 추출"
-                            : extractionRunMeta.engine === "fallback"
-                              ? "AI 실패 후 내부 안전장치"
-                              : "내부 안전장치"
-                          : "실행 전"}
-                      </div>
-                      <p className="mt-2 text-xs leading-5 text-slate-600">
-                        {extractionRunMeta?.note ?? "아직 실행하지 않았습니다."}
-                      </p>
-                    </div>
-                    <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">개인정보 보호</div>
-                      <p className="mt-2 text-xs leading-5 text-slate-600">
-                        이메일, 전화번호, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
-                      </p>
-                    </div>
-                    <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">결과 점검</div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          void handleReplayExtractionComparison();
-                        }}
-                        disabled={isAiExtracting || isReplayingExtraction}
-                        className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {isReplayingExtraction ? <RefreshCw className="animate-spin" size={16} /> : <RefreshCw size={16} />}
-                        결과 점검
-                      </button>
-                    </div>
-                  </div>
-                  {extractionReplay ? (
-                    <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">비교 결과</div>
-                          <p className="mt-1 text-sm leading-6 text-slate-700">추천이 너무 넓거나 빠졌다고 느껴질 때만 이 결과를 보면 됩니다.</p>
+                  <details className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">점검 정보 열기</summary>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-[18px] border border-slate-200 bg-white p-4">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">실행 상태</div>
+                        <div className="mt-2 text-sm font-semibold text-slate-950">
+                          {extractionRunMeta
+                            ? extractionRunMeta.engine === "openai"
+                              ? "OpenAI 추출"
+                              : extractionRunMeta.engine === "fallback"
+                                ? "AI 실패 후 내부 안전장치"
+                                : "내부 안전장치"
+                            : "실행 전"}
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                            공통 {extractionReplay.consensusCount}
-                          </span>
-                          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                            AI만 {extractionReplay.aiOnlyCount}
-                          </span>
-                        </div>
+                        <p className="mt-2 text-xs leading-5 text-slate-600">
+                          {extractionRunMeta?.note ?? "아직 실행하지 않았습니다."}
+                        </p>
                       </div>
-                      <p className="mt-3 text-xs leading-6 text-slate-600">{extractionReplay.note}</p>
+                      <div className="rounded-[18px] border border-slate-200 bg-white p-4">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">개인정보 보호</div>
+                        <p className="mt-2 text-xs leading-5 text-slate-600">
+                          이메일, 전화번호, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
+                        </p>
+                      </div>
+                      <div className="rounded-[18px] border border-slate-200 bg-white p-4">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">결과 점검</div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void handleReplayExtractionComparison();
+                          }}
+                          disabled={isAiExtracting || isReplayingExtraction}
+                          className="mt-2 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {isReplayingExtraction ? <RefreshCw className="animate-spin" size={16} /> : <RefreshCw size={16} />}
+                          결과 점검
+                        </button>
+                      </div>
                     </div>
-                  ) : null}
+                    {extractionReplay ? (
+                      <div className="mt-3 rounded-[18px] border border-slate-200 bg-white p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">비교 결과</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-700">추천이 너무 넓거나 빠졌다고 느껴질 때만 이 결과를 보면 됩니다.</p>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                              공통 {extractionReplay.consensusCount}
+                            </span>
+                            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                              AI만 {extractionReplay.aiOnlyCount}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-xs leading-6 text-slate-600">{extractionReplay.note}</p>
+                      </div>
+                    ) : null}
+                  </details>
                 </div>
               </div>
             </section>

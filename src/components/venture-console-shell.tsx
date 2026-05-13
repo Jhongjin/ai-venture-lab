@@ -676,7 +676,7 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[188px_minmax(0,1fr)]">
+    <section className="grid gap-4 xl:grid-cols-[168px_minmax(0,1fr)]">
       <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto rounded-[12px] border border-slate-200 bg-white p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-start justify-between gap-3">
@@ -702,7 +702,7 @@ export function VentureConsoleShell({
           </div>
         </div>
 
-        <div className="mt-4 space-y-2.5">
+        <div className="mt-4 space-y-2">
           {requiredShellTasks.map((task, index) => {
             const Icon = task.icon;
             const isCurrent = task.id === activeTask;
@@ -721,7 +721,7 @@ export function VentureConsoleShell({
                   type="button"
                   onClick={() => !isLocked && goToTask(task.id)}
                   disabled={isLocked}
-                  className={`grid w-full grid-cols-[1.5rem_minmax(0,1fr)] gap-3 rounded-xl border px-3 py-3 text-left transition ${
+                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2.5 rounded-xl border px-2.5 py-2.5 text-left transition ${
                     isCurrent
                       ? "border-slate-300 bg-slate-50 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
                       : isCompleted
@@ -743,7 +743,7 @@ export function VentureConsoleShell({
                     {isCompleted ? <CheckCircle2 size={13} /> : getTaskOrderLabel(task)}
                   </span>
                   <span className="min-w-0">
-                    <span className="flex items-center gap-2 text-[13px] font-semibold text-slate-950">
+                    <span className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-950">
                       <Icon size={13} />
                       {task.label}
                     </span>
@@ -769,7 +769,7 @@ export function VentureConsoleShell({
                     key={task.id}
                     type="button"
                     onClick={() => goToTask(task.id)}
-                    className="grid w-full grid-cols-[1.5rem_minmax(0,1fr)] gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 text-left transition hover:bg-slate-100"
+                    className="grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2.5 rounded-xl border border-slate-200 bg-white px-2.5 py-2.5 text-left transition hover:bg-slate-100"
                   >
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-50 text-slate-700">
                       <Icon size={13} />
@@ -832,34 +832,44 @@ export function VentureConsoleShell({
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+              <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">지금 할 일</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">지금 답할 것</div>
                   <p className="mt-2 text-sm leading-6 text-slate-700">{activeCanvas.checkpoint}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600">
-                      AI 준비: {activeCanvas.aiLead}
+                      AI가 먼저: {activeCanvas.aiLead}
                     </span>
                     <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600">
-                      산출물: {activeCanvas.deliverable}
+                      결과: {activeCanvas.deliverable}
                     </span>
                   </div>
                 </div>
-                <div className="rounded-[12px] border border-slate-200 bg-white px-4 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">다음 행동</div>
+                <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">바로 할 행동</div>
                   <ol className="mt-3 grid gap-2">
-                    {activeGuidance.checklist.slice(0, 3).map((item, index) => (
+                    {activeGuidance.checklist.slice(0, 2).map((item, index) => (
                       <li
                         key={item}
-                        className="grid grid-cols-[1.35rem_minmax(0,1fr)] gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm leading-6 text-slate-700"
+                        className="grid grid-cols-[1.35rem_minmax(0,1fr)] gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm leading-6 text-slate-700"
                       >
-                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-semibold text-slate-700">
+                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 text-[10px] font-semibold text-white">
                           {index + 1}
                         </span>
                         <span>{item}</span>
                       </li>
                     ))}
                   </ol>
+                  {primaryNextTask ? (
+                    <button
+                      type="button"
+                      onClick={() => goToTask(primaryNextTask.id)}
+                      className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    >
+                      {primaryNextTask.cta}
+                      <ArrowRight size={16} />
+                    </button>
+                  ) : null}
                 </div>
               </div>
 
@@ -918,12 +928,12 @@ export function VentureConsoleShell({
           <details className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
             <summary className="flex cursor-pointer list-none items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               <LockKeyhole size={13} />
-              잠긴 뒤 단계 미리보기
+              뒤 단계 미리보기
             </summary>
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="mt-4 grid gap-2">
               {lockedTasks.slice(0, 3).map((task) => (
-                <div key={task.id} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] border border-slate-200 bg-white p-4">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-sm font-semibold text-slate-600">
+                <div key={task.id} className="flex items-center gap-3 rounded-[14px] border border-slate-200 bg-white px-3 py-3">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-xs font-semibold text-slate-600">
                     {getTaskOrderLabel(task)}
                   </span>
                   <span className="min-w-0">
