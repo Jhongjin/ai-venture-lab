@@ -759,7 +759,7 @@ export function VentureConsoleShell({
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-violet-200">AI Venture Lab</div>
-              <h2 className="mt-3 text-[30px] font-semibold tracking-tight text-white">Workflow Rail</h2>
+              <h2 className="mt-3 text-[30px] font-semibold tracking-tight text-white">Decision Rail</h2>
             </div>
             <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
               {source === "supabase" ? "Live" : "Fallback"}
@@ -894,8 +894,11 @@ export function VentureConsoleShell({
                     <ActiveIcon size={24} />
                   </span>
                   <div className="min-w-0">
-                    <h2 className="text-4xl font-semibold tracking-tight text-white">{activeTaskConfig.label}</h2>
-                    <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{activeTaskConfig.description}</p>
+                    <div className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">{activeTaskConfig.label}</div>
+                    <h2 className="mt-3 max-w-4xl text-[34px] font-semibold tracking-tight text-white sm:text-[48px] sm:leading-[50px]">
+                      {activeCanvas.question}
+                    </h2>
+                    <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">{activeTaskConfig.description}</p>
                   </div>
                 </div>
 
@@ -997,22 +1000,27 @@ export function VentureConsoleShell({
       </div>
 
       <aside className="grid gap-4 lg:sticky lg:top-4 lg:self-start">
-        <div className="grid grid-cols-2 gap-3">
-          {overviewStats.map((item) => (
-            <div
-              key={item.label}
-              className="rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.04))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)]"
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{item.label}</div>
-              <div className={`mt-3 text-3xl font-semibold ${item.tone}`}>{item.value}</div>
+        <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.22)]">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200">Pulse board</div>
+              <div className="mt-2 text-lg font-semibold text-white">운영 현황</div>
             </div>
-          ))}
-        </div>
-
-        <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200">AI Operator</div>
-          <div className="mt-3 text-xl font-semibold text-white">{activeTaskConfig.label}</div>
-          <p className="mt-2 text-sm leading-6 text-slate-300">{activeGuidance.summary}</p>
+            <span className="rounded-full border border-white/10 bg-white/8 px-2.5 py-1 text-[11px] font-semibold text-slate-200">
+              {activeTaskConfig.label}
+            </span>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {overviewStats.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-[18px] border border-white/10 bg-black/20 p-4"
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{item.label}</div>
+                <div className={`mt-3 text-3xl font-semibold ${item.tone}`}>{item.value}</div>
+              </div>
+            ))}
+          </div>
           <div className="mt-4 rounded-[18px] border border-white/10 bg-white/5 p-4 text-sm leading-6 text-slate-200">
             {currentStepBlocker ? currentStepBlocker : "현재 단계가 정리되면 다음 행동과 산출물을 AI가 자동으로 이어서 제안합니다."}
           </div>
