@@ -10467,11 +10467,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
           ) : (
-            <div className="mb-5 avl-card p-4 text-slate-900">
+            <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="avl-kicker">ai execution autopilot</div>
-                  <h3 className="mt-3 text-base font-semibold text-slate-950">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 실행 단계</div>
+                  <h3 className="mt-2 text-base font-semibold text-slate-950">
                     {guidedExecutionStepLabels[guidedExecutionStep]}
                   </h3>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
@@ -12011,8 +12011,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="mb-5 avl-card p-4 text-slate-900">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="avl-kicker">go / no-go packet</div>
-                  <h3 className="mt-3 text-base font-semibold text-slate-950">출시 판단 패킷</h3>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">go / no-go</div>
+                  <h3 className="mt-2 text-base font-semibold text-slate-950">출시 판단 패킷</h3>
                   <p className="mt-1 text-sm leading-6 text-slate-600">{releaseDecisionPacket.headline}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -12052,53 +12052,59 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
-                <div className="rounded-lg bg-white p-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">추천 판단</div>
-                  <span
-                    className={`mt-2 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${
-                      releaseDecisionTone[releaseDecisionPacket.recommendation]
-                    }`}
-                  >
-                    {decisionLabels[releaseDecisionPacket.recommendation]}
-                  </span>
-                </div>
-                <div className="rounded-lg bg-white p-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">판단 신뢰도</div>
-                  <span
-                    className={`mt-2 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${
-                      releaseDecisionConfidenceTone[releaseDecisionPacket.confidence]
-                    }`}
-                  >
-                    {releaseDecisionPacket.confidenceLabel}
-                  </span>
-                </div>
-                <div className="rounded-lg bg-white p-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">차단 항목</div>
-                  <div className="mt-2 text-2xl font-semibold text-slate-950">{releaseDecisionPacket.blockers.length}</div>
-                </div>
-              </div>
+              <details className="mt-4 rounded-xl border border-slate-200 bg-white/80 p-3">
+                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
+                  추천 판단과 차단 항목 펼쳐 보기
+                </summary>
 
-              <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                <div className="rounded-lg bg-white/80 p-3">
-                  <div className="text-sm font-semibold text-slate-950">다음 액션</div>
-                  <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
-                    {releaseDecisionPacket.requiredActions.slice(0, 4).map((action) => (
-                      <li key={action}>- {action}</li>
-                    ))}
-                  </ul>
+                <div className="mt-3 grid gap-3 md:grid-cols-3">
+                  <div className="rounded-lg bg-slate-50 p-3">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">추천 판단</div>
+                    <span
+                      className={`mt-2 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${
+                        releaseDecisionTone[releaseDecisionPacket.recommendation]
+                      }`}
+                    >
+                      {decisionLabels[releaseDecisionPacket.recommendation]}
+                    </span>
+                  </div>
+                  <div className="rounded-lg bg-slate-50 p-3">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">판단 신뢰도</div>
+                    <span
+                      className={`mt-2 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${
+                        releaseDecisionConfidenceTone[releaseDecisionPacket.confidence]
+                      }`}
+                    >
+                      {releaseDecisionPacket.confidenceLabel}
+                    </span>
+                  </div>
+                  <div className="rounded-lg bg-slate-50 p-3">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">차단 항목</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-950">{releaseDecisionPacket.blockers.length}</div>
+                  </div>
                 </div>
-                <div className="rounded-lg bg-white/80 p-3">
-                  <div className="text-sm font-semibold text-slate-950">핵심 차단</div>
-                  <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
-                    {releaseDecisionPacket.blockers.length > 0 ? (
-                      releaseDecisionPacket.blockers.slice(0, 4).map((blocker) => <li key={blocker}>- {blocker}</li>)
-                    ) : (
-                      <li>- 차단 항목이 없습니다. 최종 판단과 배포 증거만 남기세요.</li>
-                    )}
-                  </ul>
+
+                <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                  <div className="rounded-lg bg-slate-50 p-3">
+                    <div className="text-sm font-semibold text-slate-950">다음 액션</div>
+                    <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
+                      {releaseDecisionPacket.requiredActions.slice(0, 4).map((action) => (
+                        <li key={action}>- {action}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="rounded-lg bg-slate-50 p-3">
+                    <div className="text-sm font-semibold text-slate-950">핵심 차단</div>
+                    <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
+                      {releaseDecisionPacket.blockers.length > 0 ? (
+                        releaseDecisionPacket.blockers.slice(0, 4).map((blocker) => <li key={blocker}>- {blocker}</li>)
+                      ) : (
+                        <li>- 차단 항목이 없습니다. 최종 판단과 배포 증거만 남기세요.</li>
+                      )}
+                    </ul>
+                  </div>
                 </div>
-              </div>
+              </details>
             </div>
           ) : null}
           <div className="mb-5 avl-card-soft p-4">
@@ -12233,8 +12239,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="mt-4 avl-card p-4 text-slate-900">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="avl-kicker">developer handoff</div>
-                <h3 className="mt-3 text-base font-semibold text-slate-950">MVP 사용 신호 연결</h3>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">developer handoff</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">MVP 사용 신호 연결</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
                   출시된 앱의 사용자 행동을 받아오는 개발팀 전달용 정보입니다. 경영진은 아래 퍼널과 최근 이벤트 숫자만 확인하면 됩니다.
                 </p>
@@ -12268,13 +12274,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
             <details className="mt-4 rounded-xl border border-slate-200 bg-white/80 p-3">
-              <summary className="cursor-pointer text-sm font-semibold text-slate-950">
+              <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
                 개발팀 전달 정보 열기
               </summary>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                아래 값은 개발자나 Codex 작업 세션에 전달할 때만 열어 확인합니다. 비밀값은 브라우저나 문서에 저장하지 않습니다.
-              </p>
-              <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,0.7fr)]">
+              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-sm leading-6 text-slate-600">
+                  아래 값은 개발자나 Codex 작업 세션에 전달할 때만 확인합니다. 비밀값은 브라우저나 문서에 저장하지 않습니다.
+                </p>
+                <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,0.7fr)]">
                 <div className="rounded-lg bg-white p-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Endpoint</div>
                   <code className="mt-2 block break-all rounded-md bg-slate-950 px-3 py-2 text-xs leading-5 text-white">
@@ -12294,7 +12301,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </p>
                 </div>
               </div>
-              <div className="mt-3 grid gap-3 xl:grid-cols-2">
+                <div className="mt-3 grid gap-3 xl:grid-cols-2">
                 {[
                   {
                     label: "1. 서버 환경변수",
@@ -12344,6 +12351,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </pre>
                   </div>
                 ))}
+                </div>
               </div>
             </details>
           </div>
@@ -12655,7 +12663,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div className={activeTask === "risk" || activeTask === "decision" ? "grid gap-6" : "hidden"}>
-          <div className={`grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px] ${activeTask === "risk" ? "" : "hidden"}`}>
+          <div className={`grid gap-5 ${activeTask === "risk" ? "" : "hidden"}`}>
             <form onSubmit={addRisk} className="avl-card p-6">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
@@ -12665,7 +12673,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
                 <ShieldAlert className="text-rose-600" size={22} />
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_220px]">
                 <InputField
                   label="제목"
                   value={riskDraft.title}
@@ -12710,24 +12718,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   리스크 추가
                 </button>
               </div>
+              <div className="mt-4 rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-600">
+                지금은 길게 적지 않아도 됩니다. 제목, 심각도, 완화 방향만 있으면 다음 실험과 판단 단계로 충분히 이어집니다.
+              </div>
             </form>
 
-            <aside className="grid gap-4">
-              <section className="avl-card-soft p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계에서 할 일</div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  지금 당장 출시를 막을 수 있는 요인만 적어두고, 심각도와 완화 방안만 맞추면 됩니다.
-                </p>
-              </section>
-              <section className="avl-card-soft p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 흐름</div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  핵심 위험을 적은 뒤에는 `검증 실험`에서 가장 작은 확인 행동을 붙여보면 판단이 훨씬 빨라집니다.
-                </p>
-              </section>
-            </aside>
-
-            <section className="avl-card p-6 xl:col-span-2">
+            <section className="avl-card p-6">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">risk list</div>
@@ -12774,7 +12770,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </section>
           </div>
 
-          <div className={`grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px] ${activeTask === "decision" ? "" : "hidden"}`}>
+          <div className={`grid gap-5 ${activeTask === "decision" ? "" : "hidden"}`}>
             <section className="avl-card p-6">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
@@ -12802,20 +12798,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     {decisionLabels[editState.decision]} 기록
                   </button>
                 </div>
+                <div className="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-600">
+                  판단은 길게 쓰지 않아도 됩니다. 왜 지금 진행 또는 보류인지 한 문단으로 남기면 이후 문서와 출시 판단이 정리됩니다.
+                </div>
               </div>
             </section>
 
-            <aside className="grid gap-4">
-              <section className="avl-card-soft p-5">
+            <section className="avl-card p-6">
+              <div className="mb-4 rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">현재 판단</div>
-                <div className="mt-3 text-2xl font-semibold text-slate-950">{decisionLabels[editState.decision]}</div>
+                <div className="mt-2 text-xl font-semibold text-slate-950">{decisionLabels[editState.decision]}</div>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
                   지금까지 입력한 점수와 위험을 바탕으로 남길 판단입니다. 문장 하나면 충분합니다.
                 </p>
-              </section>
-            </aside>
-
-            <section className="avl-card p-6 xl:col-span-2">
+              </div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">history</div>
               <h3 className="mt-1 text-lg font-semibold text-slate-950">기록된 판단</h3>
               <div className="mt-4 grid gap-2">
@@ -12835,7 +12831,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div className={`grid gap-5 ${activeTask === "experiment" ? "" : "hidden"}`}>
-          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="grid gap-5">
             <section className="avl-card p-6">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
@@ -12903,21 +12899,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 )}
               </div>
             </section>
+          </div>
 
-            <aside className="grid gap-4">
-              <section className="avl-card-soft p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계에서 할 일</div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  실험 이름 하나, 성공 지표 하나면 충분합니다. 완벽한 계획보다 당장 실행 가능한 첫 행동이 중요합니다.
-                </p>
-              </section>
-              <section className="avl-card-soft p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 흐름</div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  실험을 추가한 뒤 결과를 남기면, 다음 판단과 출시 준비도가 더 자연스럽게 연결됩니다.
-                </p>
-              </section>
-            </aside>
+          <div className="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-600">
+            실험 이름 하나와 성공 지표 하나면 충분합니다. 완벽한 계획보다 당장 실행 가능한 첫 행동을 남기는 데 집중하면 됩니다.
           </div>
 
           <form onSubmit={saveExperimentResultNote} className="avl-card p-6">

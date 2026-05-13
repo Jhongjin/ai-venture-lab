@@ -676,13 +676,13 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[168px_minmax(0,1fr)]">
-      <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto rounded-[12px] border border-slate-200 bg-white p-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+    <section className="grid gap-4 xl:grid-cols-[124px_minmax(0,1fr)]">
+      <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto rounded-[12px] border border-slate-200 bg-white p-2">
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.24em] text-blue-700">AI Venture Lab</div>
-              <h2 className="mt-1.5 text-sm font-semibold tracking-tight text-slate-950">진행 레일</h2>
+              <h2 className="mt-1.5 text-sm font-semibold tracking-tight text-slate-950">진행</h2>
             </div>
             <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
               {source === "supabase" ? "Live" : "Fallback"}
@@ -696,7 +696,7 @@ export function VentureConsoleShell({
               />
             </div>
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>{completedRequiredCount}/{requiredShellTasks.length} 단계</span>
+              <span>{completedRequiredCount}/{requiredShellTasks.length}</span>
               <span>{workflowProgress}%</span>
             </div>
           </div>
@@ -721,7 +721,7 @@ export function VentureConsoleShell({
                   type="button"
                   onClick={() => !isLocked && goToTask(task.id)}
                   disabled={isLocked}
-                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2.5 rounded-xl border px-2.5 py-2.5 text-left transition ${
+                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2 rounded-xl border px-2.5 py-2 text-left transition ${
                     isCurrent
                       ? "border-slate-300 bg-slate-50 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
                       : isCompleted
@@ -742,21 +742,21 @@ export function VentureConsoleShell({
                   >
                     {isCompleted ? <CheckCircle2 size={13} /> : getTaskOrderLabel(task)}
                   </span>
-                  <span className="min-w-0">
-                    <span className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-950">
-                      <Icon size={13} />
-                      {task.label}
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-950">
+                        <Icon size={13} />
+                        {task.label}
+                      </span>
+                      {isCurrent ? <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{task.description}</span> : null}
                     </span>
-                     {isCurrent ? <span className="mt-1 block text-[11px] leading-5 text-slate-500">{task.description}</span> : null}
-                   </span>
-                 </button>
-               </div>
-            );
-          })}
+                  </button>
+                </div>
+              );
+            })}
         </div>
 
         {supportTasks.length > 0 ? (
-          <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <details className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-2.5">
             <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               선택 기능
             </summary>
@@ -775,7 +775,7 @@ export function VentureConsoleShell({
                       <Icon size={13} />
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-slate-950">{task.label}</span>
+                      <span className="block text-[12px] font-semibold text-slate-950">{task.label}</span>
                       <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
                     </span>
                   </button>
@@ -787,7 +787,7 @@ export function VentureConsoleShell({
       </aside>
 
       <div className="min-w-0 space-y-4">
-        <section className="rounded-[12px] border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
+        <section className="rounded-[12px] border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
               <span className="text-blue-700">{activeTaskConfig.group}</span>
@@ -818,42 +818,30 @@ export function VentureConsoleShell({
             </div>
           </div>
 
-            <div className="mt-5 min-w-0">
-              <div className="flex items-start gap-3">
-                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700">
-                  <ActiveIcon size={18} />
-                </span>
+          <div className="mt-4 min-w-0 space-y-3">
+            <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 질문</div>
-                  <h2 className="mt-2 max-w-4xl text-[18px] font-semibold tracking-tight text-slate-950 sm:text-[24px] sm:leading-[32px]">
-                    {activeCanvas.question}
-                  </h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{activeTaskConfig.description}</p>
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">지금 답할 것</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-700">{activeCanvas.checkpoint}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600">
-                      AI가 먼저: {activeCanvas.aiLead}
+                  <div className="flex items-start gap-3">
+                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700">
+                      <ActiveIcon size={18} />
                     </span>
-                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600">
-                      결과: {activeCanvas.deliverable}
-                    </span>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 질문</div>
+                      <h2 className="mt-2 max-w-4xl text-[16px] font-semibold tracking-tight text-slate-950 sm:text-[18px] sm:leading-[27px]">
+                        {activeCanvas.question}
+                      </h2>
+                      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{activeCanvas.checkpoint}</p>
+                    </div>
                   </div>
                 </div>
-                <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">바로 할 행동</div>
-                  <ol className="mt-3 grid gap-2">
+
+                <div className="w-full max-w-[260px] rounded-xl border border-slate-200 bg-white px-3 py-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">지금 할 일</div>
+                  <ol className="mt-2 grid gap-1.5">
                     {activeGuidance.checklist.slice(0, 2).map((item, index) => (
-                      <li
-                        key={item}
-                        className="grid grid-cols-[1.35rem_minmax(0,1fr)] gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm leading-6 text-slate-700"
-                      >
-                        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 text-[10px] font-semibold text-white">
+                      <li key={item} className="grid grid-cols-[1.1rem_minmax(0,1fr)] gap-2 text-sm leading-6 text-slate-700">
+                        <span className="mt-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-slate-950 text-[9px] font-semibold text-white">
                           {index + 1}
                         </span>
                         <span>{item}</span>
@@ -873,24 +861,41 @@ export function VentureConsoleShell({
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                {optionalNextTasks.map((option) => (
-                  <button
-                    key={option.id}
-                  type="button"
-                  onClick={() => goToTask(option.id)}
-                  className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-                >
-                  {option.cta}
-                </button>
-              ))}
-            </div>
-              {currentStepBlocker ? (
-                <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-                  {currentStepBlocker}
+              <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+                <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI 준비</div>
+                  <p className="mt-1 text-sm leading-6 text-slate-700">{activeCanvas.aiLead}</p>
                 </div>
-              ) : null}
+                <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">결과</div>
+                  <p className="mt-1 text-sm leading-6 text-slate-700">{activeCanvas.deliverable}</p>
+                </div>
+                {optionalNextTasks.length > 0 ? (
+                  <div className="rounded-xl border border-slate-200 bg-white px-3 py-3">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이동</div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {optionalNextTasks.map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => goToTask(option.id)}
+                          className="inline-flex h-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                        >
+                          {option.cta}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
             </div>
+
+            {currentStepBlocker ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+                {currentStepBlocker}
+              </div>
+            ) : null}
+          </div>
           </section>
 
         <section className="space-y-6">
