@@ -45,6 +45,7 @@ import type {
 } from "@/lib/supabase/types";
 
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
+type ViewerUser = Pick<User, "id">;
 
 const stages: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const stageRank = new Map(stages.map((stage, index) => [stage, index]));
@@ -104,12 +105,12 @@ const riskStatusLabels: Record<string, string> = {
 const filterModeLabels: Record<"all" | "mine" | "read_only", string> = {
   all: "전체",
   mine: "내 기록",
-  read_only: "읽기 전용",
+  read_only: "팀 기록",
 };
 const editabilityLabels = {
-  editable: "편집 가능",
-  orgAdmin: "조직 관리자",
-  readOnly: "읽기 전용",
+  editable: "내 기록",
+  orgAdmin: "팀 관리자",
+  readOnly: "팀 기록",
 };
 const experimentStatusLabels: Record<string, string> = {
   planned: "계획",
@@ -6631,6 +6632,8 @@ export function IdeaWorkbench({
   initialArtifacts,
   initialImplementationTasks,
   initialTelemetryEvents,
+  initialViewerUserId,
+  initialViewerMemberships,
   activeTask: controlledActiveTask,
   onActiveTaskChange,
   showSidebar = true,
@@ -6643,6 +6646,8 @@ export function IdeaWorkbench({
   initialArtifacts: VentureArtifact[];
   initialImplementationTasks: ImplementationTask[];
   initialTelemetryEvents: TelemetryEvent[];
+  initialViewerUserId: string | null;
+  initialViewerMemberships: OrganizationMember[];
   activeTask?: WorkbenchTask;
   onActiveTaskChange?: (task: WorkbenchTask) => void;
   showSidebar?: boolean;
@@ -6699,8 +6704,10 @@ export function IdeaWorkbench({
     owner_role: "prototype-builder",
     acceptance_criteria: "",
   });
-  const [user, setUser] = useState<User | null>(null);
-  const [memberships, setMemberships] = useState<OrganizationMember[]>([]);
+  const [user, setUser] = useState<User | ViewerUser | null>(() =>
+    initialViewerUserId ? ({ id: initialViewerUserId } satisfies ViewerUser) : null,
+  );
+  const [memberships, setMemberships] = useState<OrganizationMember[]>(initialViewerMemberships);
   const [message, setMessage] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
@@ -6863,7 +6870,9 @@ export function IdeaWorkbench({
 
     async function loadMemberships(nextUser: User | null) {
       if (!supabase || !nextUser) {
-        setMemberships([]);
+        if (!initialViewerUserId) {
+          setMemberships([]);
+        }
         return;
       }
 
@@ -6872,18 +6881,28 @@ export function IdeaWorkbench({
     }
 
     supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      void loadMemberships(data.user);
+      if (data.user) {
+        setUser(data.user);
+        void loadMemberships(data.user);
+      } else if (!initialViewerUserId) {
+        setUser(null);
+        setMemberships([]);
+      }
     });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       const nextUser = session?.user ?? null;
-      setUser(nextUser);
-      void loadMemberships(nextUser);
+      if (nextUser) {
+        setUser(nextUser);
+        void loadMemberships(nextUser);
+      } else if (!initialViewerUserId) {
+        setUser(null);
+        setMemberships([]);
+      }
     });
 
     return () => data.subscription.unsubscribe();
-  }, [supabase]);
+  }, [initialViewerUserId, supabase]);
 
   const selectedRisks = useMemo(
     () => risks.filter((risk) => risk.idea_id === selectedIdea?.id || risk.idea_id === null),
@@ -7225,18 +7244,36 @@ export function IdeaWorkbench({
       ),
   );
   const canEdit = Boolean(user && (selectedIdea?.created_by === user.id || canAdminSelectedOrganization));
+  const getRecordAccessState = useCallback(
+    (record: { created_by: string | null; organization_id: string | null }) => {
+      if (!user) {
+        return "hidden" as const;
+      }
+
+      if (record.created_by === user.id) {
+        return "owned" as const;
+      }
+
+      if (record.organization_id) {
+        const membership = memberships.find(
+          (entry) => entry.user_id === user.id && entry.organization_id === record.organization_id,
+        );
+
+        if (!membership) {
+          return "hidden" as const;
+        }
+
+        return adminRoles.has(membership.role) ? ("workspace_admin" as const) : ("workspace_member" as const);
+      }
+
+      return "hidden" as const;
+    },
+    [memberships, user],
+  );
+
   function canManageRecord(record: { created_by: string | null; organization_id: string | null }) {
-    return Boolean(
-      user &&
-        (record.created_by === user.id ||
-          (record.organization_id &&
-            memberships.some(
-              (membership) =>
-                membership.user_id === user.id &&
-                membership.organization_id === record.organization_id &&
-                adminRoles.has(membership.role),
-            ))),
-    );
+    const accessState = getRecordAccessState(record);
+    return accessState === "owned" || accessState === "workspace_admin";
   }
 
   async function deleteIdeaRecord(idea: Idea) {
@@ -8349,15 +8386,20 @@ export function IdeaWorkbench({
   ];
   const visibleIdeas = useMemo(() => {
     if (filterMode === "mine") {
-      return sortWorkbenchIdeas(ideas.filter((idea) => user && idea.created_by === user.id));
+      return sortWorkbenchIdeas(ideas.filter((idea) => getRecordAccessState(idea) === "owned"));
     }
 
     if (filterMode === "read_only") {
-      return sortWorkbenchIdeas(ideas.filter((idea) => !user || idea.created_by !== user.id));
+      return sortWorkbenchIdeas(
+        ideas.filter((idea) => {
+          const accessState = getRecordAccessState(idea);
+          return accessState === "workspace_admin" || accessState === "workspace_member";
+        }),
+      );
     }
 
-    return sortWorkbenchIdeas(ideas);
-  }, [filterMode, ideas, user]);
+    return sortWorkbenchIdeas(ideas.filter((idea) => getRecordAccessState(idea) !== "hidden"));
+  }, [filterMode, getRecordAccessState, ideas]);
 
   if (!selectedIdea || !editState) {
     return (
@@ -9695,54 +9737,64 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className="grid gap-3">
           {visibleIdeas.length > 0 ? (
             visibleIdeas.map((idea) => {
-              const isOwned = Boolean(user && idea.created_by === user.id);
-              const isOrgAdmin = Boolean(
-                user &&
-                  idea.organization_id &&
-                  memberships.some(
-                    (membership) =>
-                      membership.user_id === user.id &&
-                      membership.organization_id === idea.organization_id &&
-                      adminRoles.has(membership.role),
-                  ),
-              );
+              const accessState = getRecordAccessState(idea);
+              const isOwned = accessState === "owned";
+              const isOrgAdmin = accessState === "workspace_admin";
+              const isManageable = isOwned || isOrgAdmin;
 
               return (
-                <button
+                <div
                   key={idea.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedIdeaId(idea.id);
-                    setEditState(toEditState(idea));
-                    updateActiveTask("score");
-                  }}
                   className={`rounded-lg border p-4 text-left transition ${
                     idea.id === selectedIdea.id
                       ? "border-blue-300 bg-blue-50"
                       : "border-slate-200 bg-slate-50 hover:border-slate-300"
                   }`}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-semibold text-slate-950">{idea.name}</span>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
-                        {stageLabels[idea.stage]}
-                      </span>
-                      <span
-                        className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-                          isOwned || isOrgAdmin ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
-                        }`}
-                      >
-                        {isOwned
-                          ? editabilityLabels.editable
-                          : isOrgAdmin
-                            ? editabilityLabels.orgAdmin
-                            : editabilityLabels.readOnly}
-                      </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedIdeaId(idea.id);
+                      setEditState(toEditState(idea));
+                      updateActiveTask("score");
+                    }}
+                    className="w-full text-left"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-semibold text-slate-950">{idea.name}</span>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                          {stageLabels[idea.stage]}
+                        </span>
+                        <span
+                          className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
+                            isManageable ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {isOwned
+                            ? editabilityLabels.editable
+                            : isOrgAdmin
+                              ? editabilityLabels.orgAdmin
+                              : editabilityLabels.readOnly}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
-                </button>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
+                  </button>
+                  {isManageable ? (
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => void deleteIdeaRecord(idea)}
+                        disabled={isBusy}
+                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Trash2 size={14} />
+                        삭제
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               );
             })
           ) : (

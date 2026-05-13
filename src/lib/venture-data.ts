@@ -20,6 +20,8 @@ type ConsoleData = {
   artifacts: VentureArtifact[];
   implementationTasks: ImplementationTask[];
   telemetryEvents: TelemetryEvent[];
+  viewerUserId: string | null;
+  viewerMemberships: OrganizationMember[];
   source: "supabase" | "seed";
   error: string | null;
 };
@@ -34,6 +36,8 @@ function emptyConsoleData(error: string | null = null): ConsoleData {
     artifacts: [],
     implementationTasks: [],
     telemetryEvents: [],
+    viewerUserId: null,
+    viewerMemberships: [],
     source: "seed",
     error,
   };
@@ -341,6 +345,8 @@ export async function getConsoleData(): Promise<ConsoleData> {
     telemetryEvents: telemetryEventsResult.error
       ? []
       : filterChildRecordsForVisibleIdeas(telemetryEventsResult.data ?? [], visibleIdeaIds, organizationIds),
+    viewerUserId: user.id,
+    viewerMemberships: memberships,
     source: "supabase",
     error:
       membershipError?.message ??

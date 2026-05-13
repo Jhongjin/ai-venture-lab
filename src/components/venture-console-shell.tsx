@@ -22,6 +22,7 @@ import {
   type ConsoleActionTask,
   type ConsoleWorkflowStatus,
 } from "@/components/venture-console-actions";
+import type { Database } from "@/lib/supabase/types";
 import type {
   Decision,
   Experiment,
@@ -388,6 +389,8 @@ export function VentureConsoleShell({
   initialArtifacts,
   initialImplementationTasks,
   initialTelemetryEvents,
+  initialViewerUserId,
+  initialViewerMemberships,
   source,
 }: {
   initialIdeas: Idea[];
@@ -398,6 +401,8 @@ export function VentureConsoleShell({
   initialArtifacts: VentureArtifact[];
   initialImplementationTasks: ImplementationTask[];
   initialTelemetryEvents: TelemetryEvent[];
+  initialViewerUserId: string | null;
+  initialViewerMemberships: Database["public"]["Tables"]["organization_members"]["Row"][];
   source: "supabase" | "seed";
 }) {
   const [activeTask, setActiveTask] = useState<ShellTask>("console:auth");
@@ -942,6 +947,8 @@ export function VentureConsoleShell({
             initialArtifacts={artifacts}
             initialImplementationTasks={implementationTasks}
             initialTelemetryEvents={telemetryEvents}
+            initialViewerUserId={initialViewerUserId}
+            initialViewerMemberships={initialViewerMemberships}
             activeTask={activeWorkbenchTask}
             onActiveTaskChange={handleWorkbenchTaskChange}
             showSidebar={false}
