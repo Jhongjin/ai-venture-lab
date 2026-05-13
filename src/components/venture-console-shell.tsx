@@ -736,13 +736,13 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-8 xl:grid-cols-[220px_minmax(0,1fr)]">
-      <aside className="rounded-[26px] border border-white/8 bg-[linear-gradient(180deg,rgba(9,10,16,0.98),rgba(15,17,26,0.98))] p-4 text-white shadow-[0_30px_100px_rgba(0,0,0,0.36)] lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:self-start">
+    <section className="grid gap-8 xl:grid-cols-[188px_minmax(0,1fr)]">
+      <aside className="rounded-[30px] border border-white/8 bg-[linear-gradient(180deg,rgba(10,11,17,0.98),rgba(13,14,22,0.98))] p-4 text-white shadow-[0_30px_100px_rgba(0,0,0,0.36)] lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:self-start">
         <div className="border-b border-white/10 pb-4">
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-violet-200">AI Venture Lab</div>
-              <h2 className="mt-2 text-lg font-semibold tracking-tight text-white">실행 흐름</h2>
+              <h2 className="mt-2 text-lg font-semibold tracking-tight text-white">진행 레일</h2>
             </div>
             <span className="rounded-full border border-white/10 bg-white/8 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
               {source === "supabase" ? "Live" : "Fallback"}
@@ -770,9 +770,9 @@ export function VentureConsoleShell({
           <button
             type="button"
             onClick={() => goToTask(collaborationTask.id)}
-            className="mt-4 grid w-full grid-cols-[1.8rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[18px] border border-cyan-300/15 bg-white/[0.03] px-3 py-3 text-left transition hover:bg-white/[0.05]"
+            className="mt-4 grid w-full grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-3 rounded-[18px] border border-cyan-300/15 bg-white/[0.03] px-3 py-3 text-left transition hover:bg-white/[0.05]"
           >
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-cyan-300/12 text-[11px] font-semibold text-cyan-100">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-cyan-300/12 text-[10px] font-semibold text-cyan-100">
               팀
             </span>
             <span className="min-w-0">
@@ -782,11 +782,10 @@ export function VentureConsoleShell({
               </span>
               <span className="mt-1 block text-xs leading-5 text-slate-300">{collaborationTask.description}</span>
             </span>
-            <span className="rounded-full bg-cyan-300/12 px-2 py-1 text-[11px] font-semibold text-cyan-100">옵션</span>
           </button>
         ) : null}
 
-        <div className="mt-5 space-y-4">
+        <div className="mt-5 space-y-3">
           {requiredShellTasks.map((task, index) => {
             const Icon = task.icon;
             const isCurrent = task.id === activeTask;
@@ -805,7 +804,7 @@ export function VentureConsoleShell({
                   type="button"
                   onClick={() => !isLocked && goToTask(task.id)}
                   disabled={isLocked}
-                  className={`grid w-full grid-cols-[1.8rem_minmax(0,1fr)] gap-3 rounded-[18px] px-3 py-3 text-left transition ${
+                  className={`grid w-full grid-cols-[1.5rem_minmax(0,1fr)] gap-3 rounded-[18px] px-3 py-3 text-left transition ${
                     isCurrent
                       ? "border border-violet-300/30 bg-violet-300/10"
                       : isCompleted
@@ -815,10 +814,10 @@ export function VentureConsoleShell({
                           : "border border-white/8 bg-white/[0.02] opacity-60"
                   }`}
                 >
-                  <span
-                    className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold ${
-                      isCurrent
-                        ? "bg-violet-200/15 text-violet-50"
+                    <span
+                      className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold ${
+                        isCurrent
+                          ? "bg-violet-200/15 text-violet-50"
                         : isCompleted
                           ? "bg-emerald-300/15 text-emerald-100"
                           : "bg-white/8 text-slate-200"
@@ -841,69 +840,72 @@ export function VentureConsoleShell({
       </aside>
 
       <div className="min-w-0 space-y-6">
-        <section className="avl-card p-2">
-          <div className="rounded-[28px] bg-[radial-gradient(circle_at_top_left,rgba(187,166,255,0.14),transparent_30%),linear-gradient(180deg,rgba(251,248,255,0.98),rgba(237,232,252,0.94))] px-6 py-6 sm:px-7">
+        <section className="rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(187,166,255,0.18),transparent_34%),linear-gradient(180deg,rgba(14,15,24,0.98),rgba(18,18,30,0.98))] px-6 py-6 text-white shadow-[0_32px_100px_rgba(0,0,0,0.32)] sm:px-8 sm:py-7">
+          <div>
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-              <span>{activeTaskConfig.group}</span>
+              <span className="text-violet-200">{activeTaskConfig.group}</span>
               {!activeTaskConfig.optional ? <span>Step {stepNumber}/{requiredShellTasks.length}</span> : null}
-              <span className="rounded-full border border-slate-300 bg-white px-2 py-1 text-slate-700">
+              <span className="rounded-full border border-white/10 bg-white/8 px-2 py-1 text-slate-100">
                 {taskStatuses[activeTaskConfig.id]}
               </span>
             </div>
 
-            <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1.28fr)_340px]">
+            <div className="mt-5 grid gap-8 xl:grid-cols-[minmax(0,1.34fr)_320px]">
               <div className="min-w-0">
                 <div className="flex items-start gap-4">
-                  <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] border border-violet-200 bg-white text-violet-700 shadow-[0_18px_45px_rgba(168,85,247,0.18)]">
+                  <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] border border-white/10 bg-white/8 text-violet-100 shadow-[0_18px_45px_rgba(168,85,247,0.18)]">
                     <ActiveIcon size={24} />
                   </span>
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold uppercase tracking-[0.16em] text-violet-700">{activeTaskConfig.label}</div>
-                    <h2 className="mt-3 max-w-4xl text-[34px] font-semibold tracking-tight text-slate-950 sm:text-[52px] sm:leading-[54px]">
+                    <div className="text-sm font-semibold uppercase tracking-[0.16em] text-violet-200">{activeTaskConfig.label}</div>
+                    <h2 className="mt-3 max-w-4xl text-[34px] font-semibold tracking-tight text-white sm:text-[52px] sm:leading-[54px]">
                       {activeCanvas.question}
                     </h2>
-                    <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">{activeTaskConfig.description}</p>
+                    <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">{activeTaskConfig.description}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-[24px] border border-slate-200 bg-white/88 p-5 shadow-sm">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">이번 단계에서 할 일</div>
-                <p className="mt-3 text-sm leading-7 text-slate-700">{activeGuidance.summary}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {activeGuidance.checklist.map((item) => (
-                    <span
+              <div className="rounded-[26px] border border-white/10 bg-white/[0.05] p-5 backdrop-blur-sm">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200">이번 단계에서 할 일</div>
+                <p className="mt-3 text-sm leading-7 text-slate-200">{activeGuidance.summary}</p>
+                <ol className="mt-4 grid gap-2">
+                  {activeGuidance.checklist.slice(0, 4).map((item, index) => (
+                    <li
                       key={item}
-                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700"
+                      className="grid grid-cols-[1.3rem_minmax(0,1fr)] items-start gap-3 rounded-2xl border border-white/8 bg-black/10 px-3 py-2.5"
                     >
-                      {item}
-                    </span>
+                      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-[10px] font-semibold text-white">
+                        {index + 1}
+                      </span>
+                      <span className="text-sm leading-6 text-slate-200">{item}</span>
+                    </li>
                   ))}
-                </div>
+                </ol>
               </div>
             </div>
 
-            <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
-              <div className="rounded-[20px] border border-slate-200 bg-white/85 p-5 shadow-sm">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">AI가 먼저 하는 일</div>
-                <p className="mt-3 text-sm leading-6 text-slate-700">{activeCanvas.aiLead}</p>
+            <div className="mt-7 grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)_minmax(0,1fr)]">
+              <div className="rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">AI가 먼저 하는 일</div>
+                <p className="mt-3 text-sm leading-6 text-slate-200">{activeCanvas.aiLead}</p>
               </div>
-              <div className="rounded-[20px] border border-slate-200 bg-white/85 p-5 shadow-sm">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">이번 단계 산출물</div>
-                <p className="mt-3 text-sm leading-6 text-slate-700">{activeCanvas.deliverable}</p>
+              <div className="rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">이번 단계 산출물</div>
+                <p className="mt-3 text-sm leading-6 text-slate-200">{activeCanvas.deliverable}</p>
               </div>
-              <div className="rounded-[20px] border border-violet-200 bg-violet-50 p-5 shadow-sm">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-violet-700">사람이 확인할 포인트</div>
-                <p className="mt-3 text-sm leading-6 text-violet-950">{activeCanvas.checkpoint}</p>
+              <div className="rounded-[22px] border border-violet-300/20 bg-violet-300/8 px-4 py-4">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-violet-200">사람이 확인할 포인트</div>
+                <p className="mt-3 text-sm leading-6 text-violet-50">{activeCanvas.checkpoint}</p>
               </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => previousTask && goToTask(previousTask.id)}
                 disabled={!previousTask}
-                className="inline-flex h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+                className="inline-flex h-11 items-center justify-center rounded-full border border-white/10 bg-white/8 px-4 text-sm font-semibold text-white transition hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-45"
               >
                 이전
               </button>
@@ -911,7 +913,7 @@ export function VentureConsoleShell({
                 <button
                   type="button"
                   onClick={() => goToTask(primaryNextTask.id)}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
                 >
                   {primaryNextTask.cta}
                   <ArrowRight size={16} />
@@ -922,7 +924,7 @@ export function VentureConsoleShell({
                   key={option.id}
                   type="button"
                   onClick={() => goToTask(option.id)}
-                  className="inline-flex h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-white/10 bg-transparent px-4 text-sm font-semibold text-slate-200 transition hover:bg-white/8"
                 >
                   {option.cta}
                 </button>
@@ -961,23 +963,18 @@ export function VentureConsoleShell({
             />
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
-            <div className="avl-card p-5">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">AI operator</div>
-              <div className="mt-3 text-xl font-semibold text-slate-950">{activeTaskConfig.label}</div>
-              <p className="mt-2 text-sm leading-6 text-slate-700">
-                {currentStepBlocker ?? "현재 단계 입력이 정리되면 AI가 다음 행동과 산출물 연결을 이어서 제안합니다."}
-              </p>
-            </div>
-
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
             <div className="avl-card p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">다음 흐름</div>
-                  <div className="mt-2 text-xl font-semibold text-slate-950">바로 이어질 단계</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">현재 단계 메모</div>
+                  <div className="mt-2 text-xl font-semibold text-slate-950">AI가 지금 보는 신호</div>
                 </div>
               </div>
-              <div className="mt-4 grid gap-3">
+              <div className="mt-4 rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-700">
+                {currentStepBlocker ?? "현재 단계 입력이 정리되면 AI가 다음 행동과 산출물 연결을 이어서 제안합니다."}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
                 {nextTaskOptions.length > 0 ? (
                   nextTaskOptions.map((option) => {
                     const task = shellTasks.find((item) => item.id === option.id);
@@ -993,30 +990,19 @@ export function VentureConsoleShell({
                         key={task.id}
                         type="button"
                         onClick={() => goToTask(task.id)}
-                        className={`grid grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] border p-4 text-left transition ${
+                        className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                           option.variant === "primary"
-                            ? "border-emerald-200 bg-emerald-50 hover:bg-emerald-100/70"
-                            : "border-amber-200 bg-amber-50 hover:bg-amber-100/70"
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100/70"
+                            : "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100/70"
                         }`}
                       >
-                        <span
-                          className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${
-                            option.variant === "primary" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                          }`}
-                        >
-                          <Icon size={15} />
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block text-sm font-semibold text-slate-950">{option.cta}</span>
-                          <span className="mt-1 block text-xs leading-5 text-slate-600">{option.hint}</span>
-                        </span>
+                        <Icon size={14} />
+                        {option.cta}
                       </button>
                     );
                   })
                 ) : (
-                  <div className="rounded-[18px] border border-dashed border-slate-300 bg-white/70 p-4 text-sm leading-6 text-slate-600">
-                    현재 열린 단계를 마치면 다음 흐름이 이곳에 표시됩니다.
-                  </div>
+                  <span className="text-sm text-slate-500">현재 열린 단계를 마치면 다음 흐름이 표시됩니다.</span>
                 )}
               </div>
             </div>
