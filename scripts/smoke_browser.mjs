@@ -64,7 +64,7 @@ async function main() {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
 
     await waitForVisible(page.getByRole("heading", { name: /아이디어 실행 보드/ }), "main heading");
-    await waitForVisible(page.getByText(/저장소/), "data source card");
+    await waitForVisible(page.getByText(/후속 신호|Workflow Progress/).first(), "workspace summary card");
     await waitForVisible(page.getByRole("heading", { name: /^로그인$/ }).first(), "login step heading");
     await waitForVisible(page.getByText(/뒤 단계는 잠겨 있습니다/), "locked future steps");
     await waitForVisible(
