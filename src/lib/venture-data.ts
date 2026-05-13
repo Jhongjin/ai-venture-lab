@@ -9,6 +9,7 @@ export type OrchestrationRun = Database["public"]["Tables"]["orchestration_runs"
 export type VentureArtifact = Database["public"]["Tables"]["venture_artifacts"]["Row"];
 export type ImplementationTask = Database["public"]["Tables"]["implementation_tasks"]["Row"];
 export type TelemetryEvent = Database["public"]["Tables"]["telemetry_events"]["Row"];
+type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
 
 type ConsoleData = {
   ideas: Idea[];
@@ -22,6 +23,39 @@ type ConsoleData = {
   source: "supabase" | "seed";
   error: string | null;
 };
+
+function emptyConsoleData(error: string | null = null): ConsoleData {
+  return {
+    ideas: [],
+    risks: [],
+    decisions: [],
+    experiments: [],
+    orchestrationRuns: [],
+    artifacts: [],
+    implementationTasks: [],
+    telemetryEvents: [],
+    source: "seed",
+    error,
+  };
+}
+
+function isUserScopedRecordVisible(
+  record: { created_by: string | null; organization_id: string | null },
+  userId: string,
+  organizationIds: Set<string>,
+) {
+  return record.created_by === userId || (record.organization_id ? organizationIds.has(record.organization_id) : false);
+}
+
+function filterChildRecordsForVisibleIdeas<T extends { idea_id: string | null; organization_id: string | null }>(
+  records: T[],
+  visibleIdeaIds: Set<string>,
+  organizationIds: Set<string>,
+) {
+  return records.filter((record) =>
+    record.idea_id ? visibleIdeaIds.has(record.idea_id) : record.organization_id ? organizationIds.has(record.organization_id) : false,
+  );
+}
 
 const now = new Date("2026-05-03T00:00:00.000Z").toISOString();
 export const workflowStageOrder: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
@@ -79,7 +113,7 @@ const localizedRiskSeeds: Record<string, Pick<Risk, "title" | "area" | "mitigati
   },
 };
 
-const seedIdeas: Idea[] = [
+export const seedIdeas: Idea[] = [
   {
     id: "seed-care-ops",
     name: "돌봄 운영 콘솔",
@@ -151,7 +185,7 @@ const seedIdeas: Idea[] = [
   },
 ];
 
-const seedRisks: Risk[] = [
+export const seedRisks: Risk[] = [
   {
     id: "seed-risk-pii",
     idea_id: null,
@@ -193,12 +227,12 @@ const seedRisks: Risk[] = [
   },
 ];
 
-const seedDecisions: Decision[] = [];
-const seedExperiments: Experiment[] = [];
-const seedOrchestrationRuns: OrchestrationRun[] = [];
-const seedArtifacts: VentureArtifact[] = [];
-const seedImplementationTasks: ImplementationTask[] = [];
-const seedTelemetryEvents: TelemetryEvent[] = [];
+export const seedDecisions: Decision[] = [];
+export const seedExperiments: Experiment[] = [];
+export const seedOrchestrationRuns: OrchestrationRun[] = [];
+export const seedArtifacts: VentureArtifact[] = [];
+export const seedImplementationTasks: ImplementationTask[] = [];
+export const seedTelemetryEvents: TelemetryEvent[] = [];
 
 export function localizeIdeaRecord(idea: Idea): Idea {
   return { ...idea, ...(localizedIdeaSeeds[idea.name] ?? {}) };
@@ -233,23 +267,24 @@ export async function getConsoleData(): Promise<ConsoleData> {
   const supabase = await getSupabaseServerClient();
 
   if (!supabase) {
-    return {
-      ideas: sortIdeasByWorkflow(seedIdeas),
-      risks: seedRisks,
-      decisions: seedDecisions,
-      experiments: seedExperiments,
-      orchestrationRuns: seedOrchestrationRuns,
-      artifacts: seedArtifacts,
-      implementationTasks: seedImplementationTasks,
-      telemetryEvents: seedTelemetryEvents,
-      source: "seed",
-      error: null,
-    };
+    return emptyConsoleData("Supabase is not connected.");
   }
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (!user) {
+    return emptyConsoleData(null);
+  }
+
+  const { data: membershipRows, error: membershipError } = await supabase
+    .from("organization_members")
+    .select("*")
+    .eq("user_id", user.id);
+
+  const memberships: OrganizationMember[] = membershipRows ?? [];
+  const organizationIds = new Set(memberships.map((membership) => membership.organization_id));
 
   const [
     ideasResult,
@@ -269,48 +304,54 @@ export async function getConsoleData(): Promise<ConsoleData> {
       supabase.from("venture_artifacts").select("*").order("created_at", { ascending: false }),
       supabase.from("implementation_tasks").select("*").order("sort_order", { ascending: true }),
       supabase.from("telemetry_events").select("*").order("occurred_at", { ascending: false }).limit(250),
-    ]);
+  ]);
 
   if (ideasResult.error || risksResult.error || decisionsResult.error || experimentsResult.error) {
-    return {
-      ideas: sortIdeasByWorkflow(seedIdeas),
-      risks: seedRisks,
-      decisions: seedDecisions,
-      experiments: seedExperiments,
-      orchestrationRuns: seedOrchestrationRuns,
-      artifacts: seedArtifacts,
-      implementationTasks: seedImplementationTasks,
-      telemetryEvents: seedTelemetryEvents,
-      source: "seed",
-      error: user
-        ? ideasResult.error?.message ??
-          risksResult.error?.message ??
-          decisionsResult.error?.message ??
-          experimentsResult.error?.message ??
-          "Unknown Supabase error"
-        : null,
-    };
+    return emptyConsoleData(
+      membershipError?.message ??
+        ideasResult.error?.message ??
+        risksResult.error?.message ??
+        decisionsResult.error?.message ??
+        experimentsResult.error?.message ??
+        "Unknown Supabase error",
+    );
   }
 
+  const visibleIdeas = sortIdeasByWorkflow(
+    (ideasResult.data ?? [])
+      .filter((idea) => isUserScopedRecordVisible(idea, user.id, organizationIds))
+      .map(localizeIdeaRecord),
+  );
+  const visibleIdeaIds = new Set(visibleIdeas.map((idea) => idea.id));
+
   return {
-    ideas: sortIdeasByWorkflow((ideasResult.data ?? []).map(localizeIdeaRecord)),
-    risks: (risksResult.data ?? []).map(localizeRiskRecord),
-    decisions: decisionsResult.data ?? [],
-    experiments: experimentsResult.data ?? [],
-    orchestrationRuns: orchestrationRunsResult.error ? [] : orchestrationRunsResult.data ?? [],
-    artifacts: artifactsResult.error ? [] : artifactsResult.data ?? [],
-    implementationTasks: implementationTasksResult.error ? [] : implementationTasksResult.data ?? [],
-    telemetryEvents: telemetryEventsResult.error ? [] : telemetryEventsResult.data ?? [],
+    ideas: visibleIdeas,
+    risks: filterChildRecordsForVisibleIdeas(risksResult.data ?? [], visibleIdeaIds, organizationIds).map(localizeRiskRecord),
+    decisions: filterChildRecordsForVisibleIdeas(decisionsResult.data ?? [], visibleIdeaIds, organizationIds),
+    experiments: filterChildRecordsForVisibleIdeas(experimentsResult.data ?? [], visibleIdeaIds, organizationIds),
+    orchestrationRuns: orchestrationRunsResult.error
+      ? []
+      : filterChildRecordsForVisibleIdeas(orchestrationRunsResult.data ?? [], visibleIdeaIds, organizationIds),
+    artifacts: artifactsResult.error
+      ? []
+      : filterChildRecordsForVisibleIdeas(artifactsResult.data ?? [], visibleIdeaIds, organizationIds),
+    implementationTasks: implementationTasksResult.error
+      ? []
+      : filterChildRecordsForVisibleIdeas(implementationTasksResult.data ?? [], visibleIdeaIds, organizationIds),
+    telemetryEvents: telemetryEventsResult.error
+      ? []
+      : filterChildRecordsForVisibleIdeas(telemetryEventsResult.data ?? [], visibleIdeaIds, organizationIds),
     source: "supabase",
     error:
-      user && orchestrationRunsResult.error
+      membershipError?.message ??
+      (orchestrationRunsResult.error
         ? `Orchestration read failed: ${orchestrationRunsResult.error.message}`
-        : user && artifactsResult.error
+        : artifactsResult.error
           ? `Artifact read failed: ${artifactsResult.error.message}`
-          : user && implementationTasksResult.error && implementationTasksResult.error.code !== "42P01"
+          : implementationTasksResult.error && implementationTasksResult.error.code !== "42P01"
             ? `Implementation task read failed: ${implementationTasksResult.error.message}`
-          : user && telemetryEventsResult.error && telemetryEventsResult.error.code !== "42P01"
+          : telemetryEventsResult.error && telemetryEventsResult.error.code !== "42P01"
             ? `Telemetry read failed: ${telemetryEventsResult.error.message}`
-          : null,
+          : null),
   };
 }
