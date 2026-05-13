@@ -9708,14 +9708,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
       {showSidebar ? (
       <aside className="grid gap-4 lg:sticky lg:top-6 lg:self-start">
-        <div className="avl-card-dark p-6 text-white">
+        <div className="avl-card-soft p-6 text-slate-900">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
-            <div className="avl-kicker mb-3 bg-white/10 text-violet-200">Agentic workspace</div>
-            <h2 className="text-xl font-semibold text-white">후보 선택</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-300">오늘 검토할 아이디어를 고르고 평가, 위험, 실험, 판단 순서로 이동시킵니다.</p>
+            <div className="mb-3 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Candidate queue</div>
+            <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">오늘 검토할 아이디어를 고르고 평가, 위험, 실험, 판단 순서로 이동시킵니다.</p>
           </div>
-          <ClipboardList className="text-violet-200" size={24} />
+          <ClipboardList className="text-slate-400" size={24} />
         </div>
 
         <div className="avl-segmented mb-4 grid grid-cols-3 gap-2 p-1">
@@ -9729,7 +9729,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               type="button"
               onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
                 className={`h-9 rounded-md text-sm font-semibold transition ${
-                  filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-300 hover:text-white"
+                  filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
                 }`}
               >
               {label}
@@ -9750,8 +9750,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   key={idea.id}
                   className={`rounded-[18px] border p-4 text-left transition ${
                     idea.id === selectedIdea.id
-                      ? "border-violet-300/70 bg-white text-slate-950 shadow-[0_20px_36px_-28px_rgba(187,166,255,0.85)]"
-                      : "border-white/10 bg-white/5 text-white hover:border-violet-300/40 hover:bg-white/10"
+                      ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
+                      : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
                   <button
@@ -9764,13 +9764,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     className="w-full text-left"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className={`font-semibold ${idea.id === selectedIdea.id ? "text-slate-950" : "text-white"}`}>
+                      <span className="font-semibold text-slate-950">
                         {idea.name}
                       </span>
                       <div className="flex flex-wrap gap-2">
                         <span
                           className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-                            idea.id === selectedIdea.id ? "bg-blue-50 text-blue-700" : "bg-white/10 text-slate-200"
+                            idea.id === selectedIdea.id ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-600"
                           }`}
                         >
                           {stageLabels[idea.stage]}
@@ -9782,8 +9782,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                                 ? "bg-emerald-100 text-emerald-800"
                                 : "bg-slate-200 text-slate-600"
                               : isManageable
-                                ? "bg-emerald-500/15 text-emerald-200"
-                                : "bg-white/10 text-slate-200"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-slate-100 text-slate-600"
                           }`}
                         >
                           {isOwned
@@ -9794,7 +9794,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </span>
                       </div>
                     </div>
-                    <p className={`mt-2 text-sm leading-6 ${idea.id === selectedIdea.id ? "text-slate-600" : "text-slate-300"}`}>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
                       {idea.one_liner || idea.signal}
                     </p>
                   </button>
@@ -9867,14 +9867,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
       <div className="grid min-w-0 gap-6">
         {!showSidebar ? (
-          <div className={`text-white ${embedded ? "rounded-[20px] border border-white/8 bg-white/[0.03] p-4" : "avl-band-dark p-4"}`}>
+          <div className={embedded ? "rounded-[20px] border border-slate-200 bg-slate-50 p-4 text-slate-900" : "avl-band-dark p-4 text-slate-900"}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <div className={`mb-2 ${embedded ? "text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200" : "avl-kicker bg-white/10 text-violet-200"}`}>
+                <div className={`mb-2 ${embedded ? "text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500" : "avl-kicker"}`}>
                   AI autopilot
                 </div>
-                <div className="text-sm font-semibold text-white">{embedded ? "실행 보기 전환" : "AI 자동 실행 보기"}</div>
-                <p className="mt-1 text-sm leading-6 text-slate-300">
+                <div className="text-sm font-semibold text-slate-950">{embedded ? "실행 보기 전환" : "AI 자동 실행 보기"}</div>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
                   기본은 간단 보기입니다. AI가 만든 초안과 다음 액션만 먼저 보고, 필요할 때만 상세 실행 패널을 펼치세요.
                 </p>
               </div>
@@ -9887,9 +9887,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     key={value}
                     type="button"
                     onClick={() => setExperienceMode(value as "guided" | "full")}
-                    className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
-                      experienceMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-300 hover:text-white"
-                    }`}
+                      className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                        experienceMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
+                      }`}
                   >
                     {label}
                   </button>
@@ -10313,9 +10313,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </ul>
               </section>
 
-              <section className="avl-band-dark p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">next move</div>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
+              <section className="avl-card-soft p-5">
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">next move</div>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
                   점수 저장 후에는 `검증 실험` 단계에서 첫 실험과 성공 지표를 AI가 채워줍니다. 여기서는 완벽하게 쓰기보다 판단 방향만 정하면 충분합니다.
                 </p>
               </section>
@@ -10450,7 +10450,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </form>
 
         <div
-          className={`avl-card p-6 ${
+          className={`avl-card-soft p-5 ${
             activeTask === "development" ? "" : "hidden"
           }`}
         >
@@ -10465,7 +10465,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
           {experienceMode === "full" ? (
-            <div className="mb-5 rounded-lg bg-slate-100 p-1">
+            <div className="mb-5 avl-segmented p-1">
               <div className="grid gap-1 sm:grid-cols-3">
                 {(Object.keys(developmentPanelLabels) as DevelopmentPanel[]).map((panel) => (
                   <button
@@ -10484,7 +10484,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
           ) : (
-            <div className="mb-5 avl-band p-4 text-slate-900">
+            <div className="mb-5 avl-card p-4 text-slate-900">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="avl-kicker">ai execution autopilot</div>
@@ -11999,14 +11999,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div className={`avl-card p-6 ${activeTask === "launch" ? "" : "hidden"}`}>
+        <div className={`avl-card-soft p-5 ${activeTask === "launch" ? "" : "hidden"}`}>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">출시 판단</h2>
               <p className="mt-1 text-sm text-slate-500">증거, 기획 자료, 위험, 실행 단계를 기준으로 출시 전 남은 조건을 요약합니다.</p>
             </div>
-            <div className="rounded-lg bg-slate-950 px-4 py-3 text-right text-white">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right text-slate-950">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                 준비 {passedLaunchReadinessCount}/{launchReadiness.length}
               </div>
               <div className="mt-1 text-2xl font-semibold">{launchReadinessScore}%</div>
@@ -12025,7 +12025,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           </div>
           {releaseDecisionPacket ? (
-            <div className="mb-5 avl-band p-4 text-slate-900">
+            <div className="mb-5 avl-card p-4 text-slate-900">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="avl-kicker">go / no-go packet</div>
@@ -12188,7 +12188,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div className={`avl-card p-6 ${activeTask === "learning" ? "" : "hidden"}`}>
+        <div className={`avl-card-soft p-5 ${activeTask === "learning" ? "" : "hidden"}`}>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
@@ -12231,7 +12231,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           <div className="grid gap-3 md:grid-cols-5">
             {learningSignalCards.map((card) => (
-              <div key={card.label} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div key={card.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{card.label}</div>
                 <div className="mt-2 text-2xl font-semibold text-slate-950">{card.value}</div>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
@@ -12247,7 +12247,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </p>
             </div>
           ) : (
-          <div className="mt-4 avl-band p-4 text-slate-900">
+          <div className="mt-4 avl-card p-4 text-slate-900">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="avl-kicker">developer handoff</div>
@@ -12537,7 +12537,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`avl-card p-6 ${
+          className={`avl-card-soft p-5 ${
             activeTask === "orchestration" ? "" : "hidden"
           }`}
         >
@@ -12557,7 +12557,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </button>
           </div>
 
-          <form onSubmit={addOrchestrationRun} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <form onSubmit={addOrchestrationRun} className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <div className="grid gap-3 md:grid-cols-[0.75fr_1fr]">
               <SelectField
                 label="단계"
@@ -12600,7 +12600,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="mt-4 grid gap-3">
             {selectedRuns.length > 0 ? (
               selectedRuns.map((run) => (
-                <div key={run.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div key={run.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -13024,13 +13024,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </form>
         </div>
 
-        <div className={activeTask === "artifacts" ? "avl-card p-4" : "hidden"}>
+        <div className={activeTask === "artifacts" ? "avl-card-soft p-4" : "hidden"}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">기획서 만들기</h2>
               <p className="mt-1 text-sm text-slate-500">{artifactPanelDescriptions[artifactPanel]}</p>
             </div>
-            <div className="grid grid-cols-3 gap-2 rounded-md bg-slate-100 p-1">
+            <div className="avl-segmented grid grid-cols-3 gap-2 p-1">
               {(Object.keys(artifactPanelLabels) as ArtifactPanel[]).map((panel) => (
                 <button
                   key={panel}
@@ -13098,7 +13098,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         />
 
         <div
-          className={`avl-card p-6 ${
+          className={`avl-card-soft p-5 ${
             activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >

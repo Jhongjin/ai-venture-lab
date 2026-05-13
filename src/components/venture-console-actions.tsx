@@ -2734,11 +2734,11 @@ export function VentureConsoleActions({
   return (
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]" : embedded ? "grid gap-5" : "grid gap-6"}>
       {showSidebar ? (
-      <aside className="avl-card-dark p-5 text-white lg:sticky lg:top-6 lg:self-start">
+      <aside className="avl-card-soft p-5 lg:sticky lg:top-6 lg:self-start">
         <div className="mb-4">
-          <div className="avl-kicker mb-3 bg-white/10 text-violet-200">AI setup</div>
-          <h2 className="text-lg font-semibold text-white">시작 준비</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-300">AI가 초안을 만들고, 필요한 순간에만 사용자가 보완합니다.</p>
+          <div className="mb-3 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Quick setup</div>
+          <h2 className="text-lg font-semibold text-slate-950">시작 준비</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-600">AI가 초안을 만들고, 필요한 순간에만 사용자가 보완합니다.</p>
         </div>
         <div className="grid gap-2">
           {consoleTasks.map((task, index) => (
@@ -2749,26 +2749,26 @@ export function VentureConsoleActions({
               aria-current={activeTask === task.id ? "step" : undefined}
                 className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[18px] border p-3 text-left transition ${
                   activeTask === task.id
-                    ? "border-violet-300/70 bg-white text-slate-950 shadow-[0_20px_36px_-28px_rgba(187,166,255,0.8)]"
-                    : "border-white/10 bg-white/5 text-white hover:border-violet-300/40 hover:bg-white/10"
+                    ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
+                    : "border-slate-200/80 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                 }`}
               >
                 <span
                   className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                    activeTask === task.id ? "bg-violet-600 text-white" : "bg-white/10 text-slate-100"
+                    activeTask === task.id ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700"
                   }`}
                 >
                   {index + 1}
                 </span>
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold">{task.label}</span>
-                  <span className={`mt-0.5 block text-xs leading-5 ${activeTask === task.id ? "text-slate-500" : "text-slate-400"}`}>
+                  <span className="mt-0.5 block text-xs leading-5 text-slate-500">
                     {task.description}
                   </span>
                 </span>
                 <span
                   className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                    activeTask === task.id ? "bg-violet-50 text-violet-700" : "bg-white/10 text-slate-200"
+                    activeTask === task.id ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-600"
                   }`}
                 >
                   {task.status}
@@ -3112,12 +3112,12 @@ export function VentureConsoleActions({
           ) : null}
 
           <div className="space-y-5">
-            <section className={`${embedded ? "avl-card p-6 text-slate-900" : "avl-card p-6 text-slate-900"}`}>
+            <section className={`${embedded ? "avl-card-soft p-6 text-slate-900" : "avl-card-soft p-6 text-slate-900"}`}>
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
                 <div className="grid gap-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">source</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">원문 입력</div>
                       <h3 className="mt-2 text-xl font-semibold text-slate-950">대화나 메모 붙여넣기</h3>
                     </div>
                     <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
@@ -3183,10 +3183,10 @@ export function VentureConsoleActions({
 
                 <div className="grid gap-4">
                   {extractedIdeas.length > 0 && recommendedExtractedIdea ? (
-                    <section className="rounded-[24px] border border-slate-200 bg-white/92 p-5 shadow-sm">
+                    <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">recommended</div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI 추천 후보</div>
                           <h3 className="mt-2 text-2xl font-semibold text-slate-950">{recommendedExtractedIdea.name}</h3>
                         </div>
                         {recommendedExtractionGate && recommendedGateStyle ? (
@@ -3212,14 +3212,14 @@ export function VentureConsoleActions({
                           <div className="mt-2 text-2xl font-semibold text-slate-950">{recommendedPortfolioItem?.readinessScore ?? 0}%</div>
                         </div>
                       </div>
-                      <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-950 px-4 py-4 text-sm leading-6 text-slate-100">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">AI 판단</div>
-                        <p className="mt-2">
+                      <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">AI가 먼저 본 판단</div>
+                        <p className="mt-2 text-sm leading-6 text-slate-700">
                           {recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
                         </p>
                         {recommendedExtractionGate ? (
-                          <p className="mt-2 text-slate-300">
-                            <span className="font-semibold text-white">다음 작업:</span> {recommendedExtractionGate.nextAction}
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            <span className="font-semibold text-slate-900">다음 작업:</span> {recommendedExtractionGate.nextAction}
                           </p>
                         ) : null}
                       </div>
@@ -3243,8 +3243,8 @@ export function VentureConsoleActions({
                       </div>
                     </section>
                   ) : (
-                    <section className="rounded-[24px] border border-slate-200 bg-white/92 p-5 shadow-sm">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">추천 후보</div>
+                    <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음 출력</div>
                       <h3 className="mt-2 text-2xl font-semibold text-slate-950">추천 후보가 여기에 나타납니다</h3>
                       <p className="mt-3 text-sm leading-7 text-slate-700">
                         이 단계의 목표는 많은 아이디어를 한꺼번에 보는 것이 아니라, 지금 바로 접수할 후보 1개를 먼저
@@ -3267,8 +3267,8 @@ export function VentureConsoleActions({
                     </section>
                   )}
 
-                  <details className="rounded-[20px] border border-slate-200 bg-white/88 p-4 shadow-sm">
-                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">실행 상태와 점검 보기</summary>
+                  <details className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">점검 정보 열기</summary>
                     <div className="mt-3 grid gap-3 md:grid-cols-2">
                       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">실행 상태</div>
@@ -3709,12 +3709,12 @@ export function VentureConsoleActions({
         className={`grid gap-5 ${activeTask === "idea" ? "" : "hidden"}`}
       >
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_340px]">
-          <section className="avl-card-dark p-6 text-white">
+          <section className="avl-card-soft p-6 text-slate-900">
             {embedded ? (
-              <div className="mb-5 flex flex-col gap-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="mb-5 flex flex-col gap-3 rounded-[22px] border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200">intake canvas</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">intake canvas</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
                     {activeOrganization
                       ? `${activeOrganization.name} 안에 저장할 초안을 정리합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 넘길 수 있습니다.`
                       : "AI가 만든 초안을 검토하고, 꼭 필요한 의견만 보완한 뒤 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 충분합니다."}
@@ -3723,7 +3723,7 @@ export function VentureConsoleActions({
                 <button
                   type="submit"
                   disabled={isSaving || !user}
-                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
                   아이디어 저장
@@ -3732,9 +3732,9 @@ export function VentureConsoleActions({
             ) : (
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="avl-kicker bg-white/10 text-violet-200">intake canvas</div>
-                  <h2 className="mt-4 text-3xl font-semibold">아이디어 접수</h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                  <div className="mb-2 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">intake canvas</div>
+                  <h2 className="mt-3 text-3xl font-semibold text-slate-950">아이디어 접수</h2>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
                     {activeOrganization
                       ? `${activeOrganization.name} 안에 저장할 초안을 정리합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 넘길 수 있습니다.`
                       : "AI가 먼저 만든 초안을 검토하고, 꼭 필요한 의견만 보태서 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 됩니다."}
@@ -3743,7 +3743,7 @@ export function VentureConsoleActions({
                 <button
                   type="submit"
                   disabled={isSaving || !user}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
                   아이디어 저장
@@ -3772,7 +3772,7 @@ export function VentureConsoleActions({
                   />
                 </div>
 
-                <details className="rounded-[20px] border border-white/10 bg-white/[0.04] p-4">
+                <details className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
                   <summary className="cursor-pointer list-none text-sm font-semibold text-white">
                     추가 입력 열기
                   </summary>

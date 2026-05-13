@@ -31,16 +31,16 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <div className="mx-auto grid w-full max-w-[1520px] gap-4 px-4 py-4 sm:px-6">
-        <header className="avl-card overflow-hidden px-5 py-4 sm:px-6">
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-center">
+      <div className="mx-auto grid w-full max-w-[1480px] gap-4 px-4 py-4 sm:px-6">
+        <header className="avl-card-soft overflow-hidden px-5 py-4 sm:px-6">
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-center">
             <div className="max-w-4xl">
               <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">
                 <FlaskConical size={16} />
                 AI Venture Lab
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-[22px] font-semibold tracking-tight text-slate-950 sm:text-[26px] sm:leading-[30px]">
+                <h1 className="text-[20px] font-semibold tracking-tight text-slate-950 sm:text-[24px] sm:leading-[28px]">
                   아이디어 실행 보드
                 </h1>
                 <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500">
@@ -53,7 +53,7 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-2 sm:grid-cols-2">
               {headerStats.map(([label, value]) => (
                 <div key={label} className="rounded-[14px] border border-slate-200 bg-slate-50/80 px-3 py-2.5">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>

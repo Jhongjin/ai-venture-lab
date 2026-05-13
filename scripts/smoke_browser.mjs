@@ -64,8 +64,8 @@ async function main() {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
 
     await waitForVisible(page.getByRole("heading", { name: /아이디어 실행 보드/ }), "main heading");
-    await waitForVisible(page.getByText(/AI Operator|이번 단계에서 할 일/).first(), "operator guidance");
-    await waitForVisible(page.getByText(/선택 기능|시작/).first(), "workflow rail");
+    await waitForVisible(page.getByText(/현재 질문|이번 단계에서 할 일|다음 행동/).first(), "stage guidance");
+    await waitForVisible(page.getByText(/진행 레일|Quick setup|로그인/).first(), "workflow rail");
 
     const loginHeading = page.getByRole("heading", { name: /^로그인$/ }).first();
     const extractHeading = page.getByRole("heading", { name: /^아이디어 찾기$/ }).first();
