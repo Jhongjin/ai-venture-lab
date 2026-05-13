@@ -522,7 +522,7 @@ const telemetryCategoryLabels: Record<string, string> = {
 };
 const telemetryCategoryTone: Record<string, string> = {
   intake: "bg-blue-50 text-blue-700",
-  extraction: "bg-violet-50 text-violet-800",
+  extraction: "bg-slate-100 text-slate-700",
   scoring: "bg-sky-50 text-sky-800",
   product: "bg-fuchsia-50 text-fuchsia-800",
   risk: "bg-rose-50 text-rose-700",
@@ -804,7 +804,7 @@ const releaseDecisionTone: Record<DecisionStatus, string> = {
   pending: "bg-slate-100 text-slate-700",
   research_more: "bg-amber-100 text-amber-800",
   ship: "bg-emerald-100 text-emerald-800",
-  pivot: "bg-violet-100 text-violet-800",
+  pivot: "bg-slate-100 text-slate-700",
   kill: "bg-rose-100 text-rose-800",
 };
 const releaseDecisionConfidenceTone: Record<ReleaseDecisionConfidence, string> = {
@@ -9770,7 +9770,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       <div className="flex flex-wrap gap-2">
                         <span
                           className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-                            idea.id === selectedIdea.id ? "bg-violet-50 text-violet-700" : "bg-white/10 text-slate-200"
+                            idea.id === selectedIdea.id ? "bg-blue-50 text-blue-700" : "bg-white/10 text-slate-200"
                           }`}
                         >
                           {stageLabels[idea.stage]}
@@ -9836,8 +9836,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 aria-current={activeTask === task.id ? "step" : undefined}
                 className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[18px] border p-3 text-left transition ${
                   activeTask === task.id
-                    ? "border-violet-300/50 bg-violet-50/90 text-violet-950 shadow-[0_20px_36px_-30px_rgba(88,28,135,0.35)]"
-                    : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-violet-200 hover:bg-white"
+                    ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
+                    : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-slate-300 hover:bg-white"
                 }`}
               >
                 <span
@@ -9853,7 +9853,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </span>
                 <span
                   className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                    activeTask === task.id ? "bg-violet-50 text-violet-700" : "bg-white text-slate-600"
+                    activeTask === task.id ? "bg-blue-50 text-blue-700" : "bg-white text-slate-600"
                   }`}
                 >
                   {task.status}
@@ -10227,7 +10227,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
                     />
                     <div className="rounded-[18px] border border-violet-100 bg-white p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-700">현재 점수</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">현재 점수</div>
                       <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>
                       <p className="mt-2 text-sm leading-6 text-slate-600">점수는 참고용이고, 최종 판단은 근거와 리스크를 같이 봐서 정합니다.</p>
                     </div>
@@ -10372,7 +10372,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         key={experiment.name}
                         type="button"
                         onClick={() => loadExperimentSuggestion(experiment)}
-                        className="rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-violet-200 hover:bg-violet-50/50"
+                        className="rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-slate-300 hover:bg-slate-50"
                       >
                         <div className="text-sm font-semibold text-slate-950">{experiment.name}</div>
                         <div className="mt-1 text-xs leading-5 text-slate-600">{experiment.success_metric}</div>
@@ -10484,16 +10484,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
           ) : (
-            <div className="mb-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+            <div className="mb-5 avl-band p-4 text-slate-900">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
-                    AI execution autopilot
-                  </div>
-                  <h3 className="mt-1 text-base font-semibold text-emerald-950">
+                  <div className="avl-kicker">ai execution autopilot</div>
+                  <h3 className="mt-3 text-base font-semibold text-slate-950">
                     {guidedExecutionStepLabels[guidedExecutionStep]}
                   </h3>
-                  <p className="mt-1 text-sm leading-6 text-emerald-900">
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
                     {guidedExecutionStepDescriptions[guidedExecutionStep]}
                   </p>
                 </div>
@@ -10503,7 +10501,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={runAiExecutionAutopilot}
                       disabled={isBusy || !user}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Layers3 size={18} />
                       AI 실행 패키지 만들기
@@ -10517,7 +10515,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           : copyDraft(implementationBacklogDraft, "열린 개발 백로그")
                       }
                       disabled={Boolean(nextImplementationTask) ? !implementationTaskTicketDraft : !implementationBacklogDraft}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <ClipboardList size={18} />
                       {nextImplementationTask ? "다음 실행 티켓 복사" : "열린 실행 요약 복사"}
@@ -10534,7 +10532,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !developmentCompletionReportDraft}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Save size={18} />
                       개발 완료 보고서 저장
@@ -11270,13 +11268,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
 
             {experienceMode === "full" && implementationDependencyStatuses.length > 0 ? (
-              <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50 p-4">
+              <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-700">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">
                       execution order
                     </div>
-                    <h4 className="mt-1 text-sm font-semibold text-violet-950">개발 실행 순서 게이트</h4>
+                    <h4 className="mt-1 text-sm font-semibold text-slate-950">개발 실행 순서 게이트</h4>
                     <p className="mt-1 text-sm leading-6 text-violet-900">
                       태스크를 기획, 디자인, 데이터, 백엔드, 프론트, QA, 보안, 배포 순서로 정렬하고 선행 조건을 통과한
                       작업만 다음 실행 후보로 올립니다.
@@ -11293,7 +11291,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => copyDraft(implementationDependencyPlanDraft, "개발 실행 순서 게이트")}
                       disabled={!implementationDependencyPlanDraft}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white px-3 text-xs font-semibold text-violet-800 transition hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Clipboard size={15} />
                       순서 복사
@@ -11309,7 +11307,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !implementationDependencyPlanDraft}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-violet-950 px-3 text-xs font-semibold text-white transition hover:bg-violet-900 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Save size={15} />
                       순서 저장
@@ -11325,7 +11323,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     const totalCount = selectedImplementationTasks.filter((task) => task.task_type === taskType).length;
 
                     return (
-                      <div key={taskType} className="rounded-lg border border-violet-100 bg-white p-3">
+                      <div key={taskType} className="rounded-lg border border-slate-200 bg-white p-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-violet-600">
                           {String(index + 1).padStart(2, "0")}
                         </div>
@@ -11341,14 +11339,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
 
                 <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                  <div className="rounded-lg border border-violet-100 bg-white p-3">
-                    <div className="text-sm font-semibold text-violet-950">바로 시작 가능</div>
+                  <div className="rounded-lg border border-slate-200 bg-white p-3">
+                    <div className="text-sm font-semibold text-slate-950">바로 시작 가능</div>
                     <div className="mt-3 grid gap-2">
                       {readyImplementationDependencyStatuses.slice(0, 4).map((status) => (
                         <div key={status.task.id} className="rounded-md bg-violet-50 px-3 py-2">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-semibold text-slate-950">{status.task.title}</span>
-                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-violet-800">
+                            <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
                               {implementationTaskTypeLabels[status.task.task_type]}
                             </span>
                           </div>
@@ -11356,15 +11354,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </div>
                       ))}
                       {readyImplementationDependencyStatuses.length === 0 ? (
-                        <div className="rounded-md border border-dashed border-violet-200 bg-violet-50 px-3 py-2 text-sm leading-6 text-violet-900">
+                        <div className="rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-700">
                           먼저 선행 조건을 완료해야 시작 가능한 태스크가 생깁니다.
                         </div>
                       ) : null}
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-violet-100 bg-white p-3">
-                    <div className="text-sm font-semibold text-violet-950">선행 조건 대기</div>
+                  <div className="rounded-lg border border-slate-200 bg-white p-3">
+                    <div className="text-sm font-semibold text-slate-950">선행 조건 대기</div>
                     <div className="mt-3 grid gap-2">
                       {waitingImplementationDependencyStatuses.slice(0, 4).map((status) => (
                         <div key={status.task.id} className="rounded-md bg-slate-50 px-3 py-2">
@@ -11378,7 +11376,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </div>
                       ))}
                       {waitingImplementationDependencyStatuses.length === 0 ? (
-                        <div className="rounded-md border border-dashed border-violet-200 bg-violet-50 px-3 py-2 text-sm leading-6 text-violet-900">
+                        <div className="rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-700">
                           선행 조건에 막힌 열린 태스크가 없습니다.
                         </div>
                       ) : null}
@@ -11954,10 +11952,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 />
               </div>
 
-              <div className="mt-5 rounded-lg border border-violet-100 bg-violet-50 p-4">
+              <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <h3 className="text-base font-semibold text-violet-950">역할별 프롬프트 팩</h3>
+                    <h3 className="text-base font-semibold text-slate-950">역할별 프롬프트 팩</h3>
                     <p className="mt-1 text-sm leading-6 text-violet-900">
                       전략, 리서치, 제품, 디자인, 개발, QA, 디버깅, 보안, 출시 역할에 같은 문맥을 나눠주는 실행 지시서입니다.
                     </p>
@@ -11966,7 +11964,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(rolePromptPackDraft, "역할별 프롬프트 팩")}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-violet-200 bg-white px-3 text-sm font-semibold text-violet-800 transition hover:bg-violet-50"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                     >
                       <Clipboard size={16} />
                       복사
@@ -11982,7 +11980,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-violet-700 px-3 text-sm font-semibold text-white transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Save size={16} />
                       저장
@@ -11993,7 +11991,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   value={rolePromptPackDraft}
                   readOnly
                   rows={16}
-                  className="mt-4 w-full resize-y rounded-md border border-violet-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                  className="mt-4 w-full resize-y rounded-md border border-slate-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
                 />
               </div>
             </>
@@ -12027,21 +12025,19 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           </div>
           {releaseDecisionPacket ? (
-            <div className="mb-5 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+            <div className="mb-5 avl-band p-4 text-slate-900">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">
-                    Go/No-go packet
-                  </div>
-                  <h3 className="mt-1 text-base font-semibold text-indigo-950">출시 판단 패킷</h3>
-                  <p className="mt-1 text-sm leading-6 text-indigo-900">{releaseDecisionPacket.headline}</p>
+                  <div className="avl-kicker">go / no-go packet</div>
+                  <h3 className="mt-3 text-base font-semibold text-slate-950">출시 판단 패킷</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{releaseDecisionPacket.headline}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={() => copyDraft(releaseDecisionPacketDraft, "출시 판단 패킷")}
                     disabled={!releaseDecisionPacketDraft}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-indigo-200 bg-white px-3 text-sm font-semibold text-indigo-900 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Clipboard size={16} />
                     패킷 복사
@@ -12057,7 +12053,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       )
                     }
                     disabled={isBusy || !user || !releaseDecisionPacketDraft}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-indigo-200 bg-white px-3 text-sm font-semibold text-indigo-900 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <Save size={16} />
                     패킷 저장
@@ -12066,7 +12062,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={loadReleaseDecisionReason}
                     disabled={!canEdit}
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-indigo-700 px-3 text-sm font-semibold text-white transition hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     판단 근거 채우기
                   </button>
@@ -12122,14 +12118,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
           ) : null}
-          <div className="mb-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+          <div className="mb-5 avl-card-soft p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
-                  Performance review
-                </div>
-                <h3 className="mt-1 text-base font-semibold text-emerald-950">출시 후 성과 확인</h3>
-                <p className="mt-1 text-sm leading-6 text-emerald-900">
+                <div className="avl-kicker">performance review</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">출시 후 성과 확인</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
                   첫 공개 후 7일, 14일, 30일에 어떤 신호로 진행/보강/전환/중단을 판단할지 정리합니다.
                 </p>
               </div>
@@ -12138,7 +12132,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   type="button"
                   onClick={() => copyDraft(postLaunchLearningLoopDraft, "출시 후 성과 확인")}
                   disabled={!postLaunchLearningLoopDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-white px-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Clipboard size={16} />
                   기준 복사
@@ -12154,7 +12148,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     )
                   }
                   disabled={isBusy || !user || !postLaunchLearningLoopDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-700 px-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save size={16} />
                   기준 저장
@@ -12246,21 +12240,19 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
           {experienceMode === "guided" ? (
-            <div className="mt-4 rounded-lg border border-fuchsia-100 bg-fuchsia-50 p-4">
-              <div className="text-sm font-semibold text-fuchsia-950">개발 전달 정보는 필요할 때만 확인하세요.</div>
-              <p className="mt-2 text-sm leading-6 text-fuchsia-900">
+            <div className="mt-4 avl-card-soft p-4">
+              <div className="text-sm font-semibold text-slate-950">개발 전달 정보는 필요할 때만 확인하세요.</div>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
                 지금은 퍼널과 최근 이벤트 숫자만 보면 됩니다. 실제 제품 서버 연결, 비밀키, 라우트 코드는 전체 보기에서만 확인하세요.
               </p>
             </div>
           ) : (
-          <div className="mt-4 rounded-lg border border-fuchsia-100 bg-fuchsia-50 p-4">
+          <div className="mt-4 avl-band p-4 text-slate-900">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-700">
-                  Developer handoff
-                </div>
-                <h3 className="mt-1 text-base font-semibold text-fuchsia-950">MVP 사용 신호 연결</h3>
-                <p className="mt-1 text-sm leading-6 text-fuchsia-900">
+                <div className="avl-kicker">developer handoff</div>
+                <h3 className="mt-3 text-base font-semibold text-slate-950">MVP 사용 신호 연결</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
                   출시된 앱의 사용자 행동을 받아오는 개발팀 전달용 정보입니다. 경영진은 아래 퍼널과 최근 이벤트 숫자만 확인하면 됩니다.
                 </p>
               </div>
@@ -12269,7 +12261,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   type="button"
                   onClick={() => copyDraft(telemetryAdapterGuideDraft, "제품 이벤트 어댑터 가이드")}
                   disabled={!telemetryAdapterGuideDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-fuchsia-200 bg-white px-3 text-sm font-semibold text-fuchsia-900 transition hover:bg-fuchsia-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Clipboard size={16} />
                   전달 가이드 복사
@@ -12285,18 +12277,18 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     )
                   }
                   disabled={isBusy || !user || !telemetryAdapterGuideDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-fuchsia-700 px-3 text-sm font-semibold text-white transition hover:bg-fuchsia-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Save size={16} />
                   전달 가이드 저장
                 </button>
               </div>
             </div>
-            <details className="mt-4 rounded-lg border border-fuchsia-200 bg-white/70 p-3">
-              <summary className="cursor-pointer text-sm font-semibold text-fuchsia-950">
+            <details className="mt-4 rounded-xl border border-slate-200 bg-white/80 p-3">
+              <summary className="cursor-pointer text-sm font-semibold text-slate-950">
                 개발팀 전달 정보 열기
               </summary>
-              <p className="mt-2 text-sm leading-6 text-fuchsia-900">
+              <p className="mt-2 text-sm leading-6 text-slate-600">
                 아래 값은 개발자나 Codex 작업 세션에 전달할 때만 열어 확인합니다. 비밀값은 브라우저나 문서에 저장하지 않습니다.
               </p>
               <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(320px,0.7fr)]">
@@ -12349,7 +12341,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div key={snippet.label} className="rounded-lg bg-white p-3">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-700">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                           {snippet.label}
                         </div>
                         <p className="mt-1 text-sm leading-6 text-slate-600">{snippet.detail}</p>
@@ -12358,7 +12350,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         type="button"
                         onClick={() => copyDraft(snippet.body, snippet.label)}
                         disabled={!snippet.body}
-                        className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-fuchsia-200 bg-fuchsia-50 px-3 text-xs font-semibold text-fuchsia-900 transition hover:bg-fuchsia-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Code2 size={14} />
                         {snippet.action}
@@ -12374,19 +12366,19 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
           )}
 
-          <div className="mt-4 grid gap-3 lg:grid-cols-3">
-            {[
-              ["Day 7", "첫 행동 완료율", "이벤트가 적으면 온보딩, 첫 화면, 핵심 액션을 더 짧게 만듭니다."],
-              ["Day 14", "반복 사용과 지불 신호", "반복 이벤트와 실험 결과를 보고 세그먼트 축소 또는 가격 검증으로 이동합니다."],
-              ["Day 30", "유지와 다음 빌드", "충분한 사용/지불/추천 신호가 있으면 다음 MVP 슬라이스를 승인합니다."],
-            ].map(([label, signal, action]) => (
-              <div key={label} className="rounded-lg border border-emerald-100 bg-emerald-50 p-4">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
-                <h3 className="mt-2 text-sm font-semibold text-emerald-950">{signal}</h3>
-                <p className="mt-2 text-sm leading-6 text-emerald-900">{action}</p>
-              </div>
-            ))}
-          </div>
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+              {[
+                ["Day 7", "첫 행동 완료율", "이벤트가 적으면 온보딩, 첫 화면, 핵심 액션을 더 짧게 만듭니다."],
+                ["Day 14", "반복 사용과 지불 신호", "반복 이벤트와 실험 결과를 보고 세그먼트 축소 또는 가격 검증으로 이동합니다."],
+                ["Day 30", "유지와 다음 빌드", "충분한 사용/지불/추천 신호가 있으면 다음 MVP 슬라이스를 승인합니다."],
+              ].map(([label, signal, action]) => (
+                <div key={label} className="avl-card-soft p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
+                  <h3 className="mt-2 text-sm font-semibold text-slate-950">{signal}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{action}</p>
+                </div>
+              ))}
+            </div>
 
           <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.65fr)]">
             <div className="rounded-lg border border-slate-200 bg-white p-4">
@@ -12449,7 +12441,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </div>
                       </div>
                       <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
-                        <div className="h-full rounded-full bg-fuchsia-600" style={{ width: `${width}%` }} />
+                        <div className="h-full rounded-full bg-blue-600" style={{ width: `${width}%` }} />
                       </div>
                       <p className="mt-2 text-xs leading-5 text-slate-500">{row.question}</p>
                     </div>
@@ -13057,135 +13049,53 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div
-          className={`avl-card p-6 ${
-            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
-          }`}
-        >
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">아이디어 브리프 초안</h2>
-              <p className="mt-1 text-sm text-slate-500">PRD 또는 리서치 워크플로우에 넣을 수 있는 요약 초안입니다.</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={copyIdeaBrief}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                <Clipboard size={18} />
-                브리프 복사
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  saveArtifactDraft("idea_brief", `${selectedIdea.name} 아이디어 브리프`, ideaBrief, "workbench")
-                }
-                disabled={isBusy || !user}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Save size={18} />
-                산출물 저장
-              </button>
-            </div>
-          </div>
-          <textarea
-            value={ideaBrief}
-            readOnly
-            rows={12}
-            className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-          />
-          {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
-        </div>
+        <DraftDocumentCard
+          className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
+          kicker="validation"
+          title="아이디어 브리프 초안"
+          description="PRD 또는 리서치 워크플로우에 바로 붙여 넣을 수 있는 1차 요약 초안입니다."
+          body={ideaBrief}
+          rows={12}
+          copyLabel="브리프 복사"
+          onCopy={copyIdeaBrief}
+          onSave={() => saveArtifactDraft("idea_brief", `${selectedIdea.name} 아이디어 브리프`, ideaBrief, "workbench")}
+          saveDisabled={isBusy || !user}
+        />
 
-        <div
-          className={`avl-card p-6 ${
-            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
-          }`}
-        >
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">리서치 브리프 초안</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                인터뷰, 경쟁/대안, 가격, 규제, 개인정보 검증을 한 문서로 정리합니다.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => copyDraft(researchBriefDraft, "리서치 브리프")}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                <Clipboard size={18} />
-                리서치 복사
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  saveArtifactDraft("research_note", `${selectedIdea.name} 리서치 브리프`, researchBriefDraft, "workbench")
-                }
-                disabled={isBusy || !user}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Save size={18} />
-                산출물 저장
-              </button>
-            </div>
-          </div>
-          <textarea
-            value={researchBriefDraft}
-            readOnly
-            rows={18}
-            className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-          />
-        </div>
+        <DraftDocumentCard
+          className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
+          kicker="research"
+          title="리서치 브리프 초안"
+          description="인터뷰, 경쟁/대안, 가격, 규제, 개인정보 검증을 한 문서로 묶어 바로 조사에 넘깁니다."
+          body={researchBriefDraft}
+          rows={18}
+          copyLabel="리서치 복사"
+          onCopy={() => copyDraft(researchBriefDraft, "리서치 브리프")}
+          onSave={() =>
+            saveArtifactDraft("research_note", `${selectedIdea.name} 리서치 브리프`, researchBriefDraft, "workbench")
+          }
+          saveDisabled={isBusy || !user}
+        />
 
-        <div
-          className={`avl-card p-6 ${
-            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
-          }`}
-        >
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">7일 검증 스프린트</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                인터뷰 모집, 대안 조사, 가격 질문, Day 7 판정 기준을 바로 실행할 수 있게 묶습니다.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => copyDraft(validationSprintDraft, "7일 검증 스프린트")}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                <Clipboard size={18} />
-                스프린트 복사
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  saveArtifactDraft(
-                    "research_note",
-                    `${selectedIdea.name} 7일 검증 스프린트`,
-                    validationSprintDraft,
-                    "validation_sprint",
-                  )
-                }
-                disabled={isBusy || !user}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Save size={18} />
-                산출물 저장
-              </button>
-            </div>
-          </div>
-          <textarea
-            value={validationSprintDraft}
-            readOnly
-            rows={18}
-            className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-          />
-        </div>
+        <DraftDocumentCard
+          className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
+          kicker="7-day sprint"
+          title="7일 검증 스프린트"
+          description="인터뷰 모집, 대안 조사, 가격 질문, Day 7 판정 기준을 바로 실행할 수 있게 묶습니다."
+          body={validationSprintDraft}
+          rows={18}
+          copyLabel="스프린트 복사"
+          onCopy={() => copyDraft(validationSprintDraft, "7일 검증 스프린트")}
+          onSave={() =>
+            saveArtifactDraft(
+              "research_note",
+              `${selectedIdea.name} 7일 검증 스프린트`,
+              validationSprintDraft,
+              "validation_sprint",
+            )
+          }
+          saveDisabled={isBusy || !user}
+        />
 
         <div
           className={`avl-card p-6 ${
@@ -13256,62 +13166,36 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </form>
         </div>
 
-        <div
-          className={`avl-card p-6 ${
-            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
-          }`}
-        >
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">검증 완료 요약</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                저장된 근거, 실험, 리스크, 판단 기록을 묶어 PRD 진입 여부를 정리합니다.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => copyDraft(validationSummaryDraft, "검증 완료 요약")}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                <Clipboard size={18} />
-                요약 복사
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  saveArtifactDraft(
-                    "research_note",
-                    `${selectedIdea.name} 검증 완료 요약`,
-                    validationSummaryDraft,
-                    "validation_summary",
-                  )
-                }
-                disabled={isBusy || !user}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Save size={18} />
-                산출물 저장
-              </button>
-            </div>
-          </div>
-          <textarea
-            value={validationSummaryDraft}
-            readOnly
-            rows={16}
-            className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-          />
-        </div>
+        <DraftDocumentCard
+          className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
+          kicker="summary"
+          title="검증 완료 요약"
+          description="저장된 근거, 실험, 리스크, 판단 기록을 묶어 PRD 진입 여부를 정리합니다."
+          body={validationSummaryDraft}
+          rows={16}
+          copyLabel="요약 복사"
+          onCopy={() => copyDraft(validationSummaryDraft, "검증 완료 요약")}
+          onSave={() =>
+            saveArtifactDraft(
+              "research_note",
+              `${selectedIdea.name} 검증 완료 요약`,
+              validationSummaryDraft,
+              "validation_summary",
+            )
+          }
+          saveDisabled={isBusy || !user}
+        />
 
         <div
-          className={`rounded-lg border border-blue-100 bg-blue-50 p-6 shadow-sm ${
+          className={`avl-band p-6 text-slate-900 ${
             activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"
           }`}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-blue-950">PRD 진입 준비도</h2>
-              <p className="mt-1 text-sm leading-6 text-blue-900">
+              <div className="avl-kicker">readiness</div>
+              <h2 className="mt-3 text-lg font-semibold text-slate-950">PRD 진입 준비도</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
                 검증 근거가 제품 요구사항으로 넘어갈 만큼 정리되었는지 먼저 확인합니다.
               </p>
               <div
@@ -13332,8 +13216,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 )}
               </div>
             </div>
-            <div className="rounded-lg bg-blue-950 px-5 py-4 text-right text-white">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-200">
+            <div className="rounded-xl bg-slate-950 px-5 py-4 text-right text-white">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
                 통과 {passedPrdReadinessCount}/{prdReadinessChecks.length}
               </div>
               <div className="mt-1 text-3xl font-semibold">{prdReadinessScore}%</div>
@@ -13342,7 +13226,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {prdReadinessChecks.map((check) => (
-              <div key={check.label} className="rounded-lg border border-blue-100 bg-white p-3">
+              <div key={check.label} className="avl-card-soft p-3">
                 <div className="flex items-start gap-2">
                   <CheckCircle2
                     size={18}
@@ -13362,7 +13246,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               type="button"
               onClick={() => copyDraft(prdHandoffDraft, "PRD 전환 핸드오프")}
               disabled={!prdHandoffDraft}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-950 px-3 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Clipboard size={16} />
               핸드오프 복사
@@ -13378,7 +13262,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 )
               }
               disabled={isBusy || !user || !prdHandoffDraft}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-3 text-sm font-semibold text-blue-900 shadow-sm transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save size={16} />
               핸드오프 저장
@@ -13386,195 +13270,98 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <button
               type="button"
               onClick={() => setArtifactPanel("validation")}
-              className="inline-flex h-10 items-center justify-center rounded-md bg-blue-700 px-3 text-sm font-semibold text-white transition hover:bg-blue-800"
+              className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
               검증 산출물 보강
             </button>
             <button
               type="button"
               onClick={() => updateActiveTask("experiment")}
-              className="inline-flex h-10 items-center justify-center rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
             >
               실험 확인
             </button>
             <button
               type="button"
               onClick={() => updateActiveTask("risk")}
-              className="inline-flex h-10 items-center justify-center rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
             >
               리스크 확인
             </button>
             <button
               type="button"
               onClick={() => updateActiveTask("decision")}
-              className="inline-flex h-10 items-center justify-center rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
             >
               판단 기록
             </button>
           </div>
         </div>
 
-        <div
-          className={`avl-card p-6 ${
-            activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"
-          }`}
-        >
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">PRD 초안</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                점수, 증거, 리스크, 실험, 오케스트레이션 산출물을 바탕으로 생성됩니다.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={copyPrdDraft}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                <Clipboard size={18} />
-                PRD 복사
-              </button>
-              <button
-                type="button"
-                onClick={() => saveArtifactDraft("prd", `${selectedIdea.name} PRD`, prdDraft, "workbench")}
-                disabled={isBusy || !user}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Save size={18} />
-                산출물 저장
-              </button>
-            </div>
-          </div>
-          <textarea
-            value={prdDraft}
-            readOnly
-            rows={18}
-            className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-          />
-        </div>
+        <DraftDocumentCard
+          className={activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"}
+          kicker="product"
+          title="PRD 초안"
+          description="점수, 증거, 리스크, 실험, 오케스트레이션 산출물을 바탕으로 생성되는 제품 요구사항 초안입니다."
+          body={prdDraft}
+          rows={18}
+          copyLabel="PRD 복사"
+          onCopy={copyPrdDraft}
+          onSave={() => saveArtifactDraft("prd", `${selectedIdea.name} PRD`, prdDraft, "workbench")}
+          saveDisabled={isBusy || !user}
+        />
 
         <div className={activeTask === "artifacts" && artifactPanel === "product" ? "grid gap-6 xl:grid-cols-2" : "hidden"}>
-          <div className="rounded-lg border border-indigo-100 bg-indigo-50 p-6 shadow-sm xl:col-span-2">
-            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-indigo-950">MVP 슬라이스 플랜</h2>
-                <p className="mt-1 text-sm leading-6 text-indigo-900">
-                  개발 범위를 수동 검증, 얇은 제품, AI/자동화, 출시 하드닝으로 나눠 첫 구현이 커지지 않게 합니다.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => copyDraft(mvpSlicePlanDraft, "MVP 슬라이스 플랜")}
-                  disabled={!mvpSlicePlanDraft}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-indigo-950 px-4 text-sm font-semibold text-white transition hover:bg-indigo-900 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Clipboard size={18} />
-                  플랜 복사
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    saveArtifactDraft(
-                      "mvp_spec",
-                      `${selectedIdea.name} MVP 슬라이스 플랜`,
-                      mvpSlicePlanDraft,
-                      "mvp_slice_plan",
-                    )
-                  }
-                  disabled={isBusy || !user || !mvpSlicePlanDraft}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-indigo-200 bg-white px-4 text-sm font-semibold text-indigo-900 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Save size={18} />
-                  플랜 저장
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={mvpSlicePlanDraft}
-              readOnly
-              rows={18}
-              className="w-full resize-y rounded-md border border-indigo-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-            />
-          </div>
+          <DraftDocumentCard
+            className="xl:col-span-2"
+            kicker="execution plan"
+            title="MVP 슬라이스 플랜"
+            description="개발 범위를 수동 검증, 얇은 제품, AI/자동화, 출시 하드닝으로 나눠 첫 구현이 커지지 않게 합니다."
+            body={mvpSlicePlanDraft}
+            rows={18}
+            copyLabel="플랜 복사"
+            onCopy={() => copyDraft(mvpSlicePlanDraft, "MVP 슬라이스 플랜")}
+            onSave={() =>
+              saveArtifactDraft(
+                "mvp_spec",
+                `${selectedIdea.name} MVP 슬라이스 플랜`,
+                mvpSlicePlanDraft,
+                "mvp_slice_plan",
+              )
+            }
+            saveDisabled={isBusy || !user || !mvpSlicePlanDraft}
+          />
 
-          <div className="avl-card p-6">
-            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-950">MVP 명세 초안</h2>
-                <p className="mt-1 text-sm text-slate-500">PRD 증거, 실험, 개발 게이트를 바탕으로 생성됩니다.</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={copyMvpSpecDraft}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
-                  <Clipboard size={18} />
-                  복사
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    saveArtifactDraft("mvp_spec", `${selectedIdea.name} MVP 명세`, mvpSpecDraft, "workbench")
-                  }
-                  disabled={isBusy || !user}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Save size={18} />
-                  저장
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={mvpSpecDraft}
-              readOnly
-              rows={16}
-              className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-            />
-          </div>
+          <DraftDocumentCard
+            kicker="spec"
+            title="MVP 명세 초안"
+            description="PRD 증거, 실험, 개발 게이트를 바탕으로 생성되는 실행 명세입니다."
+            body={mvpSpecDraft}
+            rows={16}
+            copyLabel="명세 복사"
+            onCopy={copyMvpSpecDraft}
+            onSave={() => saveArtifactDraft("mvp_spec", `${selectedIdea.name} MVP 명세`, mvpSpecDraft, "workbench")}
+            saveDisabled={isBusy || !user}
+          />
 
-          <div className="avl-card p-6">
-            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-slate-950">출시 체크리스트 초안</h2>
-                <p className="mt-1 text-sm text-slate-500">산출물, 오케스트레이션 게이트, 리스크, 실험을 바탕으로 생성됩니다.</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={copyLaunchChecklistDraft}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
-                  <Clipboard size={18} />
-                  복사
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    saveArtifactDraft(
-                      "launch_checklist",
-                      `${selectedIdea.name} 출시 체크리스트`,
-                      launchChecklistDraft,
-                      "workbench",
-                    )
-                  }
-                  disabled={isBusy || !user}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Save size={18} />
-                  저장
-                </button>
-              </div>
-            </div>
-            <textarea
-              value={launchChecklistDraft}
-              readOnly
-              rows={16}
-              className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
-            />
-          </div>
+          <DraftDocumentCard
+            kicker="launch"
+            title="출시 체크리스트 초안"
+            description="산출물, 오케스트레이션 게이트, 리스크, 실험을 바탕으로 출시 직전 확인 항목을 정리합니다."
+            body={launchChecklistDraft}
+            rows={16}
+            copyLabel="체크리스트 복사"
+            onCopy={copyLaunchChecklistDraft}
+            onSave={() =>
+              saveArtifactDraft(
+                "launch_checklist",
+                `${selectedIdea.name} 출시 체크리스트`,
+                launchChecklistDraft,
+                "workbench",
+              )
+            }
+            saveDisabled={isBusy || !user}
+          />
         </div>
 
         <div
@@ -13635,12 +13422,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           </div>
           {selectedIdea ? (
-            <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+            <div className="mb-4 avl-band p-4 text-slate-900">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">Review queue</div>
-                  <h3 className="mt-1 text-base font-semibold text-indigo-950">앱 제작 산출물 승인 큐</h3>
-                  <p className="mt-1 text-sm leading-6 text-indigo-900">
+                  <div className="avl-kicker">review queue</div>
+                  <h3 className="mt-3 text-base font-semibold text-slate-950">앱 제작 산출물 승인 큐</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
                     아이디어 검증에서 개발/출시까지 필요한 산출물을 순서대로 확인합니다.
                   </p>
                   {nextArtifactReviewItem ? (
@@ -13668,8 +13455,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   )}
                 </div>
-                <div className="shrink-0 rounded-lg bg-indigo-950 px-4 py-3 text-right text-white">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-200">
+                <div className="shrink-0 rounded-xl bg-slate-950 px-4 py-3 text-right text-white">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
                     승인 {approvedArtifactReviewCount}/{artifactReviewQueue.length}
                   </div>
                   <div className="mt-1 text-3xl font-semibold">{artifactReviewProgress}%</div>
@@ -13677,7 +13464,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => focusArtifactReviewItem(nextArtifactReviewItem)}
-                      className="mt-3 inline-flex h-9 items-center justify-center rounded-md bg-white px-3 text-xs font-semibold text-indigo-900 transition hover:bg-indigo-100"
+                      className="mt-3 inline-flex h-9 items-center justify-center rounded-xl bg-white px-3 text-xs font-semibold text-slate-900 transition hover:bg-slate-50"
                     >
                       다음 항목 열기
                     </button>
@@ -13690,7 +13477,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     key={item.id}
                     type="button"
                     onClick={() => focusArtifactReviewItem(item)}
-                    className="rounded-md bg-white px-3 py-2 text-left transition hover:bg-indigo-100"
+                    className="rounded-xl bg-white px-3 py-2 text-left transition hover:bg-slate-50"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-semibold text-slate-950">{item.label}</span>
@@ -13713,24 +13500,25 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           ) : null}
           {recentDevelopmentHandoffArtifacts.length > 0 ? (
-            <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50 p-4">
+            <div className="mb-4 avl-card-soft p-4">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-blue-950">최근 개발 핸드오프</h3>
-                  <p className="mt-1 text-sm leading-6 text-blue-900">
+                  <div className="avl-kicker">handoff</div>
+                  <h3 className="mt-2 text-sm font-semibold text-slate-950">최근 개발 핸드오프</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
                     필터 실행 프롬프트와 개발 런북 저장본을 먼저 보여줍니다. 최신본을 복사해 다음 구현 루프에 넘기세요.
                   </p>
                 </div>
-                <span className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-blue-800 shadow-sm">
+                <span className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm">
                   {recentDevelopmentHandoffArtifacts.length}개
                 </span>
               </div>
               <div className="mt-3 grid gap-2 lg:grid-cols-3">
                 {recentDevelopmentHandoffArtifacts.map((artifact) => (
-                  <div key={artifact.id} className="rounded-md border border-blue-100 bg-white p-3">
+                  <div key={artifact.id} className="rounded-xl border border-slate-200 bg-white p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-semibold text-slate-950">{artifact.title || "제목 없음"}</span>
-                      <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-800">
+                      <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
                         v{artifact.version ?? 1}
                       </span>
                     </div>
@@ -13981,6 +13769,73 @@ function GateChecklistPanel({
         ))}
       </div>
     </div>
+  );
+}
+
+function DraftDocumentCard({
+  className = "",
+  kicker,
+  title,
+  description,
+  body,
+  rows = 16,
+  copyLabel,
+  saveLabel = "산출물 저장",
+  onCopy,
+  onSave,
+  saveDisabled = false,
+}: {
+  className?: string;
+  kicker?: string;
+  title: string;
+  description: string;
+  body: string;
+  rows?: number;
+  copyLabel: string;
+  saveLabel?: string;
+  onCopy: () => void;
+  onSave?: () => void;
+  saveDisabled?: boolean;
+}) {
+  return (
+    <section className={`${className} avl-card-soft p-5`}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          {kicker ? (
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{kicker}</div>
+          ) : null}
+          <h3 className={`${kicker ? "mt-2" : ""} text-lg font-semibold text-slate-950`}>{title}</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onCopy}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+          >
+            <Clipboard size={18} />
+            {copyLabel}
+          </button>
+          {onSave ? (
+            <button
+              type="button"
+              onClick={onSave}
+              disabled={saveDisabled}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Save size={18} />
+              {saveLabel}
+            </button>
+          ) : null}
+        </div>
+      </div>
+      <textarea
+        value={body}
+        readOnly
+        rows={rows}
+        className="mt-4 w-full resize-y rounded-[18px] border border-slate-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+      />
+    </section>
   );
 }
 

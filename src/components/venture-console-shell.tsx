@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import {
   Activity,
   ArrowRight,
@@ -455,19 +455,6 @@ function getCurrentStepBlocker({
   }
 }
 
-function scoreIdea(idea: Idea) {
-  return Math.max(
-    0,
-    idea.problem_intensity +
-      idea.frequency +
-      idea.reachability +
-      idea.willingness_to_pay +
-      idea.mvp_speed +
-      idea.differentiation -
-      idea.regulatory_risk,
-  );
-}
-
 function upsertById<T extends { id: string }>(records: T[], nextRecord: T) {
   return records.some((record) => record.id === nextRecord.id)
     ? records.map((record) => (record.id === nextRecord.id ? nextRecord : record))
@@ -617,52 +604,6 @@ export function VentureConsoleShell({
   const artifactCount = artifacts.length;
   const implementationTaskCount = implementationTasks.length;
   const telemetryEventCount = telemetryEvents.length;
-  const prioritizedIdeas = useMemo(
-    () =>
-      ideas
-        .map((idea) => {
-          const ideaRisks = risks.filter((risk) => risk.idea_id === idea.id);
-          const openHighRiskCount = ideaRisks.filter(
-            (risk) => risk.status !== "closed" && ["high", "critical"].includes(risk.severity),
-          ).length;
-          const ideaExperiments = experiments.filter((experiment) => experiment.idea_id === idea.id);
-          const ideaArtifacts = artifacts.filter((artifact) => artifact.idea_id === idea.id);
-          const approvedProductArtifactCount = ideaArtifacts.filter(
-            (artifact) =>
-              artifact.status === "approved" && ["prd", "mvp_spec", "design_brief", "tech_spec"].includes(artifact.artifact_type),
-          ).length;
-          const ventureScore = scoreIdea(idea);
-          const priorityScore =
-            ventureScore +
-            Math.min(6, ideaExperiments.length * 2) +
-            Math.min(8, approvedProductArtifactCount * 2) -
-            openHighRiskCount * 5 -
-            (idea.decision === "kill" ? 12 : 0);
-          const nextAction =
-            openHighRiskCount > 0
-              ? "리스크 먼저"
-              : ideaExperiments.length === 0
-                ? "실험 먼저"
-                : approvedProductArtifactCount > 0
-                  ? "개발 후보"
-                  : "검증 후보";
-
-          return {
-            idea,
-            ventureScore,
-            priorityScore,
-            nextAction,
-            openHighRiskCount,
-          };
-        })
-        .sort(
-          (left, right) =>
-            right.priorityScore - left.priorityScore ||
-            new Date(right.idea.created_at).getTime() - new Date(left.idea.created_at).getTime(),
-        )
-        .slice(0, 3),
-    [artifacts, experiments, ideas, risks],
-  );
   const activeTaskIndex = shellTasks.findIndex((task) => task.id === activeTask);
   const activeTaskConfig = shellTasks[activeTaskIndex] ?? shellTasks[0];
   const ActiveIcon = activeTaskConfig.icon;
@@ -725,7 +666,6 @@ export function VentureConsoleShell({
     Math.round(((completedRequiredCount + (activeTaskConfig.optional ? 0 : 0.5)) / Math.max(1, requiredShellTasks.length)) * 100),
   );
   const activeCanvas = taskCanvasDetails[activeTask];
-  const collaborationTask = shellTasks.find((task) => task.id === "console:workspace") ?? null;
 
   function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
     if (task.optional) {
@@ -736,13 +676,13 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-6 xl:grid-cols-[220px_minmax(0,1fr)_280px]">
-      <aside className="avl-card sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto p-4 self-start">
+    <section className="grid gap-4 xl:grid-cols-[190px_minmax(0,1fr)]">
+      <aside className="avl-card sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto p-3">
         <div className="border-b border-slate-200 pb-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-blue-700">AI Venture Lab</div>
-              <h2 className="mt-2 text-lg font-semibold tracking-tight text-slate-950">진행 레일</h2>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-blue-700">workflow</div>
+              <h2 className="mt-2 text-sm font-semibold tracking-tight text-slate-950">진행 레일</h2>
             </div>
             <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
               {source === "supabase" ? "Live" : "Fallback"}
@@ -763,26 +703,7 @@ export function VentureConsoleShell({
           </div>
         </div>
 
-        {collaborationTask ? (
-          <button
-            type="button"
-            onClick={() => goToTask(collaborationTask.id)}
-            className="mt-4 grid w-full grid-cols-[1.5rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-3 text-left transition hover:bg-slate-100"
-          >
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-[10px] font-semibold text-blue-700">
-              팀
-            </span>
-            <span className="min-w-0">
-              <span className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                <Users size={14} />
-                {collaborationTask.label}
-              </span>
-              <span className="mt-1 block text-xs leading-5 text-slate-500">{collaborationTask.description}</span>
-            </span>
-          </button>
-        ) : null}
-
-        <div className="mt-5 space-y-3">
+        <div className="mt-4 space-y-2.5">
           {requiredShellTasks.map((task, index) => {
             const Icon = task.icon;
             const isCurrent = task.id === activeTask;
@@ -801,7 +722,7 @@ export function VentureConsoleShell({
                   type="button"
                   onClick={() => !isLocked && goToTask(task.id)}
                   disabled={isLocked}
-                  className={`grid w-full grid-cols-[1.75rem_minmax(0,1fr)] gap-3 rounded-2xl border px-3 py-3 text-left transition ${
+                  className={`grid w-full grid-cols-[1.55rem_minmax(0,1fr)] gap-3 rounded-2xl border px-2.5 py-2.5 text-left transition ${
                     isCurrent
                       ? "border-blue-200 bg-blue-50"
                       : isCompleted
@@ -812,7 +733,7 @@ export function VentureConsoleShell({
                   }`}
                 >
                   <span
-                    className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold ${
+                    className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold ${
                       isCurrent
                         ? "bg-blue-600 text-white"
                         : isCompleted
@@ -823,21 +744,51 @@ export function VentureConsoleShell({
                     {isCompleted ? <CheckCircle2 size={13} /> : getTaskOrderLabel(task)}
                   </span>
                   <span className="min-w-0">
-                    <span className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                    <span className="flex items-center gap-2 text-[13px] font-semibold text-slate-950">
                       <Icon size={14} />
                       {task.label}
                     </span>
-                    <span className="mt-1 block text-xs leading-5 text-slate-500">{task.description}</span>
+                    <span className="mt-1 block text-[11px] leading-5 text-slate-500">{task.description}</span>
                   </span>
                 </button>
               </div>
             );
           })}
         </div>
+
+        {supportTasks.length > 0 ? (
+          <details className="mt-4 rounded-[18px] border border-slate-200 bg-slate-50 p-3">
+            <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              선택 기능
+            </summary>
+            <div className="mt-3 space-y-2">
+              {supportTasks.map((task) => {
+                const Icon = task.icon;
+
+                return (
+                  <button
+                    key={task.id}
+                    type="button"
+                    onClick={() => goToTask(task.id)}
+                    className="grid w-full grid-cols-[1.5rem_minmax(0,1fr)] gap-3 rounded-[16px] border border-slate-200 bg-white px-3 py-3 text-left transition hover:bg-slate-100"
+                  >
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-50 text-slate-700">
+                      <Icon size={13} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold text-slate-950">{task.label}</span>
+                      <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </details>
+        ) : null}
       </aside>
 
-      <div className="min-w-0 space-y-6">
-        <section className="avl-card p-6 sm:p-7">
+      <div className="min-w-0 space-y-5">
+        <section className="avl-card p-5 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
               <span className="text-blue-700">{activeTaskConfig.group}</span>
@@ -868,42 +819,29 @@ export function VentureConsoleShell({
             </div>
           </div>
 
-          <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_320px]">
+          <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_270px]">
             <div className="min-w-0">
-              <div className="flex items-start gap-4">
-                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-blue-700">
-                  <ActiveIcon size={22} />
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-blue-700">
+                  <ActiveIcon size={18} />
                 </span>
                 <div className="min-w-0">
-                  <div className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">{activeTaskConfig.label}</div>
-                  <h2 className="mt-3 max-w-4xl text-[30px] font-semibold tracking-tight text-slate-950 sm:text-[42px] sm:leading-[44px]">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{activeTaskConfig.label}</div>
+                  <h2 className="mt-2 max-w-4xl text-[22px] font-semibold tracking-tight text-slate-950 sm:text-[26px] sm:leading-[31px]">
                     {activeCanvas.question}
                   </h2>
-                  <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">{activeTaskConfig.description}</p>
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-3 lg:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">AI가 먼저 하는 일</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-700">{activeCanvas.aiLead}</p>
-                </div>
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">이번 단계 산출물</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-700">{activeCanvas.deliverable}</p>
-                </div>
-                <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-700">사용자 확인 포인트</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-800">{activeCanvas.checkpoint}</p>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{activeTaskConfig.description}</p>
                 </div>
               </div>
             </div>
 
-            <aside className="rounded-[24px] border border-slate-200 bg-slate-50 p-5">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">이번 단계에서 할 일</div>
-              <p className="mt-3 text-sm leading-7 text-slate-700">{activeGuidance.summary}</p>
-              <ol className="mt-4 grid gap-2">
-                {activeGuidance.checklist.slice(0, 4).map((item, index) => (
+            <aside className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">다음 행동</div>
+              <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700">
+                {activeCanvas.checkpoint}
+              </div>
+              <ol className="mt-3 grid gap-2">
+                {activeGuidance.checklist.slice(0, 2).map((item, index) => (
                   <li
                     key={item}
                     className="grid grid-cols-[1.4rem_minmax(0,1fr)] items-start gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3"
@@ -915,8 +853,9 @@ export function VentureConsoleShell({
                   </li>
                 ))}
               </ol>
+              <p className="mt-3 text-xs leading-6 text-slate-500">AI 초안: {activeCanvas.aiLead}</p>
               {optionalNextTasks.length > 0 ? (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-2">
                   {optionalNextTasks.map((option) => (
                     <button
                       key={option.id}
@@ -927,6 +866,11 @@ export function VentureConsoleShell({
                       {option.cta}
                     </button>
                   ))}
+                </div>
+              ) : null}
+              {currentStepBlocker ? (
+                <div className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+                  {currentStepBlocker}
                 </div>
               ) : null}
             </aside>
@@ -963,64 +907,17 @@ export function VentureConsoleShell({
             />
           </div>
         </section>
-      </div>
-
-      <aside className="space-y-4 xl:sticky xl:top-4 xl:self-start">
-        <div className="avl-card p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">현재 단계 메모</div>
-          <div className="mt-2 text-lg font-semibold text-slate-950">AI가 지금 보는 신호</div>
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-700">
-            {currentStepBlocker ?? "현재 단계 입력이 정리되면 AI가 다음 행동과 산출물 연결을 이어서 제안합니다."}
-          </div>
-        </div>
-
-        <div className="avl-card p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">우선 검토 후보</div>
-              <div className="mt-2 text-lg font-semibold text-slate-950">오늘 먼저 볼 아이디어</div>
-            </div>
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">상위 {prioritizedIdeas.length}개</span>
-          </div>
-          <div className="mt-4 grid gap-3">
-            {prioritizedIdeas.length > 0 ? (
-              prioritizedIdeas.map((item, index) => (
-                <button
-                  key={item.idea.id}
-                  type="button"
-                  onClick={() => goToTask("workbench:select")}
-                  className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] border border-slate-200 bg-slate-50 p-4 text-left transition hover:bg-slate-100"
-                >
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-sm font-semibold text-white">
-                    {index + 1}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-base font-semibold text-slate-950">{item.idea.name}</span>
-                    <span className="mt-1 block text-sm leading-6 text-slate-600">점수 {item.ventureScore} · {item.nextAction}</span>
-                    <span className="mt-2 inline-flex rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                      {item.openHighRiskCount > 0 ? `고위험 ${item.openHighRiskCount}` : "고위험 없음"}
-                    </span>
-                  </span>
-                </button>
-              ))
-            ) : (
-              <div className="rounded-[18px] border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-                아직 우선 추천 후보가 없습니다. 아이디어를 저장하거나 검증을 더 진행하면 이곳이 채워집니다.
-              </div>
-            )}
-          </div>
-        </div>
 
         {lockedTasks.length > 0 ? (
-          <details className="avl-card p-5">
+          <details className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
             <summary className="flex cursor-pointer list-none items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               <LockKeyhole size={13} />
               잠긴 뒤 단계 미리보기
             </summary>
-            <div className="mt-4 grid gap-3">
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
               {lockedTasks.slice(0, 3).map((task) => (
-                <div key={task.id} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] border border-slate-200 bg-slate-50 p-4">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-600">
+                <div key={task.id} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] border border-slate-200 bg-white p-4">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-sm font-semibold text-slate-600">
                     {getTaskOrderLabel(task)}
                   </span>
                   <span className="min-w-0">
@@ -1032,7 +929,7 @@ export function VentureConsoleShell({
             </div>
           </details>
         ) : null}
-      </aside>
+      </div>
     </section>
   );
 }

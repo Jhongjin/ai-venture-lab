@@ -1556,7 +1556,6 @@ export function VentureConsoleActions({
   const [isAiExtracting, setIsAiExtracting] = useState(false);
   const [isReplayingExtraction, setIsReplayingExtraction] = useState(false);
   const [isSavingExtractionReport, setIsSavingExtractionReport] = useState(false);
-  const [extractionReports, setExtractionReports] = useState<VentureArtifact[]>([]);
   const [localActiveTask, setLocalActiveTask] = useState<ConsoleActionTask>("auth");
   const activeTask = controlledActiveTask ?? localActiveTask;
   const hasWorkspace = organizations.length > 0 && Boolean(activeOrganizationId || organizations[0]?.id);
@@ -1829,31 +1828,6 @@ export function VentureConsoleActions({
     },
     [supabase],
   );
-  const loadExtractionReports = useCallback(
-    async (operator: User | null, organizationId = "") => {
-      if (!supabase || !operator) {
-        setExtractionReports([]);
-        return;
-      }
-
-      let query = supabase
-        .from("venture_artifacts")
-        .select("*")
-        .eq("source", "extraction_portfolio")
-        .order("created_at", { ascending: false })
-        .limit(3);
-
-      query = organizationId ? query.eq("organization_id", organizationId) : query.is("organization_id", null);
-
-      const { data, error } = await query;
-
-      if (!error) {
-        setExtractionReports(data ?? []);
-      }
-    },
-    [supabase],
-  );
-
   const loadWorkspaceData = useCallback(async (operator: User | null, preferredOrganizationId = "") => {
     if (!supabase || !operator) {
       setOrganizations([]);
@@ -2003,16 +1977,6 @@ export function VentureConsoleActions({
       data.subscription.unsubscribe();
     };
   }, [loadWorkspaceData, router, supabase, updateActiveTask]);
-
-  useEffect(() => {
-    const reportTimer = window.setTimeout(() => {
-      void loadExtractionReports(user, activeOrganization?.id ?? "");
-    }, 0);
-
-    return () => {
-      window.clearTimeout(reportTimer);
-    };
-  }, [activeOrganization?.id, loadExtractionReports, user]);
 
   async function handleEmailLinkSignIn() {
     setAuthMessage(null);
@@ -2509,11 +2473,6 @@ export function VentureConsoleActions({
     setExtractMessage("후보 비교 실행 요약을 클립보드에 복사했습니다.");
   }
 
-  async function copyExtractionReport(report: VentureArtifact) {
-    await navigator.clipboard.writeText(report.body);
-    setExtractMessage(`'${report.title || "발굴 리포트"}' 본문을 클립보드에 복사했습니다.`);
-  }
-
   async function saveExtractionPortfolioReport() {
     if (extractionPortfolioItems.length === 0) {
       setExtractMessage("저장할 후보 비교 리포트가 없습니다. 먼저 후보를 발굴하세요.");
@@ -2569,7 +2528,6 @@ export function VentureConsoleActions({
       return;
     }
 
-    setExtractionReports((current) => [data, ...current.filter((report) => report.id !== data.id)].slice(0, 3));
     window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: data }));
     setExtractMessage("발굴 리포트를 산출물 기록으로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
     await loadPersonalRecordCount(user);
@@ -3128,39 +3086,13 @@ export function VentureConsoleActions({
         </div>
 
         <div className={`${activeTask === "extract" ? "" : "hidden"} ${embedded ? "space-y-5" : "avl-card-dark p-6"}`}>
-          {embedded ? (
-            <div className="avl-card flex flex-col gap-3 px-5 py-5 text-slate-900 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">원문 준비</div>
-                <p className="mt-2 text-sm leading-6 text-slate-700">
-                  회의 메모나 대화를 붙여넣으면, AI가 지금 바로 검토할 후보 1개와 비교 후보 큐를 먼저 정리합니다.
-                </p>
-              </div>
-              <div className="flex shrink-0 flex-wrap gap-2">
-                <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600">
-                  {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length.toLocaleString()}자 입력됨` : "원문 대기"}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void handleAiExtractIdeas();
-                  }}
-                  disabled={isAiExtracting || isReplayingExtraction}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
-                  AI 후보 발굴
-                </button>
-              </div>
-            </div>
-          ) : (
+          {!embedded ? (
             <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <div className="avl-kicker">AI source ingest</div>
                 <h2 className="mt-3 text-2xl font-semibold text-white">아이디어 찾기</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
-                  회의록, 대화, 메모를 가져오면 AI가 후보를 구조화하고, 바로 저장할 추천 1개와 비교 후보 큐를
-                  나눠서 보여줍니다.
+                  회의록, 대화, 메모를 가져오면 AI가 후보를 구조화하고 바로 다음으로 넘길 추천 후보 1개와 비교 후보 큐를 먼저 보여줍니다.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -3177,7 +3109,7 @@ export function VentureConsoleActions({
                 </button>
               </div>
             </div>
-          )}
+          ) : null}
 
           <div className="space-y-5">
             <section className={`${embedded ? "avl-card p-6 text-slate-900" : "avl-card p-6 text-slate-900"}`}>
@@ -3201,7 +3133,7 @@ export function VentureConsoleActions({
                     onChange={(event) => setRawIdeaSource(event.target.value)}
                     rows={16}
                     placeholder="예) 아이디어:, 페인 포인트:, 솔루션:, 타깃, 수익화, 다음 검증 질문..."
-                    className="min-h-[360px] resize-y rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-300 focus:ring-2 focus:ring-violet-300/20"
+                    className="min-h-[360px] resize-y rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
                   />
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -3237,7 +3169,7 @@ export function VentureConsoleActions({
                     </button>
                   </div>
                   {extractMessage ? (
-                    <div className="rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm leading-6 text-violet-950">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">
                       {extractMessage}
                     </div>
                   ) : null}
@@ -3281,7 +3213,7 @@ export function VentureConsoleActions({
                         </div>
                       </div>
                       <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-950 px-4 py-4 text-sm leading-6 text-slate-100">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-200">AI 판단</div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">AI 판단</div>
                         <p className="mt-2">
                           {recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
                         </p>
@@ -3335,63 +3267,63 @@ export function VentureConsoleActions({
                     </section>
                   )}
 
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="rounded-[20px] border border-slate-200 bg-white/88 p-4 shadow-sm">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">실행 상태</div>
-                      <div className="mt-2 text-sm font-semibold text-slate-950">
-                        {extractionRunMeta
-                          ? extractionRunMeta.engine === "openai"
-                            ? "OpenAI 추출"
-                            : extractionRunMeta.engine === "fallback"
-                              ? "AI 실패 후 내부 안전장치"
-                              : "내부 안전장치"
-                          : "실행 전"}
-                      </div>
-                      <p className="mt-2 text-xs leading-5 text-slate-600">
-                        {extractionRunMeta?.note ?? "아직 실행하지 않았습니다."}
-                      </p>
-                    </div>
-                    <div className="rounded-[20px] border border-slate-200 bg-white/88 p-4 shadow-sm">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">개인정보 보호</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-700">
-                        이메일, 전화번호, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
-                      </p>
-                    </div>
-                    <details className="rounded-[20px] border border-slate-200 bg-white/88 p-4 shadow-sm">
-                      <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">결과 점검</summary>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        추천이 너무 넓거나 빠졌다고 느껴질 때만 비교 점검을 열어 확인하면 됩니다.
-                      </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            void handleReplayExtractionComparison();
-                          }}
-                          disabled={isAiExtracting || isReplayingExtraction}
-                          className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {isReplayingExtraction ? <RefreshCw className="animate-spin" size={16} /> : <RefreshCw size={16} />}
-                          결과 점검
-                        </button>
-                      </div>
-                      {extractionReplay ? (
-                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                            <div className="text-xs font-semibold text-slate-500">공통 후보</div>
-                            <div className="mt-1 text-lg font-semibold text-slate-950">{extractionReplay.consensusCount}</div>
-                          </div>
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                            <div className="text-xs font-semibold text-slate-500">AI만 포착</div>
-                            <div className="mt-1 text-lg font-semibold text-slate-950">{extractionReplay.aiOnlyCount}</div>
-                          </div>
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs leading-6 text-slate-600 sm:col-span-2">
-                            {extractionReplay.note}
-                          </div>
+                  <details className="rounded-[20px] border border-slate-200 bg-white/88 p-4 shadow-sm">
+                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">실행 상태와 점검 보기</summary>
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">실행 상태</div>
+                        <div className="mt-2 text-sm font-semibold text-slate-950">
+                          {extractionRunMeta
+                            ? extractionRunMeta.engine === "openai"
+                              ? "OpenAI 추출"
+                              : extractionRunMeta.engine === "fallback"
+                                ? "AI 실패 후 내부 안전장치"
+                                : "내부 안전장치"
+                            : "실행 전"}
                         </div>
-                      ) : null}
-                    </details>
-                  </div>
+                        <p className="mt-2 text-xs leading-5 text-slate-600">
+                          {extractionRunMeta?.note ?? "아직 실행하지 않았습니다."}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">개인정보 보호</div>
+                        <p className="mt-2 text-sm leading-6 text-slate-700">
+                          이메일, 전화번호, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-sm leading-6 text-slate-600">
+                      추천이 너무 넓거나 빠졌다고 느껴질 때만 비교 점검을 열어 확인하면 됩니다.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void handleReplayExtractionComparison();
+                        }}
+                        disabled={isAiExtracting || isReplayingExtraction}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isReplayingExtraction ? <RefreshCw className="animate-spin" size={16} /> : <RefreshCw size={16} />}
+                        결과 점검
+                      </button>
+                    </div>
+                    {extractionReplay ? (
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                          <div className="text-xs font-semibold text-slate-500">공통 후보</div>
+                          <div className="mt-1 text-lg font-semibold text-slate-950">{extractionReplay.consensusCount}</div>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                          <div className="text-xs font-semibold text-slate-500">AI만 포착</div>
+                          <div className="mt-1 text-lg font-semibold text-slate-950">{extractionReplay.aiOnlyCount}</div>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs leading-6 text-slate-600 sm:col-span-2">
+                          {extractionReplay.note}
+                        </div>
+                      </div>
+                    ) : null}
+                  </details>
                 </div>
               </div>
             </section>
@@ -3491,7 +3423,7 @@ export function VentureConsoleActions({
                               type="button"
                               onClick={() => saveExtractedIdeaPackage(item.candidate)}
                               disabled={Boolean(extractSaveKey) || !user}
-                              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-violet-600 px-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {extractSaveKey === item.candidate.id ? <RefreshCw className="animate-spin" size={14} /> : <PlusCircle size={14} />}
                               저장
