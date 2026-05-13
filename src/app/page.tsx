@@ -30,19 +30,19 @@ export default async function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#f2f6fb_0%,#eef3f8_100%)] text-slate-950">
+    <main className="min-h-screen bg-[#0a0a0a] text-white">
       <div className="mx-auto grid w-full max-w-[1680px] gap-6 px-4 py-4 sm:px-6">
-        <header className="overflow-hidden rounded-[30px] border border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.12),transparent_34%),linear-gradient(135deg,#ffffff_0%,#f7fbff_100%)] px-6 py-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] sm:px-7">
+        <header className="overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(187,166,255,0.24),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.18),transparent_24%),linear-gradient(135deg,#0a0a0f_0%,#141421_58%,#10131c_100%)] px-6 py-7 shadow-[0_35px_120px_rgba(0,0,0,0.42)] sm:px-7">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
-              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">
+              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-violet-200">
                 <FlaskConical size={16} />
                 AI Venture Lab
               </div>
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-5xl">
                 아이디어 실행 보드
               </h1>
-              <p className="mt-4 text-sm leading-7 text-slate-600 sm:text-[15px]">
+              <p className="mt-4 text-sm leading-7 text-slate-300 sm:text-[15px]">
                 AI가 아이디어를 구조화하고, 검증과 실행 패키지를 자동으로 만들고, 사용자는 필요한 판단만
                 보완하는 단일 실행형 워크스페이스입니다.
               </p>
@@ -50,9 +50,12 @@ export default async function Home() {
 
             <div className="grid min-w-[320px] gap-3 sm:grid-cols-2 xl:w-[420px]">
               {headerStats.map(([label, value]) => (
-                <div key={label} className="rounded-[22px] border border-slate-200 bg-white/85 p-4 shadow-sm backdrop-blur">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</div>
-                  <div className="mt-2 text-2xl font-semibold text-slate-950">{value}</div>
+                <div
+                  key={label}
+                  className="rounded-[20px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur"
+                >
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{label}</div>
+                  <div className="mt-2 text-2xl font-semibold text-white">{value}</div>
                 </div>
               ))}
             </div>
@@ -60,7 +63,7 @@ export default async function Home() {
         </header>
 
         {error ? (
-          <section className="rounded-[22px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 shadow-sm">
+          <section className="rounded-[22px] border border-amber-300/30 bg-amber-400/10 p-4 text-sm text-amber-100 shadow-[0_18px_60px_rgba(0,0,0,0.22)]">
             Supabase 데이터를 일부 불러오지 못했습니다. 현재 보드는 빈 상태 또는 제한된 상태로 표시될 수 있습니다.
             오류: {error}
           </section>
