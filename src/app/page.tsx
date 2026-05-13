@@ -30,32 +30,34 @@ export default async function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-white">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto grid w-full max-w-[1760px] gap-6 px-4 py-4 sm:px-6">
-        <header className="overflow-hidden rounded-[30px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(187,166,255,0.2),transparent_26%),radial-gradient(circle_at_center_right,rgba(168,85,247,0.16),transparent_20%),linear-gradient(135deg,#0a0a0f_0%,#12131d_52%,#0e1117_100%)] px-6 py-6 shadow-[0_35px_120px_rgba(0,0,0,0.42)] sm:px-7">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+        <header className="avl-card overflow-hidden px-6 py-5 sm:px-7">
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_520px] xl:items-center">
             <div className="max-w-4xl">
-              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-violet-200">
+              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
                 <FlaskConical size={16} />
                 AI Venture Lab
               </div>
-              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-[56px] sm:leading-[56px]">
-                아이디어 실행 보드
-              </h1>
-              <p className="mt-4 text-sm leading-7 text-slate-300 sm:text-[15px]">
-                AI가 아이디어를 구조화하고, 검증과 실행 패키지를 자동으로 만들고, 사용자는 필요한 판단만
-                보완하는 단일 실행형 워크스페이스입니다.
+              <div className="flex flex-wrap items-end gap-3">
+                <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-[44px] sm:leading-[46px]">
+                  아이디어 실행 보드
+                </h1>
+                <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500">
+                  Solo-first workspace
+                </span>
+              </div>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 sm:text-[15px]">
+                AI가 초안을 만들고, 사용자는 필요한 판단만 보완하는 실행형 작업공간입니다. 아이디어 발굴부터
+                검증, 제작, 출시 판단까지 한 흐름으로 이어갑니다.
               </p>
             </div>
 
-            <div className="grid min-w-[320px] gap-3 sm:grid-cols-2 xl:w-[520px] xl:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {headerStats.map(([label, value]) => (
-                <div
-                  key={label}
-                  className="rounded-[18px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur"
-                >
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{label}</div>
-                  <div className="mt-2 text-2xl font-semibold text-white">{value}</div>
+                <div key={label} className="rounded-[20px] border border-slate-200 bg-slate-50/80 px-4 py-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>
+                  <div className="mt-2 text-3xl font-semibold text-slate-950">{value}</div>
                 </div>
               ))}
             </div>
@@ -63,7 +65,7 @@ export default async function Home() {
         </header>
 
         {error ? (
-          <section className="rounded-[22px] border border-amber-300/30 bg-amber-400/10 p-4 text-sm text-amber-100 shadow-[0_18px_60px_rgba(0,0,0,0.22)]">
+          <section className="rounded-[20px] border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
             Supabase 데이터를 일부 불러오지 못했습니다. 현재 보드는 빈 상태 또는 제한된 상태로 표시될 수 있습니다.
             오류: {error}
           </section>

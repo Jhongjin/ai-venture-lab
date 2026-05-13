@@ -3129,11 +3129,11 @@ export function VentureConsoleActions({
 
         <div className={`${activeTask === "extract" ? "" : "hidden"} ${embedded ? "space-y-5" : "avl-card-dark p-6"}`}>
           {embedded ? (
-            <div className="flex flex-col gap-3 rounded-[28px] border border-slate-200 bg-white px-5 py-5 text-slate-900 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+            <div className="avl-card flex flex-col gap-3 px-5 py-5 text-slate-900 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">AI source ingest</div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">원문 준비</div>
                 <p className="mt-2 text-sm leading-6 text-slate-700">
-                  원문을 붙여넣으면 AI가 후보를 구조화하고, 추천 1개와 비교 후보 큐로 나눠 바로 다음 단계로 넘길 수 있게 정리합니다.
+                  회의 메모나 대화를 붙여넣으면, AI가 지금 바로 검토할 후보 1개와 비교 후보 큐를 먼저 정리합니다.
                 </p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-2">
@@ -3180,7 +3180,7 @@ export function VentureConsoleActions({
           )}
 
           <div className="space-y-5">
-            <section className={`${embedded ? "rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm" : "avl-card p-6 text-slate-900"}`}>
+            <section className={`${embedded ? "avl-card p-6 text-slate-900" : "avl-card p-6 text-slate-900"}`}>
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.92fr)]">
                 <div className="grid gap-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -3312,11 +3312,11 @@ export function VentureConsoleActions({
                     </section>
                   ) : (
                     <section className="rounded-[24px] border border-slate-200 bg-white/92 p-5 shadow-sm">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">next output</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">추천 후보</div>
                       <h3 className="mt-2 text-2xl font-semibold text-slate-950">추천 후보가 여기에 나타납니다</h3>
                       <p className="mt-3 text-sm leading-7 text-slate-700">
-                        이 단계의 목표는 후보를 많이 펼쳐놓는 것이 아니라, 지금 바로 접수할 후보 1개를 먼저 분리하는
-                        것입니다.
+                        이 단계의 목표는 많은 아이디어를 한꺼번에 보는 것이 아니라, 지금 바로 접수할 후보 1개를 먼저
+                        고르는 것입니다.
                       </p>
                       <ol className="mt-5 grid gap-3">
                         <li className="grid grid-cols-[1.4rem_minmax(0,1fr)] gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-700">
@@ -3337,7 +3337,7 @@ export function VentureConsoleActions({
 
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div className="rounded-[20px] border border-slate-200 bg-white/88 p-4 shadow-sm">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">engine</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">실행 상태</div>
                       <div className="mt-2 text-sm font-semibold text-slate-950">
                         {extractionRunMeta
                           ? extractionRunMeta.engine === "openai"
@@ -3352,16 +3352,15 @@ export function VentureConsoleActions({
                       </p>
                     </div>
                     <div className="rounded-[20px] border border-slate-200 bg-white/88 p-4 shadow-sm">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">privacy</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">개인정보 보호</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
                         이메일, 전화번호, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
                       </p>
                     </div>
                     <details className="rounded-[20px] border border-slate-200 bg-white/88 p-4 shadow-sm">
-                      <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">고급 점검</summary>
+                      <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">결과 점검</summary>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        일반 사용자는 보통 볼 필요 없습니다. 결과가 너무 넓거나 빠졌다고 느껴질 때만 내부 기준과 비교해서
-                        확인합니다.
+                        추천이 너무 넓거나 빠졌다고 느껴질 때만 비교 점검을 열어 확인하면 됩니다.
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <button
@@ -3404,7 +3403,7 @@ export function VentureConsoleActions({
                     <div>
                       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                         <ClipboardList size={15} />
-                        queue
+                        비교 후보
                       </div>
                       <h3 className="mt-2 text-lg font-semibold text-slate-950">비교 후보 큐</h3>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
