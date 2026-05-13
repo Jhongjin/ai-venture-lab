@@ -663,9 +663,6 @@ export function VentureConsoleShell({
         .slice(0, 3),
     [artifacts, experiments, ideas, risks],
   );
-  const activeWork = experiments.filter((experiment) => experiment.status !== "done").length +
-    orchestrationRuns.filter((run) => ["planned", "running", "blocked"].includes(run.status)).length +
-    implementationTasks.filter((task) => task.status !== "done").length;
   const activeTaskIndex = shellTasks.findIndex((task) => task.id === activeTask);
   const activeTaskConfig = shellTasks[activeTaskIndex] ?? shellTasks[0];
   const ActiveIcon = activeTaskConfig.icon;
@@ -728,16 +725,6 @@ export function VentureConsoleShell({
     Math.round(((completedRequiredCount + (activeTaskConfig.optional ? 0 : 0.5)) / Math.max(1, requiredShellTasks.length)) * 100),
   );
   const activeCanvas = taskCanvasDetails[activeTask];
-  const overviewStats = [
-    { label: "아이디어", value: String(ideaCount), tone: "text-violet-50" },
-    { label: "열린 리스크", value: String(openRisks), tone: "text-amber-100" },
-    { label: "실행 중", value: String(activeWork), tone: "text-emerald-100" },
-    { label: "산출물", value: String(artifactCount), tone: "text-cyan-100" },
-  ];
-  const operatorSummary =
-    currentStepBlocker ??
-    primaryNextTask?.hint ??
-    "현재 단계 입력이 정리되면 AI가 바로 다음 실행 단계까지 이어서 제안합니다.";
   const collaborationTask = shellTasks.find((task) => task.id === "console:workspace") ?? null;
 
   function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
@@ -749,38 +736,33 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-6 xl:grid-cols-[248px_minmax(0,1fr)]">
-      <aside className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,10,16,0.98),rgba(15,17,26,0.98))] p-4 text-white shadow-[0_35px_120px_rgba(0,0,0,0.42)] backdrop-blur lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:self-start">
-        <div className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.03))] p-4">
+    <section className="grid gap-8 xl:grid-cols-[220px_minmax(0,1fr)]">
+      <aside className="rounded-[26px] border border-white/8 bg-[linear-gradient(180deg,rgba(9,10,16,0.98),rgba(15,17,26,0.98))] p-4 text-white shadow-[0_30px_100px_rgba(0,0,0,0.36)] lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto lg:self-start">
+        <div className="border-b border-white/10 pb-4">
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-violet-200">AI Venture Lab</div>
-              <h2 className="mt-3 text-xl font-semibold tracking-tight text-white">Flow rail</h2>
+              <h2 className="mt-2 text-lg font-semibold tracking-tight text-white">실행 흐름</h2>
             </div>
-            <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
+            <span className="rounded-full border border-white/10 bg-white/8 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
               {source === "supabase" ? "Live" : "Fallback"}
             </span>
           </div>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            왼쪽은 진행 순서, 가운데는 현재 단계, 아래는 실제 작업공간으로만 읽히게 정리합니다.
-          </p>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/8">
             <div
               className="h-full rounded-full bg-gradient-to-r from-[#BBA6FF] via-[#A855F7] to-[#FAB0FF]"
               style={{ width: `${workflowProgress}%` }}
             />
           </div>
-          <div className="mt-3 flex items-center justify-between text-xs text-slate-300">
-            <span>{completedRequiredCount}/{requiredShellTasks.length} 완료</span>
-            <span>{workflowProgress}%</span>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            {overviewStats.map((item) => (
-              <div key={item.label} className="rounded-[16px] border border-white/8 bg-white/[0.04] px-3 py-3">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{item.label}</div>
-                <div className={`mt-2 text-2xl font-semibold ${item.tone}`}>{item.value}</div>
-              </div>
-            ))}
+          <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-300">
+            <div className="rounded-[14px] border border-white/8 bg-white/[0.03] px-3 py-2">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-slate-500">진행</div>
+              <div className="mt-1 text-lg font-semibold text-white">{completedRequiredCount}/{requiredShellTasks.length}</div>
+            </div>
+            <div className="rounded-[14px] border border-white/8 bg-white/[0.03] px-3 py-2">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-slate-500">완료율</div>
+              <div className="mt-1 text-lg font-semibold text-white">{workflowProgress}%</div>
+            </div>
           </div>
         </div>
 
@@ -788,103 +770,88 @@ export function VentureConsoleShell({
           <button
             type="button"
             onClick={() => goToTask(collaborationTask.id)}
-            className="mt-4 grid w-full grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[22px] border border-cyan-300/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.025))] p-4 text-left transition hover:bg-white/8"
+            className="mt-4 grid w-full grid-cols-[1.8rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[18px] border border-cyan-300/15 bg-white/[0.03] px-3 py-3 text-left transition hover:bg-white/[0.05]"
           >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-cyan-300/15 text-xs font-semibold text-cyan-100">
-              선택
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-cyan-300/12 text-[11px] font-semibold text-cyan-100">
+              팀
             </span>
             <span className="min-w-0">
               <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                <Users size={15} />
+                <Users size={14} />
                 {collaborationTask.label}
               </span>
               <span className="mt-1 block text-xs leading-5 text-slate-300">{collaborationTask.description}</span>
             </span>
-            <span className="rounded-full bg-cyan-300/15 px-2 py-1 text-xs font-semibold text-cyan-100">옵션</span>
+            <span className="rounded-full bg-cyan-300/12 px-2 py-1 text-[11px] font-semibold text-cyan-100">옵션</span>
           </button>
         ) : null}
 
-        <div className="relative mt-5 pl-5">
-          <div className="absolute bottom-2 left-[15px] top-2 w-px bg-white/10" />
-          <div className="grid gap-3">
-            {requiredShellTasks.map((task, index) => {
-              const Icon = task.icon;
-              const isCurrent = task.id === activeTask;
-              const isCompleted = completedTasks.some((item) => item.id === task.id);
-              const isAvailable = nextTaskOptions.some((item) => item.id === task.id);
-              const isLocked = !isCurrent && !isCompleted && !isAvailable;
-              const previous = requiredShellTasks[index - 1];
-              const showGroupLabel = index === 0 || previous.group !== task.group;
+        <div className="mt-5 space-y-4">
+          {requiredShellTasks.map((task, index) => {
+            const Icon = task.icon;
+            const isCurrent = task.id === activeTask;
+            const isCompleted = completedTasks.some((item) => item.id === task.id);
+            const isAvailable = nextTaskOptions.some((item) => item.id === task.id);
+            const isLocked = !isCurrent && !isCompleted && !isAvailable;
+            const previous = requiredShellTasks[index - 1];
+            const showGroupLabel = index === 0 || previous.group !== task.group;
 
-              return (
-                <div key={task.id}>
-                  {showGroupLabel ? (
-                    <div className="mb-2 pl-5 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-                      {task.group}
-                    </div>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={() => !isLocked && goToTask(task.id)}
-                    disabled={isLocked}
-                    className={`relative grid w-full grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] px-3 py-3 text-left transition ${
+            return (
+              <div key={task.id}>
+                {showGroupLabel ? (
+                  <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">{task.group}</div>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => !isLocked && goToTask(task.id)}
+                  disabled={isLocked}
+                  className={`grid w-full grid-cols-[1.8rem_minmax(0,1fr)] gap-3 rounded-[18px] px-3 py-3 text-left transition ${
+                    isCurrent
+                      ? "border border-violet-300/30 bg-violet-300/10"
+                      : isCompleted
+                        ? "border border-emerald-300/18 bg-emerald-400/8"
+                        : isAvailable
+                          ? "border border-white/10 bg-white/[0.04] hover:bg-white/[0.06]"
+                          : "border border-white/8 bg-white/[0.02] opacity-60"
+                  }`}
+                >
+                  <span
+                    className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold ${
                       isCurrent
-                        ? "border border-violet-300/35 bg-violet-300/12"
+                        ? "bg-violet-200/15 text-violet-50"
                         : isCompleted
-                          ? "border border-emerald-300/20 bg-emerald-400/10"
-                          : isAvailable
-                            ? "border border-white/10 bg-white/6 hover:bg-white/10"
-                            : "border border-white/8 bg-white/[0.03] opacity-65"
+                          ? "bg-emerald-300/15 text-emerald-100"
+                          : "bg-white/8 text-slate-200"
                     }`}
                   >
-                    <span
-                      className={`relative z-10 inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                        isCurrent
-                          ? "bg-violet-200/15 text-violet-50"
-                          : isCompleted
-                            ? "bg-emerald-300/15 text-emerald-100"
-                            : "bg-white/10 text-slate-200"
-                      }`}
-                    >
-                      {isCompleted ? <CheckCircle2 size={14} /> : getTaskOrderLabel(task)}
+                    {isCompleted ? <CheckCircle2 size={13} /> : getTaskOrderLabel(task)}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="flex items-center gap-2 text-sm font-semibold text-white">
+                      <Icon size={14} />
+                      {task.label}
                     </span>
-                    <span className="min-w-0">
-                      <span className="flex items-center gap-2 text-sm font-semibold text-white">
-                        <Icon size={14} />
-                        {task.label}
-                      </span>
-                      <span className="mt-1 block text-xs leading-5 text-slate-300">{task.description}</span>
-                    </span>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                    <span className="mt-1 block text-xs leading-5 text-slate-300">{task.description}</span>
+                  </span>
+                </button>
+              </div>
+            );
+          })}
         </div>
       </aside>
 
       <div className="min-w-0 space-y-6">
         <section className="avl-card p-2">
           <div className="rounded-[28px] bg-[radial-gradient(circle_at_top_left,rgba(187,166,255,0.14),transparent_30%),linear-gradient(180deg,rgba(251,248,255,0.98),rgba(237,232,252,0.94))] px-6 py-6 sm:px-7">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                <span>{activeTaskConfig.group}</span>
-                {!activeTaskConfig.optional ? <span>Step {stepNumber}/{requiredShellTasks.length}</span> : null}
-                <span className="rounded-full border border-slate-300 bg-white px-2 py-1 text-slate-700">
-                  {taskStatuses[activeTaskConfig.id]}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {overviewStats.map((item) => (
-                  <div key={item.label} className="rounded-[16px] border border-slate-200 bg-white/90 px-3 py-3 shadow-sm">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{item.label}</div>
-                    <div className="mt-1 text-lg font-semibold text-slate-950">{item.value}</div>
-                  </div>
-                ))}
-              </div>
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              <span>{activeTaskConfig.group}</span>
+              {!activeTaskConfig.optional ? <span>Step {stepNumber}/{requiredShellTasks.length}</span> : null}
+              <span className="rounded-full border border-slate-300 bg-white px-2 py-1 text-slate-700">
+                {taskStatuses[activeTaskConfig.id]}
+              </span>
             </div>
 
-            <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_340px]">
+            <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1.28fr)_340px]">
               <div className="min-w-0">
                 <div className="flex items-start gap-4">
                   <span className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[18px] border border-violet-200 bg-white text-violet-700 shadow-[0_18px_45px_rgba(168,85,247,0.18)]">
@@ -898,107 +865,103 @@ export function VentureConsoleShell({
                     <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">{activeTaskConfig.description}</p>
                   </div>
                 </div>
-
-                <div className="mt-6 grid gap-4 lg:grid-cols-3">
-                  <div className="rounded-[20px] border border-slate-200 bg-white/85 p-5 shadow-sm">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">AI가 먼저 하는 일</div>
-                    <p className="mt-3 text-sm leading-6 text-slate-700">{activeCanvas.aiLead}</p>
-                  </div>
-                  <div className="rounded-[20px] border border-slate-200 bg-white/85 p-5 shadow-sm">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">이번 단계 산출물</div>
-                    <p className="mt-3 text-sm leading-6 text-slate-700">{activeCanvas.deliverable}</p>
-                  </div>
-                  <div className="rounded-[20px] border border-violet-200 bg-violet-50 p-5 shadow-sm">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-violet-700">사람이 확인할 포인트</div>
-                    <p className="mt-3 text-sm leading-6 text-violet-950">{activeCanvas.checkpoint}</p>
-                  </div>
-                </div>
               </div>
 
-              <div className="avl-card-dark p-5">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200">이번 단계에서 할 일</div>
-                <p className="mt-3 text-sm leading-7 text-slate-200">{activeGuidance.summary}</p>
+              <div className="rounded-[24px] border border-slate-200 bg-white/88 p-5 shadow-sm">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">이번 단계에서 할 일</div>
+                <p className="mt-3 text-sm leading-7 text-slate-700">{activeGuidance.summary}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {activeGuidance.checklist.map((item) => (
                     <span
                       key={item}
-                      className="rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-100"
+                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700"
                     >
                       {item}
                     </span>
                   ))}
                 </div>
-                <div className="mt-4 rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 text-sm leading-6 text-slate-300">
-                  {operatorSummary}
-                </div>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => previousTask && goToTask(previousTask.id)}
-                    disabled={!previousTask}
-                    className="inline-flex h-11 items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 text-sm font-semibold text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-45"
-                  >
-                    이전
-                  </button>
-                  {primaryNextTask ? (
-                    <button
-                      type="button"
-                      onClick={() => goToTask(primaryNextTask.id)}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
-                    >
-                      {primaryNextTask.cta}
-                      <ArrowRight size={16} />
-                    </button>
-                  ) : null}
-                  {optionalNextTasks.map((option) => (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => goToTask(option.id)}
-                      className="inline-flex h-11 items-center justify-center rounded-full border border-white/10 bg-white/5 px-4 text-sm font-semibold text-slate-100 transition hover:bg-white/10"
-                    >
-                      {option.cta}
-                    </button>
-                  ))}
-                </div>
               </div>
+            </div>
+
+            <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
+              <div className="rounded-[20px] border border-slate-200 bg-white/85 p-5 shadow-sm">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">AI가 먼저 하는 일</div>
+                <p className="mt-3 text-sm leading-6 text-slate-700">{activeCanvas.aiLead}</p>
+              </div>
+              <div className="rounded-[20px] border border-slate-200 bg-white/85 p-5 shadow-sm">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">이번 단계 산출물</div>
+                <p className="mt-3 text-sm leading-6 text-slate-700">{activeCanvas.deliverable}</p>
+              </div>
+              <div className="rounded-[20px] border border-violet-200 bg-violet-50 p-5 shadow-sm">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-violet-700">사람이 확인할 포인트</div>
+                <p className="mt-3 text-sm leading-6 text-violet-950">{activeCanvas.checkpoint}</p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => previousTask && goToTask(previousTask.id)}
+                disabled={!previousTask}
+                className="inline-flex h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                이전
+              </button>
+              {primaryNextTask ? (
+                <button
+                  type="button"
+                  onClick={() => goToTask(primaryNextTask.id)}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  {primaryNextTask.cta}
+                  <ArrowRight size={16} />
+                </button>
+              ) : null}
+              {optionalNextTasks.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => goToTask(option.id)}
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  {option.cta}
+                </button>
+              ))}
             </div>
           </div>
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="min-w-0 space-y-6">
-            <div className={activeTask.startsWith("console:") ? "" : "hidden"}>
-              <VentureConsoleActions
-                activeTask={activeConsoleTask}
-                onActiveTaskChange={handleConsoleTaskChange}
-                onWorkflowStatusChange={setConsoleStatus}
-                showSidebar={false}
-                embedded
-                existingIdeas={ideas}
-              />
-            </div>
-            <div className={activeTask.startsWith("workbench:") ? "" : "hidden"}>
-              <IdeaWorkbench
-                initialIdeas={ideas}
-                initialRisks={risks}
-                initialDecisions={initialDecisions}
-                initialExperiments={experiments}
-                initialOrchestrationRuns={orchestrationRuns}
-                initialArtifacts={artifacts}
-                initialImplementationTasks={implementationTasks}
-                initialTelemetryEvents={telemetryEvents}
-                initialViewerUserId={initialViewerUserId}
-                initialViewerMemberships={initialViewerMemberships}
-                activeTask={activeWorkbenchTask}
-                onActiveTaskChange={handleWorkbenchTaskChange}
-                showSidebar={false}
-                embedded
-              />
-            </div>
+        <section className="space-y-6">
+          <div className={activeTask.startsWith("console:") ? "" : "hidden"}>
+            <VentureConsoleActions
+              activeTask={activeConsoleTask}
+              onActiveTaskChange={handleConsoleTaskChange}
+              onWorkflowStatusChange={setConsoleStatus}
+              showSidebar={false}
+              embedded
+              existingIdeas={ideas}
+            />
+          </div>
+          <div className={activeTask.startsWith("workbench:") ? "" : "hidden"}>
+            <IdeaWorkbench
+              initialIdeas={ideas}
+              initialRisks={risks}
+              initialDecisions={initialDecisions}
+              initialExperiments={experiments}
+              initialOrchestrationRuns={orchestrationRuns}
+              initialArtifacts={artifacts}
+              initialImplementationTasks={implementationTasks}
+              initialTelemetryEvents={telemetryEvents}
+              initialViewerUserId={initialViewerUserId}
+              initialViewerMemberships={initialViewerMemberships}
+              activeTask={activeWorkbenchTask}
+              onActiveTaskChange={handleWorkbenchTaskChange}
+              showSidebar={false}
+              embedded
+            />
           </div>
 
-          <div className="grid gap-4 xl:sticky xl:top-4 xl:self-start">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
             <div className="avl-card p-5">
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">AI operator</div>
               <div className="mt-3 text-xl font-semibold text-slate-950">{activeTaskConfig.label}</div>
@@ -1007,46 +970,14 @@ export function VentureConsoleShell({
               </p>
             </div>
 
-            {prioritizedIdeas.length > 0 ? (
-              <div className="avl-card p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">우선 검토 후보</div>
-                    <div className="mt-2 text-xl font-semibold text-slate-950">오늘 먼저 볼 아이디어</div>
-                  </div>
-                  <span className="rounded-full bg-violet-100 px-2.5 py-1 text-[11px] font-semibold text-violet-700">
-                    상위 {prioritizedIdeas.length}개
-                  </span>
-                </div>
-                <div className="mt-4 grid gap-3">
-                  {prioritizedIdeas.map((item, index) => (
-                    <button
-                      key={item.idea.id}
-                      type="button"
-                      onClick={() => goToTask("workbench:select")}
-                      className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] border border-slate-200 bg-white/80 p-4 text-left transition hover:border-violet-300 hover:bg-white"
-                    >
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-sm font-semibold text-white">
-                        {index + 1}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block truncate text-base font-semibold text-slate-950">{item.idea.name}</span>
-                        <span className="mt-1 block text-sm leading-6 text-slate-600">
-                          점수 {item.ventureScore} · {item.nextAction}
-                        </span>
-                        <span className="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                          {item.openHighRiskCount > 0 ? `고위험 ${item.openHighRiskCount}` : "고위험 없음"}
-                        </span>
-                      </span>
-                    </button>
-                  ))}
+            <div className="avl-card p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">다음 흐름</div>
+                  <div className="mt-2 text-xl font-semibold text-slate-950">바로 이어질 단계</div>
                 </div>
               </div>
-            ) : null}
-
-            <div className="avl-card p-5">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">다음 흐름</div>
-              <div className="mt-3 grid gap-3">
+              <div className="mt-4 grid gap-3">
                 {nextTaskOptions.length > 0 ? (
                   nextTaskOptions.map((option) => {
                     const task = shellTasks.find((item) => item.id === option.id);
@@ -1090,31 +1021,72 @@ export function VentureConsoleShell({
               </div>
             </div>
 
-            {lockedTasks.length > 0 ? (
-              <div className="rounded-[24px] border border-dashed border-white/15 bg-white/[0.03] p-5">
-                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  <LockKeyhole size={13} />
-                  이후 단계
+            <div className="avl-card p-5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">우선 검토 후보</div>
+                  <div className="mt-2 text-xl font-semibold text-slate-950">오늘 먼저 볼 아이디어</div>
                 </div>
-                <div className="mt-3 grid gap-2">
-                  {lockedTasks.slice(0, 3).map((task) => (
-                    <div
-                      key={task.id}
-                      className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] border border-white/8 bg-white/[0.04] p-3 opacity-80"
+                <span className="rounded-full bg-violet-100 px-2.5 py-1 text-[11px] font-semibold text-violet-700">
+                  상위 {prioritizedIdeas.length}개
+                </span>
+              </div>
+              <div className="mt-4 grid gap-3">
+                {prioritizedIdeas.length > 0 ? (
+                  prioritizedIdeas.map((item, index) => (
+                    <button
+                      key={item.idea.id}
+                      type="button"
+                      onClick={() => goToTask("workbench:select")}
+                      className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] border border-slate-200 bg-white/80 p-4 text-left transition hover:border-violet-300 hover:bg-white"
                     >
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-sm font-semibold text-slate-300">
-                        {getTaskOrderLabel(task)}
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-sm font-semibold text-white">
+                        {index + 1}
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-sm font-semibold text-white">{task.label}</span>
-                        <span className="mt-0.5 block text-xs leading-5 text-slate-400">{task.description}</span>
+                        <span className="block truncate text-base font-semibold text-slate-950">{item.idea.name}</span>
+                        <span className="mt-1 block text-sm leading-6 text-slate-600">
+                          점수 {item.ventureScore} · {item.nextAction}
+                        </span>
+                        <span className="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                          {item.openHighRiskCount > 0 ? `고위험 ${item.openHighRiskCount}` : "고위험 없음"}
+                        </span>
                       </span>
-                    </div>
-                  ))}
-                </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="rounded-[18px] border border-dashed border-slate-300 bg-white/70 p-4 text-sm leading-6 text-slate-600">
+                    아직 우선 추천 후보가 없습니다. 아이디어를 저장하거나 검증을 더 진행하면 이곳이 채워집니다.
+                  </div>
+                )}
               </div>
-            ) : null}
+            </div>
           </div>
+
+          {lockedTasks.length > 0 ? (
+            <details className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+              <summary className="flex cursor-pointer list-none items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                <LockKeyhole size={13} />
+                잠긴 뒤 단계 미리보기
+              </summary>
+              <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                {lockedTasks.slice(0, 3).map((task) => (
+                  <div
+                    key={task.id}
+                    className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 rounded-[18px] border border-white/8 bg-white/[0.04] p-4 opacity-80"
+                  >
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-sm font-semibold text-slate-300">
+                      {getTaskOrderLabel(task)}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold text-white">{task.label}</span>
+                      <span className="mt-0.5 block text-xs leading-5 text-slate-400">{task.description}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </details>
+          ) : null}
         </section>
       </div>
     </section>
