@@ -195,27 +195,27 @@ const extractionGateStyles: Record<
 > = {
   proceed: {
     badge: "avl-pill avl-pill-success",
-    panel: "border-emerald-200 bg-emerald-50",
+    panel: "avl-surface-muted border-emerald-200 bg-emerald-50",
     title: "text-emerald-950",
-    score: "bg-emerald-950 text-white",
+    score: "bg-slate-950 text-white",
   },
   research: {
     badge: "avl-pill avl-pill-info",
-    panel: "border-blue-200 bg-blue-50",
+    panel: "avl-surface-muted border-blue-200 bg-blue-50",
     title: "text-blue-950",
-    score: "bg-blue-950 text-white",
+    score: "bg-slate-950 text-white",
   },
   pivot: {
     badge: "avl-pill avl-pill-warning",
-    panel: "border-amber-200 bg-amber-50",
+    panel: "avl-surface-muted border-amber-200 bg-amber-50",
     title: "text-amber-950",
-    score: "bg-amber-950 text-white",
+    score: "bg-slate-950 text-white",
   },
   kill: {
     badge: "avl-pill avl-pill-danger",
-    panel: "border-rose-200 bg-rose-50",
+    panel: "avl-surface-muted border-rose-200 bg-rose-50",
     title: "text-rose-950",
-    score: "bg-rose-950 text-white",
+    score: "bg-slate-950 text-white",
   },
 };
 
@@ -2736,7 +2736,7 @@ export function VentureConsoleActions({
       {showSidebar ? (
       <aside className="avl-card-soft p-5 lg:sticky lg:top-6 lg:self-start">
         <div className="mb-4">
-          <div className="mb-3 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Quick setup</div>
+          <div className="avl-kicker mb-3">Quick setup</div>
           <h2 className="text-lg font-semibold text-slate-950">시작 준비</h2>
           <p className="mt-1 text-sm leading-6 text-slate-600">AI가 초안을 만들고, 필요한 순간에만 사용자가 보완합니다.</p>
         </div>
@@ -2749,13 +2749,13 @@ export function VentureConsoleActions({
               aria-current={activeTask === task.id ? "step" : undefined}
                 className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[18px] border p-3 text-left transition ${
                   activeTask === task.id
-                    ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
+                    ? "border-slate-950 bg-slate-950 text-white shadow-none"
                     : "border-slate-200/80 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                 }`}
               >
                 <span
                   className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                    activeTask === task.id ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700"
+                    activeTask === task.id ? "bg-white text-slate-950" : "bg-slate-100 text-slate-700"
                   }`}
                 >
                   {index + 1}
@@ -2767,8 +2767,8 @@ export function VentureConsoleActions({
                   </span>
                 </span>
                 <span
-                  className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                    activeTask === task.id ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-600"
+                  className={`avl-pill ${
+                    activeTask === task.id ? "bg-white/10 text-white" : "avl-pill-neutral"
                   }`}
                 >
                   {task.status}
@@ -2794,10 +2794,10 @@ export function VentureConsoleActions({
         </div>
 
         {!isAuthLoaded ? (
-          <div className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">현재 세션을 확인하는 중입니다...</div>
+          <div className="avl-surface-muted p-4 text-sm leading-6 text-slate-600">현재 세션을 확인하는 중입니다...</div>
         ) : user ? (
           <div className="grid gap-4">
-            <div className="rounded-lg bg-emerald-50 p-4">
+            <div className="avl-surface-muted border-emerald-200 bg-emerald-50 p-4">
               <div className="text-sm font-semibold text-emerald-900">로그인됨</div>
               <div className="mt-1 break-all text-sm text-emerald-800">{user.email}</div>
             </div>
@@ -3064,7 +3064,7 @@ export function VentureConsoleActions({
             </div>
           ) : (
             <div className="grid gap-3">
-              <div className="rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+              <div className="avl-surface-muted border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
                 이 운영자에게 연결된 워크스페이스가 없습니다.
                 {personalRecordCount > 0
                   ? ` 워크스페이스를 만든 뒤 ${personalRecordCount}개의 개인 기록을 연결할 수 있습니다.`
@@ -3173,7 +3173,7 @@ export function VentureConsoleActions({
                     </div>
                   ) : null}
                   {duplicateCandidateCount > 0 ? (
-                    <div className="rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+                    <div className="avl-surface-muted border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
                       {duplicateCandidateCount}개 후보가 기존 포트폴리오와 유사합니다. 새로 만들기보다 기존 기록 확장을 먼저
                       확인하세요.
                     </div>
@@ -3463,12 +3463,12 @@ export function VentureConsoleActions({
                               검증 {candidate.validationScore}/100
                             </span>
                             <span
-                              className={`rounded-md px-2 py-1 text-xs font-semibold shadow-sm ${
+                              className={`avl-pill ${
                                 candidate.riskLevel === "높음"
-                                  ? "bg-rose-50 text-rose-700"
+                                  ? "avl-pill-danger"
                                   : candidate.riskLevel === "보통"
-                                    ? "bg-amber-50 text-amber-800"
-                                    : "bg-emerald-50 text-emerald-800"
+                                    ? "avl-pill-warning"
+                                    : "avl-pill-success"
                               }`}
                             >
                               리스크 {candidate.riskLevel}
@@ -3508,7 +3508,7 @@ export function VentureConsoleActions({
                         </div>
                       </div>
                       {similarIdea ? (
-                        <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
+                        <div className="avl-surface-muted mt-3 border-amber-200 bg-amber-50 p-3 text-sm leading-6 text-amber-900">
                           <span className="font-semibold text-amber-950">기존 유사 기록:</span>{" "}
                           {similarIdea.idea.name} · 유사도 {similarIdea.score}% · {similarIdea.reason}
                         </div>
@@ -3535,7 +3535,7 @@ export function VentureConsoleActions({
                             {extractionGate.blockers.map((blocker) => (
                               <span
                                 key={blocker}
-                                className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-700 shadow-sm"
+                                className="avl-pill avl-pill-neutral"
                               >
                                 보강 필요: {blocker}
                               </span>
@@ -3543,31 +3543,31 @@ export function VentureConsoleActions({
                           </div>
                         ) : null}
                       </div>
-                      <div className="mt-3 rounded-2xl border border-indigo-100 bg-indigo-50 p-3">
+                      <div className="avl-surface-muted mt-3 border-slate-200 p-3">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                           <div>
-                            <div className="text-sm font-semibold text-indigo-950">사업/개발 스코어카드</div>
-                            <p className="mt-1 text-sm leading-6 text-indigo-900">
+                            <div className="text-sm font-semibold text-slate-950">사업/개발 스코어카드</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">
                               수요, 수익화, MVP 난이도, 도달 채널, 자동화 가치, 보안 부담을 함께 봅니다.
                             </p>
                           </div>
-                          <div className="shrink-0 rounded-md bg-indigo-950 px-3 py-2 text-right text-white">
-                            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-indigo-200">종합</div>
+                          <div className="rounded-lg bg-slate-950 px-3 py-2 text-right text-white">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">종합</div>
                             <div className="text-2xl font-semibold">{strategyScore}%</div>
                           </div>
                         </div>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                           {strategyLenses.map((lens) => (
-                            <div key={lens.label} className="rounded-md bg-white px-3 py-2">
+                            <div key={lens.label} className="avl-surface-subtle px-3 py-2">
                               <div className="flex items-center justify-between gap-3">
                                 <span className="text-xs font-semibold text-slate-950">{lens.label}</span>
                                 <span
-                                  className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                                  className={`avl-pill ${
                                     lens.tone === "good"
-                                      ? "bg-emerald-50 text-emerald-800"
+                                      ? "avl-pill-success"
                                       : lens.tone === "watch"
-                                        ? "bg-amber-50 text-amber-800"
-                                        : "bg-rose-50 text-rose-700"
+                                        ? "avl-pill-warning"
+                                        : "avl-pill-danger"
                                   }`}
                                 >
                                   {lens.score}%
@@ -3578,7 +3578,7 @@ export function VentureConsoleActions({
                           ))}
                         </div>
                       </div>
-                      <div className="mt-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
+                      <div className="avl-surface-muted mt-3 border-emerald-200 bg-emerald-50 p-3">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <div className="text-sm font-semibold text-emerald-950">검증 패키지 준비도</div>
@@ -3588,7 +3588,7 @@ export function VentureConsoleActions({
                                 : "아이디어, 리스크, 7일 실험으로 저장할 준비가 좋습니다."}
                             </p>
                           </div>
-                          <div className="shrink-0 rounded-md bg-emerald-950 px-3 py-2 text-right text-white">
+                          <div className="rounded-lg bg-slate-950 px-3 py-2 text-right text-white">
                             <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-200">
                               준비
                             </div>
@@ -3597,7 +3597,7 @@ export function VentureConsoleActions({
                         </div>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                           {readinessChecks.map((check) => (
-                            <div key={check.label} className="rounded-md bg-white px-3 py-2">
+                            <div key={check.label} className="avl-surface-subtle px-3 py-2">
                               <div className="flex items-center gap-2">
                                 <span
                                   className={`h-2 w-2 rounded-full ${check.passed ? "bg-emerald-500" : "bg-slate-300"}`}

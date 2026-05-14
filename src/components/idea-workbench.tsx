@@ -521,18 +521,18 @@ const telemetryCategoryLabels: Record<string, string> = {
   learning: "성과 확인",
 };
 const telemetryCategoryTone: Record<string, string> = {
-  intake: "bg-blue-50 text-blue-700",
-  extraction: "bg-slate-100 text-slate-700",
-  scoring: "bg-sky-50 text-sky-800",
-  product: "bg-fuchsia-50 text-fuchsia-800",
-  risk: "bg-rose-50 text-rose-700",
-  decision: "bg-emerald-50 text-emerald-800",
-  experiment: "bg-amber-50 text-amber-800",
-  orchestration: "bg-indigo-50 text-indigo-800",
-  artifact: "bg-slate-100 text-slate-700",
-  development: "bg-cyan-50 text-cyan-800",
-  launch: "bg-teal-50 text-teal-800",
-  learning: "bg-lime-50 text-lime-800",
+  intake: "avl-pill avl-pill-info",
+  extraction: "avl-pill avl-pill-neutral",
+  scoring: "avl-pill avl-pill-info",
+  product: "avl-pill avl-pill-brand",
+  risk: "avl-pill avl-pill-danger",
+  decision: "avl-pill avl-pill-success",
+  experiment: "avl-pill avl-pill-warning",
+  orchestration: "avl-pill avl-pill-brand",
+  artifact: "avl-pill avl-pill-neutral",
+  development: "avl-pill avl-pill-info",
+  launch: "avl-pill avl-pill-success",
+  learning: "avl-pill avl-pill-brand",
 };
 const productTelemetryFunnelSteps = [
   {
@@ -801,22 +801,22 @@ const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
   library: "저장된 자료를 필터링하고 승인 상태를 관리합니다.",
 };
 const releaseDecisionTone: Record<DecisionStatus, string> = {
-  pending: "bg-slate-100 text-slate-700",
-  research_more: "bg-amber-100 text-amber-800",
-  ship: "bg-emerald-100 text-emerald-800",
-  pivot: "bg-slate-100 text-slate-700",
-  kill: "bg-rose-100 text-rose-800",
+  pending: "avl-pill avl-pill-neutral",
+  research_more: "avl-pill avl-pill-warning",
+  ship: "avl-pill avl-pill-success",
+  pivot: "avl-pill avl-pill-neutral",
+  kill: "avl-pill avl-pill-danger",
 };
 const releaseDecisionConfidenceTone: Record<ReleaseDecisionConfidence, string> = {
-  high: "bg-emerald-50 text-emerald-800",
-  medium: "bg-amber-50 text-amber-800",
-  low: "bg-rose-50 text-rose-800",
+  high: "avl-pill avl-pill-success",
+  medium: "avl-pill avl-pill-warning",
+  low: "avl-pill avl-pill-danger",
 };
 const artifactReviewIntensityTone: Record<ArtifactReviewIntensity, string> = {
-  new: "bg-blue-50 text-blue-800",
-  minor: "bg-emerald-50 text-emerald-800",
-  moderate: "bg-amber-50 text-amber-800",
-  major: "bg-rose-50 text-rose-800",
+  new: "avl-pill avl-pill-info",
+  minor: "avl-pill avl-pill-success",
+  moderate: "avl-pill avl-pill-warning",
+  major: "avl-pill avl-pill-danger",
 };
 const artifactApprovalReviewChecks: Record<VentureArtifactType, string[]> = {
   idea_brief: ["문제와 대상 사용자가 현재 점수/리스크와 일치하는지 확인", "다음 증거가 실제 실행 가능한지 확인"],
@@ -9804,7 +9804,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         type="button"
                         onClick={() => void deleteIdeaRecord(idea)}
                         disabled={isBusy}
-                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="avl-btn avl-btn-danger h-9 px-3 text-xs disabled:opacity-50"
                       >
                         <Trash2 size={14} />
                         삭제
@@ -10146,7 +10146,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
 
               <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-                <div className="rounded-[12px] border border-slate-200 bg-slate-50 p-5 text-slate-900">
+                <div className="avl-surface-muted p-5 text-slate-900">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">평가 입력</div>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <SelectField
@@ -10210,7 +10210,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
                     />
-                    <div className="rounded-[12px] border border-slate-200 bg-white p-4">
+                    <div className="avl-surface-subtle p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">현재 점수</div>
                       <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>
                       <p className="mt-2 text-sm leading-6 text-slate-600">점수는 참고용이고, 최종 판단은 근거와 리스크를 같이 봐서 정합니다.</p>
@@ -10219,7 +10219,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="rounded-[12px] border border-slate-200 bg-slate-50 p-5 text-slate-900">
+                  <div className="avl-surface-muted p-5 text-slate-900">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">AI 추천 판단</div>
                     <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreRecommendation]}</div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -10228,19 +10228,19 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="mt-4 flex flex-wrap gap-2">
                       {missing.length > 0 ? (
                         missing.map((item) => (
-                          <span key={item} className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
-                            {item}
-                          </span>
+                            <span key={item} className="avl-pill avl-pill-warning">
+                              {item}
+                            </span>
                         ))
                       ) : (
-                        <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
-                          PRD 검토 준비 완료
-                        </span>
+                          <span className="avl-pill avl-pill-success">
+                            PRD 검토 준비 완료
+                          </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="rounded-[12px] border border-slate-200 bg-white p-4">
+                  <div className="avl-surface-subtle p-4">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 행동</div>
                     <div className="mt-2 text-sm font-semibold text-slate-950">판단 방향만 정하면 충분합니다</div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -10253,7 +10253,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
               </div>
 
-              <details className="mt-5 rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+              <details className="avl-surface-muted mt-5 p-4">
                 <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">추가 메모 열기</summary>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
                   AI가 채운 초안을 사람 판단으로 보강하고 싶을 때만 여기를 수정하세요.
@@ -10282,7 +10282,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </section>
 
             <div className="grid gap-4">
-              <section className="rounded-[12px] border border-slate-200 bg-slate-50 p-5 text-slate-900">
+              <section className="avl-surface-muted p-5 text-slate-900">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">결정 가이드</div>
                 <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                   <li>- 문제 강도와 빈도가 높으면 검증 우선순위가 올라갑니다.</li>
@@ -10291,7 +10291,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </ul>
               </section>
 
-              <section className="rounded-[12px] border border-slate-200 bg-white p-5">
+              <section className="avl-surface-subtle p-5">
                 <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">next move</div>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   점수 저장 후에는 `검증 실험` 단계에서 첫 실험과 성공 지표를 AI가 채워줍니다. 여기서는 완벽하게 쓰기보다 판단 방향만 정하면 충분합니다.
@@ -10550,7 +10550,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <p className="mb-5 text-sm leading-6 text-slate-600">{developmentPanelDescriptions[visibleDevelopmentPanel]}</p>
 
           {experienceMode === "guided" ? (
-            <div className="mb-5 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+            <div className="avl-surface-muted mb-5 border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
               이 단계에서는 AI가 기획, 디자인, 개발 초안과 실행 패키지를 자동으로 만듭니다. 우선은 준비도, 디자인 프롬프트,
               개발 런북만 확인하고 저장하세요. 백엔드 비교, 앱 블루프린트, 스캐폴드 문서는 필요할 때만 전체 보기에서 확인하면 됩니다.
             </div>
@@ -10564,7 +10564,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               ["개발", "데이터 모델, RLS, 입력/저장/조회, 이벤트 기록을 구현합니다."],
               ["배포", "Preview, 스모크 테스트, 프로덕션 배포, 롤백 경로를 확인합니다."],
             ].map(([label, detail], index) => (
-              <div key={label} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div key={label} className="avl-surface-muted p-4">
                 <div className="flex items-center gap-2">
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
                     {index + 1}
@@ -11135,18 +11135,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       <>
                         <div className="mt-2 flex flex-wrap items-center gap-2">
                           <span className="text-base font-semibold text-slate-950">{nextImplementationTask.title}</span>
-                          <span
-                            className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                              implementationTaskStatusTone[nextImplementationTask.status]
-                            }`}
-                          >
+                          <span className={implementationTaskStatusTone[nextImplementationTask.status]}>
                             {implementationTaskStatusLabels[nextImplementationTask.status]}
                           </span>
-                          <span
-                            className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                              implementationTaskPriorityTone[nextImplementationTask.priority]
-                            }`}
-                          >
+                          <span className={implementationTaskPriorityTone[nextImplementationTask.priority]}>
                             {implementationTaskPriorityLabels[nextImplementationTask.priority]}
                           </span>
                         </div>
@@ -11231,10 +11223,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           {index + 1}
                         </span>
                         <span className="text-sm font-semibold text-slate-950">{task.title}</span>
-                        <span className={`rounded-md px-2 py-1 text-xs font-semibold ${implementationTaskStatusTone[task.status]}`}>
+                        <span className={implementationTaskStatusTone[task.status]}>
                           {implementationTaskStatusLabels[task.status]}
                         </span>
-                        <span className={`rounded-md px-2 py-1 text-xs font-semibold ${implementationTaskPriorityTone[task.priority]}`}>
+                        <span className={implementationTaskPriorityTone[task.priority]}>
                           {implementationTaskPriorityLabels[task.priority]}
                         </span>
                       </div>
@@ -11317,14 +11309,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
 
                 <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                  <div className="rounded-lg border border-slate-200 bg-white p-3">
+                  <div className="avl-surface-subtle p-3">
                     <div className="text-sm font-semibold text-slate-950">바로 시작 가능</div>
                     <div className="mt-3 grid gap-2">
                       {readyImplementationDependencyStatuses.slice(0, 4).map((status) => (
-                        <div key={status.task.id} className="rounded-md bg-violet-50 px-3 py-2">
+                        <div key={status.task.id} className="avl-surface-muted px-3 py-2">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-semibold text-slate-950">{status.task.title}</span>
-                            <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                            <span className="avl-pill avl-pill-neutral">
                               {implementationTaskTypeLabels[status.task.task_type]}
                             </span>
                           </div>
@@ -11332,21 +11324,21 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </div>
                       ))}
                       {readyImplementationDependencyStatuses.length === 0 ? (
-                        <div className="rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-700">
-                          먼저 선행 조건을 완료해야 시작 가능한 태스크가 생깁니다.
-                        </div>
+                          <div className="avl-surface-muted border-dashed px-3 py-2 text-sm leading-6 text-slate-700">
+                            먼저 선행 조건을 완료해야 시작 가능한 태스크가 생깁니다.
+                          </div>
                       ) : null}
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-slate-200 bg-white p-3">
+                  <div className="avl-surface-subtle p-3">
                     <div className="text-sm font-semibold text-slate-950">선행 조건 대기</div>
                     <div className="mt-3 grid gap-2">
                       {waitingImplementationDependencyStatuses.slice(0, 4).map((status) => (
-                        <div key={status.task.id} className="rounded-md bg-slate-50 px-3 py-2">
+                        <div key={status.task.id} className="avl-surface-muted px-3 py-2">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-semibold text-slate-950">{status.task.title}</span>
-                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-700">
+                            <span className="avl-pill avl-pill-neutral">
                               {implementationTaskTypeLabels[status.task.task_type]}
                             </span>
                           </div>
@@ -11354,9 +11346,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </div>
                       ))}
                       {waitingImplementationDependencyStatuses.length === 0 ? (
-                        <div className="rounded-md border border-dashed border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-700">
-                          선행 조건에 막힌 열린 태스크가 없습니다.
-                        </div>
+                          <div className="avl-surface-muted border-dashed px-3 py-2 text-sm leading-6 text-slate-700">
+                            선행 조건에 막힌 열린 태스크가 없습니다.
+                          </div>
                       ) : null}
                     </div>
                   </div>
@@ -11364,7 +11356,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             ) : null}
 
-            <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+            <div className="avl-surface-subtle mt-4 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <h4 className="text-sm font-semibold text-slate-950">구현 실행 패키지</h4>
@@ -11372,10 +11364,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     승인된 산출물, 현재 필터의 개발 태스크, 남은 게이트, 검증 명령을 한 번에 묶어 구현 에이전트에게 넘깁니다.
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                    <span className="avl-pill avl-pill-neutral">
                       태스크 {agentRunPackageTasks.length}개
                     </span>
-                    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                    <span className="avl-pill avl-pill-neutral">
                       승인 산출물 {selectedArtifactRecords.filter((artifact) => artifact.status === "approved").length}개
                     </span>
                   </div>
@@ -11385,7 +11377,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={() => copyDraft(agentRunPackageDraft, "구현 실행 패키지")}
                     disabled={!agentRunPackageDraft}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
                   >
                     <Clipboard size={16} />
                     패키지 복사
@@ -11401,7 +11393,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       )
                     }
                     disabled={isBusy || !user || !agentRunPackageDraft}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
                   >
                     <Save size={16} />
                     패키지 저장
@@ -11411,7 +11403,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
 
             {experienceMode === "full" && blockedImplementationSummaries.length > 0 ? (
-              <div className="mt-4 rounded-lg border border-rose-100 bg-rose-50 p-4">
+              <div className="avl-surface-muted mt-4 border-rose-200 bg-rose-50 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-rose-950">차단 해소 큐</h4>
@@ -11419,20 +11411,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       막힌 태스크는 담당 역할, 다음 액션, 해소 증거를 먼저 정리한 뒤 진행 상태로 되돌립니다.
                     </p>
                   </div>
-                  <div className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-rose-900 shadow-sm">
+                  <div className="avl-pill avl-pill-danger px-3 py-2">
                     차단 {blockedImplementationSummaries.length}개
                   </div>
                 </div>
 
                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
                   {blockedImplementationSummaries.slice(0, 4).map((summary) => (
-                    <div key={summary.task.id} className="rounded-md border border-rose-100 bg-white px-3 py-2">
+                    <div key={summary.task.id} className="avl-surface-subtle border-rose-200 px-3 py-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>
-                        <span className="rounded-md bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-800">
+                        <span className="avl-pill avl-pill-danger">
                           {implementationTaskPriorityLabels[summary.task.priority]}
                         </span>
-                        <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+                        <span className="avl-pill avl-pill-neutral">
                           담당 {summary.hint.ownerRole}
                         </span>
                       </div>
@@ -11448,9 +11440,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </p>
                       </div>
                       {summary.missing.length > 0 ? (
-                        <div className="mt-2 rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
-                          추가 증거 필요: {summary.missing.join(", ")}
-                        </div>
+                          <div className="avl-pill avl-pill-warning mt-2 inline-flex">
+                            추가 증거 필요: {summary.missing.join(", ")}
+                          </div>
                       ) : null}
                     </div>
                   ))}
@@ -11459,7 +11451,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
 
             {experienceMode === "full" && implementationEvidenceSummaries.length > 0 ? (
-              <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 p-4">
+              <div className="avl-surface-muted mt-4 border-amber-200 bg-amber-50 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-amber-950">증거 보강 우선순위</h4>
@@ -11467,7 +11459,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       완료 전에 커밋, 검증, 권한, 배포, 롤백 증거가 약한 태스크부터 보강합니다.
                     </p>
                   </div>
-                  <div className="rounded-md bg-white px-3 py-2 text-xs font-semibold text-amber-900 shadow-sm">
+                  <div className="avl-pill avl-pill-warning px-3 py-2">
                     보강 필요 {implementationEvidenceIssues.length}/{implementationEvidenceSummaries.length}
                   </div>
                 </div>
@@ -11475,13 +11467,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
                   {implementationEvidenceIssues.length > 0 ? (
                     implementationEvidenceIssues.slice(0, 4).map((summary) => (
-                      <div key={summary.task.id} className="rounded-md border border-amber-100 bg-white px-3 py-2">
+                      <div key={summary.task.id} className="avl-surface-subtle border-amber-200 px-3 py-2">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>
-                          <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
+                          <span className="avl-pill avl-pill-warning">
                             {summary.passedCount}/{summary.totalCount}
                           </span>
-                          <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+                          <span className="avl-pill avl-pill-neutral">
                             {implementationTaskTypeLabels[summary.task.task_type]}
                           </span>
                         </div>
@@ -11489,7 +11481,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-md border border-emerald-100 bg-white px-3 py-2 text-sm text-emerald-800">
+                    <div className="avl-surface-subtle border-emerald-200 px-3 py-2 text-sm text-emerald-800">
                       현재 모든 태스크의 증거 힌트가 충족되어 있습니다.
                     </div>
                   )}
@@ -11498,7 +11490,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
 
             {experienceMode === "full" && selectedImplementationTasks.length > 0 ? (
-              <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+              <div className="avl-surface-subtle mt-4 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-950">태스크 필터</h4>
@@ -11506,7 +11498,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       상태, 담당 역할, 증거 품질을 좁혀서 현재 처리할 카드만 봅니다.
                     </p>
                   </div>
-                  <div className="rounded-md bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
+                  <div className="avl-pill avl-pill-neutral px-3 py-2">
                     표시 {filteredImplementationTasks.length}/{selectedImplementationTasks.length}
                   </div>
                 </div>
@@ -11540,7 +11532,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         setImplementationOwnerFilter("all");
                         setImplementationEvidenceFilter("all");
                       }}
-                      className="inline-flex h-11 w-full items-center justify-center rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:w-auto"
+                      className="avl-btn avl-btn-secondary h-11 w-full rounded-md px-3 lg:w-auto"
                     >
                       초기화
                     </button>
@@ -11549,7 +11541,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(filteredImplementationBacklogDraft, "필터된 개발 백로그")}
-                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 lg:w-auto"
+                      className="avl-btn avl-btn-primary h-11 w-full rounded-md px-3 lg:w-auto"
                     >
                       <ClipboardList size={15} />
                       필터 복사
@@ -11559,7 +11551,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(filteredImplementationRunPromptDraft, "필터된 구현 실행 프롬프트")}
-                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50 lg:w-auto"
+                      className="avl-btn avl-btn-secondary h-11 w-full rounded-md px-3 lg:w-auto"
                     >
                       <Code2 size={15} />
                       실행 프롬프트
@@ -11581,7 +11573,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         );
                       }}
                       disabled={isBusy || !user || !selectedIdea}
-                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+                      className="avl-btn avl-btn-secondary h-11 w-full rounded-md px-3 disabled:opacity-50 lg:w-auto"
                     >
                       <Save size={15} />
                       저장
@@ -11592,7 +11584,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
 
             {experienceMode === "full" && selectedImplementationTasks.length > 0 && filteredImplementationTasks.length === 0 ? (
-              <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+              <div className="avl-surface-muted mt-4 border-dashed p-4 text-sm leading-6 text-slate-600">
                 현재 필터 조건에 맞는 태스크가 없습니다. 필터를 초기화하거나 다른 조건으로 좁혀 보세요.
               </div>
             ) : null}
@@ -11603,9 +11595,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   const tasksInStatus = filteredImplementationTasks.filter((task) => task.status === status);
 
                 return (
-                  <section key={status} className="min-h-44 rounded-lg border border-slate-200 bg-white p-3">
+                  <section key={status} className="avl-surface-subtle min-h-44 p-3">
                     <div className="mb-3 flex items-center justify-between gap-3">
-                      <span className={`rounded-md px-2 py-1 text-xs font-semibold ${implementationTaskStatusTone[status]}`}>
+                      <span className={implementationTaskStatusTone[status]}>
                         {implementationTaskStatusLabels[status]}
                       </span>
                       <span className="text-xs font-semibold text-slate-500">{tasksInStatus.length}개</span>
@@ -11623,13 +11615,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           const blockedHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
 
                           return (
-                          <div key={task.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                          <div key={task.id} className="avl-surface-muted p-3">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-sm font-semibold text-slate-950">{task.title}</span>
-                              <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                              <span className="avl-pill avl-pill-neutral">
                                 {implementationTaskTypeLabels[task.task_type]}
                               </span>
-                              <span className={`rounded-md px-2 py-1 text-xs font-semibold ${implementationTaskPriorityTone[task.priority]}`}>
+                              <span className={implementationTaskPriorityTone[task.priority]}>
                                 {implementationTaskPriorityLabels[task.priority]}
                               </span>
                             </div>
@@ -11637,7 +11629,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                               {task.owner_role || "owner 미정"}
                             </div>
                             {blockedHint ? (
-                              <div className="mt-2 rounded-md border border-rose-100 bg-white px-3 py-2 text-xs leading-5 text-rose-900">
+                              <div className="avl-surface-subtle mt-2 border-rose-200 px-3 py-2 text-xs leading-5 text-rose-900">
                                 <div className="font-semibold">차단 해소 다음 액션</div>
                                 <div className="mt-1">{blockedHint.nextAction}</div>
                               </div>
@@ -11654,7 +11646,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                               disabled={isBusy || !canManageRecord(task)}
                               rows={3}
                               placeholder="완료 증거, PR/커밋, 스모크 결과, 남은 리스크"
-                              className="mt-3 w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm leading-6 text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                              className="avl-textarea mt-3 w-full resize-y text-sm leading-6 text-slate-800 disabled:text-slate-500"
                             />
                             <div
                               className={`mt-2 rounded-md border px-3 py-2 text-xs leading-5 ${
@@ -11681,7 +11673,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                                   !canManageRecord(task) ||
                                   (implementationTaskEvidence[task.id] ?? task.evidence ?? "") === (task.evidence ?? "")
                                 }
-                                className="inline-flex h-8 items-center justify-center rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                                className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                               >
                                 증거 저장
                               </button>
@@ -11691,7 +11683,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                                   type="button"
                                   onClick={() => updateImplementationTaskStatus(task, nextStatus)}
                                   disabled={isBusy || !canManageRecord(task) || task.status === nextStatus}
-                                  className="inline-flex h-8 items-center justify-center rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                                  className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                                 >
                                   {implementationTaskStatusLabels[nextStatus]}
                                 </button>
@@ -11720,7 +11712,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
           <div className={visibleDevelopmentPanel === "handoff" ? "" : "hidden"}>
-          <div className="mt-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+          <div className="avl-surface-muted mt-5 border-emerald-200 bg-emerald-50 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h3 className="text-base font-semibold text-emerald-950">개발 완료 게이트</h3>
@@ -11728,7 +11720,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   구현 태스크, 완료 증거, QA/보안 단계를 기준으로 개발 완료 보고서를 만듭니다.
                 </p>
               </div>
-              <div className="rounded-lg bg-emerald-950 px-4 py-3 text-right text-white">
+              <div className="rounded-lg bg-slate-950 px-4 py-3 text-right text-white">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">
                   통과 {passedImplementationGateCount}/{implementationGateChecks.length}
                 </div>
@@ -11738,7 +11730,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
               {implementationGateChecks.map((check) => (
-                <div key={check.label} className="rounded-lg border border-emerald-100 bg-white p-3">
+                <div key={check.label} className="avl-surface-subtle border-emerald-200 p-3">
                   <div className="flex items-start gap-2">
                     <CheckCircle2
                       size={18}
@@ -11757,7 +11749,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <button
                 type="button"
                 onClick={() => copyDraft(developmentCompletionReportDraft, "개발 완료 보고서")}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-white px-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50"
+                className="avl-btn avl-btn-secondary h-10 rounded-md px-3"
               >
                 <Clipboard size={16} />
                 보고서 복사
@@ -11773,7 +11765,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   )
                 }
                 disabled={isBusy || !user}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-700 px-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
               >
                 <Save size={16} />
                 보고서 저장
@@ -11782,7 +11774,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
           {experienceMode === "guided" ? (
-            <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-4">
+              <div className="avl-surface-muted mt-4 border-blue-200 bg-blue-50 p-4">
               <div className="text-sm font-semibold text-blue-950">개발 전달 패키지는 AI가 이미 준비했습니다.</div>
               <p className="mt-2 text-sm leading-6 text-blue-900">
                 지금은 개발 완료 보고서만 저장하고 출시 판단으로 넘어가면 됩니다. Codex 핸드오프, 빌드 명령, QA 매트릭스,
@@ -11795,11 +11787,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 value={developmentPlanDraft}
                 readOnly
                 rows={24}
-                className="mt-4 w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                className="avl-textarea mt-4 min-h-[420px] w-full resize-y bg-slate-50 font-mono text-sm leading-6 text-slate-700"
               />
               {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
 
-              <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50 p-4">
+              <div className="avl-surface-muted mt-5 border-blue-200 bg-blue-50 p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h3 className="text-base font-semibold text-blue-950">Codex 구현 핸드오프</h3>
@@ -11811,7 +11803,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(implementationHandoffDraft, "Codex 구현 핸드오프")}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
+                      className="avl-btn avl-btn-secondary h-10 rounded-md px-3"
                     >
                       <Clipboard size={16} />
                       복사
@@ -11827,7 +11819,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
                       저장
@@ -11838,11 +11830,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   value={implementationHandoffDraft}
                   readOnly
                   rows={14}
-                  className="mt-4 w-full resize-y rounded-md border border-blue-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                  className="avl-textarea mt-4 w-full resize-y font-mono text-sm leading-6 text-slate-700"
                 />
               </div>
 
-              <div className="mt-5 rounded-lg border border-cyan-100 bg-cyan-50 p-4">
+              <div className="avl-surface-muted mt-5 border-cyan-200 bg-cyan-50 p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h3 className="text-base font-semibold text-cyan-950">MVP 빌드 명령 패킷</h3>
@@ -11855,7 +11847,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => copyDraft(mvpBuildCommandPacketDraft, "MVP 빌드 명령 패킷")}
                       disabled={!mvpBuildCommandPacketDraft}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-cyan-200 bg-white px-3 text-sm font-semibold text-cyan-900 transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
                     >
                       <Clipboard size={16} />
                       명령 복사
@@ -11871,7 +11863,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !mvpBuildCommandPacketDraft}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-cyan-700 px-3 text-sm font-semibold text-white transition hover:bg-cyan-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
                       명령 저장
@@ -11882,11 +11874,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   value={mvpBuildCommandPacketDraft}
                   readOnly
                   rows={16}
-                  className="mt-4 w-full resize-y rounded-md border border-cyan-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                  className="avl-textarea mt-4 w-full resize-y font-mono text-sm leading-6 text-slate-700"
                 />
               </div>
 
-              <div className="mt-5 rounded-lg border border-amber-100 bg-amber-50 p-4">
+              <div className="avl-surface-muted mt-5 border-amber-200 bg-amber-50 p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h3 className="text-base font-semibold text-amber-950">QA 검수 매트릭스</h3>
@@ -11899,7 +11891,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => copyDraft(qaAcceptanceMatrixDraft, "QA 검수 매트릭스")}
                       disabled={!qaAcceptanceMatrixDraft}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-amber-200 bg-white px-3 text-sm font-semibold text-amber-900 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
                     >
                       <Clipboard size={16} />
                       매트릭스 복사
@@ -11915,7 +11907,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !qaAcceptanceMatrixDraft}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-amber-700 px-3 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
                       매트릭스 저장
@@ -11926,11 +11918,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   value={qaAcceptanceMatrixDraft}
                   readOnly
                   rows={14}
-                  className="mt-4 w-full resize-y rounded-md border border-amber-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                  className="avl-textarea mt-4 w-full resize-y font-mono text-sm leading-6 text-slate-700"
                 />
               </div>
 
-              <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="avl-surface-muted mt-5 p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h3 className="text-base font-semibold text-slate-950">역할별 프롬프트 팩</h3>
@@ -12055,18 +12047,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="mt-3 grid gap-3 md:grid-cols-3">
                   <div className="avl-surface-muted p-3">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">추천 판단</div>
-                    <span
-                      className={`mt-2 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${
-                        releaseDecisionTone[releaseDecisionPacket.recommendation]
-                      }`}
-                    >
+                    <span className={`mt-2 inline-flex text-sm font-semibold ${releaseDecisionTone[releaseDecisionPacket.recommendation]}`}>
                       {decisionLabels[releaseDecisionPacket.recommendation]}
                     </span>
                   </div>
                   <div className="avl-surface-muted p-3">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">판단 신뢰도</div>
                     <span
-                      className={`mt-2 inline-flex rounded-md px-2.5 py-1 text-sm font-semibold ${
+                      className={`mt-2 inline-flex text-sm font-semibold ${
                         releaseDecisionConfidenceTone[releaseDecisionPacket.confidence]
                       }`}
                     >
@@ -12408,7 +12396,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   const width = Math.max(4, Math.round((row.count / productTelemetryMaxCount) * 100));
 
                   return (
-                    <div key={row.eventName} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div key={row.eventName} className="avl-surface-muted p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-700 shadow-sm">
@@ -12436,7 +12424,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="avl-surface-muted p-4">
               <div className="mb-3">
                 <h3 className="text-base font-semibold text-slate-950">수집해야 할 행동 신호</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-500">
@@ -12445,15 +12433,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
               <div className="grid gap-2">
                 {productTelemetryTaxonomyRows.map((item) => (
-                  <div key={item.eventName} className="rounded-md bg-white p-3 shadow-sm">
+                  <div key={item.eventName} className="avl-surface-subtle p-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <div className="text-sm font-semibold text-slate-950">{item.label}</div>
                         <div className="mt-0.5 text-xs text-slate-500">{item.eventName}</div>
                       </div>
                       <span
-                        className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                          item.count > 0 ? "bg-emerald-50 text-emerald-800" : "bg-slate-100 text-slate-600"
+                        className={`avl-pill ${
+                          item.count > 0 ? "avl-pill-success" : "avl-pill-neutral"
                         }`}
                       >
                         {item.count > 0 ? `${item.count}개` : "대기"}
@@ -12467,26 +12455,22 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
           <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(360px,0.65fr)]">
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="avl-surface-muted p-4">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h3 className="text-base font-semibold text-slate-950">최근 이벤트</h3>
-                <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                <span className="avl-pill avl-pill-neutral">
                   {selectedTelemetryEvents.length}개
                 </span>
               </div>
               <div className="grid gap-2">
                 {selectedTelemetryEvents.slice(0, 12).map((event) => (
-                  <div key={event.id} className="rounded-md bg-white p-3 shadow-sm">
+                  <div key={event.id} className="avl-surface-subtle p-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">
                           {telemetryEventLabels[event.event_name] ?? event.event_name}
                         </span>
-                        <span
-                          className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                            telemetryCategoryTone[event.event_category] ?? "bg-slate-100 text-slate-700"
-                          }`}
-                        >
+                        <span className={telemetryCategoryTone[event.event_category] ?? "avl-pill avl-pill-neutral"}>
                           {telemetryCategoryLabels[event.event_category] ?? event.event_category}
                         </span>
                       </div>
@@ -12498,14 +12482,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                 ))}
                 {selectedTelemetryEvents.length === 0 ? (
-                  <div className="rounded-md bg-white p-4 text-sm leading-6 text-slate-600 shadow-sm">
+                  <div className="avl-surface-subtle p-4 text-sm leading-6 text-slate-600">
                     아직 이 아이디어에 연결된 이벤트가 없습니다. 점수 저장, 리스크 추가, 실험/산출물 저장 같은 행동을 하면 자동으로 쌓입니다.
                   </div>
                 ) : null}
               </div>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-4">
+            <div className="avl-surface-subtle p-4">
               <div className="mb-3">
                 <h3 className="text-base font-semibold text-slate-950">학습 리포트 초안</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-500">
@@ -12516,7 +12500,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 value={learningTelemetryReportDraft}
                 readOnly
                 rows={22}
-                className="w-full resize-y rounded-md border border-slate-300 bg-slate-50 px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+                className="avl-textarea w-full resize-y bg-slate-50 font-mono text-sm leading-6 text-slate-700"
               />
             </div>
           </div>
@@ -12536,14 +12520,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               type="button"
               onClick={createRunbook}
               disabled={isBusy || !user}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />
               실행 계획 만들기
             </button>
           </div>
 
-          <form onSubmit={addOrchestrationRun} className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <form onSubmit={addOrchestrationRun} className="avl-surface-muted grid gap-3 p-4">
             <div className="grid gap-3 md:grid-cols-[0.75fr_1fr]">
               <SelectField
                 label="단계"
@@ -12576,7 +12560,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <button
               type="submit"
               disabled={isBusy || !user}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />
               단계 추가
@@ -12586,14 +12570,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="mt-4 grid gap-3">
             {selectedRuns.length > 0 ? (
               selectedRuns.map((run) => (
-                <div key={run.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div key={run.id} className="avl-surface-muted p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">{phaseLabels[run.phase]}</span>
-                        <span className={`rounded-md px-2 py-1 text-xs font-semibold ${runStatusTone[run.status]}`}>
-                          {runStatusLabels[run.status]}
-                        </span>
+                          <span className={`avl-pill ${runStatusTone[run.status]}`}>
+                            {runStatusLabels[run.status]}
+                          </span>
                       </div>
                       <p className="mt-2 text-sm leading-6 text-slate-600">{run.objective || "목표 미정"}</p>
                       <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -12607,7 +12591,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           type="button"
                           onClick={() => updateRunStatus(run, status)}
                           disabled={isBusy || !canManageRecord(run) || run.status === status}
-                          className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                          className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                         >
                           {runStatusLabels[status]}
                         </button>
@@ -12631,7 +12615,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           }))
                         }
                         disabled={isBusy || !canManageRecord(run)}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                          className="avl-btn avl-btn-secondary h-10 rounded-md px-4 shadow-none disabled:opacity-45"
                       >
                         <ClipboardList size={16} />
                         템플릿 사용
@@ -12640,7 +12624,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         type="button"
                         onClick={() => saveRunOutput(run)}
                         disabled={isBusy || !canManageRecord(run) || (runOutputs[run.id] ?? run.output) === run.output}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                          className="avl-btn avl-btn-secondary h-10 rounded-md px-4 shadow-none disabled:opacity-45"
                       >
                         <Save size={16} />
                         산출물 저장
@@ -12650,7 +12634,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
               ))
             ) : (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+              <div className="avl-surface-muted p-4 text-sm text-slate-600">
                 아직 연결된 오케스트레이션 단계가 없습니다.
               </div>
             )}
@@ -12688,7 +12672,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   onChange={(value) => setRiskDraft({ ...riskDraft, severity: value as RiskSeverity })}
                 />
               </div>
-              <div className="mt-4 grid gap-3 rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-3 sm:grid-cols-3">
+              <div className="avl-surface-muted mt-4 grid gap-3 px-4 py-3 sm:grid-cols-3">
                 <div>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">현재 위험 수</div>
                   <div className="mt-1 text-lg font-semibold text-slate-950">{selectedRisks.length}개</div>
@@ -12718,13 +12702,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <button
                   type="submit"
                   disabled={isBusy || !user}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-rose-600 px-4 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-danger h-11 rounded-xl px-4 disabled:opacity-50"
                 >
                   <Flag size={18} />
                   리스크 추가
                 </button>
               </div>
-              <div className="mt-4 rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+              <div className="avl-surface-muted mt-4 px-4 py-3 text-sm leading-6 text-slate-600">
                 지금은 길게 적지 않아도 됩니다. 제목, 심각도, 완화 방향만 있으면 다음 실험과 판단 단계로 충분히 이어집니다.
               </div>
             </form>
@@ -12739,14 +12723,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-4 grid gap-3">
                 {selectedRisks.length > 0 ? (
                   selectedRisks.map((risk) => (
-                    <div key={risk.id} className="rounded-[12px] border border-slate-200 bg-slate-50 p-4">
+                    <div key={risk.id} className="avl-surface-muted p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-semibold text-slate-950">{risk.title}</span>
-                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                          <span className="avl-pill avl-pill-neutral">
                             {riskSeverityLabels[risk.severity]}
                           </span>
-                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                          <span className="avl-pill avl-pill-neutral">
                             {riskStatusLabels[risk.status] ?? risk.status}
                           </span>
                         </div>
@@ -12757,7 +12741,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                               type="button"
                               onClick={() => updateRiskStatus(risk, status)}
                               disabled={isBusy || !canManageRecord(risk) || risk.status === status}
-                              className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                              className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                             >
                               {riskStatusLabels[status] ?? status}
                             </button>
@@ -12768,9 +12752,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-                    아직 기록된 위험이 없습니다. 출시를 막을 수 있는 핵심 위험만 먼저 추가해도 충분합니다.
-                  </div>
+                    <div className="avl-surface-muted border-dashed p-4 text-sm leading-6 text-slate-600">
+                      아직 기록된 위험이 없습니다. 출시를 막을 수 있는 핵심 위험만 먼저 추가해도 충분합니다.
+                    </div>
                 )}
               </div>
             </section>
@@ -12798,20 +12782,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={recordDecision}
                     disabled={isBusy || !canEdit}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
                   >
                     <CheckCircle2 size={18} />
                     {decisionLabels[editState.decision]} 기록
                   </button>
                 </div>
-                <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+                <div className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-600">
                   판단은 길게 쓰지 않아도 됩니다. 왜 지금 진행 또는 보류인지 한 문단으로 남기면 이후 문서와 출시 판단이 정리됩니다.
                 </div>
               </div>
             </section>
 
             <section className="rounded-[12px] border border-slate-200 bg-white p-5">
-              <div className="mb-4 rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="avl-surface-muted mb-4 px-4 py-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">현재 판단</div>
                 <div className="mt-2 text-xl font-semibold text-slate-950">{decisionLabels[editState.decision]}</div>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -12823,13 +12807,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-4 grid gap-2">
                 {selectedDecisions.length > 0 ? (
                   selectedDecisions.map((entry) => (
-                    <div key={entry.id} className="rounded-[12px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                    <div key={entry.id} className="avl-surface-muted p-4 text-sm text-slate-600">
                       <span className="font-semibold text-slate-950">{decisionLabels[entry.decision]}</span>
                       {entry.reason ? ` - ${entry.reason}` : ""}
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">아직 기록된 판단이 없습니다.</div>
+                  <div className="avl-surface-muted border-dashed p-4 text-sm text-slate-500">아직 기록된 판단이 없습니다.</div>
                 )}
               </div>
             </section>
@@ -12861,7 +12845,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <button
                   type="submit"
                   disabled={isBusy || !user}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
                 >
                   <Beaker size={18} />
                   실험 추가
@@ -12871,11 +12855,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-5 grid gap-3">
                 {selectedExperiments.length > 0 ? (
                   selectedExperiments.map((experiment) => (
-                    <div key={experiment.id} className="rounded-[12px] border border-slate-200 bg-slate-50 p-4">
+                    <div key={experiment.id} className="avl-surface-muted p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-semibold text-slate-950">{experiment.name}</span>
-                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                          <span className="avl-pill avl-pill-neutral">
                             {experimentStatusLabels[experiment.status] ?? experiment.status}
                           </span>
                         </div>
@@ -12886,7 +12870,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                               type="button"
                               onClick={() => updateExperimentStatus(experiment, status)}
                               disabled={isBusy || !canManageRecord(experiment) || experiment.status === status}
-                              className="h-8 rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                              className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                             >
                               {experimentStatusLabels[status] ?? status}
                             </button>
@@ -12899,15 +12883,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   ))
                 ) : (
-                  <div className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
-                    아직 연결된 실험이 없습니다.
-                  </div>
+                    <div className="avl-surface-muted border-dashed p-4 text-sm text-slate-600">
+                      아직 연결된 실험이 없습니다.
+                    </div>
                 )}
               </div>
             </section>
           </div>
 
-          <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+          <div className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-600">
             실험 이름 하나와 성공 지표 하나면 충분합니다. 완벽한 계획보다 당장 실행 가능한 첫 행동을 남기는 데 집중하면 됩니다.
           </div>
 
@@ -13200,7 +13184,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {prdReadinessChecks.map((check) => (
-              <div key={check.label} className="rounded-[12px] border border-slate-200 bg-slate-50 p-3">
+                <div key={check.label} className="avl-surface-muted p-3">
                 <div className="flex items-start gap-2">
                   <CheckCircle2
                     size={18}
@@ -13405,16 +13389,16 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     아이디어 검증에서 개발/출시까지 필요한 산출물을 순서대로 확인합니다.
                   </p>
                   {nextArtifactReviewItem ? (
-                    <div className="mt-3 rounded-md bg-white p-3">
+                    <div className="avl-surface-subtle mt-3 p-3">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">
                           다음 처리: {nextArtifactReviewItem.label}
                         </span>
                         <span
-                          className={`rounded-md px-2 py-1 text-xs font-semibold ${
+                          className={`avl-pill ${
                             nextArtifactReviewItem.status === "draft"
-                              ? "bg-amber-50 text-amber-800"
-                              : "bg-rose-50 text-rose-700"
+                              ? "avl-pill-warning"
+                              : "avl-pill-danger"
                           }`}
                         >
                           {nextArtifactReviewItem.status === "draft" ? "승인 대기" : "생성 필요"}
@@ -13424,7 +13408,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       <p className="mt-1 text-sm leading-6 text-slate-600">{nextArtifactReviewItem.action}</p>
                     </div>
                   ) : (
-                    <div className="mt-3 rounded-md bg-emerald-50 p-3 text-sm leading-6 text-emerald-900">
+                    <div className="avl-surface-muted mt-3 border-emerald-200 bg-emerald-50 p-3 text-sm leading-6 text-emerald-900">
                       모든 핵심 산출물이 승인되었습니다. 출시 판단과 배포 검증으로 넘어갈 수 있습니다.
                     </div>
                   )}
@@ -13438,7 +13422,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => focusArtifactReviewItem(nextArtifactReviewItem)}
-                      className="mt-3 inline-flex h-9 items-center justify-center rounded-xl bg-white px-3 text-xs font-semibold text-slate-900 transition hover:bg-slate-50"
+                      className="avl-btn avl-btn-secondary mt-3 h-9 px-3 text-xs"
                     >
                       다음 항목 열기
                     </button>
@@ -13451,17 +13435,17 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     key={item.id}
                     type="button"
                     onClick={() => focusArtifactReviewItem(item)}
-                    className="rounded-xl bg-white px-3 py-2 text-left transition hover:bg-slate-50"
+                    className="avl-surface-subtle px-3 py-2 text-left transition hover:border-slate-300 hover:bg-slate-50"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-semibold text-slate-950">{item.label}</span>
                       <span
-                        className={`rounded-md px-2 py-1 text-[11px] font-semibold ${
+                        className={`avl-pill ${
                           item.status === "approved"
-                            ? "bg-emerald-50 text-emerald-800"
+                            ? "avl-pill-success"
                             : item.status === "draft"
-                              ? "bg-amber-50 text-amber-800"
-                              : "bg-rose-50 text-rose-700"
+                              ? "avl-pill-warning"
+                              : "avl-pill-danger"
                         }`}
                       >
                         {item.status === "approved" ? "승인" : item.status === "draft" ? "초안" : "없음"}
@@ -13483,16 +13467,16 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     필터 실행 프롬프트와 개발 런북 저장본을 먼저 보여줍니다. 최신본을 복사해 다음 구현 루프에 넘기세요.
                   </p>
                 </div>
-                <span className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm">
+                <span className="avl-pill avl-pill-neutral">
                   {recentDevelopmentHandoffArtifacts.length}개
                 </span>
               </div>
               <div className="mt-3 grid gap-2 lg:grid-cols-3">
                 {recentDevelopmentHandoffArtifacts.map((artifact) => (
-                  <div key={artifact.id} className="rounded-xl border border-slate-200 bg-white p-3">
+                  <div key={artifact.id} className="avl-surface-subtle p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-semibold text-slate-950">{artifact.title || "제목 없음"}</span>
-                      <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                      <span className="avl-pill avl-pill-neutral">
                         v{artifact.version ?? 1}
                       </span>
                     </div>
@@ -13521,18 +13505,18 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 const reviewSummary = artifactReviewSummaries.get(artifact.id);
 
                 return (
-                  <div key={artifact.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                          <div key={artifact.id} className="avl-surface-muted p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-semibold text-slate-950">{artifact.title || "제목 없음"}</span>
-                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                          <span className="avl-pill avl-pill-neutral">
                             {artifactLabels[artifact.artifact_type]}
                           </span>
-                          <span className={`rounded-md px-2 py-1 text-xs font-semibold ${artifactStatusTone[status]}`}>
+                          <span className={artifactStatusTone[status]}>
                             {artifactStatusLabels[status]}
                           </span>
-                          <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                          <span className="avl-pill avl-pill-neutral">
                             v{artifact.version ?? 1}
                           </span>
                           {artifact.source === "filtered_implementation_run" ? (
@@ -13557,11 +13541,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         {reviewSummary ? (
                           <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span
-                                className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                                  artifactReviewIntensityTone[reviewSummary.intensity]
-                                }`}
-                              >
+                              <span className={artifactReviewIntensityTone[reviewSummary.intensity]}>
                                 리뷰 강도 {reviewSummary.intensityLabel}
                               </span>
                               <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
@@ -13647,7 +13627,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 );
               })
             ) : (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                <div className="avl-surface-muted p-4 text-sm text-slate-600">
                 {selectedArtifactRecords.length > 0 ? "현재 필터에 맞는 산출물이 없습니다." : "아직 저장된 산출물이 없습니다."}
               </div>
             )}
@@ -13711,10 +13691,10 @@ function GateChecklistPanel({
   checks: GateCheck[];
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="avl-surface-muted p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{eyebrow}</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{eyebrow}</div>
           <h3 className="mt-1 text-base font-semibold text-slate-950">{title}</h3>
           <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
         </div>
