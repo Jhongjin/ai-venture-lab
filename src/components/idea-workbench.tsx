@@ -9901,13 +9901,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             activeTask === "select" ? "" : "hidden"
           }`}
         >
-          <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
-            <aside className="avl-card p-4">
+          <div className="grid gap-5 xl:grid-cols-[200px_minmax(0,1fr)]">
+            <aside className="rounded-[12px] border border-slate-200 bg-slate-50 p-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">candidate queue</div>
               <h3 className="mt-2 text-base font-semibold text-slate-950">오늘 검토할 후보</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                여기서는 후보를 많이 펼쳐두지 않고, 지금 평가를 시작할 1개만 고릅니다.
-              </p>
 
               <div className="mt-4 avl-segmented grid grid-cols-3 gap-2 p-1">
                 {[
@@ -9928,17 +9925,17 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ))}
               </div>
 
-              <div className="mt-4 rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+              <div className="mt-4 rounded-[10px] border border-slate-200 bg-white px-3 py-3 text-sm leading-6 text-slate-600">
                 지금은 많은 후보를 펼치기보다, 바로 평가할 1개를 고르면 됩니다. 현재 보이는 후보는 {visibleIdeas.length}개입니다.
               </div>
             </aside>
 
-            <section className="avl-card p-6 text-slate-900">
+            <section className="rounded-[12px] border border-slate-200 bg-white p-6 text-slate-900">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">candidate selection</div>
-                  <h2 className="mt-2 text-2xl font-semibold text-slate-950">후보 선택</h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
+                  <h2 className="mt-2 text-xl font-semibold text-slate-950">후보 선택</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                     지금 바로 평가를 시작할 후보 1개만 고르면 충분합니다. 나머지는 비교 큐로 남겨두고, 하나를 선택한 뒤 다음 단계로 넘어갑니다.
                   </p>
                 </div>
@@ -9966,12 +9963,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 return (
                   <div className="mt-6 grid gap-4">
                     <div className="grid gap-4">
-                      <div className="avl-card-soft p-5">
+                      <div className="rounded-[12px] border border-slate-200 bg-slate-50 p-5">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선택된 후보</div>
-                          <h3 className="mt-2 text-[22px] font-semibold text-slate-950">{selectedIdea.name}</h3>
-                            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
+                          <h3 className="mt-2 text-[20px] font-semibold text-slate-950">{selectedIdea.name}</h3>
+                            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
                               {selectedIdea.one_liner || selectedIdea.signal}
                             </p>
                           </div>
@@ -9993,21 +9990,21 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           </div>
                         </div>
 
-                        <div className="mt-4 grid gap-3 md:grid-cols-3">
-                          <div className="rounded-[18px] border border-slate-200 bg-white p-4">
+                        <div className="mt-4 grid gap-4 border-t border-slate-200 pt-4 md:grid-cols-3">
+                          <div>
                             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">현재 단계</div>
-                            <div className="mt-2 text-lg font-semibold text-slate-950">{stageLabels[selectedIdea.stage]}</div>
-                            <p className="mt-1 text-sm leading-6 text-slate-600">이 후보를 선택한 뒤 점수와 판단을 먼저 맞춥니다.</p>
+                            <div className="mt-2 text-base font-semibold text-slate-950">{stageLabels[selectedIdea.stage]}</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">점수와 판단을 먼저 맞춥니다.</p>
                           </div>
-                          <div className="rounded-[18px] border border-slate-200 bg-white p-4">
+                          <div>
                             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">추천 동작</div>
-                            <div className="mt-2 text-lg font-semibold text-slate-950">사업성 평가 시작</div>
-                            <p className="mt-1 text-sm leading-6 text-slate-600">문제 강도, 지불 의향, MVP 속도만 먼저 맞추면 됩니다.</p>
+                            <div className="mt-2 text-base font-semibold text-slate-950">사업성 평가 시작</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">문제 강도, 지불 의향, MVP 속도부터 맞춥니다.</p>
                           </div>
-                          <div className="rounded-[18px] border border-slate-200 bg-white p-4">
+                          <div>
                             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">후보 수</div>
-                            <div className="mt-2 text-lg font-semibold text-slate-950">{visibleIdeas.length}개</div>
-                            <p className="mt-1 text-sm leading-6 text-slate-600">오늘은 1개만 보고, 나머지는 비교 후보로 남겨둡니다.</p>
+                            <div className="mt-2 text-base font-semibold text-slate-950">{visibleIdeas.length}개</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">나머지는 비교 후보로 남겨둡니다.</p>
                           </div>
                         </div>
 
@@ -10033,12 +10030,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </div>
                       </div>
 
-                      <div className="rounded-[18px] border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                      <div className="rounded-[12px] border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600">
                         지금 여기서 할 일은 하나입니다. 이 후보로 먼저 사업성 평가를 시작할지 결정하고, 나머지는 비교 후보로만 남겨두면 됩니다.
                       </div>
                     </div>
 
-                    <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-5">
+                    <div className="rounded-[12px] border border-slate-200 bg-slate-50 p-5">
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">비교 후보</div>
@@ -10111,15 +10108,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           className={`grid gap-5 ${activeTask === "score" ? "" : "hidden"}`}
         >
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
-            <section className="avl-card p-6 text-slate-900">
+            <section className="rounded-[12px] border border-slate-200 bg-white p-6 text-slate-900">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">score canvas</div>
-                  <h2 className="mt-2 text-2xl font-semibold text-slate-950">{selectedIdea.name}</h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
+                  <h2 className="mt-2 text-xl font-semibold text-slate-950">{selectedIdea.name}</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                     {selectedIdea.one_liner || selectedIdea.signal}
                   </p>
-                  <p className="mt-3 text-sm leading-6 text-slate-500">
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
                     {canEdit
                       ? "AI 초안을 바탕으로 점수와 판단을 맞춘 뒤 저장합니다."
                       : "이 기록은 보기 전용입니다. 네가 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."}
@@ -10149,7 +10146,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
 
               <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-                <div className="avl-card-soft p-5 text-slate-900">
+                <div className="rounded-[12px] border border-slate-200 bg-slate-50 p-5 text-slate-900">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">평가 입력</div>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <SelectField
@@ -10213,7 +10210,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
                     />
-                    <div className="rounded-[18px] border border-violet-100 bg-white p-4">
+                    <div className="rounded-[12px] border border-slate-200 bg-white p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">현재 점수</div>
                       <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>
                       <p className="mt-2 text-sm leading-6 text-slate-600">점수는 참고용이고, 최종 판단은 근거와 리스크를 같이 봐서 정합니다.</p>
@@ -10222,7 +10219,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="avl-card-soft p-5 text-slate-900">
+                  <div className="rounded-[12px] border border-slate-200 bg-slate-50 p-5 text-slate-900">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">AI 추천 판단</div>
                     <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreRecommendation]}</div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -10243,17 +10240,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   </div>
 
-                  <div className="avl-card-soft p-5">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계에서 할 일</div>
-                    <div className="mt-3 rounded-[18px] border border-slate-200 bg-white p-4">
-                      <div className="text-sm font-semibold text-slate-950">판단 방향만 정하면 충분합니다</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        점수 7개를 먼저 맞추고 `판단`만 한 번 정한 뒤 저장하세요. 세부 실험과 리스크 채우기는 다음 검증 단계에서 계속 이어집니다.
-                      </p>
-                      {validationPlan ? (
-                        <p className="mt-3 text-sm leading-6 text-sky-700">{validationPlan.nextAction}</p>
-                      ) : null}
-                    </div>
+                  <div className="rounded-[12px] border border-slate-200 bg-white p-4">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 행동</div>
+                    <div className="mt-2 text-sm font-semibold text-slate-950">판단 방향만 정하면 충분합니다</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      점수 7개를 먼저 맞추고 판단을 한 번 정한 뒤 저장하세요. 실험과 리스크 보강은 다음 단계에서 이어집니다.
+                    </p>
+                    {validationPlan ? (
+                      <p className="mt-3 text-sm leading-6 text-sky-700">{validationPlan.nextAction}</p>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -10287,7 +10282,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </section>
 
             <div className="grid gap-4">
-              <section className="avl-band p-5 text-slate-900">
+              <section className="rounded-[12px] border border-slate-200 bg-slate-50 p-5 text-slate-900">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">결정 가이드</div>
                 <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                   <li>- 문제 강도와 빈도가 높으면 검증 우선순위가 올라갑니다.</li>
@@ -10296,7 +10291,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </ul>
               </section>
 
-              <section className="avl-card-soft p-5">
+              <section className="rounded-[12px] border border-slate-200 bg-white p-5">
                 <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">next move</div>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   점수 저장 후에는 `검증 실험` 단계에서 첫 실험과 성공 지표를 AI가 채워줍니다. 여기서는 완벽하게 쓰기보다 판단 방향만 정하면 충분합니다.
