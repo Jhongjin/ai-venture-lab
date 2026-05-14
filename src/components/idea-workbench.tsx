@@ -10523,7 +10523,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 {guidedExecutionProgress.map((step, index) => (
                   <div
                     key={step.id}
-                    className={`avl-surface-subtle p-3 ${
+                    className={`border p-3 ${
                       step.active
                         ? "border-emerald-300 bg-white"
                         : step.done
@@ -10720,7 +10720,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             <div className="mt-4 grid gap-3 xl:grid-cols-4">
               {backendCandidateScores.map((candidate, index) => (
-                <div key={candidate.key} className="avl-surface-subtle p-4">
+                <div key={candidate.key} className="border border-slate-200 bg-white p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-semibold text-slate-950">{candidate.label}</div>
@@ -10879,7 +10879,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ["데이터/API", "워크스페이스, 기록, 근거, 리스크, 산출물, 이벤트 로그 계약을 정의합니다."],
                 ["테스트/배포", "권한, 빈 상태, 저장 실패, 모바일, Production 스모크 기준을 포함합니다."],
               ].map(([label, detail]) => (
-                <div key={label} className="avl-surface-subtle p-3">
+                <div key={label} className="border border-slate-200 bg-slate-50 p-3">
                   <div className="text-sm font-semibold text-slate-950">{label}</div>
                   <p className="mt-1 text-sm leading-6 text-slate-600">{detail}</p>
                 </div>
@@ -10908,7 +10908,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   type="button"
                   onClick={() => copyDraft(scaffoldManifestDraft, "MVP 스캐폴드 매니페스트")}
                   disabled={!scaffoldManifestDraft}
-                  className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                  className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
                   매니페스트 복사
@@ -10924,7 +10924,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     )
                   }
                   disabled={isBusy || !user || !scaffoldManifestDraft}
-                  className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
+                  className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
                   매니페스트 저장
@@ -10938,7 +10938,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ["백엔드 규칙", "Supabase RLS 또는 Firebase Rules 시작점"],
                 ["검증 명령", "lint, typecheck, build, Preview/Production smoke"],
               ].map(([label, detail]) => (
-                <div key={label} className="avl-surface-subtle p-3">
+                <div key={label} className="border border-slate-200 bg-slate-50 p-3">
                   <div className="text-sm font-semibold text-slate-950">{label}</div>
                   <p className="mt-1 text-sm leading-6 text-slate-600">{detail}</p>
                 </div>
@@ -11293,7 +11293,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     const totalCount = selectedImplementationTasks.filter((task) => task.task_type === taskType).length;
 
                     return (
-                      <div key={taskType} className="avl-surface-subtle p-3">
+                      <div key={taskType} className="border border-slate-200 bg-white p-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                           {String(index + 1).padStart(2, "0")}
                         </div>
@@ -11309,7 +11309,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
 
                 <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                  <div className="avl-surface-subtle p-3">
+                  <div className="border border-slate-200 bg-slate-50 p-3">
                     <div className="text-sm font-semibold text-slate-950">바로 시작 가능</div>
                     <div className="mt-3 grid gap-2">
                       {readyImplementationDependencyStatuses.slice(0, 4).map((status) => (
@@ -11331,7 +11331,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   </div>
 
-                  <div className="avl-surface-subtle p-3">
+                  <div className="border border-slate-200 bg-slate-50 p-3">
                     <div className="text-sm font-semibold text-slate-950">선행 조건 대기</div>
                     <div className="mt-3 grid gap-2">
                       {waitingImplementationDependencyStatuses.slice(0, 4).map((status) => (
@@ -11721,7 +11721,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   구현 태스크, 완료 증거, QA/보안 단계를 기준으로 개발 완료 보고서를 만듭니다.
                 </p>
               </div>
-              <div className="avl-surface-subtle px-4 py-3 text-right text-slate-950">
+              <div className="border border-slate-200 bg-white px-4 py-3 text-right text-slate-950">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                   통과 {passedImplementationGateCount}/{implementationGateChecks.length}
                 </div>
@@ -11731,7 +11731,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
               {implementationGateChecks.map((check) => (
-                <div key={check.label} className="avl-surface-subtle p-3">
+                <div key={check.label} className="border border-slate-200 bg-white p-3">
                   <div className="flex items-start gap-2">
                     <CheckCircle2
                       size={18}

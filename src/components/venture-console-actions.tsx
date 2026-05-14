@@ -2734,7 +2734,7 @@ export function VentureConsoleActions({
   return (
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]" : embedded ? "grid gap-5" : "grid gap-6"}>
       {showSidebar ? (
-      <aside className="avl-card-soft p-5 lg:sticky lg:top-6 lg:self-start">
+              <aside className="avl-card p-5 lg:sticky lg:top-6 lg:self-start">
         <div className="mb-4">
           <div className="avl-kicker mb-3">Quick setup</div>
           <h2 className="text-lg font-semibold text-slate-950">시작 준비</h2>
@@ -2903,7 +2903,7 @@ export function VentureConsoleActions({
                 </select>
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="avl-surface-subtle p-4">
+                  <div className="border border-slate-200 bg-slate-50 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">역할</div>
                   <div className="mt-2 text-lg font-semibold capitalize text-slate-950">
                     {activeMembership ? organizationRoleLabels[activeMembership.role] : organizationRoleLabels.member}
