@@ -676,8 +676,8 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[184px_minmax(0,1fr)]">
-      <aside className="avl-card-soft sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto p-3">
+    <section className="grid gap-3 xl:grid-cols-[212px_minmax(0,1fr)]">
+      <aside className="avl-card-soft sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto p-2.5">
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -724,7 +724,7 @@ export function VentureConsoleShell({
                   type="button"
                   onClick={() => !isLocked && goToTask(task.id)}
                   disabled={isLocked}
-                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 rounded-[10px] border px-2.5 py-2.5 text-left transition ${
+                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 rounded-[10px] border px-2.5 py-2 text-left transition ${
                     isCurrent
                       ? "border-slate-300 bg-white shadow-sm"
                       : isCompleted
@@ -750,7 +750,7 @@ export function VentureConsoleShell({
                         <Icon size={13} />
                         {task.label}
                       </span>
-                      <span className="mt-0.5 block text-[10px] leading-5 text-slate-500">{task.description}</span>
+                      <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{task.description}</span>
                     </span>
                     <span className="avl-pill avl-pill-soft mt-0.5 px-1.5 py-0.5 text-[10px]">
                       {taskStatuses[task.id]}
@@ -793,119 +793,104 @@ export function VentureConsoleShell({
       </aside>
 
       <div className="min-w-0 space-y-3">
-        <section className="avl-card-soft p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-              <span className="text-slate-500">{activeTaskConfig.group}</span>
-              {!activeTaskConfig.optional ? <span>Step {stepNumber}/{requiredShellTasks.length}</span> : null}
-              <span className="avl-pill avl-pill-soft px-2 py-1 text-[11px]">
-                {taskStatuses[activeTaskConfig.id]}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => previousTask && goToTask(previousTask.id)}
-                disabled={!previousTask}
-                className="avl-btn avl-btn-secondary px-4"
-              >
-                이전
-              </button>
-              {primaryNextTask ? (
-                <button
-                  type="button"
-                  onClick={() => goToTask(primaryNextTask.id)}
-                    className="avl-btn avl-btn-primary px-4"
-                >
-                  {primaryNextTask.cta}
-                  <ArrowRight size={16} />
-                </button>
-              ) : null}
-            </div>
-          </div>
+        <section className="avl-card p-4">
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_292px]">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                <span className="text-slate-500">{activeTaskConfig.group}</span>
+                {!activeTaskConfig.optional ? <span>Step {stepNumber}/{requiredShellTasks.length}</span> : null}
+                <span className="avl-pill avl-pill-soft px-2 py-1 text-[11px]">
+                  {taskStatuses[activeTaskConfig.id]}
+                </span>
+              </div>
 
-          <div className="mt-3 min-w-0 space-y-3">
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_248px]">
-                <div className="min-w-0 px-1 py-1">
+              <div className="mt-3 flex items-start gap-3">
+                <span className="avl-icon-frame">
+                  <ActiveIcon size={18} />
+                </span>
                 <div className="min-w-0">
-                  <div className="flex items-start gap-3">
-                    <span className="avl-icon-frame">
-                      <ActiveIcon size={18} />
-                    </span>
-                    <div className="min-w-0">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 질문</div>
-                      <h2 className="mt-2 max-w-3xl text-[16px] font-semibold tracking-tight text-slate-950 sm:text-[18px] sm:leading-[26px]">
-                        {activeCanvas.question}
-                      </h2>
-                      <p className="mt-1 max-w-3xl text-[12px] leading-5 text-slate-600">{activeGuidance.summary}</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 grid gap-3 border-t border-slate-200 pt-3 md:grid-cols-3">
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI가 먼저 하는 일</div>
-                      <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.aiLead}</p>
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">결과</div>
-                      <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.deliverable}</p>
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">확인 포인트</div>
-                      <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.checkpoint}</p>
-                    </div>
-                  </div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 질문</div>
+                  <h2 className="mt-1 max-w-4xl text-[18px] font-semibold tracking-tight text-slate-950 sm:text-[24px] sm:leading-[32px]">
+                    {activeCanvas.question}
+                  </h2>
+                  <p className="mt-2 max-w-3xl text-[13px] leading-6 text-slate-600">{activeGuidance.summary}</p>
                 </div>
               </div>
 
-              <div className="avl-surface-muted px-4 py-3.5">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">지금 할 일</div>
-                  <ol className="mt-2 grid gap-2">
-                    {activeGuidance.checklist.slice(0, 3).map((item, index) => (
-                      <li key={item} className="grid grid-cols-[1.2rem_minmax(0,1fr)] gap-2 text-[12px] leading-5 text-slate-700">
-                        <span className="avl-step-dot mt-1 bg-slate-950 text-white">
-                          {index + 1}
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ol>
-                  {primaryNextTask ? (
-                    <button
-                      type="button"
-                      onClick={() => goToTask(primaryNextTask.id)}
-                      className="avl-btn avl-btn-primary mt-4 w-full px-4"
-                    >
-                      {primaryNextTask.cta}
-                      <ArrowRight size={16} />
-                    </button>
-                  ) : null}
-                  {optionalNextTasks.length > 0 ? (
-                    <div className="mt-3 border-t border-slate-200 pt-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이동</div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {optionalNextTasks.map((option) => (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => goToTask(option.id)}
-                          className="avl-btn avl-btn-subtle h-8 rounded-md px-3 text-xs"
-                        >
-                          {option.cta}
-                        </button>
-                      ))}
-                    </div>
-                    </div>
-                  ) : null}
-              </div>
+              <div className="mt-4 grid gap-3 border-t border-slate-200 pt-3 md:grid-cols-3">
+                <div className="avl-surface-muted px-3 py-2.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI 준비</div>
+                  <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.aiLead}</p>
+                </div>
+                <div className="avl-surface-muted px-3 py-2.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">이번 결과</div>
+                  <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.deliverable}</p>
+                </div>
+                <div className="avl-surface-muted px-3 py-2.5">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">확인 포인트</div>
+                  <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.checkpoint}</p>
+                </div>
               </div>
 
-            {currentStepBlocker ? (
-              <div className="avl-surface-muted border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-900">
-                {currentStepBlocker}
+              {currentStepBlocker ? (
+                <div className="avl-surface-muted mt-3 border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-900">
+                  {currentStepBlocker}
+                </div>
+              ) : null}
+            </div>
+
+            <aside className="avl-surface-muted px-4 py-3.5">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">지금 할 일</div>
+              <ol className="mt-2 grid gap-2.5">
+                {activeGuidance.checklist.slice(0, 3).map((item, index) => (
+                  <li key={item} className="grid grid-cols-[1.2rem_minmax(0,1fr)] gap-2 text-[12px] leading-5 text-slate-700">
+                    <span className="avl-step-dot mt-0.5 bg-slate-950 text-white">{index + 1}</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ol>
+
+              <div className="mt-4 flex flex-col gap-2">
+                {primaryNextTask ? (
+                  <button
+                    type="button"
+                    onClick={() => goToTask(primaryNextTask.id)}
+                    className="avl-btn avl-btn-primary w-full px-4"
+                  >
+                    {primaryNextTask.cta}
+                    <ArrowRight size={16} />
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => previousTask && goToTask(previousTask.id)}
+                  disabled={!previousTask}
+                  className="avl-btn avl-btn-secondary w-full px-4"
+                >
+                  이전 단계
+                </button>
               </div>
-            ) : null}
+
+              {optionalNextTasks.length > 0 ? (
+                <div className="mt-3 border-t border-slate-200 pt-3">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이동</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {optionalNextTasks.map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => goToTask(option.id)}
+                        className="avl-btn avl-btn-subtle h-8 rounded-md px-3 text-xs"
+                      >
+                        {option.cta}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </aside>
           </div>
-          </section>
+        </section>
 
         <section className="space-y-5">
           <div className={activeTask.startsWith("console:") ? "" : "hidden"}>

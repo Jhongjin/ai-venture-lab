@@ -2813,16 +2813,8 @@ export function VentureConsoleActions({
           </div>
         ) : (
           <form onSubmit={handlePasswordSignIn} className="grid gap-3">
-            <div className="avl-band p-4 text-sm leading-6 text-blue-900">
-              <div className="font-semibold text-blue-950">비밀번호 로그인으로 진행합니다.</div>
-              <ol className="mt-2 grid gap-1">
-                <li>1. 관리자가 Supabase에서 만든 계정을 준비합니다.</li>
-                <li>2. 이메일과 비밀번호를 입력합니다.</li>
-                <li>3. 로그인 후 바로 AI 후보 발굴부터 시작합니다.</li>
-              </ol>
-              <p className="mt-2">
-                계정이 없다면 Supabase의 Authentication &gt; Users에서 사용자를 추가하고 이메일 확인 완료 상태로 만들어 주세요.
-              </p>
+            <div className="avl-surface-muted p-3 text-sm leading-6 text-slate-700">
+              관리자 계정의 이메일과 비밀번호로 바로 시작합니다. 로그인되면 다음 단계는 자동으로 열립니다.
             </div>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               이메일
@@ -2857,9 +2849,7 @@ export function VentureConsoleActions({
                 이메일 링크가 꼭 필요할 때만 사용
               </summary>
               <div className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
-                <p>
-                  이메일 링크는 SMTP 설정과 발송 제한의 영향을 받습니다. 운영 테스트는 위의 비밀번호 로그인을 기본으로 사용하세요.
-                </p>
+                <p>발송 제한이나 SMTP 설정에 영향을 받기 때문에, 운영 테스트는 비밀번호 로그인을 기본으로 권장합니다.</p>
                 <button
                   type="button"
                   onClick={handleEmailLinkSignIn}
@@ -2933,7 +2923,7 @@ export function VentureConsoleActions({
                     {personalRecordCount}개의 개인 기록이 아직 워크스페이스 밖에 있습니다.
                   </div>
                   <p className="mt-1 text-sm leading-6 text-amber-900">
-                    포트폴리오, 리스크, 판단, 실험, 실행, 산출물을 같은 워크스페이스 경계로 묶고 싶을 때 연결하세요.
+                    팀으로 함께 보거나 같은 경계로 묶고 싶을 때만 연결하면 됩니다.
                   </p>
                   <button
                     type="button"
@@ -3065,9 +3055,9 @@ export function VentureConsoleActions({
           ) : (
             <div className="grid gap-3">
               <div className="avl-surface-muted border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-                이 운영자에게 연결된 워크스페이스가 없습니다.
+                아직 연결된 워크스페이스가 없습니다.
                 {personalRecordCount > 0
-                  ? ` 워크스페이스를 만든 뒤 ${personalRecordCount}개의 개인 기록을 연결할 수 있습니다.`
+                  ? ` 필요하면 워크스페이스를 만든 뒤 ${personalRecordCount}개의 개인 기록을 연결할 수 있습니다.`
                   : ""}
               </div>
               <button
@@ -3112,13 +3102,13 @@ export function VentureConsoleActions({
           ) : null}
 
           <div className="space-y-3">
-            <section className="avl-card-soft p-4 text-slate-900">
-              <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <section className="avl-card p-4 text-slate-900">
+              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
                 <div className="grid gap-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">원문 입력</div>
-                      <h3 className="mt-2 text-base font-semibold text-slate-950">대화나 메모 붙여넣기</h3>
+                      <h3 className="mt-1 text-base font-semibold text-slate-950">대화나 메모 붙여넣기</h3>
                       <p className="mt-1 max-w-2xl text-sm leading-5 text-slate-600">
                         문제, 대상, 해결 방식이 드러나면 후보를 더 잘 정리합니다.
                       </p>
@@ -3130,9 +3120,9 @@ export function VentureConsoleActions({
                   <textarea
                     value={rawIdeaSource}
                     onChange={(event) => setRawIdeaSource(event.target.value)}
-                    rows={14}
+                    rows={12}
                     placeholder="예) 아이디어:, 페인 포인트:, 솔루션:, 타깃, 수익화, 다음 검증 질문..."
-                    className="avl-textarea min-h-[320px] leading-7"
+                    className="avl-textarea min-h-[280px] leading-7"
                   />
                   <div className="flex flex-wrap gap-2">
                 <button
@@ -3249,7 +3239,8 @@ export function VentureConsoleActions({
                     </section>
                   )}
 
-                  <div className="grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-3">
+                  <div className="grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                    <div className="grid gap-3 sm:grid-cols-2">
                     <div>
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">실행 상태</div>
                       <div className="mt-1 text-sm font-semibold text-slate-950">
@@ -3271,7 +3262,8 @@ export function VentureConsoleActions({
                         연락처, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
                       </p>
                     </div>
-                    <div className="flex flex-col items-start">
+                    </div>
+                    <div className="flex flex-col items-start sm:items-end">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">결과 점검</div>
                       <p className="mt-1 text-xs leading-5 text-slate-600">
                         이상할 때만 한 번 더 확인합니다.
@@ -3435,7 +3427,7 @@ export function VentureConsoleActions({
                   </details>
                 </details>
 
-                <details className="avl-card-soft p-4">
+                <details className="avl-card p-4">
                   <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">후보별 상세 보기</summary>
                   <p className="mt-3 text-sm leading-5 text-slate-600">
                     추천 후보만으로 부족할 때만 각 후보의 가설과 실험안을 펼칩니다.
