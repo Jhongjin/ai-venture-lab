@@ -40,12 +40,12 @@ export default async function Home() {
                 AI Venture Lab
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-[17px] font-semibold tracking-tight text-slate-950 sm:text-[20px]">
+                <h1 className="text-[16px] font-semibold tracking-tight text-slate-950 sm:text-[18px]">
                   아이디어 실행 보드
                 </h1>
               </div>
               <p className="mt-1 max-w-3xl text-[12px] leading-5 text-slate-600">
-                아이디어를 발굴하고 검증한 뒤, 기획서와 실행 패키지까지 한 흐름으로 이어가는 작업 공간입니다.
+                아이디어 발굴부터 검증, 실행 패키지 정리까지 한 흐름으로 이어가는 작업 공간입니다.
               </p>
             </div>
 

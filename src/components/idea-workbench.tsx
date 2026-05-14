@@ -9713,7 +9713,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div>
             <div className="mb-3 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Candidate queue</div>
             <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">오늘 검토할 아이디어를 고르고 평가, 위험, 실험, 판단 순서로 이동시킵니다.</p>
+            <p className="mt-1 text-sm leading-5 text-slate-600">오늘 밀어볼 아이디어 1개를 고르고 다음 단계로 넘깁니다.</p>
           </div>
           <ClipboardList className="text-slate-400" size={24} />
         </div>
@@ -9925,7 +9925,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ))}
               </div>
 
-              <div className="avl-surface-subtle mt-4 px-3 py-3 text-sm leading-6 text-slate-600">
+              <div className="avl-surface-subtle mt-4 px-3 py-3 text-sm leading-5 text-slate-600">
                 지금은 많은 후보를 펼치기보다, 바로 평가할 1개를 고르면 됩니다. 현재 보이는 후보는 {visibleIdeas.length}개입니다.
               </div>
             </aside>
@@ -9935,7 +9935,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">candidate selection</div>
                   <h2 className="mt-2 text-xl font-semibold text-slate-950">후보 선택</h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                  <p className="mt-2 max-w-2xl text-sm leading-5 text-slate-600">
                     지금 바로 평가를 시작할 후보 1개만 고르면 충분합니다. 나머지는 비교 큐로 남겨두고, 하나를 선택한 뒤 다음 단계로 넘어갑니다.
                   </p>
                 </div>
@@ -10081,12 +10081,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                                   </span>
                                 </div>
                                 <div className="mt-3 text-base font-semibold text-slate-950">{idea.name}</div>
-                                <p className="mt-2 text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
+                                <p className="mt-2 text-sm leading-5 text-slate-600">{idea.one_liner || idea.signal}</p>
                               </button>
                             );
                           })
                         ) : (
-                          <div className="rounded-[18px] border border-dashed border-slate-300 bg-white p-4 text-sm leading-6 text-slate-600 md:col-span-2">
+                          <div className="avl-surface-muted border-dashed p-4 text-sm leading-5 text-slate-600 md:col-span-2">
                             지금은 이 후보 1개만 보면 충분합니다. 새 아이디어를 더 넣거나, 나중에 다른 후보를 다시 비교해도 됩니다.
                           </div>
                         )}
@@ -10113,10 +10113,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">score canvas</div>
                   <h2 className="mt-2 text-xl font-semibold text-slate-950">{selectedIdea.name}</h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                  <p className="mt-2 max-w-2xl text-sm leading-5 text-slate-600">
                     {selectedIdea.one_liner || selectedIdea.signal}
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                  <p className="mt-2 text-sm leading-5 text-slate-500">
                     {canEdit
                       ? "AI 초안을 바탕으로 점수와 판단을 맞춘 뒤 저장합니다."
                       : "이 기록은 보기 전용입니다. 네가 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."}
@@ -10213,7 +10213,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="avl-surface-subtle p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">현재 점수</div>
                       <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">점수는 참고용이고, 최종 판단은 근거와 리스크를 같이 봐서 정합니다.</p>
+                      <p className="mt-2 text-sm leading-5 text-slate-600">점수는 참고용이고, 최종 판단은 근거와 리스크를 같이 봐서 정합니다.</p>
                     </div>
                   </div>
                 </div>
@@ -10222,7 +10222,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="avl-surface-muted p-5 text-slate-900">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">AI 추천 판단</div>
                     <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreRecommendation]}</div>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                    <p className="mt-2 text-sm leading-5 text-slate-600">
                       점수상으로는 현재 이 판단이 가장 자연스럽습니다. 다만 사람 검토에서 반대 근거가 있으면 판단을 바꿔도 됩니다.
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -10243,11 +10243,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="avl-surface-subtle p-4">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 행동</div>
                     <div className="mt-2 text-sm font-semibold text-slate-950">판단 방향만 정하면 충분합니다</div>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                    <p className="mt-2 text-sm leading-5 text-slate-600">
                       점수 7개를 먼저 맞추고 판단을 한 번 정한 뒤 저장하세요. 실험과 리스크 보강은 다음 단계에서 이어집니다.
                     </p>
                     {validationPlan ? (
-                      <p className="mt-3 text-sm leading-6 text-sky-700">{validationPlan.nextAction}</p>
+                      <p className="mt-3 text-sm leading-5 text-sky-700">{validationPlan.nextAction}</p>
                     ) : null}
                   </div>
                 </div>
@@ -10547,10 +10547,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
           )}
-          <p className="mb-5 text-sm leading-6 text-slate-600">{developmentPanelDescriptions[visibleDevelopmentPanel]}</p>
+          <p className="mb-4 text-sm leading-5 text-slate-600">{developmentPanelDescriptions[visibleDevelopmentPanel]}</p>
 
           {experienceMode === "guided" ? (
-            <div className="avl-surface-muted mb-5 border-blue-200 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
+            <div className="avl-surface-muted mb-4 border-blue-200 bg-blue-50 p-4 text-sm leading-5 text-blue-900">
               이 단계에서는 AI가 기획, 디자인, 개발 초안과 실행 패키지를 자동으로 만듭니다. 우선은 준비도, 디자인 프롬프트,
               개발 런북만 확인하고 저장하세요. 백엔드 비교, 앱 블루프린트, 스캐폴드 문서는 필요할 때만 전체 보기에서 확인하면 됩니다.
             </div>
@@ -10571,7 +10571,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </span>
                   <div className="text-sm font-semibold text-slate-950">{label}</div>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{detail}</p>
+                <p className="mt-2 text-sm leading-5 text-slate-600">{detail}</p>
               </div>
             ))}
           </div>
@@ -13696,7 +13696,7 @@ function GateChecklistPanel({
         <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{eyebrow}</div>
           <h3 className="mt-1 text-base font-semibold text-slate-950">{title}</h3>
-          <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+          <p className="mt-1 text-sm leading-5 text-slate-600">{description}</p>
         </div>
         <div className="shrink-0 rounded-md bg-slate-950 px-3 py-2 text-center text-white">
           <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">준비</div>
@@ -13716,7 +13716,7 @@ function GateChecklistPanel({
               />
               <div>
                 <div className="text-sm font-semibold text-slate-950">{check.label}</div>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{check.detail}</p>
+                <p className="mt-1 text-sm leading-5 text-slate-600">{check.detail}</p>
               </div>
             </div>
           </div>
