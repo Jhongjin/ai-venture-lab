@@ -94,7 +94,7 @@ export default function HomePage() {
                 preview
               </a>
               <Link href="/guide" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
-                가이드
+                사용 가이드
               </Link>
               <Link href="/workspace" className="avl-btn avl-btn-primary h-9 px-4 text-sm">
                 실행 보드 열기
