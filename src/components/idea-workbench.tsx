@@ -10593,12 +10593,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             />
           </div>
 
-          <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50 p-4">
+          <div className="avl-surface-muted mt-5 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">design generation</div>
-                <h3 className="mt-1 text-base font-semibold text-blue-950">디자인 생성 프롬프트</h3>
-                <p className="mt-1 text-sm leading-6 text-blue-900">
+                <div className="avl-kicker">design generation</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">디자인 생성 프롬프트</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
                   Stitch, v0, Figma용 AI 디자인 도구에 바로 넣을 수 있도록 화면, 상태, 모바일, 권한, 데이터 경계를
                   하나의 프롬프트로 묶습니다.
                 </p>
@@ -10635,7 +10635,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               value={designGenerationPromptDraft}
               readOnly
               rows={8}
-              className="mt-4 w-full resize-y rounded-md border border-blue-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+              className="avl-textarea mt-4 font-mono leading-6"
             />
           </div>
 
@@ -10686,12 +10686,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           {experienceMode === "full" ? (
           <>
-          <div className="mt-5 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+          <div className="avl-surface-muted mt-5 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700">backend choice</div>
-                <h3 className="mt-1 text-base font-semibold text-indigo-950">백엔드 선택 스코어카드</h3>
-                <p className="mt-1 text-sm leading-6 text-indigo-900">
+                <div className="avl-kicker">backend choice</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">백엔드 선택 스코어카드</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
                   아이디어 문맥, 실험, 리스크를 바탕으로 Supabase, Firebase, SQL Connect, Hybrid 적합도를 비교합니다.
                 </p>
               </div>
@@ -10699,7 +10699,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <button
                   type="button"
                   onClick={() => copyDraft(backendDecisionDraft, "백엔드 결정")}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-indigo-200 bg-white px-3 text-sm font-semibold text-indigo-800 transition hover:bg-indigo-100"
+                  className="avl-btn avl-btn-secondary h-10 rounded-md px-3"
                 >
                   <Clipboard size={16} />
                   결정 복사
@@ -10710,7 +10710,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     saveArtifactDraft("backend_decision", `${selectedIdea.name} 백엔드 결정`, backendDecisionDraft, "development_process")
                   }
                   disabled={isBusy || !user}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-700 px-3 text-sm font-semibold text-white transition hover:bg-indigo-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
                   결정 저장
@@ -10720,33 +10720,33 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             <div className="mt-4 grid gap-3 xl:grid-cols-4">
               {backendCandidateScores.map((candidate, index) => (
-                <div key={candidate.key} className="rounded-lg border border-indigo-100 bg-white p-4">
+                <div key={candidate.key} className="avl-surface-subtle p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-semibold text-slate-950">{candidate.label}</div>
-                      <div className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-indigo-600">
+                      <div className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                         {index === 0 ? "현재 1순위" : "비교 후보"}
                       </div>
                     </div>
-                    <div className="text-2xl font-semibold text-indigo-950">{candidate.score}</div>
+                    <div className="text-2xl font-semibold text-slate-950">{candidate.score}</div>
                   </div>
                   <div className="mt-3 h-2 rounded-full bg-slate-100">
-                    <div className="h-2 rounded-full bg-indigo-600" style={{ width: `${candidate.score}%` }} />
+                    <div className="h-2 rounded-full bg-slate-950" style={{ width: `${candidate.score}%` }} />
                   </div>
                   <p className="mt-3 min-h-16 text-sm leading-6 text-slate-600">{candidate.summary}</p>
                   <div className="mt-3 grid gap-2 text-xs leading-5">
-                    <div className="rounded-md bg-emerald-50 px-2.5 py-2 text-emerald-900">{candidate.strengths[0]}</div>
-                    <div className="rounded-md bg-amber-50 px-2.5 py-2 text-amber-900">{candidate.cautions[0]}</div>
+                    <div className="avl-surface-muted px-2.5 py-2 text-slate-700">{candidate.strengths[0]}</div>
+                    <div className="avl-surface-muted px-2.5 py-2 text-slate-700">{candidate.cautions[0]}</div>
                   </div>
                 </div>
               ))}
             </div>
 
             {backendExecutionPlan ? (
-              <div className="mt-4 rounded-lg border border-indigo-200 bg-white p-4">
+              <div className="avl-surface-subtle mt-4 p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                       execution checklist
                     </div>
                     <h4 className="mt-1 text-base font-semibold text-slate-950">백엔드 실행 체크리스트</h4>
@@ -10760,7 +10760,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => copyDraft(backendExecutionPlanDraft, "백엔드 실행 체크리스트")}
                       disabled={!backendExecutionPlanDraft}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-indigo-200 bg-white px-3 text-sm font-semibold text-indigo-800 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
                     >
                       <Clipboard size={16} />
                       체크리스트 복사
@@ -10776,7 +10776,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !backendExecutionPlanDraft}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
                       체크리스트 저장
@@ -10785,13 +10785,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
 
                 <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_1.4fr]">
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <div className="avl-surface-muted p-3">
                     <div className="text-sm font-semibold text-slate-950">필수 환경변수</div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {backendExecutionPlan.envVars.map((envVar) => (
                         <span
                           key={envVar}
-                          className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 font-mono text-xs font-semibold text-slate-700"
+                          className="avl-pill avl-pill-neutral font-mono"
                         >
                           {envVar}
                         </span>
@@ -10799,17 +10799,17 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                  <div className="avl-surface-muted p-3">
                     <div className="text-sm font-semibold text-slate-950">검증 체크</div>
                     <div className="mt-3 grid gap-2">
                       {backendExecutionPlan.checks.map((check) => (
                         <div key={check.label} className="rounded-md border border-slate-200 bg-white p-3">
                           <div className="flex flex-wrap items-center gap-2">
                             <span
-                              className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                          className={`avl-pill ${
                                 check.tone === "required"
-                                  ? "bg-rose-50 text-rose-700"
-                                  : "bg-blue-50 text-blue-700"
+                                  ? "avl-pill-danger"
+                                  : "avl-pill-info"
                               }`}
                             >
                               {check.tone === "required" ? "필수" : "권장"}
@@ -10830,7 +10830,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     ["프로덕션 게이트", backendExecutionPlan.productionGate],
                     ["롤백 기준", backendExecutionPlan.rollback],
                   ].map(([label, detail]) => (
-                    <div key={label} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div key={label} className="avl-surface-muted p-3">
                       <div className="text-sm font-semibold text-slate-950">{label}</div>
                       <p className="mt-1 text-sm leading-6 text-slate-600">{detail}</p>
                     </div>
@@ -10840,12 +10840,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
           </div>
 
-          <div className="mt-5 rounded-lg border border-emerald-100 bg-emerald-50 p-4">
+          <div className="avl-surface-muted mt-5 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">app blueprint</div>
-                <h3 className="mt-1 text-base font-semibold text-emerald-950">앱 블루프린트</h3>
-                <p className="mt-1 text-sm leading-6 text-emerald-900">
+                <div className="avl-kicker">app blueprint</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">앱 블루프린트</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
                   PRD, MVP, 디자인, 백엔드 선택을 실제 라우트, 컴포넌트, 데이터 모델, API, 권한, 수용 테스트로
                   번역합니다.
                 </p>
@@ -10855,7 +10855,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   type="button"
                   onClick={() => copyDraft(appBlueprintDraft, "앱 블루프린트")}
                   disabled={!appBlueprintDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-950 px-3 text-sm font-semibold text-white transition hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
                   블루프린트 복사
@@ -10866,7 +10866,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     saveArtifactDraft("tech_spec", `${selectedIdea.name} 앱 블루프린트`, appBlueprintDraft, "app_blueprint")
                   }
                   disabled={isBusy || !user || !appBlueprintDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-white px-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
                   블루프린트 저장
@@ -10879,8 +10879,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ["데이터/API", "워크스페이스, 기록, 근거, 리스크, 산출물, 이벤트 로그 계약을 정의합니다."],
                 ["테스트/배포", "권한, 빈 상태, 저장 실패, 모바일, Production 스모크 기준을 포함합니다."],
               ].map(([label, detail]) => (
-                <div key={label} className="rounded-lg border border-emerald-100 bg-white p-3">
-                  <div className="text-sm font-semibold text-emerald-950">{label}</div>
+                <div key={label} className="avl-surface-subtle p-3">
+                  <div className="text-sm font-semibold text-slate-950">{label}</div>
                   <p className="mt-1 text-sm leading-6 text-slate-600">{detail}</p>
                 </div>
               ))}
@@ -10889,16 +10889,16 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               value={appBlueprintDraft}
               readOnly
               rows={9}
-              className="mt-4 w-full resize-y rounded-md border border-emerald-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+              className="avl-textarea mt-4 font-mono leading-6"
             />
           </div>
 
-          <div className="mt-5 rounded-lg border border-cyan-100 bg-cyan-50 p-4">
+          <div className="avl-surface-muted mt-5 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-700">scaffold manifest</div>
-                <h3 className="mt-1 text-base font-semibold text-cyan-950">MVP 스캐폴드 매니페스트</h3>
-                <p className="mt-1 text-sm leading-6 text-cyan-900">
+                <div className="avl-kicker">scaffold manifest</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">MVP 스캐폴드 매니페스트</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
                   개발자가 바로 저장소를 만들 수 있도록 파일 트리, 라우트 책임, 환경변수, 백엔드 규칙, 검증 명령을
                   한 문서로 정리합니다.
                 </p>
@@ -10908,7 +10908,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   type="button"
                   onClick={() => copyDraft(scaffoldManifestDraft, "MVP 스캐폴드 매니페스트")}
                   disabled={!scaffoldManifestDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-cyan-950 px-3 text-sm font-semibold text-white transition hover:bg-cyan-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
                   매니페스트 복사
@@ -10924,7 +10924,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     )
                   }
                   disabled={isBusy || !user || !scaffoldManifestDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-cyan-200 bg-white px-3 text-sm font-semibold text-cyan-900 transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
                   매니페스트 저장
@@ -10938,8 +10938,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ["백엔드 규칙", "Supabase RLS 또는 Firebase Rules 시작점"],
                 ["검증 명령", "lint, typecheck, build, Preview/Production smoke"],
               ].map(([label, detail]) => (
-                <div key={label} className="rounded-lg border border-cyan-100 bg-white p-3">
-                  <div className="text-sm font-semibold text-cyan-950">{label}</div>
+                <div key={label} className="avl-surface-subtle p-3">
+                  <div className="text-sm font-semibold text-slate-950">{label}</div>
                   <p className="mt-1 text-sm leading-6 text-slate-600">{detail}</p>
                 </div>
               ))}
@@ -10948,20 +10948,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               value={scaffoldManifestDraft}
               readOnly
               rows={9}
-              className="mt-4 w-full resize-y rounded-md border border-cyan-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+              className="avl-textarea mt-4 font-mono leading-6"
             />
           </div>
 
           <div className="mt-5 grid gap-3 lg:grid-cols-3">
             {developmentArtifactDrafts.map((draft) => (
-              <div key={draft.artifactType} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div key={draft.artifactType} className="avl-surface-muted p-4">
                 <div className="text-sm font-semibold text-slate-950">{artifactLabels[draft.artifactType]}</div>
                 <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600">{draft.description}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={() => copyDraft(draft.body, artifactLabels[draft.artifactType])}
-                    className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 transition hover:bg-slate-50"
+                    className="avl-btn avl-btn-secondary h-9 rounded-md px-3 text-xs"
                   >
                     <Clipboard size={15} />
                     복사
@@ -10970,7 +10970,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={() => saveArtifactDraft(draft.artifactType, draft.title, draft.body, "development_process")}
                     disabled={isBusy || !user}
-                    className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-9 rounded-md px-3 text-xs disabled:opacity-50"
                   >
                     <Save size={15} />
                     저장

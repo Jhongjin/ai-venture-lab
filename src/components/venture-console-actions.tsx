@@ -3830,7 +3830,7 @@ export function VentureConsoleActions({
 
           <div className="grid gap-4">
             <section className="avl-band p-5 text-slate-900">
-              <div className="avl-kicker bg-violet-100 text-violet-700">next step</div>
+              <div className="avl-kicker">next step</div>
               <h3 className="mt-4 text-lg font-semibold text-slate-950">저장하면 바로 워크벤치로 이동합니다</h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 새 아이디어는 저장되는 순간 워크벤치에 추가되고, 바로 선택된 상태로 `사업성 평가` 단계에서 이어서 검토할 수 있습니다.
@@ -3845,12 +3845,12 @@ export function VentureConsoleActions({
                   ["구매자/대상 보강", Boolean(form.buyer && form.target_user)],
                   ["검증 메모 보강", Boolean(form.signal || form.risk_summary || form.next_evidence)],
                 ] as Array<[string, boolean]>).map(([label, passed]) => (
-                  <div key={label} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                  <div key={label} className="avl-surface-muted p-3">
                     <div className="flex items-center justify-between gap-3">
                       <span className="text-sm font-semibold text-slate-900">{label}</span>
                       <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                          passed ? "bg-emerald-100 text-emerald-800" : "bg-white text-slate-500 border border-slate-200"
+                        className={`avl-pill ${
+                          passed ? "avl-pill-success" : "avl-pill-neutral"
                         }`}
                       >
                         {passed ? "준비됨" : "선택"}
