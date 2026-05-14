@@ -9939,7 +9939,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     지금 바로 평가를 시작할 후보 1개만 고르면 충분합니다. 나머지는 비교 큐로 남겨두고, 하나를 선택한 뒤 다음 단계로 넘어갑니다.
                   </p>
                 </div>
-                <div className="inline-flex h-11 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">
+                <div className="avl-pill avl-pill-neutral gap-2 px-3 py-2 text-sm">
                   <ClipboardList size={16} />
                   {visibleIdeas.length}개 후보
                 </div>
@@ -9968,7 +9968,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선택된 후보</div>
                           <h3 className="mt-2 text-[20px] font-semibold text-slate-950">{selectedIdea.name}</h3>
-                            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                            <p className="mt-3 max-w-2xl text-sm leading-5 text-slate-600">
                               {selectedIdea.one_liner || selectedIdea.signal}
                             </p>
                           </div>
@@ -13600,7 +13600,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                             type="button"
                             onClick={() => updateArtifactStatus(artifact, nextStatus)}
                             disabled={isBusy || !canManageRecord(artifact) || status === nextStatus}
-                            className="inline-flex h-9 items-center justify-center rounded-md bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                            className="avl-btn avl-btn-secondary px-3 text-xs disabled:opacity-45"
                           >
                             {artifactStatusLabels[nextStatus]}
                           </button>
@@ -13663,7 +13663,7 @@ function ScoreInput({
     <label className="grid gap-2 text-sm font-semibold text-slate-700">
       <span className="flex items-center justify-between gap-3">
         {label}
-        <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600">{value}/5</span>
+        <span className="avl-pill avl-pill-neutral px-2 py-1 text-xs">{value}/5</span>
       </span>
       <input
         type="range"
@@ -13759,13 +13759,13 @@ function DraftDocumentCard({
             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{kicker}</div>
           ) : null}
           <h3 className={`${kicker ? "mt-2" : ""} text-lg font-semibold text-slate-950`}>{title}</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+          <p className="mt-2 text-sm leading-5 text-slate-600">{description}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={onCopy}
-            className="avl-btn avl-btn-secondary h-11 rounded-xl px-4"
+            className="avl-btn avl-btn-secondary px-4"
           >
             <Clipboard size={18} />
             {copyLabel}
@@ -13775,7 +13775,7 @@ function DraftDocumentCard({
               type="button"
               onClick={onSave}
               disabled={saveDisabled}
-              className="avl-btn avl-btn-primary h-11 rounded-xl px-4"
+              className="avl-btn avl-btn-primary px-4"
             >
               <Save size={18} />
               {saveLabel}
@@ -13787,7 +13787,7 @@ function DraftDocumentCard({
         value={body}
         readOnly
         rows={rows}
-        className="avl-textarea mt-4 rounded-[14px] font-mono text-sm leading-6 text-slate-700"
+        className="avl-textarea mt-4 font-mono text-sm leading-5 text-slate-700"
       />
     </section>
   );
