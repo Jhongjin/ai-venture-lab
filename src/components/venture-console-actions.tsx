@@ -2754,8 +2754,8 @@ export function VentureConsoleActions({
                 }`}
               >
                 <span
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                    activeTask === task.id ? "bg-white text-slate-950" : "bg-slate-100 text-slate-700"
+                  className={`avl-step-dot h-8 w-8 text-sm ${
+                    activeTask === task.id ? "bg-white text-slate-950" : ""
                   }`}
                 >
                   {index + 1}

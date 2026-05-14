@@ -9841,7 +9841,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 }`}
               >
                 <span
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
+                  className={`avl-step-dot h-8 w-8 text-sm ${
                     activeTask === task.id ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-700"
                   }`}
                 >
@@ -10069,10 +10069,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                                 className="rounded-[18px] border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:shadow-sm"
                               >
                                 <div className="flex items-center justify-between gap-3">
-                                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+                                  <span className="avl-step-dot h-8 w-8 bg-slate-900 text-sm text-white">
                                     {index + 2}
                                   </span>
-                                  <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                  <span className="avl-pill avl-pill-neutral">
                                     {isOwnedComparison
                                       ? editabilityLabels.editable
                                       : isOrgAdminComparison
@@ -10533,7 +10533,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   >
                     <div className="flex items-center gap-2">
                       <span
-                        className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold ${
+                        className={`avl-step-dot h-7 w-7 text-xs ${
                           step.active || step.done ? "bg-emerald-700 text-white" : "bg-slate-200 text-slate-700"
                         }`}
                       >
@@ -10566,7 +10566,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ].map(([label, detail], index) => (
               <div key={label} className="avl-surface-muted p-4">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                  <span className="avl-step-dot h-7 w-7 bg-blue-600 text-xs text-white">
                     {index + 1}
                   </span>
                   <div className="text-sm font-semibold text-slate-950">{label}</div>
@@ -12399,7 +12399,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div key={row.eventName} className="avl-surface-muted p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-700 shadow-sm">
+                          <span className="avl-step-dot h-7 w-7 border border-slate-200 bg-white text-xs text-slate-700">
                             {index + 1}
                           </span>
                           <div>
