@@ -1995,7 +1995,7 @@ export function VentureConsoleActions({
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/workspace`,
       },
     });
     setIsAuthBusy(false);

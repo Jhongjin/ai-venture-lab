@@ -11693,7 +11693,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           );
                         })
                       ) : (
-                        <div className="rounded-md border border-dashed border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-500">
+                        <div className="avl-surface-muted border-dashed p-3 text-sm leading-5 text-slate-500">
                           아직 {implementationTaskStatusLabels[status]} 상태의 태스크가 없습니다.
                         </div>
                       )}
@@ -12276,7 +12276,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
                 <div className="avl-surface-subtle p-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Idea ID</div>
-                  <code className="mt-2 block break-all rounded-md bg-slate-100 px-3 py-2 text-xs leading-5 text-slate-700">
+                  <code className="avl-surface-muted mt-2 block break-all px-3 py-2 text-xs leading-5 text-slate-700">
                     {selectedIdea.id}
                   </code>
                   <p className="mt-2 text-sm leading-6 text-slate-600">

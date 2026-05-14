@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI Venture Lab",
-  description: "A venture lab harness for validating and building AI product ideas.",
+  description: "아이디어를 구조화하고, 검증하고, 실행 패키지까지 만드는 AI 실행 워크스페이스입니다.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

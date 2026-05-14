@@ -132,9 +132,10 @@ async function main() {
 
   try {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
-    await waitForVisible(page.getByRole("heading", { name: /아이디어-MVP 실행 센터/ }), "main heading");
+    await waitForVisible(page.getByRole("heading", { name: /아이디어를 검증하고/i }), "homepage hero heading");
 
-    await clickFirst(page.getByRole("button", { name: /로그인/ }), "operator login navigation");
+    await clickFirst(page.getByRole("link", { name: /실행 보드 열기/ }), "workspace cta");
+    await waitForVisible(page.getByRole("heading", { name: /아이디어 실행 보드/ }), "workspace heading");
     await fillFirst(page.getByLabel(/이메일/), email, "email input");
     await fillFirst(page.getByLabel(/비밀번호/), password, "password input");
     await clickFirst(page.getByRole("button", { name: /비밀번호로 로그인/ }), "password sign-in button");

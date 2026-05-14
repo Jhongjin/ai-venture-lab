@@ -63,7 +63,13 @@ async function main() {
   try {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
 
-    await waitForVisible(page.getByRole("heading", { name: /아이디어 실행 보드/ }), "main heading");
+    await waitForVisible(page.getByRole("heading", { name: /아이디어를 검증하고/i }), "homepage hero heading");
+    await waitForVisible(page.getByRole("link", { name: /실행 보드 열기/ }), "workspace cta");
+    await waitForVisible(page.getByText(/AI가 먼저 만들고, 사람은 결정만 보완합니다/).first(), "homepage workflow section");
+
+    await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });
+
+    await waitForVisible(page.getByRole("heading", { name: /아이디어 실행 보드/ }), "workspace heading");
     await waitForVisible(page.getByText(/현재 질문|이번 단계에서 할 일|다음 행동/).first(), "stage guidance");
     await waitForVisible(page.getByText(/진행 레일|Quick setup|로그인/).first(), "workflow rail");
 
