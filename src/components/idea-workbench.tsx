@@ -9711,7 +9711,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className="border border-slate-200 bg-white p-5 text-slate-900">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
-            <div className="mb-3 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Candidate queue</div>
+            <div className="avl-pill avl-pill-neutral mb-3 inline-flex px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]">Candidate queue</div>
             <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
             <p className="mt-1 text-sm leading-5 text-slate-600">오늘 밀어볼 아이디어 1개를 고르고 다음 단계로 넘깁니다.</p>
           </div>
@@ -10999,7 +10999,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     구현 태스크를 만들기 전에 범위, 금지 범위, 차단 항목, 완료 증거를 한 문서로 잠급니다.
                   </p>
                   <div
-                    className={`mt-3 rounded-md border px-3 py-2 text-sm leading-6 ${
+                    className={`mt-3 border px-3 py-2 text-sm leading-6 ${
                       nextBuildBlocker
                         ? "border-amber-200 bg-amber-50 text-amber-950"
                         : "border-emerald-200 bg-emerald-50 text-emerald-950"
@@ -11418,7 +11418,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
                   {blockedImplementationSummaries.slice(0, 4).map((summary) => (
-                    <div key={summary.task.id} className="avl-surface-subtle border-rose-200 px-3 py-2">
+                    <div key={summary.task.id} className="border border-rose-200 bg-rose-50 px-3 py-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>
                         <span className="avl-pill avl-pill-danger">
@@ -11467,7 +11467,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
                   {implementationEvidenceIssues.length > 0 ? (
                     implementationEvidenceIssues.slice(0, 4).map((summary) => (
-                      <div key={summary.task.id} className="avl-surface-subtle border-amber-200 px-3 py-2">
+                      <div key={summary.task.id} className="border border-amber-200 bg-amber-50 px-3 py-2">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>
                           <span className="avl-pill avl-pill-warning">
@@ -11629,7 +11629,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                               {task.owner_role || "owner 미정"}
                             </div>
                             {blockedHint ? (
-                              <div className="avl-surface-subtle mt-2 border-rose-200 px-3 py-2 text-xs leading-5 text-rose-900">
+                              <div className="mt-2 border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-900">
                                 <div className="font-semibold">차단 해소 다음 액션</div>
                                 <div className="mt-1">{blockedHint.nextAction}</div>
                               </div>
@@ -11649,7 +11649,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                               className="avl-textarea mt-3 w-full resize-y text-sm leading-6 text-slate-800 disabled:text-slate-500"
                             />
                             <div
-                              className={`mt-2 rounded-md border px-3 py-2 text-xs leading-5 ${
+                              className={`mt-2 border px-3 py-2 text-xs leading-5 ${
                                 missingEvidenceLabels.length === 0
                                   ? "border-emerald-100 bg-emerald-50 text-emerald-900"
                                   : "border-amber-100 bg-amber-50 text-amber-900"

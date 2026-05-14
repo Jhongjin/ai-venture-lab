@@ -49,7 +49,7 @@ export async function WorkspaceBoardPage() {
 
             <div className="flex flex-wrap items-center gap-2">
               {headerStats.map(([label, value]) => (
-                <div key={label} className="avl-surface-subtle flex min-w-[88px] items-center justify-between gap-3 px-3 py-2">
+                <div key={label} className="border border-slate-200 bg-white flex min-w-[88px] items-center justify-between gap-3 px-3 py-2">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>
                   <div className="text-sm font-semibold text-slate-950">{value}</div>
                 </div>
