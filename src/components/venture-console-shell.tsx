@@ -775,7 +775,7 @@ export function VentureConsoleShell({
                     key={task.id}
                     type="button"
                     onClick={() => goToTask(task.id)}
-                    className="avl-surface-subtle grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2.5 px-3 py-2.5 text-left transition hover:border-slate-300 hover:bg-slate-50"
+                    className="border border-slate-200 bg-white grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2.5 px-3 py-2.5 text-left transition hover:border-slate-300 hover:bg-slate-50"
                   >
                     <span className="avl-icon-frame avl-icon-frame-sm">
                       <Icon size={13} />
@@ -931,7 +931,7 @@ export function VentureConsoleShell({
             </summary>
             <div className="mt-4 grid gap-2">
               {lockedTasks.slice(0, 3).map((task) => (
-                <div key={task.id} className="avl-surface-subtle flex items-center gap-3 px-3 py-3">
+                <div key={task.id} className="border border-slate-200 bg-white flex items-center gap-3 px-3 py-3">
                   <span className="avl-icon-frame avl-icon-frame-sm text-xs">
                     {getTaskOrderLabel(task)}
                   </span>

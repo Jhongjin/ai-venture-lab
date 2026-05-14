@@ -10593,7 +10593,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             />
           </div>
 
-          <div className="avl-surface-muted mt-5 p-4">
+          <div className="avl-card mt-5 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <div className="avl-kicker">design generation</div>
@@ -10686,7 +10686,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           {experienceMode === "full" ? (
           <>
-          <div className="avl-surface-muted mt-5 p-4">
+          <div className="avl-card mt-5 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <div className="avl-kicker">backend choice</div>
@@ -10743,7 +10743,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
 
             {backendExecutionPlan ? (
-              <div className="avl-surface-subtle mt-4 p-4">
+              <div className="avl-card mt-4 p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -10760,7 +10760,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => copyDraft(backendExecutionPlanDraft, "백엔드 실행 체크리스트")}
                       disabled={!backendExecutionPlanDraft}
-                      className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
+                      className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                     >
                       <Clipboard size={16} />
                       체크리스트 복사
@@ -10776,7 +10776,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !backendExecutionPlanDraft}
-                      className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
                       체크리스트 저장
@@ -10803,7 +10803,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="text-sm font-semibold text-slate-950">검증 체크</div>
                     <div className="mt-3 grid gap-2">
                       {backendExecutionPlan.checks.map((check) => (
-                        <div key={check.label} className="rounded-md border border-slate-200 bg-white p-3">
+                        <div key={check.label} className="border border-slate-200 bg-white p-3">
                           <div className="flex flex-wrap items-center gap-2">
                             <span
                           className={`avl-pill ${
@@ -10855,7 +10855,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   type="button"
                   onClick={() => copyDraft(appBlueprintDraft, "앱 블루프린트")}
                   disabled={!appBlueprintDraft}
-                  className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                  className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
                   블루프린트 복사
@@ -10866,7 +10866,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     saveArtifactDraft("tech_spec", `${selectedIdea.name} 앱 블루프린트`, appBlueprintDraft, "app_blueprint")
                   }
                   disabled={isBusy || !user || !appBlueprintDraft}
-                  className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
+                  className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
                   블루프린트 저장
@@ -10984,11 +10984,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
           <div
-            className={`avl-surface-muted mt-5 p-4 ${
+            className={`avl-card mt-5 p-4 ${
               visibleDevelopmentPanel === "tasks" ? "" : "hidden"
             }`}
           >
-            <div className="avl-surface-subtle mb-4 p-4">
+            <div className="avl-card mb-4 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="avl-kicker">
@@ -11019,8 +11019,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
-                  <div className="rounded-lg bg-indigo-950 px-4 py-3 text-right text-white">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-200">
+                  <div className="avl-surface-muted px-4 py-3 text-right text-slate-950">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                       준비 {passedBuildReadinessCount}/{buildReadinessChecks.length}
                     </div>
                     <div className="mt-1 text-3xl font-semibold">{buildReadinessScore}%</div>
@@ -11029,7 +11029,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={() => copyDraft(developmentKickoffDraft, "개발 킥오프 브리프")}
                     disabled={!developmentKickoffDraft}
-                    className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                   >
                     <Clipboard size={16} />
                     브리프 복사
@@ -11045,7 +11045,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       )
                     }
                     disabled={isBusy || !user || !developmentKickoffDraft}
-                    className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
+                    className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                   >
                     <Save size={16} />
                     브리프 저장
@@ -11065,7 +11065,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 type="button"
                 onClick={createImplementationTasks}
                 disabled={isBusy || !user}
-                className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
               >
                 <ClipboardList size={16} />
                 기본 태스크 생성
@@ -11073,7 +11073,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
 
             {experienceMode === "full" ? (
-              <form onSubmit={addImplementationTask} className="avl-surface-subtle mt-4 p-4">
+              <form onSubmit={addImplementationTask} className="avl-card mt-4 p-4">
                 <div className="mb-3">
                   <h4 className="text-sm font-semibold text-slate-950">직접 태스크 추가</h4>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
@@ -11117,7 +11117,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <button
                     type="submit"
                     disabled={isBusy || !user}
-                    className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                   >
                     <Save size={16} />
                     태스크 추가
@@ -11127,7 +11127,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
 
             {selectedImplementationTasks.length > 0 ? (
-              <div className="avl-surface-subtle mt-4 p-4">
+              <div className="avl-card mt-4 p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-950">다음 개발 액션</h4>
@@ -11174,7 +11174,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                             type="button"
                             onClick={() => updateImplementationTaskStatus(nextImplementationTask, "doing")}
                             disabled={isBusy || !canManageRecord(nextImplementationTask)}
-                            className="avl-btn avl-btn-primary h-9 rounded-md px-3 text-xs disabled:opacity-50"
+                            className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:opacity-50"
                           >
                             진행 시작
                           </button>
@@ -11182,7 +11182,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         <button
                           type="button"
                           onClick={() => copyDraft(implementationTaskTicketDraft, "다음 개발 티켓")}
-                          className="avl-btn avl-btn-secondary h-9 rounded-md px-3 text-xs"
+                          className="avl-btn avl-btn-secondary h-9 px-3 text-xs"
                         >
                           <Clipboard size={15} />
                           티켓 복사
@@ -11192,7 +11192,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(implementationBacklogDraft, "열린 개발 백로그")}
-                      className="avl-btn avl-btn-secondary h-9 rounded-md px-3 text-xs"
+                      className="avl-btn avl-btn-secondary h-9 px-3 text-xs"
                     >
                       <ClipboardList size={15} />
                       열린 백로그
@@ -11203,7 +11203,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
 
             {experienceMode === "guided" && selectedImplementationTasks.length > 0 ? (
-              <div className="avl-surface-subtle mt-4 p-4">
+              <div className="avl-card mt-4 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-950">AI가 정리한 실행 순서</h4>
@@ -11261,7 +11261,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => copyDraft(implementationDependencyPlanDraft, "개발 실행 순서 게이트")}
                       disabled={!implementationDependencyPlanDraft}
-                      className="avl-btn avl-btn-secondary h-9 rounded-md px-3 text-xs disabled:opacity-50"
+                      className="avl-btn avl-btn-secondary h-9 px-3 text-xs disabled:opacity-50"
                     >
                       <Clipboard size={15} />
                       순서 복사
@@ -11277,7 +11277,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !implementationDependencyPlanDraft}
-                      className="avl-btn avl-btn-primary h-9 rounded-md px-3 text-xs disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:opacity-50"
                     >
                       <Save size={15} />
                       순서 저장
@@ -11356,7 +11356,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             ) : null}
 
-            <div className="avl-surface-subtle mt-4 p-4">
+            <div className="avl-card mt-4 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <h4 className="text-sm font-semibold text-slate-950">구현 실행 패키지</h4>
@@ -11377,7 +11377,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={() => copyDraft(agentRunPackageDraft, "구현 실행 패키지")}
                     disabled={!agentRunPackageDraft}
-                    className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                   >
                     <Clipboard size={16} />
                     패키지 복사
@@ -11393,7 +11393,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       )
                     }
                     disabled={isBusy || !user || !agentRunPackageDraft}
-                    className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
+                    className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                   >
                     <Save size={16} />
                     패키지 저장
@@ -11481,7 +11481,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       </div>
                     ))
                   ) : (
-                    <div className="avl-surface-subtle border-emerald-200 px-3 py-2 text-sm text-emerald-800">
+                    <div className="border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
                       현재 모든 태스크의 증거 힌트가 충족되어 있습니다.
                     </div>
                   )}
@@ -11490,7 +11490,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
 
             {experienceMode === "full" && selectedImplementationTasks.length > 0 ? (
-              <div className="avl-surface-subtle mt-4 p-4">
+              <div className="avl-card mt-4 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-950">태스크 필터</h4>
@@ -11532,7 +11532,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         setImplementationOwnerFilter("all");
                         setImplementationEvidenceFilter("all");
                       }}
-                      className="avl-btn avl-btn-secondary h-11 w-full rounded-md px-3 lg:w-auto"
+                      className="avl-btn avl-btn-secondary h-11 w-full px-3 lg:w-auto"
                     >
                       초기화
                     </button>
@@ -11541,7 +11541,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(filteredImplementationBacklogDraft, "필터된 개발 백로그")}
-                      className="avl-btn avl-btn-primary h-11 w-full rounded-md px-3 lg:w-auto"
+                      className="avl-btn avl-btn-primary h-11 w-full px-3 lg:w-auto"
                     >
                       <ClipboardList size={15} />
                       필터 복사
@@ -11551,7 +11551,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(filteredImplementationRunPromptDraft, "필터된 구현 실행 프롬프트")}
-                      className="avl-btn avl-btn-secondary h-11 w-full rounded-md px-3 lg:w-auto"
+                      className="avl-btn avl-btn-secondary h-11 w-full px-3 lg:w-auto"
                     >
                       <Code2 size={15} />
                       실행 프롬프트
@@ -11573,7 +11573,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         );
                       }}
                       disabled={isBusy || !user || !selectedIdea}
-                      className="avl-btn avl-btn-secondary h-11 w-full rounded-md px-3 disabled:opacity-50 lg:w-auto"
+                      className="avl-btn avl-btn-secondary h-11 w-full px-3 disabled:opacity-50 lg:w-auto"
                     >
                       <Save size={15} />
                       저장
@@ -11595,7 +11595,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   const tasksInStatus = filteredImplementationTasks.filter((task) => task.status === status);
 
                 return (
-                  <section key={status} className="avl-surface-subtle min-h-44 p-3">
+                  <section key={status} className="border border-slate-200 bg-white min-h-44 p-3">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <span className={implementationTaskStatusTone[status]}>
                         {implementationTaskStatusLabels[status]}
@@ -13154,7 +13154,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 검증 근거가 제품 요구사항으로 넘어갈 만큼 정리되었는지 먼저 확인합니다.
               </p>
               <div
-                className={`avl-surface-subtle mt-4 px-4 py-3 text-sm leading-5 ${
+                className={`border mt-4 px-4 py-3 text-sm leading-5 ${
                   nextPrdBlocker ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"
                 }`}
               >
@@ -13171,7 +13171,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 )}
               </div>
             </div>
-            <div className="avl-surface-muted px-5 py-4 text-right text-slate-950">
+            <div className="border border-slate-200 bg-white px-5 py-4 text-right text-slate-950">
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                 통과 {passedPrdReadinessCount}/{prdReadinessChecks.length}
               </div>
@@ -13181,7 +13181,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {prdReadinessChecks.map((check) => (
-                <div key={check.label} className="avl-surface-muted p-3">
+                <div key={check.label} className="border border-slate-200 bg-slate-50 p-3">
                 <div className="flex items-start gap-2">
                   <CheckCircle2
                     size={18}
@@ -13386,7 +13386,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     아이디어 검증에서 개발/출시까지 필요한 산출물을 순서대로 확인합니다.
                   </p>
                   {nextArtifactReviewItem ? (
-                    <div className="avl-surface-subtle mt-3 p-3">
+                    <div className="border border-slate-200 bg-white mt-3 p-3">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">
                           다음 처리: {nextArtifactReviewItem.label}
@@ -13432,7 +13432,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     key={item.id}
                     type="button"
                     onClick={() => focusArtifactReviewItem(item)}
-                    className="avl-surface-subtle px-3 py-2 text-left transition hover:border-slate-300 hover:bg-slate-50"
+                    className="border border-slate-200 bg-white px-3 py-2 text-left transition hover:border-slate-300 hover:bg-slate-50"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs font-semibold text-slate-950">{item.label}</span>

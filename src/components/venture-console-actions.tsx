@@ -3505,7 +3505,7 @@ export function VentureConsoleActions({
                           {similarIdea.idea.name} · 유사도 {similarIdea.score}% · {similarIdea.reason}
                         </div>
                       ) : null}
-                      <div className={`mt-3 rounded-md border p-3 ${gateStyle.panel}`}>
+                      <div className={`mt-3 border p-3 ${gateStyle.panel}`}>
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <div className={`text-sm font-semibold ${gateStyle.title}`}>
@@ -3517,7 +3517,7 @@ export function VentureConsoleActions({
                               {extractionGate.nextAction}
                             </p>
                           </div>
-                          <div className={`shrink-0 rounded-md px-3 py-2 text-right ${gateStyle.score}`}>
+                          <div className={`shrink-0 border px-3 py-2 text-right ${gateStyle.score}`}>
                             <div className="text-[10px] font-semibold">기준</div>
                             <div className="mt-1 max-w-[160px] text-xs leading-5">{extractionGate.threshold}</div>
                           </div>
@@ -3543,14 +3543,14 @@ export function VentureConsoleActions({
                               수요, 수익화, MVP 난이도, 도달 채널, 자동화 가치, 보안 부담을 함께 봅니다.
                             </p>
                           </div>
-                          <div className="rounded-lg bg-slate-950 px-3 py-2 text-right text-white">
-                            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">종합</div>
+                          <div className="avl-surface-muted px-3 py-2 text-right text-slate-950">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">종합</div>
                             <div className="text-2xl font-semibold">{strategyScore}%</div>
                           </div>
                         </div>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                           {strategyLenses.map((lens) => (
-                            <div key={lens.label} className="avl-surface-subtle px-3 py-2">
+                            <div key={lens.label} className="border border-slate-200 bg-white px-3 py-2">
                               <div className="flex items-center justify-between gap-3">
                                 <span className="text-xs font-semibold text-slate-950">{lens.label}</span>
                                 <span
@@ -3580,8 +3580,8 @@ export function VentureConsoleActions({
                                 : "아이디어, 리스크, 7일 실험으로 저장할 준비가 좋습니다."}
                             </p>
                           </div>
-                          <div className="rounded-lg bg-slate-950 px-3 py-2 text-right text-white">
-                            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-200">
+                          <div className="avl-surface-muted px-3 py-2 text-right text-slate-950">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">
                               준비
                             </div>
                             <div className="text-2xl font-semibold">{readinessScore}%</div>
@@ -3589,7 +3589,7 @@ export function VentureConsoleActions({
                         </div>
                         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                           {readinessChecks.map((check) => (
-                            <div key={check.label} className="avl-surface-subtle px-3 py-2">
+                            <div key={check.label} className="border border-slate-200 bg-white px-3 py-2">
                               <div className="flex items-center gap-2">
                                 <span
                                   className={`h-2 w-2 rounded-full ${check.passed ? "bg-emerald-500" : "bg-slate-300"}`}
@@ -3602,15 +3602,15 @@ export function VentureConsoleActions({
                         </div>
                       </div>
                       <div className="mt-3 grid gap-3 md:grid-cols-2">
-                        <div className="rounded-md bg-white p-3">
+                        <div className="avl-surface-muted p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">대상</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.target_user}</p>
                         </div>
-                        <div className="rounded-md bg-white p-3">
+                        <div className="avl-surface-muted p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">구매자</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.buyer}</p>
                         </div>
-                        <div className="rounded-md bg-white p-3">
+                        <div className="avl-surface-muted p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">핵심 가설</div>
                           <ul className="mt-1 grid gap-1 text-sm leading-6 text-slate-700">
                             {candidate.assumptions.map((item) => (
@@ -3618,7 +3618,7 @@ export function VentureConsoleActions({
                             ))}
                           </ul>
                         </div>
-                        <div className="rounded-md bg-white p-3">
+                        <div className="avl-surface-muted p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">검증 질문</div>
                           <ul className="mt-1 grid gap-1 text-sm leading-6 text-slate-700">
                             {candidate.validationQuestions.slice(0, 3).map((item) => (
@@ -3626,40 +3626,40 @@ export function VentureConsoleActions({
                             ))}
                           </ul>
                         </div>
-                        <div className="rounded-md bg-white p-3 md:col-span-2">
+                        <div className="avl-surface-muted p-3 md:col-span-2">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">7일 실험</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.sevenDayExperiment}</p>
                           <p className="mt-2 text-sm leading-6 text-slate-700">
                             <span className="font-semibold text-slate-950">성공 지표:</span> {candidate.successMetric}
                           </p>
                         </div>
-                        <div className="rounded-md bg-white p-3 md:col-span-2">
+                        <div className="avl-surface-muted p-3 md:col-span-2">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">원문 근거</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">
                             {compactText(redactSensitiveSource(candidate.sourceBlock), 360)}
                           </p>
                         </div>
-                        <div className="rounded-md bg-white p-3">
+                        <div className="avl-surface-muted p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">첫 프로토타입</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.firstPrototypeScope}</p>
                         </div>
-                        <div className="rounded-md bg-white p-3">
+                        <div className="avl-surface-muted p-3">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">중단 기준</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.killCriteria}</p>
                         </div>
-                        <div className="rounded-md bg-white p-3 md:col-span-2">
+                        <div className="avl-surface-muted p-3 md:col-span-2">
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">가격/구매 가설</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.pricingHypothesis}</p>
                         </div>
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                        <span className="avl-pill avl-pill-neutral">
                           {candidate.recommendation}
                         </span>
                         {candidate.evidence.map((item) => (
                           <span
                             key={item}
-                            className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 shadow-sm"
+                            className="avl-pill avl-pill-neutral"
                           >
                             {item}
                           </span>
@@ -3703,7 +3703,7 @@ export function VentureConsoleActions({
             ) : (
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="mb-2 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">intake canvas</div>
+                  <div className="mb-2 inline-flex avl-pill avl-pill-neutral px-2.5 py-1 text-[10px] uppercase tracking-[0.16em]">intake canvas</div>
                   <h2 className="mt-3 text-3xl font-semibold text-slate-950">아이디어 접수</h2>
                   <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
                     {activeOrganization
