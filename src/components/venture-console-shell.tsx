@@ -676,8 +676,8 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[196px_minmax(0,1fr)]">
-      <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto rounded-[12px] border border-slate-200 bg-slate-50/85 p-3">
+    <section className="grid gap-4 xl:grid-cols-[184px_minmax(0,1fr)]">
+      <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto rounded-[12px] border border-slate-200 bg-white p-3">
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -691,8 +691,8 @@ export function VentureConsoleShell({
               {source === "supabase" ? "연결됨" : "제한"}
             </div>
           </div>
-          <div className="mt-3 rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
-            <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
+          <div className="mt-3 rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-2.5">
+            <div className="h-1.5 overflow-hidden rounded-full bg-white">
               <div
                 className="h-full rounded-full bg-slate-950 transition-all"
                 style={{ width: `${workflowProgress}%` }}
@@ -724,7 +724,7 @@ export function VentureConsoleShell({
                   type="button"
                   onClick={() => !isLocked && goToTask(task.id)}
                   disabled={isLocked}
-                  className={`grid w-full grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-2 rounded-[10px] border px-3 py-2.5 text-left transition ${
+                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 rounded-[10px] border px-2.5 py-2.5 text-left transition ${
                     isCurrent
                       ? "border-slate-300 bg-white shadow-sm"
                       : isCompleted
@@ -746,11 +746,11 @@ export function VentureConsoleShell({
                     {isCompleted ? <CheckCircle2 size={13} /> : getTaskOrderLabel(task)}
                   </span>
                     <span className="min-w-0">
-                      <span className="flex items-center gap-1.5 text-[13px] font-semibold text-slate-950">
+                      <span className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-950">
                         <Icon size={13} />
                         {task.label}
                       </span>
-                      <span className="mt-0.5 block text-[11px] leading-5 text-slate-500">{task.description}</span>
+                      <span className="mt-0.5 block text-[10px] leading-5 text-slate-500">{task.description}</span>
                     </span>
                     <span className="mt-0.5 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
                       {taskStatuses[task.id]}
@@ -793,7 +793,7 @@ export function VentureConsoleShell({
       </aside>
 
       <div className="min-w-0 space-y-4">
-        <section className="rounded-[12px] border border-slate-200 bg-white p-5">
+        <section className="rounded-[12px] border border-slate-200 bg-white p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
               <span className="text-slate-500">{activeTaskConfig.group}</span>
@@ -825,8 +825,8 @@ export function VentureConsoleShell({
           </div>
 
           <div className="mt-4 min-w-0 space-y-3">
-            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
-                <div className="min-w-0 rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_248px]">
+                <div className="min-w-0 px-1 py-1">
                 <div className="min-w-0">
                   <div className="flex items-start gap-3">
                     <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700">
@@ -834,24 +834,24 @@ export function VentureConsoleShell({
                     </span>
                     <div className="min-w-0">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 질문</div>
-                      <h2 className="mt-2 max-w-3xl text-[18px] font-semibold tracking-tight text-slate-950 sm:text-[22px] sm:leading-[32px]">
+                      <h2 className="mt-2 max-w-3xl text-[17px] font-semibold tracking-tight text-slate-950 sm:text-[20px] sm:leading-[28px]">
                         {activeCanvas.question}
                       </h2>
-                      <p className="mt-2 max-w-3xl text-[13px] leading-6 text-slate-600">{activeGuidance.summary}</p>
+                      <p className="mt-1 max-w-3xl text-[12px] leading-6 text-slate-600">{activeGuidance.summary}</p>
                     </div>
                   </div>
-                  <div className="mt-4 grid gap-4 border-t border-slate-200 pt-4 md:grid-cols-3">
+                  <div className="mt-4 grid gap-3 border-t border-slate-200 pt-3 md:grid-cols-3">
                     <div className="min-w-0">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI가 먼저 하는 일</div>
-                      <p className="mt-1 text-[13px] leading-6 text-slate-700">{activeCanvas.aiLead}</p>
+                      <p className="mt-1 text-[12px] leading-6 text-slate-700">{activeCanvas.aiLead}</p>
                     </div>
                     <div className="min-w-0">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계 결과</div>
-                      <p className="mt-1 text-[13px] leading-6 text-slate-700">{activeCanvas.deliverable}</p>
+                      <p className="mt-1 text-[12px] leading-6 text-slate-700">{activeCanvas.deliverable}</p>
                     </div>
                     <div className="min-w-0">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">사람이 확인할 포인트</div>
-                      <p className="mt-1 text-[13px] leading-6 text-slate-700">{activeCanvas.checkpoint}</p>
+                      <p className="mt-1 text-[12px] leading-6 text-slate-700">{activeCanvas.checkpoint}</p>
                     </div>
                   </div>
                 </div>
@@ -861,7 +861,7 @@ export function VentureConsoleShell({
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">지금 할 일</div>
                   <ol className="mt-2 grid gap-2">
                     {activeGuidance.checklist.slice(0, 3).map((item, index) => (
-                      <li key={item} className="grid grid-cols-[1.2rem_minmax(0,1fr)] gap-2 text-sm leading-6 text-slate-700">
+                      <li key={item} className="grid grid-cols-[1.2rem_minmax(0,1fr)] gap-2 text-[12px] leading-6 text-slate-700">
                         <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 text-[10px] font-semibold text-white">
                           {index + 1}
                         </span>

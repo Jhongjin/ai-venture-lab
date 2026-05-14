@@ -40,12 +40,9 @@ export default async function Home() {
                 AI Venture Lab
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-[18px] font-semibold tracking-tight text-slate-950 sm:text-[22px]">
+                <h1 className="text-[17px] font-semibold tracking-tight text-slate-950 sm:text-[20px]">
                   아이디어 실행 보드
                 </h1>
-                <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                  build mode
-                </span>
               </div>
               <p className="mt-1 max-w-3xl text-[12px] leading-5 text-slate-600">
                 아이디어를 발굴하고 검증한 뒤, 기획서와 실행 패키지까지 한 흐름으로 이어가는 작업 공간입니다.
