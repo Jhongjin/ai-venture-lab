@@ -2852,7 +2852,7 @@ export function VentureConsoleActions({
               {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
               비밀번호로 로그인
             </button>
-            <details className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <details className="avl-surface-muted p-3">
               <summary className="cursor-pointer text-sm font-semibold text-slate-700">
                 이메일 링크가 꼭 필요할 때만 사용
               </summary>
@@ -2891,9 +2891,9 @@ export function VentureConsoleActions({
           </div>
 
           {!user ? (
-            <div className="rounded-lg bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-              워크스페이스 멤버십을 불러오려면 로그인하세요.
-            </div>
+                <div className="avl-surface-muted p-4 text-sm leading-6 text-slate-600">
+                  워크스페이스 멤버십을 불러오려면 로그인하세요.
+                </div>
           ) : activeOrganization ? (
             <div className="grid gap-4">
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -2913,13 +2913,13 @@ export function VentureConsoleActions({
                 </select>
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-lg bg-blue-50 p-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">역할</div>
-                  <div className="mt-2 text-lg font-semibold capitalize text-blue-950">
+                <div className="avl-surface-subtle p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">역할</div>
+                  <div className="mt-2 text-lg font-semibold capitalize text-slate-950">
                     {activeMembership ? organizationRoleLabels[activeMembership.role] : organizationRoleLabels.member}
                   </div>
                 </div>
-                <div className="rounded-lg bg-slate-50 p-4">
+                <div className="avl-surface-muted p-4">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                     <Users size={14} />
                     멤버
@@ -2928,7 +2928,7 @@ export function VentureConsoleActions({
                 </div>
               </div>
               {personalRecordCount > 0 ? (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <div className="avl-surface-muted border-amber-200 bg-amber-50 p-4">
                   <div className="text-sm font-semibold text-amber-950">
                     {personalRecordCount}개의 개인 기록이 아직 워크스페이스 밖에 있습니다.
                   </div>
@@ -2953,7 +2953,7 @@ export function VentureConsoleActions({
                 </div>
                 <div className="grid gap-2">
                   {activeMembers.map((member) => (
-                    <div key={`${member.organization_id}-${member.user_id}`} className="rounded-md bg-slate-50 p-3">
+                    <div key={`${member.organization_id}-${member.user_id}`} className="avl-surface-muted p-3">
                       <div className="flex flex-col gap-3">
                         <div>
                           <div className="break-all text-sm font-semibold text-slate-950">
@@ -3009,7 +3009,7 @@ export function VentureConsoleActions({
                   ))}
                 </div>
               </div>
-              <form onSubmit={handleAddMember} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <form onSubmit={handleAddMember} className="grid gap-3 avl-surface-muted p-4">
                 <div className="text-sm font-semibold text-slate-950">기존 Auth 사용자 추가</div>
                 <div className="grid gap-3 sm:grid-cols-[1fr_132px]">
                   <input
@@ -3050,12 +3050,12 @@ export function VentureConsoleActions({
                 <div className="grid gap-2">
                   {auditEvents.length > 0 ? (
                     auditEvents.map((event) => (
-                      <div key={event.id} className="rounded-md bg-slate-50 p-3 text-sm leading-6 text-slate-600">
+                      <div key={event.id} className="avl-surface-muted p-3 text-sm leading-6 text-slate-600">
                         <span className="font-semibold text-slate-950">{event.action}</span> {event.summary}
                       </div>
                     ))
                   ) : (
-                    <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-500">
+                    <div className="avl-surface-muted p-3 text-sm text-slate-500">
                       아직 조직 감사 로그가 없습니다.
                     </div>
                   )}
