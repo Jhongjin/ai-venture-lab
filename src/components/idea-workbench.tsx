@@ -11977,13 +11977,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div className={`avl-card-soft p-5 ${activeTask === "launch" ? "" : "hidden"}`}>
+        <div className={`rounded-[12px] border border-slate-200 bg-white p-5 ${activeTask === "launch" ? "" : "hidden"}`}>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">출시 판단</h2>
               <p className="mt-1 text-sm text-slate-500">증거, 기획 자료, 위험, 실행 단계를 기준으로 출시 전 남은 조건을 요약합니다.</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right text-slate-950">
+            <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-3 text-right text-slate-950">
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                 준비 {passedLaunchReadinessCount}/{launchReadiness.length}
               </div>
@@ -12003,7 +12003,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           </div>
           {releaseDecisionPacket ? (
-            <div className="mb-5 avl-card p-4 text-slate-900">
+            <div className="mb-5 rounded-[12px] border border-slate-200 bg-slate-50 p-4 text-slate-900">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">go / no-go</div>
@@ -12102,7 +12102,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </details>
             </div>
           ) : null}
-          <div className="mb-5 avl-card-soft p-4">
+          <div className="mb-5 rounded-[12px] border border-slate-200 bg-slate-50 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="avl-kicker">performance review</div>
@@ -12172,10 +12172,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div className={`avl-card-soft p-5 ${activeTask === "learning" ? "" : "hidden"}`}>
+        <div className={`rounded-[12px] border border-slate-200 bg-white p-5 ${activeTask === "learning" ? "" : "hidden"}`}>
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">
+            <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                 <Activity size={16} />
                 Usage signals
               </div>
@@ -12189,7 +12189,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 type="button"
                 onClick={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
                 disabled={!learningTelemetryReportDraft}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-white px-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Clipboard size={16} />
                 리포트 복사
@@ -12205,7 +12205,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   )
                 }
                 disabled={isBusy || !user || !learningTelemetryReportDraft}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-emerald-700 px-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Save size={16} />
                 리포트 저장
@@ -12215,7 +12215,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           <div className="grid gap-3 md:grid-cols-5">
             {learningSignalCards.map((card) => (
-              <div key={card.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div key={card.label} className="rounded-[12px] border border-slate-200 bg-slate-50 p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{card.label}</div>
                 <div className="mt-2 text-2xl font-semibold text-slate-950">{card.value}</div>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
@@ -12224,7 +12224,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
           {experienceMode === "guided" ? (
-            <div className="mt-4 avl-card-soft p-4">
+            <div className="mt-4 rounded-[12px] border border-slate-200 bg-slate-50 p-4">
               <div className="text-sm font-semibold text-slate-950">개발 전달 정보는 필요할 때만 확인하세요.</div>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 지금은 퍼널과 최근 이벤트 숫자만 보면 됩니다. 실제 제품 서버 연결, 비밀키, 라우트 코드는 전체 보기에서만 확인하세요.
@@ -12998,7 +12998,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </form>
         </div>
 
-        <div className={activeTask === "artifacts" ? "avl-card-soft p-4" : "hidden"}>
+        <div className={activeTask === "artifacts" ? "rounded-[12px] border border-slate-200 bg-white p-4" : "hidden"}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">기획서 만들기</h2>
@@ -13072,7 +13072,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         />
 
         <div
-          className={`avl-card-soft p-5 ${
+          className={`rounded-[12px] border border-slate-200 bg-white p-5 ${
             activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
@@ -13161,7 +13161,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         />
 
         <div
-          className={`avl-band p-6 text-slate-900 ${
+          className={`rounded-[12px] border border-slate-200 bg-white p-6 text-slate-900 ${
             activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"
           }`}
         >
@@ -13200,7 +13200,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {prdReadinessChecks.map((check) => (
-              <div key={check.label} className="avl-card-soft p-3">
+              <div key={check.label} className="rounded-[12px] border border-slate-200 bg-slate-50 p-3">
                 <div className="flex items-start gap-2">
                   <CheckCircle2
                     size={18}
