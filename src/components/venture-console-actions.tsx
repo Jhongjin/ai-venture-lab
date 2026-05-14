@@ -3197,13 +3197,13 @@ export function VentureConsoleActions({
                       </div>
                       <p className="mt-3 text-sm leading-7 text-slate-700">{recommendedExtractedIdea.one_liner}</p>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        <span className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                        <span className="avl-pill avl-pill-soft px-3 py-1 text-xs">
                           검증 {recommendedExtractedIdea.validationScore}/100
                         </span>
-                        <span className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                        <span className="avl-pill avl-pill-soft px-3 py-1 text-xs">
                           사업/개발 {recommendedPortfolioItem ? getCandidateStrategyScore(recommendedPortfolioItem.candidate) : getCandidateStrategyScore(recommendedExtractedIdea)}%
                         </span>
-                        <span className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                        <span className="avl-pill avl-pill-soft px-3 py-1 text-xs">
                           준비 {recommendedPortfolioItem?.readinessScore ?? 0}%
                         </span>
                       </div>
@@ -3299,10 +3299,10 @@ export function VentureConsoleActions({
                             <p className="mt-1 text-sm leading-6 text-slate-700">추천이 너무 넓거나 빠졌다고 느껴질 때만 이 결과를 보면 됩니다.</p>
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                            <span className="avl-pill avl-pill-soft px-3 py-1 text-xs">
                               공통 {extractionReplay.consensusCount}
                             </span>
-                            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                            <span className="avl-pill avl-pill-soft px-3 py-1 text-xs">
                               AI만 {extractionReplay.aiOnlyCount}
                             </span>
                           </div>
@@ -3340,7 +3340,7 @@ export function VentureConsoleActions({
                       ] as Array<[ExtractionGateId, string]>).map(([gateId, label]) => (
                         <span
                           key={gateId}
-                          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700"
+                          className="avl-pill px-3 py-1 text-xs"
                         >
                           {label} {extractionGateCounts[gateId]}
                         </span>

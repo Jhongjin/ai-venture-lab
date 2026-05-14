@@ -684,7 +684,7 @@ export function VentureConsoleShell({
               <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">AI Venture Lab</div>
               <h2 className="mt-1 text-sm font-semibold tracking-tight text-slate-950">진행 레일</h2>
             </div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-500">
+            <div className="avl-pill avl-pill-soft text-[10px]">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${source === "supabase" ? "bg-emerald-500" : "bg-amber-500"}`}
               />
@@ -752,7 +752,7 @@ export function VentureConsoleShell({
                       </span>
                       <span className="mt-0.5 block text-[10px] leading-5 text-slate-500">{task.description}</span>
                     </span>
-                    <span className="mt-0.5 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                    <span className="avl-pill avl-pill-soft mt-0.5 px-1.5 py-0.5 text-[10px]">
                       {taskStatuses[task.id]}
                     </span>
                   </button>
@@ -777,7 +777,7 @@ export function VentureConsoleShell({
                     onClick={() => goToTask(task.id)}
                     className="grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2.5 rounded-[10px] border border-slate-200 bg-white px-3 py-2.5 text-left transition hover:bg-slate-100"
                   >
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-50 text-slate-700">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700">
                       <Icon size={13} />
                     </span>
                     <span className="min-w-0">
@@ -798,7 +798,7 @@ export function VentureConsoleShell({
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
               <span className="text-slate-500">{activeTaskConfig.group}</span>
               {!activeTaskConfig.optional ? <span>Step {stepNumber}/{requiredShellTasks.length}</span> : null}
-              <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-slate-500">
+              <span className="avl-pill avl-pill-soft px-2 py-1 text-[11px]">
                 {taskStatuses[activeTaskConfig.id]}
               </span>
             </div>
@@ -829,7 +829,7 @@ export function VentureConsoleShell({
                 <div className="min-w-0 px-1 py-1">
                 <div className="min-w-0">
                   <div className="flex items-start gap-3">
-                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700">
+                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700">
                       <ActiveIcon size={18} />
                     </span>
                     <div className="min-w-0">
@@ -862,7 +862,7 @@ export function VentureConsoleShell({
                   <ol className="mt-2 grid gap-2">
                     {activeGuidance.checklist.slice(0, 3).map((item, index) => (
                       <li key={item} className="grid grid-cols-[1.2rem_minmax(0,1fr)] gap-2 text-[12px] leading-6 text-slate-700">
-                        <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 text-[10px] font-semibold text-white">
+                        <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 text-[10px] font-semibold text-white shadow-sm">
                           {index + 1}
                         </span>
                         <span>{item}</span>
@@ -947,7 +947,7 @@ export function VentureConsoleShell({
             <div className="mt-4 grid gap-2">
               {lockedTasks.slice(0, 3).map((task) => (
                 <div key={task.id} className="flex items-center gap-3 rounded-[14px] border border-slate-200 bg-white px-3 py-3">
-                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-xs font-semibold text-slate-600">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-600">
                     {getTaskOrderLabel(task)}
                   </span>
                   <span className="min-w-0">
