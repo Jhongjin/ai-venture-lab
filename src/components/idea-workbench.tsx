@@ -12514,13 +12514,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">실행 관리 보드</h2>
-              <p className="mt-1 text-sm text-slate-500">전략부터 출시까지 담당 역할과 진행 상태를 추적합니다.</p>
+              <p className="mt-1 text-sm text-slate-500">역할과 진행 상태만 간단히 추적합니다.</p>
             </div>
             <button
               type="button"
               onClick={createRunbook}
               disabled={isBusy || !user}
-              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-50"
+              className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />
               실행 계획 만들기
@@ -12560,7 +12560,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <button
               type="submit"
               disabled={isBusy || !user}
-              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-50"
+              className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />
               단계 추가
@@ -12615,7 +12615,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           }))
                         }
                         disabled={isBusy || !canManageRecord(run)}
-                          className="avl-btn avl-btn-secondary h-10 rounded-md px-4 shadow-none disabled:opacity-45"
+                          className="avl-btn avl-btn-secondary px-4 shadow-none disabled:opacity-45"
                       >
                         <ClipboardList size={16} />
                         템플릿 사용
@@ -12624,7 +12624,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         type="button"
                         onClick={() => saveRunOutput(run)}
                         disabled={isBusy || !canManageRecord(run) || (runOutputs[run.id] ?? run.output) === run.output}
-                          className="avl-btn avl-btn-secondary h-10 rounded-md px-4 shadow-none disabled:opacity-45"
+                          className="avl-btn avl-btn-secondary px-4 shadow-none disabled:opacity-45"
                       >
                         <Save size={16} />
                         산출물 저장
@@ -12641,14 +12641,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div className={activeTask === "risk" || activeTask === "decision" ? "grid gap-6" : "hidden"}>
-          <div className={`grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_320px] ${activeTask === "risk" ? "" : "hidden"}`}>
-            <form onSubmit={addRisk} className="rounded-[12px] border border-slate-200 bg-white p-5">
+        <div className={activeTask === "risk" || activeTask === "decision" ? "grid gap-5" : "hidden"}>
+          <div className={`grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_320px] ${activeTask === "risk" ? "" : "hidden"}`}>
+            <form onSubmit={addRisk} className="avl-card-soft p-4">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
                   <div className="avl-kicker">risk register</div>
                   <h2 className="mt-2 text-xl font-semibold text-slate-950">위험 확인</h2>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">지금 막을 수 있는 차단 요인만 먼저 기록합니다. 길게 쓰기보다 오늘 대응할 위험부터 남기면 충분합니다.</p>
+                  <p className="mt-1 text-sm leading-5 text-slate-600">오늘 막아야 할 위험만 먼저 남기면 됩니다.</p>
                 </div>
                 <ShieldAlert className="text-rose-600" size={22} />
               </div>
@@ -12702,18 +12702,18 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <button
                   type="submit"
                   disabled={isBusy || !user}
-                  className="avl-btn avl-btn-danger h-11 rounded-xl px-4 disabled:opacity-50"
+                  className="avl-btn avl-btn-danger px-4 disabled:opacity-50"
                 >
                   <Flag size={18} />
                   리스크 추가
                 </button>
               </div>
-              <div className="avl-surface-muted mt-4 px-4 py-3 text-sm leading-6 text-slate-600">
-                지금은 길게 적지 않아도 됩니다. 제목, 심각도, 완화 방향만 있으면 다음 실험과 판단 단계로 충분히 이어집니다.
-              </div>
-            </form>
+                <div className="avl-surface-muted mt-4 px-4 py-3 text-sm leading-5 text-slate-600">
+                  제목, 심각도, 대응 방향만 있어도 다음 단계로 충분합니다.
+                </div>
+              </form>
 
-            <section className="rounded-[12px] border border-slate-200 bg-white p-5">
+            <section className="avl-card-soft p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">risk list</div>
@@ -12760,13 +12760,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </section>
           </div>
 
-          <div className={`grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px] ${activeTask === "decision" ? "" : "hidden"}`}>
-            <section className="rounded-[12px] border border-slate-200 bg-white p-5">
+          <div className={`grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] ${activeTask === "decision" ? "" : "hidden"}`}>
+            <section className="avl-card-soft p-4">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
                   <div className="avl-kicker">decision log</div>
                   <h2 className="mt-2 text-xl font-semibold text-slate-950">판단 기록</h2>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">진행, 보강, 전환, 중단 중 어디에 둘지 근거를 한 문단으로 남깁니다.</p>
+                  <p className="mt-1 text-sm leading-5 text-slate-600">왜 진행, 보강, 전환, 중단인지 한 문단으로 남깁니다.</p>
                 </div>
                 <CheckCircle2 className="text-emerald-600" size={22} />
               </div>
@@ -12782,7 +12782,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={recordDecision}
                     disabled={isBusy || !canEdit}
-                    className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
+                    className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                   >
                     <CheckCircle2 size={18} />
                     {decisionLabels[editState.decision]} 기록

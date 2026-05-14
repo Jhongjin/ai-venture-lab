@@ -159,7 +159,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["혼자 쓸 때는 건너뛰기", "팀 공간 생성 또는 선택", "필요할 때만 멤버 추가"],
   },
   "console:extract": {
-    summary: "회의록, 대화, 메모에서 AI가 앱 후보와 검증 계획 초안을 자동으로 뽑아냅니다.",
+    summary: "대화와 메모에서 앱 후보와 검증 방향을 먼저 뽑아냅니다.",
     checklist: [
       "대화 원문 붙여넣기",
       "후보 발굴 실행",
@@ -169,7 +169,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     ],
   },
   "console:idea": {
-    summary: "AI가 채운 초안을 검토하고, 꼭 필요한 의견만 보완한 뒤 저장합니다.",
+    summary: "AI 초안을 보고 필요한 의견만 보완한 뒤 저장합니다.",
     checklist: ["이름과 한 줄 설명 확인", "필요할 때만 추가 항목 보완", "아이디어 저장"],
   },
   "workbench:select": {
@@ -177,31 +177,31 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["전체 또는 내 기록 확인", "편집 가능 여부 확인", "평가할 후보 선택"],
   },
   "workbench:score": {
-    summary: "수요 강도, 빈도, 도달성, 지불 의향, 제작 속도, 차별성, 위험 감점을 숫자로 맞춥니다.",
+    summary: "수요, 속도, 지불 의향, 위험 감점을 숫자로 맞춥니다.",
     checklist: ["현재 단계와 판단 선택", "증거 공백 확인", "평가 저장"],
   },
   "workbench:risk": {
-    summary: "법무, 개인정보, 운영 책임, 보안처럼 출시를 막을 수 있는 위험을 먼저 꺼냅니다.",
+    summary: "출시를 막을 수 있는 위험만 먼저 꺼냅니다.",
     checklist: ["리스크 제목과 영역 입력", "심각도 선택", "완화 방안 또는 수용 조건 기록"],
   },
   "workbench:decision": {
-    summary: "점수만 보지 않고 왜 진행, 보류, 전환, 중단하는지 회의용 근거를 남깁니다.",
+    summary: "왜 진행, 보류, 전환, 중단하는지 한 문단 근거를 남깁니다.",
     checklist: ["현재 판단 확인", "판단 근거 작성", "최종 기록 저장"],
   },
   "workbench:experiment": {
-    summary: "7일 안에 확인할 가장 작은 실험을 만들고 성공 기준을 숫자나 관찰 조건으로 정합니다.",
+    summary: "7일 안에 확인할 가장 작은 실험과 성공 기준을 정합니다.",
     checklist: ["실험 이름 입력", "성공 기준 작성", "진행 상태 업데이트"],
   },
   "workbench:orchestration": {
-    summary: "전략, 리서치, 제품, 디자인, 개발, QA, 보안, 출시 담당 역할과 진행 상태를 관리합니다.",
+    summary: "역할과 진행 상태만 간단히 관리합니다.",
     checklist: ["실행 계획 만들기", "역할별 결과 작성", "완료된 단계 상태 변경"],
   },
   "workbench:artifacts": {
-    summary: "회의 보고용 브리프, PRD, MVP 범위, 출시 체크리스트를 저장하고 승인 상태를 관리합니다.",
+    summary: "브리프, PRD, MVP 범위를 저장하고 승인 상태를 관리합니다.",
     checklist: ["필요 자료 저장", "PRD와 MVP 범위 승인", "상태 메모 작성"],
   },
   "workbench:development": {
-    summary: "검증된 아이디어를 실제 앱으로 만들기 위해 기획, 디자인, 개발, QA, 보안, 배포 준비를 정리합니다.",
+    summary: "기획, 디자인, 개발, QA, 배포 준비를 한 묶음으로 정리합니다.",
     checklist: ["제작 준비 자료 만들기", "개발 실행 계획 저장", "배포 전 확인 조건 점검"],
   },
   "workbench:launch": {
@@ -209,7 +209,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["남은 항목 확인", "높은 위험 종료 또는 수용", "최종 판단 기록"],
   },
   "workbench:learning": {
-    summary: "출시 이후 실제 사용 행동을 모아 다음 투자, 보강, 전환, 중단 판단으로 연결합니다.",
+    summary: "출시 후 행동 신호를 다음 투자와 보강 판단으로 연결합니다.",
     checklist: ["최근 사용 신호 확인", "Day 7/14/30 판단 신호 점검", "학습 리포트 저장"],
   },
 };
@@ -237,7 +237,7 @@ const taskCanvasDetails: Record<
   },
   "console:extract": {
     question: "대화나 메모에서 무엇을 제품 후보로 올릴지 정리되었나요?",
-    aiLead: "원문을 읽고 후보, 수요 신호, 검증 방향을 먼저 구조화합니다.",
+    aiLead: "원문을 읽고 후보와 검증 방향을 구조화합니다.",
     deliverable: "AI 후보 비교와 추천 1순위",
     checkpoint: "추천 1개만 보고 다음 단계로 넘길 수 있게 정리합니다.",
   },
@@ -255,7 +255,7 @@ const taskCanvasDetails: Record<
   },
   "workbench:score": {
     question: "이 아이디어는 시간과 자원을 써서 검증할 만한가요?",
-    aiLead: "수요, 돈, 도달성, MVP 속도, 차별성, 위험 감점을 종합해 점수를 정리합니다.",
+    aiLead: "수요, 돈, 속도, 차별성, 위험을 묶어 점수를 정리합니다.",
     deliverable: "사업성 점수와 권장 판단",
     checkpoint: "숫자는 AI가 초안으로 제시하고, 사용자는 최종 감각만 조정합니다.",
   },
@@ -267,7 +267,7 @@ const taskCanvasDetails: Record<
   },
   "workbench:experiment": {
     question: "7일 안에 무엇을 확인하면 이 아이디어의 운명이 갈릴까요?",
-    aiLead: "가장 작은 실험, 성공 기준, 실패 기준을 초안으로 만듭니다.",
+    aiLead: "가장 작은 실험과 성공 기준을 초안으로 만듭니다.",
     deliverable: "7일 검증 실험 계획",
     checkpoint: "실험은 길게 설명하기보다 바로 행동 가능한 수준으로 남깁니다.",
   },
@@ -285,7 +285,7 @@ const taskCanvasDetails: Record<
   },
   "workbench:development": {
     question: "이제 실제 앱 제작으로 넘어갈 준비가 되었나요?",
-    aiLead: "기획, 디자인, 개발, QA, 배포까지 실행 순서를 묶어 제안합니다.",
+    aiLead: "기획, 디자인, 개발, QA, 배포 순서를 묶어 제안합니다.",
     deliverable: "AI 실행 패키지",
     checkpoint: "한 명의 운영자가 끝까지 볼 수 있도록 복잡한 개발 정보를 압축합니다.",
   },
@@ -792,7 +792,7 @@ export function VentureConsoleShell({
         ) : null}
       </aside>
 
-      <div className="min-w-0 space-y-4">
+      <div className="min-w-0 space-y-3">
         <section className="avl-card-soft p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
@@ -824,8 +824,8 @@ export function VentureConsoleShell({
             </div>
           </div>
 
-          <div className="mt-4 min-w-0 space-y-3">
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_248px]">
+          <div className="mt-3 min-w-0 space-y-3">
+            <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_248px]">
                 <div className="min-w-0 px-1 py-1">
                 <div className="min-w-0">
                   <div className="flex items-start gap-3">
@@ -837,27 +837,27 @@ export function VentureConsoleShell({
                       <h2 className="mt-2 max-w-3xl text-[17px] font-semibold tracking-tight text-slate-950 sm:text-[20px] sm:leading-[28px]">
                         {activeCanvas.question}
                       </h2>
-                      <p className="mt-1 max-w-3xl text-[12px] leading-6 text-slate-600">{activeGuidance.summary}</p>
+                      <p className="mt-1 max-w-3xl text-[12px] leading-5 text-slate-600">{activeGuidance.summary}</p>
                     </div>
                   </div>
-                  <div className="mt-4 grid gap-3 border-t border-slate-200 pt-3 md:grid-cols-3">
+                  <div className="mt-3 grid gap-3 border-t border-slate-200 pt-3 md:grid-cols-3">
                     <div className="min-w-0">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI가 먼저 하는 일</div>
-                      <p className="mt-1 text-[12px] leading-6 text-slate-700">{activeCanvas.aiLead}</p>
+                      <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.aiLead}</p>
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계 결과</div>
-                      <p className="mt-1 text-[12px] leading-6 text-slate-700">{activeCanvas.deliverable}</p>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">결과</div>
+                      <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.deliverable}</p>
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">사람이 확인할 포인트</div>
-                      <p className="mt-1 text-[12px] leading-6 text-slate-700">{activeCanvas.checkpoint}</p>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">확인 포인트</div>
+                      <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.checkpoint}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="avl-surface-muted px-4 py-4">
+              <div className="avl-surface-muted px-4 py-3.5">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">지금 할 일</div>
                   <ol className="mt-2 grid gap-2">
                     {activeGuidance.checklist.slice(0, 3).map((item, index) => (
@@ -881,7 +881,7 @@ export function VentureConsoleShell({
                   ) : null}
                   {optionalNextTasks.length > 0 ? (
                     <div className="mt-3 border-t border-slate-200 pt-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">건너뛸 수 있는 단계</div>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이동</div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {optionalNextTasks.map((option) => (
                         <button
@@ -907,7 +907,7 @@ export function VentureConsoleShell({
           </div>
           </section>
 
-        <section className="space-y-6">
+        <section className="space-y-5">
           <div className={activeTask.startsWith("console:") ? "" : "hidden"}>
             <VentureConsoleActions
               activeTask={activeConsoleTask}
@@ -939,10 +939,10 @@ export function VentureConsoleShell({
         </section>
 
         {lockedTasks.length > 0 ? (
-          <details className="avl-surface-muted px-4 py-4">
+          <details className="avl-surface-muted px-4 py-3.5">
             <summary className="flex cursor-pointer list-none items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               <LockKeyhole size={13} />
-              뒤 단계 미리보기
+              잠긴 단계
             </summary>
             <div className="mt-4 grid gap-2">
               {lockedTasks.slice(0, 3).map((task) => (
