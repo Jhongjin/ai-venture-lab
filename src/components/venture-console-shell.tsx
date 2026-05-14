@@ -676,27 +676,30 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)]">
-      <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto rounded-[12px] border border-slate-200 bg-white p-3">
+    <section className="grid gap-4 xl:grid-cols-[196px_minmax(0,1fr)]">
+      <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto rounded-[12px] border border-slate-200 bg-slate-50/85 p-3">
         <div className="border-b border-slate-200 pb-3">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">AI Venture Lab</div>
               <h2 className="mt-1 text-sm font-semibold tracking-tight text-slate-950">진행 레일</h2>
             </div>
-            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-              {source === "supabase" ? "Live" : "Fallback"}
-            </span>
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-500">
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${source === "supabase" ? "bg-emerald-500" : "bg-amber-500"}`}
+              />
+              {source === "supabase" ? "연결됨" : "제한"}
+            </div>
           </div>
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
             <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
               <div
                 className="h-full rounded-full bg-slate-950 transition-all"
                 style={{ width: `${workflowProgress}%` }}
               />
             </div>
-            <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>{completedRequiredCount}/{requiredShellTasks.length}</span>
+            <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-slate-500">
+              <span>진행 {completedRequiredCount}/{requiredShellTasks.length}</span>
               <span>{workflowProgress}%</span>
             </div>
           </div>
@@ -715,7 +718,7 @@ export function VentureConsoleShell({
             return (
               <div key={task.id}>
                 {showGroupLabel ? (
-                  <div className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">{task.group}</div>
+              <div className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{task.group}</div>
                 ) : null}
                 <button
                   type="button"
@@ -723,12 +726,12 @@ export function VentureConsoleShell({
                   disabled={isLocked}
                   className={`grid w-full grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-2 rounded-[10px] border px-3 py-2.5 text-left transition ${
                     isCurrent
-                      ? "border-slate-300 bg-slate-50"
+                      ? "border-slate-300 bg-white shadow-sm"
                       : isCompleted
-                      ? "border-emerald-200 bg-emerald-50"
+                      ? "border-emerald-200 bg-emerald-50/70"
                       : isAvailable
                           ? "border-slate-200 bg-white hover:bg-slate-50"
-                          : "border-slate-200 bg-slate-50 opacity-60"
+                          : "border-slate-200 bg-transparent opacity-60"
                   }`}
                 >
                   <span
@@ -749,7 +752,7 @@ export function VentureConsoleShell({
                       </span>
                       <span className="mt-0.5 block text-[11px] leading-5 text-slate-500">{task.description}</span>
                     </span>
-                    <span className="mt-0.5 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
+                    <span className="mt-0.5 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
                       {taskStatuses[task.id]}
                     </span>
                   </button>
@@ -759,7 +762,7 @@ export function VentureConsoleShell({
         </div>
 
         {supportTasks.length > 0 ? (
-          <details className="mt-4 rounded-[10px] border border-slate-200 bg-slate-50 p-3">
+          <details className="mt-4 rounded-[10px] border border-slate-200 bg-white p-3">
             <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               선택 기능
             </summary>
@@ -790,7 +793,7 @@ export function VentureConsoleShell({
       </aside>
 
       <div className="min-w-0 space-y-4">
-        <section className="rounded-[12px] border border-slate-200 bg-white p-5 sm:p-5">
+        <section className="rounded-[12px] border border-slate-200 bg-white p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
               <span className="text-slate-500">{activeTaskConfig.group}</span>
@@ -822,8 +825,8 @@ export function VentureConsoleShell({
           </div>
 
           <div className="mt-4 min-w-0 space-y-3">
-            <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+                <div className="min-w-0 rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
                 <div className="min-w-0">
                   <div className="flex items-start gap-3">
                     <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700">
@@ -831,29 +834,30 @@ export function VentureConsoleShell({
                     </span>
                     <div className="min-w-0">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 질문</div>
-                      <h2 className="mt-2 max-w-4xl text-[19px] font-semibold tracking-tight text-slate-950 sm:text-[24px] sm:leading-[34px]">
+                      <h2 className="mt-2 max-w-3xl text-[18px] font-semibold tracking-tight text-slate-950 sm:text-[22px] sm:leading-[32px]">
                         {activeCanvas.question}
                       </h2>
-                      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{activeGuidance.summary}</p>
+                      <p className="mt-2 max-w-3xl text-[13px] leading-6 text-slate-600">{activeGuidance.summary}</p>
                     </div>
                   </div>
-                  <div className="mt-4 grid gap-3 md:grid-cols-3">
-                    <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI 준비</div>
-                      <p className="mt-1 text-sm leading-6 text-slate-700">{activeCanvas.aiLead}</p>
+                  <div className="mt-4 grid gap-4 border-t border-slate-200 pt-4 md:grid-cols-3">
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI가 먼저 하는 일</div>
+                      <p className="mt-1 text-[13px] leading-6 text-slate-700">{activeCanvas.aiLead}</p>
                     </div>
-                    <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계 산출물</div>
-                      <p className="mt-1 text-sm leading-6 text-slate-700">{activeCanvas.deliverable}</p>
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">이번 단계 결과</div>
+                      <p className="mt-1 text-[13px] leading-6 text-slate-700">{activeCanvas.deliverable}</p>
                     </div>
-                    <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">확인 포인트</div>
-                      <p className="mt-1 text-sm leading-6 text-slate-700">{activeCanvas.checkpoint}</p>
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">사람이 확인할 포인트</div>
+                      <p className="mt-1 text-[13px] leading-6 text-slate-700">{activeCanvas.checkpoint}</p>
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="rounded-[12px] border border-slate-200 bg-white px-4 py-4">
+              <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">지금 할 일</div>
                   <ol className="mt-2 grid gap-2">
                     {activeGuidance.checklist.slice(0, 3).map((item, index) => (
@@ -877,7 +881,7 @@ export function VentureConsoleShell({
                   ) : null}
                   {optionalNextTasks.length > 0 ? (
                     <div className="mt-3 border-t border-slate-200 pt-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이동</div>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">건너뛸 수 있는 단계</div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {optionalNextTasks.map((option) => (
                         <button
@@ -892,9 +896,8 @@ export function VentureConsoleShell({
                     </div>
                     </div>
                   ) : null}
-                </div>
               </div>
-            </div>
+              </div>
 
             {currentStepBlocker ? (
               <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
