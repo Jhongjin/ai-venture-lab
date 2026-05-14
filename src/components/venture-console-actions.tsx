@@ -3680,9 +3680,9 @@ export function VentureConsoleActions({
         className={`grid gap-5 ${activeTask === "idea" ? "" : "hidden"}`}
       >
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_340px]">
-          <section className="avl-card-soft p-6 text-slate-900">
+          <section className="avl-card p-6 text-slate-900">
             {embedded ? (
-              <div className="mb-5 flex flex-col gap-3 rounded-[22px] border border-slate-200 bg-slate-50 p-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="mb-5 grid gap-3 border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">intake canvas</div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -3694,7 +3694,7 @@ export function VentureConsoleActions({
                 <button
                   type="submit"
                   disabled={isSaving || !user}
-                className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
+                className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                 >
                   {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
                   아이디어 저장
@@ -3714,7 +3714,7 @@ export function VentureConsoleActions({
                 <button
                   type="submit"
                   disabled={isSaving || !user}
-                className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
+                className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                 >
                   {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
                   아이디어 저장
@@ -3741,7 +3741,7 @@ export function VentureConsoleActions({
                   />
                 </div>
 
-                <details className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                <details className="avl-surface-muted p-4">
                   <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
                     추가 입력 열기
                   </summary>
@@ -3782,16 +3782,16 @@ export function VentureConsoleActions({
               </div>
 
               <div className="grid gap-4">
-                <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+                <div className="avl-surface-muted p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI가 먼저 정리한 것</div>
                   <div className="mt-3 grid gap-3">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                    <div className="avl-surface-subtle p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">저장 기준</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
                         이름과 한 줄 설명만 비어 있지 않으면 이 단계는 통과입니다.
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                    <div className="avl-surface-subtle p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">구매자/대상</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
                         {form.buyer || form.target_user
@@ -3799,7 +3799,7 @@ export function VentureConsoleActions({
                           : "AI 초안이 아직 비어 있으면, 저장 뒤 다음 단계에서 다시 구체화해도 됩니다."}
                       </p>
                     </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                    <div className="avl-surface-subtle p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 액션</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
                         저장 후에는 워크벤치가 이 초안을 바로 선택하고, 다음으로 사업성 평가와 첫 검증 실험 설계가 열립니다.

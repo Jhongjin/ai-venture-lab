@@ -724,7 +724,7 @@ export function VentureConsoleShell({
                   type="button"
                   onClick={() => !isLocked && goToTask(task.id)}
                   disabled={isLocked}
-                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 rounded-[10px] border px-2.5 py-2 text-left transition ${
+                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 border px-2.5 py-2 text-left transition ${
                     isCurrent
                       ? "border-slate-300 bg-white shadow-sm"
                       : isCompleted
@@ -880,7 +880,7 @@ export function VentureConsoleShell({
                         key={option.id}
                         type="button"
                         onClick={() => goToTask(option.id)}
-                        className="avl-btn avl-btn-subtle h-8 rounded-md px-3 text-xs"
+                        className="avl-btn avl-btn-subtle h-8 px-3 text-xs"
                       >
                         {option.cta}
                       </button>

@@ -10380,7 +10380,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           : "핵심 증거가 충분합니다. 실험 결과와 최종 판단을 정리하세요."}
                       </p>
                     </div>
-                    <div className="rounded-xl bg-slate-950 px-3 py-2 text-right text-white">
+                    <div className="bg-slate-950 px-3 py-2 text-right text-white">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">증거</div>
                       <div className="text-2xl font-semibold">{validationEvidenceCoach.score}%</div>
                     </div>
@@ -10390,7 +10390,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     {validationEvidenceCoach.checks.map((check) => (
                       <div
                         key={check.label}
-                        className={`rounded-xl border px-3 py-2 ${
+                        className={`border px-3 py-2 ${
                           check.passed ? "border-emerald-100 bg-emerald-50" : "border-amber-100 bg-amber-50"
                         }`}
                       >
@@ -10407,7 +10407,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(validationEvidenceCoach.prompt, "검증 증거 수집 프롬프트")}
-                      className="avl-btn avl-btn-secondary h-9 rounded-xl px-3 text-xs"
+                      className="avl-btn avl-btn-secondary h-9 px-3 text-xs"
                     >
                       <Clipboard size={15} />
                       프롬프트 복사
@@ -10415,7 +10415,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={loadEvidenceCoachPrompt}
-                      className="avl-btn avl-btn-primary h-9 rounded-xl px-3 text-xs"
+                      className="avl-btn avl-btn-primary h-9 px-3 text-xs"
                     >
                       <Save size={15} />
                       근거 폼 채우기
@@ -10428,7 +10428,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </form>
 
         <div
-          className={`avl-card-soft p-5 ${
+          className={`avl-card p-5 ${
             activeTask === "development" ? "" : "hidden"
           }`}
         >
@@ -10462,7 +10462,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
           ) : (
-            <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="avl-surface-muted mb-5 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 실행 단계</div>
@@ -10479,7 +10479,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={runAiExecutionAutopilot}
                       disabled={isBusy || !user}
-                      className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                     >
                       <Layers3 size={18} />
                       AI 실행 패키지 만들기
@@ -10493,7 +10493,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           : copyDraft(implementationBacklogDraft, "열린 개발 백로그")
                       }
                       disabled={Boolean(nextImplementationTask) ? !implementationTaskTicketDraft : !implementationBacklogDraft}
-                      className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                     >
                       <ClipboardList size={18} />
                       {nextImplementationTask ? "다음 실행 티켓 복사" : "열린 실행 요약 복사"}
@@ -10510,7 +10510,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !developmentCompletionReportDraft}
-                      className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                     >
                       <Save size={18} />
                       개발 완료 보고서 저장
@@ -10523,12 +10523,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 {guidedExecutionProgress.map((step, index) => (
                   <div
                     key={step.id}
-                    className={`rounded-lg border p-3 ${
+                    className={`avl-surface-subtle p-3 ${
                       step.active
                         ? "border-emerald-300 bg-white"
                         : step.done
                           ? "border-emerald-100 bg-white/90"
-                          : "border-white/60 bg-white/60"
+                          : "border-slate-200 bg-white/70"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -10608,7 +10608,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   type="button"
                   onClick={() => copyDraft(designGenerationPromptDraft, "디자인 생성 프롬프트")}
                   disabled={!designGenerationPromptDraft}
-                  className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                  className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
                   프롬프트 복사
