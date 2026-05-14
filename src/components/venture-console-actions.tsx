@@ -2747,7 +2747,7 @@ export function VentureConsoleActions({
               type="button"
               onClick={() => updateActiveTask(task.id)}
               aria-current={activeTask === task.id ? "step" : undefined}
-                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[18px] border p-3 text-left transition ${
+                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition ${
                   activeTask === task.id
                     ? "border-slate-950 bg-slate-950 text-white shadow-none"
                     : "border-slate-200/80 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
@@ -2805,7 +2805,7 @@ export function VentureConsoleActions({
               type="button"
               onClick={handleSignOut}
               disabled={isAuthBusy}
-              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-60"
+              className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-60"
             >
               <LogOut size={18} />
               로그아웃
@@ -2839,7 +2839,7 @@ export function VentureConsoleActions({
             <button
               type="submit"
               disabled={isAuthBusy}
-              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-60"
+              className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-60"
             >
               {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
               비밀번호로 로그인
@@ -2854,7 +2854,7 @@ export function VentureConsoleActions({
                   type="button"
                   onClick={handleEmailLinkSignIn}
                   disabled={isAuthBusy}
-                  className="avl-btn avl-btn-secondary h-11 rounded-md px-4 disabled:opacity-60"
+                  className="avl-btn avl-btn-secondary h-11 px-4 disabled:opacity-60"
                 >
                   {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
                   이메일 로그인 링크 받기
@@ -2929,7 +2929,7 @@ export function VentureConsoleActions({
                     type="button"
                     onClick={handleAttachPersonalRecords}
                     disabled={isWorkspaceBusy}
-                    className="avl-btn avl-btn-primary mt-3 h-10 rounded-md px-4 disabled:opacity-60"
+                    className="avl-btn avl-btn-primary mt-3 h-10 px-4 disabled:opacity-60"
                   >
                     {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
                     개인 기록 연결
@@ -2972,7 +2972,7 @@ export function VentureConsoleActions({
                                   isLastOwner ||
                                   memberActionKey === actionKey
                                 }
-                                 className="avl-btn avl-btn-secondary h-8 rounded-md px-2.5 text-xs shadow-none disabled:opacity-45"
+                                className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                               >
                                 {memberActionKey === actionKey ? "..." : organizationRoleLabels[role]}
                               </button>
@@ -2988,7 +2988,7 @@ export function VentureConsoleActions({
                               (member.role === "owner" && ownerCount <= 1) ||
                               memberActionKey === `${member.user_id}:remove`
                             }
-                            className="avl-btn avl-btn-danger h-8 rounded-md px-2.5 text-xs shadow-none disabled:opacity-45"
+                            className="avl-btn avl-btn-danger h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                           >
                             <Trash2 size={13} />
                             {memberActionKey === `${member.user_id}:remove` ? "..." : "제거"}
@@ -3026,7 +3026,7 @@ export function VentureConsoleActions({
                 <button
                   type="submit"
                   disabled={isMemberBusy || !canManageMembers}
-                  className="avl-btn avl-btn-primary h-10 rounded-md px-4 disabled:opacity-60"
+                  className="avl-btn avl-btn-primary h-10 px-4 disabled:opacity-60"
                 >
                   {isMemberBusy ? <RefreshCw className="animate-spin" size={18} /> : <Users size={18} />}
                   멤버 추가
@@ -3064,7 +3064,7 @@ export function VentureConsoleActions({
                 type="button"
                 onClick={handleCreateWorkspace}
                 disabled={isWorkspaceBusy}
-                className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-60"
+                className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-60"
               >
                 {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
                 워크스페이스 만들기
@@ -3484,7 +3484,7 @@ export function VentureConsoleActions({
                           <button
                             type="button"
                             onClick={() => loadExtractedIdea(candidate)}
-                  className="avl-btn avl-btn-secondary h-10 rounded-md px-4"
+                  className="avl-btn avl-btn-secondary h-10 px-4"
                           >
                             AI 초안 반영
                           </button>
@@ -3492,7 +3492,7 @@ export function VentureConsoleActions({
                             type="button"
                             onClick={() => saveExtractedIdeaPackage(candidate)}
                             disabled={Boolean(extractSaveKey) || !user}
-                  className="avl-btn avl-btn-accent h-10 rounded-md px-4 disabled:opacity-50"
+                  className="avl-btn avl-btn-accent h-10 px-4 disabled:opacity-50"
                           >
                             {extractSaveKey === candidate.id ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
                             패키지 저장
