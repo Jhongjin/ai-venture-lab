@@ -3077,7 +3077,7 @@ export function VentureConsoleActions({
 
         <div className={`${activeTask === "extract" ? "" : "hidden"} ${embedded ? "space-y-5" : "space-y-5"}`}>
           {!embedded ? (
-            <div className="avl-card-soft flex flex-col gap-3 p-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="border border-slate-200 bg-white px-5 py-4 lg:flex lg:items-end lg:justify-between">
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">source ingest</div>
                 <h2 className="mt-2 text-xl font-semibold text-slate-950">아이디어 찾기</h2>
@@ -3085,14 +3085,14 @@ export function VentureConsoleActions({
                   원문 하나를 넣고, 지금 바로 검토할 추천 후보 1개를 먼저 받습니다.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-2 lg:mt-0">
                 <button
                   type="button"
                   onClick={() => {
                     void handleAiExtractIdeas();
                   }}
                   disabled={isAiExtracting || isReplayingExtraction}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
                   AI 후보 발굴
@@ -3172,7 +3172,7 @@ export function VentureConsoleActions({
 
                 <div className="grid gap-3">
                   {extractedIdeas.length > 0 && recommendedExtractedIdea ? (
-                    <section className="avl-surface-muted p-4">
+                    <section className="border border-slate-200 bg-white p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">추천 후보</div>
@@ -3197,7 +3197,7 @@ export function VentureConsoleActions({
                           준비 {recommendedPortfolioItem?.readinessScore ?? 0}%
                         </span>
                       </div>
-                      <div className="avl-surface-subtle mt-4 px-4 py-3.5">
+                      <div className="mt-4 border-t border-slate-200 pt-4">
                         <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선정 이유</div>
                         <p className="mt-2 text-sm leading-6 text-slate-700">
                           {recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
@@ -3228,7 +3228,7 @@ export function VentureConsoleActions({
                       </div>
                     </section>
                   ) : (
-                    <section className="avl-surface-muted border-dashed p-4">
+                    <section className="border border-dashed border-slate-300 bg-slate-50 p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음 출력</div>
                       <h3 className="mt-2 text-base font-semibold text-slate-950">추천 후보 대기</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
@@ -3239,9 +3239,9 @@ export function VentureConsoleActions({
                     </section>
                   )}
 
-                  <div className="grid gap-3 border-t border-slate-200 pt-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
-                    <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
+                  <div className="grid gap-px border-t border-slate-200 bg-slate-200 pt-px sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                    <div className="grid gap-px bg-slate-200 sm:grid-cols-2">
+                    <div className="bg-slate-50 px-3 py-3">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">실행 상태</div>
                       <div className="mt-1 text-sm font-semibold text-slate-950">
                         {extractionRunMeta
@@ -3256,14 +3256,14 @@ export function VentureConsoleActions({
                         {extractionRunMeta?.note ?? "아직 실행하지 않았습니다."}
                       </p>
                     </div>
-                    <div>
+                    <div className="bg-slate-50 px-3 py-3">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">개인정보 보호</div>
                       <p className="mt-1 text-xs leading-5 text-slate-600">
                         연락처, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
                       </p>
                     </div>
                     </div>
-                    <div className="flex flex-col items-start sm:items-end">
+                    <div className="flex flex-col items-start border-l border-slate-200 bg-white px-4 py-3 sm:items-end">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">결과 점검</div>
                       <p className="mt-1 text-xs leading-5 text-slate-600">
                         이상할 때만 한 번 더 확인합니다.
@@ -3281,10 +3281,10 @@ export function VentureConsoleActions({
                       </button>
                     </div>
                   </div>
-                  <details className="avl-surface-muted p-4">
+                  <details className="border-t border-slate-200 pt-4">
                     <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">비교 후보와 점검</summary>
                     {extractionReplay ? (
-                      <div className="avl-surface-subtle mt-3 p-4">
+                      <div className="mt-3 border border-slate-200 bg-slate-50 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
                             <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">비교 결과</div>
@@ -3311,7 +3311,7 @@ export function VentureConsoleActions({
 
             {extractedIdeas.length > 0 ? (
               <>
-                <details className="avl-card-soft p-4 text-slate-900">
+                <details className="border border-slate-200 bg-white p-4 text-slate-900">
                   <summary className="flex cursor-pointer list-none flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -3342,7 +3342,7 @@ export function VentureConsoleActions({
                       secondaryPortfolioItems.map((item, index) => (
                         <div
                           key={`${item.candidate.id}-queue`}
-                          className="avl-surface-subtle grid gap-3 p-4 xl:grid-cols-[44px_minmax(0,1fr)_auto]"
+                          className="grid gap-3 border border-slate-200 bg-slate-50 p-4 xl:grid-cols-[44px_minmax(0,1fr)_auto]"
                         >
                           <div className="avl-step-dot h-11 w-11 bg-slate-950 text-sm text-white">
                             {index + 2}
@@ -3383,7 +3383,7 @@ export function VentureConsoleActions({
                         </div>
                       ))
                     ) : (
-                      <div className="avl-surface-muted border-dashed p-4 text-sm leading-6 text-slate-600">
+                      <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
                         추천 후보 외에 지금 바로 비교할 후보가 많지 않습니다. 현재 추천 1개를 먼저 접수하는 쪽이 더 자연스럽습니다.
                       </div>
                     )}

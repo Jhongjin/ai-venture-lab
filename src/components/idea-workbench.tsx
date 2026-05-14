@@ -9708,7 +9708,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
       {showSidebar ? (
       <aside className="grid gap-4 lg:sticky lg:top-6 lg:self-start">
-        <div className="avl-card-soft p-6 text-slate-900">
+        <div className="border border-slate-200 bg-white p-5 text-slate-900">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
             <div className="mb-3 inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Candidate queue</div>
@@ -9748,7 +9748,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               return (
                 <div
                   key={idea.id}
-                  className={`rounded-[18px] border p-4 text-left transition ${
+                  className={`border p-4 text-left transition ${
                     idea.id === selectedIdea.id
                       ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
                       : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
@@ -9815,14 +9815,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               );
             })
           ) : (
-            <div className="avl-card-soft p-4 text-sm text-slate-600">
+            <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
               이 필터에 맞는 아이디어가 아직 없습니다.
             </div>
           )}
         </div>
         </div>
 
-        <div className="avl-card p-5">
+        <div className="border border-slate-200 bg-white p-5">
           <div className="mb-4">
             <h2 className="text-lg font-semibold text-slate-950">작업 순서</h2>
             <p className="mt-1 text-sm leading-6 text-slate-500">단계를 고르면 오른쪽 작업 화면만 바뀝니다.</p>
@@ -9834,7 +9834,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 type="button"
                 onClick={() => updateActiveTask(task.id)}
                 aria-current={activeTask === task.id ? "step" : undefined}
-                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[18px] border p-3 text-left transition ${
+                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition ${
                   activeTask === task.id
                     ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
                     : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-slate-300 hover:bg-white"
@@ -9867,7 +9867,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
       <div className="grid min-w-0 gap-6">
         {!showSidebar ? (
-          <div className={embedded ? "rounded-[20px] border border-slate-200 bg-slate-50 p-4 text-slate-900" : "avl-card-soft p-4 text-slate-900"}>
+          <div className={embedded ? "border border-slate-200 bg-slate-50 p-4 text-slate-900" : "border border-slate-200 bg-white p-4 text-slate-900"}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">view mode</div>
@@ -9885,7 +9885,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     key={value}
                     type="button"
                     onClick={() => setExperienceMode(value as "guided" | "full")}
-                      className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                      className={`px-3 py-2 text-sm font-semibold transition ${
                         experienceMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
                       }`}
                   >
@@ -9902,7 +9902,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           }`}
         >
           <div className="grid gap-5 xl:grid-cols-[200px_minmax(0,1fr)]">
-            <aside className="avl-surface-muted p-4">
+            <aside className="border border-slate-200 bg-slate-50 p-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">candidate queue</div>
               <h3 className="mt-2 text-base font-semibold text-slate-950">오늘 검토할 후보</h3>
 
@@ -9916,7 +9916,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     key={value}
                     type="button"
                     onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
-                    className={`h-10 rounded-xl text-sm font-semibold transition ${
+                    className={`h-10 text-sm font-semibold transition ${
                       filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
                     }`}
                   >
@@ -9925,7 +9925,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ))}
               </div>
 
-              <div className="avl-surface-subtle mt-4 px-3 py-3 text-sm leading-5 text-slate-600">
+              <div className="mt-4 border border-slate-200 bg-white px-3 py-3 text-sm leading-5 text-slate-600">
                 지금은 많은 후보를 펼치기보다, 바로 평가할 1개를 고르면 됩니다. 현재 보이는 후보는 {visibleIdeas.length}개입니다.
               </div>
             </aside>
@@ -9963,7 +9963,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 return (
                   <div className="mt-6 grid gap-4">
                     <div className="grid gap-4">
-                      <div className="avl-surface-muted p-5">
+                      <div className="border border-slate-200 bg-slate-50 p-5">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선택된 후보</div>
@@ -10012,7 +10012,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           <button
                             type="button"
                             onClick={() => updateActiveTask("score")}
-                            className="avl-btn avl-btn-primary h-11 rounded-xl px-4"
+                            className="avl-btn avl-btn-primary h-11 px-4"
                           >
                             사업성 평가 시작
                           </button>
@@ -10021,7 +10021,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                               type="button"
                               onClick={() => void deleteIdeaRecord(selectedIdea)}
                               disabled={isBusy}
-                              className="avl-btn avl-btn-danger h-11 rounded-xl px-4 disabled:opacity-50"
+                              className="avl-btn avl-btn-danger h-11 px-4 disabled:opacity-50"
                             >
                               <Trash2 size={16} />
                               삭제
@@ -10030,12 +10030,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </div>
                       </div>
 
-                      <div className="avl-surface-subtle p-4 text-sm leading-5 text-slate-600">
+                      <div className="border border-slate-200 bg-white p-4 text-sm leading-5 text-slate-600">
                         지금 여기서 할 일은 하나입니다. 이 후보로 먼저 사업성 평가를 시작할지 결정하고, 나머지는 비교 후보로만 남겨두면 됩니다.
                       </div>
                     </div>
 
-                    <div className="avl-surface-muted p-5">
+                    <div className="border border-slate-200 bg-slate-50 p-5">
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">비교 후보</div>
@@ -10066,7 +10066,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                                   setSelectedIdeaId(idea.id);
                                   setEditState(toEditState(idea));
                                 }}
-                              className="avl-card-soft p-4 text-left transition hover:border-slate-300 hover:bg-slate-50"
+                              className="border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:bg-slate-50"
                               >
                                 <div className="flex items-center justify-between gap-3">
                                   <span className="avl-step-dot h-8 w-8 bg-slate-900 text-sm text-white">
@@ -10095,7 +10095,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                 );
               })() : (
-                <div className="mt-6 rounded-[22px] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-7 text-slate-600">
+                <div className="mt-6 border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-7 text-slate-600">
                   아직 선택할 아이디어가 없습니다. 먼저 `아이디어 접수`에서 새 아이디어를 저장하거나, 아이디어 찾기에서 후보를 초안으로 반영하세요.
                 </div>
               )}
@@ -10128,7 +10128,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => void deleteIdeaRecord(selectedIdea)}
                       disabled={isBusy}
-                      className="avl-btn avl-btn-danger h-11 rounded-xl px-4 disabled:opacity-50"
+                      className="avl-btn avl-btn-danger h-11 px-4 disabled:opacity-50"
                     >
                       <Trash2 size={18} />
                       삭제
@@ -10137,7 +10137,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <button
                     type="submit"
                     disabled={isBusy || !canEdit}
-                    className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                   >
                     {isBusy ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
                     점수 저장
@@ -10146,7 +10146,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
 
               <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
-                <div className="avl-surface-muted p-5 text-slate-900">
+                <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">평가 입력</div>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <SelectField
@@ -10210,7 +10210,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
                     />
-                    <div className="avl-surface-subtle p-4">
+                    <div className="border border-slate-200 bg-white p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-700">현재 점수</div>
                       <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>
                       <p className="mt-2 text-sm leading-5 text-slate-600">점수는 참고용이고, 최종 판단은 근거와 리스크를 같이 봐서 정합니다.</p>
@@ -10219,7 +10219,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="avl-surface-muted p-5 text-slate-900">
+                  <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">AI 추천 판단</div>
                     <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreRecommendation]}</div>
                     <p className="mt-2 text-sm leading-5 text-slate-600">
@@ -10240,7 +10240,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   </div>
 
-                  <div className="avl-surface-subtle p-4">
+                  <div className="border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 행동</div>
                     <div className="mt-2 text-sm font-semibold text-slate-950">판단 방향만 정하면 충분합니다</div>
                     <p className="mt-2 text-sm leading-5 text-slate-600">
@@ -10253,7 +10253,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
               </div>
 
-              <details className="avl-surface-muted mt-5 p-4">
+              <details className="mt-5 border border-slate-200 bg-slate-50 p-4">
                 <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">추가 메모 열기</summary>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
                   AI가 채운 초안을 사람 판단으로 보강하고 싶을 때만 여기를 수정하세요.
@@ -10282,7 +10282,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </section>
 
             <div className="grid gap-4">
-              <section className="avl-surface-muted p-5 text-slate-900">
+              <section className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">결정 가이드</div>
                 <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                   <li>- 문제 강도와 빈도가 높으면 검증 우선순위가 올라갑니다.</li>
@@ -10291,7 +10291,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </ul>
               </section>
 
-              <section className="avl-surface-subtle p-5">
+              <section className="border border-slate-200 bg-white p-5">
                 <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">next move</div>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   점수 저장 후에는 `검증 실험` 단계에서 첫 실험과 성공 지표를 AI가 채워줍니다. 여기서는 완벽하게 쓰기보다 판단 방향만 정하면 충분합니다.

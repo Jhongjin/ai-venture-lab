@@ -676,8 +676,8 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-3 xl:grid-cols-[212px_minmax(0,1fr)]">
-      <aside className="avl-card-soft sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto p-2.5">
+    <section className="grid gap-4 xl:grid-cols-[208px_minmax(0,1fr)]">
+      <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto border-r border-slate-200 pr-3">
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -691,10 +691,10 @@ export function VentureConsoleShell({
               {source === "supabase" ? "연결됨" : "제한"}
             </div>
           </div>
-          <div className="avl-surface-muted mt-3 px-3 py-2.5">
-            <div className="h-1.5 overflow-hidden rounded-full bg-white">
+          <div className="mt-3 border border-slate-200 bg-slate-50 px-3 py-2.5">
+            <div className="h-1.5 overflow-hidden bg-white">
               <div
-                className="h-full rounded-full bg-slate-950 transition-all"
+                className="h-full bg-slate-950 transition-all"
                 style={{ width: `${workflowProgress}%` }}
               />
             </div>
@@ -724,14 +724,14 @@ export function VentureConsoleShell({
                   type="button"
                   onClick={() => !isLocked && goToTask(task.id)}
                   disabled={isLocked}
-                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 border px-2.5 py-2 text-left transition ${
+                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 border-l-2 px-2.5 py-2 text-left transition ${
                     isCurrent
-                      ? "border-slate-300 bg-white shadow-sm"
+                      ? "border-l-slate-950 border-y-slate-200 border-r-slate-200 bg-white"
                       : isCompleted
-                      ? "border-emerald-200 bg-emerald-50/70"
+                      ? "border-l-emerald-600 border-y-slate-200 border-r-slate-200 bg-emerald-50/50"
                       : isAvailable
-                          ? "border-slate-200 bg-white hover:bg-slate-50"
-                          : "border-slate-200 bg-transparent opacity-60"
+                          ? "border-l-slate-200 border-y-slate-200 border-r-slate-200 bg-white hover:bg-slate-50"
+                          : "border-l-slate-200 border-y-slate-200 border-r-slate-200 bg-transparent opacity-60"
                   }`}
                 >
                   <span
@@ -762,7 +762,7 @@ export function VentureConsoleShell({
         </div>
 
         {supportTasks.length > 0 ? (
-          <details className="avl-surface-subtle mt-4 p-3">
+          <details className="mt-4 border border-slate-200 bg-white p-3">
             <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               선택 기능
             </summary>
@@ -793,8 +793,8 @@ export function VentureConsoleShell({
       </aside>
 
       <div className="min-w-0 space-y-3">
-        <section className="avl-card p-4">
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_292px]">
+        <section className="border border-slate-200 bg-white p-4">
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_284px]">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                 <span className="text-slate-500">{activeTaskConfig.group}</span>
@@ -817,29 +817,29 @@ export function VentureConsoleShell({
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 border-t border-slate-200 pt-3 md:grid-cols-3">
-                <div className="avl-surface-muted px-3 py-2.5">
+              <div className="mt-4 grid gap-px border border-slate-200 bg-slate-200 md:grid-cols-3">
+                <div className="bg-slate-50 px-3 py-3">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI 준비</div>
                   <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.aiLead}</p>
                 </div>
-                <div className="avl-surface-muted px-3 py-2.5">
+                <div className="bg-slate-50 px-3 py-3">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">이번 결과</div>
                   <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.deliverable}</p>
                 </div>
-                <div className="avl-surface-muted px-3 py-2.5">
+                <div className="bg-slate-50 px-3 py-3">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">확인 포인트</div>
                   <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.checkpoint}</p>
                 </div>
               </div>
 
               {currentStepBlocker ? (
-                <div className="avl-surface-muted mt-3 border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-900">
+                <div className="mt-3 border-l-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-900">
                   {currentStepBlocker}
                 </div>
               ) : null}
             </div>
 
-            <aside className="avl-surface-muted px-4 py-3.5">
+            <aside className="border-l border-slate-200 pl-4">
               <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">지금 할 일</div>
               <ol className="mt-2 grid gap-2.5">
                 {activeGuidance.checklist.slice(0, 3).map((item, index) => (
@@ -924,7 +924,7 @@ export function VentureConsoleShell({
         </section>
 
         {lockedTasks.length > 0 ? (
-          <details className="avl-surface-muted px-4 py-3.5">
+          <details className="border-t border-slate-200 px-4 py-3.5">
             <summary className="flex cursor-pointer list-none items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               <LockKeyhole size={13} />
               잠긴 단계
