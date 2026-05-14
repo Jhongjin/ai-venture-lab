@@ -76,9 +76,19 @@ export default function HomePage() {
         <header className="avl-card overflow-hidden">
           <div className="flex flex-col gap-8 px-5 py-5 lg:flex-row lg:items-start lg:justify-between lg:px-6 lg:py-6">
             <div className="max-w-[720px]">
-              <div className="avl-kicker">
-                <FlaskConical size={15} />
-                AI Venture Lab
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="avl-kicker">
+                  <FlaskConical size={15} />
+                  AI Venture Lab
+                </div>
+                <span className="avl-pill avl-pill-brand">home</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="avl-btn avl-btn-secondary h-8 px-3 text-xs">홈</span>
+                  <Link href="/workspace" className="avl-btn avl-btn-subtle h-8 px-3 text-xs">
+                    실행 보드
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
               </div>
               <h1 className="mt-4 max-w-[12ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-slate-950 sm:text-[48px]">
                 아이디어를 검증하고
