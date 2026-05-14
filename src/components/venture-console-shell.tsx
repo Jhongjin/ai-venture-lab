@@ -2,22 +2,22 @@
 
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import {
-  Activity,
   ArrowRight,
-  Beaker,
-  CheckCircle2,
-  ClipboardList,
-  Code2,
-  Flag,
-  Layers3,
-  LockKeyhole,
-  Rocket,
-  Save,
+  CheckCircle,
+  ClipboardText,
+  Code,
+  FloppyDisk,
+  FlagPennant,
+  Flask,
+  LockKey,
+  Pulse,
+  RocketLaunch,
   ShieldCheck,
-  Sparkles,
-  UserRound,
+  Sparkle,
+  Stack,
+  User,
   Users,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 
 import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
 import {
@@ -45,7 +45,7 @@ const shellTasks: Array<{
   label: string;
   description: string;
   group: ShellTaskGroup;
-  icon: typeof UserRound;
+  icon: typeof User;
   optional?: boolean;
 }> = [
   {
@@ -53,12 +53,12 @@ const shellTasks: Array<{
     label: "로그인",
     description: "계정으로 접속",
     group: "시작",
-    icon: UserRound,
+    icon: User,
   },
   {
     id: "console:workspace",
-    label: "협업 설정",
-    description: "팀 공간 연결은 선택",
+    label: "팀 연결",
+    description: "필요할 때만",
     group: "시작",
     icon: Users,
     optional: true,
@@ -66,100 +66,100 @@ const shellTasks: Array<{
   {
     id: "console:extract",
     label: "아이디어 찾기",
-    description: "대화와 메모에서 후보 추출",
+    description: "원문에서 후보 추출",
     group: "시작",
-    icon: Sparkles,
+    icon: Sparkle,
   },
   {
     id: "console:idea",
     label: "아이디어 접수",
-    description: "한 줄로 먼저 기록",
+    description: "초안 저장",
     group: "시작",
-    icon: Save,
+    icon: FloppyDisk,
   },
   {
     id: "workbench:select",
     label: "후보 선택",
-    description: "검토할 아이디어 고르기",
+    description: "오늘의 1건",
     group: "검증",
-    icon: ClipboardList,
+    icon: ClipboardText,
   },
   {
     id: "workbench:score",
     label: "사업성 평가",
-    description: "수요, 돈, 속도 점검",
+    description: "수요와 속도",
     group: "검증",
-    icon: Beaker,
+    icon: Flask,
   },
   {
     id: "workbench:risk",
     label: "위험 확인",
-    description: "법무, 운영, 보안 리스크",
+    description: "차단 리스크",
     group: "검증",
-    icon: Flag,
+    icon: FlagPennant,
   },
   {
     id: "workbench:experiment",
     label: "검증 실험",
-    description: "7일 안에 확인할 증거",
+    description: "7일 검증",
     group: "검증",
-    icon: Beaker,
+    icon: Flask,
   },
   {
     id: "workbench:decision",
     label: "진행 판단",
-    description: "진행, 보류, 중단 결정",
+    description: "진행 결론",
     group: "검증",
     icon: ShieldCheck,
   },
   {
     id: "workbench:artifacts",
     label: "기획서 만들기",
-    description: "보고서, PRD, MVP 자료",
+    description: "실행 문서",
     group: "제작",
-    icon: ClipboardList,
+    icon: ClipboardText,
   },
   {
     id: "workbench:development",
     label: "제작 준비",
-    description: "디자인, 개발, 배포 준비",
+    description: "빌드 준비",
     group: "제작",
-    icon: Code2,
+    icon: Code,
   },
   {
     id: "workbench:orchestration",
     label: "실행 관리",
-    description: "담당 역할과 상태 확인",
+    description: "실행 큐",
     group: "제작",
-    icon: Layers3,
+    icon: Stack,
   },
   {
     id: "workbench:launch",
     label: "출시 판단",
-    description: "출시 전 남은 조건",
+    description: "출시 조건",
     group: "제작",
-    icon: Rocket,
+    icon: RocketLaunch,
   },
   {
     id: "workbench:learning",
     label: "성과 확인",
-    description: "출시 후 행동 신호",
+    description: "행동 신호",
     group: "출시 후",
-    icon: Activity,
+    icon: Pulse,
   },
 ];
 
 const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> = {
   "console:auth": {
-    summary: "관리자가 만든 계정의 이메일과 비밀번호로 접속합니다. 별도 인증키나 메일 링크를 다루지 않아도 됩니다.",
-    checklist: ["관리자 계정 준비", "이메일과 비밀번호 입력", "로그인 상태 확인"],
+    summary: "관리자 계정으로 바로 로그인합니다. 별도 인증키나 메일 링크는 다루지 않아도 됩니다.",
+    checklist: ["이메일과 비밀번호 입력", "로그인 상태 확인", "다음 단계로 이동"],
   },
   "console:workspace": {
-    summary: "기본은 혼자 진행합니다. 팀 초대나 기록 공유가 필요할 때만 협업 공간을 연결합니다.",
+    summary: "기본은 혼자 진행합니다. 협업이 필요할 때만 팀 공간을 연결합니다.",
     checklist: ["혼자 쓸 때는 건너뛰기", "팀 공간 생성 또는 선택", "필요할 때만 멤버 추가"],
   },
   "console:extract": {
-    summary: "대화와 메모에서 앱 후보와 검증 방향을 먼저 뽑아냅니다.",
+    summary: "대화와 메모에서 후보와 검증 질문을 먼저 뽑아냅니다.",
     checklist: [
       "대화 원문 붙여넣기",
       "후보 발굴 실행",
@@ -169,15 +169,15 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     ],
   },
   "console:idea": {
-    summary: "AI 초안을 보고 필요한 의견만 보완한 뒤 저장합니다.",
+    summary: "AI 초안을 확인하고 필요한 의견만 더한 뒤 저장합니다.",
     checklist: ["이름과 한 줄 설명 확인", "필요할 때만 추가 항목 보완", "아이디어 저장"],
   },
   "workbench:select": {
-    summary: "오늘 검토할 아이디어를 하나 고른 뒤 평가와 검증을 진행합니다.",
+    summary: "오늘 밀어볼 아이디어 1건을 고른 뒤 평가와 검증을 이어갑니다.",
     checklist: ["전체 또는 내 기록 확인", "편집 가능 여부 확인", "평가할 후보 선택"],
   },
   "workbench:score": {
-    summary: "수요, 속도, 지불 의향, 위험 감점을 숫자로 맞춥니다.",
+    summary: "수요, 속도, 지불 의향, 위험 감점을 숫자로 빠르게 맞춥니다.",
     checklist: ["현재 단계와 판단 선택", "증거 공백 확인", "평가 저장"],
   },
   "workbench:risk": {
@@ -237,13 +237,13 @@ const taskCanvasDetails: Record<
   },
   "console:extract": {
     question: "대화나 메모에서 무엇을 제품 후보로 올릴지 정리되었나요?",
-    aiLead: "원문을 읽고 후보와 검증 방향을 구조화합니다.",
-    deliverable: "AI 후보 비교와 추천 1순위",
-    checkpoint: "추천 1개만 보고 다음 단계로 넘길 수 있게 정리합니다.",
+    aiLead: "원문을 읽고 후보와 검증 방향을 먼저 구조화합니다.",
+    deliverable: "추천 후보 1개와 비교 후보 큐",
+    checkpoint: "추천 1개만 확인해도 다음 단계로 넘길 수 있게 정리합니다.",
   },
   "console:idea": {
     question: "이 아이디어를 실제 검증 대상으로 올릴 준비가 되었나요?",
-    aiLead: "후보 내용을 바탕으로 이름, 한 줄 설명, 신호, 다음 증거를 초안으로 채웁니다.",
+    aiLead: "이름, 한 줄 설명, 신호, 다음 증거를 초안으로 채웁니다.",
     deliverable: "검증 가능한 아이디어 1건",
     checkpoint: "사용자는 꼭 필요한 의견만 덧붙이면 됩니다.",
   },
@@ -590,13 +590,28 @@ export function VentureConsoleShell({
       window.removeEventListener("venture:telemetry-created", handleTelemetryCreated);
     };
   }, [goToTask]);
-  const activeConsoleTask = activeTask.startsWith("console:")
-    ? (activeTask.replace("console:", "") as ConsoleActionTask)
-    : "idea";
-  const activeWorkbenchTask = activeTask.startsWith("workbench:")
-    ? (activeTask.replace("workbench:", "") as WorkbenchTask)
-    : "select";
   const ideaCount = ideas.length;
+  const visibleTask: ShellTask = (() => {
+    if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {
+      return "console:auth";
+    }
+
+    if (activeTask === "console:auth") {
+      return ideaCount > 0 ? "workbench:select" : "console:extract";
+    }
+
+    if (activeTask === "console:idea" && ideaCount > 0) {
+      return "workbench:select";
+    }
+
+    return activeTask;
+  })();
+  const activeConsoleTask = visibleTask.startsWith("console:")
+    ? (visibleTask.replace("console:", "") as ConsoleActionTask)
+    : "idea";
+  const activeWorkbenchTask = visibleTask.startsWith("workbench:")
+    ? (visibleTask.replace("workbench:", "") as WorkbenchTask)
+    : "select";
   const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
   const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
   const experimentCount = experiments.length;
@@ -604,12 +619,12 @@ export function VentureConsoleShell({
   const artifactCount = artifacts.length;
   const implementationTaskCount = implementationTasks.length;
   const telemetryEventCount = telemetryEvents.length;
-  const activeTaskIndex = shellTasks.findIndex((task) => task.id === activeTask);
+  const activeTaskIndex = shellTasks.findIndex((task) => task.id === visibleTask);
   const activeTaskConfig = shellTasks[activeTaskIndex] ?? shellTasks[0];
   const ActiveIcon = activeTaskConfig.icon;
   const previousTask = activeTaskIndex > 0 ? shellTasks[activeTaskIndex - 1] : null;
   const nextTaskOptions = getNextTaskOptions({
-    activeTask,
+    activeTask: visibleTask,
     ideaCount,
     artifactCount,
     runCount,
@@ -617,9 +632,9 @@ export function VentureConsoleShell({
   });
   const primaryNextTask = nextTaskOptions.find((option) => option.variant === "primary") ?? null;
   const optionalNextTasks = nextTaskOptions.filter((option) => option.variant === "optional");
-  const activeGuidance = taskGuidance[activeTask];
+  const activeGuidance = taskGuidance[visibleTask];
   const currentStepBlocker = getCurrentStepBlocker({
-    activeTask,
+    activeTask: visibleTask,
     consoleStatus,
     ideaCount,
   });
@@ -644,12 +659,12 @@ export function VentureConsoleShell({
     ? shellTasks.filter(
         (task) =>
           task.optional &&
-          task.id !== activeTask &&
+          task.id !== visibleTask &&
           !nextTaskOptions.some((option) => option.id === task.id) &&
           !visitedTaskIds.includes(task.id),
       )
     : [];
-  const completedTasks = shellTasks.filter((task) => visitedTaskIds.includes(task.id) && task.id !== activeTask);
+  const completedTasks = shellTasks.filter((task) => visitedTaskIds.includes(task.id) && task.id !== visibleTask);
   const availableTaskIds = new Set<ShellTask>([
     ...completedTasks.map((task) => task.id),
     activeTaskConfig.id,
@@ -665,7 +680,9 @@ export function VentureConsoleShell({
     100,
     Math.round(((completedRequiredCount + (activeTaskConfig.optional ? 0 : 0.5)) / Math.max(1, requiredShellTasks.length)) * 100),
   );
-  const activeCanvas = taskCanvasDetails[activeTask];
+  const activeCanvas = taskCanvasDetails[visibleTask];
+  const showFirstEntryStrip = consoleStatus.isAuthenticated && ideaCount === 0 && visibleTask === "console:extract";
+  const compactIntroCanvas = visibleTask === "console:auth" || visibleTask === "console:workspace";
 
   function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
     if (task.optional) {
@@ -708,7 +725,7 @@ export function VentureConsoleShell({
         <div className="mt-4 space-y-2">
           {requiredShellTasks.map((task, index) => {
             const Icon = task.icon;
-            const isCurrent = task.id === activeTask;
+            const isCurrent = task.id === visibleTask;
             const isCompleted = completedTasks.some((item) => item.id === task.id);
             const isAvailable = nextTaskOptions.some((item) => item.id === task.id);
             const isLocked = !isCurrent && !isCompleted && !isAvailable;
@@ -743,18 +760,22 @@ export function VentureConsoleShell({
                           : ""
                     }`}
                   >
-                    {isCompleted ? <CheckCircle2 size={13} /> : getTaskOrderLabel(task)}
+                    {isCompleted ? <CheckCircle size={13} weight="fill" /> : getTaskOrderLabel(task)}
                   </span>
                     <span className="min-w-0">
                       <span className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-950">
                         <Icon size={13} />
                         {task.label}
                       </span>
-                      <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{task.description}</span>
+                      {isCurrent || isAvailable ? (
+                        <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{task.description}</span>
+                      ) : null}
                     </span>
-                    <span className="avl-pill avl-pill-soft mt-0.5 px-1.5 py-0.5 text-[10px]">
-                      {taskStatuses[task.id]}
-                    </span>
+                    {isCurrent || isCompleted ? (
+                      <span className="avl-pill avl-pill-soft mt-0.5 px-1.5 py-0.5 text-[10px]">
+                        {taskStatuses[task.id]}
+                      </span>
+                    ) : null}
                   </button>
                 </div>
               );
@@ -793,6 +814,32 @@ export function VentureConsoleShell({
       </aside>
 
       <div className="min-w-0 space-y-3">
+        {showFirstEntryStrip ? (
+          <section className="grid gap-px border border-slate-200 bg-slate-200 lg:grid-cols-[160px_minmax(0,1fr)]">
+            <div className="bg-[#f7f6f2] px-4 py-3">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">first three</div>
+              <div className="mt-1 text-sm font-semibold text-slate-950">여기까지만 먼저</div>
+            </div>
+            <div className="bg-white px-4 py-3">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
+                {[
+                  "원문 붙여넣기",
+                  "추천 후보 1건 보기",
+                  "아이디어 저장",
+                ].map((step, index) => (
+                  <span key={step} className="inline-flex items-center gap-2">
+                    <span className="avl-step-dot h-6 w-6 bg-slate-100 text-slate-700">{index + 1}</span>
+                    <span className="font-medium">{step}</span>
+                  </span>
+                ))}
+              </div>
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                검증 단계는 이 세 단계가 끝나면 바로 열립니다.
+              </p>
+            </div>
+          </section>
+        ) : null}
+
         <section className="border border-slate-200 bg-white p-4">
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_284px]">
             <div className="min-w-0">
@@ -813,23 +860,29 @@ export function VentureConsoleShell({
                   <h2 className="mt-1 max-w-4xl text-[18px] font-semibold tracking-tight text-slate-950 sm:text-[24px] sm:leading-[32px]">
                     {activeCanvas.question}
                   </h2>
-                  <p className="mt-2 max-w-3xl text-[13px] leading-6 text-slate-600">{activeGuidance.summary}</p>
+                  <p className="mt-1 max-w-3xl text-[12px] leading-5 text-slate-500">{activeGuidance.summary}</p>
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-px border border-slate-200 bg-slate-200 md:grid-cols-3">
+              <div
+                className={`mt-4 grid gap-px border border-slate-200 bg-slate-200 ${
+                  compactIntroCanvas ? "md:grid-cols-[minmax(0,1fr)_240px]" : "md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_240px]"
+                }`}
+              >
                 <div className="bg-slate-50 px-3 py-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI 준비</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI 초안</div>
                   <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.aiLead}</p>
                 </div>
                 <div className="bg-slate-50 px-3 py-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">이번 결과</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">남는 결과</div>
                   <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.deliverable}</p>
                 </div>
-                <div className="bg-slate-50 px-3 py-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">확인 포인트</div>
-                  <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.checkpoint}</p>
-                </div>
+                {!compactIntroCanvas ? (
+                  <div className="bg-slate-50 px-3 py-3">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">사용자 판단</div>
+                    <p className="mt-1 text-[12px] leading-5 text-slate-700">{activeCanvas.checkpoint}</p>
+                  </div>
+                ) : null}
               </div>
 
               {currentStepBlocker ? (
@@ -873,7 +926,7 @@ export function VentureConsoleShell({
 
               {optionalNextTasks.length > 0 ? (
                 <div className="mt-3 border-t border-slate-200 pt-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이동</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">건너뛸 수 있는 단계</div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {optionalNextTasks.map((option) => (
                       <button
@@ -893,7 +946,7 @@ export function VentureConsoleShell({
         </section>
 
         <section className="space-y-5">
-          <div className={activeTask.startsWith("console:") ? "" : "hidden"}>
+          <div className={visibleTask.startsWith("console:") ? "" : "hidden"}>
             <VentureConsoleActions
               activeTask={activeConsoleTask}
               onActiveTaskChange={handleConsoleTaskChange}
@@ -903,7 +956,7 @@ export function VentureConsoleShell({
               existingIdeas={ideas}
             />
           </div>
-          <div className={activeTask.startsWith("workbench:") ? "" : "hidden"}>
+          <div className={visibleTask.startsWith("workbench:") ? "" : "hidden"}>
             <IdeaWorkbench
               initialIdeas={ideas}
               initialRisks={risks}
@@ -926,7 +979,7 @@ export function VentureConsoleShell({
         {lockedTasks.length > 0 ? (
           <details className="border-t border-slate-200 px-4 py-3.5">
             <summary className="flex cursor-pointer list-none items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-              <LockKeyhole size={13} />
+              <LockKey size={13} />
               잠긴 단계
             </summary>
             <div className="mt-4 grid gap-2">

@@ -1,8 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { ClipboardText, FileDoc, Path, RocketLaunch, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, ArrowRight, ClipboardText, FileDoc, Path, RocketLaunch, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
   title: "사용 가이드 | AI Venture Lab",

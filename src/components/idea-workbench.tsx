@@ -9728,7 +9728,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               key={value}
               type="button"
               onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
-                className={`h-9 rounded-md text-sm font-semibold transition ${
+                className={`h-9 rounded-[0.125rem] text-sm font-semibold transition ${
                   filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
                 }`}
               >
@@ -10395,7 +10395,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={`h-2 w-2 rounded-full ${check.passed ? "bg-emerald-500" : "bg-amber-500"}`} />
+                          <span className={`h-2 w-2 rounded-[2px] ${check.passed ? "bg-emerald-500" : "bg-amber-500"}`} />
                           <span className="text-xs font-semibold text-slate-950">{check.label}</span>
                         </div>
                         <p className="mt-1 text-xs leading-5 text-slate-600">{check.detail}</p>
@@ -10450,7 +10450,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     key={panel}
                     type="button"
                     onClick={() => setDevelopmentPanel(panel)}
-                    className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                    className={`rounded-[0.125rem] px-3 py-2 text-sm font-semibold transition ${
                       visibleDevelopmentPanel === panel
                         ? "bg-white text-slate-950 shadow-sm"
                         : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
@@ -10624,7 +10624,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     )
                   }
                   disabled={isBusy || !user || !designGenerationPromptDraft}
-                  className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
+                  className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
                   프롬프트 저장
@@ -10644,7 +10644,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               type="button"
               onClick={createRunbook}
               disabled={isBusy || !user}
-              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-50"
+              className="avl-btn avl-btn-primary h-11 rounded-[0.125rem] px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />
               개발 런북 만들기
@@ -10652,7 +10652,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <button
               type="button"
               onClick={copyDevelopmentPlanDraft}
-              className="avl-btn avl-btn-secondary h-11 rounded-md px-4"
+              className="avl-btn avl-btn-secondary h-11 rounded-[0.125rem] px-4"
             >
               <Clipboard size={18} />
               계획 복사
@@ -10668,7 +10668,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 )
               }
               disabled={isBusy || !user}
-              className="avl-btn avl-btn-secondary h-11 rounded-md px-4 disabled:opacity-50"
+              className="avl-btn avl-btn-secondary h-11 rounded-[0.125rem] px-4 disabled:opacity-50"
             >
               <Save size={18} />
               개발 런북 저장
@@ -10677,7 +10677,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               type="button"
               onClick={saveDevelopmentPackageDrafts}
               disabled={isBusy || !user}
-              className="avl-btn avl-btn-accent h-11 rounded-md px-4 disabled:opacity-50"
+              className="avl-btn avl-btn-accent h-11 rounded-[0.125rem] px-4 disabled:opacity-50"
             >
               <ClipboardList size={18} />
               개발 패키지 저장
@@ -10699,7 +10699,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <button
                   type="button"
                   onClick={() => copyDraft(backendDecisionDraft, "백엔드 결정")}
-                  className="avl-btn avl-btn-secondary h-10 rounded-md px-3"
+                  className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3"
                 >
                   <Clipboard size={16} />
                   결정 복사
@@ -10710,7 +10710,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     saveArtifactDraft("backend_decision", `${selectedIdea.name} 백엔드 결정`, backendDecisionDraft, "development_process")
                   }
                   disabled={isBusy || !user}
-                  className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                  className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
                   결정 저장
@@ -10730,8 +10730,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                     <div className="text-2xl font-semibold text-slate-950">{candidate.score}</div>
                   </div>
-                  <div className="mt-3 h-2 rounded-full bg-slate-100">
-                    <div className="h-2 rounded-full bg-slate-950" style={{ width: `${candidate.score}%` }} />
+                  <div className="mt-3 h-2 rounded-[2px] bg-slate-100">
+                    <div className="h-2 rounded-[2px] bg-slate-950" style={{ width: `${candidate.score}%` }} />
                   </div>
                   <p className="mt-3 min-h-16 text-sm leading-6 text-slate-600">{candidate.summary}</p>
                   <div className="mt-3 grid gap-2 text-xs leading-5">
@@ -10961,7 +10961,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <button
                     type="button"
                     onClick={() => copyDraft(draft.body, artifactLabels[draft.artifactType])}
-                    className="avl-btn avl-btn-secondary h-9 rounded-md px-3 text-xs"
+                    className="avl-btn avl-btn-secondary h-9 rounded-[0.125rem] px-3 text-xs"
                   >
                     <Clipboard size={15} />
                     복사
@@ -10970,7 +10970,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     type="button"
                     onClick={() => saveArtifactDraft(draft.artifactType, draft.title, draft.body, "development_process")}
                     disabled={isBusy || !user}
-                    className="avl-btn avl-btn-primary h-9 rounded-md px-3 text-xs disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-9 rounded-[0.125rem] px-3 text-xs disabled:opacity-50"
                   >
                     <Save size={15} />
                     저장
@@ -11750,7 +11750,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <button
                 type="button"
                 onClick={() => copyDraft(developmentCompletionReportDraft, "개발 완료 보고서")}
-                className="avl-btn avl-btn-secondary h-10 rounded-md px-3"
+                className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3"
               >
                 <Clipboard size={16} />
                 보고서 복사
@@ -11766,7 +11766,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   )
                 }
                 disabled={isBusy || !user}
-                className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
               >
                 <Save size={16} />
                 보고서 저장
@@ -11805,7 +11805,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(implementationHandoffDraft, "Codex 구현 핸드오프")}
-                      className="avl-btn avl-btn-secondary h-10 rounded-md px-3"
+                      className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3"
                     >
                       <Clipboard size={16} />
                       복사
@@ -11821,7 +11821,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user}
-                      className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
                       저장
@@ -11850,7 +11850,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => copyDraft(mvpBuildCommandPacketDraft, "MVP 빌드 명령 패킷")}
                       disabled={!mvpBuildCommandPacketDraft}
-                      className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
+                      className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Clipboard size={16} />
                       명령 복사
@@ -11866,7 +11866,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !mvpBuildCommandPacketDraft}
-                      className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
                       명령 저장
@@ -11895,7 +11895,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => copyDraft(qaAcceptanceMatrixDraft, "QA 검수 매트릭스")}
                       disabled={!qaAcceptanceMatrixDraft}
-                      className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
+                      className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Clipboard size={16} />
                       매트릭스 복사
@@ -11911,7 +11911,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !qaAcceptanceMatrixDraft}
-                      className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
                       매트릭스 저장
@@ -12413,8 +12413,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           </div>
                         </div>
                       </div>
-                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
-                        <div className="h-full rounded-full bg-blue-600" style={{ width: `${width}%` }} />
+                      <div className="mt-3 h-2 overflow-hidden rounded-[2px] bg-white">
+                        <div className="h-full rounded-[2px] bg-blue-600" style={{ width: `${width}%` }} />
                       </div>
                       <p className="mt-2 text-xs leading-5 text-slate-500">{row.question}</p>
                     </div>
@@ -12991,9 +12991,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   key={panel}
                   type="button"
                   onClick={() => setArtifactPanel(panel)}
-                  className={`h-10 rounded-md px-3 text-sm font-semibold transition ${
+                  className={`h-10 rounded-[3px] px-3 text-sm font-semibold transition ${
                     artifactPanel === panel
-                      ? "bg-white text-slate-950 shadow-sm"
+                      ? "border border-slate-200 bg-white text-slate-950 shadow-sm"
                       : "text-slate-600 hover:bg-white/70 hover:text-slate-950"
                   }`}
                 >
@@ -13700,8 +13700,8 @@ function GateChecklistPanel({
           <div className="text-2xl font-semibold">{score}%</div>
         </div>
       </div>
-      <div className="mt-4 h-2 rounded-full bg-white">
-        <div className="h-2 rounded-full bg-blue-600" style={{ width: `${score}%` }} />
+      <div className="mt-4 h-2 bg-slate-100">
+        <div className="h-2 bg-slate-950" style={{ width: `${score}%` }} />
       </div>
       <div className="mt-4 grid gap-3">
         {checks.map((check) => (
@@ -13869,3 +13869,6 @@ function SelectField<T extends string>({
     </label>
   );
 }
+
+
+

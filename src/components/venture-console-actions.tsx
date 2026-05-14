@@ -1,19 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import {
-  Building2,
-  ClipboardList,
-  Clock3,
-  LogIn,
-  LogOut,
-  PlusCircle,
-  RefreshCw,
-  ShieldCheck,
-  Sparkles,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { ArrowsClockwise, Buildings, ClipboardText, Clock, PlusCircle, ShieldCheck, SignIn, SignOut, Sparkle, Trash, UsersThree } from "@phosphor-icons/react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -2807,7 +2795,7 @@ export function VentureConsoleActions({
               disabled={isAuthBusy}
               className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-60"
             >
-              <LogOut size={18} />
+              <SignOut size={18} />
               로그아웃
             </button>
           </div>
@@ -2841,7 +2829,7 @@ export function VentureConsoleActions({
               disabled={isAuthBusy}
               className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-60"
             >
-              {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
+              {isAuthBusy ? <ArrowsClockwise className="animate-spin" size={18} /> : <SignIn size={18} />}
               비밀번호로 로그인
             </button>
             <details className="avl-surface-muted p-3">
@@ -2856,7 +2844,7 @@ export function VentureConsoleActions({
                   disabled={isAuthBusy}
                   className="avl-btn avl-btn-secondary h-11 px-4 disabled:opacity-60"
                 >
-                  {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
+                  {isAuthBusy ? <ArrowsClockwise className="animate-spin" size={18} /> : <SignIn size={18} />}
                   이메일 로그인 링크 받기
                 </button>
               </div>
@@ -2877,7 +2865,7 @@ export function VentureConsoleActions({
               <h2 className="text-xl font-semibold text-slate-950">협업 공간 상태</h2>
               <p className="mt-1 text-sm text-slate-500">기본은 혼자 진행합니다. 팀으로 함께 볼 때만 협업 공간을 연결하세요.</p>
             </div>
-            <Building2 className={activeOrganization ? "text-blue-600" : "text-slate-500"} size={24} />
+            <Buildings className={activeOrganization ? "text-blue-600" : "text-slate-500"} size={24} />
           </div>
 
           {!user ? (
@@ -2911,7 +2899,7 @@ export function VentureConsoleActions({
                 </div>
                 <div className="avl-surface-muted p-4">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                    <Users size={14} />
+                    <UsersThree size={14} />
                     멤버
                   </div>
                   <div className="mt-2 text-lg font-semibold text-slate-950">{activeMemberCount}</div>
@@ -2931,14 +2919,14 @@ export function VentureConsoleActions({
                     disabled={isWorkspaceBusy}
                     className="avl-btn avl-btn-primary mt-3 h-10 px-4 disabled:opacity-60"
                   >
-                    {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
+                    {isWorkspaceBusy ? <ArrowsClockwise className="animate-spin" size={18} /> : <Buildings size={18} />}
                     개인 기록 연결
                   </button>
                 </div>
               ) : null}
               <div>
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
-                  <Users size={16} />
+                  <UsersThree size={16} />
                   멤버
                 </div>
                 <div className="grid gap-2">
@@ -2990,7 +2978,7 @@ export function VentureConsoleActions({
                             }
                             className="avl-btn avl-btn-danger h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                           >
-                            <Trash2 size={13} />
+                            <Trash size={13} />
                             {memberActionKey === `${member.user_id}:remove` ? "..." : "제거"}
                           </button>
                         </div>
@@ -3028,13 +3016,13 @@ export function VentureConsoleActions({
                   disabled={isMemberBusy || !canManageMembers}
                   className="avl-btn avl-btn-primary h-10 px-4 disabled:opacity-60"
                 >
-                  {isMemberBusy ? <RefreshCw className="animate-spin" size={18} /> : <Users size={18} />}
+                  {isMemberBusy ? <ArrowsClockwise className="animate-spin" size={18} /> : <UsersThree size={18} />}
                   멤버 추가
                 </button>
               </form>
               <div>
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
-                  <Clock3 size={16} />
+                  <Clock size={16} />
                   최근 감사 로그
                 </div>
                 <div className="grid gap-2">
@@ -3066,7 +3054,7 @@ export function VentureConsoleActions({
                 disabled={isWorkspaceBusy}
                 className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-60"
               >
-                {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
+                {isWorkspaceBusy ? <ArrowsClockwise className="animate-spin" size={18} /> : <Buildings size={18} />}
                 워크스페이스 만들기
               </button>
             </div>
@@ -3094,7 +3082,7 @@ export function VentureConsoleActions({
                   disabled={isAiExtracting || isReplayingExtraction}
                   className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isAiExtracting ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
+                  {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={18} /> : <Sparkle size={18} />}
                   AI 후보 발굴
                 </button>
               </div>
@@ -3153,7 +3141,7 @@ export function VentureConsoleActions({
                       disabled={isAiExtracting || isReplayingExtraction}
                       className="avl-btn avl-btn-primary px-4 disabled:opacity-60"
                     >
-                      {isAiExtracting ? <RefreshCw className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                      {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
                       AI 후보 발굴
                     </button>
                   </div>
@@ -3222,7 +3210,7 @@ export function VentureConsoleActions({
                           disabled={Boolean(extractSaveKey) || !user}
                           className="avl-btn avl-btn-primary px-4"
                         >
-                          {extractSaveKey === recommendedExtractedIdea.id ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
+                          {extractSaveKey === recommendedExtractedIdea.id ? <ArrowsClockwise className="animate-spin" size={16} /> : <PlusCircle size={16} />}
                           검증 패키지 저장
                         </button>
                       </div>
@@ -3276,7 +3264,7 @@ export function VentureConsoleActions({
                         disabled={isAiExtracting || isReplayingExtraction}
                         className="avl-btn avl-btn-secondary mt-2 h-9 px-3 disabled:opacity-60"
                       >
-                        {isReplayingExtraction ? <RefreshCw className="animate-spin" size={15} /> : <RefreshCw size={15} />}
+                        {isReplayingExtraction ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
                         점검 실행
                       </button>
                     </div>
@@ -3315,7 +3303,7 @@ export function VentureConsoleActions({
                   <summary className="flex cursor-pointer list-none flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        <ClipboardList size={15} />
+                        <ClipboardText size={15} />
                         비교 후보
                       </div>
                       <h3 className="mt-2 text-lg font-semibold text-slate-950">비교 후보</h3>
@@ -3376,7 +3364,7 @@ export function VentureConsoleActions({
                               disabled={Boolean(extractSaveKey) || !user}
                               className="avl-btn avl-btn-primary h-9 px-3 text-sm disabled:opacity-50"
                             >
-                              {extractSaveKey === item.candidate.id ? <RefreshCw className="animate-spin" size={14} /> : <PlusCircle size={14} />}
+                              {extractSaveKey === item.candidate.id ? <ArrowsClockwise className="animate-spin" size={14} /> : <PlusCircle size={14} />}
                               저장
                             </button>
                           </div>
@@ -3409,7 +3397,7 @@ export function VentureConsoleActions({
                         disabled={isSavingExtractionReport || !user}
                         className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                       >
-                        {isSavingExtractionReport ? <RefreshCw className="animate-spin" size={16} /> : <ClipboardList size={16} />}
+                        {isSavingExtractionReport ? <ArrowsClockwise className="animate-spin" size={16} /> : <ClipboardText size={16} />}
                         리포트 저장
                       </button>
                       <button
@@ -3420,7 +3408,7 @@ export function VentureConsoleActions({
                         disabled={Boolean(extractSaveKey) || !user || bulkSavableExtractionItems.length === 0}
                         className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                       >
-                        {extractSaveKey === "bulk" ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
+                        {extractSaveKey === "bulk" ? <ArrowsClockwise className="animate-spin" size={16} /> : <PlusCircle size={16} />}
                         추천 {bulkSavableExtractionItems.length}개 저장
                       </button>
                     </div>
@@ -3494,7 +3482,7 @@ export function VentureConsoleActions({
                             disabled={Boolean(extractSaveKey) || !user}
                   className="avl-btn avl-btn-accent h-10 px-4 disabled:opacity-50"
                           >
-                            {extractSaveKey === candidate.id ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
+                            {extractSaveKey === candidate.id ? <ArrowsClockwise className="animate-spin" size={16} /> : <PlusCircle size={16} />}
                             패키지 저장
                           </button>
                         </div>
@@ -3696,7 +3684,7 @@ export function VentureConsoleActions({
                   disabled={isSaving || !user}
                 className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                 >
-                  {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
+                  {isSaving ? <ArrowsClockwise className="animate-spin" size={18} /> : <PlusCircle size={18} />}
                   아이디어 저장
                 </button>
               </div>
@@ -3716,7 +3704,7 @@ export function VentureConsoleActions({
                   disabled={isSaving || !user}
                 className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                 >
-                  {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
+                  {isSaving ? <ArrowsClockwise className="animate-spin" size={18} /> : <PlusCircle size={18} />}
                   아이디어 저장
                 </button>
               </div>
@@ -3867,7 +3855,7 @@ function formatAuthError(message: string) {
     return "이메일 로그인 발송 제한에 걸렸습니다. 잠시 기다렸다 다시 시도하거나, 관리자가 미리 만든 비밀번호 계정으로 접속하세요.";
   }
 
-  if (message.toLowerCase().includes("invalid login credentials")) {
+  if (message.toLowerCase().includes("invalid SignIn credentials")) {
     return "이메일 또는 비밀번호가 올바르지 않습니다. 관리자가 만든 기존 계정인지, 비밀번호가 맞는지 확인하세요.";
   }
 
@@ -3962,3 +3950,4 @@ function TextArea({
     </label>
   );
 }
+
