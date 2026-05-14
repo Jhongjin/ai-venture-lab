@@ -41,25 +41,6 @@ const heroSignals = [
   },
 ];
 
-const heroFrames = [
-  {
-    label: "AI 초안",
-    body: "후보, 질문, 리스크를 먼저 구조화합니다.",
-  },
-  {
-    label: "솔로 실행",
-    body: "한 사람이 끝까지 밀고 갈 수 있는 흐름으로 압축합니다.",
-  },
-  {
-    label: "팀 협업",
-    body: "필요한 순간에만 워크스페이스와 초대를 붙입니다.",
-  },
-  {
-    label: "MVP 연결",
-    body: "기획에서 출시 판단까지 같은 보드에 남깁니다.",
-  },
-];
-
 const heroStats = [
   { value: "01", label: "memo to candidate" },
   { value: "07d", label: "validation sprint" },
@@ -177,7 +158,7 @@ export default function HomePage() {
                   operator-first venture workspace
                 </div>
 
-                <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(0,1fr)_240px]">
+                <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(0,1fr)_280px]">
                   <div className="min-w-0">
                     <h1
                       className="max-w-[8.4ch] text-[56px] font-normal leading-[0.88] tracking-[-0.055em] text-white sm:text-[86px] xl:text-[116px]"
@@ -202,58 +183,44 @@ export default function HomePage() {
                       </a>
                     </div>
 
-                    <div className="mt-12 grid gap-px border border-white/10 bg-white/10 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
-                      <div className="grid gap-px bg-white/10">
-                        <div className="grid gap-px bg-white/10 sm:grid-cols-3">
-                          {heroRail.map((step, index) => (
-                            <div key={step} className="bg-white/5 px-5 py-4">
-                              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                                {String(index + 1).padStart(2, "0")}
-                              </div>
-                              <p className="mt-3 max-w-[16ch] text-sm leading-6 text-slate-100">{step}</p>
+                    <div className="mt-12 border border-white/10 bg-white/5">
+                      <div className="grid gap-px bg-white/10 lg:grid-cols-3">
+                        {heroRail.map((step, index) => (
+                          <div key={step} className="bg-white/5 px-5 py-4">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                              {String(index + 1).padStart(2, "0")}
                             </div>
-                          ))}
-                        </div>
-                        <div className="grid gap-px bg-white/10 sm:grid-cols-2">
-                          {heroFrames.slice(0, 2).map((frame) => (
-                            <div key={frame.label} className="bg-white/5 px-5 py-4">
-                              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{frame.label}</div>
-                              <p className="mt-3 max-w-[34ch] text-sm leading-6 text-slate-200">{frame.body}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="grid gap-px bg-white/10">
-                        <div className="relative min-h-[220px] overflow-hidden bg-[#f3f1ea] px-5 py-5 text-slate-950">
-                          <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:34px_34px]" />
-                          <div aria-hidden="true" className="absolute right-5 top-5 h-16 w-16 border border-slate-300" />
-                          <div aria-hidden="true" className="absolute bottom-5 left-5 h-12 w-12 border border-slate-300" />
-                          <div className="relative z-10">
-                            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">why it stays open</div>
-                            <div className="mt-3 max-w-[10ch] text-[30px] font-semibold leading-[1.02] tracking-tight">
-                              설명서보다 먼저, 실행 후보를 전면에 둡니다
-                            </div>
-                            <p className="mt-5 max-w-[28ch] text-sm leading-6 text-slate-700">
-                              사용자는 전체 기능을 배우기보다, 지금 밀 후보 1건과 다음 행동만 먼저 보게 됩니다.
-                            </p>
+                            <p className="mt-3 max-w-[16ch] text-sm leading-6 text-slate-100">{step}</p>
                           </div>
-                        </div>
-                        <div className="bg-white/5 px-5 py-5">
-                          <p className="max-w-[34ch] text-sm leading-6 text-slate-200">
-                            AI가 후보와 산출물을 먼저 만들고, 사용자는 중요한 판단만 보완합니다. 팀 초대는 옵션이고, 기본은 솔로 실행입니다.
-                          </p>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   </div>
 
                   <div className="grid gap-px self-start border border-white/10 bg-white/10">
-                    {heroStats.map((stat) => (
-                      <div key={stat.label} className="bg-white/5 px-4 py-4">
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{stat.label}</div>
-                        <div className="mt-2 text-[24px] font-semibold tracking-tight text-white">{stat.value}</div>
+                    <div className="relative overflow-hidden bg-[#f3f1ea] px-5 py-5 text-slate-950">
+                      <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:34px_34px]" />
+                      <div aria-hidden="true" className="absolute right-5 top-5 h-16 w-16 border border-slate-300" />
+                      <div aria-hidden="true" className="absolute bottom-5 left-5 h-12 w-12 border border-slate-300" />
+                      <div className="relative z-10">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">why it stays open</div>
+                        <div className="mt-3 max-w-[10ch] text-[30px] font-semibold leading-[1.02] tracking-tight">
+                          설명서보다 먼저, 실행 후보를 전면에 둡니다
+                        </div>
+                        <p className="mt-5 max-w-[28ch] text-sm leading-6 text-slate-700">
+                          사용자는 전체 기능을 배우기보다, 지금 밀 후보 1건과 다음 행동만 먼저 보게 됩니다.
+                        </p>
                       </div>
-                    ))}
+                    </div>
+
+                    <div className="grid gap-px bg-white/10 sm:grid-cols-2">
+                      {heroStats.map((stat) => (
+                        <div key={stat.label} className="bg-white/5 px-4 py-4">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{stat.label}</div>
+                          <div className="mt-2 text-[24px] font-semibold tracking-tight text-white">{stat.value}</div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -284,15 +251,10 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="grid gap-px bg-white/10 sm:grid-cols-2">
-                <div className="bg-white/5 px-5 py-5">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">solo first</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-200">기본은 한 사람이 끝까지 밀고 갈 수 있게 설계합니다.</p>
-                </div>
-                <div className="bg-white/5 px-5 py-5">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">team optional</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-200">필요한 순간에만 워크스페이스와 초대를 붙입니다.</p>
-                </div>
+              <div className="bg-white/5 px-5 py-5">
+                <p className="max-w-[34ch] text-sm leading-6 text-slate-200">
+                  AI가 후보와 산출물을 먼저 만들고, 사용자는 중요한 판단만 보완합니다. 팀 초대는 옵션이고, 기본은 솔로 실행입니다.
+                </p>
               </div>
             </div>
           </div>
