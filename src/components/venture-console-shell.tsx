@@ -834,7 +834,7 @@ export function VentureConsoleShell({
                     </span>
                     <div className="min-w-0">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 질문</div>
-                      <h2 className="mt-2 max-w-3xl text-[17px] font-semibold tracking-tight text-slate-950 sm:text-[20px] sm:leading-[28px]">
+                      <h2 className="mt-2 max-w-3xl text-[16px] font-semibold tracking-tight text-slate-950 sm:text-[18px] sm:leading-[26px]">
                         {activeCanvas.question}
                       </h2>
                       <p className="mt-1 max-w-3xl text-[12px] leading-5 text-slate-600">{activeGuidance.summary}</p>
@@ -861,7 +861,7 @@ export function VentureConsoleShell({
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">지금 할 일</div>
                   <ol className="mt-2 grid gap-2">
                     {activeGuidance.checklist.slice(0, 3).map((item, index) => (
-                      <li key={item} className="grid grid-cols-[1.2rem_minmax(0,1fr)] gap-2 text-[12px] leading-6 text-slate-700">
+                      <li key={item} className="grid grid-cols-[1.2rem_minmax(0,1fr)] gap-2 text-[12px] leading-5 text-slate-700">
                         <span className="avl-step-dot mt-1 bg-slate-950 text-white">
                           {index + 1}
                         </span>
@@ -900,7 +900,7 @@ export function VentureConsoleShell({
               </div>
 
             {currentStepBlocker ? (
-              <div className="avl-surface-muted border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+              <div className="avl-surface-muted border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-900">
                 {currentStepBlocker}
               </div>
             ) : null}

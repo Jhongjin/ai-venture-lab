@@ -10432,7 +10432,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             activeTask === "development" ? "" : "hidden"
           }`}
         >
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">제작 준비 프로세스</h2>
               <p className="mt-1 text-sm text-slate-500">
@@ -11995,7 +11995,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
           {releaseDecisionPacket ? (
-            <div className="avl-surface-muted mb-5 p-4 text-slate-900">
+          <div className="avl-surface-muted mb-4 p-4 text-slate-900">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">go / no-go</div>
@@ -12127,7 +12127,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </button>
               </div>
             </div>
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
               <div className="avl-surface-subtle p-3">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Day 7</div>
                 <p className="mt-2 text-sm leading-6 text-slate-700">핵심 행동 완료율과 반복 사용을 확인합니다.</p>
@@ -12161,7 +12161,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div className={`avl-card p-4 ${activeTask === "learning" ? "" : "hidden"}`}>
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
             <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                 <Activity size={16} />
@@ -12177,7 +12177,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 type="button"
                 onClick={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
                 disabled={!learningTelemetryReportDraft}
-                className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
+                className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
               >
                 <Clipboard size={16} />
                 리포트 복사
@@ -12193,7 +12193,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   )
                 }
                 disabled={isBusy || !user || !learningTelemetryReportDraft}
-                className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
+                className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
               >
                 <Save size={16} />
                 리포트 저장
@@ -12340,7 +12340,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
           )}
 
-            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+            <div className="mt-3 grid gap-3 lg:grid-cols-3">
               {[
                 ["Day 7", "첫 행동 완료율", "이벤트가 적으면 온보딩, 첫 화면, 핵심 액션을 더 짧게 만듭니다."],
                 ["Day 14", "반복 사용과 지불 신호", "반복 이벤트와 실험 결과를 보고 세그먼트 축소 또는 가격 검증으로 이동합니다."],
@@ -12354,7 +12354,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               ))}
             </div>
 
-            <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.65fr)]">
+            <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.65fr)]">
             <div className="avl-card-soft p-4">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -12454,7 +12454,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           </div>
 
-          <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(360px,0.65fr)]">
+          <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,0.85fr)_minmax(360px,0.65fr)]">
             <div className="avl-surface-muted p-4">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h3 className="text-base font-semibold text-slate-950">최근 이벤트</h3>
@@ -12482,7 +12482,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                 ))}
                 {selectedTelemetryEvents.length === 0 ? (
-                  <div className="avl-surface-subtle p-4 text-sm leading-6 text-slate-600">
+                  <div className="avl-surface-subtle p-4 text-sm leading-5 text-slate-600">
                     아직 이 아이디어에 연결된 이벤트가 없습니다. 점수 저장, 리스크 추가, 실험/산출물 저장 같은 행동을 하면 자동으로 쌓입니다.
                   </div>
                 ) : null}
@@ -12511,7 +12511,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             activeTask === "orchestration" ? "" : "hidden"
           }`}
         >
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">실행 관리 보드</h2>
               <p className="mt-1 text-sm text-slate-500">역할과 진행 상태만 간단히 추적합니다.</p>
@@ -12924,7 +12924,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     onChange={(event) =>
                       setExperimentResultDraft((current) => ({ ...current, experiment_id: event.target.value }))
                     }
-                    className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-500"
+                    className="avl-select h-11 text-sm font-normal text-slate-950 disabled:bg-slate-100 disabled:text-slate-500"
                   >
                     {selectedExperiments.length > 0 ? (
                       selectedExperiments.map((experiment) => (
@@ -12972,7 +12972,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <button
                   type="submit"
                   disabled={isBusy || !user || selectedExperiments.length === 0}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                 >
                   <Save size={18} />
                   결과 저장
@@ -13153,7 +13153,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div>
               <div className="avl-kicker">readiness</div>
               <h2 className="mt-3 text-lg font-semibold text-slate-950">PRD 진입 준비도</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-600">
+              <p className="mt-1 text-sm leading-5 text-slate-600">
                 검증 근거가 제품 요구사항으로 넘어갈 만큼 정리되었는지 먼저 확인합니다.
               </p>
               <div
@@ -13192,7 +13192,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   />
                   <div>
                     <div className="text-sm font-semibold text-slate-950">{check.label}</div>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">{check.detail}</p>
+                    <p className="mt-1 text-sm leading-5 text-slate-600">{check.detail}</p>
                   </div>
                 </div>
               </div>
@@ -13338,7 +13338,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <select
                   value={artifactTypeFilter}
                   onChange={(event) => setArtifactTypeFilter(event.target.value as VentureArtifactType | "all")}
-                  className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm normal-case tracking-normal text-slate-800 outline-none transition focus:border-slate-500"
+                  className="avl-select h-10 text-sm normal-case tracking-normal text-slate-800"
                 >
                   <option value="all">전체 유형</option>
                   {Object.entries(artifactLabels).map(([value, label]) => (
@@ -13353,7 +13353,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <select
                   value={artifactStatusFilter}
                   onChange={(event) => setArtifactStatusFilter(event.target.value as VentureArtifactStatus | "all")}
-                  className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm normal-case tracking-normal text-slate-800 outline-none transition focus:border-slate-500"
+                  className="avl-select h-10 text-sm normal-case tracking-normal text-slate-800"
                 >
                   <option value="all">전체 상태</option>
                   {(["draft", "approved", "archived"] as VentureArtifactStatus[]).map((status) => (
@@ -13368,7 +13368,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <select
                   value={activeArtifactSourceFilter}
                   onChange={(event) => setArtifactSourceFilter(event.target.value)}
-                  className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm normal-case tracking-normal text-slate-800 outline-none transition focus:border-slate-500"
+                  className="avl-select h-10 text-sm normal-case tracking-normal text-slate-800"
                 >
                   {artifactSourceOptions.map((source) => (
                     <option key={source} value={source}>
@@ -13404,11 +13404,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           {nextArtifactReviewItem.status === "draft" ? "승인 대기" : "생성 필요"}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm leading-6 text-slate-600">{nextArtifactReviewItem.detail}</p>
-                      <p className="mt-1 text-sm leading-6 text-slate-600">{nextArtifactReviewItem.action}</p>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">{nextArtifactReviewItem.detail}</p>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">{nextArtifactReviewItem.action}</p>
                     </div>
                   ) : (
-                    <div className="avl-surface-muted mt-3 border-emerald-200 bg-emerald-50 p-3 text-sm leading-6 text-emerald-900">
+                    <div className="avl-surface-muted mt-3 border-emerald-200 bg-emerald-50 p-3 text-sm leading-5 text-emerald-900">
                       모든 핵심 산출물이 승인되었습니다. 출시 판단과 배포 검증으로 넘어갈 수 있습니다.
                     </div>
                   )}
@@ -13463,7 +13463,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div>
                   <div className="avl-kicker">handoff</div>
                   <h3 className="mt-2 text-sm font-semibold text-slate-950">최근 개발 핸드오프</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                  <p className="mt-1 text-sm leading-5 text-slate-600">
                     필터 실행 프롬프트와 개발 런북 저장본을 먼저 보여줍니다. 최신본을 복사해 다음 구현 루프에 넘기세요.
                   </p>
                 </div>
@@ -13487,7 +13487,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => navigator.clipboard.writeText(artifact.body)}
-                      className="mt-3 inline-flex h-8 items-center justify-center gap-2 rounded-md bg-slate-950 px-2.5 text-xs font-semibold text-white transition hover:bg-slate-800"
+                      className="avl-btn avl-btn-secondary mt-3 px-2.5 text-xs"
                     >
                       <Clipboard size={14} />
                       핸드오프 복사
@@ -13520,7 +13520,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                             v{artifact.version ?? 1}
                           </span>
                           {artifact.source === "filtered_implementation_run" ? (
-                            <span className="rounded-md bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+                            <span className="avl-pill avl-pill-info">
                               필터 저장본
                             </span>
                           ) : null}
@@ -13531,26 +13531,26 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           {artifact.approved_at ? ` / 승인 ${new Date(artifact.approved_at).toLocaleDateString()}` : ""}
                         </div>
                         {artifact.status_note ? (
-                          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">게이트 메모: {artifact.status_note}</p>
+                          <p className="mt-2 max-w-3xl text-sm leading-5 text-slate-600">게이트 메모: {artifact.status_note}</p>
                         ) : null}
                         {versionSummary ? (
-                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                          <p className="mt-2 text-sm leading-5 text-slate-600">
                             {`v${versionSummary.previous.version ?? 1} 대비 변경: +${versionSummary.added} / -${versionSummary.removed}줄`}
                           </p>
                         ) : null}
                         {reviewSummary ? (
-                          <div className="mt-3 rounded-lg border border-slate-200 bg-white p-3">
+                          <div className="avl-surface-subtle mt-3 p-3">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className={artifactReviewIntensityTone[reviewSummary.intensity]}>
                                 리뷰 강도 {reviewSummary.intensityLabel}
                               </span>
-                              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                              <span className="avl-pill avl-pill-neutral">
                                 비교 {reviewSummary.previous ? `v${reviewSummary.previous.version ?? 1}` : "최초 버전"}
                               </span>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-slate-600">{reviewSummary.recommendation}</p>
+                            <p className="mt-2 text-sm leading-5 text-slate-600">{reviewSummary.recommendation}</p>
                             <div className="mt-3 grid gap-3 lg:grid-cols-2">
-                              <div className="rounded-md bg-slate-50 px-3 py-2">
+                              <div className="avl-surface-muted px-3 py-2">
                                 <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                                   섹션 변화
                                 </div>
@@ -13561,7 +13561,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                                   삭제: {reviewSummary.removedSections.slice(0, 4).join(", ") || "없음"}
                                 </p>
                               </div>
-                              <div className="rounded-md bg-slate-50 px-3 py-2">
+                              <div className="avl-surface-muted px-3 py-2">
                                 <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                                   승인 전 확인
                                 </div>
@@ -13579,7 +13579,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         <button
                           type="button"
                           onClick={() => navigator.clipboard.writeText(artifact.body)}
-                          className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100"
+                          className="avl-btn avl-btn-secondary px-3 text-xs"
                         >
                           <Clipboard size={14} />
                           복사
@@ -13588,7 +13588,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           <button
                             type="button"
                             onClick={() => copyDraft(buildArtifactReviewMemo(artifact, reviewSummary), "산출물 리뷰 메모")}
-                            className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100"
+                            className="avl-btn avl-btn-secondary px-3 text-xs"
                           >
                             <ClipboardList size={14} />
                             리뷰 메모
@@ -13620,7 +13620,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         rows={2}
                         disabled={isBusy || !canManageRecord(artifact)}
                         placeholder="승인 근거, 리뷰어 코멘트, 보관 사유"
-                        className="mt-2 w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm normal-case leading-6 tracking-normal text-slate-800 outline-none transition focus:border-slate-500 disabled:cursor-not-allowed disabled:bg-slate-100"
+                        className="avl-textarea mt-2 w-full resize-y text-sm normal-case leading-5 tracking-normal text-slate-800 disabled:bg-slate-100"
                       />
                     </label>
                   </div>
@@ -13634,7 +13634,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        {message ? <p className="text-sm leading-6 text-slate-600">{message}</p> : null}
+        {message ? <p className="text-sm leading-5 text-slate-600">{message}</p> : null}
       </div>
     </section>
   );
