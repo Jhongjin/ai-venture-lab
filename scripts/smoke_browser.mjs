@@ -63,9 +63,10 @@ async function main() {
   try {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
 
-    await waitForVisible(page.getByRole("heading", { name: /아이디어를.*끝까지 실행하는/i }), "homepage hero heading");
+    await waitForVisible(page.getByRole("heading", { name: /^AI Venture Lab$/ }), "homepage hero heading");
     await waitForVisible(page.getByRole("link", { name: /실행 보드 열기/ }), "workspace cta");
-    await waitForVisible(page.getByText(/원문에서 MVP 실행까지, 끊기지 않는 3단 구조/).first(), "homepage workflow section");
+    await waitForVisible(page.getByText(/한 줄 메모에서 MVP 실행까지, 한 흐름으로 갑니다/).first(), "homepage workflow section");
+    await waitForVisible(page.getByRole("link", { name: /사용 가이드/ }).first(), "guide link");
 
     await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });
 

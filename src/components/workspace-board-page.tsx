@@ -44,6 +44,9 @@ export async function WorkspaceBoardPage() {
                     <ArrowLeft size={14} />
                     홈
                   </Link>
+                  <Link href="/guide" className="avl-btn avl-btn-subtle h-8 px-3 text-xs">
+                    가이드
+                  </Link>
                   <span className="avl-btn avl-btn-secondary h-8 px-3 text-xs">
                     <LayoutGrid size={14} />
                     실행 보드
