@@ -677,7 +677,7 @@ export function VentureConsoleShell({
 
   return (
     <section className="grid gap-4 xl:grid-cols-[184px_minmax(0,1fr)]">
-      <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto rounded-[12px] border border-slate-200 bg-white p-3">
+      <aside className="avl-card-soft sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto p-3">
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -691,7 +691,7 @@ export function VentureConsoleShell({
               {source === "supabase" ? "연결됨" : "제한"}
             </div>
           </div>
-          <div className="mt-3 rounded-[10px] border border-slate-200 bg-slate-50 px-3 py-2.5">
+          <div className="avl-surface-muted mt-3 px-3 py-2.5">
             <div className="h-1.5 overflow-hidden rounded-full bg-white">
               <div
                 className="h-full rounded-full bg-slate-950 transition-all"
@@ -762,7 +762,7 @@ export function VentureConsoleShell({
         </div>
 
         {supportTasks.length > 0 ? (
-          <details className="mt-4 rounded-[10px] border border-slate-200 bg-white p-3">
+          <details className="avl-surface-subtle mt-4 p-3">
             <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               선택 기능
             </summary>
@@ -775,7 +775,7 @@ export function VentureConsoleShell({
                     key={task.id}
                     type="button"
                     onClick={() => goToTask(task.id)}
-                    className="grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2.5 rounded-[10px] border border-slate-200 bg-white px-3 py-2.5 text-left transition hover:bg-slate-100"
+                    className="avl-surface-subtle grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2.5 px-3 py-2.5 text-left transition hover:border-slate-300 hover:bg-slate-50"
                   >
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700">
                       <Icon size={13} />
@@ -793,7 +793,7 @@ export function VentureConsoleShell({
       </aside>
 
       <div className="min-w-0 space-y-4">
-        <section className="rounded-[12px] border border-slate-200 bg-white p-4">
+        <section className="avl-card-soft p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
               <span className="text-slate-500">{activeTaskConfig.group}</span>
@@ -807,7 +807,7 @@ export function VentureConsoleShell({
                 type="button"
                 onClick={() => previousTask && goToTask(previousTask.id)}
                 disabled={!previousTask}
-                className="avl-btn avl-btn-secondary rounded-xl px-4"
+                className="avl-btn avl-btn-secondary px-4"
               >
                 이전
               </button>
@@ -815,7 +815,7 @@ export function VentureConsoleShell({
                 <button
                   type="button"
                   onClick={() => goToTask(primaryNextTask.id)}
-                    className="avl-btn avl-btn-primary rounded-xl px-4"
+                    className="avl-btn avl-btn-primary px-4"
                 >
                   {primaryNextTask.cta}
                   <ArrowRight size={16} />
@@ -873,7 +873,7 @@ export function VentureConsoleShell({
                     <button
                       type="button"
                       onClick={() => goToTask(primaryNextTask.id)}
-                      className="avl-btn avl-btn-primary mt-4 w-full rounded-md px-4"
+                      className="avl-btn avl-btn-primary mt-4 w-full px-4"
                     >
                       {primaryNextTask.cta}
                       <ArrowRight size={16} />
@@ -946,7 +946,7 @@ export function VentureConsoleShell({
             </summary>
             <div className="mt-4 grid gap-2">
               {lockedTasks.slice(0, 3).map((task) => (
-                <div key={task.id} className="flex items-center gap-3 rounded-[14px] border border-slate-200 bg-white px-3 py-3">
+                <div key={task.id} className="avl-surface-subtle flex items-center gap-3 px-3 py-3">
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-600">
                     {getTaskOrderLabel(task)}
                   </span>

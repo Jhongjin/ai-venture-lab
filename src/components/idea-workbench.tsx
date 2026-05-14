@@ -11219,9 +11219,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   {selectedOpenImplementationTasks.slice(0, 5).map((task, index) => (
                     <div key={task.id} className="avl-surface-muted p-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-semibold text-slate-700">
-                          {index + 1}
-                        </span>
+                          <span className="avl-pill avl-pill-neutral inline-flex h-6 w-6 items-center justify-center px-0 text-xs">
+                            {index + 1}
+                          </span>
                         <span className="text-sm font-semibold text-slate-950">{task.title}</span>
                         <span className={implementationTaskStatusTone[task.status]}>
                           {implementationTaskStatusLabels[task.status]}
