@@ -194,25 +194,25 @@ const extractionGateStyles: Record<
   }
 > = {
   proceed: {
-    badge: "bg-emerald-50 text-emerald-800",
+    badge: "avl-pill avl-pill-success",
     panel: "border-emerald-200 bg-emerald-50",
     title: "text-emerald-950",
     score: "bg-emerald-950 text-white",
   },
   research: {
-    badge: "bg-blue-50 text-blue-700",
+    badge: "avl-pill avl-pill-info",
     panel: "border-blue-200 bg-blue-50",
     title: "text-blue-950",
     score: "bg-blue-950 text-white",
   },
   pivot: {
-    badge: "bg-amber-50 text-amber-800",
+    badge: "avl-pill avl-pill-warning",
     panel: "border-amber-200 bg-amber-50",
     title: "text-amber-950",
     score: "bg-amber-950 text-white",
   },
   kill: {
-    badge: "bg-rose-50 text-rose-700",
+    badge: "avl-pill avl-pill-danger",
     panel: "border-rose-200 bg-rose-50",
     title: "text-rose-950",
     score: "bg-rose-950 text-white",
@@ -3132,7 +3132,7 @@ export function VentureConsoleActions({
                     onChange={(event) => setRawIdeaSource(event.target.value)}
                     rows={14}
                     placeholder="예) 아이디어:, 페인 포인트:, 솔루션:, 타깃, 수익화, 다음 검증 질문..."
-                    className="min-h-[320px] resize-y rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                    className="avl-textarea min-h-[320px] leading-7"
                   />
                   <div className="flex flex-wrap gap-2">
                 <button
@@ -3168,7 +3168,7 @@ export function VentureConsoleActions({
                     </button>
                   </div>
                   {extractMessage ? (
-                    <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">
+                    <div className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-700">
                       {extractMessage}
                     </div>
                   ) : null}
@@ -3182,7 +3182,7 @@ export function VentureConsoleActions({
 
                 <div className="grid gap-3">
                   {extractedIdeas.length > 0 && recommendedExtractedIdea ? (
-                    <section className="rounded-[12px] border border-slate-200 bg-slate-50 p-4">
+                    <section className="avl-surface-muted p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">추천 후보</div>
@@ -3190,7 +3190,7 @@ export function VentureConsoleActions({
                           <p className="mt-1 text-sm leading-6 text-slate-600">지금 바로 접수 후보로 넘길 1개를 먼저 보여줍니다.</p>
                         </div>
                         {recommendedExtractionGate && recommendedGateStyle ? (
-                          <span className={`rounded-md px-3 py-1 text-xs font-semibold ${recommendedGateStyle.badge}`}>
+                          <span className={`${recommendedGateStyle.badge}`}>
                             {recommendedExtractionGate.label}
                           </span>
                         ) : null}
@@ -3207,7 +3207,7 @@ export function VentureConsoleActions({
                           준비 {recommendedPortfolioItem?.readinessScore ?? 0}%
                         </span>
                       </div>
-                      <div className="mt-4 rounded-[12px] border border-slate-200 bg-white px-4 py-4">
+                      <div className="avl-surface-subtle mt-4 px-4 py-4">
                         <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">왜 이 후보인가</div>
                         <p className="mt-2 text-sm leading-6 text-slate-700">
                           {recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
@@ -3238,7 +3238,7 @@ export function VentureConsoleActions({
                       </div>
                     </section>
                   ) : (
-                    <section className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 p-4">
+                    <section className="avl-surface-muted border-dashed p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음 출력</div>
                       <h3 className="mt-2 text-base font-semibold text-slate-950">추천 후보가 이 영역에 나타납니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
@@ -3289,10 +3289,10 @@ export function VentureConsoleActions({
                       </button>
                     </div>
                   </div>
-                  <details className="rounded-[12px] border border-slate-200 bg-slate-50 p-4">
+                  <details className="avl-surface-muted p-4">
                     <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">비교 결과 보기</summary>
                     {extractionReplay ? (
-                      <div className="mt-3 rounded-[12px] border border-slate-200 bg-white p-4">
+                      <div className="avl-surface-subtle mt-3 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
                             <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">비교 결과</div>
@@ -3338,10 +3338,7 @@ export function VentureConsoleActions({
                         ["pivot", "전환 검토"],
                         ["kill", "중단 후보"],
                       ] as Array<[ExtractionGateId, string]>).map(([gateId, label]) => (
-                        <span
-                          key={gateId}
-                          className="avl-pill px-3 py-1 text-xs"
-                        >
+                        <span key={gateId} className="avl-pill avl-pill-neutral">
                           {label} {extractionGateCounts[gateId]}
                         </span>
                       ))}
@@ -3394,13 +3391,13 @@ export function VentureConsoleActions({
                         </div>
                       ))
                     ) : (
-                      <div className="rounded-[12px] border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                      <div className="avl-surface-muted border-dashed p-4 text-sm leading-6 text-slate-600">
                         추천 후보 외에 지금 바로 비교할 후보가 많지 않습니다. 현재 추천 1개를 먼저 접수하는 쪽이 더 자연스럽습니다.
                       </div>
                     )}
                   </div>
 
-                  <details className="mt-4 rounded-[12px] border border-slate-200 bg-slate-50 p-4">
+                  <details className="avl-surface-muted mt-4 p-4">
                     <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">운영자 작업</summary>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <button
@@ -3462,7 +3459,7 @@ export function VentureConsoleActions({
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <h3 className="text-base font-semibold text-slate-950">{candidate.name}</h3>
-                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-blue-700 shadow-sm">
+                            <span className="avl-pill avl-pill-info">
                               검증 {candidate.validationScore}/100
                             </span>
                             <span
@@ -3476,16 +3473,16 @@ export function VentureConsoleActions({
                             >
                               리스크 {candidate.riskLevel}
                             </span>
-                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                            <span className="avl-pill avl-pill-neutral">
                               신뢰 {candidate.confidence}%
                             </span>
-                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
+                            <span className="avl-pill avl-pill-success">
                               패키지 {passedReadinessCount}/{readinessChecks.length}
                             </span>
-                            <span className="rounded-md bg-white px-2 py-1 text-xs font-semibold text-indigo-700 shadow-sm">
+                            <span className="avl-pill avl-pill-brand">
                               사업/개발 {strategyScore}%
                             </span>
-                            <span className={`rounded-md px-2 py-1 text-xs font-semibold shadow-sm ${gateStyle.badge}`}>
+                            <span className={`${gateStyle.badge}`}>
                               {extractionGate.label}
                             </span>
                           </div>

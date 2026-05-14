@@ -829,7 +829,7 @@ export function VentureConsoleShell({
                 <div className="min-w-0 px-1 py-1">
                 <div className="min-w-0">
                   <div className="flex items-start gap-3">
-                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700">
+                    <span className="avl-surface-muted inline-flex h-10 w-10 shrink-0 items-center justify-center text-slate-700">
                       <ActiveIcon size={18} />
                     </span>
                     <div className="min-w-0">
@@ -857,7 +857,7 @@ export function VentureConsoleShell({
                 </div>
               </div>
 
-              <div className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+              <div className="avl-surface-muted px-4 py-4">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">지금 할 일</div>
                   <ol className="mt-2 grid gap-2">
                     {activeGuidance.checklist.slice(0, 3).map((item, index) => (
@@ -900,7 +900,7 @@ export function VentureConsoleShell({
               </div>
 
             {currentStepBlocker ? (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+              <div className="avl-surface-muted border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
                 {currentStepBlocker}
               </div>
             ) : null}
@@ -939,7 +939,7 @@ export function VentureConsoleShell({
         </section>
 
         {lockedTasks.length > 0 ? (
-          <details className="rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4">
+          <details className="avl-surface-muted px-4 py-4">
             <summary className="flex cursor-pointer list-none items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
               <LockKeyhole size={13} />
               뒤 단계 미리보기
