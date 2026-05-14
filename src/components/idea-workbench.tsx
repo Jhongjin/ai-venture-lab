@@ -12982,7 +12982,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </form>
         </div>
 
-        <div className={activeTask === "artifacts" ? "rounded-[12px] border border-slate-200 bg-white p-4" : "hidden"}>
+        <div className={activeTask === "artifacts" ? "avl-card p-4" : "hidden"}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">기획서 만들기</h2>
@@ -13056,7 +13056,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         />
 
         <div
-          className={`rounded-[12px] border border-slate-200 bg-white p-5 ${
+          className={`avl-card p-4 ${
             activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
           }`}
         >
@@ -13070,7 +13070,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <button
               type="button"
               onClick={() => copyDraft(evidenceNoteDraft, "근거 기록")}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              className="avl-btn avl-btn-secondary px-4"
             >
               <Clipboard size={18} />
               미리보기 복사
@@ -13115,7 +13115,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <button
                 type="submit"
                 disabled={isBusy || !user}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
               >
                 <Save size={18} />
                 근거 저장
@@ -13145,7 +13145,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         />
 
         <div
-          className={`rounded-[12px] border border-slate-200 bg-white p-6 text-slate-900 ${
+          className={`avl-card p-5 text-slate-900 ${
             activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"
           }`}
         >
@@ -13157,7 +13157,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 검증 근거가 제품 요구사항으로 넘어갈 만큼 정리되었는지 먼저 확인합니다.
               </p>
               <div
-                className={`mt-4 rounded-md border px-4 py-3 text-sm leading-6 ${
+                className={`avl-surface-subtle mt-4 px-4 py-3 text-sm leading-5 ${
                   nextPrdBlocker ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"
                 }`}
               >
@@ -13174,8 +13174,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 )}
               </div>
             </div>
-            <div className="rounded-xl bg-slate-950 px-5 py-4 text-right text-white">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
+            <div className="avl-surface-muted px-5 py-4 text-right text-slate-950">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                 통과 {passedPrdReadinessCount}/{prdReadinessChecks.length}
               </div>
               <div className="mt-1 text-3xl font-semibold">{prdReadinessScore}%</div>
@@ -13204,7 +13204,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               type="button"
               onClick={() => copyDraft(prdHandoffDraft, "PRD 전환 핸드오프")}
               disabled={!prdHandoffDraft}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
             >
               <Clipboard size={16} />
               핸드오프 복사
@@ -13220,7 +13220,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 )
               }
               disabled={isBusy || !user || !prdHandoffDraft}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
             >
               <Save size={16} />
               핸드오프 저장
@@ -13228,28 +13228,28 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <button
               type="button"
               onClick={() => setArtifactPanel("validation")}
-              className="inline-flex h-10 items-center justify-center rounded-xl bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="avl-btn avl-btn-primary px-3"
             >
               검증 산출물 보강
             </button>
             <button
               type="button"
               onClick={() => updateActiveTask("experiment")}
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              className="avl-btn avl-btn-secondary px-3"
             >
               실험 확인
             </button>
             <button
               type="button"
               onClick={() => updateActiveTask("risk")}
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              className="avl-btn avl-btn-secondary px-3"
             >
               리스크 확인
             </button>
             <button
               type="button"
               onClick={() => updateActiveTask("decision")}
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              className="avl-btn avl-btn-secondary px-3"
             >
               판단 기록
             </button>
