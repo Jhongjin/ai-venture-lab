@@ -11982,32 +11982,32 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-1 text-2xl font-semibold">{launchReadinessScore}%</div>
             </div>
           </div>
-          <div
-            className={`mb-4 border-l-4 pl-4 ${
-              nextLaunchBlocker ? "border-amber-300" : "border-emerald-300"
-            }`}
-          >
-            <div className="text-sm font-semibold text-slate-950">
-              {nextLaunchBlocker ? `다음 해소 항목: ${nextLaunchBlocker.label}` : "현재 출시 게이트가 모두 통과 상태입니다."}
+            <div
+              className={`mb-4 border-l-4 pl-4 ${
+                nextLaunchBlocker ? "border-amber-300" : "border-emerald-300"
+              }`}
+            >
+              <div className="text-sm font-semibold text-slate-950">
+                {nextLaunchBlocker ? `다음 해소 항목: ${nextLaunchBlocker.label}` : "현재 출시 게이트가 모두 통과 상태입니다."}
+              </div>
+              <div className="mt-1 text-sm leading-5 text-slate-600">
+                {nextLaunchBlocker ? nextLaunchBlocker.detail : "출시 전 최종 판단을 기록하세요."}
+              </div>
             </div>
-            <div className="mt-1 text-sm leading-6 text-slate-600">
-              {nextLaunchBlocker ? nextLaunchBlocker.detail : "출시 전 최종 판단을 기록하세요."}
-            </div>
-          </div>
           {releaseDecisionPacket ? (
             <div className="avl-surface-muted mb-5 p-4 text-slate-900">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">go / no-go</div>
                   <h3 className="mt-2 text-base font-semibold text-slate-950">출시 판단 패킷</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">{releaseDecisionPacket.headline}</p>
+                  <p className="mt-1 text-sm leading-5 text-slate-600">{releaseDecisionPacket.headline}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={() => copyDraft(releaseDecisionPacketDraft, "출시 판단 패킷")}
                     disabled={!releaseDecisionPacketDraft}
-                    className="avl-btn avl-btn-secondary h-10 rounded-xl px-3 disabled:opacity-50"
+                    className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
                   >
                     <Clipboard size={16} />
                     패킷 복사
@@ -12023,7 +12023,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       )
                     }
                     disabled={isBusy || !user || !releaseDecisionPacketDraft}
-                    className="avl-btn avl-btn-secondary h-10 rounded-xl px-3 disabled:opacity-50"
+                    className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
                   >
                     <Save size={16} />
                     패킷 저장
@@ -12492,8 +12492,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="avl-surface-subtle p-4">
               <div className="mb-3">
                 <h3 className="text-base font-semibold text-slate-950">학습 리포트 초안</h3>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  운영 이벤트를 제품 판단 언어로 바꿔 다음 빌드 범위에 넘깁니다.
+                <p className="mt-1 text-sm leading-5 text-slate-500">
+                  운영 이벤트를 다음 빌드 판단 언어로 바꿉니다.
                 </p>
               </div>
               <textarea
@@ -12788,18 +12788,18 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     {decisionLabels[editState.decision]} 기록
                   </button>
                 </div>
-                <div className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-600">
-                  판단은 길게 쓰지 않아도 됩니다. 왜 지금 진행 또는 보류인지 한 문단으로 남기면 이후 문서와 출시 판단이 정리됩니다.
+                <div className="avl-surface-muted px-4 py-3 text-sm leading-5 text-slate-600">
+                  왜 지금 진행 또는 보류인지 한 문단이면 충분합니다.
                 </div>
               </div>
             </section>
 
-            <section className="rounded-[12px] border border-slate-200 bg-white p-5">
+            <section className="avl-card-soft p-4">
               <div className="avl-surface-muted mb-4 px-4 py-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">현재 판단</div>
                 <div className="mt-2 text-xl font-semibold text-slate-950">{decisionLabels[editState.decision]}</div>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  지금까지 입력한 점수와 위험을 바탕으로 남길 판단입니다. 문장 하나면 충분합니다.
+                <p className="mt-2 text-sm leading-5 text-slate-600">
+                  점수와 위험을 보고 남길 판단입니다. 문장 하나면 충분합니다.
                 </p>
               </div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">history</div>
@@ -12820,14 +12820,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
         </div>
 
-        <div className={`grid gap-5 ${activeTask === "experiment" ? "" : "hidden"}`}>
-          <div className="grid gap-5">
-            <section className="rounded-[12px] border border-slate-200 bg-white p-5">
+        <div className={`grid gap-4 ${activeTask === "experiment" ? "" : "hidden"}`}>
+          <div className="grid gap-4">
+            <section className="avl-card-soft p-4">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
                   <div className="avl-kicker">experiment plan</div>
                   <h2 className="mt-2 text-xl font-semibold text-slate-950">검증 실험</h2>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">다음에 수행할 가장 작은 실험 하나와 성공 기준 하나만 정합니다.</p>
+                  <p className="mt-1 text-sm leading-5 text-slate-600">가장 작은 실험 하나와 성공 기준 하나만 정합니다.</p>
                 </div>
                 <Beaker className="text-sky-600" size={22} />
               </div>
@@ -12845,7 +12845,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <button
                   type="submit"
                   disabled={isBusy || !user}
-                    className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
+                    className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                 >
                   <Beaker size={18} />
                   실험 추가
@@ -12891,24 +12891,24 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </section>
           </div>
 
-          <div className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-600">
-            실험 이름 하나와 성공 지표 하나면 충분합니다. 완벽한 계획보다 당장 실행 가능한 첫 행동을 남기는 데 집중하면 됩니다.
+          <div className="avl-surface-muted px-4 py-3 text-sm leading-5 text-slate-600">
+            실험 이름 하나와 성공 지표 하나면 충분합니다. 완벽한 계획보다 첫 행동이 더 중요합니다.
           </div>
 
-          <form onSubmit={saveExperimentResultNote} className="rounded-[12px] border border-slate-200 bg-white p-5">
+          <form onSubmit={saveExperimentResultNote} className="avl-card-soft p-4">
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="avl-kicker">result note</div>
                 <h3 className="mt-2 text-lg font-semibold text-slate-950">실험 결과 기록</h3>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  완료한 실험의 결과와 배운 점을 남겨 다음 판단으로 이어갑니다.
+                <p className="mt-1 text-sm leading-5 text-slate-600">
+                  실험 결과와 배운 점만 남겨 다음 판단으로 넘깁니다.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => copyDraft(experimentResultNoteDraft, "실험 결과")}
                 disabled={!experimentResultNoteDraft}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
               >
                 <Clipboard size={16} />
                 결과 복사
