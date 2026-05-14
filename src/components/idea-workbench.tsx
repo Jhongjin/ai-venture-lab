@@ -11712,16 +11712,17 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
           <div className={visibleDevelopmentPanel === "handoff" ? "" : "hidden"}>
-          <div className="avl-surface-muted mt-5 border-emerald-200 bg-emerald-50 p-4">
+          <div className="avl-card mt-5 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h3 className="text-base font-semibold text-emerald-950">개발 완료 게이트</h3>
-                <p className="mt-1 text-sm leading-6 text-emerald-900">
+                <div className="avl-kicker">completion gate</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">개발 완료 게이트</h3>
+                <p className="mt-1 text-sm leading-5 text-slate-600">
                   구현 태스크, 완료 증거, QA/보안 단계를 기준으로 개발 완료 보고서를 만듭니다.
                 </p>
               </div>
-              <div className="rounded-lg bg-slate-950 px-4 py-3 text-right text-white">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">
+              <div className="avl-surface-subtle px-4 py-3 text-right text-slate-950">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                   통과 {passedImplementationGateCount}/{implementationGateChecks.length}
                 </div>
                 <div className="mt-1 text-2xl font-semibold">{implementationGateScore}%</div>
@@ -11730,7 +11731,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
               {implementationGateChecks.map((check) => (
-                <div key={check.label} className="avl-surface-subtle border-emerald-200 p-3">
+                <div key={check.label} className="avl-surface-subtle p-3">
                   <div className="flex items-start gap-2">
                     <CheckCircle2
                       size={18}
@@ -11738,10 +11739,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     />
                     <div>
                       <div className="text-sm font-semibold text-slate-950">{check.label}</div>
-                      <p className="mt-1 text-sm leading-6 text-slate-600">{check.detail}</p>
+                        <p className="mt-1 text-sm leading-5 text-slate-600">{check.detail}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
               ))}
             </div>
 
@@ -11773,15 +11774,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           </div>
 
-          {experienceMode === "guided" ? (
-              <div className="avl-surface-muted mt-4 border-blue-200 bg-blue-50 p-4">
-              <div className="text-sm font-semibold text-blue-950">개발 전달 패키지는 AI가 이미 준비했습니다.</div>
-              <p className="mt-2 text-sm leading-6 text-blue-900">
-                지금은 개발 완료 보고서만 저장하고 출시 판단으로 넘어가면 됩니다. Codex 핸드오프, 빌드 명령, QA 매트릭스,
-                역할별 프롬프트는 전체 보기에서만 확인하세요.
-              </p>
-            </div>
-          ) : (
+            {experienceMode === "guided" ? (
+              <div className="avl-surface-muted mt-4 p-4">
+                <div className="avl-pill avl-pill-info">AI가 준비한 실행 패키지</div>
+                <p className="mt-3 text-sm leading-5 text-slate-600">
+                  지금은 개발 완료 보고서만 저장하고 출시 판단으로 넘어가면 됩니다. Codex 핸드오프, 빌드 명령, QA 매트릭스,
+                  역할별 프롬프트는 전체 보기에서만 확인하세요.
+                </p>
+              </div>
+            ) : (
             <>
               <textarea
                 value={developmentPlanDraft}
@@ -11791,14 +11792,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               />
               {copyMessage ? <p className="mt-3 text-sm text-slate-600">{copyMessage}</p> : null}
 
-              <div className="avl-surface-muted mt-5 border-blue-200 bg-blue-50 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <h3 className="text-base font-semibold text-blue-950">Codex 구현 핸드오프</h3>
-                    <p className="mt-1 text-sm leading-6 text-blue-900">
-                      검증된 아이디어를 실제 앱 개발 작업으로 넘길 때 쓰는 구현 프롬프트입니다.
-                    </p>
-                  </div>
+                <div className="avl-card mt-5 p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="avl-kicker">implementation handoff</div>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">Codex 구현 핸드오프</h3>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">
+                        검증된 아이디어를 실제 앱 개발 작업으로 넘길 때 쓰는 구현 프롬프트입니다.
+                      </p>
+                    </div>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
@@ -11834,14 +11836,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 />
               </div>
 
-              <div className="avl-surface-muted mt-5 border-cyan-200 bg-cyan-50 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <h3 className="text-base font-semibold text-cyan-950">MVP 빌드 명령 패킷</h3>
-                    <p className="mt-1 text-sm leading-6 text-cyan-900">
-                      승인 산출물, 개발 실행 순서, 출시 판단을 합쳐 실제 구현 세션의 첫 메시지로 넘기는 명령서입니다.
-                    </p>
-                  </div>
+                <div className="avl-card mt-5 p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="avl-kicker">build packet</div>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">MVP 빌드 명령 패킷</h3>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">
+                        승인 산출물, 개발 실행 순서, 출시 판단을 합쳐 실제 구현 세션의 첫 메시지로 넘기는 명령서입니다.
+                      </p>
+                    </div>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
@@ -11878,14 +11881,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 />
               </div>
 
-              <div className="avl-surface-muted mt-5 border-amber-200 bg-amber-50 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <h3 className="text-base font-semibold text-amber-950">QA 검수 매트릭스</h3>
-                    <p className="mt-1 text-sm leading-6 text-amber-900">
-                      구현 완료 직후 확인할 핵심 여정, 권한, 보안, 디버깅, 배포 스모크를 한 번에 정리합니다.
-                    </p>
-                  </div>
+                <div className="avl-card mt-5 p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="avl-kicker">qa matrix</div>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">QA 검수 매트릭스</h3>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">
+                        구현 완료 직후 확인할 핵심 여정, 권한, 보안, 디버깅, 배포 스모크를 한 번에 정리합니다.
+                      </p>
+                    </div>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
@@ -11922,14 +11926,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 />
               </div>
 
-              <div className="avl-surface-muted mt-5 p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <h3 className="text-base font-semibold text-slate-950">역할별 프롬프트 팩</h3>
-                    <p className="mt-1 text-sm leading-6 text-violet-900">
-                      전략, 리서치, 제품, 디자인, 개발, QA, 디버깅, 보안, 출시 역할에 같은 문맥을 나눠주는 실행 지시서입니다.
-                    </p>
-                  </div>
+                <div className="avl-surface-muted mt-5 p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="avl-kicker">role prompt pack</div>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">역할별 프롬프트 팩</h3>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">
+                        전략, 리서치, 제품, 디자인, 개발, QA, 디버깅, 보안, 출시 역할에 같은 문맥을 나눠주는 실행 지시서입니다.
+                      </p>
+                    </div>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
