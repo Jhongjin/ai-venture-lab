@@ -10012,7 +10012,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           <button
                             type="button"
                             onClick={() => updateActiveTask("score")}
-                            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                            className="avl-btn avl-btn-primary h-11 rounded-xl px-4"
                           >
                             사업성 평가 시작
                           </button>
@@ -10021,7 +10021,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                               type="button"
                               onClick={() => void deleteIdeaRecord(selectedIdea)}
                               disabled={isBusy}
-                              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="avl-btn avl-btn-danger h-11 rounded-xl px-4 disabled:opacity-50"
                             >
                               <Trash2 size={16} />
                               삭제
@@ -10128,7 +10128,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() => void deleteIdeaRecord(selectedIdea)}
                       disabled={isBusy}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-danger h-11 rounded-xl px-4 disabled:opacity-50"
                     >
                       <Trash2 size={18} />
                       삭제
@@ -10137,7 +10137,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <button
                     type="submit"
                     disabled={isBusy || !canEdit}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
                   >
                     {isBusy ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
                     점수 저장
@@ -10407,7 +10407,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={() => copyDraft(validationEvidenceCoach.prompt, "검증 증거 수집 프롬프트")}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 transition hover:bg-slate-50"
+                      className="avl-btn avl-btn-secondary h-9 rounded-xl px-3 text-xs"
                     >
                       <Clipboard size={15} />
                       프롬프트 복사
@@ -10415,7 +10415,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <button
                       type="button"
                       onClick={loadEvidenceCoachPrompt}
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-slate-950 px-3 text-xs font-semibold text-white transition hover:bg-slate-800"
+                      className="avl-btn avl-btn-primary h-9 rounded-xl px-3 text-xs"
                     >
                       <Save size={15} />
                       근거 폼 채우기
@@ -10479,7 +10479,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={runAiExecutionAutopilot}
                       disabled={isBusy || !user}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
                     >
                       <Layers3 size={18} />
                       AI 실행 패키지 만들기
@@ -10493,7 +10493,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           : copyDraft(implementationBacklogDraft, "열린 개발 백로그")
                       }
                       disabled={Boolean(nextImplementationTask) ? !implementationTaskTicketDraft : !implementationBacklogDraft}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
                     >
                       <ClipboardList size={18} />
                       {nextImplementationTask ? "다음 실행 티켓 복사" : "열린 실행 요약 복사"}
@@ -10510,7 +10510,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         )
                       }
                       disabled={isBusy || !user || !developmentCompletionReportDraft}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
                     >
                       <Save size={18} />
                       개발 완료 보고서 저장
@@ -10608,7 +10608,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   type="button"
                   onClick={() => copyDraft(designGenerationPromptDraft, "디자인 생성 프롬프트")}
                   disabled={!designGenerationPromptDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-950 px-3 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-primary h-10 rounded-md px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
                   프롬프트 복사
@@ -10624,7 +10624,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     )
                   }
                   disabled={isBusy || !user || !designGenerationPromptDraft}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-3 text-sm font-semibold text-blue-900 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-secondary h-10 rounded-md px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
                   프롬프트 저장
@@ -10644,7 +10644,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               type="button"
               onClick={createRunbook}
               disabled={isBusy || !user}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />
               개발 런북 만들기
@@ -10652,7 +10652,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <button
               type="button"
               onClick={copyDevelopmentPlanDraft}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+              className="avl-btn avl-btn-secondary h-11 rounded-md px-4"
             >
               <Clipboard size={18} />
               계획 복사
@@ -10668,7 +10668,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 )
               }
               disabled={isBusy || !user}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="avl-btn avl-btn-secondary h-11 rounded-md px-4 disabled:opacity-50"
             >
               <Save size={18} />
               개발 런북 저장
@@ -10677,7 +10677,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               type="button"
               onClick={saveDevelopmentPackageDrafts}
               disabled={isBusy || !user}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="avl-btn avl-btn-accent h-11 rounded-md px-4 disabled:opacity-50"
             >
               <ClipboardList size={18} />
               개발 패키지 저장
@@ -13785,7 +13785,7 @@ function DraftDocumentCard({
           <button
             type="button"
             onClick={onCopy}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+            className="avl-btn avl-btn-secondary h-11 rounded-xl px-4"
           >
             <Clipboard size={18} />
             {copyLabel}
@@ -13795,7 +13795,7 @@ function DraftDocumentCard({
               type="button"
               onClick={onSave}
               disabled={saveDisabled}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="avl-btn avl-btn-primary h-11 rounded-xl px-4"
             >
               <Save size={18} />
               {saveLabel}
@@ -13807,7 +13807,7 @@ function DraftDocumentCard({
         value={body}
         readOnly
         rows={rows}
-        className="mt-4 w-full resize-y rounded-[18px] border border-slate-200 bg-white px-3 py-2 font-mono text-sm leading-6 text-slate-700 outline-none"
+        className="avl-textarea mt-4 rounded-[14px] font-mono text-sm leading-6 text-slate-700"
       />
     </section>
   );
@@ -13828,7 +13828,7 @@ function InputField({
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        className="avl-input"
       />
     </label>
   );
@@ -13853,7 +13853,7 @@ function TextArea({
         disabled={disabled}
         rows={4}
         onChange={(event) => onChange(event.target.value)}
-        className="min-h-28 resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-normal leading-6 text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-500"
+        className="avl-textarea min-h-28"
       />
     </label>
   );
@@ -13881,7 +13881,7 @@ function SelectField<T extends string>({
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value as T)}
-        className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-500"
+        className="avl-select"
       >
         {options.map((option) => (
           <option key={option} value={option}>

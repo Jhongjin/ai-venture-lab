@@ -807,7 +807,7 @@ export function VentureConsoleShell({
                 type="button"
                 onClick={() => previousTask && goToTask(previousTask.id)}
                 disabled={!previousTask}
-                className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+                className="avl-btn avl-btn-secondary rounded-xl px-4"
               >
                 이전
               </button>
@@ -815,7 +815,7 @@ export function VentureConsoleShell({
                 <button
                   type="button"
                   onClick={() => goToTask(primaryNextTask.id)}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    className="avl-btn avl-btn-primary rounded-xl px-4"
                 >
                   {primaryNextTask.cta}
                   <ArrowRight size={16} />
@@ -873,7 +873,7 @@ export function VentureConsoleShell({
                     <button
                       type="button"
                       onClick={() => goToTask(primaryNextTask.id)}
-                      className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
+                      className="avl-btn avl-btn-primary mt-4 w-full rounded-md px-4"
                     >
                       {primaryNextTask.cta}
                       <ArrowRight size={16} />
@@ -888,7 +888,7 @@ export function VentureConsoleShell({
                           key={option.id}
                           type="button"
                           onClick={() => goToTask(option.id)}
-                          className="inline-flex h-8 items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                          className="avl-btn avl-btn-subtle h-8 rounded-md px-3 text-xs"
                         >
                           {option.cta}
                         </button>

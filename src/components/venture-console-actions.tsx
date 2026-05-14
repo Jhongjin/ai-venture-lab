@@ -2805,7 +2805,7 @@ export function VentureConsoleActions({
               type="button"
               onClick={handleSignOut}
               disabled={isAuthBusy}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-60"
             >
               <LogOut size={18} />
               로그아웃
@@ -2831,7 +2831,7 @@ export function VentureConsoleActions({
                 onChange={(event) => setEmail(event.target.value)}
                 type="email"
                 placeholder="you@example.com"
-                className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="avl-input"
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -2841,13 +2841,13 @@ export function VentureConsoleActions({
                 onChange={(event) => setPassword(event.target.value)}
                 type="password"
                 placeholder="관리자가 발급한 계정 비밀번호"
-                className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="avl-input"
               />
             </label>
             <button
               type="submit"
               disabled={isAuthBusy}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-60"
             >
               {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
               비밀번호로 로그인
@@ -2864,7 +2864,7 @@ export function VentureConsoleActions({
                   type="button"
                   onClick={handleEmailLinkSignIn}
                   disabled={isAuthBusy}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-blue-200 bg-white px-4 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="avl-btn avl-btn-secondary h-11 rounded-md px-4 disabled:opacity-60"
                 >
                   {isAuthBusy ? <RefreshCw className="animate-spin" size={18} /> : <LogIn size={18} />}
                   이메일 로그인 링크 받기
@@ -2903,7 +2903,7 @@ export function VentureConsoleActions({
                   onChange={(event) => {
                     void handleSelectWorkspace(event.target.value);
                   }}
-                  className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="avl-select"
                 >
                   {organizations.map((organization) => (
                     <option key={organization.id} value={organization.id}>
@@ -2939,7 +2939,7 @@ export function VentureConsoleActions({
                     type="button"
                     onClick={handleAttachPersonalRecords}
                     disabled={isWorkspaceBusy}
-                    className="mt-3 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-amber-900 px-4 text-sm font-semibold text-white transition hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="avl-btn avl-btn-primary mt-3 h-10 rounded-md px-4 disabled:opacity-60"
                   >
                     {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
                     개인 기록 연결
@@ -2982,7 +2982,7 @@ export function VentureConsoleActions({
                                   isLastOwner ||
                                   memberActionKey === actionKey
                                 }
-                                className="inline-flex h-8 items-center justify-center rounded-md bg-white px-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                                 className="avl-btn avl-btn-secondary h-8 rounded-md px-2.5 text-xs shadow-none disabled:opacity-45"
                               >
                                 {memberActionKey === actionKey ? "..." : organizationRoleLabels[role]}
                               </button>
@@ -2998,7 +2998,7 @@ export function VentureConsoleActions({
                               (member.role === "owner" && ownerCount <= 1) ||
                               memberActionKey === `${member.user_id}:remove`
                             }
-                            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md bg-white px-2.5 text-xs font-semibold text-rose-700 shadow-sm transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-45"
+                            className="avl-btn avl-btn-danger h-8 rounded-md px-2.5 text-xs shadow-none disabled:opacity-45"
                           >
                             <Trash2 size={13} />
                             {memberActionKey === `${member.user_id}:remove` ? "..." : "제거"}
@@ -3018,13 +3018,13 @@ export function VentureConsoleActions({
                     type="email"
                     placeholder="member@example.com"
                     disabled={!canManageMembers}
-                    className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-500"
+                    className="avl-input"
                   />
                   <select
                     value={memberRole}
                     onChange={(event) => setMemberRole(event.target.value as AddableOrganizationRole)}
                     disabled={!canManageMembers}
-                    className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm font-normal text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100 disabled:text-slate-500"
+                    className="avl-select"
                   >
                     {memberRoles.map((role) => (
                       <option key={role} value={role}>
@@ -3036,7 +3036,7 @@ export function VentureConsoleActions({
                 <button
                   type="submit"
                   disabled={isMemberBusy || !canManageMembers}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="avl-btn avl-btn-primary h-10 rounded-md px-4 disabled:opacity-60"
                 >
                   {isMemberBusy ? <RefreshCw className="animate-spin" size={18} /> : <Users size={18} />}
                   멤버 추가
@@ -3074,7 +3074,7 @@ export function VentureConsoleActions({
                 type="button"
                 onClick={handleCreateWorkspace}
                 disabled={isWorkspaceBusy}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                className="avl-btn avl-btn-primary h-11 rounded-md px-4 disabled:opacity-60"
               >
                 {isWorkspaceBusy ? <RefreshCw className="animate-spin" size={18} /> : <Building2 size={18} />}
                 워크스페이스 만들기
@@ -3135,15 +3135,15 @@ export function VentureConsoleActions({
                     className="min-h-[320px] resize-y rounded-[12px] border border-slate-200 bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
                   />
                   <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setRawIdeaSource(sampleIdeaSource)}
-                      className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                    >
-                      샘플 넣기
-                    </button>
-                    <button
-                      type="button"
+                <button
+                  type="button"
+                  onClick={() => setRawIdeaSource(sampleIdeaSource)}
+                  className="avl-btn avl-btn-secondary rounded-md px-4"
+                >
+                  샘플 넣기
+                </button>
+                <button
+                  type="button"
                       onClick={() => {
                         setRawIdeaSource("");
                         setExtractedIdeas([]);
@@ -3151,7 +3151,7 @@ export function VentureConsoleActions({
                         setExtractionReplay(null);
                         setExtractMessage(null);
                       }}
-                      className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-transparent px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+                      className="avl-btn avl-btn-subtle rounded-md px-4 text-slate-600 hover:text-slate-900"
                     >
                       비우기
                     </button>
@@ -3161,7 +3161,7 @@ export function VentureConsoleActions({
                         void handleAiExtractIdeas();
                       }}
                       disabled={isAiExtracting || isReplayingExtraction}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="avl-btn avl-btn-primary rounded-md px-4 disabled:opacity-60"
                     >
                       {isAiExtracting ? <RefreshCw className="animate-spin" size={16} /> : <Sparkles size={16} />}
                       AI 후보 발굴
@@ -3222,7 +3222,7 @@ export function VentureConsoleActions({
                         <button
                           type="button"
                           onClick={() => loadExtractedIdea(recommendedExtractedIdea)}
-                          className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+                          className="avl-btn avl-btn-secondary rounded-md px-4"
                         >
                           AI 초안 반영
                         </button>
@@ -3230,7 +3230,7 @@ export function VentureConsoleActions({
                           type="button"
                           onClick={() => saveExtractedIdeaPackage(recommendedExtractedIdea)}
                           disabled={Boolean(extractSaveKey) || !user}
-                          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="avl-btn avl-btn-primary rounded-md px-4"
                         >
                           {extractSaveKey === recommendedExtractedIdea.id ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
                           검증 패키지 저장
@@ -3282,7 +3282,7 @@ export function VentureConsoleActions({
                           void handleReplayExtractionComparison();
                         }}
                         disabled={isAiExtracting || isReplayingExtraction}
-                        className="mt-2 inline-flex h-9 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="avl-btn avl-btn-secondary mt-2 h-9 rounded-md px-3 disabled:opacity-60"
                       >
                         {isReplayingExtraction ? <RefreshCw className="animate-spin" size={15} /> : <RefreshCw size={15} />}
                         결과 점검
@@ -3377,7 +3377,7 @@ export function VentureConsoleActions({
                             <button
                               type="button"
                               onClick={() => loadExtractedIdea(item.candidate)}
-                              className="inline-flex h-9 items-center justify-center rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                              className="avl-btn avl-btn-secondary h-9 rounded-md px-3 text-sm"
                             >
                               초안 반영
                             </button>
@@ -3385,7 +3385,7 @@ export function VentureConsoleActions({
                               type="button"
                               onClick={() => saveExtractedIdeaPackage(item.candidate)}
                               disabled={Boolean(extractSaveKey) || !user}
-                              className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="avl-btn avl-btn-primary h-9 rounded-md px-3 text-sm disabled:opacity-50"
                             >
                               {extractSaveKey === item.candidate.id ? <RefreshCw className="animate-spin" size={14} /> : <PlusCircle size={14} />}
                               저장
@@ -3408,7 +3408,7 @@ export function VentureConsoleActions({
                         onClick={() => {
                           void copyExtractionPortfolio();
                         }}
-                        className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                        className="avl-btn avl-btn-secondary h-10 rounded-xl px-4"
                       >
                         실행 요약 복사
                       </button>
@@ -3418,7 +3418,7 @@ export function VentureConsoleActions({
                           void saveExtractionPortfolioReport();
                         }}
                         disabled={isSavingExtractionReport || !user}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="avl-btn avl-btn-primary h-10 rounded-xl px-4 disabled:opacity-50"
                       >
                         {isSavingExtractionReport ? <RefreshCw className="animate-spin" size={16} /> : <ClipboardList size={16} />}
                         리포트 저장
@@ -3429,7 +3429,7 @@ export function VentureConsoleActions({
                           void saveBulkExtractedIdeaPackages();
                         }}
                         disabled={Boolean(extractSaveKey) || !user || bulkSavableExtractionItems.length === 0}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="avl-btn avl-btn-primary h-10 rounded-xl px-4 disabled:opacity-50"
                       >
                         {extractSaveKey === "bulk" ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
                         추천 {bulkSavableExtractionItems.length}개 저장
@@ -3495,7 +3495,7 @@ export function VentureConsoleActions({
                           <button
                             type="button"
                             onClick={() => loadExtractedIdea(candidate)}
-                            className="inline-flex h-10 items-center justify-center rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                  className="avl-btn avl-btn-secondary h-10 rounded-md px-4"
                           >
                             AI 초안 반영
                           </button>
@@ -3503,7 +3503,7 @@ export function VentureConsoleActions({
                             type="button"
                             onClick={() => saveExtractedIdeaPackage(candidate)}
                             disabled={Boolean(extractSaveKey) || !user}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="avl-btn avl-btn-accent h-10 rounded-md px-4 disabled:opacity-50"
                           >
                             {extractSaveKey === candidate.id ? <RefreshCw className="animate-spin" size={16} /> : <PlusCircle size={16} />}
                             패키지 저장
@@ -3705,7 +3705,7 @@ export function VentureConsoleActions({
                 <button
                   type="submit"
                   disabled={isSaving || !user}
-                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
                 >
                   {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
                   아이디어 저장
@@ -3725,7 +3725,7 @@ export function VentureConsoleActions({
                 <button
                   type="submit"
                   disabled={isSaving || !user}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="avl-btn avl-btn-primary h-11 rounded-xl px-4 disabled:opacity-50"
                 >
                   {isSaving ? <RefreshCw className="animate-spin" size={18} /> : <PlusCircle size={18} />}
                   아이디어 저장
@@ -3941,11 +3941,7 @@ function Field({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         required={required}
-        className={`h-11 rounded-xl px-3 text-sm font-normal outline-none transition ${
-          tone === "dark"
-            ? "border border-white/10 bg-white/[0.06] text-white focus:border-violet-300 focus:ring-2 focus:ring-violet-400/25"
-            : "border border-slate-300 bg-white text-slate-950 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-        }`}
+        className={`avl-input ${tone === "dark" ? "border-white/10 bg-white/[0.06] text-white placeholder:text-slate-400" : ""}`}
       />
       {hint ? (
         <span className={`text-xs leading-5 ${tone === "dark" ? "text-slate-400" : "text-slate-500"}`}>{hint}</span>
@@ -3972,11 +3968,7 @@ function TextArea({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={4}
-        className={`min-h-28 resize-y rounded-xl px-3 py-2 text-sm font-normal leading-6 outline-none transition ${
-          tone === "dark"
-            ? "border border-white/10 bg-white/[0.06] text-white focus:border-violet-300 focus:ring-2 focus:ring-violet-400/25"
-            : "border border-slate-300 bg-white text-slate-950 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-        }`}
+        className={`avl-textarea min-h-28 ${tone === "dark" ? "border-white/10 bg-white/[0.06] text-white placeholder:text-slate-400" : ""}`}
       />
     </label>
   );
