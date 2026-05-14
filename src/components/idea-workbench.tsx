@@ -10334,7 +10334,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
 
               <div className="mt-4 grid gap-4 xl:grid-cols-3">
-                <div className="avl-card-soft p-4">
+                <div className="border border-slate-200 bg-white p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">핵심 가설</div>
                   <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                     {validationPlan.hypotheses.map((item) => (
@@ -10342,7 +10342,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     ))}
                   </ul>
                 </div>
-                <div className="avl-card-soft p-4">
+                <div className="border border-slate-200 bg-white p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">추천 실험</div>
                   <div className="mt-3 grid gap-2">
                     {validationPlan.experiments.map((experiment) => (
@@ -10350,7 +10350,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         key={experiment.name}
                         type="button"
                         onClick={() => loadExperimentSuggestion(experiment)}
-                        className="avl-surface-subtle p-3 text-left transition hover:border-slate-300 hover:bg-slate-50"
+                        className="border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-slate-300 hover:bg-white"
                       >
                         <div className="text-sm font-semibold text-slate-950">{experiment.name}</div>
                         <div className="mt-1 text-xs leading-5 text-slate-600">{experiment.success_metric}</div>
@@ -10358,7 +10358,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     ))}
                   </div>
                 </div>
-                <div className="avl-card-soft p-4">
+                <div className="border border-slate-200 bg-white p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">인터뷰 질문</div>
                   <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                     {validationPlan.interviewQuestions.map((item) => (
@@ -12423,7 +12423,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
             </div>
 
-            <div className="avl-surface-muted p-4">
+            <div className="border border-slate-200 bg-white p-4">
               <div className="mb-3">
                 <h3 className="text-base font-semibold text-slate-950">수집해야 할 행동 신호</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-500">
@@ -12432,7 +12432,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
               <div className="grid gap-2">
                 {productTelemetryTaxonomyRows.map((item) => (
-                  <div key={item.eventName} className="avl-surface-subtle p-3">
+                  <div key={item.eventName} className="border border-slate-200 bg-slate-50 p-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
                         <div className="text-sm font-semibold text-slate-950">{item.label}</div>
@@ -12454,7 +12454,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
           <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,0.85fr)_minmax(360px,0.65fr)]">
-            <div className="avl-surface-muted p-4">
+            <div className="border border-slate-200 bg-white p-4">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h3 className="text-base font-semibold text-slate-950">최근 이벤트</h3>
                 <span className="avl-pill avl-pill-neutral">
@@ -12463,7 +12463,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
               <div className="grid gap-2">
                 {selectedTelemetryEvents.slice(0, 12).map((event) => (
-                  <div key={event.id} className="avl-surface-subtle p-3">
+                  <div key={event.id} className="border border-slate-200 bg-slate-50 p-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">
@@ -12481,14 +12481,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                 ))}
                 {selectedTelemetryEvents.length === 0 ? (
-                  <div className="avl-surface-subtle p-4 text-sm leading-5 text-slate-600">
+                  <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-5 text-slate-600">
                     아직 이 아이디어에 연결된 이벤트가 없습니다. 점수 저장, 리스크 추가, 실험/산출물 저장 같은 행동을 하면 자동으로 쌓입니다.
                   </div>
                 ) : null}
               </div>
             </div>
 
-            <div className="avl-surface-subtle p-4">
+            <div className="border border-slate-200 bg-slate-50 p-4">
               <div className="mb-3">
                 <h3 className="text-base font-semibold text-slate-950">학습 리포트 초안</h3>
                 <p className="mt-1 text-sm leading-5 text-slate-500">
@@ -12506,7 +12506,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <div
-          className={`avl-card-soft p-5 ${
+          className={`avl-card p-5 ${
             activeTask === "orchestration" ? "" : "hidden"
           }`}
         >

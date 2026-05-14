@@ -3446,7 +3446,7 @@ export function VentureConsoleActions({
                     const strategyScore = getCandidateStrategyScore(candidate);
 
                     return (
-                    <article key={candidate.id} className="avl-card-soft p-4">
+                    <article key={candidate.id} className="border border-slate-200 bg-white p-4">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
@@ -3782,16 +3782,16 @@ export function VentureConsoleActions({
               </div>
 
               <div className="grid gap-4">
-                <div className="avl-surface-muted p-4">
+                <div className="border border-slate-200 bg-white p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI가 먼저 정리한 것</div>
                   <div className="mt-3 grid gap-3">
-                    <div className="avl-surface-subtle p-3">
+                    <div className="border border-slate-200 bg-slate-50 p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">저장 기준</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
                         이름과 한 줄 설명만 비어 있지 않으면 이 단계는 통과입니다.
                       </p>
                     </div>
-                    <div className="avl-surface-subtle p-3">
+                    <div className="border border-slate-200 bg-slate-50 p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">구매자/대상</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
                         {form.buyer || form.target_user
@@ -3799,7 +3799,7 @@ export function VentureConsoleActions({
                           : "AI 초안이 아직 비어 있으면, 저장 뒤 다음 단계에서 다시 구체화해도 됩니다."}
                       </p>
                     </div>
-                    <div className="avl-surface-subtle p-3">
+                    <div className="border border-slate-200 bg-slate-50 p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 액션</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
                         저장 후에는 워크벤치가 이 초안을 바로 선택하고, 다음으로 사업성 평가와 첫 검증 실험 설계가 열립니다.
@@ -3829,7 +3829,7 @@ export function VentureConsoleActions({
               </p>
             </section>
 
-            <section className="avl-card-soft p-5 text-slate-900">
+            <section className="avl-card p-5 text-slate-900">
               <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">operator status</div>
               <div className="mt-3 grid gap-3">
                 {([
