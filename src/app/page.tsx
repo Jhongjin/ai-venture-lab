@@ -73,6 +73,33 @@ const workflowSteps = [
   },
 ];
 
+const workflowOverview = [
+  {
+    eyebrow: "AI가 먼저",
+    title: "초안과 질문 뼈대를 먼저 세웁니다",
+    body: "후보, 질문, 리스크, 실행 초안을 먼저 채워둡니다.",
+    tone: "bg-white",
+    border: "border-slate-200",
+    chips: ["후보 1건", "질문 초안", "리스크 메모"],
+  },
+  {
+    eyebrow: "사람이 보는 것",
+    title: "지금 결정할 것만 앞으로 꺼냅니다",
+    body: "후보 선택, 실험 조건, 출시 여부 같은 결정만 빠르게 확인합니다.",
+    tone: "bg-[#f7f6f2]",
+    border: "border-[#e7e0d5]",
+    chips: ["우선 후보", "실험 조건", "진행/보강"],
+  },
+  {
+    eyebrow: "한 보드에 남는 것",
+    title: "패키지와 다음 행동이 같은 흐름에 남습니다",
+    body: "검증 패키지, PRD, 실행 태스크, 학습 리포트가 이어집니다.",
+    tone: "bg-[#eef3ff]",
+    border: "border-[#d7e1f6]",
+    chips: ["검증 패키지", "PRD", "학습 리포트"],
+  },
+];
+
 const useCases = [
   {
     title: "회의는 많은데, 다음 행동이 남지 않을 때",
@@ -91,6 +118,24 @@ const useCases = [
     body: "팀 초대는 옵션으로 남기고, 기본은 혼자 시작해도 끝까지 밀 수 있게 실행 패키지까지 자동으로 이어갑니다.",
     tag: "solo-first",
     icon: UsersThree,
+  },
+];
+
+const bestFitSignals = [
+  {
+    title: "회의 직후",
+    body: "후보 하나와 질문 초안을 먼저 세워 다음 회의 전까지 바로 움직일 수 있게 합니다.",
+    tone: "bg-[#f7f6f2]",
+  },
+  {
+    title: "검증 초반",
+    body: "리스크, 7일 실험, 판단 기준이 문서마다 흩어지기 전에 한곳에 묶습니다.",
+    tone: "bg-white",
+  },
+  {
+    title: "solo-first",
+    body: "한 사람이 끌고 가다가 필요할 때만 팀을 붙이는 흐름에 맞게 설계했습니다.",
+    tone: "bg-[#eef3ff]",
   },
 ];
 
@@ -319,18 +364,47 @@ export default function HomePage() {
               </div>
 
               <div className="grid gap-px bg-slate-300 md:grid-cols-3">
-                <div className="bg-white px-5 py-6">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">AI가 먼저</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-700">후보, 질문, 리스크, 실행 초안을 먼저 채워둡니다.</p>
-                </div>
-                <div className="bg-white px-5 py-6">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">사람이 보는 것</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-700">지금 밀 후보, 실험 조건, 출시 여부 같은 결정만 빠르게 확인합니다.</p>
-                </div>
-                <div className="bg-[#f9f8f4] px-5 py-6">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">한 보드에 남는 것</div>
-                  <p className="mt-3 text-sm leading-6 text-slate-700">검증 패키지, PRD, 실행 태스크, 학습 리포트가 같은 맥락으로 이어집니다.</p>
-                </div>
+                {workflowOverview.map((item, index) => (
+                  <article key={item.eyebrow} className={`${item.tone} ${item.border} flex min-h-[290px] flex-col border px-5 py-6`}>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{item.eyebrow}</div>
+                    <h3 className="mt-4 max-w-[15ch] text-[22px] font-semibold leading-[1.08] tracking-tight text-slate-950">
+                      {item.title}
+                    </h3>
+                    <p className="mt-3 max-w-[26ch] text-sm leading-6 text-slate-700">{item.body}</p>
+
+                    <div className="mt-auto pt-8">
+                      <div className="rounded-none border border-slate-200/80 bg-slate-950/[0.03] px-4 py-4">
+                        <div className="flex flex-wrap gap-2">
+                          {item.chips.map((chip) => (
+                            <span key={chip} className="avl-pill avl-pill-neutral border-slate-300 bg-white/80 text-[10px] text-slate-600">
+                              {chip}
+                            </span>
+                          ))}
+                        </div>
+                        <div className="mt-4 grid grid-cols-4 gap-2">
+                          {[0, 1, 2, 3].map((signalIndex) => (
+                            <div
+                              key={signalIndex}
+                              className={`h-11 rounded-none border border-slate-200/80 ${
+                                index === 0
+                                  ? signalIndex === 1
+                                    ? "bg-[#eef3ff]"
+                                    : "bg-white/70"
+                                  : index === 1
+                                    ? signalIndex === 2
+                                      ? "bg-[#fff5dd]"
+                                      : "bg-white/70"
+                                    : signalIndex === 0
+                                      ? "bg-[#dfe8ff]"
+                                      : "bg-white/80"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                ))}
               </div>
             </div>
 
@@ -338,15 +412,17 @@ export default function HomePage() {
               <div className="grid gap-4 xl:grid-cols-12">
                 {workflowSteps.map((step, index) => {
                   const Icon = step.icon;
-                  const columnSpan =
-                    index === 0 ? "xl:col-span-3" : index === 1 ? "xl:col-span-3" : index === 2 ? "xl:col-span-3" : "xl:col-span-3";
+                  const stepSurfaces = [
+                    "bg-white",
+                    "bg-[#f7f6f2]",
+                    "bg-[#eef3ff]",
+                    "bg-slate-950 text-white",
+                  ];
 
                   return (
                     <article
                       key={step.id}
-                      className={`border border-slate-200 bg-white px-5 py-5 ${columnSpan} ${
-                        index === 1 ? "xl:translate-y-6" : ""
-                      } ${index === 2 ? "bg-[#f8f7f3]" : ""} ${index === 3 ? "bg-slate-950 text-white" : ""}`}
+                      className={`xl:col-span-3 flex h-full flex-col border border-slate-200 px-5 py-5 ${stepSurfaces[index]}`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <span
@@ -370,7 +446,7 @@ export default function HomePage() {
                           <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${index === 3 ? "text-slate-500" : "text-slate-400"}`}>사람이 결정</div>
                           <p className={`mt-2 text-sm leading-6 ${index === 3 ? "text-slate-200" : "text-slate-700"}`}>{step.human}</p>
                         </div>
-                        <div>
+                        <div className="mt-auto">
                           <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${index === 3 ? "text-slate-500" : "text-slate-400"}`}>남는 결과</div>
                           <p className={`mt-2 text-sm font-medium ${index === 3 ? "text-white" : "text-slate-900"}`}>{step.result}</p>
                         </div>
@@ -430,6 +506,16 @@ export default function HomePage() {
                       </article>
                     );
                   })}
+                </div>
+
+                <div className="mt-4 grid gap-px border border-slate-200 bg-slate-200 md:grid-cols-3">
+                  {bestFitSignals.map((item) => (
+                    <article key={item.title} className={`${item.tone} px-5 py-5`}>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">signal</div>
+                      <h3 className="mt-3 text-[18px] font-semibold tracking-tight text-slate-950">{item.title}</h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">{item.body}</p>
+                    </article>
+                  ))}
                 </div>
               </div>
             </div>
