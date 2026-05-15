@@ -137,7 +137,7 @@ export default function HomePage() {
         </header>
 
         <section className="mt-4 border border-slate-950 bg-[#0d0f14] text-white">
-          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
+          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1.16fr)_minmax(360px,0.84fr)]">
             <div className="relative overflow-hidden bg-[#0d0f14] px-6 py-8 sm:px-8 sm:py-10 xl:px-10 xl:py-12">
               <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:84px_84px]" />
               <div aria-hidden="true" className="absolute inset-y-0 left-[58%] hidden w-px bg-white/8 xl:block" />
@@ -147,19 +147,19 @@ export default function HomePage() {
               <div aria-hidden="true" className="absolute bottom-12 right-12 h-28 w-28 border border-white/8" />
               <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_20%_22%,rgba(148,163,184,0.16),transparent_30%),radial-gradient(circle_at_78%_68%,rgba(255,255,255,0.08),transparent_26%)]" />
 
-              <div className="relative z-10 grid gap-10 xl:grid-cols-[minmax(0,1fr)_260px]">
+              <div className="relative z-10 grid gap-10 xl:grid-cols-[minmax(0,1fr)_240px]">
                 <div className="min-w-0">
                   <div className="avl-kicker !text-slate-300">
                     <ClipboardText size={14} />
                     idea to MVP operating system
                   </div>
                   <h1
-                    className="mt-8 max-w-[7.2ch] text-[62px] font-normal leading-[0.87] tracking-[-0.06em] text-white sm:text-[92px] xl:text-[132px]"
+                    className="mt-8 max-w-[8.9ch] text-[60px] font-normal leading-[0.88] tracking-[-0.06em] text-white sm:text-[88px] xl:text-[118px]"
                     style={{ fontFamily: "var(--font-newsreader)" }}
                   >
                     AI Venture Lab
                   </h1>
-                  <p className="mt-6 max-w-[17ch] text-[28px] font-semibold leading-[1.03] tracking-tight text-white sm:text-[46px]">
+                  <p className="mt-6 max-w-[18ch] text-[28px] font-semibold leading-[1.03] tracking-tight text-white sm:text-[44px]">
                     메모를 후보로 꺼내 검증하고, 실행까지 같은 보드에서 밀어붙입니다.
                   </p>
                   <p className="mt-5 max-w-[50ch] text-[15px] leading-7 text-slate-300">
@@ -183,7 +183,7 @@ export default function HomePage() {
                     <div aria-hidden="true" className="absolute right-5 top-5 h-16 w-16 border border-slate-300" />
                     <div className="relative z-10">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">why it stays open</div>
-                      <div className="mt-3 max-w-[10ch] text-[30px] font-semibold leading-[1.02] tracking-tight">
+                      <div className="mt-3 max-w-[11ch] text-[28px] font-semibold leading-[1.02] tracking-tight">
                         설명서보다 먼저, 실행 후보를 전면에 둡니다
                       </div>
                       <p className="mt-5 max-w-[26ch] text-sm leading-6 text-slate-700">
@@ -367,7 +367,7 @@ export default function HomePage() {
             <div className="bg-slate-950 px-6 py-7 sm:px-7">
               <div className="avl-kicker !text-slate-300">outputs</div>
               <h2
-                className="mt-4 max-w-[10ch] text-[38px] font-normal leading-[0.98] tracking-[-0.03em] text-white sm:text-[48px]"
+                className="mt-4 max-w-[12ch] text-[38px] font-normal leading-[0.98] tracking-[-0.03em] text-white sm:text-[46px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}
               >
                 결국 남는 건 읽는 문서가 아니라 바로 넘길 수 있는 실행 패키지입니다.
