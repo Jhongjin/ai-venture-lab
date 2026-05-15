@@ -62,9 +62,86 @@ body {
   }
 }
 
+@keyframes avl-hero-card-float-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes avl-hero-card-float-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+@keyframes avl-hero-grid-drift {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 0.28;
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+@keyframes avl-hero-stream {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.2);
+    transform-origin: left;
+  }
+  30% {
+    opacity: 0.75;
+  }
+  70% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+}
+
+@keyframes avl-hero-stream-vertical {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.2);
+    transform-origin: top;
+  }
+  25% {
+    opacity: 0.75;
+  }
+  75% {
+    opacity: 0.25;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
 .landing-hero-scan {
   background: linear-gradient(180deg, transparent 0%, rgba(129, 140, 248, 0.14) 48%, transparent 100%);
   animation: avl-hero-scan 8s linear infinite;
+}
+
+.landing-hero-grid-drift {
+  background:
+    radial-gradient(circle at 24% 28%, rgba(125, 211, 252, 0.08), transparent 22%),
+    radial-gradient(circle at 72% 36%, rgba(196, 181, 253, 0.08), transparent 20%);
+  animation: avl-hero-grid-drift 8s ease-in-out infinite;
 }
 
 .landing-hero-orbit {
@@ -81,6 +158,37 @@ body {
 
 .landing-hero-node-delayed {
   animation: avl-hero-pulse 4.6s ease-in-out infinite;
+}
+
+.landing-hero-card-float-a {
+  animation: avl-hero-card-float-a 6.8s ease-in-out infinite;
+}
+
+.landing-hero-card-float-b {
+  animation: avl-hero-card-float-b 7.4s ease-in-out infinite;
+}
+
+.landing-hero-card-float-c {
+  animation: avl-hero-card-float-a 7.1s ease-in-out infinite reverse;
+}
+
+.landing-hero-card-float-d {
+  animation: avl-hero-card-float-b 6.4s ease-in-out infinite reverse;
+}
+
+.landing-hero-stream {
+  background: linear-gradient(90deg, transparent, rgba(125, 211, 252, 0.82), rgba(196, 181, 253, 0.75), transparent);
+  animation: avl-hero-stream 3.6s ease-in-out infinite;
+}
+
+.landing-hero-stream-delayed {
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.68), rgba(129, 140, 248, 0.72), transparent);
+  animation: avl-hero-stream 4.2s ease-in-out infinite 0.7s;
+}
+
+.landing-hero-stream-vertical {
+  background: linear-gradient(180deg, transparent, rgba(125, 211, 252, 0.82), rgba(196, 181, 253, 0.75), transparent);
+  animation: avl-hero-stream-vertical 3.9s ease-in-out infinite 0.35s;
 }
 
 @layer components {
