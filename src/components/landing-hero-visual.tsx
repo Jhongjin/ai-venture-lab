@@ -13,28 +13,28 @@ const stages = [
   {
     label: "raw input",
     title: "초안 수집",
-    body: "회의 메모, 대화 로그, 브리프 초안을 그대로 받습니다.",
+    body: "회의 내용과 브리프 초안을 그대로 받습니다.",
     icon: ClipboardText,
     className: "left-6 top-16 md:left-10",
   },
   {
     label: "candidate",
     title: "후보 정리",
-    body: "AI가 지금 판단할 후보 1건과 비교 후보를 먼저 나눕니다.",
+    body: "AI가 후보 1건과 비교 후보를 먼저 나눕니다.",
     icon: Sparkle,
     className: "right-6 top-24 md:right-10",
   },
   {
     label: "validation",
     title: "검증 스프린트",
-    body: "질문, 리스크, 7일 실험을 같은 맥락 안에 붙입니다.",
+    body: "질문, 리스크, 7일 실험을 한 흐름으로 묶습니다.",
     icon: ShieldCheck,
     className: "left-8 bottom-28 md:left-16",
   },
   {
     label: "ship path",
     title: "실행 연결",
-    body: "기획, MVP 범위, 출시 판단이 한 보드에서 이어집니다.",
+    body: "기획, MVP, 출시 판단을 한 흐름으로 묶습니다.",
     icon: RocketLaunch,
     className: "right-8 bottom-18 md:right-16",
   },
@@ -194,14 +194,14 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
         ))}
       </div>
 
-      <div className="absolute bottom-[118px] right-8 hidden w-[280px] border border-white/10 bg-[#111722]/92 px-4 py-3 text-slate-200 backdrop-blur md:block">
+      <div className="absolute bottom-[126px] right-8 hidden w-[312px] border border-white/10 bg-[#111722]/92 px-4 py-3 text-slate-200 backdrop-blur md:block">
         <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">active stage</div>
-        <div className="mt-2 flex items-center justify-between gap-4">
-          <div>
+        <div className="mt-3 flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
             <div className="text-lg font-semibold text-white">{stages[activeStage]?.title}</div>
-            <p className="mt-1 text-sm leading-6 text-slate-300">{stages[activeStage]?.body}</p>
+            <p className="mt-2 max-w-[17ch] text-sm leading-6 text-slate-300">{stages[activeStage]?.body}</p>
           </div>
-          <div className="text-right">
+          <div className="shrink-0 border-l border-white/10 pl-4 text-right">
             <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">cycle</div>
             <div className="mt-1 font-mono text-[22px] font-semibold text-sky-200">0{activeStage + 1}</div>
           </div>

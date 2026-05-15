@@ -114,12 +114,11 @@ export default function HomePage() {
                 >
                   AI Venture Lab
                 </h1>
-                <p className="mt-8 max-w-[14ch] text-[26px] font-semibold leading-[1.02] tracking-tight text-white sm:text-[34px] xl:text-[42px]">
-                  흩어진 아이디어를 실행 후보로 정리하고, 검증부터 실행까지 한 흐름으로 이어갑니다.
+                <p className="mt-8 max-w-[12ch] text-[24px] font-semibold leading-[1.04] tracking-tight text-white sm:text-[32px] xl:text-[38px]">
+                  아이디어를 후보로 정리하고, 검증과 실행을 한 흐름으로 잇습니다.
                 </p>
                 <p className="mt-5 max-w-[50ch] text-[15px] leading-7 text-slate-300">
-                  회의 내용, 대화 초안, 브리프처럼 거친 출발점도 괜찮습니다. AI가 후보와 질문, 실행 패키지의 첫 버전을 정리하고,
-                  사용자는 중요한 판단만 이어가면 됩니다.
+                  회의 내용이나 초안만 있어도 시작할 수 있습니다. AI가 후보와 질문, 실행 초안을 정리하면 사람은 판단만 이어가면 됩니다.
                 </p>
               </div>
 
