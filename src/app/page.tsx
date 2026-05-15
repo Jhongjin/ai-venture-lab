@@ -137,7 +137,7 @@ export default function HomePage() {
         </header>
 
         <section className="mt-4 border border-slate-950 bg-[#0d0f14] text-white">
-          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1.16fr)_minmax(360px,0.84fr)]">
+          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1.24fr)_minmax(360px,0.76fr)]">
             <div className="relative overflow-hidden bg-[#0d0f14] px-6 py-8 sm:px-8 sm:py-10 xl:px-10 xl:py-12">
               <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:84px_84px]" />
               <div aria-hidden="true" className="absolute inset-y-0 left-[58%] hidden w-px bg-white/8 xl:block" />
@@ -147,14 +147,14 @@ export default function HomePage() {
               <div aria-hidden="true" className="absolute bottom-12 right-12 h-28 w-28 border border-white/8" />
               <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_20%_22%,rgba(148,163,184,0.16),transparent_30%),radial-gradient(circle_at_78%_68%,rgba(255,255,255,0.08),transparent_26%)]" />
 
-              <div className="relative z-10 grid gap-10 xl:grid-cols-[minmax(0,1fr)_240px]">
+              <div className="relative z-10 grid gap-10 xl:grid-cols-[minmax(0,1fr)_220px]">
                 <div className="min-w-0">
                   <div className="avl-kicker !text-slate-300">
                     <ClipboardText size={14} />
                     idea to MVP operating system
                   </div>
                   <h1
-                    className="mt-8 max-w-[6.8ch] text-[50px] font-normal leading-[0.92] tracking-[-0.05em] text-white sm:max-w-none sm:whitespace-nowrap sm:text-[60px] xl:text-[78px]"
+                    className="mt-8 max-w-[6.4ch] text-[44px] font-normal leading-[0.92] tracking-[-0.05em] text-white sm:text-[50px] md:max-w-none md:whitespace-nowrap md:text-[64px] xl:text-[72px]"
                     style={{ fontFamily: "var(--font-newsreader)" }}
                   >
                     AI Venture Lab
@@ -209,8 +209,8 @@ export default function HomePage() {
                 <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:28px_28px]" />
                 <div className="relative z-10">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">execution flow</div>
-                  <div className="mt-3 max-w-[15ch] text-[26px] font-semibold leading-[1.06] tracking-tight sm:text-[30px]">
-                    복잡한 대시보드 대신, 아이디어 초안에서 다음 실행까지 한 흐름으로 이어집니다.
+                  <div className="mt-3 max-w-[16ch] text-[24px] font-semibold leading-[1.04] tracking-tight sm:text-[27px] xl:max-w-[17ch] xl:text-[30px]">
+                    복잡한 대시보드 대신, 아이디어 초안부터 다음 실행까지 끊기지 않게 이어집니다.
                   </div>
                 </div>
               </div>
