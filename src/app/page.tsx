@@ -114,7 +114,7 @@ export default function HomePage() {
       />
 
       <div className="mx-auto w-full max-w-[1600px] px-4 py-4 sm:px-6 sm:py-6">
-        <header className="border border-slate-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-5">
+        <header className="border-b border-slate-300 bg-white/92 px-4 py-3 backdrop-blur sm:px-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="avl-kicker text-slate-700">
@@ -143,7 +143,7 @@ export default function HomePage() {
         </header>
 
         <section className="mt-4 overflow-hidden border border-slate-950 bg-[#0d0f14] text-white">
-          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1.08fr)_420px]">
+          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1.14fr)_380px]">
             <div className="relative overflow-hidden bg-[#0d0f14] px-6 py-8 sm:px-8 sm:py-10 xl:px-10 xl:py-12">
               <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:76px_76px]" />
               <div aria-hidden="true" className="absolute inset-x-0 top-[112px] h-px bg-white/8" />
@@ -151,6 +151,16 @@ export default function HomePage() {
               <div aria-hidden="true" className="absolute left-10 top-10 h-20 w-20 border border-white/10" />
               <div aria-hidden="true" className="absolute bottom-10 right-10 h-28 w-28 border border-white/8" />
               <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(148,163,184,0.14),transparent_28%),radial-gradient(circle_at_86%_68%,rgba(255,255,255,0.08),transparent_30%)]" />
+              <div aria-hidden="true" className="absolute inset-y-0 right-0 hidden w-[42%] overflow-hidden xl:block">
+                <Image
+                  src="/images/workspace-preview.png"
+                  alt=""
+                  width={1600}
+                  height={980}
+                  className="absolute -right-[6%] top-[10%] h-auto w-[128%] max-w-none rotate-[-6deg] opacity-[0.14] mix-blend-screen grayscale"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,#0d0f14_10%,rgba(13,15,20,0.42)_48%,#0d0f14_100%)]" />
+              </div>
 
               <div className="relative z-10 max-w-[1040px]">
                 <div className="avl-kicker !text-slate-300">
@@ -183,10 +193,10 @@ export default function HomePage() {
                       </a>
                     </div>
 
-                    <div className="mt-12 border border-white/10 bg-white/5">
+                    <div className="mt-12 border-t border-white/10 pt-5">
                       <div className="grid gap-px bg-white/10 lg:grid-cols-3">
                         {heroRail.map((step, index) => (
-                          <div key={step} className="bg-white/5 px-5 py-4">
+                          <div key={step} className="bg-white/[0.03] px-5 py-4">
                             <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                               {String(index + 1).padStart(2, "0")}
                             </div>
@@ -260,8 +270,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="workflow" className="mt-4 border border-slate-200 bg-white">
-          <div className="grid gap-px bg-slate-200 xl:grid-cols-[320px_minmax(0,1fr)]">
+        <section id="workflow" className="mt-4 border-t border-slate-300 bg-transparent">
+          <div className="grid gap-px bg-slate-300 xl:grid-cols-[300px_minmax(0,1fr)]">
             <div className="bg-[#f7f6f2] px-6 py-7 sm:px-7">
               <div className="avl-kicker">workflow</div>
               <h2
@@ -275,7 +285,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid gap-px bg-slate-200 lg:grid-cols-3">
+            <div className="grid gap-px bg-slate-300 lg:grid-cols-3">
               {workflowSteps.map((step) => {
                 const Icon = step.icon;
                 return (
@@ -303,10 +313,10 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="preview" className="mt-4 border border-slate-200 bg-white">
-          <div className="grid gap-px bg-slate-200 xl:grid-cols-[minmax(0,1.08fr)_420px]">
+        <section id="preview" className="mt-4 border-t border-slate-300 bg-transparent">
+          <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,1.1fr)_420px]">
             <div className="bg-white">
-              <div className="grid gap-px bg-slate-200 md:grid-cols-[minmax(0,1fr)_220px]">
+              <div className="grid gap-px bg-slate-300 md:grid-cols-[minmax(0,1fr)_220px]">
                 <div className="bg-white px-6 py-5 sm:px-7">
                   <div className="avl-kicker">workspace preview</div>
                   <div className="mt-3 max-w-[14ch] text-[34px] font-semibold leading-[1.04] tracking-tight text-slate-950">
@@ -318,7 +328,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="grid gap-px border-t border-slate-200 bg-slate-200 lg:grid-cols-[minmax(0,1fr)_260px]">
+              <div className="grid gap-px border-t border-slate-300 bg-slate-300 lg:grid-cols-[minmax(0,1fr)_260px]">
                 <div className="bg-[#f8f7f4] p-4 sm:p-5">
                   <div className="overflow-hidden border border-slate-300 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
                     <Image
@@ -331,7 +341,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="grid gap-px bg-slate-200">
+                <div className="grid gap-px bg-slate-300">
                   <div className="bg-white px-5 py-5">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">01</div>
                     <p className="mt-3 text-sm leading-6 text-slate-700">추천 1건과 다음 행동 1개를 앞에 둡니다.</p>
@@ -348,7 +358,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="grid gap-px bg-slate-200">
+            <div className="grid gap-px bg-slate-300">
               {principles.map((block) => {
                 const Icon = block.icon;
                 return (
@@ -369,7 +379,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-4 border border-slate-950 bg-slate-950 text-white">
+        <section className="mt-4 border-t border-slate-950 bg-slate-950 text-white">
           <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1fr)_420px]">
             <div className="bg-slate-950 px-6 py-7 sm:px-7">
               <div className="avl-kicker !text-slate-300">outputs</div>

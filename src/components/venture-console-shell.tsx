@@ -665,6 +665,7 @@ export function VentureConsoleShell({
       )
     : [];
   const completedTasks = shellTasks.filter((task) => visitedTaskIds.includes(task.id) && task.id !== visibleTask);
+  const completedRequiredTasks = completedTasks.filter((task) => !task.optional);
   const availableTaskIds = new Set<ShellTask>([
     ...completedTasks.map((task) => task.id),
     activeTaskConfig.id,
@@ -683,6 +684,9 @@ export function VentureConsoleShell({
   const activeCanvas = taskCanvasDetails[visibleTask];
   const showFirstEntryStrip = consoleStatus.isAuthenticated && ideaCount === 0 && visibleTask === "console:extract";
   const compactIntroCanvas = visibleTask === "console:auth" || visibleTask === "console:workspace";
+  const railPrimaryTasks = requiredShellTasks.filter(
+    (task) => task.id === visibleTask || nextTaskOptions.some((option) => option.id === task.id),
+  );
 
   function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
     if (task.optional) {
@@ -720,24 +724,22 @@ export function VentureConsoleShell({
         </div>
 
         <div className="mt-4 space-y-2">
-          {requiredShellTasks.map((task, index) => {
+          {railPrimaryTasks.map((task, index) => {
             const Icon = task.icon;
             const isCurrent = task.id === visibleTask;
             const isCompleted = completedTasks.some((item) => item.id === task.id);
             const isAvailable = nextTaskOptions.some((item) => item.id === task.id);
-            const isLocked = !isCurrent && !isCompleted && !isAvailable;
-            const previous = requiredShellTasks[index - 1];
+            const previous = railPrimaryTasks[index - 1];
             const showGroupLabel = index === 0 || previous.group !== task.group;
 
             return (
               <div key={task.id}>
                 {showGroupLabel ? (
-              <div className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{task.group}</div>
+                  <div className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{task.group}</div>
                 ) : null}
                 <button
                   type="button"
-                  onClick={() => !isLocked && goToTask(task.id)}
-                  disabled={isLocked}
+                  onClick={() => goToTask(task.id)}
                   className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 border-l-2 px-2.5 py-2 text-left transition ${
                     isCurrent
                       ? "border-l-slate-950 border-y-slate-200 border-r-slate-200 bg-slate-50"
@@ -774,10 +776,44 @@ export function VentureConsoleShell({
                       </span>
                     ) : null}
                   </button>
-                </div>
-              );
-            })}
+              </div>
+            );
+          })}
         </div>
+
+        {completedRequiredTasks.length > 0 ? (
+          <details className="mt-4 border-t border-slate-200 pt-3">
+            <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              완료한 단계 다시 보기
+            </summary>
+            <div className="mt-3 space-y-1.5">
+              {completedRequiredTasks.map((task) => {
+                const Icon = task.icon;
+
+                return (
+                  <button
+                    key={task.id}
+                    type="button"
+                    onClick={() => goToTask(task.id)}
+                    className="grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 border-l-2 border-l-emerald-600 border-y border-r border-slate-200 bg-emerald-50/40 px-2.5 py-2 text-left transition hover:bg-emerald-50"
+                  >
+                    <span className="avl-step-dot bg-emerald-600 text-white">
+                      <CheckCircle size={13} weight="fill" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-950">
+                        <Icon size={13} />
+                        {task.label}
+                      </span>
+                      <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{task.description}</span>
+                    </span>
+                    <span className="avl-pill avl-pill-soft mt-0.5 px-1.5 py-0.5 text-[10px]">{taskStatuses[task.id]}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </details>
+        ) : null}
 
         {supportTasks.length > 0 ? (
           <details className="mt-4 border-t border-slate-200 pt-3">
