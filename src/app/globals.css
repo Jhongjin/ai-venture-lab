@@ -24,6 +24,65 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+@keyframes avl-hero-scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.24;
+  }
+  70% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes avl-hero-orbit {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes avl-hero-pulse {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+.landing-hero-scan {
+  background: linear-gradient(180deg, transparent 0%, rgba(129, 140, 248, 0.14) 48%, transparent 100%);
+  animation: avl-hero-scan 8s linear infinite;
+}
+
+.landing-hero-orbit {
+  animation: avl-hero-orbit 18s linear infinite;
+}
+
+.landing-hero-orbit-delayed {
+  animation: avl-hero-orbit 24s linear infinite reverse;
+}
+
+.landing-hero-node {
+  animation: avl-hero-pulse 3.8s ease-in-out infinite;
+}
+
+.landing-hero-node-delayed {
+  animation: avl-hero-pulse 4.6s ease-in-out infinite;
+}
+
 @layer components {
   .avl-card {
     border: 1px solid rgba(15, 23, 42, 0.08);

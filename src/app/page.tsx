@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
@@ -14,6 +13,7 @@ import {
   Sparkle,
   UsersThree,
 } from "@phosphor-icons/react/dist/ssr";
+import { LandingHeroVisual } from "@/components/landing-hero-visual";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -26,26 +26,11 @@ export const metadata: Metadata = {
   description: "아이디어를 검증하고, 기획과 MVP 실행까지 이어주는 AI venture workspace입니다.",
 };
 
-const heroSignals = [
-  {
-    label: "raw note",
-    body: "아이디어 초안이나 대화를 그대로 넣고 시작합니다.",
-  },
-  {
-    label: "one candidate",
-    body: "후보를 여러 개 펼치기보다, 지금 판단할 1건을 먼저 세웁니다.",
-  },
-  {
-    label: "ship path",
-    body: "기획, MVP, 출시 판단까지 같은 흐름 안에 남깁니다.",
-  },
-];
-
 const heroStats = [
-  { value: "01", label: "idea to candidate" },
-  { value: "07d", label: "validation sprint" },
-  { value: "1 board", label: "single execution surface" },
-  { value: "solo-first", label: "team optional" },
+  { value: "01", label: "지금 검토할 후보" },
+  { value: "07d", label: "첫 검증 스프린트" },
+  { value: "1 board", label: "하나의 실행 보드" },
+  { value: "solo-first", label: "필요할 때만 협업" },
 ];
 
 const workflowSteps = [
@@ -122,8 +107,8 @@ export default function HomePage() {
               <a href="#workflow" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
                 workflow
               </a>
-              <a href="#preview" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
-                preview
+              <a href="#principles" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
+                principles
               </a>
               <Link href="/guide" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
                 guide
@@ -136,110 +121,49 @@ export default function HomePage() {
           </div>
         </header>
 
-        <section className="mt-4 border border-slate-950 bg-[#0d0f14] text-white">
-          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1.24fr)_minmax(360px,0.76fr)]">
-            <div className="relative overflow-hidden bg-[#0d0f14] px-6 py-8 sm:px-8 sm:py-10 xl:px-10 xl:py-12">
-              <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:84px_84px]" />
-              <div aria-hidden="true" className="absolute inset-y-0 left-[58%] hidden w-px bg-white/8 xl:block" />
-              <div aria-hidden="true" className="absolute inset-x-0 top-[120px] h-px bg-white/8" />
-              <div aria-hidden="true" className="absolute left-12 top-12 h-24 w-24 border border-white/10" />
-              <div aria-hidden="true" className="absolute right-12 top-20 h-16 w-16 border border-white/8" />
-              <div aria-hidden="true" className="absolute bottom-12 right-12 h-28 w-28 border border-white/8" />
-              <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_20%_22%,rgba(148,163,184,0.16),transparent_30%),radial-gradient(circle_at_78%_68%,rgba(255,255,255,0.08),transparent_26%)]" />
-
-              <div className="relative z-10 grid gap-10 xl:grid-cols-[minmax(0,1fr)_220px]">
-                <div className="min-w-0">
-                  <div className="avl-kicker !text-slate-300">
-                    <ClipboardText size={14} />
-                    idea to MVP operating system
-                  </div>
-                  <h1
-                    className="mt-8 max-w-[6.4ch] text-[44px] font-normal leading-[0.92] tracking-[-0.05em] text-white sm:text-[50px] md:max-w-none md:whitespace-nowrap md:text-[64px] xl:text-[72px]"
-                    style={{ fontFamily: "var(--font-newsreader)" }}
-                  >
-                    AI Venture Lab
-                  </h1>
-                  <p className="mt-6 max-w-[18ch] text-[22px] font-semibold leading-[1.08] tracking-tight text-white sm:text-[28px] xl:text-[32px]">
-                    흩어진 아이디어를 실행할 후보로 정리하고, 검증부터 실행까지 한 보드에서 이어갑니다.
-                  </p>
-                  <p className="mt-5 max-w-[50ch] text-[15px] leading-7 text-slate-300">
-                    문서를 이리저리 옮기지 않아도, 지금 검토할 후보와 다음 액션을 한 화면에서 정리하고 바로 실행에 옮길 수 있는 워크스페이스입니다.
-                  </p>
-
-                  <div className="mt-8 flex flex-wrap gap-3">
-                    <Link href="/workspace" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
-                      지금 시작
-                      <ArrowRight size={16} />
-                    </Link>
-                    <a href="#preview" className="avl-btn h-11 border border-white/12 bg-white/6 px-5 text-sm text-white hover:bg-white/10">
-                      화면 일부 보기
-                    </a>
-                  </div>
-                </div>
-
-                <div className="grid gap-px self-start border border-white/10 bg-white/10">
-                  <div className="relative overflow-hidden bg-[#f3f1ea] px-5 py-5 text-slate-950">
-                    <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:34px_34px]" />
-                    <div aria-hidden="true" className="absolute right-5 top-5 h-16 w-16 border border-slate-300" />
-                    <div className="relative z-10">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">why it works</div>
-                      <div className="mt-3 max-w-[12ch] text-[28px] font-semibold leading-[1.02] tracking-tight">
-                        기능을 설명하기 전에, 지금 판단해야 할 후보를 먼저 보여줍니다
-                      </div>
-                      <p className="mt-5 max-w-[28ch] text-sm leading-6 text-slate-700">
-                        처음부터 모든 기능을 익히지 않아도, 후보 하나와 다음 액션 하나만으로 바로 시작할 수 있습니다.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-px bg-white/10 sm:grid-cols-2">
-                    {heroStats.map((stat) => (
-                      <div key={stat.label} className="bg-white/5 px-4 py-4">
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{stat.label}</div>
-                        <div className="mt-2 text-[24px] font-semibold tracking-tight text-white">{stat.value}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+        <section className="mt-4 border border-slate-950 bg-white">
+          <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.78fr)_minmax(620px,1.22fr)]">
+            <div className="bg-[#f7f6f2] px-6 py-8 sm:px-8 sm:py-10 xl:px-10 xl:py-12">
+              <div className="avl-kicker text-slate-700">
+                <ClipboardText size={14} />
+                idea to MVP operating system
               </div>
-            </div>
+              <h1
+                className="mt-8 max-w-[10ch] text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-slate-950 md:max-w-none md:whitespace-nowrap md:text-[58px] xl:text-[72px]"
+                style={{ fontFamily: "var(--font-newsreader)" }}
+              >
+                AI Venture Lab
+              </h1>
+              <p className="mt-6 max-w-[15ch] text-[24px] font-semibold leading-[1.04] tracking-tight text-slate-950 sm:text-[30px] xl:text-[34px]">
+                흩어진 아이디어를 실행할 후보로 정리하고, 검증부터 실행까지 한 흐름으로 이어갑니다.
+              </p>
+              <p className="mt-5 max-w-[52ch] text-[15px] leading-7 text-slate-600">
+                회의 기록, 대화 초안, 브리프 메모처럼 거칠게 시작해도 됩니다. AI가 후보와 질문, 실행 패키지의 첫 버전을 만들고,
+                사용자는 중요한 판단만 이어가면 됩니다.
+              </p>
 
-            <div className="grid gap-px bg-white/10">
-              <div className="relative overflow-hidden bg-[#f3f1ea] px-5 py-5 text-slate-950">
-                <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:28px_28px]" />
-                <div className="relative z-10">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">execution flow</div>
-                  <div className="mt-3 max-w-[16ch] text-[24px] font-semibold leading-[1.04] tracking-tight sm:text-[27px] xl:max-w-[17ch] xl:text-[30px]">
-                    복잡한 대시보드 대신, 아이디어 초안부터 다음 실행까지 끊기지 않게 이어집니다.
-                  </div>
-                </div>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link href="/workspace" className="avl-btn avl-btn-primary h-11 px-5 text-sm">
+                  지금 시작
+                  <ArrowRight size={16} />
+                </Link>
+                <a href="#workflow" className="avl-btn avl-btn-secondary h-11 px-5 text-sm">
+                  어떻게 작동하나
+                </a>
               </div>
 
-              <div className="grid gap-px bg-white/10">
-                {heroSignals.map((item, index) => (
-                  <div key={item.label} className="grid gap-px bg-white/10 md:grid-cols-[76px_minmax(0,1fr)]">
-                    <div className="bg-white/6 px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-                      {String(index + 1).padStart(2, "0")}
-                    </div>
-                    <div className="bg-white/5 px-5 py-4">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{item.label}</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-200">{item.body}</p>
-                    </div>
+              <div className="mt-10 grid gap-px border border-slate-300 bg-slate-300 sm:grid-cols-2">
+                {heroStats.map((stat) => (
+                  <div key={stat.label} className="bg-white px-4 py-4">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{stat.label}</div>
+                    <div className="mt-2 text-[24px] font-semibold tracking-tight text-slate-950">{stat.value}</div>
                   </div>
                 ))}
               </div>
+            </div>
 
-              <div className="relative min-h-[240px] overflow-hidden bg-[#0f1116]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.1),transparent_46%)]" />
-                <Image
-                  src="/images/workspace-preview.png"
-                  alt="AI Venture Lab workspace preview"
-                  width={1600}
-                  height={980}
-                  className="absolute -right-[8%] bottom-0 h-auto w-[122%] max-w-none translate-y-[18%] rotate-[-7deg] opacity-[0.9] shadow-[0_24px_80px_rgba(0,0,0,0.34)]"
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,17,22,0.22)_0%,#0f1116_92%)]" />
-              </div>
+            <div className="bg-[#0d0f14] p-4 sm:p-5">
+              <LandingHeroVisual />
             </div>
           </div>
         </section>
@@ -290,72 +214,33 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="preview" className="mt-4 border-t border-slate-300 bg-transparent">
-          <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,1.1fr)_420px]">
-            <div className="bg-white">
-              <div className="grid gap-px bg-slate-300 md:grid-cols-[minmax(0,1fr)_220px]">
-                <div className="bg-white px-6 py-5 sm:px-7">
-                  <div className="avl-kicker">workspace preview</div>
-                  <div className="mt-3 max-w-[14ch] text-[34px] font-semibold leading-[1.04] tracking-tight text-slate-950">
-                    한 화면에서 후보, 판단, 실행까지 이어집니다.
-                  </div>
-                </div>
-                <div className="bg-[#f7f6f2] px-6 py-5 text-sm leading-6 text-slate-600">
-                  실제 보드 화면은 아래처럼 보이고, 홈에서는 이 흐름의 인상만 먼저 줍니다.
-                </div>
+        <section id="principles" className="mt-4 border-t border-slate-300 bg-transparent">
+          <div className="grid gap-px bg-slate-300 xl:grid-cols-[320px_minmax(0,1fr)]">
+            <div className="bg-[#f7f6f2] px-6 py-6 sm:px-7">
+              <div className="avl-kicker">principles</div>
+              <div className="mt-3 max-w-[10ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-slate-950">
+                한 사람이 끝까지 밀 수 있게 구조를 단순하게 접습니다.
               </div>
-
-              <div className="grid gap-px border-t border-slate-300 bg-slate-300 lg:grid-cols-[minmax(0,1fr)_260px]">
-                <div className="bg-[#f8f7f4] p-4 sm:p-5">
-                  <div className="overflow-hidden border border-slate-300 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-                    <Image
-                      src="/images/workspace-preview.png"
-                      alt="AI Venture Lab workspace preview detail"
-                      width={1600}
-                      height={980}
-                      className="h-auto w-full object-cover object-top"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-px bg-slate-300">
-                  <div className="bg-white px-5 py-5">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">01</div>
-                    <p className="mt-3 text-sm leading-6 text-slate-700">추천 1건과 다음 행동 1개를 앞에 둡니다.</p>
-                  </div>
-                  <div className="bg-[#f7f6f2] px-5 py-5">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">02</div>
-                    <p className="mt-3 text-sm leading-6 text-slate-700">브리프와 PRD, MVP 범위가 같은 실행 맥락으로 붙습니다.</p>
-                  </div>
-                  <div className="bg-white px-5 py-5">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">03</div>
-                    <p className="mt-3 text-sm leading-6 text-slate-700">출시 후 신호도 다시 보드로 돌아와 다음 결정을 만듭니다.</p>
-                  </div>
-                </div>
-              </div>
+              <p className="mt-4 max-w-[28ch] text-sm leading-6 text-slate-600">
+                제품을 이해시키는 데서 멈추지 않고, 지금 검토할 후보와 다음 행동을 먼저 전면에 꺼내는 방식으로 설계했습니다.
+              </p>
             </div>
 
-            <div className="grid gap-px bg-slate-300">
-              <div className="bg-[#f7f6f2] px-6 py-5">
-                <div className="avl-kicker">system notes</div>
-                <div className="mt-3 max-w-[12ch] text-[30px] font-semibold leading-[1.02] tracking-tight text-slate-950">
-                  한 사람이 끝까지 밀 수 있게 복잡도를 접어 둡니다.
-                </div>
-              </div>
+            <div className="grid gap-px bg-slate-300 md:grid-cols-3">
               {principles.map((block) => {
                 const Icon = block.icon;
                 return (
-                  <div key={block.title} className="bg-white px-6 py-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
+                  <article key={block.title} className="grid grid-rows-[78px_minmax(0,1fr)] gap-px bg-slate-200">
+                    <div className="bg-white px-6 py-5">
+                      <div className="flex items-center justify-between gap-3">
                         <div className="avl-kicker">{block.title}</div>
-                        <p className="mt-4 text-sm leading-6 text-slate-600">{block.body}</p>
+                        <span className="avl-icon-frame rounded-none border-slate-200 bg-slate-50">
+                          <Icon size={18} />
+                        </span>
                       </div>
-                      <span className="avl-icon-frame rounded-none border-slate-200 bg-slate-50">
-                        <Icon size={18} />
-                      </span>
                     </div>
-                  </div>
+                    <div className="bg-[#fbfbf8] px-6 py-6 text-sm leading-6 text-slate-700">{block.body}</div>
+                  </article>
                 );
               })}
             </div>
