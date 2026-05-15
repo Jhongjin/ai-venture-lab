@@ -154,12 +154,12 @@ export default function HomePage() {
                     idea to MVP operating system
                   </div>
                   <h1
-                    className="mt-8 max-w-[6.8ch] text-[54px] font-normal leading-[0.9] tracking-[-0.05em] text-white sm:max-w-none sm:text-[72px] xl:text-[96px]"
+                    className="mt-8 max-w-[6.8ch] text-[50px] font-normal leading-[0.92] tracking-[-0.05em] text-white sm:max-w-none sm:whitespace-nowrap sm:text-[60px] xl:text-[78px]"
                     style={{ fontFamily: "var(--font-newsreader)" }}
                   >
                     AI Venture Lab
                   </h1>
-                  <p className="mt-6 max-w-[18ch] text-[24px] font-semibold leading-[1.05] tracking-tight text-white sm:text-[32px] xl:text-[38px]">
+                  <p className="mt-6 max-w-[18ch] text-[22px] font-semibold leading-[1.08] tracking-tight text-white sm:text-[28px] xl:text-[32px]">
                     흩어진 아이디어를 실행할 후보로 정리하고, 검증부터 실행까지 한 보드에서 이어갑니다.
                   </p>
                   <p className="mt-5 max-w-[50ch] text-[15px] leading-7 text-slate-300">
@@ -209,8 +209,8 @@ export default function HomePage() {
                 <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:28px_28px]" />
                 <div className="relative z-10">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">execution flow</div>
-                  <div className="mt-3 max-w-[13ch] text-[32px] font-semibold leading-[1.02] tracking-tight">
-                    복잡한 대시보드 대신, 아이디어 초안에서 후보를 고르고 다음 실행까지 흐름이 끊기지 않게 이어집니다.
+                  <div className="mt-3 max-w-[15ch] text-[26px] font-semibold leading-[1.06] tracking-tight sm:text-[30px]">
+                    복잡한 대시보드 대신, 아이디어 초안에서 다음 실행까지 한 흐름으로 이어집니다.
                   </div>
                 </div>
               </div>
