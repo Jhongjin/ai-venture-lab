@@ -102,28 +102,37 @@ export default function HomePage() {
 
         <section className="mt-4 overflow-hidden border border-slate-950 bg-[#0d0f14] text-white">
           <div className="grid gap-px bg-white/8 xl:grid-cols-[minmax(360px,0.72fr)_minmax(0,1.28fr)]">
-            <div className="flex flex-col justify-between bg-[#0d0f14] px-6 py-8 sm:px-8 sm:py-10 xl:px-12 xl:py-14">
+            <div className="relative overflow-hidden flex flex-col justify-between bg-[#0d0f14] px-6 py-8 sm:px-8 sm:py-10 xl:px-12 xl:py-14">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(circle at 82% 16%, rgba(245,239,227,0.14), transparent 28%), radial-gradient(circle at 18% 74%, rgba(188,211,255,0.12), transparent 24%), linear-gradient(180deg, rgba(255,255,255,0.02), transparent 38%)",
+                }}
+              />
+              <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-px bg-[linear-gradient(180deg,transparent,rgba(245,239,227,0.3),transparent)]" />
               <div>
                 <div className="avl-kicker !text-slate-400">
                   <Sparkle size={14} />
                   idea to MVP operating system
                 </div>
                 <h1
-                  className="mt-8 text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-white md:whitespace-nowrap md:text-[58px] xl:text-[78px]"
+                  className="relative mt-8 text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-white md:whitespace-nowrap md:text-[58px] xl:text-[78px]"
                   style={{ fontFamily: "var(--font-newsreader)" }}
                 >
                   <span className="text-[#bcd3ff]">AI</span>{" "}
                   <span>Venture Lab</span>
                 </h1>
-                <p className="mt-8 max-w-[12ch] text-[24px] font-semibold leading-[1.04] tracking-tight text-white sm:text-[32px] xl:text-[38px]">
-                  아이디어를 후보로 정리하고, 검증과 실행을 한 흐름으로 잇습니다.
+                <p className="relative mt-8 max-w-[12ch] text-[24px] font-semibold leading-[1.04] tracking-tight text-white sm:text-[32px] xl:text-[38px]">
+                  아이디어를 실행 후보로 정리하고, 검증과 실행을 한 흐름으로 이어갑니다.
                 </p>
-                <p className="mt-5 max-w-[50ch] text-[15px] leading-7 text-slate-300">
-                  회의 내용이나 초안만 있어도 시작할 수 있습니다. AI가 후보와 질문, 실행 초안을 정리하면 사람은 판단만 이어가면 됩니다.
+                <p className="relative mt-5 max-w-[48ch] text-[15px] leading-7 text-slate-300">
+                  회의 내용이나 브리프 초안만 있어도 충분합니다. AI가 후보와 질문, 실행 초안을 먼저 정리하면 사람은 중요한 판단만 이어가면 됩니다.
                 </p>
               </div>
 
-              <div className="mt-10">
+              <div className="relative mt-10">
                 <div className="flex flex-wrap gap-3">
                   <Link href="/workspace" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
                     지금 시작

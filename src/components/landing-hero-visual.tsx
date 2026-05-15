@@ -29,14 +29,14 @@ const stages = [
     title: "검증 스프린트",
     body: "질문, 리스크, 7일 실험을 한 흐름으로 묶습니다.",
     icon: ShieldCheck,
-    className: "left-8 bottom-28 md:left-16",
+    className: "left-8 bottom-48 md:left-14",
   },
   {
     label: "ship path",
     title: "실행 연결",
     body: "기획, MVP, 출시 판단을 한 흐름으로 묶습니다.",
     icon: RocketLaunch,
-    className: "right-8 bottom-18 md:right-16",
+    className: "right-8 bottom-44 md:right-12",
   },
 ];
 
@@ -139,6 +139,17 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
           <div className="absolute inset-[14%] rounded-full border border-white/8 landing-hero-orbit-delayed" />
           <div className="absolute inset-[28%] rounded-full border border-white/10" />
           <div className="absolute inset-[36%] rounded-full border border-sky-200/10 landing-hero-core-pulse" />
+          <div className="absolute left-1/2 top-1/2 h-[112%] w-[112%] -translate-x-1/2 -translate-y-1/2">
+            <div className="h-full w-full rounded-full border border-sky-200/8 landing-hero-wave" />
+          </div>
+          <div className="absolute left-1/2 top-1/2 h-[112%] w-[112%] -translate-x-1/2 -translate-y-1/2">
+            <div className="h-full w-full rounded-full border border-indigo-200/8 landing-hero-wave-delayed" />
+          </div>
+          <div className="absolute left-1/2 top-1/2 h-[78%] w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full landing-hero-radar" />
+          <div className="absolute left-1/2 top-1/2 h-[54%] w-[54%] -translate-x-1/2 -translate-y-1/2 rounded-full landing-hero-radar-soft" />
+          <div className="absolute left-1/2 top-1/2 h-px w-[44%] -translate-y-1/2">
+            <div className="h-full w-full bg-[linear-gradient(90deg,rgba(125,211,252,0.7),transparent)] landing-hero-scan-arm" />
+          </div>
 
           <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_22px_rgba(255,255,255,0.55)]" />
           <div className="absolute left-[18%] top-[28%] h-[54%] w-px bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.45),transparent)]" />
@@ -154,14 +165,17 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
           <div aria-hidden="true" className="absolute left-[24%] top-[24%] h-px w-[28%] landing-hero-stream" />
           <div aria-hidden="true" className="absolute left-[58%] top-[34%] h-[24%] w-px landing-hero-stream-vertical" />
           <div aria-hidden="true" className="absolute left-[34%] top-[66%] h-px w-[30%] landing-hero-stream-delayed" />
+
+          <div className="absolute inset-0 landing-hero-satellite-a">
+            <div className="absolute left-1/2 top-[7%] h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-sky-300 shadow-[0_0_16px_rgba(125,211,252,0.65)]" />
+          </div>
+          <div className="absolute inset-0 landing-hero-satellite-b">
+            <div className="absolute left-1/2 top-[12%] h-2 w-2 -translate-x-1/2 rounded-full bg-violet-300 shadow-[0_0_16px_rgba(196,181,253,0.65)]" />
+          </div>
         </div>
       </div>
 
       {stages.map((stage, index) => {
-        if (variant === "hero" && index === 3) {
-          return null;
-        }
-
         const Icon = stage.icon;
         const xOffset = (motionPoint.x - 50) / (index % 2 === 0 ? 8 : -10);
         const yOffset = (motionPoint.y - 50) / (index < 2 ? 14 : -14);
@@ -195,14 +209,14 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
         );
       })}
 
-      <div className="absolute inset-x-6 bottom-6 grid gap-px border border-white/10 bg-white/10 md:inset-x-8 md:grid-cols-3">
+      <div className="absolute inset-x-6 bottom-6 grid gap-3 md:inset-x-8 md:grid-cols-3">
         {signals.map((signal, index) => (
           <div
             key={signal.id}
             className={`px-4 py-4 transition-colors duration-500 ${
               index === activeStage % signals.length
-                ? "bg-[#182032] text-white"
-                : "bg-[#121620]/90 text-slate-200"
+                ? "border border-sky-300/22 bg-[#182032]/96 text-white shadow-[0_0_0_1px_rgba(125,211,252,0.08)]"
+                : "border border-white/10 bg-[#121620]/90 text-slate-200"
             }`}
           >
             <div className="flex items-start gap-4">
@@ -213,25 +227,11 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
                 <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${index === activeStage % signals.length ? "text-sky-100/80" : "text-slate-500"}`}>
                   {signal.label}
                 </div>
-                <p className="mt-2 text-sm leading-6 text-inherit">{signal.body}</p>
+                <p className="mt-3 text-sm leading-6 text-inherit">{signal.body}</p>
               </div>
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="absolute bottom-[118px] right-8 hidden w-[312px] border border-white/10 bg-[#111722]/92 px-4 py-3 text-slate-200 backdrop-blur md:block">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">active stage</div>
-        <div className="mt-3 flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="text-lg font-semibold text-white">{stages[activeStage]?.title}</div>
-            <p className="mt-2 max-w-[17ch] text-sm leading-6 text-slate-300">{stages[activeStage]?.body}</p>
-          </div>
-          <div className="shrink-0 border-l border-white/10 pl-4 text-right">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">cycle</div>
-            <div className="mt-1 font-mono text-[22px] font-semibold text-sky-200">0{activeStage + 1}</div>
-          </div>
-        </div>
       </div>
     </div>
   );
