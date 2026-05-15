@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 const heroSignals = [
   {
     label: "raw note",
-    body: "회의 메모나 대화를 그대로 넣고 시작합니다.",
+    body: "아이디어 초안이나 대화를 그대로 넣고 시작합니다.",
   },
   {
     label: "one candidate",
@@ -42,7 +42,7 @@ const heroSignals = [
 ];
 
 const heroStats = [
-  { value: "01", label: "memo to candidate" },
+  { value: "01", label: "idea to candidate" },
   { value: "07d", label: "validation sprint" },
   { value: "1 board", label: "single execution surface" },
   { value: "solo-first", label: "team optional" },
@@ -51,8 +51,8 @@ const heroStats = [
 const workflowSteps = [
   {
     id: "01",
-    title: "메모에서 후보를 꺼냅니다",
-    body: "회의 문장과 대화를 넣으면 후보 1건과 검증 질문을 먼저 분리합니다.",
+    title: "아이디어 초안에서 후보를 꺼냅니다",
+    body: "회의 내용과 대화를 넣으면 후보 1건과 검증 질문을 먼저 분리합니다.",
     icon: Sparkle,
   },
   {
@@ -154,16 +154,16 @@ export default function HomePage() {
                     idea to MVP operating system
                   </div>
                   <h1
-                    className="mt-8 max-w-[8.9ch] text-[60px] font-normal leading-[0.88] tracking-[-0.06em] text-white sm:text-[88px] xl:text-[118px]"
+                    className="mt-8 max-w-[6.8ch] text-[54px] font-normal leading-[0.9] tracking-[-0.05em] text-white sm:max-w-none sm:text-[72px] xl:text-[96px]"
                     style={{ fontFamily: "var(--font-newsreader)" }}
                   >
                     AI Venture Lab
                   </h1>
-                  <p className="mt-6 max-w-[18ch] text-[28px] font-semibold leading-[1.03] tracking-tight text-white sm:text-[44px]">
-                    메모에 적어둔 아이디어를 실행할 후보로 바꾸고, 검증부터 실행까지 한 보드에서 이어갑니다.
+                  <p className="mt-6 max-w-[18ch] text-[24px] font-semibold leading-[1.05] tracking-tight text-white sm:text-[32px] xl:text-[38px]">
+                    흩어진 아이디어를 실행할 후보로 정리하고, 검증부터 실행까지 한 보드에서 이어갑니다.
                   </p>
                   <p className="mt-5 max-w-[50ch] text-[15px] leading-7 text-slate-300">
-                    문서를 이리저리 옮기지 않아도, 지금 검토할 후보와 다음 액션을 한 화면에서 정리하고 바로 움직일 수 있게 만든 실행형 워크스페이스입니다.
+                    문서를 이리저리 옮기지 않아도, 지금 검토할 후보와 다음 액션을 한 화면에서 정리하고 바로 실행에 옮길 수 있는 워크스페이스입니다.
                   </p>
 
                   <div className="mt-8 flex flex-wrap gap-3">
@@ -210,7 +210,7 @@ export default function HomePage() {
                 <div className="relative z-10">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">execution flow</div>
                   <div className="mt-3 max-w-[13ch] text-[32px] font-semibold leading-[1.02] tracking-tight">
-                    복잡한 대시보드 대신, 메모에서 후보를 고르고 다음 실행까지 흐름이 끊기지 않게 이어집니다.
+                    복잡한 대시보드 대신, 아이디어 초안에서 후보를 고르고 다음 실행까지 흐름이 끊기지 않게 이어집니다.
                   </div>
                 </div>
               </div>
@@ -252,7 +252,7 @@ export default function HomePage() {
                 className="mt-4 max-w-[7ch] text-[42px] font-normal leading-[0.94] tracking-[-0.04em] text-slate-950 sm:text-[58px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}
               >
-                메모 → 후보 → 실행.
+                아이디어 → 후보 → 실행.
               </h2>
               <p className="mt-4 max-w-[28ch] text-sm leading-6 text-slate-600">
                 큰 설명보다, 지금 어디까지 밀었는지 바로 읽히는 흐름으로 구성합니다.
