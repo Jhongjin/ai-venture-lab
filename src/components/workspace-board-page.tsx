@@ -67,9 +67,9 @@ export async function WorkspaceBoardPage() {
 
             <div className="grid gap-px bg-slate-200 sm:grid-cols-2 xl:grid-cols-4">
               {headerStats.map(([label, value]) => (
-                <div key={label} className="bg-[#f7f6f2] px-4 py-3">
+                <div key={label} className="bg-white px-4 py-3">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>
-                  <div className="mt-2 text-[22px] font-semibold tracking-tight text-slate-950">{value}</div>
+                  <div className="mt-1 text-[20px] font-semibold tracking-tight text-slate-950">{value}</div>
                 </div>
               ))}
             </div>

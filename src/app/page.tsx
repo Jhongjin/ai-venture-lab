@@ -48,12 +48,6 @@ const heroStats = [
   { value: "solo-first", label: "team optional" },
 ];
 
-const heroRail = [
-  "메모를 넣습니다",
-  "후보 1건을 고릅니다",
-  "실행 패키지로 넘깁니다",
-];
-
 const workflowSteps = [
   {
     id: "01",
@@ -142,95 +136,69 @@ export default function HomePage() {
           </div>
         </header>
 
-        <section className="mt-4 overflow-hidden border border-slate-950 bg-[#0d0f14] text-white">
-          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1.14fr)_380px]">
+        <section className="mt-4 border border-slate-950 bg-[#0d0f14] text-white">
+          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
             <div className="relative overflow-hidden bg-[#0d0f14] px-6 py-8 sm:px-8 sm:py-10 xl:px-10 xl:py-12">
-              <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:76px_76px]" />
-              <div aria-hidden="true" className="absolute inset-x-0 top-[112px] h-px bg-white/8" />
-              <div aria-hidden="true" className="absolute inset-y-0 right-[26%] w-px bg-white/8" />
-              <div aria-hidden="true" className="absolute left-10 top-10 h-20 w-20 border border-white/10" />
-              <div aria-hidden="true" className="absolute bottom-10 right-10 h-28 w-28 border border-white/8" />
-              <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(148,163,184,0.14),transparent_28%),radial-gradient(circle_at_86%_68%,rgba(255,255,255,0.08),transparent_30%)]" />
-              <div aria-hidden="true" className="absolute inset-y-0 right-0 hidden w-[42%] overflow-hidden xl:block">
-                <Image
-                  src="/images/workspace-preview.png"
-                  alt=""
-                  width={1600}
-                  height={980}
-                  className="absolute -right-[6%] top-[10%] h-auto w-[128%] max-w-none rotate-[-6deg] opacity-[0.14] mix-blend-screen grayscale"
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(90deg,#0d0f14_10%,rgba(13,15,20,0.42)_48%,#0d0f14_100%)]" />
-              </div>
+              <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:84px_84px]" />
+              <div aria-hidden="true" className="absolute inset-y-0 left-[58%] hidden w-px bg-white/8 xl:block" />
+              <div aria-hidden="true" className="absolute inset-x-0 top-[120px] h-px bg-white/8" />
+              <div aria-hidden="true" className="absolute left-12 top-12 h-24 w-24 border border-white/10" />
+              <div aria-hidden="true" className="absolute right-12 top-20 h-16 w-16 border border-white/8" />
+              <div aria-hidden="true" className="absolute bottom-12 right-12 h-28 w-28 border border-white/8" />
+              <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_20%_22%,rgba(148,163,184,0.16),transparent_30%),radial-gradient(circle_at_78%_68%,rgba(255,255,255,0.08),transparent_26%)]" />
 
-              <div className="relative z-10 max-w-[1040px]">
-                <div className="avl-kicker !text-slate-300">
-                  <ClipboardText size={14} />
-                  operator-first venture workspace
+              <div className="relative z-10 grid gap-10 xl:grid-cols-[minmax(0,1fr)_260px]">
+                <div className="min-w-0">
+                  <div className="avl-kicker !text-slate-300">
+                    <ClipboardText size={14} />
+                    idea to MVP operating system
+                  </div>
+                  <h1
+                    className="mt-8 max-w-[7.2ch] text-[62px] font-normal leading-[0.87] tracking-[-0.06em] text-white sm:text-[92px] xl:text-[132px]"
+                    style={{ fontFamily: "var(--font-newsreader)" }}
+                  >
+                    AI Venture Lab
+                  </h1>
+                  <p className="mt-6 max-w-[17ch] text-[28px] font-semibold leading-[1.03] tracking-tight text-white sm:text-[46px]">
+                    메모를 후보로 꺼내 검증하고, 실행까지 같은 보드에서 밀어붙입니다.
+                  </p>
+                  <p className="mt-5 max-w-[50ch] text-[15px] leading-7 text-slate-300">
+                    문서를 여러 개 만드는 대신, 지금 밀 후보 1건과 다음 행동 1개를 먼저 앞으로 꺼내는 실행형 워크스페이스입니다.
+                  </p>
+
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    <Link href="/workspace" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
+                      지금 시작
+                      <ArrowRight size={16} />
+                    </Link>
+                    <a href="#preview" className="avl-btn h-11 border border-white/12 bg-white/6 px-5 text-sm text-white hover:bg-white/10">
+                      화면 일부 보기
+                    </a>
+                  </div>
                 </div>
 
-                <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(0,1fr)_280px]">
-                  <div className="min-w-0">
-                    <h1
-                      className="max-w-[8.4ch] text-[56px] font-normal leading-[0.88] tracking-[-0.055em] text-white sm:text-[86px] xl:text-[116px]"
-                      style={{ fontFamily: "var(--font-newsreader)" }}
-                    >
-                      AI Venture Lab
-                    </h1>
-                    <p className="mt-6 max-w-[15ch] text-[28px] font-semibold leading-[1.04] tracking-tight text-white sm:text-[42px]">
-                      한 줄 메모를 실행 후보로 바꾸고, MVP까지 같은 흐름에서 밀어붙입니다.
-                    </p>
-                    <p className="mt-5 max-w-[52ch] text-[15px] leading-7 text-slate-300">
-                      아이디어를 문서로 쌓지 않고, 후보 선정부터 검증과 기획, 출시 판단까지 바로 이어지는 작업면으로 묶습니다.
-                    </p>
-
-                    <div className="mt-8 flex flex-wrap gap-3">
-                      <Link href="/workspace" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
-                        지금 시작
-                        <ArrowRight size={16} />
-                      </Link>
-                      <a href="#preview" className="avl-btn h-11 border border-white/12 bg-white/6 px-5 text-sm text-white hover:bg-white/10">
-                        보드 일부 보기
-                      </a>
-                    </div>
-
-                    <div className="mt-12 border-t border-white/10 pt-5">
-                      <div className="grid gap-px bg-white/10 lg:grid-cols-3">
-                        {heroRail.map((step, index) => (
-                          <div key={step} className="bg-white/[0.03] px-5 py-4">
-                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                              {String(index + 1).padStart(2, "0")}
-                            </div>
-                            <p className="mt-3 max-w-[16ch] text-sm leading-6 text-slate-100">{step}</p>
-                          </div>
-                        ))}
+                <div className="grid gap-px self-start border border-white/10 bg-white/10">
+                  <div className="relative overflow-hidden bg-[#f3f1ea] px-5 py-5 text-slate-950">
+                    <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:34px_34px]" />
+                    <div aria-hidden="true" className="absolute right-5 top-5 h-16 w-16 border border-slate-300" />
+                    <div className="relative z-10">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">why it stays open</div>
+                      <div className="mt-3 max-w-[10ch] text-[30px] font-semibold leading-[1.02] tracking-tight">
+                        설명서보다 먼저, 실행 후보를 전면에 둡니다
                       </div>
+                      <p className="mt-5 max-w-[26ch] text-sm leading-6 text-slate-700">
+                        전체 기능을 배우기보다, 지금 밀 후보 1건과 다음 행동만 먼저 보게 합니다.
+                      </p>
                     </div>
                   </div>
 
-                  <div className="grid gap-px self-start border border-white/10 bg-white/10">
-                    <div className="relative overflow-hidden bg-[#f3f1ea] px-5 py-5 text-slate-950">
-                      <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:34px_34px]" />
-                      <div aria-hidden="true" className="absolute right-5 top-5 h-16 w-16 border border-slate-300" />
-                      <div aria-hidden="true" className="absolute bottom-5 left-5 h-12 w-12 border border-slate-300" />
-                      <div className="relative z-10">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">why it stays open</div>
-                        <div className="mt-3 max-w-[10ch] text-[30px] font-semibold leading-[1.02] tracking-tight">
-                          설명서보다 먼저, 실행 후보를 전면에 둡니다
-                        </div>
-                        <p className="mt-5 max-w-[28ch] text-sm leading-6 text-slate-700">
-                          사용자는 전체 기능을 배우기보다, 지금 밀 후보 1건과 다음 행동만 먼저 보게 됩니다.
-                        </p>
+                  <div className="grid gap-px bg-white/10 sm:grid-cols-2">
+                    {heroStats.map((stat) => (
+                      <div key={stat.label} className="bg-white/5 px-4 py-4">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{stat.label}</div>
+                        <div className="mt-2 text-[24px] font-semibold tracking-tight text-white">{stat.value}</div>
                       </div>
-                    </div>
-
-                    <div className="grid gap-px bg-white/10 sm:grid-cols-2">
-                      {heroStats.map((stat) => (
-                        <div key={stat.label} className="bg-white/5 px-4 py-4">
-                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{stat.label}</div>
-                          <div className="mt-2 text-[24px] font-semibold tracking-tight text-white">{stat.value}</div>
-                        </div>
-                      ))}
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -241,15 +209,15 @@ export default function HomePage() {
                 <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:28px_28px]" />
                 <div className="relative z-10">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">execution field</div>
-                  <div className="mt-3 max-w-[11ch] text-[30px] font-semibold leading-[1.02] tracking-tight">
-                    복잡한 대시보드보다, 지금 밀어야 할 후보 1건을 앞에 둡니다.
+                  <div className="mt-3 max-w-[12ch] text-[32px] font-semibold leading-[1.02] tracking-tight">
+                    복잡한 대시보드보다, 메모에서 다음 실행까지 한 선으로 읽히게 만듭니다.
                   </div>
                 </div>
               </div>
 
               <div className="grid gap-px bg-white/10">
                 {heroSignals.map((item, index) => (
-                  <div key={item.label} className="grid gap-px bg-white/10 md:grid-cols-[72px_minmax(0,1fr)]">
+                  <div key={item.label} className="grid gap-px bg-white/10 md:grid-cols-[76px_minmax(0,1fr)]">
                     <div className="bg-white/6 px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
                       {String(index + 1).padStart(2, "0")}
                     </div>
@@ -261,10 +229,16 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="bg-white/5 px-5 py-5">
-                <p className="max-w-[34ch] text-sm leading-6 text-slate-200">
-                  AI가 후보와 산출물을 먼저 만들고, 사용자는 중요한 판단만 보완합니다. 팀 초대는 옵션이고, 기본은 솔로 실행입니다.
-                </p>
+              <div className="relative min-h-[240px] overflow-hidden bg-[#0f1116]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.1),transparent_46%)]" />
+                <Image
+                  src="/images/workspace-preview.png"
+                  alt="AI Venture Lab workspace preview"
+                  width={1600}
+                  height={980}
+                  className="absolute -right-[8%] bottom-0 h-auto w-[122%] max-w-none translate-y-[18%] rotate-[-7deg] opacity-[0.9] shadow-[0_24px_80px_rgba(0,0,0,0.34)]"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,17,22,0.22)_0%,#0f1116_92%)]" />
               </div>
             </div>
           </div>
@@ -285,11 +259,14 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid gap-px bg-slate-300 lg:grid-cols-3">
+            <div className="grid gap-px bg-slate-300 md:grid-cols-2">
               {workflowSteps.map((step) => {
                 const Icon = step.icon;
                 return (
-                  <article key={step.id} className="grid grid-rows-[72px_minmax(0,1fr)] gap-px bg-slate-200">
+                  <article
+                    key={step.id}
+                    className={`grid grid-rows-[72px_minmax(0,1fr)] gap-px bg-slate-200 ${step.id === "01" ? "md:col-span-2" : ""}`}
+                  >
                     <div className="bg-[#f7f6f2] px-6 py-5 sm:px-7">
                       <div className="flex items-center justify-between gap-3">
                         <span className="avl-icon-frame rounded-none border-slate-200 bg-white">
@@ -300,11 +277,11 @@ export default function HomePage() {
                         </span>
                       </div>
                     </div>
-                    <div className="bg-white px-6 py-6 sm:px-7">
-                      <h3 className="max-w-[12ch] text-[28px] font-semibold leading-[1.02] tracking-tight text-slate-950">
+                    <div className={`bg-white px-6 py-6 sm:px-7 ${step.id === "01" ? "md:grid md:grid-cols-[minmax(0,1.15fr)_220px] md:items-end md:gap-8" : ""}`}>
+                      <h3 className={`text-[28px] font-semibold leading-[1.02] tracking-tight text-slate-950 ${step.id === "01" ? "max-w-[11ch]" : "max-w-[12ch]"}`}>
                         {step.title}
                       </h3>
-                      <p className="mt-4 max-w-[28ch] text-sm leading-6 text-slate-600">{step.body}</p>
+                      <p className={`text-sm leading-6 text-slate-600 ${step.id === "01" ? "mt-5 max-w-[24ch] md:mt-0" : "mt-4 max-w-[28ch]"}`}>{step.body}</p>
                     </div>
                   </article>
                 );
@@ -359,6 +336,12 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-px bg-slate-300">
+              <div className="bg-[#f7f6f2] px-6 py-5">
+                <div className="avl-kicker">system notes</div>
+                <div className="mt-3 max-w-[12ch] text-[30px] font-semibold leading-[1.02] tracking-tight text-slate-950">
+                  한 사람이 끝까지 밀 수 있게 복잡도를 접어 둡니다.
+                </div>
+              </div>
               {principles.map((block) => {
                 const Icon = block.icon;
                 return (
