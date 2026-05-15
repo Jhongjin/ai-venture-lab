@@ -132,6 +132,49 @@ body {
   }
 }
 
+@keyframes avl-hero-sweep {
+  0% {
+    opacity: 0;
+    transform: translate3d(-30%, 0, 0) skewX(-14deg);
+  }
+  20% {
+    opacity: 0.2;
+  }
+  70% {
+    opacity: 0.08;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(240%, 0, 0) skewX(-14deg);
+  }
+}
+
+@keyframes avl-hero-live-dot {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(125, 211, 252, 0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.28);
+    box-shadow: 0 0 16px rgba(125, 211, 252, 0.5);
+  }
+}
+
+@keyframes avl-hero-core-pulse {
+  0%,
+  100% {
+    opacity: 0.14;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.32;
+    transform: scale(1.08);
+  }
+}
+
 .landing-hero-scan {
   background: linear-gradient(180deg, transparent 0%, rgba(129, 140, 248, 0.14) 48%, transparent 100%);
   animation: avl-hero-scan 8s linear infinite;
@@ -189,6 +232,26 @@ body {
 .landing-hero-stream-vertical {
   background: linear-gradient(180deg, transparent, rgba(125, 211, 252, 0.82), rgba(196, 181, 253, 0.75), transparent);
   animation: avl-hero-stream-vertical 3.9s ease-in-out infinite 0.35s;
+}
+
+.landing-hero-sweep {
+  background: linear-gradient(90deg, transparent, rgba(125, 211, 252, 0.16), rgba(196, 181, 253, 0.14), transparent);
+  filter: blur(18px);
+  animation: avl-hero-sweep 8.2s linear infinite;
+}
+
+.landing-hero-sweep-delayed {
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.14), rgba(148, 163, 184, 0.08), transparent);
+  filter: blur(20px);
+  animation: avl-hero-sweep 9.6s linear infinite 2.2s;
+}
+
+.landing-hero-live-dot {
+  animation: avl-hero-live-dot 1.8s ease-in-out infinite;
+}
+
+.landing-hero-core-pulse {
+  animation: avl-hero-core-pulse 4.4s ease-in-out infinite;
 }
 
 @layer components {

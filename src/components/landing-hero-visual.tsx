@@ -84,9 +84,10 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
   };
 
   const focusPoint = hovering ? pointer : focusPoints[activeStage];
+  const motionPoint = hovering ? pointer : focusPoints[activeStage];
   const shellClassName =
     variant === "hero"
-      ? "min-h-[620px] border-l border-white/8 xl:min-h-[680px]"
+      ? "min-h-[640px] border-l border-white/8 xl:min-h-[700px]"
       : "min-h-[540px] border border-white/10";
 
   const glowStyle = {
@@ -102,6 +103,8 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
       <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:36px_36px]" />
       <div aria-hidden="true" className="absolute inset-0 opacity-70 landing-hero-scan" />
       <div aria-hidden="true" className="absolute inset-0 opacity-60 landing-hero-grid-drift" />
+      <div aria-hidden="true" className="absolute inset-y-10 left-[-14%] w-[32%] landing-hero-sweep" />
+      <div aria-hidden="true" className="absolute inset-y-20 right-[-16%] w-[28%] landing-hero-sweep-delayed" />
       <div aria-hidden="true" className="absolute inset-0 transition-transform duration-300" style={glowStyle} />
       <div aria-hidden="true" className="absolute inset-6 border border-white/8" />
       <div aria-hidden="true" className="absolute inset-x-16 top-[24%] h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
@@ -113,6 +116,7 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
           execution field
         </span>
         <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[10px] tracking-[0.22em] text-slate-300">
+          <span className="h-2 w-2 rounded-full bg-sky-300 landing-hero-live-dot" />
           live signal
         </span>
       </div>
@@ -122,6 +126,7 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
           <div className="absolute inset-0 rounded-full border border-white/10 landing-hero-orbit" />
           <div className="absolute inset-[14%] rounded-full border border-white/8 landing-hero-orbit-delayed" />
           <div className="absolute inset-[28%] rounded-full border border-white/10" />
+          <div className="absolute inset-[36%] rounded-full border border-sky-200/10 landing-hero-core-pulse" />
 
           <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_22px_rgba(255,255,255,0.55)]" />
           <div className="absolute left-[18%] top-[28%] h-[54%] w-px bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.45),transparent)]" />
@@ -142,19 +147,20 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
 
       {stages.map((stage, index) => {
         const Icon = stage.icon;
-        const xOffset = (pointer.x - 50) / (index % 2 === 0 ? 10 : -12);
-        const yOffset = (pointer.y - 50) / (index < 2 ? 16 : -16);
+        const xOffset = (motionPoint.x - 50) / (index % 2 === 0 ? 8 : -10);
+        const yOffset = (motionPoint.y - 50) / (index < 2 ? 14 : -14);
         const isActive = index === activeStage;
         const activeClassName = isActive
-          ? "border-sky-300/35 bg-[#151b28]/96 shadow-[0_0_0_1px_rgba(125,211,252,0.15),0_24px_48px_rgba(2,8,23,0.55)]"
+          ? "border-sky-300/45 bg-[#151b28]/98 shadow-[0_0_0_1px_rgba(125,211,252,0.2),0_28px_56px_rgba(2,8,23,0.62)]"
           : "border-white/10 bg-[#141823]/90 shadow-[0_20px_40px_rgba(0,0,0,0.28)]";
         const floatClassName = ["landing-hero-card-float-a", "landing-hero-card-float-b", "landing-hero-card-float-c", "landing-hero-card-float-d"][index];
+        const scale = isActive ? 1.035 : 1;
 
         return (
           <div
             key={stage.label}
-            className={`absolute w-[220px] p-4 backdrop-blur-sm transition-[transform,border-color,box-shadow,background-color] duration-500 md:w-[250px] ${stage.className} ${activeClassName} ${floatClassName}`}
-            style={{ transform: `translate3d(${xOffset}px, ${yOffset}px, 0)` }}
+            className={`absolute w-[220px] p-4 backdrop-blur-sm will-change-transform transition-[transform,border-color,box-shadow,background-color] duration-700 md:w-[250px] ${stage.className} ${activeClassName} ${floatClassName}`}
+            style={{ transform: `translate3d(${xOffset}px, ${yOffset}px, 0) scale(${scale})` }}
           >
             <div className="flex items-start justify-between gap-3">
               <span className={`inline-flex h-10 w-10 items-center justify-center border text-slate-100 transition-colors duration-500 ${isActive ? "border-sky-300/35 bg-sky-400/12" : "border-white/10 bg-white/6"}`}>
@@ -186,6 +192,20 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
             {signal}
           </div>
         ))}
+      </div>
+
+      <div className="absolute bottom-[118px] right-8 hidden w-[280px] border border-white/10 bg-[#111722]/92 px-4 py-3 text-slate-200 backdrop-blur md:block">
+        <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">active stage</div>
+        <div className="mt-2 flex items-center justify-between gap-4">
+          <div>
+            <div className="text-lg font-semibold text-white">{stages[activeStage]?.title}</div>
+            <p className="mt-1 text-sm leading-6 text-slate-300">{stages[activeStage]?.body}</p>
+          </div>
+          <div className="text-right">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">cycle</div>
+            <div className="mt-1 font-mono text-[22px] font-semibold text-sky-200">0{activeStage + 1}</div>
+          </div>
+        </div>
       </div>
     </div>
   );
