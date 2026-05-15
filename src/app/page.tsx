@@ -112,7 +112,8 @@ export default function HomePage() {
                   className="mt-8 text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-white md:whitespace-nowrap md:text-[58px] xl:text-[78px]"
                   style={{ fontFamily: "var(--font-newsreader)" }}
                 >
-                  AI Venture Lab
+                  <span className="text-[#bcd3ff]">AI</span>{" "}
+                  <span>Venture Lab</span>
                 </h1>
                 <p className="mt-8 max-w-[12ch] text-[24px] font-semibold leading-[1.04] tracking-tight text-white sm:text-[32px] xl:text-[38px]">
                   아이디어를 후보로 정리하고, 검증과 실행을 한 흐름으로 잇습니다.

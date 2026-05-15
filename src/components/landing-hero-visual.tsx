@@ -41,9 +41,21 @@ const stages = [
 ];
 
 const signals = [
-  "한 번에 한 후보만 앞으로 꺼냅니다.",
-  "결정에 필요한 질문과 증거를 함께 남깁니다.",
-  "출시 후 신호도 다시 보드로 돌아옵니다.",
+  {
+    id: "01",
+    label: "one candidate",
+    body: "한 번에 한 후보만 앞으로 꺼냅니다.",
+  },
+  {
+    id: "02",
+    label: "evidence trail",
+    body: "결정에 필요한 질문과 증거를 함께 남깁니다.",
+  },
+  {
+    id: "03",
+    label: "feedback loop",
+    body: "출시 후 신호도 다시 보드로 돌아옵니다.",
+  },
 ];
 
 const focusPoints = [
@@ -146,6 +158,10 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
       </div>
 
       {stages.map((stage, index) => {
+        if (variant === "hero" && index === 3) {
+          return null;
+        }
+
         const Icon = stage.icon;
         const xOffset = (motionPoint.x - 50) / (index % 2 === 0 ? 8 : -10);
         const yOffset = (motionPoint.y - 50) / (index < 2 ? 14 : -14);
@@ -182,19 +198,29 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
       <div className="absolute inset-x-6 bottom-6 grid gap-px border border-white/10 bg-white/10 md:inset-x-8 md:grid-cols-3">
         {signals.map((signal, index) => (
           <div
-            key={signal}
-            className={`px-4 py-4 text-sm leading-6 transition-colors duration-500 ${
+            key={signal.id}
+            className={`px-4 py-4 transition-colors duration-500 ${
               index === activeStage % signals.length
                 ? "bg-[#182032] text-white"
                 : "bg-[#121620]/90 text-slate-200"
             }`}
           >
-            {signal}
+            <div className="flex items-start gap-4">
+              <span className={`font-mono text-[11px] font-semibold tracking-[0.2em] ${index === activeStage % signals.length ? "text-sky-200" : "text-slate-500"}`}>
+                {signal.id}
+              </span>
+              <div className="min-w-0">
+                <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${index === activeStage % signals.length ? "text-sky-100/80" : "text-slate-500"}`}>
+                  {signal.label}
+                </div>
+                <p className="mt-2 text-sm leading-6 text-inherit">{signal.body}</p>
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="absolute bottom-[126px] right-8 hidden w-[312px] border border-white/10 bg-[#111722]/92 px-4 py-3 text-slate-200 backdrop-blur md:block">
+      <div className="absolute bottom-[118px] right-8 hidden w-[312px] border border-white/10 bg-[#111722]/92 px-4 py-3 text-slate-200 backdrop-blur md:block">
         <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-400">active stage</div>
         <div className="mt-3 flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
