@@ -85,49 +85,44 @@ export default function GuidePage() {
           </div>
         </header>
 
-        <section className="mt-4 border border-slate-950 bg-[#11131a] text-white shadow-[0_24px_80px_rgba(15,23,42,0.16)]">
-          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="relative overflow-hidden bg-[#11131a] px-6 py-8 sm:px-8 sm:py-10">
-              <div aria-hidden="true" className="absolute inset-y-0 right-[24%] w-px bg-white/8" />
-              <div aria-hidden="true" className="absolute left-8 top-8 h-24 w-24 border border-white/8" />
-              <div className="relative z-10 max-w-[900px]">
-                <div className="avl-kicker !text-slate-300">operator guide</div>
-                <h1
-                  className="mt-6 max-w-[9ch] text-[52px] font-normal leading-[0.92] tracking-[-0.05em] text-white sm:text-[76px]"
-                  style={{ fontFamily: "var(--font-newsreader)" }}
-                >
-                  실행 보드를 이해하는 가장 짧은 문서.
-                </h1>
-                <p className="mt-5 max-w-[58ch] text-[15px] leading-7 text-slate-300">
-                  홈은 제품의 인상을 만들고, 보드는 실제 일을 시작하게 합니다. 이 페이지는 그 사이에서 전체 흐름과
-                  산출물을 빠르게 이해하도록 돕습니다.
-                </p>
-              </div>
+        <section className="mt-4 border-t border-slate-300 bg-transparent">
+          <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="bg-white px-6 py-8 sm:px-8 sm:py-10">
+              <div className="avl-kicker">operator guide</div>
+              <h1
+                className="mt-5 max-w-[9ch] text-[44px] font-normal leading-[0.92] tracking-[-0.05em] text-slate-950 sm:text-[68px]"
+                style={{ fontFamily: "var(--font-newsreader)" }}
+              >
+                실행 보드를 이해하는 가장 짧은 문서.
+              </h1>
+              <p className="mt-5 max-w-[56ch] text-[15px] leading-7 text-slate-600">
+                홈은 제품의 인상을 만들고, 보드는 실제 일을 시작하게 합니다. 이 페이지는 그 사이에서 전체 흐름과 산출물을 빠르게 이해하도록 돕습니다.
+              </p>
             </div>
 
-            <div className="grid gap-px bg-white/10">
-              <div className="bg-[#f3f1ea] px-6 py-5 text-slate-950">
+            <div className="grid gap-px bg-slate-300">
+              <div className="bg-[#f7f6f2] px-6 py-5">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">what stays constant</div>
-                <div className="mt-3 text-[30px] font-semibold leading-[1.04] tracking-tight">
+                <div className="mt-3 max-w-[11ch] text-[28px] font-semibold leading-[1.04] tracking-tight text-slate-950">
                   AI는 먼저 채우고, 사람은 결론을 정합니다.
                 </div>
               </div>
-              <div className="bg-white/5 px-6 py-5 text-sm leading-6 text-slate-300">
+              <div className="bg-white px-6 py-5 text-sm leading-6 text-slate-600">
                 기본은 혼자 끝까지 가는 흐름이고, 필요할 때만 워크스페이스와 팀 초대를 붙입니다.
               </div>
             </div>
           </div>
         </section>
 
-        <section className="mt-4 grid gap-4 xl:grid-cols-[240px_minmax(0,1fr)]">
-          <aside className="border border-slate-200 bg-white px-4 py-4">
+        <section className="mt-4 grid gap-px bg-slate-300 xl:grid-cols-[220px_minmax(0,1fr)]">
+          <aside className="bg-white px-4 py-4">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">guide map</div>
             <div className="mt-4 space-y-2">
               {guideSteps.map((step) => (
                 <a
                   key={step.title}
                   href={`#step-${step.index}`}
-                  className="flex items-start justify-between gap-3 border border-slate-200 px-3 py-3 text-sm text-slate-700 transition hover:bg-slate-50"
+                  className="flex items-start justify-between gap-3 border-l-2 border-slate-200 bg-[#f7f6f2] px-3 py-3 text-sm text-slate-700 transition hover:border-slate-950 hover:bg-white"
                 >
                   <span>{step.title}</span>
                   <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{step.index}</span>
@@ -159,8 +154,8 @@ export default function GuidePage() {
           </div>
         </section>
 
-        <section className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="border border-slate-200 bg-white">
+        <section className="mt-4 grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="bg-white">
             <div className="grid gap-px bg-slate-200 md:grid-cols-[minmax(0,1fr)_280px]">
               <div className="bg-white px-6 py-5">
                 <div className="avl-kicker">deliverables</div>
@@ -187,7 +182,7 @@ export default function GuidePage() {
             </div>
           </div>
 
-          <div className="border border-slate-950 bg-slate-950 text-white">
+          <div className="bg-slate-950 text-white">
             <div className="grid gap-px bg-white/10">
               <div className="bg-slate-950 px-6 py-6">
                 <div className="avl-kicker !text-slate-300">next step</div>
