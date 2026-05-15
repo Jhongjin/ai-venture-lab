@@ -33,11 +33,11 @@ const heroSignals = [
   },
   {
     label: "one candidate",
-    body: "지금 검토할 후보 1건부터 먼저 꺼냅니다.",
+    body: "후보를 여러 개 펼치기보다, 지금 판단할 1건을 먼저 세웁니다.",
   },
   {
     label: "ship path",
-    body: "기획, MVP, 출시 판단까지 한 보드 안에서 이어갑니다.",
+    body: "기획, MVP, 출시 판단까지 같은 흐름 안에 남깁니다.",
   },
 ];
 
@@ -160,10 +160,10 @@ export default function HomePage() {
                     AI Venture Lab
                   </h1>
                   <p className="mt-6 max-w-[18ch] text-[28px] font-semibold leading-[1.03] tracking-tight text-white sm:text-[44px]">
-                    메모에서 바로 후보를 뽑고, 검증부터 실행까지 한 보드에서 이어갑니다.
+                    메모에 적어둔 아이디어를 실행할 후보로 바꾸고, 검증부터 실행까지 한 보드에서 이어갑니다.
                   </p>
                   <p className="mt-5 max-w-[50ch] text-[15px] leading-7 text-slate-300">
-                    문서를 이리저리 옮기지 않아도, 지금 볼 후보와 다음 할 일을 한 화면에서 정리하고 바로 움직일 수 있는 실행형 워크스페이스입니다.
+                    문서를 이리저리 옮기지 않아도, 지금 검토할 후보와 다음 액션을 한 화면에서 정리하고 바로 움직일 수 있게 만든 실행형 워크스페이스입니다.
                   </p>
 
                   <div className="mt-8 flex flex-wrap gap-3">
@@ -184,10 +184,10 @@ export default function HomePage() {
                     <div className="relative z-10">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">why it works</div>
                       <div className="mt-3 max-w-[12ch] text-[28px] font-semibold leading-[1.02] tracking-tight">
-                        설명보다 먼저, 지금 검토할 후보를 바로 보여줍니다
+                        기능을 설명하기 전에, 지금 판단해야 할 후보를 먼저 보여줍니다
                       </div>
                       <p className="mt-5 max-w-[28ch] text-sm leading-6 text-slate-700">
-                        처음부터 모든 기능을 익히지 않아도, 지금 볼 후보와 다음 할 일부터 바로 시작할 수 있습니다.
+                        처음부터 모든 기능을 익히지 않아도, 후보 하나와 다음 액션 하나만으로 바로 시작할 수 있습니다.
                       </p>
                     </div>
                   </div>
@@ -210,7 +210,7 @@ export default function HomePage() {
                 <div className="relative z-10">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">execution flow</div>
                   <div className="mt-3 max-w-[13ch] text-[32px] font-semibold leading-[1.02] tracking-tight">
-                    복잡한 대시보드 대신, 메모에서 다음 실행까지 흐름이 끊기지 않게 연결합니다.
+                    복잡한 대시보드 대신, 메모에서 후보를 고르고 다음 실행까지 흐름이 끊기지 않게 이어집니다.
                   </div>
                 </div>
               </div>
