@@ -216,6 +216,39 @@ body {
   }
 }
 
+@keyframes avl-hero-orbit-dashed {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes avl-hero-data-plume {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    opacity: 0.24;
+    transform: translate3d(10px, -12px, 0) scale(1.08);
+  }
+}
+
+@keyframes avl-hero-core-ring {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.28;
+    transform: scale(1.12);
+  }
+}
+
 .landing-hero-scan {
   background: linear-gradient(180deg, transparent 0%, rgba(129, 140, 248, 0.14) 48%, transparent 100%);
   animation: avl-hero-scan 8s linear infinite;
@@ -234,6 +267,12 @@ body {
 
 .landing-hero-orbit-delayed {
   animation: avl-hero-orbit 24s linear infinite reverse;
+}
+
+.landing-hero-orbit-dashed {
+  border-style: dashed;
+  border-color: rgba(148, 163, 184, 0.12);
+  animation: avl-hero-orbit-dashed 28s linear infinite;
 }
 
 .landing-hero-node {
@@ -326,12 +365,35 @@ body {
   transform-origin: left center;
 }
 
+.landing-hero-scan-arm-delayed {
+  animation: avl-hero-radar-sweep 8.6s linear infinite reverse;
+  transform-origin: left center;
+}
+
 .landing-hero-satellite-a {
   animation: avl-hero-satellite-orbit-a 10.5s linear infinite;
 }
 
 .landing-hero-satellite-b {
   animation: avl-hero-satellite-orbit-b 14.5s linear infinite;
+}
+
+.landing-hero-data-plume {
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(125, 211, 252, 0.22), rgba(125, 211, 252, 0.08) 34%, transparent 70%);
+  filter: blur(18px);
+  animation: avl-hero-data-plume 8.2s ease-in-out infinite;
+}
+
+.landing-hero-data-plume-delayed {
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(196, 181, 253, 0.18), rgba(196, 181, 253, 0.06) 36%, transparent 70%);
+  filter: blur(22px);
+  animation: avl-hero-data-plume 10.4s ease-in-out infinite reverse;
+}
+
+.landing-hero-core-ring {
+  animation: avl-hero-core-ring 4.2s ease-in-out infinite;
 }
 
 @layer components {

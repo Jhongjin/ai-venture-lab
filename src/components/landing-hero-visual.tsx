@@ -20,7 +20,7 @@ const stages = [
   {
     label: "candidate",
     title: "후보 정리",
-    body: "AI가 후보 1건과 비교 후보를 먼저 나눕니다.",
+    body: "후보 1건과 비교 후보를 먼저 나눕니다.",
     icon: Sparkle,
     className: "right-6 top-24 md:right-10",
   },
@@ -29,14 +29,14 @@ const stages = [
     title: "검증 스프린트",
     body: "질문, 리스크, 7일 실험을 한 흐름으로 묶습니다.",
     icon: ShieldCheck,
-    className: "left-8 bottom-48 md:left-14",
+    className: "left-8 bottom-64 md:left-14",
   },
   {
     label: "ship path",
     title: "실행 연결",
-    body: "기획, MVP, 출시 판단을 한 흐름으로 묶습니다.",
+    body: "기획, MVP, 출시 판단을 같은 보드에서 이어갑니다.",
     icon: RocketLaunch,
-    className: "right-8 bottom-44 md:right-12",
+    className: "right-10 bottom-64 md:right-14",
   },
 ];
 
@@ -113,10 +113,20 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
       onMouseLeave={resetPointer}
     >
       <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:36px_36px]" />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-95"
+        style={{
+          background:
+            "radial-gradient(circle at 14% 18%, rgba(245,239,227,0.08), transparent 20%), radial-gradient(circle at 88% 14%, rgba(245,239,227,0.14), transparent 18%), radial-gradient(circle at 18% 74%, rgba(126, 211, 252, 0.1), transparent 18%)",
+        }}
+      />
       <div aria-hidden="true" className="absolute inset-0 opacity-70 landing-hero-scan" />
       <div aria-hidden="true" className="absolute inset-0 opacity-60 landing-hero-grid-drift" />
       <div aria-hidden="true" className="absolute inset-y-10 left-[-14%] w-[32%] landing-hero-sweep" />
       <div aria-hidden="true" className="absolute inset-y-20 right-[-16%] w-[28%] landing-hero-sweep-delayed" />
+      <div aria-hidden="true" className="absolute left-[46%] top-[12%] h-[38%] w-[24%] landing-hero-data-plume" />
+      <div aria-hidden="true" className="absolute left-[20%] bottom-[18%] h-[24%] w-[18%] landing-hero-data-plume-delayed" />
       <div aria-hidden="true" className="absolute inset-0 transition-transform duration-300" style={glowStyle} />
       <div aria-hidden="true" className="absolute inset-6 border border-white/8" />
       <div aria-hidden="true" className="absolute inset-x-16 top-[24%] h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]" />
@@ -138,6 +148,7 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
           <div className="absolute inset-0 rounded-full border border-white/10 landing-hero-orbit" />
           <div className="absolute inset-[14%] rounded-full border border-white/8 landing-hero-orbit-delayed" />
           <div className="absolute inset-[28%] rounded-full border border-white/10" />
+          <div className="absolute inset-[6%] rounded-full border border-white/6 landing-hero-orbit-dashed" />
           <div className="absolute inset-[36%] rounded-full border border-sky-200/10 landing-hero-core-pulse" />
           <div className="absolute left-1/2 top-1/2 h-[112%] w-[112%] -translate-x-1/2 -translate-y-1/2">
             <div className="h-full w-full rounded-full border border-sky-200/8 landing-hero-wave" />
@@ -150,12 +161,16 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
           <div className="absolute left-1/2 top-1/2 h-px w-[44%] -translate-y-1/2">
             <div className="h-full w-full bg-[linear-gradient(90deg,rgba(125,211,252,0.7),transparent)] landing-hero-scan-arm" />
           </div>
+          <div className="absolute left-1/2 top-1/2 h-px w-[34%] -translate-y-1/2 rotate-180">
+            <div className="h-full w-full bg-[linear-gradient(90deg,rgba(196,181,253,0.6),transparent)] landing-hero-scan-arm-delayed" />
+          </div>
 
           <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_22px_rgba(255,255,255,0.55)]" />
           <div className="absolute left-[18%] top-[28%] h-[54%] w-px bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.45),transparent)]" />
           <div className="absolute left-[34%] top-[18%] h-px w-[42%] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.45),transparent)]" />
           <div className="absolute left-[58%] top-[36%] h-[34%] w-px bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.45),transparent)]" />
           <div className="absolute left-[28%] top-[64%] h-px w-[40%] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.45),transparent)]" />
+          <div className="absolute left-[46%] top-[46%] h-[18%] w-[18%] rounded-full border border-white/8 landing-hero-core-ring" />
 
           <div className="absolute left-[16%] top-[25%] h-2.5 w-2.5 rounded-full bg-[#a5b4fc] shadow-[0_0_16px_rgba(165,180,252,0.75)] landing-hero-node" />
           <div className="absolute left-[56%] top-[18%] h-2.5 w-2.5 rounded-full bg-[#7dd3fc] shadow-[0_0_16px_rgba(125,211,252,0.75)] landing-hero-node-delayed" />
@@ -189,7 +204,7 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
         return (
           <div
             key={stage.label}
-            className={`absolute w-[220px] p-4 backdrop-blur-sm will-change-transform transition-[transform,border-color,box-shadow,background-color] duration-700 md:w-[250px] ${stage.className} ${activeClassName} ${floatClassName}`}
+            className={`absolute min-h-[196px] w-[220px] p-4 backdrop-blur-sm will-change-transform transition-[transform,border-color,box-shadow,background-color] duration-700 md:w-[250px] ${stage.className} ${activeClassName} ${floatClassName}`}
             style={{ transform: `translate3d(${xOffset}px, ${yOffset}px, 0) scale(${scale})` }}
           >
             <div className="flex items-start justify-between gap-3">
@@ -213,12 +228,20 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
         {signals.map((signal, index) => (
           <div
             key={signal.id}
-            className={`px-4 py-4 transition-colors duration-500 ${
+            className={`relative overflow-hidden px-4 py-4 transition-colors duration-500 ${
               index === activeStage % signals.length
                 ? "border border-sky-300/22 bg-[#182032]/96 text-white shadow-[0_0_0_1px_rgba(125,211,252,0.08)]"
                 : "border border-white/10 bg-[#121620]/90 text-slate-200"
             }`}
           >
+            <div
+              aria-hidden="true"
+              className={`absolute inset-x-0 top-0 h-px ${
+                index === activeStage % signals.length
+                  ? "bg-[linear-gradient(90deg,transparent,rgba(125,211,252,0.95),rgba(196,181,253,0.8),transparent)]"
+                  : "bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)]"
+              }`}
+            />
             <div className="flex items-start gap-4">
               <span className={`font-mono text-[11px] font-semibold tracking-[0.2em] ${index === activeStage % signals.length ? "text-sky-200" : "text-slate-500"}`}>
                 {signal.id}
