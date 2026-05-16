@@ -10,6 +10,8 @@ Before running smoke commands, check `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md`. The 
 
 Before creating or modifying GitHub Actions, check `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md`. CI may mirror local non-secret gates, but it does not replace explicit approval for authenticated write smoke, telemetry smoke, deploys, rollback, production DB/Auth mutation, or release decisions.
 
+Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`. The WQ-039 posture is `rls_allowed_denied_smoke_plan`: allowed and denied RLS checks need a disposable account/workspace pair, summary-only evidence, and no account provisioning or write smoke inside the plan.
+
 ```powershell
 pnpm quality:full
 pnpm smoke:prod
@@ -117,5 +119,6 @@ Write smoke rules:
 - Save actions refresh the visible state without manual reload.
 - Read-only/editable labels match ownership.
 - RLS or backend rule assumptions are written into completion evidence before public beta, including allowed and denied private-read cases before broader beta.
+- Cross-workspace denied evidence follows `summary_only_rls_evidence` and does not include credentials, raw private payloads, screenshots with private data, or service-role access.
 - Vercel deployment is Ready and production smoke passes after the final deploy.
 - Smoke evidence follows `deployment_evidence_summary_only` and `no_env_values_in_artifacts`.

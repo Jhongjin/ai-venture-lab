@@ -40,7 +40,7 @@ pnpm release:check
 
 Copy `.env.example` to `.env.local` when Supabase is ready.
 
-Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` for the full beta env and smoke boundary. Store variable names in docs, never values.
+Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` for the full beta env and smoke boundary. Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace or denied-case RLS smoke. Store variable names in docs, never values.
 
 Required later:
 

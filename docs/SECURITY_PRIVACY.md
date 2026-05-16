@@ -11,6 +11,7 @@
 - Do not rely on UI checks alone for authorization.
 - Enable RLS on every Supabase table exposed through the browser-facing Data API.
 - Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, authenticated smoke, telemetry smoke, or deployment evidence collection.
+- Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke.
 
 ## Sensitive Domains
 
@@ -33,6 +34,7 @@ Extra review is required for:
 - Do insert/update policies prevent ownership or organization spoofing?
 - What is logged, retained, exported, or sent to AI tools?
 - Does the smoke or deployment evidence follow `beta_env_smoke_boundary_docs_only`, `names_only_no_values`, and `no_secret_output`?
+- Does private-read beta evidence follow `rls_allowed_denied_smoke_plan`, `summary_only_rls_evidence`, and `cross_workspace_denied_case` without service-role bypass?
 - If authenticated smoke writes data, is it using `disposable_beta_account_only` with explicit per-run approval and cleanup ownership?
 - How does the operator roll back a bad deployment or data migration?
 
@@ -43,6 +45,7 @@ Extra review is required for:
 - `insert` and `update` policies use `with check` for user or organization ownership.
 - `service_role` is only used server-side and never in client bundles.
 - Allowed and denied paths are tested before launch, including private-read and cross-workspace denied cases before broader beta.
+- Cross-workspace denied checks require two disposable accounts and a disposable workspace pair; missing fixtures block the check instead of widening permissions.
 
 ## Firebase Gate
 

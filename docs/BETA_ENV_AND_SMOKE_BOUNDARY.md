@@ -80,8 +80,9 @@ RLS is the authorization boundary for Supabase browser access.
 - Before broader beta, the operator still needs allowed and denied RLS evidence for the changed private-data paths.
 - Cross-workspace or second-user denied checks are required before treating private reads/writes as beta-ready.
 - Service-role access is server-only and must not be used to bypass beta smoke from a browser or external handoff.
+- Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke. The WQ-039 posture is `rls_allowed_denied_smoke_plan`: plan first, no account provisioning, no DB/Auth mutation, no write smoke, and no secret output.
 
-Validation keywords: `allowed_and_denied_rls_smoke`, `cross_workspace_denied_case`, `private_read_posture`, `service_role_server_only`.
+Validation keywords: `allowed_and_denied_rls_smoke`, `cross_workspace_denied_case`, `private_read_posture`, `service_role_server_only`, `rls_allowed_denied_smoke_plan`.
 
 ## Evidence Boundary
 
