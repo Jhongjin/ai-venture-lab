@@ -40,6 +40,18 @@ $checks = @(
     )
   },
   @{
+    Path = "docs/CI_WORKFLOW_SCOPE_BOUNDARY.md"
+    Terms = @(
+      "ci_workflow_scope_boundary_docs_only",
+      "workflow_scope_blocked",
+      "no_workflow_file_mutation",
+      "local_quality_full_is_required_gate",
+      "future_ci_mirrors_local_gates",
+      "no_secret_output",
+      "no_production_mutation"
+    )
+  },
+  @{
     Path = "docs/BETA_ENV_AND_SMOKE_BOUNDARY.md"
     Terms = @(
       "beta_env_smoke_boundary_docs_only",

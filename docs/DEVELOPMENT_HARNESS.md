@@ -46,6 +46,8 @@ pnpm smoke:prod
 
 Use `pnpm quality:full` before commits that touch product behavior; it runs lint, typecheck, harness check, and production build in one command.
 
+Until GitHub Actions is explicitly enabled, `pnpm quality:full` is the local CI substitute and required gate. Use `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` before creating or modifying `.github/workflows/*`; future CI should mirror local non-secret gates only.
+
 Use `pnpm smoke:prod` after production deploy to confirm the public app shell returns HTTP 200 and includes the expected operator workflow text. Add browser or Playwright smoke checks when a user-facing workflow needs interaction-level verification.
 
 ## Security Gates

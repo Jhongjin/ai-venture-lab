@@ -141,3 +141,4 @@ The app now supports the first live operating loop:
 64. Save Vercel inspect URLs or deploy logs with release evidence so production issues can be traced and rolled back.
 65. Run `pnpm release:check` locally while GitHub Actions is blocked so release-safety drift is caught before push.
 66. Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, telemetry smoke, env changes, or deployment evidence collection so the runtime stays `beta_env_smoke_boundary_docs_only`, names-only, disposable-account only for authenticated smoke, and local-secret only for telemetry.
+67. Use `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` before creating or modifying GitHub Actions so future CI mirrors local non-secret gates and does not run deploy, rollback, authenticated write smoke, telemetry smoke, production mutation, or secret-bearing checks by default.

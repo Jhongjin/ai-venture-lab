@@ -11,6 +11,7 @@ Use this checklist before merging meaningful changes.
 - `pnpm harness:check` passes.
 - `pnpm release:check` passes.
 - `pnpm quality:full` passes before major product or harness changes.
+- GitHub Actions are treated as future CI until `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` prerequisites are approved; local `pnpm quality:full` remains the required gate while workflow scope is blocked.
 - `pnpm smoke:prod` passes after production deployment.
 - `pnpm smoke:routes` passes after route/auth callback changes or before release checkpoints.
 - New data paths have a manual smoke path.
