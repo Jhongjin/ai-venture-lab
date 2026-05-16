@@ -307,7 +307,7 @@ export default function HomePage() {
                   idea to MVP operating system
                 </div>
                 <h1
-                  className="relative mt-8 text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-white md:whitespace-nowrap md:text-[58px] xl:text-[78px]"
+                  className="relative mt-8 text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-white md:whitespace-nowrap md:text-[58px] xl:text-[60px] 2xl:text-[78px]"
                   style={{ fontFamily: "var(--font-newsreader)" }}
                 >
                   <span className="text-[#bcd3ff]">AI</span>{" "}
@@ -347,108 +347,201 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="workflow" className="mt-4 border-t border-slate-300 bg-transparent">
+        <section id="workflow" className="mt-4 overflow-hidden border-t border-slate-300 bg-[#f6f4ee]">
           <div className="grid gap-px bg-slate-300">
-            <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)]">
-              <div className="bg-[#f7f6f2] px-6 py-8 sm:px-8">
-                <div className="avl-kicker">workflow</div>
-                <h2
-                  className="mt-4 max-w-[13ch] text-[32px] font-normal leading-[0.98] tracking-[-0.04em] text-slate-950 sm:text-[46px]"
-                  style={{ fontFamily: "var(--font-newsreader)" }}
-                >
-                  한 줄 아이디어에서 실행 판단까지, 같은 흐름으로 정리합니다.
-                </h2>
-                <p className="mt-4 max-w-[42ch] text-sm leading-6 text-slate-600">
-                  기능을 길게 설명하기보다, 단계마다 AI가 먼저 무엇을 만들고 사람은 어디서 결론을 내리는지 한눈에 읽히게 구성했습니다.
-                </p>
+            <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.74fr)_minmax(0,1.26fr)]">
+              <div className="relative min-h-[440px] overflow-hidden bg-[#f6f4ee] px-6 py-8 sm:px-8 xl:px-10 xl:py-10">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-70"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 12% 16%, rgba(255,255,255,0.9), transparent 20%), radial-gradient(circle at 82% 78%, rgba(188,211,255,0.32), transparent 26%)",
+                  }}
+                />
+                <div aria-hidden="true" className="absolute bottom-8 right-8 h-44 w-44 border border-slate-300/70" />
+                <div aria-hidden="true" className="absolute bottom-16 right-16 h-20 w-20 bg-[#10141d]" />
+                <div className="relative">
+                  <div className="avl-kicker">workflow</div>
+                  <h2
+                    className="mt-6 max-w-[12ch] break-keep text-[34px] font-normal leading-[0.96] tracking-[-0.04em] text-slate-950 sm:text-[50px]"
+                    style={{ fontFamily: "var(--font-newsreader)" }}
+                  >
+                    한 줄 아이디어에서 실행 판단까지, 같은 흐름으로 정리합니다.
+                  </h2>
+                  <p className="mt-6 max-w-[40ch] text-sm leading-7 text-slate-600">
+                    단계 설명을 쌓기보다, AI가 먼저 만든 초안과 사람이 승인할 판단을 하나의 신호 흐름으로 연결합니다.
+                  </p>
+
+                  <div className="mt-12 grid max-w-[520px] grid-cols-[0.3fr_1fr] gap-px bg-slate-300">
+                    <div className="bg-slate-950 px-4 py-5 text-white">
+                      <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">01</div>
+                      <div className="mt-12 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">current candidate</div>
+                    </div>
+                    <div className="bg-white/80 px-4 py-5">
+                      <div className="grid grid-cols-4 gap-2">
+                        {workflowSteps.map((step, index) => (
+                          <span
+                            key={step.id}
+                            className={`h-2 ${index === 0 ? "bg-slate-950" : index === 1 ? "bg-[#c9b47a]" : index === 2 ? "bg-[#bcd3ff]" : "bg-slate-500"}`}
+                            aria-label={step.title}
+                          />
+                        ))}
+                      </div>
+                      <p className="mt-6 text-sm font-semibold leading-6 text-slate-950">후보를 하나 앞으로 꺼내고 검증, 실행, 출시 판단까지 같은 보드에 남깁니다.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="grid gap-px bg-slate-300 md:grid-cols-3">
+              <div className="grid gap-px bg-slate-300">
                 {workflowOverview.map((item, index) => (
-                  <article key={item.eyebrow} className={`${item.tone} ${item.border} flex min-h-[290px] flex-col border px-5 py-6`}>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{item.eyebrow}</div>
-                    <h3 className="mt-4 max-w-[15ch] text-[22px] font-semibold leading-[1.08] tracking-tight text-slate-950">
-                      {item.title}
-                    </h3>
-                    <p className="mt-3 max-w-[26ch] text-sm leading-6 text-slate-700">{item.body}</p>
-
-                    <div className="mt-auto pt-8">
-                      <div className="rounded-none border border-slate-200/80 bg-slate-950/[0.03] px-4 py-4">
-                        <div className="flex flex-wrap gap-2">
-                          {item.chips.map((chip) => (
-                            <span key={chip} className="avl-pill avl-pill-neutral border-slate-300 bg-white/80 text-[10px] text-slate-600">
-                              {chip}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="mt-4 grid grid-cols-4 gap-2">
-                          {[0, 1, 2, 3].map((signalIndex) => (
-                            <div
-                              key={signalIndex}
-                              className={`h-11 rounded-none border border-slate-200/80 ${
-                                index === 0
-                                  ? signalIndex === 1
-                                    ? "bg-[#eef3ff]"
-                                    : "bg-white/70"
-                                  : index === 1
-                                    ? signalIndex === 2
-                                      ? "bg-[#fff5dd]"
-                                      : "bg-white/70"
-                                    : signalIndex === 0
-                                      ? "bg-[#dfe8ff]"
-                                      : "bg-white/80"
-                              }`}
-                            />
-                          ))}
-                        </div>
+                  <div
+                    key={item.eyebrow}
+                    className={`grid min-h-[146px] gap-px bg-slate-300 lg:grid-cols-[0.42fr_0.58fr] ${
+                      index === 0 ? "text-white" : "text-slate-950"
+                    }`}
+                  >
+                    <div
+                      className={`relative overflow-hidden px-6 py-6 ${
+                        index === 0 ? "bg-[#10141d]" : index === 1 ? "bg-[#fff8e9]" : "bg-[#eef3ff]"
+                      }`}
+                    >
+                      {index === 0 ? (
+                        <div
+                          aria-hidden="true"
+                          className="absolute inset-0 opacity-[0.28]"
+                          style={{
+                            backgroundImage:
+                              "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
+                            backgroundSize: "26px 26px",
+                          }}
+                        />
+                      ) : null}
+                      <div className="relative">
+                        <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${index === 0 ? "text-slate-500" : "text-slate-400"}`}>{item.eyebrow}</div>
+                        <h3 className={`mt-4 max-w-[18ch] text-[24px] font-semibold leading-[1.04] tracking-tight ${index === 0 ? "text-white" : "text-slate-950"}`}>
+                          {item.title}
+                        </h3>
                       </div>
                     </div>
-                  </article>
+                    <div className={`${index === 0 ? "bg-[#0f141f]" : "bg-white"} px-6 py-6`}>
+                      <p className={`max-w-[44ch] text-sm leading-6 ${index === 0 ? "text-slate-300" : "text-slate-600"}`}>{item.body}</p>
+                      <div className="mt-5 flex flex-wrap items-center gap-2">
+                        {item.chips.map((chip, chipIndex) => (
+                          <span
+                            key={chip}
+                            className={`inline-flex items-center border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
+                              index === 0
+                                ? chipIndex === 0
+                                  ? "border-[#bcd3ff]/30 bg-[#bcd3ff]/10 text-[#dbe8ff]"
+                                  : "border-white/10 bg-white/[0.04] text-slate-300"
+                                : chipIndex === 0
+                                  ? "border-slate-300 bg-slate-950 text-white"
+                                  : "border-slate-200 bg-[#f8fafc] text-slate-500"
+                            }`}
+                          >
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white px-4 py-4 sm:px-6 sm:py-6">
-              <div className="grid gap-4 xl:grid-cols-12">
+            <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
+              <article className="relative min-h-[560px] overflow-hidden bg-[#10141d] px-6 py-8 text-white sm:px-8 xl:px-10">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-[0.3]"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
+                    backgroundSize: "32px 32px",
+                  }}
+                />
+                <div aria-hidden="true" className="absolute left-10 top-28 h-[1px] w-[72%] bg-[linear-gradient(90deg,rgba(188,211,255,0.8),transparent)]" />
+                <div aria-hidden="true" className="absolute bottom-20 right-10 h-[1px] w-[56%] bg-[linear-gradient(90deg,transparent,rgba(245,239,227,0.5))]" />
+                <div aria-hidden="true" className="absolute right-12 top-16 h-36 w-36 border border-white/10" />
+                <div className="relative">
+                  <div className="avl-kicker !text-slate-300">execution field</div>
+                  <h3 className="mt-5 max-w-[12ch] break-keep text-[34px] font-semibold leading-[1.02] tracking-tight text-white">
+                    하나의 후보가 여러 문서로 흩어지지 않게 붙잡습니다.
+                  </h3>
+                  <p className="mt-5 max-w-[36ch] text-sm leading-7 text-slate-300">
+                    수집, 선별, 검증, 실행 패키지가 한 보드 위에서 이어져서 다음 판단의 위치가 계속 보입니다.
+                  </p>
+                </div>
+
+                <div className="relative mt-12 grid gap-5 sm:grid-cols-2">
+                  {workflowSteps.map((step, index) => (
+                    <div key={step.id} className={`${index === 3 ? "sm:col-span-2" : ""}`}>
+                      <div className="flex items-start gap-4">
+                        <span className={`mt-1 h-3 w-3 border ${index === 0 ? "border-[#bcd3ff] bg-[#bcd3ff]" : "border-white/20 bg-white/6"}`} />
+                        <div>
+                          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">{step.id}</div>
+                          <div className="mt-2 text-sm font-semibold text-white">{step.title}</div>
+                          <div className="mt-2 h-px w-28 bg-white/10" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="absolute bottom-8 left-6 right-6 border border-white/10 bg-white/[0.04] px-4 py-4 sm:left-8 sm:right-8">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">loop discipline</span>
+                    <span className="text-sm font-semibold text-slate-200">draft - decide - package - learn</span>
+                  </div>
+                </div>
+              </article>
+
+              <div className="grid gap-px bg-slate-300 lg:grid-cols-[0.92fr_1.08fr]">
                 {workflowSteps.map((step, index) => {
                   const Icon = step.icon;
-                  const stepSurfaces = [
-                    "bg-white",
-                    "bg-[#f7f6f2]",
-                    "bg-[#eef3ff]",
-                    "bg-slate-950 text-white",
-                  ];
+                  const panelTone =
+                    index === 0
+                      ? "bg-[#fcfbf7] lg:col-span-2"
+                      : index === 1
+                        ? "bg-[#eef3ff] lg:min-h-[420px]"
+                        : index === 2
+                          ? "bg-[#fff8e9]"
+                          : "bg-[#10141d] text-white lg:col-span-2";
+                  const titleTone = index === 3 ? "text-white" : "text-slate-950";
+                  const bodyTone = index === 3 ? "text-slate-300" : "text-slate-600";
+                  const labelTone = index === 3 ? "text-slate-500" : "text-slate-400";
+                  const artifactTone =
+                    index === 3
+                      ? "border-white/10 bg-white/[0.04] text-slate-200"
+                      : index === 1
+                        ? "border-[#d7e1f6] bg-white/70 text-slate-700"
+                        : "border-slate-200 bg-white/80 text-slate-700";
 
                   return (
-                    <article
-                      key={step.id}
-                      className={`xl:col-span-3 flex h-full flex-col border border-slate-200 px-5 py-5 ${stepSurfaces[index]}`}
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <span
-                          className={`avl-icon-frame rounded-none ${index === 3 ? "border-white/10 bg-white/6 text-white" : "border-slate-200 bg-white text-slate-700"}`}
-                        >
+                    <article key={step.id} className={`relative overflow-hidden px-6 py-7 sm:px-8 ${panelTone}`}>
+                      <div className="flex items-start justify-between gap-5">
+                        <span className={`avl-icon-frame rounded-none ${index === 3 ? "border-white/10 bg-white/6 text-white" : "border-slate-200 bg-white text-slate-700"}`}>
                           <Icon size={18} />
                         </span>
-                        <span className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${index === 3 ? "text-slate-500" : "text-slate-400"}`}>
-                          {step.id}
-                        </span>
+                        <span className={`font-mono text-[11px] uppercase tracking-[0.2em] ${index === 3 ? "text-[#bcd3ff]" : "text-slate-400"}`}>{step.id}</span>
                       </div>
-
-                      <h3 className={`mt-7 max-w-[12ch] text-[26px] font-semibold leading-[1.02] tracking-tight ${index === 3 ? "text-white" : "text-slate-950"}`}>
-                        {step.title}
-                      </h3>
-
-                      <p className={`mt-4 text-sm leading-6 ${index === 3 ? "text-slate-300" : "text-slate-600"}`}>{step.ai}</p>
-
-                      <div className={`mt-6 grid gap-4 border-t pt-4 ${index === 3 ? "border-white/10" : "border-slate-200"}`}>
+                      <div className={`${index === 0 || index === 3 ? "mt-8 grid gap-8 lg:grid-cols-[0.52fr_0.48fr]" : "mt-8"}`}>
                         <div>
-                          <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${index === 3 ? "text-slate-500" : "text-slate-400"}`}>사람이 결정</div>
-                          <p className={`mt-2 text-sm leading-6 ${index === 3 ? "text-slate-200" : "text-slate-700"}`}>{step.human}</p>
+                          <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${labelTone}`}>
+                            {index === 0 ? "source" : index === 1 ? "priority" : index === 2 ? "risk gate" : "handoff"}
+                          </div>
+                          <h3 className={`mt-4 max-w-[13ch] text-[30px] font-semibold leading-[1.02] tracking-tight ${titleTone}`}>{step.title}</h3>
+                          <p className={`mt-4 max-w-[38ch] text-sm leading-6 ${bodyTone}`}>{step.ai}</p>
                         </div>
-                        <div className="mt-auto">
-                          <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${index === 3 ? "text-slate-500" : "text-slate-400"}`}>남는 결과</div>
-                          <p className={`mt-2 text-sm font-medium ${index === 3 ? "text-white" : "text-slate-900"}`}>{step.result}</p>
+                        <div className={index === 0 || index === 3 ? "" : "mt-8"}>
+                          <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${labelTone}`}>human check</div>
+                          <p className={`mt-3 text-sm leading-6 ${index === 3 ? "text-slate-200" : "text-slate-700"}`}>{step.human}</p>
+                          <div className={`mt-5 border px-4 py-4 ${artifactTone}`}>
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-60">output</div>
+                            <div className="mt-2 text-sm font-semibold">{step.result}</div>
+                          </div>
                         </div>
                       </div>
                     </article>
@@ -459,118 +552,241 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-4 border-t border-slate-300 bg-transparent">
-          <div className="grid gap-px bg-slate-300">
-            <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
-              <div className="bg-slate-950 px-6 py-8 text-white sm:px-8">
+        <section className="mt-4 overflow-hidden border-t border-slate-300 bg-[#eef3ff]">
+          <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.64fr)_minmax(0,1.36fr)]">
+            <div className="relative overflow-hidden bg-[#10141d] px-6 py-8 text-white sm:px-8 xl:px-10">
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 opacity-[0.34]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
+                  backgroundSize: "34px 34px",
+                }}
+              />
+              <div aria-hidden="true" className="absolute bottom-0 left-0 right-0 h-32 bg-[radial-gradient(circle_at_18%_100%,rgba(188,211,255,0.22),transparent_42%)]" />
+              <div className="relative">
                 <div className="avl-kicker !text-slate-300">best fit</div>
                 <h2
-                  className="mt-4 max-w-[11ch] text-[34px] font-normal leading-[0.98] tracking-[-0.03em] text-white sm:text-[44px]"
+                  className="mt-5 max-w-[12ch] break-keep text-[34px] font-normal leading-[0.98] tracking-[-0.03em] text-white sm:text-[50px]"
                   style={{ fontFamily: "var(--font-newsreader)" }}
                 >
                   지금 후보와 다음 행동이 막혀 있을 때 가장 잘 맞습니다.
                 </h2>
-                <p className="mt-4 max-w-[42ch] text-sm leading-6 text-slate-300">
-                  기능을 익히는 제품이라기보다, 아이디어가 실행 직전 멈추는 구간을 빠르게 여는 작업면에 가깝습니다.
+                <p className="mt-5 max-w-[40ch] text-sm leading-7 text-slate-300">
+                  기능을 익히는 제품이라기보다, 실행 직전 멈추는 지점을 빠르게 여는 작업면에 더 가깝습니다.
                 </p>
-                <div className="mt-8 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2">
-                  <div className="bg-slate-950/80 px-4 py-4">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">잘 맞는 경우</div>
-                    <p className="mt-2 text-sm leading-6 text-slate-200">회의 직후, 검증 초반, 솔로 실행처럼 결정을 빨리 앞으로 꺼내야 할 때</p>
-                  </div>
-                  <div className="bg-slate-950/80 px-4 py-4">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">덜 맞는 경우</div>
-                    <p className="mt-2 text-sm leading-6 text-slate-200">이미 요구사항이 확정돼 있고, 단순 문서 보관만 필요할 때</p>
-                  </div>
+
+                <div className="mt-10 grid gap-px border border-white/10 bg-white/10">
+                  {[
+                    ["fit", "회의 직후, 검증 초반, 솔로 실행처럼 결정을 빨리 앞으로 꺼내야 할 때"],
+                    ["skip", "이미 요구사항이 확정돼 있고 단순 문서 보관만 필요할 때"],
+                  ].map(([label, body]) => (
+                    <div key={label} className="grid gap-px bg-white/10 sm:grid-cols-[0.24fr_0.76fr]">
+                      <div className="bg-[#0f141f] px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">{label}</div>
+                      <div className="bg-[#121826] px-4 py-4 text-sm leading-6 text-slate-200">{body}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-10 grid gap-px border border-white/10 bg-white/10">
+                  {bestFitSignals.map((item, index) => (
+                    <div key={item.title} className="grid gap-px bg-white/10 sm:grid-cols-[0.2fr_0.8fr]">
+                      <div className="bg-[#0f141f] px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em] text-slate-500">0{index + 1}</div>
+                      <div className="bg-white/[0.04] px-4 py-4">
+                        <div className="text-sm font-semibold text-white">{item.title}</div>
+                        <div className="mt-2 h-px w-full bg-[linear-gradient(90deg,rgba(188,211,255,0.5),transparent)]" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
+            </div>
 
-              <div className="bg-white px-6 py-8 sm:px-8">
-                <div className="grid gap-4 md:grid-cols-12">
-                  {useCases.map((item, index) => {
+            <div className="grid gap-px bg-slate-300">
+              <article className="grid gap-px bg-slate-300 lg:grid-cols-[0.9fr_1.1fr]">
+                <div className="bg-white px-6 py-7 sm:px-8">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="avl-icon-frame rounded-none border-slate-200 bg-[#f8fafc]">
+                      <ChatCircleText size={18} />
+                    </span>
+                    <span className="avl-pill avl-pill-neutral">{useCases[0].tag}</span>
+                  </div>
+                  <h3 className="mt-6 max-w-[15ch] break-keep text-[32px] font-semibold leading-[1.02] tracking-tight text-slate-950">{useCases[0].title}</h3>
+                  <p className="mt-5 max-w-[44ch] text-sm leading-7 text-slate-600">{useCases[0].body}</p>
+                </div>
+
+                <div className="relative overflow-hidden bg-[#f8fafc] px-6 py-7 sm:px-8">
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 opacity-80"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, transparent 0%, rgba(15,23,42,0.05) 50%, transparent 100%), radial-gradient(circle at 76% 24%, rgba(188,211,255,0.36), transparent 26%)",
+                    }}
+                  />
+                  <div className="relative">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">mini proof</div>
+                    <div className="mt-7 grid grid-cols-[0.24fr_1fr] gap-px bg-slate-300">
+                      {["후보 1건", "질문 초안", "다음 회의 전 실행 메모"].map((label, index) => (
+                        <div key={label} className="contents">
+                          <div className={`${index === 0 ? "bg-slate-950 text-white" : "bg-white text-slate-500"} px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em]`}>0{index + 1}</div>
+                          <div className={`${index === 2 ? "bg-[#eef3ff]" : "bg-white"} px-4 py-4 text-sm font-semibold text-slate-900`}>{label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <div className="grid gap-px bg-slate-300 xl:grid-cols-[1.08fr_0.92fr]">
+                <div className="grid gap-px bg-slate-300">
+                  {[useCases[1], useCases[2]].map((item, index) => {
                     const Icon = item.icon;
-                    const spanClass = index === 0 ? "md:col-span-5" : index === 1 ? "md:col-span-4" : "md:col-span-3";
-
                     return (
-                      <article key={item.title} className={`border border-slate-200 px-5 py-5 ${spanClass} ${index === 1 ? "bg-[#f7f6f2]" : "bg-white"}`}>
-                        <div className="flex items-center justify-between gap-4">
+                      <article key={item.title} className={`${index === 0 ? "bg-[#fff8e9]" : "bg-[#eef3ff]"} px-6 py-6 sm:px-8`}>
+                        <div className="grid gap-5 sm:grid-cols-[0.18fr_0.82fr]">
                           <span className="avl-icon-frame rounded-none border-slate-200 bg-white">
                             <Icon size={18} />
                           </span>
-                          <span className={`avl-pill ${index === 1 ? "avl-pill-brand" : "avl-pill-neutral"}`}>{item.tag}</span>
+                          <div>
+                            <div className="flex flex-wrap items-center gap-3">
+                              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">situation</span>
+                              <span className="avl-pill avl-pill-neutral">{item.tag}</span>
+                            </div>
+                            <h3 className="mt-4 max-w-[28ch] text-[24px] font-semibold leading-[1.05] tracking-tight text-slate-950">{item.title}</h3>
+                            <p className="mt-4 max-w-[58ch] text-sm leading-6 text-slate-600">{item.body}</p>
+                          </div>
                         </div>
-                        <h3 className="mt-5 max-w-[16ch] text-[24px] font-semibold leading-[1.06] tracking-tight text-slate-950">
-                          {item.title}
-                        </h3>
-                        <p className="mt-4 text-sm leading-6 text-slate-600">{item.body}</p>
                       </article>
                     );
                   })}
                 </div>
 
-                <div className="mt-4 grid gap-px border border-slate-200 bg-slate-200 md:grid-cols-3">
-                  {bestFitSignals.map((item) => (
-                    <article key={item.title} className={`${item.tone} px-5 py-5`}>
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">signal</div>
-                      <h3 className="mt-3 text-[18px] font-semibold tracking-tight text-slate-950">{item.title}</h3>
-                      <p className="mt-3 text-sm leading-6 text-slate-600">{item.body}</p>
-                    </article>
-                  ))}
+                <div className="bg-white px-6 py-6 sm:px-8">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">decision map</div>
+                  <div className="mt-6 grid gap-px bg-slate-300">
+                    {bestFitSignals.map((item, index) => (
+                      <div key={item.title} className={`${index === 0 ? "bg-[#10141d] text-white" : index === 1 ? "bg-[#f8fafc]" : "bg-[#eef3ff]"} grid gap-px sm:grid-cols-[0.28fr_0.72fr]`}>
+                        <div className={`${index === 0 ? "bg-[#0f141f]" : "bg-white/70"} px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em] ${index === 0 ? "text-[#bcd3ff]" : "text-slate-400"}`}>0{index + 1}</div>
+                        <div className="px-4 py-4">
+                          <h3 className={`text-[18px] font-semibold tracking-tight ${index === 0 ? "text-white" : "text-slate-950"}`}>{item.title}</h3>
+                          <p className={`mt-2 text-sm leading-6 ${index === 0 ? "text-slate-300" : "text-slate-600"}`}>{item.body}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="outputs" className="mt-4 border-t border-slate-950 bg-slate-950 text-white">
-          <div className="grid gap-px bg-white/10">
-            <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,0.66fr)_minmax(0,1.34fr)]">
-              <div className="bg-slate-950 px-6 py-8 sm:px-8">
-                <div className="avl-kicker !text-slate-300">AI outputs</div>
+        <section id="outputs" className="mt-4 overflow-hidden border-t border-slate-950 bg-slate-950 text-white">
+          <div className="grid gap-px bg-white/10 xl:grid-cols-[minmax(0,0.58fr)_minmax(0,1.42fr)]">
+            <div className="relative overflow-hidden bg-slate-950 px-6 py-8 sm:px-8 xl:px-10">
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 opacity-[0.24]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
+                  backgroundSize: "30px 30px",
+                }}
+              />
+              <div aria-hidden="true" className="absolute bottom-10 right-8 h-44 w-28 border border-white/10 bg-white/[0.03]" />
+              <div className="relative">
+                <div className="avl-kicker !text-slate-300">artifact library</div>
                 <h2
-                  className="mt-4 max-w-[13ch] text-[34px] font-normal leading-[0.98] tracking-[-0.03em] text-white sm:text-[44px]"
+                  className="mt-5 max-w-[12ch] break-keep text-[34px] font-normal leading-[0.98] tracking-[-0.03em] text-white sm:text-[50px]"
                   style={{ fontFamily: "var(--font-newsreader)" }}
                 >
-                  AI가 먼저 만들어두는 초안이 다음 결정을 훨씬 빠르게 만듭니다.
+                  AI 초안은 끝에 실행 패키지로 남습니다.
                 </h2>
-                <p className="mt-4 max-w-[54ch] text-sm leading-6 text-slate-300">
-                  후보 정리부터 검증 질문, 실험안, PRD 초안, 실행 태스크까지 먼저 채워두고 사람은 지금 필요한 판단만 앞에서 이어갑니다.
+                <p className="mt-5 max-w-[42ch] text-sm leading-7 text-slate-300">
+                  후보 정리부터 학습 리포트까지, 각 산출물은 다음 판단을 빨리 여는 작업 단위로 저장됩니다.
                 </p>
-                <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                  {packageHighlights.map((label) => (
-                    <div key={label} className="border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200">
-                      {label}
+
+                <div className="mt-10 border-y border-white/10">
+                  {packageHighlights.map((label, index) => (
+                    <div key={label} className="grid grid-cols-[0.18fr_0.62fr_0.2fr] border-b border-white/10 py-4 last:border-b-0">
+                      <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">0{index + 1}</span>
+                      <span className="text-sm font-semibold text-slate-100">{label}</span>
+                      <span className="text-right text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">ready</span>
                     </div>
                   ))}
                 </div>
+                <div className="mt-10 grid grid-cols-[0.44fr_0.56fr] gap-px bg-white/10">
+                  <div className="bg-white/[0.04] px-4 py-4">
+                    <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">06</div>
+                    <div className="mt-10 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">package index</div>
+                  </div>
+                  <div className="bg-[#0d1118] px-4 py-4">
+                    <div className="grid grid-cols-3 gap-2">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <span key={index} className={`${index < 4 ? "bg-[#bcd3ff]" : "bg-white/10"} h-8 border border-white/10`} />
+                      ))}
+                    </div>
+                    <div className="mt-5 h-px bg-[linear-gradient(90deg,rgba(188,211,255,0.55),transparent)]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-px bg-white/10">
+              <div className="relative overflow-hidden bg-[#11161f] px-6 py-7 sm:px-8">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-80"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 18% 32%, rgba(188,211,255,0.16), transparent 26%), linear-gradient(90deg, rgba(255,255,255,0.04), transparent 34%)",
+                  }}
+                />
+                <div className="relative grid gap-8 lg:grid-cols-[0.46fr_0.54fr]">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">before judgment</div>
+                    <h3 className="mt-4 max-w-[13ch] break-keep text-[30px] font-semibold leading-[1.02] tracking-tight text-white">{outputColumns[0].title}</h3>
+                    <p className="mt-4 max-w-[38ch] text-sm leading-6 text-slate-300">{outputColumns[0].body}</p>
+                  </div>
+                  <div className="grid gap-px bg-white/10">
+                    {outputColumns[0].items.map((item, index) => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.title} className={`${index === 0 ? "bg-[#182233]" : "bg-[#0d1118]"} grid gap-px sm:grid-cols-[0.2fr_0.8fr]`}>
+                          <div className="flex items-center justify-center border-r border-white/10 px-4 py-4">
+                            <Icon size={18} />
+                          </div>
+                          <div className="px-4 py-4">
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{getOutputMeta(item)}</div>
+                            <div className="mt-1 text-sm font-semibold text-white">{item.title}</div>
+                            <p className="mt-2 text-sm leading-6 text-slate-300">{item.body}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              <div className="grid gap-px bg-white/10 xl:grid-cols-3">
-                {outputColumns.map((column, index) => (
-                  <div key={column.title} className={`px-5 py-6 ${index === 1 ? "bg-[#10141d]" : "bg-slate-950"}`}>
+              <div className="grid gap-px bg-white/10 xl:grid-cols-[0.95fr_1.05fr]">
+                {outputColumns.slice(1).map((column, columnIndex) => (
+                  <div key={column.title} className={`${columnIndex === 0 ? "bg-[#182233]" : "bg-[#0d1118]"} px-6 py-7 sm:px-8`}>
                     <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{column.eyebrow}</div>
-                    <h3 className="mt-4 max-w-[12ch] text-[22px] font-semibold leading-[1.06] tracking-tight text-white">
-                      {column.title}
-                    </h3>
-                    <p className="mt-4 text-sm leading-6 text-slate-300">{column.body}</p>
-
-                    <div className="mt-6 grid gap-px bg-white/10">
+                    <h3 className="mt-4 max-w-[12ch] text-[28px] font-semibold leading-[1.02] tracking-tight text-white">{column.title}</h3>
+                    <p className="mt-4 max-w-[36ch] text-sm leading-6 text-slate-300">{column.body}</p>
+                    <div className="mt-7 border-y border-white/10">
                       {column.items.map((item) => {
                         const Icon = item.icon;
                         return (
-                          <div key={item.title} className="bg-[#0f131d] px-4 py-4">
-                            <div className="flex items-center gap-3">
-                              <span className="avl-icon-frame rounded-none border-white/10 bg-white/6 text-slate-100">
-                                <Icon size={16} />
-                              </span>
-                              <div>
-                                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                                  {getOutputMeta(item)}
-                                </div>
-                                <div className="mt-1 text-sm font-semibold text-white">{item.title}</div>
-                              </div>
+                          <div key={item.title} className="grid grid-cols-[2.75rem_1fr] border-b border-white/10 py-4 last:border-b-0">
+                            <span className="flex h-10 w-10 items-center justify-center border border-white/10 bg-white/[0.04] text-slate-100">
+                              <Icon size={16} />
+                            </span>
+                            <div>
+                              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{getOutputMeta(item)}</div>
+                              <div className="mt-1 text-sm font-semibold text-white">{item.title}</div>
+                              <p className="mt-2 text-sm leading-6 text-slate-300">{item.body}</p>
                             </div>
-                            <p className="mt-3 text-sm leading-6 text-slate-300">{item.body}</p>
                           </div>
                         );
                       })}
@@ -578,23 +794,21 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-            </div>
 
-            <div className="bg-slate-950 px-6 py-6 sm:px-8">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <div className="avl-kicker !text-slate-300">final package</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
+              <div className="grid gap-px bg-white/10 lg:grid-cols-[1fr_0.7fr]">
+                <div className="bg-[#10141d] px-6 py-6 sm:px-8">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">final package</div>
+                  <p className="mt-3 max-w-[62ch] text-sm leading-6 text-slate-300">
                     결과는 설명서가 아니라, 바로 검토하고 넘길 수 있는 실행 패키지로 남습니다.
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  <Link href="/workspace" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
+                <div className="grid gap-px bg-white/10 sm:grid-cols-2">
+                  <Link href="/workspace" className="avl-btn flex h-14 justify-center border-0 bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
                     실행 보드 열기
                     <ArrowRight size={16} />
                   </Link>
-                  <Link href="/guide" className="avl-btn h-11 border border-white/12 bg-white/6 px-5 text-white hover:bg-white/10">
-                    기능 설명서는 가이드에서 보기
+                  <Link href="/guide" className="avl-btn flex h-14 justify-center border-0 bg-white/6 px-5 text-white hover:bg-white/10">
+                    가이드 보기
                   </Link>
                 </div>
               </div>
