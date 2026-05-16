@@ -65,10 +65,7 @@ async function main() {
 
     await waitForVisible(page.getByRole("heading", { name: /^AI Venture Lab$/ }), "homepage hero heading");
     await waitForVisible(page.getByRole("link", { name: /실행 보드 열기/ }), "workspace cta");
-    await waitForVisible(
-      page.getByText(/한 줄 아이디어에서 실행 판단까지|지금 후보와 다음 행동이 막혀 있을 때|AI가 먼저 만들어두는 초안/).first(),
-      "homepage middle content",
-    );
+    await waitForVisible(page.locator("#workflow"), "homepage middle content");
     await waitForVisible(page.getByRole("link", { name: /guide/i }).first(), "guide link");
 
     await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });

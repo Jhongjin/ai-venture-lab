@@ -353,6 +353,102 @@ body {
   }
 }
 
+@keyframes avl-decision-sweep {
+  0% {
+    opacity: 0;
+    transform: translate3d(-80%, 0, 0) skewX(-10deg);
+  }
+  24% {
+    opacity: 0.28;
+  }
+  72% {
+    opacity: 0.12;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(520%, 0, 0) skewX(-10deg);
+  }
+}
+
+@keyframes avl-decision-ring {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: translate3d(-50%, -50%, 0) scale(0.92);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translate3d(-50%, -50%, 0) scale(1.1);
+  }
+}
+
+@keyframes avl-decision-scan {
+  from {
+    opacity: 0.92;
+    transform: rotate(0deg);
+  }
+  to {
+    opacity: 0.92;
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes avl-decision-packet {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0) scaleX(0.35);
+    transform-origin: left;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  74% {
+    opacity: 0.58;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(560%, -50%, 0) scaleX(1);
+    transform-origin: right;
+  }
+}
+
+@keyframes avl-decision-node {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+@keyframes avl-decision-live-dot {
+  0%,
+  100% {
+    opacity: 0.54;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes avl-decision-bar {
+  0%,
+  100% {
+    opacity: 0.26;
+    transform: scaleY(0.55);
+    transform-origin: bottom;
+  }
+  50% {
+    opacity: 0.86;
+    transform: scaleY(1);
+  }
+}
+
 .landing-hero-scan {
   background: linear-gradient(180deg, transparent 0%, rgba(129, 140, 248, 0.14) 48%, transparent 100%);
   animation: avl-hero-scan 8s linear infinite;
@@ -530,13 +626,57 @@ body {
   animation: avl-workflow-meter 1.8s ease-in-out infinite;
 }
 
+.avl-decision-sweep {
+  background: linear-gradient(90deg, transparent, rgba(188, 211, 255, 0.2), rgba(255, 255, 255, 0.1), transparent);
+  filter: blur(14px);
+  animation: avl-decision-sweep 5.8s linear infinite;
+  will-change: transform, opacity;
+}
+
+.avl-decision-ring {
+  animation: avl-decision-ring 3.2s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.avl-decision-scan {
+  animation: avl-decision-scan 4.8s linear infinite;
+  will-change: transform;
+}
+
+.avl-decision-packet {
+  animation: avl-decision-packet 2.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.avl-decision-node {
+  animation: avl-decision-node 3.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.avl-decision-live-dot {
+  animation: avl-decision-live-dot 1.25s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.avl-decision-bar {
+  animation: avl-decision-bar 1.7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .avl-workflow-sweep,
   .avl-workflow-flow,
   .avl-workflow-float-a,
   .avl-workflow-float-b,
   .avl-workflow-node,
-  .avl-workflow-meter {
+  .avl-workflow-meter,
+  .avl-decision-sweep,
+  .avl-decision-ring,
+  .avl-decision-scan,
+  .avl-decision-packet,
+  .avl-decision-node,
+  .avl-decision-live-dot,
+  .avl-decision-bar {
     animation: none;
   }
 }

@@ -147,6 +147,12 @@ const bestFitSignals = [
 
 const bestFitRoute = ["회의 메모", "후보 한 건", "질문 초안", "실행 메모"];
 
+const bestFitLiveNodes = [
+  { label: "회의 메모", meta: "raw", position: "left-[4%] top-[12%]" },
+  { label: "후보 한 건", meta: "candidate", position: "right-[3%] top-[30%]" },
+  { label: "질문 초안", meta: "question", position: "left-[18%] bottom-[10%]" },
+];
+
 const bestFitChecks = [
   ["fit", "다음 행동을 정해야 하는데 후보와 질문이 흩어져 있을 때"],
   ["skip", "요구사항과 작업 범위가 이미 정해져 보관만 하면 될 때"],
@@ -727,14 +733,57 @@ export default function HomePage() {
                       설명을 더 읽기보다, 다음 판단을 바로 꺼내야 할 때.
                     </h3>
                   </div>
-                  <div className="border-l border-slate-300 pl-6">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">mini proof</div>
-                    <div className="mt-5 grid gap-px bg-slate-300">
-                      {bestFitRoute.slice(0, 3).map((label, index) => (
-                        <div key={label} className={`${index === 0 ? "bg-slate-950 text-white" : index === 2 ? "bg-white" : "bg-[#f6f4ee]"} grid grid-cols-[0.28fr_0.72fr]`}>
-                          <div className="px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em] opacity-70">0{index + 1}</div>
-                          <div className="px-4 py-4 text-sm font-semibold">{label}</div>
+                  <div className="relative min-h-[290px] overflow-hidden border border-slate-950 bg-[#0f141f] p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 opacity-[0.5]"
+                      style={{
+                        backgroundImage:
+                          "linear-gradient(rgba(188,211,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(188,211,255,0.1) 1px, transparent 1px)",
+                        backgroundSize: "20px 20px",
+                      }}
+                    />
+                    <div aria-hidden="true" className="avl-decision-sweep absolute inset-y-0 left-0 w-24" />
+                    <div className="relative flex items-start justify-between gap-4">
+                      <div>
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#bcd3ff]">live decision map</div>
+                        <p className="mt-3 max-w-[28ch] break-keep text-sm font-semibold leading-6 text-slate-100">
+                          회의 메모가 후보와 질문 초안으로 바뀌는 흐름을 실시간으로 보여줍니다.
+                        </p>
+                      </div>
+                      <span className="inline-flex items-center gap-2 border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-300">
+                        <span className="avl-decision-live-dot h-1.5 w-1.5 bg-[#bcd3ff]" />
+                        scan
+                      </span>
+                    </div>
+
+                    <div aria-hidden="true" className="relative mt-6 h-[150px]">
+                      <div className="absolute left-1/2 top-1/2 h-36 w-36 -translate-x-1/2 -translate-y-1/2 border border-white/10" />
+                      <div className="avl-decision-ring absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 border border-[#bcd3ff]/30" />
+                      <div className="avl-decision-scan absolute left-1/2 top-1/2 h-px w-[42%] origin-left bg-[linear-gradient(90deg,#bcd3ff,rgba(188,211,255,0.12),transparent)]" />
+                      <div className="absolute left-[8%] right-[8%] top-[58%] h-px bg-white/12">
+                        <span className="avl-decision-packet absolute left-0 top-1/2 h-2 w-12 -translate-y-1/2 bg-[#bcd3ff]" />
+                      </div>
+                      {bestFitLiveNodes.map((node, index) => (
+                        <div key={node.label} className={`avl-decision-node absolute ${node.position} border border-white/10 bg-[#101927]/95 px-3 py-2 shadow-[0_18px_36px_rgba(2,6,23,0.28)]`}>
+                          <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#bcd3ff]">{node.meta}</div>
+                          <div className="mt-1 text-xs font-semibold text-white">{node.label}</div>
+                          <span
+                            className={`absolute h-2 w-2 border border-[#bcd3ff] bg-[#0f141f] ${
+                              index === 0 ? "-right-1 top-1/2" : index === 1 ? "-left-1 top-1/2" : "left-1/2 -top-1"
+                            }`}
+                          />
                         </div>
+                      ))}
+                    </div>
+
+                    <div className="relative mt-4 grid grid-cols-12 items-end gap-1.5 border-t border-white/10 pt-4">
+                      {[22, 36, 18, 46, 28, 54, 34, 42, 24, 48, 30, 38].map((height, index) => (
+                        <span
+                          key={`${height}-${index}`}
+                          className="avl-decision-bar block bg-[#bcd3ff]/50"
+                          style={{ height: `${height}px`, animationDelay: `${index * 0.1}s` }}
+                        />
                       ))}
                     </div>
                   </div>
