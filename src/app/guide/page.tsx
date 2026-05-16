@@ -48,6 +48,8 @@ const artifacts = [
   { title: "실행 태스크 보드", icon: UsersThree },
 ];
 
+const guideSignals = ["읽기", "확인", "보드로 이동"];
+
 export default function GuidePage() {
   return (
     <main id="main-content" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
@@ -90,7 +92,7 @@ export default function GuidePage() {
             <div className="bg-white px-6 py-8 sm:px-8 sm:py-10">
               <div className="avl-kicker">operator guide</div>
               <h1
-                className="mt-5 max-w-[9ch] text-[44px] font-normal leading-[0.92] tracking-[-0.05em] text-slate-950 sm:text-[68px]"
+                className="mt-5 max-w-[18ch] text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-slate-950 sm:text-[68px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}
               >
                 실행 보드를 이해하는 가장 짧은 문서.
@@ -128,6 +130,17 @@ export default function GuidePage() {
                   <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{step.index}</span>
                 </a>
               ))}
+            </div>
+            <div className="mt-6 border-t border-slate-200 pt-4">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">reading path</div>
+              <div className="mt-3 grid gap-px bg-slate-200">
+                {guideSignals.map((signal, index) => (
+                  <div key={signal} className={`${index === 2 ? "bg-slate-950 text-white" : "bg-[#f7f6f2] text-slate-700"} grid grid-cols-[0.28fr_0.72fr]`}>
+                    <div className={`${index === 2 ? "text-[#bcd3ff]" : "text-slate-400"} px-3 py-3 font-mono text-[10px] uppercase tracking-[0.18em]`}>0{index + 1}</div>
+                    <div className="px-3 py-3 text-xs font-semibold">{signal}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </aside>
 
