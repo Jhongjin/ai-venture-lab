@@ -79,6 +79,22 @@ $checks = @(
     )
   },
   @{
+    Path = "docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md"
+    Terms = @(
+      "supabase_rls_policy_posture_review",
+      "static_sql_review_only",
+      "initial_public_read_policy",
+      "private_workspace_reads_migration",
+      "owner_workspace_scoped_reads",
+      "static_rls_policy_inventory",
+      "legacy_seed_visibility_carveout",
+      "denied_cases_not_claimed_until_executed",
+      "production_migration_application_unverified",
+      "cross_workspace_denied_not_run",
+      "rls_policy_posture_review_ready"
+    )
+  },
+  @{
     Path = "docs/DEVELOPMENT_HARNESS.md"
     Terms = @(
       "Backend rules evidence",

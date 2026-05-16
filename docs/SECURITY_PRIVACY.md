@@ -12,6 +12,7 @@
 - Enable RLS on every Supabase table exposed through the browser-facing Data API.
 - Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, authenticated smoke, telemetry smoke, or deployment evidence collection.
 - Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke.
+- Use `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md` before claiming private-read beta readiness from Supabase policy files.
 
 ## Sensitive Domains
 
@@ -46,6 +47,7 @@ Extra review is required for:
 - `service_role` is only used server-side and never in client bundles.
 - Allowed and denied paths are tested before launch, including private-read and cross-workspace denied cases before broader beta.
 - Cross-workspace denied checks require two disposable accounts and a disposable workspace pair; missing fixtures block the check instead of widening permissions.
+- Static policy review is not production proof. Confirm migrations are applied and old public-read policies are absent before relying on real denied-case smoke.
 
 ## Firebase Gate
 

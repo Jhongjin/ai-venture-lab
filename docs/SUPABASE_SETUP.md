@@ -77,6 +77,8 @@ The initial migration enables RLS on every table.
 - Updates and deletes are limited to row owners, with organization admin support once a row is attached to an organization.
 - Before storing sensitive care, finance, inheritance, or psychological coaching data, remove public read and require organization membership for every read.
 
+For WQ-041 static posture, see `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`. The current docs require `public_read_removed_by_private_workspace_reads`, production migration confirmation, and real disposable denied-case evidence before private-read beta claims.
+
 ## Auth Setup
 
 The console uses password sign-in as the default operator access path. Email magic links remain available as a fallback, but they require reliable Supabase Auth email delivery or custom SMTP.

@@ -9,6 +9,7 @@ The venture lab starts with one operator, but the data model is prepared for tea
 - Authenticated writes require row ownership through `created_by = auth.uid()`.
 - Organization fields are additive. Existing rows can remain personal with `organization_id = null`.
 - Audit events are generated for idea, risk, decision, and experiment inserts, updates, and deletes after the organization migration is applied.
+- Use `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md` for the `static_rls_policy_inventory`; `legacy_seed_visibility_carveout` rows are not private workspace proof.
 
 ## Organization Tables
 

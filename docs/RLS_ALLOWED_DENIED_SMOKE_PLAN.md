@@ -1,6 +1,6 @@
 # RLS Allowed/Denied Smoke Plan
 
-Status: WQ-040 RLS smoke runner scaffold-ready
+Status: WQ-041 RLS policy posture review-ready
 Last updated: 2026-05-16
 Scope: plan and evidence boundary only; no account provisioning or DB/Auth mutation
 
@@ -9,6 +9,8 @@ Scope: plan and evidence boundary only; no account provisioning or DB/Auth mutat
 This plan defines how to verify private Supabase browser access before broader beta work and names the blocked-safe runner scaffold.
 
 WQ-038 confirmed `authenticated_visibility_smoke_passed`: one disposable Supabase Auth user can log in and reach the workspace surface. WQ-039 does not run a second-user or cross-workspace check. It defines the conditions required before that check is safe.
+
+WQ-041 adds `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`. The static review found that early migrations included public-read policies for the original venture tables, while later migrations drop those policies and replace them with authenticated owner/workspace reads. Real denied-case claims still require production migration confirmation and disposable two-account smoke evidence.
 
 Validation keywords: `rls_allowed_denied_smoke_plan`, `authenticated_visibility_smoke_passed`, `no_env_local_readback`, `no_secret_output`.
 
@@ -39,6 +41,21 @@ Required fixture labels:
 - `allowed_workspace_visibility`
 - `cross_workspace_denied_case`
 - `anonymous_private_read_denied`
+
+## Static Policy Inventory
+
+WQ-041 static review is recorded in `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`.
+
+| Surface | Early policy | Tightening migration | Expected current scope | Execution evidence |
+| --- | --- | --- | --- | --- |
+| `ideas`, `risks`, `decisions`, `experiments` | `initial_public_read_policy` | `20260503030000_private_workspace_reads.sql` | authenticated owner, organization member, or legacy/global seed row | `denied_cases_not_claimed_until_executed` |
+| `organizations`, `organization_members` | none in initial harness | `20260503020000_add_organization_access_model.sql`, repaired by `20260512010000_repair_workspace_creation_policy.sql` | creator/member/admin scope | `denied_cases_not_claimed_until_executed` |
+| `orchestration_runs`, `venture_artifacts`, `implementation_tasks` | added after workspace model | respective table migrations | authenticated owner, organization member, or legacy/global seed row | `denied_cases_not_claimed_until_executed` |
+| `telemetry_events` | added after workspace model | `20260506010000_add_learning_telemetry.sql` | actor or organization member | separate telemetry gate |
+
+`created_by is null and organization_id is null` is a `legacy_seed_visibility_carveout`, not proof of private workspace access. Production private-read claims require `public_read_removed_by_private_workspace_reads`, production migration confirmation, and a real disposable denied-case pass.
+
+Validation keywords: `static_rls_policy_inventory`, `public_read_removed_by_private_workspace_reads`, `legacy_seed_visibility_carveout`, `denied_cases_not_claimed_until_executed`.
 
 ## Allowed Checks
 
@@ -142,8 +159,10 @@ Validation keywords: `rls_smoke_runner_scaffold`, `blocked_safe_runner`, `fresh_
 
 Before running the automated denied-case smoke for real, the operator must confirm the disposable account/workspace pair and keep credentials in the local terminal only.
 
+Static SQL posture is now documented, but production migration state is not verified. Confirm that all required migrations through `20260512010000_repair_workspace_creation_policy.sql` are applied and that old public-read policies are absent before treating a passed smoke as private-read beta evidence.
+
 Recommended next state after this plan:
 
 ```text
-rls_smoke_runner_scaffold_ready
+rls_policy_posture_review_ready
 ```

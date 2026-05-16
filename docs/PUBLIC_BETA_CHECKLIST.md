@@ -10,7 +10,7 @@ Before running smoke commands, check `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md`. The 
 
 Before creating or modifying GitHub Actions, check `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md`. CI may mirror local non-secret gates, but it does not replace explicit approval for authenticated write smoke, telemetry smoke, deploys, rollback, production DB/Auth mutation, or release decisions.
 
-Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`. The WQ-039 posture is `rls_allowed_denied_smoke_plan`: allowed and denied RLS checks need a disposable account/workspace pair, summary-only evidence, and no account provisioning or write smoke inside the plan.
+Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` and `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`. The WQ-041 posture is `rls_policy_posture_review_ready`: static SQL shows private-read intent after the tightening migration, but `denied_cases_not_claimed_until_executed` still applies until production migration state and disposable cross-workspace smoke pass.
 
 ```powershell
 pnpm quality:full
