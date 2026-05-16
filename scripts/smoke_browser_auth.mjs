@@ -132,24 +132,45 @@ async function main() {
 
   try {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
-    await waitForVisible(page.getByRole("heading", { name: /아이디어를 검증하고/i }), "homepage hero heading");
+    await waitForAnyVisible(
+      [
+        { name: "brand heading", locator: page.getByRole("heading", { name: /^AI Venture Lab$/ }) },
+        { name: "hero supporting copy", locator: page.getByText(/흩어진 아이디어를 실행 후보로/i) },
+        { name: "legacy hero heading", locator: page.getByRole("heading", { name: /아이디어를 검증하고/i }) },
+      ],
+      "homepage hero heading",
+    );
 
     await clickFirst(page.getByRole("link", { name: /실행 보드 열기/ }), "workspace cta");
-    await waitForVisible(page.getByRole("heading", { name: /아이디어 실행 보드/ }), "workspace heading");
+    await waitForVisible(page.getByRole("heading", { name: /실행 보드/ }), "workspace heading");
     await fillFirst(page.getByLabel(/이메일/), email, "email input");
     await fillFirst(page.getByLabel(/비밀번호/), password, "password input");
     await clickFirst(page.getByRole("button", { name: /비밀번호로 로그인/ }), "password sign-in button");
-    await waitForVisible(page.getByText(/로그인됨/), "signed-in state", 25000);
-    await waitForVisible(page.getByText(new RegExp(escapeRegExp(email))), "signed-in email", 10000);
+    const postLoginState = await waitForAnyVisible(
+      [
+        { name: "signed-in state", locator: page.getByText(/로그인됨/) },
+        { name: "login success message", locator: page.getByText(/로그인되었습니다/) },
+        { name: "next extract stage", locator: page.getByRole("heading", { name: /아이디어 찾기/ }) },
+        { name: "extract action", locator: page.getByRole("button", { name: /AI 후보 발굴/ }) },
+      ],
+      "post-login state",
+      25000,
+    );
 
-    await clickFirst(page.getByRole("button", { name: /워크스페이스/ }), "workspace navigation");
+    if (postLoginState === "signed-in state" || postLoginState === "login success message") {
+      await waitForVisible(page.getByText(new RegExp(escapeRegExp(email))), "signed-in email", 10000);
+    } else {
+      await waitForVisible(page.getByRole("button", { name: /AI 후보 발굴/ }), "authenticated extract action", 10000);
+    }
+
     let workspaceState = await waitForAnyVisible(
       [
         { name: "active", locator: page.getByLabel(/활성 워크스페이스/) },
         { name: "empty", locator: page.getByText(/연결된 워크스페이스가 없습니다/) },
         { name: "login-required", locator: page.getByText(/워크스페이스 멤버십을 불러오려면 로그인하세요/) },
+        { name: "extract-ready", locator: page.getByRole("button", { name: /AI 후보 발굴/ }) },
       ],
-      "workspace state",
+      "authenticated session state",
       20000,
     );
 
