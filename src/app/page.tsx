@@ -909,6 +909,29 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        <footer className="mt-4 border-t border-slate-300 bg-[#f6f4ee] px-6 py-6 sm:px-8">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div>
+              <div className="avl-kicker">handoff</div>
+              <p
+                className="mt-3 max-w-[18ch] break-keep text-[30px] font-normal leading-[1] tracking-[-0.03em] text-slate-950 sm:text-[38px]"
+                style={{ fontFamily: "var(--font-newsreader)" }}
+              >
+                AI가 준비하고, 사람이 판단하고, 보드는 기억합니다.
+              </p>
+            </div>
+            <nav aria-label="landing footer" className="flex flex-wrap gap-2">
+              <Link href="/workspace" className="avl-btn avl-btn-primary h-11 px-5">
+                실행 보드 열기
+                <ArrowRight size={16} />
+              </Link>
+              <Link href="/guide" className="avl-btn avl-btn-secondary h-11 px-5">
+                가이드 보기
+              </Link>
+            </nav>
+          </div>
+        </footer>
       </div>
     </main>
   );
