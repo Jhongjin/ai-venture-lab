@@ -145,6 +145,20 @@ const bestFitSignals = [
   },
 ];
 
+const bestFitRoute = ["회의 메모", "후보 1건", "질문 초안", "실행 메모"];
+
+const bestFitChecks = [
+  ["fit", "다음 행동을 정해야 하는데 후보와 질문이 흩어져 있을 때"],
+  ["skip", "이미 요구사항과 작업 범위가 확정돼 단순 보관만 필요할 때"],
+  ["watch", "법무, 의료, 금융처럼 외부 검토가 먼저 필요한 아이디어일 때"],
+];
+
+const bestFitScan = [
+  ["decision pressure", "다음 회의 전 움직일 후보가 필요한가"],
+  ["proof gap", "검증 질문과 중단 기준이 비어 있는가"],
+  ["operator load", "한 사람이 끝까지 밀어야 하는가"],
+];
+
 const aiOutputs = [
   {
     title: "후보 정리",
@@ -595,8 +609,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mt-4 overflow-hidden border-t border-slate-300 bg-[#eef3ff]">
-          <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.64fr)_minmax(0,1.36fr)]">
+        <section className="mt-4 overflow-hidden border-t border-slate-300 bg-[#eaf0fb]">
+          <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.58fr)_minmax(0,1.42fr)]">
             <div className="relative overflow-hidden bg-[#10141d] px-6 py-8 text-white sm:px-8 xl:px-10">
               <div
                 aria-hidden="true"
@@ -608,6 +622,7 @@ export default function HomePage() {
                 }}
               />
               <div aria-hidden="true" className="absolute bottom-0 left-0 right-0 h-32 bg-[radial-gradient(circle_at_18%_100%,rgba(188,211,255,0.22),transparent_42%)]" />
+              <div aria-hidden="true" className="absolute right-8 top-8 h-28 w-28 border border-white/10" />
               <div className="relative">
                 <div className="avl-kicker !text-slate-300">best fit</div>
                 <h2
@@ -620,84 +635,109 @@ export default function HomePage() {
                   기능을 익히는 제품이라기보다, 실행 직전 멈추는 지점을 빠르게 여는 작업면에 더 가깝습니다.
                 </p>
 
-                <div className="mt-10 grid gap-px border border-white/10 bg-white/10">
-                  {[
-                    ["fit", "회의 직후, 검증 초반, 솔로 실행처럼 결정을 빨리 앞으로 꺼내야 할 때"],
-                    ["skip", "이미 요구사항이 확정돼 있고 단순 문서 보관만 필요할 때"],
-                  ].map(([label, body]) => (
-                    <div key={label} className="grid gap-px bg-white/10 sm:grid-cols-[0.24fr_0.76fr]">
-                      <div className="bg-[#0f141f] px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">{label}</div>
-                      <div className="bg-[#121826] px-4 py-4 text-sm leading-6 text-slate-200">{body}</div>
+                <div className="mt-10 border-y border-white/10">
+                  {bestFitChecks.map(([label, body], index) => (
+                    <div key={label} className="grid gap-4 border-b border-white/10 py-4 last:border-b-0 sm:grid-cols-[0.22fr_0.78fr]">
+                      <div className={`font-mono text-[11px] uppercase tracking-[0.2em] ${index === 0 ? "text-[#bcd3ff]" : index === 1 ? "text-slate-500" : "text-[#c9b47a]"}`}>{label}</div>
+                      <div className="text-sm leading-6 text-slate-200">{body}</div>
                     </div>
                   ))}
                 </div>
-                <div className="mt-10 grid gap-px border border-white/10 bg-white/10">
-                  {bestFitSignals.map((item, index) => (
-                    <div key={item.title} className="grid gap-px bg-white/10 sm:grid-cols-[0.2fr_0.8fr]">
-                      <div className="bg-[#0f141f] px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em] text-slate-500">0{index + 1}</div>
-                      <div className="bg-white/[0.04] px-4 py-4">
-                        <div className="text-sm font-semibold text-white">{item.title}</div>
-                        <div className="mt-2 h-px w-full bg-[linear-gradient(90deg,rgba(188,211,255,0.5),transparent)]" />
-                      </div>
+
+                <div className="mt-10 grid grid-cols-4 gap-px bg-white/10">
+                  {bestFitRoute.map((label, index) => (
+                    <div key={label} className={`${index === 1 ? "bg-[#bcd3ff] text-slate-950" : "bg-white/[0.04] text-slate-300"} px-3 py-4`}>
+                      <div className="font-mono text-[11px] uppercase tracking-[0.2em]">0{index + 1}</div>
+                      <div className="mt-7 text-[10px] font-semibold uppercase tracking-[0.16em]">{label}</div>
                     </div>
                   ))}
+                </div>
+
+                <div className="mt-14 border-t border-white/10 pt-6">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">readiness scan</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">fit before feature</span>
+                  </div>
+                  <div className="mt-5 grid gap-3">
+                    {bestFitScan.map(([label, body], index) => (
+                      <div key={label} className="grid grid-cols-[0.34fr_0.66fr] gap-px bg-white/10">
+                        <div className={`${index === 0 ? "bg-white/[0.09]" : "bg-white/[0.04]"} px-3 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400`}>
+                          {label}
+                        </div>
+                        <div className="bg-[#0f141f] px-3 py-3 text-xs leading-5 text-slate-300">{body}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-px bg-slate-300">
-              <article className="grid gap-px bg-slate-300 lg:grid-cols-[0.9fr_1.1fr]">
-                <div className="bg-white px-6 py-7 sm:px-8">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="avl-icon-frame rounded-none border-slate-200 bg-[#f8fafc]">
-                      <ChatCircleText size={18} />
-                    </span>
-                    <span className="avl-pill avl-pill-neutral">{useCases[0].tag}</span>
+            <div className="relative overflow-hidden bg-[#eaf0fb] px-6 py-7 sm:px-8 xl:px-10">
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 opacity-70"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(15,23,42,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.05) 1px, transparent 1px)",
+                  backgroundSize: "42px 42px",
+                }}
+              />
+              <div aria-hidden="true" className="absolute right-0 top-0 h-56 w-56 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.86),transparent_60%)]" />
+              <div className="relative">
+                <div className="grid gap-8 lg:grid-cols-[0.58fr_0.42fr]">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">where it works</div>
+                    <h3 className="mt-5 max-w-[18ch] break-keep text-[34px] font-semibold leading-[1.02] tracking-tight text-slate-950 sm:text-[38px]">
+                      설명서를 읽는 시간보다, 다음 판단을 꺼내는 시간이 더 중요할 때.
+                    </h3>
                   </div>
-                  <h3 className="mt-6 max-w-[15ch] break-keep text-[32px] font-semibold leading-[1.02] tracking-tight text-slate-950">{useCases[0].title}</h3>
-                  <p className="mt-5 max-w-[44ch] text-sm leading-7 text-slate-600">{useCases[0].body}</p>
-                </div>
-
-                <div className="relative overflow-hidden bg-[#f8fafc] px-6 py-7 sm:px-8">
-                  <div
-                    aria-hidden="true"
-                    className="absolute inset-0 opacity-80"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, transparent 0%, rgba(15,23,42,0.05) 50%, transparent 100%), radial-gradient(circle at 76% 24%, rgba(188,211,255,0.36), transparent 26%)",
-                    }}
-                  />
-                  <div className="relative">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">mini proof</div>
-                    <div className="mt-7 grid grid-cols-[0.24fr_1fr] gap-px bg-slate-300">
-                      {["후보 1건", "질문 초안", "다음 회의 전 실행 메모"].map((label, index) => (
-                        <div key={label} className="contents">
-                          <div className={`${index === 0 ? "bg-slate-950 text-white" : "bg-white text-slate-500"} px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em]`}>0{index + 1}</div>
-                          <div className={`${index === 2 ? "bg-[#eef3ff]" : "bg-white"} px-4 py-4 text-sm font-semibold text-slate-900`}>{label}</div>
+                  <div className="border-l border-slate-300 pl-6">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">mini proof</div>
+                    <div className="mt-5 grid gap-px bg-slate-300">
+                      {bestFitRoute.slice(0, 3).map((label, index) => (
+                        <div key={label} className={`${index === 0 ? "bg-slate-950 text-white" : index === 2 ? "bg-white" : "bg-[#f6f4ee]"} grid grid-cols-[0.28fr_0.72fr]`}>
+                          <div className="px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em] opacity-70">0{index + 1}</div>
+                          <div className="px-4 py-4 text-sm font-semibold">{label}</div>
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
-              </article>
 
-              <div className="grid gap-px bg-slate-300 xl:grid-cols-[1.08fr_0.92fr]">
-                <div className="grid gap-px bg-slate-300">
-                  {[useCases[1], useCases[2]].map((item, index) => {
+                <div className="mt-10 grid gap-5">
+                  {useCases.map((item, index) => {
                     const Icon = item.icon;
+                    const bandTone =
+                      index === 0
+                        ? "bg-white"
+                        : index === 1
+                          ? "bg-[#fff8e9]"
+                          : "bg-[#10141d] text-white";
+                    const copyTone = index === 2 ? "text-slate-300" : "text-slate-600";
+                    const labelTone = index === 2 ? "text-[#bcd3ff]" : "text-slate-500";
                     return (
-                      <article key={item.title} className={`${index === 0 ? "bg-[#fff8e9]" : "bg-[#eef3ff]"} px-6 py-6 sm:px-8`}>
-                        <div className="grid gap-5 sm:grid-cols-[0.18fr_0.82fr]">
-                          <span className="avl-icon-frame rounded-none border-slate-200 bg-white">
-                            <Icon size={18} />
-                          </span>
-                          <div>
+                      <article
+                        key={item.title}
+                        className={`relative overflow-hidden ${bandTone} ${
+                          index === 1 ? "ml-auto lg:w-[82%]" : index === 2 ? "lg:w-[74%]" : "lg:w-[92%]"
+                        }`}
+                      >
+                        <div className="grid gap-px bg-slate-300/80 md:grid-cols-[0.2fr_0.8fr]">
+                          <div className={`${index === 2 ? "bg-[#0f141f]" : "bg-white/70"} px-5 py-5`}>
+                            <span className={`flex h-10 w-10 items-center justify-center border ${index === 2 ? "border-white/10 bg-white/[0.04]" : "border-slate-200 bg-white"}`}>
+                              <Icon size={18} />
+                            </span>
+                            <div className={`mt-8 font-mono text-[11px] uppercase tracking-[0.2em] ${labelTone}`}>0{index + 1}</div>
+                          </div>
+                          <div className={`${index === 2 ? "bg-[#10141d]" : index === 1 ? "bg-[#fff8e9]" : "bg-white"} px-5 py-5 sm:px-6`}>
                             <div className="flex flex-wrap items-center gap-3">
-                              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">situation</span>
-                              <span className="avl-pill avl-pill-neutral">{item.tag}</span>
+                              <span className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${labelTone}`}>situation</span>
+                              <span className={`${index === 2 ? "border-white/10 bg-white/[0.04] text-slate-300" : "border-slate-300 bg-white/70 text-slate-600"} inline-flex border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]`}>
+                                {item.tag}
+                              </span>
                             </div>
-                            <h3 className="mt-4 max-w-[28ch] text-[24px] font-semibold leading-[1.05] tracking-tight text-slate-950">{item.title}</h3>
-                            <p className="mt-4 max-w-[58ch] text-sm leading-6 text-slate-600">{item.body}</p>
+                            <h3 className={`mt-5 max-w-[28ch] text-[26px] font-semibold leading-[1.04] tracking-tight ${index === 2 ? "text-white" : "text-slate-950"}`}>{item.title}</h3>
+                            <p className={`mt-4 max-w-[60ch] text-sm leading-6 ${copyTone}`}>{item.body}</p>
                           </div>
                         </div>
                       </article>
@@ -705,11 +745,16 @@ export default function HomePage() {
                   })}
                 </div>
 
-                <div className="bg-white px-6 py-6 sm:px-8">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">decision map</div>
-                  <div className="mt-6 grid gap-px bg-slate-300">
+                <div className="mt-10 grid gap-px bg-slate-300 lg:grid-cols-[0.38fr_0.62fr]">
+                  <div className="bg-white px-5 py-5">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">decision map</div>
+                    <p className="mt-4 max-w-[34ch] text-sm leading-6 text-slate-600">
+                      이 섹션은 “누가 쓰나”보다 “언제 효과가 나나”를 먼저 보여줍니다.
+                    </p>
+                  </div>
+                  <div className="grid gap-px bg-slate-300">
                     {bestFitSignals.map((item, index) => (
-                      <div key={item.title} className={`${index === 0 ? "bg-[#10141d] text-white" : index === 1 ? "bg-[#f8fafc]" : "bg-[#eef3ff]"} grid gap-px sm:grid-cols-[0.28fr_0.72fr]`}>
+                      <div key={item.title} className={`${index === 0 ? "bg-[#10141d] text-white" : index === 1 ? "bg-[#f8fafc]" : "bg-[#eef3ff]"} grid gap-px sm:grid-cols-[0.22fr_0.78fr]`}>
                         <div className={`${index === 0 ? "bg-[#0f141f]" : "bg-white/70"} px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em] ${index === 0 ? "text-[#bcd3ff]" : "text-slate-400"}`}>0{index + 1}</div>
                         <div className="px-4 py-4">
                           <h3 className={`text-[18px] font-semibold tracking-tight ${index === 0 ? "text-white" : "text-slate-950"}`}>{item.title}</h3>
