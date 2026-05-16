@@ -384,7 +384,7 @@ const orchestrationPhaseConfigs: Array<{
   },
   {
     phase: "build",
-    label: "개발",
+    label: "구현",
     ownerRole: "prototype-builder",
     objective: "현재 가설을 검증할 수 있는 가장 작은 유용한 프로토타입을 만듭니다.",
   },
@@ -455,7 +455,7 @@ const artifactSourceLabels: Record<string, string> = {
   extraction_portfolio: "발굴 비교 리포트",
   prd_readiness_handoff: "PRD 전환 핸드오프",
   mvp_slice_plan: "MVP 슬라이스 플랜",
-  development_kickoff: "개발 킥오프 브리프",
+  development_kickoff: "제작 시작 브리프",
   agent_run_package: "구현 실행 패키지",
   development_process: "제작 준비 과정",
   development_report: "제작 완료 보고서",
@@ -501,10 +501,10 @@ const telemetryEventLabels: Record<string, string> = {
   artifact_saved: "산출물 저장",
   artifact_package_saved: "산출물 패키지 저장",
   artifact_status_updated: "산출물 상태 변경",
-  implementation_tasks_created: "개발 태스크 생성",
-  implementation_task_created: "개발 태스크 추가",
-  implementation_task_status_updated: "개발 태스크 상태 변경",
-  implementation_task_evidence_saved: "개발 태스크 증거 저장",
+  implementation_tasks_created: "제작 할 일 생성",
+  implementation_task_created: "제작 할 일 추가",
+  implementation_task_status_updated: "제작 할 일 상태 변경",
+  implementation_task_evidence_saved: "제작 할 일 근거 저장",
 };
 const telemetryCategoryLabels: Record<string, string> = {
   intake: "접수",
@@ -7591,10 +7591,10 @@ export function IdeaWorkbench({
         idea: selectedIdea,
         state: editState,
         tasks: selectedOpenImplementationTasks,
-        viewName: "열린 태스크",
+        viewName: "열린 제작 할 일",
         filterSummary: "상태: 완료 제외 / 담당: 전체 / 증거: 전체",
         evidenceByTaskId: implementationTaskEvidence,
-        emptyMessage: "열린 개발 태스크가 없습니다.",
+        emptyMessage: "열린 제작 할 일이 없습니다.",
       })
     : "";
   const implementationFilterSummary = `상태: ${implementationStatusFilterLabels[implementationStatusFilter]} / 담당: ${
@@ -7605,10 +7605,10 @@ export function IdeaWorkbench({
         idea: selectedIdea,
         state: editState,
         tasks: filteredImplementationTasks,
-        viewName: "필터된 태스크",
+        viewName: "필터된 제작 할 일",
         filterSummary: implementationFilterSummary,
         evidenceByTaskId: implementationTaskEvidence,
-        emptyMessage: "현재 필터 조건에 맞는 개발 태스크가 없습니다.",
+        emptyMessage: "현재 필터 조건에 맞는 제작 할 일이 없습니다.",
       })
     : "";
   const filteredImplementationRunPromptDraft = selectedIdea && editState
@@ -7955,7 +7955,7 @@ export function IdeaWorkbench({
   const implementationGateChecks: GateCheck[] = selectedIdea
     ? [
         {
-          label: "개발 태스크 생성",
+          label: "제작 할 일 생성",
           passed: selectedImplementationTasks.length > 0,
           detail:
             selectedImplementationTasks.length > 0
@@ -7963,21 +7963,21 @@ export function IdeaWorkbench({
               : "제작 준비 과정에서 기본 실행 할 일을 생성하세요.",
         },
         {
-          label: "차단 태스크 없음",
+          label: "차단된 할 일 없음",
           passed: !hasBlockedImplementationTasks,
           detail: hasBlockedImplementationTasks
-            ? `${selectedImplementationTasks.filter((task) => task.status === "blocked").length}개 태스크가 차단 상태입니다.`
-            : "현재 차단 상태의 태스크가 없습니다.",
+            ? `${selectedImplementationTasks.filter((task) => task.status === "blocked").length}개 할 일이 차단 상태입니다.`
+            : "현재 차단 상태의 할 일이 없습니다.",
         },
         {
-          label: "모든 태스크 완료",
+          label: "모든 할 일 완료",
           passed:
             selectedImplementationTasks.length > 0 &&
             completedImplementationTasks.length === selectedImplementationTasks.length,
           detail:
             selectedImplementationTasks.length > 0
               ? `${completedImplementationTasks.length}/${selectedImplementationTasks.length}개 완료`
-              : "완료할 태스크가 아직 없습니다.",
+              : "완료할 할 일이 아직 없습니다.",
         },
         {
           label: "완료 증거 기록",
@@ -7986,8 +7986,8 @@ export function IdeaWorkbench({
             implementationTasksWithEvidence.length === completedImplementationTasks.length,
           detail:
             completedImplementationTasks.length > 0
-              ? `${implementationTasksWithEvidence.length}/${completedImplementationTasks.length}개 완료 태스크에 증거가 있습니다.`
-              : "완료된 태스크가 생기면 커밋, PR, 스모크 결과, 배포 URL 같은 증거를 기록하세요.",
+              ? `${implementationTasksWithEvidence.length}/${completedImplementationTasks.length}개 완료 항목에 근거가 있습니다.`
+              : "완료된 할 일이 생기면 커밋, PR, 스모크 결과, 배포 URL 같은 근거를 기록하세요.",
         },
         {
           label: "QA와 보안 단계 완료",
@@ -8037,7 +8037,7 @@ export function IdeaWorkbench({
           artifactType: "design_brief",
           title: `${selectedIdea.name} 디자인 브리프`,
           body: designBriefDraft,
-          description: "핵심 여정, 화면 상태, 모바일/접근성 체크를 개발 전에 고정합니다.",
+          description: "핵심 여정, 화면 상태, 모바일/접근성 체크를 제작 전에 고정합니다.",
         },
         {
           artifactType: "tech_spec",
@@ -8105,7 +8105,7 @@ export function IdeaWorkbench({
       label: guidedExecutionStepLabels.package,
       detail: `런북 ${hasFullExecutionRunbook ? "완료" : "필요"} · 핵심 산출물 ${
         hasCoreExecutionPackage ? "완료" : "필요"
-      } · 태스크 ${selectedImplementationTasks.length > 0 ? `${selectedImplementationTasks.length}개` : "미생성"}`,
+      } · 할 일 ${selectedImplementationTasks.length > 0 ? `${selectedImplementationTasks.length}개` : "미생성"}`,
       done: hasFullExecutionRunbook && hasCoreExecutionPackage && selectedImplementationTasks.length > 0,
       active: guidedExecutionStep === "package",
     },
@@ -8199,11 +8199,11 @@ export function IdeaWorkbench({
             : "제작 준비 과정에서 제작 실행 계획을 저장하세요.",
         },
         {
-          label: "개발 태스크 완료",
+          label: "제작 할 일 완료",
           passed: implementationGateChecks.every((check) => check.passed),
           detail:
             selectedImplementationTasks.length > 0
-              ? `개발 완료 게이트 ${passedImplementationGateCount}/${implementationGateChecks.length}개 통과`
+              ? `제작 완료 게이트 ${passedImplementationGateCount}/${implementationGateChecks.length}개 통과`
               : "제작 준비 과정에서 기본 실행 할 일을 생성하세요.",
         },
         {
@@ -9000,7 +9000,7 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("AI 실행 패키지를 만들려면 먼저 로그인하세요.");
+      setMessage("제작 전달 묶음을 만들려면 먼저 로그인하세요.");
       return;
     }
 
@@ -9043,7 +9043,7 @@ export function IdeaWorkbench({
         title: draft.title,
         body: draft.body,
         source: draft.source,
-        status_note: "AI 실행 패키지에서 자동 생성한 초안입니다.",
+        status_note: "제작 전달 묶음에서 자동 생성한 초안입니다.",
       };
     });
 
@@ -9065,7 +9065,7 @@ export function IdeaWorkbench({
       }));
 
     if (missingRuns.length === 0 && artifactRows.length === 0 && taskRows.length === 0) {
-      setMessage("이미 AI 실행 패키지에 필요한 문서와 태스크가 준비되어 있습니다.");
+      setMessage("이미 제작 전달 묶음에 필요한 문서와 할 일이 준비되어 있습니다.");
       return;
     }
 
@@ -9156,11 +9156,11 @@ export function IdeaWorkbench({
 
       setDevelopmentPanel(insertedTasks.length > 0 || selectedImplementationTasks.length > 0 ? "tasks" : "setup");
       setMessage(
-        `AI 실행 패키지를 준비했습니다. 런북 ${insertedRuns.length}개 단계, 산출물 ${insertedArtifacts.length}개, 실행 할 일 ${insertedTasks.length}개를 만들었습니다.`,
+        `제작 전달 묶음을 준비했습니다. 실행 단계 ${insertedRuns.length}개, 산출물 ${insertedArtifacts.length}개, 실행 할 일 ${insertedTasks.length}개를 만들었습니다.`,
       );
       router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "AI 실행 패키지를 만들지 못했습니다.");
+      setMessage(error instanceof Error ? error.message : "제작 전달 묶음을 만들지 못했습니다.");
     } finally {
       setIsBusy(false);
     }
@@ -9330,7 +9330,7 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("개발 태스크를 만들려면 먼저 로그인하세요.");
+      setMessage("제작 할 일을 만들려면 먼저 로그인하세요.");
       return;
     }
 
@@ -9338,7 +9338,7 @@ export function IdeaWorkbench({
     const missingDrafts = implementationTaskDrafts.filter((task) => !existingTitles.has(task.title.trim().toLowerCase()));
 
     if (missingDrafts.length === 0) {
-      setMessage("이 아이디어에는 이미 기본 개발 태스크가 있습니다.");
+      setMessage("이 아이디어에는 이미 기본 제작 할 일이 있습니다.");
       return;
     }
 
@@ -9383,7 +9383,7 @@ export function IdeaWorkbench({
         source_artifact: implementationTaskSourceArtifact ? "yes" : "no",
       },
     });
-    setMessage(`${missingDrafts.length}개의 개발 태스크를 만들었습니다.`);
+    setMessage(`${missingDrafts.length}개의 제작 할 일을 만들었습니다.`);
     router.refresh();
   }
 
@@ -9396,7 +9396,7 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("개발 태스크를 추가하려면 먼저 로그인하세요.");
+      setMessage("제작 할 일을 추가하려면 먼저 로그인하세요.");
       return;
     }
 
@@ -9449,7 +9449,7 @@ export function IdeaWorkbench({
       owner_role: "prototype-builder",
       acceptance_criteria: "",
     });
-    setMessage("개발 태스크를 추가했습니다.");
+    setMessage("제작 할 일을 추가했습니다.");
     router.refresh();
   }
 
@@ -9536,7 +9536,7 @@ export function IdeaWorkbench({
       delete next[data.id];
       return next;
     });
-    setMessage("개발 태스크 증거를 저장했습니다.");
+    setMessage("제작 할 일 근거를 저장했습니다.");
     router.refresh();
   }
 
@@ -9614,7 +9614,7 @@ export function IdeaWorkbench({
     }
 
     await navigator.clipboard.writeText(developmentPlanDraft);
-    setCopyMessage("앱 개발 실행 계획을 클립보드에 복사했습니다.");
+    setCopyMessage("제작 실행 계획을 클립보드에 복사했습니다.");
   }
 
   async function copyDraft(body: string, label: string) {
@@ -10489,8 +10489,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       type="button"
                       onClick={() =>
                         nextImplementationTask
-                          ? copyDraft(implementationTaskTicketDraft, "다음 실행 티켓")
-                          : copyDraft(implementationBacklogDraft, "열린 개발 백로그")
+                          ? copyDraft(implementationTaskTicketDraft, "다음 실행 할 일")
+                          : copyDraft(implementationBacklogDraft, "남은 실행 목록")
                       }
                       disabled={Boolean(nextImplementationTask) ? !implementationTaskTicketDraft : !implementationBacklogDraft}
                       className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
@@ -10586,7 +10586,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             />
             <GateChecklistPanel
               eyebrow="제작 점검"
-              title="개발 착수 준비도"
+              title="제작 시작 준비도"
               description="제작을 시작하기 전에 승인된 기획/디자인/기술 입력과 리스크 상태를 확인합니다."
               score={buildReadinessScore}
               checks={buildReadinessChecks}
@@ -10596,7 +10596,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="avl-card mt-5 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <div className="avl-kicker">design generation</div>
+                <div className="avl-kicker">디자인 초안</div>
                 <h3 className="mt-2 text-base font-semibold text-slate-950">디자인 생성 프롬프트</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
                   Stitch, v0, Figma용 AI 디자인 도구에 바로 넣을 수 있도록 화면, 상태, 모바일, 권한, 데이터 기준을
@@ -10994,9 +10994,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="avl-kicker">
                     kickoff guardrail
                   </div>
-                  <h3 className="mt-2 text-base font-semibold text-slate-950">개발 킥오프 브리프</h3>
+                  <h3 className="mt-2 text-base font-semibold text-slate-950">제작 시작 브리프</h3>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    구현 태스크를 만들기 전에 범위, 금지 범위, 차단 항목, 완료 증거를 한 문서로 잠급니다.
+                    구현에 필요한 할 일을 만들기 전에 범위, 금지 범위, 차단 항목, 완료 근거를 한 문서로 정리합니다.
                   </p>
                   <div
                     className={`mt-3 border px-3 py-2 text-sm leading-6 ${
@@ -11012,8 +11012,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       </>
                     ) : (
                       <>
-                        <span className="font-semibold">개발 착수 입력이 잠겼습니다.</span>
-                        <span className="block">기본 태스크를 생성하고 가장 작은 Slice 1 구현부터 진행하세요.</span>
+                        <span className="font-semibold">제작 시작에 필요한 입력이 정리됐습니다.</span>
+                        <span className="block">기본 할 일을 만들고 가장 작은 Slice 1 구현부터 진행하세요.</span>
                       </>
                     )}
                   </div>
@@ -11027,7 +11027,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                   <button
                     type="button"
-                    onClick={() => copyDraft(developmentKickoffDraft, "개발 킥오프 브리프")}
+                    onClick={() => copyDraft(developmentKickoffDraft, "제작 시작 브리프")}
                     disabled={!developmentKickoffDraft}
                     className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                   >
@@ -11039,7 +11039,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     onClick={() =>
                       saveArtifactDraft(
                         "dev_runbook",
-                        `${selectedIdea.name} 개발 킥오프 브리프`,
+                        `${selectedIdea.name} 제작 시작 브리프`,
                         developmentKickoffDraft,
                         "development_kickoff",
                       )
@@ -11325,7 +11325,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       ))}
                       {readyImplementationDependencyStatuses.length === 0 ? (
                           <div className="avl-surface-muted border-dashed px-3 py-2 text-sm leading-6 text-slate-700">
-                            먼저 선행 조건을 완료해야 시작 가능한 태스크가 생깁니다.
+                            먼저 선행 조건을 완료해야 시작 가능한 할 일이 생깁니다.
                           </div>
                       ) : null}
                     </div>
@@ -11347,7 +11347,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       ))}
                       {waitingImplementationDependencyStatuses.length === 0 ? (
                           <div className="avl-surface-muted border-dashed px-3 py-2 text-sm leading-6 text-slate-700">
-                            선행 조건에 막힌 열린 태스크가 없습니다.
+                            선행 조건에 막힌 열린 할 일이 없습니다.
                           </div>
                       ) : null}
                     </div>
@@ -11361,11 +11361,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div>
                   <h4 className="text-sm font-semibold text-slate-950">구현 실행 패키지</h4>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    승인된 산출물, 현재 필터의 개발 태스크, 남은 게이트, 검증 명령을 한 번에 묶어 구현 에이전트에게 넘깁니다.
+                    승인된 산출물, 현재 필터의 제작 할 일, 남은 게이트, 검증 명령을 한 번에 묶어 구현 에이전트에게 넘깁니다.
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <span className="avl-pill avl-pill-neutral">
-                      태스크 {agentRunPackageTasks.length}개
+                      할 일 {agentRunPackageTasks.length}개
                     </span>
                     <span className="avl-pill avl-pill-neutral">
                       승인 산출물 {selectedArtifactRecords.filter((artifact) => artifact.status === "approved").length}개
@@ -11706,7 +11706,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             {selectedImplementationTasks.length === 0 ? (
               <p className="mt-3 text-sm leading-6 text-slate-600">
-                먼저 PRD, MVP 명세, 기술 명세, 제작 실행 계획을 저장한 뒤 기본 태스크를 생성하면 구현 작업이 자동으로 분해됩니다.
+                먼저 PRD, MVP 명세, 기술 명세, 제작 실행 계획을 저장한 뒤 기본 할 일을 만들면 구현 작업이 자동으로 분해됩니다.
               </p>
             ) : null}
           </div>
@@ -11715,10 +11715,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="avl-card mt-5 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="avl-kicker">completion gate</div>
-                <h3 className="mt-2 text-base font-semibold text-slate-950">개발 완료 게이트</h3>
+                <div className="avl-kicker">완료 기준</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">제작 완료 기준</h3>
                 <p className="mt-1 text-sm leading-5 text-slate-600">
-                  구현 태스크, 완료 증거, QA/보안 단계를 기준으로 제작 완료 보고서를 만듭니다.
+                  구현 할 일, 완료 근거, QA/보안 단계를 기준으로 제작 완료 보고서를 만듭니다.
                 </p>
               </div>
               <div className="border border-slate-200 bg-white px-4 py-3 text-right text-slate-950">
@@ -11778,8 +11778,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="avl-surface-muted mt-4 p-4">
                 <div className="avl-pill avl-pill-info">AI가 준비한 실행 패키지</div>
                 <p className="mt-3 text-sm leading-5 text-slate-600">
-                  지금은 제작 완료 보고서만 저장하고 출시 판단으로 넘어가면 됩니다. Codex 전달 자료, 빌드 명령, QA 매트릭스,
-                  역할별 프롬프트는 전체 보기에서만 확인하세요.
+                  지금은 제작 완료 보고서만 저장하고 출시 판단으로 넘어가면 됩니다. 제작팀 전달 자료, 실행 명령, 검수 기준,
+                  역할별 지시서는 전체 보기에서만 확인하세요.
                 </p>
               </div>
             ) : (
@@ -12214,7 +12214,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
           {experienceMode === "guided" ? (
             <div className="mt-4 border border-slate-200 bg-slate-50 p-4">
-              <div className="text-sm font-semibold text-slate-950">개발 전달 정보는 필요할 때만 펼치면 됩니다.</div>
+              <div className="text-sm font-semibold text-slate-950">제작 전달 정보는 필요할 때만 펼치면 됩니다.</div>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 지금은 퍼널과 최근 이벤트 숫자만 보면 됩니다. 실제 서버 연결 정보는 전체 보기에서만 확인하세요.
               </p>

@@ -607,7 +607,7 @@ function buildCandidateStrategyLens(candidate: ExtractedIdea): CandidateStrategy
       detail:
         candidate.initialScores.mvp_speed >= 4
           ? "수동/템플릿/콘솔 형태로 얇게 시작할 수 있습니다."
-          : "첫 버전 범위를 더 줄여야 개발 리스크가 낮아집니다.",
+          : "첫 버전 범위를 더 줄여야 제작 리스크가 낮아집니다.",
       tone: lensTone(feasibilityBase - riskPenalty),
     },
     {
@@ -640,7 +640,7 @@ function getCandidateStrategyScore(candidate: ExtractedIdea) {
 function buildCandidateStrategyLensMarkdown(candidate: ExtractedIdea) {
   const lenses = buildCandidateStrategyLens(candidate);
 
-  return `## 사업/개발 렌즈
+  return `## 사업/제작 렌즈
 
 - 종합 점수: ${getCandidateStrategyScore(candidate)}%
 
@@ -1444,7 +1444,7 @@ ${gateSummary}
 
 ## 실행 순서
 
-| 순서 | 후보 | 게이트 | 검증 점수 | 사업/개발 | 준비도 | 중복 신호 | 다음 행동 |
+| 순서 | 후보 | 게이트 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows || "| - | 후보 없음 | - | - | - | - | - | - |"}
 
@@ -3179,7 +3179,7 @@ export function VentureConsoleActions({
                           검증 {recommendedExtractedIdea.validationScore}/100
                         </span>
                         <span className="avl-pill avl-pill-neutral">
-                          사업/개발 {recommendedPortfolioItem ? getCandidateStrategyScore(recommendedPortfolioItem.candidate) : getCandidateStrategyScore(recommendedExtractedIdea)}%
+                          사업/제작 {recommendedPortfolioItem ? getCandidateStrategyScore(recommendedPortfolioItem.candidate) : getCandidateStrategyScore(recommendedExtractedIdea)}%
                         </span>
                         <span className="avl-pill avl-pill-neutral">
                           준비 {recommendedPortfolioItem?.readinessScore ?? 0}%
@@ -3460,7 +3460,7 @@ export function VentureConsoleActions({
                               패키지 {passedReadinessCount}/{readinessChecks.length}
                             </span>
                             <span className="avl-pill avl-pill-brand">
-                              사업/개발 {strategyScore}%
+                              사업/제작 {strategyScore}%
                             </span>
                             <span className={`${gateStyle.badge}`}>
                               {extractionGate.label}
@@ -3526,7 +3526,7 @@ export function VentureConsoleActions({
                       <div className="avl-surface-muted mt-3 border-slate-200 p-3">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                           <div>
-                            <div className="text-sm font-semibold text-slate-950">사업/개발 스코어카드</div>
+                            <div className="text-sm font-semibold text-slate-950">사업/제작 스코어카드</div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
                               수요, 수익화, MVP 난이도, 도달 채널, 자동화 가치, 보안 부담을 함께 봅니다.
                             </p>
@@ -3810,7 +3810,7 @@ export function VentureConsoleActions({
 
           <div className="grid gap-4">
             <section className="avl-band p-5 text-slate-900">
-              <div className="avl-kicker">next step</div>
+              <div className="avl-kicker">다음 단계</div>
               <h3 className="mt-4 text-lg font-semibold text-slate-950">저장하면 바로 워크벤치로 이동합니다</h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 새 아이디어는 저장되는 순간 워크벤치에 추가되고, 바로 선택된 상태로 `사업성 평가` 단계에서 이어서 검토할 수 있습니다.

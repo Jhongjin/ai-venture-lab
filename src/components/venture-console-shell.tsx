@@ -201,8 +201,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["필요 자료 저장", "PRD와 MVP 범위 승인", "상태 메모 작성"],
   },
   "workbench:development": {
-    summary: "기획, 디자인, 개발, QA, 배포 준비를 한 묶음으로 정리합니다.",
-    checklist: ["제작 준비 자료 만들기", "개발 실행 계획 저장", "배포 전 확인 조건 점검"],
+    summary: "기획, 디자인, 구현, QA, 출시 준비를 한 묶음으로 정리합니다.",
+    checklist: ["제작 준비 자료 만들기", "제작 실행 계획 저장", "출시 전 확인 조건 점검"],
   },
   "workbench:launch": {
     summary: "출시 전 남은 차단 항목을 확인하고 최종 출시 판단을 기록합니다.",
@@ -285,8 +285,8 @@ const taskCanvasDetails: Record<
   },
   "workbench:development": {
     question: "이제 실제 앱 제작으로 넘어갈 준비가 되었나요?",
-    aiLead: "기획, 디자인, 개발, QA, 배포 순서를 묶어 제안합니다.",
-    deliverable: "AI 실행 패키지",
+    aiLead: "기획, 디자인, 구현, QA, 출시 순서를 묶어 제안합니다.",
+    deliverable: "제작 전달 묶음",
     checkpoint: "한 명의 운영자가 끝까지 볼 수 있도록 복잡한 개발 정보를 압축합니다.",
   },
   "workbench:orchestration": {
@@ -1100,7 +1100,7 @@ export function VentureConsoleShell({
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                 <span className="text-slate-500">{activeTaskConfig.group}</span>
-                {!activeTaskConfig.optional ? <span>Step {stepNumber}/{requiredShellTasks.length}</span> : null}
+                {!activeTaskConfig.optional ? <span>단계 {stepNumber}/{requiredShellTasks.length}</span> : null}
                 <span className="avl-pill avl-pill-soft px-2 py-1 text-[11px]">
                   {taskStatuses[activeTaskConfig.id]}
                 </span>

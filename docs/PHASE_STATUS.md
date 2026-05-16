@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-16 | WQ-046 ran manager workspace regression and copy cleanup | Current commit | Pending production auto-deploy after push | `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm release:check`, local `pnpm smoke:routes`, local `pnpm smoke:browser`, subagent QA/copy review, Playwright desktop/mobile visual check |
 | 2026-05-16 | WQ-045 refined detailed workbench manager language | Current commit | Production auto-deploy after push | `pnpm lint`, `pnpm typecheck`, `pnpm build`, local `pnpm smoke:routes`, local `pnpm smoke:browser`, subagent copy review, production `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-16 | WQ-044 added manager-facing executive decision panel | Current commit | Production auto-deploy after push | `pnpm lint`, `pnpm typecheck`, `pnpm build`, local `pnpm smoke:routes`, local `pnpm smoke:browser`, Playwright desktop/mobile visual check, production `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-16 | WQ-042 added disposable RLS fixture handoff | Current commit | Skipped, docs-only/no execution | Fixture handoff keyword checks, `pnpm release:check` |

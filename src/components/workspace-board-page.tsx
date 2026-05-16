@@ -83,8 +83,8 @@ export async function WorkspaceBoardPage() {
               <span className="text-[11px] font-semibold tracking-[0.14em]">데이터 확인 필요</span>
             </div>
             <div className="bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
-              Supabase 데이터를 일부 불러오지 못했습니다. 현재 보드는 빈 상태 또는 제한된 상태로 표시될 수 있습니다.
-              <span className="ml-2 font-semibold">오류: {error}</span>
+              데이터 연결 상태를 일부 확인하지 못했습니다. 현재 보드는 빈 상태 또는 제한된 상태로 표시될 수 있습니다.
+              <span className="mt-1 block font-semibold sm:ml-2 sm:mt-0 sm:inline">관리자에게 연결 상태 확인을 요청하세요.</span>
             </div>
           </section>
         ) : null}
