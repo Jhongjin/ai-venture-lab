@@ -1,12 +1,12 @@
 # RLS Allowed/Denied Smoke Plan
 
-Status: WQ-039 RLS allowed/denied smoke plan
+Status: WQ-040 RLS smoke runner scaffold-ready
 Last updated: 2026-05-16
 Scope: plan and evidence boundary only; no account provisioning or DB/Auth mutation
 
 ## Purpose
 
-This plan defines how to verify private Supabase browser access before broader beta work.
+This plan defines how to verify private Supabase browser access before broader beta work and names the blocked-safe runner scaffold.
 
 WQ-038 confirmed `authenticated_visibility_smoke_passed`: one disposable Supabase Auth user can log in and reach the workspace surface. WQ-039 does not run a second-user or cross-workspace check. It defines the conditions required before that check is safe.
 
@@ -114,12 +114,36 @@ Stop and record a blocker when:
 
 Validation keywords: `second_account_missing_blocks_denied_smoke`, `disposable_workspace_pair_missing_blocks_denied_smoke`, `denied_check_private_data_blocks_beta`, `production_write_smoke_requires_user_approval`.
 
+## Runner Scaffold
+
+WQ-040 adds a blocked-safe runner:
+
+```powershell
+pnpm smoke:browser:rls:preflight
+```
+
+This command validates the missing-fixture guard without secret values. A real run requires an explicit target URL and all of these local-only values:
+
+```text
+BROWSER_RLS_SMOKE_URL
+BROWSER_RLS_SMOKE_EMAIL_A
+BROWSER_RLS_SMOKE_PASSWORD_A
+BROWSER_RLS_SMOKE_WORKSPACE_A_LABEL
+BROWSER_RLS_SMOKE_EMAIL_B
+BROWSER_RLS_SMOKE_PASSWORD_B
+BROWSER_RLS_SMOKE_WORKSPACE_B_LABEL
+```
+
+The runner uses fresh browser contexts for anonymous, account A, and account B checks. It refuses write/create/screenshot flags and reports summary-only evidence.
+
+Validation keywords: `rls_smoke_runner_scaffold`, `blocked_safe_runner`, `fresh_browser_contexts`, `write_flags_disabled`, `explicit_rls_smoke_url_required`.
+
 ## Next Implementation Gate
 
-Before running an automated RLS denied-case smoke, add or approve a dedicated runner that accepts disposable account/workspace references without printing values. The current `pnpm smoke:browser:auth` runner is sufficient for one-account authenticated visibility, not for full cross-workspace denied evidence.
+Before running the automated denied-case smoke for real, the operator must confirm the disposable account/workspace pair and keep credentials in the local terminal only.
 
 Recommended next state after this plan:
 
 ```text
-rls_allowed_denied_smoke_plan_ready
+rls_smoke_runner_scaffold_ready
 ```

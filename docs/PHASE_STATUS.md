@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-16 | WQ-040 added blocked-safe RLS smoke runner scaffold | Current commit | Skipped, script/docs-only | `node --check`, `pnpm smoke:browser:rls:preflight`, `pnpm release:check`, `pnpm lint`, `pnpm typecheck` |
 | 2026-05-16 | WQ-039 documented RLS allowed/denied smoke plan | Current commit | Skipped, docs-only/no deploy | Docs readback for plan, evidence fields, stop conditions, no mutation |
 | 2026-05-16 | WQ-038 ran authenticated browser visibility smoke | Current commit | Skipped, smoke-only/no deploy | Safe env preflight, `pnpm smoke:browser:auth`; write/create/screenshot flags disabled |
 | 2026-05-16 | WQ-037 documented CI workflow scope boundary | Current commit | Skipped, docs/script-only | Keyword readback, `pnpm quality:full` |
@@ -102,7 +103,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 | --- | --- | --- | --- |
 | GitHub Actions workflow push | External blocker | Current GitHub token lacks `workflow` scope | User can grant workflow scope later; local `pnpm quality:full` remains the required gate |
 | Browser-level authenticated write smoke execution | Deferred | Authenticated visibility smoke passed; write mode still requires explicit per-run approval and disposable workspace/idea data | Run only after approving write flags, cleanup owner, and disposable test data |
-| RLS allowed/denied smoke execution | Deferred | Plan is documented, but execution needs a second disposable account and disposable workspace pair or a blocked-safe runner | Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`; do not run cross-workspace checks against primary data |
+| RLS allowed/denied smoke execution | Deferred | Runner scaffold exists, but real execution needs a second disposable account and disposable workspace pair | Use `pnpm smoke:browser:rls:preflight` for guard checks; do not run cross-workspace checks against primary data |
 | Telemetry production RLS confirmation | External DB check | The app can deploy without it, but event writes require the `telemetry_events` insert/select policies | Run or confirm `supabase/migrations/20260506010000_add_learning_telemetry.sql` in Supabase |
 | Authenticated telemetry smoke execution | Deferred | Requires the operator-held telemetry secret and a disposable idea id; secrets are not pulled into the repo | Run `pnpm smoke:telemetry` from a terminal that has `TELEMETRY_INGEST_SECRET` and `TELEMETRY_SMOKE_IDEA_ID` set |
 
@@ -114,7 +115,7 @@ Use `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` before creating or modifying GitHub Act
 
 Authenticated visibility smoke has passed against `https://ai-venture-lab.vercel.app` with disposable Supabase Auth credentials loaded locally and not printed. The run cleared write/create/screenshot flags, performed no workspace/idea creation, and did not run telemetry smoke or production mutations.
 
-Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke. Actual execution needs disposable account/workspace fixtures and summary-only evidence.
+Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` and `pnpm smoke:browser:rls:preflight` before any cross-workspace, second-account, or denied-case smoke. Actual execution needs disposable account/workspace fixtures and summary-only evidence.
 
 Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Production to enable server-side AI extraction. Without it, the app automatically falls back to the local rules engine.
 
@@ -126,7 +127,7 @@ Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and `TELEME
 
 1. Redesign detailed workbench panels so `사업성 평가`, `기획서 만들기`, `제작 준비`, `성과 확인` read like manager workflows, not developer consoles.
 2. Add an executive summary/home state that answers “오늘 무엇을 결정해야 하나?” before any detailed form.
-3. Add a blocked-safe RLS allowed/denied smoke runner scaffold before running cross-workspace checks.
+3. Review current Supabase RLS policy posture against the new denied-case smoke plan before running cross-workspace checks.
 4. Run authenticated browser write smoke only after explicit per-run approval, using disposable workspace/idea data and a cleanup owner.
 5. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret when a full product-funnel demo is needed.
 6. Prepare GitHub Actions only after workflow-scope access, target branch, permission block, secret policy, and rollback/disable path are approved.

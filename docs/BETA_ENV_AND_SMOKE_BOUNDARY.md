@@ -27,7 +27,7 @@ Validation keywords: `current_runtime_source_venture_lab`, `canonical_planning_s
 | Public client config | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser-safe config. The anon key relies on RLS and is not a service-role key. |
 | Server-only secrets | `SUPABASE_SERVICE_ROLE_KEY`, `TELEMETRY_INGEST_SECRET`, `OPENAI_API_KEY` | Trusted server environments only. Never expose to browser bundles, screenshots, artifacts, chat, MCP packets, or Build Relay evidence. |
 | Server-only config | `OPENAI_IDEA_MODEL`, `OPENAI_MODEL` | Optional model names only. Do not store provider credentials here. |
-| Smoke-only local vars | `SMOKE_URL`, `ROUTE_SMOKE_URL`, `TELEMETRY_SMOKE_URL`, `TELEMETRY_SMOKE_IDEA_ID`, `BROWSER_SMOKE_URL`, `BROWSER_SMOKE_EMAIL`, `BROWSER_SMOKE_PASSWORD`, `BROWSER_SMOKE_ALLOW_WRITE`, `BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE`, `BROWSER_SMOKE_HEADLESS`, `BROWSER_SMOKE_TIMEOUT_MS`, `BROWSER_SMOKE_SCREENSHOT` | Operator terminal only. Do not commit values or copy them into docs, screenshots, artifacts, or relay packets. |
+| Smoke-only local vars | `SMOKE_URL`, `ROUTE_SMOKE_URL`, `TELEMETRY_SMOKE_URL`, `TELEMETRY_SMOKE_IDEA_ID`, `BROWSER_SMOKE_URL`, `BROWSER_SMOKE_EMAIL`, `BROWSER_SMOKE_PASSWORD`, `BROWSER_SMOKE_ALLOW_WRITE`, `BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE`, `BROWSER_SMOKE_HEADLESS`, `BROWSER_SMOKE_TIMEOUT_MS`, `BROWSER_SMOKE_SCREENSHOT`, `BROWSER_RLS_SMOKE_URL`, `BROWSER_RLS_SMOKE_EMAIL_A`, `BROWSER_RLS_SMOKE_PASSWORD_A`, `BROWSER_RLS_SMOKE_WORKSPACE_A_LABEL`, `BROWSER_RLS_SMOKE_EMAIL_B`, `BROWSER_RLS_SMOKE_PASSWORD_B`, `BROWSER_RLS_SMOKE_WORKSPACE_B_LABEL`, `BROWSER_RLS_SMOKE_HEADLESS`, `BROWSER_RLS_SMOKE_TIMEOUT_MS`, `BROWSER_RLS_SMOKE_EXPECT_BLOCKED`, `BROWSER_RLS_SMOKE_SCREENSHOT` | Operator terminal only. Do not commit values or copy them into docs, screenshots, artifacts, or relay packets. |
 
 Validation keywords: `public_client_boundary`, `server_only_secret_boundary`, `smoke_only_local_vars`, `service_role_server_only`, `NEXT_PUBLIC_only_browser_safe`.
 
@@ -39,12 +39,13 @@ Validation keywords: `public_client_boundary`, `server_only_secret_boundary`, `s
 | Route smoke | `pnpm smoke:routes` | Read-only and negative-path checks | Confirms telemetry ingest rejects unauthenticated requests. |
 | Anonymous browser smoke | `pnpm smoke:browser` | Read-only UI smoke | May see empty private workspace state because RLS hides authenticated data. |
 | Authenticated visibility smoke | `pnpm smoke:browser:auth` | Login and workspace visibility only | Uses a disposable Supabase Auth user. No writes by default. |
+| RLS allowed/denied smoke | `pnpm smoke:browser:rls` | Blocked-safe by default when fixtures are missing | Requires two disposable Supabase Auth users and two disposable workspace labels. No writes, no screenshots, no telemetry. |
 | Authenticated write smoke | `BROWSER_SMOKE_ALLOW_WRITE=1; pnpm smoke:browser:auth` | Disabled by default | Requires explicit per-run approval and disposable account/workspace/idea data. |
 | Workspace-create smoke | `BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE=1; pnpm smoke:browser:auth` | Disabled by default | Disposable account only. Do not use a primary operator account. |
 | Telemetry smoke | `pnpm smoke:telemetry` or `pnpm smoke:telemetry:funnel` | Disabled unless local secret and disposable idea ID exist | `TELEMETRY_INGEST_SECRET` stays in the operator terminal only; telemetry idea ID must belong to disposable beta data. |
 | Build Relay smoke | Build Relay `npm test` in `D:\Codex\admate-build-relay` | Synthetic/file-backed local data only | Env Manifest must keep `valuesIncluded=false`; Relay Packet never stores values. |
 
-Validation keywords: `authenticated_visibility_smoke`, `browser_smoke_allow_write_explicit`, `browser_smoke_allow_workspace_create_explicit`, `write_smoke_requires_explicit_approval`, `telemetry_smoke_local_secret_only`, `telemetry_smoke_disposable_idea_only`, `build_relay_env_manifest_valuesIncluded_false`.
+Validation keywords: `authenticated_visibility_smoke`, `rls_allowed_denied_smoke`, `browser_smoke_allow_write_explicit`, `browser_smoke_allow_workspace_create_explicit`, `write_smoke_requires_explicit_approval`, `telemetry_smoke_local_secret_only`, `telemetry_smoke_disposable_idea_only`, `build_relay_env_manifest_valuesIncluded_false`.
 
 ## Disposable Beta Account Rule
 
@@ -80,7 +81,7 @@ RLS is the authorization boundary for Supabase browser access.
 - Before broader beta, the operator still needs allowed and denied RLS evidence for the changed private-data paths.
 - Cross-workspace or second-user denied checks are required before treating private reads/writes as beta-ready.
 - Service-role access is server-only and must not be used to bypass beta smoke from a browser or external handoff.
-- Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke. The WQ-039 posture is `rls_allowed_denied_smoke_plan`: plan first, no account provisioning, no DB/Auth mutation, no write smoke, and no secret output.
+- Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke. The WQ-040 runner `pnpm smoke:browser:rls` must fail closed or report blocked when disposable fixtures are missing; no account provisioning, DB/Auth mutation, write smoke, screenshots, or secret output.
 
 Validation keywords: `allowed_and_denied_rls_smoke`, `cross_workspace_denied_case`, `private_read_posture`, `service_role_server_only`, `rls_allowed_denied_smoke_plan`.
 

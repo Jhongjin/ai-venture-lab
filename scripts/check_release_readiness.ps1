@@ -57,10 +57,25 @@ $checks = @(
       "beta_env_smoke_boundary_docs_only",
       "names_only_no_values",
       "disposable_beta_account_only",
+      "rls_allowed_denied_smoke",
       "write_smoke_requires_explicit_approval",
       "telemetry_smoke_local_secret_only",
       "no_secret_output",
       "no_production_mutation"
+    )
+  },
+  @{
+    Path = "docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md"
+    Terms = @(
+      "rls_allowed_denied_smoke_plan",
+      "second_disposable_account_required",
+      "disposable_workspace_pair_required",
+      "cross_workspace_denied_case",
+      "summary_only_rls_evidence",
+      "rls_smoke_runner_scaffold",
+      "blocked_safe_runner",
+      "write_flags_disabled",
+      "explicit_rls_smoke_url_required"
     )
   },
   @{

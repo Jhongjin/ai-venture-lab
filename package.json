@@ -18,6 +18,8 @@
     "smoke:telemetry:funnel": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_telemetry_ingest.ps1 -Funnel",
     "smoke:browser": "node ./scripts/smoke_browser.mjs",
     "smoke:browser:auth": "node ./scripts/smoke_browser_auth.mjs",
+    "smoke:browser:rls": "node ./scripts/smoke_browser_rls.mjs",
+    "smoke:browser:rls:preflight": "node ./scripts/smoke_browser_rls.mjs --preflight",
     "idea:score": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/score_idea.ps1"
   },
   "dependencies": {

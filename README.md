@@ -85,6 +85,8 @@ Magic links route through `/auth/callback` so Supabase auth codes become app ses
 
 Authenticated users can create ideas inside their workspace. Keep RLS enabled before storing sensitive data. Beta smoke uses a disposable Supabase Auth account; authenticated writes require explicit per-run approval and disposable workspace/idea data.
 
+Use `pnpm smoke:browser:rls` for the blocked-safe RLS allowed/denied runner scaffold. Without the disposable account/workspace pair it should report a blocked preflight, not pretend private-read checks passed.
+
 ## Operating Model
 
 Use the repo in this order:

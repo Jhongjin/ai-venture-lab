@@ -71,6 +71,14 @@ $env:BROWSER_SMOKE_PASSWORD="..."
 pnpm smoke:browser:auth
 ```
 
+RLS allowed/denied runner guard, no credentials required:
+
+```powershell
+pnpm smoke:browser:rls:preflight
+```
+
+Actual RLS allowed/denied smoke requires an explicit `BROWSER_RLS_SMOKE_URL`, two disposable accounts, and two disposable workspace labels in local-only `BROWSER_RLS_SMOKE_*` variables. Do not run it against primary operator data.
+
 Create one timestamped disposable idea:
 
 ```powershell
