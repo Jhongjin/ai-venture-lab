@@ -140,3 +140,4 @@ The app now supports the first live operating loop:
 63. Record Supabase RLS or Firebase Security Rules/IAM allowed and denied checks before moving backend or release tasks to done.
 64. Save Vercel inspect URLs or deploy logs with release evidence so production issues can be traced and rolled back.
 65. Run `pnpm release:check` locally while GitHub Actions is blocked so release-safety drift is caught before push.
+66. Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, telemetry smoke, env changes, or deployment evidence collection so the runtime stays `beta_env_smoke_boundary_docs_only`, names-only, disposable-account only for authenticated smoke, and local-secret only for telemetry.

@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-16 | WQ-036 documented beta env and smoke boundary | Current commit | Skipped, docs/env-example only | Keyword readback, `pnpm release:check` |
 | 2026-05-12 | Repaired workspace creation ownership and RLS handoff | Current commit | Production alias after deploy | `pnpm lint`, `pnpm typecheck`, harness check, release check, `pnpm build` |
 | 2026-05-12 | Routed signed-in operators to team-space check before idea intake | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
 | 2026-05-12 | Switched operator access to password-first login | Current commit | Production alias after deploy | `pnpm lint`, direct `tsc`, harness check, release check, `pnpm build` |
@@ -103,6 +104,8 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 ## Next User Actions
 
+Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, telemetry smoke, env changes, or deployment evidence collection. The boundary is names-only and forbids `.env.local` readback, secret output, production mutation, deploy trigger, rollback, paid API calls, credential/session handling, and `D:\Projects\AdMate` mutation.
+
 Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Production to enable server-side AI extraction. Without it, the app automatically falls back to the local rules engine.
 
 Required for learning telemetry writes: confirm `telemetry_events` table and RLS policies from `supabase/migrations/20260506010000_add_learning_telemetry.sql` are applied in Supabase Production.
@@ -113,6 +116,7 @@ Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and `TELEME
 
 1. Redesign detailed workbench panels so `사업성 평가`, `기획서 만들기`, `제작 준비`, `성과 확인` read like manager workflows, not developer consoles.
 2. Add an executive summary/home state that answers “오늘 무엇을 결정해야 하나?” before any detailed form.
-3. Run authenticated browser write smoke with a stable beta operator account.
-4. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret when a full product-funnel demo is needed.
-5. Prepare GitHub Actions once workflow-scope access is available.
+3. Run authenticated browser visibility smoke with a disposable Supabase Auth account.
+4. Run authenticated browser write smoke only after explicit per-run approval, using disposable workspace/idea data and a cleanup owner.
+5. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret when a full product-funnel demo is needed.
+6. Prepare GitHub Actions once workflow-scope access is available.

@@ -40,6 +40,18 @@ $checks = @(
     )
   },
   @{
+    Path = "docs/BETA_ENV_AND_SMOKE_BOUNDARY.md"
+    Terms = @(
+      "beta_env_smoke_boundary_docs_only",
+      "names_only_no_values",
+      "disposable_beta_account_only",
+      "write_smoke_requires_explicit_approval",
+      "telemetry_smoke_local_secret_only",
+      "no_secret_output",
+      "no_production_mutation"
+    )
+  },
+  @{
     Path = "docs/DEVELOPMENT_HARNESS.md"
     Terms = @(
       "Backend rules evidence",

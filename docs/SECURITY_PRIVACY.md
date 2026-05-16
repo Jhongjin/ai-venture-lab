@@ -7,8 +7,10 @@
 - Do not scrape or ingest private data without explicit user consent.
 - Do not build regulated advice flows without a domain review.
 - Do not expose private env vars, service-role keys, auth tokens, or raw sensitive logs to the browser.
+- Do not copy `.env.local`, browser-smoke passwords, telemetry secrets, service-role keys, cookies, sessions, signed URLs, or bearer tokens into docs, artifacts, screenshots, chat, or Build Relay packets.
 - Do not rely on UI checks alone for authorization.
 - Enable RLS on every Supabase table exposed through the browser-facing Data API.
+- Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, authenticated smoke, telemetry smoke, or deployment evidence collection.
 
 ## Sensitive Domains
 
@@ -30,6 +32,8 @@ Extra review is required for:
 - Which role can select, insert, update, and delete each row?
 - Do insert/update policies prevent ownership or organization spoofing?
 - What is logged, retained, exported, or sent to AI tools?
+- Does the smoke or deployment evidence follow `beta_env_smoke_boundary_docs_only`, `names_only_no_values`, and `no_secret_output`?
+- If authenticated smoke writes data, is it using `disposable_beta_account_only` with explicit per-run approval and cleanup ownership?
 - How does the operator roll back a bad deployment or data migration?
 
 ## Supabase Gate
@@ -38,7 +42,7 @@ Extra review is required for:
 - Policies are scoped to `authenticated` unless anonymous access is intentional.
 - `insert` and `update` policies use `with check` for user or organization ownership.
 - `service_role` is only used server-side and never in client bundles.
-- Allowed and denied paths are tested before launch.
+- Allowed and denied paths are tested before launch, including private-read and cross-workspace denied cases before broader beta.
 
 ## Firebase Gate
 

@@ -6,6 +6,8 @@ Use this checklist before opening AI Venture Lab to a broader beta audience.
 
 Run these from the repository root.
 
+Before running smoke commands, check `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md`. The WQ-036 boundary is `beta_env_smoke_boundary_docs_only`: names only, no values, no `.env.local` readback, no secret output.
+
 ```powershell
 pnpm quality:full
 pnpm smoke:prod
@@ -82,6 +84,15 @@ $env:BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE="1"
 
 Do not commit these environment variables. Use a beta-only account so generated records can be deleted safely after a test pass.
 
+Write smoke rules:
+
+- Use `disposable_beta_account_only`; never a primary operator account.
+- Use a disposable workspace and a disposable idea prefix.
+- `BROWSER_SMOKE_ALLOW_WRITE=1` and `BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE=1` both require explicit per-run approval.
+- Production write smoke should be skipped unless the user explicitly approves that run and the target data is disposable.
+- Telemetry smoke must use `TELEMETRY_INGEST_SECRET` from the local terminal only and a disposable idea ID.
+- Record command/result/target URL/cleanup owner only; do not record credentials, env values, cookies, sessions, signed URLs, screenshots with private data, or raw logs.
+
 ## Manual Beta Pass
 
 1. Sign in with a dashboard-created Supabase password account.
@@ -103,5 +114,6 @@ Do not commit these environment variables. Use a beta-only account so generated 
 - No text overlap in the main desktop viewport.
 - Save actions refresh the visible state without manual reload.
 - Read-only/editable labels match ownership.
-- RLS or backend rule assumptions are written into completion evidence before public beta.
+- RLS or backend rule assumptions are written into completion evidence before public beta, including allowed and denied private-read cases before broader beta.
 - Vercel deployment is Ready and production smoke passes after the final deploy.
+- Smoke evidence follows `deployment_evidence_summary_only` and `no_env_values_in_artifacts`.

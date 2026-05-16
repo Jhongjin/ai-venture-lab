@@ -40,12 +40,25 @@ pnpm release:check
 
 Copy `.env.example` to `.env.local` when Supabase is ready.
 
+Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` for the full beta env and smoke boundary. Store variable names in docs, never values.
+
 Required later:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
+
+Server-only values must stay in trusted server environments and out of browser bundles, screenshots, artifacts, chat, and Build Relay packets:
+
+```bash
+SUPABASE_SERVICE_ROLE_KEY=
+TELEMETRY_INGEST_SECRET=
+OPENAI_API_KEY=
+OPENAI_IDEA_MODEL=
+```
+
+`OPENAI_API_KEY` and `OPENAI_IDEA_MODEL` are optional for AI-assisted idea extraction. Without them, the console falls back to the local extraction path.
 
 ## Supabase
 
@@ -59,7 +72,7 @@ The app falls back to seed data when Supabase is not configured or the schema ha
 
 ## Auth
 
-The console uses Supabase email magic links. Configure Supabase Auth URL settings:
+The console uses Supabase password sign-in for dashboard-created operator accounts. Supabase email magic links remain a fallback when Auth email delivery is configured. Configure Supabase Auth URL settings:
 
 ```text
 Site URL: https://ai-venture-lab.vercel.app
@@ -70,7 +83,7 @@ Redirect URLs:
 
 Magic links route through `/auth/callback` so Supabase auth codes become app sessions before returning to the console. Password sign-in is only for existing Supabase Auth password users.
 
-Authenticated users can create ideas inside their workspace. Keep RLS enabled before storing sensitive data.
+Authenticated users can create ideas inside their workspace. Keep RLS enabled before storing sensitive data. Beta smoke uses a disposable Supabase Auth account; authenticated writes require explicit per-run approval and disposable workspace/idea data.
 
 ## Operating Model
 
