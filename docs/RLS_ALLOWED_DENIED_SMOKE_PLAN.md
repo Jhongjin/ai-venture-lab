@@ -12,6 +12,8 @@ WQ-038 confirmed `authenticated_visibility_smoke_passed`: one disposable Supabas
 
 WQ-041 adds `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`. The static review found that early migrations included public-read policies for the original venture tables, while later migrations drop those policies and replace them with authenticated owner/workspace reads. Real denied-case claims still require production migration confirmation and disposable two-account smoke evidence.
 
+WQ-042 adds `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` as the exact user action packet for the two disposable accounts and two private workspace labels required before real execution.
+
 Validation keywords: `rls_allowed_denied_smoke_plan`, `authenticated_visibility_smoke_passed`, `no_env_local_readback`, `no_secret_output`.
 
 ## Runtime Boundary
@@ -161,8 +163,10 @@ Before running the automated denied-case smoke for real, the operator must confi
 
 Static SQL posture is now documented, but production migration state is not verified. Confirm that all required migrations through `20260512010000_repair_workspace_creation_policy.sql` are applied and that old public-read policies are absent before treating a passed smoke as private-read beta evidence.
 
+Use `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` to prepare `two_disposable_auth_users_required`, `two_private_workspace_labels_required`, `local_env_names_only`, and `disposable_pair_confirmed_before_real_run`.
+
 Recommended next state after this plan:
 
 ```text
-rls_policy_posture_review_ready
+rls_fixture_handoff_ready
 ```

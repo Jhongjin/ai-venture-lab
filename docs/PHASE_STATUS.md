@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-16 | WQ-042 added disposable RLS fixture handoff | Current commit | Skipped, docs-only/no execution | Fixture handoff keyword checks, `pnpm release:check` |
 | 2026-05-16 | WQ-041 reviewed Supabase RLS policy posture | Current commit | Skipped, static SQL/docs-only | SQL policy readback, posture keyword checks, `pnpm release:check` |
 | 2026-05-16 | WQ-040 added blocked-safe RLS smoke runner scaffold | Current commit | Skipped, script/docs-only | `node --check`, `pnpm smoke:browser:rls:preflight`, `pnpm release:check`, `pnpm lint`, `pnpm typecheck` |
 | 2026-05-16 | WQ-039 documented RLS allowed/denied smoke plan | Current commit | Skipped, docs-only/no deploy | Docs readback for plan, evidence fields, stop conditions, no mutation |
@@ -117,7 +118,7 @@ Use `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` before creating or modifying GitHub Act
 
 Authenticated visibility smoke has passed against `https://ai-venture-lab.vercel.app` with disposable Supabase Auth credentials loaded locally and not printed. The run cleared write/create/screenshot flags, performed no workspace/idea creation, and did not run telemetry smoke or production mutations.
 
-Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, and `pnpm smoke:browser:rls:preflight` before any cross-workspace, second-account, or denied-case smoke. Actual execution needs disposable account/workspace fixtures, production migration confirmation, absence of old public-read policies, and summary-only evidence.
+Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`, and `pnpm smoke:browser:rls:preflight` before any cross-workspace, second-account, or denied-case smoke. Actual execution needs disposable account/workspace fixtures, production migration confirmation, absence of old public-read policies, and summary-only evidence.
 
 Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Production to enable server-side AI extraction. Without it, the app automatically falls back to the local rules engine.
 
@@ -129,7 +130,7 @@ Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and `TELEME
 
 1. Redesign detailed workbench panels so `사업성 평가`, `기획서 만들기`, `제작 준비`, `성과 확인` read like manager workflows, not developer consoles.
 2. Add an executive summary/home state that answers “오늘 무엇을 결정해야 하나?” before any detailed form.
-3. Prepare a disposable RLS fixture handoff packet for two beta users and two private workspaces.
+3. Wait for operator confirmation of two disposable Supabase Auth users, two private workspace labels, production migration posture, and local-only RLS smoke env values.
 4. Run authenticated browser write smoke only after explicit per-run approval, using disposable workspace/idea data and a cleanup owner.
 5. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret when a full product-funnel demo is needed.
 6. Prepare GitHub Actions only after workflow-scope access, target branch, permission block, secret policy, and rollback/disable path are approved.

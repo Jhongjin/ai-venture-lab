@@ -79,10 +79,10 @@ Validation keywords: `migration_state_confirmation_required`, `second_disposable
 
 ## Recommendation
 
-Proceed with fixture preparation next, not real execution. The next queue should create a user-facing fixture handoff that names the exact two-account/two-workspace setup and the safe local env variable names, then wait for the user to confirm those disposable fixtures exist.
+Proceed with fixture preparation, not real execution. Use `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` to prepare the two-account/two-workspace setup and the safe local env variable names, then wait for the user to confirm those disposable fixtures exist.
 
 Recommended next state:
 
 ```text
-rls_policy_posture_review_ready
+rls_fixture_handoff_ready
 ```

@@ -13,6 +13,7 @@
 - Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, authenticated smoke, telemetry smoke, or deployment evidence collection.
 - Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke.
 - Use `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md` before claiming private-read beta readiness from Supabase policy files.
+- Use `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` before asking the operator to provide real RLS smoke fixtures.
 
 ## Sensitive Domains
 

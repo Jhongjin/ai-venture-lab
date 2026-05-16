@@ -91,7 +91,24 @@ $checks = @(
       "denied_cases_not_claimed_until_executed",
       "production_migration_application_unverified",
       "cross_workspace_denied_not_run",
-      "rls_policy_posture_review_ready"
+      "rls_fixture_handoff_ready"
+    )
+  },
+  @{
+    Path = "docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md"
+    Terms = @(
+      "rls_disposable_fixture_handoff",
+      "fixture_handoff_only",
+      "two_disposable_auth_users_required",
+      "two_private_workspace_labels_required",
+      "synthetic_workspace_labels_only",
+      "local_env_names_only",
+      "production_migration_confirmation_required",
+      "public_read_policies_absent_required",
+      "disposable_pair_confirmed_before_real_run",
+      "summary_only_rls_evidence",
+      "forbidden_flags_block_real_run",
+      "rls_fixture_handoff_ready"
     )
   },
   @{
