@@ -100,6 +100,12 @@ const workflowOverview = [
   },
 ];
 
+const workflowSignalPositions = [
+  "lg:left-0 lg:top-0 lg:w-[46%]",
+  "lg:right-0 lg:top-[112px] lg:w-[47%]",
+  "lg:bottom-0 lg:left-0 lg:w-[48%]",
+];
+
 const useCases = [
   {
     title: "회의는 많은데, 다음 행동이 남지 않을 때",
@@ -239,6 +245,33 @@ const packageHighlights = [
   "실행 태스크",
   "출시 판단",
   "학습 리포트",
+];
+
+const artifactStack = [
+  {
+    label: "01",
+    title: "brief",
+    tone: "bg-[#eef3ff] text-slate-950",
+    width: "w-[78%]",
+  },
+  {
+    label: "02",
+    title: "validation",
+    tone: "bg-white text-slate-950",
+    width: "ml-auto w-[72%]",
+  },
+  {
+    label: "03",
+    title: "scope",
+    tone: "bg-[#bcd3ff] text-slate-950",
+    width: "w-[64%]",
+  },
+  {
+    label: "04",
+    title: "launch",
+    tone: "bg-white/8 text-white",
+    width: "ml-auto w-[58%]",
+  },
 ];
 
 type MixedOutputItem = (typeof aiOutputs)[number] | (typeof outputs)[number];
@@ -394,60 +427,70 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="grid gap-px bg-slate-300">
-                {workflowOverview.map((item, index) => (
-                  <div
-                    key={item.eyebrow}
-                    className={`grid min-h-[146px] gap-px bg-slate-300 lg:grid-cols-[0.42fr_0.58fr] ${
-                      index === 0 ? "text-white" : "text-slate-950"
-                    }`}
-                  >
-                    <div
-                      className={`relative overflow-hidden px-6 py-6 ${
-                        index === 0 ? "bg-[#10141d]" : index === 1 ? "bg-[#fff8e9]" : "bg-[#eef3ff]"
-                      }`}
-                    >
-                      {index === 0 ? (
-                        <div
-                          aria-hidden="true"
-                          className="absolute inset-0 opacity-[0.28]"
-                          style={{
-                            backgroundImage:
-                              "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
-                            backgroundSize: "26px 26px",
-                          }}
-                        />
-                      ) : null}
-                      <div className="relative">
-                        <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${index === 0 ? "text-slate-500" : "text-slate-400"}`}>{item.eyebrow}</div>
-                        <h3 className={`mt-4 max-w-[18ch] text-[24px] font-semibold leading-[1.04] tracking-tight ${index === 0 ? "text-white" : "text-slate-950"}`}>
-                          {item.title}
-                        </h3>
-                      </div>
+              <div className="relative min-h-[560px] overflow-hidden bg-[#10141d] px-6 py-7 text-white sm:px-8">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-[0.28]"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
+                    backgroundSize: "28px 28px",
+                  }}
+                />
+                <div aria-hidden="true" className="absolute left-[8%] right-[10%] top-[48%] hidden h-px bg-[linear-gradient(90deg,transparent,rgba(188,211,255,0.72),rgba(255,255,255,0.22),transparent)] lg:block" />
+                <div aria-hidden="true" className="absolute bottom-10 right-10 hidden h-28 w-28 border border-white/10 lg:block" />
+                <div className="relative grid min-h-[506px] gap-8 lg:grid-cols-[0.38fr_0.62fr]">
+                  <div className="flex flex-col justify-between gap-8">
+                    <div>
+                      <div className="avl-kicker !text-slate-400">signal route</div>
+                      <h3 className="mt-5 max-w-[11ch] break-keep text-[32px] font-semibold leading-[1.02] tracking-tight text-white">
+                        초안, 판단, 패키지가 한 신호로 이어집니다.
+                      </h3>
+                      <p className="mt-5 max-w-[32ch] text-sm leading-7 text-slate-300">
+                        같은 높이의 설명 박스 대신, AI와 사람이 넘겨받는 지점을 하나의 경로로 보여줍니다.
+                      </p>
                     </div>
-                    <div className={`${index === 0 ? "bg-[#0f141f]" : "bg-white"} px-6 py-6`}>
-                      <p className={`max-w-[44ch] text-sm leading-6 ${index === 0 ? "text-slate-300" : "text-slate-600"}`}>{item.body}</p>
-                      <div className="mt-5 flex flex-wrap items-center gap-2">
-                        {item.chips.map((chip, chipIndex) => (
-                          <span
-                            key={chip}
-                            className={`inline-flex items-center border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
-                              index === 0
-                                ? chipIndex === 0
-                                  ? "border-[#bcd3ff]/30 bg-[#bcd3ff]/10 text-[#dbe8ff]"
-                                  : "border-white/10 bg-white/[0.04] text-slate-300"
-                                : chipIndex === 0
-                                  ? "border-slate-300 bg-slate-950 text-white"
-                                  : "border-slate-200 bg-[#f8fafc] text-slate-500"
-                            }`}
-                          >
-                            {chip}
-                          </span>
-                        ))}
-                      </div>
+                    <div className="grid grid-cols-3 gap-px bg-white/10">
+                      {["draft", "decide", "package"].map((label, index) => (
+                        <div key={label} className={`${index === 0 ? "bg-[#bcd3ff] text-slate-950" : "bg-white/[0.04] text-slate-300"} px-3 py-4`}>
+                          <div className="font-mono text-[11px] uppercase tracking-[0.2em]">{label}</div>
+                          <div className="mt-7 h-px bg-current opacity-30" />
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
+
+                  <div className="relative grid gap-5 lg:block">
+                    {workflowOverview.map((item, index) => (
+                      <article
+                        key={item.eyebrow}
+                        className={`relative border-l border-[#bcd3ff]/40 bg-white/[0.045] px-5 py-4 backdrop-blur lg:absolute ${workflowSignalPositions[index]}`}
+                      >
+                        <span className="absolute -left-[7px] top-6 h-3 w-3 border border-[#bcd3ff] bg-[#10141d]" />
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">0{index + 1}</div>
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{item.eyebrow}</div>
+                        </div>
+                        <h3 className="mt-3 max-w-[20ch] text-[22px] font-semibold leading-[1.04] tracking-tight text-white">{item.title}</h3>
+                        <p className="mt-3 max-w-[42ch] text-sm leading-6 text-slate-300">{item.body}</p>
+                        <div className="mt-4 flex flex-wrap items-center gap-2">
+                          {item.chips.map((chip, chipIndex) => (
+                            <span
+                              key={chip}
+                              className={`border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
+                                chipIndex === 0
+                                  ? "border-[#bcd3ff]/30 bg-[#bcd3ff]/10 text-[#dbe8ff]"
+                                  : "border-white/10 bg-white/[0.04] text-slate-400"
+                              }`}
+                            >
+                              {chip}
+                            </span>
+                          ))}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -693,7 +736,7 @@ export default function HomePage() {
                   backgroundSize: "30px 30px",
                 }}
               />
-              <div aria-hidden="true" className="absolute bottom-10 right-8 h-44 w-28 border border-white/10 bg-white/[0.03]" />
+              <div aria-hidden="true" className="absolute bottom-0 left-0 right-0 h-48 bg-[radial-gradient(circle_at_24%_100%,rgba(188,211,255,0.18),transparent_42%)]" />
               <div className="relative">
                 <div className="avl-kicker !text-slate-300">artifact library</div>
                 <h2
@@ -715,18 +758,24 @@ export default function HomePage() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-10 grid grid-cols-[0.44fr_0.56fr] gap-px bg-white/10">
-                  <div className="bg-white/[0.04] px-4 py-4">
-                    <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">06</div>
-                    <div className="mt-10 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">package index</div>
+                <div className="mt-10">
+                  <div className="flex items-center justify-between border-y border-white/10 py-3">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">artifact stack</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">6 deliverables</span>
                   </div>
-                  <div className="bg-[#0d1118] px-4 py-4">
-                    <div className="grid grid-cols-3 gap-2">
-                      {Array.from({ length: 6 }).map((_, index) => (
-                        <span key={index} className={`${index < 4 ? "bg-[#bcd3ff]" : "bg-white/10"} h-8 border border-white/10`} />
-                      ))}
-                    </div>
-                    <div className="mt-5 h-px bg-[linear-gradient(90deg,rgba(188,211,255,0.55),transparent)]" />
+                  <div className="relative mt-5 space-y-3">
+                    <div aria-hidden="true" className="absolute bottom-3 left-7 top-3 w-px bg-[linear-gradient(180deg,rgba(188,211,255,0.62),transparent)]" />
+                    {artifactStack.map((item) => (
+                      <div key={item.title} className={`relative ${item.width}`}>
+                        <div className={`${item.tone} border border-white/10 px-4 py-3 shadow-[0_14px_32px_rgba(2,6,23,0.22)]`}>
+                          <div className="flex items-center justify-between gap-4">
+                            <span className="font-mono text-[11px] uppercase tracking-[0.2em] opacity-70">{item.label}</span>
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-60">ready</span>
+                          </div>
+                          <div className="mt-3 text-sm font-semibold uppercase tracking-[0.12em]">{item.title}</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
