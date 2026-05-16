@@ -73,39 +73,6 @@ const workflowSteps = [
   },
 ];
 
-const workflowOverview = [
-  {
-    eyebrow: "AI 초안",
-    title: "초안과 질문의 뼈대를 잡습니다",
-    body: "후보, 질문, 리스크, 실행 초안을 정리해 둡니다.",
-    tone: "bg-white",
-    border: "border-slate-200",
-    chips: ["후보 한 건", "질문 초안", "리스크 메모"],
-  },
-  {
-    eyebrow: "사람의 판단",
-    title: "지금 정해야 할 것만 앞에 둡니다",
-    body: "후보 선택, 실험 조건, 진행 여부만 빠르게 확인합니다.",
-    tone: "bg-[#f7f6f2]",
-    border: "border-[#e7e0d5]",
-    chips: ["우선 후보", "실험 조건", "진행/보강"],
-  },
-  {
-    eyebrow: "보드에 남는 것",
-    title: "실행 패키지와 다음 액션이 이어집니다",
-    body: "검증 패키지, PRD, 실행 태스크, 학습 리포트가 이어집니다.",
-    tone: "bg-[#eef3ff]",
-    border: "border-[#d7e1f6]",
-    chips: ["검증 패키지", "PRD", "학습 리포트"],
-  },
-];
-
-const workflowSignalPositions = [
-  "lg:left-0 lg:top-0 lg:w-[46%]",
-  "lg:right-0 lg:top-[112px] lg:w-[47%]",
-  "lg:bottom-0 lg:left-0 lg:w-[48%]",
-];
-
 const useCases = [
   {
     title: "회의는 많은데 다음 행동이 남지 않을 때",
@@ -449,103 +416,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="relative min-h-[560px] overflow-hidden bg-[#10141d] px-6 py-7 text-white sm:px-8">
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 opacity-[0.28]"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
-                    backgroundSize: "28px 28px",
-                  }}
-                />
-                <div aria-hidden="true" className="avl-workflow-sweep absolute inset-y-0 left-0 w-40 opacity-70" />
-                <div aria-hidden="true" className="absolute bottom-10 right-10 hidden h-28 w-28 border border-white/10 lg:block" />
-                <div className="relative grid min-h-[506px] gap-8 lg:grid-cols-[0.36fr_0.64fr]">
-                  <div className="flex flex-col justify-between gap-8">
-                    <div>
-                      <div className="avl-kicker !text-slate-400">signal route</div>
-                      <h3 className="mt-5 max-w-[16ch] break-keep text-[32px] font-semibold leading-[1.02] tracking-tight text-white">
-                        <span className="block">AI 초안이</span>
-                        <span className="block">판단을 거쳐</span>
-                        <span className="block">실행 패키지로</span>
-                        <span className="block">바뀝니다.</span>
-                      </h3>
-                      <p className="mt-5 max-w-[32ch] text-sm leading-7 text-slate-300">
-                        후보, 질문, 리스크가 흘러가고 사용자가 확인할 지점만 선명하게 남습니다.
-                      </p>
-                    </div>
-                    <div className="grid gap-px bg-white/10">
-                      {["AI 초안", "판단 확인", "실행 패키지"].map((label, index) => (
-                        <div key={label} className={`${index === 0 ? "bg-[#bcd3ff] text-slate-950" : "bg-white/[0.04] text-slate-300"} px-3 py-4`}>
-                          <div className="font-mono text-[11px] uppercase tracking-[0.2em]">0{index + 1}</div>
-                          <div className="mt-7 text-xs font-semibold">{label}</div>
-                          <div className="mt-3 h-px bg-current opacity-30" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="relative min-h-[440px] overflow-hidden border border-white/10 bg-[#0d1118]/82 p-4 lg:min-h-full lg:p-5">
-                    <div
-                      aria-hidden="true"
-                      className="absolute inset-0 opacity-[0.55]"
-                      style={{
-                        backgroundImage:
-                          "linear-gradient(rgba(188,211,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(188,211,255,0.08) 1px, transparent 1px)",
-                        backgroundSize: "22px 22px",
-                      }}
-                    />
-                    <div aria-hidden="true" className="absolute left-[8%] right-[8%] top-[48%] hidden h-px bg-[linear-gradient(90deg,transparent,rgba(188,211,255,0.72),rgba(255,255,255,0.22),transparent)] lg:block" />
-                    <div aria-hidden="true" className="avl-workflow-flow absolute left-[8%] top-[48%] hidden h-px w-[28%] bg-[linear-gradient(90deg,transparent,#bcd3ff,white,transparent)] lg:block" />
-                    <div aria-hidden="true" className="absolute right-[13%] top-[13%] hidden h-28 w-28 border border-white/10 lg:block" />
-                    <div aria-hidden="true" className="absolute bottom-[16%] left-[10%] hidden h-20 w-20 border border-[#bcd3ff]/20 lg:block" />
-
-                    <div aria-hidden="true" className="absolute bottom-5 right-5 hidden grid-cols-7 items-end gap-1.5 lg:grid">
-                      {[18, 30, 22, 38, 26, 44, 32, 24, 42, 28, 36, 20, 34, 46].map((height, index) => (
-                        <span
-                          key={`${height}-${index}`}
-                          className="avl-workflow-meter block w-1.5 bg-[#bcd3ff]/45"
-                          style={{ height: `${height}px`, animationDelay: `${index * 0.12}s` }}
-                        />
-                      ))}
-                    </div>
-
-                    <div className="relative grid gap-5 lg:block">
-                      {workflowOverview.map((item, index) => (
-                        <article
-                          key={item.eyebrow}
-                          className={`relative border-l border-[#bcd3ff]/40 bg-white/[0.052] px-5 py-4 backdrop-blur lg:absolute ${
-                            workflowSignalPositions[index]
-                          } ${index === 1 ? "avl-workflow-float-b" : "avl-workflow-float-a"}`}
-                        >
-                          <span className="avl-workflow-node absolute -left-[7px] top-6 h-3 w-3 border border-[#bcd3ff] bg-[#10141d]" />
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">0{index + 1}</div>
-                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{item.eyebrow}</div>
-                          </div>
-                          <h3 className="mt-3 max-w-[22ch] break-keep text-[22px] font-semibold leading-[1.04] tracking-tight text-white">{item.title}</h3>
-                          <p className="mt-3 max-w-[42ch] text-sm leading-6 text-slate-300">{item.body}</p>
-                          <div className="mt-4 flex flex-wrap items-center gap-2">
-                            {item.chips.map((chip, chipIndex) => (
-                              <span
-                                key={chip}
-                                className={`border px-2.5 py-1 text-[10px] font-semibold tracking-[0.02em] ${
-                                  chipIndex === 0
-                                    ? "border-[#bcd3ff]/30 bg-[#bcd3ff]/10 text-[#dbe8ff]"
-                                    : "border-white/10 bg-white/[0.04] text-slate-400"
-                                }`}
-                              >
-                                {chip}
-                              </span>
-                            ))}
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <LandingHeroVisual variant="panel" />
             </div>
 
             <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">

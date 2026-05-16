@@ -16,7 +16,8 @@ $requiredText = @(
   "_next/static",
   "AI Venture Lab",
   "live decision map",
-  "avl-decision"
+  "avl-decision",
+  "landing-mid-motion"
 )
 
 $missing = @()

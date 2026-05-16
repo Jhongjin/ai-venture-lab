@@ -100,7 +100,7 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
   const shellClassName =
     variant === "hero"
       ? "min-h-[640px] border-l border-white/8 xl:min-h-[700px]"
-      : "min-h-[540px] border border-white/10";
+      : "landing-mid-motion min-h-[640px] border-l border-white/8 xl:min-h-[700px]";
 
   const glowStyle = {
     background: `radial-gradient(420px circle at ${focusPoint.x}% ${focusPoint.y}%, rgba(129, 140, 248, 0.22), transparent 34%), radial-gradient(260px circle at ${Math.max(focusPoint.x - 8, 0)}% ${Math.min(focusPoint.y + 10, 100)}%, rgba(56, 189, 248, 0.16), transparent 28%)`,
@@ -199,12 +199,13 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
           ? "border-sky-300/45 bg-[#151b28]/98 shadow-[0_0_0_1px_rgba(125,211,252,0.2),0_28px_56px_rgba(2,8,23,0.62)]"
           : "border-white/10 bg-[#141823]/90 shadow-[0_20px_40px_rgba(0,0,0,0.28)]";
         const floatClassName = ["landing-hero-card-float-a", "landing-hero-card-float-b", "landing-hero-card-float-c", "landing-hero-card-float-d"][index];
+        const stageVisibilityClassName = variant === "panel" ? "hidden md:block" : "";
         const scale = isActive ? 1.035 : 1;
 
         return (
           <div
             key={stage.label}
-            className={`absolute min-h-[196px] w-[220px] p-4 backdrop-blur-sm will-change-transform transition-[transform,border-color,box-shadow,background-color] duration-700 md:w-[250px] ${stage.className} ${activeClassName} ${floatClassName}`}
+            className={`absolute min-h-[196px] w-[220px] p-4 backdrop-blur-sm will-change-transform transition-[transform,border-color,box-shadow,background-color] duration-700 md:w-[250px] ${stage.className} ${activeClassName} ${floatClassName} ${stageVisibilityClassName}`}
             style={{ transform: `translate3d(${xOffset}px, ${yOffset}px, 0) scale(${scale})` }}
           >
             <div className="flex items-start justify-between gap-3">
