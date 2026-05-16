@@ -27,7 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-16 | WQ-044 added manager-facing executive decision panel | Current commit | Pending production deploy | `pnpm lint`, `pnpm typecheck`, `pnpm build`, local `pnpm smoke:routes`, local `pnpm smoke:browser`, Playwright desktop/mobile visual check |
+| 2026-05-16 | WQ-044 added manager-facing executive decision panel | Current commit | Production auto-deploy after push | `pnpm lint`, `pnpm typecheck`, `pnpm build`, local `pnpm smoke:routes`, local `pnpm smoke:browser`, Playwright desktop/mobile visual check, production `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-16 | WQ-042 added disposable RLS fixture handoff | Current commit | Skipped, docs-only/no execution | Fixture handoff keyword checks, `pnpm release:check` |
 | 2026-05-16 | WQ-041 reviewed Supabase RLS policy posture | Current commit | Skipped, static SQL/docs-only | SQL policy readback, posture keyword checks, `pnpm release:check` |
 | 2026-05-16 | WQ-040 added blocked-safe RLS smoke runner scaffold | Current commit | Skipped, script/docs-only | `node --check`, `pnpm smoke:browser:rls:preflight`, `pnpm release:check`, `pnpm lint`, `pnpm typecheck` |
@@ -130,8 +130,7 @@ Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and `TELEME
 ## Next Jobs
 
 1. Redesign detailed workbench panels so `사업성 평가`, `기획서 만들기`, `제작 준비`, `성과 확인` read like manager workflows, not developer consoles.
-2. Deploy the WQ-044 workspace UX change to production and run `pnpm smoke:prod`, `pnpm smoke:routes`, and `pnpm smoke:browser` against the production URL.
-3. Wait for operator confirmation of two disposable Supabase Auth users, two private workspace labels, production migration posture, and local-only RLS smoke env values.
-4. Run authenticated browser write smoke only after explicit per-run approval, using disposable workspace/idea data and a cleanup owner.
-5. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret when a full product-funnel demo is needed.
-6. Prepare GitHub Actions only after workflow-scope access, target branch, permission block, secret policy, and rollback/disable path are approved.
+2. Wait for operator confirmation of two disposable Supabase Auth users, two private workspace labels, production migration posture, and local-only RLS smoke env values.
+3. Run authenticated browser write smoke only after explicit per-run approval, using disposable workspace/idea data and a cleanup owner.
+4. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret when a full product-funnel demo is needed.
+5. Prepare GitHub Actions only after workflow-scope access, target branch, permission block, secret policy, and rollback/disable path are approved.
