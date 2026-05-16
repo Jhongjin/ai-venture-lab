@@ -316,6 +316,17 @@ type TaskTransitionOption = {
   variant: "primary" | "optional";
 };
 
+type ExecutiveFocus = {
+  eyebrow: string;
+  title: string;
+  detail: string;
+  evidence: string;
+  risk: string;
+  targetTask: ShellTask;
+  cta: string;
+  metrics: Array<{ label: string; value: string }>;
+};
+
 function createTransition(
   id: ShellTask,
   cta: string,
@@ -455,6 +466,158 @@ function getCurrentStepBlocker({
   }
 }
 
+function getExecutiveFocus({
+  consoleStatus,
+  source,
+  ideaCount,
+  openRisks,
+  highRisks,
+  experimentCount,
+  decisionCount,
+  artifactCount,
+  implementationTaskCount,
+  runCount,
+  telemetryEventCount,
+}: {
+  consoleStatus: ConsoleWorkflowStatus;
+  source: "supabase" | "seed";
+  ideaCount: number;
+  openRisks: number;
+  highRisks: number;
+  experimentCount: number;
+  decisionCount: number;
+  artifactCount: number;
+  implementationTaskCount: number;
+  runCount: number;
+  telemetryEventCount: number;
+}): ExecutiveFocus {
+  const metrics = [
+    { label: "후보", value: `${ideaCount}` },
+    { label: "열린 리스크", value: `${openRisks}` },
+    { label: "실험", value: `${experimentCount}` },
+    { label: "산출물", value: `${artifactCount}` },
+  ];
+  const dataNote = source === "supabase" ? "실제 데이터 기준" : "샘플 데이터 기준";
+
+  if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {
+    return {
+      eyebrow: "오늘의 판단",
+      title: "먼저 운영자 계정으로 접속하세요.",
+      detail: "로그인 뒤 후보, 검증, 실행 패키지가 한 흐름으로 열립니다.",
+      evidence: "접속 필요",
+      risk: "데이터는 로그인 후 확인",
+      targetTask: "console:auth",
+      cta: "로그인하기",
+      metrics,
+    };
+  }
+
+  if (ideaCount === 0) {
+    return {
+      eyebrow: "오늘의 판단",
+      title: "후보 1건을 먼저 올리면 됩니다.",
+      detail: "대화 메모나 브리프를 붙여 넣고, AI가 뽑은 후보 중 하나만 저장하세요.",
+      evidence: `${dataNote} · 후보 없음`,
+      risk: "위험은 저장 뒤 확인",
+      targetTask: "console:extract",
+      cta: "후보 찾기",
+      metrics,
+    };
+  }
+
+  if (highRisks > 0) {
+    return {
+      eyebrow: "오늘의 판단",
+      title: "높은 리스크부터 닫아야 합니다.",
+      detail: "진행 전에 법무, 보안, 운영 차단 항목을 먼저 정리하세요.",
+      evidence: `${dataNote} · 높은 리스크 ${highRisks}건`,
+      risk: `열린 리스크 ${openRisks}건`,
+      targetTask: "workbench:risk",
+      cta: "리스크 확인",
+      metrics,
+    };
+  }
+
+  if (experimentCount === 0) {
+    return {
+      eyebrow: "오늘의 판단",
+      title: "검증 실험이 아직 없습니다.",
+      detail: "좋아 보이는 후보라도 7일 안에 확인할 행동 기준이 있어야 다음 판단이 빨라집니다.",
+      evidence: `${dataNote} · 후보 ${ideaCount}건`,
+      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      targetTask: "workbench:experiment",
+      cta: "실험 설계",
+      metrics,
+    };
+  }
+
+  if (decisionCount === 0) {
+    return {
+      eyebrow: "오늘의 판단",
+      title: "진행 여부를 한 번 정리할 차례입니다.",
+      detail: "점수, 리스크, 실험 조건을 모아 진행, 보강, 전환, 중단 중 하나를 남기세요.",
+      evidence: `${dataNote} · 실험 ${experimentCount}건`,
+      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      targetTask: "workbench:decision",
+      cta: "판단 남기기",
+      metrics,
+    };
+  }
+
+  if (artifactCount === 0) {
+    return {
+      eyebrow: "오늘의 판단",
+      title: "판단을 실행 패키지로 묶어야 합니다.",
+      detail: "아이디어 브리프, PRD, MVP 범위를 남겨야 다음 제작 도구로 넘길 수 있습니다.",
+      evidence: `${dataNote} · 판단 ${decisionCount}건`,
+      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      targetTask: "workbench:artifacts",
+      cta: "문서 만들기",
+      metrics,
+    };
+  }
+
+  if (implementationTaskCount === 0) {
+    return {
+      eyebrow: "오늘의 판단",
+      title: "이제 제작 준비 상태를 확인하세요.",
+      detail: "기획, 디자인, 개발, QA, 배포 조건을 한 묶음으로 정리하면 빌드 단계가 흔들리지 않습니다.",
+      evidence: `${dataNote} · 산출물 ${artifactCount}건`,
+      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      targetTask: "workbench:development",
+      cta: "제작 준비",
+      metrics,
+    };
+  }
+
+  if (runCount === 0) {
+    return {
+      eyebrow: "오늘의 판단",
+      title: "실행 큐를 열어 역할과 차단 항목을 정리하세요.",
+      detail: "혼자 진행하더라도 전략, 디자인, 개발, QA 순서를 큐로 나누면 다음 작업이 선명해집니다.",
+      evidence: `${dataNote} · 제작 작업 ${implementationTaskCount}건`,
+      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      targetTask: "workbench:orchestration",
+      cta: "실행 관리",
+      metrics,
+    };
+  }
+
+  return {
+    eyebrow: "오늘의 판단",
+    title: telemetryEventCount > 0 ? "성과 신호로 다음 반복을 정하세요." : "출시 전 마지막 확인이 남았습니다.",
+    detail:
+      telemetryEventCount > 0
+        ? "실제 행동 신호를 보고 계속 투자할지, 보강할지, 새 후보로 돌아갈지 결정하세요."
+        : "남은 차단 항목이 없다면 출시 판단을 남기고 성과 확인으로 넘어갈 수 있습니다.",
+    evidence: `${dataNote} · 실행 기록 ${runCount}건`,
+    risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+    targetTask: telemetryEventCount > 0 ? "workbench:learning" : "workbench:launch",
+    cta: telemetryEventCount > 0 ? "성과 확인" : "출시 판단",
+    metrics,
+  };
+}
+
 function upsertById<T extends { id: string }>(records: T[], nextRecord: T) {
   return records.some((record) => record.id === nextRecord.id)
     ? records.map((record) => (record.id === nextRecord.id ? nextRecord : record))
@@ -499,6 +662,7 @@ export function VentureConsoleShell({
     hasIdeaSource: false,
   });
   const [ideas, setIdeas] = useState(initialIdeas);
+  const [decisions, setDecisions] = useState(initialDecisions);
   const [risks, setRisks] = useState(initialRisks);
   const [experiments, setExperiments] = useState(initialExperiments);
   const [orchestrationRuns, setOrchestrationRuns] = useState(initialOrchestrationRuns);
@@ -546,6 +710,7 @@ export function VentureConsoleShell({
     const handleRiskUpdated = (event: Event) => handleRecordEvent<Risk>(event, setRisks);
     const handleExperimentCreated = (event: Event) => handleRecordEvent<Experiment>(event, setExperiments);
     const handleExperimentUpdated = (event: Event) => handleRecordEvent<Experiment>(event, setExperiments);
+    const handleDecisionCreated = (event: Event) => handleRecordEvent<Decision>(event, setDecisions);
     const handleRunCreated = (event: Event) => handleRecordEvent<OrchestrationRun>(event, setOrchestrationRuns);
     const handleRunsCreated = (event: Event) => handleRecordListEvent<OrchestrationRun>(event, setOrchestrationRuns);
     const handleRunUpdated = (event: Event) => handleRecordEvent<OrchestrationRun>(event, setOrchestrationRuns);
@@ -562,6 +727,7 @@ export function VentureConsoleShell({
     window.addEventListener("venture:risk-updated", handleRiskUpdated);
     window.addEventListener("venture:experiment-created", handleExperimentCreated);
     window.addEventListener("venture:experiment-updated", handleExperimentUpdated);
+    window.addEventListener("venture:decision-created", handleDecisionCreated);
     window.addEventListener("venture:run-created", handleRunCreated);
     window.addEventListener("venture:runs-created", handleRunsCreated);
     window.addEventListener("venture:run-updated", handleRunUpdated);
@@ -579,6 +745,7 @@ export function VentureConsoleShell({
       window.removeEventListener("venture:risk-updated", handleRiskUpdated);
       window.removeEventListener("venture:experiment-created", handleExperimentCreated);
       window.removeEventListener("venture:experiment-updated", handleExperimentUpdated);
+      window.removeEventListener("venture:decision-created", handleDecisionCreated);
       window.removeEventListener("venture:run-created", handleRunCreated);
       window.removeEventListener("venture:runs-created", handleRunsCreated);
       window.removeEventListener("venture:run-updated", handleRunUpdated);
@@ -615,6 +782,7 @@ export function VentureConsoleShell({
   const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
   const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
   const experimentCount = experiments.length;
+  const decisionCount = decisions.length;
   const runCount = orchestrationRuns.length;
   const artifactCount = artifacts.length;
   const implementationTaskCount = implementationTasks.length;
@@ -687,6 +855,19 @@ export function VentureConsoleShell({
   const railPrimaryTasks = requiredShellTasks.filter(
     (task) => task.id === visibleTask || nextTaskOptions.some((option) => option.id === task.id),
   );
+  const executiveFocus = getExecutiveFocus({
+    consoleStatus,
+    source,
+    ideaCount,
+    openRisks,
+    highRisks,
+    experimentCount,
+    decisionCount,
+    artifactCount,
+    implementationTaskCount,
+    runCount,
+    telemetryEventCount,
+  });
 
   function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
     if (task.optional) {
@@ -698,7 +879,7 @@ export function VentureConsoleShell({
 
   return (
     <section className="grid gap-4 xl:grid-cols-[192px_minmax(0,1fr)]">
-      <aside className="sticky top-4 max-h-[calc(100vh-2rem)] self-start overflow-y-auto border-r border-slate-200 pr-3">
+      <aside className="order-2 self-start overflow-y-auto border-r border-slate-200 pr-3 xl:sticky xl:top-4 xl:order-none xl:max-h-[calc(100vh-2rem)]">
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -846,7 +1027,50 @@ export function VentureConsoleShell({
         ) : null}
       </aside>
 
-      <div className="min-w-0 space-y-3">
+      <div className="order-1 min-w-0 space-y-3 xl:order-none">
+        <section className="border border-slate-900 bg-slate-950 text-white">
+          <div className="grid gap-px bg-slate-800 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="bg-slate-950 p-4 sm:p-5">
+              <div className="text-[10px] font-semibold tracking-[0.18em] text-slate-400">{executiveFocus.eyebrow}</div>
+              <div className="mt-3 grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
+                <div className="min-w-0">
+                  <h2 className="max-w-3xl text-[20px] font-semibold tracking-tight sm:text-[28px] sm:leading-[36px]">
+                    {executiveFocus.title}
+                  </h2>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{executiveFocus.detail}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => goToTask(executiveFocus.targetTask)}
+                  className="avl-btn bg-white px-4 text-slate-950 hover:bg-slate-100"
+                >
+                  {executiveFocus.cta}
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid bg-slate-950 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="border-b border-slate-800 p-4 sm:border-b-0 sm:border-r lg:border-r-0 lg:border-b">
+                <div className="text-[10px] font-semibold tracking-[0.14em] text-slate-500">근거 상태</div>
+                <p className="mt-2 text-sm font-semibold text-white">{executiveFocus.evidence}</p>
+              </div>
+              <div className="p-4">
+                <div className="text-[10px] font-semibold tracking-[0.14em] text-slate-500">위험 상태</div>
+                <p className="mt-2 text-sm font-semibold text-white">{executiveFocus.risk}</p>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-px bg-slate-800 sm:grid-cols-4">
+            {executiveFocus.metrics.map((metric) => (
+              <div key={metric.label} className="bg-slate-900 px-4 py-3">
+                <div className="text-[10px] font-semibold tracking-[0.14em] text-slate-500">{metric.label}</div>
+                <div className="mt-1 text-lg font-semibold tracking-tight text-white">{metric.value}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {showFirstEntryStrip ? (
           <section className="border border-slate-200 bg-white px-4 py-3">
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-700">
@@ -987,7 +1211,7 @@ export function VentureConsoleShell({
             <IdeaWorkbench
               initialIdeas={ideas}
               initialRisks={risks}
-              initialDecisions={initialDecisions}
+              initialDecisions={decisions}
               initialExperiments={experiments}
               initialOrchestrationRuns={orchestrationRuns}
               initialArtifacts={artifacts}

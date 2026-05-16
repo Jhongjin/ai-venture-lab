@@ -3672,7 +3672,7 @@ export function VentureConsoleActions({
             {embedded ? (
               <div className="mb-5 grid gap-3 border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">intake canvas</div>
+                  <div className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">초안 확인</div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {activeOrganization
                       ? `${activeOrganization.name} 안에 저장할 초안을 정리합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 넘길 수 있습니다.`
@@ -3691,7 +3691,7 @@ export function VentureConsoleActions({
             ) : (
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="mb-2 inline-flex avl-pill avl-pill-neutral px-2.5 py-1 text-[10px] uppercase tracking-[0.16em]">intake canvas</div>
+                  <div className="mb-2 inline-flex avl-pill avl-pill-neutral px-2.5 py-1 text-[10px] tracking-[0.14em]">초안 확인</div>
                   <h2 className="mt-3 text-3xl font-semibold text-slate-950">아이디어 접수</h2>
                   <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
                     {activeOrganization
@@ -3818,7 +3818,7 @@ export function VentureConsoleActions({
             </section>
 
             <section className="avl-card p-5 text-slate-900">
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">operator status</div>
+              <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">저장 준비</div>
               <div className="mt-3 grid gap-3">
                 {([
                   ["필수 입력", Boolean(form.name && form.one_liner)],
@@ -3866,7 +3866,7 @@ function formatWorkspaceError(message: string) {
   const normalizedMessage = message.toLowerCase();
 
   if (normalizedMessage.includes("row-level security") && normalizedMessage.includes("organizations")) {
-    return "팀 공간 생성 권한 정책이 아직 맞지 않습니다. Supabase SQL Editor에서 최신 워크스페이스 정책 SQL을 실행한 뒤 다시 시도하세요.";
+    return "팀 공간 생성 권한 설정이 맞지 않아 저장이 막혔습니다. 관리자에게 최신 워크스페이스 정책 적용을 요청한 뒤 다시 시도하세요.";
   }
 
   if (normalizedMessage.includes("duplicate key") && normalizedMessage.includes("organizations_slug")) {

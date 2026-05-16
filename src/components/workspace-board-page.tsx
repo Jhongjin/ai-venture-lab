@@ -40,7 +40,7 @@ export async function WorkspaceBoardPage() {
                       <Sparkle size={14} />
                       AI Venture Lab
                     </div>
-                    <span className="avl-pill avl-pill-neutral">workspace</span>
+                    <span className="avl-pill avl-pill-neutral">실행 공간</span>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-[15px] font-semibold tracking-tight text-slate-950 sm:text-[17px]">실행 보드</h1>
@@ -65,7 +65,7 @@ export async function WorkspaceBoardPage() {
               </div>
             </div>
 
-            <div className="grid gap-px bg-slate-200 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-px bg-slate-200 xl:grid-cols-4">
               {headerStats.map(([label, value]) => (
                 <div key={label} className="bg-white px-4 py-3">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>
@@ -80,7 +80,7 @@ export async function WorkspaceBoardPage() {
           <section className="grid gap-px border border-amber-200 bg-amber-200 md:grid-cols-[220px_minmax(0,1fr)]">
             <div className="flex items-center gap-3 bg-amber-50 px-4 py-3 text-amber-900">
               <WarningCircle size={18} />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">limited data</span>
+              <span className="text-[11px] font-semibold tracking-[0.14em]">데이터 확인 필요</span>
             </div>
             <div className="bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
               Supabase 데이터를 일부 불러오지 못했습니다. 현재 보드는 빈 상태 또는 제한된 상태로 표시될 수 있습니다.
