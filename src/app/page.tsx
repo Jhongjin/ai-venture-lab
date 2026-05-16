@@ -19,6 +19,7 @@ import {
   UsersThree,
 } from "@phosphor-icons/react/dist/ssr";
 import { LandingHeroVisual } from "@/components/landing-hero-visual";
+import { LandingMiddleMotion } from "@/components/landing-middle-motion";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -73,6 +74,27 @@ const workflowSteps = [
   },
 ];
 
+const workflowOverview = [
+  {
+    eyebrow: "AI 초안",
+    title: "초안과 질문의 뼈대를 잡습니다",
+    body: "후보, 질문, 리스크, 실행 초안을 정리해 둡니다.",
+    chips: ["후보 한 건", "질문 초안", "리스크 메모"],
+  },
+  {
+    eyebrow: "사람의 판단",
+    title: "지금 정해야 할 것만 앞에 둡니다",
+    body: "후보 선택, 실험 조건, 진행 여부만 빠르게 확인합니다.",
+    chips: ["우선 후보", "실험 조건", "진행/보강"],
+  },
+  {
+    eyebrow: "보드에 남는 것",
+    title: "실행 패키지와 다음 액션이 이어집니다",
+    body: "검증 패키지, PRD, 실행 태스크, 학습 리포트가 이어집니다.",
+    chips: ["검증 패키지", "PRD", "학습 리포트"],
+  },
+];
+
 const useCases = [
   {
     title: "회의는 많은데 다음 행동이 남지 않을 때",
@@ -113,12 +135,6 @@ const bestFitSignals = [
 ];
 
 const bestFitRoute = ["회의 메모", "후보 한 건", "질문 초안", "실행 메모"];
-
-const bestFitLiveNodes = [
-  { label: "회의 메모", meta: "raw", position: "left-[4%] top-[12%]" },
-  { label: "후보 한 건", meta: "candidate", position: "right-[3%] top-[30%]" },
-  { label: "질문 초안", meta: "question", position: "left-[18%] bottom-[10%]" },
-];
 
 const bestFitChecks = [
   ["fit", "다음 행동을 정해야 하는데 후보와 질문이 흩어져 있을 때"],
@@ -416,7 +432,81 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <LandingHeroVisual variant="panel" />
+              <div className="relative min-h-[560px] overflow-hidden bg-[#10141d] px-6 py-7 text-white sm:px-8">
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-[0.26]"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
+                    backgroundSize: "28px 28px",
+                  }}
+                />
+                <div aria-hidden="true" className="absolute bottom-8 right-8 hidden h-28 w-28 border border-white/10 lg:block" />
+                <div aria-hidden="true" className="absolute left-[7%] right-[8%] top-[48%] hidden h-px bg-[linear-gradient(90deg,transparent,rgba(188,211,255,0.72),rgba(255,255,255,0.22),transparent)] lg:block" />
+                <div className="relative grid min-h-[506px] gap-8 lg:grid-cols-[0.36fr_0.64fr]">
+                  <div className="flex flex-col justify-between gap-8">
+                    <div>
+                      <div className="avl-kicker !text-slate-400">signal route</div>
+                      <h3 className="mt-5 max-w-[16ch] break-keep text-[32px] font-semibold leading-[1.02] tracking-tight text-white">
+                        <span className="block">AI 초안이</span>
+                        <span className="block">판단을 거쳐</span>
+                        <span className="block">실행 패키지로</span>
+                        <span className="block">바뀝니다.</span>
+                      </h3>
+                      <p className="mt-5 max-w-[32ch] text-sm leading-7 text-slate-300">
+                        후보, 질문, 리스크가 흘러가고 사용자가 확인할 지점만 선명하게 남습니다.
+                      </p>
+                    </div>
+                    <div className="grid gap-px bg-white/10">
+                      {["AI 초안", "판단 확인", "실행 패키지"].map((label, index) => (
+                        <div key={label} className={`${index === 0 ? "bg-[#bcd3ff] text-slate-950" : "bg-white/[0.04] text-slate-300"} px-3 py-4`}>
+                          <div className="font-mono text-[11px] uppercase tracking-[0.2em]">0{index + 1}</div>
+                          <div className="mt-7 text-xs font-semibold">{label}</div>
+                          <div className="mt-3 h-px bg-current opacity-30" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="relative grid gap-5 lg:block">
+                    {workflowOverview.map((item, index) => (
+                      <article
+                        key={item.eyebrow}
+                        className={`relative border-l border-[#bcd3ff]/40 bg-white/[0.052] px-5 py-4 backdrop-blur lg:absolute ${
+                          index === 0
+                            ? "lg:left-0 lg:top-0 lg:w-[46%]"
+                            : index === 1
+                              ? "lg:right-0 lg:top-[118px] lg:w-[47%]"
+                              : "lg:bottom-0 lg:left-0 lg:w-[48%]"
+                        }`}
+                      >
+                        <span className="absolute -left-[7px] top-6 h-3 w-3 border border-[#bcd3ff] bg-[#10141d]" />
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">0{index + 1}</div>
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{item.eyebrow}</div>
+                        </div>
+                        <h3 className="mt-3 max-w-[22ch] break-keep text-[22px] font-semibold leading-[1.04] tracking-tight text-white">{item.title}</h3>
+                        <p className="mt-3 max-w-[42ch] text-sm leading-6 text-slate-300">{item.body}</p>
+                        <div className="mt-4 flex flex-wrap items-center gap-2">
+                          {item.chips.map((chip, chipIndex) => (
+                            <span
+                              key={chip}
+                              className={`border px-2.5 py-1 text-[10px] font-semibold tracking-[0.02em] ${
+                                chipIndex === 0
+                                  ? "border-[#bcd3ff]/30 bg-[#bcd3ff]/10 text-[#dbe8ff]"
+                                  : "border-white/10 bg-white/[0.04] text-slate-400"
+                              }`}
+                            >
+                              {chip}
+                            </span>
+                          ))}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
@@ -597,67 +687,14 @@ export default function HomePage() {
               />
               <div aria-hidden="true" className="absolute right-0 top-0 h-56 w-56 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.86),transparent_60%)]" />
               <div className="relative">
-                <div className="grid gap-8 lg:grid-cols-[0.58fr_0.42fr]">
+                <div className="grid gap-8 xl:grid-cols-[0.26fr_0.74fr]">
                   <div>
                     <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">where it works</div>
                     <h3 className="mt-5 max-w-[20ch] break-keep text-[34px] font-semibold leading-[1.02] tracking-tight text-slate-950 sm:text-[38px]">
                       설명을 더 읽기보다, 다음 판단을 바로 꺼내야 할 때.
                     </h3>
                   </div>
-                  <div className="relative min-h-[290px] overflow-hidden border border-slate-950 bg-[#0f141f] p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-                    <div
-                      aria-hidden="true"
-                      className="absolute inset-0 opacity-[0.5]"
-                      style={{
-                        backgroundImage:
-                          "linear-gradient(rgba(188,211,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(188,211,255,0.1) 1px, transparent 1px)",
-                        backgroundSize: "20px 20px",
-                      }}
-                    />
-                    <div aria-hidden="true" className="avl-decision-sweep absolute inset-y-0 left-0 w-24" />
-                    <div className="relative flex items-start justify-between gap-4">
-                      <div>
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#bcd3ff]">live decision map</div>
-                        <p className="mt-3 max-w-[28ch] break-keep text-sm font-semibold leading-6 text-slate-100">
-                          회의 메모가 후보와 질문 초안으로 바뀌는 흐름을 실시간으로 보여줍니다.
-                        </p>
-                      </div>
-                      <span className="inline-flex items-center gap-2 border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-300">
-                        <span className="avl-decision-live-dot h-1.5 w-1.5 bg-[#bcd3ff]" />
-                        scan
-                      </span>
-                    </div>
-
-                    <div aria-hidden="true" className="relative mt-6 h-[150px]">
-                      <div className="absolute left-1/2 top-1/2 h-36 w-36 -translate-x-1/2 -translate-y-1/2 border border-white/10" />
-                      <div className="avl-decision-ring absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 border border-[#bcd3ff]/30" />
-                      <div className="avl-decision-scan absolute left-1/2 top-1/2 h-px w-[42%] origin-left bg-[linear-gradient(90deg,#bcd3ff,rgba(188,211,255,0.12),transparent)]" />
-                      <div className="absolute left-[8%] right-[8%] top-[58%] h-px bg-white/12">
-                        <span className="avl-decision-packet absolute left-0 top-1/2 h-2 w-12 -translate-y-1/2 bg-[#bcd3ff]" />
-                      </div>
-                      {bestFitLiveNodes.map((node, index) => (
-                        <div key={node.label} className={`avl-decision-node absolute ${node.position} border border-white/10 bg-[#101927]/95 px-3 py-2 shadow-[0_18px_36px_rgba(2,6,23,0.28)]`}>
-                          <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#bcd3ff]">{node.meta}</div>
-                          <div className="mt-1 text-xs font-semibold text-white">{node.label}</div>
-                          <span
-                            className={`absolute h-2 w-2 border border-[#bcd3ff] bg-[#0f141f] ${
-                              index === 0 ? "-right-1 top-1/2" : index === 1 ? "-left-1 top-1/2" : "left-1/2 -top-1"
-                            }`}
-                          />
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="relative mt-4 grid grid-cols-12 items-end gap-1.5 border-t border-white/10 pt-4">
-                      {[22, 36, 18, 46, 28, 54, 34, 42, 24, 48, 30, 38].map((height, index) => (
-                        <span
-                          key={`${height}-${index}`}
-                          className="avl-decision-bar block bg-[#bcd3ff]/50"
-                          style={{ height: `${height}px`, animationDelay: `${index * 0.1}s` }}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                  <LandingMiddleMotion />
                 </div>
 
                 <div className="mt-10 grid gap-5">

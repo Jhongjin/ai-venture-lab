@@ -272,98 +272,73 @@ body {
   }
 }
 
-@keyframes avl-decision-sweep {
+@keyframes avl-middle-sweep {
   0% {
     opacity: 0;
-    transform: translate3d(-80%, 0, 0) skewX(-10deg);
+    transform: translate3d(-72%, 0, 0) skewX(-12deg);
   }
   24% {
-    opacity: 0.28;
+    opacity: 0.26;
   }
   72% {
     opacity: 0.12;
   }
   100% {
     opacity: 0;
-    transform: translate3d(520%, 0, 0) skewX(-10deg);
+    transform: translate3d(420%, 0, 0) skewX(-12deg);
   }
 }
 
-@keyframes avl-decision-ring {
-  0%,
-  100% {
-    opacity: 0.42;
-    transform: translate3d(-50%, -50%, 0) scale(0.92);
-  }
-  50% {
-    opacity: 0.9;
-    transform: translate3d(-50%, -50%, 0) scale(1.1);
-  }
-}
-
-@keyframes avl-decision-scan {
-  from {
-    opacity: 0.92;
-    transform: rotate(0deg);
-  }
-  to {
-    opacity: 0.92;
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes avl-decision-packet {
+@keyframes avl-middle-packet {
   0% {
     opacity: 0;
-    transform: translate3d(0, -50%, 0) scaleX(0.35);
+    transform: translate3d(0, -50%, 0) scaleX(0.28);
     transform-origin: left;
   }
   18% {
     opacity: 0.9;
   }
-  74% {
-    opacity: 0.58;
+  76% {
+    opacity: 0.48;
   }
   100% {
     opacity: 0;
-    transform: translate3d(560%, -50%, 0) scaleX(1);
+    transform: translate3d(520%, -50%, 0) scaleX(1);
     transform-origin: right;
   }
 }
 
-@keyframes avl-decision-node {
+@keyframes avl-middle-card {
   0%,
   100% {
-    opacity: 0.78;
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(-50%, -50%, 0);
   }
   50% {
-    opacity: 1;
-    transform: translate3d(0, -4px, 0);
+    transform: translate3d(-50%, calc(-50% - 8px), 0);
   }
 }
 
-@keyframes avl-decision-live-dot {
+@keyframes avl-middle-cursor {
   0%,
   100% {
-    opacity: 0.54;
+    opacity: 0.55;
     transform: scale(1);
   }
   50% {
     opacity: 1;
-    transform: scale(1.5);
+    transform: scale(1.55);
   }
 }
 
-@keyframes avl-decision-bar {
+@keyframes avl-middle-bar {
   0%,
   100% {
-    opacity: 0.26;
-    transform: scaleY(0.55);
+    opacity: 0.24;
+    transform: scaleY(0.58);
     transform-origin: bottom;
   }
   50% {
-    opacity: 0.86;
+    opacity: 0.84;
     transform: scaleY(1);
   }
 }
@@ -515,51 +490,47 @@ body {
   animation: avl-hero-core-ring 4.2s ease-in-out infinite;
 }
 
-.avl-decision-sweep {
+.avl-middle-sweep {
   background: linear-gradient(90deg, transparent, rgba(188, 211, 255, 0.2), rgba(255, 255, 255, 0.1), transparent);
-  filter: blur(14px);
-  animation: avl-decision-sweep 5.8s linear infinite;
+  filter: blur(16px);
+  animation: avl-middle-sweep 6.2s linear infinite;
   will-change: transform, opacity;
 }
 
-.avl-decision-ring {
-  animation: avl-decision-ring 3.2s ease-in-out infinite;
+.avl-middle-packet {
+  animation: avl-middle-packet 2.8s ease-in-out infinite;
   will-change: transform, opacity;
 }
 
-.avl-decision-scan {
-  animation: avl-decision-scan 4.8s linear infinite;
+.avl-middle-packet-b {
+  animation-delay: 0.42s;
+}
+
+.avl-middle-packet-c {
+  animation-delay: 0.88s;
+}
+
+.avl-middle-card {
+  animation: avl-middle-card 6.4s ease-in-out infinite;
   will-change: transform;
 }
 
-.avl-decision-packet {
-  animation: avl-decision-packet 2.4s ease-in-out infinite;
+.avl-middle-cursor {
+  animation: avl-middle-cursor 1.5s ease-in-out infinite;
   will-change: transform, opacity;
 }
 
-.avl-decision-node {
-  animation: avl-decision-node 3.4s ease-in-out infinite;
-  will-change: transform, opacity;
-}
-
-.avl-decision-live-dot {
-  animation: avl-decision-live-dot 1.25s ease-in-out infinite;
-  will-change: transform, opacity;
-}
-
-.avl-decision-bar {
-  animation: avl-decision-bar 1.7s ease-in-out infinite;
+.avl-middle-bar {
+  animation: avl-middle-bar 1.8s ease-in-out infinite;
   will-change: transform, opacity;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .avl-decision-sweep,
-  .avl-decision-ring,
-  .avl-decision-scan,
-  .avl-decision-packet,
-  .avl-decision-node,
-  .avl-decision-live-dot,
-  .avl-decision-bar {
+  .avl-middle-sweep,
+  .avl-middle-packet,
+  .avl-middle-card,
+  .avl-middle-cursor,
+  .avl-middle-bar {
     animation: none;
   }
 }
