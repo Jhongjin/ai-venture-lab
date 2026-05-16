@@ -1,10 +1,10 @@
 const intakeItems = ["회의 메모", "대화 로그", "브리프 초안"];
 const packageItems = ["질문 초안", "7일 실험", "중단 기준"];
-const pulseBars = [28, 44, 22, 58, 36, 66, 48, 30, 54, 40, 62, 34];
+const pulseBars = [20, 34, 18, 44, 30, 52, 38, 24, 42, 32, 48, 26];
 
 export function LandingMiddleMotion() {
   return (
-    <div className="landing-middle-motion relative min-h-[520px] overflow-hidden border border-slate-950 bg-[#0f141f] p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:p-6 xl:p-7">
+    <div className="landing-middle-motion relative min-h-[460px] overflow-hidden border border-slate-950 bg-[#0f141f] p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:p-6">
       <div
         aria-hidden="true"
         className="absolute inset-0 opacity-[0.46]"
@@ -33,8 +33,8 @@ export function LandingMiddleMotion() {
         </div>
       </div>
 
-      <div className="relative mt-8 grid gap-4 xl:grid-cols-[0.24fr_0.52fr_0.24fr]">
-        <div className="relative z-[1] grid gap-3">
+      <div className="relative mt-7 grid gap-4 xl:grid-cols-[0.24fr_0.52fr_0.24fr]">
+        <div className="relative z-[1] hidden gap-3 xl:grid">
           {intakeItems.map((item, index) => (
             <div key={item} className={`${index === 0 ? "bg-white/[0.1]" : "bg-white/[0.045]"} border border-white/10 px-4 py-4`}>
               <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">input 0{index + 1}</div>
@@ -43,7 +43,7 @@ export function LandingMiddleMotion() {
           ))}
         </div>
 
-        <div className="relative min-h-[300px] overflow-hidden border border-white/10 bg-[#111927]/86">
+        <div className="relative min-h-[260px] overflow-hidden border border-white/10 bg-[#111927]/86">
           <div aria-hidden="true" className="absolute inset-x-6 top-[28%] h-px bg-white/12">
             <span className="avl-middle-packet avl-middle-packet-a absolute left-0 top-1/2 h-2 w-16 bg-[#bcd3ff]" />
           </div>
@@ -58,16 +58,16 @@ export function LandingMiddleMotion() {
           <div aria-hidden="true" className="absolute left-[18%] top-8 bottom-8 w-px bg-white/10" />
           <div aria-hidden="true" className="absolute right-[18%] top-8 bottom-8 w-px bg-white/10" />
 
-          <div className="avl-middle-card absolute left-1/2 top-1/2 w-[76%] border border-[#bcd3ff]/32 bg-[#0f141f]/94 px-5 py-5 shadow-[0_26px_56px_rgba(2,6,23,0.42)]">
+          <div className="avl-middle-card absolute left-1/2 top-1/2 w-[76%] border border-[#bcd3ff]/32 bg-[#0f141f]/94 px-5 py-4 shadow-[0_26px_56px_rgba(2,6,23,0.42)]">
             <div className="flex items-center justify-between gap-4">
               <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#bcd3ff]">active candidate</span>
               <span className="avl-middle-cursor h-2.5 w-2.5 bg-[#bcd3ff]" />
             </div>
-            <div className="mt-5 break-keep text-[26px] font-semibold leading-none tracking-tight text-white">후보 한 건</div>
-            <p className="mt-4 max-w-[36ch] text-sm leading-6 text-slate-300">
+            <div className="mt-4 break-keep text-[24px] font-semibold leading-none tracking-tight text-white">후보 한 건</div>
+            <p className="mt-3 max-w-[36ch] text-sm leading-6 text-slate-300">
               지금 판단할 후보만 남기고 질문과 리스크를 같은 레인으로 보냅니다.
             </p>
-            <div className="mt-5 grid grid-cols-3 gap-px bg-white/10">
+            <div className="mt-4 grid grid-cols-3 gap-px bg-white/10">
               {["질문", "리스크", "실험"].map((label, index) => (
                 <span key={label} className={`${index === 0 ? "bg-[#bcd3ff] text-slate-950" : "bg-white/[0.04] text-slate-300"} px-3 py-2 text-center text-[10px] font-semibold tracking-[0.08em]`}>
                   {label}
@@ -77,7 +77,7 @@ export function LandingMiddleMotion() {
           </div>
         </div>
 
-        <div className="relative z-[1] grid gap-3">
+        <div className="relative z-[1] hidden gap-3 xl:grid">
           {packageItems.map((item, index) => (
             <div key={item} className={`${index === 2 ? "bg-[#bcd3ff] text-slate-950" : "bg-white/[0.045] text-white"} border border-white/10 px-4 py-4`}>
               <div className={`font-mono text-[10px] font-semibold uppercase tracking-[0.18em] ${index === 2 ? "text-slate-500" : "text-slate-500"}`}>output 0{index + 1}</div>

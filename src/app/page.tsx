@@ -116,36 +116,12 @@ const useCases = [
   },
 ];
 
-const bestFitSignals = [
-  {
-    title: "회의 직후",
-    body: "후보 하나와 질문 초안을 세워 다음 회의 전 바로 움직일 수 있게 합니다.",
-    tone: "bg-[#f7f6f2]",
-  },
-  {
-    title: "검증 초반",
-    body: "리스크, 7일 실험, 판단 기준이 문서마다 흩어지기 전에 한곳에 묶습니다.",
-    tone: "bg-white",
-  },
-  {
-    title: "solo-first",
-    body: "혼자 끌고 가다가 필요할 때만 팀을 붙이는 흐름에 맞췄습니다.",
-    tone: "bg-[#eef3ff]",
-  },
-];
-
 const bestFitRoute = ["회의 메모", "후보 한 건", "질문 초안", "실행 메모"];
 
 const bestFitChecks = [
   ["fit", "다음 행동을 정해야 하는데 후보와 질문이 흩어져 있을 때"],
   ["skip", "요구사항과 작업 범위가 이미 정해져 보관만 하면 될 때"],
   ["watch", "법무, 의료, 금융처럼 외부 검토가 먼저 필요한 아이디어일 때"],
-];
-
-const bestFitScan = [
-  ["decision pressure", "다음 회의 전 움직일 후보가 있는가"],
-  ["proof gap", "검증 질문과 중단 기준이 비어 있는가"],
-  ["operator load", "한 사람이 끝까지 밀어야 하는가"],
 ];
 
 const aiOutputs = [
@@ -250,33 +226,6 @@ const packageHighlights = [
   "학습 리포트",
 ];
 
-const artifactStack = [
-  {
-    label: "01",
-    title: "brief",
-    tone: "bg-[#eef3ff] text-slate-950",
-    width: "w-[78%]",
-  },
-  {
-    label: "02",
-    title: "validation",
-    tone: "bg-white text-slate-950",
-    width: "ml-auto w-[72%]",
-  },
-  {
-    label: "03",
-    title: "scope",
-    tone: "bg-[#bcd3ff] text-slate-950",
-    width: "w-[64%]",
-  },
-  {
-    label: "04",
-    title: "launch",
-    tone: "bg-white/8 text-white",
-    width: "ml-auto w-[58%]",
-  },
-];
-
 type MixedOutputItem = (typeof aiOutputs)[number] | (typeof outputs)[number];
 
 function getOutputMeta(item: MixedOutputItem) {
@@ -310,6 +259,9 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-2">
               <a href="#workflow" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
                 workflow
+              </a>
+              <a href="#best-fit" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
+                best fit
               </a>
               <a href="#outputs" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
                 outputs
@@ -509,108 +461,10 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
-              <article className="relative min-h-[560px] overflow-hidden bg-[#10141d] px-6 py-8 text-white sm:px-8 xl:px-10">
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 opacity-[0.3]"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
-                    backgroundSize: "32px 32px",
-                  }}
-                />
-                <div aria-hidden="true" className="absolute left-10 top-28 h-[1px] w-[72%] bg-[linear-gradient(90deg,rgba(188,211,255,0.8),transparent)]" />
-                <div aria-hidden="true" className="absolute bottom-20 right-10 h-[1px] w-[56%] bg-[linear-gradient(90deg,transparent,rgba(245,239,227,0.5))]" />
-                <div aria-hidden="true" className="absolute right-12 top-16 h-36 w-36 border border-white/10" />
-                <div className="relative">
-                  <div className="avl-kicker !text-slate-300">execution field</div>
-                  <h3 className="mt-5 max-w-[15ch] break-keep text-[34px] font-semibold leading-[1.02] tracking-tight text-white">
-                    후보 하나가 여러 문서로 흩어지지 않게 잡아둡니다.
-                  </h3>
-                  <p className="mt-5 max-w-[36ch] text-sm leading-7 text-slate-300">
-                    수집, 선별, 검증, 실행 패키지가 한 보드에서 이어지기 때문에 다음 판단 지점이 계속 보입니다.
-                  </p>
-                </div>
-
-                <div className="relative mt-12 grid gap-5 sm:grid-cols-2">
-                  {workflowSteps.map((step, index) => (
-                    <div key={step.id} className={`${index === 3 ? "sm:col-span-2" : ""}`}>
-                      <div className="flex items-start gap-4">
-                        <span className={`mt-1 h-3 w-3 border ${index === 0 ? "border-[#bcd3ff] bg-[#bcd3ff]" : "border-white/20 bg-white/6"}`} />
-                        <div>
-                          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">{step.id}</div>
-                          <div className="mt-2 text-sm font-semibold text-white">{step.title}</div>
-                          <div className="mt-2 h-px w-28 bg-white/10" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="absolute bottom-8 left-6 right-6 border border-white/10 bg-white/[0.04] px-4 py-4 sm:left-8 sm:right-8">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">loop discipline</span>
-                    <span className="text-sm font-semibold text-slate-200">draft - decide - package - learn</span>
-                  </div>
-                </div>
-              </article>
-
-              <div className="grid gap-px bg-slate-300 lg:grid-cols-[0.92fr_1.08fr]">
-                {workflowSteps.map((step, index) => {
-                  const Icon = step.icon;
-                  const panelTone =
-                    index === 0
-                      ? "bg-[#fcfbf7] lg:col-span-2"
-                      : index === 1
-                        ? "bg-[#eef3ff] lg:min-h-[420px]"
-                        : index === 2
-                          ? "bg-[#fff8e9]"
-                          : "bg-[#10141d] text-white lg:col-span-2";
-                  const titleTone = index === 3 ? "text-white" : "text-slate-950";
-                  const bodyTone = index === 3 ? "text-slate-300" : "text-slate-600";
-                  const labelTone = index === 3 ? "text-slate-500" : "text-slate-400";
-                  const artifactTone =
-                    index === 3
-                      ? "border-white/10 bg-white/[0.04] text-slate-200"
-                      : index === 1
-                        ? "border-[#d7e1f6] bg-white/70 text-slate-700"
-                        : "border-slate-200 bg-white/80 text-slate-700";
-
-                  return (
-                    <article key={step.id} className={`relative overflow-hidden px-6 py-7 sm:px-8 ${panelTone}`}>
-                      <div className="flex items-start justify-between gap-5">
-                        <span className={`avl-icon-frame rounded-none ${index === 3 ? "border-white/10 bg-white/6 text-white" : "border-slate-200 bg-white text-slate-700"}`}>
-                          <Icon size={18} />
-                        </span>
-                        <span className={`font-mono text-[11px] uppercase tracking-[0.2em] ${index === 3 ? "text-[#bcd3ff]" : "text-slate-400"}`}>{step.id}</span>
-                      </div>
-                      <div className={`${index === 0 || index === 3 ? "mt-8 grid gap-8 lg:grid-cols-[0.52fr_0.48fr]" : "mt-8"}`}>
-                        <div>
-                          <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${labelTone}`}>
-                            {index === 0 ? "source" : index === 1 ? "priority" : index === 2 ? "risk gate" : "handoff"}
-                          </div>
-                          <h3 className={`mt-4 max-w-[13ch] text-[30px] font-semibold leading-[1.02] tracking-tight ${titleTone}`}>{step.title}</h3>
-                          <p className={`mt-4 max-w-[38ch] text-sm leading-6 ${bodyTone}`}>{step.ai}</p>
-                        </div>
-                        <div className={index === 0 || index === 3 ? "" : "mt-8"}>
-                          <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${labelTone}`}>human check</div>
-                          <p className={`mt-3 text-sm leading-6 ${index === 3 ? "text-slate-200" : "text-slate-700"}`}>{step.human}</p>
-                          <div className={`mt-5 border px-4 py-4 ${artifactTone}`}>
-                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-60">output</div>
-                            <div className="mt-2 text-sm font-semibold">{step.result}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         </section>
 
-        <section className="mt-4 overflow-hidden border-t border-slate-300 bg-[#eaf0fb]">
+        <section id="best-fit" className="mt-4 overflow-hidden border-t border-slate-300 bg-[#eaf0fb]">
           <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,0.58fr)_minmax(0,1.42fr)]">
             <div className="relative overflow-hidden bg-[#10141d] px-6 py-8 text-white sm:px-8 xl:px-10">
               <div
@@ -656,22 +510,6 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                <div className="mt-14 border-t border-white/10 pt-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">readiness scan</span>
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">fit before feature</span>
-                  </div>
-                  <div className="mt-5 grid gap-3">
-                    {bestFitScan.map(([label, body], index) => (
-                      <div key={label} className="grid grid-cols-[0.34fr_0.66fr] gap-px bg-white/10">
-                        <div className={`${index === 0 ? "bg-white/[0.09]" : "bg-white/[0.04]"} px-3 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400`}>
-                          {label}
-                        </div>
-                        <div className="bg-[#0f141f] px-3 py-3 text-xs leading-5 text-slate-300">{body}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -697,7 +535,7 @@ export default function HomePage() {
                   <LandingMiddleMotion />
                 </div>
 
-                <div className="mt-10 grid gap-5">
+                <div className="mt-8 grid gap-px bg-slate-300 lg:grid-cols-[1.1fr_0.95fr_0.95fr]">
                   {useCases.map((item, index) => {
                     const Icon = item.icon;
                     const bandTone =
@@ -709,54 +547,21 @@ export default function HomePage() {
                     const copyTone = index === 2 ? "text-slate-300" : "text-slate-600";
                     const labelTone = index === 2 ? "text-[#bcd3ff]" : "text-slate-500";
                     return (
-                      <article
-                        key={item.title}
-                        className={`relative overflow-hidden ${bandTone} ${
-                          index === 1 ? "ml-auto lg:w-[82%]" : index === 2 ? "lg:w-[74%]" : "lg:w-[92%]"
-                        }`}
-                      >
-                        <div className="grid gap-px bg-slate-300/80 md:grid-cols-[0.2fr_0.8fr]">
-                          <div className={`${index === 2 ? "bg-[#0f141f]" : "bg-white/70"} px-5 py-5`}>
-                            <span className={`flex h-10 w-10 items-center justify-center border ${index === 2 ? "border-white/10 bg-white/[0.04]" : "border-slate-200 bg-white"}`}>
-                              <Icon size={18} />
-                            </span>
-                            <div className={`mt-8 font-mono text-[11px] uppercase tracking-[0.2em] ${labelTone}`}>0{index + 1}</div>
-                          </div>
-                          <div className={`${index === 2 ? "bg-[#10141d]" : index === 1 ? "bg-[#fff8e9]" : "bg-white"} px-5 py-5 sm:px-6`}>
-                            <div className="flex flex-wrap items-center gap-3">
-                              <span className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${labelTone}`}>situation</span>
-                              <span className={`${index === 2 ? "border-white/10 bg-white/[0.04] text-slate-300" : "border-slate-300 bg-white/70 text-slate-600"} inline-flex border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]`}>
-                                {item.tag}
-                              </span>
-                            </div>
-                            <h3 className={`mt-5 max-w-[28ch] break-keep text-[26px] font-semibold leading-[1.04] tracking-tight ${index === 2 ? "text-white" : "text-slate-950"}`}>{item.title}</h3>
-                            <p className={`mt-4 max-w-[60ch] text-sm leading-6 ${copyTone}`}>{item.body}</p>
-                          </div>
+                      <article key={item.title} className={`relative overflow-hidden px-5 py-5 sm:px-6 ${bandTone}`}>
+                        <div className="flex items-start justify-between gap-4">
+                          <span className={`flex h-9 w-9 shrink-0 items-center justify-center border ${index === 2 ? "border-white/10 bg-white/[0.04]" : "border-slate-200 bg-white/70"}`}>
+                            <Icon size={17} />
+                          </span>
+                          <span className={`font-mono text-[11px] uppercase tracking-[0.2em] ${labelTone}`}>0{index + 1}</span>
                         </div>
+                        <div className={`mt-5 text-[10px] font-semibold uppercase tracking-[0.18em] ${labelTone}`}>{item.tag}</div>
+                        <h3 className={`mt-3 max-w-[24ch] break-keep text-[21px] font-semibold leading-[1.05] tracking-tight ${index === 2 ? "text-white" : "text-slate-950"}`}>{item.title}</h3>
+                        <p className={`mt-3 max-w-[42ch] text-sm leading-6 ${copyTone}`}>{item.body}</p>
                       </article>
                     );
                   })}
                 </div>
 
-                <div className="mt-10 grid gap-px bg-slate-300 lg:grid-cols-[0.38fr_0.62fr]">
-                  <div className="bg-white px-5 py-5">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">decision map</div>
-                    <p className="mt-4 max-w-[34ch] text-sm leading-6 text-slate-600">
-                      “누가 쓰나”보다 “언제 효과가 나나”를 먼저 보여줍니다.
-                    </p>
-                  </div>
-                  <div className="grid gap-px bg-slate-300">
-                    {bestFitSignals.map((item, index) => (
-                      <div key={item.title} className={`${index === 0 ? "bg-[#10141d] text-white" : index === 1 ? "bg-[#f8fafc]" : "bg-[#eef3ff]"} grid gap-px sm:grid-cols-[0.22fr_0.78fr]`}>
-                        <div className={`${index === 0 ? "bg-[#0f141f]" : "bg-white/70"} px-4 py-4 font-mono text-[11px] uppercase tracking-[0.2em] ${index === 0 ? "text-[#bcd3ff]" : "text-slate-400"}`}>0{index + 1}</div>
-                        <div className="px-4 py-4">
-                          <h3 className={`text-[18px] font-semibold tracking-tight ${index === 0 ? "text-white" : "text-slate-950"}`}>{item.title}</h3>
-                          <p className={`mt-2 text-sm leading-6 ${index === 0 ? "text-slate-300" : "text-slate-600"}`}>{item.body}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -798,89 +603,39 @@ export default function HomePage() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-10">
-                  <div className="flex items-center justify-between border-y border-white/10 py-3">
-                    <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">artifact stack</span>
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">6 deliverables</span>
-                  </div>
-                  <div className="relative mt-5 space-y-3">
-                    <div aria-hidden="true" className="absolute bottom-3 left-7 top-3 w-px bg-[linear-gradient(180deg,rgba(188,211,255,0.62),transparent)]" />
-                    {artifactStack.map((item) => (
-                      <div key={item.title} className={`relative ${item.width}`}>
-                        <div className={`${item.tone} border border-white/10 px-4 py-3 shadow-[0_14px_32px_rgba(2,6,23,0.22)]`}>
-                          <div className="flex items-center justify-between gap-4">
-                            <span className="font-mono text-[11px] uppercase tracking-[0.2em] opacity-70">{item.label}</span>
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] opacity-60">ready</span>
-                          </div>
-                          <div className="mt-3 text-sm font-semibold uppercase tracking-[0.12em]">{item.title}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <div className="mt-8 border border-white/10 bg-white/[0.04] px-4 py-4">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">handoff rule</div>
+                  <p className="mt-3 max-w-[38ch] text-sm leading-6 text-slate-300">
+                    모든 산출물은 다음 판단을 바로 열 수 있는 짧은 작업 단위로 남깁니다.
+                  </p>
                 </div>
               </div>
             </div>
 
             <div className="grid gap-px bg-white/10">
-              <div className="relative overflow-hidden bg-[#11161f] px-6 py-7 sm:px-8">
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 opacity-80"
-                  style={{
-                    background:
-                      "radial-gradient(circle at 18% 32%, rgba(188,211,255,0.16), transparent 26%), linear-gradient(90deg, rgba(255,255,255,0.04), transparent 34%)",
-                  }}
-                />
-                <div className="relative grid gap-8 lg:grid-cols-[0.46fr_0.54fr]">
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">before judgment</div>
-                    <h3 className="mt-4 max-w-[16ch] break-keep text-[30px] font-semibold leading-[1.02] tracking-tight text-white">{outputColumns[0].title}</h3>
-                    <p className="mt-4 max-w-[38ch] text-sm leading-6 text-slate-300">{outputColumns[0].body}</p>
-                  </div>
-                  <div className="grid gap-px bg-white/10">
-                    {outputColumns[0].items.map((item, index) => {
-                      const Icon = item.icon;
-                      return (
-                        <div key={item.title} className={`${index === 0 ? "bg-[#182233]" : "bg-[#0d1118]"} grid gap-px sm:grid-cols-[0.2fr_0.8fr]`}>
-                          <div className="flex items-center justify-center border-r border-white/10 px-4 py-4">
-                            <Icon size={18} />
-                          </div>
-                          <div className="px-4 py-4">
-                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{getOutputMeta(item)}</div>
-                            <div className="mt-1 text-sm font-semibold text-white">{item.title}</div>
-                            <p className="mt-2 text-sm leading-6 text-slate-300">{item.body}</p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-px bg-white/10 xl:grid-cols-[0.95fr_1.05fr]">
-                {outputColumns.slice(1).map((column, columnIndex) => (
-                  <div key={column.title} className={`${columnIndex === 0 ? "bg-[#182233]" : "bg-[#0d1118]"} px-6 py-7 sm:px-8`}>
+              <div className="grid gap-px bg-white/10 xl:grid-cols-[1.08fr_0.94fr_1fr]">
+                {outputColumns.map((column, columnIndex) => (
+                  <article key={column.title} className={`${columnIndex === 0 ? "bg-[#11161f]" : columnIndex === 1 ? "bg-[#182233]" : "bg-[#0d1118]"} px-6 py-7 sm:px-8`}>
                     <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{column.eyebrow}</div>
-                    <h3 className="mt-4 max-w-[15ch] break-keep text-[28px] font-semibold leading-[1.02] tracking-tight text-white">{column.title}</h3>
+                    <h3 className="mt-4 max-w-[16ch] break-keep text-[26px] font-semibold leading-[1.02] tracking-tight text-white">{column.title}</h3>
                     <p className="mt-4 max-w-[36ch] text-sm leading-6 text-slate-300">{column.body}</p>
-                    <div className="mt-7 border-y border-white/10">
-                      {column.items.map((item) => {
+                    <div className="mt-6 grid gap-px bg-white/10">
+                      {column.items.slice(0, columnIndex === 2 ? 3 : 2).map((item) => {
                         const Icon = item.icon;
                         return (
-                          <div key={item.title} className="grid grid-cols-[2.75rem_1fr] border-b border-white/10 py-4 last:border-b-0">
-                            <span className="flex h-10 w-10 items-center justify-center border border-white/10 bg-white/[0.04] text-slate-100">
-                              <Icon size={16} />
+                          <div key={item.title} className="grid grid-cols-[2.5rem_1fr] bg-[#0f141f] px-3 py-3">
+                            <span className="flex h-8 w-8 items-center justify-center border border-white/10 bg-white/[0.04] text-slate-100">
+                              <Icon size={15} />
                             </span>
                             <div>
                               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{getOutputMeta(item)}</div>
                               <div className="mt-1 text-sm font-semibold text-white">{item.title}</div>
-                              <p className="mt-2 text-sm leading-6 text-slate-300">{item.body}</p>
                             </div>
                           </div>
                         );
                       })}
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
 
