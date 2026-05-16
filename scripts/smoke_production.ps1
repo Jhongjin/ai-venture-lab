@@ -14,7 +14,9 @@ $content = [string]$response.Content
 $requiredText = @(
   "<!DOCTYPE html>",
   "_next/static",
-  "AI Venture Lab"
+  "AI Venture Lab",
+  "live decision map",
+  "avl-decision"
 )
 
 $missing = @()
