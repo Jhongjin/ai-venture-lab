@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, GridFour, Sparkle } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, GridFour, Sparkle, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 
 import { VentureConsoleShell } from "@/components/venture-console-shell";
 import { getConsoleData } from "@/lib/venture-data";
@@ -77,9 +77,15 @@ export async function WorkspaceBoardPage() {
         </header>
 
         {error ? (
-          <section className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-            Supabase 데이터를 일부 불러오지 못했습니다. 현재 보드는 빈 상태 또는 제한된 상태로 표시될 수 있습니다.
-            오류: {error}
+          <section className="grid gap-px border border-amber-200 bg-amber-200 md:grid-cols-[220px_minmax(0,1fr)]">
+            <div className="flex items-center gap-3 bg-amber-50 px-4 py-3 text-amber-900">
+              <WarningCircle size={18} />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">limited data</span>
+            </div>
+            <div className="bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+              Supabase 데이터를 일부 불러오지 못했습니다. 현재 보드는 빈 상태 또는 제한된 상태로 표시될 수 있습니다.
+              <span className="ml-2 font-semibold">오류: {error}</span>
+            </div>
           </section>
         ) : null}
 
