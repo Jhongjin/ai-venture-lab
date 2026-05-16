@@ -28,7 +28,7 @@ export async function WorkspaceBoardPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <main id="main-content" className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto grid w-full max-w-[1460px] gap-3 px-4 py-4 sm:px-6">
         <header className="border-b border-slate-200 bg-white/96 px-4 py-3 backdrop-blur sm:px-5">
           <div className="grid gap-px bg-slate-200 xl:grid-cols-[minmax(0,1fr)_360px]">

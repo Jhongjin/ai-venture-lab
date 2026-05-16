@@ -249,7 +249,7 @@ function getOutputMeta(item: MixedOutputItem) {
 
 export default function HomePage() {
   return (
-    <main className={`min-h-screen overflow-x-hidden bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
+    <main id="main-content" className={`min-h-screen overflow-x-hidden bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
       <div
         aria-hidden="true"
         className="fixed inset-0 -z-10 opacity-[0.18]"

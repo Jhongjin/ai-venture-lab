@@ -50,7 +50,7 @@ const artifacts = [
 
 export default function GuidePage() {
   return (
-    <main className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
+    <main id="main-content" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
       <div
         aria-hidden="true"
         className="fixed inset-0 -z-10 opacity-[0.14]"

@@ -63,6 +63,20 @@ components:
 
 AI Venture Lab should feel like an operations console for a careful venture studio: clear, dense, calm, and action-oriented. The interface is for repeat use by an operator who is screening ideas, collecting evidence, and pushing only qualified concepts toward build.
 
+## Surface Roles
+
+AI Venture Lab has three deliberately different surfaces:
+
+- `/` is the public landing surface. It should feel editorial, digital, and execution-oriented. The first screen sells the product's operating philosophy, not a feature manual. Use asymmetric grids, signal diagrams, artifact lanes, and restrained motion cues. Avoid repeated equal cards, long explanatory blocks, chatbot tropes, and generic AI gradients.
+- `/workspace` is the operator console. It should stay compact, scan-friendly, and task-first: left step menu, right task surface, one visible next action, and clear empty/loading/error/success states. Do not make this route feel like a marketing page.
+- `/guide` is the reference bridge. It can be more document-like than the landing page, but it should stay concise and navigational. It explains the workflow only enough to move the operator into the board.
+
+## Product Philosophy
+
+The core promise is: AI prepares the work, the operator makes the judgment, and the decision trail remains usable. Design should repeatedly show that loop: raw idea -> candidate -> validation -> execution package -> launch decision -> learning. The interface should never imply that AI replaces judgment, hides risk, or turns evidence into decoration.
+
+The visual language should feel like a venture operations room rather than a general AI tool. Prefer signal fields, ledgers, artifact libraries, route maps, and decision gates. Avoid feature-card walls, generic SaaS benefit grids, overly friendly mascots, and copy that sounds like a brochure.
+
 ## Colors
 
 Use high-contrast neutrals for most of the interface. Reserve blue for the active step, focused controls, and guided next actions. Use green only for completion or safe status, amber for unresolved caution, and red for blocking risk.
@@ -74,6 +88,8 @@ Use compact, readable type. Headings identify the current task, not marketing cl
 ## Layout
 
 Prefer a left-hand step menu and a right-hand task surface. Avoid long pages that force users to scroll back and forth between navigation and input. Keep repeated records in lists, and keep the active form near the selected record.
+
+For the landing page only, long scroll is acceptable when it behaves like an editorial product story. Each section needs a distinct rhythm and job: first impression, workflow proof, best-fit qualification, artifact outcome, and handoff into the board. Do not reuse the same card density from section to section.
 
 ## Elevation & Depth
 
@@ -93,6 +109,7 @@ Buttons should use icons for common actions when available. Inputs need persiste
 - Do show saved, loading, blocked, and read-only states.
 - Do make ownership, workspace, and permission boundaries visible.
 - Do keep mobile forms single-column and readable.
-- Don't create a landing-page hero for an operator tool.
+- Do let the landing page be visually memorable when it routes clearly into the actual workspace.
+- Don't make the workspace route promotional.
 - Don't hide the current step or next recommended action.
 - Don't ask for sensitive data before explaining why it is needed.

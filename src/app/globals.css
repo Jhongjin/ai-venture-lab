@@ -24,6 +24,29 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+.avl-skip-link {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+  transform: translateY(-160%);
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+  transition: transform 160ms ease;
+}
+
+.avl-skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid #0f172a;
+  outline-offset: 3px;
+}
+
 @keyframes avl-hero-scan {
   0% {
     transform: translateY(-100%);
