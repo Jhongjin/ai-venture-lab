@@ -6,6 +6,13 @@ Use this checklist before opening AI Venture Lab to a broader beta audience.
 
 Run these from the repository root.
 
+Current manager-facing beta shell status:
+
+- Anonymous production shell and workspace smoke pass.
+- `/workspace` shows the manager decision panel (`오늘의 판단`) before the step rail on mobile.
+- Top-level manager copy no longer exposes `AI 실행 패키지`, `개발 태스크`, `사업/개발`, raw Supabase connection errors, or English `Step` labels in the anonymous workspace path.
+- Authenticated visibility smoke has passed with disposable credentials, but write smoke, telemetry smoke, and real RLS denied-case smoke remain blocked until their fixture and approval rules are met.
+
 Before running smoke commands, check `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md`. The WQ-036 boundary is `beta_env_smoke_boundary_docs_only`: names only, no values, no `.env.local` readback, no secret output.
 
 Before creating or modifying GitHub Actions, check `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md`. CI may mirror local non-secret gates, but it does not replace explicit approval for authenticated write smoke, telemetry smoke, deploys, rollback, production DB/Auth mutation, or release decisions.
@@ -21,15 +28,14 @@ pnpm smoke:browser
 
 `pnpm smoke:browser` opens the production app in Chromium and checks the critical unauthenticated UI path:
 
-1. App shell loads.
-2. Data source and navigation are visible.
-3. Idea extraction opens.
-4. Sample source can be inserted.
-5. Rule-based extraction produces candidate comparison and validation package UI.
-6. New idea intake opens.
-7. App development navigation opens either the selected idea development panel or the expected empty-workbench state.
+1. Homepage shell loads.
+2. Workspace CTA and guide navigation are visible.
+3. Homepage middle content renders.
+4. `/workspace` loads the execution board.
+5. Stage guidance, workflow rail, and login or extraction entry are visible.
+6. The anonymous path shows the expected login-required or empty-workbench state without console/page errors.
 
-Anonymous production sessions may see an empty workbench because authenticated RLS policies hide private workspace data. In that case the browser smoke still passes if the empty state is shown correctly. Authenticated write flows remain part of the manual beta pass until a safe test account is available.
+Anonymous production sessions may see an empty workbench or login-required state because authenticated RLS policies hide private workspace data. In that case the browser smoke still passes if the public shell, manager decision panel, and empty/limited states are shown correctly. Authenticated write flows remain part of the manual beta pass until a disposable test account and explicit write approval are available.
 
 By default the browser smoke targets `https://ai-venture-lab.vercel.app`.
 
@@ -109,21 +115,24 @@ Write smoke rules:
 
 1. Sign in with a dashboard-created Supabase password account.
 2. Create or select a workspace.
-3. Use `아이디어 발굴` with the sample source and save a validation package.
-4. Create a manual idea and confirm it appears without a page refresh.
-5. Score the idea, add one risk, add one experiment, and record a decision.
-6. Save validation artifacts: idea brief, research brief, sprint, evidence note, validation summary.
-7. Save product artifacts: PRD handoff, PRD, MVP slice plan, MVP spec.
-8. Save app development artifacts: backend decision, design brief, tech spec, dev runbook, implementation handoff.
-9. Create implementation tasks, save the development kickoff brief, and copy/save the implementation run package.
-10. Mark at least one task through todo -> doing -> done with completion evidence.
-11. Save the development completion report and launch checklist.
-12. Approve PRD, MVP spec, design brief, and tech spec in the artifact library.
+3. Confirm `오늘의 판단` gives the next decision before the detailed rail.
+4. Use `아이디어 찾기` with the sample source and save a validation package.
+5. Create a manual idea and confirm it appears without a page refresh.
+6. Score the idea, add one risk, add one experiment, and record a decision.
+7. Save validation artifacts: idea brief, research brief, sprint, evidence note, validation summary.
+8. Save product artifacts: PRD handoff, PRD, MVP slice plan, MVP spec.
+9. Save app production artifacts: backend decision, design brief, tech spec, and 제작 실행 계획.
+10. Create 제작 할 일, save the 제작 시작 브리프, and copy/save the implementation run package only from full mode when needed.
+11. Mark at least one task through todo -> doing -> done with completion evidence.
+12. Save the 제작 완료 보고서 and launch checklist.
+13. Approve PRD, MVP spec, design brief, and tech spec in the artifact library.
 
 ## Pass Criteria
 
 - No browser smoke console errors or page errors.
 - No text overlap in the main desktop viewport.
+- Mobile shows decision context before the step rail.
+- Manager-facing copy stays decision-oriented in the default guided path.
 - Save actions refresh the visible state without manual reload.
 - Read-only/editable labels match ownership.
 - RLS or backend rule assumptions are written into completion evidence before public beta, including allowed and denied private-read cases before broader beta.
