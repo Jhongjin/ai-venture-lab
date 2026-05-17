@@ -16,13 +16,14 @@ Validation keywords: `controlled_beta_session_playbook`, `controlled_beta_operat
 
 Run the session only when all of these are true:
 
+- The participant has passed the summary-only screener in `templates/BETA_PARTICIPANT_SCREENER.md`.
 - `docs/PUBLIC_BETA_LAUNCH_GATE.md` still says `launch_gate_decision: ship`.
 - `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` still matches the current controlled beta scope.
 - Public production smoke passes, or the session uses a clearly named preview target.
 - RLS, telemetry, and authenticated write smoke are not being rerun inside the beta interview unless the separate smoke boundary has explicit approval.
 - The participant understands that the session must use synthetic or low-sensitivity sample material.
 
-Validation keywords: `beta_session_preconditions`, `launch_gate_decision_ship_required`, `production_smoke_before_beta_session`, `no_smoke_rerun_inside_interview`.
+Validation keywords: `beta_session_preconditions`, `controlled_beta_participant_screener`, `launch_gate_decision_ship_required`, `production_smoke_before_beta_session`, `no_smoke_rerun_inside_interview`.
 
 ## Data Boundary
 

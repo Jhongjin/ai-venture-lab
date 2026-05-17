@@ -40,6 +40,34 @@ $checks = @(
     )
   },
   @{
+    Path = "templates/BETA_PARTICIPANT_SCREENER.md"
+    Terms = @(
+      "controlled_beta_participant_screener",
+      "pre_session_screener_template",
+      "controlled_beta_invite_only",
+      "minimal_screener_questions",
+      "synthetic_data_consent",
+      "regulated_topic_opt_out",
+      "participant_fit_summary",
+      "invite_wait_do_not_invite",
+      "sensitive_domain_screening",
+      "no_contact_details_in_repo",
+      "scheduling_outside_repo_artifacts",
+      "participant_type_not_identity",
+      "no_company_or_customer_names",
+      "beta_screener_exclusion_rules",
+      "no_real_customer_data",
+      "no_regulated_advice_session",
+      "no_private_transcript_requirement",
+      "no_unapproved_integration_dependency",
+      "screener_to_session_summary_only",
+      "no_screener_raw_notes",
+      "screener_not_feedback_evidence",
+      "controlled_beta_session_playbook",
+      "controlled_beta_session_feedback_template"
+    )
+  },
+  @{
     Path = "templates/BETA_SESSION_FEEDBACK.md"
     Terms = @(
       "controlled_beta_session_feedback_template",
@@ -70,6 +98,7 @@ $checks = @(
       "session_guidance_only",
       "no_broad_public_launch_approval",
       "beta_session_preconditions",
+      "controlled_beta_participant_screener",
       "launch_gate_decision_ship_required",
       "production_smoke_before_beta_session",
       "no_smoke_rerun_inside_interview",
@@ -375,6 +404,9 @@ $checks = @(
       "controlled_beta_session_playbook",
       "summary_only_beta_feedback",
       "synthetic_beta_data_only",
+      "controlled_beta_participant_screener",
+      "no_contact_details_in_repo",
+      "scheduling_outside_repo_artifacts",
       "controlled_beta_session_feedback_template",
       "smoke_evidence_not_user_feedback",
       "public_beta_cleanup_gate",

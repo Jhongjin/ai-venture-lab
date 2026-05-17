@@ -25,6 +25,10 @@ Use `docs/CONTROLLED_BETA_SESSION_PLAYBOOK.md` before sitting with a beta partic
 
 Validation keywords: `controlled_beta_session_playbook`, `summary_only_beta_feedback`, `synthetic_beta_data_only`.
 
+Use `templates/BETA_PARTICIPANT_SCREENER.md` before inviting a participant so contact details and scheduling stay outside durable repo artifacts.
+
+Validation keywords: `controlled_beta_participant_screener`, `no_contact_details_in_repo`, `scheduling_outside_repo_artifacts`.
+
 Use `templates/BETA_SESSION_FEEDBACK.md` after a participant session so notes stay summary-only and separate from smoke evidence.
 
 Validation keywords: `controlled_beta_session_feedback_template`, `smoke_evidence_not_user_feedback`.
