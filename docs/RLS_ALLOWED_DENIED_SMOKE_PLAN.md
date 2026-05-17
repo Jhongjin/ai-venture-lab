@@ -117,6 +117,33 @@ Do not record emails, passwords, cookies, sessions, bearer tokens, service-role 
 
 Validation keywords: `summary_only_rls_evidence`, `no_credentials_in_evidence`, `no_raw_private_payloads`.
 
+## Execution Evidence
+
+2026-05-17 production browser run:
+
+```text
+Smoke class: rls_allowed_denied_smoke
+Target URL: https://ai-venture-lab.vercel.app
+Accounts: disposable_pair_confirmed
+Workspace pair: disposable_pair_confirmed
+Anonymous denied check: pass
+Allowed check A: pass
+Allowed check B: pass
+Cross-workspace denied check A->B: pass
+Cross-workspace denied check B->A: pass
+Direct private-record probe: not_run
+Writes performed: no
+Secrets printed: no
+Screenshots stored: no
+Telemetry smoke: not_run
+Production mutation: no
+Result: RLS allowed/denied browser smoke passed.
+```
+
+This evidence intentionally omits disposable emails, passwords, cookies, session identifiers, bearer tokens, service-role keys, private row payloads, screenshots, and raw response bodies.
+
+Validation keywords: `rls_allowed_denied_browser_smoke_passed`, `summary_only_rls_evidence`, `anonymous_denied_check_passed`, `cross_workspace_denied_check_passed`.
+
 ## Stop Conditions
 
 Stop and record a blocker when:
