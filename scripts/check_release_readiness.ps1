@@ -57,6 +57,15 @@ $checks = @(
       "beta_env_smoke_boundary_docs_only",
       "names_only_no_values",
       "disposable_beta_account_only",
+      "disposable_smoke_cleanup_runbook",
+      "cleanup_owner_required",
+      "smoke_data_ttl_required",
+      "post_smoke_cleanup_status_required",
+      "user_owned_cleanup_required",
+      "cleanup_evidence_summary_only",
+      "no_cleanup_without_user_approval",
+      "no_auth_db_cleanup_automation",
+      "no_primary_operator_data_cleanup",
       "rls_allowed_denied_smoke",
       "write_smoke_requires_explicit_approval",
       "telemetry_smoke_local_secret_only",
@@ -108,7 +117,46 @@ $checks = @(
       "disposable_pair_confirmed_before_rerun",
       "summary_only_rls_evidence",
       "forbidden_flags_block_smoke_run",
+      "rls_fixture_cleanup_boundary",
+      "fixture_retention_or_cleanup_decision_required",
+      "rls_fixture_cleanup_owner_required",
+      "no_rls_fixture_cleanup_automation",
       "rls_allowed_denied_browser_smoke_passed"
+    )
+  },
+  @{
+    Path = "docs/SMOKE_DATA_CLEANUP_RUNBOOK.md"
+    Terms = @(
+      "smoke_data_cleanup_runbook",
+      "cleanup_boundary_ready",
+      "disposable_fixture_retention",
+      "summary_only_cleanup_evidence",
+      "telemetry_event_cleanup_requires_user_approval",
+      "no_primary_data_cleanup",
+      "cleanup_requires_explicit_approval",
+      "no_external_runtime_mutation"
+    )
+  },
+  @{
+    Path = "docs/PUBLIC_BETA_CHECKLIST.md"
+    Terms = @(
+      "public_beta_cleanup_gate",
+      "disposable_smoke_records_reviewed",
+      "cleanup_owner_recorded_before_beta"
+    )
+  },
+  @{
+    Path = "docs/SECURITY_PRIVACY.md"
+    Terms = @(
+      "cleanup_ownership_required_for_write_smoke",
+      "no_primary_operator_data_cleanup"
+    )
+  },
+  @{
+    Path = "docs/PHASE_STATUS.md"
+    Terms = @(
+      "smoke_cleanup_user_action_recorded",
+      "cleanup_status_not_applicable_or_owner_confirmed"
     )
   },
   @{

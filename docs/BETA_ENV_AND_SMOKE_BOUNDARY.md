@@ -76,6 +76,19 @@ Skipped checks:
 
 Validation keywords: `disposable_beta_account_only`, `beta_only_auth_user`, `no_primary_operator_account`, `disposable_workspace_required`, `disposable_idea_prefix`, `smoke_data_ttl`, `smoke_data_cleanup_required`.
 
+## Disposable Smoke Data Cleanup And Retention
+
+Use `docs/SMOKE_DATA_CLEANUP_RUNBOOK.md` as the cleanup runbook after any smoke that creates or retains disposable data.
+
+- A cleanup owner is required for authenticated write smoke, telemetry smoke, local screenshot artifacts, and intentionally retained RLS fixtures.
+- Smoke data needs a TTL or retention decision before broader beta: `pending_cleanup`, `completed_cleanup`, `retained_for_rerun`, or `not_applicable`.
+- Cleanup evidence must be summary-only. Event IDs printed by local telemetry smoke are local cleanup handles, not durable public evidence.
+- Cleanup is user-owned when it requires SQL, Supabase dashboard mutation, service-role access, Auth user deletion, Vercel mutation, or external runtime mutation.
+- Do not automate Auth/DB cleanup from the smoke runner.
+- Do not clean up primary operator data, customer data, or records whose disposable status is uncertain.
+
+Validation keywords: `disposable_smoke_cleanup_runbook`, `cleanup_owner_required`, `smoke_data_ttl_required`, `post_smoke_cleanup_status_required`, `user_owned_cleanup_required`, `cleanup_evidence_summary_only`, `no_cleanup_without_user_approval`, `no_auth_db_cleanup_automation`, `no_primary_operator_data_cleanup`.
+
 ## RLS And Private Read Posture
 
 RLS is the authorization boundary for Supabase browser access.
@@ -86,6 +99,7 @@ RLS is the authorization boundary for Supabase browser access.
 - Cross-workspace or second-user denied checks must be rerun before treating changed private reads/writes as beta-ready after RLS policy, fixture, migration, or workspace access changes.
 - Service-role access is server-only and must not be used to bypass beta smoke from a browser or external handoff.
 - Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke. The WQ-040 runner `pnpm smoke:browser:rls` must fail closed or report blocked when disposable fixtures are missing; no account provisioning, DB/Auth mutation, write smoke, screenshots, or secret output.
+- Use `docs/SMOKE_DATA_CLEANUP_RUNBOOK.md` after any authenticated write, RLS fixture, telemetry, or screenshot smoke that creates or retains disposable data. Cleanup evidence must stay summary-only and cleanup mutation requires explicit user approval.
 
 Validation keywords: `allowed_and_denied_rls_smoke`, `cross_workspace_denied_case`, `private_read_posture`, `service_role_server_only`, `rls_allowed_denied_smoke_plan`.
 

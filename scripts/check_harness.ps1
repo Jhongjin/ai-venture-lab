@@ -13,6 +13,7 @@ $required = @(
   "docs/QA_CHECKLIST.md",
   "docs/SECURITY_PRIVACY.md",
   "docs/SUPABASE_SETUP.md",
+  "docs/SMOKE_DATA_CLEANUP_RUNBOOK.md",
   "docs/USER_TEST_GUIDE.md",
   "templates/IDEA_BRIEF.md",
   "templates/PRD.md",

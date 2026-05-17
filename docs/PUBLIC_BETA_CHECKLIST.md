@@ -19,6 +19,8 @@ Before creating or modifying GitHub Actions, check `docs/CI_WORKFLOW_SCOPE_BOUND
 
 Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, and `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`. The current posture is `rls_allowed_denied_browser_smoke_passed`: production private-read posture was confirmed with disposable account/workspace fixtures and summary-only evidence. Rerun when fixtures, RLS policies, workspace access code, or production migrations change.
 
+After any smoke that creates or retains disposable data, use `docs/SMOKE_DATA_CLEANUP_RUNBOOK.md` to decide whether to keep reusable RLS fixtures, archive or delete authenticated write smoke data, and keep telemetry cleanup evidence summary-only.
+
 ```powershell
 pnpm quality:full
 pnpm smoke:prod
@@ -111,6 +113,9 @@ Write smoke rules:
 - Telemetry smoke must use `TELEMETRY_INGEST_SECRET` from the local terminal only and a disposable idea ID.
 - If `TELEMETRY_INGEST_SECRET` is exposed outside the local terminal or trusted server env, rotate it before using telemetry smoke evidence for beta readiness.
 - Record command/result/target URL/cleanup owner only; do not record credentials, env values, cookies, sessions, signed URLs, screenshots with private data, or raw logs.
+- Cleanup mutation is not automatic. Keep RLS fixture pairs only when they are intentionally reusable, and delete or archive disposable write-smoke records after the test window with an operator cleanup owner.
+
+Validation keywords: `public_beta_cleanup_gate`, `disposable_smoke_records_reviewed`, `cleanup_owner_recorded_before_beta`.
 
 ## Manual Beta Pass
 
@@ -138,5 +143,6 @@ Write smoke rules:
 - Read-only/editable labels match ownership.
 - RLS or backend rule assumptions are written into completion evidence before public beta, including allowed and denied private-read cases before broader beta.
 - Cross-workspace denied evidence follows `summary_only_rls_evidence` and does not include credentials, raw private payloads, screenshots with private data, or service-role access.
+- Disposable smoke records are reviewed before broader beta, with cleanup status marked as `completed_cleanup`, `retained_for_rerun`, or `not_applicable`.
 - Vercel deployment is Ready and production smoke passes after the final deploy.
 - Smoke evidence follows `deployment_evidence_summary_only` and `no_env_values_in_artifacts`.

@@ -14,6 +14,7 @@
 - Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke.
 - Use `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md` before claiming private-read beta readiness from Supabase policy files.
 - Use `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` before asking the operator to provide real RLS smoke fixtures.
+- Use `docs/SMOKE_DATA_CLEANUP_RUNBOOK.md` before deleting, archiving, or intentionally retaining disposable smoke data.
 
 ## Sensitive Domains
 
@@ -38,6 +39,7 @@ Extra review is required for:
 - Does the smoke or deployment evidence follow `beta_env_smoke_boundary_docs_only`, `names_only_no_values`, and `no_secret_output`?
 - Does private-read beta evidence follow `rls_allowed_denied_smoke_plan`, `summary_only_rls_evidence`, and `cross_workspace_denied_case` without service-role bypass?
 - If authenticated smoke writes data, is it using `disposable_beta_account_only` with explicit per-run approval and cleanup ownership?
+- Is cleanup ownership recorded for write smoke, and does it avoid primary operator data?
 - How does the operator roll back a bad deployment or data migration?
 
 ## Supabase Gate
@@ -49,6 +51,9 @@ Extra review is required for:
 - Allowed and denied paths are tested before launch, including private-read and cross-workspace denied cases before broader beta.
 - Cross-workspace denied checks require two disposable accounts and a disposable workspace pair; missing fixtures block the check instead of widening permissions.
 - Static policy review is not production proof. Confirm migrations are applied and old public-read policies are absent before relying on a denied-case smoke run or rerun.
+- Smoke cleanup must never touch primary operator data, customer data, or uncertain records without explicit user approval and a disposable target boundary.
+
+Validation keywords: `cleanup_ownership_required_for_write_smoke`, `no_primary_operator_data_cleanup`.
 
 ## Firebase Gate
 

@@ -27,6 +27,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-17 | Added disposable smoke cleanup runbook | Current commit | Skipped, docs/check-script only; no runtime deploy | subagent cleanup review, `pnpm harness:check`, `pnpm release:check`, `pnpm quality:full` |
 | 2026-05-17 | Aligned beta evidence docs with passed auth/RLS/telemetry gates | Current commit | Skipped, docs/check-script only; no runtime deploy | stale keyword grep, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-17 | Closed telemetry secret rotation blocker | `8ba6b0b` | Vercel Production redeployed after env rotation | `pnpm smoke:telemetry`, `pnpm smoke:telemetry:funnel`, no secret value recorded |
 | 2026-05-17 | Recorded RLS allowed/denied browser evidence | `4bba176` | Smoke-only/no app redeploy | `pnpm smoke:browser:rls`, anonymous denied, A/B allowed, A->B/B->A denied |
@@ -133,6 +134,8 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 Learning telemetry writes have passed post-rotation smoke with a disposable idea id. Reconfirm `telemetry_events` table posture and RLS policies only when telemetry migrations, endpoint behavior, or production environment settings change.
 
 Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and rotated `TELEMETRY_INGEST_SECRET` are present in Vercel Production. Keep `TELEMETRY_INGEST_SECRET` only in trusted server environments, never in browser bundles. Post-rotation `pnpm smoke:telemetry` and `pnpm smoke:telemetry:funnel` passed with disposable idea data and no secret value recorded.
+
+Use `docs/SMOKE_DATA_CLEANUP_RUNBOOK.md` to record whether disposable write-smoke data, reusable RLS fixture pairs, telemetry smoke events, and any local screenshots are `completed_cleanup`, `retained_for_rerun`, or `not_applicable`. Tracking keywords: `smoke_cleanup_user_action_recorded`, `cleanup_status_not_applicable_or_owner_confirmed`.
 
 ## Next Jobs
 

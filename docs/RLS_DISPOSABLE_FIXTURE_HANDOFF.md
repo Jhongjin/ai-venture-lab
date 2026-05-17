@@ -130,6 +130,14 @@ Validation keywords: `summary_only_rls_evidence`, `no_raw_private_payloads`, `no
 
 Protective wording: this is a browser anon-key RLS read smoke using disposable fixtures only. It must not create, update, delete, deploy, run SQL, use service-role access, print secrets, store screenshots, or refresh beta private-read readiness if denied checks have not passed in the current fixture/policy posture.
 
+## Fixture Retention
+
+The disposable RLS fixture pair may be retained for future reruns when the labels remain synthetic and the accounts are not used for primary operator work. Record one cleanup status after each run: `retained_for_rerun`, `pending_cleanup`, `completed_cleanup`, or `not_applicable`.
+
+Delete or disable the disposable RLS users and workspaces only after the operator confirms they are no longer needed, or when a replacement fixture pair exists. Cleanup mutation is never automatic and must keep evidence summary-only.
+
+Validation keywords: `rls_fixture_cleanup_boundary`, `fixture_retention_or_cleanup_decision_required`, `rls_fixture_cleanup_owner_required`, `summary_only_cleanup_evidence`, `no_rls_fixture_cleanup_automation`.
+
 ## Stop Conditions
 
 Stop before browser execution when:
