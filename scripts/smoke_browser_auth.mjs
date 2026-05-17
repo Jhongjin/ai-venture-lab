@@ -388,6 +388,12 @@ async function main() {
       const saveResult = await waitForAnyVisible(
         [
           { name: "package saved", locator: page.getByText(/패키지로 저장했습니다/) },
+          {
+            name: "package status",
+            locator: page
+              .getByRole("status")
+              .filter({ hasText: /패키지로 저장했습니다|아이디어는 저장했지만 연결 기록 일부가 실패했습니다/ }),
+          },
           { name: "partial package saved", locator: page.getByText(/아이디어는 저장했지만 연결 기록 일부가 실패했습니다/) },
           { name: "selected smoke idea", locator: page.getByText(/브라우저 인증 스모크/) },
           { name: "candidate selection", locator: page.getByRole("heading", { name: /후보 선택/ }) },
