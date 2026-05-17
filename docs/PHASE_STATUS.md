@@ -5,8 +5,8 @@ Use this file as the lightweight phase ledger for the agent work loop.
 ## Current Phase
 
 - Phase: Controlled beta launch evidence
-- Goal: Separate passed technical smoke gates from the final beta launch decision, then close cleanup, risk, approval, and rollback evidence.
-- Status: `research_more` until launch evidence is complete
+- Goal: Keep controlled beta launch evidence, constraints, rollback, and rerun gates current.
+- Status: `ship` for controlled beta
 
 ## Loop Rules
 
@@ -27,23 +27,25 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 | Field | Current value |
 | --- | --- |
-| Decision | `launch_gate_decision: research_more` |
 | Owner | Operator |
 | Date | 2026-05-17 |
 | Production target | `https://ai-venture-lab.vercel.app` |
 | Technical smoke | Passed for `quality:full`, production shell/routes/browser, authenticated write smoke, RLS allowed/denied smoke, and telemetry smoke |
-| Cleanup evidence | `pending_cleanup` until disposable smoke records are marked `completed_cleanup`, `retained_for_rerun`, or `not_applicable` |
-| Risk evidence | High beta-relevant risks need acceptance, mitigation, or explicit non-blocking disposition before `ship` |
-| Artifact approval evidence | PRD, MVP spec, design brief, and tech spec approval evidence not recorded in this launch snapshot |
-| Rollback evidence | Last-known-good deployment, rollback owner, and rollback trigger not recorded in this launch snapshot |
-| Next decision | `research_more`; do not mark `ship` until cleanup, risk, approval, and rollback evidence is closed |
+| Decision | `launch_gate_decision: ship` |
+| Cleanup evidence | `cleanup_disposition_closed`; write-smoke and RLS fixtures are `retained_for_rerun`, telemetry/screenshot cleanup is `not_applicable` |
+| Risk evidence | High beta-relevant risks are accepted, mitigated, or scoped out for controlled beta |
+| Artifact approval evidence | PRD, MVP spec, design brief, and tech spec are approved for controlled beta scope |
+| QA/security evidence | QA and security/privacy signoff are approved for controlled beta scope |
+| Rollback evidence | Last-known-good deployment `dpl_72EhMSpuaz8r4PcjvPZ7uHipa8Sa`; owner Operator; rollback trigger/action recorded |
+| Next decision | Controlled beta can proceed under the recorded constraints |
 
-Validation keywords: `launch_gate_decision_research_more`, `launch_gate_snapshot_recorded`, `pending_cleanup_blocks_broader_beta`, `risk_acceptance_required_before_ship`, `rollback_evidence_required_before_ship`.
+Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded`, `cleanup_disposition_closed`, `risk_acceptance_recorded_for_controlled_beta`, `rollback_evidence_recorded_before_ship`, `last_known_good_deployment_recorded`.
 
 ## Completed Jobs
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-17 | Approved controlled beta ship evidence | Current commit | Production LKG `dpl_72EhMSpuaz8r4PcjvPZ7uHipa8Sa`; docs/check-script only in repo | Vercel inspect, `pnpm quality:full`, launch evidence packet, rollback evidence |
 | 2026-05-17 | Added launch evidence packet and ship guard | Current commit | Skipped, docs/check-script only; no runtime deploy | launch/security subagent review, `pnpm harness:check`, `pnpm release:check`, ship-state consistency check, docs/templates obvious-secret pattern scan |
 | 2026-05-17 | Added public beta launch evidence packet | Current commit | Skipped, docs/check-script only; no runtime deploy | launch evidence packet readback, `pnpm harness:check`, `pnpm release:check` |
 | 2026-05-17 | Added controlled beta launch gate summary | Current commit | Skipped, docs/check-script only; no runtime deploy | launch gate review, `pnpm harness:check`, `pnpm release:check` |
@@ -155,11 +157,11 @@ Learning telemetry writes have passed post-rotation smoke with a disposable idea
 
 Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and rotated `TELEMETRY_INGEST_SECRET` are present in Vercel Production. Keep `TELEMETRY_INGEST_SECRET` only in trusted server environments, never in browser bundles. Post-rotation `pnpm smoke:telemetry` and `pnpm smoke:telemetry:funnel` passed with disposable idea data and no secret value recorded.
 
-Use `docs/SMOKE_DATA_CLEANUP_RUNBOOK.md` to record whether disposable write-smoke data, reusable RLS fixture pairs, telemetry smoke events, and any local screenshots are `completed_cleanup`, `retained_for_rerun`, or `not_applicable`. Tracking keywords: `smoke_cleanup_user_action_recorded`, `cleanup_status_not_applicable_or_owner_confirmed`.
+Use `docs/SMOKE_DATA_CLEANUP_RUNBOOK.md` to record whether disposable write-smoke data, reusable RLS fixture pairs, telemetry smoke events, and any local screenshots are `completed_cleanup`, `retained_for_rerun`, or `not_applicable`. Current cleanup posture: `smoke_cleanup_user_action_recorded`, `cleanup_status_not_applicable_or_owner_confirmed`, `cleanup_disposition_closed`.
 
-Use `docs/PUBLIC_BETA_LAUNCH_GATE.md` before a controlled beta decision. Current launch gate keywords: `public_beta_launch_gate`, `launch_gate_decision_research_more`, `cleanup_status_required_before_broader_beta`.
+Use `docs/PUBLIC_BETA_LAUNCH_GATE.md` before changing the controlled beta decision. Current launch gate keywords: `public_beta_launch_gate`, `launch_gate_decision_ship`, `cleanup_disposition_closed`.
 
-Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` to collect the pending operator decisions. Current evidence-packet keywords: `public_beta_launch_evidence_packet`, `pending_user_decision`, `final_operator_decision_required`.
+Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` as the controlled beta decision packet. Current evidence-packet keywords: `public_beta_launch_evidence_packet`, `final_operator_decision_ship`, `last_known_good_deployment_recorded`.
 
 ## Next Jobs
 

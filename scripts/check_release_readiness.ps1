@@ -134,8 +134,8 @@ $checks = @(
       "telemetry_event_cleanup_requires_user_approval",
       "smoke_cleanup_evidence_recorded",
       "missing_cleanup_row_blocks_beta",
-      "cleanup_status_unresolved",
-      "pending_cleanup_blocks_broader_beta",
+      "cleanup_status_closed_for_controlled_beta",
+      "cleanup_disposition_closed",
       "no_primary_data_cleanup",
       "cleanup_requires_explicit_approval",
       "no_external_runtime_mutation"
@@ -145,26 +145,22 @@ $checks = @(
     Path = "docs/PUBLIC_BETA_LAUNCH_GATE.md"
     Terms = @(
       "public_beta_launch_gate",
-      "launch_gate_evidence_pending",
-      "launch_gate_decision_research_more",
+      "controlled_beta_ship_approved",
+      "launch_gate_decision_ship",
       "quality_full_passed",
       "production_smoke_passed",
       "authenticated_write_smoke_passed",
       "rls_allowed_denied_browser_smoke_passed",
       "telemetry_smoke_passed_after_rotation",
-      "technical_smoke_paths_passed",
-      "broader_beta_blocked_until_evidence_closed",
-      "launch_gate_unresolved_evidence_ledger",
-      "cleanup_disposition_unresolved",
-      "risk_acceptance_unresolved",
-      "artifact_approval_unresolved",
-      "rollback_evidence_unresolved",
-      "external_runtime_secret_rotation_unverified",
-      "cleanup_status_required_before_broader_beta",
-      "risk_acceptance_required_before_ship",
-      "artifact_approval_evidence_required",
-      "rollback_evidence_required",
-      "external_runtime_secret_rotation_required",
+      "last_known_good_deployment_recorded",
+      "ship_evidence_ledger",
+      "cleanup_disposition_closed",
+      "risk_acceptance_recorded_for_controlled_beta",
+      "artifact_approval_approved_for_controlled_beta",
+      "rollback_evidence_recorded",
+      "external_runtime_rotation_scope_none_or_completed",
+      "qa_signoff_approved_for_controlled_beta",
+      "security_privacy_signoff_approved_for_controlled_beta",
       "github_actions_non_blocking_for_controlled_beta",
       "openai_key_optional_with_local_fallback",
       "launch_evidence_summary_only"
@@ -174,22 +170,22 @@ $checks = @(
     Path = "docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md"
     Terms = @(
       "public_beta_launch_evidence_packet",
-      "launch_evidence_packet_open",
+      "controlled_beta_ship_approved",
       "operator_decision_packet_only",
-      "launch_gate_decision_research_more",
-      "pending_user_decision",
+      "launch_gate_decision_ship",
+      "controlled_beta_ship_scope",
       "proven_technical_evidence",
-      "pending_launch_evidence",
-      "pending_cleanup_blocks_ship",
-      "pending_risk_acceptance_blocks_ship",
-      "pending_artifact_approval_blocks_ship",
-      "pending_rollback_evidence_blocks_ship",
-      "pending_qa_signoff_blocks_ship",
-      "pending_security_privacy_signoff_blocks_ship",
-      "operator_questions_for_launch",
-      "qa_signoff_required_before_ship",
-      "security_privacy_signoff_required_before_ship",
-      "final_operator_decision_required",
+      "cleanup_disposition_closed",
+      "external_runtime_rotation_scope_none_or_completed",
+      "risk_acceptance_recorded_for_controlled_beta",
+      "artifact_approval_approved_for_controlled_beta",
+      "qa_signoff_approved_for_controlled_beta",
+      "security_privacy_signoff_approved_for_controlled_beta",
+      "rollback_evidence_recorded",
+      "final_operator_decision_ship",
+      "rollback_owner_operator",
+      "last_known_good_deployment_recorded",
+      "controlled_beta_constraints",
       "launch_packet_summary_only",
       "no_secret_values_in_launch_packet"
     )
@@ -199,20 +195,21 @@ $checks = @(
     Terms = @(
       "risk_owner_recorded",
       "beta_gate_disposition_recorded",
-      "high_risk_requires_acceptance_before_ship",
+      "high_risk_accepted_or_scoped_for_controlled_beta",
+      "risk_acceptance_recorded_for_controlled_beta",
       "conditional_mitigation_not_launch_closure",
-      "external_runtime_rotation_scope_unverified",
+      "external_runtime_rotation_scope_none_or_completed",
       "high_risk_open_blocks_ship"
     )
   },
   @{
     Path = "docs/PHASE_STATUS.md"
     Terms = @(
-      "launch_gate_decision_research_more",
+      "launch_gate_decision_ship",
       "launch_gate_snapshot_recorded",
-      "pending_cleanup_blocks_broader_beta",
-      "risk_acceptance_required_before_ship",
-      "rollback_evidence_required_before_ship"
+      "cleanup_disposition_closed",
+      "risk_acceptance_recorded_for_controlled_beta",
+      "rollback_evidence_recorded_before_ship"
     )
   },
   @{
@@ -243,7 +240,9 @@ $checks = @(
     Path = "docs/PHASE_STATUS.md"
     Terms = @(
       "smoke_cleanup_user_action_recorded",
-      "cleanup_status_not_applicable_or_owner_confirmed"
+      "cleanup_status_not_applicable_or_owner_confirmed",
+      "final_operator_decision_ship",
+      "last_known_good_deployment_recorded"
     )
   },
   @{

@@ -32,12 +32,12 @@ Every smoke surface needs a row before broader beta. A missing row is unresolved
 
 | Smoke surface | Cleanup status | Cleanup owner | Notes |
 | --- | --- | --- | --- |
-| Authenticated write smoke workspace/idea | `pending_cleanup` | Operator | Update to `completed_cleanup`, `retained_for_rerun`, or `not_applicable`. |
+| Authenticated write smoke workspace/idea | `retained_for_rerun` | Operator | Keep as disposable beta fixture until no longer useful. |
 | RLS fixture pair | `retained_for_rerun` | Operator | Keep only while synthetic and reserved for RLS reruns. |
-| Telemetry smoke events | `pending_cleanup` | Operator | Keep summary evidence only; DB cleanup needs explicit approval. |
+| Telemetry smoke events | `not_applicable` | Operator | Disposable smoke payloads were used; keep summary evidence only. |
 | Screenshot artifacts | `not_applicable` | Operator | Use `completed_cleanup` if any local sensitive screenshots were created and deleted. |
 
-Validation keywords: `smoke_cleanup_evidence_recorded`, `missing_cleanup_row_blocks_beta`, `cleanup_status_unresolved`, `pending_cleanup_blocks_broader_beta`.
+Validation keywords: `smoke_cleanup_evidence_recorded`, `missing_cleanup_row_blocks_beta`, `cleanup_status_closed_for_controlled_beta`, `cleanup_disposition_closed`.
 
 ## Cleanup Decision
 
@@ -71,9 +71,9 @@ Do not record Auth emails, passwords, database row payloads, telemetry secrets, 
 
 Validation keywords: `smoke_data_cleanup_evidence_template`, `no_raw_private_payloads`, `screenshots_not_committed`, `credentials_not_recorded`.
 
-`pending_cleanup` blocks broader beta until the operator either completes cleanup, marks the fixture `retained_for_rerun`, or marks cleanup `not_applicable`.
+For broader beta, any new `pending_cleanup` row blocks expansion until the operator either completes cleanup, marks the fixture `retained_for_rerun`, or marks cleanup `not_applicable`. The current controlled beta disposition is closed.
 
-Validation keywords: `cleanup_status_enum_harmonized`, `pending_cleanup_blocks_broader_beta`, `retained_for_rerun_allowed`.
+Validation keywords: `cleanup_status_enum_harmonized`, `new_pending_cleanup_blocks_broader_expansion`, `retained_for_rerun_allowed`, `cleanup_disposition_closed`.
 
 ## Stop Conditions
 
