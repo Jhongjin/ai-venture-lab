@@ -33,6 +33,10 @@ Use `templates/BETA_SESSION_FEEDBACK.md` after a participant session so notes st
 
 Validation keywords: `controlled_beta_session_feedback_template`, `smoke_evidence_not_user_feedback`.
 
+Use `docs/CONTROLLED_BETA_FEEDBACK_TRIAGE.md` after a feedback packet exists so one session does not become an unreviewed feature request or broad launch claim.
+
+Validation keywords: `controlled_beta_feedback_triage`, `no_single_session_launch_claim`.
+
 For the first prepared session, use `docs/CONTROLLED_BETA_SESSION_001_PREP.md`.
 
 Validation keywords: `controlled_beta_session_001_prep`, `pre_session_plan_only`.

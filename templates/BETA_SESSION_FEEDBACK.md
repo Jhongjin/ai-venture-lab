@@ -4,6 +4,10 @@ Use after `docs/CONTROLLED_BETA_SESSION_PLAYBOOK.md`.
 
 Validation keywords: `controlled_beta_session_feedback_template`, `summary_only_beta_feedback_template`, `synthetic_beta_data_only`.
 
+After filling this template, use `docs/CONTROLLED_BETA_FEEDBACK_TRIAGE.md` to decide whether the feedback becomes a UX/copy, evidence, product/QA, security, or watch queue.
+
+Validation keywords: `controlled_beta_feedback_triage`, `feedback_to_work_queue_guidance`.
+
 ## Session
 
 - Session id:
