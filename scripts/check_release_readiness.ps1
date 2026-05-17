@@ -138,6 +138,47 @@ $checks = @(
     )
   },
   @{
+    Path = "docs/PUBLIC_BETA_LAUNCH_GATE.md"
+    Terms = @(
+      "public_beta_launch_gate",
+      "launch_gate_evidence_pending",
+      "launch_gate_decision_research_more",
+      "quality_full_passed",
+      "production_smoke_passed",
+      "authenticated_write_smoke_passed",
+      "rls_allowed_denied_browser_smoke_passed",
+      "telemetry_smoke_passed_after_rotation",
+      "technical_smoke_paths_passed",
+      "broader_beta_blocked_until_evidence_closed",
+      "cleanup_status_required_before_broader_beta",
+      "risk_acceptance_required_before_ship",
+      "artifact_approval_evidence_required",
+      "rollback_evidence_required",
+      "external_runtime_secret_rotation_required",
+      "github_actions_non_blocking_for_controlled_beta",
+      "openai_key_optional_with_local_fallback",
+      "launch_evidence_summary_only"
+    )
+  },
+  @{
+    Path = "docs/RISK_REGISTER.md"
+    Terms = @(
+      "risk_owner_recorded",
+      "beta_gate_disposition_recorded",
+      "high_risk_requires_acceptance_before_ship"
+    )
+  },
+  @{
+    Path = "docs/PHASE_STATUS.md"
+    Terms = @(
+      "launch_gate_decision_research_more",
+      "launch_gate_snapshot_recorded",
+      "pending_cleanup_blocks_broader_beta",
+      "risk_acceptance_required_before_ship",
+      "rollback_evidence_required_before_ship"
+    )
+  },
+  @{
     Path = "docs/PUBLIC_BETA_CHECKLIST.md"
     Terms = @(
       "public_beta_cleanup_gate",
@@ -215,4 +256,4 @@ if ($missing.Count -gt 0) {
   Write-Error ("Release readiness check failed:`n" + ($missing -join "`n"))
 }
 
-Write-Host "Release readiness check passed."
+Write-Host "Release readiness keyword check passed."
