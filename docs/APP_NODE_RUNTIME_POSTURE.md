@@ -1,6 +1,6 @@
 # App Node Runtime Posture
 
-Status: WQ-054 app Node runtime matrix configured
+Status: WQ-055 app Node runtime matrix passed
 Last updated: 2026-05-17
 Scope: application build runtime evidence only; no `package.json` engine pin, no Vercel Project Setting mutation, no deployment trigger, no production env mutation, no secrets, no authenticated write smoke, and no telemetry smoke
 
@@ -24,9 +24,9 @@ Validation keywords: `app_node_runtime_posture`, `javascript_action_runtime_sepa
 | Repo runtime pin | No `.nvmrc`, `.node-version`, `vercel.json`, or `package.json` `engines.node` pin was found |
 | CI action runtime | `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"` |
 | CI runner image | `windows-2025-vs2026` |
-| CI app build runtime | Node 20 and Node 24 matrix configured to run the same `pnpm quality:full` command |
+| CI app build runtime | Node 20 and Node 24 matrix passed the same `pnpm quality:full` command in GitHub Actions run `25985698631` for commit `9f0a163` |
 
-Validation keywords: `next_16_min_node_20_9`, `local_node_24_evidence_recorded`, `no_repo_node_runtime_pin_found`, `ci_app_node_matrix_20_24_configured`, `same_quality_full_command_for_each_node`.
+Validation keywords: `next_16_min_node_20_9`, `local_node_24_evidence_recorded`, `no_repo_node_runtime_pin_found`, `ci_app_node_matrix_20_24_configured`, `ci_app_node_matrix_passed`, `same_quality_full_command_for_each_node`.
 
 ## Decision
 
@@ -45,13 +45,18 @@ This decision does not set `package.json` `engines.node` and does not change the
 
 Validation keywords: `app_node_matrix_decision`, `node_20_floor_node_24_forward_check_configured`, `no_runtime_selection_change`, `package_engines_node_not_added`, `vercel_project_node_setting_not_changed`.
 
-## Evidence Promotion Rule
+## Passed Evidence
 
-Do not mark this posture as passed until a GitHub Actions `Quality Gate` run shows both Node 20 and Node 24 matrix jobs passing for a pushed commit.
+GitHub Actions `Quality Gate` run `25985698631` passed for commit `9f0a163`.
 
-After that run passes, record summary-only evidence with the run id, commit hash, pass state, and skipped checks. Do not paste raw logs.
+Summary-only job evidence:
 
-Validation keywords: `ci_app_node_matrix_pass_requires_github_run`, `matrix_evidence_summary_only`, `ci_app_node_matrix_pass_not_yet_recorded`.
+- `pnpm quality:full / Node 24`: passed.
+- `pnpm quality:full / Node 20`: passed.
+- Secrets, deploys, authenticated write smoke, RLS smoke, telemetry smoke, and production mutation: not run.
+- Remaining annotation: Node20-targeting actions are still being forced to run on Node24; this is the same compatibility notice recorded in the CI boundary, not a failed job.
+
+Validation keywords: `ci_app_node_matrix_pass_requires_github_run`, `matrix_evidence_summary_only`, `ci_app_node_matrix_passed`, `ci_app_node_matrix_run_25985698631`, `node_20_matrix_job_passed`, `node_24_matrix_job_passed`.
 
 ## When To Revisit
 

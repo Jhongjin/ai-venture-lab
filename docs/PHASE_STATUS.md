@@ -46,6 +46,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
 | 2026-05-17 | Configured app Node 20/24 compatibility matrix | Current commit | GitHub Actions only; no runtime deploy intended | `ci_app_node_matrix_20_24_configured`, `no_runtime_selection_change`, no secrets/deploys/production mutation; pass evidence requires pushed GitHub matrix run |
+| 2026-05-17 | Recorded app Node 20/24 matrix pass evidence | Current commit | GitHub Actions only; no runtime deploy intended | `ci_app_node_matrix_passed`, run `25985698631`, Node 20/24 jobs passed; no secrets/deploys/production mutation |
 | 2026-05-17 | Tested upcoming CI runtime/image path | Current commit | GitHub Actions only; no runtime deploy intended | `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`, `windows-2025-vs2026`, no CI scope expansion |
 | 2026-05-17 | Recorded CI runner/action notices | Current commit | Docs/check-script only; no runtime deploy intended | `Quality Gate` run `25984007955` passed; Node.js 20 action runtime and `windows-latest` redirect notices recorded as non-blocking maintenance risk |
 | 2026-05-17 | Enabled read-only GitHub Actions quality gate | Current commit | Git push may still trigger Vercel auto-deploy through the connected production project; workflow itself does not deploy | `.github/workflows/quality.yml`, `pnpm release:check`, `pnpm quality:full`, CI boundary readback, forbidden workflow pattern guard |
@@ -138,7 +139,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Item | Type | Reason | Next Handling |
 | --- | --- | --- | --- |
-| GitHub Actions runner/action notices | Monitoring | First `Quality Gate` run passed, but GitHub warned about Node.js 20 JavaScript action deprecation and `windows-latest` image redirection | Current workflow opts into Node24 JavaScript action runtime and `windows-2025-vs2026`, and app build compatibility is configured on Node 20/24 without secrets or deploys |
+| GitHub Actions runner/action notices | Monitoring | First `Quality Gate` run passed, but GitHub warned about Node.js 20 JavaScript action deprecation and `windows-latest` image redirection | Current workflow opts into Node24 JavaScript action runtime and `windows-2025-vs2026`, and app build compatibility passed on Node 20/24 without secrets or deploys |
 | GitHub Actions workflow push | Completed | User approved workflow creation; `.github/workflows/quality.yml` mirrors `pnpm quality:full` with `permissions: contents: read` | Keep CI no-secret/no-deploy; local `pnpm quality:full` and production smoke remain required release evidence |
 | Browser-level authenticated write smoke execution | Completed | Explicit per-run approval was granted and disposable workspace/idea data was used | Rerun only with explicit approval, disposable data, and cleanup ownership |
 | RLS allowed/denied smoke execution | Completed | Two disposable accounts and two private workspace labels passed anonymous/allowed/denied checks | Rerun when fixtures, RLS policy, migration, or workspace access code changes |
@@ -152,7 +153,7 @@ Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, telemetry smoke, en
 
 Use `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` before modifying GitHub Actions. The current posture is `ci_workflow_scope_active`: `.github/workflows/quality.yml` mirrors `pnpm quality:full` with `permissions: contents: read`, no secrets, no deploys, no authenticated write smoke, no telemetry smoke, and no production mutation.
 
-Use `docs/APP_NODE_RUNTIME_POSTURE.md` before adding `engines.node`, changing the Vercel Project Settings Node.js version, or treating CI matrix success as a production runtime migration. Current posture is `ci_app_node_matrix_20_24_configured` with `no_runtime_selection_change`; promote to `ci_app_node_matrix_passed` only after both pushed GitHub matrix jobs pass.
+Use `docs/APP_NODE_RUNTIME_POSTURE.md` before adding `engines.node`, changing the Vercel Project Settings Node.js version, or treating CI matrix success as a production runtime migration. Current posture is `ci_app_node_matrix_passed` with `no_runtime_selection_change`.
 
 Authenticated visibility and explicit write smoke have passed against `https://ai-venture-lab.vercel.app` with disposable Supabase Auth credentials loaded locally and not printed. The write run used disposable data and summary-only evidence.
 

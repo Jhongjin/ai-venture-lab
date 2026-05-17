@@ -1,8 +1,8 @@
 # CI Workflow Scope Boundary
 
-Status: WQ-054 app Node runtime matrix configured
+Status: WQ-055 app Node runtime matrix passed
 Last updated: 2026-05-17
-Scope: approved read-only GitHub Actions quality gate; Node24 JavaScript action runtime and Windows 2025 VS2026 image tested early; application build compatibility matrix configured for Node 20 and Node 24; no secrets, deploys, production mutation, authenticated write smoke, telemetry smoke, or Build Relay execution
+Scope: approved read-only GitHub Actions quality gate; Node24 JavaScript action runtime and Windows 2025 VS2026 image tested early; application build compatibility matrix passed for Node 20 and Node 24; no secrets, deploys, production mutation, authenticated write smoke, telemetry smoke, or Build Relay execution
 
 ## Purpose
 
@@ -28,7 +28,7 @@ Checkout uses `persist-credentials: false` so the GitHub token is not left in lo
 
 This document and workflow do not change repo secrets, branch protection, GitHub environments, Vercel settings, Supabase settings, production data, or Build Relay permissions.
 
-Validation keywords: `ci_workflow_scope_active`, `workflow_scope_approved`, `quality_workflow_enabled`, `node24_action_runtime_test_enabled`, `windows_2025_vs2026_runner_enabled`, `ci_app_node_matrix_20_24_configured`, `javascript_action_runtime_separate_from_app_runtime`, `checkout_persist_credentials_false`, `no_secret_output`, `no_production_mutation`.
+Validation keywords: `ci_workflow_scope_active`, `workflow_scope_approved`, `quality_workflow_enabled`, `node24_action_runtime_test_enabled`, `windows_2025_vs2026_runner_enabled`, `ci_app_node_matrix_20_24_configured`, `ci_app_node_matrix_passed`, `javascript_action_runtime_separate_from_app_runtime`, `checkout_persist_credentials_false`, `no_secret_output`, `no_production_mutation`.
 
 ## Current Runtime Boundary
 
@@ -122,9 +122,9 @@ Keep this as a compatibility check only. Do not add `package.json` `engines.node
 
 Validation keywords: `ci_runtime_maintenance_applied`, `force_javascript_actions_to_node24`, `windows_2025_vs2026_image_test`, `ci_app_node_matrix_20_24_configured`, `app_node_20_floor_node_24_forward_check_configured`, `no_runtime_selection_change`, `no_ci_scope_expansion`.
 
-Do not promote the matrix to `ci_app_node_matrix_passed` until a pushed GitHub Actions run shows both Node 20 and Node 24 jobs passing.
+The matrix was promoted to `ci_app_node_matrix_passed` after pushed GitHub Actions run `25985698631` passed both Node 20 and Node 24 jobs for commit `9f0a163`.
 
-Validation keywords: `ci_app_node_matrix_pass_requires_github_run`, `matrix_evidence_summary_only`, `ci_app_node_matrix_pass_not_yet_recorded`.
+Validation keywords: `ci_app_node_matrix_pass_requires_github_run`, `matrix_evidence_summary_only`, `ci_app_node_matrix_passed`, `ci_app_node_matrix_run_25985698631`, `node_20_matrix_job_passed`, `node_24_matrix_job_passed`.
 
 ## Future CI Expansion
 
