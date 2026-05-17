@@ -2668,7 +2668,6 @@ export function VentureConsoleActions({
     setExtractSaveKey(null);
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
-    router.refresh();
   }
 
   async function saveBulkExtractedIdeaPackages() {
@@ -2716,7 +2715,6 @@ export function VentureConsoleActions({
     );
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
-    router.refresh();
   }
 
   return (
@@ -3146,7 +3144,7 @@ export function VentureConsoleActions({
                     </button>
                   </div>
                   {extractMessage ? (
-                    <div className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-700">
+                    <div aria-live="polite" role="status" className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-700">
                       {extractMessage}
                     </div>
                   ) : null}
