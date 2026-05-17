@@ -2600,7 +2600,11 @@ export function VentureConsoleActions({
         .select(),
     ]);
 
-    window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: idea }));
+    window.dispatchEvent(
+      new CustomEvent<Idea & { autoOpenWorkbench: false }>("venture:idea-created", {
+        detail: { ...idea, autoOpenWorkbench: false },
+      }),
+    );
     if (riskResult.data) {
       window.dispatchEvent(new CustomEvent("venture:risk-created", { detail: riskResult.data }));
     }

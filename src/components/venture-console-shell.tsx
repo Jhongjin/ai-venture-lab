@@ -37,6 +37,8 @@ import type {
   VentureArtifact,
 } from "@/lib/venture-data";
 
+type IdeaCreatedEventDetail = Idea & { autoOpenWorkbench?: boolean };
+
 type ShellTask = `console:${ConsoleActionTask}` | `workbench:${WorkbenchTask}`;
 type ShellTaskGroup = "시작" | "검증" | "제작" | "출시 후";
 
@@ -715,8 +717,17 @@ export function VentureConsoleShell({
     }
 
     function handleIdeaCreated(event: Event) {
-      handleRecordEvent<Idea>(event, setIdeas);
-      goToTask("workbench:select");
+      const { autoOpenWorkbench = true, ...record } = (event as CustomEvent<IdeaCreatedEventDetail>).detail ?? {};
+
+      if (!record?.id) {
+        return;
+      }
+
+      setIdeas((current) => upsertById(current, record as Idea));
+
+      if (autoOpenWorkbench) {
+        goToTask("workbench:select");
+      }
     }
     const handleIdeaUpdated = (event: Event) => handleRecordEvent<Idea>(event, setIdeas);
     const handleRiskCreated = (event: Event) => handleRecordEvent<Risk>(event, setRisks);
