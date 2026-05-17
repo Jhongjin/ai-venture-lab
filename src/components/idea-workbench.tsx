@@ -6274,6 +6274,15 @@ function formatTelemetryTime(value: string) {
   });
 }
 
+function formatStableKoreanDate(value: string) {
+  return new Date(value).toLocaleDateString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
 function formatTelemetryProperties(properties: Json) {
   if (!properties || typeof properties !== "object" || Array.isArray(properties)) {
     return "";
@@ -13479,7 +13488,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                     <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                       {artifactSourceLabels[artifact.source || "manual"] ?? artifact.source ?? "수동"} /{" "}
-                      {new Date(artifact.created_at).toLocaleDateString()}
+                      {formatStableKoreanDate(artifact.created_at)}
                     </div>
                     <button
                       type="button"
@@ -13524,8 +13533,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </div>
                         <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                           {artifactSourceLabels[artifact.source || "manual"] ?? artifact.source ?? "수동"} /{" "}
-                          {new Date(artifact.created_at).toLocaleDateString()}
-                          {artifact.approved_at ? ` / 승인 ${new Date(artifact.approved_at).toLocaleDateString()}` : ""}
+                          {formatStableKoreanDate(artifact.created_at)}
+                          {artifact.approved_at ? ` / 승인 ${formatStableKoreanDate(artifact.approved_at)}` : ""}
                         </div>
                         {artifact.status_note ? (
                           <p className="mt-2 max-w-3xl text-sm leading-5 text-slate-600">게이트 메모: {artifact.status_note}</p>

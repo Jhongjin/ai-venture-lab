@@ -3102,7 +3102,7 @@ export function VentureConsoleActions({
                       </p>
                     </div>
                     <div className="avl-pill avl-pill-neutral">
-                      {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length.toLocaleString()}자 입력됨` : "원문 대기"}
+                      {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length}자 입력됨` : "원문 대기"}
                     </div>
                   </div>
                   <textarea
