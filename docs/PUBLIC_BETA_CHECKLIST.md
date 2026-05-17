@@ -21,6 +21,10 @@ Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` as the operator decision source
 
 Validation keywords: `controlled_beta_ship_approved`, `launch_gate_decision_ship`, `operator_decision_source_of_truth`, `rollback_evidence_recorded`.
 
+Use `docs/CONTROLLED_BETA_SESSION_PLAYBOOK.md` before sitting with a beta participant. It keeps the session synthetic, summary-only, and focused on whether the operator understands the next decision.
+
+Validation keywords: `controlled_beta_session_playbook`, `summary_only_beta_feedback`, `synthetic_beta_data_only`.
+
 GitHub Actions now runs the read-only `Quality Gate` workflow for `pnpm quality:full`. Before modifying CI again, check `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md`; CI does not replace explicit approval for authenticated write smoke, telemetry smoke, deploys, rollback, production DB/Auth mutation, or release decisions.
 
 Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, and `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`. The current posture is `rls_allowed_denied_browser_smoke_passed`: production private-read posture was confirmed with disposable account/workspace fixtures and summary-only evidence. Rerun when fixtures, RLS policies, workspace access code, or production migrations change.

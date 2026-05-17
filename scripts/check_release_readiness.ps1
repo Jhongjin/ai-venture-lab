@@ -40,6 +40,48 @@ $checks = @(
     )
   },
   @{
+    Path = "docs/CONTROLLED_BETA_SESSION_PLAYBOOK.md"
+    Terms = @(
+      "controlled_beta_session_playbook",
+      "controlled_beta_operator_session",
+      "session_guidance_only",
+      "no_broad_public_launch_approval",
+      "beta_session_preconditions",
+      "launch_gate_decision_ship_required",
+      "production_smoke_before_beta_session",
+      "no_smoke_rerun_inside_interview",
+      "synthetic_beta_data_only",
+      "no_real_pii_beta_session",
+      "regulated_advice_scoped_out",
+      "no_secret_or_env_readback",
+      "no_private_screenshot_evidence",
+      "beta_session_script_korean",
+      "next_action_clarity_check",
+      "synthetic_idea_walkthrough",
+      "operator_decision_capture",
+      "beta_observer_notes_template",
+      "summary_only_beta_feedback",
+      "no_raw_transcripts",
+      "no_raw_logs_or_sql",
+      "no_credentials_in_feedback",
+      "beta_session_stop_conditions",
+      "private_data_stop_condition",
+      "secret_exposure_stop_condition",
+      "workspace_exposure_stop_condition",
+      "next_action_failure_stop_condition",
+      "beta_feedback_triage",
+      "copy_or_flow_fix",
+      "evidence_gap",
+      "workflow_gap",
+      "scope_risk",
+      "smoke_evidence_not_user_feedback",
+      "usable_beta_session_evidence",
+      "summary_only_exit_criteria",
+      "blocker_owner_required",
+      "no_single_session_launch_claim"
+    )
+  },
+  @{
     Path = "docs/APP_NODE_RUNTIME_POSTURE.md"
     Terms = @(
       "app_node_runtime_posture",
@@ -305,6 +347,9 @@ $checks = @(
       "launch_gate_decision_ship",
       "operator_decision_source_of_truth",
       "rollback_evidence_recorded",
+      "controlled_beta_session_playbook",
+      "summary_only_beta_feedback",
+      "synthetic_beta_data_only",
       "public_beta_cleanup_gate",
       "disposable_smoke_records_reviewed",
       "cleanup_owner_recorded_before_beta"
