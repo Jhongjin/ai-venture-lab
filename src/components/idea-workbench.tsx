@@ -6296,7 +6296,13 @@ function formatTelemetryProperties(properties: Json) {
 }
 
 function eventCountForWindow(events: TelemetryEvent[], days: number) {
-  const threshold = Date.now() - days * 24 * 60 * 60 * 1000;
+  const referenceTime = Math.max(...events.map((event) => new Date(event.occurred_at).getTime()).filter(Number.isFinite));
+
+  if (!Number.isFinite(referenceTime)) {
+    return 0;
+  }
+
+  const threshold = referenceTime - days * 24 * 60 * 60 * 1000;
 
   return events.filter((event) => new Date(event.occurred_at).getTime() >= threshold).length;
 }

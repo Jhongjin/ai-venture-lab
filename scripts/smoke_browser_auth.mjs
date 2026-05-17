@@ -307,7 +307,7 @@ async function main() {
     }
   });
   page.on("pageerror", (error) => {
-    pageErrors.push(error.message);
+    pageErrors.push(`${error.message} at ${page.url()}`);
   });
   page.on("response", (response) => {
     const status = response.status();
