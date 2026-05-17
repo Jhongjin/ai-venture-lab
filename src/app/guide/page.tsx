@@ -18,25 +18,25 @@ const guideSteps = [
   {
     index: "01",
     title: "아이디어 찾기",
-    body: "회의 메모나 AI 대화를 붙여넣으면 후보와 검증 질문을 먼저 구조화합니다.",
+    body: "회의 메모나 AI 대화를 붙여넣으면 후보와 검증 질문을 먼저 정리합니다.",
     icon: Sparkle,
   },
   {
     index: "02",
     title: "검증과 리스크 정리",
-    body: "점수, 위험, 7일 실험, 진행 판단을 묶어 정말 밀 후보만 남깁니다.",
+    body: "점수, 리스크, 7일 실험, 진행 판단을 묶어 실제로 밀고 갈 후보만 남깁니다.",
     icon: ShieldCheck,
   },
   {
     index: "03",
     title: "기획과 제작 준비",
-    body: "PRD, MVP 범위, 실행 태스크, 출시 판단까지 같은 보드에서 이어집니다.",
+    body: "PRD, MVP 범위, 실행 태스크, 출시 판단까지 같은 보드에서 이어서 관리합니다.",
     icon: ClipboardText,
   },
   {
     index: "04",
     title: "출시 후 학습",
-    body: "Day 7/14/30 신호를 모아 다음 반복과 투자 판단으로 연결합니다.",
+    body: "출시 후 7일, 14일, 30일 신호를 모아 다음 반복과 투자 판단으로 연결합니다.",
     icon: RocketLaunch,
   },
 ];
@@ -48,7 +48,7 @@ const artifacts = [
   { title: "실행 태스크 보드", icon: UsersThree },
 ];
 
-const guideSignals = ["읽기", "확인", "보드로 이동"];
+const guideSignals = ["흐름 보기", "핵심 확인", "보드로 이동"];
 
 export default function GuidePage() {
   return (
@@ -98,7 +98,7 @@ export default function GuidePage() {
                 실행 보드를 이해하는 가장 짧은 문서.
               </h1>
               <p className="mt-5 max-w-[56ch] text-[15px] leading-7 text-slate-600">
-                홈은 제품의 인상을 만들고, 보드는 실제 일을 시작하게 합니다. 이 페이지는 그 사이에서 전체 흐름과 산출물을 빠르게 이해하도록 돕습니다.
+                홈은 제품의 방향을 보여주고, 보드는 실제 작업을 시작하게 합니다. 이 페이지는 그 사이에서 전체 흐름과 산출물을 빠르게 이해하도록 돕습니다.
               </p>
             </div>
 
@@ -110,7 +110,7 @@ export default function GuidePage() {
                 </div>
               </div>
               <div className="bg-white px-6 py-5 text-sm leading-6 text-slate-600">
-                기본은 혼자 끝까지 가는 흐름이고, 필요할 때만 워크스페이스와 팀 초대를 붙입니다.
+                기본은 혼자 끝까지 가는 흐름이고, 필요할 때만 워크스페이스와 팀 초대를 연결합니다.
               </div>
             </div>
           </div>
@@ -177,7 +177,7 @@ export default function GuidePage() {
                 </div>
               </div>
               <div className="bg-[#f7f6f2] px-6 py-5 text-sm leading-6 text-slate-600">
-                문서를 따로 조립하지 않아도, 후보부터 실행 패키지까지 바로 넘길 수 있는 형태로 남습니다.
+                문서를 따로 모으지 않아도, 후보부터 실행 패키지까지 바로 넘겨줄 수 있는 형태로 남습니다.
               </div>
             </div>
             <div className="grid gap-px bg-slate-200 sm:grid-cols-2">
@@ -199,10 +199,10 @@ export default function GuidePage() {
             <div className="grid gap-px bg-white/10">
               <div className="bg-slate-950 px-6 py-6">
                 <div className="avl-kicker !text-slate-300">next step</div>
-                <div className="mt-3 text-[30px] font-semibold leading-[1.04] tracking-tight">설명은 여기까지, 실제 흐름은 보드에서 시작합니다.</div>
+                <div className="mt-3 text-[30px] font-semibold leading-[1.04] tracking-tight">가이드는 여기까지, 실제 작업은 보드에서 시작합니다.</div>
               </div>
               <div className="bg-white/5 px-6 py-5 text-sm leading-6 text-slate-300">
-                홈은 제품의 인상을 만들고, 이 페이지는 사용 흐름을 이해하게 돕습니다. 실제 판단과 기록은 실행 보드에서 이어집니다.
+                홈은 제품의 방향을 보여주고, 이 페이지는 사용 흐름을 빠르게 잡도록 돕습니다. 실제 판단과 기록은 실행 보드에서 이어집니다.
               </div>
               <div className="bg-slate-950 px-6 py-5">
                 <div className="flex flex-wrap gap-3">

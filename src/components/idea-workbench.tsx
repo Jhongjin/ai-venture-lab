@@ -87,7 +87,7 @@ const artifactStatusTone: Record<VentureArtifactStatus, string> = {
 };
 const artifactStatusDefaultNotes: Record<VentureArtifactStatus, string> = {
   draft: "수정을 위해 초안 상태로 되돌렸습니다.",
-  approved: "다음 게이트 진행을 위해 승인했습니다.",
+  approved: "다음 단계로 넘기기 위해 승인했습니다.",
   archived: "현재 판단 경로에서 보관 처리했습니다.",
 };
 const adminRoles = new Set(["owner", "admin"]);
@@ -95,10 +95,10 @@ const riskSeverityLabels: Record<RiskSeverity, string> = {
   low: "낮음",
   medium: "보통",
   high: "높음",
-  critical: "치명적",
+  critical: "매우 높음",
 };
 const riskStatusLabels: Record<string, string> = {
-  open: "열림",
+  open: "열려 있음",
   mitigating: "완화 중",
   closed: "종료",
 };
@@ -120,14 +120,14 @@ const experimentStatusLabels: Record<string, string> = {
 const runStatusLabels: Record<OrchestrationStatus, string> = {
   planned: "계획",
   running: "진행 중",
-  blocked: "차단",
+  blocked: "막힘",
   done: "완료",
   skipped: "건너뜀",
 };
 const implementationTaskStatusLabels: Record<ImplementationTaskStatus, string> = {
   todo: "할 일",
   doing: "진행 중",
-  blocked: "차단",
+  blocked: "막힘",
   done: "완료",
 };
 const implementationStatusFilterOptions: ImplementationStatusFilter[] = ["all", ...implementationTaskStatuses];
@@ -138,8 +138,8 @@ const implementationStatusFilterLabels: Record<ImplementationStatusFilter, strin
 const implementationEvidenceFilterOptions: ImplementationEvidenceFilter[] = ["all", "missing", "complete"];
 const implementationEvidenceFilterLabels: Record<ImplementationEvidenceFilter, string> = {
   all: "전체 증거",
-  missing: "증거 공백 있음",
-  complete: "증거 힌트 충족",
+  missing: "근거 비어 있음",
+  complete: "근거 채워짐",
 };
 const implementationTaskStatusTone: Record<ImplementationTaskStatus, string> = {
   todo: "avl-pill avl-pill-neutral",
@@ -1173,7 +1173,7 @@ function buildValidationPlan({
     missing.length > 0
       ? `${missing[0]}부터 채워야 다음 단계 판단이 안정적입니다.`
       : openHighRiskCount > 0
-        ? "높음/치명적 리스크가 남아 있어 제품 범위보다 안전장치를 먼저 확정해야 합니다."
+        ? "높음/매우 높은 리스크가 남아 있어 제품 범위보다 안전장치를 먼저 확정해야 합니다."
         : "기본 증거가 정리되어 실험 결과를 기준으로 다음 판단을 내릴 수 있습니다.";
 
   const experimentsByDomain: Record<string, ExperimentDraft[]> = {
@@ -1253,7 +1253,7 @@ function buildValidationPlan({
         title: "결제 데이터와 계정 접근",
         area: "보안/동의",
         severity: "high",
-        mitigation: "초기 MVP는 직접 계정 접속을 하지 않고 사용자가 제공한 캡처/CSV만 처리하며, 해지는 안내로 제한합니다.",
+        mitigation: "초기 MVP는 직접 계정 로그인을 하지 않고 사용자가 제공한 캡처/CSV만 처리하며, 해지는 안내로 제한합니다.",
       },
     ],
     conversation: [
@@ -1440,11 +1440,11 @@ function buildValidationEvidenceCoach({
       : evidenceScore >= 65
         ? "스프린트 실행 가능"
         : evidenceScore >= 45
-          ? "핵심 증거 보강"
+          ? "핵심 증거 보완"
           : "인터뷰부터 재정렬";
   const prompt = `# 검증 증거 수집 프롬프트: ${idea.name}
 
-## 이번에 보강할 증거
+## 이번에 보완할 증거
 
 ${nextFocus ? `- ${nextFocus.label}: ${nextFocus.action}` : "- 현재 핵심 증거가 대부분 충족되었습니다. 완료된 실험 결과와 최종 판단 근거를 정리하세요."}
 
@@ -2109,7 +2109,7 @@ function buildPrdHandoffMarkdown({
       ? "PRD 작성 가능"
       : prdReadinessScore >= 70
         ? "조건부 PRD 작성"
-        : "검증 보강 후 PRD";
+        : "검증 보완 후 PRD";
 
   return `# PRD 전환 핸드오프: ${idea.name}
 
@@ -2274,7 +2274,7 @@ ${state.next_evidence || "미정"}
 
 - ${idea.target_user || "대상 사용자"} 5명 중 3명 이상이 최근 실제 사례를 말하지 못하면 중단 또는 전환합니다.
 - 실험 참여자 5명 중 2명 이상이 비용, 재사용, 도입 의향을 보이지 않으면 범위를 재검토합니다.
-- 높음/치명적 리스크가 완화되지 않으면 개발 진입을 보류합니다.
+- 높음/매우 높은 리스크가 완화되지 않으면 개발 진입을 보류합니다.
 
 ## 요구사항
 
@@ -2337,7 +2337,7 @@ ${state.risk_summary || "미정"}
 
 - 활성화: 사용자가 핵심 워크플로우 결과에 도달합니다.
 - 검증: 실험 성공 지표를 충족합니다.
-- 리스크: 해결되지 않은 높음/치명적 리스크가 계속 보입니다.
+- 리스크: 해결되지 않은 높음/매우 높은 리스크가 계속 보입니다.
 - 품질: 저장 후 새로고침 없이 화면에 반영됩니다.
 
 ## 검증 계획
@@ -2355,7 +2355,7 @@ ${riskLines}
 ## 릴리스 기준
 
 - 증거 공백이 해결되었거나 명시적으로 수용되었습니다.
-- 높음/치명적 리스크가 완화되었거나 차단 상태입니다.
+- 높음/매우 높은 리스크가 완화되었거나 막힌 상태입니다.
 - QA와 보안 실행이 완료되었습니다.
 - 최종 판단이 기록되었습니다.
 - Preview와 Production에서 로그인, 저장, 조회, 산출물 저장이 스모크 테스트되었습니다.
@@ -4254,7 +4254,7 @@ function buildPostLaunchLearningLoopMarkdown({
 
   return `# 출시 후 학습 루프: ${idea.name}
 
-출시의 목적은 끝내는 것이 아니라 더 정확한 다음 판단을 얻는 것입니다. 이 문서는 첫 공개 후 7일, 14일, 30일에 어떤 신호를 보고 진행, 보강, 전환, 중단을 결정할지 정의합니다.
+출시의 목적은 끝내는 것이 아니라 더 정확한 다음 판단을 얻는 것입니다. 이 문서는 첫 공개 후 7일, 14일, 30일에 어떤 신호를 보고 진행, 보완, 전환, 중단을 결정할지 정의합니다.
 
 ## 0. 현재 출시 기준
 
@@ -4320,22 +4320,22 @@ ${riskLines}
 
 ### Day 7
 
-- 진행: 핵심 행동 40% 이상, 반복 사용자 2명 이상, 치명적 리스크 없음
-- 보강: 관심은 있으나 핵심 행동 완료율이 낮음
+- 진행: 핵심 행동 40% 이상, 반복 사용자 2명 이상, 매우 높은 리스크 없음
+- 보완: 관심은 있으나 핵심 행동 완료율이 낮음
 - 전환: 타겟은 반응하지만 구매자/문제/화면 흐름이 다름
 - 중단: 핵심 행동, 반복 사용, 구매 신호가 모두 없음
 
 ### Day 14
 
 - 진행: 유료 의향 또는 조직 도입 논의 1건 이상
-- 보강: 기능 누락보다 온보딩/설명/권한 문제로 막힘
+- 보완: 기능 누락보다 온보딩/설명/권한 문제로 막힘
 - 전환: 다른 세그먼트에서 더 강한 수요가 확인됨
 - 중단: 수동 운영 대비 개선이 입증되지 않음
 
 ### Day 30
 
 - 진행: 반복 사용과 지불 의향이 함께 확인됨
-- 보강: 데이터 품질, 권한, UX 마찰이 주요 병목
+- 보완: 데이터 품질, 권한, UX 마찰이 주요 병목
 - 전환: 더 좁은 업무/고객군으로 제품 경계를 다시 정의
 - 중단: 운영 비용이 학습 가치보다 커짐
 
@@ -5459,7 +5459,7 @@ function buildDevelopmentCompletionReportMarkdown({
             const missing = checklist.filter((item) => !item.passed).map((item) => item.label);
 
             return `- ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / 증거 품질 ${passed}/${checklist.length}
-  - 보강 필요: ${missing.length > 0 ? missing.join(", ") : "없음"}
+  - 보완 필요: ${missing.length > 0 ? missing.join(", ") : "없음"}
   - 완료 증거: ${task.evidence.trim() || "미기록"}`;
           })
           .join("\n")
@@ -5607,7 +5607,7 @@ ${plannedExperimentLines}
 
 ## 리스크 게이트
 
-${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- [x] 현재 높음/치명적 연결 리스크가 없습니다."}
+${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- [x] 현재 높음/매우 높은 연결 리스크가 없습니다."}
 
 ## 운영 게이트
 
@@ -5715,7 +5715,7 @@ function buildReleaseDecisionPacket({
       ]
     : [
         ...(unapprovedArtifacts.length > 0
-          ? [`산출물 라이브러리에서 ${unapprovedArtifacts[0].label}부터 승인 또는 보강합니다.`]
+          ? [`산출물 라이브러리에서 ${unapprovedArtifacts[0].label}부터 승인 또는 보완합니다.`]
           : []),
         ...(failedImplementationChecks.length > 0
           ? [`앱 개발 > 완료와 핸드오프에서 ${failedImplementationChecks[0].label} 항목을 먼저 해소합니다.`]
@@ -5739,7 +5739,7 @@ function buildReleaseDecisionPacket({
         ? "현재 범위로는 출시보다 세그먼트, 문제, MVP 범위 전환이 우선입니다."
         : recommendation === "kill"
           ? "추가 자원을 투입하기 전에 중단 판단을 검토해야 합니다."
-          : "출시 전 보강해야 할 증거 또는 실행 게이트가 남아 있습니다.";
+          : "출시 전 보완해야 할 증거 또는 실행 게이트가 남아 있습니다.";
   const launchLines =
     launchReadiness.length > 0
       ? launchReadiness.map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`).join("\n")
@@ -8239,7 +8239,7 @@ export function IdeaWorkbench({
         {
           label: "높은 리스크 정리",
           passed: selectedIdeaRisks.every((risk) => !["high", "critical"].includes(risk.severity) || risk.status === "closed"),
-          detail: "높음/치명적 리스크는 종료 또는 수용 판단이 필요합니다.",
+          detail: "높음/매우 높은 리스크는 종료 또는 수용 판단이 필요합니다.",
         },
         {
           label: "최종 판단 기록",
@@ -8344,7 +8344,7 @@ export function IdeaWorkbench({
     {
       id: "score",
       label: "사업성 평가",
-      description: "오늘 진행할지 보강할지 정합니다.",
+      description: "오늘 진행할지 보완할지 정합니다.",
       status: currentScore > 0 ? `${currentScore}점` : "대기",
     },
     {
@@ -9705,8 +9705,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
     setEvidenceDraft({
       title: validationEvidenceCoach.nextFocus
-        ? `${validationEvidenceCoach.nextFocus.label} 보강`
-        : "검증 증거 보강",
+        ? `${validationEvidenceCoach.nextFocus.label} 보완`
+        : "검증 증거 보완",
       source: "인터뷰/관찰/외부 자료",
       evidence: validationEvidenceCoach.prompt,
       implication:
@@ -9728,7 +9728,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div>
             <div className="avl-pill avl-pill-neutral mb-3 inline-flex px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]">Candidate queue</div>
             <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
-            <p className="mt-1 text-sm leading-5 text-slate-600">오늘 밀어볼 아이디어 1개를 고르고 다음 단계로 넘깁니다.</p>
+            <p className="mt-1 text-sm leading-5 text-slate-600">오늘 먼저 볼 아이디어 한 건을 고르고 다음 단계로 넘어갑니다.</p>
           </div>
           <ClipboardList className="text-slate-400" size={24} />
         </div>
@@ -9941,7 +9941,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
 
               <div className="mt-4 border border-slate-200 bg-white px-3 py-3 text-sm leading-5 text-slate-600">
-                지금은 많은 후보를 펼치기보다, 바로 평가할 1개를 고르면 됩니다. 현재 보이는 후보는 {visibleIdeas.length}개입니다.
+                지금은 많은 후보를 펼치기보다, 바로 평가할 후보 한 건을 고르면 됩니다. 현재 보이는 후보는 {visibleIdeas.length}개입니다.
               </div>
             </aside>
 
@@ -9951,7 +9951,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">candidate selection</div>
                   <h2 className="mt-2 text-xl font-semibold text-slate-950">후보 선택</h2>
                   <p className="mt-2 max-w-2xl text-sm leading-5 text-slate-600">
-                    지금 바로 평가를 시작할 후보 1개만 고르면 충분합니다. 나머지는 비교 큐로 남겨두고, 하나를 선택한 뒤 다음 단계로 넘어갑니다.
+                    지금 바로 평가를 시작할 후보 한 건만 고르면 충분합니다. 나머지는 비교 큐로 남겨두고, 하나를 선택한 뒤 다음 단계로 넘어갑니다.
                   </p>
                 </div>
                 <div className="avl-pill avl-pill-neutral gap-2 px-3 py-2 text-sm">
@@ -10102,7 +10102,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           })
                         ) : (
                           <div className="avl-surface-muted border-dashed p-4 text-sm leading-5 text-slate-600 md:col-span-2">
-                            지금은 이 후보 1개만 보면 충분합니다. 새 아이디어를 더 넣거나, 나중에 다른 후보를 다시 비교해도 됩니다.
+                            지금은 이 후보 한 건만 보면 충분합니다. 새 아이디어를 더 넣거나, 나중에 다른 후보를 다시 비교해도 됩니다.
                           </div>
                         )}
                       </div>
@@ -10134,7 +10134,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <p className="mt-2 text-sm leading-5 text-slate-500">
                     {canEdit
                       ? "AI 초안을 바탕으로 점수와 판단을 맞춘 뒤 저장합니다."
-                      : "이 기록은 보기 전용입니다. 네가 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."}
+                      : "이 기록은 보기 전용입니다. 본인이 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -10259,7 +10259,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">다음 행동</div>
                     <div className="mt-2 text-sm font-semibold text-slate-950">판단 방향만 정하면 충분합니다</div>
                     <p className="mt-2 text-sm leading-5 text-slate-600">
-                      점수 7개를 먼저 맞추고 판단을 한 번 정한 뒤 저장하세요. 실험과 리스크 보강은 다음 단계에서 이어집니다.
+                      점수 7개를 먼저 맞추고 판단을 한 번 정한 뒤 저장하세요. 실험과 리스크 보완은 다음 단계에서 이어집니다.
                     </p>
                     {validationPlan ? (
                       <p className="mt-3 text-sm leading-5 text-sky-700">{validationPlan.nextAction}</p>
@@ -10271,7 +10271,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <details className="mt-5 border border-slate-200 bg-slate-50 p-4">
                 <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">추가 메모 열기</summary>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  AI가 채운 초안을 사람 판단으로 보강하고 싶을 때만 여기를 수정하세요.
+                  AI가 만든 초안을 사람 판단으로 보완하고 싶을 때만 여기를 수정하세요.
                 </p>
                 <div className="mt-4 grid gap-4 md:grid-cols-3">
                   <TextArea
@@ -10391,7 +10391,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       <h4 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h4>
                       <p className="mt-1 text-sm leading-6 text-slate-600">
                         {validationEvidenceCoach.nextFocus
-                          ? `다음 보강: ${validationEvidenceCoach.nextFocus.label} - ${validationEvidenceCoach.nextFocus.action}`
+                          ? `다음 보완: ${validationEvidenceCoach.nextFocus.label} - ${validationEvidenceCoach.nextFocus.action}`
                           : "핵심 증거가 충분합니다. 실험 결과와 최종 판단을 정리하세요."}
                       </p>
                     </div>
@@ -11011,7 +11011,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                   <h3 className="mt-2 text-base font-semibold text-slate-950">제작 시작 브리프</h3>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    구현에 필요한 할 일을 만들기 전에 범위, 금지 범위, 차단 항목, 완료 근거를 한 문서로 정리합니다.
+                    구현에 필요한 할 일을 만들기 전에 범위, 금지 범위, 막히는 항목, 완료 근거를 한 문서로 정리합니다.
                   </p>
                   <div
                     className={`mt-3 border px-3 py-2 text-sm leading-6 ${
@@ -11022,7 +11022,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   >
                     {nextBuildBlocker ? (
                       <>
-                        <span className="font-semibold">다음 차단 항목: {nextBuildBlocker.label}</span>
+                        <span className="font-semibold">다음 확인 항목: {nextBuildBlocker.label}</span>
                         <span className="block">{nextBuildBlocker.detail}</span>
                       </>
                     ) : (
@@ -11159,7 +11159,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         </div>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
                           {nextImplementationTask.status === "blocked"
-                            ? "차단 상태입니다. 먼저 차단 사유와 해소 증거를 기록하세요."
+                            ? "막힌 상태입니다. 먼저 막힌 이유와 해소 증거를 기록하세요."
                             : nextImplementationTask.status === "doing"
                               ? "이미 진행 중입니다. 완료 증거를 붙이고 완료로 이동하세요."
                               : nextImplementationDependencyStatus && !nextImplementationDependencyStatus.ready
@@ -11469,13 +11469,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="avl-surface-muted mt-4 border-amber-200 bg-amber-50 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <h4 className="text-sm font-semibold text-amber-950">증거 보강 우선순위</h4>
+                    <h4 className="text-sm font-semibold text-amber-950">근거 보완 우선순위</h4>
                     <p className="mt-1 text-sm leading-6 text-amber-900">
-                      완료 전에 커밋, 검증, 권한, 배포, 롤백 증거가 약한 태스크부터 보강합니다.
+                      완료 전에 커밋, 검증, 권한, 배포, 롤백 근거가 약한 태스크부터 보완합니다.
                     </p>
                   </div>
                   <div className="avl-pill avl-pill-warning px-3 py-2">
-                    보강 필요 {implementationEvidenceIssues.length}/{implementationEvidenceSummaries.length}
+                    보완 필요 {implementationEvidenceIssues.length}/{implementationEvidenceSummaries.length}
                   </div>
                 </div>
 
@@ -11492,12 +11492,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                             {implementationTaskTypeLabels[summary.task.task_type]}
                           </span>
                         </div>
-                        <p className="mt-1 text-xs leading-5 text-slate-600">보강 필요: {summary.missing.join(", ")}</p>
+                        <p className="mt-1 text-xs leading-5 text-slate-600">보완 필요: {summary.missing.join(", ")}</p>
                       </div>
                     ))
                   ) : (
                     <div className="border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-                      현재 모든 태스크의 증거 힌트가 충족되어 있습니다.
+                      현재 모든 태스크의 근거가 채워져 있습니다.
                     </div>
                   )}
                 </div>
@@ -11676,7 +11676,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                               <div className="mt-1">
                                 {missingEvidenceLabels.length === 0
                                   ? "필수 증거 힌트가 모두 포함되어 있습니다."
-                                  : `보강 필요: ${missingEvidenceLabels.join(", ")}`}
+                                  : `보완 필요: ${missingEvidenceLabels.join(", ")}`}
                               </div>
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
@@ -13175,7 +13175,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               >
                 {nextPrdBlocker ? (
                   <>
-                    <span className="font-semibold">다음 보강 항목: {nextPrdBlocker.label}</span>
+                    <span className="font-semibold">다음 보완 항목: {nextPrdBlocker.label}</span>
                     <span className="block">{nextPrdBlocker.detail}</span>
                   </>
                 ) : (
@@ -13242,7 +13242,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               onClick={() => setArtifactPanel("validation")}
               className="avl-btn avl-btn-primary px-3"
             >
-              검증 산출물 보강
+              검증 산출물 보완
             </button>
             <button
               type="button"

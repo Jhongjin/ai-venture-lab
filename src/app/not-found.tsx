@@ -27,7 +27,7 @@ const recoveryRoutes = [
   },
   {
     label: "guide",
-    title: "작동 흐름 보기",
+    title: "가이드 보기",
     href: "/guide",
   },
 ];
@@ -59,7 +59,7 @@ export default function NotFound() {
               이 경로에는 실행 보드가 없습니다.
             </h1>
             <p className="mt-6 max-w-[44ch] text-sm leading-7 text-slate-300">
-              요청한 페이지를 찾지 못했습니다. 홈에서 흐름을 다시 보거나, 바로 워크스페이스로 이동해 후보를 이어서 다룰 수 있습니다.
+              요청한 페이지를 찾지 못했습니다. 홈에서 다시 시작하거나, 실행 보드로 이동해 저장된 후보를 계속 다룰 수 있습니다.
             </p>
           </div>
 

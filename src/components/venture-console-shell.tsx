@@ -53,7 +53,7 @@ const shellTasks: Array<{
   {
     id: "console:auth",
     label: "로그인",
-    description: "계정으로 접속",
+    description: "계정 확인",
     group: "시작",
     icon: User,
   },
@@ -82,7 +82,7 @@ const shellTasks: Array<{
   {
     id: "workbench:select",
     label: "후보 선택",
-    description: "오늘의 1건",
+    description: "오늘 볼 후보",
     group: "검증",
     icon: ClipboardText,
   },
@@ -96,7 +96,7 @@ const shellTasks: Array<{
   {
     id: "workbench:risk",
     label: "위험 확인",
-    description: "차단 리스크",
+    description: "막히는 리스크",
     group: "검증",
     icon: FlagPennant,
   },
@@ -165,7 +165,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: [
       "대화 원문 붙여넣기",
       "후보 발굴 실행",
-      "추천 후보 1개 먼저 확인",
+      "추천 후보 한 건 먼저 확인",
       "필요하면 비교 결과 펼쳐 보기",
       "좋은 후보를 아이디어 초안으로 반영",
     ],
@@ -175,7 +175,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["이름과 한 줄 설명 확인", "필요할 때만 추가 항목 보완", "아이디어 저장"],
   },
   "workbench:select": {
-    summary: "오늘 밀어볼 아이디어 1건을 고른 뒤 평가와 검증을 이어갑니다.",
+    summary: "오늘 먼저 볼 아이디어 한 건을 고른 뒤 평가와 검증을 이어갑니다.",
     checklist: ["전체 또는 내 기록 확인", "편집 가능 여부 확인", "평가할 후보 선택"],
   },
   "workbench:score": {
@@ -187,7 +187,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["리스크 제목과 영역 입력", "심각도 선택", "완화 방안 또는 수용 조건 기록"],
   },
   "workbench:decision": {
-    summary: "왜 진행, 보류, 전환, 중단하는지 한 문단 근거를 남깁니다.",
+    summary: "왜 진행, 보완, 전환, 중단할지 한 문단 근거를 남깁니다.",
     checklist: ["현재 판단 확인", "판단 근거 작성", "최종 기록 저장"],
   },
   "workbench:experiment": {
@@ -207,12 +207,12 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["제작 준비 자료 만들기", "제작 실행 계획 저장", "출시 전 확인 조건 점검"],
   },
   "workbench:launch": {
-    summary: "출시 전 남은 차단 항목을 확인하고 최종 출시 판단을 기록합니다.",
+    summary: "출시 전 막히는 항목을 확인하고 최종 출시 판단을 기록합니다.",
     checklist: ["남은 항목 확인", "높은 위험 종료 또는 수용", "최종 판단 기록"],
   },
   "workbench:learning": {
-    summary: "출시 후 행동 신호를 다음 투자와 보강 판단으로 연결합니다.",
-    checklist: ["최근 사용 신호 확인", "Day 7/14/30 판단 신호 점검", "학습 리포트 저장"],
+    summary: "출시 후 행동 신호를 보고 다음 투자 또는 보완 여부를 정합니다.",
+    checklist: ["최근 사용 신호 확인", "출시 후 7/14/30일 판단 신호 점검", "학습 리포트 저장"],
   },
 };
 
@@ -226,10 +226,10 @@ const taskCanvasDetails: Record<
   }
 > = {
   "console:auth": {
-    question: "누가 이 보드를 계속 운영할지 먼저 정해졌나요?",
-    aiLead: "접속 상태를 확인하고, 이후 단계가 열리는 최소 조건만 안내합니다.",
+    question: "이 보드를 계속 운영할 계정이 준비됐나요?",
+    aiLead: "로그인 상태를 확인하고, 이후 단계가 열리는 최소 조건만 안내합니다.",
     deliverable: "로그인된 운영자 세션",
-    checkpoint: "이후부터는 한 명이 끝까지 실행할 수 있는 흐름으로 진행됩니다.",
+    checkpoint: "이후 단계는 한 명이 끝까지 처리할 수 있게 이어집니다.",
   },
   "console:workspace": {
     question: "이 아이디어를 혼자 다룰지, 팀과 함께 볼지 결정했나요?",
@@ -238,22 +238,22 @@ const taskCanvasDetails: Record<
     checkpoint: "협업이 필요하지 않다면 이 단계는 건너뛰어도 괜찮습니다.",
   },
   "console:extract": {
-    question: "대화나 메모에서 무엇을 제품 후보로 올릴지 정리되었나요?",
-    aiLead: "원문을 읽고 후보와 검증 방향을 먼저 구조화합니다.",
-    deliverable: "추천 후보 1개와 비교 후보 큐",
-    checkpoint: "추천 1개만 확인해도 다음 단계로 넘길 수 있게 정리합니다.",
+    question: "대화나 메모에서 제품 후보로 볼 만한 내용이 정리됐나요?",
+    aiLead: "원문을 살펴보고 후보와 검증 방향을 먼저 정리합니다.",
+    deliverable: "추천 후보 한 건과 비교 후보 목록",
+    checkpoint: "추천 후보 한 건만 확인해도 다음 단계로 이어갈 수 있게 정리합니다.",
   },
   "console:idea": {
     question: "이 아이디어를 실제 검증 대상으로 올릴 준비가 되었나요?",
     aiLead: "이름, 한 줄 설명, 신호, 다음 증거를 초안으로 채웁니다.",
-    deliverable: "검증 가능한 아이디어 1건",
-    checkpoint: "사용자는 꼭 필요한 의견만 덧붙이면 됩니다.",
+    deliverable: "검증 가능한 아이디어 한 건",
+    checkpoint: "사용자는 꼭 필요한 의견만 더하면 됩니다.",
   },
   "workbench:select": {
-    question: "오늘 어떤 아이디어 하나를 끝까지 밀어볼까요?",
+    question: "오늘 어떤 아이디어를 먼저 검토할까요?",
     aiLead: "점수, 리스크, 준비도 신호를 바탕으로 오늘 먼저 볼 후보를 추립니다.",
-    deliverable: "오늘의 검토 대상 1건",
-    checkpoint: "여기서 고른 1건이 이후 평가와 실행의 기준점이 됩니다.",
+    deliverable: "오늘의 검토 대상 한 건",
+    checkpoint: "여기서 고른 후보가 이후 평가와 실행의 기준점이 됩니다.",
   },
   "workbench:score": {
     question: "이 아이디어는 시간과 자원을 써서 검증할 만한가요?",
@@ -263,24 +263,24 @@ const taskCanvasDetails: Record<
   },
   "workbench:risk": {
     question: "출시를 막을 만한 법무·운영·보안 이슈가 있나요?",
-    aiLead: "위험 영역을 묶고, 심각도와 대응 방향을 먼저 정리합니다.",
+    aiLead: "리스크 영역을 묶고, 심각도와 대응 방향을 먼저 정리합니다.",
     deliverable: "핵심 리스크 목록",
     checkpoint: "막는 리스크인지, 관리 가능한 리스크인지 구분하는 단계입니다.",
   },
   "workbench:experiment": {
-    question: "7일 안에 무엇을 확인하면 이 아이디어의 운명이 갈릴까요?",
+    question: "7일 안에 무엇을 확인하면 진행 여부를 정할 수 있을까요?",
     aiLead: "가장 작은 실험과 성공 기준을 초안으로 만듭니다.",
     deliverable: "7일 검증 실험 계획",
-    checkpoint: "실험은 길게 설명하기보다 바로 행동 가능한 수준으로 남깁니다.",
+    checkpoint: "실험은 긴 설명보다 바로 실행할 수 있는 수준으로 남깁니다.",
   },
   "workbench:decision": {
-    question: "지금은 진행, 보강, 전환, 중단 중 무엇이 맞을까요?",
+    question: "지금은 진행, 보완, 전환, 중단 중 무엇이 맞을까요?",
     aiLead: "점수, 리스크, 실험 조건을 묶어 의사결정용 근거를 정리합니다.",
     deliverable: "진행 판단 메모",
     checkpoint: "회의 공유가 가능한 한 문단 결론이 가장 중요합니다.",
   },
   "workbench:artifacts": {
-    question: "이 아이디어를 팀이나 AI에게 전달할 문서가 준비되었나요?",
+    question: "이 아이디어를 팀이나 개발 도구에 넘길 자료가 준비됐나요?",
     aiLead: "브리프, PRD, MVP 명세, 디자인 브리프 같은 산출물을 자동으로 묶습니다.",
     deliverable: "실행 패키지 초안",
     checkpoint: "사용자는 산출물 완성보다 승인 여부만 확인하면 됩니다.",
@@ -288,24 +288,24 @@ const taskCanvasDetails: Record<
   "workbench:development": {
     question: "이제 실제 앱 제작으로 넘어갈 준비가 되었나요?",
     aiLead: "기획, 디자인, 구현, QA, 출시 순서를 묶어 제안합니다.",
-    deliverable: "제작 전달 묶음",
+    deliverable: "제작 전달 자료",
     checkpoint: "한 명의 운영자가 끝까지 볼 수 있도록 복잡한 개발 정보를 압축합니다.",
   },
   "workbench:orchestration": {
     question: "누가 무엇을 언제 처리할지 명확한가요?",
-    aiLead: "전략, 디자인, 개발, QA, 보안의 순서를 정리하고 차단 요인을 표시합니다.",
+    aiLead: "전략, 디자인, 개발, QA, 보안의 순서를 정리하고 막히는 요인을 표시합니다.",
     deliverable: "실행 런북과 진행 상태",
-    checkpoint: "혼자 쓰더라도 이 화면은 작업 큐처럼 보이는 것이 중요합니다.",
+    checkpoint: "혼자 쓰더라도 다음 작업 순서가 분명히 보여야 합니다.",
   },
   "workbench:launch": {
     question: "지금 이 MVP를 밖으로 내보내도 괜찮을까요?",
     aiLead: "출시 전 남은 리스크, 문서, QA, 보안 상태를 하나로 모아 점검합니다.",
     deliverable: "출시 전 최종 판단",
-    checkpoint: "남은 차단 항목이 없으면 바로 성과 확인으로 이동합니다.",
+    checkpoint: "막히는 항목이 없으면 바로 성과 확인으로 이동합니다.",
   },
   "workbench:learning": {
-    question: "출시 후 실제 행동 신호가 다음 결정을 어떻게 바꾸나요?",
-    aiLead: "Day 7/14/30 신호, 퍼널, 리텐션, 지불 의향 데이터를 다시 요약합니다.",
+    question: "출시 후 행동 신호를 보고 다음 결정을 어떻게 바꿀까요?",
+    aiLead: "출시 후 7일, 14일, 30일 신호, 퍼널, 리텐션, 지불 의향 데이터를 다시 요약합니다.",
     deliverable: "성과 확인 리포트",
     checkpoint: "다음 반복은 여기서 얻은 학습으로 다시 시작합니다.",
   },
@@ -366,11 +366,11 @@ function getNextTaskOptions({
         : [];
     case "workbench:score":
       return [
-        createTransition("workbench:experiment", "다음: 검증 실험", "7일 안에 확인할 가장 작은 실험으로 옮깁니다."),
+        createTransition("workbench:experiment", "다음: 검증 실험", "7일 안에 확인할 가장 작은 실험으로 넘어갑니다."),
         createTransition(
           "workbench:risk",
           "선택: 위험 먼저 보기",
-          "법무, 개인정보, 운영 이슈가 먼저 보이면 여기서 보강합니다.",
+          "법무, 개인정보, 운영 이슈가 먼저 보이면 여기서 보완합니다.",
           "optional",
         ),
       ];
@@ -380,7 +380,7 @@ function getNextTaskOptions({
         createTransition(
           "workbench:decision",
           "건너뛰고 진행 판단",
-          "리스크 점검이 충분하면 바로 진행/보류 판단으로 넘어갑니다.",
+          "리스크 점검이 충분하면 바로 진행 여부를 판단합니다.",
           "optional",
         ),
       ];
@@ -392,7 +392,7 @@ function getNextTaskOptions({
               createTransition(
                 "workbench:risk",
                 "선택: 위험 확인",
-                "아직 리스크를 적지 않았다면 여기서 한 번 보강합니다.",
+                "아직 리스크를 적지 않았다면 여기서 먼저 보완합니다.",
                 "optional",
               ),
             ]
@@ -400,7 +400,7 @@ function getNextTaskOptions({
       ];
     case "workbench:decision":
       return [
-        createTransition("workbench:artifacts", "다음: 기획서 만들기", "보고서, PRD, MVP 범위를 문서로 남깁니다."),
+        createTransition("workbench:artifacts", "다음: 기획서 만들기", "아이디어 브리프, PRD, MVP 범위를 문서로 남깁니다."),
         ...(artifactCount > 0
           ? [
               createTransition(
@@ -429,7 +429,7 @@ function getNextTaskOptions({
           : []),
       ];
     case "workbench:orchestration":
-      return [createTransition("workbench:launch", "다음: 출시 판단", "남은 차단 항목을 확인하고 출시 여부를 정합니다.")];
+      return [createTransition("workbench:launch", "다음: 출시 판단", "막히는 항목을 확인하고 출시 여부를 정합니다.")];
     case "workbench:launch":
       return [createTransition("workbench:learning", "다음: 성과 확인", "출시 후 행동 신호를 보고 다음 사이클을 정합니다.")];
     case "workbench:learning":
@@ -450,19 +450,19 @@ function getCurrentStepBlocker({
 }) {
   switch (activeTask) {
     case "console:auth":
-      return "이 화면 안에서 로그인하면 바로 아이디어 찾기 단계가 열립니다. 협업 설정은 나중에 선택할 수 있습니다.";
+      return "로그인하면 바로 아이디어 찾기 단계로 이동합니다. 협업 설정은 나중에 선택할 수 있습니다.";
     case "console:workspace":
       return consoleStatus.hasWorkspace
         ? "협업 공간을 연결했습니다. 다시 AI 후보 발굴로 돌아가 계속 진행하면 됩니다."
         : "이 단계는 선택 기능입니다. 팀으로 같이 볼 때만 워크스페이스를 만들거나 선택하세요.";
     case "console:extract":
       return consoleStatus.hasExtractedIdeas
-        ? "추천 후보를 입력 폼으로 보내면 아이디어 접수 단계로 자동 이동합니다."
-        : "후보를 발굴하거나 샘플을 넣어 결과를 만든 뒤 다음 단계가 열립니다.";
+        ? "추천 후보를 접수 양식으로 보내면 아이디어 접수 단계로 자동 이동합니다."
+        : "후보를 발굴하거나 샘플을 넣어 결과를 만든 뒤 다음 단계로 넘어갈 수 있습니다.";
     case "console:idea":
       return ideaCount > 0
-        ? "아이디어를 저장하면 검증 단계가 자동으로 열립니다."
-        : "아이디어를 최소 1개 저장해야 검증 단계가 열립니다.";
+        ? "아이디어를 저장하면 검증 단계로 이동합니다."
+        : "아이디어를 최소 한 건 저장해야 검증 단계로 넘어갈 수 있습니다.";
     default:
       return null;
   }
@@ -504,9 +504,9 @@ function getExecutiveFocus({
   if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {
     return {
       eyebrow: "오늘의 판단",
-      title: "먼저 운영자 계정으로 접속하세요.",
-      detail: "로그인 뒤 후보, 검증, 실행 패키지가 한 흐름으로 열립니다.",
-      evidence: "접속 필요",
+      title: "먼저 운영자 계정으로 로그인하세요.",
+      detail: "로그인하면 후보 검토, 검증, 실행 패키지까지 이어서 진행할 수 있습니다.",
+      evidence: "로그인 필요",
       risk: "데이터는 로그인 후 확인",
       targetTask: "console:auth",
       cta: "로그인하기",
@@ -517,10 +517,10 @@ function getExecutiveFocus({
   if (ideaCount === 0) {
     return {
       eyebrow: "오늘의 판단",
-      title: "후보 1건을 먼저 올리면 됩니다.",
-      detail: "대화 메모나 브리프를 붙여 넣고, AI가 뽑은 후보 중 하나만 저장하세요.",
+      title: "후보 한 건부터 올리면 됩니다.",
+      detail: "대화 메모나 브리프를 붙여넣고, AI가 뽑은 후보 중 하나를 저장하세요.",
       evidence: `${dataNote} · 후보 없음`,
-      risk: "위험은 저장 뒤 확인",
+      risk: "리스크는 저장 뒤 확인",
       targetTask: "console:extract",
       cta: "후보 찾기",
       metrics,
@@ -531,9 +531,9 @@ function getExecutiveFocus({
     return {
       eyebrow: "오늘의 판단",
       title: "높은 리스크부터 닫아야 합니다.",
-      detail: "진행 전에 법무, 보안, 운영 차단 항목을 먼저 정리하세요.",
+      detail: "진행 전에 법무, 보안, 운영상 막히는 지점을 먼저 정리하세요.",
       evidence: `${dataNote} · 높은 리스크 ${highRisks}건`,
-      risk: `열린 리스크 ${openRisks}건`,
+      risk: `열려 있는 리스크 ${openRisks}건`,
       targetTask: "workbench:risk",
       cta: "리스크 확인",
       metrics,
@@ -546,7 +546,7 @@ function getExecutiveFocus({
       title: "검증 실험이 아직 없습니다.",
       detail: "좋아 보이는 후보라도 7일 안에 확인할 행동 기준이 있어야 다음 판단이 빨라집니다.",
       evidence: `${dataNote} · 후보 ${ideaCount}건`,
-      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:experiment",
       cta: "실험 설계",
       metrics,
@@ -557,9 +557,9 @@ function getExecutiveFocus({
     return {
       eyebrow: "오늘의 판단",
       title: "진행 여부를 한 번 정리할 차례입니다.",
-      detail: "점수, 리스크, 실험 조건을 모아 진행, 보강, 전환, 중단 중 하나를 남기세요.",
+      detail: "점수, 리스크, 실험 조건을 모아 진행, 보완, 전환, 중단 중 하나로 정리하세요.",
       evidence: `${dataNote} · 실험 ${experimentCount}건`,
-      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:decision",
       cta: "판단 남기기",
       metrics,
@@ -569,10 +569,10 @@ function getExecutiveFocus({
   if (artifactCount === 0) {
     return {
       eyebrow: "오늘의 판단",
-      title: "판단을 실행 패키지로 묶어야 합니다.",
-      detail: "아이디어 브리프, PRD, MVP 범위를 남겨야 다음 제작 도구로 넘길 수 있습니다.",
+      title: "이제 판단을 실행 패키지로 묶을 차례입니다.",
+      detail: "아이디어 브리프, PRD, MVP 범위를 준비해야 다음 제작 도구로 넘길 수 있습니다.",
       evidence: `${dataNote} · 판단 ${decisionCount}건`,
-      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:artifacts",
       cta: "문서 만들기",
       metrics,
@@ -582,10 +582,10 @@ function getExecutiveFocus({
   if (implementationTaskCount === 0) {
     return {
       eyebrow: "오늘의 판단",
-      title: "이제 제작 준비 상태를 확인하세요.",
+      title: "이제 제작 준비를 확인하세요.",
       detail: "기획, 디자인, 개발, QA, 배포 조건을 한 묶음으로 정리하면 빌드 단계가 흔들리지 않습니다.",
       evidence: `${dataNote} · 산출물 ${artifactCount}건`,
-      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",
       cta: "제작 준비",
       metrics,
@@ -595,10 +595,10 @@ function getExecutiveFocus({
   if (runCount === 0) {
     return {
       eyebrow: "오늘의 판단",
-      title: "실행 큐를 열어 역할과 차단 항목을 정리하세요.",
-      detail: "혼자 진행하더라도 전략, 디자인, 개발, QA 순서를 큐로 나누면 다음 작업이 선명해집니다.",
+      title: "실행 큐에서 역할과 막히는 지점을 정리하세요.",
+      detail: "혼자 진행하더라도 전략, 디자인, 개발, QA 순서를 나누면 다음 작업이 선명해집니다.",
       evidence: `${dataNote} · 제작 작업 ${implementationTaskCount}건`,
-      risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+      risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:orchestration",
       cta: "실행 관리",
       metrics,
@@ -607,13 +607,13 @@ function getExecutiveFocus({
 
   return {
     eyebrow: "오늘의 판단",
-    title: telemetryEventCount > 0 ? "성과 신호로 다음 반복을 정하세요." : "출시 전 마지막 확인이 남았습니다.",
+    title: telemetryEventCount > 0 ? "성과 신호를 보고 다음 반복을 정하세요." : "출시 전 마지막 확인이 남았습니다.",
     detail:
       telemetryEventCount > 0
-        ? "실제 행동 신호를 보고 계속 투자할지, 보강할지, 새 후보로 돌아갈지 결정하세요."
-        : "남은 차단 항목이 없다면 출시 판단을 남기고 성과 확인으로 넘어갈 수 있습니다.",
+        ? "실제 행동 신호를 보고 계속 투자할지, 보완할지, 새 후보로 돌아갈지 결정하세요."
+        : "막히는 항목이 없다면 출시 판단을 남기고 성과 확인으로 넘어갈 수 있습니다.",
     evidence: `${dataNote} · 실행 기록 ${runCount}건`,
-    risk: openRisks > 0 ? `열린 리스크 ${openRisks}건` : "차단 리스크 없음",
+    risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
     targetTask: telemetryEventCount > 0 ? "workbench:learning" : "workbench:launch",
     cta: telemetryEventCount > 0 ? "성과 확인" : "출시 판단",
     metrics,
@@ -1117,7 +1117,7 @@ export function VentureConsoleShell({
               <div className="flex flex-wrap items-center gap-2">
                 {[
                   "원문 붙여넣기",
-                  "추천 후보 1건 보기",
+                  "추천 후보 한 건 보기",
                   "아이디어 저장",
                 ].map((step, index) => (
                   <span key={step} className="inline-flex items-center gap-2">
@@ -1127,7 +1127,7 @@ export function VentureConsoleShell({
                   </span>
                 ))}
               </div>
-              <span className="text-slate-400">검증 단계는 저장 직후 이어집니다.</span>
+              <span className="text-slate-400">저장하면 바로 검증 단계로 이어집니다.</span>
             </div>
           </section>
         ) : null}

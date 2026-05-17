@@ -45,7 +45,7 @@ export async function WorkspaceBoardPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-[15px] font-semibold tracking-tight text-slate-950 sm:text-[17px]">실행 보드</h1>
                     <span className="hidden text-sm text-slate-300 sm:inline">/</span>
-                    <p className="text-[12px] leading-5 text-slate-500">후보, 판단, 실행 패키지를 같은 흐름에서 이어 붙이는 작업면</p>
+                    <p className="text-[12px] leading-5 text-slate-500">후보, 판단, 실행 패키지를 한 보드에서 이어서 다루는 작업 공간</p>
                   </div>
                 </div>
 
@@ -83,8 +83,8 @@ export async function WorkspaceBoardPage() {
               <span className="text-[11px] font-semibold tracking-[0.14em]">데이터 확인 필요</span>
             </div>
             <div className="bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
-              데이터 연결 상태를 일부 확인하지 못했습니다. 현재 보드는 빈 상태 또는 제한된 상태로 표시될 수 있습니다.
-              <span className="mt-1 block font-semibold sm:ml-2 sm:mt-0 sm:inline">관리자에게 연결 상태 확인을 요청하세요.</span>
+              데이터 연결 상태를 모두 확인하지 못했습니다. 현재 보드는 비어 있거나 일부 기능이 제한될 수 있습니다.
+              <span className="mt-1 block font-semibold sm:ml-2 sm:mt-0 sm:inline">관리자에게 연결 상태 확인을 요청해 주세요.</span>
             </div>
           </section>
         ) : null}

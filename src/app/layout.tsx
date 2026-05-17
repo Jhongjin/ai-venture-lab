@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI Venture Lab",
-  description: "아이디어를 구조화하고, 검증하고, 실행 패키지까지 만드는 AI 실행 워크스페이스입니다.",
+  description: "아이디어를 정리하고 검증해 실행 패키지까지 만드는 AI 실행 워크스페이스입니다.",
 };
 
 export default function RootLayout({

@@ -598,7 +598,7 @@ function buildCandidateStrategyLens(candidate: ExtractedIdea): CandidateStrategy
     {
       label: "수익화",
       score: clampPercent(45 + paidHits * 10 + (candidate.buyer.trim().length > 8 ? 10 : 0)),
-      detail: paidHits > 0 ? "가격/구매 단서가 있어 결제 의향 실험을 붙일 수 있습니다." : "누가 어떤 예산으로 지불하는지 보강하세요.",
+      detail: paidHits > 0 ? "가격/구매 단서가 있어 결제 의향 실험을 붙일 수 있습니다." : "누가 어떤 예산으로 지불하는지 보완하세요.",
       tone: lensTone(45 + paidHits * 10 + (candidate.buyer.trim().length > 8 ? 10 : 0)),
     },
     {
@@ -831,7 +831,7 @@ function buildCandidateReadiness(
     {
       label: "리스크",
       passed: candidate.risk_summary.trim().length >= 20,
-      detail: candidate.risk_summary.trim().length >= 20 ? "초기 리스크를 함께 저장할 수 있습니다." : "개인정보, 규제, 운영 리스크를 보강하세요.",
+      detail: candidate.risk_summary.trim().length >= 20 ? "초기 리스크를 함께 저장할 수 있습니다." : "개인정보, 규제, 운영 리스크를 보완하세요.",
     },
     {
       label: "첫 MVP",
@@ -877,7 +877,7 @@ function buildExtractionGate(
 
   let id: ExtractionGateId = "research";
   let summary = "증거를 더 모은 뒤 저장 또는 점수화할 후보입니다.";
-  let nextAction = blockers[0] ? `${blockers[0]} 보강 후 7일 검증 패키지로 저장` : "인터뷰와 대체재 조사를 먼저 붙인 뒤 저장";
+  let nextAction = blockers[0] ? `${blockers[0]} 보완 후 7일 검증 패키지로 저장` : "인터뷰와 대체재 조사를 먼저 붙인 뒤 저장";
 
   if (candidate.validationScore <= 44 || corePassCount <= 1) {
     id = "kill";
@@ -906,12 +906,12 @@ function buildExtractionGate(
       candidate.riskLevel === "높음"
         ? "수요가 보여도 규제, 개인정보, 운영 책임을 먼저 검증해야 합니다."
         : "점수나 준비도 일부가 부족해 추가 증거를 붙인 뒤 진행 여부를 봐야 합니다.";
-    nextAction = blockers[0] ? `${blockers[0]} 보강 후 저장` : "인터뷰, 가격 신호, 대체재 증거를 추가";
+    nextAction = blockers[0] ? `${blockers[0]} 보완 후 저장` : "인터뷰, 가격 신호, 대체재 증거를 추가";
   }
 
   const thresholdByGate: Record<ExtractionGateId, string> = {
     proceed: "72점 이상, 준비도 80% 이상, 고위험/중복 없음",
-    research: "58-71점 또는 준비도 미달, 증거 보강 필요",
+    research: "58-71점 또는 준비도 미달, 증거 보완 필요",
     pivot: "45-57점, 강한 중복, 대상/구매자/범위 재정의",
     kill: "44점 이하 또는 핵심 문제/MVP 신호 부족",
   };
@@ -984,7 +984,7 @@ ${candidate.assumptions.map((item) => `- ${item}`).join("\n")}
 - 검증 점수: ${candidate.validationScore}/100
 - 신뢰도: ${candidate.confidence}%
 - 추천: ${candidate.recommendation}
-- 게이트 판정: ${gate.label}
+- 진행 판정: ${gate.label}
 - 다음 작업: ${gate.nextAction}
 - 리스크: ${candidate.riskLevel}
 
@@ -1209,7 +1209,7 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
       const riskLevel = inferRiskLevel(blockForInference);
       const evidence = [
         signal ? "AI 문제 신호" : "",
-        oneLiner ? "AI 솔루션 구조화" : "",
+        oneLiner ? "AI 솔루션 정리" : "",
         target_user ? "AI 타겟 추론" : "",
         buyer ? "AI 구매자 추론" : "",
         risk_summary ? "AI 리스크 추론" : "",
@@ -1254,8 +1254,8 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
         pricingHypothesis: firstText([candidate.pricing_hypothesis], inferPricingHypothesis(blockForInference, buyer), 260),
         validationRationale:
           riskLevel === "높음"
-            ? "AI가 수요는 구조화했지만 규제, 개인정보, 운영 책임 검증을 먼저 요구합니다."
-            : "AI가 문제, 대상, 구매자, 첫 실험을 구조화해 검증 후보로 볼 수 있습니다.",
+            ? "AI가 수요는 정리했지만 규제, 개인정보, 운영 책임 검증이 먼저 필요합니다."
+            : "AI가 문제, 대상, 구매자, 첫 실험을 정리해 검증 후보로 볼 수 있습니다.",
       };
     })
     .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
@@ -1334,7 +1334,7 @@ function buildExtractionReplaySummary({
       matchedName: null,
       overlapScore: 0,
       verdict: "규칙 단독",
-      nextAction: "원문 라벨이나 키워드가 강한 후보입니다. AI 누락 가능성이 있으니 문제/구매자 증거를 보강합니다.",
+      nextAction: "원문 라벨이나 키워드가 강한 후보입니다. AI가 놓쳤을 수 있으니 문제/구매자 증거를 보완합니다.",
     });
   }
 
@@ -1438,20 +1438,20 @@ function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
 
   return `# 아이디어 발굴 실행 요약
 
-## 게이트 분포
+## 진행 판정 분포
 
 ${gateSummary}
 
 ## 실행 순서
 
-| 순서 | 후보 | 게이트 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
+| 순서 | 후보 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows || "| - | 후보 없음 | - | - | - | - | - | - |"}
 
 ## 운영 원칙
 
 - 진행 후보는 검증 패키지로 저장한 뒤 워크벤치에서 점수와 첫 실험을 확정합니다.
-- 추가 조사 후보는 부족한 문제 신호, 구매자, 지표, 리스크, MVP 범위를 보강합니다.
+- 추가 조사 후보는 부족한 문제 신호, 구매자, 지표, 리스크, MVP 범위를 보완합니다.
 - 전환 검토 후보는 기존 기록 병합, 세그먼트 축소, 구매자 변경 중 하나를 먼저 결정합니다.
 - 중단 후보는 새 증거가 생길 때까지 저장하지 않습니다.
 `;
@@ -1492,7 +1492,7 @@ ${sourceExcerpt || "원문 근거가 비어 있습니다."}
 ## 다음 처리
 
 1. 진행 후보는 검증 패키지로 저장합니다.
-2. 추가 조사 후보는 부족한 증거를 보강한 뒤 다시 발굴합니다.
+2. 추가 조사 후보는 부족한 증거를 보완한 뒤 다시 발굴합니다.
 3. 전환 검토 후보는 기존 아이디어 병합 또는 세그먼트 축소를 먼저 판단합니다.
 4. 중단 후보는 새 증거가 생길 때까지 실행 목록에서 제외합니다.
 `;
@@ -1748,7 +1748,7 @@ export function VentureConsoleActions({
     {
       id: "auth",
       label: "로그인",
-      description: "관리자 계정으로 접속합니다.",
+      description: "관리자 계정으로 로그인합니다.",
       status: user ? "완료" : "필수",
     },
     {
@@ -2283,7 +2283,7 @@ export function VentureConsoleActions({
 
     setExtractionReplay(null);
     setIsAiExtracting(true);
-    setExtractMessage("AI가 원문을 읽고 후보를 정리하는 중입니다. 문제가 생기면 내부 안전장치로 계속 진행합니다.");
+    setExtractMessage("AI가 원문을 살펴보고 후보를 정리하는 중입니다. 문제가 생기면 내부 안전장치로 계속 진행합니다.");
 
     try {
       const response = await fetch("/api/ideas/extract", {
@@ -2333,11 +2333,11 @@ export function VentureConsoleActions({
           model: payload.model ?? "OpenAI",
           sourceLength: source.length,
           candidateCount: aiIdeas.length,
-          note: "OpenAI Responses API 구조화 출력으로 후보를 생성했습니다.",
+          note: "OpenAI Responses API 출력으로 후보를 정리했습니다.",
         }),
       );
       setExtractMessage(
-        `${payload.model ?? "OpenAI"} AI 엔진으로 ${aiIdeas.length}개 후보를 구조화했습니다. 추천 후보의 게이트와 중복 위험을 확인하세요.`,
+        `${payload.model ?? "OpenAI"} AI 엔진으로 ${aiIdeas.length}개 후보를 정리했습니다. 추천 후보의 진행 판정과 중복 리스크를 확인하세요.`,
       );
     } catch (error) {
       const fallbackIdeas = extractIdeasFromText(source);
@@ -2556,7 +2556,7 @@ export function VentureConsoleActions({
         risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
         next_evidence: `7일 검증 실험\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
           "\n- ",
-        )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n게이트 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
+        )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n진행 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
         stage: "research",
         decision: "research_more",
         ...candidate.initialScores,
@@ -2713,7 +2713,7 @@ export function VentureConsoleActions({
     setExtractMessage(
       savedNames.length > 0
         ? `상위 후보 ${savedNames.length}개를 검증 패키지로 저장했습니다: ${savedNames.join(", ")}${
-            partialErrors.length > 0 ? ` / 일부 보강 필요: ${partialErrors.join(" | ")}` : ""
+            partialErrors.length > 0 ? ` / 일부 보완 필요: ${partialErrors.join(" | ")}` : ""
           }`
         : `일괄 저장에 실패했습니다: ${partialErrors.join(" | ")}`,
     );
@@ -2777,7 +2777,7 @@ export function VentureConsoleActions({
           <div>
             <h2 className="text-xl font-semibold text-slate-950">로그인</h2>
             <p className="mt-1 text-sm text-slate-500">
-              관리자가 만든 계정의 이메일과 비밀번호로 접속합니다. 별도 인증키나 메일 링크는 필요 없습니다.
+              관리자가 만든 계정의 이메일과 비밀번호로 로그인합니다. 별도 인증키나 메일 링크는 필요 없습니다.
             </p>
           </div>
           <ShieldCheck className={user ? "text-emerald-600" : "text-slate-500"} size={24} />
@@ -2990,7 +2990,7 @@ export function VentureConsoleActions({
                 </div>
               </div>
               <form onSubmit={handleAddMember} className="grid gap-3 avl-surface-muted p-4">
-                <div className="text-sm font-semibold text-slate-950">기존 Auth 사용자 추가</div>
+                <div className="text-sm font-semibold text-slate-950">기존 계정 추가</div>
                 <div className="grid gap-3 sm:grid-cols-[1fr_132px]">
                   <input
                     value={memberEmail}
@@ -3072,7 +3072,7 @@ export function VentureConsoleActions({
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">source ingest</div>
                 <h2 className="mt-2 text-xl font-semibold text-slate-950">아이디어 찾기</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                  원문 하나를 넣고, 지금 바로 검토할 추천 후보 1개를 먼저 받습니다.
+                  원문을 넣으면 지금 먼저 볼 추천 후보 한 건을 받습니다.
                 </p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 lg:mt-0">
@@ -3167,7 +3167,7 @@ export function VentureConsoleActions({
                         <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">추천 후보</div>
                           <h3 className="mt-2 text-lg font-semibold text-slate-950">{recommendedExtractedIdea.name}</h3>
-                          <p className="mt-1 text-sm leading-5 text-slate-600">지금 먼저 볼 후보 1개입니다.</p>
+                          <p className="mt-1 text-sm leading-5 text-slate-600">지금 먼저 볼 후보 한 건입니다.</p>
                         </div>
                         {recommendedExtractionGate && recommendedGateStyle ? (
                           <span className={`${recommendedGateStyle.badge}`}>
@@ -3204,7 +3204,7 @@ export function VentureConsoleActions({
                           onClick={() => loadExtractedIdea(recommendedExtractedIdea)}
                           className="avl-btn avl-btn-secondary px-4"
                         >
-                          AI 초안 반영
+                          초안으로 가져오기
                         </button>
                         <button
                           type="button"
@@ -3220,10 +3220,10 @@ export function VentureConsoleActions({
                   ) : (
                     <section className="border border-dashed border-slate-300 bg-slate-50 p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음 출력</div>
-                      <h3 className="mt-2 text-base font-semibold text-slate-950">추천 후보 대기</h3>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">추천 후보 없음</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                         <li>1. 원문을 붙여넣고 후보 발굴을 실행합니다.</li>
-                        <li>2. 추천 후보 1개를 먼저 보고 바로 접수로 넘길지 판단합니다.</li>
+                        <li>2. 추천 후보 한 건을 먼저 보고 접수할지 판단합니다.</li>
                         <li>3. 필요할 때만 비교 후보와 점검 결과를 펼쳐봅니다.</li>
                       </ul>
                     </section>
@@ -3256,7 +3256,7 @@ export function VentureConsoleActions({
                     <div className="flex flex-col items-start border-l border-slate-200 bg-white px-4 py-3 sm:items-end">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">결과 점검</div>
                       <p className="mt-1 text-xs leading-5 text-slate-600">
-                        이상할 때만 한 번 더 확인합니다.
+                        결과가 어색할 때만 한 번 더 점검합니다.
                       </p>
                       <button
                         type="button"
@@ -3310,7 +3310,7 @@ export function VentureConsoleActions({
                       </div>
                       <h3 className="mt-2 text-lg font-semibold text-slate-950">비교 후보</h3>
                           <p className="mt-2 text-sm leading-5 text-slate-600">
-                            추천 1개 외 후보는 필요할 때만 봅니다.
+                            추천 후보 한 건 외에는 필요할 때만 봅니다.
                           </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -3374,7 +3374,7 @@ export function VentureConsoleActions({
                       ))
                     ) : (
                       <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-                        추천 후보 외에 지금 바로 비교할 후보가 많지 않습니다. 현재 추천 1개를 먼저 접수하는 쪽이 더 자연스럽습니다.
+                        추천 후보 외에 바로 비교할 후보가 많지 않습니다. 지금은 추천 후보 한 건을 먼저 접수하는 쪽이 더 자연스럽습니다.
                       </div>
                     )}
                   </div>
@@ -3476,7 +3476,7 @@ export function VentureConsoleActions({
                             onClick={() => loadExtractedIdea(candidate)}
                   className="avl-btn avl-btn-secondary h-10 px-4"
                           >
-                            AI 초안 반영
+                            초안으로 가져오기
                           </button>
                           <button
                             type="button"
@@ -3499,7 +3499,7 @@ export function VentureConsoleActions({
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <div className={`text-sm font-semibold ${gateStyle.title}`}>
-                              게이트 판정: {extractionGate.label}
+                              진행 판정: {extractionGate.label}
                             </div>
                             <p className="mt-1 text-sm leading-6 text-slate-700">{extractionGate.summary}</p>
                             <p className="mt-1 text-sm leading-6 text-slate-700">
@@ -3519,7 +3519,7 @@ export function VentureConsoleActions({
                                 key={blocker}
                                 className="avl-pill avl-pill-neutral"
                               >
-                                보강 필요: {blocker}
+                                보완 필요: {blocker}
                               </span>
                             ))}
                           </div>
@@ -3566,7 +3566,7 @@ export function VentureConsoleActions({
                             <div className="text-sm font-semibold text-emerald-950">검증 패키지 준비도</div>
                             <p className="mt-1 text-sm leading-6 text-emerald-900">
                               {nextReadinessGap
-                                ? `다음 보강: ${nextReadinessGap.label} - ${nextReadinessGap.detail}`
+                                ? `다음 보완: ${nextReadinessGap.label} - ${nextReadinessGap.detail}`
                                 : "아이디어, 리스크, 7일 실험으로 저장할 준비가 좋습니다."}
                             </p>
                           </div>
@@ -3677,7 +3677,7 @@ export function VentureConsoleActions({
                   <div className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">초안 확인</div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {activeOrganization
-                      ? `${activeOrganization.name} 안에 저장할 초안을 정리합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 넘길 수 있습니다.`
+                      ? `${activeOrganization.name}에 저장할 초안을 확인합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 이어갈 수 있습니다.`
                       : "AI가 만든 초안을 검토하고, 꼭 필요한 의견만 보완한 뒤 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 충분합니다."}
                   </p>
                 </div>
@@ -3697,8 +3697,8 @@ export function VentureConsoleActions({
                   <h2 className="mt-3 text-3xl font-semibold text-slate-950">아이디어 접수</h2>
                   <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
                     {activeOrganization
-                      ? `${activeOrganization.name} 안에 저장할 초안을 정리합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 넘길 수 있습니다.`
-                      : "AI가 먼저 만든 초안을 검토하고, 꼭 필요한 의견만 보태서 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 됩니다."}
+                      ? `${activeOrganization.name}에 저장할 초안을 확인합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 이어갈 수 있습니다.`
+                      : "AI가 먼저 만든 초안을 검토하고, 꼭 필요한 의견만 더해 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 됩니다."}
                   </p>
                 </div>
                 <button
@@ -3720,14 +3720,14 @@ export function VentureConsoleActions({
                     value={form.name}
                     onChange={(value) => setForm({ ...form, name: value })}
                     required
-                    hint="AI가 추천한 후보명을 그대로 두거나, 네가 이해하기 쉬운 이름으로 다듬어도 됩니다."
+                    hint="AI가 추천한 후보명을 그대로 두거나, 본인이 이해하기 쉬운 이름으로 다듬어도 됩니다."
                   />
                   <Field
                     label="한 줄 설명"
                     value={form.one_liner}
                     onChange={(value) => setForm({ ...form, one_liner: value })}
                     required
-                    hint="사용자 문제와 해결 방식이 한 문장에 같이 보이도록만 정리하면 충분합니다."
+                    hint="사용자 문제와 해결 방식이 한 문장에 보이면 충분합니다."
                   />
                 </div>
 
@@ -3736,7 +3736,7 @@ export function VentureConsoleActions({
                     추가 입력 열기
                   </summary>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    아래는 AI가 채운 초안을 사람이 다듬는 공간입니다. 필요가 없으면 그냥 두고 저장해도 됩니다.
+                    아래는 AI가 만든 초안을 사람이 다듬는 공간입니다. 필요가 없으면 그대로 저장해도 됩니다.
                   </p>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <Field
@@ -3778,7 +3778,7 @@ export function VentureConsoleActions({
                     <div className="border border-slate-200 bg-slate-50 p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">저장 기준</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
-                        이름과 한 줄 설명만 비어 있지 않으면 이 단계는 통과입니다.
+                        이름과 한 줄 설명만 비어 있지 않으면 이 단계는 완료됩니다.
                       </p>
                     </div>
                     <div className="border border-slate-200 bg-slate-50 p-3">
@@ -3792,7 +3792,7 @@ export function VentureConsoleActions({
                     <div className="border border-slate-200 bg-slate-50 p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 액션</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
-                        저장 후에는 워크벤치가 이 초안을 바로 선택하고, 다음으로 사업성 평가와 첫 검증 실험 설계가 열립니다.
+                        저장하면 이 초안이 바로 선택되고, 사업성 평가와 첫 검증 실험 설계로 이어집니다.
                       </p>
                     </div>
                   </div>
@@ -3803,7 +3803,7 @@ export function VentureConsoleActions({
                   <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                     <li>- 이름이 회의 메모 제목처럼 길지 않은지</li>
                     <li>- 한 줄 설명에 문제와 해결이 같이 들어있는지</li>
-                    <li>- 추가 입력은 정말 의견을 보태고 싶을 때만 수정할 것</li>
+                    <li>- 추가 입력은 꼭 보완할 내용이 있을 때만 수정</li>
                   </ul>
                 </div>
               </div>
@@ -3815,7 +3815,7 @@ export function VentureConsoleActions({
               <div className="avl-kicker">다음 단계</div>
               <h3 className="mt-4 text-lg font-semibold text-slate-950">저장하면 바로 워크벤치로 이동합니다</h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                새 아이디어는 저장되는 순간 워크벤치에 추가되고, 바로 선택된 상태로 `사업성 평가` 단계에서 이어서 검토할 수 있습니다.
+                새 아이디어를 저장하면 워크벤치에 추가되고, 바로 선택된 상태로 `사업성 평가` 단계에서 이어서 검토할 수 있습니다.
               </p>
             </section>
 
@@ -3824,8 +3824,8 @@ export function VentureConsoleActions({
               <div className="mt-3 grid gap-3">
                 {([
                   ["필수 입력", Boolean(form.name && form.one_liner)],
-                  ["구매자/대상 보강", Boolean(form.buyer && form.target_user)],
-                  ["검증 메모 보강", Boolean(form.signal || form.risk_summary || form.next_evidence)],
+                  ["구매자/대상 보완", Boolean(form.buyer && form.target_user)],
+                  ["검증 메모 보완", Boolean(form.signal || form.risk_summary || form.next_evidence)],
                 ] as Array<[string, boolean]>).map(([label, passed]) => (
                   <div key={label} className="avl-surface-muted p-3">
                     <div className="flex items-center justify-between gap-3">
@@ -3854,7 +3854,7 @@ export function VentureConsoleActions({
 
 function formatAuthError(message: string) {
   if (message.toLowerCase().includes("rate limit")) {
-    return "이메일 로그인 발송 제한에 걸렸습니다. 잠시 기다렸다 다시 시도하거나, 관리자가 미리 만든 비밀번호 계정으로 접속하세요.";
+    return "이메일 로그인 발송 제한에 걸렸습니다. 잠시 기다렸다 다시 시도하거나, 관리자가 미리 만든 비밀번호 계정으로 로그인하세요.";
   }
 
   if (message.toLowerCase().includes("invalid SignIn credentials")) {

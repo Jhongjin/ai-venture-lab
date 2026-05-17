@@ -29,7 +29,7 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   title: "AI Venture Lab",
-  description: "아이디어 검증, 기획, MVP 실행까지 한 흐름으로 정리하는 AI 실행 워크스페이스입니다.",
+  description: "아이디어 검증, 기획, MVP 실행까지 한 보드에서 이어가는 AI 실행 워크스페이스입니다.",
 };
 
 const heroStats = [
@@ -43,7 +43,7 @@ const workflowSteps = [
   {
     id: "01",
     title: "초안 수집",
-    ai: "회의 메모와 브리프를 읽고 후보와 첫 질문을 뽑아냅니다.",
+    ai: "회의 메모와 브리프를 살펴보고 후보와 첫 질문을 뽑아냅니다.",
     human: "오늘 먼저 볼 후보를 고릅니다.",
     result: "후보 한 건 + 비교 후보 큐",
     icon: ClipboardText,
@@ -51,7 +51,7 @@ const workflowSteps = [
   {
     id: "02",
     title: "후보 선별",
-    ai: "바로 검증할지, 더 보강할지, 접어둘지 먼저 나눕니다.",
+    ai: "바로 검증할지, 더 보완할지, 접어둘지 먼저 나눕니다.",
     human: "왜 이 후보를 먼저 볼지 짧게 확인합니다.",
     result: "우선순위 + 검토 메모",
     icon: Sparkle,
@@ -59,7 +59,7 @@ const workflowSteps = [
   {
     id: "03",
     title: "검증 판단",
-    ai: "리스크, 질문, 7일 실험, 중단 기준을 한 흐름으로 묶습니다.",
+    ai: "리스크, 질문, 7일 실험, 중단 기준을 한 번에 묶습니다.",
     human: "리스크와 실험 조건을 확인하고 조정합니다.",
     result: "검증 패키지",
     icon: ShieldCheck,
@@ -69,7 +69,7 @@ const workflowSteps = [
     title: "실행 패키지",
     ai: "PRD, MVP 범위, 실행 태스크, 출시 판단 초안을 한 번에 묶습니다.",
     human: "어디까지 만들고 언제 시작할지 결정합니다.",
-    result: "바로 넘길 실행 패키지",
+    result: "바로 이어갈 실행 패키지",
     icon: ShieldCheck,
   },
 ];
@@ -85,7 +85,7 @@ const workflowOverview = [
     eyebrow: "사람의 판단",
     title: "지금 볼 것만 앞으로 꺼냅니다",
     body: "후보 선택, 실험 조건, 진행 여부만 빠르게 확인합니다.",
-    chips: ["우선 후보", "실험 조건", "진행/보강"],
+    chips: ["우선 후보", "실험 조건", "진행/보완"],
   },
   {
     eyebrow: "보드에 남는 것",
@@ -186,7 +186,7 @@ const outputs = [
   },
   {
     title: "출시 판단",
-    body: "보강, 전환, 진행, 중단 중 다음 방향을 남깁니다.",
+    body: "보완, 전환, 진행, 중단 중 다음 방향을 남깁니다.",
     icon: RocketLaunch,
   },
   {
@@ -206,7 +206,7 @@ const outputColumns = [
   {
     eyebrow: "build layer",
     title: "실행으로 넘기는 구조",
-    body: "실험 조건, MVP 범위, 실행 태스크를 이어서 정리하고 바로 넘길 수 있게 만듭니다.",
+    body: "실험 조건, MVP 범위, 실행 태스크를 이어서 정리하고 바로 넘겨줄 수 있게 만듭니다.",
     items: [aiOutputs[3], aiOutputs[4], aiOutputs[5]],
   },
   {
@@ -356,7 +356,7 @@ export default function HomePage() {
                 <span className="block">한 흐름으로.</span>
               </h2>
               <p className="mt-6 max-w-[40ch] break-keep text-sm leading-7 text-slate-600">
-                긴 설명보다 흐름을 먼저 보여줍니다. AI가 초안을 정리하고, 사람은 필요한 판단만 고릅니다.
+                길게 설명하기보다 흐름을 먼저 보여줍니다. AI가 초안을 정리하고, 사람은 필요한 판단만 고릅니다.
               </p>
 
               <div className="mt-12 max-w-[560px]">
@@ -508,7 +508,7 @@ export default function HomePage() {
                   <div>
                     <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">where it works</div>
                     <h3 className="mt-5 max-w-[20ch] break-keep text-[34px] font-semibold leading-[1.02] tracking-tight text-slate-950 sm:text-[38px]">
-                      설명을 더 읽기보다, 다음 결정을 바로 내려야 할 때.
+                      설명을 더 듣고 있기보다, 다음 결정을 바로 내려야 할 때.
                     </h3>
                     <p className="mt-5 max-w-[32ch] break-keep text-sm leading-7 text-slate-600">
                       오른쪽은 카드 모음이 아니라 판단 흐름을 보여주는 작업 화면입니다. 입력, 선별, 실행 조건이 한 번에 이어집니다.
@@ -567,79 +567,119 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="outputs" className="mt-4 overflow-hidden bg-slate-950 text-white">
-          <div className="grid xl:grid-cols-[minmax(0,0.54fr)_minmax(0,1.46fr)]">
-            <div className="relative overflow-hidden bg-slate-950 px-6 py-8 sm:px-8 xl:px-10">
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 opacity-[0.24]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
-                  backgroundSize: "30px 30px",
-                }}
-              />
-              <div aria-hidden="true" className="absolute bottom-0 left-0 right-0 h-48 bg-[radial-gradient(circle_at_24%_100%,rgba(188,211,255,0.18),transparent_42%)]" />
-              <div className="relative">
-                <div className="avl-kicker !text-slate-300">artifact library</div>
-                <h2
-                  className="mt-5 max-w-[15ch] break-keep text-[34px] font-normal leading-[0.98] tracking-[-0.03em] text-white sm:text-[46px]"
-                  style={{ fontFamily: "var(--font-newsreader)" }}
-                >
-                  <span className="block">AI 초안은</span>
-                  <span className="block">실행 패키지로</span>
-                  <span className="block">남습니다.</span>
-                </h2>
-                <p className="mt-5 max-w-[42ch] break-keep text-sm leading-7 text-slate-300">
-                  후보 정리부터 학습 리포트까지, 다음 판단에 바로 쓰는 작업 단위로 남깁니다.
-                </p>
+        <section id="outputs" className="relative mt-8 overflow-hidden bg-[#0b1019] text-white">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 opacity-[0.22]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(188,211,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(188,211,255,0.08) 1px, transparent 1px)",
+              backgroundSize: "34px 34px",
+            }}
+          />
+          <div aria-hidden="true" className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(188,211,255,0.7),transparent)]" />
+          <div className="relative grid xl:grid-cols-[minmax(320px,0.42fr)_minmax(0,1.58fr)]">
+            <aside className="relative min-h-[700px] overflow-hidden bg-[#070b14] px-6 py-9 sm:px-8 xl:px-10 xl:py-10">
+              <div aria-hidden="true" className="absolute bottom-[-10%] left-[-12%] h-80 w-80 bg-[radial-gradient(circle,rgba(188,211,255,0.18),transparent_62%)]" />
+              <div className="relative flex min-h-[620px] flex-col justify-between">
+                <div>
+                  <div className="avl-kicker !text-slate-300">artifact library</div>
+                  <h2
+                    className="mt-5 max-w-[15ch] break-keep text-[34px] font-normal leading-[0.98] tracking-[-0.03em] text-white sm:text-[46px]"
+                    style={{ fontFamily: "var(--font-newsreader)" }}
+                  >
+                    <span className="block">AI 초안은</span>
+                    <span className="block">실행 패키지로</span>
+                    <span className="block">남습니다.</span>
+                  </h2>
+                  <p className="mt-5 max-w-[42ch] break-keep text-sm leading-7 text-slate-300">
+                    후보 정리부터 학습 리포트까지, 다음 판단에 바로 쓰는 작업 단위로 남깁니다.
+                  </p>
+                </div>
 
-                <div className="mt-10 border-y border-white/10">
+                <div className="relative mt-12 border-l border-white/12 pl-5">
                   {packageHighlights.map((label, index) => (
-                    <div key={label} className="grid grid-cols-[0.18fr_0.62fr_0.2fr] border-b border-white/10 py-4 last:border-b-0">
-                      <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">0{index + 1}</span>
-                      <span className="text-sm font-semibold text-slate-100">{label}</span>
-                      <span className="text-right text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">ready</span>
+                    <div key={label} className="relative pb-5 last:pb-0">
+                      <span className={`absolute -left-[26px] top-0 h-2.5 w-2.5 ${index === 1 ? "bg-[#bcd3ff]" : "border border-white/24 bg-[#070b14]"}`} />
+                      <div className="grid grid-cols-[3rem_1fr_auto] items-start gap-3 border-t border-white/10 pt-4">
+                        <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">0{index + 1}</span>
+                        <span className="break-keep text-sm font-semibold text-slate-100">{label}</span>
+                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-600">ready</span>
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div className="mt-8 border-l border-[#bcd3ff]/50 pl-4">
-                  <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">handoff rule</div>
-                  <p className="mt-3 max-w-[38ch] break-keep text-sm leading-6 text-slate-300">
-                    모든 산출물은 다음 판단에 바로 쓰는 짧은 작업 단위로 남깁니다.
+              </div>
+            </aside>
+
+            <div className="relative px-6 py-9 sm:px-8 xl:px-10 xl:py-10">
+              <div className="grid gap-10 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                <article className="relative border-t border-[#bcd3ff]/40 pt-6">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#bcd3ff]">{outputColumns[0].eyebrow}</div>
+                  <h3 className="mt-4 max-w-[15ch] break-keep text-[30px] font-semibold leading-[1.02] tracking-tight text-white sm:text-[36px]">
+                    {outputColumns[0].title}
+                  </h3>
+                  <p className="mt-4 max-w-[42ch] break-keep text-sm leading-7 text-slate-300">{outputColumns[0].body}</p>
+
+                  <div className="mt-9 space-y-5">
+                    {outputColumns[0].items.map((item, index) => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.title} className="grid grid-cols-[2.75rem_1fr] gap-4 border-t border-white/10 pt-5">
+                          <span className={`${index === 0 ? "bg-[#bcd3ff] text-slate-950" : "bg-white/[0.04] text-slate-200"} flex h-9 w-9 items-center justify-center border border-white/10`}>
+                            <Icon size={16} />
+                          </span>
+                          <div>
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{getOutputMeta(item)}</div>
+                            <div className="mt-1 break-keep text-base font-semibold text-white">{item.title}</div>
+                            <p className="mt-2 max-w-[42ch] break-keep text-sm leading-6 text-slate-400">{item.body}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </article>
+
+                <div className="relative min-h-[420px] overflow-hidden border-l border-white/10 pl-6">
+                  <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">artifact runway</div>
+                  <p className="mt-3 max-w-[36ch] break-keep text-sm leading-6 text-slate-300">
+                    판단 전 초안이 실행 범위와 출시 판단으로 이어지며, 다음 작업자가 바로 볼 수 있는 단위로 정리됩니다.
                   </p>
+                  <div className="relative mt-10 min-h-[300px]">
+                    {[
+                      { label: "brief", tone: "bg-white text-slate-950", pos: "left-0 top-0 w-[72%]" },
+                      { label: "validation", tone: "bg-[#fff7e8] text-slate-950", pos: "left-[18%] top-[76px] w-[68%]" },
+                      { label: "scope", tone: "bg-[#bcd3ff] text-slate-950", pos: "left-[6%] top-[154px] w-[58%]" },
+                      { label: "launch", tone: "bg-[#151b28] text-white", pos: "left-[30%] top-[218px] w-[58%] border border-white/12" },
+                    ].map((item, index) => (
+                      <div key={item.label} className={`absolute ${item.pos} ${item.tone} px-5 py-4 shadow-[0_28px_70px_rgba(2,6,23,0.22)]`}>
+                        <div className="flex items-start justify-between gap-4">
+                          <span className="font-mono text-[11px] uppercase tracking-[0.2em] opacity-70">0{index + 1}</span>
+                          <span className="font-mono text-[10px] uppercase tracking-[0.18em] opacity-55">ready</span>
+                        </div>
+                        <div className="mt-8 text-sm font-semibold uppercase tracking-[0.12em]">{item.label}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="relative bg-[#0d1118]">
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 opacity-[0.18]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)",
-                  backgroundSize: "32px 32px",
-                }}
-              />
-              <div className="relative grid xl:grid-cols-[1.08fr_0.94fr_1fr]">
-                {outputColumns.map((column, columnIndex) => (
-                  <article key={column.title} className={`${columnIndex === 1 ? "bg-[#182233]/80" : "bg-[#0d1118]/82"} border-t border-white/10 px-6 py-7 sm:px-8 xl:border-l xl:border-t-0`}>
+              <div className="mt-12 grid gap-px bg-white/10 lg:grid-cols-[0.92fr_1.08fr]">
+                {outputColumns.slice(1).map((column, columnIndex) => (
+                  <article key={column.title} className={`${columnIndex === 0 ? "bg-[#182233]/92" : "bg-[#0d1118]/92"} px-6 py-7 sm:px-8`}>
                     <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{column.eyebrow}</div>
-                    <h3 className="mt-4 max-w-[16ch] break-keep text-[26px] font-semibold leading-[1.02] tracking-tight text-white">{column.title}</h3>
-                    <p className="mt-4 max-w-[36ch] break-keep text-sm leading-6 text-slate-300">{column.body}</p>
-                    <div className="mt-7 border-y border-white/10">
-                      {column.items.slice(0, columnIndex === 2 ? 3 : 2).map((item) => {
+                    <h3 className="mt-4 max-w-[18ch] break-keep text-[26px] font-semibold leading-[1.02] tracking-tight text-white">{column.title}</h3>
+                    <p className="mt-4 max-w-[44ch] break-keep text-sm leading-6 text-slate-300">{column.body}</p>
+                    <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                      {column.items.slice(0, 2).map((item) => {
                         const Icon = item.icon;
                         return (
-                          <div key={item.title} className="grid grid-cols-[2.5rem_1fr] border-b border-white/10 py-4 last:border-b-0">
+                          <div key={item.title} className="border-t border-white/10 pt-4">
                             <span className="flex h-8 w-8 items-center justify-center border border-white/10 bg-white/[0.04] text-slate-100">
                               <Icon size={15} />
                             </span>
-                            <div>
-                              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{getOutputMeta(item)}</div>
-                              <div className="mt-1 text-sm font-semibold text-white">{item.title}</div>
-                            </div>
+                            <div className="mt-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">{getOutputMeta(item)}</div>
+                            <div className="mt-1 break-keep text-sm font-semibold text-white">{item.title}</div>
                           </div>
                         );
                       })}
@@ -648,34 +688,22 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="relative grid border-t border-white/10 lg:grid-cols-[1fr_0.7fr]">
-                <div className="bg-[#10141d]/88 px-6 py-6 sm:px-8">
+              <div className="relative mt-10 grid items-end gap-6 border-t border-white/10 pt-6 lg:grid-cols-[1fr_auto]">
+                <div>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">final package</div>
                   <p className="mt-3 max-w-[62ch] break-keep text-sm leading-6 text-slate-300">
-                    결과는 설명서가 아니라 바로 검토하고 넘길 수 있는 실행 패키지입니다.
+                    결과는 설명서가 아니라 바로 검토하고 넘겨줄 수 있는 실행 패키지입니다.
                   </p>
                 </div>
-                <div className="grid sm:grid-cols-2">
-                  <Link href="/workspace" className="avl-btn flex h-14 justify-center border-0 bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
+                <nav aria-label="artifact actions" className="flex flex-wrap gap-2">
+                  <Link href="/workspace" className="avl-btn h-12 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
                     실행 보드 열기
                     <ArrowRight size={16} />
                   </Link>
-                  <Link href="/guide" className="avl-btn flex h-14 justify-center border-0 bg-white/6 px-5 text-white hover:bg-white/10">
+                  <Link href="/guide" className="avl-btn h-12 border border-white/10 bg-white/6 px-5 text-white hover:bg-white/10">
                     가이드 보기
                   </Link>
-                </div>
-              </div>
-
-              <div aria-hidden="true" className="absolute bottom-10 right-10 hidden w-[38%] lg:block">
-                <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-600">artifact route</div>
-                <div className="mt-4 grid grid-cols-3 gap-5">
-                  {["brief", "scope", "launch"].map((label, index) => (
-                    <div key={label} className="border-t border-white/10 pt-3">
-                      <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]/70">0{index + 1}</div>
-                      <div className="mt-7 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>
-                    </div>
-                  ))}
-                </div>
+                </nav>
               </div>
             </div>
           </div>
