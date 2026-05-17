@@ -15,9 +15,15 @@ concurrency:
 
 jobs:
   quality:
-    name: pnpm quality:full
+    name: pnpm quality:full / Node ${{ matrix.node-version }}
     runs-on: windows-2025-vs2026
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - "20"
+          - "24"
     env:
       CI: "true"
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -37,7 +43,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ matrix.node-version }}
           cache: pnpm
 
       - name: Install dependencies

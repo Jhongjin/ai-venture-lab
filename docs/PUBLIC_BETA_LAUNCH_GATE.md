@@ -64,11 +64,12 @@ Validation keywords: `controlled_beta_ship_scope`, `no_real_pii_beta_scope`, `re
 These do not block the current controlled beta ship decision:
 
 - GitHub Actions now runs a read-only `pnpm quality:full` workflow as a drift detector. Local `pnpm quality:full` and production smoke remain the release evidence for user-facing changes.
+- App build compatibility is configured for Node 20 and Node 24 in CI, but this is not a production runtime migration. `engines.node` and Vercel Project Settings remain unchanged by this gate.
 - `OPENAI_API_KEY` and `OPENAI_IDEA_MODEL` remain optional because server-side extraction falls back to local rules.
 - Cleanup automation is intentionally not implemented; cleanup is user-owned when it requires SQL, dashboard mutation, Auth deletion, service-role access, or external runtime mutation.
 - RLS fixtures may be retained for reruns as long as they stay synthetic and are not used for primary operator work.
 
-Validation keywords: `github_actions_non_blocking_for_controlled_beta`, `openai_key_optional_with_local_fallback`, `cleanup_automation_not_required`, `rls_fixture_retention_allowed`.
+Validation keywords: `github_actions_non_blocking_for_controlled_beta`, `ci_app_node_matrix_20_24_configured`, `no_runtime_selection_change`, `openai_key_optional_with_local_fallback`, `cleanup_automation_not_required`, `rls_fixture_retention_allowed`.
 
 ## Evidence Boundary
 

@@ -1,8 +1,8 @@
 # CI Workflow Scope Boundary
 
-Status: WQ-053 CI runtime/image maintenance enabled
+Status: WQ-054 app Node runtime matrix configured
 Last updated: 2026-05-17
-Scope: approved read-only GitHub Actions quality gate; Node24 JavaScript action runtime and Windows 2025 VS2026 image tested early; no secrets, deploys, production mutation, authenticated write smoke, telemetry smoke, or Build Relay execution
+Scope: approved read-only GitHub Actions quality gate; Node24 JavaScript action runtime and Windows 2025 VS2026 image tested early; application build compatibility matrix configured for Node 20 and Node 24; no secrets, deploys, production mutation, authenticated write smoke, telemetry smoke, or Build Relay execution
 
 ## Purpose
 
@@ -14,11 +14,21 @@ The workflow mirrors the local non-secret gate by running `pnpm quality:full` on
 
 The workflow also sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"` so JavaScript actions are tested against the upcoming Node24 action runtime before GitHub flips the default.
 
+The application build itself now runs as a two-version matrix:
+
+```yaml
+node-version:
+  - "20"
+  - "24"
+```
+
+This distinguishes the GitHub JavaScript action runtime from the Node version used by Next.js, TypeScript, and the app build.
+
 Checkout uses `persist-credentials: false` so the GitHub token is not left in local git config for later steps.
 
 This document and workflow do not change repo secrets, branch protection, GitHub environments, Vercel settings, Supabase settings, production data, or Build Relay permissions.
 
-Validation keywords: `ci_workflow_scope_active`, `workflow_scope_approved`, `quality_workflow_enabled`, `node24_action_runtime_test_enabled`, `windows_2025_vs2026_runner_enabled`, `checkout_persist_credentials_false`, `no_secret_output`, `no_production_mutation`.
+Validation keywords: `ci_workflow_scope_active`, `workflow_scope_approved`, `quality_workflow_enabled`, `node24_action_runtime_test_enabled`, `windows_2025_vs2026_runner_enabled`, `ci_app_node_matrix_20_24_configured`, `javascript_action_runtime_separate_from_app_runtime`, `checkout_persist_credentials_false`, `no_secret_output`, `no_production_mutation`.
 
 ## Current Runtime Boundary
 
@@ -39,7 +49,7 @@ Local gates remain the release evidence for user-facing changes. CI is an additi
 | Production build | `pnpm build` | CI-safe future check |
 | Harness check | `pnpm harness:check` | CI-safe future check |
 | Release-readiness check | `pnpm release:check` | CI-safe future check |
-| Full local gate | `pnpm quality:full` | Mirrored by `.github/workflows/quality.yml` |
+| Full local gate | `pnpm quality:full` | Configured in `.github/workflows/quality.yml` on Node 20 and Node 24 |
 | Public route smoke | `pnpm smoke:routes` | CI-safe only if it remains no-secret and no-write |
 | Production shell smoke | `pnpm smoke:prod` | Manual or protected CI only after target URL policy is reviewed |
 | Browser smoke | `pnpm smoke:browser` | Manual by default; future CI only if browser dependency/runtime is stable |
@@ -60,7 +70,7 @@ Triggers:
 - `pull_request`
 - `push` to `main`
 
-Exact command:
+Exact command for each matrix entry:
 
 ```powershell
 pnpm quality:full
@@ -106,10 +116,15 @@ The workflow now opts into the upcoming runner conditions without expanding CI s
 
 - JavaScript actions: `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"`.
 - Windows image: `runs-on: windows-2025-vs2026`.
+- Application build runtime: `node-version` matrix with Node 20 and Node 24.
 
-Keep `node-version: "20"` in `actions/setup-node` until the application runtime support matrix is reviewed separately; this setting controls the project build Node version, not the JavaScript action runtime.
+Keep this as a compatibility check only. Do not add `package.json` `engines.node`, change the Vercel Project Settings Node.js version, or treat CI matrix success as a production runtime migration without a separate deployment-impact review.
 
-Validation keywords: `ci_runtime_maintenance_applied`, `force_javascript_actions_to_node24`, `windows_2025_vs2026_image_test`, `app_node_version_20_retained`, `no_ci_scope_expansion`.
+Validation keywords: `ci_runtime_maintenance_applied`, `force_javascript_actions_to_node24`, `windows_2025_vs2026_image_test`, `ci_app_node_matrix_20_24_configured`, `app_node_20_floor_node_24_forward_check_configured`, `no_runtime_selection_change`, `no_ci_scope_expansion`.
+
+Do not promote the matrix to `ci_app_node_matrix_passed` until a pushed GitHub Actions run shows both Node 20 and Node 24 jobs passing.
+
+Validation keywords: `ci_app_node_matrix_pass_requires_github_run`, `matrix_evidence_summary_only`, `ci_app_node_matrix_pass_not_yet_recorded`.
 
 ## Future CI Expansion
 
@@ -119,9 +134,10 @@ Allowed future candidates:
 
 - public route smoke only if it remains no-secret and no-write,
 - browser smoke only if browser runtime stability and screenshot privacy are reviewed,
+- package-level `engines.node` only after Vercel deployment impact is reviewed,
 - status reporting or branch protection only after explicit user approval.
 
-Validation keywords: `future_ci_expansion_requires_review`, `no_default_ci_expansion`.
+Validation keywords: `future_ci_expansion_requires_review`, `node_runtime_revisit_triggers`, `no_default_ci_expansion`.
 
 ## CI-Forbidden Checks
 

@@ -40,6 +40,36 @@ $checks = @(
     )
   },
   @{
+    Path = "docs/APP_NODE_RUNTIME_POSTURE.md"
+    Terms = @(
+      "app_node_runtime_posture",
+      "javascript_action_runtime_separate_from_app_runtime",
+      "vercel_runtime_separate_from_ci_runtime",
+      "next_16_min_node_20_9",
+      "local_node_24_evidence_recorded",
+      "no_repo_node_runtime_pin_found",
+      "ci_app_node_matrix_20_24_configured",
+      "same_quality_full_command_for_each_node",
+      "app_node_matrix_decision",
+      "node_20_floor_node_24_forward_check_configured",
+      "no_runtime_selection_change",
+      "package_engines_node_not_added",
+      "vercel_project_node_setting_not_changed",
+      "ci_app_node_matrix_pass_requires_github_run",
+      "matrix_evidence_summary_only",
+      "ci_app_node_matrix_pass_not_yet_recorded",
+      "node_runtime_revisit_triggers",
+      "engines_node_requires_review",
+      "vercel_node_setting_requires_review",
+      "dependency_major_upgrade_requires_runtime_review",
+      "node_matrix_no_secret_policy",
+      "node_matrix_no_production_mutation",
+      "node_matrix_no_authenticated_write_smoke",
+      "node_matrix_no_telemetry_smoke",
+      "node_matrix_no_admate_projects_mutation"
+    )
+  },
+  @{
     Path = "docs/CI_WORKFLOW_SCOPE_BOUNDARY.md"
     Terms = @(
       "ci_workflow_scope_active",
@@ -54,10 +84,16 @@ $checks = @(
       "windows_latest_redirect_notice_nonblocking",
       "node24_action_runtime_test_enabled",
       "windows_2025_vs2026_runner_enabled",
+      "ci_app_node_matrix_20_24_configured",
+      "javascript_action_runtime_separate_from_app_runtime",
       "ci_runtime_maintenance_applied",
       "force_javascript_actions_to_node24",
       "windows_2025_vs2026_image_test",
-      "app_node_version_20_retained",
+      "app_node_20_floor_node_24_forward_check_configured",
+      "no_runtime_selection_change",
+      "ci_app_node_matrix_pass_requires_github_run",
+      "matrix_evidence_summary_only",
+      "ci_app_node_matrix_pass_not_yet_recorded",
       "local_quality_full_still_required",
       "ci_mirrors_local_quality_full",
       "contents_read_only",
@@ -84,6 +120,13 @@ $checks = @(
       "persist-credentials: false",
       "windows-2025-vs2026",
       "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
+      "strategy:",
+      "matrix:",
+      "fail-fast: false",
+      "node-version:",
+      "- ""20""",
+      "- ""24""",
+      'node-version: ${{ matrix.node-version }}',
       "pnpm install --frozen-lockfile",
       "pnpm quality:full"
     )
