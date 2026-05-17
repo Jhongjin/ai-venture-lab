@@ -40,6 +40,29 @@ $checks = @(
     )
   },
   @{
+    Path = "templates/BETA_SESSION_FEEDBACK.md"
+    Terms = @(
+      "controlled_beta_session_feedback_template",
+      "summary_only_beta_feedback_template",
+      "synthetic_beta_data_only",
+      "beta_feedback_triage",
+      "copy_or_flow_fix",
+      "evidence_gap",
+      "workflow_gap",
+      "scope_risk",
+      "no_real_pii_beta_session",
+      "regulated_advice_scoped_out",
+      "no_secret_or_env_readback",
+      "no_raw_logs_or_sql",
+      "no_private_screenshot_evidence",
+      "smoke_evidence_not_user_feedback",
+      "no_raw_transcripts",
+      "no_credentials_in_feedback",
+      "no_single_session_launch_claim",
+      "usable_beta_session_evidence"
+    )
+  },
+  @{
     Path = "docs/CONTROLLED_BETA_SESSION_PLAYBOOK.md"
     Terms = @(
       "controlled_beta_session_playbook",
@@ -61,6 +84,8 @@ $checks = @(
       "operator_decision_capture",
       "beta_observer_notes_template",
       "summary_only_beta_feedback",
+      "controlled_beta_session_feedback_template",
+      "summary_only_beta_feedback_template",
       "no_raw_transcripts",
       "no_raw_logs_or_sql",
       "no_credentials_in_feedback",
@@ -350,6 +375,8 @@ $checks = @(
       "controlled_beta_session_playbook",
       "summary_only_beta_feedback",
       "synthetic_beta_data_only",
+      "controlled_beta_session_feedback_template",
+      "smoke_evidence_not_user_feedback",
       "public_beta_cleanup_gate",
       "disposable_smoke_records_reviewed",
       "cleanup_owner_recorded_before_beta"

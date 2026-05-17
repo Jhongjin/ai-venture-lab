@@ -91,6 +91,10 @@ Do not paste raw transcripts, private screenshots, credentials, raw logs, SQL ou
 
 Validation keywords: `beta_observer_notes_template`, `summary_only_beta_feedback`, `no_raw_transcripts`, `no_raw_logs_or_sql`, `no_credentials_in_feedback`.
 
+For a reusable artifact shape, use `templates/BETA_SESSION_FEEDBACK.md` after the session.
+
+Validation keywords: `controlled_beta_session_feedback_template`, `summary_only_beta_feedback_template`.
+
 ## Stop Conditions
 
 Stop the session and do not continue collecting input if any of these happen:

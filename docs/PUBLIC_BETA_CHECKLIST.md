@@ -25,6 +25,10 @@ Use `docs/CONTROLLED_BETA_SESSION_PLAYBOOK.md` before sitting with a beta partic
 
 Validation keywords: `controlled_beta_session_playbook`, `summary_only_beta_feedback`, `synthetic_beta_data_only`.
 
+Use `templates/BETA_SESSION_FEEDBACK.md` after a participant session so notes stay summary-only and separate from smoke evidence.
+
+Validation keywords: `controlled_beta_session_feedback_template`, `smoke_evidence_not_user_feedback`.
+
 GitHub Actions now runs the read-only `Quality Gate` workflow for `pnpm quality:full`. Before modifying CI again, check `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md`; CI does not replace explicit approval for authenticated write smoke, telemetry smoke, deploys, rollback, production DB/Auth mutation, or release decisions.
 
 Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, and `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`. The current posture is `rls_allowed_denied_browser_smoke_passed`: production private-read posture was confirmed with disposable account/workspace fixtures and summary-only evidence. Rerun when fixtures, RLS policies, workspace access code, or production migrations change.
@@ -142,6 +146,7 @@ Validation keywords: `public_beta_cleanup_gate`, `disposable_smoke_records_revie
 11. Mark at least one task through todo -> doing -> done with completion evidence.
 12. Save the 제작 완료 보고서 and launch checklist.
 13. Approve PRD, MVP spec, design brief, and tech spec in the artifact library.
+14. If this is an observed beta session, save summary-only feedback using `templates/BETA_SESSION_FEEDBACK.md`.
 
 ## Pass Criteria
 

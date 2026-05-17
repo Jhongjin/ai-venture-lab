@@ -20,6 +20,7 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - Research brief: generated `research_note` artifact in the workbench
 - 7-day validation sprint: generated `research_note` artifact with interview recruiting, alternatives, pricing, and decision criteria
 - Evidence note: manual `research_note` artifact for interviews, external sources, pricing signals, and competitor observations
+- Controlled beta session feedback: `templates/BETA_SESSION_FEEDBACK.md`
 - Experiment result: manual `research_note` artifact for result, learning, next decision, and next action
 - Validation summary: generated `research_note` artifact that rolls up evidence, experiments, risks, and decision history before PRD
 - Product requirements: `templates/PRD.md`
@@ -142,3 +143,4 @@ The app now supports the first live operating loop:
 65. Run `pnpm release:check` locally while GitHub Actions is blocked so release-safety drift is caught before push.
 66. Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, telemetry smoke, env changes, or deployment evidence collection so the runtime stays `beta_env_smoke_boundary_docs_only`, names-only, disposable-account only for authenticated smoke, and local-secret only for telemetry.
 67. Use `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` before creating or modifying GitHub Actions so future CI mirrors local non-secret gates and does not run deploy, rollback, authenticated write smoke, telemetry smoke, production mutation, or secret-bearing checks by default.
+68. Use `docs/CONTROLLED_BETA_SESSION_PLAYBOOK.md` and `templates/BETA_SESSION_FEEDBACK.md` before/after participant sessions so beta observations stay synthetic, summary-only, and separate from technical smoke evidence.
