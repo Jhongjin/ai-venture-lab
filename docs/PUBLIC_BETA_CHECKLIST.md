@@ -33,6 +33,10 @@ Use `templates/BETA_SESSION_FEEDBACK.md` after a participant session so notes st
 
 Validation keywords: `controlled_beta_session_feedback_template`, `smoke_evidence_not_user_feedback`.
 
+For the first prepared session, use `docs/CONTROLLED_BETA_SESSION_001_PREP.md`.
+
+Validation keywords: `controlled_beta_session_001_prep`, `pre_session_plan_only`.
+
 GitHub Actions now runs the read-only `Quality Gate` workflow for `pnpm quality:full`. Before modifying CI again, check `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md`; CI does not replace explicit approval for authenticated write smoke, telemetry smoke, deploys, rollback, production DB/Auth mutation, or release decisions.
 
 Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, and `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`. The current posture is `rls_allowed_denied_browser_smoke_passed`: production private-read posture was confirmed with disposable account/workspace fixtures and summary-only evidence. Rerun when fixtures, RLS policies, workspace access code, or production migrations change.

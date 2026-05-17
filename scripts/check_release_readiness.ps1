@@ -40,6 +40,47 @@ $checks = @(
     )
   },
   @{
+    Path = "docs/CONTROLLED_BETA_SESSION_001_PREP.md"
+    Terms = @(
+      "controlled_beta_session_001_prep",
+      "first_beta_session_prep",
+      "pre_session_plan_only",
+      "not_feedback_evidence",
+      "participant_type_not_identity",
+      "synthetic_data_agreement_yes",
+      "sensitive_domain_risk_review_needed",
+      "no_contact_details_in_repo",
+      "regulated_advice_scoped_out",
+      "next_action_clarity_check",
+      "mvp_scope_clarity_check",
+      "technical_starting_point_check",
+      "synthetic_idea_walkthrough",
+      "no_real_customer_data",
+      "non_regulated_sample_idea",
+      "technical_stack_friction_probe",
+      "copy_ready_synthetic_input",
+      "no_private_payload",
+      "no_secret_or_env_readback",
+      "operator_observation_prompts",
+      "execution_package_value_check",
+      "documentation_feel_check",
+      "beta_feedback_triage",
+      "copy_or_flow_fix",
+      "evidence_gap",
+      "workflow_gap",
+      "scope_risk",
+      "beta_session_stop_conditions",
+      "private_data_stop_condition",
+      "workspace_exposure_stop_condition",
+      "smoke_evidence_not_user_feedback",
+      "controlled_beta_session_feedback_template",
+      "summary_only_beta_feedback",
+      "no_raw_transcripts",
+      "no_credentials_in_feedback",
+      "usable_beta_session_evidence"
+    )
+  },
+  @{
     Path = "templates/BETA_PARTICIPANT_SCREENER.md"
     Terms = @(
       "controlled_beta_participant_screener",
@@ -409,6 +450,8 @@ $checks = @(
       "scheduling_outside_repo_artifacts",
       "controlled_beta_session_feedback_template",
       "smoke_evidence_not_user_feedback",
+      "controlled_beta_session_001_prep",
+      "pre_session_plan_only",
       "public_beta_cleanup_gate",
       "disposable_smoke_records_reviewed",
       "cleanup_owner_recorded_before_beta"
