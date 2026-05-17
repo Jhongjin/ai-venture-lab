@@ -2,7 +2,7 @@
 
 Status: WQ-051 CI quality workflow enabled
 Last updated: 2026-05-17
-Scope: approved read-only GitHub Actions quality gate; no secrets, deploys, production mutation, authenticated write smoke, telemetry smoke, or Build Relay execution
+Scope: approved read-only GitHub Actions quality gate; no secrets, deploys, production mutation, authenticated write smoke, telemetry smoke, or Build Relay execution; runner/action notices tracked as maintenance only
 
 ## Purpose
 
@@ -84,6 +84,19 @@ Disable path:
 - Do not disable release checker terms unless the workflow is intentionally removed in the same reviewed change.
 
 Validation keywords: `approved_workflow_file_quality_yml`, `single_workflow_file_only`, `pull_request_safe_checks_only`, `push_main_quality_gate`, `contents_read_only`, `permissions_block_contents_read_only`, `checkout_persist_credentials_false`, `no_actions_write`, `no_deployments_write`, `no_id_token`, `no_repo_secrets`, `ci_disable_path_recorded`.
+
+## Current Runner Notices
+
+The first `Quality Gate` run for commit `9b963dd` passed, but GitHub emitted two non-blocking notices:
+
+- Node.js 20 JavaScript actions are deprecated and GitHub plans to force JavaScript actions to Node.js 24 by default starting June 2, 2026.
+- `windows-latest` is scheduled to redirect to a newer Windows image by June 15, 2026.
+
+These notices are not launch blockers because the workflow passed and mirrors local `pnpm quality:full`. Treat them as CI maintenance items only.
+
+Do not react to these notices by adding secrets, write permissions, deploy commands, authenticated smoke, telemetry smoke, production mutation, or Build Relay execution to CI.
+
+Validation keywords: `ci_runner_notice_recorded`, `node20_action_notice_nonblocking`, `windows_latest_redirect_notice_nonblocking`, `ci_notice_not_launch_blocker`, `ci_notice_no_scope_expansion`.
 
 ## Future CI Expansion
 

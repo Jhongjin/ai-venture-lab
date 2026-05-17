@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-17 | Recorded CI runner/action notices | Current commit | Docs/check-script only; no runtime deploy intended | `Quality Gate` run `25984007955` passed; Node.js 20 action runtime and `windows-latest` redirect notices recorded as non-blocking maintenance risk |
 | 2026-05-17 | Enabled read-only GitHub Actions quality gate | Current commit | Git push may still trigger Vercel auto-deploy through the connected production project; workflow itself does not deploy | `.github/workflows/quality.yml`, `pnpm release:check`, `pnpm quality:full`, CI boundary readback, forbidden workflow pattern guard |
 | 2026-05-17 | Approved controlled beta ship evidence | Current commit | Production LKG `dpl_72EhMSpuaz8r4PcjvPZ7uHipa8Sa`; docs/check-script only in repo | Vercel inspect, `pnpm quality:full`, launch evidence packet, rollback evidence |
 | 2026-05-17 | Added launch evidence packet and ship guard | Current commit | Skipped, docs/check-script only; no runtime deploy | launch/security subagent review, `pnpm harness:check`, `pnpm release:check`, ship-state consistency check, docs/templates obvious-secret pattern scan |
@@ -135,6 +136,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Item | Type | Reason | Next Handling |
 | --- | --- | --- | --- |
+| GitHub Actions runner/action notices | Monitoring | First `Quality Gate` run passed, but GitHub warned about Node.js 20 JavaScript action deprecation and `windows-latest` image redirection | Review in a future CI maintenance queue; do not expand CI scope or add secrets/deploys while addressing |
 | GitHub Actions workflow push | Completed | User approved workflow creation; `.github/workflows/quality.yml` mirrors `pnpm quality:full` with `permissions: contents: read` | Keep CI no-secret/no-deploy; local `pnpm quality:full` and production smoke remain required release evidence |
 | Browser-level authenticated write smoke execution | Completed | Explicit per-run approval was granted and disposable workspace/idea data was used | Rerun only with explicit approval, disposable data, and cleanup ownership |
 | RLS allowed/denied smoke execution | Completed | Two disposable accounts and two private workspace labels passed anonymous/allowed/denied checks | Rerun when fixtures, RLS policy, migration, or workspace access code changes |
