@@ -13,14 +13,14 @@ const stages = [
   {
     label: "raw input",
     title: "초안 수집",
-    body: "회의 내용과 브리프 초안을 그대로 받습니다.",
+    body: "회의 내용과 브리프 초안을 그대로 가져옵니다.",
     icon: ClipboardText,
     className: "left-6 top-16 md:left-10",
   },
   {
     label: "candidate",
     title: "후보 정리",
-    body: "후보 1건과 비교 후보를 먼저 나눕니다.",
+    body: "후보 한 건과 비교 후보를 먼저 나눕니다.",
     icon: Sparkle,
     className: "right-6 top-24 md:right-10",
   },
@@ -34,7 +34,7 @@ const stages = [
   {
     label: "ship path",
     title: "실행 연결",
-    body: "기획, MVP, 출시 판단을 같은 보드에서 이어갑니다.",
+    body: "기획, MVP, 출시 판단을 같은 보드에 이어둡니다.",
     icon: RocketLaunch,
     className: "right-10 bottom-64 md:right-14",
   },
@@ -54,7 +54,7 @@ const signals = [
   {
     id: "03",
     label: "feedback loop",
-    body: "출시 후 신호도 다시 보드로 돌아옵니다.",
+    body: "출시 후 신호도 다시 보드에 남깁니다.",
   },
 ];
 
@@ -218,7 +218,7 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
             <div className="mt-4 text-[20px] font-semibold leading-tight tracking-tight text-white">
               {stage.title}
             </div>
-            <p className="mt-2 text-sm leading-6 text-slate-300">{stage.body}</p>
+            <p className="mt-2 break-keep text-sm leading-6 text-slate-300">{stage.body}</p>
             <div className={`mt-4 h-px transition-all duration-500 ${isActive ? "bg-[linear-gradient(90deg,rgba(125,211,252,0.8),rgba(196,181,253,0.65),transparent)]" : "bg-white/10"}`} />
           </div>
         );
@@ -250,7 +250,7 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
                 <div className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${index === activeStage % signals.length ? "text-sky-100/80" : "text-slate-500"}`}>
                   {signal.label}
                 </div>
-                <p className="mt-3 text-sm leading-6 text-inherit">{signal.body}</p>
+                <p className="mt-3 break-keep text-sm leading-6 text-inherit">{signal.body}</p>
               </div>
             </div>
           </div>
