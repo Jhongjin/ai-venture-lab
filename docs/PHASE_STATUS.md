@@ -112,7 +112,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 | RLS allowed/denied smoke execution | Deferred | Runner scaffold exists, but real execution needs a second disposable account and disposable workspace pair | Use `pnpm smoke:browser:rls:preflight` for guard checks; do not run cross-workspace checks against primary data |
 | Production RLS migration confirmation | External DB check | Static SQL review found the intended private-read posture, but production migration state and old public-read policy removal are unverified | Confirm required migrations through `20260512010000_repair_workspace_creation_policy.sql` and absence of old public-read policies before real denied smoke |
 | Telemetry production RLS confirmation | External DB check | The app can deploy without it, but event writes require the `telemetry_events` insert/select policies | Run or confirm `supabase/migrations/20260506010000_add_learning_telemetry.sql` in Supabase |
-| Authenticated telemetry smoke execution | Deferred | Requires the operator-held telemetry secret and a disposable idea id; secrets are not pulled into the repo | Run `pnpm smoke:telemetry` from a terminal that has `TELEMETRY_INGEST_SECRET` and `TELEMETRY_SMOKE_IDEA_ID` set |
+| Authenticated telemetry smoke execution | Rotation required | Production telemetry smoke and funnel smoke passed with a disposable idea, but the telemetry ingest secret was disclosed outside the local terminal during the run | Rotate `TELEMETRY_INGEST_SECRET` in Vercel Production and any external runtime that uses it, then rerun `pnpm smoke:telemetry` and `pnpm smoke:telemetry:funnel` |
 
 ## Next User Actions
 
@@ -128,12 +128,12 @@ Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Pr
 
 Required for learning telemetry writes: confirm `telemetry_events` table and RLS policies from `supabase/migrations/20260506010000_add_learning_telemetry.sql` are applied in Supabase Production.
 
-Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and `TELEMETRY_INGEST_SECRET` are present in Vercel Production. Keep `TELEMETRY_INGEST_SECRET` only in trusted server environments, never in browser bundles.
+Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and `TELEMETRY_INGEST_SECRET` are present in Vercel Production. Keep `TELEMETRY_INGEST_SECRET` only in trusted server environments, never in browser bundles. The latest telemetry smoke run passed, but the current telemetry ingest secret must be rotated before telemetry beta evidence is considered closed.
 
 ## Next Jobs
 
 1. Continue manager-facing polish for deeper generated markdown previews only if beta testers still see developer-heavy language in full mode.
-2. Wait for operator confirmation of two disposable Supabase Auth users, two private workspace labels, production migration posture, and local-only RLS smoke env values.
-3. Run authenticated browser write smoke only after explicit per-run approval, using disposable workspace/idea data and a cleanup owner.
-4. Run `pnpm smoke:telemetry:funnel` with a disposable idea id and the operator-held telemetry secret when a full product-funnel demo is needed.
+2. Rotate `TELEMETRY_INGEST_SECRET` in Vercel Production and any external runtime that uses it, then rerun telemetry smoke with a disposable idea id.
+3. Keep RLS allowed/denied evidence summary-only and rerun only when disposable fixtures or RLS policies change.
+4. Run authenticated browser write smoke only after explicit per-run approval, using disposable workspace/idea data and a cleanup owner.
 5. Prepare GitHub Actions only after workflow-scope access, target branch, permission block, secret policy, and rollback/disable path are approved.

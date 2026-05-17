@@ -109,6 +109,7 @@ Write smoke rules:
 - `BROWSER_SMOKE_ALLOW_WRITE=1` and `BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE=1` both require explicit per-run approval.
 - Production write smoke should be skipped unless the user explicitly approves that run and the target data is disposable.
 - Telemetry smoke must use `TELEMETRY_INGEST_SECRET` from the local terminal only and a disposable idea ID.
+- If `TELEMETRY_INGEST_SECRET` is exposed outside the local terminal or trusted server env, rotate it before using telemetry smoke evidence for beta readiness.
 - Record command/result/target URL/cleanup owner only; do not record credentials, env values, cookies, sessions, signed URLs, screenshots with private data, or raw logs.
 
 ## Manual Beta Pass

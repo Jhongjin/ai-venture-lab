@@ -47,6 +47,10 @@ Validation keywords: `public_client_boundary`, `server_only_secret_boundary`, `s
 
 Validation keywords: `authenticated_visibility_smoke`, `rls_allowed_denied_smoke`, `browser_smoke_allow_write_explicit`, `browser_smoke_allow_workspace_create_explicit`, `write_smoke_requires_explicit_approval`, `telemetry_smoke_local_secret_only`, `telemetry_smoke_disposable_idea_only`, `build_relay_env_manifest_valuesIncluded_false`.
 
+If a telemetry secret is pasted into chat, a document, logs, screenshots, or any surface outside the local terminal/trusted server environment, treat the value as disclosed. Rotate `TELEMETRY_INGEST_SECRET` in Vercel Production and every external runtime that uses it, then rerun telemetry smoke with the rotated value before closing beta readiness evidence.
+
+Validation keywords: `telemetry_secret_disclosure_requires_rotation`, `telemetry_smoke_rerun_after_rotation`.
+
 ## Disposable Beta Account Rule
 
 Authenticated smoke must use a beta-only Supabase Auth account.
