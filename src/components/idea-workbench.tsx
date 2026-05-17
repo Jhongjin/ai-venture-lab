@@ -976,7 +976,7 @@ function sortWorkbenchIdeas(nextIdeas: Idea[]) {
     (a, b) =>
       (stageRank.get(a.stage) ?? 99) - (stageRank.get(b.stage) ?? 99) ||
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
-      a.name.localeCompare(b.name),
+      a.name.localeCompare(b.name, "ko-KR"),
   );
 }
 
@@ -5025,7 +5025,7 @@ function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
       implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
       a.sort_order - b.sort_order ||
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
-      a.title.localeCompare(b.title),
+      a.title.localeCompare(b.title, "ko-KR"),
   );
 }
 
@@ -5038,7 +5038,7 @@ function sortImplementationTasksForExecution(tasks: ImplementationTask[]) {
       implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
       a.sort_order - b.sort_order ||
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
-      a.title.localeCompare(b.title),
+      a.title.localeCompare(b.title, "ko-KR"),
   );
 }
 
@@ -6962,7 +6962,7 @@ export function IdeaWorkbench({
   const artifactSourceOptions = useMemo(
     () =>
       ["all", ...Array.from(new Set(selectedArtifactRecords.map((artifact) => artifact.source || "manual"))).sort((a, b) =>
-        a.localeCompare(b),
+        a.localeCompare(b, "ko-KR"),
       )],
     [selectedArtifactRecords],
   );
@@ -7005,7 +7005,7 @@ export function IdeaWorkbench({
           (a, b) =>
             a.sort_order - b.sort_order ||
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
-            a.title.localeCompare(b.title),
+            a.title.localeCompare(b.title, "ko-KR"),
         ),
     [implementationTasks, selectedIdea?.id],
   );
@@ -7159,7 +7159,7 @@ export function IdeaWorkbench({
   const implementationOwnerOptions = useMemo(
     () =>
       ["all", ...Array.from(new Set(selectedImplementationTasks.map((task) => getImplementationTaskOwnerRole(task)))).sort((a, b) =>
-        a.localeCompare(b),
+        a.localeCompare(b, "ko-KR"),
       )],
     [selectedImplementationTasks],
   );

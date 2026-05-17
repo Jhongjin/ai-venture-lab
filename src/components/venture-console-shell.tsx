@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore, type Dispatch, type SetStateAction } from "react";
 import {
   ArrowRight,
   CheckCircle,
@@ -628,6 +628,18 @@ function upsertManyById<T extends { id: string }>(records: T[], nextRecords: T[]
   return nextRecords.reduce((current, record) => upsertById(current, record), records);
 }
 
+function subscribeClientReady() {
+  return () => {};
+}
+
+function getClientReadySnapshot() {
+  return true;
+}
+
+function getServerReadySnapshot() {
+  return false;
+}
+
 export function VentureConsoleShell({
   initialIdeas,
   initialRisks,
@@ -653,6 +665,7 @@ export function VentureConsoleShell({
   initialViewerMemberships: Database["public"]["Tables"]["organization_members"]["Row"][];
   source: "supabase" | "seed";
 }) {
+  const isClientReady = useSyncExternalStore(subscribeClientReady, getClientReadySnapshot, getServerReadySnapshot);
   const [activeTask, setActiveTask] = useState<ShellTask>("console:auth");
   const [consoleStatus, setConsoleStatus] = useState<ConsoleWorkflowStatus>({
     isAuthLoaded: false,
@@ -757,6 +770,23 @@ export function VentureConsoleShell({
       window.removeEventListener("venture:telemetry-created", handleTelemetryCreated);
     };
   }, [goToTask]);
+
+  if (!isClientReady) {
+    return (
+      <section className="grid gap-4 xl:grid-cols-[192px_minmax(0,1fr)]">
+        <aside className="order-2 border-r border-slate-200 pr-3 xl:order-none">
+          <div className="border-b border-slate-200 pb-3">
+            <div className="avl-kicker text-slate-500">Venture Console</div>
+            <div className="mt-2 h-2 w-24 bg-slate-200" />
+          </div>
+        </aside>
+        <section className="border border-slate-200 bg-white p-5 text-sm text-slate-600">
+          실행 보드를 준비하고 있습니다.
+        </section>
+      </section>
+    );
+  }
+
   const ideaCount = ideas.length;
   const visibleTask: ShellTask = (() => {
     if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {

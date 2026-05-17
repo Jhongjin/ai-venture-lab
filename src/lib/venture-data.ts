@@ -251,7 +251,7 @@ export function sortIdeasByWorkflow(ideas: Idea[]) {
     (a, b) =>
       (workflowStageRank.get(a.stage) ?? 99) - (workflowStageRank.get(b.stage) ?? 99) ||
       new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
-      a.name.localeCompare(b.name),
+      a.name.localeCompare(b.name, "ko-KR"),
   );
 }
 
