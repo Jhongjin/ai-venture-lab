@@ -767,10 +767,6 @@ export function VentureConsoleShell({
       return ideaCount > 0 ? "workbench:select" : "console:extract";
     }
 
-    if (activeTask === "console:idea" && ideaCount > 0) {
-      return "workbench:select";
-    }
-
     return activeTask;
   })();
   const activeConsoleTask = visibleTask.startsWith("console:")

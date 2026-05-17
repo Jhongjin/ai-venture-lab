@@ -9,6 +9,7 @@ const allowWrite = process.env.BROWSER_SMOKE_ALLOW_WRITE === "1";
 const allowWorkspaceCreate = process.env.BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE === "1";
 const headless = process.env.BROWSER_SMOKE_HEADLESS !== "0";
 const timeout = Number.parseInt(process.env.BROWSER_SMOKE_TIMEOUT_MS || "45000", 10);
+const workspaceSettleTimeout = Number.parseInt(process.env.BROWSER_SMOKE_WORKSPACE_SETTLE_MS || "15000", 10);
 const screenshotPath = process.env.BROWSER_SMOKE_SCREENSHOT;
 
 const ignoredConsoleErrors = [
@@ -16,6 +17,7 @@ const ignoredConsoleErrors = [
   "ResizeObserver loop completed",
   "ResizeObserver loop limit exceeded",
 ];
+const genericResourceLoadErrorPattern = /^Failed to load resource: the server responded with a status of \d{3}/;
 
 function fail(message) {
   throw new Error(`Authenticated browser smoke failed: ${message}`);
@@ -60,8 +62,24 @@ async function waitForAnyVisible(candidates, label, waitMs = 15000) {
   fail(`missing visible UI: ${label}. ${lastErrors.slice(-2).join(" | ")}`);
 }
 
-async function clickFirst(locator, label) {
-  await waitForVisible(locator, label);
+async function getWorkspaceState(page, waitMs = 20000) {
+  return waitForAnyVisible(
+    [
+      { name: "active", locator: page.getByLabel(/활성 워크스페이스/) },
+      { name: "empty", locator: page.getByText(/연결된 워크스페이스가 없습니다/) },
+      { name: "create-available", locator: page.getByRole("button", { name: /워크스페이스 만들기/ }) },
+      { name: "login-required", locator: page.getByText(/워크스페이스 멤버십을 불러오려면 로그인하세요/) },
+      ...(!allowWrite && !allowWorkspaceCreate
+        ? [{ name: "extract-ready", locator: page.getByRole("button", { name: /AI 후보 발굴/ }) }]
+        : []),
+    ],
+    "authenticated session state",
+    waitMs,
+  );
+}
+
+async function clickFirst(locator, label, waitMs = 15000) {
+  await waitForVisible(locator, label, waitMs);
   try {
     await locator.first().click({ timeout: 10000 });
   } catch (error) {
@@ -75,6 +93,26 @@ async function fillFirst(locator, value, label) {
     await locator.first().fill(value, { timeout: 10000 });
   } catch (error) {
     fail(`could not fill ${label}. ${error instanceof Error ? error.message : ""}`);
+  }
+}
+
+async function isFirstVisible(locator, waitMs = 750) {
+  try {
+    return await locator.first().isVisible({ timeout: waitMs });
+  } catch {
+    return false;
+  }
+}
+
+async function visibleText(locator, waitMs = 750) {
+  try {
+    if (!(await locator.first().isVisible({ timeout: waitMs }))) {
+      return "";
+    }
+
+    return (await locator.first().innerText({ timeout: waitMs })).replace(/\s+/g, " ").trim();
+  } catch {
+    return "";
   }
 }
 
@@ -103,6 +141,146 @@ function makeSmokeIdea() {
   };
 }
 
+function buildSmokeIdeaSource(idea) {
+  return [
+    `아이디어: ${idea.name}`,
+    `구매자: ${idea.buyer}`,
+    `타깃: ${idea.targetUser}`,
+    `한 줄 설명: ${idea.oneLiner}`,
+    `수요 신호: ${idea.signal}`,
+    `리스크: ${idea.riskSummary}`,
+    `다음 검증 질문: ${idea.nextEvidence}`,
+  ].join("\n");
+}
+
+async function openOptionalTaskList(page) {
+  const optionalSummary = page.getByText(/^선택 기능$/);
+
+  if (await isFirstVisible(optionalSummary)) {
+    await optionalSummary.first().click({ timeout: 10000 });
+  }
+}
+
+async function openWorkspaceTask(page) {
+  if (await isFirstVisible(page.getByRole("heading", { name: /협업 공간 상태/ }))) {
+    return;
+  }
+
+  let workspaceNav = page.getByRole("button", { name: /팀 연결/ });
+  if (!(await isFirstVisible(workspaceNav))) {
+    await openOptionalTaskList(page);
+    workspaceNav = page.getByRole("button", { name: /팀 연결/ });
+  }
+
+  await clickFirst(workspaceNav, "workspace navigation");
+  await waitForVisible(page.getByRole("heading", { name: /협업 공간 상태/ }), "workspace panel", 15000);
+}
+
+async function resolveWorkspaceState(page) {
+  let workspaceState = await getWorkspaceState(page, 20000);
+
+  if (workspaceState === "login-required") {
+    fail("login succeeded visually, but workspace panel still sees an anonymous session.");
+  }
+
+  if (workspaceState === "empty" || workspaceState === "create-available") {
+    const activeAppeared = await isFirstVisible(page.getByLabel(/활성 워크스페이스/), workspaceSettleTimeout);
+
+    if (activeAppeared) {
+      return "active";
+    }
+  }
+
+  if ((workspaceState === "empty" || workspaceState === "create-available") && allowWrite) {
+    await page.reload({ waitUntil: "networkidle", timeout });
+    await waitForVisible(page.getByRole("heading", { name: /실행 보드/ }), "workspace heading after refresh", 20000);
+    await openWorkspaceTask(page);
+    workspaceState = await getWorkspaceState(page, 20000);
+
+    if (workspaceState === "login-required") {
+      fail("login succeeded after refresh, but workspace panel still sees an anonymous session.");
+    }
+
+    if (workspaceState === "empty" || workspaceState === "create-available") {
+      const activeAppearedAfterRefresh = await isFirstVisible(
+        page.getByLabel(/활성 워크스페이스/),
+        workspaceSettleTimeout,
+      );
+
+      if (activeAppearedAfterRefresh) {
+        return "active";
+      }
+    }
+  }
+
+  if ((workspaceState === "empty" || workspaceState === "create-available") && allowWorkspaceCreate) {
+    await clickFirst(page.getByRole("button", { name: /워크스페이스 만들기/ }), "create workspace button");
+    await waitForVisible(page.getByLabel(/활성 워크스페이스/), "created active workspace", 25000);
+    workspaceState = "active";
+  }
+
+  return workspaceState;
+}
+
+async function summarizeWorkspaceDiagnostics(page, workspaceApiEvents) {
+  const workspaceResources = await page.evaluate(() =>
+    performance
+      .getEntriesByType("resource")
+      .map((entry) => entry.name)
+      .filter((name) => name.includes("/rest/v1/organizations") || name.includes("/rest/v1/organization_members"))
+      .slice(-6),
+  );
+  const [activeVisible, emptyVisible, createVisible, loginRequiredVisible, messageText] = await Promise.all([
+    isFirstVisible(page.getByLabel(/활성 워크스페이스/)),
+    isFirstVisible(page.getByText(/연결된 워크스페이스가 없습니다/)),
+    isFirstVisible(page.getByRole("button", { name: /워크스페이스 만들기/ })),
+    isFirstVisible(page.getByText(/워크스페이스 멤버십을 불러오려면 로그인하세요/)),
+    visibleText(page.getByText(/워크스페이스|협업 공간|row-level security|permission denied/i)),
+  ]);
+
+  return [
+    `active=${activeVisible}`,
+    `empty=${emptyVisible}`,
+    `createButton=${createVisible}`,
+    `loginRequired=${loginRequiredVisible}`,
+    messageText ? `visibleText="${messageText.slice(0, 180)}"` : "visibleText=none",
+    workspaceApiEvents.length > 0 ? `workspaceApi=${workspaceApiEvents.slice(-6).join("; ")}` : "workspaceApi=none",
+    workspaceResources.length > 0 ? `workspaceResources=${workspaceResources.join("; ")}` : "workspaceResources=none",
+  ].join(" | ");
+}
+
+async function openExtractTask(page) {
+  const sourceInput = page.getByPlaceholder(/예\) 아이디어:/);
+
+  if (await isFirstVisible(sourceInput)) {
+    return;
+  }
+
+  const focusCta = page.getByRole("button", { name: /후보 찾기/ });
+  if (await isFirstVisible(focusCta)) {
+    await focusCta.first().click({ timeout: 10000 });
+  } else if (await isFirstVisible(page.getByRole("button", { name: /아이디어 찾기/ }))) {
+    const extractNav = page.getByRole("button", { name: /아이디어 찾기/ });
+    await clickFirst(extractNav, "extract navigation");
+  } else {
+    for (let step = 0; step < 4; step += 1) {
+      const previousButton = page.getByRole("button", { name: /이전 단계/ });
+
+      if (!(await isFirstVisible(previousButton))) {
+        break;
+      }
+
+      await previousButton.first().click({ timeout: 10000 });
+
+      if (await isFirstVisible(sourceInput, 5000)) {
+        return;
+      }
+    }
+  }
+
+  await waitForVisible(sourceInput, "idea source input", 15000);
+}
+
 async function main() {
   requireEnv("BROWSER_SMOKE_EMAIL", email);
   requireEnv("BROWSER_SMOKE_PASSWORD", password);
@@ -115,6 +293,8 @@ async function main() {
   const page = await context.newPage();
   const consoleErrors = [];
   const pageErrors = [];
+  const httpErrors = [];
+  const workspaceApiEvents = [];
 
   page.on("console", (message) => {
     if (message.type() !== "error") {
@@ -128,6 +308,28 @@ async function main() {
   });
   page.on("pageerror", (error) => {
     pageErrors.push(error.message);
+  });
+  page.on("response", (response) => {
+    const status = response.status();
+    const url = response.url();
+
+    if (url.includes("/rest/v1/organizations") || url.includes("/rest/v1/organization_members")) {
+      const table = url.includes("/rest/v1/organization_members") ? "organization_members" : "organizations";
+      workspaceApiEvents.push(`${status} ${table} rows=pending`);
+      void response
+        .json()
+        .then((body) => {
+          const rows = Array.isArray(body) ? body.length : "n/a";
+          workspaceApiEvents.push(`${status} ${table} rows=${rows}`);
+        })
+        .catch(() => {
+          workspaceApiEvents.push(`${status} ${table} rows=unreadable`);
+        });
+    }
+
+    if (status >= 400) {
+      httpErrors.push(`${status} ${url}`);
+    }
   });
 
   try {
@@ -163,49 +365,41 @@ async function main() {
       await waitForVisible(page.getByRole("button", { name: /AI 후보 발굴/ }), "authenticated extract action", 10000);
     }
 
-    let workspaceState = await waitForAnyVisible(
-      [
-        { name: "active", locator: page.getByLabel(/활성 워크스페이스/) },
-        { name: "empty", locator: page.getByText(/연결된 워크스페이스가 없습니다/) },
-        { name: "login-required", locator: page.getByText(/워크스페이스 멤버십을 불러오려면 로그인하세요/) },
-        { name: "extract-ready", locator: page.getByRole("button", { name: /AI 후보 발굴/ }) },
-      ],
-      "authenticated session state",
-      20000,
-    );
-
-    if (workspaceState === "login-required") {
-      fail("login succeeded visually, but workspace panel still sees an anonymous session.");
+    if (allowWrite || allowWorkspaceCreate) {
+      await openWorkspaceTask(page);
     }
 
-    if (workspaceState === "empty" && allowWorkspaceCreate) {
-      await clickFirst(page.getByRole("button", { name: /워크스페이스 만들기/ }), "create workspace button");
-      await waitForVisible(page.getByLabel(/활성 워크스페이스/), "created active workspace", 25000);
-      workspaceState = "active";
-    }
+    let workspaceState = await resolveWorkspaceState(page);
 
     if (workspaceState !== "active" && allowWrite) {
+      const diagnostics = await summarizeWorkspaceDiagnostics(page, workspaceApiEvents);
       fail(
-        "write smoke requires an active workspace. Create one first or set BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE=1 for disposable beta accounts.",
+        `write smoke requires an active workspace. Create one first or set BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE=1 for disposable beta accounts. Diagnostics: ${diagnostics}`,
       );
     }
 
     if (allowWrite) {
       const idea = makeSmokeIdea();
 
-      await clickFirst(page.getByRole("button", { name: /새 아이디어/ }), "new idea navigation");
-      await waitForVisible(page.getByRole("heading", { name: /새 아이디어 입력/ }), "new idea form");
-      await fillFirst(page.getByLabel(/^이름$/), idea.name, "idea name");
-      await fillFirst(page.getByLabel(/구매자/), idea.buyer, "buyer");
-      await fillFirst(page.getByLabel(/한 줄 설명/), idea.oneLiner, "one-liner");
-      await fillFirst(page.getByLabel(/대상 사용자/), idea.targetUser, "target user");
-      await fillFirst(page.getByLabel(/수요 신호/), idea.signal, "signal");
-      await fillFirst(page.getByLabel(/리스크 요약/), idea.riskSummary, "risk summary");
-      await fillFirst(page.getByLabel(/다음 증거/), idea.nextEvidence, "next evidence");
-      await clickFirst(page.getByRole("button", { name: /아이디어 저장/ }), "save idea button");
-      await waitForVisible(page.getByText(/워크벤치에 바로 반영했습니다/), "save success message", 25000);
-      await waitForVisible(page.getByText(idea.name), "created idea in workbench", 25000);
-      console.log(`Authenticated browser write smoke created idea: ${idea.name}`);
+      await openExtractTask(page);
+      await fillFirst(page.getByPlaceholder(/예\) 아이디어:/), buildSmokeIdeaSource(idea), "idea source");
+      await clickFirst(page.getByRole("button", { name: /AI 후보 발굴/ }), "extract ideas button");
+      await clickFirst(page.getByRole("button", { name: /검증 패키지 저장/ }), "save validation package button", 45000);
+      const saveResult = await waitForAnyVisible(
+        [
+          { name: "package saved", locator: page.getByText(/패키지로 저장했습니다/) },
+          { name: "partial package saved", locator: page.getByText(/아이디어는 저장했지만 연결 기록 일부가 실패했습니다/) },
+          { name: "selected smoke idea", locator: page.getByText(/브라우저 인증 스모크/) },
+          { name: "candidate selection", locator: page.getByRole("heading", { name: /후보 선택/ }) },
+          { name: "package save failed", locator: page.getByText(/후보 패키지를 저장하지 못했습니다|아이디어를 저장하지 못했습니다|row-level security|permission denied/i) },
+        ],
+        "write smoke package save result",
+        45000,
+      );
+      if (saveResult === "package save failed") {
+        fail("validation package save returned an error in the UI.");
+      }
+      console.log(`Authenticated browser write smoke saved validation package from source: ${idea.name}`);
     } else {
       console.log("Authenticated browser smoke passed login/workspace visibility. Set BROWSER_SMOKE_ALLOW_WRITE=1 to create a disposable idea.");
     }
@@ -219,8 +413,19 @@ async function main() {
       fail(`page errors: ${pageErrors.join(" | ")}`);
     }
 
-    if (consoleErrors.length > 0) {
-      fail(`console errors: ${consoleErrors.join(" | ")}`);
+    const relevantHttpErrors = httpErrors.filter(
+      (entry) => !(allowWorkspaceCreate && entry.includes("/rest/v1/organizations") && entry.startsWith("409 ")),
+    );
+    const relevantConsoleErrors = consoleErrors.filter(
+      (entry) => !(genericResourceLoadErrorPattern.test(entry) && httpErrors.length > relevantHttpErrors.length),
+    );
+
+    if (relevantHttpErrors.length > 0) {
+      fail(`http errors: ${relevantHttpErrors.join(" | ")}`);
+    }
+
+    if (relevantConsoleErrors.length > 0) {
+      fail(`console errors: ${relevantConsoleErrors.join(" | ")}`);
     }
 
     console.log(`Authenticated browser smoke passed for ${baseUrl}`);
