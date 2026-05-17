@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-17 | Enabled read-only GitHub Actions quality gate | Current commit | Git push may still trigger Vercel auto-deploy through the connected production project; workflow itself does not deploy | `.github/workflows/quality.yml`, `pnpm release:check`, `pnpm quality:full`, CI boundary readback, forbidden workflow pattern guard |
 | 2026-05-17 | Approved controlled beta ship evidence | Current commit | Production LKG `dpl_72EhMSpuaz8r4PcjvPZ7uHipa8Sa`; docs/check-script only in repo | Vercel inspect, `pnpm quality:full`, launch evidence packet, rollback evidence |
 | 2026-05-17 | Added launch evidence packet and ship guard | Current commit | Skipped, docs/check-script only; no runtime deploy | launch/security subagent review, `pnpm harness:check`, `pnpm release:check`, ship-state consistency check, docs/templates obvious-secret pattern scan |
 | 2026-05-17 | Added public beta launch evidence packet | Current commit | Skipped, docs/check-script only; no runtime deploy | launch evidence packet readback, `pnpm harness:check`, `pnpm release:check` |
@@ -134,7 +135,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Item | Type | Reason | Next Handling |
 | --- | --- | --- | --- |
-| GitHub Actions workflow push | External blocker | Current GitHub token lacks `workflow` scope | User can grant workflow scope later; local `pnpm quality:full` remains the required gate |
+| GitHub Actions workflow push | Completed | User approved workflow creation; `.github/workflows/quality.yml` mirrors `pnpm quality:full` with `permissions: contents: read` | Keep CI no-secret/no-deploy; local `pnpm quality:full` and production smoke remain required release evidence |
 | Browser-level authenticated write smoke execution | Completed | Explicit per-run approval was granted and disposable workspace/idea data was used | Rerun only with explicit approval, disposable data, and cleanup ownership |
 | RLS allowed/denied smoke execution | Completed | Two disposable accounts and two private workspace labels passed anonymous/allowed/denied checks | Rerun when fixtures, RLS policy, migration, or workspace access code changes |
 | Production RLS migration confirmation | Completed | Production posture was checked before denied smoke: required private-read migrations were present, old public-read policies were absent, and RLS was enabled on core tables | Rerun posture checks when migrations or policies change |
@@ -145,7 +146,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, telemetry smoke, env changes, or deployment evidence collection. The boundary is names-only and forbids `.env.local` readback, secret output, production mutation, deploy trigger, rollback, paid API calls, credential/session handling, and `D:\Projects\AdMate` mutation.
 
-Use `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` before creating or modifying GitHub Actions. The current posture is `ci_workflow_scope_boundary_docs_only`: no workflow file mutation, no GitHub Actions mutation, local `pnpm quality:full` remains the required gate, and future CI may mirror non-secret checks only.
+Use `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` before modifying GitHub Actions. The current posture is `ci_workflow_scope_active`: `.github/workflows/quality.yml` mirrors `pnpm quality:full` with `permissions: contents: read`, no secrets, no deploys, no authenticated write smoke, no telemetry smoke, and no production mutation.
 
 Authenticated visibility and explicit write smoke have passed against `https://ai-venture-lab.vercel.app` with disposable Supabase Auth credentials loaded locally and not printed. The write run used disposable data and summary-only evidence.
 
@@ -169,4 +170,4 @@ Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` as the controlled beta decision
 2. Keep RLS allowed/denied evidence summary-only and rerun only when disposable fixtures or RLS policies change.
 3. Rerun telemetry smoke only when telemetry env, endpoint behavior, or telemetry RLS policies change.
 4. Run authenticated browser write smoke only after explicit per-run approval, using disposable workspace/idea data and a cleanup owner.
-5. Prepare GitHub Actions only after workflow-scope access, target branch, permission block, secret policy, and rollback/disable path are approved.
+5. Modify GitHub Actions only after a new approval records target branch, permission block, secret policy, failure owner, and rollback/disable path.

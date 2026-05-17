@@ -42,13 +42,40 @@ $checks = @(
   @{
     Path = "docs/CI_WORKFLOW_SCOPE_BOUNDARY.md"
     Terms = @(
-      "ci_workflow_scope_boundary_docs_only",
-      "workflow_scope_blocked",
-      "no_workflow_file_mutation",
+      "ci_workflow_scope_active",
+      "workflow_scope_approved",
+      "quality_workflow_enabled",
+      "checkout_persist_credentials_false",
+      "approved_workflow_file_quality_yml",
+      "single_workflow_file_only",
+      "permissions_block_contents_read_only",
+      "local_quality_full_still_required",
+      "ci_mirrors_local_quality_full",
+      "contents_read_only",
+      "workflow_forbidden_pattern_guard",
+      "single_workflow_file_guard",
+      "no_workflow_secrets_reference",
+      "no_repo_secrets",
       "local_quality_full_is_required_gate",
-      "future_ci_mirrors_local_gates",
+      "workflow_change_requires_review",
       "no_secret_output",
       "no_production_mutation"
+    )
+  },
+  @{
+    Path = ".github/workflows/quality.yml"
+    Terms = @(
+      "name: Quality Gate",
+      "pull_request:",
+      "push:",
+      "branches:",
+      "main",
+      "permissions:",
+      "contents: read",
+      "persist-credentials: false",
+      "windows-latest",
+      "pnpm install --frozen-lockfile",
+      "pnpm quality:full"
     )
   },
   @{
@@ -297,6 +324,73 @@ foreach ($check in $checks) {
   foreach ($term in $check.Terms) {
     if (-not $content.Contains($term)) {
       $missing += "$($check.Path): missing '$term'"
+    }
+  }
+}
+
+$workflowFiles = @(Get-ChildItem -Path ".github/workflows" -File -Filter "*.yml" -ErrorAction SilentlyContinue)
+$workflowFiles += @(Get-ChildItem -Path ".github/workflows" -File -Filter "*.yaml" -ErrorAction SilentlyContinue)
+
+if ($workflowFiles.Count -ne 1 -or $workflowFiles[0].FullName -notlike "*\quality.yml") {
+  $names = if ($workflowFiles.Count -eq 0) { "none" } else { ($workflowFiles | ForEach-Object { $_.FullName }) -join ", " }
+  $missing += ".github/workflows: expected only quality.yml, found $names"
+}
+
+$qualityWorkflow = ".github/workflows/quality.yml"
+if (Test-Path -LiteralPath $qualityWorkflow) {
+  $workflowText = Get-Content -LiteralPath $qualityWorkflow -Raw
+  $forbiddenWorkflowPatterns = @(
+    "secrets\.",
+    "permissions:\s*write-all",
+    "contents:\s*write",
+    "actions:\s*write",
+    "deployments:\s*write",
+    "id-token:\s*write",
+    "TELEMETRY_INGEST_SECRET",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "OPENAI_API_KEY",
+    "BROWSER_SMOKE_PASSWORD",
+    "smoke:telemetry",
+    "smoke:browser:auth",
+    "smoke:browser:rls",
+    "vercel\s+(deploy|rollback|promote)",
+    "supabase\s+",
+    "psql\s+",
+    "production\s+sql"
+  )
+
+  foreach ($pattern in $forbiddenWorkflowPatterns) {
+    if ($workflowText -match $pattern) {
+      $missing += "${qualityWorkflow}: forbidden workflow pattern found: $pattern"
+    }
+  }
+
+  $workflowLines = $workflowText -split "\r?\n"
+  $permissionHeaderIndexes = @()
+  for ($i = 0; $i -lt $workflowLines.Count; $i++) {
+    if ($workflowLines[$i] -match "^permissions:\s*$") {
+      $permissionHeaderIndexes += $i
+    }
+  }
+
+  if ($permissionHeaderIndexes.Count -ne 1) {
+    $missing += "${qualityWorkflow}: expected exactly one top-level permissions block"
+  } else {
+    $permissionBlockLines = @()
+    for ($j = $permissionHeaderIndexes[0] + 1; $j -lt $workflowLines.Count; $j++) {
+      $line = $workflowLines[$j]
+      if ($line -match "^\S" -and $line.Trim().Length -gt 0) {
+        break
+      }
+
+      if ($line -match "^\s+\S") {
+        $permissionBlockLines += $line
+      }
+    }
+
+    $permissionEntries = @($permissionBlockLines | Where-Object { $_ -notmatch "^\s*(#.*)?$" })
+    if ($permissionEntries.Count -ne 1 -or $permissionEntries[0] -notmatch "^\s+contents:\s*read\s*$") {
+      $missing += "${qualityWorkflow}: permissions block must contain only 'contents: read'"
     }
   }
 }

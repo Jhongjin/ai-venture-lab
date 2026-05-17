@@ -63,7 +63,7 @@ Validation keywords: `controlled_beta_ship_scope`, `no_real_pii_beta_scope`, `re
 
 These do not block the current controlled beta ship decision:
 
-- GitHub Actions workflow creation remains blocked by workflow-scope access; local `pnpm quality:full` remains the gate.
+- GitHub Actions now runs a read-only `pnpm quality:full` workflow as a drift detector. Local `pnpm quality:full` and production smoke remain the release evidence for user-facing changes.
 - `OPENAI_API_KEY` and `OPENAI_IDEA_MODEL` remain optional because server-side extraction falls back to local rules.
 - Cleanup automation is intentionally not implemented; cleanup is user-owned when it requires SQL, dashboard mutation, Auth deletion, service-role access, or external runtime mutation.
 - RLS fixtures may be retained for reruns as long as they stay synthetic and are not used for primary operator work.
