@@ -215,6 +215,10 @@ $checks = @(
   @{
     Path = "docs/PUBLIC_BETA_CHECKLIST.md"
     Terms = @(
+      "controlled_beta_ship_approved",
+      "launch_gate_decision_ship",
+      "operator_decision_source_of_truth",
+      "rollback_evidence_recorded",
       "public_beta_cleanup_gate",
       "disposable_smoke_records_reviewed",
       "cleanup_owner_recorded_before_beta"

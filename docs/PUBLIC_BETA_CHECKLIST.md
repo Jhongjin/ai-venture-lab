@@ -15,9 +15,11 @@ Current manager-facing beta shell status:
 
 Before running smoke commands, check `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md`. The WQ-036 boundary is `beta_env_smoke_boundary_docs_only`: names only, no values, no `.env.local` readback, no secret output.
 
-Before opening a controlled beta, check `docs/PUBLIC_BETA_LAUNCH_GATE.md` for the current blocker/non-blocker split and summary-only evidence boundary.
+The current controlled beta launch gate is approved as `launch_gate_decision: ship`. Before expanding the beta scope, re-check `docs/PUBLIC_BETA_LAUNCH_GATE.md` for the latest blocker/non-blocker split and summary-only evidence boundary.
 
-Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` to collect the operator decisions needed before changing `launch_gate_decision: research_more` to `ship`.
+Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` as the operator decision source of truth. It records the controlled beta approval, retained disposable fixtures, risk disposition, artifact approvals, QA/security signoff, and rollback evidence.
+
+Validation keywords: `controlled_beta_ship_approved`, `launch_gate_decision_ship`, `operator_decision_source_of_truth`, `rollback_evidence_recorded`.
 
 Before creating or modifying GitHub Actions, check `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md`. CI may mirror local non-secret gates, but it does not replace explicit approval for authenticated write smoke, telemetry smoke, deploys, rollback, production DB/Auth mutation, or release decisions.
 
