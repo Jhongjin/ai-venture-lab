@@ -185,15 +185,31 @@ async function openWorkspaceTask(page) {
   await waitForVisible(page.getByRole("heading", { name: /협업 공간 상태/ }), "workspace panel", 15000);
 }
 
-async function assertVisibleText(page, text, label) {
-  if (!(await hasVisibleText(page, text))) {
-    fail(`missing expected disposable fixture label: ${label}`);
-  }
-}
-
 async function assertHiddenText(page, text, label) {
   if (await hasVisibleText(page, text)) {
     fail(`cross-workspace private data was visible: ${label}`);
+  }
+}
+
+async function getWorkspaceOptionLabels(page) {
+  return page.getByLabel(/활성 워크스페이스/).evaluate((select) =>
+    Array.from(select.options).map((option) => option.textContent?.trim() ?? "").filter(Boolean),
+  );
+}
+
+async function assertWorkspaceOptionBoundary(page, expectedWorkspace, deniedWorkspace, actorLabel) {
+  const optionLabels = await getWorkspaceOptionLabels(page);
+
+  if (!optionLabels.includes(expectedWorkspace)) {
+    fail(
+      `${actorLabel} allowed workspace option was not available. Expected "${expectedWorkspace}". Available: ${
+        optionLabels.length > 0 ? optionLabels.join(", ") : "none"
+      }`,
+    );
+  }
+
+  if (optionLabels.includes(deniedWorkspace)) {
+    fail(`${actorLabel} could see denied workspace option "${deniedWorkspace}". Available: ${optionLabels.join(", ")}`);
   }
 }
 
@@ -279,8 +295,7 @@ async function loginAndCheck(page, credentials, expectedWorkspace, deniedWorkspa
 
   await openWorkspaceTask(page);
   await waitForVisible(page.getByLabel(/활성 워크스페이스/), `${actorLabel} active workspace selector`, 20000);
-  await assertVisibleText(page, expectedWorkspace, `${actorLabel} allowed workspace`);
-  await assertHiddenText(page, deniedWorkspace, `${actorLabel} denied workspace`);
+  await assertWorkspaceOptionBoundary(page, expectedWorkspace, deniedWorkspace, actorLabel);
 }
 
 async function main() {
