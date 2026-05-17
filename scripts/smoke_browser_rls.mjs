@@ -154,6 +154,37 @@ async function hasVisibleText(page, text) {
   }
 }
 
+async function isFirstVisible(locator, waitMs = 1000) {
+  try {
+    return await locator.first().isVisible({ timeout: waitMs });
+  } catch {
+    return false;
+  }
+}
+
+async function openOptionalTaskList(page) {
+  const optionalSummary = page.getByText(/^선택 기능$/);
+
+  if (await isFirstVisible(optionalSummary)) {
+    await optionalSummary.first().click({ timeout: 10000 });
+  }
+}
+
+async function openWorkspaceTask(page) {
+  if (await isFirstVisible(page.getByRole("heading", { name: /협업 공간 상태/ }))) {
+    return;
+  }
+
+  let workspaceNav = page.getByRole("button", { name: /팀 연결/ });
+  if (!(await isFirstVisible(workspaceNav))) {
+    await openOptionalTaskList(page);
+    workspaceNav = page.getByRole("button", { name: /팀 연결/ });
+  }
+
+  await clickFirst(workspaceNav, "workspace navigation");
+  await waitForVisible(page.getByRole("heading", { name: /협업 공간 상태/ }), "workspace panel", 15000);
+}
+
 async function assertVisibleText(page, text, label) {
   if (!(await hasVisibleText(page, text))) {
     fail(`missing expected disposable fixture label: ${label}`);
@@ -246,6 +277,8 @@ async function loginAndCheck(page, credentials, expectedWorkspace, deniedWorkspa
     20000,
   );
 
+  await openWorkspaceTask(page);
+  await waitForVisible(page.getByLabel(/활성 워크스페이스/), `${actorLabel} active workspace selector`, 20000);
   await assertVisibleText(page, expectedWorkspace, `${actorLabel} allowed workspace`);
   await assertHiddenText(page, deniedWorkspace, `${actorLabel} denied workspace`);
 }
