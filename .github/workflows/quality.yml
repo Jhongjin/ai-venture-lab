@@ -16,10 +16,11 @@ concurrency:
 jobs:
   quality:
     name: pnpm quality:full
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     timeout-minutes: 20
     env:
       CI: "true"
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - name: Checkout

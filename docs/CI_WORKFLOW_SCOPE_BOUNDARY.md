@@ -1,8 +1,8 @@
 # CI Workflow Scope Boundary
 
-Status: WQ-051 CI quality workflow enabled
+Status: WQ-053 CI runtime/image maintenance enabled
 Last updated: 2026-05-17
-Scope: approved read-only GitHub Actions quality gate; no secrets, deploys, production mutation, authenticated write smoke, telemetry smoke, or Build Relay execution; runner/action notices tracked as maintenance only
+Scope: approved read-only GitHub Actions quality gate; Node24 JavaScript action runtime and Windows 2025 VS2026 image tested early; no secrets, deploys, production mutation, authenticated write smoke, telemetry smoke, or Build Relay execution
 
 ## Purpose
 
@@ -10,13 +10,15 @@ This note defines the CI boundary for the current deployed runtime at `D:\Codex\
 
 The repo now has one active GitHub Actions workflow: `.github/workflows/quality.yml`.
 
-The workflow mirrors the local non-secret gate by running `pnpm quality:full` on `windows-latest` with `permissions: contents: read`.
+The workflow mirrors the local non-secret gate by running `pnpm quality:full` on `windows-2025-vs2026` with `permissions: contents: read`.
+
+The workflow also sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"` so JavaScript actions are tested against the upcoming Node24 action runtime before GitHub flips the default.
 
 Checkout uses `persist-credentials: false` so the GitHub token is not left in local git config for later steps.
 
 This document and workflow do not change repo secrets, branch protection, GitHub environments, Vercel settings, Supabase settings, production data, or Build Relay permissions.
 
-Validation keywords: `ci_workflow_scope_active`, `workflow_scope_approved`, `quality_workflow_enabled`, `checkout_persist_credentials_false`, `no_secret_output`, `no_production_mutation`.
+Validation keywords: `ci_workflow_scope_active`, `workflow_scope_approved`, `quality_workflow_enabled`, `node24_action_runtime_test_enabled`, `windows_2025_vs2026_runner_enabled`, `checkout_persist_credentials_false`, `no_secret_output`, `no_production_mutation`.
 
 ## Current Runtime Boundary
 
@@ -97,6 +99,17 @@ These notices are not launch blockers because the workflow passed and mirrors lo
 Do not react to these notices by adding secrets, write permissions, deploy commands, authenticated smoke, telemetry smoke, production mutation, or Build Relay execution to CI.
 
 Validation keywords: `ci_runner_notice_recorded`, `node20_action_notice_nonblocking`, `windows_latest_redirect_notice_nonblocking`, `ci_notice_not_launch_blocker`, `ci_notice_no_scope_expansion`.
+
+## Maintenance Response
+
+The workflow now opts into the upcoming runner conditions without expanding CI scope:
+
+- JavaScript actions: `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"`.
+- Windows image: `runs-on: windows-2025-vs2026`.
+
+Keep `node-version: "20"` in `actions/setup-node` until the application runtime support matrix is reviewed separately; this setting controls the project build Node version, not the JavaScript action runtime.
+
+Validation keywords: `ci_runtime_maintenance_applied`, `force_javascript_actions_to_node24`, `windows_2025_vs2026_image_test`, `app_node_version_20_retained`, `no_ci_scope_expansion`.
 
 ## Future CI Expansion
 

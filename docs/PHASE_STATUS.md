@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-17 | Tested upcoming CI runtime/image path | Current commit | GitHub Actions only; no runtime deploy intended | `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`, `windows-2025-vs2026`, no CI scope expansion |
 | 2026-05-17 | Recorded CI runner/action notices | Current commit | Docs/check-script only; no runtime deploy intended | `Quality Gate` run `25984007955` passed; Node.js 20 action runtime and `windows-latest` redirect notices recorded as non-blocking maintenance risk |
 | 2026-05-17 | Enabled read-only GitHub Actions quality gate | Current commit | Git push may still trigger Vercel auto-deploy through the connected production project; workflow itself does not deploy | `.github/workflows/quality.yml`, `pnpm release:check`, `pnpm quality:full`, CI boundary readback, forbidden workflow pattern guard |
 | 2026-05-17 | Approved controlled beta ship evidence | Current commit | Production LKG `dpl_72EhMSpuaz8r4PcjvPZ7uHipa8Sa`; docs/check-script only in repo | Vercel inspect, `pnpm quality:full`, launch evidence packet, rollback evidence |

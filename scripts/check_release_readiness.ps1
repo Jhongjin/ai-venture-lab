@@ -52,6 +52,12 @@ $checks = @(
       "ci_runner_notice_recorded",
       "node20_action_notice_nonblocking",
       "windows_latest_redirect_notice_nonblocking",
+      "node24_action_runtime_test_enabled",
+      "windows_2025_vs2026_runner_enabled",
+      "ci_runtime_maintenance_applied",
+      "force_javascript_actions_to_node24",
+      "windows_2025_vs2026_image_test",
+      "app_node_version_20_retained",
       "local_quality_full_still_required",
       "ci_mirrors_local_quality_full",
       "contents_read_only",
@@ -76,7 +82,8 @@ $checks = @(
       "permissions:",
       "contents: read",
       "persist-credentials: false",
-      "windows-latest",
+      "windows-2025-vs2026",
+      "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24",
       "pnpm install --frozen-lockfile",
       "pnpm quality:full"
     )
