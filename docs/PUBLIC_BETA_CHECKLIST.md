@@ -17,6 +17,8 @@ Before running smoke commands, check `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md`. The 
 
 Before opening a controlled beta, check `docs/PUBLIC_BETA_LAUNCH_GATE.md` for the current blocker/non-blocker split and summary-only evidence boundary.
 
+Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` to collect the operator decisions needed before changing `launch_gate_decision: research_more` to `ship`.
+
 Before creating or modifying GitHub Actions, check `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md`. CI may mirror local non-secret gates, but it does not replace explicit approval for authenticated write smoke, telemetry smoke, deploys, rollback, production DB/Auth mutation, or release decisions.
 
 Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, and `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`. The current posture is `rls_allowed_denied_browser_smoke_passed`: production private-read posture was confirmed with disposable account/workspace fixtures and summary-only evidence. Rerun when fixtures, RLS policies, workspace access code, or production migrations change.

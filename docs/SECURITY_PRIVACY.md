@@ -42,6 +42,31 @@ Extra review is required for:
 - Is cleanup ownership recorded for write smoke, and does it avoid primary operator data?
 - How does the operator roll back a bad deployment or data migration?
 
+## Privacy Evidence Checklist
+
+Before broader beta, record the beta-scope answer for:
+
+- Data inventory: what personal or workspace-confidential data can be entered, generated, stored, exported, or sent to AI tooling?
+- Consent boundary: what does the user knowingly provide, and what is generated automatically?
+- Retention TTL: how long are workspace records, smoke data, telemetry events, and artifacts retained?
+- Deletion path: how can a workspace owner request deletion or cleanup?
+- AI/log exposure: what data may appear in model prompts, server logs, telemetry, screenshots, or external handoff packets?
+- Redaction coverage: which obvious identifiers are redacted before durable source excerpts are saved?
+
+Unknown values remain blockers for broader beta.
+
+Validation keywords: `privacy_data_inventory_required`, `retention_ttl_unresolved`, `deletion_path_unresolved`, `consent_boundary_unresolved`, `ai_prompt_data_boundary_unresolved`.
+
+## Evidence Secret Scan
+
+Release readiness includes a docs/templates-only scan for obvious committed secret patterns. This is a guardrail, not proof that secrets are absent.
+
+If the scan reports a possible secret pattern, stop and rotate or remove the value before relying on the evidence packet.
+
+The scan must not read `.env*`, local terminal values, browser sessions, cookies, production dashboards, or external runtime secrets.
+
+Validation keywords: `obvious_secret_pattern_scan`, `secret_scan_not_proof`, `possible_secret_blocks_evidence`, `no_env_file_readback`.
+
 ## Supabase Gate
 
 - Public-schema tables have RLS enabled.

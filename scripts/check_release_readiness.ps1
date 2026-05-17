@@ -132,6 +132,10 @@ $checks = @(
       "disposable_fixture_retention",
       "summary_only_cleanup_evidence",
       "telemetry_event_cleanup_requires_user_approval",
+      "smoke_cleanup_evidence_recorded",
+      "missing_cleanup_row_blocks_beta",
+      "cleanup_status_unresolved",
+      "pending_cleanup_blocks_broader_beta",
       "no_primary_data_cleanup",
       "cleanup_requires_explicit_approval",
       "no_external_runtime_mutation"
@@ -150,6 +154,12 @@ $checks = @(
       "telemetry_smoke_passed_after_rotation",
       "technical_smoke_paths_passed",
       "broader_beta_blocked_until_evidence_closed",
+      "launch_gate_unresolved_evidence_ledger",
+      "cleanup_disposition_unresolved",
+      "risk_acceptance_unresolved",
+      "artifact_approval_unresolved",
+      "rollback_evidence_unresolved",
+      "external_runtime_secret_rotation_unverified",
       "cleanup_status_required_before_broader_beta",
       "risk_acceptance_required_before_ship",
       "artifact_approval_evidence_required",
@@ -161,11 +171,38 @@ $checks = @(
     )
   },
   @{
+    Path = "docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md"
+    Terms = @(
+      "public_beta_launch_evidence_packet",
+      "launch_evidence_packet_open",
+      "operator_decision_packet_only",
+      "launch_gate_decision_research_more",
+      "pending_user_decision",
+      "proven_technical_evidence",
+      "pending_launch_evidence",
+      "pending_cleanup_blocks_ship",
+      "pending_risk_acceptance_blocks_ship",
+      "pending_artifact_approval_blocks_ship",
+      "pending_rollback_evidence_blocks_ship",
+      "pending_qa_signoff_blocks_ship",
+      "pending_security_privacy_signoff_blocks_ship",
+      "operator_questions_for_launch",
+      "qa_signoff_required_before_ship",
+      "security_privacy_signoff_required_before_ship",
+      "final_operator_decision_required",
+      "launch_packet_summary_only",
+      "no_secret_values_in_launch_packet"
+    )
+  },
+  @{
     Path = "docs/RISK_REGISTER.md"
     Terms = @(
       "risk_owner_recorded",
       "beta_gate_disposition_recorded",
-      "high_risk_requires_acceptance_before_ship"
+      "high_risk_requires_acceptance_before_ship",
+      "conditional_mitigation_not_launch_closure",
+      "external_runtime_rotation_scope_unverified",
+      "high_risk_open_blocks_ship"
     )
   },
   @{
@@ -190,7 +227,16 @@ $checks = @(
     Path = "docs/SECURITY_PRIVACY.md"
     Terms = @(
       "cleanup_ownership_required_for_write_smoke",
-      "no_primary_operator_data_cleanup"
+      "no_primary_operator_data_cleanup",
+      "privacy_data_inventory_required",
+      "retention_ttl_unresolved",
+      "deletion_path_unresolved",
+      "consent_boundary_unresolved",
+      "ai_prompt_data_boundary_unresolved",
+      "obvious_secret_pattern_scan",
+      "secret_scan_not_proof",
+      "possible_secret_blocks_evidence",
+      "no_env_file_readback"
     )
   },
   @{
@@ -254,6 +300,84 @@ foreach ($check in $checks) {
 
 if ($missing.Count -gt 0) {
   Write-Error ("Release readiness check failed:`n" + ($missing -join "`n"))
+}
+
+$stateFailures = @()
+
+$launchPacketPath = "docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md"
+$launchGatePath = "docs/PUBLIC_BETA_LAUNCH_GATE.md"
+
+if ((Test-Path -LiteralPath $launchPacketPath) -and (Test-Path -LiteralPath $launchGatePath)) {
+  $launchPacket = Get-Content -LiteralPath $launchPacketPath -Raw
+  $launchGate = Get-Content -LiteralPath $launchGatePath -Raw
+  $combinedLaunchEvidence = $launchPacket + "`n" + $launchGate
+
+  if ($combinedLaunchEvidence -match "(?m)^launch_gate_decision:\s*ship\s*$") {
+    $blockingMarkers = @(
+      "pending_user_decision",
+      "pending_cleanup_blocks_ship",
+      "pending_risk_acceptance_blocks_ship",
+      "pending_artifact_approval_blocks_ship",
+      "pending_rollback_evidence_blocks_ship",
+      "pending_qa_signoff_blocks_ship",
+      "pending_security_privacy_signoff_blocks_ship",
+      "cleanup_disposition_unresolved",
+      "risk_acceptance_unresolved",
+      "artifact_approval_unresolved",
+      "rollback_evidence_unresolved",
+      "external_runtime_secret_rotation_unverified",
+      "qa_signoff_unresolved",
+      "security_privacy_signoff_unresolved"
+    )
+
+    foreach ($marker in $blockingMarkers) {
+      if ($combinedLaunchEvidence.Contains($marker)) {
+        $stateFailures += "launch evidence: ship decision is blocked by '$marker'"
+      }
+    }
+  }
+}
+
+$secretPatternFindings = @()
+$secretPatterns = @(
+  "sk-[A-Za-z0-9_-]{20,}",
+  "ghp_[A-Za-z0-9]{20,}",
+  "github_pat_[A-Za-z0-9_]{20,}",
+  "xox[baprs]-[A-Za-z0-9-]{20,}",
+  "eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}",
+  "(TELEMETRY_INGEST_SECRET|SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY|BROWSER_SMOKE_PASSWORD|BROWSER_RLS_SMOKE_PASSWORD_A|BROWSER_RLS_SMOKE_PASSWORD_B)\s*[:=]\s*['""]?[A-Za-z0-9+/_=-]{12,}"
+)
+
+$scanRoots = @("docs", "templates")
+foreach ($root in $scanRoots) {
+  if (-not (Test-Path -LiteralPath $root)) {
+    continue
+  }
+
+  $files = Get-ChildItem -LiteralPath $root -Recurse -File | Where-Object {
+    $_.Name -notmatch "^\.env" -and
+    $_.FullName -notmatch "\\\.tmp\\" -and
+    $_.FullName -notmatch "\\\.tmpshots\\"
+  }
+
+  foreach ($file in $files) {
+    $content = Get-Content -LiteralPath $file.FullName -Raw
+    foreach ($pattern in $secretPatterns) {
+      if ($content -match $pattern) {
+        $relativePath = Resolve-Path -LiteralPath $file.FullName -Relative
+        $secretPatternFindings += "${relativePath}: possible secret pattern found"
+        break
+      }
+    }
+  }
+}
+
+if ($secretPatternFindings.Count -gt 0) {
+  $stateFailures += "obvious secret pattern scan found possible evidence leaks:`n" + ($secretPatternFindings -join "`n")
+}
+
+if ($stateFailures.Count -gt 0) {
+  Write-Error ("Release readiness state check failed:`n" + ($stateFailures -join "`n"))
 }
 
 Write-Host "Release readiness keyword check passed."

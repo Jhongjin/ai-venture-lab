@@ -8,6 +8,8 @@ Scope: launch decision summary only; no deployment, env mutation, SQL, Auth/DB m
 
 This gate separates technical smoke evidence from the actual launch decision after authenticated write smoke, RLS allowed/denied smoke, and telemetry smoke have passed with disposable fixtures.
 
+Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` as the operator-facing decision packet before changing the decision from `research_more` to `ship`.
+
 Validation keywords: `public_beta_launch_gate`, `launch_gate_evidence_pending`, `launch_gate_decision_research_more`, `summary_only_launch_evidence`, `no_secret_output`.
 
 ## Current Gate Status
@@ -44,6 +46,20 @@ No code/runtime blocker is recorded for the checked smoke paths, but broader bet
 
 Validation keywords: `technical_smoke_paths_passed`, `broader_beta_blocked_until_evidence_closed`, `secret_disclosure_blocks_beta`, `cleanup_status_required_before_broader_beta`, `risk_acceptance_required_before_ship`, `artifact_approval_evidence_required`, `rollback_evidence_required`, `external_runtime_secret_rotation_required`, `rls_change_requires_rerun`.
 
+## Unresolved Evidence Ledger
+
+| Evidence | Current state | Blocks `ship` |
+| --- | --- | --- |
+| Cleanup disposition | `cleanup_disposition_unresolved` | Yes |
+| High-risk acceptance | `risk_acceptance_unresolved` | Yes |
+| Artifact approvals | `artifact_approval_unresolved` | Yes |
+| Rollback evidence | `rollback_evidence_unresolved` | Yes |
+| External telemetry runtime rotation scope | `external_runtime_secret_rotation_unverified` | Yes if any external runtime used the disclosed secret |
+| QA signoff | `qa_signoff_unresolved` | Yes |
+| Security/privacy signoff | `security_privacy_signoff_unresolved` | Yes |
+
+Validation keywords: `launch_gate_unresolved_evidence_ledger`, `cleanup_disposition_unresolved`, `risk_acceptance_unresolved`, `artifact_approval_unresolved`, `rollback_evidence_unresolved`, `external_runtime_secret_rotation_unverified`, `qa_signoff_unresolved`, `security_privacy_signoff_unresolved`.
+
 ## Required To Move To Ship
 
 Record these before changing the decision from `research_more` to `ship`:
@@ -54,9 +70,15 @@ Record these before changing the decision from `research_more` to `ship`:
 | Risk register | High beta-relevant risks are `Mitigated`, `Accepted for beta scope`, or explicitly marked non-blocking with an owner. |
 | Artifact approvals | PRD, MVP spec, design brief, and tech spec approvals are recorded or deliberately scoped out for the beta slice. |
 | Rollback | Last-known-good deployment, rollback owner, rollback trigger, and rollback command or Vercel action are recorded. |
+| QA signoff | QA signoff is recorded or explicitly deferred for the beta slice. |
+| Security/privacy signoff | Security/privacy signoff is recorded or explicitly deferred for the beta slice. |
 | Final decision | `launch_gate_decision: ship` is recorded with date, owner, commit, production target, and smoke results. |
 
 Validation keywords: `ship_requires_cleanup_disposition`, `ship_requires_risk_acceptance`, `ship_requires_artifact_approval_evidence`, `ship_requires_rollback_evidence`, `ship_requires_final_decision_owner`.
+
+The evidence packet must keep `pending_user_decision` markers until the operator answers the open launch questions. Those markers block `ship` but do not invalidate the technical smoke evidence.
+
+Validation keywords: `public_beta_launch_evidence_packet`, `pending_user_decision_blocks_ship`, `technical_smoke_evidence_still_valid`.
 
 ## Non-Blocking Follow-Up
 

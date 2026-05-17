@@ -26,6 +26,19 @@ Validation keywords: `smoke_data_cleanup_runbook`, `cleanup_boundary_ready`, `no
 
 Validation keywords: `disposable_fixture_retention`, `summary_only_cleanup_evidence`, `telemetry_event_cleanup_requires_user_approval`, `no_primary_data_cleanup`.
 
+## Cleanup Evidence Table
+
+Every smoke surface needs a row before broader beta. A missing row is unresolved.
+
+| Smoke surface | Cleanup status | Cleanup owner | Notes |
+| --- | --- | --- | --- |
+| Authenticated write smoke workspace/idea | `pending_cleanup` | Operator | Update to `completed_cleanup`, `retained_for_rerun`, or `not_applicable`. |
+| RLS fixture pair | `retained_for_rerun` | Operator | Keep only while synthetic and reserved for RLS reruns. |
+| Telemetry smoke events | `pending_cleanup` | Operator | Keep summary evidence only; DB cleanup needs explicit approval. |
+| Screenshot artifacts | `not_applicable` | Operator | Use `completed_cleanup` if any local sensitive screenshots were created and deleted. |
+
+Validation keywords: `smoke_cleanup_evidence_recorded`, `missing_cleanup_row_blocks_beta`, `cleanup_status_unresolved`, `pending_cleanup_blocks_broader_beta`.
+
 ## Cleanup Decision
 
 Use this order:

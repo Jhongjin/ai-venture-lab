@@ -16,3 +16,11 @@
 | Built-in auth email delivery limit | Operations | Medium | Operator | Add password sign-in for dashboard-created operators; configure custom SMTP before broader testing | Mitigating | Non-blocking for dashboard-created beta accounts; SMTP before wider invite flow |
 
 Validation keywords: `risk_owner_recorded`, `beta_gate_disposition_recorded`, `high_risk_requires_acceptance_before_ship`.
+
+Launch closure notes:
+
+- A `Mitigated` status records current evidence; it is not full launch closure when the beta gate disposition is conditional.
+- External runtime rotation scope remains unverified unless every trusted runtime that used a disclosed telemetry secret is recorded as rotated.
+- High `Open` or unresolved `Mitigating` risks block `ship` unless the operator accepts them for the beta scope or explicitly scopes them out.
+
+Validation keywords: `conditional_mitigation_not_launch_closure`, `external_runtime_rotation_scope_unverified`, `high_risk_open_blocks_ship`.
