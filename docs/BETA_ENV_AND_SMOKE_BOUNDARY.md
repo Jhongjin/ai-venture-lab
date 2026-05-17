@@ -82,8 +82,8 @@ RLS is the authorization boundary for Supabase browser access.
 
 - Anonymous smoke can confirm public shell behavior and private empty states.
 - Authenticated visibility smoke confirms the signed-in session can reach the workspace surface.
-- Before broader beta, the operator still needs allowed and denied RLS evidence for the changed private-data paths.
-- Cross-workspace or second-user denied checks are required before treating private reads/writes as beta-ready.
+- Current allowed and denied RLS evidence has passed with disposable account/workspace fixtures and summary-only evidence.
+- Cross-workspace or second-user denied checks must be rerun before treating changed private reads/writes as beta-ready after RLS policy, fixture, migration, or workspace access changes.
 - Service-role access is server-only and must not be used to bypass beta smoke from a browser or external handoff.
 - Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke. The WQ-040 runner `pnpm smoke:browser:rls` must fail closed or report blocked when disposable fixtures are missing; no account provisioning, DB/Auth mutation, write smoke, screenshots, or secret output.
 
@@ -122,7 +122,7 @@ Stop and record a blocker instead of continuing when:
 - the account is not disposable and the smoke would write data,
 - production write smoke lacks explicit per-run approval,
 - telemetry smoke would use a non-disposable idea ID,
-- RLS allowed/denied evidence is missing for a private-data beta claim,
+- RLS allowed/denied evidence is missing or stale for a private-data beta claim,
 - the action requires production SQL, real Auth/DB mutation, deploy trigger, rollback, paid API call, credential/session handling, source-root writes, or `D:\Projects\AdMate` mutation.
 
 Validation keywords: `production_write_smoke_requires_user_approval`, `no_production_mutation`, `no_deploy_trigger`, `no_rollback`, `no_real_auth_db_mutation`, `no_paid_api_call`, `no_credential_session_handling`, `no_source_root_writes`.

@@ -21,12 +21,16 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 - Completed on: 2026-05-06
 - Covered scope: idea extraction and validation gates, saved extraction portfolio reports, validation evidence coaching, PRD handoff, MVP slicing, Korean UX, app planning/design/development orchestration, development kickoff guardrails, implementation run packages, implementation task board, evidence quality gates, filtered task handoffs, artifact approval reviews, release decision packets, MVP build command packets, QA acceptance matrices, post-launch learning loops, versioned runbook artifacts, local release checks, Vercel production smoke.
-- Remaining items are not blocking this phase because they require external access, optional AI tuning, or later beta-level browser automation.
+- Remaining items are not blocking this phase because they require external access, optional AI tuning, or rerun-gated beta automation.
 
 ## Completed Jobs
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-17 | Aligned beta evidence docs with passed auth/RLS/telemetry gates | Current commit | Skipped, docs/check-script only; no runtime deploy | stale keyword grep, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
+| 2026-05-17 | Closed telemetry secret rotation blocker | `8ba6b0b` | Vercel Production redeployed after env rotation | `pnpm smoke:telemetry`, `pnpm smoke:telemetry:funnel`, no secret value recorded |
+| 2026-05-17 | Recorded RLS allowed/denied browser evidence | `4bba176` | Smoke-only/no app redeploy | `pnpm smoke:browser:rls`, anonymous denied, A/B allowed, A->B/B->A denied |
+| 2026-05-17 | Stabilized authenticated write smoke | `f05e1d8` | Production alias after deploy | `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth` |
 | 2026-05-16 | WQ-047 refreshed public beta manager checklist | Current commit | Skipped, docs-only/no runtime change | checklist readback, `pnpm release:check`, subagent beta closeout review |
 | 2026-05-16 | WQ-046 ran manager workspace regression and copy cleanup | Current commit | Production auto-deploy after push | `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm release:check`, local `pnpm smoke:routes`, local `pnpm smoke:browser`, subagent QA/copy review, Playwright desktop/mobile visual check, production `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, production Playwright copy check |
 | 2026-05-16 | WQ-045 refined detailed workbench manager language | Current commit | Production auto-deploy after push | `pnpm lint`, `pnpm typecheck`, `pnpm build`, local `pnpm smoke:routes`, local `pnpm smoke:browser`, subagent copy review, production `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
@@ -108,10 +112,10 @@ Use this file as the lightweight phase ledger for the agent work loop.
 | Item | Type | Reason | Next Handling |
 | --- | --- | --- | --- |
 | GitHub Actions workflow push | External blocker | Current GitHub token lacks `workflow` scope | User can grant workflow scope later; local `pnpm quality:full` remains the required gate |
-| Browser-level authenticated write smoke execution | Deferred | Authenticated visibility smoke passed; write mode still requires explicit per-run approval and disposable workspace/idea data | Run only after approving write flags, cleanup owner, and disposable test data |
-| RLS allowed/denied smoke execution | Deferred | Runner scaffold exists, but real execution needs a second disposable account and disposable workspace pair | Use `pnpm smoke:browser:rls:preflight` for guard checks; do not run cross-workspace checks against primary data |
-| Production RLS migration confirmation | External DB check | Static SQL review found the intended private-read posture, but production migration state and old public-read policy removal are unverified | Confirm required migrations through `20260512010000_repair_workspace_creation_policy.sql` and absence of old public-read policies before real denied smoke |
-| Telemetry production RLS confirmation | External DB check | The app can deploy without it, but event writes require the `telemetry_events` insert/select policies | Run or confirm `supabase/migrations/20260506010000_add_learning_telemetry.sql` in Supabase |
+| Browser-level authenticated write smoke execution | Completed | Explicit per-run approval was granted and disposable workspace/idea data was used | Rerun only with explicit approval, disposable data, and cleanup ownership |
+| RLS allowed/denied smoke execution | Completed | Two disposable accounts and two private workspace labels passed anonymous/allowed/denied checks | Rerun when fixtures, RLS policy, migration, or workspace access code changes |
+| Production RLS migration confirmation | Completed | Production posture was checked before denied smoke: required private-read migrations were present, old public-read policies were absent, and RLS was enabled on core tables | Rerun posture checks when migrations or policies change |
+| Telemetry production smoke execution | Completed | Post-rotation telemetry ingest and funnel smoke passed with a disposable idea id | Rerun when telemetry env, endpoint behavior, or telemetry RLS policies change |
 | Authenticated telemetry smoke execution | Completed | Production telemetry smoke and funnel smoke passed after `TELEMETRY_INGEST_SECRET` rotation and redeploy, using a disposable idea id and summary-only evidence | Rerun only when telemetry env, endpoint behavior, or telemetry RLS policies change |
 
 ## Next User Actions
@@ -120,13 +124,13 @@ Use `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md` before beta smoke, telemetry smoke, en
 
 Use `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md` before creating or modifying GitHub Actions. The current posture is `ci_workflow_scope_boundary_docs_only`: no workflow file mutation, no GitHub Actions mutation, local `pnpm quality:full` remains the required gate, and future CI may mirror non-secret checks only.
 
-Authenticated visibility smoke has passed against `https://ai-venture-lab.vercel.app` with disposable Supabase Auth credentials loaded locally and not printed. The run cleared write/create/screenshot flags, performed no workspace/idea creation, and did not run telemetry smoke or production mutations.
+Authenticated visibility and explicit write smoke have passed against `https://ai-venture-lab.vercel.app` with disposable Supabase Auth credentials loaded locally and not printed. The write run used disposable data and summary-only evidence.
 
-Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`, and `pnpm smoke:browser:rls:preflight` before any cross-workspace, second-account, or denied-case smoke. Actual execution needs disposable account/workspace fixtures, production migration confirmation, absence of old public-read policies, and summary-only evidence.
+Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`, and `pnpm smoke:browser:rls:preflight` before rerunning any cross-workspace, second-account, or denied-case smoke. Current RLS allowed/denied evidence has passed with disposable account/workspace fixtures and summary-only evidence.
 
 Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Production to enable server-side AI extraction. Without it, the app automatically falls back to the local rules engine.
 
-Required for learning telemetry writes: confirm `telemetry_events` table and RLS policies from `supabase/migrations/20260506010000_add_learning_telemetry.sql` are applied in Supabase Production.
+Learning telemetry writes have passed post-rotation smoke with a disposable idea id. Reconfirm `telemetry_events` table posture and RLS policies only when telemetry migrations, endpoint behavior, or production environment settings change.
 
 Completed for external MVP event ingest: `SUPABASE_SERVICE_ROLE_KEY` and rotated `TELEMETRY_INGEST_SECRET` are present in Vercel Production. Keep `TELEMETRY_INGEST_SECRET` only in trusted server environments, never in browser bundles. Post-rotation `pnpm smoke:telemetry` and `pnpm smoke:telemetry:funnel` passed with disposable idea data and no secret value recorded.
 

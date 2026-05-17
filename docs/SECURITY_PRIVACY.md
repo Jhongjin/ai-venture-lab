@@ -48,7 +48,7 @@ Extra review is required for:
 - `service_role` is only used server-side and never in client bundles.
 - Allowed and denied paths are tested before launch, including private-read and cross-workspace denied cases before broader beta.
 - Cross-workspace denied checks require two disposable accounts and a disposable workspace pair; missing fixtures block the check instead of widening permissions.
-- Static policy review is not production proof. Confirm migrations are applied and old public-read policies are absent before relying on real denied-case smoke.
+- Static policy review is not production proof. Confirm migrations are applied and old public-read policies are absent before relying on a denied-case smoke run or rerun.
 
 ## Firebase Gate
 

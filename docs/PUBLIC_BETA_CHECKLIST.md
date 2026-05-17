@@ -11,13 +11,13 @@ Current manager-facing beta shell status:
 - Anonymous production shell and workspace smoke pass.
 - `/workspace` shows the manager decision panel (`오늘의 판단`) before the step rail on mobile.
 - Top-level manager copy no longer exposes `AI 실행 패키지`, `개발 태스크`, `사업/개발`, raw Supabase connection errors, or English `Step` labels in the anonymous workspace path.
-- Authenticated visibility smoke has passed with disposable credentials, but write smoke, telemetry smoke, and real RLS denied-case smoke remain blocked until their fixture and approval rules are met.
+- Authenticated write smoke, RLS allowed/denied smoke, and post-rotation telemetry smoke have passed with disposable fixtures and summary-only evidence.
 
 Before running smoke commands, check `docs/BETA_ENV_AND_SMOKE_BOUNDARY.md`. The WQ-036 boundary is `beta_env_smoke_boundary_docs_only`: names only, no values, no `.env.local` readback, no secret output.
 
 Before creating or modifying GitHub Actions, check `docs/CI_WORKFLOW_SCOPE_BOUNDARY.md`. CI may mirror local non-secret gates, but it does not replace explicit approval for authenticated write smoke, telemetry smoke, deploys, rollback, production DB/Auth mutation, or release decisions.
 
-Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, and `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`. The WQ-042 posture is `rls_fixture_handoff_ready`: static SQL shows private-read intent after the tightening migration, but `denied_cases_not_claimed_until_executed` still applies until production migration state and disposable cross-workspace smoke pass.
+Before claiming private-read beta readiness, check `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, and `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`. The current posture is `rls_allowed_denied_browser_smoke_passed`: production private-read posture was confirmed with disposable account/workspace fixtures and summary-only evidence. Rerun when fixtures, RLS policies, workspace access code, or production migrations change.
 
 ```powershell
 pnpm quality:full
@@ -35,7 +35,7 @@ pnpm smoke:browser
 5. Stage guidance, workflow rail, and login or extraction entry are visible.
 6. The anonymous path shows the expected login-required or empty-workbench state without console/page errors.
 
-Anonymous production sessions may see an empty workbench or login-required state because authenticated RLS policies hide private workspace data. In that case the browser smoke still passes if the public shell, manager decision panel, and empty/limited states are shown correctly. Authenticated write flows remain part of the manual beta pass until a disposable test account and explicit write approval are available.
+Anonymous production sessions may see an empty workbench or login-required state because authenticated RLS policies hide private workspace data. In that case the browser smoke still passes if the public shell, manager decision panel, and empty/limited states are shown correctly. Authenticated write smoke has passed with explicit approval and disposable test data; rerun it only under the same approval and cleanup boundary.
 
 By default the browser smoke targets `https://ai-venture-lab.vercel.app`.
 
@@ -67,7 +67,7 @@ pnpm exec playwright install chromium
 
 ## Authenticated Browser Smoke
 
-Run this with a disposable Supabase Auth user before external beta. The script logs in with password auth and verifies the workspace panel. It only writes data when the write flag is explicitly enabled.
+Run this with a disposable Supabase Auth user before external beta or when auth/workspace behavior changes. The script logs in with password auth and verifies the workspace panel. It only writes data when the write flag is explicitly enabled.
 
 Login/workspace visibility only:
 
@@ -83,7 +83,7 @@ RLS allowed/denied runner guard, no credentials required:
 pnpm smoke:browser:rls:preflight
 ```
 
-Actual RLS allowed/denied smoke requires an explicit `BROWSER_RLS_SMOKE_URL`, two disposable accounts, and two disposable workspace labels in local-only `BROWSER_RLS_SMOKE_*` variables. Do not run it against primary operator data.
+A full RLS allowed/denied smoke requires an explicit `BROWSER_RLS_SMOKE_URL`, two disposable accounts, and two disposable workspace labels in local-only `BROWSER_RLS_SMOKE_*` variables. Do not run it against primary operator data.
 
 Create one timestamped disposable idea:
 

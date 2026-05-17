@@ -1,14 +1,16 @@
 # RLS Disposable Fixture Handoff
 
-Status: WQ-042 fixture handoff ready
-Last updated: 2026-05-16
-Scope: user action packet only; no account provisioning, no workspace creation by automation, no `.env.local` readback, no smoke execution
+Status: disposable fixture handoff and rerun packet
+Last updated: 2026-05-17
+Scope: user action packet only; no account provisioning, no workspace creation by automation, no `.env.local` readback, no secret output
 
 ## Purpose
 
-This handoff tells the operator exactly what disposable Supabase fixtures must exist before the real RLS allowed/denied smoke can run.
+This handoff tells the operator exactly what disposable Supabase fixtures must exist before the RLS allowed/denied smoke can run or be safely rerun.
 
-Validation keywords: `rls_disposable_fixture_handoff`, `fixture_handoff_only`, `real_denied_smoke_not_run`, `no_secret_output`.
+The first disposable production run passed on 2026-05-17. Keep this packet for future reruns when fixtures, RLS policies, production migrations, or workspace access code change.
+
+Validation keywords: `rls_disposable_fixture_handoff`, `fixture_handoff_only`, `rls_allowed_denied_browser_smoke_passed`, `no_secret_output`.
 
 ## Required Operator Setup
 
@@ -74,19 +76,19 @@ Run the guard without credentials when you only want to verify the blocked-safe 
 pnpm smoke:browser:rls:preflight
 ```
 
-Before any preflight or real run, clear forbidden flags in the current terminal:
+Before any preflight or smoke run, clear forbidden flags in the current terminal:
 
 ```powershell
 Remove-Item Env:BROWSER_SMOKE_ALLOW_WRITE,Env:BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE,Env:BROWSER_SMOKE_SCREENSHOT,Env:BROWSER_RLS_SMOKE_SCREENSHOT,Env:RLS_SMOKE_SCREENSHOT,Env:SUPABASE_SERVICE_ROLE_KEY -ErrorAction SilentlyContinue
 ```
 
-A real run is allowed only after the operator confirms the fixture pair and production migration posture. The real command is:
+The run is allowed only after the operator confirms the fixture pair and production migration posture. The command is:
 
 ```powershell
 pnpm smoke:browser:rls
 ```
 
-Before a real run, confirm:
+Before a run, confirm:
 
 - production migrations through `20260512010000_repair_workspace_creation_policy.sql` are applied,
 - the old public read policies from the initial harness are absent,
@@ -95,7 +97,7 @@ Before a real run, confirm:
 - fixture labels are disposable and safe to report,
 - no forbidden flags are set.
 
-Validation keywords: `production_migration_confirmation_required`, `public_read_policies_absent_required`, `disposable_pair_confirmed_before_real_run`.
+Validation keywords: `production_migration_confirmation_required`, `public_read_policies_absent_required`, `disposable_pair_confirmed_before_rerun`.
 
 ## Evidence Template
 
@@ -126,7 +128,7 @@ Never record emails, passwords, cookies, sessions, bearer tokens, service-role k
 
 Validation keywords: `summary_only_rls_evidence`, `no_raw_private_payloads`, `no_screenshot_artifacts`, `no_raw_production_response`.
 
-Protective wording: this is a browser anon-key RLS read smoke using disposable fixtures only. It must not create, update, delete, deploy, run SQL, use service-role access, print secrets, store screenshots, or claim beta private-read readiness if denied checks have not passed.
+Protective wording: this is a browser anon-key RLS read smoke using disposable fixtures only. It must not create, update, delete, deploy, run SQL, use service-role access, print secrets, store screenshots, or refresh beta private-read readiness if denied checks have not passed in the current fixture/policy posture.
 
 ## Stop Conditions
 
@@ -142,12 +144,12 @@ Stop before browser execution when:
 - a denied check returns private data,
 - the task would require SQL, Auth/DB mutation, deploy, rollback, Vercel env mutation, GitHub workflow mutation, paid API calls, credential/session handling, source-root writes, or `D:\Projects\AdMate` mutation.
 
-Validation keywords: `missing_fixtures_block_real_run`, `forbidden_flags_block_real_run`, `unknown_migration_state_blocks_real_run`, `denied_check_private_data_blocks_beta`.
+Validation keywords: `missing_fixtures_block_smoke_run`, `forbidden_flags_block_smoke_run`, `unknown_migration_state_blocks_smoke_run`, `denied_check_private_data_blocks_beta`.
 
-## Next State
+## Current State
 
-When all fixtures are ready, the next state is:
+After the 2026-05-17 production browser run, the current state is:
 
 ```text
-rls_fixture_handoff_ready
+rls_allowed_denied_browser_smoke_passed
 ```

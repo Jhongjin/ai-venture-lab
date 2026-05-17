@@ -82,16 +82,16 @@ $checks = @(
     Path = "docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md"
     Terms = @(
       "supabase_rls_policy_posture_review",
-      "static_sql_review_only",
+      "production_posture_summary_only",
       "initial_public_read_policy",
       "private_workspace_reads_migration",
       "owner_workspace_scoped_reads",
       "static_rls_policy_inventory",
       "legacy_seed_visibility_carveout",
-      "denied_cases_not_claimed_until_executed",
-      "production_migration_application_unverified",
-      "cross_workspace_denied_not_run",
-      "rls_fixture_handoff_ready"
+      "production_migration_application_summary_recorded",
+      "old_public_read_policies_absent",
+      "rls_allowed_denied_browser_smoke_passed",
+      "summary_only_evidence"
     )
   },
   @{
@@ -105,10 +105,10 @@ $checks = @(
       "local_env_names_only",
       "production_migration_confirmation_required",
       "public_read_policies_absent_required",
-      "disposable_pair_confirmed_before_real_run",
+      "disposable_pair_confirmed_before_rerun",
       "summary_only_rls_evidence",
-      "forbidden_flags_block_real_run",
-      "rls_fixture_handoff_ready"
+      "forbidden_flags_block_smoke_run",
+      "rls_allowed_denied_browser_smoke_passed"
     )
   },
   @{

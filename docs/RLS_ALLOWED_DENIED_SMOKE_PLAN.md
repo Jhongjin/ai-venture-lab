@@ -1,20 +1,20 @@
 # RLS Allowed/Denied Smoke Plan
 
-Status: WQ-041 RLS policy posture review-ready
-Last updated: 2026-05-16
-Scope: plan and evidence boundary only; no account provisioning or DB/Auth mutation
+Status: RLS allowed/denied browser smoke passed
+Last updated: 2026-05-17
+Scope: plan, evidence boundary, and summary-only execution evidence; no account provisioning, DB/Auth mutation, raw private payloads, screenshots, or secret output
 
 ## Purpose
 
-This plan defines how to verify private Supabase browser access before broader beta work and names the blocked-safe runner scaffold.
+This plan defines how to verify private Supabase browser access before broader beta work, records the blocked-safe runner scaffold, and captures the summary-only evidence from the first disposable allowed/denied run.
 
-WQ-038 confirmed `authenticated_visibility_smoke_passed`: one disposable Supabase Auth user can log in and reach the workspace surface. WQ-039 does not run a second-user or cross-workspace check. It defines the conditions required before that check is safe.
+WQ-038 confirmed `authenticated_visibility_smoke_passed`: one disposable Supabase Auth user can log in and reach the workspace surface. WQ-039 defined the conditions required before a second-user or cross-workspace check would be safe.
 
-WQ-041 adds `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`. The static review found that early migrations included public-read policies for the original venture tables, while later migrations drop those policies and replace them with authenticated owner/workspace reads. Real denied-case claims still require production migration confirmation and disposable two-account smoke evidence.
+WQ-041 adds `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`. The static review found that early migrations included public-read policies for the original venture tables, while later migrations drop those policies and replace them with authenticated owner/workspace reads. On 2026-05-17, production migration posture was confirmed with summary-only evidence before the disposable two-account browser smoke passed.
 
-WQ-042 adds `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` as the exact user action packet for the two disposable accounts and two private workspace labels required before real execution.
+WQ-042 adds `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` as the exact user action packet for the two disposable accounts and two private workspace labels required before the first execution and future reruns.
 
-Validation keywords: `rls_allowed_denied_smoke_plan`, `authenticated_visibility_smoke_passed`, `no_env_local_readback`, `no_secret_output`.
+Validation keywords: `rls_allowed_denied_smoke_plan`, `authenticated_visibility_smoke_passed`, `rls_allowed_denied_browser_smoke_passed`, `no_env_local_readback`, `no_secret_output`.
 
 ## Runtime Boundary
 
@@ -50,14 +50,14 @@ WQ-041 static review is recorded in `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`
 
 | Surface | Early policy | Tightening migration | Expected current scope | Execution evidence |
 | --- | --- | --- | --- | --- |
-| `ideas`, `risks`, `decisions`, `experiments` | `initial_public_read_policy` | `20260503030000_private_workspace_reads.sql` | authenticated owner, organization member, or legacy/global seed row | `denied_cases_not_claimed_until_executed` |
-| `organizations`, `organization_members` | none in initial harness | `20260503020000_add_organization_access_model.sql`, repaired by `20260512010000_repair_workspace_creation_policy.sql` | creator/member/admin scope | `denied_cases_not_claimed_until_executed` |
-| `orchestration_runs`, `venture_artifacts`, `implementation_tasks` | added after workspace model | respective table migrations | authenticated owner, organization member, or legacy/global seed row | `denied_cases_not_claimed_until_executed` |
+| `ideas`, `risks`, `decisions`, `experiments` | `initial_public_read_policy` | `20260503030000_private_workspace_reads.sql` | authenticated owner, organization member, or legacy/global seed row | 2026-05-17 allowed/denied browser smoke passed for disposable workspace surfaces |
+| `organizations`, `organization_members` | none in initial harness | `20260503020000_add_organization_access_model.sql`, repaired by `20260512010000_repair_workspace_creation_policy.sql` | creator/member/admin scope | 2026-05-17 allowed/denied browser smoke passed for disposable workspace selection |
+| `orchestration_runs`, `venture_artifacts`, `implementation_tasks` | added after workspace model | respective table migrations | authenticated owner, organization member, or legacy/global seed row | Covered only where reachable from the current workspace smoke surface; rerun before extending claims to new private table flows |
 | `telemetry_events` | added after workspace model | `20260506010000_add_learning_telemetry.sql` | actor or organization member | separate telemetry gate |
 
-`created_by is null and organization_id is null` is a `legacy_seed_visibility_carveout`, not proof of private workspace access. Production private-read claims require `public_read_removed_by_private_workspace_reads`, production migration confirmation, and a real disposable denied-case pass.
+`created_by is null and organization_id is null` is a `legacy_seed_visibility_carveout`, not proof of private workspace access. Current private-read claims rely on `public_read_removed_by_private_workspace_reads`, production migration confirmation, and the 2026-05-17 disposable denied-case pass. Rerun before expanding claims to new surfaces.
 
-Validation keywords: `static_rls_policy_inventory`, `public_read_removed_by_private_workspace_reads`, `legacy_seed_visibility_carveout`, `denied_cases_not_claimed_until_executed`.
+Validation keywords: `static_rls_policy_inventory`, `public_read_removed_by_private_workspace_reads`, `legacy_seed_visibility_carveout`, `rls_allowed_denied_browser_smoke_passed`, `future_private_surface_requires_rerun`.
 
 ## Allowed Checks
 
@@ -168,7 +168,7 @@ WQ-040 adds a blocked-safe runner:
 pnpm smoke:browser:rls:preflight
 ```
 
-This command validates the missing-fixture guard without secret values. A real run requires an explicit target URL and all of these local-only values:
+This command validates the missing-fixture guard without secret values. A full allowed/denied run requires an explicit target URL and all of these local-only values:
 
 ```text
 BROWSER_RLS_SMOKE_URL
@@ -184,16 +184,16 @@ The runner uses fresh browser contexts for anonymous, account A, and account B c
 
 Validation keywords: `rls_smoke_runner_scaffold`, `blocked_safe_runner`, `fresh_browser_contexts`, `write_flags_disabled`, `explicit_rls_smoke_url_required`.
 
-## Next Implementation Gate
+## Future Rerun Gate
 
-Before running the automated denied-case smoke for real, the operator must confirm the disposable account/workspace pair and keep credentials in the local terminal only.
+Before rerunning the automated denied-case smoke, the operator must confirm the disposable account/workspace pair and keep credentials in the local terminal only.
 
-Static SQL posture is now documented, but production migration state is not verified. Confirm that all required migrations through `20260512010000_repair_workspace_creation_policy.sql` are applied and that old public-read policies are absent before treating a passed smoke as private-read beta evidence.
+Static SQL posture is documented and the 2026-05-17 production posture summary confirmed that required migrations through `20260512010000_repair_workspace_creation_policy.sql` were applied, old public-read policies were absent, and core private-table RLS was enabled. Rerun those posture checks before treating any future RLS smoke as fresh private-read beta evidence after migrations, policies, fixtures, or workspace access code change.
 
-Use `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` to prepare `two_disposable_auth_users_required`, `two_private_workspace_labels_required`, `local_env_names_only`, and `disposable_pair_confirmed_before_real_run`.
+Use `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` to prepare or refresh `two_disposable_auth_users_required`, `two_private_workspace_labels_required`, `local_env_names_only`, and `disposable_pair_confirmed_before_rerun`.
 
-Recommended next state after this plan:
+Recommended current state after this plan:
 
 ```text
-rls_fixture_handoff_ready
+rls_allowed_denied_browser_smoke_passed
 ```
