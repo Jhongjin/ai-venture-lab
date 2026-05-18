@@ -131,3 +131,13 @@ Priority order:
 
 Validation keywords: `fix_now_first_run_clarity`, `candidate_save_bridge`, `validation_experiment_guidance`, `technical_stack_gap_batch_next`, `no_broad_launch_claim`.
 
+## Implementation Follow-Up
+
+2026-05-18 update:
+
+- WQ-061-A is addressed by making the first input path explicit: paste meeting notes, idea memos, or work automation needs into one field before touching deeper panels.
+- WQ-061-B is addressed by explaining why the recommended candidate was selected, what saving creates, and what the next validation step is.
+- WQ-061-C is addressed by adding a plain-language validation experiment guide for `무엇을 확인할지`, `7일 동안 할 일`, and `성공/중단 기준`.
+- WQ-061-D and WQ-061-E remain as follow-up queues after the next participant check.
+
+Validation keywords: `wq_061_p1_implemented`, `first_run_clarity_implemented`, `candidate_save_bridge_implemented`, `validation_experiment_guidance_implemented`.

@@ -161,13 +161,11 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["혼자 진행할 때는 건너뛰기", "팀 공간 생성 또는 선택", "필요한 멤버만 추가"],
   },
   "console:extract": {
-    summary: "대화와 메모에서 검토할 후보와 검증 질문을 먼저 뽑아냅니다.",
+    summary: "회의 메모, 아이디어 메모, 자동화하고 싶은 업무를 붙여넣으면 먼저 볼 후보를 정리합니다.",
     checklist: [
-      "대화 원문 붙여넣기",
-      "후보 발굴 실행",
-      "추천 후보 한 건 먼저 확인",
-      "필요하면 비교 결과 펼쳐 보기",
-      "좋은 후보를 저장 초안으로 반영",
+      "원문 입력칸에 메모 붙여넣기",
+      "AI 후보 발굴 실행",
+      "추천 후보를 저장할지 결정",
     ],
   },
   "console:idea": {
@@ -191,8 +189,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["현재 판단 확인", "판단 근거 작성", "최종 기록 저장"],
   },
   "workbench:experiment": {
-    summary: "7일 안에 확인할 가장 작은 실험과 성공 기준을 정합니다.",
-    checklist: ["실험 이름 입력", "성공 기준 작성", "진행 상태 업데이트"],
+    summary: "이 후보를 계속 밀어도 되는지 7일 안에 확인할 작은 행동을 정합니다.",
+    checklist: ["무엇을 확인할지 정하기", "7일 동안 할 행동 쓰기", "성공/중단 기준 저장"],
   },
   "workbench:orchestration": {
     summary: "역할과 진행 상태만 간단히 관리합니다.",
@@ -238,10 +236,10 @@ const taskCanvasDetails: Record<
     checkpoint: "협업이 필요하지 않다면 이 단계는 건너뛰어도 괜찮습니다.",
   },
   "console:extract": {
-    question: "대화나 메모에서 제품 후보로 볼 만한 내용이 정리됐나요?",
-    aiLead: "원문을 살펴보고 후보와 검증 방향을 먼저 정리합니다.",
-    deliverable: "추천 후보 한 건과 비교 후보 목록",
-    checkpoint: "추천 후보 한 건만 확인해도 다음 단계로 이어갈 수 있게 정리합니다.",
+    question: "회의 메모나 아이디어 메모를 그대로 붙여넣을 준비가 됐나요?",
+    aiLead: "AI가 원문에서 검토할 후보 한 건과 검증 질문을 먼저 정리합니다.",
+    deliverable: "먼저 볼 추천 후보와 저장 후 이어질 검증 초안",
+    checkpoint: "처음에는 입력칸 하나만 쓰면 됩니다. 비교 후보는 필요할 때만 펼칩니다.",
   },
   "console:idea": {
     question: "이 후보를 실제 검증 대상으로 올릴 준비가 되었나요?",
@@ -268,10 +266,10 @@ const taskCanvasDetails: Record<
     checkpoint: "막는 리스크인지, 관리 가능한 리스크인지 구분하는 단계입니다.",
   },
   "workbench:experiment": {
-    question: "7일 안에 무엇을 확인하면 진행 여부를 정할 수 있을까요?",
-    aiLead: "가장 작은 실험과 성공 기준을 초안으로 만듭니다.",
-    deliverable: "7일 검증 실험 계획",
-    checkpoint: "실험은 긴 설명보다 바로 실행할 수 있는 수준으로 남깁니다.",
+    question: "이 후보가 진짜 필요한지 7일 안에 무엇으로 확인할까요?",
+    aiLead: "AI가 인터뷰, 랜딩, 수동 결과물 테스트 중 가장 작은 검증 행동을 제안합니다.",
+    deliverable: "7일 동안 할 행동과 성공/중단 기준",
+    checkpoint: "좋은 계획보다 바로 해볼 수 있는 행동 하나가 더 중요합니다.",
   },
   "workbench:decision": {
     question: "지금은 진행, 보완, 전환, 중단 중 무엇이 맞을까요?",
@@ -1114,15 +1112,16 @@ export function VentureConsoleShell({
 
         {showFirstEntryStrip ? (
           <section className="border border-slate-200 bg-white px-4 py-3">
-            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-700">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">처음 세 단계</span>
-              <span className="text-[13px] font-semibold tracking-tight text-slate-950">처음엔 여기까지만</span>
-              <span className="hidden text-slate-300 lg:inline">/</span>
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="grid gap-3 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-center">
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">처음에는 이 순서만</div>
+                <p className="mt-1 text-[13px] font-semibold tracking-tight text-slate-950">아래 입력칸 하나에서 시작하세요.</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
                 {[
-                  "원문 붙여넣기",
-                  "추천 후보 한 건 보기",
-                  "후보 저장",
+                  "메모 붙여넣기",
+                  "AI 후보 발굴",
+                  "추천 후보 저장",
                 ].map((step, index) => (
                   <span key={step} className="inline-flex items-center gap-2">
                     <span className="avl-step-dot h-6 w-6 bg-slate-100 text-slate-700">{index + 1}</span>
@@ -1130,8 +1129,8 @@ export function VentureConsoleShell({
                     {index < 2 ? <span className="text-slate-300">/</span> : null}
                   </span>
                 ))}
+                <span className="text-slate-400">저장하면 검증 단계가 열립니다.</span>
               </div>
-              <span className="text-slate-400">저장한 뒤 검증 단계로 넘어갑니다.</span>
             </div>
           </section>
         ) : null}

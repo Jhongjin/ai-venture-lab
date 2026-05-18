@@ -12836,26 +12836,45 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
         <div className={`grid gap-4 ${activeTask === "experiment" ? "" : "hidden"}`}>
           <div className="grid gap-4">
-            <section className="avl-card p-4">
-              <div className="mb-5 flex items-center justify-between gap-4">
-                <div>
-                  <div className="avl-kicker">experiment plan</div>
-                  <h2 className="mt-1 text-lg font-semibold text-slate-950">검증 실험</h2>
-                  <p className="mt-1 text-sm leading-5 text-slate-600">작은 실험 하나와 성공 기준 하나만 정합니다.</p>
+              <section className="avl-card p-4">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <div>
+                    <div className="avl-kicker">experiment plan</div>
+                    <h2 className="mt-1 text-lg font-semibold text-slate-950">검증 실험</h2>
+                    <p className="mt-1 text-sm leading-5 text-slate-600">
+                      이 후보를 계속 밀어도 되는지 7일 안에 확인할 행동 하나를 정합니다.
+                    </p>
+                  </div>
+                  <Beaker className="text-sky-600" size={22} />
                 </div>
-                <Beaker className="text-sky-600" size={22} />
-              </div>
-              <form onSubmit={addExperiment} className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
-                <InputField
-                  label="실험"
-                  value={experimentDraft.name}
-                  onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
-                />
-                <InputField
-                  label="성공 지표"
-                  value={experimentDraft.success_metric}
-                  onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
-                />
+                <div className="mb-5 grid gap-px bg-slate-200 md:grid-cols-3">
+                  {[
+                    ["무엇을 확인할지", "이 문제가 실제로 자주 생기는지, 누가 비용을 낼 만큼 불편한지 봅니다."],
+                    ["7일 동안 할 일", "5명 인터뷰, 랜딩/대기자, 수동 결과물 테스트 중 하나만 고릅니다."],
+                    ["성공/중단 기준", "몇 명이 행동하면 진행할지, 어떤 반응이면 보류할지 숫자로 적습니다."],
+                  ].map(([title, detail], index) => (
+                    <div key={title} className="bg-slate-50 px-4 py-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                        0{index + 1}
+                      </div>
+                      <div className="mt-1 text-sm font-semibold text-slate-950">{title}</div>
+                      <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+                    </div>
+                  ))}
+                </div>
+                <form onSubmit={addExperiment} className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                  <InputField
+                    label="이번에 해볼 작은 검증"
+                    value={experimentDraft.name}
+                    placeholder="예) 타깃 5명에게 문제 인터뷰하기"
+                    onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
+                  />
+                  <InputField
+                    label="성공/중단 기준"
+                    value={experimentDraft.success_metric}
+                    placeholder="예) 5명 중 3명이 최근 사례와 비용 지불 의향을 말하면 진행"
+                    onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
+                  />
                 <button
                   type="submit"
                   disabled={isBusy || !user}
@@ -12905,9 +12924,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </section>
           </div>
 
-          <div className="avl-surface-muted px-4 py-3 text-sm leading-5 text-slate-600">
-            실험 이름 하나와 성공 지표 하나면 충분합니다. 완벽한 계획보다 첫 행동이 더 중요합니다.
-          </div>
+            <div className="avl-surface-muted px-4 py-3 text-sm leading-5 text-slate-600">
+              길게 기획하지 않아도 됩니다. 이번 주에 실제 사람에게 확인할 행동 하나와 성공/중단 기준 하나면 충분합니다.
+            </div>
 
           <form onSubmit={saveExperimentResultNote} className="avl-card p-4">
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -13808,20 +13827,23 @@ function DraftDocumentCard({
 function InputField({
   label,
   value,
+  placeholder,
   onChange,
 }: {
   label: string;
   value: string;
+  placeholder?: string;
   onChange: (value: string) => void;
 }) {
   return (
     <label className="grid gap-2 text-sm font-semibold text-slate-700">
       {label}
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="avl-input"
-      />
+        <input
+          value={value}
+          placeholder={placeholder}
+          onChange={(event) => onChange(event.target.value)}
+          className="avl-input"
+        />
     </label>
   );
 }

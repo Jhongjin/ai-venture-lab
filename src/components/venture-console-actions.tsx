@@ -3098,9 +3098,9 @@ export function VentureConsoleActions({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">원문 입력</div>
-                      <h3 className="mt-1 text-base font-semibold text-slate-950">대화나 메모 붙여넣기</h3>
+                      <h3 className="mt-1 text-base font-semibold text-slate-950">먼저 이 칸에 그대로 붙여넣기</h3>
                       <p className="mt-1 max-w-2xl text-sm leading-5 text-slate-600">
-                        문제, 대상, 해결 방식이 드러나면 후보를 더 잘 정리합니다.
+                        회의 내용, 아이디어 메모, 자동화하고 싶은 업무처럼 아직 정리되지 않은 원문이면 됩니다.
                       </p>
                     </div>
                     <div className="avl-pill avl-pill-neutral">
@@ -3111,9 +3111,14 @@ export function VentureConsoleActions({
                     value={rawIdeaSource}
                     onChange={(event) => setRawIdeaSource(event.target.value)}
                     rows={12}
-                    placeholder="예) 아이디어:, 페인 포인트:, 솔루션:, 타깃, 수익화, 다음 검증 질문..."
+                    placeholder="예) 회의에서 나온 앱 아이디어, 평소 메모해 둔 자동화 업무, 만들고 싶은 웹/앱 설명을 그대로 붙여넣으세요."
                     className="avl-textarea min-h-[280px] leading-7"
                   />
+                  <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
+                    <span><strong className="text-slate-950">1.</strong> 원문을 붙여넣습니다.</span>
+                    <span><strong className="text-slate-950">2.</strong> AI가 후보 한 건을 추천합니다.</span>
+                    <span><strong className="text-slate-950">3.</strong> 저장하면 검증 단계가 열립니다.</span>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -3167,7 +3172,7 @@ export function VentureConsoleActions({
                         <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">추천 후보</div>
                           <h3 className="mt-2 text-lg font-semibold text-slate-950">{recommendedExtractedIdea.name}</h3>
-                          <p className="mt-1 text-sm leading-5 text-slate-600">지금 먼저 볼 후보 한 건입니다.</p>
+                          <p className="mt-1 text-sm leading-5 text-slate-600">지금 먼저 검토할 한 건입니다.</p>
                         </div>
                         {recommendedExtractionGate && recommendedGateStyle ? (
                           <span className={`${recommendedGateStyle.badge}`}>
@@ -3198,13 +3203,27 @@ export function VentureConsoleActions({
                           </p>
                         ) : null}
                       </div>
+                      <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-3">
+                        <div className="bg-slate-50 px-3 py-3">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이유</div>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">점수, 준비도, 리스크를 비교해 지금 먼저 볼 후보로 골랐습니다.</p>
+                        </div>
+                        <div className="bg-slate-50 px-3 py-3">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">저장하면 생기는 것</div>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">아이디어, 리스크, 7일 검증 계획이 한 묶음으로 만들어집니다.</p>
+                        </div>
+                        <div className="bg-slate-50 px-3 py-3">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">다음 단계</div>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">저장 후에는 검증 실험에서 무엇을 확인할지 정합니다.</p>
+                        </div>
+                      </div>
                       <div className="mt-4 flex flex-wrap gap-2">
                         <button
                           type="button"
                           onClick={() => loadExtractedIdea(recommendedExtractedIdea)}
                           className="avl-btn avl-btn-secondary px-4"
                         >
-                          초안으로 가져오기
+                          내용 수정하기
                         </button>
                         <button
                           type="button"
@@ -3213,18 +3232,18 @@ export function VentureConsoleActions({
                           className="avl-btn avl-btn-primary px-4"
                         >
                           {extractSaveKey === recommendedExtractedIdea.id ? <ArrowsClockwise className="animate-spin" size={16} /> : <PlusCircle size={16} />}
-                          검증 패키지 저장
+                          이 후보 저장하고 검증 시작
                         </button>
                       </div>
                     </section>
                   ) : (
                     <section className="border border-dashed border-slate-300 bg-slate-50 p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음 출력</div>
-                      <h3 className="mt-2 text-base font-semibold text-slate-950">추천 후보 없음</h3>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 후보가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
-                        <li>1. 원문을 붙여넣고 후보 발굴을 실행합니다.</li>
-                          <li>2. 추천 후보 한 건을 먼저 보고 저장할지 판단합니다.</li>
-                        <li>3. 필요할 때만 비교 후보와 점검 결과를 펼쳐봅니다.</li>
+                        <li>1. 왼쪽 입력칸에 회의 메모나 아이디어 메모를 붙여넣습니다.</li>
+                        <li>2. AI 후보 발굴을 누르면 먼저 볼 후보 한 건이 나옵니다.</li>
+                        <li>3. 마음에 들면 저장하고 검증 단계로 넘어갑니다.</li>
                       </ul>
                     </section>
                   )}

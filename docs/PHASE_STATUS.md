@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-18 | Implemented WQ-061 P1 first-use clarity fixes | Current commit | Production deploy required after commit | `first_run_clarity_implemented`, `candidate_save_bridge_implemented`, `validation_experiment_guidance_implemented`; pending lint/typecheck/build/prod smoke |
 | 2026-05-17 | Configured app Node 20/24 compatibility matrix | Current commit | GitHub Actions only; no runtime deploy intended | `ci_app_node_matrix_20_24_configured`, `no_runtime_selection_change`, no secrets/deploys/production mutation; pass evidence requires pushed GitHub matrix run |
 | 2026-05-17 | Recorded app Node 20/24 matrix pass evidence | Current commit | GitHub Actions only; no runtime deploy intended | `ci_app_node_matrix_passed`, run `25985698631`, Node 20/24 jobs passed; no secrets/deploys/production mutation |
 | 2026-05-17 | Added controlled beta session playbook | Current commit | Docs/check-script only; no runtime deploy intended | `controlled_beta_session_playbook`, `synthetic_beta_data_only`, `summary_only_beta_feedback`, no secrets/production mutation |
