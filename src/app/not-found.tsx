@@ -11,7 +11,7 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   title: "페이지를 찾을 수 없습니다 | AI Venture Lab",
-  description: "요청한 경로를 찾을 수 없습니다. AI Venture Lab 홈이나 실행 보드로 이동하세요.",
+  description: "요청한 경로를 찾을 수 없습니다. AI Venture Lab 홈이나 로그인 페이지로 이동하세요.",
 };
 
 const recoveryRoutes = [
@@ -22,12 +22,12 @@ const recoveryRoutes = [
   },
   {
     label: "board",
-    title: "실행 보드 열기",
-    href: "/workspace",
+    title: "로그인 후 시작",
+    href: "/login",
   },
   {
-    label: "guide",
-    title: "가이드 보기",
+    label: "flow",
+    title: "사용 흐름 보기",
     href: "/guide",
   },
 ];
@@ -59,7 +59,7 @@ export default function NotFound() {
               이 경로에는 실행 보드가 없습니다.
             </h1>
             <p className="mt-6 max-w-[44ch] text-sm leading-7 text-slate-300">
-              요청한 페이지를 찾지 못했습니다. 홈에서 다시 시작하거나, 실행 보드로 이동해 저장된 후보를 계속 다룰 수 있습니다.
+              요청한 페이지를 찾지 못했습니다. 홈에서 다시 시작하거나, 로그인 후 저장된 후보를 계속 다룰 수 있습니다.
             </p>
           </div>
 

@@ -246,38 +246,7 @@ export default function HomePage() {
       />
 
       <div className="mx-auto w-full max-w-[1600px] px-4 py-4 sm:px-6 sm:py-6">
-        <header className="border-b border-slate-300 bg-white/92 px-4 py-3 backdrop-blur sm:px-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="avl-kicker text-slate-700">
-                <Sparkle size={14} />
-                AI Venture Lab
-              </div>
-              <span className="avl-pill avl-pill-neutral">landing</span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <a href="#workflow" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
-                workflow
-              </a>
-              <a href="#best-fit" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
-                best fit
-              </a>
-              <a href="#outputs" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
-                outputs
-              </a>
-              <Link href="/guide" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
-                guide
-              </Link>
-              <Link href="/workspace" className="avl-btn avl-btn-primary h-9 px-4 text-sm">
-                실행 보드 열기
-                <ArrowRight size={15} />
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        <section className="mt-4 overflow-hidden border border-slate-950 bg-[#0d0f14] text-white">
+        <section className="overflow-hidden border border-slate-950 bg-[#0d0f14] text-white">
           <div className="grid gap-px bg-white/8 xl:grid-cols-[minmax(360px,0.72fr)_minmax(0,1.28fr)]">
             <div className="relative overflow-hidden flex flex-col justify-between bg-[#0d0f14] px-6 py-8 sm:px-8 sm:py-10 xl:px-12 xl:py-14">
               <div
@@ -311,8 +280,8 @@ export default function HomePage() {
 
               <div className="relative mt-10">
                 <div className="flex flex-wrap gap-3">
-                  <Link href="/workspace" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
-                    지금 시작
+                  <Link href="/login" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
+                    로그인 후 시작
                     <ArrowRight size={16} />
                   </Link>
                   <a href="#workflow" className="avl-btn h-11 border border-white/14 bg-white/6 px-5 text-sm text-white hover:bg-white/10">
@@ -696,12 +665,12 @@ export default function HomePage() {
                   </p>
                 </div>
                 <nav aria-label="artifact actions" className="flex flex-wrap gap-2">
-                  <Link href="/workspace" className="avl-btn h-12 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
-                    실행 보드 열기
+                  <Link href="/login" className="avl-btn h-12 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
+                    로그인 후 시작
                     <ArrowRight size={16} />
                   </Link>
                   <Link href="/guide" className="avl-btn h-12 border border-white/10 bg-white/6 px-5 text-white hover:bg-white/10">
-                    가이드 보기
+                    사용 흐름 보기
                   </Link>
                 </nav>
               </div>
@@ -721,12 +690,12 @@ export default function HomePage() {
               </p>
             </div>
             <nav aria-label="landing footer" className="flex flex-wrap gap-2">
-              <Link href="/workspace" className="avl-btn avl-btn-primary h-11 px-5">
-                실행 보드 열기
+              <Link href="/login" className="avl-btn avl-btn-primary h-11 px-5">
+                로그인 후 시작
                 <ArrowRight size={16} />
               </Link>
               <Link href="/guide" className="avl-btn avl-btn-secondary h-11 px-5">
-                가이드 보기
+                사용 흐름 보기
               </Link>
             </nav>
           </div>

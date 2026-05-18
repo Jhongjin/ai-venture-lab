@@ -65,6 +65,25 @@ if ($missingHomeText.Count -gt 0) {
   Write-Error ("Route smoke failed for /: missing expected text: " + ($missingHomeText -join ", "))
 }
 
+$publicPages = @(
+  @{ Path = "/guide"; RequiredText = "operator flow" },
+  @{ Path = "/login"; RequiredText = "operator access" },
+  @{ Path = "/signup"; RequiredText = "solo-first account" },
+  @{ Path = "/profile"; RequiredText = "my page" }
+)
+
+foreach ($publicPage in $publicPages) {
+  $pageResponse = Invoke-RouteSmokeRequest -Path $publicPage.Path -AllowRedirect $true
+
+  if ($pageResponse.StatusCode -ne 200) {
+    Write-Error "Route smoke failed for $($publicPage.Path): expected HTTP 200 but received $($pageResponse.StatusCode)."
+  }
+
+  if (-not $pageResponse.Content.Contains($publicPage.RequiredText)) {
+    Write-Error "Route smoke failed for $($publicPage.Path): missing expected text: $($publicPage.RequiredText)."
+  }
+}
+
 $callback = Invoke-RouteSmokeRequest -Path "/auth/callback" -AllowRedirect $false
 $redirectCodes = @(302, 303, 307, 308)
 

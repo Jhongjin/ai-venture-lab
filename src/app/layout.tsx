@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,6 +32,7 @@ export default function RootLayout({
         <a href="#main-content" className="avl-skip-link">
           본문으로 바로가기
         </a>
+        <SiteHeader />
         {children}
       </body>
     </html>

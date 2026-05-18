@@ -64,9 +64,13 @@ async function main() {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
 
     await waitForVisible(page.getByRole("heading", { name: /^AI Venture Lab$/ }), "homepage hero heading");
-    await waitForVisible(page.getByRole("link", { name: /실행 보드 열기/ }), "workspace cta");
+    await waitForVisible(page.getByRole("link", { name: /로그인 \/ 회원가입/ }), "anonymous account cta");
+    const anonymousWorkspaceLinks = await page.getByRole("link", { name: /실행 보드 열기/ }).count();
+    if (anonymousWorkspaceLinks > 0) {
+      fail("anonymous homepage exposes workspace cta");
+    }
     await waitForVisible(page.locator("#workflow"), "homepage middle content");
-    await waitForVisible(page.getByRole("link", { name: /guide/i }).first(), "guide link");
+    await waitForVisible(page.getByRole("link", { name: /사용 흐름|guide/i }).first(), "usage flow link");
 
     await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });
 

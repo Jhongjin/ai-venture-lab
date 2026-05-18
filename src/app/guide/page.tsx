@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { ArrowLeft, ArrowRight, ClipboardText, FileDoc, Path, RocketLaunch, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, ClipboardText, FileDoc, Path, RocketLaunch, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
-  title: "사용 가이드 | AI Venture Lab",
-  description: "AI Venture Lab 사용 흐름과 산출물을 정리한 가이드 페이지입니다.",
+  title: "사용 흐름 | AI Venture Lab",
+  description: "AI Venture Lab의 작업 흐름과 산출물을 정리한 페이지입니다.",
 };
 
 const newsreader = Newsreader({
@@ -64,33 +64,10 @@ export default function GuidePage() {
       />
 
       <div className="mx-auto w-full max-w-[1500px] px-4 py-4 sm:px-6 sm:py-6">
-        <header className="border border-slate-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="avl-kicker text-slate-700">
-                <Sparkle size={14} />
-                AI Venture Lab
-              </div>
-              <span className="avl-pill avl-pill-neutral">guide</span>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Link href="/" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
-                <ArrowLeft size={14} />
-                홈
-              </Link>
-              <Link href="/workspace" className="avl-btn avl-btn-primary h-9 px-4 text-sm">
-                실행 보드 열기
-                <ArrowRight size={15} />
-              </Link>
-            </div>
-          </div>
-        </header>
-
-        <section className="mt-4 border-t border-slate-300 bg-transparent">
+        <section className="border-t border-slate-300 bg-transparent">
           <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,1fr)_320px]">
             <div className="bg-white px-6 py-8 sm:px-8 sm:py-10">
-              <div className="avl-kicker">operator guide</div>
+              <div className="avl-kicker">operator flow</div>
               <h1
                 className="mt-5 max-w-[18ch] text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-slate-950 sm:text-[68px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}
@@ -118,7 +95,7 @@ export default function GuidePage() {
 
         <section className="mt-4 grid gap-px bg-slate-300 xl:grid-cols-[220px_minmax(0,1fr)]">
           <aside className="bg-white px-4 py-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">guide map</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">flow map</div>
             <div className="mt-4 space-y-2">
               {guideSteps.map((step) => (
                 <a
@@ -199,15 +176,15 @@ export default function GuidePage() {
             <div className="grid gap-px bg-white/10">
               <div className="bg-slate-950 px-6 py-6">
                 <div className="avl-kicker !text-slate-300">next step</div>
-                <div className="mt-3 text-[30px] font-semibold leading-[1.04] tracking-tight">가이드는 여기까지, 실제 작업은 보드에서 시작합니다.</div>
+                <div className="mt-3 text-[30px] font-semibold leading-[1.04] tracking-tight">흐름은 여기까지, 실제 작업은 보드에서 시작합니다.</div>
               </div>
               <div className="bg-white/5 px-6 py-5 text-sm leading-6 text-slate-300">
                 홈은 제품의 방향을 보여주고, 이 페이지는 사용 흐름을 빠르게 잡도록 돕습니다. 실제 판단과 기록은 실행 보드에서 이어집니다.
               </div>
               <div className="bg-slate-950 px-6 py-5">
                 <div className="flex flex-wrap gap-3">
-                  <Link href="/workspace" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
-                    실행 보드 열기
+                  <Link href="/login" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
+                    로그인 후 시작
                     <ArrowRight size={16} />
                   </Link>
                   <Link href="/" className="avl-btn h-11 border border-white/12 bg-white/6 px-5 text-white hover:bg-white/10">
