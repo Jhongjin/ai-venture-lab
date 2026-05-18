@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, GridFour, Sparkle, WarningCircle } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, Sparkle, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 
 import { VentureConsoleShell } from "@/components/venture-console-shell";
 import { getConsoleData } from "@/lib/venture-data";
@@ -21,17 +21,17 @@ export async function WorkspaceBoardPage() {
   } = await getConsoleData();
 
   const headerStats = [
-    ["아이디어", String(ideas.length)],
-    ["열린 리스크", String(risks.filter((risk) => risk.status.toLowerCase() === "open").length)],
-    ["실험", String(experiments.length)],
-    ["산출물", String(artifacts.length)],
+    ["검토 후보", String(ideas.length)],
+    ["확인할 리스크", String(risks.filter((risk) => risk.status.toLowerCase() === "open").length)],
+    ["검증 실험", String(experiments.length)],
+    ["실행 문서", String(artifacts.length)],
   ];
 
   return (
     <main id="main-content" className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto grid w-full max-w-[1460px] gap-3 px-4 py-4 sm:px-6">
         <header className="border-b border-slate-200 bg-white/96 px-4 py-3 backdrop-blur sm:px-5">
-          <div className="grid gap-px bg-slate-200 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="grid gap-px bg-slate-200 xl:grid-cols-[minmax(0,1fr)_440px]">
             <div className="bg-white px-4 py-4 sm:px-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0">
@@ -45,7 +45,7 @@ export async function WorkspaceBoardPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-[15px] font-semibold tracking-tight text-slate-950 sm:text-[17px]">실행 보드</h1>
                     <span className="hidden text-sm text-slate-300 sm:inline">/</span>
-                    <p className="text-[12px] leading-5 text-slate-500">후보, 판단, 실행 패키지를 한 보드에서 이어서 다루는 작업 공간</p>
+                    <p className="text-[12px] leading-5 text-slate-500">아이디어 후보와 검증 기록, 실행 문서를 한곳에서 관리합니다.</p>
                   </div>
                 </div>
 
@@ -57,10 +57,6 @@ export async function WorkspaceBoardPage() {
                   <Link href="/guide" className="avl-btn avl-btn-subtle h-8 px-3 text-xs">
                     가이드
                   </Link>
-                  <span className="avl-btn avl-btn-secondary h-8 px-3 text-xs">
-                    <GridFour size={14} />
-                    실행 보드
-                  </span>
                 </div>
               </div>
             </div>
@@ -68,7 +64,7 @@ export async function WorkspaceBoardPage() {
             <div className="grid grid-cols-2 gap-px bg-slate-200 xl:grid-cols-4">
               {headerStats.map(([label, value]) => (
                 <div key={label} className="bg-white px-4 py-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>
+                  <div className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</div>
                   <div className="mt-1 text-[20px] font-semibold tracking-tight text-slate-950">{value}</div>
                 </div>
               ))}

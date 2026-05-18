@@ -849,7 +849,7 @@ function buildCandidateReadiness(
       label: "민감정보",
       passed: !hasSensitiveSource,
       detail: hasSensitiveSource
-        ? "원문 근거에 이메일, 전화번호, 계좌, 카드, 신분 정보 단서가 있을 수 있어 저장 산출물에는 자동 익명화가 적용됩니다."
+        ? "원문 근거에 이메일, 전화번호, 계좌, 카드, 신분 정보 단서가 있을 수 있어 저장되는 문서에는 자동 익명화가 적용됩니다."
         : "원문 근거에서 명백한 연락처/식별번호 패턴은 보이지 않습니다.",
     },
   ];
@@ -1753,21 +1753,21 @@ export function VentureConsoleActions({
     },
     {
       id: "workspace",
-      label: "팀 공간",
+      label: "협업 설정",
       description: "함께 볼 기록 범위를 정합니다.",
-      status: activeOrganization ? "연결됨" : "선택",
+      status: activeOrganization ? "연결" : "선택",
     },
     {
       id: "extract",
-      label: "아이디어 찾기",
-      description: "대화와 메모에서 후보를 뽑습니다.",
+      label: "후보 발굴",
+      description: "대화와 메모에서 검토 후보를 뽑습니다.",
       status: extractedIdeas.length > 0 ? `${extractedIdeas.length}개` : "붙여넣기",
     },
     {
       id: "idea",
-      label: "아이디어 접수",
-      description: "짧은 기록부터 남깁니다.",
-      status: user ? "접수" : "로그인 필요",
+      label: "후보 저장",
+      description: "검증 대상으로 등록합니다.",
+      status: user ? "저장" : "로그인 필요",
     },
   ];
 
@@ -1921,7 +1921,7 @@ export function VentureConsoleActions({
         if (nextUser) {
           updateActiveTask("extract");
         }
-        setAuthMessage("로그인되었습니다. 바로 아이디어 찾기부터 시작하세요. 협업이 필요하면 나중에 팀 공간을 열 수 있습니다.");
+        setAuthMessage("로그인되었습니다. 바로 후보 발굴부터 시작하세요. 협업이 필요하면 나중에 팀 공간을 열 수 있습니다.");
         await loadWorkspaceData(nextUser);
         router.refresh();
       }
@@ -2024,7 +2024,7 @@ export function VentureConsoleActions({
 
     setPassword("");
     updateActiveTask("extract");
-    setAuthMessage("로그인되었습니다. 바로 아이디어 찾기부터 시작하세요. 협업이 필요하면 팀 공간을 나중에 연결하면 됩니다.");
+    setAuthMessage("로그인되었습니다. 바로 후보 발굴부터 시작하세요. 협업이 필요하면 팀 공간을 나중에 연결하면 됩니다.");
     router.refresh();
   }
 
@@ -2066,7 +2066,7 @@ export function VentureConsoleActions({
     }
 
     setActiveOrganizationId(data.id);
-    setWorkspaceMessage("협업 공간을 만들었습니다. 필요할 때만 팀으로 같이 보면 됩니다. 이제 아이디어 찾기로 돌아갑니다.");
+    setWorkspaceMessage("협업 공간을 만들었습니다. 필요할 때만 팀으로 같이 보면 됩니다. 이제 후보 발굴로 돌아갑니다.");
     await loadWorkspaceData(user, data.id);
     updateActiveTask("extract");
   }
@@ -2517,7 +2517,7 @@ export function VentureConsoleActions({
     }
 
     window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: data }));
-    setExtractMessage("발굴 리포트를 산출물 기록으로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
+    setExtractMessage("발굴 리포트를 실행 문서로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
     router.refresh();
@@ -2662,7 +2662,7 @@ export function VentureConsoleActions({
         setExtractMessage(`아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${result.partialError}`);
       } else {
         setExtractMessage(
-          `'${candidate.name}' 후보를 아이디어, 리스크, 7일 실험, 검증 산출물 ${result.artifactCount}개까지 패키지로 저장했습니다.`,
+            `'${candidate.name}' 후보를 아이디어, 리스크, 7일 실험, 검증 문서 ${result.artifactCount}개까지 패키지로 저장했습니다.`,
         );
       }
     } catch (error) {
@@ -3069,10 +3069,10 @@ export function VentureConsoleActions({
           {!embedded ? (
             <div className="border border-slate-200 bg-white px-5 py-4 lg:flex lg:items-end lg:justify-between">
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">source ingest</div>
-                <h2 className="mt-2 text-xl font-semibold text-slate-950">아이디어 찾기</h2>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">후보 발굴</div>
+                <h2 className="mt-2 text-xl font-semibold text-slate-950">원문에서 검토 후보 찾기</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                  원문을 넣으면 지금 먼저 볼 추천 후보 한 건을 받습니다.
+                  원문을 넣으면 지금 먼저 검토할 후보 한 건을 정리합니다.
                 </p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 lg:mt-0">
@@ -3223,7 +3223,7 @@ export function VentureConsoleActions({
                       <h3 className="mt-2 text-base font-semibold text-slate-950">추천 후보 없음</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                         <li>1. 원문을 붙여넣고 후보 발굴을 실행합니다.</li>
-                        <li>2. 추천 후보 한 건을 먼저 보고 접수할지 판단합니다.</li>
+                          <li>2. 추천 후보 한 건을 먼저 보고 저장할지 판단합니다.</li>
                         <li>3. 필요할 때만 비교 후보와 점검 결과를 펼쳐봅니다.</li>
                       </ul>
                     </section>
@@ -3374,7 +3374,7 @@ export function VentureConsoleActions({
                       ))
                     ) : (
                       <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-                        추천 후보 외에 바로 비교할 후보가 많지 않습니다. 지금은 추천 후보 한 건을 먼저 접수하는 쪽이 더 자연스럽습니다.
+                        추천 후보 외에 바로 비교할 후보가 많지 않습니다. 지금은 추천 후보 한 건을 먼저 저장하는 쪽이 더 자연스럽습니다.
                       </div>
                     )}
                   </div>
@@ -3687,14 +3687,14 @@ export function VentureConsoleActions({
                 className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                 >
                   {isSaving ? <ArrowsClockwise className="animate-spin" size={18} /> : <PlusCircle size={18} />}
-                  아이디어 저장
+                  후보 저장
                 </button>
               </div>
             ) : (
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="mb-2 inline-flex avl-pill avl-pill-neutral px-2.5 py-1 text-[10px] tracking-[0.14em]">초안 확인</div>
-                  <h2 className="mt-3 text-3xl font-semibold text-slate-950">아이디어 접수</h2>
+                  <h2 className="mt-3 text-3xl font-semibold text-slate-950">후보 저장</h2>
                   <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
                     {activeOrganization
                       ? `${activeOrganization.name}에 저장할 초안을 확인합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 이어갈 수 있습니다.`
@@ -3707,7 +3707,7 @@ export function VentureConsoleActions({
                 className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                 >
                   {isSaving ? <ArrowsClockwise className="animate-spin" size={18} /> : <PlusCircle size={18} />}
-                  아이디어 저장
+                  후보 저장
                 </button>
               </div>
             )}

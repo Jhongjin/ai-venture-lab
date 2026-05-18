@@ -13,7 +13,8 @@ export function SiteHeader() {
   const supabase = getSupabaseBrowserClient();
   const [user, setUser] = useState<User | null>(null);
   const [isLoaded, setIsLoaded] = useState(() => !supabase);
-  const routeLabel = pathname === "/" ? "landing" : pathname === "/workspace" ? "board" : pathname === "/guide" ? "guide" : "account";
+  const isWorkspace = pathname === "/workspace";
+  const routeLabel = pathname === "/" ? "홈" : isWorkspace ? "실행 공간" : pathname === "/guide" ? "가이드" : "계정";
 
   useEffect(() => {
     if (!supabase) {
@@ -74,10 +75,12 @@ export function SiteHeader() {
                   <UserCircle size={15} />
                   마이페이지
                 </Link>
-                <Link href="/workspace" className="avl-btn avl-btn-primary h-9 px-4 text-sm">
-                  실행 보드 열기
-                  <ArrowRight size={15} />
-                </Link>
+                {isWorkspace ? null : (
+                  <Link href="/workspace" className="avl-btn avl-btn-primary h-9 px-4 text-sm">
+                    실행 보드 열기
+                    <ArrowRight size={15} />
+                  </Link>
+                )}
               </>
             ) : (
               <Link href="/login" className="avl-btn avl-btn-primary h-9 px-4 text-sm">

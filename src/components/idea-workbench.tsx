@@ -10111,7 +10111,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 );
               })() : (
                 <div className="mt-6 border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-7 text-slate-600">
-                  아직 선택할 아이디어가 없습니다. 먼저 `아이디어 접수`에서 새 아이디어를 저장하거나, 아이디어 찾기에서 후보를 초안으로 반영하세요.
+                  아직 선택할 후보가 없습니다. 먼저 `후보 저장`에서 새 후보를 저장하거나, 후보 발굴에서 추천 후보를 초안으로 반영하세요.
                 </div>
               )}
             </section>

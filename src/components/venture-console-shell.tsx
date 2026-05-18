@@ -59,23 +59,23 @@ const shellTasks: Array<{
   },
   {
     id: "console:workspace",
-    label: "팀 연결",
-    description: "필요할 때만",
+    label: "협업 설정",
+    description: "팀과 함께 볼 때",
     group: "시작",
     icon: Users,
     optional: true,
   },
   {
     id: "console:extract",
-    label: "아이디어 찾기",
-    description: "원문에서 후보 추출",
+    label: "후보 발굴",
+    description: "원문 붙여넣기",
     group: "시작",
     icon: Sparkle,
   },
   {
     id: "console:idea",
-    label: "아이디어 접수",
-    description: "초안 저장",
+    label: "후보 저장",
+    description: "검증 대상으로 등록",
     group: "시작",
     icon: FloppyDisk,
   },
@@ -157,25 +157,25 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["이메일과 비밀번호 입력", "로그인 상태 확인", "다음 단계로 이동"],
   },
   "console:workspace": {
-    summary: "기본은 혼자 진행합니다. 협업이 필요할 때만 팀 공간을 연결합니다.",
-    checklist: ["혼자 쓸 때는 건너뛰기", "팀 공간 생성 또는 선택", "필요할 때만 멤버 추가"],
+    summary: "기본은 혼자 진행하고, 팀과 함께 봐야 할 때만 협업 공간을 연결합니다.",
+    checklist: ["혼자 진행할 때는 건너뛰기", "팀 공간 생성 또는 선택", "필요한 멤버만 추가"],
   },
   "console:extract": {
-    summary: "대화와 메모에서 후보와 검증 질문을 먼저 뽑아냅니다.",
+    summary: "대화와 메모에서 검토할 후보와 검증 질문을 먼저 뽑아냅니다.",
     checklist: [
       "대화 원문 붙여넣기",
       "후보 발굴 실행",
       "추천 후보 한 건 먼저 확인",
       "필요하면 비교 결과 펼쳐 보기",
-      "좋은 후보를 아이디어 초안으로 반영",
+      "좋은 후보를 저장 초안으로 반영",
     ],
   },
   "console:idea": {
-    summary: "AI 초안을 확인하고 필요한 의견만 더한 뒤 저장합니다.",
-    checklist: ["이름과 한 줄 설명 확인", "필요할 때만 추가 항목 보완", "아이디어 저장"],
+    summary: "AI가 정리한 초안을 확인하고 필요한 의견만 더한 뒤 저장합니다.",
+    checklist: ["이름과 한 줄 설명 확인", "필요할 때만 추가 항목 보완", "후보 저장"],
   },
   "workbench:select": {
-    summary: "오늘 먼저 볼 아이디어 한 건을 고른 뒤 평가와 검증을 이어갑니다.",
+    summary: "오늘 먼저 볼 후보 한 건을 고른 뒤 평가와 검증을 이어갑니다.",
     checklist: ["전체 또는 내 기록 확인", "편집 가능 여부 확인", "평가할 후보 선택"],
   },
   "workbench:score": {
@@ -232,8 +232,8 @@ const taskCanvasDetails: Record<
     checkpoint: "이후 단계는 한 명이 끝까지 처리할 수 있게 이어집니다.",
   },
   "console:workspace": {
-    question: "이 아이디어를 혼자 다룰지, 팀과 함께 볼지 결정했나요?",
-    aiLead: "혼자 진행 가능한 기본 모드를 유지하고, 필요할 때만 협업 공간을 연결합니다.",
+    question: "이 후보를 혼자 다룰지, 팀과 함께 볼지 결정했나요?",
+    aiLead: "혼자 진행하는 흐름을 기본으로 두고, 팀 검토가 필요할 때만 협업 공간을 연결합니다.",
     deliverable: "선택형 팀 공간 연결 상태",
     checkpoint: "협업이 필요하지 않다면 이 단계는 건너뛰어도 괜찮습니다.",
   },
@@ -244,19 +244,19 @@ const taskCanvasDetails: Record<
     checkpoint: "추천 후보 한 건만 확인해도 다음 단계로 이어갈 수 있게 정리합니다.",
   },
   "console:idea": {
-    question: "이 아이디어를 실제 검증 대상으로 올릴 준비가 되었나요?",
+    question: "이 후보를 실제 검증 대상으로 올릴 준비가 되었나요?",
     aiLead: "이름, 한 줄 설명, 신호, 다음 증거를 초안으로 채웁니다.",
     deliverable: "검증 가능한 아이디어 한 건",
     checkpoint: "사용자는 꼭 필요한 의견만 더하면 됩니다.",
   },
   "workbench:select": {
-    question: "오늘 어떤 아이디어를 먼저 검토할까요?",
+    question: "오늘 어떤 후보를 먼저 검토할까요?",
     aiLead: "점수, 리스크, 준비도 신호를 바탕으로 오늘 먼저 볼 후보를 추립니다.",
     deliverable: "오늘의 검토 대상 한 건",
     checkpoint: "여기서 고른 후보가 이후 평가와 실행의 기준점이 됩니다.",
   },
   "workbench:score": {
-    question: "이 아이디어는 시간과 자원을 써서 검증할 만한가요?",
+    question: "이 후보는 시간과 자원을 써서 검증할 만한가요?",
     aiLead: "수요, 돈, 속도, 차별성, 위험을 묶어 점수를 정리합니다.",
     deliverable: "사업성 점수와 권장 판단",
     checkpoint: "숫자는 AI가 초안으로 제시하고, 사용자는 최종 감각만 조정합니다.",
@@ -280,10 +280,10 @@ const taskCanvasDetails: Record<
     checkpoint: "회의 공유가 가능한 한 문단 결론이 가장 중요합니다.",
   },
   "workbench:artifacts": {
-    question: "이 아이디어를 팀이나 개발 도구에 넘길 자료가 준비됐나요?",
-    aiLead: "브리프, PRD, MVP 명세, 디자인 브리프 같은 산출물을 자동으로 묶습니다.",
+    question: "이 후보를 팀이나 개발 도구에 넘길 자료가 준비됐나요?",
+    aiLead: "브리프, PRD, MVP 명세, 디자인 브리프 같은 실행 문서를 자동으로 묶습니다.",
     deliverable: "실행 패키지 초안",
-    checkpoint: "사용자는 산출물 완성보다 승인 여부만 확인하면 됩니다.",
+    checkpoint: "사용자는 문서를 처음부터 쓰기보다 승인 여부만 확인하면 됩니다.",
   },
   "workbench:development": {
     question: "이제 실제 앱 제작으로 넘어갈 준비가 되었나요?",
@@ -433,7 +433,7 @@ function getNextTaskOptions({
     case "workbench:launch":
       return [createTransition("workbench:learning", "다음: 성과 확인", "출시 후 행동 신호를 보고 다음 사이클을 정합니다.")];
     case "workbench:learning":
-      return [createTransition("console:idea", "다음: 새 아이디어 접수", "이제 다음 후보를 다시 검토합니다.")];
+      return [createTransition("console:idea", "다음: 새 후보 저장", "이제 다음 후보를 다시 검토합니다.")];
     default:
       return [];
   }
@@ -450,19 +450,19 @@ function getCurrentStepBlocker({
 }) {
   switch (activeTask) {
     case "console:auth":
-      return "로그인하면 바로 아이디어 찾기 단계로 이동합니다. 협업 설정은 나중에 선택할 수 있습니다.";
+      return "로그인 후 바로 후보 발굴 단계로 이동합니다. 협업 설정은 나중에 선택할 수 있습니다.";
     case "console:workspace":
       return consoleStatus.hasWorkspace
         ? "협업 공간을 연결했습니다. 다시 AI 후보 발굴로 돌아가 계속 진행하면 됩니다."
         : "이 단계는 선택 기능입니다. 팀으로 같이 볼 때만 워크스페이스를 만들거나 선택하세요.";
     case "console:extract":
       return consoleStatus.hasExtractedIdeas
-        ? "추천 후보를 접수 양식으로 보내면 아이디어 접수 단계로 자동 이동합니다."
+        ? "추천 후보를 저장 양식으로 보내면 후보 저장 단계로 자동 이동합니다."
         : "후보를 발굴하거나 샘플을 넣어 결과를 만든 뒤 다음 단계로 넘어갈 수 있습니다.";
     case "console:idea":
       return ideaCount > 0
-        ? "아이디어를 저장하면 검증 단계로 이동합니다."
-        : "아이디어를 최소 한 건 저장해야 검증 단계로 넘어갈 수 있습니다.";
+        ? "후보를 저장하면 검증 단계로 이동합니다."
+        : "후보를 최소 한 건 저장해야 검증 단계로 넘어갈 수 있습니다.";
     default:
       return null;
   }
@@ -494,16 +494,16 @@ function getExecutiveFocus({
   telemetryEventCount: number;
 }): ExecutiveFocus {
   const metrics = [
-    { label: "후보", value: `${ideaCount}` },
-    { label: "열린 리스크", value: `${openRisks}` },
-    { label: "실험", value: `${experimentCount}` },
-    { label: "산출물", value: `${artifactCount}` },
+    { label: "검토 후보", value: `${ideaCount}` },
+    { label: "확인할 리스크", value: `${openRisks}` },
+    { label: "검증 실험", value: `${experimentCount}` },
+    { label: "실행 문서", value: `${artifactCount}` },
   ];
   const dataNote = source === "supabase" ? "실제 데이터 기준" : "샘플 데이터 기준";
 
   if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {
     return {
-      eyebrow: "오늘의 판단",
+      eyebrow: "다음에 할 일",
       title: "먼저 운영자 계정으로 로그인하세요.",
       detail: "로그인하면 후보 검토, 검증, 실행 패키지까지 이어서 진행할 수 있습니다.",
       evidence: "로그인 필요",
@@ -516,20 +516,20 @@ function getExecutiveFocus({
 
   if (ideaCount === 0) {
     return {
-      eyebrow: "오늘의 판단",
-      title: "후보 한 건부터 올리면 됩니다.",
-      detail: "대화 메모나 브리프를 붙여넣고, AI가 뽑은 후보 중 하나를 저장하세요.",
+      eyebrow: "다음에 할 일",
+      title: "검토할 후보를 먼저 저장해 주세요.",
+      detail: "대화 메모나 브리프를 붙여넣으면 AI가 후보를 정리합니다. 마음에 드는 한 건을 저장해 검증을 시작하세요.",
       evidence: `${dataNote} · 후보 없음`,
       risk: "리스크는 저장 뒤 확인",
       targetTask: "console:extract",
-      cta: "후보 찾기",
+      cta: "후보 발굴하기",
       metrics,
     };
   }
 
   if (highRisks > 0) {
     return {
-      eyebrow: "오늘의 판단",
+      eyebrow: "다음에 할 일",
       title: "높은 리스크부터 닫아야 합니다.",
       detail: "진행 전에 법무, 보안, 운영상 막히는 지점을 먼저 정리하세요.",
       evidence: `${dataNote} · 높은 리스크 ${highRisks}건`,
@@ -542,7 +542,7 @@ function getExecutiveFocus({
 
   if (experimentCount === 0) {
     return {
-      eyebrow: "오늘의 판단",
+      eyebrow: "다음에 할 일",
       title: "검증 실험이 아직 없습니다.",
       detail: "좋아 보이는 후보라도 7일 안에 확인할 행동 기준이 있어야 다음 판단이 빨라집니다.",
       evidence: `${dataNote} · 후보 ${ideaCount}건`,
@@ -555,7 +555,7 @@ function getExecutiveFocus({
 
   if (decisionCount === 0) {
     return {
-      eyebrow: "오늘의 판단",
+      eyebrow: "다음에 할 일",
       title: "진행 여부를 한 번 정리할 차례입니다.",
       detail: "점수, 리스크, 실험 조건을 모아 진행, 보완, 전환, 중단 중 하나로 정리하세요.",
       evidence: `${dataNote} · 실험 ${experimentCount}건`,
@@ -568,7 +568,7 @@ function getExecutiveFocus({
 
   if (artifactCount === 0) {
     return {
-      eyebrow: "오늘의 판단",
+      eyebrow: "다음에 할 일",
       title: "이제 판단을 실행 패키지로 묶을 차례입니다.",
       detail: "아이디어 브리프, PRD, MVP 범위를 준비해야 다음 제작 도구로 넘길 수 있습니다.",
       evidence: `${dataNote} · 판단 ${decisionCount}건`,
@@ -581,10 +581,10 @@ function getExecutiveFocus({
 
   if (implementationTaskCount === 0) {
     return {
-      eyebrow: "오늘의 판단",
+      eyebrow: "다음에 할 일",
       title: "이제 제작 준비를 확인하세요.",
       detail: "기획, 디자인, 개발, QA, 배포 조건을 한 묶음으로 정리하면 빌드 단계가 흔들리지 않습니다.",
-      evidence: `${dataNote} · 산출물 ${artifactCount}건`,
+      evidence: `${dataNote} · 실행 문서 ${artifactCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",
       cta: "제작 준비",
@@ -594,7 +594,7 @@ function getExecutiveFocus({
 
   if (runCount === 0) {
     return {
-      eyebrow: "오늘의 판단",
+      eyebrow: "다음에 할 일",
       title: "실행 큐에서 역할과 막히는 지점을 정리하세요.",
       detail: "혼자 진행하더라도 전략, 디자인, 개발, QA 순서를 나누면 다음 작업이 선명해집니다.",
       evidence: `${dataNote} · 제작 작업 ${implementationTaskCount}건`,
@@ -606,7 +606,7 @@ function getExecutiveFocus({
   }
 
   return {
-    eyebrow: "오늘의 판단",
+    eyebrow: "다음에 할 일",
     title: telemetryEventCount > 0 ? "성과 신호를 보고 다음 반복을 정하세요." : "출시 전 마지막 확인이 남았습니다.",
     detail:
       telemetryEventCount > 0
@@ -847,7 +847,7 @@ export function VentureConsoleShell({
     "console:auth": "접근",
     "console:workspace": "선택",
     "console:extract": "발굴",
-    "console:idea": "접수",
+    "console:idea": "저장",
     "workbench:select": `${ideaCount}개`,
     "workbench:score": "평가",
     "workbench:risk": `${openRisks}개`,
@@ -915,19 +915,19 @@ export function VentureConsoleShell({
   }
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[192px_minmax(0,1fr)]">
+    <section className="grid gap-4 xl:grid-cols-[216px_minmax(0,1fr)]">
       <aside className="order-2 self-start overflow-y-auto border-r border-slate-200 pr-3 xl:sticky xl:top-4 xl:order-none xl:max-h-[calc(100vh-2rem)]">
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">AI Venture Lab</div>
-              <h2 className="mt-1 text-sm font-semibold tracking-tight text-slate-950">진행 레일</h2>
+              <h2 className="mt-1 text-sm font-semibold tracking-tight text-slate-950">작업 흐름</h2>
             </div>
             <div className="avl-pill avl-pill-soft text-[10px]">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${source === "supabase" ? "bg-emerald-500" : "bg-amber-500"}`}
               />
-              {source === "supabase" ? "연결됨" : "제한"}
+              {source === "supabase" ? "연결" : "제한"}
             </div>
           </div>
           <div className="mt-3">
@@ -1002,7 +1002,7 @@ export function VentureConsoleShell({
         {completedRequiredTasks.length > 0 ? (
           <details className="mt-4 border-t border-slate-200 pt-3">
             <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-              완료한 단계 다시 보기
+              완료한 단계
             </summary>
             <div className="mt-3 space-y-1.5">
               {completedRequiredTasks.map((task) => {
@@ -1111,14 +1111,14 @@ export function VentureConsoleShell({
         {showFirstEntryStrip ? (
           <section className="border border-slate-200 bg-white px-4 py-3">
             <div className="flex flex-wrap items-center gap-3 text-xs text-slate-700">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">first three</span>
-              <span className="text-[13px] font-semibold tracking-tight text-slate-950">여기까지만 먼저</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">처음 세 단계</span>
+              <span className="text-[13px] font-semibold tracking-tight text-slate-950">처음엔 여기까지만</span>
               <span className="hidden text-slate-300 lg:inline">/</span>
               <div className="flex flex-wrap items-center gap-2">
                 {[
                   "원문 붙여넣기",
                   "추천 후보 한 건 보기",
-                  "아이디어 저장",
+                  "후보 저장",
                 ].map((step, index) => (
                   <span key={step} className="inline-flex items-center gap-2">
                     <span className="avl-step-dot h-6 w-6 bg-slate-100 text-slate-700">{index + 1}</span>
@@ -1127,7 +1127,7 @@ export function VentureConsoleShell({
                   </span>
                 ))}
               </div>
-              <span className="text-slate-400">저장하면 바로 검증 단계로 이어집니다.</span>
+              <span className="text-slate-400">저장한 뒤 검증 단계로 넘어갑니다.</span>
             </div>
           </section>
         ) : null}
