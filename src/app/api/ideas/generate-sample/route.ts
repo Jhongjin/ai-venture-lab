@@ -223,6 +223,57 @@ function buildSampleIdeaSource(ideas: GeneratedSampleIdea[]) {
     .join("\n\n");
 }
 
+function cleanGeneratedLine(value: string) {
+  return value
+    .replace(/^[-*]\s*/, "")
+    .replace(/^\d+[\.\)]\s*/, "")
+    .replace(/^#{1,4}\s*/, "")
+    .replace(/^아이디어\s*\d*\s*[:：-]?\s*/, "")
+    .replace(/\*\*/g, "")
+    .trim();
+}
+
+function readGeneratedField(chunk: string, labels: string[]) {
+  const escapedLabels = labels.map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  const pattern = new RegExp(`(?:^|\\n)\\s*(?:[-*]\\s*)?(?:${escapedLabels})\\s*[:：]\\s*([^\\n]+)`, "i");
+  return toText(chunk.match(pattern)?.[1], 240);
+}
+
+function getGeneratedIdeasFromText(text: string): GeneratedSampleIdea[] {
+  const strippedText = text.replace(/```(?:json)?|```/gi, "").trim();
+  const chunks = strippedText
+    .split(/(?=^\s*(?:[-*]\s*)?(?:아이디어\s*\d+|\d+[\.\)]|#{1,4}\s*아이디어))/gim)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean);
+
+  return chunks
+    .map((chunk) => {
+      const lines = chunk
+        .split(/\n+/)
+        .map(cleanGeneratedLine)
+        .filter(Boolean);
+      const title =
+        readGeneratedField(chunk, ["제목", "title", "name"]) ||
+        toText(lines.find((line) => !/^(문제|해결|대상|구매자|첫 검증|먼저 확인할 것|pain|solution|target|buyer)/i.test(line)), 80);
+      const pain = readGeneratedField(chunk, ["문제", "페인 포인트", "pain", "problem"]);
+      const solution = readGeneratedField(chunk, ["해결", "솔루션", "solution"]);
+      const targetUser = readGeneratedField(chunk, ["대상", "대상 사용자", "targetUser", "target user"]);
+      const buyer = readGeneratedField(chunk, ["구매자", "buyer"]);
+      const firstValidation = readGeneratedField(chunk, ["첫 검증", "먼저 확인할 것", "firstValidation", "validation"]);
+
+      return toGeneratedSampleIdea({
+        title,
+        pain,
+        solution,
+        targetUser,
+        buyer,
+        firstValidation,
+      });
+    })
+    .filter((idea): idea is GeneratedSampleIdea => Boolean(idea))
+    .slice(0, 3);
+}
+
 function getRawIdeaItems(parsed: unknown) {
   if (Array.isArray(parsed)) {
     return parsed;
@@ -285,7 +336,7 @@ export async function POST(request: Request) {
     },
     body: JSON.stringify({
       model,
-      max_output_tokens: 2200,
+      max_output_tokens: 6000,
       text: {
         format: {
           type: "json_schema",
@@ -343,13 +394,13 @@ ${existingIdeaContext}
 
     const rawIdeaItems = getRawIdeaItems(parsed);
 
-    if (rawIdeaItems.length === 0) {
-      return NextResponse.json({ error: "OpenAI structured output did not contain ideas." }, { status: 502 });
-    }
-
     const ideas = rawIdeaItems.map(toGeneratedSampleIdea).filter((idea): idea is GeneratedSampleIdea => Boolean(idea)).slice(0, 3);
+    const freeTextIdeas = ideas.length === 3 ? [] : getGeneratedIdeasFromText(outputText);
+    const mergedIdeas = [...ideas, ...freeTextIdeas]
+      .filter((idea, index, allIdeas) => allIdeas.findIndex((item) => item.title === idea.title) === index)
+      .slice(0, 3);
 
-    if (ideas.length !== 3) {
+    if (mergedIdeas.length !== 3) {
       return NextResponse.json({ error: "OpenAI structured output did not contain exactly 3 usable ideas." }, { status: 502 });
     }
 
@@ -358,8 +409,8 @@ ${existingIdeaContext}
       model,
       seed,
       themes,
-      ideas,
-      source: buildSampleIdeaSource(ideas),
+      ideas: mergedIdeas,
+      source: buildSampleIdeaSource(mergedIdeas),
     });
   } catch {
     return NextResponse.json({ error: "OpenAI structured output could not be processed." }, { status: 502 });
