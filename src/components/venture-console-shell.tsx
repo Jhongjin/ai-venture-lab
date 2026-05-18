@@ -324,8 +324,8 @@ type ExecutiveFocus = {
   detail: string;
   evidence: string;
   risk: string;
-  targetTask: ShellTask;
-  cta: string;
+  targetTask?: ShellTask;
+  cta?: string;
   metrics: Array<{ label: string; value: string }>;
 };
 
@@ -521,8 +521,6 @@ function getExecutiveFocus({
       detail: "대화 메모나 브리프를 붙여넣으면 AI가 후보를 정리합니다. 마음에 드는 한 건을 저장해 검증을 시작하세요.",
       evidence: `${dataNote} · 후보 없음`,
       risk: "리스크는 저장 뒤 확인",
-      targetTask: "console:extract",
-      cta: "후보 발굴하기",
       metrics,
     };
   }
@@ -905,6 +903,10 @@ export function VentureConsoleShell({
     runCount,
     telemetryEventCount,
   });
+  const executiveFocusAction =
+    executiveFocus.targetTask && executiveFocus.cta
+      ? { targetTask: executiveFocus.targetTask, cta: executiveFocus.cta }
+      : null;
 
   function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
     if (task.optional) {
@@ -1076,14 +1078,16 @@ export function VentureConsoleShell({
                   </h2>
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{executiveFocus.detail}</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => goToTask(executiveFocus.targetTask)}
-                  className="avl-btn bg-white px-4 text-slate-950 hover:bg-slate-100"
-                >
-                  {executiveFocus.cta}
-                  <ArrowRight size={16} />
-                </button>
+                {executiveFocusAction ? (
+                  <button
+                    type="button"
+                    onClick={() => goToTask(executiveFocusAction.targetTask)}
+                    className="avl-btn bg-white px-4 text-slate-950 hover:bg-slate-100"
+                  >
+                    {executiveFocusAction.cta}
+                    <ArrowRight size={16} />
+                  </button>
+                ) : null}
               </div>
             </div>
 

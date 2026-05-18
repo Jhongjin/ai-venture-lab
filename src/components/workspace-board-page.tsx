@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ArrowLeft, Sparkle, WarningCircle } from "@phosphor-icons/react/dist/ssr";
+import { Sparkle, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 
 import { VentureConsoleShell } from "@/components/venture-console-shell";
 import { getConsoleData } from "@/lib/venture-data";
@@ -49,15 +48,6 @@ export async function WorkspaceBoardPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <Link href="/" className="avl-btn avl-btn-subtle h-8 px-3 text-xs">
-                    <ArrowLeft size={14} />
-                    홈
-                  </Link>
-                  <Link href="/guide" className="avl-btn avl-btn-subtle h-8 px-3 text-xs">
-                    가이드
-                  </Link>
-                </div>
               </div>
             </div>
 

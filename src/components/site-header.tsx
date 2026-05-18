@@ -56,6 +56,11 @@ export function SiteHeader() {
           </Link>
 
           <nav aria-label="주요 메뉴" className="flex flex-wrap items-center gap-2">
+            {pathname === "/" ? null : (
+              <Link href="/" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
+                홈
+              </Link>
+            )}
             <Link
               href="/guide"
               className={`avl-btn avl-btn-subtle h-9 px-3 text-xs ${
