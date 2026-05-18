@@ -32,7 +32,7 @@ export default function SignupPage() {
           />
           <div className="relative flex min-h-[520px] flex-col justify-between">
             <div>
-              <div className="avl-kicker">solo-first account</div>
+              <div className="avl-kicker">혼자 시작</div>
               <h1
                 className="mt-6 max-w-[12ch] break-keep text-[42px] font-normal leading-[0.96] tracking-[-0.04em] text-slate-950 sm:text-[58px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}
@@ -40,7 +40,7 @@ export default function SignupPage() {
                 혼자서도 기획부터 구축까지 이어갈 수 있습니다.
               </h1>
               <p className="mt-5 max-w-[42ch] break-keep text-sm leading-7 text-slate-600">
-                아이디어 검토, 검증, MVP 실행 준비를 한 흐름으로 저장하고 다시 이어갈 수 있습니다.
+                아이디어 검토, 검증, 첫 제작 준비를 한 흐름으로 저장하고 다시 이어갈 수 있습니다.
               </p>
             </div>
 

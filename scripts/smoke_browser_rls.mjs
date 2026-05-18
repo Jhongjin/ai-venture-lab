@@ -278,7 +278,7 @@ async function loginAndCheck(page, credentials, expectedWorkspace, deniedWorkspa
     [
       { name: "signed-in state", locator: page.getByText(/로그인됨/) },
       { name: "login success message", locator: page.getByText(/로그인되었습니다/) },
-      { name: "extract action", locator: page.getByRole("button", { name: /AI 후보 발굴/ }) },
+      { name: "extract action", locator: page.getByRole("button", { name: /AI로 후보 찾기|AI 후보 발굴/ }) },
     ],
     `${actorLabel} post-login state`,
     25000,
@@ -287,7 +287,7 @@ async function loginAndCheck(page, credentials, expectedWorkspace, deniedWorkspa
   await waitForAnyVisible(
     [
       { name: "active", locator: page.getByLabel(/활성 워크스페이스/) },
-      { name: "extract-ready", locator: page.getByRole("button", { name: /AI 후보 발굴/ }) },
+      { name: "extract-ready", locator: page.getByRole("button", { name: /AI로 후보 찾기|AI 후보 발굴/ }) },
     ],
     `${actorLabel} authenticated workspace state`,
     20000,

@@ -70,7 +70,7 @@ async function getWorkspaceState(page, waitMs = 20000) {
       { name: "create-available", locator: page.getByRole("button", { name: /워크스페이스 만들기/ }) },
       { name: "login-required", locator: page.getByText(/워크스페이스 멤버십을 불러오려면 로그인하세요/) },
       ...(!allowWrite && !allowWorkspaceCreate
-        ? [{ name: "extract-ready", locator: page.getByRole("button", { name: /AI 후보 발굴/ }) }]
+        ? [{ name: "extract-ready", locator: page.getByRole("button", { name: /AI로 후보 찾기|AI 후보 발굴/ }) }]
         : []),
     ],
     "authenticated session state",
@@ -133,11 +133,11 @@ function makeSmokeIdea() {
   return {
     name: `브라우저 인증 스모크 ${stamp}`,
     buyer: "베타 테스트 운영자",
-    oneLiner: "인증된 운영자가 아이디어를 저장하고 워크벤치 갱신을 확인하는 스모크 기록",
+    oneLiner: "인증된 운영자가 아이디어를 저장하고 실행 보드 갱신을 확인하는 스모크 기록",
     targetUser: "AI Venture Lab 베타 검수 담당자",
     signal: "비밀번호 로그인, 워크스페이스 경계, 아이디어 저장, 목록 반영을 한 번에 검증합니다.",
     riskSummary: "쓰기 스모크는 BROWSER_SMOKE_ALLOW_WRITE=1일 때만 실행하고 베타 전용 계정에서 수행합니다.",
-    nextEvidence: "저장 직후 워크벤치에 생성된 아이디어 이름이 표시되는지 확인합니다.",
+    nextEvidence: "저장 직후 실행 보드에 생성된 아이디어 이름이 표시되는지 확인합니다.",
   };
 }
 
@@ -353,7 +353,7 @@ async function main() {
         { name: "signed-in state", locator: page.getByText(/로그인됨/) },
         { name: "login success message", locator: page.getByText(/로그인되었습니다/) },
         { name: "next extract stage", locator: page.getByRole("heading", { name: /아이디어 찾기/ }) },
-        { name: "extract action", locator: page.getByRole("button", { name: /AI 후보 발굴/ }) },
+        { name: "extract action", locator: page.getByRole("button", { name: /AI로 후보 찾기|AI 후보 발굴/ }) },
       ],
       "post-login state",
       25000,
@@ -362,7 +362,7 @@ async function main() {
     if (postLoginState === "signed-in state" || postLoginState === "login success message") {
       await waitForVisible(page.getByText(new RegExp(escapeRegExp(email))), "signed-in email", 10000);
     } else {
-      await waitForVisible(page.getByRole("button", { name: /AI 후보 발굴/ }), "authenticated extract action", 10000);
+      await waitForVisible(page.getByRole("button", { name: /AI로 후보 찾기|AI 후보 발굴/ }), "authenticated extract action", 10000);
     }
 
     if (allowWrite || allowWorkspaceCreate) {
@@ -383,8 +383,8 @@ async function main() {
 
       await openExtractTask(page);
       await fillFirst(page.getByPlaceholder(/예\) 아이디어:/), buildSmokeIdeaSource(idea), "idea source");
-      await clickFirst(page.getByRole("button", { name: /AI 후보 발굴/ }), "extract ideas button");
-      await clickFirst(page.getByRole("button", { name: /검증 패키지 저장/ }), "save validation package button", 45000);
+      await clickFirst(page.getByRole("button", { name: /AI로 후보 찾기|AI 후보 발굴/ }), "extract ideas button");
+      await clickFirst(page.getByRole("button", { name: /이 후보 저장하고 검증 시작|검증 자료 저장|검증 패키지 저장/ }), "save validation package button", 45000);
       const saveResult = await waitForAnyVisible(
         [
           { name: "package saved", locator: page.getByText(/패키지로 저장했습니다/) },
@@ -395,7 +395,7 @@ async function main() {
               .filter({ hasText: /패키지로 저장했습니다|아이디어는 저장했지만 연결 기록 일부가 실패했습니다/ }),
           },
           { name: "partial package saved", locator: page.getByText(/아이디어는 저장했지만 연결 기록 일부가 실패했습니다/) },
-          { name: "workbench added idea", locator: page.getByText(/새 아이디어를 워크벤치에 바로 추가하고 선택했습니다/) },
+          { name: "workbench added idea", locator: page.getByText(/새 아이디어를 실행 보드에 바로 추가하고 선택했습니다|새 아이디어를 워크벤치에 바로 추가하고 선택했습니다/) },
           { name: "selected smoke idea", locator: page.getByText(/브라우저 인증 스모크/) },
           { name: "workbench result", locator: page.getByRole("heading", { name: /후보 선택|사업성 평가/ }) },
           { name: "package save failed", locator: page.getByText(/후보 패키지를 저장하지 못했습니다|아이디어를 저장하지 못했습니다|row-level security|permission denied/i) },

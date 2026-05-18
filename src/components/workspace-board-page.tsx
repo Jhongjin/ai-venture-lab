@@ -22,7 +22,7 @@ export async function WorkspaceBoardPage() {
   const headerStats = [
     ["검토 후보", String(ideas.length)],
     ["확인할 리스크", String(risks.filter((risk) => risk.status.toLowerCase() === "open").length)],
-    ["검증 실험", String(experiments.length)],
+    ["검증 계획", String(experiments.length)],
     ["실행 문서", String(artifacts.length)],
   ];
 

@@ -602,7 +602,7 @@ function buildCandidateStrategyLens(candidate: ExtractedIdea): CandidateStrategy
       tone: lensTone(45 + paidHits * 10 + (candidate.buyer.trim().length > 8 ? 10 : 0)),
     },
     {
-      label: "MVP 난이도",
+      label: "첫 제작 난이도",
       score: clampPercent(feasibilityBase - riskPenalty),
       detail:
         candidate.initialScores.mvp_speed >= 4
@@ -834,9 +834,9 @@ function buildCandidateReadiness(
       detail: candidate.risk_summary.trim().length >= 20 ? "초기 리스크를 함께 저장할 수 있습니다." : "개인정보, 규제, 운영 리스크를 보완하세요.",
     },
     {
-      label: "첫 MVP",
-      passed: candidate.firstPrototypeScope.trim().length >= 20,
-      detail: candidate.firstPrototypeScope.trim().length >= 20 ? "첫 프로토타입 범위가 있습니다." : "7일 안에 만들 최소 범위를 정하세요.",
+        label: "첫 제작 범위",
+        passed: candidate.firstPrototypeScope.trim().length >= 20,
+        detail: candidate.firstPrototypeScope.trim().length >= 20 ? "첫 제작 범위가 있습니다." : "7일 안에 만들 최소 범위를 정하세요.",
     },
     {
       label: "중복 위험",
@@ -849,8 +849,8 @@ function buildCandidateReadiness(
       label: "민감정보",
       passed: !hasSensitiveSource,
       detail: hasSensitiveSource
-        ? "원문 근거에 이메일, 전화번호, 계좌, 카드, 신분 정보 단서가 있을 수 있어 저장되는 문서에는 자동 익명화가 적용됩니다."
-        : "원문 근거에서 명백한 연락처/식별번호 패턴은 보이지 않습니다.",
+        ? "메모 근거에 이메일, 전화번호, 계좌, 카드, 신분 정보 단서가 있을 수 있어 저장되는 문서에는 자동 가림 처리가 적용됩니다."
+        : "메모 근거에서 명백한 연락처/식별번호 패턴은 보이지 않습니다.",
     },
   ];
 }
@@ -877,7 +877,7 @@ function buildExtractionGate(
 
   let id: ExtractionGateId = "research";
   let summary = "증거를 더 모은 뒤 저장 또는 점수화할 후보입니다.";
-  let nextAction = blockers[0] ? `${blockers[0]} 보완 후 7일 검증 패키지로 저장` : "인터뷰와 대체재 조사를 먼저 붙인 뒤 저장";
+  let nextAction = blockers[0] ? `${blockers[0]} 보완 후 7일 검증 자료로 저장` : "인터뷰와 대체재 조사를 먼저 붙인 뒤 저장";
 
   if (candidate.validationScore <= 44 || corePassCount <= 1) {
     id = "kill";
@@ -898,8 +898,8 @@ function buildExtractionGate(
     !hasSensitiveBlocker
   ) {
     id = "proceed";
-    summary = "문제, 구매자, 실험, MVP 범위가 충분해 검증 패키지로 저장할 후보입니다.";
-    nextAction = "검증 패키지 저장 후 워크벤치에서 점수와 첫 실험을 확정";
+    summary = "문제, 구매자, 확인 방법, 첫 제작 범위가 충분해 검증 자료로 저장할 후보입니다.";
+    nextAction = "검증 자료 저장 후 실행 보드에서 점수와 첫 검증 계획을 확정";
   } else {
     id = "research";
     summary =
@@ -941,13 +941,13 @@ function buildExtractedIdeaArtifacts(
       ? redactedSourceBlock
       : `${redactedSourceBlock}
 
-> 자동 익명화: 원문 근거에서 연락처, 카드, 계좌, 신분 정보로 보이는 패턴을 치환했습니다.`;
+> 자동 가림 처리: 메모 근거에서 연락처, 카드, 계좌, 신분 정보로 보이는 패턴을 치환했습니다.`;
   const base = {
     idea_id: idea.id,
     organization_id: organizationId,
     status: "draft" as const,
     version: 1,
-    status_note: "자동 아이디어 발굴에서 검증 패키지로 생성됨",
+    status_note: "메모에서 찾은 후보를 검증 자료로 정리함",
   };
 
   return [
@@ -971,7 +971,7 @@ ${candidate.one_liner}
 
 ${candidate.signal}
 
-## 원문 근거
+## 메모 근거
 
 ${sourceBlock}
 
@@ -1010,7 +1010,7 @@ ${candidate.next_evidence}
 
 ${candidate.evidence.map((item) => `- ${item}`).join("\n")}
 
-## 원문 근거
+## 메모 근거
 
 ${sourceBlock}
 
@@ -1022,7 +1022,7 @@ ${candidate.validationQuestions.map((item) => `- ${item}`).join("\n")}
 
 ${candidate.pricingHypothesis}
 
-## 첫 프로토타입 범위
+## 첫 제작 범위
 
 ${candidate.firstPrototypeScope}
 
@@ -1038,15 +1038,15 @@ ${candidate.validationRationale}
     {
       ...base,
       artifact_type: "research_note",
-      title: `${candidate.name} 7일 검증 스프린트`,
+      title: `${candidate.name} 7일 검증 계획`,
       source: "validation_sprint",
-      body: `# 7일 검증 스프린트: ${candidate.name}
+      body: `# 7일 검증 계획: ${candidate.name}
 
-## 실험
+## 확인할 내용
 
 ${candidate.sevenDayExperiment}
 
-## 원문 근거
+## 메모 근거
 
 ${sourceBlock}
 
@@ -1067,7 +1067,7 @@ ${candidate.successMetric}
 
 ${candidate.pricingHypothesis}
 
-## Day 6 프로토타입 반응
+## Day 6 첫 화면 반응
 
 ${candidate.firstPrototypeScope}
 
@@ -1195,7 +1195,7 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
         candidate.target_user ? `대상 사용자: ${candidate.target_user}` : "",
         candidate.buyer ? `구매자: ${candidate.buyer}` : "",
         candidate.risk_summary ? `리스크: ${candidate.risk_summary}` : "",
-        `원문 요약 근거: ${compactText(source, 900)}`,
+        `메모 요약 근거: ${compactText(source, 900)}`,
       ]
         .filter(Boolean)
         .join("\n");
@@ -1322,7 +1322,7 @@ function buildExtractionReplaySummary({
         matchedName: primaryCandidate.id === match.item.id ? rulesCandidate.name : match.item.name,
         overlapScore: match.score,
         verdict: "공통 후보",
-        nextAction: "두 엔진이 모두 포착했습니다. 검증 패키지 저장 또는 워크벤치 점수화 우선순위로 봅니다.",
+        nextAction: "두 방식이 모두 포착했습니다. 검증 자료 저장 또는 실행 보드 평가 우선순위로 봅니다.",
       });
       continue;
     }
@@ -1350,7 +1350,7 @@ function buildExtractionReplaySummary({
       matchedName: null,
       overlapScore: 0,
       verdict: "AI 단독",
-      nextAction: "AI가 문맥에서 추론한 후보입니다. 원문 근거와 과잉 해석 여부를 먼저 확인합니다.",
+      nextAction: "AI가 문맥에서 추론한 후보입니다. 메모 근거와 과잉 해석 여부를 먼저 확인합니다.",
     });
   }
 
@@ -1436,7 +1436,7 @@ function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
     })
     .join("\n");
 
-  return `# 아이디어 발굴 실행 요약
+  return `# 후보 찾기 실행 요약
 
 ## 진행 판정 분포
 
@@ -1450,7 +1450,7 @@ ${rows || "| - | 후보 없음 | - | - | - | - | - | - |"}
 
 ## 운영 원칙
 
-- 진행 후보는 검증 패키지로 저장한 뒤 워크벤치에서 점수와 첫 실험을 확정합니다.
+- 진행 후보는 검증 자료로 저장한 뒤 실행 보드에서 점수와 첫 검증 계획을 확정합니다.
 - 추가 조사 후보는 부족한 문제 신호, 구매자, 지표, 리스크, MVP 범위를 보완합니다.
 - 전환 검토 후보는 기존 기록 병합, 세그먼트 축소, 구매자 변경 중 하나를 먼저 결정합니다.
 - 중단 후보는 새 증거가 생길 때까지 저장하지 않습니다.
@@ -1472,7 +1472,7 @@ function buildExtractionReportBody(
 
   return `${buildExtractionPortfolioMarkdown(items)}
 
-## 발굴 조건
+## 찾기 조건
 
 - 생성 시각: ${generatedAt}
 - 워크스페이스: ${organizationName ?? "개인 기록"}
@@ -1481,18 +1481,18 @@ function buildExtractionReportBody(
 - 모델: ${runMeta?.model ?? "해당 없음"}
 - 입력 길이: ${runMeta?.sourceLength ?? source.length}자
 - 추출 시각: ${metaGeneratedAt}
-- 실행 메모: ${runMeta?.note ?? "수동 또는 이전 방식으로 생성된 후보입니다."}
+- 실행 메모: ${runMeta?.note ?? "수동 또는 이전 방식으로 찾은 후보입니다."}
 
 ${replaySummary ? buildExtractionReplayMarkdown(replaySummary) : "## 추출 결과 점검\n\n- 이번 리포트에는 결과 점검이 포함되지 않았습니다."}
 
-## 원문 근거 요약
+## 메모 근거 요약
 
-${sourceExcerpt || "원문 근거가 비어 있습니다."}
+${sourceExcerpt || "메모 근거가 비어 있습니다."}
 
 ## 다음 처리
 
-1. 진행 후보는 검증 패키지로 저장합니다.
-2. 추가 조사 후보는 부족한 증거를 보완한 뒤 다시 발굴합니다.
+1. 진행 후보는 검증 자료로 저장합니다.
+2. 추가 조사 후보는 부족한 증거를 보완한 뒤 다시 찾습니다.
 3. 전환 검토 후보는 기존 아이디어 병합 또는 세그먼트 축소를 먼저 판단합니다.
 4. 중단 후보는 새 증거가 생길 때까지 실행 목록에서 제외합니다.
 `;
@@ -1759,8 +1759,8 @@ export function VentureConsoleActions({
     },
     {
       id: "extract",
-      label: "후보 발굴",
-      description: "대화와 메모에서 검토 후보를 뽑습니다.",
+      label: "후보 찾기",
+      description: "대화와 메모에서 검토할 후보를 찾습니다.",
       status: extractedIdeas.length > 0 ? `${extractedIdeas.length}개` : "붙여넣기",
     },
     {
@@ -1921,7 +1921,7 @@ export function VentureConsoleActions({
         if (nextUser) {
           updateActiveTask("extract");
         }
-        setAuthMessage("로그인되었습니다. 바로 후보 발굴부터 시작하세요. 협업이 필요하면 나중에 팀 공간을 열 수 있습니다.");
+        setAuthMessage("로그인되었습니다. 바로 후보 찾기부터 시작하세요. 협업이 필요하면 나중에 팀 공간을 열 수 있습니다.");
         await loadWorkspaceData(nextUser);
         router.refresh();
       }
@@ -2024,7 +2024,7 @@ export function VentureConsoleActions({
 
     setPassword("");
     updateActiveTask("extract");
-    setAuthMessage("로그인되었습니다. 바로 후보 발굴부터 시작하세요. 협업이 필요하면 팀 공간을 나중에 연결하면 됩니다.");
+    setAuthMessage("로그인되었습니다. 바로 후보 찾기부터 시작하세요. 협업이 필요하면 팀 공간을 나중에 연결하면 됩니다.");
     router.refresh();
   }
 
@@ -2066,7 +2066,7 @@ export function VentureConsoleActions({
     }
 
     setActiveOrganizationId(data.id);
-    setWorkspaceMessage("협업 공간을 만들었습니다. 필요할 때만 팀으로 같이 보면 됩니다. 이제 후보 발굴로 돌아갑니다.");
+    setWorkspaceMessage("협업 공간을 만들었습니다. 필요할 때만 팀으로 같이 보면 됩니다. 이제 후보 찾기로 돌아갑니다.");
     await loadWorkspaceData(user, data.id);
     updateActiveTask("extract");
   }
@@ -2106,7 +2106,7 @@ export function VentureConsoleActions({
   async function handleSelectWorkspace(organizationId: string) {
     setActiveOrganizationId(organizationId);
     await loadAuditEvents(organizationId);
-    setWorkspaceMessage("협업 공간을 선택했습니다. 이제 AI 후보 발굴을 계속 진행하면 됩니다.");
+    setWorkspaceMessage("협업 공간을 선택했습니다. 이제 AI로 후보 찾기를 계속 진행하면 됩니다.");
     updateActiveTask("extract");
   }
 
@@ -2262,7 +2262,7 @@ export function VentureConsoleActions({
     }
     setSaveMessage(
       activeOrganization
-        ? `${activeOrganization.name}에 아이디어를 저장했습니다. 워크벤치에 바로 반영했습니다.`
+        ? `${activeOrganization.name}에 아이디어를 저장했습니다. 실행 보드에 바로 반영했습니다.`
         : "개인 기록으로 아이디어를 저장했습니다. 워크스페이스를 만들면 이후 기록을 연결할 수 있습니다.",
     );
     await loadPersonalRecordCount(user);
@@ -2283,7 +2283,7 @@ export function VentureConsoleActions({
 
     setExtractionReplay(null);
     setIsAiExtracting(true);
-    setExtractMessage("AI가 원문을 살펴보고 후보를 정리하는 중입니다. 문제가 생기면 내부 안전장치로 계속 진행합니다.");
+    setExtractMessage("AI가 메모를 살펴보고 후보를 정리하는 중입니다. 문제가 생기면 기본 방식으로 계속 진행합니다.");
 
     try {
       const response = await fetch("/api/ideas/extract", {
@@ -2310,15 +2310,15 @@ export function VentureConsoleActions({
             model: payload.model ?? null,
             sourceLength: source.length,
             candidateCount: fallbackIdeas.length,
-            note: payload.error ?? `OpenAI HTTP ${response.status} 이후 내부 안전장치로 계속 진행했습니다.`,
+            note: payload.error ?? `OpenAI HTTP ${response.status} 이후 기본 방식으로 계속 진행했습니다.`,
           }),
         );
         setExtractMessage(
           fallbackIdeas.length > 0
-            ? `AI 추출을 끝까지 사용할 수 없어 내부 안전장치로 ${fallbackIdeas.length}개 후보를 정리했습니다. 사유: ${
+            ? `AI 정리를 끝까지 사용할 수 없어 기본 방식으로 ${fallbackIdeas.length}개 후보를 정리했습니다. 사유: ${
                 payload.error ?? `HTTP ${response.status}`
               }`
-            : `AI 추출을 끝까지 사용할 수 없었고 내부 안전장치로도 후보를 찾지 못했습니다. 사유: ${
+            : `AI 정리를 끝까지 사용할 수 없었고 기본 방식으로도 후보를 찾지 못했습니다. 사유: ${
                 payload.error ?? `HTTP ${response.status}`
               }`,
         );
@@ -2333,11 +2333,11 @@ export function VentureConsoleActions({
           model: payload.model ?? "OpenAI",
           sourceLength: source.length,
           candidateCount: aiIdeas.length,
-          note: "OpenAI Responses API 출력으로 후보를 정리했습니다.",
+          note: "AI가 메모에서 후보를 정리했습니다.",
         }),
       );
       setExtractMessage(
-        `${payload.model ?? "OpenAI"} AI 엔진으로 ${aiIdeas.length}개 후보를 정리했습니다. 추천 후보의 진행 판정과 중복 리스크를 확인하세요.`,
+        `${aiIdeas.length}개 후보를 정리했습니다. 추천 후보의 진행 판단과 중복 가능성을 확인하세요.`,
       );
     } catch (error) {
       const fallbackIdeas = extractIdeasFromText(source);
@@ -2348,17 +2348,17 @@ export function VentureConsoleActions({
           model: null,
           sourceLength: source.length,
           candidateCount: fallbackIdeas.length,
-          note: `AI 추출 요청 중 오류가 발생해 내부 안전장치로 계속 진행했습니다. ${
+          note: `AI 정리 중 오류가 발생해 기본 방식으로 계속 진행했습니다. ${
             error instanceof Error ? error.message : ""
           }`,
         }),
       );
       setExtractMessage(
         fallbackIdeas.length > 0
-          ? `AI 추출 요청 중 오류가 발생해 내부 안전장치로 ${fallbackIdeas.length}개 후보를 정리했습니다. ${
+          ? `AI 정리 중 오류가 발생해 기본 방식으로 ${fallbackIdeas.length}개 후보를 정리했습니다. ${
               error instanceof Error ? error.message : ""
             }`
-          : `AI 추출 요청 중 오류가 발생했고 내부 안전장치로도 후보를 찾지 못했습니다. ${
+          : `AI 정리 중 오류가 발생했고 기본 방식으로도 후보를 찾지 못했습니다. ${
               error instanceof Error ? error.message : ""
             }`,
       );
@@ -2379,7 +2379,7 @@ export function VentureConsoleActions({
     }
 
     setIsReplayingExtraction(true);
-    setExtractMessage("같은 원문을 내부 기준과 AI 결과로 다시 비교해 누락되거나 과한 후보가 없는지 점검하는 중입니다.");
+    setExtractMessage("같은 메모를 기본 기준과 AI 결과로 다시 비교해 빠진 후보나 과한 해석이 없는지 점검하는 중입니다.");
 
     try {
       const rulesIdeas = extractIdeasFromText(source);
@@ -2453,7 +2453,7 @@ export function VentureConsoleActions({
 
   async function copyExtractionPortfolio() {
     if (extractionPortfolioItems.length === 0) {
-      setExtractMessage("복사할 후보 비교 요약이 없습니다. 먼저 후보를 발굴하세요.");
+      setExtractMessage("복사할 후보 비교 요약이 없습니다. 먼저 후보를 찾아 주세요.");
       return;
     }
 
@@ -2463,7 +2463,7 @@ export function VentureConsoleActions({
 
   async function saveExtractionPortfolioReport() {
     if (extractionPortfolioItems.length === 0) {
-      setExtractMessage("저장할 후보 비교 리포트가 없습니다. 먼저 후보를 발굴하세요.");
+      setExtractMessage("저장할 후보 비교 리포트가 없습니다. 먼저 후보를 찾아 주세요.");
       return;
     }
 
@@ -2473,7 +2473,7 @@ export function VentureConsoleActions({
     }
 
     if (!user) {
-      setExtractMessage("발굴 리포트를 저장하려면 먼저 로그인하세요.");
+      setExtractMessage("후보 정리 리포트를 저장하려면 먼저 로그인하세요.");
       return;
     }
 
@@ -2495,7 +2495,7 @@ export function VentureConsoleActions({
         artifact_type: "research_note",
         status: "draft",
         version: 1,
-        title: `아이디어 발굴 리포트 ${titleDate}`,
+        title: `후보 정리 리포트 ${titleDate}`,
         body: buildExtractionReportBody(
           extractionPortfolioItems,
           rawIdeaSource,
@@ -2504,7 +2504,7 @@ export function VentureConsoleActions({
           extractionReplay,
         ),
         source: "extraction_portfolio",
-        status_note: "자동 아이디어 발굴 후보 비교와 원문 근거를 저장한 리포트입니다.",
+        status_note: "메모에서 찾은 후보와 근거를 비교해 저장한 리포트입니다.",
       })
       .select()
       .single();
@@ -2517,7 +2517,7 @@ export function VentureConsoleActions({
     }
 
     window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: data }));
-    setExtractMessage("발굴 리포트를 실행 문서로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
+    setExtractMessage("후보 정리 리포트를 실행 문서로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
     router.refresh();
@@ -2531,9 +2531,9 @@ export function VentureConsoleActions({
       buyer: candidate.buyer,
       signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
       risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-      next_evidence: `7일 검증 실험\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+      next_evidence: `7일 검증 계획\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
         "\n- ",
-      )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
+      )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
     });
     setSaveMessage(`'${candidate.name}' 후보를 검증 메모까지 포함해 입력 폼에 채웠습니다. 검토 후 저장하세요.`);
     updateActiveTask("idea");
@@ -2554,9 +2554,9 @@ export function VentureConsoleActions({
         buyer: candidate.buyer.trim(),
         signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
         risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-        next_evidence: `7일 검증 실험\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+        next_evidence: `7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
           "\n- ",
-        )}\n\n첫 프로토타입 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n진행 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
+        )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n진행 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
         stage: "research",
         decision: "research_more",
         ...candidate.initialScores,
@@ -2662,11 +2662,11 @@ export function VentureConsoleActions({
         setExtractMessage(`아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${result.partialError}`);
       } else {
         setExtractMessage(
-            `'${candidate.name}' 후보를 아이디어, 리스크, 7일 실험, 검증 문서 ${result.artifactCount}개까지 패키지로 저장했습니다.`,
+            `'${candidate.name}' 후보를 아이디어, 리스크, 7일 검증 계획, 실행 문서 ${result.artifactCount}개까지 저장했습니다.`,
         );
       }
     } catch (error) {
-      setExtractMessage(error instanceof Error ? error.message : "후보 패키지를 저장하지 못했습니다.");
+      setExtractMessage(error instanceof Error ? error.message : "후보를 검증 자료로 저장하지 못했습니다.");
     }
 
     setExtractSaveKey(null);
@@ -2712,7 +2712,7 @@ export function VentureConsoleActions({
     setExtractSaveKey(null);
     setExtractMessage(
       savedNames.length > 0
-        ? `상위 후보 ${savedNames.length}개를 검증 패키지로 저장했습니다: ${savedNames.join(", ")}${
+        ? `상위 후보 ${savedNames.length}개를 검증 자료로 저장했습니다: ${savedNames.join(", ")}${
             partialErrors.length > 0 ? ` / 일부 보완 필요: ${partialErrors.join(" | ")}` : ""
           }`
         : `일괄 저장에 실패했습니다: ${partialErrors.join(" | ")}`,
@@ -3045,9 +3045,9 @@ export function VentureConsoleActions({
           ) : (
             <div className="grid gap-3">
               <div className="avl-surface-muted border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-                아직 연결된 워크스페이스가 없습니다.
+                아직 연결된 협업 공간이 없습니다.
                 {personalRecordCount > 0
-                  ? ` 필요하면 워크스페이스를 만든 뒤 ${personalRecordCount}개의 개인 기록을 연결할 수 있습니다.`
+                  ? ` 필요하면 협업 공간을 만든 뒤 ${personalRecordCount}개의 개인 기록을 연결할 수 있습니다.`
                   : ""}
               </div>
               <button
@@ -3057,7 +3057,7 @@ export function VentureConsoleActions({
                 className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-60"
               >
                 {isWorkspaceBusy ? <ArrowsClockwise className="animate-spin" size={18} /> : <Buildings size={18} />}
-                워크스페이스 만들기
+                협업 공간 만들기
               </button>
             </div>
           )}
@@ -3069,10 +3069,10 @@ export function VentureConsoleActions({
           {!embedded ? (
             <div className="border border-slate-200 bg-white px-5 py-4 lg:flex lg:items-end lg:justify-between">
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">후보 발굴</div>
-                <h2 className="mt-2 text-xl font-semibold text-slate-950">원문에서 검토 후보 찾기</h2>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">후보 찾기</div>
+                  <h2 className="mt-2 text-xl font-semibold text-slate-950">메모에서 검토 후보 찾기</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                  원문을 넣으면 지금 먼저 검토할 후보 한 건을 정리합니다.
+                  메모를 넣으면 지금 먼저 검토할 후보 한 건을 정리합니다.
                 </p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 lg:mt-0">
@@ -3085,7 +3085,7 @@ export function VentureConsoleActions({
                   className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={18} /> : <Sparkle size={18} />}
-                  AI 후보 발굴
+                    AI로 후보 찾기
                 </button>
               </div>
             </div>
@@ -3097,14 +3097,14 @@ export function VentureConsoleActions({
                 <div className="grid gap-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">원문 입력</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">메모 입력</div>
                       <h3 className="mt-1 text-base font-semibold text-slate-950">먼저 이 칸에 그대로 붙여넣기</h3>
                       <p className="mt-1 max-w-2xl text-sm leading-5 text-slate-600">
-                        회의 내용, 아이디어 메모, 자동화하고 싶은 업무처럼 아직 정리되지 않은 원문이면 됩니다.
+                        회의 내용, 아이디어 메모, 자동화하고 싶은 업무처럼 아직 정리되지 않은 내용이면 됩니다.
                       </p>
                     </div>
                     <div className="avl-pill avl-pill-neutral">
-                      {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length}자 입력됨` : "원문 대기"}
+                      {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length}자 입력됨` : "메모 대기"}
                     </div>
                   </div>
                   <textarea
@@ -3115,7 +3115,7 @@ export function VentureConsoleActions({
                     className="avl-textarea min-h-[280px] leading-7"
                   />
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
-                    <span><strong className="text-slate-950">1.</strong> 원문을 붙여넣습니다.</span>
+                    <span><strong className="text-slate-950">1.</strong> 메모를 붙여넣습니다.</span>
                     <span><strong className="text-slate-950">2.</strong> AI가 후보 한 건을 추천합니다.</span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 검증 단계가 열립니다.</span>
                   </div>
@@ -3149,7 +3149,7 @@ export function VentureConsoleActions({
                       className="avl-btn avl-btn-primary px-4 disabled:opacity-60"
                     >
                       {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                      AI 후보 발굴
+                      AI로 후보 찾기
                     </button>
                   </div>
                   {extractMessage ? (
@@ -3159,7 +3159,7 @@ export function VentureConsoleActions({
                   ) : null}
                   {duplicateCandidateCount > 0 ? (
                     <div className="avl-surface-muted border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-                      {duplicateCandidateCount}개 후보가 기존 포트폴리오와 유사합니다. 새로 만들기보다 기존 기록 확장을 먼저
+                      {duplicateCandidateCount}개 후보가 기존 기록과 유사합니다. 새로 만들기보다 기존 기록 확장을 먼저
                       확인하세요.
                     </div>
                   ) : null}
@@ -3214,7 +3214,7 @@ export function VentureConsoleActions({
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">다음 단계</div>
-                          <p className="mt-1 text-xs leading-5 text-slate-700">저장 후에는 검증 실험에서 무엇을 확인할지 정합니다.</p>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">저장 후에는 무엇을 확인할지 7일 검증 계획으로 정합니다.</p>
                         </div>
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -3238,11 +3238,11 @@ export function VentureConsoleActions({
                     </section>
                   ) : (
                     <section className="border border-dashed border-slate-300 bg-slate-50 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음 출력</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음에 보이는 것</div>
                       <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 후보가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                         <li>1. 왼쪽 입력칸에 회의 메모나 아이디어 메모를 붙여넣습니다.</li>
-                        <li>2. AI 후보 발굴을 누르면 먼저 볼 후보 한 건이 나옵니다.</li>
+                        <li>2. AI로 후보 찾기를 누르면 먼저 볼 후보 한 건이 나옵니다.</li>
                         <li>3. 마음에 들면 저장하고 검증 단계로 넘어갑니다.</li>
                       </ul>
                     </section>
@@ -3255,10 +3255,10 @@ export function VentureConsoleActions({
                       <div className="mt-1 text-sm font-semibold text-slate-950">
                         {extractionRunMeta
                           ? extractionRunMeta.engine === "openai"
-                            ? "OpenAI 추출"
+                            ? "AI 정리"
                             : extractionRunMeta.engine === "fallback"
-                              ? "AI 실패 후 대체 추출"
-                              : "내부 안전장치"
+                              ? "AI 실패 후 기본 정리"
+                              : "기본 정리"
                           : "실행 전"}
                       </div>
                       <p className="mt-1 text-xs leading-5 text-slate-600">
@@ -3268,7 +3268,7 @@ export function VentureConsoleActions({
                     <div className="bg-slate-50 px-3 py-3">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">개인정보 보호</div>
                       <p className="mt-1 text-xs leading-5 text-slate-600">
-                        연락처, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 익명화됩니다.
+                        연락처, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 가립니다.
                       </p>
                     </div>
                     </div>
@@ -3439,7 +3439,7 @@ export function VentureConsoleActions({
                 <details className="avl-card p-4">
                   <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">후보별 상세 보기</summary>
                   <p className="mt-3 text-sm leading-5 text-slate-600">
-                    추천 후보만으로 부족할 때만 각 후보의 가설과 실험안을 펼칩니다.
+                    추천 후보만으로 부족할 때만 각 후보의 가설과 검증 계획을 펼칩니다.
                   </p>
                   <div className="mt-4 grid gap-3">
                   {extractedIdeas.map((candidate) => {
@@ -3478,7 +3478,7 @@ export function VentureConsoleActions({
                               신뢰 {candidate.confidence}%
                             </span>
                             <span className="avl-pill avl-pill-success">
-                              패키지 {passedReadinessCount}/{readinessChecks.length}
+                              준비 {passedReadinessCount}/{readinessChecks.length}
                             </span>
                             <span className="avl-pill avl-pill-brand">
                               사업/제작 {strategyScore}%
@@ -3504,7 +3504,7 @@ export function VentureConsoleActions({
                   className="avl-btn avl-btn-accent h-10 px-4 disabled:opacity-50"
                           >
                             {extractSaveKey === candidate.id ? <ArrowsClockwise className="animate-spin" size={16} /> : <PlusCircle size={16} />}
-                            패키지 저장
+                            검증 자료 저장
                           </button>
                         </div>
                       </div>
@@ -3549,7 +3549,7 @@ export function VentureConsoleActions({
                           <div>
                             <div className="text-sm font-semibold text-slate-950">사업/제작 스코어카드</div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
-                              수요, 수익화, MVP 난이도, 도달 채널, 자동화 가치, 보안 부담을 함께 봅니다.
+                              수요, 수익화, 첫 제작 난이도, 도달 채널, 자동화 가치, 보안 부담을 함께 봅니다.
                             </p>
                           </div>
                           <div className="avl-surface-muted px-3 py-2 text-right text-slate-950">
@@ -3582,11 +3582,11 @@ export function VentureConsoleActions({
                       <div className="avl-surface-muted mt-3 border-emerald-200 bg-emerald-50 p-3">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                           <div>
-                            <div className="text-sm font-semibold text-emerald-950">검증 패키지 준비도</div>
+                            <div className="text-sm font-semibold text-emerald-950">검증 자료 준비도</div>
                             <p className="mt-1 text-sm leading-6 text-emerald-900">
                               {nextReadinessGap
                                 ? `다음 보완: ${nextReadinessGap.label} - ${nextReadinessGap.detail}`
-                                : "아이디어, 리스크, 7일 실험으로 저장할 준비가 좋습니다."}
+                                : "아이디어, 리스크, 7일 검증 계획으로 저장할 준비가 좋습니다."}
                             </p>
                           </div>
                           <div className="avl-surface-muted px-3 py-2 text-right text-slate-950">
@@ -3636,20 +3636,20 @@ export function VentureConsoleActions({
                           </ul>
                         </div>
                         <div className="avl-surface-muted p-3 md:col-span-2">
-                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">7일 실험</div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">7일 검증 계획</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.sevenDayExperiment}</p>
                           <p className="mt-2 text-sm leading-6 text-slate-700">
                             <span className="font-semibold text-slate-950">성공 지표:</span> {candidate.successMetric}
                           </p>
                         </div>
                         <div className="avl-surface-muted p-3 md:col-span-2">
-                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">원문 근거</div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">메모 근거</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">
                             {compactText(redactSensitiveSource(candidate.sourceBlock), 360)}
                           </p>
                         </div>
                         <div className="avl-surface-muted p-3">
-                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">첫 프로토타입</div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">첫 제작 범위</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{candidate.firstPrototypeScope}</p>
                         </div>
                         <div className="avl-surface-muted p-3">
@@ -3811,7 +3811,7 @@ export function VentureConsoleActions({
                     <div className="border border-slate-200 bg-slate-50 p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 액션</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
-                        저장하면 이 초안이 바로 선택되고, 사업성 평가와 첫 검증 실험 설계로 이어집니다.
+                        저장하면 이 초안이 바로 선택되고, 사업성 평가와 첫 검증 계획으로 이어집니다.
                       </p>
                     </div>
                   </div>
@@ -3832,9 +3832,9 @@ export function VentureConsoleActions({
           <div className="grid gap-4">
             <section className="avl-band p-5 text-slate-900">
               <div className="avl-kicker">다음 단계</div>
-              <h3 className="mt-4 text-lg font-semibold text-slate-950">저장하면 바로 워크벤치로 이동합니다</h3>
+              <h3 className="mt-4 text-lg font-semibold text-slate-950">저장하면 바로 실행 보드에 반영됩니다</h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                새 아이디어를 저장하면 워크벤치에 추가되고, 바로 선택된 상태로 `사업성 평가` 단계에서 이어서 검토할 수 있습니다.
+                새 아이디어를 저장하면 실행 보드에 추가되고, 바로 선택된 상태로 사업성 평가 단계에서 이어서 검토할 수 있습니다.
               </p>
             </section>
 

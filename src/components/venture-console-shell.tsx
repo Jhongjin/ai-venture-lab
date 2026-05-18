@@ -67,8 +67,8 @@ const shellTasks: Array<{
   },
   {
     id: "console:extract",
-    label: "후보 발굴",
-    description: "원문 붙여넣기",
+    label: "후보 찾기",
+    description: "메모 붙여넣기",
     group: "시작",
     icon: Sparkle,
   },
@@ -82,7 +82,7 @@ const shellTasks: Array<{
   {
     id: "workbench:select",
     label: "후보 선택",
-    description: "오늘 볼 후보",
+    description: "먼저 볼 후보",
     group: "검증",
     icon: ClipboardText,
   },
@@ -102,8 +102,8 @@ const shellTasks: Array<{
   },
   {
     id: "workbench:experiment",
-    label: "검증 실험",
-    description: "7일 검증",
+    label: "검증 계획",
+    description: "7일 확인",
     group: "검증",
     icon: Flask,
   },
@@ -116,7 +116,7 @@ const shellTasks: Array<{
   },
   {
     id: "workbench:artifacts",
-    label: "기획서 만들기",
+    label: "실행 문서 만들기",
     description: "실행 문서",
     group: "제작",
     icon: ClipboardText,
@@ -124,7 +124,7 @@ const shellTasks: Array<{
   {
     id: "workbench:development",
     label: "제작 준비",
-    description: "빌드 준비",
+    description: "제작 준비",
     group: "제작",
     icon: Code,
   },
@@ -164,7 +164,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     summary: "회의 메모, 아이디어 메모, 자동화하고 싶은 업무를 붙여넣으면 먼저 볼 후보를 정리합니다.",
     checklist: [
       "원문 입력칸에 메모 붙여넣기",
-      "AI 후보 발굴 실행",
+      "AI로 후보 찾기",
       "추천 후보를 저장할지 결정",
     ],
   },
@@ -197,11 +197,11 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["실행 계획 만들기", "역할별 결과 작성", "완료된 단계 상태 변경"],
   },
   "workbench:artifacts": {
-    summary: "브리프, PRD, MVP 범위를 저장하고 승인 상태를 관리합니다.",
-    checklist: ["필요 자료 저장", "PRD와 MVP 범위 승인", "상태 메모 작성"],
+    summary: "아이디어 브리프, 기획서, 첫 제작 범위를 저장하고 승인 상태를 관리합니다.",
+    checklist: ["필요 자료 저장", "기획서와 제작 범위 확인", "상태 메모 작성"],
   },
   "workbench:development": {
-    summary: "기획, 디자인, 구현, QA, 출시 준비를 한 묶음으로 정리합니다.",
+    summary: "기획, 디자인, 개발, 품질 점검, 출시 준비를 한 묶음으로 정리합니다.",
     checklist: ["제작 준비 자료 만들기", "제작 실행 계획 저장", "출시 전 확인 조건 점검"],
   },
   "workbench:launch": {
@@ -279,25 +279,25 @@ const taskCanvasDetails: Record<
   },
   "workbench:artifacts": {
     question: "이 후보를 팀이나 개발 도구에 넘길 자료가 준비됐나요?",
-    aiLead: "브리프, PRD, MVP 명세, 디자인 브리프 같은 실행 문서를 자동으로 묶습니다.",
-    deliverable: "실행 패키지 초안",
+    aiLead: "아이디어 브리프, 기획서, 첫 제작 범위, 디자인 참고 자료를 실행 문서로 묶습니다.",
+    deliverable: "실행 문서 초안",
     checkpoint: "사용자는 문서를 처음부터 쓰기보다 승인 여부만 확인하면 됩니다.",
   },
   "workbench:development": {
     question: "이제 실제 앱 제작으로 넘어갈 준비가 되었나요?",
-    aiLead: "기획, 디자인, 구현, QA, 출시 순서를 묶어 제안합니다.",
+    aiLead: "기획, 디자인, 개발, 품질 점검, 출시 순서를 묶어 제안합니다.",
     deliverable: "제작 전달 자료",
     checkpoint: "한 명의 운영자가 끝까지 볼 수 있도록 복잡한 개발 정보를 압축합니다.",
   },
   "workbench:orchestration": {
     question: "누가 무엇을 언제 처리할지 명확한가요?",
-    aiLead: "전략, 디자인, 개발, QA, 보안의 순서를 정리하고 막히는 요인을 표시합니다.",
-    deliverable: "실행 런북과 진행 상태",
+    aiLead: "전략, 디자인, 개발, 품질 점검, 보안의 순서를 정리하고 막히는 요인을 표시합니다.",
+    deliverable: "실행 순서와 진행 상태",
     checkpoint: "혼자 쓰더라도 다음 작업 순서가 분명히 보여야 합니다.",
   },
   "workbench:launch": {
-    question: "지금 이 MVP를 밖으로 내보내도 괜찮을까요?",
-    aiLead: "출시 전 남은 리스크, 문서, QA, 보안 상태를 하나로 모아 점검합니다.",
+    question: "지금 이 첫 버전을 밖으로 내보내도 괜찮을까요?",
+    aiLead: "출시 전 남은 리스크, 문서, 품질 점검, 보안 상태를 하나로 모아 점검합니다.",
     deliverable: "출시 전 최종 판단",
     checkpoint: "막히는 항목이 없으면 바로 성과 확인으로 이동합니다.",
   },
@@ -364,7 +364,7 @@ function getNextTaskOptions({
         : [];
     case "workbench:score":
       return [
-        createTransition("workbench:experiment", "다음: 검증 실험", "7일 안에 확인할 가장 작은 실험으로 넘어갑니다."),
+        createTransition("workbench:experiment", "다음: 검증 계획", "7일 안에 확인할 가장 작은 행동을 정합니다."),
         createTransition(
           "workbench:risk",
           "선택: 위험 먼저 보기",
@@ -374,7 +374,7 @@ function getNextTaskOptions({
       ];
     case "workbench:risk":
       return [
-        createTransition("workbench:experiment", "다음: 검증 실험", "리스크를 적었다면 이제 실제 검증 실험으로 갑니다."),
+        createTransition("workbench:experiment", "다음: 검증 계획", "리스크를 적었다면 이제 실제로 확인할 계획을 정합니다."),
         createTransition(
           "workbench:decision",
           "건너뛰고 진행 판단",
@@ -384,7 +384,7 @@ function getNextTaskOptions({
       ];
     case "workbench:experiment":
       return [
-        createTransition("workbench:decision", "다음: 진행 판단", "실험 계획과 점수를 근거로 결정합니다."),
+        createTransition("workbench:decision", "다음: 진행 판단", "검증 계획과 점수를 근거로 결정합니다."),
         ...(openRisks === 0
           ? [
               createTransition(
@@ -398,7 +398,7 @@ function getNextTaskOptions({
       ];
     case "workbench:decision":
       return [
-        createTransition("workbench:artifacts", "다음: 기획서 만들기", "아이디어 브리프, PRD, MVP 범위를 문서로 남깁니다."),
+        createTransition("workbench:artifacts", "다음: 실행 문서 만들기", "아이디어 브리프, 기획서, 첫 제작 범위를 문서로 남깁니다."),
         ...(artifactCount > 0
           ? [
               createTransition(
@@ -414,7 +414,7 @@ function getNextTaskOptions({
       return [createTransition("workbench:development", "다음: 제작 준비", "디자인, 개발, 배포 준비를 구체화합니다.")];
     case "workbench:development":
       return [
-        createTransition("workbench:orchestration", "다음: 실행 관리", "전략, 디자인, 개발, QA 역할을 배정합니다."),
+        createTransition("workbench:orchestration", "다음: 실행 관리", "전략, 디자인, 개발, 품질 점검 역할을 배정합니다."),
         ...(runCount > 0
           ? [
               createTransition(
@@ -448,15 +448,15 @@ function getCurrentStepBlocker({
 }) {
   switch (activeTask) {
     case "console:auth":
-      return "로그인 후 바로 후보 발굴 단계로 이동합니다. 협업 설정은 나중에 선택할 수 있습니다.";
+      return "로그인 후 바로 후보 찾기 단계로 이동합니다. 협업 설정은 나중에 선택할 수 있습니다.";
     case "console:workspace":
       return consoleStatus.hasWorkspace
-        ? "협업 공간을 연결했습니다. 다시 AI 후보 발굴로 돌아가 계속 진행하면 됩니다."
+        ? "협업 공간을 연결했습니다. 다시 AI로 후보 찾기로 돌아가 계속 진행하면 됩니다."
         : "이 단계는 선택 기능입니다. 팀으로 같이 볼 때만 워크스페이스를 만들거나 선택하세요.";
     case "console:extract":
       return consoleStatus.hasExtractedIdeas
         ? "추천 후보를 저장 양식으로 보내면 후보 저장 단계로 자동 이동합니다."
-        : "후보를 발굴하거나 샘플을 넣어 결과를 만든 뒤 다음 단계로 넘어갈 수 있습니다.";
+        : "메모에서 후보를 찾거나 샘플을 넣어 결과를 만든 뒤 다음 단계로 넘어갈 수 있습니다.";
     case "console:idea":
       return ideaCount > 0
         ? "후보를 저장하면 검증 단계로 이동합니다."
@@ -494,7 +494,7 @@ function getExecutiveFocus({
   const metrics = [
     { label: "검토 후보", value: `${ideaCount}` },
     { label: "확인할 리스크", value: `${openRisks}` },
-    { label: "검증 실험", value: `${experimentCount}` },
+    { label: "검증 계획", value: `${experimentCount}` },
     { label: "실행 문서", value: `${artifactCount}` },
   ];
   const dataNote = source === "supabase" ? "실제 데이터 기준" : "샘플 데이터 기준";
@@ -502,8 +502,8 @@ function getExecutiveFocus({
   if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {
     return {
       eyebrow: "다음에 할 일",
-      title: "먼저 운영자 계정으로 로그인하세요.",
-      detail: "로그인하면 후보 검토, 검증, 실행 패키지까지 이어서 진행할 수 있습니다.",
+      title: "먼저 로그인해 주세요.",
+      detail: "로그인 후 대시보드에서 후보 검토, 검증 계획, 실행 문서를 이어서 진행합니다.",
       evidence: "로그인 필요",
       risk: "데이터는 로그인 후 확인",
       targetTask: "console:auth",
@@ -539,12 +539,12 @@ function getExecutiveFocus({
   if (experimentCount === 0) {
     return {
       eyebrow: "다음에 할 일",
-      title: "검증 실험이 아직 없습니다.",
+      title: "검증 계획이 아직 없습니다.",
       detail: "좋아 보이는 후보라도 7일 안에 확인할 행동 기준이 있어야 다음 판단이 빨라집니다.",
       evidence: `${dataNote} · 후보 ${ideaCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:experiment",
-      cta: "실험 설계",
+      cta: "검증 계획 만들기",
       metrics,
     };
   }
@@ -554,7 +554,7 @@ function getExecutiveFocus({
       eyebrow: "다음에 할 일",
       title: "진행 여부를 한 번 정리할 차례입니다.",
       detail: "점수, 리스크, 실험 조건을 모아 진행, 보완, 전환, 중단 중 하나로 정리하세요.",
-      evidence: `${dataNote} · 실험 ${experimentCount}건`,
+      evidence: `${dataNote} · 검증 계획 ${experimentCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:decision",
       cta: "판단 남기기",
@@ -565,8 +565,8 @@ function getExecutiveFocus({
   if (artifactCount === 0) {
     return {
       eyebrow: "다음에 할 일",
-      title: "이제 판단을 실행 패키지로 묶을 차례입니다.",
-      detail: "아이디어 브리프, PRD, MVP 범위를 준비해야 다음 제작 도구로 넘길 수 있습니다.",
+      title: "이제 판단을 실행 문서로 묶을 차례입니다.",
+      detail: "아이디어 브리프, 기획서, 첫 제작 범위를 준비해야 다음 제작 도구로 넘길 수 있습니다.",
       evidence: `${dataNote} · 판단 ${decisionCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:artifacts",
@@ -579,7 +579,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "다음에 할 일",
       title: "이제 제작 준비를 확인하세요.",
-      detail: "기획, 디자인, 개발, QA, 배포 조건을 한 묶음으로 정리하면 빌드 단계가 흔들리지 않습니다.",
+      detail: "기획, 디자인, 개발, 품질 점검, 배포 조건을 한 묶음으로 정리하면 제작 단계가 흔들리지 않습니다.",
       evidence: `${dataNote} · 실행 문서 ${artifactCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",
@@ -591,8 +591,8 @@ function getExecutiveFocus({
   if (runCount === 0) {
     return {
       eyebrow: "다음에 할 일",
-      title: "실행 큐에서 역할과 막히는 지점을 정리하세요.",
-      detail: "혼자 진행하더라도 전략, 디자인, 개발, QA 순서를 나누면 다음 작업이 선명해집니다.",
+      title: "실행 순서와 막히는 지점을 정리하세요.",
+      detail: "혼자 진행하더라도 전략, 디자인, 개발, 품질 점검 순서를 나누면 다음 작업이 선명해집니다.",
       evidence: `${dataNote} · 제작 작업 ${implementationTaskCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:orchestration",
@@ -842,7 +842,7 @@ export function VentureConsoleShell({
   const taskStatuses: Record<ShellTask, string> = {
     "console:auth": "접근",
     "console:workspace": "선택",
-    "console:extract": "발굴",
+    "console:extract": "찾기",
     "console:idea": "저장",
     "workbench:select": `${ideaCount}개`,
     "workbench:score": "평가",
@@ -1120,7 +1120,7 @@ export function VentureConsoleShell({
               <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
                 {[
                   "메모 붙여넣기",
-                  "AI 후보 발굴",
+                  "AI로 후보 찾기",
                   "추천 후보 저장",
                 ].map((step, index) => (
                   <span key={step} className="inline-flex items-center gap-2">

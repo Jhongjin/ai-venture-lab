@@ -40,7 +40,7 @@ export default function LoginPage() {
                 로그인 후 대시보드로 이동합니다.
               </h1>
               <p className="mt-5 max-w-[42ch] break-keep text-sm leading-7 text-slate-300">
-                아이디어 후보, 검증 패키지, 실행 준비 기록을 대시보드에서 이어서 관리합니다.
+                아이디어 후보, 검증 자료, 실행 준비 기록을 대시보드에서 이어서 관리합니다.
               </p>
             </div>
 
@@ -60,9 +60,9 @@ export default function LoginPage() {
             <div className="flex h-11 w-11 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700">
               <ShieldCheck size={20} />
             </div>
-            <h2 className="mt-6 text-[30px] font-semibold tracking-tight text-slate-950">계정으로 계속하기</h2>
+            <h2 className="mt-6 text-[30px] font-semibold tracking-tight text-slate-950">로그인</h2>
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              로그인하면 진행 중인 후보와 검증 기록이 있는 대시보드로 이동합니다.
+              로그인 후 대시보드에서 진행 중인 후보, 검증 기록, 실행 문서를 이어서 확인합니다.
             </p>
 
             <div className="mt-8">

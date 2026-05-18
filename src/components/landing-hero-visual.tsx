@@ -26,7 +26,7 @@ const stages = [
   },
   {
     label: "validation",
-    title: "검증 스프린트",
+    title: "7일 검증",
     body: "질문, 리스크, 7일 실험을 한 흐름으로 묶습니다.",
     icon: ShieldCheck,
     className: "left-8 bottom-64 md:left-14",

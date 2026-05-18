@@ -106,6 +106,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 | 2026-05-06 | Added extraction business/development scorecard | `b2d694d` | Production `3ghP4ELrQJjz9mh42nEuof4i41XB` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added bulk extraction package save | `b789935` | Production `F1XxGBXBL42ZwYuk7Tt1CtzMKY3K` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added app blueprint implementation handoff | `76bb857` | Production `89BE2gPhGMuJikTE1b2NrvfDbXJ3` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
+| 2026-05-18 | Refined first-use Korean copy and user-facing labels | Current commit | Pending production deploy | `pnpm lint`, `pnpm typecheck`, `pnpm build`, production smoke pending |
 | 2026-05-06 | Added design generation prompt for app builders | `814d8cc` | Production `3tkMUk24xjekGq41ah7gc85LKMmP` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added one-click development artifact package save | `3b1c5e8` | Production `2Sc3JTq2Co6U5VhAcvXvjq7raB3X` | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-06 | Added optional authenticated browser smoke scaffold | `5a0ffed` | Skipped, script/docs-only | `pnpm quality:full`, `pnpm smoke:browser` |

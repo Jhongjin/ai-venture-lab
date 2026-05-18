@@ -29,12 +29,12 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   title: "AI Venture Lab",
-  description: "아이디어 검증, 기획, MVP 실행까지 한 보드에서 이어가는 AI 실행 워크스페이스입니다.",
+  description: "아이디어 검증, 기획, 첫 제작 준비까지 한 보드에서 이어가는 AI 실행 워크스페이스입니다.",
 };
 
 const heroStats = [
   { value: "01", label: "우선 검토 후보" },
-  { value: "7 day", label: "검증 스프린트" },
+  { value: "7 day", label: "7일 검증" },
   { value: "1 sheet", label: "실행 워크시트" },
   { value: "team-ready", label: "협업 전환" },
 ];
@@ -42,7 +42,7 @@ const heroStats = [
 const workflowSteps = [
   {
     id: "01",
-    title: "초안 수집",
+    title: "메모 정리",
     ai: "회의 메모와 브리프를 살펴보고 후보와 첫 질문을 뽑아냅니다.",
     human: "오늘 먼저 볼 후보를 고릅니다.",
     result: "후보 한 건 + 비교 후보 큐",
@@ -50,7 +50,7 @@ const workflowSteps = [
   },
   {
     id: "02",
-    title: "후보 선별",
+    title: "후보 고르기",
     ai: "바로 검증할지, 더 보완할지, 접어둘지 먼저 나눕니다.",
     human: "왜 이 후보를 먼저 볼지 짧게 확인합니다.",
     result: "우선순위 + 검토 메모",
@@ -59,17 +59,17 @@ const workflowSteps = [
   {
     id: "03",
     title: "검증 판단",
-    ai: "리스크, 질문, 7일 실험, 중단 기준을 한 번에 묶습니다.",
-    human: "리스크와 실험 조건을 확인하고 조정합니다.",
-    result: "검증 패키지",
+    ai: "리스크, 질문, 7일 검증 계획, 중단 기준을 한 번에 묶습니다.",
+    human: "리스크와 검증 조건을 확인하고 조정합니다.",
+    result: "검증 자료",
     icon: ShieldCheck,
   },
   {
     id: "04",
-    title: "실행 패키지",
-    ai: "PRD, MVP 범위, 실행 태스크, 출시 판단 초안을 한 번에 묶습니다.",
+    title: "실행 문서",
+    ai: "기획서, 첫 제작 범위, 실행 작업, 출시 판단 초안을 한 번에 묶습니다.",
     human: "어디까지 만들고 언제 시작할지 결정합니다.",
-    result: "바로 이어갈 실행 패키지",
+    result: "바로 이어갈 실행 문서",
     icon: ShieldCheck,
   },
 ];
@@ -84,14 +84,14 @@ const workflowOverview = [
   {
     eyebrow: "사람의 판단",
     title: "지금 볼 것만 앞으로 꺼냅니다",
-    body: "후보 선택, 실험 조건, 진행 여부만 빠르게 확인합니다.",
-    chips: ["우선 후보", "실험 조건", "진행/보완"],
+    body: "후보 선택, 검증 조건, 진행 여부만 빠르게 확인합니다.",
+    chips: ["우선 후보", "검증 조건", "진행/보완"],
   },
   {
     eyebrow: "보드에 남는 것",
     title: "다음 실행으로 이어집니다",
-    body: "검증 패키지, PRD, 실행 태스크, 학습 리포트가 이어집니다.",
-    chips: ["검증 패키지", "PRD", "학습 리포트"],
+    body: "검증 자료, 기획서, 실행 작업, 학습 리포트가 이어집니다.",
+    chips: ["검증 자료", "기획서", "학습 리포트"],
   },
 ];
 
@@ -104,14 +104,14 @@ const useCases = [
   },
   {
     title: "아이디어는 있는데 검증 자료가 흩어질 때",
-    body: "후보, 리스크, 7일 실험, 판단 기준을 한 보드에 모아둡니다.",
+    body: "후보, 리스크, 7일 검증 계획, 판단 기준을 한 보드에 모아둡니다.",
     tag: "검증 단계",
     icon: FadersHorizontal,
   },
   {
-    title: "기획부터 MVP 실행까지 혼자 밀고 가야 할 때",
-    body: "팀 초대는 나중에 해도 됩니다. 혼자 시작해도 실행 패키지까지 이어지게 정리합니다.",
-    tag: "solo-first",
+    title: "기획부터 첫 제작까지 혼자 밀고 가야 할 때",
+    body: "팀이 없어도 아이디어 검토부터 첫 제작 준비까지 한 흐름으로 정리할 수 있습니다.",
+    tag: "혼자 시작",
     icon: UsersThree,
   },
 ];
@@ -144,20 +144,20 @@ const aiOutputs = [
     icon: ShieldCheck,
   },
   {
-    title: "7일 실험안",
+    title: "7일 검증 계획",
     body: "기간, 대상, 성공 기준, 중단 기준을 함께 세웁니다.",
     meta: "validation sprint",
     icon: ChartLineUp,
   },
   {
-    title: "PRD와 MVP 범위",
+    title: "기획서와 첫 제작 범위",
     body: "무엇을 만들고 무엇을 뒤로 미룰지 정리합니다.",
     meta: "scope draft",
     icon: GridFour,
   },
   {
-    title: "실행 태스크",
-    body: "디자인, 개발, QA, 출시 판단에 필요한 작업으로 나눕니다.",
+    title: "실행 작업",
+    body: "디자인, 개발, 품질 점검, 출시 판단에 필요한 작업으로 나눕니다.",
     meta: "task board",
     icon: ListChecks,
   },
@@ -170,18 +170,18 @@ const outputs = [
     icon: FileDoc,
   },
   {
-    title: "검증 패키지",
-    body: "질문, 리스크, 실험, 중단 기준까지 함께 남깁니다.",
+    title: "검증 자료",
+    body: "질문, 리스크, 검증 계획, 중단 기준까지 함께 남깁니다.",
     icon: ShieldCheck,
   },
   {
-    title: "MVP 범위",
+    title: "첫 제작 범위",
     body: "지금 만들 것과 나중에 미룰 것을 나눕니다.",
     icon: Target,
   },
   {
-    title: "실행 태스크",
-    body: "기획, 디자인, 개발, QA가 바로 볼 수 있게 정리합니다.",
+    title: "실행 작업",
+    body: "기획, 디자인, 개발, 품질 점검 담당자가 바로 볼 수 있게 정리합니다.",
     icon: Path,
   },
   {
@@ -206,22 +206,22 @@ const outputColumns = [
   {
     eyebrow: "build layer",
     title: "실행으로 넘기는 구조",
-    body: "실험 조건, MVP 범위, 실행 태스크를 이어서 정리하고 바로 넘겨줄 수 있게 만듭니다.",
+    body: "검증 조건, 첫 제작 범위, 실행 작업을 이어서 정리하고 바로 넘겨줄 수 있게 만듭니다.",
     items: [aiOutputs[3], aiOutputs[4], aiOutputs[5]],
   },
   {
     eyebrow: "handoff pack",
-    title: "마지막에 남는 실행 패키지",
-    body: "기획 문서로 끝나지 않고, 다음 결정을 이어가는 기록과 패키지가 보드에 남습니다.",
+    title: "마지막에 남는 실행 문서",
+    body: "기획 문서로 끝나지 않고, 다음 결정을 이어가는 기록과 자료가 보드에 남습니다.",
     items: [outputs[0], outputs[1], outputs[4], outputs[5]],
   },
 ];
 
 const packageHighlights = [
   "아이디어 브리프",
-  "검증 패키지",
-  "MVP 범위",
-  "실행 태스크",
+  "검증 자료",
+  "첫 제작 범위",
+  "실행 작업",
   "출시 판단",
   "학습 리포트",
 ];
@@ -261,7 +261,7 @@ export default function HomePage() {
               <div>
                 <div className="avl-kicker !text-slate-400">
                   <Sparkle size={14} />
-                  idea to MVP operating system
+                  idea to first build operating system
                 </div>
                 <h1
                   className="relative mt-8 text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-white md:whitespace-nowrap md:text-[58px] xl:text-[60px] 2xl:text-[78px]"
@@ -362,7 +362,7 @@ export default function HomePage() {
                   <div>
                     <div className="avl-kicker !text-slate-400">signal route</div>
                     <h3 className="mt-5 max-w-[16ch] break-keep text-[32px] font-semibold leading-[1.02] tracking-tight text-white">
-                      AI 초안이 검토를 거쳐 실행 패키지가 됩니다.
+                        AI 초안이 검토를 거쳐 실행 문서가 됩니다.
                     </h3>
                     <p className="mt-5 max-w-[34ch] break-keep text-sm leading-7 text-slate-300">
                       후보, 질문, 리스크가 정리되고 확인할 지점만 남습니다.
@@ -370,7 +370,7 @@ export default function HomePage() {
                   </div>
 
                   <div className="space-y-5 border-l border-white/16 pl-5">
-                    {["AI 초안", "판단 확인", "실행 패키지"].map((label, index) => (
+                    {["AI 초안", "판단 확인", "실행 문서"].map((label, index) => (
                       <div key={label} className="relative">
                         <span className={`absolute -left-[27px] top-1.5 h-3 w-3 ${index === 0 ? "bg-[#bcd3ff]" : "border border-white/30 bg-[#10141d]"}`} />
                         <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">0{index + 1}</div>
@@ -555,7 +555,7 @@ export default function HomePage() {
                     style={{ fontFamily: "var(--font-newsreader)" }}
                   >
                     <span className="block">AI 초안은</span>
-                    <span className="block">실행 패키지로</span>
+                    <span className="block">실행 문서로</span>
                     <span className="block">남습니다.</span>
                   </h2>
                   <p className="mt-5 max-w-[42ch] break-keep text-sm leading-7 text-slate-300">
@@ -658,7 +658,7 @@ export default function HomePage() {
                 <div>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">final package</div>
                   <p className="mt-3 max-w-[62ch] break-keep text-sm leading-6 text-slate-300">
-                    결과는 설명서가 아니라 바로 검토하고 넘겨줄 수 있는 실행 패키지입니다.
+                    결과는 설명서가 아니라 바로 검토하고 넘겨줄 수 있는 실행 문서입니다.
                   </p>
                 </div>
               </div>
@@ -674,7 +674,7 @@ export default function HomePage() {
                 className="mt-3 max-w-[22ch] break-keep text-[30px] font-normal leading-[1] tracking-[-0.03em] text-slate-950 sm:text-[38px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}
               >
-                AI가 준비하고, 사람이 판단하고, 보드가 기억합니다.
+                AI가 준비하고, 사람이 판단하고, 보드에 남깁니다.
               </p>
             </div>
             <nav aria-label="landing footer" className="flex flex-wrap gap-2">

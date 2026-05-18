@@ -141,3 +141,11 @@ Validation keywords: `fix_now_first_run_clarity`, `candidate_save_bridge`, `vali
 - WQ-061-D and WQ-061-E remain as follow-up queues after the next participant check.
 
 Validation keywords: `wq_061_p1_implemented`, `first_run_clarity_implemented`, `candidate_save_bridge_implemented`, `validation_experiment_guidance_implemented`.
+
+2026-05-18 copy follow-up:
+
+- WQ-061-E is addressed across the main landing, auth, guide, dashboard, and execution board surfaces.
+- User-facing labels now prefer plain Korean such as `후보 찾기`, `검증 계획`, `실행 문서`, `첫 제작 범위`, and `품질 점검` over developer-heavy terms.
+- Deeper generated handoff documents may still preserve necessary implementation concepts when they are intended for builders or external development tools.
+
+Validation keywords: `plain_korean_label_pass_completed`, `developer_term_reduction_completed`, `wq_061_e_implemented`.
