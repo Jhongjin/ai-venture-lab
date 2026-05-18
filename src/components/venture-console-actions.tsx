@@ -1436,7 +1436,7 @@ function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
     })
     .join("\n");
 
-  return `# 후보 찾기 실행 요약
+  return `# 아이디어 도출 실행 요약
 
 ## 진행 판정 분포
 
@@ -1759,9 +1759,9 @@ export function VentureConsoleActions({
     },
     {
       id: "extract",
-      label: "후보 찾기",
-      description: "대화와 메모에서 검토할 후보를 찾습니다.",
-      status: extractedIdeas.length > 0 ? `${extractedIdeas.length}개` : "붙여넣기",
+      label: "아이디어 도출",
+      description: "대화와 메모에서 검토할 아이디어를 정리합니다.",
+      status: extractedIdeas.length > 0 ? `${extractedIdeas.length}개` : "입력 대기",
     },
     {
       id: "idea",
@@ -1921,7 +1921,7 @@ export function VentureConsoleActions({
         if (nextUser) {
           updateActiveTask("extract");
         }
-        setAuthMessage("로그인되었습니다. 바로 후보 찾기부터 시작하세요. 협업이 필요하면 나중에 팀 공간을 열 수 있습니다.");
+        setAuthMessage("로그인되었습니다. 바로 아이디어 도출부터 이어가면 됩니다. 협업이 필요하면 나중에 팀 공간을 열 수 있습니다.");
         await loadWorkspaceData(nextUser);
         router.refresh();
       }
@@ -2024,7 +2024,7 @@ export function VentureConsoleActions({
 
     setPassword("");
     updateActiveTask("extract");
-    setAuthMessage("로그인되었습니다. 바로 후보 찾기부터 시작하세요. 협업이 필요하면 팀 공간을 나중에 연결하면 됩니다.");
+    setAuthMessage("로그인되었습니다. 바로 아이디어 도출부터 이어가면 됩니다. 협업이 필요하면 팀 공간을 나중에 연결하면 됩니다.");
     router.refresh();
   }
 
@@ -2066,7 +2066,7 @@ export function VentureConsoleActions({
     }
 
     setActiveOrganizationId(data.id);
-    setWorkspaceMessage("협업 공간을 만들었습니다. 필요할 때만 팀으로 같이 보면 됩니다. 이제 후보 찾기로 돌아갑니다.");
+    setWorkspaceMessage("협업 공간을 만들었습니다. 필요할 때만 팀으로 같이 보면 됩니다. 이제 아이디어 도출로 돌아갑니다.");
     await loadWorkspaceData(user, data.id);
     updateActiveTask("extract");
   }
@@ -2106,7 +2106,7 @@ export function VentureConsoleActions({
   async function handleSelectWorkspace(organizationId: string) {
     setActiveOrganizationId(organizationId);
     await loadAuditEvents(organizationId);
-    setWorkspaceMessage("협업 공간을 선택했습니다. 이제 AI로 후보 찾기를 계속 진행하면 됩니다.");
+    setWorkspaceMessage("협업 공간을 선택했습니다. 이제 아이디어 도출을 계속 진행하면 됩니다.");
     updateActiveTask("extract");
   }
 
@@ -3069,8 +3069,8 @@ export function VentureConsoleActions({
           {!embedded ? (
             <div className="border border-slate-200 bg-white px-5 py-4 lg:flex lg:items-end lg:justify-between">
               <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">후보 찾기</div>
-                  <h2 className="mt-2 text-xl font-semibold text-slate-950">메모에서 검토 후보 찾기</h2>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">아이디어 도출</div>
+                <h2 className="mt-2 text-xl font-semibold text-slate-950">메모에서 검토할 아이디어 정리</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                   메모를 넣으면 지금 먼저 검토할 후보 한 건을 정리합니다.
                 </p>
@@ -3085,7 +3085,7 @@ export function VentureConsoleActions({
                   className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={18} /> : <Sparkle size={18} />}
-                    AI로 후보 찾기
+                  AI로 아이디어 도출
                 </button>
               </div>
             </div>
@@ -3149,7 +3149,7 @@ export function VentureConsoleActions({
                       className="avl-btn avl-btn-primary px-4 disabled:opacity-60"
                     >
                       {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                      AI로 후보 찾기
+                      AI로 아이디어 도출
                     </button>
                   </div>
                   {extractMessage ? (
@@ -3242,7 +3242,7 @@ export function VentureConsoleActions({
                       <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 후보가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                         <li>1. 왼쪽 입력칸에 회의 메모나 아이디어 메모를 붙여넣습니다.</li>
-                        <li>2. AI로 후보 찾기를 누르면 먼저 볼 후보 한 건이 나옵니다.</li>
+                        <li>2. AI로 아이디어 도출을 누르면 먼저 볼 후보 한 건이 나옵니다.</li>
                         <li>3. 마음에 들면 저장하고 검증 단계로 넘어갑니다.</li>
                       </ul>
                     </section>

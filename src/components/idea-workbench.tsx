@@ -508,7 +508,7 @@ const telemetryEventLabels: Record<string, string> = {
 };
 const telemetryCategoryLabels: Record<string, string> = {
   intake: "입력",
-  extraction: "후보 찾기",
+  extraction: "아이디어 도출",
   scoring: "사업성 평가",
   product: "제품 사용",
   risk: "위험",
@@ -10168,7 +10168,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 );
               })() : (
                 <div className="mt-6 border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-7 text-slate-600">
-                  아직 선택할 후보가 없습니다. 먼저 `후보 저장`에서 새 후보를 저장하거나, 후보 찾기에서 추천 후보를 초안으로 반영하세요.
+                  아직 선택할 후보가 없습니다. 먼저 `후보 저장`에서 새 후보를 저장하거나, 아이디어 도출에서 추천 후보를 초안으로 반영하세요.
                 </div>
               )}
             </section>

@@ -67,8 +67,8 @@ const shellTasks: Array<{
   },
   {
     id: "console:extract",
-    label: "후보 찾기",
-    description: "메모 붙여넣기",
+    label: "아이디어 도출",
+    description: "",
     group: "시작",
     icon: Sparkle,
   },
@@ -163,8 +163,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   "console:extract": {
     summary: "회의 메모, 아이디어 메모, 자동화하고 싶은 업무를 붙여넣으면 먼저 볼 후보를 정리합니다.",
     checklist: [
-      "원문 입력칸에 메모 붙여넣기",
-      "AI로 후보 찾기",
+      "원문 입력칸에 메모 입력",
+      "AI로 아이디어 도출",
       "추천 후보를 저장할지 결정",
     ],
   },
@@ -448,15 +448,15 @@ function getCurrentStepBlocker({
 }) {
   switch (activeTask) {
     case "console:auth":
-      return "로그인 후 바로 후보 찾기 단계로 이동합니다. 협업 설정은 나중에 선택할 수 있습니다.";
+      return "로그인 후 바로 아이디어 도출 단계로 이동합니다. 협업 설정은 나중에 선택할 수 있습니다.";
     case "console:workspace":
       return consoleStatus.hasWorkspace
-        ? "협업 공간을 연결했습니다. 다시 AI로 후보 찾기로 돌아가 계속 진행하면 됩니다."
+        ? "협업 공간을 연결했습니다. 다시 아이디어 도출로 돌아가 계속 진행하면 됩니다."
         : "이 단계는 선택 기능입니다. 팀으로 같이 볼 때만 워크스페이스를 만들거나 선택하세요.";
     case "console:extract":
       return consoleStatus.hasExtractedIdeas
         ? "추천 후보를 저장 양식으로 보내면 후보 저장 단계로 자동 이동합니다."
-        : "메모에서 후보를 찾거나 샘플을 넣어 결과를 만든 뒤 다음 단계로 넘어갈 수 있습니다.";
+        : "메모를 넣거나 샘플을 사용해 먼저 볼 아이디어를 정리한 뒤 다음 단계로 넘어갈 수 있습니다.";
     case "console:idea":
       return ideaCount > 0
         ? "후보를 저장하면 검증 단계로 이동합니다."
@@ -516,7 +516,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "다음에 할 일",
       title: "검토할 후보를 먼저 저장해 주세요.",
-      detail: "대화 메모나 브리프를 붙여넣으면 AI가 후보를 정리합니다. 마음에 드는 한 건을 저장해 검증을 시작하세요.",
+      detail: "대화 메모나 브리프를 넣으면 AI가 아이디어를 정리합니다. 마음에 드는 한 건을 저장해 검증으로 넘어가세요.",
       evidence: `${dataNote} · 후보 없음`,
       risk: "리스크는 저장 뒤 확인",
       metrics,
@@ -842,7 +842,7 @@ export function VentureConsoleShell({
   const taskStatuses: Record<ShellTask, string> = {
     "console:auth": "접근",
     "console:workspace": "선택",
-    "console:extract": "찾기",
+    "console:extract": "도출",
     "console:idea": "저장",
     "workbench:select": `${ideaCount}개`,
     "workbench:score": "평가",
@@ -856,6 +856,8 @@ export function VentureConsoleShell({
     "workbench:learning": telemetryEventCount > 0 ? `${telemetryEventCount}개` : "대기",
   };
   const requiredShellTasks = shellTasks.filter((task) => !task.optional);
+  const executionStepTasks = requiredShellTasks.filter((task) => task.id !== "console:auth");
+  const executionStepTotal = requiredShellTasks.length;
   const supportTasks = consoleStatus.isAuthenticated
     ? shellTasks.filter(
         (task) =>
@@ -866,7 +868,7 @@ export function VentureConsoleShell({
       )
     : [];
   const completedTasks = shellTasks.filter((task) => visitedTaskIds.includes(task.id) && task.id !== visibleTask);
-  const completedRequiredTasks = completedTasks.filter((task) => !task.optional);
+  const completedRequiredTasks = completedTasks.filter((task) => !task.optional && task.id !== "console:auth");
   const availableTaskIds = new Set<ShellTask>([
     ...completedTasks.map((task) => task.id),
     activeTaskConfig.id,
@@ -874,18 +876,18 @@ export function VentureConsoleShell({
     ...supportTasks.map((task) => task.id),
   ]);
   const lockedTasks = shellTasks.filter((task) => !availableTaskIds.has(task.id));
-  const stepNumber = activeTaskConfig.optional
+  const stepNumber = activeTaskConfig.optional || activeTaskConfig.id === "console:auth"
     ? null
-    : requiredShellTasks.findIndex((task) => task.id === activeTaskConfig.id) + 1;
-  const completedRequiredCount = completedTasks.filter((task) => !task.optional).length;
+    : executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id) + 1;
+  const completedRequiredCount = completedTasks.filter((task) => !task.optional && task.id !== "console:auth").length;
   const workflowProgress = Math.min(
     100,
-    Math.round(((completedRequiredCount + (activeTaskConfig.optional ? 0 : 0.5)) / Math.max(1, requiredShellTasks.length)) * 100),
+    Math.round((completedRequiredCount / Math.max(1, executionStepTotal)) * 100),
   );
   const activeCanvas = taskCanvasDetails[visibleTask];
   const showFirstEntryStrip = consoleStatus.isAuthenticated && ideaCount === 0 && visibleTask === "console:extract";
   const compactIntroCanvas = visibleTask === "console:auth" || visibleTask === "console:workspace";
-  const railPrimaryTasks = requiredShellTasks.filter(
+  const railPrimaryTasks = executionStepTasks.filter(
     (task) => task.id === visibleTask || nextTaskOptions.some((option) => option.id === task.id),
   );
   const executiveFocus = getExecutiveFocus({
@@ -911,7 +913,11 @@ export function VentureConsoleShell({
       return "선택";
     }
 
-    return String(requiredShellTasks.findIndex((item) => item.id === task.id) + 1);
+    if (task.id === "console:auth") {
+      return "0";
+    }
+
+    return String(executionStepTasks.findIndex((item) => item.id === task.id) + 1);
   }
 
   return (
@@ -934,7 +940,7 @@ export function VentureConsoleShell({
               <div className="h-full bg-slate-950 transition-all" style={{ width: `${workflowProgress}%` }} />
             </div>
             <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>진행 {completedRequiredCount}/{requiredShellTasks.length}</span>
+              <span>진행 {completedRequiredCount}/{executionStepTotal}</span>
               <span>{workflowProgress}%</span>
             </div>
           </div>
@@ -952,12 +958,14 @@ export function VentureConsoleShell({
             return (
               <div key={task.id}>
                 {showGroupLabel ? (
-                  <div className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{task.group}</div>
+                  <div className="mb-2 px-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Step {getTaskOrderLabel(task)}
+                  </div>
                 ) : null}
                 <button
                   type="button"
                   onClick={() => goToTask(task.id)}
-                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)_auto] items-start gap-2 border-l-2 px-2.5 py-2 text-left transition ${
+                  className={`grid w-full grid-cols-[1.35rem_minmax(0,1fr)] items-start gap-2 border-l-2 px-2.5 py-2 text-left transition ${
                     isCurrent
                       ? "border-l-slate-950 border-y-slate-200 border-r-slate-200 bg-slate-50"
                       : isCompleted
@@ -978,21 +986,16 @@ export function VentureConsoleShell({
                   >
                     {isCompleted ? <CheckCircle size={13} weight="fill" /> : getTaskOrderLabel(task)}
                   </span>
-                    <span className="min-w-0">
-                      <span className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-950">
-                        <Icon size={13} />
-                        {task.label}
-                      </span>
-                      {isCurrent || isAvailable ? (
-                        <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{task.description}</span>
-                      ) : null}
+                  <span className="min-w-0">
+                    <span className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-950">
+                      <Icon size={13} />
+                      {task.label}
                     </span>
-                    {isCurrent || isCompleted ? (
-                      <span className="avl-pill avl-pill-soft mt-0.5 px-1.5 py-0.5 text-[10px]">
-                        {taskStatuses[task.id]}
-                      </span>
+                    {task.description && (isCurrent || isAvailable) ? (
+                      <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{task.description}</span>
                     ) : null}
-                  </button>
+                  </span>
+                </button>
               </div>
             );
           })}
@@ -1022,7 +1025,7 @@ export function VentureConsoleShell({
                         <Icon size={13} />
                         {task.label}
                       </span>
-                      <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{task.description}</span>
+                      {task.description ? <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">{task.description}</span> : null}
                     </span>
                     <span className="avl-pill avl-pill-soft mt-0.5 px-1.5 py-0.5 text-[10px]">{taskStatuses[task.id]}</span>
                   </button>
@@ -1114,12 +1117,12 @@ export function VentureConsoleShell({
             <div className="grid gap-3 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-center">
               <div>
                 <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">처음에는 이 순서만</div>
-                <p className="mt-1 text-[13px] font-semibold tracking-tight text-slate-950">아래 입력칸 하나에서 시작하세요.</p>
+                <p className="mt-1 text-[13px] font-semibold tracking-tight text-slate-950">아래 입력칸 하나만 쓰면 됩니다.</p>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
                 {[
-                  "메모 붙여넣기",
-                  "AI로 후보 찾기",
+                  "원문 입력",
+                  "AI로 아이디어 도출",
                   "추천 후보 저장",
                 ].map((step, index) => (
                   <span key={step} className="inline-flex items-center gap-2">
@@ -1138,11 +1141,10 @@ export function VentureConsoleShell({
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_276px]">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                <span className="text-slate-500">{activeTaskConfig.group}</span>
-                {!activeTaskConfig.optional ? <span>단계 {stepNumber}/{requiredShellTasks.length}</span> : null}
-                <span className="avl-pill avl-pill-soft px-2 py-1 text-[11px]">
-                  {taskStatuses[activeTaskConfig.id]}
+                <span className="text-slate-500">
+                  {stepNumber ? `Step ${stepNumber}` : activeTaskConfig.group}
                 </span>
+                {!activeTaskConfig.optional && stepNumber ? <span>진행 {completedRequiredCount}/{executionStepTotal}</span> : null}
               </div>
 
               <div className="mt-3 flex items-start gap-3">
