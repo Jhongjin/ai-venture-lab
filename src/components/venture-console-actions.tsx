@@ -3097,21 +3097,17 @@ export function VentureConsoleActions({
                 <div className="grid gap-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">메모 입력</div>
-                      <h3 className="mt-1 text-base font-semibold text-slate-950">먼저 이 칸에 그대로 붙여넣기</h3>
-                      <p className="mt-1 max-w-2xl text-sm leading-5 text-slate-600">
-                        회의 내용, 아이디어 메모, 자동화하고 싶은 업무처럼 아직 정리되지 않은 내용이면 됩니다.
-                      </p>
+                      <h3 className="text-base font-semibold text-slate-950">입력칸에 내용 붙여넣기</h3>
                     </div>
                     <div className="avl-pill avl-pill-neutral">
-                      {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length}자 입력됨` : "메모 대기"}
+                      {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length}자 입력됨` : "입력 대기"}
                     </div>
                   </div>
                   <textarea
                     value={rawIdeaSource}
                     onChange={(event) => setRawIdeaSource(event.target.value)}
                     rows={12}
-                    placeholder="예) 회의에서 나온 앱 아이디어, 평소 메모해 둔 자동화 업무, 만들고 싶은 웹/앱 설명을 그대로 붙여넣으세요."
+                    placeholder="예) 회의 내용, 아이디어, LLM(GPT 등)과의 대화 내용 등 정리되지 않았으나 구체화해 보고 싶은 내용을 입력하세요."
                     className="avl-textarea min-h-[280px] leading-7"
                   />
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
