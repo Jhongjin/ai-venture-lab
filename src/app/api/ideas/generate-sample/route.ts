@@ -137,6 +137,32 @@ function getOpenAIErrorMessage(payload: OpenAIResponse) {
   return toText(payload.error.message, 500) || "OpenAI request failed.";
 }
 
+function parseStructuredJson(text: string) {
+  const trimmed = text.trim();
+  const candidates = [trimmed];
+  const fencedJson = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1]?.trim();
+  const objectStart = trimmed.indexOf("{");
+  const objectEnd = trimmed.lastIndexOf("}");
+
+  if (fencedJson) {
+    candidates.push(fencedJson);
+  }
+
+  if (objectStart >= 0 && objectEnd > objectStart) {
+    candidates.push(trimmed.slice(objectStart, objectEnd + 1));
+  }
+
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate) as unknown;
+    } catch {
+      // Try the next candidate shape.
+    }
+  }
+
+  return null;
+}
+
 function pickRandomItems<T>(items: T[], count: number) {
   const pool = [...items];
   const picked: T[] = [];
@@ -271,7 +297,7 @@ ${existingIdeaContext}
   }
 
   try {
-    const parsed = JSON.parse(outputText) as unknown;
+    const parsed = parseStructuredJson(outputText);
 
     if (!isRecord(parsed) || !Array.isArray(parsed.ideas)) {
       return NextResponse.json({ error: "OpenAI structured output did not contain ideas." }, { status: 502 });
@@ -292,6 +318,6 @@ ${existingIdeaContext}
       source: buildSampleIdeaSource(ideas),
     });
   } catch {
-    return NextResponse.json({ error: "OpenAI structured output was not parseable JSON." }, { status: 502 });
+    return NextResponse.json({ error: "OpenAI structured output could not be processed." }, { status: 502 });
   }
 }
