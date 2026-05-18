@@ -33,10 +33,10 @@ export const metadata: Metadata = {
 };
 
 const heroStats = [
-  { value: "01", label: "오늘 볼 후보" },
-  { value: "07d", label: "첫 검증 기간" },
-  { value: "1 board", label: "하나의 작업 보드" },
-  { value: "solo-first", label: "필요할 때만 협업" },
+  { value: "01", label: "우선 검토 후보" },
+  { value: "7 day", label: "검증 스프린트" },
+  { value: "1 sheet", label: "실행 워크시트" },
+  { value: "team-ready", label: "협업 전환" },
 ];
 
 const workflowSteps = [
@@ -127,7 +127,7 @@ const bestFitChecks = [
 const aiOutputs = [
   {
     title: "후보 정리",
-    body: "오늘 볼 후보와 비교 후보를 나눕니다.",
+    body: "먼저 검토할 후보와 비교 후보를 나눕니다.",
     meta: "candidate queue",
     icon: Sparkle,
   },
@@ -271,7 +271,7 @@ export default function HomePage() {
                   <span>Venture Lab</span>
                 </h1>
                 <p className="relative mt-8 max-w-[16ch] break-keep text-[24px] font-semibold leading-[1.04] tracking-tight text-white sm:text-[32px] xl:text-[38px]">
-                  흩어진 아이디어를 실행 후보로 묶고, 검증과 실행까지 이어갑니다.
+                  도출된 아이디어를 사업성 기준으로 검토하고, 실행까지 이어갑니다.
                 </p>
                 <p className="relative mt-5 max-w-[48ch] break-keep text-[15px] leading-7 text-slate-300">
                   회의 메모나 브리프 초안만 있어도 시작할 수 있습니다. AI가 후보, 질문, 실행 초안을 먼저 정리하고 사용자는 중요한 판단만 더하면 됩니다.
