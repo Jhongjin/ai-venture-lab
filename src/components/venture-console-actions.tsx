@@ -1549,6 +1549,7 @@ export function VentureConsoleActions({
   const [isSavingExtractionReport, setIsSavingExtractionReport] = useState(false);
   const [localActiveTask, setLocalActiveTask] = useState<ConsoleActionTask>("auth");
   const activeTask = controlledActiveTask ?? localActiveTask;
+  const showAdvancedExtractionReview = false;
   const hasWorkspace = organizations.length > 0 && Boolean(activeOrganizationId || organizations[0]?.id);
   const updateActiveTask = useCallback(
     (task: ConsoleActionTask) => {
@@ -2644,8 +2645,8 @@ export function VentureConsoleActions({
     ]);
 
     window.dispatchEvent(
-      new CustomEvent<Idea & { autoOpenWorkbench: false }>("venture:idea-created", {
-        detail: { ...idea, autoOpenWorkbench: false },
+      new CustomEvent<Idea & { autoOpenWorkbench: true }>("venture:idea-created", {
+        detail: { ...idea, autoOpenWorkbench: true },
       }),
     );
     if (riskResult.data) {
@@ -3333,9 +3334,9 @@ export function VentureConsoleActions({
                       </button>
                     </div>
                   </div>
-                  <details className="border-t border-slate-200 pt-4">
-                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">비교 후보와 점검</summary>
-                    {extractionReplay ? (
+                  {extractionReplay ? (
+                    <details className="border-t border-slate-200 pt-4">
+                      <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">결과 점검 내역</summary>
                       <div className="mt-3 border border-slate-200 bg-slate-50 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
@@ -3353,15 +3354,13 @@ export function VentureConsoleActions({
                         </div>
                         <p className="mt-3 text-xs leading-6 text-slate-600">{extractionReplay.note}</p>
                       </div>
-                    ) : (
-                      <p className="mt-3 text-sm leading-6 text-slate-600">아직 비교 점검을 실행하지 않았습니다.</p>
-                    )}
-                  </details>
+                    </details>
+                  ) : null}
                 </div>
               </div>
             </section>
 
-            {extractedIdeas.length > 0 ? (
+            {showAdvancedExtractionReview && extractedIdeas.length > 0 ? (
               <>
                 <details className="border border-slate-200 bg-white p-4 text-slate-900">
                   <summary className="flex cursor-pointer list-none flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

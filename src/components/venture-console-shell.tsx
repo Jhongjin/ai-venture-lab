@@ -75,9 +75,10 @@ const shellTasks: Array<{
   {
     id: "console:idea",
     label: "후보 저장",
-    description: "검증 대상으로 등록",
+    description: "수정이 필요할 때",
     group: "시작",
     icon: FloppyDisk,
+    optional: true,
   },
   {
     id: "workbench:select",
@@ -857,7 +858,7 @@ export function VentureConsoleShell({
   };
   const requiredShellTasks = shellTasks.filter((task) => !task.optional);
   const executionStepTasks = requiredShellTasks.filter((task) => task.id !== "console:auth");
-  const executionStepTotal = requiredShellTasks.length;
+  const executionStepTotal = executionStepTasks.length;
   const supportTasks = consoleStatus.isAuthenticated
     ? shellTasks.filter(
         (task) =>
