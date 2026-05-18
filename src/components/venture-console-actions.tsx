@@ -90,6 +90,23 @@ type AiExtractIdeasResponse = {
   candidates?: AiExtractedIdeaCandidate[];
 };
 
+type AiGeneratedSampleIdea = {
+  title: string;
+  pain: string;
+  solution: string;
+  targetUser: string;
+  buyer: string;
+  firstValidation: string;
+};
+
+type AiGenerateSampleIdeasResponse = {
+  mode?: string;
+  model?: string;
+  error?: string;
+  ideas?: AiGeneratedSampleIdea[];
+  source?: string;
+};
+
 type ExtractionRunMeta = {
   engine: "openai" | "rules" | "fallback";
   model: string | null;
@@ -233,21 +250,6 @@ const workspaceRecordTables = [
   "venture_artifacts",
   "implementation_tasks",
 ] as const;
-
-const sampleIdeaSource = `아이디어: 구독 관리 에이전트
-페인 포인트: 사람들은 OTT, 소프트웨어, 유료 서비스 해지 시점을 놓치고 돈을 낭비합니다.
-솔루션: 카드 내역이나 이메일에서 반복 결제를 찾아내고 해지 절차를 안내하는 개인 지출 에이전트.
-타겟층: 디지털 구독이 많은 바쁜 소비자.
-
-아이디어: 돌봄 운영 콘솔
-페인 포인트: 가족, 요양보호사, 센터 사이의 일정과 돌봄 기록이 흩어져 신뢰 문제가 생깁니다.
-솔루션: 가족, 요양보호사, 센터 간 돌봄 일정과 기록을 관리하는 운영 콘솔.
-타겟층: 돌봄을 조율하는 가족과 소규모 방문요양센터.
-
-아이디어: 상황별 대화 코치
-페인 포인트: 연봉 협상, 가족 갈등, 고객 응대처럼 중요한 대화를 어떻게 시작할지 막막합니다.
-솔루션: 상대 성향과 목적을 입력하면 스크립트와 역할극을 제공하는 대화 코칭 도구.
-타겟층: 어려운 대화를 앞둔 직장인과 개인 사용자.`;
 
 function compactText(value: string, maxLength = 180) {
   return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
@@ -1542,6 +1544,7 @@ export function VentureConsoleActions({
   const [extractionReplay, setExtractionReplay] = useState<ExtractionReplaySummary | null>(null);
   const [extractMessage, setExtractMessage] = useState<string | null>(null);
   const [isAiExtracting, setIsAiExtracting] = useState(false);
+  const [isGeneratingSample, setIsGeneratingSample] = useState(false);
   const [isReplayingExtraction, setIsReplayingExtraction] = useState(false);
   const [isSavingExtractionReport, setIsSavingExtractionReport] = useState(false);
   const [localActiveTask, setLocalActiveTask] = useState<ConsoleActionTask>("auth");
@@ -2268,6 +2271,46 @@ export function VentureConsoleActions({
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
     router.refresh();
+  }
+
+  async function handleGenerateSampleIdeas() {
+    setIsGeneratingSample(true);
+    setExtractedIdeas([]);
+    setExtractionRunMeta(null);
+    setExtractionReplay(null);
+    setExtractMessage("AI가 검토용 아이디어 3개를 새로 만드는 중입니다.");
+
+    try {
+      const response = await fetch("/api/ideas/generate-sample", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          existingIdeas: existingIdeas.slice(0, 20).map((idea) => ({
+            name: idea.name,
+            one_liner: idea.one_liner,
+            target_user: idea.target_user,
+            buyer: idea.buyer,
+          })),
+        }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as AiGenerateSampleIdeasResponse;
+
+      if (!response.ok || !payload.source) {
+        setExtractMessage(payload.error ?? `AI 자동생성에 실패했습니다. HTTP ${response.status}`);
+        return;
+      }
+
+      setRawIdeaSource(payload.source);
+      setExtractMessage(
+        `${payload.ideas?.length ?? 3}개 아이디어를 생성했습니다. 내용을 확인한 뒤 AI로 아이디어 구체화를 눌러 한 개를 선정하세요.`,
+      );
+    } catch (error) {
+      setExtractMessage(
+        `AI 자동생성 중 오류가 발생했습니다. ${error instanceof Error ? error.message : ""}`.trim(),
+      );
+    } finally {
+      setIsGeneratingSample(false);
+    }
   }
 
   async function handleAiExtractIdeas() {
@@ -3081,7 +3124,7 @@ export function VentureConsoleActions({
                   onClick={() => {
                     void handleAiExtractIdeas();
                   }}
-                  disabled={isAiExtracting || isReplayingExtraction}
+                  disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
                   className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={18} /> : <Sparkle size={18} />}
@@ -3111,20 +3154,24 @@ export function VentureConsoleActions({
                     className="avl-textarea min-h-[280px] leading-7"
                   />
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
-                    <span><strong className="text-slate-950">1.</strong> 메모를 붙여넣습니다.</span>
+                    <span><strong className="text-slate-950">1.</strong> 아이디어를 붙여 넣기 합니다.</span>
                     <span><strong className="text-slate-950">2.</strong> AI가 후보 한 건을 추천합니다.</span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 검증 단계가 열립니다.</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setRawIdeaSource(sampleIdeaSource)}
-                  className="avl-btn avl-btn-secondary px-4"
-                >
-                  샘플 넣기
-                </button>
-                <button
-                  type="button"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void handleGenerateSampleIdeas();
+                      }}
+                      disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
+                      className="avl-btn avl-btn-secondary px-4 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
+                      {isGeneratingSample ? "생성 중" : "AI 자동생성"}
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => {
                         setRawIdeaSource("");
                         setExtractedIdeas([]);
@@ -3141,7 +3188,7 @@ export function VentureConsoleActions({
                       onClick={() => {
                         void handleAiExtractIdeas();
                       }}
-                      disabled={isAiExtracting || isReplayingExtraction}
+                      disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
                       className="avl-btn avl-btn-primary px-4 disabled:opacity-60"
                     >
                       {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
@@ -3237,49 +3284,49 @@ export function VentureConsoleActions({
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음에 보이는 것</div>
                       <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 후보가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
-                        <li>1. 왼쪽 입력칸에 회의 메모나 아이디어 메모를 붙여넣습니다.</li>
-                        <li>2. AI로 아이디어 구체화를 누르면 먼저 볼 후보 한 건이 나옵니다.</li>
+                        <li>1. 왼쪽 입력칸에 아이디어를 붙여 넣습니다.</li>
+                        <li>2. AI로 아이디어 구체화를 눌러 한 개 아이디어를 선정합니다.</li>
                         <li>3. 마음에 들면 저장하고 검증 단계로 넘어갑니다.</li>
                       </ul>
                     </section>
                   )}
 
-                  <div className="grid gap-px border-t border-slate-200 bg-slate-200 pt-px sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
-                    <div className="grid gap-px bg-slate-200 sm:grid-cols-2">
-                    <div className="bg-slate-50 px-3 py-3">
+                  <div className="grid gap-px border-t border-slate-200 bg-slate-200 pt-px md:grid-cols-3">
+                    <div className="flex min-h-[126px] flex-col bg-slate-50 px-4 py-3">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">실행 상태</div>
-                      <div className="mt-1 text-sm font-semibold text-slate-950">
+                      <div className="mt-2 text-sm font-semibold text-slate-950">
                         {extractionRunMeta
                           ? extractionRunMeta.engine === "openai"
-                            ? "AI 정리"
+                            ? "AI 정리 완료"
                             : extractionRunMeta.engine === "fallback"
-                              ? "AI 실패 후 기본 정리"
-                              : "기본 정리"
-                          : "실행 전"}
+                              ? "기본 방식으로 정리"
+                              : "기본 정리 완료"
+                          : "아직 실행 전"}
                       </div>
-                      <p className="mt-1 text-xs leading-5 text-slate-600">
-                        {extractionRunMeta?.note ?? "아직 실행하지 않았습니다."}
+                      <p className="mt-2 text-xs leading-5 text-slate-600">
+                        {extractionRunMeta?.note ?? "아이디어를 입력하고 AI로 구체화를 실행하면 상태가 표시됩니다."}
                       </p>
                     </div>
-                    <div className="bg-slate-50 px-3 py-3">
+                    <div className="flex min-h-[126px] flex-col bg-slate-50 px-4 py-3">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">개인정보 보호</div>
-                      <p className="mt-1 text-xs leading-5 text-slate-600">
-                        연락처, 계좌, 카드번호처럼 보이는 패턴은 저장 전에 자동으로 가립니다.
+                      <div className="mt-2 text-sm font-semibold text-slate-950">저장 전 자동 가림</div>
+                      <p className="mt-2 text-xs leading-5 text-slate-600">
+                        연락처, 계좌, 카드번호처럼 보이는 내용은 저장 전에 자동으로 가립니다.
                       </p>
                     </div>
-                    </div>
-                    <div className="flex flex-col items-start border-l border-slate-200 bg-white px-4 py-3 sm:items-end">
+                    <div className="flex min-h-[126px] flex-col bg-white px-4 py-3">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">결과 점검</div>
-                      <p className="mt-1 text-xs leading-5 text-slate-600">
-                        결과가 어색할 때만 한 번 더 점검합니다.
+                      <div className="mt-2 text-sm font-semibold text-slate-950">필요할 때만 다시 확인</div>
+                      <p className="mt-2 text-xs leading-5 text-slate-600">
+                        결과가 어색하거나 빠진 내용이 있을 때 한 번 더 점검합니다.
                       </p>
                       <button
                         type="button"
                         onClick={() => {
                           void handleReplayExtractionComparison();
                         }}
-                        disabled={isAiExtracting || isReplayingExtraction}
-                        className="avl-btn avl-btn-secondary mt-2 h-9 px-3 disabled:opacity-60"
+                        disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
+                        className="avl-btn avl-btn-secondary mt-auto h-9 w-fit px-3 disabled:opacity-60"
                       >
                         {isReplayingExtraction ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
                         점검 실행
