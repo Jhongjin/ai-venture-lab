@@ -920,14 +920,13 @@ export function VentureConsoleShell({
         <div className="border-b border-slate-200 pb-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">AI Venture Lab</div>
-              <h2 className="mt-1 text-sm font-semibold tracking-tight text-slate-950">작업 흐름</h2>
+              <h2 className="text-sm font-semibold tracking-tight text-slate-950">진행 순서</h2>
             </div>
-            <div className="avl-pill avl-pill-soft text-[10px]">
+            <div className="avl-pill avl-pill-soft whitespace-nowrap text-[10px]">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${source === "supabase" ? "bg-emerald-500" : "bg-amber-500"}`}
               />
-              {source === "supabase" ? "연결" : "제한"}
+              {source === "supabase" ? "연결됨" : "제한됨"}
             </div>
           </div>
           <div className="mt-3">

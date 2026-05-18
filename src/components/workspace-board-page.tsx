@@ -1,4 +1,4 @@
-import { Sparkle, WarningCircle } from "@phosphor-icons/react/dist/ssr";
+import { WarningCircle } from "@phosphor-icons/react/dist/ssr";
 
 import { VentureConsoleShell } from "@/components/venture-console-shell";
 import { getConsoleData } from "@/lib/venture-data";
@@ -31,24 +31,8 @@ export async function WorkspaceBoardPage() {
       <div className="mx-auto grid w-full max-w-[1460px] gap-3 px-4 py-4 sm:px-6">
         <header className="border-b border-slate-200 bg-white/96 px-4 py-3 backdrop-blur sm:px-5">
           <div className="grid gap-px bg-slate-200 xl:grid-cols-[minmax(0,1fr)_440px]">
-            <div className="bg-white px-4 py-4 sm:px-5">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div className="min-w-0">
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <div className="avl-kicker text-slate-700">
-                      <Sparkle size={14} />
-                      AI Venture Lab
-                    </div>
-                    <span className="avl-pill avl-pill-neutral">실행 공간</span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-[15px] font-semibold tracking-tight text-slate-950 sm:text-[17px]">실행 보드</h1>
-                    <span className="hidden text-sm text-slate-300 sm:inline">/</span>
-                    <p className="text-[12px] leading-5 text-slate-500">아이디어 후보와 검증 기록, 실행 문서를 한곳에서 관리합니다.</p>
-                  </div>
-                </div>
-
-              </div>
+            <div className="flex items-center bg-white px-4 py-4 sm:px-5">
+              <h1 className="text-[16px] font-semibold tracking-tight text-slate-950 sm:text-[18px]">실행 보드</h1>
             </div>
 
             <div className="grid grid-cols-2 gap-px bg-slate-200 xl:grid-cols-4">
