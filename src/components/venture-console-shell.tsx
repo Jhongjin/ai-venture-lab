@@ -83,9 +83,10 @@ const shellTasks: Array<{
   {
     id: "workbench:select",
     label: "후보 선택",
-    description: "먼저 볼 후보",
+    description: "다른 후보를 볼 때",
     group: "검증",
     icon: ClipboardText,
+    optional: true,
   },
   {
     id: "workbench:score",
@@ -179,7 +180,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   },
   "workbench:score": {
     summary: "수요, 속도, 지불 의향, 위험 감점을 숫자로 빠르게 맞춥니다.",
-    checklist: ["현재 단계와 판단 선택", "증거 공백 확인", "평가 저장"],
+    checklist: ["이 아이디어를 계속 검증할지 정하기", "부족한 근거 확인", "평가 저장"],
   },
   "workbench:risk": {
     summary: "출시를 막을 수 있는 위험만 먼저 꺼냅니다.",
@@ -255,7 +256,7 @@ const taskCanvasDetails: Record<
     checkpoint: "여기서 고른 후보가 이후 평가와 실행의 기준점이 됩니다.",
   },
   "workbench:score": {
-    question: "이 후보는 시간과 자원을 써서 검증할 만한가요?",
+    question: "이 아이디어는 시간과 자원을 써서 검증할만한가?",
     aiLead: "수요, 돈, 속도, 차별성, 위험을 묶어 점수를 정리합니다.",
     deliverable: "사업성 점수와 권장 판단",
     checkpoint: "숫자는 AI가 초안으로 제시하고, 사용자는 최종 감각만 조정합니다.",
@@ -468,6 +469,7 @@ function getCurrentStepBlocker({
 }
 
 function getExecutiveFocus({
+  activeTask,
   consoleStatus,
   source,
   ideaCount,
@@ -480,6 +482,7 @@ function getExecutiveFocus({
   runCount,
   telemetryEventCount,
 }: {
+  activeTask: ShellTask;
   consoleStatus: ConsoleWorkflowStatus;
   source: "supabase" | "seed";
   ideaCount: number;
@@ -524,6 +527,17 @@ function getExecutiveFocus({
     };
   }
 
+  if (activeTask === "workbench:score") {
+    return {
+      eyebrow: "지금 할 일",
+      title: "이 아이디어를 검증할지 먼저 판단합니다.",
+      detail: "점수와 판단을 저장하면 바로 검증 계획으로 넘어갈 수 있습니다.",
+      evidence: `${dataNote} · 후보 ${ideaCount}건`,
+      risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
+      metrics,
+    };
+  }
+
   if (highRisks > 0) {
     return {
       eyebrow: "다음에 할 일",
@@ -558,7 +572,7 @@ function getExecutiveFocus({
       evidence: `${dataNote} · 검증 계획 ${experimentCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:decision",
-      cta: "판단 남기기",
+      cta: "진행 판단 정리",
       metrics,
     };
   }
@@ -723,7 +737,19 @@ export function VentureConsoleShell({
       setIdeas((current) => upsertById(current, record as Idea));
 
       if (autoOpenWorkbench) {
-        goToTask("workbench:select");
+        setVisitedTaskIds((current) => {
+          const next = [...current];
+          const autoCompletedTasks: ShellTask[] = ["console:extract", "workbench:score"];
+
+          for (const task of autoCompletedTasks) {
+            if (!next.includes(task)) {
+              next.push(task);
+            }
+          }
+
+          return next;
+        });
+        setActiveTask("workbench:score");
       }
     }
     const handleIdeaUpdated = (event: Event) => handleRecordEvent<Idea>(event, setIdeas);
@@ -802,7 +828,7 @@ export function VentureConsoleShell({
     }
 
     if (activeTask === "console:auth") {
-      return ideaCount > 0 ? "workbench:select" : "console:extract";
+      return ideaCount > 0 ? "workbench:score" : "console:extract";
     }
 
     return activeTask;
@@ -824,7 +850,6 @@ export function VentureConsoleShell({
   const activeTaskIndex = shellTasks.findIndex((task) => task.id === visibleTask);
   const activeTaskConfig = shellTasks[activeTaskIndex] ?? shellTasks[0];
   const ActiveIcon = activeTaskConfig.icon;
-  const previousTask = activeTaskIndex > 0 ? shellTasks[activeTaskIndex - 1] : null;
   const nextTaskOptions = getNextTaskOptions({
     activeTask: visibleTask,
     ideaCount,
@@ -833,7 +858,6 @@ export function VentureConsoleShell({
     openRisks,
   });
   const primaryNextTask = nextTaskOptions.find((option) => option.variant === "primary") ?? null;
-  const optionalNextTasks = nextTaskOptions.filter((option) => option.variant === "optional");
   const activeGuidance = taskGuidance[visibleTask];
   const currentStepBlocker = getCurrentStepBlocker({
     activeTask: visibleTask,
@@ -859,6 +883,11 @@ export function VentureConsoleShell({
   const requiredShellTasks = shellTasks.filter((task) => !task.optional);
   const executionStepTasks = requiredShellTasks.filter((task) => task.id !== "console:auth");
   const executionStepTotal = executionStepTasks.length;
+  const activeExecutionStepIndex =
+    activeTaskConfig.optional || activeTaskConfig.id === "console:auth"
+      ? -1
+      : executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id);
+  const previousFlowTask = activeExecutionStepIndex > 0 ? executionStepTasks[activeExecutionStepIndex - 1] : null;
   const supportTasks = consoleStatus.isAuthenticated
     ? shellTasks.filter(
         (task) =>
@@ -890,6 +919,7 @@ export function VentureConsoleShell({
     (task) => task.id === visibleTask || nextTaskOptions.some((option) => option.id === task.id),
   );
   const executiveFocus = getExecutiveFocus({
+    activeTask: visibleTask,
     consoleStatus,
     source,
     ideaCount,
@@ -1142,31 +1172,13 @@ export function VentureConsoleShell({
                 ) : null}
                 <button
                   type="button"
-                  onClick={() => previousTask && goToTask(previousTask.id)}
-                  disabled={!previousTask}
+                  onClick={() => previousFlowTask && goToTask(previousFlowTask.id)}
+                  disabled={!previousFlowTask}
                   className="avl-btn avl-btn-secondary w-full px-4"
                 >
                   이전 단계
                 </button>
               </div>
-
-              {optionalNextTasks.length > 0 ? (
-                <div className="mt-3 border-t border-slate-200 pt-3">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">건너뛸 수 있는 단계</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {optionalNextTasks.map((option) => (
-                      <button
-                        key={option.id}
-                        type="button"
-                        onClick={() => goToTask(option.id)}
-                        className="avl-btn avl-btn-subtle h-8 px-3 text-xs"
-                      >
-                        {option.cta}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
             </aside>
           </div>
         </section>
