@@ -66,7 +66,7 @@ if ($missingHomeText.Count -gt 0) {
 }
 
 $publicPages = @(
-  @{ Path = "/guide"; RequiredText = "operator flow" },
+  @{ Path = "/guide"; RequiredText = "operator guide" },
   @{ Path = "/login"; RequiredText = "operator access" },
   @{ Path = "/signup"; RequiredText = "solo-first account" },
   @{ Path = "/profile"; RequiredText = "my page" }

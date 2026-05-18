@@ -1,11 +1,22 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { ArrowRight, ClipboardText, FileDoc, Path, RocketLaunch, ShieldCheck, Sparkle, UsersThree } from "@phosphor-icons/react/dist/ssr";
+import {
+  ArrowRight,
+  ClipboardText,
+  FileDoc,
+  GridFour,
+  ShieldCheck,
+  SignIn,
+  Sparkle,
+  UserCircle,
+} from "@phosphor-icons/react/dist/ssr";
+
+import { AuthAwareCta } from "@/components/auth-aware-cta";
 
 export const metadata: Metadata = {
-  title: "사용 흐름 | AI Venture Lab",
-  description: "AI Venture Lab의 작업 흐름과 산출물을 정리한 페이지입니다.",
+  title: "가이드 | AI Venture Lab",
+  description: "AI Venture Lab의 메뉴, 로그인, 실행 보드 사용 방법을 정리한 가이드입니다.",
 };
 
 const newsreader = Newsreader({
@@ -14,41 +25,62 @@ const newsreader = Newsreader({
   variable: "--font-newsreader",
 });
 
-const guideSteps = [
+const menuGuide = [
   {
-    index: "01",
+    title: "가이드",
+    route: "/guide",
+    body: "현재 페이지입니다. 메뉴 구성, 로그인 상태별 버튼, 실행 보드에서 하는 일을 확인합니다.",
+    icon: FileDoc,
+  },
+  {
+    title: "로그인 / 회원가입",
+    route: "/login, /signup",
+    body: "계정을 만들거나 기존 계정으로 로그인합니다. 로그인 전에는 실행 보드 버튼이 보이지 않습니다.",
+    icon: SignIn,
+  },
+  {
+    title: "마이페이지",
+    route: "/profile",
+    body: "표시 이름, 소속, 역할, 비밀번호를 수정합니다. 로그인한 사용자에게만 상단 메뉴에 표시됩니다.",
+    icon: UserCircle,
+  },
+  {
+    title: "실행 보드",
+    route: "/workspace",
+    body: "아이디어 접수, 후보 선별, 검증 패키지 저장, PRD와 실행 태스크 준비를 이어서 진행합니다.",
+    icon: GridFour,
+  },
+];
+
+const boardSteps = [
+  {
+    title: "워크스페이스 확인",
+    body: "처음 들어오면 개인 작업 공간을 확인합니다. 팀 협업은 필요할 때만 연결합니다.",
+    icon: GridFour,
+  },
+  {
     title: "아이디어 찾기",
-    body: "회의 메모나 AI 대화를 붙여넣으면 후보와 검증 질문을 먼저 정리합니다.",
+    body: "회의 메모, 대화 기록, 브리프 초안을 붙여넣거나 직접 후보를 작성합니다.",
     icon: Sparkle,
   },
   {
-    index: "02",
-    title: "검증과 리스크 정리",
-    body: "점수, 리스크, 7일 실험, 진행 판단을 묶어 실제로 밀고 갈 후보만 남깁니다.",
+    title: "검증 패키지 저장",
+    body: "후보, 질문, 리스크, 7일 실험, 중단 기준을 한 번에 정리해 저장합니다.",
     icon: ShieldCheck,
   },
   {
-    index: "03",
-    title: "기획과 제작 준비",
-    body: "PRD, MVP 범위, 실행 태스크, 출시 판단까지 같은 보드에서 이어서 관리합니다.",
+    title: "기획과 실행 준비",
+    body: "PRD, MVP 범위, 실행 태스크, 출시 판단까지 다음 작업자가 볼 수 있는 형태로 남깁니다.",
     icon: ClipboardText,
   },
-  {
-    index: "04",
-    title: "출시 후 학습",
-    body: "출시 후 7일, 14일, 30일 신호를 모아 다음 반복과 투자 판단으로 연결합니다.",
-    icon: RocketLaunch,
-  },
 ];
 
-const artifacts = [
-  { title: "아이디어 브리프", icon: FileDoc },
-  { title: "검증 패키지", icon: ShieldCheck },
-  { title: "MVP 범위", icon: Path },
-  { title: "실행 태스크 보드", icon: UsersThree },
+const quickAnswers = [
+  ["실행 보드 버튼이 안 보여요", "로그인 전에는 숨겨집니다. 상단의 로그인 / 회원가입으로 먼저 계정에 들어가세요."],
+  ["회원가입 후 어디로 가나요", "프로필을 확인한 뒤 실행 보드에서 첫 후보를 정리하면 됩니다."],
+  ["가이드와 홈은 무엇이 다른가요", "홈은 제품 소개 페이지이고, 가이드는 실제 메뉴와 사용 방법을 확인하는 페이지입니다."],
+  ["팀 초대가 꼭 필요한가요", "아닙니다. 기본은 혼자 진행하는 방식이고, 협업은 필요할 때만 붙이면 됩니다."],
 ];
-
-const guideSignals = ["흐름 보기", "핵심 확인", "보드로 이동"];
 
 export default function GuidePage() {
   return (
@@ -64,135 +96,128 @@ export default function GuidePage() {
       />
 
       <div className="mx-auto w-full max-w-[1500px] px-4 py-4 sm:px-6 sm:py-6">
-        <section className="border-t border-slate-300 bg-transparent">
-          <div className="grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,1fr)_320px]">
-            <div className="bg-white px-6 py-8 sm:px-8 sm:py-10">
-              <div className="avl-kicker">operator flow</div>
-              <h1
-                className="mt-5 max-w-[18ch] text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-slate-950 sm:text-[68px]"
-                style={{ fontFamily: "var(--font-newsreader)" }}
-              >
-                실행 보드를 이해하는 가장 짧은 문서.
-              </h1>
-              <p className="mt-5 max-w-[56ch] text-[15px] leading-7 text-slate-600">
-                홈은 제품의 방향을 보여주고, 보드는 실제 작업을 시작하게 합니다. 이 페이지는 그 사이에서 전체 흐름과 산출물을 빠르게 이해하도록 돕습니다.
+        <section className="grid gap-px bg-slate-300 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="bg-white px-6 py-8 sm:px-8 sm:py-10">
+            <div className="avl-kicker">operator guide</div>
+            <h1
+              className="mt-5 max-w-[13ch] break-keep text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-slate-950 sm:text-[68px]"
+              style={{ fontFamily: "var(--font-newsreader)" }}
+            >
+              AI Venture Lab 이용 가이드.
+            </h1>
+            <p className="mt-5 max-w-[62ch] break-keep text-[15px] leading-7 text-slate-600">
+              이 페이지는 제품 소개가 아니라 실제 사용 방법을 정리한 안내입니다. 상단 메뉴가 무엇을 뜻하는지, 로그인 후 어떤 버튼이 보이는지, 실행 보드에서 어떤 순서로 작업하는지 확인할 수 있습니다.
+            </p>
+          </div>
+
+          <aside className="grid gap-px bg-slate-300">
+            <div className="bg-[#10141d] px-6 py-6 text-white">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">start here</div>
+              <div className="mt-4 text-[26px] font-semibold leading-[1.05] tracking-tight">처음이라면 로그인 후 실행 보드로 들어가세요.</div>
+              <p className="mt-4 text-sm leading-6 text-slate-300">
+                홈은 둘러보기용이고, 실제 기록과 저장은 실행 보드에서 진행합니다.
               </p>
             </div>
-
-            <div className="grid gap-px bg-slate-300">
-              <div className="bg-[#f7f6f2] px-6 py-5">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">what stays constant</div>
-                <div className="mt-3 max-w-[11ch] text-[28px] font-semibold leading-[1.04] tracking-tight text-slate-950">
-                  AI는 먼저 채우고, 사람은 결론을 정합니다.
-                </div>
-              </div>
-              <div className="bg-white px-6 py-5 text-sm leading-6 text-slate-600">
-                기본은 혼자 끝까지 가는 흐름이고, 필요할 때만 워크스페이스와 팀 초대를 연결합니다.
-              </div>
+            <div className="bg-white px-6 py-5">
+              <AuthAwareCta className="avl-btn avl-btn-primary h-11 px-5" />
             </div>
-          </div>
+          </aside>
         </section>
 
-        <section className="mt-4 grid gap-px bg-slate-300 xl:grid-cols-[220px_minmax(0,1fr)]">
-          <aside className="bg-white px-4 py-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">flow map</div>
-            <div className="mt-4 space-y-2">
-              {guideSteps.map((step) => (
-                <a
-                  key={step.title}
-                  href={`#step-${step.index}`}
-                  className="flex items-start justify-between gap-3 border-l-2 border-slate-200 bg-[#f7f6f2] px-3 py-3 text-sm text-slate-700 transition hover:border-slate-950 hover:bg-white"
-                >
-                  <span>{step.title}</span>
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">{step.index}</span>
+        <section className="mt-4 grid gap-px bg-slate-300 xl:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="bg-white px-6 py-6">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">guide map</div>
+            <div className="mt-5 grid gap-px bg-slate-200">
+              {["상단 메뉴", "실행 보드", "자주 묻는 질문"].map((item, index) => (
+                <a key={item} href={`#guide-${index + 1}`} className="grid grid-cols-[3.5rem_1fr] bg-[#f7f6f2] text-sm font-semibold text-slate-700 transition hover:bg-white">
+                  <span className="px-4 py-4 font-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">0{index + 1}</span>
+                  <span className="px-4 py-4">{item}</span>
                 </a>
               ))}
             </div>
-            <div className="mt-6 border-t border-slate-200 pt-4">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">reading path</div>
-              <div className="mt-3 grid gap-px bg-slate-200">
-                {guideSignals.map((signal, index) => (
-                  <div key={signal} className={`${index === 2 ? "bg-slate-950 text-white" : "bg-[#f7f6f2] text-slate-700"} grid grid-cols-[0.28fr_0.72fr]`}>
-                    <div className={`${index === 2 ? "text-[#bcd3ff]" : "text-slate-400"} px-3 py-3 font-mono text-[10px] uppercase tracking-[0.18em]`}>0{index + 1}</div>
-                    <div className="px-3 py-3 text-xs font-semibold">{signal}</div>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-6 border-t border-slate-200 pt-5 text-sm leading-6 text-slate-600">
+              로그인 상태에 따라 상단 메뉴가 달라집니다. 비로그인 사용자는 가이드와 로그인 메뉴만 보고, 로그인한 사용자는 마이페이지와 실행 보드를 볼 수 있습니다.
             </div>
           </aside>
 
-          <div className="grid gap-px border border-slate-200 bg-slate-200">
-            {guideSteps.map((step) => {
-              const Icon = step.icon;
-              return (
-                <article key={step.title} id={`step-${step.index}`} className="grid gap-px bg-slate-200 md:grid-cols-[88px_minmax(0,1fr)_120px]">
-                  <div className="bg-white px-6 py-6">
-                    <span className="avl-icon-frame rounded-none border-slate-200 bg-slate-50">
-                      <Icon size={20} />
-                    </span>
-                  </div>
-                  <div className="bg-white px-6 py-6">
-                    <h2 className="text-[26px] font-semibold tracking-tight text-slate-950">{step.title}</h2>
-                    <p className="mt-3 max-w-[48ch] text-sm leading-6 text-slate-600">{step.body}</p>
-                  </div>
-                  <div className="bg-[#f7f6f2] px-6 py-6 text-right text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    {step.index}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </section>
+          <div className="grid gap-px bg-slate-300">
+            <section id="guide-1" className="bg-white px-6 py-7 sm:px-8">
+              <div className="avl-kicker">top navigation</div>
+              <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">상단 메뉴</h2>
+              <div className="mt-6 grid gap-px bg-slate-200 lg:grid-cols-2">
+                {menuGuide.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <article key={item.title} className="bg-white px-5 py-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <span className="avl-icon-frame rounded-none border-slate-200 bg-slate-50">
+                          <Icon size={18} />
+                        </span>
+                        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">{item.route}</span>
+                      </div>
+                      <h3 className="mt-5 text-[20px] font-semibold tracking-tight text-slate-950">{item.title}</h3>
+                      <p className="mt-3 break-keep text-sm leading-6 text-slate-600">{item.body}</p>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
 
-        <section className="mt-4 grid gap-px bg-slate-300 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="bg-white">
-            <div className="grid gap-px bg-slate-200 md:grid-cols-[minmax(0,1fr)_280px]">
-              <div className="bg-white px-6 py-5">
-                <div className="avl-kicker">deliverables</div>
-                <div className="mt-3 text-[28px] font-semibold tracking-tight text-slate-950">
-                  보드 안에서 기본으로 쌓이는 산출물
+            <section id="guide-2" className="bg-[#eef3ff] px-6 py-7 sm:px-8">
+              <div className="avl-kicker">workspace guide</div>
+              <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">실행 보드에서 하는 일</h2>
+              <div className="mt-6 grid gap-px bg-slate-300">
+                {boardSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  return (
+                    <article key={step.title} className="grid gap-px bg-slate-300 md:grid-cols-[86px_minmax(0,1fr)_120px]">
+                      <div className="bg-white px-5 py-5">
+                        <span className="avl-icon-frame rounded-none border-slate-200 bg-slate-50">
+                          <Icon size={18} />
+                        </span>
+                      </div>
+                      <div className="bg-white px-5 py-5">
+                        <h3 className="text-[20px] font-semibold tracking-tight text-slate-950">{step.title}</h3>
+                        <p className="mt-3 break-keep text-sm leading-6 text-slate-600">{step.body}</p>
+                      </div>
+                      <div className="bg-[#f7f6f2] px-5 py-5 text-right font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        0{index + 1}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section id="guide-3" className="grid gap-px bg-slate-300 lg:grid-cols-[minmax(0,1fr)_340px]">
+              <div className="bg-white px-6 py-7 sm:px-8">
+                <div className="avl-kicker">common questions</div>
+                <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">자주 묻는 질문</h2>
+                <div className="mt-6 divide-y divide-slate-200 border-y border-slate-200">
+                  {quickAnswers.map(([question, answer]) => (
+                    <div key={question} className="grid gap-3 py-5 md:grid-cols-[0.35fr_0.65fr]">
+                      <div className="break-keep text-sm font-semibold text-slate-950">{question}</div>
+                      <div className="break-keep text-sm leading-6 text-slate-600">{answer}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="bg-[#f7f6f2] px-6 py-5 text-sm leading-6 text-slate-600">
-                문서를 따로 모으지 않아도, 후보부터 실행 패키지까지 바로 넘겨줄 수 있는 형태로 남습니다.
-              </div>
-            </div>
-            <div className="grid gap-px bg-slate-200 sm:grid-cols-2">
-              {artifacts.map((artifact) => {
-                const Icon = artifact.icon;
-                return (
-                  <div key={artifact.title} className="bg-white px-6 py-5">
-                    <span className="avl-icon-frame rounded-none border-slate-200 bg-slate-50">
-                      <Icon size={18} />
-                    </span>
-                    <div className="mt-4 text-[18px] font-semibold tracking-tight text-slate-950">{artifact.title}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
 
-          <div className="bg-slate-950 text-white">
-            <div className="grid gap-px bg-white/10">
-              <div className="bg-slate-950 px-6 py-6">
-                <div className="avl-kicker !text-slate-300">next step</div>
-                <div className="mt-3 text-[30px] font-semibold leading-[1.04] tracking-tight">흐름은 여기까지, 실제 작업은 보드에서 시작합니다.</div>
-              </div>
-              <div className="bg-white/5 px-6 py-5 text-sm leading-6 text-slate-300">
-                홈은 제품의 방향을 보여주고, 이 페이지는 사용 흐름을 빠르게 잡도록 돕습니다. 실제 판단과 기록은 실행 보드에서 이어집니다.
-              </div>
-              <div className="bg-slate-950 px-6 py-5">
-                <div className="flex flex-wrap gap-3">
-                  <Link href="/login" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
-                    로그인 후 시작
-                    <ArrowRight size={16} />
-                  </Link>
+              <div className="bg-[#10141d] px-6 py-7 text-white sm:px-8">
+                <div className="avl-kicker !text-slate-300">next action</div>
+                <h2 className="mt-4 text-[28px] font-semibold leading-[1.05] tracking-tight">설명은 여기까지, 실제 작업은 보드에서 이어갑니다.</h2>
+                <p className="mt-4 break-keep text-sm leading-6 text-slate-300">
+                  계정이 있으면 바로 실행 보드로 이동하고, 아직 없다면 로그인 화면에서 회원가입을 진행하세요.
+                </p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <AuthAwareCta className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100" />
                   <Link href="/" className="avl-btn h-11 border border-white/12 bg-white/6 px-5 text-white hover:bg-white/10">
                     홈으로 돌아가기
+                    <ArrowRight size={16} />
                   </Link>
                 </div>
               </div>
-            </div>
+            </section>
           </div>
         </section>
       </div>

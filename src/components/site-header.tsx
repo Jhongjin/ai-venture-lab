@@ -8,19 +8,12 @@ import type { User } from "@supabase/supabase-js";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-const navItems = [
-  { href: "/#workflow", label: "흐름" },
-  { href: "/#best-fit", label: "맞는 경우" },
-  { href: "/#outputs", label: "산출물" },
-  { href: "/guide", label: "사용 흐름" },
-];
-
 export function SiteHeader() {
   const pathname = usePathname();
   const supabase = getSupabaseBrowserClient();
   const [user, setUser] = useState<User | null>(null);
   const [isLoaded, setIsLoaded] = useState(() => !supabase);
-  const routeLabel = pathname === "/" ? "landing" : pathname === "/workspace" ? "board" : pathname === "/guide" ? "flow" : "account";
+  const routeLabel = pathname === "/" ? "landing" : pathname === "/workspace" ? "board" : pathname === "/guide" ? "guide" : "account";
 
   useEffect(() => {
     if (!supabase) {
@@ -62,19 +55,20 @@ export function SiteHeader() {
           </Link>
 
           <nav aria-label="주요 메뉴" className="flex flex-wrap items-center gap-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`avl-btn avl-btn-subtle h-9 px-3 text-xs ${
-                  pathname === item.href ? "border-slate-950 bg-white text-slate-950" : ""
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            <Link
+              href="/guide"
+              className={`avl-btn avl-btn-subtle h-9 px-3 text-xs ${
+                pathname === "/guide" ? "border-slate-950 bg-white text-slate-950" : ""
+              }`}
+            >
+              가이드
+            </Link>
 
-            {isLoaded && user ? (
+            {!isLoaded ? (
+              <span aria-busy="true" className="avl-btn avl-btn-subtle h-9 px-4 text-sm opacity-70">
+                계정 확인 중
+              </span>
+            ) : user ? (
               <>
                 <Link href="/profile" className="avl-btn avl-btn-subtle h-9 px-3 text-xs">
                   <UserCircle size={15} />

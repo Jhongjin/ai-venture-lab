@@ -26,8 +26,8 @@ const recoveryRoutes = [
     href: "/login",
   },
   {
-    label: "flow",
-    title: "사용 흐름 보기",
+    label: "guide",
+    title: "가이드 보기",
     href: "/guide",
   },
 ];

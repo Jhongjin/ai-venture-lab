@@ -55,7 +55,7 @@ export async function WorkspaceBoardPage() {
                     홈
                   </Link>
                   <Link href="/guide" className="avl-btn avl-btn-subtle h-8 px-3 text-xs">
-                    사용 흐름
+                    가이드
                   </Link>
                   <span className="avl-btn avl-btn-secondary h-8 px-3 text-xs">
                     <GridFour size={14} />

@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
 import {
-  ArrowRight,
   Brain,
   ChartLineUp,
   ChatCircleText,
@@ -18,6 +17,7 @@ import {
   Target,
   UsersThree,
 } from "@phosphor-icons/react/dist/ssr";
+import { AuthAwareCta } from "@/components/auth-aware-cta";
 import { LandingHeroVisual } from "@/components/landing-hero-visual";
 import { LandingMiddleMotion } from "@/components/landing-middle-motion";
 
@@ -280,10 +280,7 @@ export default function HomePage() {
 
               <div className="relative mt-10">
                 <div className="flex flex-wrap gap-3">
-                  <Link href="/login" className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
-                    로그인 후 시작
-                    <ArrowRight size={16} />
-                  </Link>
+                  <AuthAwareCta className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100" />
                   <a href="#workflow" className="avl-btn h-11 border border-white/14 bg-white/6 px-5 text-sm text-white hover:bg-white/10">
                     작동 흐름 보기
                   </a>
@@ -665,12 +662,9 @@ export default function HomePage() {
                   </p>
                 </div>
                 <nav aria-label="artifact actions" className="flex flex-wrap gap-2">
-                  <Link href="/login" className="avl-btn h-12 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100">
-                    로그인 후 시작
-                    <ArrowRight size={16} />
-                  </Link>
+                  <AuthAwareCta className="avl-btn h-12 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100" />
                   <Link href="/guide" className="avl-btn h-12 border border-white/10 bg-white/6 px-5 text-white hover:bg-white/10">
-                    사용 흐름 보기
+                    가이드 보기
                   </Link>
                 </nav>
               </div>
@@ -690,12 +684,9 @@ export default function HomePage() {
               </p>
             </div>
             <nav aria-label="landing footer" className="flex flex-wrap gap-2">
-              <Link href="/login" className="avl-btn avl-btn-primary h-11 px-5">
-                로그인 후 시작
-                <ArrowRight size={16} />
-              </Link>
+              <AuthAwareCta className="avl-btn avl-btn-primary h-11 px-5" />
               <Link href="/guide" className="avl-btn avl-btn-secondary h-11 px-5">
-                사용 흐름 보기
+                가이드 보기
               </Link>
             </nav>
           </div>

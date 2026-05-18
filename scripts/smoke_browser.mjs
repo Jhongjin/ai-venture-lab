@@ -70,7 +70,7 @@ async function main() {
       fail("anonymous homepage exposes workspace cta");
     }
     await waitForVisible(page.locator("#workflow"), "homepage middle content");
-    await waitForVisible(page.getByRole("link", { name: /사용 흐름|guide/i }).first(), "usage flow link");
+    await waitForVisible(page.getByRole("link", { name: /가이드|guide/i }).first(), "guide link");
 
     await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });
 
