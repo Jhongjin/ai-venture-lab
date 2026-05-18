@@ -149,3 +149,11 @@ Validation keywords: `wq_061_p1_implemented`, `first_run_clarity_implemented`, `
 - Deeper generated handoff documents may still preserve necessary implementation concepts when they are intended for builders or external development tools.
 
 Validation keywords: `plain_korean_label_pass_completed`, `developer_term_reduction_completed`, `wq_061_e_implemented`.
+
+2026-05-18 build-bridge follow-up:
+
+- WQ-061-D is addressed with a `첫 제작 길잡이` panel in the execution board.
+- The panel summarizes the recommended stack direction, the first three build actions, what to leave out of the first version, and the decision anchor from the current validation context.
+- This is intentionally a small bridge before deeper external IDE or MCP handoff work.
+
+Validation keywords: `technical_stack_gap_bridge_implemented`, `first_build_order_visible`, `wq_061_d_implemented`.

@@ -744,6 +744,14 @@ type BackendExecutionPlan = {
   rollback: string;
 };
 
+type FirstBuildBridge = {
+  stackTitle: string;
+  stackReason: string;
+  firstTasks: string[];
+  excludeNow: string[];
+  decisionAnchor: string;
+};
+
 export type WorkbenchTask =
   | "select"
   | "score"
@@ -2927,7 +2935,7 @@ function buildBackendCandidateScores({
   const googleStack = includesAny(text, ["google", "firebase", "gcp", "cloud functions", "cloud messaging", "genkit", "data connect", "sql connect"]);
   const sensitive = includesAny(text, ["개인정보", "민감", "건강", "의료", "금융", "상담", "요양", "법률", "위치", "사진", "가족"]);
   const regulated = sensitive || risks.some((risk) => ["high", "critical"].includes(risk.severity));
-  const fastMvp = state.mvp_speed >= 4 || includesAny(text, ["mvp", "프로토타입", "빠르게", "2주"]);
+  const fastMvp = state.mvp_speed >= 4 || includesAny(text, ["mvp", "첫 버전", "프로토타입", "빠르게", "2주"]);
 
   const supabaseScore = clampBackendScore(
     54 +
@@ -2967,7 +2975,7 @@ function buildBackendCandidateScores({
       key: "supabase",
       label: "Supabase",
       score: supabaseScore,
-      summary: "관계형 데이터, SQL, RLS, 운영 콘솔, 조직 권한이 중심인 MVP에 적합합니다.",
+      summary: "관계형 데이터, SQL, RLS, 운영 콘솔, 조직 권한이 중심인 첫 버전에 적합합니다.",
       strengths: ["Postgres/RLS 기반 권한", "SQL 질의와 운영자 테이블 점검", "Vercel/Next.js 운영 콘솔과 빠른 궁합"],
       cautions: ["모바일 네이티브 진단/푸시/오프라인은 별도 설계 필요", "실시간 앱 품질 도구는 직접 조합해야 함"],
     },
@@ -2975,7 +2983,7 @@ function buildBackendCandidateScores({
       key: "firebase",
       label: "Firebase",
       score: firebaseScore,
-      summary: "모바일, 실시간, 오프라인, 푸시, Analytics/Crashlytics/App Check가 핵심인 MVP에 적합합니다.",
+      summary: "모바일, 실시간, 오프라인, 푸시, Analytics/Crashlytics/App Check가 핵심인 첫 버전에 적합합니다.",
       strengths: ["모바일/웹 SDK와 Google Analytics", "Crashlytics, Cloud Messaging, Remote Config, Test Lab", "App Check와 Emulator Suite"],
       cautions: ["복잡한 조인/운영 리포트는 Firestore 모델링 비용이 큼", "Security Rules와 IAM 경계를 별도로 검증해야 함"],
     },
@@ -2993,7 +3001,7 @@ function buildBackendCandidateScores({
       score: hybridScore,
       summary: "관계형 운영 데이터와 모바일/실시간 앱 경험을 분리해야 할 때만 선택합니다.",
       strengths: ["운영 콘솔은 SQL/RLS, 앱 경험은 Firebase로 분리", "민감 데이터와 이벤트 데이터를 다른 경계로 통제", "점진적 전환 가능"],
-      cautions: ["MVP 초반에는 복잡도가 빠르게 커짐", "동기화, 권한, 장애 대응 책임이 두 배가 될 수 있음"],
+      cautions: ["첫 버전부터 복잡도가 빠르게 커짐", "동기화, 권한, 장애 대응 책임이 두 배가 될 수 있음"],
     },
   ];
 
@@ -3199,6 +3207,46 @@ function buildBackendExecutionPlan(backend: BackendCandidateScore): BackendExecu
     localCommand: "pnpm lint && pnpm typecheck && pnpm build && pnpm smoke:routes",
     productionGate: "RLS 정책 적용 후 Production에서 로그인 사용자 insert/update와 타인 데이터 차단을 재확인합니다.",
     rollback: "직전 migration/policy 백업과 Vercel 직전 Ready 배포로 되돌립니다.",
+  };
+}
+
+function buildFirstBuildBridge({
+  idea,
+  state,
+  backend,
+  experiments,
+  risks,
+}: {
+  idea: Idea;
+  state: EditState;
+  backend: BackendCandidateScore | null;
+  experiments: Experiment[];
+  risks: Risk[];
+}): FirstBuildBridge {
+  const backendLabel = backend?.label ?? "Supabase";
+  const decisionAnchor =
+    state.next_evidence ||
+    experiments.find((experiment) => experiment.success_metric.trim())?.success_metric ||
+    idea.one_liner ||
+    "사용자가 첫 가치를 실제로 느끼는지 확인";
+  const highRisk = risks.find((risk) => ["high", "critical"].includes(risk.severity));
+  const firstTasks = [
+    "첫 화면에서 사용자가 입력할 한 가지 행동을 만든다",
+    `${backendLabel}에 후보, 검증 계획, 판단 기록 저장을 연결한다`,
+    "로그인, 빈 상태, 저장 성공/실패, 권한 차단을 한 번에 확인한다",
+  ];
+  const excludeNow = [
+    "결제, 관리자 고급 기능, 자동화 전체 흐름",
+    "여러 사용자군과 여러 가격 모델을 동시에 검증하는 일",
+    highRisk ? `${highRisk.title} 리스크가 정리되기 전의 공개 출시` : "검증 목표와 관계없는 부가 기능",
+  ];
+
+  return {
+    stackTitle: `Next.js + ${backendLabel}`,
+    stackReason: backend?.summary ?? "로그인, 저장, 권한 확인이 필요한 첫 버전을 가장 빠르게 만들 수 있는 조합입니다.",
+    firstTasks,
+    excludeNow,
+    decisionAnchor,
   };
 }
 
@@ -7525,6 +7573,15 @@ export function IdeaWorkbench({
       })
     : "";
   const backendExecutionPlan = backendCandidateScores[0] ? buildBackendExecutionPlan(backendCandidateScores[0]) : null;
+  const firstBuildBridge = selectedIdea && editState
+    ? buildFirstBuildBridge({
+        idea: selectedIdea,
+        state: editState,
+        backend: backendCandidateScores[0] ?? null,
+        experiments: selectedExperiments,
+        risks: selectedIdeaRisks,
+      })
+    : null;
   const backendExecutionPlanDraft = selectedIdea && backendExecutionPlan
     ? buildBackendExecutionPlanMarkdown({
         idea: selectedIdea,
@@ -10569,6 +10626,49 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               이 단계에서는 AI가 기획, 디자인, 제작 초안과 실행 자료를 자동으로 만듭니다. 우선은 준비도, 디자인 프롬프트,
               제작 실행 계획만 확인하고 저장하세요. 기술 비교나 세부 설계 문서는 필요할 때만 전체 보기에서 확인하면 됩니다.
             </div>
+          ) : null}
+
+          {firstBuildBridge ? (
+            <section className="mb-5 border border-slate-200 bg-white p-4 text-slate-900">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <div className="text-[11px] font-semibold tracking-[0.16em] text-slate-500">첫 제작 안내</div>
+                  <h3 className="mt-2 text-base font-semibold text-slate-950">첫 제작 길잡이</h3>
+                  <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                    검증이 끝난 뒤 바로 무엇부터 만들지 보이도록, 추천 기술 방향과 처음 할 일만 먼저 정리합니다.
+                  </p>
+                </div>
+                <div className="avl-pill avl-pill-info">{firstBuildBridge.stackTitle}</div>
+              </div>
+
+              <div className="mt-4 grid gap-3 lg:grid-cols-[0.9fr_1.1fr_1fr]">
+                <div className="border border-slate-200 bg-slate-50 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">기술 방향</div>
+                  <p className="mt-2 text-sm font-semibold text-slate-950">{firstBuildBridge.stackTitle}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{firstBuildBridge.stackReason}</p>
+                </div>
+                <div className="border border-slate-200 bg-slate-50 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">처음 만들 것</div>
+                  <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700">
+                    {firstBuildBridge.firstTasks.map((task) => (
+                      <li key={task}>- {task}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="border border-slate-200 bg-slate-50 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">이번엔 뺄 것</div>
+                  <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700">
+                    {firstBuildBridge.excludeNow.map((item) => (
+                      <li key={item}>- {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <p className="mt-3 border-l border-slate-300 pl-3 text-sm leading-6 text-slate-600">
+                판단 기준: {firstBuildBridge.decisionAnchor}
+              </p>
+            </section>
           ) : null}
 
           <div className={visibleDevelopmentPanel === "setup" ? "" : "hidden"}>
