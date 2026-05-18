@@ -75,13 +75,13 @@ async function main() {
     await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });
 
     await waitForVisible(page.getByRole("heading", { name: /실행 보드/ }), "workspace heading");
-    await waitForVisible(page.getByText(/현재 질문|이번 단계에서 할 일|다음 행동/).first(), "stage guidance");
-    await waitForVisible(page.getByText(/진행 레일|Quick setup|로그인/).first(), "workflow rail");
+    await waitForVisible(page.getByText(/지금 할 일|검토할 아이디어를 먼저 저장|회의 내용, 아이디어/).first(), "stage guidance");
+    await waitForVisible(page.getByText(/진행 순서|로그인/).first(), "workflow rail");
 
     const loginHeading = page.getByRole("heading", { name: /^로그인$/ }).first();
-    const extractHeading = page.getByRole("heading", { name: /^아이디어 찾기$/ }).first();
+    const extractHeading = page.getByRole("heading", { name: /^메모에서 검토할 아이디어 정리$/ }).first();
     const loginButton = page.getByRole("button", { name: /비밀번호로 로그인/ }).first();
-    const extractButton = page.getByRole("button", { name: /AI로 후보 찾기|AI 후보 발굴/ }).first();
+    const extractButton = page.getByRole("button", { name: /AI로 아이디어 구체화|AI 후보 발굴/ }).first();
 
     const stageVisible = await Promise.race([
       loginHeading
