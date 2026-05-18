@@ -182,12 +182,29 @@ function toGeneratedSampleIdea(value: unknown): GeneratedSampleIdea | null {
   }
 
   const idea = {
-    title: toText(value.title, 80),
-    pain: toText(value.pain, 220),
-    solution: toText(value.solution, 240),
-    targetUser: toText(value.targetUser, 160),
-    buyer: toText(value.buyer, 160),
-    firstValidation: toText(value.firstValidation, 220),
+    title: toText(value.title, 80) || toText(value.name, 80) || toText(value["제목"], 80),
+    pain:
+      toText(value.pain, 220) ||
+      toText(value.problem, 220) ||
+      toText(value.painPoint, 220) ||
+      toText(value["문제"], 220),
+    solution:
+      toText(value.solution, 240) ||
+      toText(value.one_liner, 240) ||
+      toText(value.oneLiner, 240) ||
+      toText(value["해결"], 240),
+    targetUser:
+      toText(value.targetUser, 160) ||
+      toText(value.target_user, 160) ||
+      toText(value["대상"], 160) ||
+      toText(value["대상 사용자"], 160),
+    buyer: toText(value.buyer, 160) || toText(value["구매자"], 160),
+    firstValidation:
+      toText(value.firstValidation, 220) ||
+      toText(value.first_validation, 220) ||
+      toText(value.validation, 220) ||
+      toText(value["첫 검증"], 220) ||
+      toText(value["먼저 확인할 것"], 220),
   };
 
   return idea.title && idea.pain && idea.solution ? idea : null;
@@ -204,6 +221,31 @@ function buildSampleIdeaSource(ideas: GeneratedSampleIdea[]) {
 먼저 확인할 것: ${idea.firstValidation}`,
     )
     .join("\n\n");
+}
+
+function getRawIdeaItems(parsed: unknown) {
+  if (Array.isArray(parsed)) {
+    return parsed;
+  }
+
+  if (!isRecord(parsed)) {
+    return [];
+  }
+
+  if (Array.isArray(parsed.ideas)) {
+    return parsed.ideas;
+  }
+
+  if (Array.isArray(parsed.candidates)) {
+    return parsed.candidates;
+  }
+
+  if (Array.isArray(parsed.items)) {
+    return parsed.items;
+  }
+
+  const objectValues = Object.values(parsed).filter(isRecord);
+  return objectValues.length >= 3 ? objectValues : [];
 }
 
 export async function POST(request: Request) {
@@ -299,11 +341,13 @@ ${existingIdeaContext}
   try {
     const parsed = parseStructuredJson(outputText);
 
-    if (!isRecord(parsed) || !Array.isArray(parsed.ideas)) {
+    const rawIdeaItems = getRawIdeaItems(parsed);
+
+    if (rawIdeaItems.length === 0) {
       return NextResponse.json({ error: "OpenAI structured output did not contain ideas." }, { status: 502 });
     }
 
-    const ideas = parsed.ideas.map(toGeneratedSampleIdea).filter((idea): idea is GeneratedSampleIdea => Boolean(idea));
+    const ideas = rawIdeaItems.map(toGeneratedSampleIdea).filter((idea): idea is GeneratedSampleIdea => Boolean(idea)).slice(0, 3);
 
     if (ideas.length !== 3) {
       return NextResponse.json({ error: "OpenAI structured output did not contain exactly 3 usable ideas." }, { status: 502 });
