@@ -11,6 +11,10 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 function formatAuthMessage(message: string) {
   const normalized = message.toLowerCase();
 
+  if (normalized.includes("confirmation email")) {
+    return "확인 메일 발송 설정 때문에 가입을 마치지 못했습니다. 잠시 후 다시 시도해 주세요.";
+  }
+
   if (normalized.includes("invalid login credentials")) {
     return "이메일 또는 비밀번호가 올바르지 않습니다.";
   }
@@ -24,6 +28,25 @@ function formatAuthMessage(message: string) {
   }
 
   return message;
+}
+
+async function readSignupError(response: Response) {
+  try {
+    const payload: unknown = await response.json();
+
+    if (
+      typeof payload === "object" &&
+      payload !== null &&
+      !Array.isArray(payload) &&
+      typeof (payload as { error?: unknown }).error === "string"
+    ) {
+      return formatAuthMessage((payload as { error: string }).error);
+    }
+  } catch {
+    // Fall through to the generic message below.
+  }
+
+  return "계정을 만드는 중 문제가 생겼습니다. 잠시 후 다시 시도해 주세요.";
 }
 
 export function LoginForm() {
@@ -138,33 +161,48 @@ export function SignupForm() {
     }
 
     setIsBusy(true);
-    const { data, error } = await supabase.auth.signUp({
+
+    let signupResponse: Response;
+
+    try {
+      signupResponse = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          displayName: displayName.trim(),
+          email: email.trim(),
+          password,
+        }),
+      });
+    } catch {
+      setIsBusy(false);
+      setMessage("회원가입 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      return;
+    }
+
+    if (!signupResponse.ok) {
+      setIsBusy(false);
+      setMessage(await readSignupError(signupResponse));
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
-      options: {
-        data: {
-          display_name: displayName.trim(),
-        },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/profile`,
-      },
     });
     setIsBusy(false);
 
     if (error) {
-      setMessage(formatAuthMessage(error.message));
+      setMessage(`계정은 만들었지만 자동 로그인이 되지 않았습니다. 로그인 페이지에서 다시 로그인해 주세요. (${formatAuthMessage(error.message)})`);
       return;
     }
 
     setPassword("");
     setConfirmPassword("");
-
-    if (data.session) {
-      router.push("/profile");
-      router.refresh();
-      return;
-    }
-
-    setMessage("가입 확인 메일을 보냈습니다. 이메일의 링크를 열면 프로필 설정으로 이어집니다.");
+    router.push("/profile");
+    router.refresh();
   }
 
   return (
