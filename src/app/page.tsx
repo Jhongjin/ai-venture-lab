@@ -654,19 +654,13 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="relative mt-10 grid items-end gap-6 border-t border-white/10 pt-6 lg:grid-cols-[1fr_auto]">
+              <div className="relative mt-10 border-t border-white/10 pt-6">
                 <div>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">final package</div>
                   <p className="mt-3 max-w-[62ch] break-keep text-sm leading-6 text-slate-300">
                     결과는 설명서가 아니라 바로 검토하고 넘겨줄 수 있는 실행 패키지입니다.
                   </p>
                 </div>
-                <nav aria-label="artifact actions" className="flex flex-wrap gap-2">
-                  <AuthAwareCta className="avl-btn h-12 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100" />
-                  <Link href="/guide" className="avl-btn h-12 border border-white/10 bg-white/6 px-5 text-white hover:bg-white/10">
-                    가이드 보기
-                  </Link>
-                </nav>
               </div>
             </div>
           </div>
