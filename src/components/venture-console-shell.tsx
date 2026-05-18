@@ -161,11 +161,11 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["혼자 진행할 때는 건너뛰기", "팀 공간 생성 또는 선택", "필요한 멤버만 추가"],
   },
   "console:extract": {
-    summary: "회의 메모, 아이디어 메모, 자동화하고 싶은 업무를 붙여넣으면 먼저 볼 후보를 정리합니다.",
+    summary: "아이디어 입력 후 AI가 내용을 구체화합니다.",
     checklist: [
-      "원문 입력칸에 메모 입력",
-      "AI로 아이디어 도출",
-      "추천 후보를 저장할지 결정",
+      "아이디어 입력",
+      "AI로 아이디어 구체화",
+      "도출된 아이디어 저장",
     ],
   },
   "console:idea": {
@@ -236,7 +236,7 @@ const taskCanvasDetails: Record<
     checkpoint: "협업이 필요하지 않다면 이 단계는 건너뛰어도 괜찮습니다.",
   },
   "console:extract": {
-    question: "회의 메모나 아이디어 메모를 그대로 붙여넣을 준비가 됐나요?",
+    question: "회의 내용, 아이디어, 자동화하고 싶은 업무 내용을 입력칸에 붙여넣으세요.",
     aiLead: "AI가 원문에서 검토할 후보 한 건과 검증 질문을 먼저 정리합니다.",
     deliverable: "먼저 볼 추천 후보와 저장 후 이어질 검증 초안",
     checkpoint: "처음에는 입력칸 하나만 쓰면 됩니다. 비교 후보는 필요할 때만 펼칩니다.",
@@ -456,7 +456,7 @@ function getCurrentStepBlocker({
     case "console:extract":
       return consoleStatus.hasExtractedIdeas
         ? "추천 후보를 저장 양식으로 보내면 후보 저장 단계로 자동 이동합니다."
-        : "메모를 넣거나 샘플을 사용해 먼저 볼 아이디어를 정리한 뒤 다음 단계로 넘어갈 수 있습니다.";
+        : "아이디어가 선정되면 STEP 2 단계로 이동됩니다.";
     case "console:idea":
       return ideaCount > 0
         ? "후보를 저장하면 검증 단계로 이동합니다."
@@ -514,8 +514,8 @@ function getExecutiveFocus({
 
   if (ideaCount === 0) {
     return {
-      eyebrow: "다음에 할 일",
-      title: "검토할 후보를 먼저 저장해 주세요.",
+      eyebrow: "지금 할 일",
+      title: "검토할 아이디어를 먼저 저장해 주세요.",
       detail: "대화 메모나 브리프를 넣으면 AI가 아이디어를 정리합니다. 마음에 드는 한 건을 저장해 검증으로 넘어가세요.",
       evidence: `${dataNote} · 후보 없음`,
       risk: "리스크는 저장 뒤 확인",
@@ -885,8 +885,6 @@ export function VentureConsoleShell({
     Math.round((completedRequiredCount / Math.max(1, executionStepTotal)) * 100),
   );
   const activeCanvas = taskCanvasDetails[visibleTask];
-  const showFirstEntryStrip = consoleStatus.isAuthenticated && ideaCount === 0 && visibleTask === "console:extract";
-  const compactIntroCanvas = visibleTask === "console:auth" || visibleTask === "console:workspace";
   const railPrimaryTasks = executionStepTasks.filter(
     (task) => task.id === visibleTask || nextTaskOptions.some((option) => option.id === task.id),
   );
@@ -1068,74 +1066,28 @@ export function VentureConsoleShell({
 
       <div className="order-1 min-w-0 space-y-3 xl:order-none">
         <section className="border border-slate-900 bg-slate-950 text-white">
-          <div className="grid gap-px bg-slate-800 lg:grid-cols-[minmax(0,1fr)_320px]">
-            <div className="bg-slate-950 p-4 sm:p-5">
-              <div className="text-[10px] font-semibold tracking-[0.18em] text-slate-400">{executiveFocus.eyebrow}</div>
-              <div className="mt-3 grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
-                <div className="min-w-0">
-                  <h2 className="max-w-3xl text-[20px] font-semibold tracking-tight sm:text-[28px] sm:leading-[36px]">
-                    {executiveFocus.title}
-                  </h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{executiveFocus.detail}</p>
-                </div>
-                {executiveFocusAction ? (
-                  <button
-                    type="button"
-                    onClick={() => goToTask(executiveFocusAction.targetTask)}
-                    className="avl-btn bg-white px-4 text-slate-950 hover:bg-slate-100"
-                  >
-                    {executiveFocusAction.cta}
-                    <ArrowRight size={16} />
-                  </button>
-                ) : null}
+          <div className="bg-slate-950 p-4 sm:p-5">
+            <div className="text-[10px] font-semibold tracking-[0.18em] text-slate-400">{executiveFocus.eyebrow}</div>
+            <div className="mt-3 grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
+              <div className="min-w-0">
+                <h2 className="max-w-3xl text-[20px] font-semibold tracking-tight sm:text-[28px] sm:leading-[36px]">
+                  {executiveFocus.title}
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{executiveFocus.detail}</p>
               </div>
+              {executiveFocusAction ? (
+                <button
+                  type="button"
+                  onClick={() => goToTask(executiveFocusAction.targetTask)}
+                  className="avl-btn bg-white px-4 text-slate-950 hover:bg-slate-100"
+                >
+                  {executiveFocusAction.cta}
+                  <ArrowRight size={16} />
+                </button>
+              ) : null}
             </div>
-
-            <div className="grid bg-slate-950 sm:grid-cols-2 lg:grid-cols-1">
-              <div className="border-b border-slate-800 p-4 sm:border-b-0 sm:border-r lg:border-r-0 lg:border-b">
-                <div className="text-[10px] font-semibold tracking-[0.14em] text-slate-500">근거 상태</div>
-                <p className="mt-2 text-sm font-semibold text-white">{executiveFocus.evidence}</p>
-              </div>
-              <div className="p-4">
-                <div className="text-[10px] font-semibold tracking-[0.14em] text-slate-500">위험 상태</div>
-                <p className="mt-2 text-sm font-semibold text-white">{executiveFocus.risk}</p>
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-px bg-slate-800 sm:grid-cols-4">
-            {executiveFocus.metrics.map((metric) => (
-              <div key={metric.label} className="bg-slate-900 px-4 py-3">
-                <div className="text-[10px] font-semibold tracking-[0.14em] text-slate-500">{metric.label}</div>
-                <div className="mt-1 text-lg font-semibold tracking-tight text-white">{metric.value}</div>
-              </div>
-            ))}
           </div>
         </section>
-
-        {showFirstEntryStrip ? (
-          <section className="border border-slate-200 bg-white px-4 py-3">
-            <div className="grid gap-3 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-center">
-              <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">처음에는 이 순서만</div>
-                <p className="mt-1 text-[13px] font-semibold tracking-tight text-slate-950">아래 입력칸 하나만 쓰면 됩니다.</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-slate-700">
-                {[
-                  "원문 입력",
-                  "AI로 아이디어 도출",
-                  "추천 후보 저장",
-                ].map((step, index) => (
-                  <span key={step} className="inline-flex items-center gap-2">
-                    <span className="avl-step-dot h-6 w-6 bg-slate-100 text-slate-700">{index + 1}</span>
-                    <span className="font-medium">{step}</span>
-                    {index < 2 ? <span className="text-slate-300">/</span> : null}
-                  </span>
-                ))}
-                <span className="text-slate-400">저장하면 검증 단계가 열립니다.</span>
-              </div>
-            </div>
-          </section>
-        ) : null}
 
         <section className="border border-slate-200 bg-white p-4">
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_276px]">
@@ -1152,29 +1104,10 @@ export function VentureConsoleShell({
                   <ActiveIcon size={18} />
                 </span>
                 <div className="min-w-0">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">현재 질문</div>
-                  <h2 className="mt-1 max-w-4xl text-[18px] font-semibold tracking-tight text-slate-950 sm:text-[26px] sm:leading-[34px]">
+                  <h2 className="max-w-4xl text-[18px] font-semibold tracking-tight text-slate-950 sm:text-[26px] sm:leading-[34px]">
                     {activeCanvas.question}
                   </h2>
-                  <p className="mt-1 max-w-3xl text-[12px] leading-5 text-slate-500">{activeGuidance.summary}</p>
                 </div>
-              </div>
-
-              <div className={`mt-4 grid gap-4 border-t border-slate-200 pt-4 ${compactIntroCanvas ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
-                <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">AI 준비</div>
-                  <p className="mt-1 text-[13px] leading-6 text-slate-700">{activeCanvas.aiLead}</p>
-                </div>
-                <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">이번 결과</div>
-                  <p className="mt-1 text-[13px] leading-6 text-slate-700">{activeCanvas.deliverable}</p>
-                </div>
-                {!compactIntroCanvas ? (
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">확인 포인트</div>
-                    <p className="mt-1 text-[13px] leading-6 text-slate-700">{activeCanvas.checkpoint}</p>
-                  </div>
-                ) : null}
               </div>
 
               {currentStepBlocker ? (

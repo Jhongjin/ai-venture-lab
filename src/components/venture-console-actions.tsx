@@ -3085,7 +3085,7 @@ export function VentureConsoleActions({
                   className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={18} /> : <Sparkle size={18} />}
-                  AI로 아이디어 도출
+                  AI로 아이디어 구체화
                 </button>
               </div>
             </div>
@@ -3149,7 +3149,7 @@ export function VentureConsoleActions({
                       className="avl-btn avl-btn-primary px-4 disabled:opacity-60"
                     >
                       {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                      AI로 아이디어 도출
+                      AI로 아이디어 구체화
                     </button>
                   </div>
                   {extractMessage ? (
@@ -3242,7 +3242,7 @@ export function VentureConsoleActions({
                       <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 후보가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                         <li>1. 왼쪽 입력칸에 회의 메모나 아이디어 메모를 붙여넣습니다.</li>
-                        <li>2. AI로 아이디어 도출을 누르면 먼저 볼 후보 한 건이 나옵니다.</li>
+                        <li>2. AI로 아이디어 구체화를 누르면 먼저 볼 후보 한 건이 나옵니다.</li>
                         <li>3. 마음에 들면 저장하고 검증 단계로 넘어갑니다.</li>
                       </ul>
                     </section>
