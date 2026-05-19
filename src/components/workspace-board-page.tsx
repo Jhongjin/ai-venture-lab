@@ -1,9 +1,12 @@
 import { WarningCircle } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
 
 import { VentureConsoleShell } from "@/components/venture-console-shell";
 import { getConsoleData } from "@/lib/venture-data";
 
-export async function WorkspaceBoardPage() {
+export type WorkspaceInitialView = "ideas" | "deleted" | undefined;
+
+export async function WorkspaceBoardPage({ initialView }: { initialView?: WorkspaceInitialView }) {
   const {
     ideas,
     risks,
@@ -19,11 +22,11 @@ export async function WorkspaceBoardPage() {
     error,
   } = await getConsoleData();
 
+  const activeIdeas = ideas.filter((idea) => idea.decision !== "kill");
+  const deletedIdeas = ideas.filter((idea) => idea.decision === "kill");
   const headerStats = [
-    ["검토 후보", String(ideas.length)],
-    ["확인할 리스크", String(risks.filter((risk) => risk.status.toLowerCase() === "open").length)],
-    ["검증 계획", String(experiments.length)],
-    ["실행 문서", String(artifacts.length)],
+    { label: "검토 아이디어", value: String(activeIdeas.length), href: "/workspace?view=ideas" },
+    { label: "삭제한 아이디어", value: String(deletedIdeas.length), href: "/workspace?view=deleted" },
   ];
 
   return (
@@ -35,12 +38,12 @@ export async function WorkspaceBoardPage() {
               <h1 className="text-[16px] font-semibold tracking-tight text-slate-950 sm:text-[18px]">실행 보드</h1>
             </div>
 
-            <div className="grid grid-cols-2 gap-px bg-slate-200 xl:grid-cols-4">
-              {headerStats.map(([label, value]) => (
-                <div key={label} className="bg-white px-4 py-3">
+            <div className="grid grid-cols-2 gap-px bg-slate-200">
+              {headerStats.map(({ label, value, href }) => (
+                <Link key={label} href={href} className="bg-white px-4 py-3 transition hover:bg-slate-50">
                   <div className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</div>
                   <div className="mt-1 text-[20px] font-semibold tracking-tight text-slate-950">{value}</div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -71,6 +74,7 @@ export async function WorkspaceBoardPage() {
           initialViewerUserId={viewerUserId}
           initialViewerMemberships={viewerMemberships}
           source={source}
+          initialView={initialView}
         />
       </div>
     </main>

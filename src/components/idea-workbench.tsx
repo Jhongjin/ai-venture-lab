@@ -443,6 +443,14 @@ const decisionLabels: Record<DecisionStatus, string> = {
   pivot: "전환",
   kill: "중단",
 };
+function isDiscardedIdea(idea: Idea) {
+  return idea.decision === "kill";
+}
+
+function getActiveIdeas(nextIdeas: Idea[]) {
+  return nextIdeas.filter((idea) => !isDiscardedIdea(idea));
+}
+
 const artifactSourceLabels: Record<string, string> = {
   workbench: "실행 보드",
   manual: "수동",
@@ -754,6 +762,7 @@ type FirstBuildBridge = {
 
 export type WorkbenchTask =
   | "select"
+  | "archive"
   | "score"
   | "risk"
   | "decision"
@@ -6727,8 +6736,12 @@ export function IdeaWorkbench({
   const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
   const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
-  const [selectedIdeaId, setSelectedIdeaId] = useState(() => sortWorkbenchIdeas(initialIdeas)[0]?.id ?? "");
-  const selectedIdea = ideas.find((idea) => idea.id === selectedIdeaId) ?? ideas[0] ?? null;
+  const [selectedIdeaId, setSelectedIdeaId] = useState(() => sortWorkbenchIdeas(getActiveIdeas(initialIdeas))[0]?.id ?? "");
+  const selectedIdea =
+    ideas.find((idea) => idea.id === selectedIdeaId && !isDiscardedIdea(idea)) ??
+    getActiveIdeas(ideas)[0] ??
+    ideas.find((idea) => isDiscardedIdea(idea)) ??
+    null;
   const [editState, setEditState] = useState<EditState | null>(selectedIdea ? toEditState(selectedIdea) : null);
   const [riskDraft, setRiskDraft] = useState<RiskDraft>({
     title: "",
@@ -6781,7 +6794,7 @@ export function IdeaWorkbench({
   const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
   const [artifactSourceFilter, setArtifactSourceFilter] = useState("all");
   const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>(() =>
-    sortWorkbenchIdeas(initialIdeas)[0] ? "score" : "select",
+    sortWorkbenchIdeas(getActiveIdeas(initialIdeas))[0] ? "score" : "select",
   );
   const [artifactPanel, setArtifactPanel] = useState<ArtifactPanel>("validation");
   const [developmentPanel, setDevelopmentPanel] = useState<DevelopmentPanel>("setup");
@@ -7341,6 +7354,102 @@ export function IdeaWorkbench({
     return accessState === "owned" || accessState === "workspace_admin";
   }
 
+  async function discardIdeaRecord(idea: Idea) {
+    if (!supabase) {
+      setMessage("Supabase 연결을 먼저 확인해 주세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("아이디어를 삭제하려면 먼저 로그인해 주세요.");
+      return;
+    }
+
+    if (!canManageRecord(idea)) {
+      setMessage("이 아이디어를 삭제할 권한이 없습니다.");
+      return;
+    }
+
+    const confirmed = window.confirm(`"${idea.name}" 아이디어를 삭제 목록으로 옮길까요?\n나중에 다시 되살릴 수 있습니다.`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+
+    const { data, error } = await supabase
+      .from("ideas")
+      .update({ decision: "kill", stage: "paused", updated_at: new Date().toISOString() })
+      .eq("id", idea.id)
+      .select("*")
+      .single();
+
+    if (error || !data) {
+      setIsBusy(false);
+      setMessage(`${idea.name} 아이디어를 삭제 목록으로 옮기지 못했습니다: ${error?.message ?? "응답 없음"}`);
+      return;
+    }
+
+    const updatedIdea = data as Idea;
+    const nextIdeas = sortWorkbenchIdeas(ideas.map((currentIdea) => (currentIdea.id === idea.id ? updatedIdea : currentIdea)));
+    const nextActiveIdea = getActiveIdeas(nextIdeas)[0] ?? null;
+
+    setIdeas(nextIdeas);
+    setSelectedIdeaId(nextActiveIdea?.id ?? "");
+    setEditState(nextActiveIdea ? toEditState(nextActiveIdea) : null);
+    setIsBusy(false);
+    setMessage(`"${idea.name}" 아이디어를 삭제 목록으로 옮겼습니다.`);
+    window.dispatchEvent(new CustomEvent<Idea>("venture:idea-updated", { detail: updatedIdea }));
+    updateActiveTask(nextActiveIdea ? "select" : "archive");
+    router.refresh();
+  }
+
+  async function restoreIdeaRecord(idea: Idea) {
+    if (!supabase) {
+      setMessage("Supabase 연결을 먼저 확인해 주세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("아이디어를 되살리려면 먼저 로그인해 주세요.");
+      return;
+    }
+
+    if (!canManageRecord(idea)) {
+      setMessage("이 아이디어를 되살릴 권한이 없습니다.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+
+    const { data, error } = await supabase
+      .from("ideas")
+      .update({ decision: "research_more", stage: "score", updated_at: new Date().toISOString() })
+      .eq("id", idea.id)
+      .select("*")
+      .single();
+
+    if (error || !data) {
+      setIsBusy(false);
+      setMessage(`${idea.name} 아이디어를 되살리지 못했습니다: ${error?.message ?? "응답 없음"}`);
+      return;
+    }
+
+    const updatedIdea = data as Idea;
+
+    setIdeas((current) => sortWorkbenchIdeas(current.map((currentIdea) => (currentIdea.id === idea.id ? updatedIdea : currentIdea))));
+    setSelectedIdeaId(updatedIdea.id);
+    setEditState(toEditState(updatedIdea));
+    setIsBusy(false);
+    setMessage(`"${idea.name}" 아이디어를 다시 진행 목록으로 옮겼습니다.`);
+    window.dispatchEvent(new CustomEvent<Idea>("venture:idea-updated", { detail: updatedIdea }));
+    updateActiveTask("score");
+    router.refresh();
+  }
+
   async function deleteIdeaRecord(idea: Idea) {
     if (!supabase) {
       setMessage("Supabase 연결을 먼저 확인해 주세요.");
@@ -7357,13 +7466,8 @@ export function IdeaWorkbench({
       return;
     }
 
-    if (ideas.length <= 1) {
-      setMessage("마지막 아이디어는 아직 삭제할 수 없어요. 새 후보를 하나 더 만든 뒤 정리해 주세요.");
-      return;
-    }
-
     const confirmed = window.confirm(
-      `"${idea.name}" 아이디어와 연결된 리스크, 판단, 실험, 실행 문서, 실행 기록까지 함께 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`,
+      `"${idea.name}" 아이디어와 연결된 리스크, 판단, 실험, 실행 문서, 실행 기록까지 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`,
     );
 
     if (!confirmed) {
@@ -7402,10 +7506,11 @@ export function IdeaWorkbench({
     }
 
     const remainingIdeas = sortWorkbenchIdeas(ideas.filter((currentIdea) => currentIdea.id !== idea.id));
+    const remainingActiveIdeas = getActiveIdeas(remainingIdeas);
     const deletingSelectedIdea = selectedIdeaId === idea.id || selectedIdea?.id === idea.id;
     const nextSelectedIdea = deletingSelectedIdea
-      ? (remainingIdeas[0] ?? null)
-      : (remainingIdeas.find((currentIdea) => currentIdea.id === selectedIdeaId) ?? remainingIdeas[0] ?? null);
+      ? (remainingActiveIdeas[0] ?? null)
+      : (remainingActiveIdeas.find((currentIdea) => currentIdea.id === selectedIdeaId) ?? remainingActiveIdeas[0] ?? null);
 
     setIdeas(remainingIdeas);
     setRisks((current) => current.filter((risk) => risk.idea_id !== idea.id));
@@ -7423,10 +7528,10 @@ export function IdeaWorkbench({
       if (deletingSelectedIdea) {
         updateActiveTask("score");
       }
-      setMessage(`"${idea.name}" 아이디어를 삭제했고, 다음 아이디어로 이동했습니다.`);
+      setMessage(`"${idea.name}" 아이디어를 완전히 삭제했고, 다음 아이디어로 이동했습니다.`);
     } else {
-      updateActiveTask("select");
-      setMessage(`"${idea.name}" 아이디어를 삭제했습니다.`);
+      updateActiveTask(remainingIdeas.length > 0 ? "archive" : "select");
+      setMessage(`"${idea.name}" 아이디어를 완전히 삭제했습니다.`);
     }
 
     router.refresh();
@@ -8394,9 +8499,15 @@ export function IdeaWorkbench({
   }> = [
     {
       id: "select",
-      label: "후보 선택",
-      description: "오늘 검토할 아이디어를 고릅니다.",
-      status: selectedIdea ? "선택됨" : "필수",
+      label: "검토 아이디어",
+      description: "진행 중인 아이디어를 고릅니다.",
+      status: `${getActiveIdeas(ideas).filter((idea) => getRecordAccessState(idea) !== "hidden").length}개`,
+    },
+    {
+      id: "archive",
+      label: "삭제한 아이디어",
+      description: "복구하거나 완전히 삭제합니다.",
+      status: `${ideas.filter((idea) => isDiscardedIdea(idea) && getRecordAccessState(idea) !== "hidden").length}개`,
     },
     {
       id: "score",
@@ -8459,21 +8570,50 @@ export function IdeaWorkbench({
     },
   ];
   const visibleIdeas = useMemo(() => {
+    const activeRecords = getActiveIdeas(ideas);
+
     if (filterMode === "mine") {
-      return sortWorkbenchIdeas(ideas.filter((idea) => getRecordAccessState(idea) === "owned"));
+      return sortWorkbenchIdeas(activeRecords.filter((idea) => getRecordAccessState(idea) === "owned"));
     }
 
     if (filterMode === "read_only") {
       return sortWorkbenchIdeas(
-        ideas.filter((idea) => {
+        activeRecords.filter((idea) => {
           const accessState = getRecordAccessState(idea);
           return accessState === "workspace_admin" || accessState === "workspace_member";
         }),
       );
     }
 
-    return sortWorkbenchIdeas(ideas.filter((idea) => getRecordAccessState(idea) !== "hidden"));
+    return sortWorkbenchIdeas(activeRecords.filter((idea) => getRecordAccessState(idea) !== "hidden"));
   }, [filterMode, getRecordAccessState, ideas]);
+  const discardedIdeas = useMemo(
+    () => sortWorkbenchIdeas(ideas.filter((idea) => isDiscardedIdea(idea) && getRecordAccessState(idea) !== "hidden")),
+    [getRecordAccessState, ideas],
+  );
+  function getIdeaProgress(idea: Idea) {
+    const hasArtifacts = artifacts.some((artifact) => artifact.idea_id === idea.id);
+    const hasExperiments = experiments.some((experiment) => experiment.idea_id === idea.id);
+    const hasOpenRisks = risks.some((risk) => risk.idea_id === idea.id && risk.status.toLowerCase() !== "closed");
+
+    if (isDiscardedIdea(idea)) {
+      return { label: "삭제됨", task: "archive" as WorkbenchTask };
+    }
+
+    if (hasArtifacts) {
+      return { label: "STEP 5 실행 문서", task: "artifacts" as WorkbenchTask };
+    }
+
+    if (hasExperiments) {
+      return { label: "STEP 4 검증 계획", task: "experiment" as WorkbenchTask };
+    }
+
+    if (hasOpenRisks) {
+      return { label: "STEP 3 위험 확인", task: "risk" as WorkbenchTask };
+    }
+
+    return { label: "STEP 2 사업성 평가", task: "score" as WorkbenchTask };
+  }
 
   if (!selectedIdea || !editState) {
     return (
@@ -9874,7 +10014,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="mt-3 flex justify-end">
                       <button
                         type="button"
-                        onClick={() => void deleteIdeaRecord(idea)}
+                        onClick={() => void discardIdeaRecord(idea)}
                         disabled={isBusy}
                         className="avl-btn avl-btn-danger h-9 px-3 text-xs disabled:opacity-50"
                       >
@@ -9975,8 +10115,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         >
           <div className="grid gap-5 xl:grid-cols-[200px_minmax(0,1fr)]">
             <aside className="border border-slate-200 bg-slate-50 p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">candidate queue</div>
-              <h3 className="mt-2 text-base font-semibold text-slate-950">오늘 검토할 후보</h3>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">idea list</div>
+              <h3 className="mt-2 text-base font-semibold text-slate-950">검토 아이디어</h3>
 
               <div className="mt-4 avl-segmented grid grid-cols-3 gap-2 p-1">
                 {[
@@ -9998,26 +10138,27 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
 
               <div className="mt-4 border border-slate-200 bg-white px-3 py-3 text-sm leading-5 text-slate-600">
-                지금은 많은 후보를 펼치기보다, 바로 평가할 후보 한 건을 고르면 됩니다. 현재 보이는 후보는 {visibleIdeas.length}개입니다.
+                진행 중인 아이디어를 고르면 마지막으로 이어갈 단계가 바로 열립니다. 현재 보이는 아이디어는 {visibleIdeas.length}개입니다.
               </div>
             </aside>
 
             <section className="avl-card p-5 text-slate-900">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">candidate selection</div>
-                  <h2 className="mt-2 text-xl font-semibold text-slate-950">후보 선택</h2>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">idea progress</div>
+                  <h2 className="mt-2 text-xl font-semibold text-slate-950">진행 중인 아이디어</h2>
                   <p className="mt-2 max-w-2xl text-sm leading-5 text-slate-600">
-                    지금 바로 평가를 시작할 후보 한 건만 고르면 충분합니다. 나머지는 비교 큐로 남겨두고, 하나를 선택한 뒤 다음 단계로 넘어갑니다.
+                    다시 이어갈 아이디어를 고르세요. 각 아이디어의 진행 단계가 함께 표시됩니다.
                   </p>
                 </div>
                 <div className="avl-pill avl-pill-neutral gap-2 px-3 py-2 text-sm">
                   <ClipboardList size={16} />
-                  {visibleIdeas.length}개 후보
+                  {visibleIdeas.length}개 아이디어
                 </div>
               </div>
 
-              {selectedIdea ? (() => {
+              {visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {
+                const selectedProgress = getIdeaProgress(selectedIdea);
                 const isOwned = Boolean(user && selectedIdea.created_by === user.id);
                 const isOrgAdmin = Boolean(
                   user &&
@@ -10038,7 +10179,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       <div className="border border-slate-200 bg-slate-50 p-5">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선택된 후보</div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선택한 아이디어</div>
                           <h3 className="mt-2 text-[20px] font-semibold text-slate-950">{selectedIdea.name}</h3>
                             <p className="mt-3 max-w-2xl text-sm leading-5 text-slate-600">
                               {selectedIdea.one_liner || selectedIdea.signal}
@@ -10046,7 +10187,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           </div>
                           <div className="flex flex-wrap gap-2">
                             <span className="avl-pill avl-pill-neutral">
-                              {stageLabels[selectedIdea.stage]}
+                              {selectedProgress.label}
                             </span>
                             <span
                               className={`avl-pill ${
@@ -10065,33 +10206,33 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         <div className="mt-4 grid gap-4 border-t border-slate-200 pt-4 md:grid-cols-3">
                           <div>
                             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">현재 단계</div>
-                            <div className="mt-2 text-base font-semibold text-slate-950">{stageLabels[selectedIdea.stage]}</div>
-                            <p className="mt-1 text-sm leading-6 text-slate-600">점수와 판단을 먼저 맞춥니다.</p>
+                            <div className="mt-2 text-base font-semibold text-slate-950">{selectedProgress.label}</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">클릭하면 이 단계에서 이어갑니다.</p>
                           </div>
                           <div>
                             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">추천 동작</div>
-                            <div className="mt-2 text-base font-semibold text-slate-950">사업성 평가 시작</div>
-                            <p className="mt-1 text-sm leading-6 text-slate-600">문제 강도, 지불 의향, 첫 제작 속도부터 맞춥니다.</p>
+                            <div className="mt-2 text-base font-semibold text-slate-950">이어서 보기</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">저장된 맥락을 유지한 채 다음 화면을 엽니다.</p>
                           </div>
                           <div>
-                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">후보 수</div>
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">아이디어 수</div>
                             <div className="mt-2 text-base font-semibold text-slate-950">{visibleIdeas.length}개</div>
-                            <p className="mt-1 text-sm leading-6 text-slate-600">나머지는 비교 후보로 남겨둡니다.</p>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">삭제한 아이디어는 별도 목록에 보관됩니다.</p>
                           </div>
                         </div>
 
                         <div className="mt-5 flex flex-wrap gap-2">
                           <button
                             type="button"
-                            onClick={() => updateActiveTask("score")}
+                            onClick={() => updateActiveTask(selectedProgress.task)}
                             className="avl-btn avl-btn-primary h-11 px-4"
                           >
-                            사업성 평가 시작
+                            이어서 보기
                           </button>
                           {isManageable ? (
                             <button
                               type="button"
-                              onClick={() => void deleteIdeaRecord(selectedIdea)}
+                              onClick={() => void discardIdeaRecord(selectedIdea)}
                               disabled={isBusy}
                               className="avl-btn avl-btn-danger h-11 px-4 disabled:opacity-50"
                             >
@@ -10103,21 +10244,22 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       </div>
 
                       <div className="border border-slate-200 bg-white p-4 text-sm leading-5 text-slate-600">
-                        지금 여기서 할 일은 하나입니다. 이 후보로 먼저 사업성 평가를 시작할지 결정하고, 나머지는 비교 후보로만 남겨두면 됩니다.
+                        아이디어를 삭제하면 목록에서 사라지지만, 삭제한 아이디어 화면에서 다시 되살릴 수 있습니다.
                       </div>
                     </div>
 
                     <div className="border border-slate-200 bg-slate-50 p-5">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">비교 후보</div>
-                          <h4 className="mt-1 text-lg font-semibold text-slate-950">나중에 다시 볼 큐</h4>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">other ideas</div>
+                          <h4 className="mt-1 text-lg font-semibold text-slate-950">다른 진행 중인 아이디어</h4>
                         </div>
                       </div>
 
                       <div className="mt-4 grid gap-3 md:grid-cols-2">
                         {comparisonIdeas.length > 0 ? (
                           comparisonIdeas.map((idea, index) => {
+                            const progress = getIdeaProgress(idea);
                             const isOwnedComparison = Boolean(user && idea.created_by === user.id);
                             const isOrgAdminComparison = Boolean(
                               user &&
@@ -10131,19 +10273,29 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                             );
 
                             return (
-                              <button
+                              <div
                                 key={idea.id}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedIdeaId(idea.id);
-                                  setEditState(toEditState(idea));
-                                }}
-                              className="border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:bg-slate-50"
+                                className="border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:bg-slate-50"
                               >
-                                <div className="flex items-center justify-between gap-3">
-                                  <span className="avl-step-dot h-8 w-8 bg-slate-900 text-sm text-white">
-                                    {index + 2}
-                                  </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedIdeaId(idea.id);
+                                    setEditState(toEditState(idea));
+                                    updateActiveTask(progress.task);
+                                  }}
+                                  className="w-full text-left"
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <span className="avl-step-dot h-8 w-8 bg-slate-900 text-sm text-white">
+                                      {index + 2}
+                                    </span>
+                                    <span className="avl-pill avl-pill-info">{progress.label}</span>
+                                  </div>
+                                  <div className="mt-3 text-base font-semibold text-slate-950">{idea.name}</div>
+                                  <p className="mt-2 text-sm leading-5 text-slate-600">{idea.one_liner || idea.signal}</p>
+                                </button>
+                                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                                   <span className="avl-pill avl-pill-neutral">
                                     {isOwnedComparison
                                       ? editabilityLabels.editable
@@ -10151,10 +10303,19 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                                         ? editabilityLabels.orgAdmin
                                         : editabilityLabels.readOnly}
                                   </span>
+                                  {isOwnedComparison || isOrgAdminComparison ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => void discardIdeaRecord(idea)}
+                                      disabled={isBusy}
+                                      className="avl-btn avl-btn-danger h-8 px-3 text-xs disabled:opacity-50"
+                                    >
+                                      <Trash2 size={13} />
+                                      삭제
+                                    </button>
+                                  ) : null}
                                 </div>
-                                <div className="mt-3 text-base font-semibold text-slate-950">{idea.name}</div>
-                                <p className="mt-2 text-sm leading-5 text-slate-600">{idea.one_liner || idea.signal}</p>
-                              </button>
+                              </div>
                             );
                           })
                         ) : (
@@ -10168,11 +10329,73 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 );
               })() : (
                 <div className="mt-6 border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-7 text-slate-600">
-                  아직 선택할 후보가 없습니다. 먼저 `후보 저장`에서 새 후보를 저장하거나, 아이디어 도출에서 추천 후보를 초안으로 반영하세요.
+                  진행 중인 아이디어가 없습니다. 새 아이디어를 도출하거나, 삭제한 아이디어에서 되살릴 항목을 확인하세요.
                 </div>
               )}
             </section>
           </div>
+        </div>
+
+        <div className={`grid gap-5 ${activeTask === "archive" ? "" : "hidden"}`}>
+          <section className="avl-card p-5 text-slate-900">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">deleted ideas</div>
+                <h2 className="mt-2 text-xl font-semibold text-slate-950">삭제한 아이디어</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-5 text-slate-600">
+                  삭제한 아이디어는 이곳에 남겨둡니다. 다시 이어갈 수 있고, 필요할 때만 완전히 삭제합니다.
+                </p>
+              </div>
+              <div className="avl-pill avl-pill-neutral px-3 py-2 text-sm">{discardedIdeas.length}개</div>
+            </div>
+
+            <div className="mt-5 grid gap-3">
+              {discardedIdeas.length > 0 ? (
+                discardedIdeas.map((idea) => {
+                  const accessState = getRecordAccessState(idea);
+                  const isManageable = accessState === "owned" || accessState === "workspace_admin";
+
+                  return (
+                    <div key={idea.id} className="border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                          <div className="avl-pill avl-pill-warning mb-2">삭제됨</div>
+                          <h3 className="text-base font-semibold text-slate-950">{idea.name}</h3>
+                          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
+                        </div>
+                        {isManageable ? (
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => void restoreIdeaRecord(idea)}
+                              disabled={isBusy}
+                              className="avl-btn avl-btn-secondary h-10 px-3 text-sm disabled:opacity-50"
+                            >
+                              <RefreshCw size={15} />
+                              되살리기
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void deleteIdeaRecord(idea)}
+                              disabled={isBusy}
+                              className="avl-btn avl-btn-danger h-10 px-3 text-sm disabled:opacity-50"
+                            >
+                              <Trash2 size={15} />
+                              완전 삭제
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-6 text-slate-600">
+                  삭제한 아이디어가 없습니다. 진행 중인 아이디어에서 삭제를 누르면 이곳으로 이동합니다.
+                </div>
+              )}
+            </div>
+          </section>
         </div>
 
         <form
@@ -10198,7 +10421,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   {canEdit ? (
                     <button
                       type="button"
-                      onClick={() => void deleteIdeaRecord(selectedIdea)}
+                      onClick={() => void discardIdeaRecord(selectedIdea)}
                       disabled={isBusy}
                       className="avl-btn avl-btn-danger h-11 px-4 disabled:opacity-50"
                     >

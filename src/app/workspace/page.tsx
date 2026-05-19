@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { WorkspaceBoardPage } from "@/components/workspace-board-page";
+import { WorkspaceBoardPage, type WorkspaceInitialView } from "@/components/workspace-board-page";
 
 export const metadata: Metadata = {
   title: "아이디어 실행 보드 | AI Venture Lab",
@@ -9,6 +9,14 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function WorkspacePage() {
-  return <WorkspaceBoardPage />;
+export default async function WorkspacePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ view?: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const view = Array.isArray(params?.view) ? params?.view[0] : params?.view;
+  const initialView: WorkspaceInitialView = view === "ideas" || view === "deleted" ? view : undefined;
+
+  return <WorkspaceBoardPage initialView={initialView} />;
 }

@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Sparkle,
   Stack,
+  Trash,
   User,
   Users,
 } from "@phosphor-icons/react";
@@ -82,8 +83,8 @@ const shellTasks: Array<{
   },
   {
     id: "workbench:select",
-    label: "후보 선택",
-    description: "다른 후보를 볼 때",
+    label: "검토 아이디어",
+    description: "진행 중인 아이디어",
     group: "검증",
     icon: ClipboardText,
     optional: true,
@@ -115,6 +116,15 @@ const shellTasks: Array<{
     description: "진행 결론",
     group: "검증",
     icon: ShieldCheck,
+    optional: true,
+  },
+  {
+    id: "workbench:archive",
+    label: "삭제한 아이디어",
+    description: "복구 또는 완전 삭제",
+    group: "검증",
+    icon: Trash,
+    optional: true,
   },
   {
     id: "workbench:artifacts",
@@ -175,8 +185,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["이름과 한 줄 설명 확인", "필요할 때만 추가 항목 보완", "후보 저장"],
   },
   "workbench:select": {
-    summary: "오늘 먼저 볼 후보 한 건을 고른 뒤 평가와 검증을 이어갑니다.",
-    checklist: ["전체 또는 내 기록 확인", "편집 가능 여부 확인", "평가할 후보 선택"],
+    summary: "진행 중인 아이디어를 보고 마지막 단계에서 이어갑니다.",
+    checklist: ["아이디어 목록 확인", "진행 단계 확인", "이어서 볼 아이디어 선택"],
   },
   "workbench:score": {
     summary: "수요, 속도, 지불 의향, 위험 감점을 숫자로 빠르게 맞춥니다.",
@@ -189,6 +199,10 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   "workbench:decision": {
     summary: "왜 진행, 보완, 전환, 중단할지 한 문단 근거를 남깁니다.",
     checklist: ["현재 판단 확인", "판단 근거 작성", "최종 기록 저장"],
+  },
+  "workbench:archive": {
+    summary: "삭제한 아이디어를 확인하고 되살리거나 완전히 지웁니다.",
+    checklist: ["삭제한 아이디어 확인", "되살릴지 결정", "필요할 때만 완전 삭제"],
   },
   "workbench:experiment": {
     summary: "이 후보를 계속 밀어도 되는지 7일 안에 확인할 작은 행동을 정합니다.",
@@ -250,10 +264,10 @@ const taskCanvasDetails: Record<
     checkpoint: "사용자는 꼭 필요한 의견만 더하면 됩니다.",
   },
   "workbench:select": {
-    question: "오늘 어떤 후보를 먼저 검토할까요?",
-    aiLead: "점수, 리스크, 준비도 신호를 바탕으로 오늘 먼저 볼 후보를 추립니다.",
-    deliverable: "오늘의 검토 대상 한 건",
-    checkpoint: "여기서 고른 후보가 이후 평가와 실행의 기준점이 됩니다.",
+    question: "어떤 아이디어를 이어서 볼까요?",
+    aiLead: "진행 중인 아이디어와 마지막 단계를 한눈에 보여줍니다.",
+    deliverable: "이어서 볼 아이디어 한 건",
+    checkpoint: "아이디어를 고르면 저장된 단계 화면으로 이동합니다.",
   },
   "workbench:score": {
     question: "이 아이디어는 시간과 자원을 써서 검증할만한가?",
@@ -278,6 +292,12 @@ const taskCanvasDetails: Record<
     aiLead: "점수, 리스크, 실험 조건을 묶어 의사결정용 근거를 정리합니다.",
     deliverable: "진행 판단 메모",
     checkpoint: "회의 공유가 가능한 한 문단 결론이 가장 중요합니다.",
+  },
+  "workbench:archive": {
+    question: "삭제한 아이디어를 다시 볼까요?",
+    aiLead: "삭제한 아이디어를 따로 모아 보여주고, 복구와 완전 삭제를 분리합니다.",
+    deliverable: "삭제한 아이디어 목록",
+    checkpoint: "되살리면 사업성 평가 단계에서 다시 이어갈 수 있습니다.",
   },
   "workbench:artifacts": {
     question: "이 후보를 팀이나 개발 도구에 넘길 자료가 준비됐나요?",
@@ -386,7 +406,7 @@ function getNextTaskOptions({
       ];
     case "workbench:experiment":
       return [
-        createTransition("workbench:decision", "다음: 진행 판단", "검증 계획과 점수를 근거로 결정합니다."),
+        createTransition("workbench:artifacts", "다음: 실행 문서 만들기", "아이디어 브리프와 첫 제작 범위를 문서로 남깁니다."),
         ...(openRisks === 0
           ? [
               createTransition(
@@ -496,10 +516,7 @@ function getExecutiveFocus({
   telemetryEventCount: number;
 }): ExecutiveFocus {
   const metrics = [
-    { label: "검토 후보", value: `${ideaCount}` },
-    { label: "확인할 리스크", value: `${openRisks}` },
-    { label: "검증 계획", value: `${experimentCount}` },
-    { label: "실행 문서", value: `${artifactCount}` },
+    { label: "검토 아이디어", value: `${ideaCount}` },
   ];
   const dataNote = source === "supabase" ? "실제 데이터 기준" : "샘플 데이터 기준";
 
@@ -560,19 +577,6 @@ function getExecutiveFocus({
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:experiment",
       cta: "검증 계획 만들기",
-      metrics,
-    };
-  }
-
-  if (decisionCount === 0) {
-    return {
-      eyebrow: "다음에 할 일",
-      title: "진행 여부를 한 번 정리할 차례입니다.",
-      detail: "점수, 리스크, 실험 조건을 모아 진행, 보완, 전환, 중단 중 하나로 정리하세요.",
-      evidence: `${dataNote} · 검증 계획 ${experimentCount}건`,
-      risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
-      targetTask: "workbench:decision",
-      cta: "진행 판단 정리",
       metrics,
     };
   }
@@ -665,6 +669,7 @@ export function VentureConsoleShell({
   initialViewerUserId,
   initialViewerMemberships,
   source,
+  initialView,
 }: {
   initialIdeas: Idea[];
   initialRisks: Risk[];
@@ -677,9 +682,12 @@ export function VentureConsoleShell({
   initialViewerUserId: string | null;
   initialViewerMemberships: Database["public"]["Tables"]["organization_members"]["Row"][];
   source: "supabase" | "seed";
+  initialView?: "ideas" | "deleted";
 }) {
   const isClientReady = useSyncExternalStore(subscribeClientReady, getClientReadySnapshot, getServerReadySnapshot);
-  const [activeTask, setActiveTask] = useState<ShellTask>("console:auth");
+  const [activeTask, setActiveTask] = useState<ShellTask>(
+    initialView === "ideas" ? "workbench:select" : initialView === "deleted" ? "workbench:archive" : "console:auth",
+  );
   const [consoleStatus, setConsoleStatus] = useState<ConsoleWorkflowStatus>({
     isAuthLoaded: false,
     isAuthenticated: false,
@@ -695,7 +703,11 @@ export function VentureConsoleShell({
   const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
   const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
-  const [visitedTaskIds, setVisitedTaskIds] = useState<ShellTask[]>(["console:auth"]);
+  const [visitedTaskIds, setVisitedTaskIds] = useState<ShellTask[]>([
+    "console:auth",
+    ...(initialView === "ideas" ? (["workbench:select"] as ShellTask[]) : []),
+    ...(initialView === "deleted" ? (["workbench:archive"] as ShellTask[]) : []),
+  ]);
   const goToTask = useCallback((task: ShellTask) => {
     setVisitedTaskIds((current) => (current.includes(task) ? current : [...current, task]));
     setActiveTask(task);
@@ -821,7 +833,10 @@ export function VentureConsoleShell({
     );
   }
 
-  const ideaCount = ideas.length;
+  const activeIdeas = ideas.filter((idea) => idea.decision !== "kill");
+  const discardedIdeas = ideas.filter((idea) => idea.decision === "kill");
+  const ideaCount = activeIdeas.length;
+  const discardedIdeaCount = discardedIdeas.length;
   const visibleTask: ShellTask = (() => {
     if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {
       return "console:auth";
@@ -874,6 +889,7 @@ export function VentureConsoleShell({
     "workbench:risk": `${openRisks}개`,
     "workbench:experiment": `${experimentCount}개`,
     "workbench:decision": "판단",
+    "workbench:archive": `${discardedIdeaCount}개`,
     "workbench:artifacts": `${artifactCount}개`,
     "workbench:development": implementationTaskCount > 0 ? `${implementationTaskCount}개` : "준비",
     "workbench:orchestration": `${runCount}개`,
@@ -1191,7 +1207,7 @@ export function VentureConsoleShell({
               onWorkflowStatusChange={setConsoleStatus}
               showSidebar={false}
               embedded
-              existingIdeas={ideas}
+              existingIdeas={activeIdeas}
             />
           </div>
           <div className={visibleTask.startsWith("workbench:") ? "" : "hidden"}>
