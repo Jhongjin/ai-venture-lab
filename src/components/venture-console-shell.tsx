@@ -102,6 +102,7 @@ const shellTasks: Array<{
     description: "막히는 리스크",
     group: "검증",
     icon: FlagPennant,
+    optional: true,
   },
   {
     id: "workbench:experiment",
