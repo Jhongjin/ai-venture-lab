@@ -703,6 +703,26 @@ type ValidationEvidenceCoach = {
   prompt: string;
 };
 
+type MarketScanSource = {
+  title: string;
+  url: string;
+  reason: string;
+};
+
+type MarketScanDraft = {
+  summary: string;
+  demand_forecast: string;
+  competition: string;
+  saturation: string;
+  entry_barriers: string;
+  alternatives: string;
+  recommendation: DecisionStatus;
+  confidence: "low" | "medium" | "high";
+  next_action: string;
+  caveat: string;
+  sources: MarketScanSource[];
+};
+
 type ImplementationTaskDraft = {
   title: string;
   task_type: ImplementationTaskType;
@@ -1969,6 +1989,97 @@ ${draft.learning || "미정"}
 
 ${draft.next_action || state.next_evidence || "다음 실험, PRD 수정, 리스크 완화, 중단/전환 중 하나를 기록하세요."}
 `;
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function cleanInlineText(value: unknown, maxLength = 900) {
+  return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, maxLength) : "";
+}
+
+function normalizeMarketScanSource(value: unknown): MarketScanSource | null {
+  if (!isPlainRecord(value)) {
+    return null;
+  }
+
+  const source = {
+    title: cleanInlineText(value.title, 160),
+    url: cleanInlineText(value.url, 500),
+    reason: cleanInlineText(value.reason, 240),
+  };
+
+  return source.title || source.url ? source : null;
+}
+
+function normalizeMarketScanDraft(value: unknown): MarketScanDraft | null {
+  if (!isPlainRecord(value)) {
+    return null;
+  }
+
+  const sources = Array.isArray(value.sources)
+    ? value.sources.map(normalizeMarketScanSource).filter((source): source is MarketScanSource => Boolean(source))
+    : [];
+  const recommendation: DecisionStatus =
+    value.recommendation === "pending" ||
+    value.recommendation === "research_more" ||
+    value.recommendation === "ship" ||
+    value.recommendation === "pivot" ||
+    value.recommendation === "kill"
+      ? value.recommendation
+      : "research_more";
+  const confidence: MarketScanDraft["confidence"] =
+    value.confidence === "medium" || value.confidence === "high" ? value.confidence : "low";
+  const scan: MarketScanDraft = {
+    summary: cleanInlineText(value.summary),
+    demand_forecast: cleanInlineText(value.demand_forecast),
+    competition: cleanInlineText(value.competition),
+    saturation: cleanInlineText(value.saturation),
+    entry_barriers: cleanInlineText(value.entry_barriers),
+    alternatives: cleanInlineText(value.alternatives),
+    recommendation,
+    confidence,
+    next_action: cleanInlineText(value.next_action),
+    caveat: cleanInlineText(value.caveat),
+    sources,
+  };
+
+  return scan.summary && scan.next_action ? scan : null;
+}
+
+function buildMarketScanResultText(scan: MarketScanDraft) {
+  const sourceLines =
+    scan.sources.length > 0
+      ? scan.sources.map((source) => `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""}`).join("\n")
+      : "- 출처 없음";
+
+  return `시장성 자동 점검 초안
+
+수요 예측
+${scan.demand_forecast}
+
+경쟁도/포화도
+${scan.competition}
+${scan.saturation}
+
+진입장벽
+${scan.entry_barriers}
+
+대체재
+${scan.alternatives}
+
+참고 출처
+${sourceLines}`;
+}
+
+function buildMarketScanLearningText(scan: MarketScanDraft) {
+  return `요약: ${scan.summary}
+
+추천 판단: ${decisionLabels[scan.recommendation]}
+신뢰도: ${scan.confidence === "high" ? "높음" : scan.confidence === "medium" ? "보통" : "낮음"}
+
+주의: ${scan.caveat}`;
 }
 
 function buildValidationSummaryMarkdown({
@@ -6797,6 +6908,10 @@ export function IdeaWorkbench({
     next_decision: "research_more",
     next_action: "",
   });
+  const [marketScanDraft, setMarketScanDraft] = useState<MarketScanDraft | null>(null);
+  const [marketScanMode, setMarketScanMode] = useState<string | null>(null);
+  const [marketScanError, setMarketScanError] = useState<string | null>(null);
+  const [isMarketScanLoading, setIsMarketScanLoading] = useState(false);
   const [runOutputs, setRunOutputs] = useState<Record<string, string>>(
     Object.fromEntries(initialOrchestrationRuns.map((run) => [run.id, run.output])),
   );
@@ -10002,6 +10117,70 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         "완료한 검증 결과를 바탕으로 계속 진행, 추가 조사, 전환, 중단 중 다음 행동을 정합니다.",
     }));
     setMessage("보완할 근거를 아래 '다음 행동' 입력칸에 반영했습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.");
+  }
+
+  async function runMarketScan() {
+    if (!selectedIdea || !editState) {
+      setMarketScanError("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    setIsMarketScanLoading(true);
+    setMarketScanError(null);
+
+    try {
+      const response = await fetch("/api/ideas/market-scan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idea: {
+            name: selectedIdea.name,
+            one_liner: selectedIdea.one_liner,
+            target_user: selectedIdea.target_user,
+            buyer: selectedIdea.buyer,
+          },
+          state: {
+            signal: editState.signal,
+            risk_summary: editState.risk_summary,
+            next_evidence: editState.next_evidence,
+          },
+          score: currentScore,
+          risks: selectedIdeaRisks.map((risk) => `${risk.title}: ${risk.mitigation || risk.area || "세부 내용 없음"}`),
+          experiments: selectedExperiments.map(
+            (experiment) => `${experiment.name}: ${experiment.success_metric || "성공/중단 기준 미정"}`,
+          ),
+        }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as unknown;
+
+      if (!response.ok || !isPlainRecord(payload)) {
+        throw new Error("시장성 점검을 불러오지 못했습니다.");
+      }
+
+      const scan = normalizeMarketScanDraft(payload.scan);
+
+      if (!scan) {
+        throw new Error(cleanInlineText(payload.error, 240) || "시장성 점검 결과를 읽지 못했습니다.");
+      }
+
+      setMarketScanDraft(scan);
+      setMarketScanMode(cleanInlineText(payload.mode, 80));
+      setExperimentResultDraft((current) => ({
+        ...current,
+        experiment_id: current.experiment_id || selectedExperimentForResult?.id || "",
+        result: buildMarketScanResultText(scan),
+        learning: buildMarketScanLearningText(scan),
+        next_decision: scan.recommendation,
+        next_action: scan.next_action,
+      }));
+      setMessage("시장성 자동 점검 초안을 채웠습니다. 필요한 부분만 고친 뒤 저장하거나, 하단 다음 단계로 넘어가세요.");
+    } catch (error) {
+      setMarketScanError(error instanceof Error ? error.message : "시장성 점검을 불러오지 못했습니다.");
+    } finally {
+      setIsMarketScanLoading(false);
+    }
   }
 
   return (
@@ -13372,14 +13551,97 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           ) : null}
 
+          <div className="avl-card p-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <div className="avl-kicker">시장 자동 점검</div>
+                <h3 className="mt-1 text-base font-semibold text-slate-950">수요, 경쟁, 진입장벽을 먼저 채웁니다</h3>
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                  이 단계는 사용자가 직접 시장 조사를 끝내야 하는 구간이 아닙니다. 버튼을 누르면 AI가 현재 아이디어를
+                  기준으로 예상 수요, 경쟁도, 포화도, 진입장벽, 대체재를 정리하고 아래 결과 기록 입력칸에 초안을 채웁니다.
+                </p>
+                <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
+                  공개 자료를 찾으면 출처를 함께 표시하고, 출처가 부족하면 추정 초안으로 표시합니다. 실제 투자/출시 판단 전에는
+                  중요한 수치만 다시 확인하세요.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void runMarketScan()}
+                disabled={isMarketScanLoading || !selectedIdea || !editState}
+                className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
+              >
+                <RefreshCw size={16} className={isMarketScanLoading ? "animate-spin" : ""} />
+                {isMarketScanLoading ? "점검 중" : "시장성 자동 점검"}
+              </button>
+            </div>
+
+            {marketScanError ? (
+              <div className="mt-3 border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{marketScanError}</div>
+            ) : null}
+
+            {marketScanDraft ? (
+              <div className="mt-4 grid gap-4">
+                <div className="grid gap-px bg-slate-200 lg:grid-cols-3">
+                  {[
+                    ["예상 수요", marketScanDraft.demand_forecast],
+                    ["경쟁/포화도", `${marketScanDraft.competition} ${marketScanDraft.saturation}`],
+                    ["진입장벽", marketScanDraft.entry_barriers],
+                  ].map(([title, detail]) => (
+                    <div key={title} className="bg-slate-50 px-4 py-3">
+                      <div className="text-sm font-semibold text-slate-950">{title}</div>
+                      <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+                  <div className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-600">
+                    <span className="font-semibold text-slate-950">대체재와 차별화:</span> {marketScanDraft.alternatives}
+                  </div>
+                  <div className="border border-slate-200 bg-white px-4 py-3">
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
+                    <div className="mt-2 text-lg font-semibold text-slate-950">
+                      {decisionLabels[marketScanDraft.recommendation]}
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      신뢰도 {marketScanDraft.confidence === "high" ? "높음" : marketScanDraft.confidence === "medium" ? "보통" : "낮음"}
+                      {marketScanMode === "local_estimate" ? " · 추정 초안" : ""}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">참고 출처</div>
+                  {marketScanDraft.sources.length > 0 ? (
+                    <div className="grid gap-2">
+                      {marketScanDraft.sources.map((source, index) => (
+                        <div key={`${source.url}-${index}`} className="border border-slate-200 bg-white px-3 py-2 text-xs leading-5">
+                          {source.url ? (
+                            <a href={source.url} target="_blank" rel="noreferrer" className="font-semibold text-slate-950 underline-offset-2 hover:underline">
+                              {source.title || source.url}
+                            </a>
+                          ) : (
+                            <span className="font-semibold text-slate-950">{source.title}</span>
+                          )}
+                          {source.reason ? <p className="mt-1 text-slate-500">{source.reason}</p> : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-slate-500">표시할 출처가 없습니다. 추정 초안으로만 참고하세요.</div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
           <form onSubmit={saveExperimentResultNote} className="avl-card p-4">
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="avl-kicker">결과 기록</div>
                 <h3 className="mt-1 text-base font-semibold text-slate-950">검증 결과 기록</h3>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                  위에서 만든 검증 계획을 실제로 해본 뒤 결과를 남기는 선택 영역입니다. 아직 실행 전이면 비워두고,
-                  하단 다음 단계 버튼으로 실행 문서 만들기 단계로 넘어가도 됩니다.
+                  실제로 해본 검증 결과를 남기는 선택 영역입니다. 아직 실행 전이면 시장성 자동 점검 초안을 먼저 채우거나,
+                  이 칸을 비워두고 하단 다음 단계 버튼으로 실행 문서 만들기 단계로 넘어가도 됩니다.
                 </p>
               </div>
               <button
