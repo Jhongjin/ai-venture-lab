@@ -63,6 +63,7 @@ export async function WorkspaceBoardPage({ initialView }: { initialView?: Worksp
         ) : null}
 
         <VentureConsoleShell
+          key={initialView ?? "default"}
           initialIdeas={ideas}
           initialRisks={risks}
           initialDecisions={decisions}
