@@ -1,6 +1,7 @@
 import { ArrowRight, Trash, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 
+import { WorkspaceIdeaListActions } from "@/components/workspace-idea-list-actions";
 import { getConsoleData } from "@/lib/venture-data";
 import type { Idea } from "@/lib/venture-data";
 
@@ -9,6 +10,7 @@ type IdeaProgress = {
   label: string;
   task: "score" | "risk" | "experiment" | "artifacts" | "development" | "launch" | "learning";
 };
+const adminRoles = new Set(["owner", "admin"]);
 
 function getIdeaProgress(idea: Idea): IdeaProgress {
   switch (idea.stage) {
@@ -34,8 +36,37 @@ function getIdeaHref(idea: Idea) {
   return `/workspace?task=${progress.task}&idea=${idea.id}`;
 }
 
+function canManageIdea({
+  idea,
+  viewerUserId,
+  viewerMemberships,
+}: {
+  idea: Idea;
+  viewerUserId: string | null;
+  viewerMemberships: Awaited<ReturnType<typeof getConsoleData>>["viewerMemberships"];
+}) {
+  if (!viewerUserId) {
+    return false;
+  }
+
+  if (idea.created_by === viewerUserId) {
+    return true;
+  }
+
+  if (!idea.organization_id) {
+    return false;
+  }
+
+  return viewerMemberships.some(
+    (membership) =>
+      membership.user_id === viewerUserId &&
+      membership.organization_id === idea.organization_id &&
+      adminRoles.has(membership.role),
+  );
+}
+
 export async function WorkspaceIdeaListPage({ mode }: { mode: IdeaListMode }) {
-  const { ideas, source, error } = await getConsoleData();
+  const { ideas, source, error, viewerUserId, viewerMemberships } = await getConsoleData();
   const activeIdeas = ideas.filter((idea) => idea.decision !== "kill");
   const deletedIdeas = ideas.filter((idea) => idea.decision === "kill");
   const records = mode === "deleted" ? deletedIdeas : activeIdeas;
@@ -95,11 +126,11 @@ export async function WorkspaceIdeaListPage({ mode }: { mode: IdeaListMode }) {
             records.map((idea) => {
               const progress = getIdeaProgress(idea);
               const href = mode === "deleted" ? "/workspace?task=archive" : getIdeaHref(idea);
+              const canManage = canManageIdea({ idea, viewerUserId, viewerMemberships });
 
               return (
-                <Link
+                <article
                   key={idea.id}
-                  href={href}
                   className="grid gap-4 border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center"
                 >
                   <div className="min-w-0">
@@ -114,20 +145,21 @@ export async function WorkspaceIdeaListPage({ mode }: { mode: IdeaListMode }) {
                     <h2 className="mt-3 text-lg font-semibold tracking-tight text-slate-950">{idea.name}</h2>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
                   </div>
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
+                  <div className="grid justify-items-start gap-3 lg:justify-items-end">
                     {mode === "deleted" ? (
-                      <>
+                      <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
                         <Trash size={16} />
                         삭제 목록에서 관리
-                      </>
+                      </div>
                     ) : (
-                      <>
+                      <Link href={href} className="avl-btn avl-btn-secondary h-10 px-3 text-sm">
                         이어서 보기
                         <ArrowRight size={16} />
-                      </>
+                      </Link>
                     )}
+                    <WorkspaceIdeaListActions idea={idea} mode={mode} canManage={canManage} />
                   </div>
-                </Link>
+                </article>
               );
             })
           ) : (

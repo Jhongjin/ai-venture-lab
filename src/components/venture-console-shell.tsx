@@ -729,8 +729,12 @@ export function VentureConsoleShell({
     setActiveTask(task);
   }, []);
   const handleConsoleTaskChange = useCallback((task: ConsoleActionTask) => {
+    if (activeTask.startsWith("workbench:") && (task === "auth" || task === "extract")) {
+      return;
+    }
+
     goToTask(`console:${task}`);
-  }, [goToTask]);
+  }, [activeTask, goToTask]);
   const handleWorkbenchTaskChange = useCallback((task: WorkbenchTask) => {
     goToTask(`workbench:${task}`);
   }, [goToTask]);
