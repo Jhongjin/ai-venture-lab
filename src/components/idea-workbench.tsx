@@ -808,6 +808,15 @@ export type WorkbenchTask =
   | "launch"
   | "learning";
 
+export type ValidationDocumentReadiness = {
+  selectedIdeaId: string | null;
+  canEnterDevelopment: boolean;
+  hasIdeaBriefArtifact: boolean;
+  hasResearchBriefArtifact: boolean;
+  hasValidationSprintArtifact: boolean;
+  hasValidationSummaryArtifact: boolean;
+};
+
 type ArtifactPanel = "validation" | "product" | "library";
 type DevelopmentPanel = "setup" | "tasks" | "handoff";
 type GuidedExecutionStep = "package" | "execute" | "report";
@@ -6839,6 +6848,7 @@ export function IdeaWorkbench({
   initialSelectedIdeaId,
   activeTask: controlledActiveTask,
   onActiveTaskChange,
+  onValidationDocumentReadinessChange,
   showSidebar = true,
 }: {
   initialIdeas: Idea[];
@@ -6854,6 +6864,7 @@ export function IdeaWorkbench({
   initialSelectedIdeaId?: string;
   activeTask?: WorkbenchTask;
   onActiveTaskChange?: (task: WorkbenchTask) => void;
+  onValidationDocumentReadinessChange?: (readiness: ValidationDocumentReadiness) => void;
   showSidebar?: boolean;
   embedded?: boolean;
 }) {
@@ -7972,24 +7983,52 @@ export function IdeaWorkbench({
   ) ?? selectedArtifactRecords.find((artifact) =>
     ["tech_spec", "dev_runbook", "mvp_spec", "prd"].includes(artifact.artifact_type),
   );
-  const hasIdeaBriefArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "idea_brief");
+  const hasIdeaBriefArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.artifact_type === "idea_brief" || (artifact.title || "").includes("아이디어 브리프"),
+  );
   const hasResearchNoteArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note");
   const hasResearchBriefArtifact = selectedArtifactRecords.some(
     (artifact) =>
       artifact.artifact_type === "research_note" &&
-      artifact.source === "workbench" &&
-      (artifact.title || "").includes("리서치 브리프"),
+      (artifact.source === "extracted_research_brief" ||
+        ((artifact.source || "workbench") === "workbench" && (artifact.title || "").includes("리서치 브리프")) ||
+        (artifact.body || "").startsWith("# 리서치 브리프")),
   );
-  const hasValidationSprintArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "validation_sprint");
+  const hasValidationSprintArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.source === "validation_sprint" || (artifact.title || "").includes("7일 검증 계획"),
+  );
+  const hasValidationSummaryArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.source === "validation_summary" || (artifact.title || "").includes("검증 완료 요약"),
+  );
   const hasEvidenceCaptureArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "evidence_capture");
   const hasExperimentResultArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "experiment_result");
-  const hasValidationSummaryArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "validation_summary");
   const validationSummaryRequirements = [
     { label: "아이디어 브리프", passed: hasIdeaBriefArtifact },
     { label: "리서치 브리프", passed: hasResearchBriefArtifact },
     { label: "7일 검증 계획", passed: hasValidationSprintArtifact },
   ];
   const canSaveValidationSummary = validationSummaryRequirements.every((requirement) => requirement.passed);
+  const canEnterDevelopmentFromValidationDocs =
+    canSaveValidationSummary && hasValidationSummaryArtifact;
+
+  useEffect(() => {
+    onValidationDocumentReadinessChange?.({
+      selectedIdeaId: selectedIdea?.id ?? null,
+      canEnterDevelopment: canEnterDevelopmentFromValidationDocs,
+      hasIdeaBriefArtifact,
+      hasResearchBriefArtifact,
+      hasValidationSprintArtifact,
+      hasValidationSummaryArtifact,
+    });
+  }, [
+    canEnterDevelopmentFromValidationDocs,
+    hasIdeaBriefArtifact,
+    hasResearchBriefArtifact,
+    hasValidationSprintArtifact,
+    hasValidationSummaryArtifact,
+    onValidationDocumentReadinessChange,
+    selectedIdea?.id,
+  ]);
   const hasPrdArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "prd");
   const hasApprovedPrdArtifact = selectedArtifactRecords.some(
     (artifact) => artifact.artifact_type === "prd" && artifact.status === "approved",
@@ -13821,7 +13860,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           copyLabel="브리프 복사"
           onCopy={copyIdeaBrief}
           onSave={() => saveArtifactDraft("idea_brief", `${selectedIdea.name} 아이디어 브리프`, ideaBrief, "workbench")}
-          saveDisabled={isBusy || !user}
+          saveLabel={hasIdeaBriefArtifact ? "저장 완료" : "실행 문서 저장"}
+          saveDisabled={isBusy || !user || hasIdeaBriefArtifact}
+          disabledNote={hasIdeaBriefArtifact ? "아이디어 브리프가 저장되어 상단 상태에 반영되었습니다." : undefined}
         />
 
         <DraftDocumentCard
@@ -13836,7 +13877,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           onSave={() =>
             saveArtifactDraft("research_note", `${selectedIdea.name} 리서치 브리프`, researchBriefDraft, "workbench")
           }
-          saveDisabled={isBusy || !user}
+          saveLabel={hasResearchBriefArtifact ? "저장 완료" : "실행 문서 저장"}
+          saveDisabled={isBusy || !user || hasResearchBriefArtifact}
+          disabledNote={hasResearchBriefArtifact ? "리서치 브리프가 저장되어 상단 상태에 반영되었습니다." : undefined}
         />
 
         <DraftDocumentCard
@@ -13856,7 +13899,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               "validation_sprint",
             )
           }
-          saveDisabled={isBusy || !user}
+          saveLabel={hasValidationSprintArtifact ? "저장 완료" : "실행 문서 저장"}
+          saveDisabled={isBusy || !user || hasValidationSprintArtifact}
+          disabledNote={hasValidationSprintArtifact ? "7일 검증 계획이 저장되어 상단 상태에 반영되었습니다." : undefined}
         />
 
         <div
@@ -13950,9 +13995,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               "validation_summary",
             )
           }
-          saveDisabled={isBusy || !user || !canSaveValidationSummary}
+          saveLabel={hasValidationSummaryArtifact ? "저장 완료" : "실행 문서 저장"}
+          saveDisabled={isBusy || !user || !canSaveValidationSummary || hasValidationSummaryArtifact}
           disabledNote={
-            canSaveValidationSummary
+            hasValidationSummaryArtifact
+              ? "검증 완료 요약이 저장되었습니다. 하단 다음 단계 버튼으로 제작 준비에 들어갈 수 있습니다."
+              : canSaveValidationSummary
               ? undefined
               : `검증 완료 요약은 ${validationSummaryRequirements
                   .filter((requirement) => !requirement.passed)
@@ -14581,6 +14629,8 @@ function DraftDocumentCard({
   saveDisabled?: boolean;
   disabledNote?: string;
 }) {
+  const isSaved = saveLabel === "저장 완료";
+
   return (
     <section className={`${className} avl-card p-5`}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -14592,12 +14642,12 @@ function DraftDocumentCard({
           <p className="mt-2 text-sm leading-5 text-slate-600">{description}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onCopy}
-            disabled={copyDisabled}
-            className="avl-btn avl-btn-secondary px-4 disabled:opacity-50"
-          >
+            <button
+              type="button"
+              onClick={onCopy}
+              disabled={copyDisabled}
+              className="avl-btn avl-btn-secondary px-4 disabled:cursor-not-allowed disabled:opacity-50"
+            >
             <Clipboard size={18} />
             {copyLabel}
           </button>
@@ -14606,7 +14656,7 @@ function DraftDocumentCard({
               type="button"
               onClick={onSave}
               disabled={saveDisabled}
-              className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
+              className="avl-btn avl-btn-primary px-4 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save size={18} />
               {saveLabel}
@@ -14616,8 +14666,14 @@ function DraftDocumentCard({
       </div>
       {onSave ? (
         <div className="mt-4 border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-600">
-          복사는 외부 문서나 메신저에 붙여 넣을 때 쓰는 보조 기능입니다. 일반 진행은 내용을 확인한 뒤{" "}
-          <span className="font-semibold text-slate-950">{saveLabel}</span>을 누르면 됩니다.
+          {isSaved ? (
+            <span>이 문서는 저장되어 상단 진행 상태에 반영되었습니다.</span>
+          ) : (
+            <>
+              복사는 외부 문서나 메신저에 붙여 넣을 때 쓰는 보조 기능입니다. 일반 진행은 내용을 확인한 뒤{" "}
+              <span className="font-semibold text-slate-950">{saveLabel}</span>을 누르면 됩니다.
+            </>
+          )}
           {disabledNote ? <span className="block mt-1 text-amber-700">{disabledNote}</span> : null}
         </div>
       ) : null}

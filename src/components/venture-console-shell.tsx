@@ -20,7 +20,7 @@ import {
   Users,
 } from "@phosphor-icons/react";
 
-import { IdeaWorkbench, type WorkbenchTask } from "@/components/idea-workbench";
+import { IdeaWorkbench, type ValidationDocumentReadiness, type WorkbenchTask } from "@/components/idea-workbench";
 import {
   VentureConsoleActions,
   type ConsoleActionTask,
@@ -337,6 +337,7 @@ type TaskTransitionOption = {
   cta: string;
   hint: string;
   variant: "primary" | "optional";
+  disabled?: boolean;
 };
 
 type ExecutiveFocus = {
@@ -355,8 +356,9 @@ function createTransition(
   cta: string,
   hint: string,
   variant: TaskTransitionOption["variant"] = "primary",
+  disabled = false,
 ): TaskTransitionOption {
-  return { id, cta, hint, variant };
+  return { id, cta, hint, variant, disabled };
 }
 
 function getNextTaskOptions({
@@ -365,12 +367,14 @@ function getNextTaskOptions({
   artifactCount,
   runCount,
   openRisks,
+  canEnterDevelopment,
 }: {
   activeTask: ShellTask;
   ideaCount: number;
   artifactCount: number;
   runCount: number;
   openRisks: number;
+  canEnterDevelopment: boolean;
 }) {
   switch (activeTask) {
     case "console:auth":
@@ -436,7 +440,17 @@ function getNextTaskOptions({
           : []),
       ];
     case "workbench:artifacts":
-      return [createTransition("workbench:development", "다음: 제작 준비", "디자인, 개발, 배포 준비를 구체화합니다.")];
+      return [
+        createTransition(
+          "workbench:development",
+          "다음: 제작 준비",
+          canEnterDevelopment
+            ? "검증 완료 요약까지 저장했습니다. 이제 디자인, 개발, 배포 준비를 구체화합니다."
+            : "아이디어 브리프, 리서치 브리프, 7일 검증 계획, 검증 완료 요약을 모두 저장하면 활성화됩니다.",
+          "primary",
+          !canEnterDevelopment,
+        ),
+      ];
     case "workbench:development":
       return [
         createTransition("workbench:orchestration", "다음: 실행 관리", "전략, 디자인, 개발, 품질 점검 역할을 배정합니다."),
@@ -723,6 +737,14 @@ export function VentureConsoleShell({
   const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
   const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
+  const [validationDocumentReadiness, setValidationDocumentReadiness] = useState<ValidationDocumentReadiness>({
+    selectedIdeaId: initialIdeaId ?? null,
+    canEnterDevelopment: false,
+    hasIdeaBriefArtifact: false,
+    hasResearchBriefArtifact: false,
+    hasValidationSprintArtifact: false,
+    hasValidationSummaryArtifact: false,
+  });
   const [visitedTaskIds, setVisitedTaskIds] = useState<ShellTask[]>([
     "console:auth",
     ...(initialShellTask !== "console:auth" ? [initialShellTask] : []),
@@ -894,7 +916,9 @@ export function VentureConsoleShell({
     artifactCount,
     runCount,
     openRisks,
+    canEnterDevelopment: validationDocumentReadiness.canEnterDevelopment,
   });
+  const enabledNextTaskOptions = nextTaskOptions.filter((option) => !option.disabled);
   const primaryNextTask = nextTaskOptions.find((option) => option.variant === "primary") ?? null;
   const activeGuidance = taskGuidance[visibleTask];
   const currentStepBlocker = getCurrentStepBlocker({
@@ -932,7 +956,7 @@ export function VentureConsoleShell({
         (task) =>
           task.optional &&
           task.id !== visibleTask &&
-          !nextTaskOptions.some((option) => option.id === task.id) &&
+          !enabledNextTaskOptions.some((option) => option.id === task.id) &&
           !visitedTaskIds.includes(task.id),
       )
     : [];
@@ -941,7 +965,7 @@ export function VentureConsoleShell({
   const availableTaskIds = new Set<ShellTask>([
     ...completedTasks.map((task) => task.id),
     activeTaskConfig.id,
-    ...nextTaskOptions.map((task) => task.id),
+    ...enabledNextTaskOptions.map((task) => task.id),
     ...supportTasks.map((task) => task.id),
   ]);
   const lockedTasks = shellTasks.filter((task) => !availableTaskIds.has(task.id));
@@ -956,7 +980,7 @@ export function VentureConsoleShell({
   );
   const activeCanvas = taskCanvasDetails[visibleTask];
   const railPrimaryTasks = executionStepTasks.filter(
-    (task) => task.id === visibleTask || nextTaskOptions.some((option) => option.id === task.id),
+    (task) => task.id === visibleTask || enabledNextTaskOptions.some((option) => option.id === task.id),
   );
   const executiveFocus = getExecutiveFocus({
     activeTask: visibleTask,
@@ -1016,7 +1040,7 @@ export function VentureConsoleShell({
             const Icon = task.icon;
             const isCurrent = task.id === visibleTask;
             const isCompleted = completedTasks.some((item) => item.id === task.id);
-            const isAvailable = nextTaskOptions.some((item) => item.id === task.id);
+            const isAvailable = enabledNextTaskOptions.some((item) => item.id === task.id);
             const previous = railPrimaryTasks[index - 1];
             const showGroupLabel = index === 0 || previous.group !== task.group;
 
@@ -1225,6 +1249,7 @@ export function VentureConsoleShell({
               initialSelectedIdeaId={initialIdeaId}
               activeTask={activeWorkbenchTask}
               onActiveTaskChange={handleWorkbenchTaskChange}
+              onValidationDocumentReadinessChange={setValidationDocumentReadiness}
               showSidebar={false}
               embedded
             />
@@ -1241,7 +1266,8 @@ export function VentureConsoleShell({
               <button
                 type="button"
                 onClick={() => goToTask(primaryNextTask.id)}
-                className="avl-btn avl-btn-primary h-11 px-4"
+                disabled={primaryNextTask.disabled}
+                className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-45"
               >
                 {primaryNextTask.cta}
                 <ArrowRight size={16} />
