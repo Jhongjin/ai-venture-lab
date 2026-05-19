@@ -544,6 +544,17 @@ function getExecutiveFocus({
     };
   }
 
+  if (activeTask === "console:extract") {
+    return {
+      eyebrow: "지금 할 일",
+      title: "진행 중인 아이디어가 있습니다.",
+      detail: "상단의 검토 아이디어 목록에서 이어갈 항목을 선택하거나, 새 아이디어를 입력하세요.",
+      evidence: `${dataNote} · 아이디어 ${ideaCount}건`,
+      risk: "목록에서 이어갈 단계를 선택",
+      metrics,
+    };
+  }
+
   if (activeTask === "workbench:score") {
     return {
       eyebrow: "지금 할 일",
@@ -670,6 +681,8 @@ export function VentureConsoleShell({
   initialViewerMemberships,
   source,
   initialView,
+  initialTask,
+  initialIdeaId,
 }: {
   initialIdeas: Idea[];
   initialRisks: Risk[];
@@ -683,10 +696,14 @@ export function VentureConsoleShell({
   initialViewerMemberships: Database["public"]["Tables"]["organization_members"]["Row"][];
   source: "supabase" | "seed";
   initialView?: "ideas" | "deleted";
+  initialTask?: WorkbenchTask;
+  initialIdeaId?: string;
 }) {
   const isClientReady = useSyncExternalStore(subscribeClientReady, getClientReadySnapshot, getServerReadySnapshot);
+  const initialShellTask: ShellTask =
+    initialTask ? `workbench:${initialTask}` : initialView === "ideas" ? "workbench:select" : initialView === "deleted" ? "workbench:archive" : "console:auth";
   const [activeTask, setActiveTask] = useState<ShellTask>(
-    initialView === "ideas" ? "workbench:select" : initialView === "deleted" ? "workbench:archive" : "console:auth",
+    initialShellTask,
   );
   const [consoleStatus, setConsoleStatus] = useState<ConsoleWorkflowStatus>({
     isAuthLoaded: false,
@@ -705,8 +722,7 @@ export function VentureConsoleShell({
   const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
   const [visitedTaskIds, setVisitedTaskIds] = useState<ShellTask[]>([
     "console:auth",
-    ...(initialView === "ideas" ? (["workbench:select"] as ShellTask[]) : []),
-    ...(initialView === "deleted" ? (["workbench:archive"] as ShellTask[]) : []),
+    ...(initialShellTask !== "console:auth" ? [initialShellTask] : []),
   ]);
   const goToTask = useCallback((task: ShellTask) => {
     setVisitedTaskIds((current) => (current.includes(task) ? current : [...current, task]));
@@ -948,10 +964,6 @@ export function VentureConsoleShell({
     runCount,
     telemetryEventCount,
   });
-  const executiveFocusAction =
-    executiveFocus.targetTask && executiveFocus.cta
-      ? { targetTask: executiveFocus.targetTask, cta: executiveFocus.cta }
-      : null;
 
   function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
     if (task.optional) {
@@ -1122,16 +1134,6 @@ export function VentureConsoleShell({
                 </h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">{executiveFocus.detail}</p>
               </div>
-              {executiveFocusAction ? (
-                <button
-                  type="button"
-                  onClick={() => goToTask(executiveFocusAction.targetTask)}
-                  className="avl-btn bg-white px-4 text-slate-950 hover:bg-slate-100"
-                >
-                  {executiveFocusAction.cta}
-                  <ArrowRight size={16} />
-                </button>
-              ) : null}
             </div>
           </div>
         </section>
@@ -1222,6 +1224,7 @@ export function VentureConsoleShell({
               initialTelemetryEvents={telemetryEvents}
               initialViewerUserId={initialViewerUserId}
               initialViewerMemberships={initialViewerMemberships}
+              initialSelectedIdeaId={initialIdeaId}
               activeTask={activeWorkbenchTask}
               onActiveTaskChange={handleWorkbenchTaskChange}
               showSidebar={false}

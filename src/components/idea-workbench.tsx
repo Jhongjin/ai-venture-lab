@@ -6706,6 +6706,7 @@ export function IdeaWorkbench({
   initialTelemetryEvents,
   initialViewerUserId,
   initialViewerMemberships,
+  initialSelectedIdeaId,
   activeTask: controlledActiveTask,
   onActiveTaskChange,
   showSidebar = true,
@@ -6721,6 +6722,7 @@ export function IdeaWorkbench({
   initialTelemetryEvents: TelemetryEvent[];
   initialViewerUserId: string | null;
   initialViewerMemberships: OrganizationMember[];
+  initialSelectedIdeaId?: string;
   activeTask?: WorkbenchTask;
   onActiveTaskChange?: (task: WorkbenchTask) => void;
   showSidebar?: boolean;
@@ -6736,7 +6738,14 @@ export function IdeaWorkbench({
   const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
   const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
-  const [selectedIdeaId, setSelectedIdeaId] = useState(() => sortWorkbenchIdeas(getActiveIdeas(initialIdeas))[0]?.id ?? "");
+  const [selectedIdeaId, setSelectedIdeaId] = useState(() => {
+    const activeInitialIdeas = sortWorkbenchIdeas(getActiveIdeas(initialIdeas));
+    const requestedIdea = initialSelectedIdeaId
+      ? activeInitialIdeas.find((idea) => idea.id === initialSelectedIdeaId)
+      : null;
+
+    return requestedIdea?.id ?? activeInitialIdeas[0]?.id ?? "";
+  });
   const selectedIdea =
     ideas.find((idea) => idea.id === selectedIdeaId && !isDiscardedIdea(idea)) ??
     getActiveIdeas(ideas)[0] ??
@@ -8592,27 +8601,25 @@ export function IdeaWorkbench({
     [getRecordAccessState, ideas],
   );
   function getIdeaProgress(idea: Idea) {
-    const hasArtifacts = artifacts.some((artifact) => artifact.idea_id === idea.id);
-    const hasExperiments = experiments.some((experiment) => experiment.idea_id === idea.id);
-    const hasOpenRisks = risks.some((risk) => risk.idea_id === idea.id && risk.status.toLowerCase() !== "closed");
-
     if (isDiscardedIdea(idea)) {
       return { label: "삭제됨", task: "archive" as WorkbenchTask };
     }
 
-    if (hasArtifacts) {
-      return { label: "STEP 5 실행 문서", task: "artifacts" as WorkbenchTask };
+    switch (idea.stage) {
+      case "prd":
+        return { label: "STEP 5 실행 문서", task: "artifacts" as WorkbenchTask };
+      case "prototype":
+      case "qa":
+        return { label: "STEP 6 제작 준비", task: "development" as WorkbenchTask };
+      case "launch":
+        return { label: "STEP 8 출시 판단", task: "launch" as WorkbenchTask };
+      case "intake":
+      case "research":
+      case "score":
+      case "paused":
+      default:
+        return { label: "STEP 2 사업성 평가", task: "score" as WorkbenchTask };
     }
-
-    if (hasExperiments) {
-      return { label: "STEP 4 검증 계획", task: "experiment" as WorkbenchTask };
-    }
-
-    if (hasOpenRisks) {
-      return { label: "STEP 3 위험 확인", task: "risk" as WorkbenchTask };
-    }
-
-    return { label: "STEP 2 사업성 평가", task: "score" as WorkbenchTask };
   }
 
   if (!selectedIdea || !editState) {

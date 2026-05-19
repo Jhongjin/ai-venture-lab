@@ -2,11 +2,21 @@ import { WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 
 import { VentureConsoleShell } from "@/components/venture-console-shell";
+import type { WorkbenchTask } from "@/components/idea-workbench";
 import { getConsoleData } from "@/lib/venture-data";
 
 export type WorkspaceInitialView = "ideas" | "deleted" | undefined;
+export type WorkspaceInitialTask = WorkbenchTask | undefined;
 
-export async function WorkspaceBoardPage({ initialView }: { initialView?: WorkspaceInitialView }) {
+export async function WorkspaceBoardPage({
+  initialView,
+  initialTask,
+  initialIdeaId,
+}: {
+  initialView?: WorkspaceInitialView;
+  initialTask?: WorkspaceInitialTask;
+  initialIdeaId?: string;
+}) {
   const {
     ideas,
     risks,
@@ -25,8 +35,8 @@ export async function WorkspaceBoardPage({ initialView }: { initialView?: Worksp
   const activeIdeas = ideas.filter((idea) => idea.decision !== "kill");
   const deletedIdeas = ideas.filter((idea) => idea.decision === "kill");
   const headerStats = [
-    { label: "검토 아이디어", value: String(activeIdeas.length), href: "/workspace?view=ideas" },
-    { label: "삭제한 아이디어", value: String(deletedIdeas.length), href: "/workspace?view=deleted" },
+    { label: "검토 아이디어", value: String(activeIdeas.length), href: "/workspace/ideas" },
+    { label: "삭제한 아이디어", value: String(deletedIdeas.length), href: "/workspace/deleted" },
   ];
 
   return (
@@ -63,7 +73,7 @@ export async function WorkspaceBoardPage({ initialView }: { initialView?: Worksp
         ) : null}
 
         <VentureConsoleShell
-          key={initialView ?? "default"}
+          key={`${initialView ?? "default"}:${initialTask ?? "none"}:${initialIdeaId ?? "none"}`}
           initialIdeas={ideas}
           initialRisks={risks}
           initialDecisions={decisions}
@@ -76,6 +86,8 @@ export async function WorkspaceBoardPage({ initialView }: { initialView?: Worksp
           initialViewerMemberships={viewerMemberships}
           source={source}
           initialView={initialView}
+          initialTask={initialTask}
+          initialIdeaId={initialIdeaId}
         />
       </div>
     </main>
