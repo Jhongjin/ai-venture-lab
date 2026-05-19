@@ -808,13 +808,18 @@ export type WorkbenchTask =
   | "launch"
   | "learning";
 
-export type ValidationDocumentReadiness = {
+export type WorkbenchStepReadiness = {
   selectedIdeaId: string | null;
+  canEnterExperiment: boolean;
+  canEnterArtifacts: boolean;
   canEnterDevelopment: boolean;
+  canEnterOrchestration: boolean;
   hasIdeaBriefArtifact: boolean;
   hasResearchBriefArtifact: boolean;
   hasValidationSprintArtifact: boolean;
   hasValidationSummaryArtifact: boolean;
+  hasDesignGenerationPromptArtifact: boolean;
+  hasDevelopmentPlanArtifact: boolean;
 };
 
 type ArtifactPanel = "validation" | "product" | "library";
@@ -6848,7 +6853,7 @@ export function IdeaWorkbench({
   initialSelectedIdeaId,
   activeTask: controlledActiveTask,
   onActiveTaskChange,
-  onValidationDocumentReadinessChange,
+  onStepReadinessChange,
   showSidebar = true,
 }: {
   initialIdeas: Idea[];
@@ -6864,7 +6869,7 @@ export function IdeaWorkbench({
   initialSelectedIdeaId?: string;
   activeTask?: WorkbenchTask;
   onActiveTaskChange?: (task: WorkbenchTask) => void;
-  onValidationDocumentReadinessChange?: (readiness: ValidationDocumentReadiness) => void;
+  onStepReadinessChange?: (readiness: WorkbenchStepReadiness) => void;
   showSidebar?: boolean;
   embedded?: boolean;
 }) {
@@ -7693,10 +7698,13 @@ export function IdeaWorkbench({
   const currentScore = editState ? scoreState(editState) : 0;
   const scoreRecommendation = recommendationForScore(currentScore);
   const scoreSaveDecision = saveDecisionForScore(scoreRecommendation);
+  const hasReachedScoreStage = selectedIdea
+    ? (stageRank.get(selectedIdea.stage) ?? 0) >= (stageRank.get("score") ?? 0)
+    : false;
   const isScoreEvaluationSaved = Boolean(
     selectedIdea &&
       editState &&
-      selectedIdea.stage === "score" &&
+      hasReachedScoreStage &&
       selectedIdea.decision === scoreSaveDecision &&
       selectedIdea.problem_intensity === editState.problem_intensity &&
       selectedIdea.frequency === editState.frequency &&
@@ -8010,25 +8018,6 @@ export function IdeaWorkbench({
   const canSaveValidationSummary = validationSummaryRequirements.every((requirement) => requirement.passed);
   const canEnterDevelopmentFromValidationDocs =
     canSaveValidationSummary && hasValidationSummaryArtifact;
-
-  useEffect(() => {
-    onValidationDocumentReadinessChange?.({
-      selectedIdeaId: selectedIdea?.id ?? null,
-      canEnterDevelopment: canEnterDevelopmentFromValidationDocs,
-      hasIdeaBriefArtifact,
-      hasResearchBriefArtifact,
-      hasValidationSprintArtifact,
-      hasValidationSummaryArtifact,
-    });
-  }, [
-    canEnterDevelopmentFromValidationDocs,
-    hasIdeaBriefArtifact,
-    hasResearchBriefArtifact,
-    hasValidationSprintArtifact,
-    hasValidationSummaryArtifact,
-    onValidationDocumentReadinessChange,
-    selectedIdea?.id,
-  ]);
   const hasPrdArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "prd");
   const hasApprovedPrdArtifact = selectedArtifactRecords.some(
     (artifact) => artifact.artifact_type === "prd" && artifact.status === "approved",
@@ -8045,11 +8034,51 @@ export function IdeaWorkbench({
   const hasApprovedDesignBriefArtifact = selectedArtifactRecords.some(
     (artifact) => artifact.artifact_type === "design_brief" && artifact.status === "approved",
   );
+  const hasDesignGenerationPromptArtifact = selectedArtifactRecords.some(
+    (artifact) =>
+      artifact.artifact_type === "design_brief" &&
+      (artifact.source === "design_generation_prompt" || (artifact.title || "").includes("디자인 생성 프롬프트")),
+  );
   const hasTechSpecArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "tech_spec");
   const hasApprovedTechSpecArtifact = selectedArtifactRecords.some(
     (artifact) => artifact.artifact_type === "tech_spec" && artifact.status === "approved",
   );
   const hasDevRunbookArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "dev_runbook");
+  const hasDevelopmentPlanArtifact = selectedArtifactRecords.some(
+    (artifact) =>
+      artifact.artifact_type === "dev_runbook" &&
+      (artifact.source === "development_process" || (artifact.title || "").includes("제작 실행 계획")),
+  );
+  const canEnterOrchestrationFromDevelopmentDocs = hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact;
+
+  useEffect(() => {
+    onStepReadinessChange?.({
+      selectedIdeaId: selectedIdea?.id ?? null,
+      canEnterExperiment: isScoreEvaluationSaved,
+      canEnterArtifacts: selectedExperiments.length > 0,
+      canEnterDevelopment: canEnterDevelopmentFromValidationDocs,
+      canEnterOrchestration: canEnterOrchestrationFromDevelopmentDocs,
+      hasIdeaBriefArtifact,
+      hasResearchBriefArtifact,
+      hasValidationSprintArtifact,
+      hasValidationSummaryArtifact,
+      hasDesignGenerationPromptArtifact,
+      hasDevelopmentPlanArtifact,
+    });
+  }, [
+    canEnterDevelopmentFromValidationDocs,
+    canEnterOrchestrationFromDevelopmentDocs,
+    hasDesignGenerationPromptArtifact,
+    hasDevelopmentPlanArtifact,
+    hasIdeaBriefArtifact,
+    hasResearchBriefArtifact,
+    hasValidationSprintArtifact,
+    hasValidationSummaryArtifact,
+    isScoreEvaluationSaved,
+    onStepReadinessChange,
+    selectedExperiments.length,
+    selectedIdea?.id,
+  ]);
   const developmentOpsArtifacts = selectedArtifactRecords.filter((artifact) =>
     ["backend_decision", "tech_spec", "dev_runbook"].includes(artifact.artifact_type),
   );
@@ -9390,80 +9419,6 @@ export function IdeaWorkbench({
     return true;
   }
 
-  async function saveDevelopmentPackageDrafts() {
-    if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
-      return;
-    }
-
-    if (!user) {
-      setMessage("실행 자료를 저장하려면 먼저 로그인하세요.");
-      return;
-    }
-
-    const packageDrafts = developmentPackageDrafts.filter((draft) => draft.body.trim());
-
-    if (packageDrafts.length === 0) {
-      setMessage("저장할 실행 문서가 없습니다.");
-      return;
-    }
-
-    const versionOffsets = new Map<VentureArtifactType, number>();
-    const rows = packageDrafts.map((draft) => {
-      const previousVersion =
-        Math.max(
-          0,
-          ...selectedArtifactRecords
-            .filter((artifact) => artifact.artifact_type === draft.artifactType)
-            .map((artifact) => artifact.version ?? 1),
-        ) + (versionOffsets.get(draft.artifactType) ?? 0);
-
-      versionOffsets.set(draft.artifactType, (versionOffsets.get(draft.artifactType) ?? 0) + 1);
-
-      return {
-        idea_id: selectedIdea.id,
-        organization_id: selectedIdea.organization_id,
-        artifact_type: draft.artifactType,
-        status: "draft" as VentureArtifactStatus,
-        version: previousVersion + 1,
-        title: draft.title,
-        body: draft.body,
-        source: draft.source,
-        status_note: "앱 실행 자료로 일괄 생성한 초안입니다.",
-      };
-    });
-
-    setIsBusy(true);
-    setMessage(null);
-    const { data, error } = await supabase.from("venture_artifacts").insert(rows).select();
-    setIsBusy(false);
-
-    if (error) {
-      setMessage(error.message);
-      return;
-    }
-
-    const savedArtifacts = data ?? [];
-
-    if (savedArtifacts.length === 0) {
-      setMessage("실행 자료를 저장하지 못했습니다.");
-      return;
-    }
-
-    setArtifacts((current) => [...savedArtifacts, ...current]);
-    savedArtifacts.forEach((artifact) => emitVentureEvent("venture:artifact-created", artifact));
-    void recordTelemetryEvent({
-      eventName: "artifact_package_saved",
-      eventCategory: "development",
-      properties: {
-        artifact_count: savedArtifacts.length,
-        source: "development_package",
-      },
-    });
-    setMessage(`실행 문서 ${savedArtifacts.length}개를 저장했습니다.`);
-    router.refresh();
-  }
-
   async function runAiExecutionAutopilot() {
     if (!supabase || !selectedIdea) {
       setMessage("먼저 아이디어를 선택하세요.");
@@ -10078,15 +10033,6 @@ export function IdeaWorkbench({
 
     await navigator.clipboard.writeText(mvpSpecDraft);
     setCopyMessage("첫 제작 범위를 클립보드에 복사했습니다.");
-  }
-
-  async function copyDevelopmentPlanDraft() {
-    if (!developmentPlanDraft) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(developmentPlanDraft);
-    setCopyMessage("제작 실행 계획을 클립보드에 복사했습니다.");
   }
 
   async function copyDraft(body: string, label: string) {
@@ -11123,16 +11069,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   하나의 프롬프트로 묶습니다.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => copyDraft(designGenerationPromptDraft, "디자인 생성 프롬프트")}
-                  disabled={!designGenerationPromptDraft}
-                  className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
-                >
-                  <Clipboard size={16} />
-                  프롬프트 복사
-                </button>
+              <div className="flex flex-col items-start gap-2 sm:items-end">
                 <button
                   type="button"
                   onClick={() =>
@@ -11143,12 +11080,17 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       "design_generation_prompt",
                     )
                   }
-                  disabled={isBusy || !user || !designGenerationPromptDraft}
-                  className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
+                  disabled={isBusy || !user || !designGenerationPromptDraft || hasDesignGenerationPromptArtifact}
+                  className={`avl-btn h-10 rounded-[0.125rem] px-3 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    hasDesignGenerationPromptArtifact ? "avl-btn-secondary" : "avl-btn-primary"
+                  }`}
                 >
-                  <Save size={16} />
-                  프롬프트 저장
+                  {hasDesignGenerationPromptArtifact ? <CheckCircle2 size={16} /> : <Save size={16} />}
+                  {hasDesignGenerationPromptArtifact ? "프롬프트 저장 완료" : "프롬프트 저장"}
                 </button>
+                <span className="text-xs leading-5 text-slate-500">
+                  이 프롬프트를 저장하면 제작 실행 계획 저장을 이어서 진행할 수 있습니다.
+                </span>
               </div>
             </div>
             <textarea
@@ -11159,24 +11101,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             />
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={createRunbook}
-              disabled={isBusy || !user}
-              className="avl-btn avl-btn-primary h-11 rounded-[0.125rem] px-4 disabled:opacity-50"
-            >
-              <Layers3 size={18} />
-              제작 실행 계획 만들기
-            </button>
-            <button
-              type="button"
-              onClick={copyDevelopmentPlanDraft}
-              className="avl-btn avl-btn-secondary h-11 rounded-[0.125rem] px-4"
-            >
-              <Clipboard size={18} />
-              실행 계획 복사
-            </button>
+          <div className="avl-card mt-5 flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="avl-kicker">최종 저장</div>
+              <h3 className="mt-2 text-base font-semibold text-slate-950">제작 실행 계획 저장</h3>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
+                디자인 프롬프트를 저장한 뒤 제작 실행 계획을 확정하면 다음 실행 관리 단계가 열립니다.
+              </p>
+            </div>
             <button
               type="button"
               onClick={() =>
@@ -11187,20 +11119,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   "development_process",
                 )
               }
-              disabled={isBusy || !user}
-              className="avl-btn avl-btn-secondary h-11 rounded-[0.125rem] px-4 disabled:opacity-50"
+              disabled={isBusy || !user || !developmentPlanDraft || !hasDesignGenerationPromptArtifact || hasDevelopmentPlanArtifact}
+              className={`avl-btn h-11 rounded-[0.125rem] px-4 disabled:cursor-not-allowed disabled:opacity-50 ${
+                hasDevelopmentPlanArtifact ? "avl-btn-secondary" : "avl-btn-primary"
+              }`}
             >
-              <Save size={18} />
-              제작 실행 계획 저장
-            </button>
-            <button
-              type="button"
-              onClick={saveDevelopmentPackageDrafts}
-              disabled={isBusy || !user}
-              className="avl-btn avl-btn-accent h-11 rounded-[0.125rem] px-4 disabled:opacity-50"
-            >
-              <ClipboardList size={18} />
-              실행 자료 저장
+              {hasDevelopmentPlanArtifact ? <CheckCircle2 size={18} /> : <Save size={18} />}
+              {hasDevelopmentPlanArtifact ? "제작 실행 계획 저장 완료" : "제작 실행 계획 저장"}
             </button>
           </div>
 

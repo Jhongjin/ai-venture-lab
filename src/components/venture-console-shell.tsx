@@ -20,7 +20,7 @@ import {
   Users,
 } from "@phosphor-icons/react";
 
-import { IdeaWorkbench, type ValidationDocumentReadiness, type WorkbenchTask } from "@/components/idea-workbench";
+import { IdeaWorkbench, type WorkbenchStepReadiness, type WorkbenchTask } from "@/components/idea-workbench";
 import {
   VentureConsoleActions,
   type ConsoleActionTask,
@@ -367,14 +367,20 @@ function getNextTaskOptions({
   artifactCount,
   runCount,
   openRisks,
+  canEnterExperiment,
+  canEnterArtifacts,
   canEnterDevelopment,
+  canEnterOrchestration,
 }: {
   activeTask: ShellTask;
   ideaCount: number;
   artifactCount: number;
   runCount: number;
   openRisks: number;
+  canEnterExperiment: boolean;
+  canEnterArtifacts: boolean;
   canEnterDevelopment: boolean;
+  canEnterOrchestration: boolean;
 }) {
   switch (activeTask) {
     case "console:auth":
@@ -393,7 +399,15 @@ function getNextTaskOptions({
         : [];
     case "workbench:score":
       return [
-        createTransition("workbench:experiment", "다음: 검증 계획", "7일 안에 확인할 가장 작은 행동을 정합니다."),
+        createTransition(
+          "workbench:experiment",
+          "다음: 검증 계획",
+          canEnterExperiment
+            ? "사업성 평가를 저장했습니다. 이제 7일 안에 확인할 작은 검증을 정합니다."
+            : "사업성 평가를 저장하면 활성화됩니다.",
+          "primary",
+          !canEnterExperiment,
+        ),
         createTransition(
           "workbench:risk",
           "선택: 위험 먼저 보기",
@@ -413,7 +427,15 @@ function getNextTaskOptions({
       ];
     case "workbench:experiment":
       return [
-        createTransition("workbench:artifacts", "다음: 실행 문서 만들기", "아이디어 브리프와 첫 제작 범위를 문서로 남깁니다."),
+        createTransition(
+          "workbench:artifacts",
+          "다음: 실행 문서 만들기",
+          canEnterArtifacts
+            ? "검증 계획을 저장했습니다. 이제 아이디어 브리프와 제작 범위를 문서로 남깁니다."
+            : "검증 계획을 하나 이상 저장하면 활성화됩니다.",
+          "primary",
+          !canEnterArtifacts,
+        ),
         ...(openRisks === 0
           ? [
               createTransition(
@@ -433,8 +455,11 @@ function getNextTaskOptions({
               createTransition(
                 "workbench:development",
                 "건너뛰고 제작 준비",
-                "이미 필요한 문서가 있으면 바로 제작 준비로 이동합니다.",
+                canEnterDevelopment
+                  ? "검증 완료 요약까지 저장되어 제작 준비로 이동할 수 있습니다."
+                  : "검증 완료 요약까지 저장하면 제작 준비로 이동할 수 있습니다.",
                 "optional",
+                !canEnterDevelopment,
               ),
             ]
           : []),
@@ -453,8 +478,16 @@ function getNextTaskOptions({
       ];
     case "workbench:development":
       return [
-        createTransition("workbench:orchestration", "다음: 실행 관리", "전략, 디자인, 개발, 품질 점검 역할을 배정합니다."),
-        ...(runCount > 0
+        createTransition(
+          "workbench:orchestration",
+          "다음: 실행 관리",
+          canEnterOrchestration
+            ? "디자인 프롬프트와 제작 실행 계획을 저장했습니다. 이제 실행 역할을 배정합니다."
+            : "디자인 프롬프트와 제작 실행 계획을 저장하면 활성화됩니다.",
+          "primary",
+          !canEnterOrchestration,
+        ),
+        ...(runCount > 0 && canEnterOrchestration
           ? [
               createTransition(
                 "workbench:launch",
@@ -737,13 +770,18 @@ export function VentureConsoleShell({
   const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
   const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
-  const [validationDocumentReadiness, setValidationDocumentReadiness] = useState<ValidationDocumentReadiness>({
+  const [validationDocumentReadiness, setValidationDocumentReadiness] = useState<WorkbenchStepReadiness>({
     selectedIdeaId: initialIdeaId ?? null,
+    canEnterExperiment: false,
+    canEnterArtifacts: false,
     canEnterDevelopment: false,
+    canEnterOrchestration: false,
     hasIdeaBriefArtifact: false,
     hasResearchBriefArtifact: false,
     hasValidationSprintArtifact: false,
     hasValidationSummaryArtifact: false,
+    hasDesignGenerationPromptArtifact: false,
+    hasDevelopmentPlanArtifact: false,
   });
   const [visitedTaskIds, setVisitedTaskIds] = useState<ShellTask[]>([
     "console:auth",
@@ -916,7 +954,10 @@ export function VentureConsoleShell({
     artifactCount,
     runCount,
     openRisks,
+    canEnterExperiment: validationDocumentReadiness.canEnterExperiment,
+    canEnterArtifacts: validationDocumentReadiness.canEnterArtifacts,
     canEnterDevelopment: validationDocumentReadiness.canEnterDevelopment,
+    canEnterOrchestration: validationDocumentReadiness.canEnterOrchestration,
   });
   const enabledNextTaskOptions = nextTaskOptions.filter((option) => !option.disabled);
   const primaryNextTask = nextTaskOptions.find((option) => option.variant === "primary") ?? null;
@@ -1249,7 +1290,7 @@ export function VentureConsoleShell({
               initialSelectedIdeaId={initialIdeaId}
               activeTask={activeWorkbenchTask}
               onActiveTaskChange={handleWorkbenchTaskChange}
-              onValidationDocumentReadinessChange={setValidationDocumentReadiness}
+              onStepReadinessChange={setValidationDocumentReadiness}
               showSidebar={false}
               embedded
             />
