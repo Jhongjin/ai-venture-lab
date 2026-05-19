@@ -7562,6 +7562,22 @@ export function IdeaWorkbench({
   const currentScore = editState ? scoreState(editState) : 0;
   const scoreRecommendation = recommendationForScore(currentScore);
   const scoreSaveDecision = saveDecisionForScore(scoreRecommendation);
+  const isScoreEvaluationSaved = Boolean(
+    selectedIdea &&
+      editState &&
+      selectedIdea.stage === "score" &&
+      selectedIdea.decision === scoreSaveDecision &&
+      selectedIdea.problem_intensity === editState.problem_intensity &&
+      selectedIdea.frequency === editState.frequency &&
+      selectedIdea.reachability === editState.reachability &&
+      selectedIdea.willingness_to_pay === editState.willingness_to_pay &&
+      selectedIdea.mvp_speed === editState.mvp_speed &&
+      selectedIdea.differentiation === editState.differentiation &&
+      selectedIdea.regulatory_risk === editState.regulatory_risk &&
+      selectedIdea.signal === editState.signal &&
+      selectedIdea.risk_summary === editState.risk_summary &&
+      selectedIdea.next_evidence === editState.next_evidence,
+  );
   const missing =
     selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedIdeaRisks.length) : [];
   const validationPlan = selectedIdea && editState
@@ -10428,11 +10444,19 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   ) : null}
                   <button
                     type="submit"
-                    disabled={isBusy || !canEdit}
-                    className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
+                    disabled={isBusy || !canEdit || isScoreEvaluationSaved}
+                    className={`avl-btn h-11 px-4 disabled:opacity-60 ${
+                      isScoreEvaluationSaved ? "avl-btn-secondary" : "avl-btn-primary"
+                    }`}
                   >
-                    {isBusy ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
-                    사업성 평가 저장
+                    {isBusy ? (
+                      <RefreshCw className="animate-spin" size={18} />
+                    ) : isScoreEvaluationSaved ? (
+                      <CheckCircle2 size={18} />
+                    ) : (
+                      <Save size={18} />
+                    )}
+                    {isScoreEvaluationSaved ? "저장 완료" : "사업성 평가 저장"}
                   </button>
                 </div>
               </div>
