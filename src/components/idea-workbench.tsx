@@ -426,22 +426,51 @@ const runStatusTone: Record<OrchestrationStatus, string> = {
 };
 
 const stageLabels: Record<IdeaStage, string> = {
-  intake: "접수",
-  research: "리서치",
-  score: "평가",
-  prd: "기획서",
+  intake: "아이디어 입력",
+  research: "추가 조사",
+  score: "사업성 평가",
+  prd: "기획 정리",
   prototype: "첫 제작",
-  qa: "품질 점검",
+  qa: "점검",
   launch: "출시",
   paused: "보류",
 };
 
+const stageDescriptions: Record<IdeaStage, string> = {
+  intake: "막 들어온 아이디어입니다. 아직 검토할 후보로 정리되기 전입니다.",
+  research: "사용자, 시장, 대안처럼 더 확인할 정보가 남아 있는 상태입니다.",
+  score: "지금 단계입니다. 이 아이디어를 계속 검증할지 먼저 판단합니다.",
+  prd: "검증을 통과해 제품 기획서로 옮길 수 있는 상태입니다.",
+  prototype: "작게 만들어 확인할 수 있는 첫 제작 단계입니다.",
+  qa: "만든 결과를 점검하고 문제를 고치는 단계입니다.",
+  launch: "사용자에게 공개하거나 제한적으로 배포할 수 있는 단계입니다.",
+  paused: "당장은 진행하지 않고 나중에 다시 볼 상태입니다.",
+};
+
 const decisionLabels: Record<DecisionStatus, string> = {
-  pending: "대기",
+  pending: "아직 정하지 않음",
   research_more: "추가 조사",
   ship: "진행",
-  pivot: "전환",
+  pivot: "방향 수정",
   kill: "중단",
+};
+
+const decisionDescriptions: Record<DecisionStatus, string> = {
+  pending: "아직 판단을 정하지 않았습니다.",
+  research_more: "아이디어는 괜찮지만, 바로 진행하기 전에 근거를 더 확인합니다.",
+  ship: "지금 가진 근거로 다음 검증 단계로 넘겨도 좋다는 판단입니다.",
+  pivot: "문제나 대상은 유지하되 접근 방식을 바꿔 다시 정리합니다.",
+  kill: "지금 기준으로는 더 진행하지 않고 삭제 목록으로 보냅니다.",
+};
+
+const scoreFieldDescriptions = {
+  problem_intensity: "사용자가 이 문제를 얼마나 크게 불편하거나 비용으로 느끼는지입니다.",
+  frequency: "이 문제가 얼마나 자주 반복되는지입니다.",
+  reachability: "검증할 사용자나 구매자를 얼마나 쉽게 만날 수 있는지입니다.",
+  willingness_to_pay: "돈, 예산, 시간을 써서 해결하려는 의지가 있는지입니다.",
+  mvp_speed: "작게 만들어 1차 확인까지 얼마나 빨리 갈 수 있는지입니다.",
+  differentiation: "기존 대안보다 분명히 나은 이유가 있는지입니다.",
+  regulatory_risk: "법무, 개인정보, 운영, 신뢰 문제가 클수록 높게 잡습니다. 이 값은 총점에서 빠집니다.",
 };
 function isDiscardedIdea(idea: Idea) {
   return idea.decision === "kill";
@@ -2328,7 +2357,7 @@ ${state.next_evidence || "미정"}
 - 판단 기록
 - 오케스트레이션 실행
 - 실행 문서와 승인 상태
-- 핵심 이벤트: 생성, 점수 저장, 리스크 추가, 실험 상태 변경, 실행 문서 승인
+- 핵심 이벤트: 생성, 판단 저장, 리스크 추가, 실험 상태 변경, 실행 문서 승인
 
 ### 보안과 개인정보
 
@@ -6710,7 +6739,6 @@ export function IdeaWorkbench({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
   showSidebar = true,
-  embedded = false,
 }: {
   initialIdeas: Idea[];
   initialRisks: Risk[];
@@ -6807,7 +6835,7 @@ export function IdeaWorkbench({
   );
   const [artifactPanel, setArtifactPanel] = useState<ArtifactPanel>("validation");
   const [developmentPanel, setDevelopmentPanel] = useState<DevelopmentPanel>("setup");
-  const [experienceMode, setExperienceMode] = useState<"guided" | "full">("guided");
+  const experienceMode = "guided" as "guided" | "full";
   const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
   const [implementationOwnerFilter, setImplementationOwnerFilter] = useState("all");
   const [implementationEvidenceFilter, setImplementationEvidenceFilter] = useState<ImplementationEvidenceFilter>("all");
@@ -8674,7 +8702,7 @@ export function IdeaWorkbench({
         regulatory_risk: data.regulatory_risk,
       },
     });
-    setMessage("아이디어 점수와 상태를 저장했습니다.");
+    setMessage("현재 사업성 판단을 저장했습니다.");
     router.refresh();
   }
 
@@ -10085,36 +10113,6 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
       ) : null}
 
       <div className="grid min-w-0 gap-6">
-        {!showSidebar ? (
-          <div className={embedded ? "border border-slate-200 bg-slate-50 p-4 text-slate-900" : "border border-slate-200 bg-white p-4 text-slate-900"}>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">view mode</div>
-                <div className="mt-1 text-sm font-semibold text-slate-950">{embedded ? "실행 보기 전환" : "작업 보기 전환"}</div>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  기본은 간단 보기입니다. AI가 만든 초안과 다음 액션만 먼저 보고, 필요할 때만 상세 패널을 펼칩니다.
-                </p>
-              </div>
-              <div className="avl-segmented inline-flex p-1">
-                {[
-                  ["guided", "간단 보기"],
-                  ["full", "전체 보기"],
-                ].map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setExperienceMode(value as "guided" | "full")}
-                      className={`px-3 py-2 text-sm font-semibold transition ${
-                        experienceMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
-                      }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : null}
         <div
           className={`grid gap-5 ${
             activeTask === "select" ? "" : "hidden"
@@ -10420,7 +10418,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </p>
                   <p className="mt-2 text-sm leading-5 text-slate-500">
                     {canEdit
-                      ? "AI 초안을 바탕으로 점수와 판단을 맞춘 뒤 저장합니다."
+                      ? "아래 값은 AI가 원문을 분석해 먼저 채운 추천값입니다. 그대로 저장해도 되고, 다르게 판단되면 직접 수정하세요."
                       : "이 기록은 보기 전용입니다. 본인이 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."}
                   </p>
                 </div>
@@ -10442,28 +10440,33 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                   >
                     {isBusy ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
-                    점수 저장
+                    현재 판단 저장
                   </button>
                 </div>
               </div>
 
               <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
                 <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
-                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">판단 기준</div>
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천값 확인</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    처음 저장할 때 AI가 분석해 채운 값입니다. 지금 그대로 저장하거나, 실제 상황에 맞게 바꾼 뒤 저장하세요.
+                  </p>
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <SelectField
-                      label="단계"
+                      label="현재 단계"
                       value={editState.stage}
                       options={stages}
                       labels={stageLabels}
+                      description={stageDescriptions[editState.stage]}
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, stage: value as IdeaStage })}
                     />
                     <SelectField
-                      label="판단"
+                      label="이번 판단"
                       value={editState.decision}
                       options={decisions}
                       labels={decisionLabels}
+                      description={decisionDescriptions[editState.decision]}
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, decision: value as DecisionStatus })}
                     />
@@ -10472,42 +10475,49 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="mt-5 grid gap-3 md:grid-cols-2">
                     <ScoreInput
                       label="문제 강도"
+                      description={scoreFieldDescriptions.problem_intensity}
                       value={editState.problem_intensity}
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, problem_intensity: value })}
                     />
                     <ScoreInput
                       label="발생 빈도"
+                      description={scoreFieldDescriptions.frequency}
                       value={editState.frequency}
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, frequency: value })}
                     />
                     <ScoreInput
                       label="도달 가능성"
+                      description={scoreFieldDescriptions.reachability}
                       value={editState.reachability}
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, reachability: value })}
                     />
                     <ScoreInput
                       label="지불 의향"
+                      description={scoreFieldDescriptions.willingness_to_pay}
                       value={editState.willingness_to_pay}
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, willingness_to_pay: value })}
                     />
                     <ScoreInput
                       label="첫 제작 속도"
+                      description={scoreFieldDescriptions.mvp_speed}
                       value={editState.mvp_speed}
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, mvp_speed: value })}
                     />
                     <ScoreInput
                       label="차별성"
+                      description={scoreFieldDescriptions.differentiation}
                       value={editState.differentiation}
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, differentiation: value })}
                     />
                     <ScoreInput
                       label="리스크 감점"
+                      description={scoreFieldDescriptions.regulatory_risk}
                       value={editState.regulatory_risk}
                       disabled={!canEdit}
                       onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
@@ -10515,17 +10525,19 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="border border-slate-200 bg-white p-4">
                       <div className="text-xs font-semibold tracking-[0.14em] text-slate-700">현재 점수</div>
                       <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>
-                      <p className="mt-2 text-sm leading-5 text-slate-600">점수는 참고용이고, 최종 판단은 근거와 리스크를 같이 봐서 정합니다.</p>
+                      <p className="mt-2 text-sm leading-5 text-slate-600">
+                        위 6개 가점에서 리스크 감점을 뺀 참고 점수입니다. 저장하면 이 판단값이 다음 검증 계획의 기준으로 쓰입니다.
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid gap-4">
                   <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
-                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">추천 판단</div>
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
                     <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreRecommendation]}</div>
                     <p className="mt-2 text-sm leading-5 text-slate-600">
-                      점수상으로는 현재 이 판단이 가장 자연스럽습니다. 다만 사람 검토에서 반대 근거가 있으면 판단을 바꿔도 됩니다.
+                      현재 입력값으로 계산한 AI 추천입니다. 그대로 저장해도 되고, 반대 근거가 있으면 왼쪽의 이번 판단을 바꿔도 됩니다.
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {missing.length > 0 ? (
@@ -10544,9 +10556,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
                   <div className="border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">다음 행동</div>
-                    <div className="mt-2 text-sm font-semibold text-slate-950">판단 방향만 정하면 충분합니다</div>
+                    <div className="mt-2 text-sm font-semibold text-slate-950">현재 판단을 저장하면 됩니다</div>
                     <p className="mt-2 text-sm leading-5 text-slate-600">
-                      점수 7개를 먼저 맞추고 판단을 한 번 정한 뒤 저장하세요. 실험과 리스크 보완은 다음 단계에서 이어집니다.
+                      모든 값을 완벽하게 맞출 필요는 없습니다. 지금 보기에 맞는 방향을 정하고 저장하면, 다음 단계에서 확인할 실험과 리스크를 이어서 정합니다.
                     </p>
                     {validationPlan ? (
                       <p className="mt-3 text-sm leading-5 text-sky-700">{validationPlan.nextAction}</p>
@@ -10585,18 +10597,18 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             <div className="grid gap-4">
               <section className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">결정 가이드</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">필드 읽는 법</div>
                 <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
-                  <li>- 문제 강도와 빈도가 높으면 검증 우선순위가 올라갑니다.</li>
-                  <li>- 첫 제작 속도와 차별성이 모두 낮으면 범위를 줄이는 쪽이 좋습니다.</li>
-                  <li>- 리스크 감점이 크면 검증 계획보다 리스크 확인을 먼저 보세요.</li>
+                  <li>- 높게 느껴지는 항목은 AI가 그대로 둔 값이어도 다시 한번 확인해 보세요.</li>
+                  <li>- 만들기는 쉬운데 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.</li>
+                  <li>- 리스크 감점이 높다면 검증 계획보다 개인정보, 법무, 운영 리스크를 먼저 확인하세요.</li>
                 </ul>
               </section>
 
               <section className="border border-slate-200 bg-white p-5">
                 <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">다음 판단</div>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  점수 저장 후에는 `검증 계획` 단계에서 첫 확인 방법과 성공 기준을 AI가 채워줍니다. 여기서는 완벽하게 쓰기보다 판단 방향만 정하면 충분합니다.
+                  현재 판단을 저장하면 `검증 계획` 단계에서 첫 확인 방법과 성공 기준을 이어서 정합니다. 여기서는 완벽한 계획보다 진행 여부를 먼저 정하면 충분합니다.
                 </p>
               </section>
             </div>
@@ -10854,7 +10866,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           {experienceMode === "guided" ? (
             <div className="avl-surface-muted mb-4 border-blue-200 bg-blue-50 p-4 text-sm leading-5 text-blue-900">
               이 단계에서는 AI가 기획, 디자인, 제작 초안과 실행 자료를 자동으로 만듭니다. 우선은 준비도, 디자인 프롬프트,
-              제작 실행 계획만 확인하고 저장하세요. 기술 비교나 세부 설계 문서는 필요할 때만 전체 보기에서 확인하면 됩니다.
+              제작 실행 계획만 확인하고 저장하세요. 기술 비교나 세부 설계 문서는 필요한 시점에 상세 자료에서 확인하면 됩니다.
             </div>
           ) : null}
 
@@ -11553,7 +11565,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div>
                     <h4 className="text-sm font-semibold text-slate-950">AI가 정리한 실행 순서</h4>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
-                      아래 열린 할 일만 위에서부터 처리하면 됩니다. 자세한 보드와 수동 태스크 관리는 전체 보기에서만 엽니다.
+                      아래 열린 할 일만 위에서부터 처리하면 됩니다. 자세한 보드와 수동 태스크 관리는 제작 단계에서 필요한 때만 엽니다.
                     </p>
                   </div>
                   <span className="avl-pill avl-pill-neutral">
@@ -12124,7 +12136,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="avl-pill avl-pill-info">AI가 준비한 실행 자료</div>
                 <p className="mt-3 text-sm leading-5 text-slate-600">
                   지금은 제작 완료 보고서만 저장하고 출시 판단으로 넘어가면 됩니다. 제작팀 전달 자료, 실행 명령, 검수 기준,
-                  역할별 지시서는 전체 보기에서만 확인하세요.
+                  역할별 지시서는 필요할 때 펼쳐 확인하세요.
                 </p>
               </div>
             ) : (
@@ -12561,7 +12573,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="mt-4 border border-slate-200 bg-slate-50 p-4">
               <div className="text-sm font-semibold text-slate-950">제작 전달 정보는 필요할 때만 펼치면 됩니다.</div>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                지금은 퍼널과 최근 이벤트 숫자만 보면 됩니다. 실제 서버 연결 정보는 전체 보기에서만 확인하세요.
+                지금은 퍼널과 최근 이벤트 숫자만 보면 됩니다. 실제 서버 연결 정보는 필요한 시점에 상세 자료에서 확인하세요.
               </p>
             </div>
           ) : (
@@ -12827,7 +12839,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ))}
                 {selectedTelemetryEvents.length === 0 ? (
                   <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-5 text-slate-600">
-                    아직 이 아이디어에 연결된 이벤트가 없습니다. 점수 저장, 리스크 추가, 검증 계획/실행 문서 저장 같은 행동을 하면 자동으로 쌓입니다.
+                    아직 이 아이디어에 연결된 이벤트가 없습니다. 현재 판단 저장, 리스크 추가, 검증 계획/실행 문서 저장 같은 행동을 하면 자동으로 쌓입니다.
                   </div>
                 ) : null}
               </div>
@@ -14011,11 +14023,13 @@ function clampScore(value: number) {
 
 function ScoreInput({
   label,
+  description,
   value,
   disabled,
   onChange,
 }: {
   label: string;
+  description?: string;
   value: number;
   disabled: boolean;
   onChange: (value: number) => void;
@@ -14034,6 +14048,7 @@ function ScoreInput({
         disabled={disabled}
         onChange={(event) => onChange(clampScore(Number(event.target.value)))}
       />
+      {description ? <span className="text-xs font-normal leading-5 text-slate-500">{description}</span> : null}
     </label>
   );
 }
@@ -14208,6 +14223,7 @@ function SelectField<T extends string>({
   value,
   options,
   labels,
+  description,
   disabled,
   onChange,
 }: {
@@ -14215,6 +14231,7 @@ function SelectField<T extends string>({
   value: T;
   options: T[];
   labels?: Record<T, string>;
+  description?: string;
   disabled?: boolean;
   onChange: (value: T) => void;
 }) {
@@ -14233,6 +14250,7 @@ function SelectField<T extends string>({
           </option>
         ))}
       </select>
+      {description ? <span className="text-xs font-normal leading-5 text-slate-500">{description}</span> : null}
     </label>
   );
 }
