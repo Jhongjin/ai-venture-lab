@@ -9550,6 +9550,7 @@ export function IdeaWorkbench({
         next_decision: "research_more",
         next_action: "",
       });
+      setMessage("검증 결과를 저장했습니다. 다음 단계 이동은 하단 다음 단계 버튼에서 진행하세요.");
     }
   }
 
@@ -9993,20 +9994,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
       return;
     }
 
-    setEvidenceDraft({
-      title: validationEvidenceCoach.nextFocus
-        ? `${validationEvidenceCoach.nextFocus.label} 보완`
-        : "검증 증거 보완",
-      source: "인터뷰/관찰/외부 자료",
-      evidence: validationEvidenceCoach.prompt,
-      implication:
+    setExperimentResultDraft((current) => ({
+      ...current,
+      experiment_id: current.experiment_id || selectedExperimentForResult?.id || "",
+      next_action:
         validationEvidenceCoach.nextFocus?.action ??
-        "현재 증거를 최종 진행, 추가 조사, 전환, 중단 판단에 연결합니다.",
-      confidence: "medium",
-    });
-    setArtifactPanel("validation");
-    updateActiveTask("artifacts");
-    setMessage("검증 증거 코치 프롬프트를 근거 직접 기록 폼에 채웠습니다.");
+        "완료한 검증 결과를 바탕으로 계속 진행, 추가 조사, 전환, 중단 중 다음 행동을 정합니다.",
+    }));
+    setMessage("보완할 근거를 아래 '다음 행동' 입력칸에 반영했습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.");
   }
 
   return (
@@ -13329,10 +13324,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div>
                   <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">검증 근거 점검</div>
                   <h3 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h3>
-                  <p className="mt-1 text-sm leading-5 text-slate-600">
+                  <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                    현재 아이디어, 리스크, 검증 계획을 바탕으로 부족한 근거가 있는지 자동으로 점검한 참고 영역입니다.
+                    이 영역의 버튼은 입력을 돕기만 하며, 다음 단계로 이동하지 않습니다.
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
                     {validationEvidenceCoach.nextFocus
                       ? `${validationEvidenceCoach.nextFocus.label}: ${validationEvidenceCoach.nextFocus.action}`
-                      : "핵심 근거가 충분합니다. 결과를 기록하고 다음 판단으로 넘어가세요."}
+                      : "핵심 근거가 충분합니다. 실행한 검증 결과를 기록한 뒤 하단 다음 단계 버튼으로 이동하세요."}
                   </p>
                 </div>
                 <div className="bg-slate-950 px-3 py-2 text-right text-white">
@@ -13340,14 +13339,26 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="text-2xl font-semibold">{validationEvidenceCoach.score}%</div>
                 </div>
               </div>
+              <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-3">
+                {[
+                  ["근거 점수", "현재 입력값만 놓고 다음 단계로 넘겨도 되는지 참고용으로 계산한 값입니다."],
+                  ["질문 프롬프트 복사", "외부 AI, 인터뷰 준비, 조사 메모에 붙여넣을 질문 묶음을 복사합니다."],
+                  ["다음 행동에 반영", "부족한 근거를 아래 결과 기록의 '다음 행동' 입력칸에 채웁니다."],
+                ].map(([title, detail]) => (
+                  <div key={title} className="bg-slate-50 px-4 py-3">
+                    <div className="text-sm font-semibold text-slate-950">{title}</div>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+                  </div>
+                ))}
+              </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => copyDraft(validationEvidenceCoach.prompt, "검증 근거 수집 프롬프트")}
+                  onClick={() => copyDraft(validationEvidenceCoach.prompt, "검증 질문 프롬프트")}
                   className="avl-btn avl-btn-secondary h-9 px-3 text-xs"
                 >
                   <Clipboard size={15} />
-                  프롬프트 복사
+                  질문 프롬프트 복사
                 </button>
                 <button
                   type="button"
@@ -13355,7 +13366,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   className="avl-btn avl-btn-primary h-9 px-3 text-xs"
                 >
                   <Save size={15} />
-                  근거 폼 채우기
+                  다음 행동에 반영
                 </button>
               </div>
             </div>
@@ -13366,7 +13377,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div>
                 <div className="avl-kicker">결과 기록</div>
                 <h3 className="mt-1 text-base font-semibold text-slate-950">검증 결과 기록</h3>
-                <p className="mt-1 text-sm leading-5 text-slate-600">결과와 배운 점만 남깁니다.</p>
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                  위에서 만든 검증 계획을 실제로 해본 뒤 결과를 남기는 선택 영역입니다. 아직 실행 전이면 비워두고,
+                  하단 다음 단계 버튼으로 실행 문서 만들기 단계로 넘어가도 됩니다.
+                </p>
               </div>
               <button
                 type="button"
@@ -13379,6 +13393,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </button>
             </div>
             <div className="grid gap-4">
+              <div className="grid gap-px bg-slate-200 md:grid-cols-5">
+                {[
+                  ["대상 검증 계획", "어떤 하위 검증의 결과인지 고릅니다."],
+                  ["다음 판단", "결과를 보고 계속 진행할지, 더 조사할지, 전환/중단할지 고릅니다."],
+                  ["결과", "숫자, 사람 수, 반응처럼 실제 확인한 사실을 적습니다."],
+                  ["배운 점", "그 결과가 아이디어에 어떤 의미인지 정리합니다."],
+                  ["다음 행동", "바로 이어서 할 한 가지 행동을 적습니다."],
+                ].map(([title, detail]) => (
+                  <div key={title} className="bg-slate-50 px-3 py-3">
+                    <div className="text-xs font-semibold text-slate-950">{title}</div>
+                    <p className="mt-1 text-[11px] leading-5 text-slate-600">{detail}</p>
+                  </div>
+                ))}
+              </div>
               <div className="grid gap-4 lg:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   대상 검증 계획
@@ -13400,12 +13428,16 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       <option value="">검증 계획을 먼저 추가하세요</option>
                     )}
                   </select>
+                  <span className="text-xs font-normal leading-5 text-slate-500">
+                    결과를 남길 하위 검증 계획을 선택합니다.
+                  </span>
                 </label>
                 <SelectField
                   label="다음 판단"
                   value={experimentResultDraft.next_decision}
                   options={decisions}
                   labels={decisionLabels}
+                  description="이 결과를 보고 아이디어를 계속 진행할지, 추가 조사할지, 전환/중단할지 고릅니다."
                   disabled={selectedExperiments.length === 0}
                   onChange={(value) =>
                     setExperimentResultDraft((current) => ({ ...current, next_decision: value }))
@@ -13414,14 +13446,18 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
               <div className="grid gap-4 lg:grid-cols-2">
                 <TextArea
-                  label="결과"
+                  label="확인한 결과"
                   value={experimentResultDraft.result}
+                  placeholder="예) 5명 중 3명이 같은 문제를 겪고 있었고, 2명은 월 구독 의향을 보였습니다."
+                  description="실제로 확인한 사실을 숫자와 반응 중심으로 적습니다."
                   disabled={selectedExperiments.length === 0}
                   onChange={(value) => setExperimentResultDraft((current) => ({ ...current, result: value }))}
                 />
                 <TextArea
                   label="배운 점"
                   value={experimentResultDraft.learning}
+                  placeholder="예) 문제는 있지만 기능보다 신뢰와 개인정보 설명이 먼저 필요했습니다."
+                  description="결과를 보고 새로 알게 된 의미를 적습니다."
                   disabled={selectedExperiments.length === 0}
                   onChange={(value) => setExperimentResultDraft((current) => ({ ...current, learning: value }))}
                 />
@@ -13429,6 +13465,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <TextArea
                 label="다음 행동"
                 value={experimentResultDraft.next_action}
+                placeholder="예) 개인정보 저장 방식을 설명한 랜딩 페이지로 2차 확인"
+                description="이 결과 다음에 바로 할 한 가지 행동만 적습니다."
                 disabled={selectedExperiments.length === 0}
                 onChange={(value) => setExperimentResultDraft((current) => ({ ...current, next_action: value }))}
               />
@@ -13439,7 +13477,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                 >
                   <Save size={18} />
-                  결과 저장
+                  검증 결과 저장
                 </button>
               </div>
             </div>
@@ -14287,11 +14325,15 @@ function InputField({
 function TextArea({
   label,
   value,
+  placeholder,
+  description,
   disabled,
   onChange,
 }: {
   label: string;
   value: string;
+  placeholder?: string;
+  description?: string;
   disabled?: boolean;
   onChange: (value: string) => void;
 }) {
@@ -14300,11 +14342,13 @@ function TextArea({
       {label}
       <textarea
         value={value}
+        placeholder={placeholder}
         disabled={disabled}
         rows={4}
         onChange={(event) => onChange(event.target.value)}
         className="avl-textarea min-h-28"
       />
+      {description ? <span className="text-xs font-normal leading-5 text-slate-500">{description}</span> : null}
     </label>
   );
 }
