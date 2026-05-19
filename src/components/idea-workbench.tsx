@@ -824,7 +824,7 @@ export type WorkbenchStepReadiness = {
 
 type ArtifactPanel = "validation" | "product" | "library";
 type DevelopmentPanel = "setup" | "tasks" | "handoff";
-type GuidedExecutionStep = "package" | "execute" | "report";
+type DevelopmentAutoFlowState = "idle" | "review" | "summary";
 type ArtifactReviewStatus = "approved" | "draft" | "missing";
 
 type ArtifactReviewItem = {
@@ -906,18 +906,6 @@ const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   setup: "실제 제작으로 넘기기 전에 결정, 화면, 데이터, 위험 조건이 준비됐는지 확인합니다.",
   tasks: "실행할 일을 상태별로 나누고 막힌 항목과 완료 근거를 봅니다.",
   handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
-};
-
-const guidedExecutionStepLabels: Record<GuidedExecutionStep, string> = {
-  package: "제작 전달 묶음",
-  execute: "다음 제작 할 일",
-  report: "제작 완료 정리",
-};
-
-const guidedExecutionStepDescriptions: Record<GuidedExecutionStep, string> = {
-  package: "기획, 디자인, 기술 입력과 기본 제작 할 일을 한 묶음으로 정리합니다.",
-  execute: "다음에 처리할 일만 보고 진행 상태와 완료 근거를 남깁니다.",
-  report: "완료된 일과 출시 직전 전달 내용을 정리합니다.",
 };
 
 const artifactReviewBlueprint: Array<
@@ -6956,6 +6944,8 @@ export function IdeaWorkbench({
   );
   const [artifactPanel, setArtifactPanel] = useState<ArtifactPanel>("validation");
   const [developmentPanel, setDevelopmentPanel] = useState<DevelopmentPanel>("setup");
+  const [developmentAutoFlowState, setDevelopmentAutoFlowState] = useState<DevelopmentAutoFlowState>("idle");
+  const [developmentAutoNote, setDevelopmentAutoNote] = useState("");
   const experienceMode = "guided" as "guided" | "full";
   const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
   const [implementationOwnerFilter, setImplementationOwnerFilter] = useState("all");
@@ -8496,53 +8486,72 @@ export function IdeaWorkbench({
         },
       ]
     : [];
-  const hasFullExecutionRunbook = orchestrationPhaseConfigs.every((config) =>
-    selectedRuns.some((run) => run.phase === config.phase),
-  );
-  const hasCoreExecutionPackage =
-    hasBackendDecisionArtifact && hasDesignBriefArtifact && hasTechSpecArtifact && hasDevRunbookArtifact;
-  const guidedExecutionStep: GuidedExecutionStep =
-    !hasFullExecutionRunbook || !hasCoreExecutionPackage || selectedImplementationTasks.length === 0
-      ? "package"
-      : implementationGateScore < 100
-        ? "execute"
-        : "report";
   const visibleDevelopmentPanel: DevelopmentPanel =
-    experienceMode === "guided"
-      ? guidedExecutionStep === "package"
-        ? "setup"
-        : guidedExecutionStep === "execute"
-          ? "tasks"
-          : "handoff"
-      : developmentPanel;
-  const guidedExecutionProgress = [
+    experienceMode === "guided" ? "setup" : developmentPanel;
+  const hasSavedDevelopmentAutoPackage = hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact;
+  const effectiveDevelopmentAutoFlowState: DevelopmentAutoFlowState | "saved" =
+    hasSavedDevelopmentAutoPackage ? "saved" : developmentAutoFlowState;
+  const developmentAutoReviewSteps = [
     {
-      id: "package" as const,
-      label: guidedExecutionStepLabels.package,
-      detail: `런북 ${hasFullExecutionRunbook ? "완료" : "필요"} · 핵심 실행 문서 ${
-        hasCoreExecutionPackage ? "완료" : "필요"
-      } · 할 일 ${selectedImplementationTasks.length > 0 ? `${selectedImplementationTasks.length}개` : "미생성"}`,
-      done: hasFullExecutionRunbook && hasCoreExecutionPackage && selectedImplementationTasks.length > 0,
-      active: guidedExecutionStep === "package",
+      label: "제작 범위 정리",
+      detail: firstBuildBridge?.firstTasks.slice(0, 2).join(" · ") || "처음 만들 핵심 화면과 기능을 한 묶음으로 정리합니다.",
     },
     {
-      id: "execute" as const,
-      label: guidedExecutionStepLabels.execute,
-      detail:
-        selectedImplementationTasks.length > 0
-          ? `완료 ${completedImplementationTasks.length}/${selectedImplementationTasks.length} · 차단 ${selectedImplementationTasks.filter((task) => task.status === "blocked").length}`
-          : "실행 할 일 준비 전",
-      done: selectedImplementationTasks.length > 0 && implementationGateScore >= 100,
-      active: guidedExecutionStep === "execute",
+      label: "디자인 프롬프트 준비",
+      detail: "화면 구조, 상태, 모바일 조건을 AI 디자인 도구에 넘길 수 있는 문장으로 묶습니다.",
     },
     {
-      id: "report" as const,
-      label: guidedExecutionStepLabels.report,
-      detail: `완료 게이트 ${passedImplementationGateCount}/${implementationGateChecks.length}`,
-      done: implementationGateScore >= 100,
-      active: guidedExecutionStep === "report",
+      label: "실행 계획 준비",
+      detail: "개발자가 바로 볼 수 있도록 작업 순서, 제외 범위, 확인 기준을 실행 문서로 정리합니다.",
+    },
+    {
+      label: "최종 요약 확인",
+      detail: "사용자가 보완할 내용이 있으면 메모를 붙이고, 이상 없으면 한 번에 저장합니다.",
     },
   ];
+  const developmentAutoSummaryCards = [
+    {
+      label: "기술 방향",
+      value: firstBuildBridge?.stackTitle || backendCandidateScores[0]?.label || "Next.js + Supabase",
+      detail:
+        firstBuildBridge?.stackReason ||
+        "인증, 저장, 권한 경계를 빠르게 붙이고 첫 제작 범위를 작게 시작하는 방향입니다.",
+    },
+    {
+      label: "먼저 만들 것",
+      value: firstBuildBridge?.firstTasks[0] || "핵심 입력과 저장 흐름",
+      detail:
+        firstBuildBridge?.firstTasks.slice(1).join(" · ") ||
+        "첫 화면에서 사용자가 입력하고 결과를 저장하는 최소 흐름을 우선 만듭니다.",
+    },
+    {
+      label: "이번엔 뺄 것",
+      value: firstBuildBridge?.excludeNow[0] || "부가 기능과 복잡한 자동화",
+      detail:
+        firstBuildBridge?.excludeNow.slice(1).join(" · ") ||
+        "결제, 고급 관리자, 외부 연동처럼 검증 목표와 직접 관련 없는 기능은 뒤로 미룹니다.",
+    },
+  ];
+  const developmentAutoSummaryDraft = selectedIdea
+    ? [
+        `# 제작 실행 요약: ${selectedIdea.name}`,
+        "",
+        "## 기술 방향",
+        developmentAutoSummaryCards[0]?.value ?? "",
+        developmentAutoSummaryCards[0]?.detail ?? "",
+        "",
+        "## 먼저 만들 것",
+        developmentAutoSummaryCards[1]?.value ?? "",
+        developmentAutoSummaryCards[1]?.detail ?? "",
+        "",
+        "## 이번엔 빼는 것",
+        developmentAutoSummaryCards[2]?.value ?? "",
+        developmentAutoSummaryCards[2]?.detail ?? "",
+        "",
+        "## 사용자 보완 메모",
+        developmentAutoNote.trim() || "- 추가 메모 없음",
+      ].join("\n")
+    : "";
   const launchReadiness = selectedIdea && editState
     ? [
         {
@@ -9417,6 +9426,51 @@ export function IdeaWorkbench({
     setMessage(`${artifactLabels[artifactType]} v${nextVersion}을 저장했습니다.`);
     router.refresh();
     return true;
+  }
+
+  async function saveDevelopmentAutoPackage() {
+    if (!selectedIdea) {
+      setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    const finalDevelopmentPlan = [
+      developmentAutoSummaryDraft,
+      "",
+      "---",
+      "",
+      "## 상세 실행 계획",
+      developmentPlanDraft,
+    ].join("\n");
+
+    if (!hasDesignGenerationPromptArtifact) {
+      const savedPrompt = await saveArtifactDraft(
+        "design_brief",
+        `${selectedIdea.name} 디자인 생성 프롬프트`,
+        designGenerationPromptDraft,
+        "design_generation_prompt",
+      );
+
+      if (!savedPrompt) {
+        return;
+      }
+    }
+
+    if (!hasDevelopmentPlanArtifact) {
+      const savedPlan = await saveArtifactDraft(
+        "dev_runbook",
+        `${selectedIdea.name} 제작 실행 계획`,
+        finalDevelopmentPlan,
+        "development_process",
+      );
+
+      if (!savedPlan) {
+        return;
+      }
+    }
+
+    setDevelopmentAutoFlowState("summary");
+    setMessage("제작 실행 자료를 저장했습니다. 이제 다음 단계로 이동할 수 있습니다.");
   }
 
   async function runAiExecutionAutopilot() {
@@ -10886,162 +10940,184 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
           ) : (
             <div className="avl-surface-muted mb-5 p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <div className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">현재 실행 단계</div>
-                  <h3 className="mt-2 text-base font-semibold text-slate-950">
-                    {guidedExecutionStepLabels[guidedExecutionStep]}
-                  </h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">
-                    {guidedExecutionStepDescriptions[guidedExecutionStep]}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {guidedExecutionStep === "package" ? (
-                    <button
-                      type="button"
-                      onClick={runAiExecutionAutopilot}
-                      disabled={isBusy || !user}
-                      className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
-                    >
-                      <Layers3 size={18} />
-                      제작 전달 묶음 만들기
-                    </button>
-                  ) : guidedExecutionStep === "execute" ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        nextImplementationTask
-                          ? copyDraft(implementationTaskTicketDraft, "다음 실행 할 일")
-                          : copyDraft(implementationBacklogDraft, "남은 실행 목록")
-                      }
-                      disabled={Boolean(nextImplementationTask) ? !implementationTaskTicketDraft : !implementationBacklogDraft}
-                      className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
-                    >
-                      <ClipboardList size={18} />
-                      {nextImplementationTask ? "다음 할 일 복사" : "남은 실행 요약 복사"}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        saveArtifactDraft(
-                          "dev_runbook",
-                          `${selectedIdea.name} 제작 완료 보고서`,
-                          developmentCompletionReportDraft,
-                          "development_report",
-                        )
-                      }
-                      disabled={isBusy || !user || !developmentCompletionReportDraft}
-                      className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
-                    >
-                      <Save size={18} />
-                      제작 완료 보고서 저장
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-3 lg:grid-cols-3">
-                {guidedExecutionProgress.map((step, index) => (
-                  <div
-                    key={step.id}
-                    className={`border p-3 ${
-                      step.active
-                        ? "border-emerald-300 bg-white"
-                        : step.done
-                          ? "border-emerald-100 bg-white/90"
-                          : "border-slate-200 bg-white/70"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`avl-step-dot h-7 w-7 text-xs ${
-                          step.active || step.done ? "bg-emerald-700 text-white" : "bg-slate-200 text-slate-700"
-                        }`}
-                      >
-                        {index + 1}
-                      </span>
-                      <div className="text-sm font-semibold text-slate-950">{step.label}</div>
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{step.detail}</p>
-                  </div>
-                ))}
-              </div>
+              <div className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">현재 단계</div>
+              <h3 className="mt-2 text-base font-semibold text-slate-950">제작 준비 자동 정리</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                아래 카드에서 AI가 제작 범위와 실행 자료를 순서대로 묶습니다. 사용자는 최종 저장 전 한 번만 확인하면 됩니다.
+              </p>
             </div>
           )}
           <p className="mb-4 text-sm leading-5 text-slate-600">{developmentPanelDescriptions[visibleDevelopmentPanel]}</p>
 
           {experienceMode === "guided" ? (
-            <div className="avl-surface-muted mb-4 border-blue-200 bg-blue-50 p-4 text-sm leading-5 text-blue-900">
-              이 단계에서는 AI가 기획, 디자인, 제작 초안과 실행 자료를 자동으로 만듭니다. 우선은 준비도, 디자인 프롬프트,
-              제작 실행 계획만 확인하고 저장하세요. 기술 비교나 세부 설계 문서는 필요한 시점에 상세 자료에서 확인하면 됩니다.
+            <div className={visibleDevelopmentPanel === "setup" ? "" : "hidden"}>
+              <section className="border border-slate-200 bg-white p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <div className="avl-kicker">자동 제작 준비</div>
+                    <h3 className="mt-2 text-xl font-semibold text-slate-950">AI가 실행 자료를 한 번에 정리합니다</h3>
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                      이미 정리된 검증 자료를 바탕으로 제작 범위, 디자인 프롬프트, 실행 계획을 묶습니다.
+                      사용자는 한 번 확인하고 필요한 메모만 더한 뒤 최종 저장하면 됩니다.
+                    </p>
+                  </div>
+                  <div className="min-w-36 border border-slate-200 bg-slate-50 p-3 text-sm">
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">저장 상태</div>
+                    <div className="mt-2 text-lg font-semibold text-slate-950">
+                      {hasSavedDevelopmentAutoPackage ? "저장 완료" : "저장 전"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-3 lg:grid-cols-4">
+                  {developmentAutoReviewSteps.map((step, index) => {
+                    const completedAutoStepCount =
+                      effectiveDevelopmentAutoFlowState === "idle"
+                        ? 0
+                        : effectiveDevelopmentAutoFlowState === "review"
+                          ? 3
+                          : developmentAutoReviewSteps.length;
+                    const isActive = index < completedAutoStepCount;
+
+                    return (
+                      <div
+                        key={step.label}
+                        className={`border p-4 ${
+                          isActive ? "border-slate-950 bg-slate-950 text-white" : "border-slate-200 bg-slate-50 text-slate-900"
+                        }`}
+                      >
+                        <div className={`text-xs font-semibold tracking-[0.14em] ${isActive ? "text-blue-100" : "text-slate-500"}`}>
+                          {isActive ? "완료" : `0${index + 1}`}
+                        </div>
+                        <div className="mt-2 text-sm font-semibold">{step.label}</div>
+                        <p className={`mt-2 text-sm leading-5 ${isActive ? "text-slate-200" : "text-slate-600"}`}>{step.detail}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {effectiveDevelopmentAutoFlowState === "idle" ? (
+                  <div className="mt-5 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm leading-6 text-blue-950">
+                      시작하면 AI가 준비된 내용을 순서대로 묶고, 저장 전 최종 요약을 먼저 보여줍니다.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setDevelopmentAutoFlowState("review")}
+                      className="avl-btn avl-btn-primary h-11 px-4"
+                    >
+                      <Layers3 size={18} />
+                      자동 정리 시작
+                    </button>
+                  </div>
+                ) : null}
+
+                {effectiveDevelopmentAutoFlowState === "review" ? (
+                  <div className="mt-5 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                    <div className="border border-slate-200 bg-slate-50 p-4">
+                      <div className="avl-kicker">정리된 내용 확인</div>
+                      <h4 className="mt-2 text-base font-semibold text-slate-950">제작에 넘길 핵심 내용</h4>
+                      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                        {developmentAutoSummaryCards.map((card) => (
+                          <div key={card.label} className="border border-slate-200 bg-white p-3">
+                            <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{card.label}</div>
+                            <div className="mt-2 text-sm font-semibold text-slate-950">{card.value}</div>
+                            <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="border border-slate-200 bg-white p-4">
+                      <label className="text-sm font-semibold text-slate-950" htmlFor="development-auto-note">
+                        추가로 남길 내용
+                      </label>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">
+                        개발자나 다음 작업자가 꼭 알아야 할 내용이 있으면 적으세요. 없으면 비워둬도 됩니다.
+                      </p>
+                      <textarea
+                        id="development-auto-note"
+                        value={developmentAutoNote}
+                        onChange={(event) => setDevelopmentAutoNote(event.target.value)}
+                        rows={7}
+                        className="avl-textarea mt-3"
+                        placeholder="예) 이번 제작에서는 결제와 관리자 화면은 제외하고, 입력/저장/조회 흐름만 먼저 확인합니다."
+                      />
+                    </div>
+
+                    <div className="xl:col-span-2 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                      <button
+                        type="button"
+                        onClick={() => updateActiveTask("artifacts")}
+                        className="avl-btn avl-btn-secondary h-11 px-4"
+                      >
+                        이전 단계로 이동
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDevelopmentAutoFlowState("idle")}
+                        className="avl-btn avl-btn-secondary h-11 px-4"
+                      >
+                        진행 중단
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDevelopmentAutoFlowState("summary")}
+                        className="avl-btn avl-btn-primary h-11 px-4"
+                      >
+                        정리 내용 확인
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {effectiveDevelopmentAutoFlowState === "summary" || effectiveDevelopmentAutoFlowState === "saved" ? (
+                  <div className="mt-5 border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div>
+                        <div className="avl-kicker">최종 실행 내역</div>
+                        <h4 className="mt-2 text-base font-semibold text-slate-950">이 내용으로 제작 준비를 저장합니다</h4>
+                        <p className="mt-1 text-sm leading-6 text-slate-600">
+                          저장하면 디자인 생성 프롬프트와 제작 실행 계획이 실행 문서로 남고, 다음 단계 버튼이 열립니다.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={saveDevelopmentAutoPackage}
+                        disabled={
+                          isBusy ||
+                          !user ||
+                          hasSavedDevelopmentAutoPackage ||
+                          !designGenerationPromptDraft ||
+                          !developmentPlanDraft
+                        }
+                        className={`avl-btn h-11 px-4 disabled:cursor-not-allowed disabled:opacity-50 ${
+                          hasSavedDevelopmentAutoPackage ? "avl-btn-secondary" : "avl-btn-primary"
+                        }`}
+                      >
+                        {hasSavedDevelopmentAutoPackage ? <CheckCircle2 size={18} /> : <Save size={18} />}
+                        {hasSavedDevelopmentAutoPackage ? "최종 저장 완료" : "최종 실행 자료 저장"}
+                      </button>
+                    </div>
+                    <textarea
+                      value={developmentAutoSummaryDraft}
+                      readOnly
+                      rows={14}
+                      className="avl-textarea mt-4 font-mono leading-6"
+                    />
+                    {hasSavedDevelopmentAutoPackage ? (
+                      <p className="mt-3 text-sm font-semibold text-emerald-700">
+                        제작 준비가 저장되었습니다. 화면 하단의 다음 단계 버튼으로 이동할 수 있습니다.
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </section>
             </div>
           ) : null}
 
-          {firstBuildBridge ? (
-            <section className="mb-5 border border-slate-200 bg-white p-4 text-slate-900">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <div className="text-[11px] font-semibold tracking-[0.16em] text-slate-500">첫 제작 안내</div>
-                  <h3 className="mt-2 text-base font-semibold text-slate-950">첫 제작 길잡이</h3>
-                  <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                    검증이 끝난 뒤 바로 무엇부터 만들지 보이도록, 추천 기술 방향과 처음 할 일만 먼저 정리합니다.
-                  </p>
-                </div>
-                <div className="avl-pill avl-pill-info">{firstBuildBridge.stackTitle}</div>
-              </div>
-
-              <div className="mt-4 grid gap-3 lg:grid-cols-[0.9fr_1.1fr_1fr]">
-                <div className="border border-slate-200 bg-slate-50 p-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">기술 방향</div>
-                  <p className="mt-2 text-sm font-semibold text-slate-950">{firstBuildBridge.stackTitle}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{firstBuildBridge.stackReason}</p>
-                </div>
-                <div className="border border-slate-200 bg-slate-50 p-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">처음 만들 것</div>
-                  <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700">
-                    {firstBuildBridge.firstTasks.map((task) => (
-                      <li key={task}>- {task}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="border border-slate-200 bg-slate-50 p-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">이번엔 뺄 것</div>
-                  <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700">
-                    {firstBuildBridge.excludeNow.map((item) => (
-                      <li key={item}>- {item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <p className="mt-3 border-l border-slate-300 pl-3 text-sm leading-6 text-slate-600">
-                판단 기준: {firstBuildBridge.decisionAnchor}
-              </p>
-            </section>
-          ) : null}
-
-          <div className={visibleDevelopmentPanel === "setup" ? "" : "hidden"}>
-          <div className="grid gap-3 lg:grid-cols-4">
-            {[
-              ["기획", "기획서, 첫 제작 범위, 성공 지표, 제외 범위를 확정합니다."],
-              ["디자인", "핵심 여정, 화면 상태, 모바일/접근성 리스크를 정리합니다."],
-              ["구현", "저장, 권한, 핵심 기능이 실제로 작동하는지 확인합니다."],
-              ["출시", "사람이 볼 수 있는 주소, 기본 확인, 되돌릴 기준을 남깁니다."],
-            ].map(([label, detail], index) => (
-              <div key={label} className="avl-surface-muted p-4">
-                <div className="flex items-center gap-2">
-                  <span className="avl-step-dot h-7 w-7 bg-blue-600 text-xs text-white">
-                    {index + 1}
-                  </span>
-                  <div className="text-sm font-semibold text-slate-950">{label}</div>
-                </div>
-                <p className="mt-2 text-sm leading-5 text-slate-600">{detail}</p>
-              </div>
-            ))}
-          </div>
-
+          {experienceMode === "full" ? (
+          <>
           <div className="mt-5 grid gap-4 xl:grid-cols-2">
             <GateChecklistPanel
               eyebrow="디자인 점검"
@@ -11059,78 +11135,25 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             />
           </div>
 
-          <div className="avl-card mt-5 p-4">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <div className="avl-kicker">디자인 초안</div>
-                <h3 className="mt-2 text-base font-semibold text-slate-950">디자인 생성 프롬프트</h3>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Stitch, v0, Figma용 AI 디자인 도구에 바로 넣을 수 있도록 화면, 상태, 모바일, 권한, 데이터 기준을
-                  하나의 프롬프트로 묶습니다.
-                </p>
-              </div>
-              <div className="flex flex-col items-start gap-2 sm:items-end">
-                <button
-                  type="button"
-                  onClick={() =>
-                    saveArtifactDraft(
-                      "design_brief",
-                      `${selectedIdea.name} 디자인 생성 프롬프트`,
-                      designGenerationPromptDraft,
-                      "design_generation_prompt",
-                    )
-                  }
-                  disabled={isBusy || !user || !designGenerationPromptDraft || hasDesignGenerationPromptArtifact}
-                  className={`avl-btn h-10 rounded-[0.125rem] px-3 disabled:cursor-not-allowed disabled:opacity-50 ${
-                    hasDesignGenerationPromptArtifact ? "avl-btn-secondary" : "avl-btn-primary"
-                  }`}
-                >
-                  {hasDesignGenerationPromptArtifact ? <CheckCircle2 size={16} /> : <Save size={16} />}
-                  {hasDesignGenerationPromptArtifact ? "프롬프트 저장 완료" : "프롬프트 저장"}
-                </button>
-                <span className="text-xs leading-5 text-slate-500">
-                  이 프롬프트를 저장하면 제작 실행 계획 저장을 이어서 진행할 수 있습니다.
-                </span>
-              </div>
-            </div>
-            <textarea
-              value={designGenerationPromptDraft}
-              readOnly
-              rows={8}
-              className="avl-textarea mt-4 font-mono leading-6"
-            />
-          </div>
-
-          <div className="avl-card mt-5 flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="avl-card mt-5 flex flex-col gap-3 p-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <div className="avl-kicker">최종 저장</div>
-              <h3 className="mt-2 text-base font-semibold text-slate-950">제작 실행 계획 저장</h3>
-              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
-                디자인 프롬프트를 저장한 뒤 제작 실행 계획을 확정하면 다음 실행 관리 단계가 열립니다.
+              <div className="avl-kicker">advanced</div>
+              <h3 className="mt-2 text-base font-semibold text-slate-950">고급 제작 자료 자동 생성</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                백엔드 결정, 실행 문서, 오케스트레이션, 기본 제작 할 일을 한 번에 만듭니다.
               </p>
             </div>
             <button
               type="button"
-              onClick={() =>
-                saveArtifactDraft(
-                  "dev_runbook",
-                  `${selectedIdea.name} 제작 실행 계획`,
-                  developmentPlanDraft,
-                  "development_process",
-                )
-              }
-              disabled={isBusy || !user || !developmentPlanDraft || !hasDesignGenerationPromptArtifact || hasDevelopmentPlanArtifact}
-              className={`avl-btn h-11 rounded-[0.125rem] px-4 disabled:cursor-not-allowed disabled:opacity-50 ${
-                hasDevelopmentPlanArtifact ? "avl-btn-secondary" : "avl-btn-primary"
-              }`}
+              onClick={runAiExecutionAutopilot}
+              disabled={isBusy || !user}
+              className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
             >
-              {hasDevelopmentPlanArtifact ? <CheckCircle2 size={18} /> : <Save size={18} />}
-              {hasDevelopmentPlanArtifact ? "제작 실행 계획 저장 완료" : "제작 실행 계획 저장"}
+              <Layers3 size={18} />
+              고급 자동 생성
             </button>
           </div>
 
-          {experienceMode === "full" ? (
-          <>
           <div className="avl-card mt-5 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
@@ -11426,7 +11449,6 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
           </>
           ) : null}
-          </div>
 
           <div
             className={`avl-card mt-5 p-4 ${
