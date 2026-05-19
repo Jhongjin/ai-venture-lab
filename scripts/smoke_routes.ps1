@@ -69,7 +69,10 @@ $publicPages = @(
   @{ Path = "/guide"; RequiredText = "operator guide" },
   @{ Path = "/login"; RequiredText = "operator access" },
   @{ Path = "/signup"; RequiredText = "signup route" },
-  @{ Path = "/profile"; RequiredText = "my page" }
+  @{ Path = "/profile"; RequiredText = "my page" },
+  @{ Path = "/workspace"; RequiredText = $null },
+  @{ Path = "/workspace/ideas"; RequiredText = $null },
+  @{ Path = "/workspace/deleted"; RequiredText = $null }
 )
 
 foreach ($publicPage in $publicPages) {
@@ -79,7 +82,7 @@ foreach ($publicPage in $publicPages) {
     Write-Error "Route smoke failed for $($publicPage.Path): expected HTTP 200 but received $($pageResponse.StatusCode)."
   }
 
-  if (-not $pageResponse.Content.Contains($publicPage.RequiredText)) {
+  if ($publicPage.RequiredText -and -not $pageResponse.Content.Contains($publicPage.RequiredText)) {
     Write-Error "Route smoke failed for $($publicPage.Path): missing expected text: $($publicPage.RequiredText)."
   }
 }
