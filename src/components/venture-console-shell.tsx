@@ -377,7 +377,9 @@ function getNextTaskOptions({
     case "console:workspace":
       return [];
     case "console:extract":
-      return [];
+      return ideaCount > 0
+        ? [createTransition("workbench:score", "다음: 사업성 평가", "저장된 아이디어의 수요와 실행 가능성을 점검합니다.")]
+        : [];
     case "console:idea":
       return [];
     case "workbench:select":
@@ -946,9 +948,10 @@ export function VentureConsoleShell({
     ? null
     : executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id) + 1;
   const completedRequiredCount = completedTasks.filter((task) => !task.optional && task.id !== "console:auth").length;
+  const currentProgressCount = activeExecutionStepIndex >= 0 ? activeExecutionStepIndex + 1 : completedRequiredCount;
   const workflowProgress = Math.min(
     100,
-    Math.round((completedRequiredCount / Math.max(1, executionStepTotal)) * 100),
+    Math.round((currentProgressCount / Math.max(1, executionStepTotal)) * 100),
   );
   const activeCanvas = taskCanvasDetails[visibleTask];
   const railPrimaryTasks = executionStepTasks.filter(
@@ -1001,7 +1004,7 @@ export function VentureConsoleShell({
               <div className="h-full bg-slate-950 transition-all" style={{ width: `${workflowProgress}%` }} />
             </div>
             <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>진행 {completedRequiredCount}/{executionStepTotal}</span>
+              <span>진행 {currentProgressCount}/{executionStepTotal}</span>
               <span>{workflowProgress}%</span>
             </div>
           </div>
@@ -1149,7 +1152,7 @@ export function VentureConsoleShell({
                 <span className="text-slate-500">
                   {stepNumber ? `Step ${stepNumber}` : activeTaskConfig.group}
                 </span>
-                {!activeTaskConfig.optional && stepNumber ? <span>진행 {completedRequiredCount}/{executionStepTotal}</span> : null}
+                {!activeTaskConfig.optional && stepNumber ? <span>진행 {currentProgressCount}/{executionStepTotal}</span> : null}
               </div>
 
               <div className="mt-3 flex items-start gap-3">
@@ -1182,16 +1185,6 @@ export function VentureConsoleShell({
               </ol>
 
               <div className="mt-4 flex flex-col gap-2">
-                {primaryNextTask ? (
-                  <button
-                    type="button"
-                    onClick={() => goToTask(primaryNextTask.id)}
-                    className="avl-btn avl-btn-primary w-full px-4"
-                  >
-                    {primaryNextTask.cta}
-                    <ArrowRight size={16} />
-                  </button>
-                ) : null}
                 <button
                   type="button"
                   onClick={() => previousFlowTask && goToTask(previousFlowTask.id)}
@@ -1236,6 +1229,25 @@ export function VentureConsoleShell({
             />
           </div>
         </section>
+
+        {primaryNextTask ? (
+          <section className="border border-slate-200 bg-white p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">다음 단계</div>
+                <p className="mt-1 text-sm leading-5 text-slate-600">{primaryNextTask.hint}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => goToTask(primaryNextTask.id)}
+                className="avl-btn avl-btn-primary h-11 px-4"
+              >
+                {primaryNextTask.cta}
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          </section>
+        ) : null}
 
         {lockedTasks.length > 0 ? (
           <details className="border-t border-slate-200 px-4 py-3.5">
