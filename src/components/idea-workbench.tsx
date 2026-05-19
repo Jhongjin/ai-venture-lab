@@ -848,7 +848,7 @@ const artifactPanelLabels: Record<ArtifactPanel, string> = {
 };
 
 const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
-  validation: "아이디어 브리프, 리서치, 7일 검증 계획, 근거, 검증 완료 요약을 정리합니다.",
+  validation: "아이디어 브리프, 리서치 브리프, 7일 검증 계획을 먼저 저장합니다.",
   product: "기획서, 첫 제작 범위, 출시 체크리스트를 생성합니다.",
   library: "저장된 자료를 필터링하고 승인 상태를 관리합니다.",
 };
@@ -7974,10 +7974,22 @@ export function IdeaWorkbench({
   );
   const hasIdeaBriefArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "idea_brief");
   const hasResearchNoteArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note");
+  const hasResearchBriefArtifact = selectedArtifactRecords.some(
+    (artifact) =>
+      artifact.artifact_type === "research_note" &&
+      artifact.source === "workbench" &&
+      (artifact.title || "").includes("리서치 브리프"),
+  );
   const hasValidationSprintArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "validation_sprint");
   const hasEvidenceCaptureArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "evidence_capture");
   const hasExperimentResultArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "experiment_result");
   const hasValidationSummaryArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "validation_summary");
+  const validationSummaryRequirements = [
+    { label: "아이디어 브리프", passed: hasIdeaBriefArtifact },
+    { label: "리서치 브리프", passed: hasResearchBriefArtifact },
+    { label: "7일 검증 계획", passed: hasValidationSprintArtifact },
+  ];
+  const canSaveValidationSummary = validationSummaryRequirements.every((requirement) => requirement.passed);
   const hasPrdArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "prd");
   const hasApprovedPrdArtifact = selectedArtifactRecords.some(
     (artifact) => artifact.artifact_type === "prd" && artifact.status === "approved",
@@ -13752,22 +13764,50 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <h2 className="text-lg font-semibold text-slate-950">실행 문서 만들기</h2>
               <p className="mt-1 text-sm text-slate-500">{artifactPanelDescriptions[artifactPanel]}</p>
             </div>
-            <div className="avl-segmented grid grid-cols-3 gap-2 p-1">
-              {(Object.keys(artifactPanelLabels) as ArtifactPanel[]).map((panel) => (
-                <button
-                  key={panel}
-                  type="button"
-                  onClick={() => setArtifactPanel(panel)}
-                  className={`h-10 rounded-[3px] px-3 text-sm font-semibold transition ${
-                    artifactPanel === panel
-                      ? "border border-slate-200 bg-white text-slate-950 shadow-sm"
-                      : "text-slate-600 hover:bg-white/70 hover:text-slate-950"
-                  }`}
-                >
-                  {artifactPanelLabels[panel]}
-                </button>
-              ))}
+            <div className="grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setArtifactPanel("validation")}
+                className={`border px-4 py-3 text-left transition ${
+                  artifactPanel === "validation"
+                    ? "border-slate-950 bg-slate-950 text-white"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
+                }`}
+              >
+                <div className="text-xs font-semibold tracking-[0.14em] opacity-70">STEP 4-1</div>
+                <div className="mt-1 text-sm font-semibold">검증 자료 저장</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setArtifactPanel("product")}
+                disabled={!hasValidationSummaryArtifact}
+                className={`border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
+                  artifactPanel === "product"
+                    ? "border-slate-950 bg-slate-950 text-white"
+                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
+                }`}
+              >
+                <div className="text-xs font-semibold tracking-[0.14em] opacity-70">STEP 4-2</div>
+                <div className="mt-1 text-sm font-semibold">
+                  {hasValidationSummaryArtifact ? "기획서 만들기" : "기획서 만들기 잠김"}
+                </div>
+              </button>
             </div>
+          </div>
+          <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-4">
+            {[
+              ["아이디어 브리프", hasIdeaBriefArtifact],
+              ["리서치 브리프", hasResearchBriefArtifact],
+              ["7일 검증 계획", hasValidationSprintArtifact],
+              ["검증 완료 요약", hasValidationSummaryArtifact],
+            ].map(([label, passed]) => (
+              <div key={String(label)} className="bg-slate-50 px-3 py-3">
+                <div className="text-xs font-semibold text-slate-500">{String(label)}</div>
+                <div className={`mt-1 text-sm font-semibold ${passed ? "text-emerald-700" : "text-slate-700"}`}>
+                  {passed ? "저장 완료" : "저장 필요"}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -13829,6 +13869,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <h2 className="text-lg font-semibold text-slate-950">근거 직접 기록</h2>
               <p className="mt-1 text-sm text-slate-500">
                 인터뷰 메모, 외부 자료, 가격 신호, 경쟁 대안 관찰을 리서치 노트로 저장합니다.
+              </p>
+              <p className="mt-1 text-sm leading-5 text-amber-700">
+                따로 직접 조사한 내용이 없다면 이 영역은 비워둬도 됩니다. 위에서 저장한 브리프와 검증 계획만으로도 다음
+                단계로 넘어갈 수 있습니다.
               </p>
             </div>
             <button
@@ -13892,11 +13936,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
           kicker="summary"
           title="검증 완료 요약"
-          description="저장된 근거, 검증 계획, 리스크, 판단 기록을 묶어 기획서로 넘어가도 되는지 정리합니다."
+          description="아이디어 브리프, 리서치 브리프, 7일 검증 계획이 모두 저장된 뒤 마지막으로 저장하는 요약입니다."
           body={validationSummaryDraft}
           rows={16}
           copyLabel="요약 복사"
           onCopy={() => copyDraft(validationSummaryDraft, "검증 완료 요약")}
+          copyDisabled={!canSaveValidationSummary}
           onSave={() =>
             saveArtifactDraft(
               "research_note",
@@ -13905,12 +13950,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               "validation_summary",
             )
           }
-          saveDisabled={isBusy || !user}
+          saveDisabled={isBusy || !user || !canSaveValidationSummary}
+          disabledNote={
+            canSaveValidationSummary
+              ? undefined
+              : `검증 완료 요약은 ${validationSummaryRequirements
+                  .filter((requirement) => !requirement.passed)
+                  .map((requirement) => requirement.label)
+                  .join(", ")} 저장 후 활성화됩니다.`
+          }
         />
 
         <div
           className={`avl-card p-5 text-slate-900 ${
-            activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"
+            activeTask === "artifacts" && artifactPanel === "product" && hasValidationSummaryArtifact ? "" : "hidden"
           }`}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -14021,7 +14074,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <DraftDocumentCard
-          className={activeTask === "artifacts" && artifactPanel === "product" ? "" : "hidden"}
+          className={activeTask === "artifacts" && artifactPanel === "product" && hasValidationSummaryArtifact ? "" : "hidden"}
           kicker="product"
           title="제품 기획서 초안"
            description="점수, 증거, 리스크, 검증 계획, 실행 관리 결과를 바탕으로 생성되는 기획서 초안입니다."
@@ -14033,7 +14086,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           saveDisabled={isBusy || !user}
         />
 
-        <div className={activeTask === "artifacts" && artifactPanel === "product" ? "grid gap-6 xl:grid-cols-2" : "hidden"}>
+        <div
+          className={
+            activeTask === "artifacts" && artifactPanel === "product" && hasValidationSummaryArtifact
+              ? "grid gap-6 xl:grid-cols-2"
+              : "hidden"
+          }
+        >
           <DraftDocumentCard
             className="xl:col-span-2"
             kicker="execution plan"
@@ -14504,7 +14563,9 @@ function DraftDocumentCard({
   saveLabel = "실행 문서 저장",
   onCopy,
   onSave,
+  copyDisabled = false,
   saveDisabled = false,
+  disabledNote,
 }: {
   className?: string;
   kicker?: string;
@@ -14516,7 +14577,9 @@ function DraftDocumentCard({
   saveLabel?: string;
   onCopy: () => void;
   onSave?: () => void;
+  copyDisabled?: boolean;
   saveDisabled?: boolean;
+  disabledNote?: string;
 }) {
   return (
     <section className={`${className} avl-card p-5`}>
@@ -14532,7 +14595,8 @@ function DraftDocumentCard({
           <button
             type="button"
             onClick={onCopy}
-            className="avl-btn avl-btn-secondary px-4"
+            disabled={copyDisabled}
+            className="avl-btn avl-btn-secondary px-4 disabled:opacity-50"
           >
             <Clipboard size={18} />
             {copyLabel}
@@ -14542,7 +14606,7 @@ function DraftDocumentCard({
               type="button"
               onClick={onSave}
               disabled={saveDisabled}
-              className="avl-btn avl-btn-primary px-4"
+              className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
             >
               <Save size={18} />
               {saveLabel}
@@ -14550,6 +14614,13 @@ function DraftDocumentCard({
           ) : null}
         </div>
       </div>
+      {onSave ? (
+        <div className="mt-4 border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-600">
+          복사는 외부 문서나 메신저에 붙여 넣을 때 쓰는 보조 기능입니다. 일반 진행은 내용을 확인한 뒤{" "}
+          <span className="font-semibold text-slate-950">{saveLabel}</span>을 누르면 됩니다.
+          {disabledNote ? <span className="block mt-1 text-amber-700">{disabledNote}</span> : null}
+        </div>
+      ) : null}
       <textarea
         value={body}
         readOnly
