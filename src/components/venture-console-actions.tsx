@@ -22,6 +22,18 @@ type VentureArtifact = Database["public"]["Tables"]["venture_artifacts"]["Row"];
 type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["Insert"];
 type TelemetryEvent = Database["public"]["Tables"]["telemetry_events"]["Row"];
 type AddableOrganizationRole = Extract<OrganizationRole, "admin" | "member" | "viewer">;
+type IdeaInsert = Database["public"]["Tables"]["ideas"]["Insert"];
+
+function isMissingProductSurfaceColumnError(error: { message?: string; code?: string } | null | undefined) {
+  return Boolean(error && (error.code === "PGRST204" || /product_surface/i.test(error.message ?? "")));
+}
+
+function omitProductSurface<T extends { product_surface?: unknown }>(payload: T): Omit<T, "product_surface"> {
+  const { product_surface: omittedProductSurface, ...rest } = payload;
+  void omittedProductSurface;
+
+  return rest;
+}
 
 type FormState = {
   name: string;
@@ -2272,29 +2284,50 @@ export function VentureConsoleActions({
     }
 
     setIsSaving(true);
-    const { data, error } = await supabase
+    const manualProductSurface = inferProductSurface({
+      name: form.name,
+      one_liner: form.one_liner,
+      target_user: form.target_user,
+      buyer: form.buyer,
+      signal: form.signal,
+      risk_summary: form.risk_summary,
+      next_evidence: form.next_evidence,
+    });
+    const ideaInsertPayload: IdeaInsert = {
+      name: form.name.trim(),
+      one_liner: form.one_liner.trim(),
+      target_user: form.target_user.trim(),
+      buyer: form.buyer.trim(),
+      signal: form.signal.trim(),
+      risk_summary: form.risk_summary.trim(),
+      next_evidence: form.next_evidence.trim(),
+      product_surface: manualProductSurface.key,
+      stage: "intake",
+      decision: "pending",
+      problem_intensity: 0,
+      frequency: 0,
+      reachability: 0,
+      willingness_to_pay: 0,
+      mvp_speed: 0,
+      differentiation: 0,
+      regulatory_risk: 0,
+      organization_id: activeOrganization?.id ?? null,
+    };
+    let ideaInsertResult = await supabase
       .from("ideas")
-      .insert({
-        name: form.name.trim(),
-        one_liner: form.one_liner.trim(),
-        target_user: form.target_user.trim(),
-        buyer: form.buyer.trim(),
-        signal: form.signal.trim(),
-        risk_summary: form.risk_summary.trim(),
-        next_evidence: form.next_evidence.trim(),
-        stage: "intake",
-        decision: "pending",
-        problem_intensity: 0,
-        frequency: 0,
-        reachability: 0,
-        willingness_to_pay: 0,
-        mvp_speed: 0,
-        differentiation: 0,
-        regulatory_risk: 0,
-        organization_id: activeOrganization?.id ?? null,
-      })
+      .insert(ideaInsertPayload)
       .select()
       .single();
+
+    if (isMissingProductSurfaceColumnError(ideaInsertResult.error)) {
+      ideaInsertResult = await supabase
+        .from("ideas")
+        .insert(omitProductSurface(ideaInsertPayload))
+        .select()
+        .single();
+    }
+
+    const { data, error } = ideaInsertResult;
     setIsSaving(false);
 
     if (error) {
@@ -2312,6 +2345,7 @@ export function VentureConsoleActions({
         properties: {
           source: "manual",
           has_workspace: Boolean(data.organization_id),
+          product_surface: manualProductSurface.key,
           filled_field_count: Object.values(form).filter((value) => value.trim()).length,
         },
       });
@@ -2641,25 +2675,37 @@ export function VentureConsoleActions({
     }
 
     const organizationId = activeOrganization?.id ?? null;
-    const { data: idea, error: ideaError } = await supabase
+    const extractedIdeaInsertPayload: IdeaInsert = {
+      name: candidate.name.trim(),
+      one_liner: candidate.one_liner.trim(),
+      target_user: candidate.target_user.trim(),
+      buyer: candidate.buyer.trim(),
+      signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
+      risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
+      next_evidence: `산출물 방향\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+        "\n- ",
+      )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n진행 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
+      product_surface: candidate.productSurface.key,
+      stage: "research",
+      decision: "research_more",
+      ...candidate.initialScores,
+      organization_id: organizationId,
+    };
+    let extractedIdeaInsertResult = await supabase
       .from("ideas")
-      .insert({
-        name: candidate.name.trim(),
-        one_liner: candidate.one_liner.trim(),
-        target_user: candidate.target_user.trim(),
-        buyer: candidate.buyer.trim(),
-        signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
-        risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-        next_evidence: `산출물 방향\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
-          "\n- ",
-        )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n진행 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
-        stage: "research",
-        decision: "research_more",
-        ...candidate.initialScores,
-        organization_id: organizationId,
-      })
+      .insert(extractedIdeaInsertPayload)
       .select()
       .single();
+
+    if (isMissingProductSurfaceColumnError(extractedIdeaInsertResult.error)) {
+      extractedIdeaInsertResult = await supabase
+        .from("ideas")
+        .insert(omitProductSurface(extractedIdeaInsertPayload))
+        .select()
+        .single();
+    }
+
+    const { data: idea, error: ideaError } = extractedIdeaInsertResult;
 
     if (ideaError || !idea) {
       throw new Error(ideaError?.message ?? "아이디어를 저장하지 못했습니다.");

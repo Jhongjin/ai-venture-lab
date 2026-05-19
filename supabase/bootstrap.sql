@@ -59,6 +59,10 @@ create table if not exists public.ideas (
   signal text not null default '',
   risk_summary text not null default '',
   next_evidence text not null default '',
+  product_surface text check (
+    product_surface is null
+    or product_surface in ('web_app', 'mobile_app', 'web_site', 'automation', 'operator_console', 'mcp_handoff')
+  ),
   created_by uuid references auth.users(id) on delete set null default auth.uid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -100,6 +104,13 @@ create table if not exists public.experiments (
 );
 
 alter table public.ideas add column if not exists created_by uuid references auth.users(id) on delete set null default auth.uid();
+alter table public.ideas add column if not exists product_surface text;
+alter table public.ideas drop constraint if exists ideas_product_surface_check;
+alter table public.ideas add constraint ideas_product_surface_check check (
+  product_surface is null
+  or product_surface in ('web_app', 'mobile_app', 'web_site', 'automation', 'operator_console', 'mcp_handoff')
+);
+create index if not exists ideas_product_surface_idx on public.ideas(product_surface);
 alter table public.risks add column if not exists created_by uuid references auth.users(id) on delete set null default auth.uid();
 alter table public.decisions add column if not exists created_by uuid references auth.users(id) on delete set null default auth.uid();
 alter table public.experiments add column if not exists created_by uuid references auth.users(id) on delete set null default auth.uid();

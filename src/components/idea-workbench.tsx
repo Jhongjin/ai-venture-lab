@@ -19,7 +19,13 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
-import { inferProductSurface, productSurfaceMarkdown } from "@/lib/product-surface";
+import {
+  getProductSurfaceProfile,
+  productSurfaceMarkdown,
+  productSurfaceOrder,
+  productSurfaceProfiles,
+  type ProductSurfaceKey,
+} from "@/lib/product-surface";
 import type {
   Decision,
   Experiment,
@@ -653,6 +659,7 @@ type EditState = Pick<
   | "signal"
   | "risk_summary"
   | "next_evidence"
+  | "product_surface"
 >;
 
 type RiskDraft = {
@@ -1092,6 +1099,29 @@ function upsertRecordsById<T extends { id: string }>(records: T[], nextRecords: 
   return nextRecords.reduce((current, record) => upsertRecordById(current, record), records);
 }
 
+function ideaProductSurfaceInput(idea: Idea, state?: Partial<EditState>) {
+  return {
+    name: idea.name,
+    one_liner: idea.one_liner,
+    target_user: idea.target_user,
+    buyer: idea.buyer,
+    signal: state?.signal ?? idea.signal,
+    risk_summary: state?.risk_summary ?? idea.risk_summary,
+    next_evidence: state?.next_evidence ?? idea.next_evidence,
+  };
+}
+
+function isMissingProductSurfaceColumnError(error: { message?: string; code?: string } | null | undefined) {
+  return Boolean(error && (error.code === "PGRST204" || /product_surface/i.test(error.message ?? "")));
+}
+
+function omitProductSurface<T extends { product_surface?: unknown }>(payload: T): Omit<T, "product_surface"> {
+  const { product_surface: omittedProductSurface, ...rest } = payload;
+  void omittedProductSurface;
+
+  return rest;
+}
+
 function toEditState(idea: Idea): EditState {
   return {
     stage: idea.stage,
@@ -1106,6 +1136,7 @@ function toEditState(idea: Idea): EditState {
     signal: idea.signal,
     risk_summary: idea.risk_summary,
     next_evidence: idea.next_evidence,
+    product_surface: getProductSurfaceProfile(idea.product_surface, ideaProductSurfaceInput(idea)).key,
   };
 }
 
@@ -1198,15 +1229,7 @@ function inferIdeaDomain(idea: Idea, state: EditState) {
 }
 
 function inferIdeaProductSurface(idea: Idea, state: EditState) {
-  return inferProductSurface({
-    name: idea.name,
-    one_liner: idea.one_liner,
-    target_user: idea.target_user,
-    buyer: idea.buyer,
-    signal: state.signal,
-    risk_summary: state.risk_summary,
-    next_evidence: state.next_evidence,
-  });
+  return getProductSurfaceProfile(state.product_surface ?? idea.product_surface, ideaProductSurfaceInput(idea, state));
 }
 
 function includesAnyNormalized(text: string, terms: string[]) {
@@ -7785,12 +7808,16 @@ export function IdeaWorkbench({
   const currentScore = editState ? scoreState(editState) : 0;
   const scoreRecommendation = recommendationForScore(currentScore);
   const scoreSaveDecision = saveDecisionForScore(scoreRecommendation);
+  const savedEditState = selectedIdea ? toEditState(selectedIdea) : null;
+  const selectedProductSurface = selectedIdea && editState ? inferIdeaProductSurface(selectedIdea, editState) : null;
+  const activeProductSurface = selectedProductSurface ?? productSurfaceProfiles.web_app;
   const hasReachedScoreStage = selectedIdea
     ? (stageRank.get(selectedIdea.stage) ?? 0) >= (stageRank.get("score") ?? 0)
     : false;
   const isScoreEvaluationSaved = Boolean(
     selectedIdea &&
       editState &&
+      savedEditState &&
       hasReachedScoreStage &&
       selectedIdea.decision === scoreSaveDecision &&
       selectedIdea.problem_intensity === editState.problem_intensity &&
@@ -7802,7 +7829,8 @@ export function IdeaWorkbench({
       selectedIdea.regulatory_risk === editState.regulatory_risk &&
       selectedIdea.signal === editState.signal &&
       selectedIdea.risk_summary === editState.risk_summary &&
-      selectedIdea.next_evidence === editState.next_evidence,
+      selectedIdea.next_evidence === editState.next_evidence &&
+      savedEditState.product_surface === editState.product_surface,
   );
   const missing =
     selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedIdeaRisks.length) : [];
@@ -8988,14 +9016,29 @@ export function IdeaWorkbench({
       ...editState,
       stage: "score",
       decision: scoreSaveDecision,
+      product_surface: inferIdeaProductSurface(selectedIdea, editState).key,
     };
-    const { data, error } = await supabase
+    let updateResult = await supabase
       .from("ideas")
       .update(scoringState)
       .eq("id", selectedIdea.id)
       .select()
       .single();
+
+    const usedProductSurfaceFallback = isMissingProductSurfaceColumnError(updateResult.error);
+
+    if (usedProductSurfaceFallback) {
+      updateResult = await supabase
+        .from("ideas")
+        .update(omitProductSurface(scoringState))
+        .eq("id", selectedIdea.id)
+        .select()
+        .single();
+    }
+
     setIsBusy(false);
+
+    const { data, error } = updateResult;
 
     if (error) {
       setMessage(error.message);
@@ -9016,7 +9059,11 @@ export function IdeaWorkbench({
         regulatory_risk: data.regulatory_risk,
       },
     });
-    setMessage("사업성 평가를 저장했습니다.");
+    setMessage(
+      usedProductSurfaceFallback
+        ? "사업성 평가는 저장했습니다. 산출물 방향은 DB 마이그레이션 적용 후 저장됩니다."
+        : "사업성 평가를 저장했습니다.",
+    );
     router.refresh();
   }
 
@@ -10853,6 +10900,44 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       <p className="mt-2 text-xs leading-5 text-slate-500">
                         아래 평가값으로 계산한 추천 판단입니다. 점수가 낮아도 자동 삭제하지 않고, 삭제는 사용자가 직접 선택합니다.
                       </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 border border-slate-200 bg-white p-4">
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">산출물 방향</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      AI가 먼저 이 아이디어가 웹앱, 앱, 자동화, 개발 도구 연동 중 어디에 가까운지 정합니다. 이후 PRD, 기술 스택, 디자인,
+                      MCP/IDE 전달 문서는 이 값을 기준으로 만들어집니다.
+                    </p>
+                    <div className="mt-4 grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
+                      <label className="grid gap-2 text-sm font-semibold text-slate-900">
+                        AI가 추천한 결과물 형태
+                        <select
+                          value={(editState.product_surface ?? activeProductSurface.key) as ProductSurfaceKey}
+                          disabled={!canEdit}
+                          onChange={(event) =>
+                            setEditState({
+                              ...editState,
+                              product_surface: event.target.value as ProductSurfaceKey,
+                            })
+                          }
+                          className="h-11 cursor-pointer border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-100"
+                        >
+                          {productSurfaceOrder.map((key) => (
+                            <option key={key} value={key}>
+                              {productSurfaceProfiles[key].label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <div className="border border-slate-200 bg-slate-50 p-4">
+                        <div className="text-base font-semibold text-slate-950">{activeProductSurface.label}</div>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">{activeProductSurface.description}</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">{activeProductSurface.harnessFocus}</p>
+                        <p className="mt-3 text-xs leading-5 text-slate-500">
+                          다르게 판단되면 이 항목만 바꾼 뒤 저장하면 됩니다. 나머지 문서는 바뀐 방향에 맞춰 이어집니다.
+                        </p>
+                      </div>
                     </div>
                   </div>
 

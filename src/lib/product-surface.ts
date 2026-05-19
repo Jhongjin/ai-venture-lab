@@ -30,6 +30,15 @@ export type ProductSurfaceInput = {
   sourceBlock?: string | null;
 };
 
+export const productSurfaceOrder: ProductSurfaceKey[] = [
+  "web_app",
+  "mobile_app",
+  "web_site",
+  "automation",
+  "operator_console",
+  "mcp_handoff",
+];
+
 export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfaceProfile> = {
   web_app: {
     key: "web_app",
@@ -178,7 +187,7 @@ function normalizeSurfaceText(input: ProductSurfaceInput) {
 export function inferProductSurface(input: ProductSurfaceInput): ProductSurfaceProfile {
   const text = normalizeSurfaceText(input);
   const scores = Object.fromEntries(
-    (Object.keys(surfaceSignals) as ProductSurfaceKey[]).map((key) => [
+    productSurfaceOrder.map((key) => [
       key,
       surfaceSignals[key].reduce((score, signal) => score + (text.includes(signal.toLowerCase()) ? 1 : 0), 0),
     ]),

@@ -11,6 +11,7 @@ export type IdeaStage =
   | "paused";
 
 export type DecisionStatus = "ship" | "pivot" | "kill" | "research_more" | "pending";
+export type ProductSurfaceKey = "web_app" | "mobile_app" | "web_site" | "automation" | "operator_console" | "mcp_handoff";
 export type RiskSeverity = "low" | "medium" | "high" | "critical";
 export type OrganizationRole = "owner" | "admin" | "member" | "viewer";
 export type OrchestrationPhase =
@@ -69,6 +70,7 @@ export type Database = {
           signal: string;
           risk_summary: string;
           next_evidence: string;
+          product_surface: ProductSurfaceKey | null;
           organization_id: string | null;
           created_by: string | null;
           created_at: string;
