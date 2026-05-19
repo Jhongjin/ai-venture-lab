@@ -700,6 +700,7 @@ body {
     padding-inline: 0.8125rem;
     font-size: 0.875rem;
     font-weight: 600;
+    cursor: pointer;
     transition:
       background-color 150ms ease,
       border-color 150ms ease,
@@ -708,9 +709,19 @@ body {
       transform 120ms ease;
   }
 
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
   .avl-btn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
   }
 
   .avl-btn:active:not(:disabled) {

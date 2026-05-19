@@ -117,6 +117,11 @@ const experimentStatusLabels: Record<string, string> = {
   running: "진행 중",
   done: "완료",
 };
+const experimentStatusGuides: Record<string, string> = {
+  planned: "아직 실행 전입니다. 방법과 성공/중단 기준만 정해둔 상태입니다.",
+  running: "인터뷰, 랜딩, 수동 테스트처럼 실제 확인을 시작했을 때 바꿉니다.",
+  done: "결과와 배운 점을 기록할 수 있을 만큼 확인이 끝났을 때 바꿉니다.",
+};
 const runStatusLabels: Record<OrchestrationStatus, string> = {
   planned: "계획",
   running: "진행 중",
@@ -9026,6 +9031,51 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
+  async function deleteExperiment(experiment: Experiment) {
+    if (!supabase) {
+      setMessage("Supabase가 설정되어 있지 않습니다.");
+      return;
+    }
+
+    if (!canManageRecord(experiment)) {
+      setMessage("실험 작성자 또는 워크스페이스 관리자만 이 실험을 삭제할 수 있습니다.");
+      return;
+    }
+
+    const confirmed = window.confirm(`"${experiment.name}" 검증 계획을 삭제할까요?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { error } = await supabase.from("experiments").delete().eq("id", experiment.id);
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    const nextExperimentId = selectedExperiments.find((item) => item.id !== experiment.id)?.id ?? "";
+    setExperiments((current) => current.filter((item) => item.id !== experiment.id));
+    setExperimentResultDraft((current) =>
+      current.experiment_id === experiment.id
+        ? { ...current, experiment_id: nextExperimentId }
+        : current,
+    );
+    void recordTelemetryEvent({
+      eventName: "experiment_deleted",
+      eventCategory: "experiment",
+      properties: {
+        previous_status: experiment.status,
+      },
+    });
+    setMessage("검증 계획을 삭제했습니다.");
+    router.refresh();
+  }
+
   async function updateRunStatus(run: OrchestrationRun, status: OrchestrationStatus) {
     if (!supabase) {
       setMessage("Supabase가 설정되어 있지 않습니다.");
@@ -13101,38 +13151,18 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div>
                     <div className="avl-kicker">검증 계획</div>
                     <h2 className="mt-1 text-lg font-semibold text-slate-950">7일 검증 계획</h2>
-                    <p className="mt-1 text-sm leading-5 text-slate-600">
-                      이 후보를 계속 밀어도 되는지 7일 안에 확인할 행동 하나를 정합니다.
+                    <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                      선택한 아이디어가 실제로 해볼 만한지 확인하는 단계입니다. AI가 추천한 방법을 고르거나 직접 입력하면,
+                      현재 아이디어 아래에 붙는 하위 검증 계획으로 저장됩니다.
                     </p>
                   </div>
                   <Beaker className="text-sky-600" size={22} />
                 </div>
-                {validationPlan ? (
-                  <div className="mb-5 border border-sky-100 bg-sky-50 px-4 py-3">
-                    <div className="text-xs font-semibold tracking-[0.14em] text-sky-700">AI 추천 검증 계획</div>
-                    <p className="mt-2 text-sm leading-5 text-sky-950">
-                      사업성 평가를 저장한 뒤에는 AI가 제안한 검증 방법 중 하나를 고르면 됩니다. 누르면 아래 입력칸에 자동으로 채워집니다.
-                    </p>
-                    <div className="mt-3 grid gap-2 md:grid-cols-2">
-                      {validationPlan.experiments.slice(0, 2).map((experiment) => (
-                        <button
-                          key={experiment.name}
-                          type="button"
-                          onClick={() => loadExperimentSuggestion(experiment)}
-                          className="border border-sky-200 bg-white p-3 text-left transition hover:border-sky-300"
-                        >
-                          <div className="text-sm font-semibold text-slate-950">{experiment.name}</div>
-                          <div className="mt-1 text-xs leading-5 text-slate-600">{experiment.success_metric}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
                 <div className="mb-5 grid gap-px bg-slate-200 md:grid-cols-3">
                   {[
-                    ["무엇을 확인할지", "이 문제가 실제로 자주 생기는지, 누가 비용을 낼 만큼 불편한지 봅니다."],
-                    ["7일 동안 할 일", "5명 인터뷰, 랜딩/대기자, 수동 결과물 테스트 중 하나만 고릅니다."],
-                    ["성공/중단 기준", "몇 명이 행동하면 진행할지, 어떤 반응이면 보류할지 숫자로 적습니다."],
+                    ["무엇을 확인할지", "가장 불확실한 한 가지를 고릅니다. 예: 실제로 자주 겪는 문제인지, 돈을 낼 만큼 불편한지."],
+                    ["어떻게 확인할지", "7일 안에 직접 할 수 있는 행동 하나만 정합니다. 예: 5명 인터뷰, 랜딩/대기자, 수동 테스트."],
+                    ["어디까지 보면 될지", "몇 명이 어떤 행동을 하면 계속할지, 어떤 반응이면 멈출지 숫자로 정합니다."],
                   ].map(([title, detail], index) => (
                     <div key={title} className="bg-slate-50 px-4 py-3">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -13143,62 +13173,146 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   ))}
                 </div>
-                <form onSubmit={addExperiment} className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
-                  <InputField
-                    label="이번에 해볼 작은 검증"
-                    value={experimentDraft.name}
-                    placeholder="예) 타깃 5명에게 문제 인터뷰하기"
-                    onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
-                  />
-                  <InputField
-                    label="성공/중단 기준"
-                    value={experimentDraft.success_metric}
-                    placeholder="예) 5명 중 3명이 최근 사례와 비용 지불 의향을 말하면 진행"
-                    onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
-                  />
-                <button
-                  type="submit"
-                  disabled={isBusy || !user}
-                    className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
-                >
-                  <Beaker size={18} />
-                  계획 추가
-                </button>
-              </form>
+
+                <div className="grid gap-0">
+                  {validationPlan ? (
+                    <div className="border border-sky-100 bg-sky-50 px-4 py-3">
+                      <div className="text-xs font-semibold tracking-[0.14em] text-sky-700">AI 추천 검증 계획</div>
+                      <p className="mt-2 text-sm leading-6 text-sky-950">
+                        아래 추천안은 현재 아이디어를 검토하기 위한 하위 검증입니다. 하나를 누르면 바로 아래 입력칸에 채워지고,
+                        그대로 저장하거나 직접 고쳐 저장할 수 있습니다.
+                      </p>
+                      <div className="mt-3 grid gap-2 md:grid-cols-2">
+                        {validationPlan.experiments.slice(0, 2).map((experiment) => (
+                          <button
+                            key={experiment.name}
+                            type="button"
+                            onClick={() => loadExperimentSuggestion(experiment)}
+                            className="border border-sky-200 bg-white p-3 text-left transition hover:border-sky-300 hover:bg-sky-50"
+                          >
+                            <div className="text-sm font-semibold text-slate-950">{experiment.name}</div>
+                            <div className="mt-1 text-xs leading-5 text-slate-600">{experiment.success_metric}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <form
+                    onSubmit={addExperiment}
+                    className={`border border-slate-200 bg-white p-4 ${
+                      validationPlan ? "border-t-0" : ""
+                    }`}
+                  >
+                    <div className="mb-3">
+                      <div className="text-sm font-semibold text-slate-950">직접 입력하거나 추천안을 수정하기</div>
+                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                        AI 추천을 쓰지 않아도 됩니다. 사용자가 직접 입력하거나 추천안을 수정해 저장할 수 있습니다.
+                      </p>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                      <InputField
+                        label="이번에 해볼 작은 검증"
+                        value={experimentDraft.name}
+                        placeholder="예) 타깃 5명에게 문제 인터뷰하기"
+                        onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
+                      />
+                      <InputField
+                        label="성공/중단 기준"
+                        value={experimentDraft.success_metric}
+                        placeholder="예) 5명 중 3명이 최근 사례와 비용 지불 의향을 말하면 진행"
+                        onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
+                      />
+                      <button
+                        type="submit"
+                        disabled={isBusy || !user}
+                        className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
+                      >
+                        <Beaker size={18} />
+                        계획 추가
+                      </button>
+                    </div>
+                  </form>
+                </div>
 
               <div className="mt-5 grid gap-3">
+                <div>
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">저장된 하위 검증 계획</div>
+                  <p className="mt-1 text-sm leading-5 text-slate-600">
+                    아래 항목은 모두 <span className="font-semibold text-slate-950">{selectedIdea.name}</span> 아이디어에 연결된 검증입니다.
+                  </p>
+                </div>
                 {selectedExperiments.length > 0 ? (
-                  selectedExperiments.map((experiment) => (
-                    <div key={experiment.id} className="avl-surface-muted p-4">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-950">{experiment.name}</span>
+                  selectedExperiments.map((experiment, index) => (
+                    <div key={experiment.id} className="border border-slate-200 bg-slate-50 p-4">
+                      <div className="grid gap-4 border-l-4 border-sky-300 pl-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="avl-step-dot bg-slate-950 text-white">{index + 1}</span>
+                              <span className="avl-pill avl-pill-info">하위 검증</span>
+                              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                상위 아이디어 · {selectedIdea.name}
+                              </span>
+                            </div>
+                            <div className="mt-1 text-sm font-semibold text-slate-950">{experiment.name}</div>
+                          </div>
                           <span className="avl-pill avl-pill-neutral">
                             {experimentStatusLabels[experiment.status] ?? experiment.status}
                           </span>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          {["planned", "running", "done"].map((status) => (
+
+                        <p className="text-sm leading-6 text-slate-600">
+                          {experiment.success_metric || "성공/중단 기준 미정"}
+                        </p>
+
+                        <div className="grid gap-3">
+                          <div>
+                            <div className="text-xs font-semibold tracking-[0.12em] text-slate-500">상태 변경 기준</div>
+                            <div className="mt-2 grid gap-2 md:grid-cols-3">
+                              {["planned", "running", "done"].map((status) => {
+                                const isSelected = experiment.status === status;
+
+                                return (
+                                  <button
+                                    key={status}
+                                    type="button"
+                                    title={experimentStatusGuides[status]}
+                                    onClick={() => updateExperimentStatus(experiment, status)}
+                                    disabled={isBusy || !canManageRecord(experiment) || isSelected}
+                                    className={`border p-3 text-left text-xs transition disabled:opacity-100 ${
+                                      isSelected
+                                        ? "border-slate-950 bg-slate-950 text-white"
+                                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-400"
+                                    }`}
+                                  >
+                                    <div className="text-sm font-semibold">{experimentStatusLabels[status] ?? status}</div>
+                                    <p className={`mt-1 leading-5 ${isSelected ? "text-slate-200" : "text-slate-500"}`}>
+                                      {experimentStatusGuides[status]}
+                                    </p>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          <div className="flex justify-end">
                             <button
-                              key={status}
                               type="button"
-                              onClick={() => updateExperimentStatus(experiment, status)}
-                              disabled={isBusy || !canManageRecord(experiment) || experiment.status === status}
-                              className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
+                              onClick={() => void deleteExperiment(experiment)}
+                              disabled={isBusy || !canManageRecord(experiment)}
+                              className="avl-btn avl-btn-danger h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                             >
-                              {experimentStatusLabels[status] ?? status}
+                              <Trash2 size={13} />
+                              삭제
                             </button>
-                          ))}
+                          </div>
                         </div>
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        {experiment.success_metric || "성공 지표 미정"}
-                      </p>
                     </div>
                   ))
                 ) : (
                     <div className="avl-surface-muted border-dashed p-4 text-sm text-slate-600">
-                      아직 저장한 검증 계획이 없습니다.
+                      아직 저장한 하위 검증 계획이 없습니다. AI 추천안을 고르거나 직접 입력해 첫 검증을 추가하세요.
                     </div>
                 )}
               </div>
@@ -13206,7 +13320,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
 
             <div className="avl-surface-muted px-4 py-3 text-sm leading-5 text-slate-600">
-              길게 기획하지 않아도 됩니다. 이번 주에 실제 사람에게 확인할 행동 하나와 성공/중단 기준 하나면 충분합니다.
+              길게 기획하지 않아도 됩니다. 이 아이디어에 대해 이번 주에 실제로 확인할 행동 하나와 성공/중단 기준 하나면 충분합니다.
             </div>
 
           {validationEvidenceCoach ? (

@@ -206,8 +206,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["삭제한 아이디어 확인", "되살릴지 결정", "필요할 때만 완전 삭제"],
   },
   "workbench:experiment": {
-    summary: "이 후보를 계속 밀어도 되는지 7일 안에 확인할 작은 행동을 정합니다.",
-    checklist: ["무엇을 확인할지 정하기", "7일 동안 할 행동 쓰기", "성공/중단 기준 저장"],
+    summary: "이 아이디어의 가능성을 판단하기 위해 가장 먼저 확인할 내용을 정합니다.",
+    checklist: ["확인할 내용 정하기", "직접 할 수 있는 작은 검증 쓰기", "성공/중단 기준 저장"],
   },
   "workbench:orchestration": {
     summary: "역할과 진행 상태만 간단히 관리합니다.",
@@ -283,7 +283,7 @@ const taskCanvasDetails: Record<
     checkpoint: "막는 리스크인지, 관리 가능한 리스크인지 구분하는 단계입니다.",
   },
   "workbench:experiment": {
-    question: "이 후보가 진짜 필요한지 7일 안에 무엇으로 확인할까요?",
+    question: "이 아이디어의 가능성을 검토하기 위해 무엇을 확인해야 할까요?",
     aiLead: "AI가 인터뷰, 랜딩, 수동 결과물 테스트 중 가장 작은 검증 행동을 제안합니다.",
     deliverable: "7일 동안 할 행동과 성공/중단 기준",
     checkpoint: "좋은 계획보다 바로 해볼 수 있는 행동 하나가 더 중요합니다.",
