@@ -6,6 +6,12 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import {
+  getProductSurfaceProfile,
+  inferProductSurface,
+  productSurfaceMarkdown,
+  type ProductSurfaceProfile,
+} from "@/lib/product-surface";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -64,6 +70,7 @@ type ExtractedIdea = FormState & {
   firstPrototypeScope: string;
   pricingHypothesis: string;
   validationRationale: string;
+  productSurface: ProductSurfaceProfile;
 };
 
 type AiExtractedIdeaCandidate = {
@@ -81,6 +88,8 @@ type AiExtractedIdeaCandidate = {
   kill_criteria?: string;
   first_prototype_scope?: string;
   pricing_hypothesis?: string;
+  product_surface?: string;
+  product_surface_reason?: string;
 };
 
 type AiExtractIdeasResponse = {
@@ -937,6 +946,7 @@ function buildExtractedIdeaArtifacts(
   extractionGate?: ExtractionGate,
 ): VentureArtifactInsert[] {
   const gate = extractionGate ?? buildExtractionGate(candidate, buildCandidateReadiness(candidate, null), null);
+  const productSurface = candidate.productSurface;
   const redactedSourceBlock = redactSensitiveSource(candidate.sourceBlock);
   const sourceBlock =
     redactedSourceBlock === candidate.sourceBlock
@@ -990,6 +1000,8 @@ ${candidate.assumptions.map((item) => `- ${item}`).join("\n")}
 - 다음 작업: ${gate.nextAction}
 - 리스크: ${candidate.riskLevel}
 
+${productSurfaceMarkdown(productSurface)}
+
 ${buildCandidateStrategyLensMarkdown(candidate)}
 
 ## 리스크 요약
@@ -1024,6 +1036,8 @@ ${candidate.validationQuestions.map((item) => `- ${item}`).join("\n")}
 
 ${candidate.pricingHypothesis}
 
+${productSurfaceMarkdown(productSurface)}
+
 ## 첫 제작 범위
 
 ${candidate.firstPrototypeScope}
@@ -1047,6 +1061,8 @@ ${candidate.validationRationale}
 ## 확인할 내용
 
 ${candidate.sevenDayExperiment}
+
+${productSurfaceMarkdown(productSurface)}
 
 ## 메모 근거
 
@@ -1148,6 +1164,23 @@ function extractIdeasFromText(source: string): ExtractedIdea[] {
       const recommendation = inferRecommendation(validationScore, riskLevel);
       const assumptions = inferAssumptions(block, name, target_user, buyer);
       const validationQuestions = inferValidationQuestions(block, target_user, buyer);
+      const sevenDayExperiment = inferSevenDayExperiment(block, name);
+      const successMetric = inferSuccessMetric(block);
+      const killCriteria = inferKillCriteria(block);
+      const firstPrototypeScope = inferFirstPrototypeScope(block);
+      const pricingHypothesis = inferPricingHypothesis(block, buyer);
+      const productSurface = inferProductSurface({
+        name,
+        one_liner: oneLiner,
+        target_user,
+        buyer,
+        signal,
+        risk_summary,
+        next_evidence,
+        firstPrototypeScope,
+        pricingHypothesis,
+        sourceBlock: block,
+      });
 
       return {
         id: `${index}-${name}`,
@@ -1167,11 +1200,12 @@ function extractIdeasFromText(source: string): ExtractedIdea[] {
         recommendation,
         assumptions,
         validationQuestions,
-        sevenDayExperiment: inferSevenDayExperiment(block, name),
-        successMetric: inferSuccessMetric(block),
-        killCriteria: inferKillCriteria(block),
-        firstPrototypeScope: inferFirstPrototypeScope(block),
-        pricingHypothesis: inferPricingHypothesis(block, buyer),
+        sevenDayExperiment,
+        successMetric,
+        killCriteria,
+        firstPrototypeScope,
+        pricingHypothesis,
+        productSurface,
         validationRationale:
           riskLevel === "높음"
             ? "수요가 보여도 규제, 권한, 책임 구조를 먼저 통과해야 합니다."
@@ -1230,6 +1264,23 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
         candidate.validation_questions && candidate.validation_questions.length >= 3
           ? candidate.validation_questions.slice(0, 5).map((item) => compactText(item, 240))
           : inferValidationQuestions(blockForInference, target_user, buyer);
+      const sevenDayExperiment = firstText([candidate.seven_day_experiment], inferSevenDayExperiment(blockForInference, name), 520);
+      const successMetric = firstText([candidate.success_metric], inferSuccessMetric(blockForInference), 320);
+      const killCriteria = firstText([candidate.kill_criteria], inferKillCriteria(blockForInference), 360);
+      const firstPrototypeScope = firstText([candidate.first_prototype_scope], inferFirstPrototypeScope(blockForInference), 360);
+      const pricingHypothesis = firstText([candidate.pricing_hypothesis], inferPricingHypothesis(blockForInference, buyer), 260);
+      const productSurface = getProductSurfaceProfile(candidate.product_surface, {
+        name,
+        one_liner: oneLiner,
+        target_user,
+        buyer,
+        signal,
+        risk_summary,
+        next_evidence,
+        firstPrototypeScope,
+        pricingHypothesis,
+        sourceBlock,
+      });
 
       return {
         id: `ai-${index}-${name}`,
@@ -1249,11 +1300,12 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
         recommendation: inferRecommendation(validationScore, riskLevel),
         assumptions,
         validationQuestions,
-        sevenDayExperiment: firstText([candidate.seven_day_experiment], inferSevenDayExperiment(blockForInference, name), 520),
-        successMetric: firstText([candidate.success_metric], inferSuccessMetric(blockForInference), 320),
-        killCriteria: firstText([candidate.kill_criteria], inferKillCriteria(blockForInference), 360),
-        firstPrototypeScope: firstText([candidate.first_prototype_scope], inferFirstPrototypeScope(blockForInference), 360),
-        pricingHypothesis: firstText([candidate.pricing_hypothesis], inferPricingHypothesis(blockForInference, buyer), 260),
+        sevenDayExperiment,
+        successMetric,
+        killCriteria,
+        firstPrototypeScope,
+        pricingHypothesis,
+        productSurface,
         validationRationale:
           riskLevel === "높음"
             ? "AI가 수요는 정리했지만 규제, 개인정보, 운영 책임 검증이 먼저 필요합니다."
@@ -1389,7 +1441,7 @@ function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
   const rows = summary.items
     .map(
       (item, index) =>
-        `| ${index + 1} | ${item.primaryCandidate.name} | ${item.verdict} | ${
+        `| ${index + 1} | ${item.primaryCandidate.name} | ${item.primaryCandidate.productSurface.label} | ${item.verdict} | ${
           item.matchedName ?? "-"
         } | ${item.overlapScore || "-"} | ${item.primaryCandidate.validationScore}/100 | ${item.nextAction} |`,
     )
@@ -1412,9 +1464,9 @@ function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
 
 ## 비교 결과
 
-| 순서 | 후보 | 판정 | 매칭 후보 | 유사도 | 검증 점수 | 다음 행동 |
-| --- | --- | --- | --- | --- | --- | --- |
-${rows || "| - | 후보 없음 | - | - | - | - | - |"}
+| 순서 | 후보 | 산출물 방향 | 판정 | 매칭 후보 | 유사도 | 검증 점수 | 다음 행동 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+${rows || "| - | 후보 없음 | - | - | - | - | - | - |"}
 `;
 }
 
@@ -1422,7 +1474,7 @@ function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
   const rows = items
     .map(
       (item, index) =>
-        `| ${index + 1} | ${item.candidate.name} | ${item.gate.label} | ${item.candidate.validationScore}/100 | ${getCandidateStrategyScore(
+        `| ${index + 1} | ${item.candidate.name} | ${item.candidate.productSurface.label} | ${item.gate.label} | ${item.candidate.validationScore}/100 | ${getCandidateStrategyScore(
           item.candidate,
         )}% | ${item.readinessScore}% | ${
           item.similarIdea ? `${item.similarIdea.idea.name} ${item.similarIdea.score}%` : "없음"
@@ -1446,9 +1498,9 @@ ${gateSummary}
 
 ## 실행 순서
 
-| 순서 | 후보 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-${rows || "| - | 후보 없음 | - | - | - | - | - | - |"}
+| 순서 | 후보 | 산출물 방향 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+${rows || "| - | 후보 없음 | - | - | - | - | - | - | - |"}
 
 ## 운영 원칙
 
@@ -2575,7 +2627,7 @@ export function VentureConsoleActions({
       buyer: candidate.buyer,
       signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
       risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-      next_evidence: `7일 검증 계획\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+      next_evidence: `산출물 방향\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
         "\n- ",
       )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
     });
@@ -2598,7 +2650,7 @@ export function VentureConsoleActions({
         buyer: candidate.buyer.trim(),
         signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
         risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-        next_evidence: `7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+        next_evidence: `산출물 방향\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
           "\n- ",
         )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n진행 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
         stage: "research",
@@ -2668,6 +2720,7 @@ export function VentureConsoleActions({
       properties: {
         gate: extractionGate.id,
         validation_score: candidate.validationScore,
+        product_surface: candidate.productSurface.key,
         risk_created: Boolean(riskResult.data),
         experiment_created: Boolean(experimentResult.data),
         artifact_count: artifactResult.data?.length ?? 0,
@@ -3235,6 +3288,9 @@ export function VentureConsoleActions({
                         <span className="avl-pill avl-pill-neutral">
                           준비 {recommendedPortfolioItem?.readinessScore ?? 0}%
                         </span>
+                        <span className="avl-pill avl-pill-brand">
+                          산출물 {recommendedExtractedIdea.productSurface.shortLabel}
+                        </span>
                       </div>
                       <div className="mt-4 border-t border-slate-200 pt-4">
                         <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선정 이유</div>
@@ -3247,7 +3303,7 @@ export function VentureConsoleActions({
                           </p>
                         ) : null}
                       </div>
-                      <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-3">
+                      <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-4">
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이유</div>
                           <p className="mt-1 text-xs leading-5 text-slate-700">점수, 준비도, 리스크를 비교해 지금 먼저 볼 후보로 골랐습니다.</p>
@@ -3255,6 +3311,12 @@ export function VentureConsoleActions({
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">저장하면 생기는 것</div>
                           <p className="mt-1 text-xs leading-5 text-slate-700">아이디어, 리스크, 7일 검증 계획이 한 묶음으로 만들어집니다.</p>
+                        </div>
+                        <div className="bg-slate-50 px-3 py-3">
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">산출물 방향</div>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">
+                            {recommendedExtractedIdea.productSurface.label} 기준으로 PRD, 디자인, 기술 프롬프트를 맞춥니다.
+                          </p>
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">다음 단계</div>
@@ -3404,9 +3466,12 @@ export function VentureConsoleActions({
                               <span className={extractionGateStyles[item.gate.id].badge}>
                                 {item.gate.label}
                               </span>
+                              <span className="avl-pill avl-pill-brand">
+                                {item.candidate.productSurface.shortLabel}
+                              </span>
                             </div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
-                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · {item.nextGap}
+                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · 산출물 {item.candidate.productSurface.label} · {item.nextGap}
                             </p>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
                               {item.gate.nextAction}
@@ -3524,6 +3589,9 @@ export function VentureConsoleActions({
                             </span>
                             <span className="avl-pill avl-pill-brand">
                               사업/제작 {strategyScore}%
+                            </span>
+                            <span className="avl-pill avl-pill-brand">
+                              산출물 {candidate.productSurface.shortLabel}
                             </span>
                             <span className={`${gateStyle.badge}`}>
                               {extractionGate.label}

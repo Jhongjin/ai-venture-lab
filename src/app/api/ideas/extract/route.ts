@@ -115,6 +115,11 @@ const ideaExtractionSchema = {
           kill_criteria: { type: "string" },
           first_prototype_scope: { type: "string" },
           pricing_hypothesis: { type: "string" },
+          product_surface: {
+            type: "string",
+            enum: ["web_app", "mobile_app", "web_site", "automation", "operator_console", "mcp_handoff"],
+          },
+          product_surface_reason: { type: "string" },
         },
         required: [
           "name",
@@ -131,6 +136,8 @@ const ideaExtractionSchema = {
           "kill_criteria",
           "first_prototype_scope",
           "pricing_hypothesis",
+          "product_surface",
+          "product_surface_reason",
         ],
       },
     },
@@ -198,7 +205,7 @@ export async function POST(request: Request) {
             {
               type: "input_text",
               text:
-                "You extract app startup ideas from Korean or English notes. Return only grounded candidates. Prefer practical app/MVP ideas with target users, buyers, validation plans, risks, and kill criteria. Avoid inventing evidence not implied by the source. Keep every field concise but specific. Write the output in Korean.",
+                "You extract app startup ideas from Korean or English notes. Return only grounded candidates. Prefer practical app/MVP ideas with target users, buyers, validation plans, risks, kill criteria, and a product_surface classification. product_surface must be one of web_app, mobile_app, web_site, automation, operator_console, or mcp_handoff. Choose the surface that should guide PRD, design, tech stack, implementation prompt, and IDE/MCP handoff. Avoid inventing evidence not implied by the source. Keep every field concise but specific. Write Korean text except product_surface.",
             },
           ],
         },
