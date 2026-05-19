@@ -436,31 +436,12 @@ const stageLabels: Record<IdeaStage, string> = {
   paused: "보류",
 };
 
-const stageDescriptions: Record<IdeaStage, string> = {
-  intake: "막 들어온 아이디어입니다. 아직 검토할 후보로 정리되기 전입니다.",
-  research: "사용자, 시장, 대안처럼 더 확인할 정보가 남아 있는 상태입니다.",
-  score: "지금 단계입니다. 이 아이디어를 계속 검증할지 먼저 판단합니다.",
-  prd: "검증을 통과해 제품 기획서로 옮길 수 있는 상태입니다.",
-  prototype: "작게 만들어 확인할 수 있는 첫 제작 단계입니다.",
-  qa: "만든 결과를 점검하고 문제를 고치는 단계입니다.",
-  launch: "사용자에게 공개하거나 제한적으로 배포할 수 있는 단계입니다.",
-  paused: "당장은 진행하지 않고 나중에 다시 볼 상태입니다.",
-};
-
 const decisionLabels: Record<DecisionStatus, string> = {
   pending: "아직 정하지 않음",
   research_more: "추가 조사",
   ship: "진행",
   pivot: "방향 수정",
   kill: "중단",
-};
-
-const decisionDescriptions: Record<DecisionStatus, string> = {
-  pending: "아직 판단을 정하지 않았습니다.",
-  research_more: "아이디어는 괜찮지만, 바로 진행하기 전에 근거를 더 확인합니다.",
-  ship: "지금 가진 근거로 다음 검증 단계로 넘겨도 좋다는 판단입니다.",
-  pivot: "문제나 대상은 유지하되 접근 방식을 바꿔 다시 정리합니다.",
-  kill: "지금 기준으로는 더 진행하지 않고 삭제 목록으로 보냅니다.",
 };
 
 const scoreFieldDescriptions = {
@@ -1126,6 +1107,10 @@ function recommendationForScore(score: number): DecisionStatus {
   }
 
   return "kill";
+}
+
+function saveDecisionForScore(recommendation: DecisionStatus): DecisionStatus {
+  return recommendation === "kill" ? "research_more" : recommendation;
 }
 
 function missingEvidence(idea: Idea, state: EditState, riskCount: number) {
@@ -7576,6 +7561,7 @@ export function IdeaWorkbench({
 
   const currentScore = editState ? scoreState(editState) : 0;
   const scoreRecommendation = recommendationForScore(currentScore);
+  const scoreSaveDecision = saveDecisionForScore(scoreRecommendation);
   const missing =
     selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedIdeaRisks.length) : [];
   const validationPlan = selectedIdea && editState
@@ -8676,9 +8662,14 @@ export function IdeaWorkbench({
 
     setIsBusy(true);
     setMessage(null);
+    const scoringState: EditState = {
+      ...editState,
+      stage: "score",
+      decision: scoreSaveDecision,
+    };
     const { data, error } = await supabase
       .from("ideas")
-      .update(editState)
+      .update(scoringState)
       .eq("id", selectedIdea.id)
       .select()
       .single();
@@ -8690,6 +8681,7 @@ export function IdeaWorkbench({
     }
 
     setIdeas((current) => current.map((idea) => (idea.id === data.id ? data : idea)));
+    setEditState(toEditState(data));
     emitVentureEvent("venture:idea-updated", data);
     void recordTelemetryEvent({
       eventName: "idea_updated",
@@ -8702,7 +8694,7 @@ export function IdeaWorkbench({
         regulatory_risk: data.regulatory_risk,
       },
     });
-    setMessage("현재 사업성 판단을 저장했습니다.");
+    setMessage("사업성 평가를 저장했습니다.");
     router.refresh();
   }
 
@@ -10440,36 +10432,32 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                   >
                     {isBusy ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
-                    현재 판단 저장
+                    사업성 평가 저장
                   </button>
                 </div>
               </div>
 
               <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
                 <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
-                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천값 확인</div>
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">사업성 평가값 확인</div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    처음 저장할 때 AI가 분석해 채운 값입니다. 지금 그대로 저장하거나, 실제 상황에 맞게 바꾼 뒤 저장하세요.
+                    아래 항목만 조정하면 됩니다. 단계와 판단은 점수를 기준으로 자동 정리되고, 삭제는 상단 삭제 버튼으로만 처리합니다.
                   </p>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <SelectField
-                      label="현재 단계"
-                      value={editState.stage}
-                      options={stages}
-                      labels={stageLabels}
-                      description={stageDescriptions[editState.stage]}
-                      disabled={!canEdit}
-                      onChange={(value) => setEditState({ ...editState, stage: value as IdeaStage })}
-                    />
-                    <SelectField
-                      label="이번 판단"
-                      value={editState.decision}
-                      options={decisions}
-                      labels={decisionLabels}
-                      description={decisionDescriptions[editState.decision]}
-                      disabled={!canEdit}
-                      onChange={(value) => setEditState({ ...editState, decision: value as DecisionStatus })}
-                    />
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <div className="border border-slate-200 bg-white p-4">
+                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">저장되는 단계</div>
+                      <div className="mt-2 text-base font-semibold text-slate-950">STEP 2 사업성 평가</div>
+                      <p className="mt-2 text-xs leading-5 text-slate-500">
+                        지금 화면에서는 사용자가 고르지 않습니다. 저장하면 이 아이디어는 사업성 평가 단계로 기록됩니다.
+                      </p>
+                    </div>
+                    <div className="border border-slate-200 bg-white p-4">
+                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">저장되는 판단</div>
+                      <div className="mt-2 text-base font-semibold text-slate-950">{decisionLabels[scoreSaveDecision]}</div>
+                      <p className="mt-2 text-xs leading-5 text-slate-500">
+                        아래 평가값으로 계산한 추천 판단입니다. 점수가 낮아도 자동 삭제하지 않고, 삭제는 사용자가 직접 선택합니다.
+                      </p>
+                    </div>
                   </div>
 
                   <div className="mt-5 grid gap-3 md:grid-cols-2">
@@ -10535,10 +10523,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="grid gap-4">
                   <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
-                    <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreRecommendation]}</div>
+                    <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreSaveDecision]}</div>
                     <p className="mt-2 text-sm leading-5 text-slate-600">
-                      현재 입력값으로 계산한 AI 추천입니다. 그대로 저장해도 되고, 반대 근거가 있으면 왼쪽의 이번 판단을 바꿔도 됩니다.
+                      현재 평가값으로 계산한 추천입니다. 저장하면 이 판단이 다음 검증 계획의 기준으로 쓰입니다.
                     </p>
+                    {scoreRecommendation === "kill" ? (
+                      <p className="mt-3 border-l border-amber-300 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
+                        점수만 보면 중단에 가깝지만, 아이디어를 바로 삭제하지는 않습니다. 삭제는 상단 삭제 버튼을 눌렀을 때만 진행됩니다.
+                      </p>
+                    ) : null}
                     <div className="mt-4 flex flex-wrap gap-2">
                       {missing.length > 0 ? (
                         missing.map((item) => (
@@ -10556,7 +10549,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
                   <div className="border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">다음 행동</div>
-                    <div className="mt-2 text-sm font-semibold text-slate-950">현재 판단을 저장하면 됩니다</div>
+                    <div className="mt-2 text-sm font-semibold text-slate-950">사업성 평가를 저장하면 됩니다</div>
                     <p className="mt-2 text-sm leading-5 text-slate-600">
                       모든 값을 완벽하게 맞출 필요는 없습니다. 지금 보기에 맞는 방향을 정하고 저장하면, 다음 단계에서 확인할 실험과 리스크를 이어서 정합니다.
                     </p>
@@ -10599,7 +10592,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <section className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">필드 읽는 법</div>
                 <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
-                  <li>- 높게 느껴지는 항목은 AI가 그대로 둔 값이어도 다시 한번 확인해 보세요.</li>
+                  <li>- 처음 값은 AI가 원문을 보고 채운 추천값입니다. 그대로 써도 되고 직접 바꿔도 됩니다.</li>
                   <li>- 만들기는 쉬운데 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.</li>
                   <li>- 리스크 감점이 높다면 검증 계획보다 개인정보, 법무, 운영 리스크를 먼저 확인하세요.</li>
                 </ul>
@@ -10608,7 +10601,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <section className="border border-slate-200 bg-white p-5">
                 <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">다음 판단</div>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  현재 판단을 저장하면 `검증 계획` 단계에서 첫 확인 방법과 성공 기준을 이어서 정합니다. 여기서는 완벽한 계획보다 진행 여부를 먼저 정하면 충분합니다.
+                  사업성 평가를 저장하면 `검증 계획` 단계에서 첫 확인 방법과 성공 기준을 이어서 정합니다. 여기서는 완벽한 계획보다 현재 평가값을 맞추면 충분합니다.
                 </p>
               </section>
             </div>
@@ -12839,7 +12832,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ))}
                 {selectedTelemetryEvents.length === 0 ? (
                   <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-5 text-slate-600">
-                    아직 이 아이디어에 연결된 이벤트가 없습니다. 현재 판단 저장, 리스크 추가, 검증 계획/실행 문서 저장 같은 행동을 하면 자동으로 쌓입니다.
+                    아직 이 아이디어에 연결된 이벤트가 없습니다. 사업성 평가 저장, 리스크 추가, 검증 계획/실행 문서 저장 같은 행동을 하면 자동으로 쌓입니다.
                   </div>
                 ) : null}
               </div>
