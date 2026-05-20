@@ -14563,14 +14563,18 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">실행 문서 만들기</h2>
-              <p className="mt-1 text-sm text-slate-500">{artifactPanelDescriptions[artifactPanel]}</p>
+              <p className="mt-1 text-sm text-slate-500">
+                {experienceMode === "guided"
+                  ? "AI가 아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 한 번에 저장합니다."
+                  : artifactPanelDescriptions[artifactPanel]}
+              </p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
               <button
                 type="button"
                 onClick={() => void saveValidationPackageDrafts()}
                 disabled={isBusy || isSavingValidationBundle || !user || isValidationBundleSaved}
-                className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
+                className="avl-btn avl-btn-primary px-4 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Save size={17} />
                 {isSavingValidationBundle
@@ -14579,7 +14583,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     ? "검증 자료 저장 완료"
                     : "검증 자료 한 번에 저장"}
               </button>
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className={experienceMode === "guided" ? "hidden" : "grid gap-2 sm:grid-cols-2"}>
               <button
                 type="button"
                 onClick={() => setArtifactPanel("validation")}
@@ -14628,7 +14632,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <DraftDocumentCard
-          className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
+          className={activeTask === "artifacts" && (experienceMode === "guided" || artifactPanel === "validation") ? "" : "hidden"}
           kicker="validation"
           title="아이디어 요약"
           description="기획서나 조사 문서에 바로 이어 쓸 수 있는 1차 요약입니다."
@@ -14640,10 +14644,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           saveLabel={hasIdeaBriefArtifact ? "저장 완료" : "실행 문서 저장"}
           saveDisabled={isBusy || !user || hasIdeaBriefArtifact}
           disabledNote={hasIdeaBriefArtifact ? "아이디어 요약이 저장되어 상단 상태에 반영되었습니다." : undefined}
+          actionMode="hidden"
         />
 
         <DraftDocumentCard
-          className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
+          className={activeTask === "artifacts" && (experienceMode === "guided" || artifactPanel === "validation") ? "" : "hidden"}
           kicker="research"
           title="조사 요약"
           description="인터뷰, 경쟁/대안, 가격, 규제, 개인정보 확인 내용을 한 문서로 묶습니다."
@@ -14657,10 +14662,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           saveLabel={hasResearchBriefArtifact ? "저장 완료" : "실행 문서 저장"}
           saveDisabled={isBusy || !user || hasResearchBriefArtifact}
           disabledNote={hasResearchBriefArtifact ? "조사 요약이 저장되어 상단 상태에 반영되었습니다." : undefined}
+          actionMode="hidden"
         />
 
         <DraftDocumentCard
-          className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
+          className={activeTask === "artifacts" && (experienceMode === "guided" || artifactPanel === "validation") ? "" : "hidden"}
           kicker="7일 검증"
           title="7일 검증 계획"
           description="인터뷰 모집, 대안 조사, 가격 질문, Day 7 판정 기준을 바로 실행할 수 있게 묶습니다."
@@ -14679,11 +14685,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           saveLabel={hasValidationSprintArtifact ? "저장 완료" : "실행 문서 저장"}
           saveDisabled={isBusy || !user || hasValidationSprintArtifact}
           disabledNote={hasValidationSprintArtifact ? "7일 검증 계획이 저장되어 상단 상태에 반영되었습니다." : undefined}
+          actionMode="hidden"
         />
 
         <div
           className={`avl-card p-4 ${
-            activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"
+            activeTask === "artifacts" && (experienceMode === "guided" || artifactPanel === "validation") ? "" : "hidden"
           }`}
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -14755,7 +14762,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <DraftDocumentCard
-          className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
+          className={activeTask === "artifacts" && (experienceMode === "guided" || artifactPanel === "validation") ? "" : "hidden"}
           kicker="summary"
           title="검증 완료 요약"
           description="아이디어 요약, 조사 요약, 7일 검증 계획이 모두 저장된 뒤 마지막으로 저장하는 요약입니다."
@@ -14784,11 +14791,17 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   .map((requirement) => requirement.label)
                   .join(", ")} 저장 후 활성화됩니다.`
           }
+          actionMode="hidden"
         />
 
         <div
           className={`avl-card p-5 text-slate-900 ${
-            activeTask === "artifacts" && artifactPanel === "product" && hasValidationSummaryArtifact ? "" : "hidden"
+            activeTask === "artifacts" &&
+            experienceMode !== "guided" &&
+            artifactPanel === "product" &&
+            hasValidationSummaryArtifact
+              ? ""
+              : "hidden"
           }`}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -14871,7 +14884,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         </div>
 
         <DraftDocumentCard
-          className={activeTask === "artifacts" && artifactPanel === "product" && hasValidationSummaryArtifact ? "" : "hidden"}
+          className={
+            activeTask === "artifacts" &&
+            experienceMode !== "guided" &&
+            artifactPanel === "product" &&
+            hasValidationSummaryArtifact
+              ? ""
+              : "hidden"
+          }
           kicker="product"
           title="제품 기획서 초안"
            description="사업성 평가, 증거, 리스크, 검증 계획, 실행 관리 결과를 바탕으로 생성되는 기획서 초안입니다."
@@ -14887,7 +14907,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
         <div
           className={
-            activeTask === "artifacts" && artifactPanel === "product" && hasValidationSummaryArtifact
+            activeTask === "artifacts" &&
+            experienceMode !== "guided" &&
+            artifactPanel === "product" &&
+            hasValidationSummaryArtifact
               ? "grid gap-6 xl:grid-cols-2"
               : "hidden"
           }
@@ -14952,7 +14975,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
         <div
           className={`avl-card p-6 ${
-            activeTask === "artifacts" && artifactPanel === "library" ? "" : "hidden"
+            activeTask === "artifacts" && experienceMode !== "guided" && artifactPanel === "library" ? "" : "hidden"
           }`}
         >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
@@ -15371,6 +15394,7 @@ function DraftDocumentCard({
   copyDisabled = false,
   saveDisabled = false,
   disabledNote,
+  actionMode = "full",
 }: {
   className?: string;
   kicker?: string;
@@ -15385,8 +15409,11 @@ function DraftDocumentCard({
   copyDisabled?: boolean;
   saveDisabled?: boolean;
   disabledNote?: string;
+  actionMode?: "full" | "copy-only" | "hidden";
 }) {
   const isSaved = saveLabel === "저장 완료";
+  const showActions = actionMode !== "hidden";
+  const showSave = actionMode === "full" && onSave;
 
   return (
     <section className={`${className} avl-card p-5`}>
@@ -15398,7 +15425,8 @@ function DraftDocumentCard({
           <h3 className={`${kicker ? "mt-2" : ""} text-lg font-semibold text-slate-950`}>{title}</h3>
           <p className="mt-2 text-sm leading-5 text-slate-600">{description}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        {showActions ? (
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={onCopy}
@@ -15408,7 +15436,7 @@ function DraftDocumentCard({
             <Clipboard size={18} />
             {copyLabel}
           </button>
-          {onSave ? (
+          {showSave ? (
             <button
               type="button"
               onClick={onSave}
@@ -15420,8 +15448,9 @@ function DraftDocumentCard({
             </button>
           ) : null}
         </div>
+        ) : null}
       </div>
-      {onSave ? (
+      {onSave && actionMode === "full" ? (
         <div className="mt-4 border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-600">
           {isSaved ? (
             <span>이 문서는 저장되어 상단 진행 상태에 반영되었습니다.</span>
@@ -15431,6 +15460,12 @@ function DraftDocumentCard({
               <span className="font-semibold text-slate-950">{saveLabel}</span>을 누르면 됩니다.
             </>
           )}
+          {disabledNote ? <span className="block mt-1 text-amber-700">{disabledNote}</span> : null}
+        </div>
+      ) : actionMode === "hidden" ? (
+        <div className="mt-4 border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-600">
+          확인용 미리보기입니다. 일반 진행은 상단의{" "}
+          <span className="font-semibold text-slate-950">검증 자료 한 번에 저장</span> 버튼 하나만 누르면 됩니다.
           {disabledNote ? <span className="block mt-1 text-amber-700">{disabledNote}</span> : null}
         </div>
       ) : null}
