@@ -9285,12 +9285,12 @@ export function IdeaWorkbench({
 
     switch (idea.stage) {
       case "prd":
-        return { label: "STEP 5 실행 문서", task: "artifacts" as WorkbenchTask };
+        return { label: "STEP 4 실행 문서 만들기", task: "artifacts" as WorkbenchTask };
       case "prototype":
       case "qa":
-        return { label: "STEP 6 제작 준비", task: "development" as WorkbenchTask };
+        return { label: "STEP 5 제작 준비", task: "development" as WorkbenchTask };
       case "launch":
-        return { label: "STEP 8 출시 판단", task: "launch" as WorkbenchTask };
+        return { label: "STEP 7 출시 판단", task: "launch" as WorkbenchTask };
       case "intake":
       case "research":
       case "score":

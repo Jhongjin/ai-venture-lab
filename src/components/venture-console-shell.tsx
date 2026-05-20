@@ -9,7 +9,6 @@ import {
   FloppyDisk,
   FlagPennant,
   Flask,
-  LockKey,
   Pulse,
   RocketLaunch,
   ShieldCheck,
@@ -164,6 +163,19 @@ const shellTasks: Array<{
   },
 ];
 
+const primaryShellTaskIds: ShellTask[] = [
+  "console:extract",
+  "workbench:score",
+  "workbench:experiment",
+  "workbench:artifacts",
+  "workbench:development",
+  "workbench:orchestration",
+  "workbench:launch",
+  "workbench:learning",
+];
+
+const primaryShellTaskSet = new Set<ShellTask>(primaryShellTaskIds);
+
 const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> = {
   "console:auth": {
     summary: "관리자 계정으로 바로 로그인합니다. 별도 인증키나 메일 링크는 다루지 않아도 됩니다.",
@@ -271,7 +283,7 @@ const taskCanvasDetails: Record<
     checkpoint: "아이디어를 고르면 저장된 단계 화면으로 이동합니다.",
   },
   "workbench:score": {
-    question: "이 아이디어는 시간과 자원을 써서 검증할만한가?",
+    question: "이 아이디어는 시간과 자원을 써서 검증할 만한가?",
     aiLead: "수요, 돈, 속도, 차별성, 위험을 묶어 점수를 정리합니다.",
     deliverable: "사업성 점수와 권장 판단",
     checkpoint: "숫자는 AI가 초안으로 제시하고, 사용자는 최종 감각만 조정합니다.",
@@ -364,7 +376,6 @@ function createTransition(
 function getNextTaskOptions({
   activeTask,
   ideaCount,
-  openRisks,
   canEnterExperiment,
   canEnterArtifacts,
   canEnterDevelopment,
@@ -372,7 +383,6 @@ function getNextTaskOptions({
 }: {
   activeTask: ShellTask;
   ideaCount: number;
-  openRisks: number;
   canEnterExperiment: boolean;
   canEnterArtifacts: boolean;
   canEnterDevelopment: boolean;
@@ -404,12 +414,6 @@ function getNextTaskOptions({
           "primary",
           !canEnterExperiment,
         ),
-        createTransition(
-          "workbench:risk",
-          "선택: 위험 먼저 보기",
-          "법무, 개인정보, 운영 이슈가 먼저 보이면 여기서 보완합니다.",
-          "optional",
-        ),
       ];
     case "workbench:risk":
       return [
@@ -426,16 +430,6 @@ function getNextTaskOptions({
           "primary",
           !canEnterArtifacts,
         ),
-        ...(openRisks === 0
-          ? [
-              createTransition(
-                "workbench:risk",
-                "선택: 위험 확인",
-                "아직 리스크를 적지 않았다면 여기서 먼저 보완합니다.",
-                "optional",
-              ),
-            ]
-          : []),
       ];
     case "workbench:decision":
       return [
@@ -511,7 +505,6 @@ function getExecutiveFocus({
   source,
   ideaCount,
   openRisks,
-  highRisks,
   experimentCount,
   decisionCount,
   artifactCount,
@@ -524,7 +517,6 @@ function getExecutiveFocus({
   source: "supabase" | "seed";
   ideaCount: number;
   openRisks: number;
-  highRisks: number;
   experimentCount: number;
   decisionCount: number;
   artifactCount: number;
@@ -579,19 +571,6 @@ function getExecutiveFocus({
       detail: "점수와 판단을 저장하면 바로 검증 계획으로 넘어갈 수 있습니다.",
       evidence: `${dataNote} · 후보 ${ideaCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
-      metrics,
-    };
-  }
-
-  if (highRisks > 0) {
-    return {
-      eyebrow: "지금 할 일",
-      title: "높은 리스크부터 닫아야 합니다.",
-      detail: "진행 전에 법무, 보안, 운영상 막히는 지점을 먼저 정리하세요.",
-      evidence: `${dataNote} · 높은 리스크 ${highRisks}건`,
-      risk: `열려 있는 리스크 ${openRisks}건`,
-      targetTask: "workbench:risk",
-      cta: "리스크 확인",
       metrics,
     };
   }
@@ -919,7 +898,6 @@ export function VentureConsoleShell({
   const nextTaskOptions = getNextTaskOptions({
     activeTask: visibleTask,
     ideaCount,
-    openRisks,
     canEnterExperiment: validationDocumentReadiness.canEnterExperiment,
     canEnterArtifacts: validationDocumentReadiness.canEnterArtifacts,
     canEnterDevelopment: validationDocumentReadiness.canEnterDevelopment,
@@ -950,36 +928,19 @@ export function VentureConsoleShell({
     "workbench:launch": highRisks > 0 ? "점검" : "확인",
     "workbench:learning": telemetryEventCount > 0 ? `${telemetryEventCount}개` : "대기",
   };
-  const requiredShellTasks = shellTasks.filter((task) => !task.optional);
-  const executionStepTasks = requiredShellTasks.filter((task) => task.id !== "console:auth");
+  const executionStepTasks = shellTasks.filter((task) => primaryShellTaskSet.has(task.id));
   const executionStepTotal = executionStepTasks.length;
   const activeExecutionStepIndex =
-    activeTaskConfig.optional || activeTaskConfig.id === "console:auth"
-      ? -1
-      : executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id);
+    primaryShellTaskSet.has(activeTaskConfig.id)
+      ? executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id)
+      : -1;
   const previousFlowTask = activeExecutionStepIndex > 0 ? executionStepTasks[activeExecutionStepIndex - 1] : null;
-  const supportTasks = consoleStatus.isAuthenticated
-    ? shellTasks.filter(
-        (task) =>
-          task.optional &&
-          task.id !== visibleTask &&
-          !enabledNextTaskOptions.some((option) => option.id === task.id) &&
-          !visitedTaskIds.includes(task.id),
-      )
-    : [];
   const completedTasks = shellTasks.filter((task) => visitedTaskIds.includes(task.id) && task.id !== visibleTask);
-  const completedRequiredTasks = completedTasks.filter((task) => !task.optional && task.id !== "console:auth");
-  const availableTaskIds = new Set<ShellTask>([
-    ...completedTasks.map((task) => task.id),
-    activeTaskConfig.id,
-    ...enabledNextTaskOptions.map((task) => task.id),
-    ...supportTasks.map((task) => task.id),
-  ]);
-  const lockedTasks = shellTasks.filter((task) => !availableTaskIds.has(task.id));
-  const stepNumber = activeTaskConfig.optional || activeTaskConfig.id === "console:auth"
-    ? null
-    : executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id) + 1;
-  const completedRequiredCount = completedTasks.filter((task) => !task.optional && task.id !== "console:auth").length;
+  const completedRequiredTasks = completedTasks.filter((task) => primaryShellTaskSet.has(task.id));
+  const stepNumber = primaryShellTaskSet.has(activeTaskConfig.id)
+    ? executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id) + 1
+    : null;
+  const completedRequiredCount = completedTasks.filter((task) => primaryShellTaskSet.has(task.id)).length;
   const currentProgressCount = activeExecutionStepIndex >= 0 ? activeExecutionStepIndex + 1 : completedRequiredCount;
   const workflowProgress = Math.min(
     100,
@@ -995,7 +956,6 @@ export function VentureConsoleShell({
     source,
     ideaCount,
     openRisks,
-    highRisks,
     experimentCount,
     decisionCount,
     artifactCount,
@@ -1131,35 +1091,6 @@ export function VentureConsoleShell({
           </details>
         ) : null}
 
-        {supportTasks.length > 0 ? (
-          <details className="mt-4 border-t border-slate-200 pt-3">
-            <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-              선택 기능
-            </summary>
-            <div className="mt-3 space-y-2">
-              {supportTasks.map((task) => {
-                const Icon = task.icon;
-
-                return (
-                  <button
-                    key={task.id}
-                    type="button"
-                    onClick={() => goToTask(task.id)}
-                    className="grid w-full grid-cols-[1.35rem_minmax(0,1fr)] gap-2.5 border-l-2 border-l-slate-200 border-y border-r border-slate-200 bg-white px-3 py-2.5 text-left transition hover:border-l-slate-400 hover:bg-slate-50"
-                  >
-                    <span className="avl-icon-frame avl-icon-frame-sm">
-                      <Icon size={13} />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-[12px] font-semibold text-slate-950">{task.label}</span>
-                      <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </details>
-        ) : null}
       </aside>
 
       <div className="order-1 min-w-0 space-y-3 xl:order-none">
@@ -1281,28 +1212,6 @@ export function VentureConsoleShell({
               </button>
             </div>
           </section>
-        ) : null}
-
-        {lockedTasks.length > 0 ? (
-          <details className="border-t border-slate-200 px-4 py-3.5">
-            <summary className="flex cursor-pointer list-none items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-              <LockKey size={13} />
-              잠긴 단계
-            </summary>
-            <div className="mt-4 grid gap-2">
-              {lockedTasks.slice(0, 3).map((task) => (
-                <div key={task.id} className="border border-slate-200 bg-white flex items-center gap-3 px-3 py-3">
-                  <span className="avl-icon-frame avl-icon-frame-sm text-xs">
-                    {getTaskOrderLabel(task)}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-slate-950">{task.label}</span>
-                    <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </details>
         ) : null}
       </div>
     </section>
