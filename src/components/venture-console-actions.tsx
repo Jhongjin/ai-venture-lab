@@ -3493,19 +3493,19 @@ export function VentureConsoleActions({
                     <div>
                       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                         <ClipboardText size={15} />
-                        비교 후보
+                        비교 아이디어
                       </div>
-                      <h3 className="mt-2 text-lg font-semibold text-slate-950">비교 후보</h3>
+                      <h3 className="mt-2 text-lg font-semibold text-slate-950">비교 아이디어</h3>
                           <p className="mt-2 text-sm leading-5 text-slate-600">
-                            추천 후보 한 건 외에는 필요할 때만 봅니다.
+                            추천 아이디어 한 건 외에는 필요할 때만 봅니다.
                           </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {([
-                        ["proceed", "진행 후보"],
+                        ["proceed", "진행"],
                         ["research", "추가 조사"],
                         ["pivot", "전환 검토"],
-                        ["kill", "중단 후보"],
+                        ["kill", "중단"],
                       ] as Array<[ExtractionGateId, string]>).map(([gateId, label]) => (
                         <span key={gateId} className="avl-pill avl-pill-neutral">
                           {label} {extractionGateCounts[gateId]}
@@ -3564,13 +3564,13 @@ export function VentureConsoleActions({
                       ))
                     ) : (
                       <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-                        추천 후보 외에 바로 비교할 후보가 많지 않습니다. 지금은 추천 후보 한 건을 먼저 저장하는 쪽이 더 자연스럽습니다.
+                        추천 아이디어 외에 바로 비교할 아이디어가 많지 않습니다. 지금은 추천 아이디어 한 건을 먼저 저장하는 쪽이 더 자연스럽습니다.
                       </div>
                     )}
                   </div>
 
                   <details className="avl-surface-muted mt-4 p-4">
-                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">운영자 작업</summary>
+                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">보조 기능</summary>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -3579,7 +3579,7 @@ export function VentureConsoleActions({
                         }}
                         className="avl-btn avl-btn-secondary px-4"
                       >
-                        실행 요약 복사
+                        요약 복사
                       </button>
                       <button
                         type="button"
@@ -3590,7 +3590,7 @@ export function VentureConsoleActions({
                         className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                       >
                         {isSavingExtractionReport ? <ArrowsClockwise className="animate-spin" size={16} /> : <ClipboardText size={16} />}
-                        리포트 저장
+                        비교 리포트 저장
                       </button>
                       <button
                         type="button"
@@ -3601,16 +3601,16 @@ export function VentureConsoleActions({
                         className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                       >
                         {extractSaveKey === "bulk" ? <ArrowsClockwise className="animate-spin" size={16} /> : <PlusCircle size={16} />}
-                        추천 {bulkSavableExtractionItems.length}개 저장
+                        추천 아이디어 {bulkSavableExtractionItems.length}개 저장
                       </button>
                     </div>
                   </details>
                 </details>
 
                 <details className="avl-card p-4">
-                  <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">후보별 상세 보기</summary>
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">아이디어별 상세 보기</summary>
                   <p className="mt-3 text-sm leading-5 text-slate-600">
-                    추천 후보만으로 부족할 때만 각 후보의 가설과 검증 계획을 펼칩니다.
+                    추천 아이디어만으로 부족할 때만 다른 아이디어의 가설과 검증 계획을 펼칩니다.
                   </p>
                   <div className="mt-4 grid gap-3">
                   {extractedIdeas.map((candidate) => {

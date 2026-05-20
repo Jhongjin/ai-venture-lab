@@ -16,7 +16,7 @@ import { AuthAwareCta } from "@/components/auth-aware-cta";
 
 export const metadata: Metadata = {
   title: "가이드 | AI Venture Lab",
-  description: "아이디어 입력부터 검증, 실행 문서, 하네스 패키지까지 이어지는 AI Venture Lab 사용 가이드입니다.",
+  description: "아이디어 입력부터 검증, 실행 문서, 제작 패키지까지 이어지는 AI Venture Lab 사용 가이드입니다.",
 };
 
 const newsreader = Newsreader({
@@ -47,7 +47,7 @@ const menuGuide = [
   {
     title: "실행 보드",
     route: "/workspace",
-    body: "아이디어 입력, 결과물 형태 선택, 사업성 검토, 검증 계획, 실행 문서와 하네스 패키지를 한 흐름으로 진행합니다.",
+    body: "아이디어 입력, 결과물 형태 선택, 사업성 검토, 검증 계획, 실행 문서와 제작 패키지를 한 흐름으로 진행합니다.",
     icon: GridFour,
   },
 ];
@@ -55,7 +55,7 @@ const menuGuide = [
 const boardSteps = [
   {
     title: "아이디어와 결과물 형태 정리",
-    body: "회의 메모, 대화 기록, 떠오른 아이디어를 붙여넣으면 AI가 먼저 볼 아이디어 한 건과 웹앱, 모바일앱, 웹사이트, 자동화 같은 결과물 형태를 함께 잡습니다.",
+    body: "회의 메모, 대화 기록, 떠오른 아이디어를 붙여넣으면 AI가 먼저 볼 아이디어 한 건과 웹 서비스, 모바일앱, 랜딩/웹사이트, 자동화 같은 결과물 형태를 함께 잡습니다.",
     icon: Sparkle,
   },
   {
@@ -69,8 +69,8 @@ const boardSteps = [
     icon: ClipboardText,
   },
   {
-    title: "하네스 패키지로 넘기기",
-    body: "검증된 아이디어를 PRD, 디자인 방향, 기술 스택, 첫 제작 범위, IDE/MCP 전달용 프롬프트로 묶습니다. 직접 만들거나 외부 개발 도구로 이어갈 수 있습니다.",
+    title: "제작 패키지로 넘기기",
+    body: "검증된 아이디어를 PRD, 디자인 방향, 기술 스택, 첫 제작 범위, 개발 도구에 바로 붙여 넣을 실행 프롬프트로 묶습니다. 직접 만들거나 외부 개발 도구로 이어갈 수 있습니다.",
     icon: GridFour,
   },
 ];
@@ -79,7 +79,7 @@ const quickAnswers = [
   ["실행 보드 버튼이 안 보여요", "로그인 전에는 숨겨집니다. 상단의 로그인 / 회원가입으로 먼저 계정에 들어가세요."],
   ["처음에 무엇을 준비해야 하나요", "정리된 기획서가 없어도 됩니다. 회의 메모, GPT와 나눈 대화, 평소 적어둔 자동화 아이디어처럼 거친 내용을 그대로 넣으면 됩니다."],
   ["모든 항목을 직접 채워야 하나요", "아닙니다. 기본은 AI가 먼저 채우고, 사용자는 어색한 판단만 고치거나 그대로 저장합니다."],
-  ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 PRD, 검증 계획, 제작 범위, 기술 방향, IDE/MCP 전달용 프롬프트가 묶인 하네스 패키지를 얻습니다."],
+  ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 PRD, 검증 계획, 제작 범위, 기술 방향, 개발 도구 전달용 실행 프롬프트가 묶인 제작 패키지를 얻습니다."],
 ];
 
 export default function GuidePage() {
@@ -115,7 +115,7 @@ export default function GuidePage() {
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">start here</div>
               <div className="mt-4 text-[26px] font-semibold leading-[1.05] tracking-tight">처음이라면 로그인 후 실행 보드로 들어가세요.</div>
               <p className="mt-4 text-sm leading-6 text-slate-300">
-                홈은 둘러보기용입니다. 실제 아이디어 검토와 하네스 패키지 생성은 실행 보드에서 진행합니다.
+                홈은 둘러보기용입니다. 실제 아이디어 검토와 제작 패키지 생성은 실행 보드에서 진행합니다.
               </p>
             </div>
             <div className="bg-white px-6 py-5">
