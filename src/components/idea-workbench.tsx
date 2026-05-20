@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   Activity,
   Beaker,
@@ -2304,6 +2304,31 @@ ${scan.next_action}
 
 주의
 ${scan.caveat}`;
+}
+
+function MarketScanAutoRunner({
+  active,
+  autoKey,
+  disabled,
+  onRun,
+}: {
+  active: boolean;
+  autoKey: string | null;
+  disabled: boolean;
+  onRun: () => Promise<void>;
+}) {
+  const lastRunKeyRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!active || disabled || !autoKey || lastRunKeyRef.current === autoKey) {
+      return;
+    }
+
+    lastRunKeyRef.current = autoKey;
+    void onRun();
+  }, [active, autoKey, disabled, onRun]);
+
+  return null;
 }
 
 function getMarketScanLevelLabel(value: "low" | "medium" | "high") {
@@ -7308,6 +7333,7 @@ export function IdeaWorkbench({
     next_action: "",
   });
   const [marketScanDraft, setMarketScanDraft] = useState<MarketScanDraft | null>(null);
+  const [marketScanDraftKey, setMarketScanDraftKey] = useState<string | null>(null);
   const [marketScanMode, setMarketScanMode] = useState<string | null>(null);
   const [marketScanError, setMarketScanError] = useState<string | null>(null);
   const [isMarketScanLoading, setIsMarketScanLoading] = useState(false);
@@ -8389,6 +8415,15 @@ export function IdeaWorkbench({
       (artifact.title || "").includes("아이디어 요약"),
   );
   const hasResearchNoteArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note");
+  const hasMarketScanArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.source === "market_scan" || (artifact.title || "").includes("시장·경쟁 자동 조사"),
+  );
+  const marketScanContextKey =
+    selectedIdea && editState
+      ? `${selectedIdea.id}:${editState.product_surface ?? selectedIdea.product_surface ?? "undecided"}`
+      : null;
+  const visibleMarketScanDraft =
+    marketScanContextKey && marketScanDraftKey === marketScanContextKey ? marketScanDraft : null;
   const hasResearchBriefArtifact = selectedArtifactRecords.some(
     (artifact) =>
       artifact.artifact_type === "research_note" &&
@@ -10819,6 +10854,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
       }
 
       const scanMode = cleanInlineText(payload.mode, 80);
+      setMarketScanDraftKey(`${selectedIdea.id}:${editState.product_surface ?? selectedIdea.product_surface ?? "undecided"}`);
       setMarketScanDraft(scan);
       setMarketScanMode(scanMode);
       setExperimentResultDraft((current) => ({
@@ -10876,6 +10912,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
   return (
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
+      <MarketScanAutoRunner
+        active={activeTask === "experiment"}
+        autoKey={marketScanContextKey}
+        disabled={Boolean(visibleMarketScanDraft) || isMarketScanLoading || hasMarketScanArtifact}
+        onRun={runMarketScan}
+      />
       {showSidebar ? (
       <aside className="grid gap-4 lg:sticky lg:top-6 lg:self-start">
         <div className="border border-slate-200 bg-white p-5 text-slate-900">
@@ -14244,8 +14286,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="avl-kicker">시장·경쟁 자동 점검</div>
                 <h3 className="mt-1 text-base font-semibold text-slate-950">AI가 시장성, 경쟁도, 진입장벽을 먼저 채웁니다</h3>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                  이 단계는 사용자가 시장 조사를 직접 끝내야 하는 구간이 아닙니다. 버튼 한 번으로 AI가 현재 아이디어와 제작 형태를
-                  함께 보고 예상 수요, 경쟁도, 시장 포화도, 진입장벽, 대체재를 정리합니다.
+                  이 단계는 사용자가 시장 조사를 직접 끝내야 하는 구간이 아닙니다. STEP 3에 들어오면 AI가 현재 아이디어와 제작
+                  형태를 함께 보고 예상 수요, 경쟁도, 시장 포화도, 진입장벽, 대체재를 먼저 정리합니다.
                 </p>
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
                   로그인 상태라면 자동 점검 결과는 리서치 노트로도 저장됩니다. 공개 자료를 찾으면 출처를 함께 표시하고,
@@ -14259,7 +14301,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
               >
                 <RefreshCw size={16} className={isMarketScanLoading ? "animate-spin" : ""} />
-                {isMarketScanLoading ? "채우는 중" : marketScanDraft ? "AI가 다시 채우기" : "AI가 자동으로 채우기"}
+                {isMarketScanLoading ? "점검 중" : visibleMarketScanDraft ? "다시 점검하기" : "지금 점검하기"}
               </button>
             </div>
 
@@ -14267,15 +14309,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-3 border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{marketScanError}</div>
             ) : null}
 
-            {marketScanDraft ? (
+            {visibleMarketScanDraft ? (
               <div className="mt-4 grid gap-4">
                 <div className="border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-slate-700">
                   이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 필요한 부분만 손보고 하단 다음 단계로 넘어가면
                   제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.
                 </div>
-                {marketScanDraft.market_signals.length > 0 ? (
+                {visibleMarketScanDraft.market_signals.length > 0 ? (
                   <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-                    {marketScanDraft.market_signals.map((signal) => (
+                    {visibleMarketScanDraft.market_signals.map((signal) => (
                       <div key={signal.label} className="border border-emerald-100 bg-emerald-50 px-3 py-3">
                         <div className="text-xs font-semibold tracking-[0.12em] text-emerald-700">{signal.label}</div>
                         <p className="mt-1 text-xs leading-5 text-slate-700">{signal.finding}</p>
@@ -14285,9 +14327,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ) : null}
                 <div className="grid gap-px bg-slate-200 lg:grid-cols-3">
                   {[
-                    ["예상 수요", marketScanDraft.demand_forecast],
-                    ["경쟁/포화도", `${marketScanDraft.competition} ${marketScanDraft.saturation}`],
-                    ["진입장벽", marketScanDraft.entry_barriers],
+                    ["예상 수요", visibleMarketScanDraft.demand_forecast],
+                    ["경쟁/포화도", `${visibleMarketScanDraft.competition} ${visibleMarketScanDraft.saturation}`],
+                    ["진입장벽", visibleMarketScanDraft.entry_barriers],
                   ].map(([title, detail]) => (
                     <div key={title} className="bg-slate-50 px-4 py-3">
                       <div className="text-sm font-semibold text-slate-950">{title}</div>
@@ -14297,15 +14339,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
                   <div className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-600">
-                    <span className="font-semibold text-slate-950">대체재와 차별화:</span> {marketScanDraft.alternatives}
+                    <span className="font-semibold text-slate-950">대체재와 차별화:</span> {visibleMarketScanDraft.alternatives}
                   </div>
                   <div className="border border-slate-200 bg-white px-4 py-3">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
                     <div className="mt-2 text-lg font-semibold text-slate-950">
-                      {decisionLabels[marketScanDraft.recommendation]}
+                      {decisionLabels[visibleMarketScanDraft.recommendation]}
                     </div>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      신뢰도 {marketScanDraft.confidence === "high" ? "높음" : marketScanDraft.confidence === "medium" ? "보통" : "낮음"}
+                      신뢰도{" "}
+                      {visibleMarketScanDraft.confidence === "high"
+                        ? "높음"
+                        : visibleMarketScanDraft.confidence === "medium"
+                          ? "보통"
+                          : "낮음"}
                       {marketScanMode === "local_estimate" ? " · 추정 초안" : ""}
                     </p>
                   </div>
@@ -14314,8 +14361,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">경쟁/대체재</div>
                     <div className="mt-3 grid gap-2">
-                      {marketScanDraft.competitor_map.length > 0 ? (
-                        marketScanDraft.competitor_map.map((competitor) => (
+                      {visibleMarketScanDraft.competitor_map.length > 0 ? (
+                        visibleMarketScanDraft.competitor_map.map((competitor) => (
                           <div key={`${competitor.name}-${competitor.category}`} className="border border-slate-100 bg-slate-50 px-3 py-2">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-sm font-semibold text-slate-950">{competitor.name}</span>
@@ -14335,8 +14382,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">진입장벽 체크</div>
                     <div className="mt-3 grid gap-2">
-                      {marketScanDraft.entry_barrier_checks.length > 0 ? (
-                        marketScanDraft.entry_barrier_checks.map((barrier) => (
+                      {visibleMarketScanDraft.entry_barrier_checks.length > 0 ? (
+                        visibleMarketScanDraft.entry_barrier_checks.map((barrier) => (
                           <div key={barrier.label} className="border border-slate-100 bg-slate-50 px-3 py-2">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-sm font-semibold text-slate-950">{barrier.label}</span>
@@ -14353,11 +14400,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                   </div>
                 </div>
-                {marketScanDraft.research_queries.length > 0 ? (
+                {visibleMarketScanDraft.research_queries.length > 0 ? (
                   <div className="border border-slate-200 bg-slate-50 px-4 py-3">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">추가로 확인할 질문</div>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {marketScanDraft.research_queries.map((query) => (
+                      {visibleMarketScanDraft.research_queries.map((query) => (
                         <span key={query} className="avl-pill avl-pill-neutral text-xs">
                           {query}
                         </span>
@@ -14367,9 +14414,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 ) : null}
                 <div className="grid gap-2">
                   <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">참고 출처</div>
-                  {marketScanDraft.sources.length > 0 ? (
+                  {visibleMarketScanDraft.sources.length > 0 ? (
                     <div className="grid gap-2">
-                      {marketScanDraft.sources.map((source, index) => (
+                      {visibleMarketScanDraft.sources.map((source, index) => (
                         <div key={`${source.url}-${index}`} className="border border-slate-200 bg-white px-3 py-2 text-xs leading-5">
                           {source.url ? (
                             <a href={source.url} target="_blank" rel="noreferrer" className="font-semibold text-slate-950 underline-offset-2 hover:underline">
