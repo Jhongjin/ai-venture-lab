@@ -1809,6 +1809,23 @@ export function VentureConsoleActions({
         .join("\n\n"),
     [extractionPortfolioItems, extractionReplay],
   );
+  const manualFormProductSurface = useMemo(() => {
+    const hasFormInput = Object.values(form).some((value) => value.trim().length > 0);
+
+    if (!hasFormInput) {
+      return null;
+    }
+
+    return inferProductSurface({
+      name: form.name,
+      one_liner: form.one_liner,
+      target_user: form.target_user,
+      buyer: form.buyer,
+      signal: form.signal,
+      risk_summary: form.risk_summary,
+      next_evidence: form.next_evidence,
+    });
+  }, [form]);
   const consoleTasks: Array<{
     id: ConsoleActionTask;
     label: string;
@@ -3981,6 +3998,26 @@ export function VentureConsoleActions({
                           ? `${form.buyer || "구매자 미정"} / ${form.target_user || "대상 사용자 미정"}`
                           : "AI 초안이 아직 비어 있으면, 저장 뒤 다음 단계에서 다시 구체화해도 됩니다."}
                       </p>
+                    </div>
+                    <div className="border border-blue-200 bg-blue-50 p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">결과물 형태</div>
+                      {manualFormProductSurface ? (
+                        <>
+                          <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">
+                            {manualFormProductSurface.label}
+                          </p>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">
+                            {manualFormProductSurface.firstBuild}
+                          </p>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">
+                            이 기준이 STEP 2와 제작 패키지까지 이어집니다. 다르게 보이면 다음 단계에서 바꿀 수 있습니다.
+                          </p>
+                        </>
+                      ) : (
+                        <p className="mt-2 text-sm leading-6 text-slate-700">
+                          이름과 한 줄 설명을 입력하면 AI가 웹 서비스, 모바일 앱, 업무 자동화 중 어떤 형태로 만들지 먼저 추정합니다.
+                        </p>
+                      )}
                     </div>
                     <div className="border border-slate-200 bg-slate-50 p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 액션</div>
