@@ -14820,34 +14820,6 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <Save size={16} />
               전달 내용 저장
             </button>
-            <button
-              type="button"
-              onClick={() => setArtifactPanel("validation")}
-              className="avl-btn avl-btn-primary px-3"
-            >
-              검증 자료 보완
-            </button>
-            <button
-              type="button"
-              onClick={() => updateActiveTask("experiment")}
-              className="avl-btn avl-btn-secondary px-3"
-            >
-              검증 계획 확인
-            </button>
-            <button
-              type="button"
-              onClick={() => updateActiveTask("risk")}
-              className="avl-btn avl-btn-secondary px-3"
-            >
-              리스크 확인
-            </button>
-            <button
-              type="button"
-              onClick={() => updateActiveTask("decision")}
-              className="avl-btn avl-btn-secondary px-3"
-            >
-              판단 기록
-            </button>
           </div>
         </div>
 
