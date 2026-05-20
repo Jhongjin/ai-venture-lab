@@ -28,6 +28,24 @@ type MarketScanSource = {
   reason: string;
 };
 
+type MarketScanSignal = {
+  label: string;
+  finding: string;
+};
+
+type MarketScanCompetitor = {
+  name: string;
+  category: string;
+  threat: ConfidenceLevel;
+  note: string;
+};
+
+type MarketScanBarrier = {
+  label: string;
+  severity: ConfidenceLevel;
+  note: string;
+};
+
 type MarketScan = {
   summary: string;
   demand_forecast: string;
@@ -35,6 +53,10 @@ type MarketScan = {
   saturation: string;
   entry_barriers: string;
   alternatives: string;
+  market_signals: MarketScanSignal[];
+  competitor_map: MarketScanCompetitor[];
+  entry_barrier_checks: MarketScanBarrier[];
+  research_queries: string[];
   recommendation: DecisionStatus;
   confidence: ConfidenceLevel;
   next_action: string;
@@ -77,6 +99,53 @@ const marketScanSchema = {
     saturation: { type: "string" },
     entry_barriers: { type: "string" },
     alternatives: { type: "string" },
+    market_signals: {
+      type: "array",
+      maxItems: 4,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          label: { type: "string" },
+          finding: { type: "string" },
+        },
+        required: ["label", "finding"],
+      },
+    },
+    competitor_map: {
+      type: "array",
+      maxItems: 5,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          name: { type: "string" },
+          category: { type: "string" },
+          threat: { type: "string", enum: ["low", "medium", "high"] },
+          note: { type: "string" },
+        },
+        required: ["name", "category", "threat", "note"],
+      },
+    },
+    entry_barrier_checks: {
+      type: "array",
+      maxItems: 5,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          label: { type: "string" },
+          severity: { type: "string", enum: ["low", "medium", "high"] },
+          note: { type: "string" },
+        },
+        required: ["label", "severity", "note"],
+      },
+    },
+    research_queries: {
+      type: "array",
+      maxItems: 5,
+      items: { type: "string" },
+    },
     recommendation: { type: "string", enum: ["pending", "research_more", "ship", "pivot", "kill"] },
     confidence: { type: "string", enum: ["low", "medium", "high"] },
     next_action: { type: "string" },
@@ -103,6 +172,10 @@ const marketScanSchema = {
     "saturation",
     "entry_barriers",
     "alternatives",
+    "market_signals",
+    "competitor_map",
+    "entry_barrier_checks",
+    "research_queries",
     "recommendation",
     "confidence",
     "next_action",
@@ -212,6 +285,48 @@ function toMarketScanSource(value: unknown): MarketScanSource | null {
   return source.title || source.url ? source : null;
 }
 
+function toMarketScanSignal(value: unknown): MarketScanSignal | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const signal = {
+    label: toText(value.label, 120),
+    finding: toText(value.finding, 360),
+  };
+
+  return signal.label && signal.finding ? signal : null;
+}
+
+function toMarketScanCompetitor(value: unknown): MarketScanCompetitor | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const competitor = {
+    name: toText(value.name, 160),
+    category: toText(value.category, 160),
+    threat: normalizeConfidence(value.threat),
+    note: toText(value.note, 360),
+  };
+
+  return competitor.name && competitor.note ? competitor : null;
+}
+
+function toMarketScanBarrier(value: unknown): MarketScanBarrier | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const barrier = {
+    label: toText(value.label, 160),
+    severity: normalizeConfidence(value.severity),
+    note: toText(value.note, 360),
+  };
+
+  return barrier.label && barrier.note ? barrier : null;
+}
+
 function toMarketScan(value: unknown): MarketScan | null {
   if (!isRecord(value)) {
     return null;
@@ -219,6 +334,24 @@ function toMarketScan(value: unknown): MarketScan | null {
 
   const sources = Array.isArray(value.sources)
     ? value.sources.map(toMarketScanSource).filter((source): source is MarketScanSource => Boolean(source)).slice(0, 5)
+    : [];
+  const marketSignals = Array.isArray(value.market_signals)
+    ? value.market_signals
+        .map(toMarketScanSignal)
+        .filter((signal): signal is MarketScanSignal => Boolean(signal))
+        .slice(0, 4)
+    : [];
+  const competitorMap = Array.isArray(value.competitor_map)
+    ? value.competitor_map
+        .map(toMarketScanCompetitor)
+        .filter((competitor): competitor is MarketScanCompetitor => Boolean(competitor))
+        .slice(0, 5)
+    : [];
+  const entryBarrierChecks = Array.isArray(value.entry_barrier_checks)
+    ? value.entry_barrier_checks
+        .map(toMarketScanBarrier)
+        .filter((barrier): barrier is MarketScanBarrier => Boolean(barrier))
+        .slice(0, 5)
     : [];
 
   const scan = {
@@ -228,6 +361,10 @@ function toMarketScan(value: unknown): MarketScan | null {
     saturation: toText(value.saturation, 900),
     entry_barriers: toText(value.entry_barriers, 900),
     alternatives: toText(value.alternatives, 900),
+    market_signals: marketSignals,
+    competitor_map: competitorMap,
+    entry_barrier_checks: entryBarrierChecks,
+    research_queries: toStringList(value.research_queries),
     recommendation: normalizeDecision(value.recommendation),
     confidence: normalizeConfidence(value.confidence),
     next_action: toText(value.next_action, 700),
@@ -332,6 +469,51 @@ function createFallbackScan({
     saturation: "비슷한 문제를 넓게 해결하는 도구는 이미 많을 수 있습니다. 좁은 사용자, 좁은 상황, 빠른 실행 결과로 포화된 범용 시장을 피하는 전략이 필요합니다.",
     entry_barriers: barrierHint,
     alternatives: "사용자는 새 앱을 쓰기 전에 스프레드시트, 메모, 이메일, 카카오톡, 기존 SaaS 조합으로 버티고 있을 수 있습니다. 이 대체 흐름보다 확실히 덜 귀찮아야 합니다.",
+    market_signals: [
+      {
+        label: "반복 문제",
+        finding: state.signal || "사용자 입력에서 반복 문제나 비용 절감 신호를 더 확인해야 합니다.",
+      },
+      {
+        label: "구매 의향",
+        finding: isB2b
+          ? "팀 시간 절감이나 담당자 업무 감소가 예산과 연결되는지 확인해야 합니다."
+          : "사용자가 실제로 돈을 내거나 행동을 바꿀 만큼 불편한지 확인해야 합니다.",
+      },
+    ],
+    competitor_map: [
+      {
+        name: isB2b ? "스프레드시트/노코드 운영" : "메모/알림 앱",
+        category: "기존 대체재",
+        threat: "medium",
+        note: "새 서비스가 이 대체 흐름보다 덜 번거롭다는 점을 보여줘야 합니다.",
+      },
+      {
+        name: isB2b ? "범용 CRM/업무 자동화 도구" : "기존 플랫폼 내장 기능",
+        category: "범용 경쟁군",
+        threat: "medium",
+        note: "범용 기능과 직접 경쟁하기보다 좁은 상황에서 빠른 결과를 보여주는 편이 안전합니다.",
+      },
+    ],
+    entry_barrier_checks: [
+      {
+        label: "사용자 전환",
+        severity: "medium",
+        note: "이미 쓰는 도구에서 새 흐름으로 옮겨올 만큼 분명한 이점이 필요합니다.",
+      },
+      {
+        label: isSensitive ? "신뢰와 개인정보" : "초기 유통",
+        severity: isSensitive ? "high" : "medium",
+        note: isSensitive
+          ? "민감정보를 다룬다면 저장 범위, 권한, 책임 경계를 먼저 설명해야 합니다."
+          : "초기 사용자를 어디서 만날지와 첫 전환 경로를 확인해야 합니다.",
+      },
+    ],
+    research_queries: [
+      `${idea.name || idea.one_liner} 경쟁 서비스`,
+      `${idea.target_user || "타깃 사용자"} 문제 해결 대체재`,
+      `${idea.one_liner || idea.name} 가격 지불 의향`,
+    ],
     recommendation,
     confidence: "low",
     next_action: isSensitive
@@ -438,7 +620,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
             {
               type: "input_text",
               text:
-                "You are a market research assistant for an app venture validation console. Use web search when useful. Write natural Korean. Do not invent precise market share or market size. If public sources are weak, say it is an estimate. Cover demand forecast, competition, saturation, entry barriers, alternatives, recommendation, confidence, next action, caveat, and sources.",
+                "You are a market research assistant for an app venture validation console. Use web search when useful. Write natural Korean. Do not invent precise market share, market size, or saturation numbers. If public sources are weak, say it is an estimate. Cover demand forecast, competition, saturation, entry barriers, alternatives, market signals, competitor map, entry-barrier checks, follow-up research queries, recommendation, confidence, next action, caveat, and sources. Keep findings specific enough to become a saved research note for a build-ready product package.",
             },
           ],
         },

@@ -717,6 +717,24 @@ type MarketScanSource = {
   reason: string;
 };
 
+type MarketScanSignal = {
+  label: string;
+  finding: string;
+};
+
+type MarketScanCompetitor = {
+  name: string;
+  category: string;
+  threat: "low" | "medium" | "high";
+  note: string;
+};
+
+type MarketScanBarrier = {
+  label: string;
+  severity: "low" | "medium" | "high";
+  note: string;
+};
+
 type MarketScanDraft = {
   summary: string;
   demand_forecast: string;
@@ -724,6 +742,10 @@ type MarketScanDraft = {
   saturation: string;
   entry_barriers: string;
   alternatives: string;
+  market_signals: MarketScanSignal[];
+  competitor_map: MarketScanCompetitor[];
+  entry_barrier_checks: MarketScanBarrier[];
+  research_queries: string[];
   recommendation: DecisionStatus;
   confidence: "low" | "medium" | "high";
   next_action: string;
@@ -2061,6 +2083,52 @@ function normalizeMarketScanSource(value: unknown): MarketScanSource | null {
   return source.title || source.url ? source : null;
 }
 
+function normalizeMarketScanSignal(value: unknown): MarketScanSignal | null {
+  if (!isPlainRecord(value)) {
+    return null;
+  }
+
+  const signal = {
+    label: cleanInlineText(value.label, 120),
+    finding: cleanInlineText(value.finding, 360),
+  };
+
+  return signal.label && signal.finding ? signal : null;
+}
+
+function normalizeMarketScanCompetitor(value: unknown): MarketScanCompetitor | null {
+  if (!isPlainRecord(value)) {
+    return null;
+  }
+
+  const threat: MarketScanCompetitor["threat"] =
+    value.threat === "high" || value.threat === "medium" || value.threat === "low" ? value.threat : "medium";
+  const competitor = {
+    name: cleanInlineText(value.name, 160),
+    category: cleanInlineText(value.category, 160),
+    threat,
+    note: cleanInlineText(value.note, 360),
+  };
+
+  return competitor.name && competitor.note ? competitor : null;
+}
+
+function normalizeMarketScanBarrier(value: unknown): MarketScanBarrier | null {
+  if (!isPlainRecord(value)) {
+    return null;
+  }
+
+  const severity: MarketScanBarrier["severity"] =
+    value.severity === "high" || value.severity === "medium" || value.severity === "low" ? value.severity : "medium";
+  const barrier = {
+    label: cleanInlineText(value.label, 160),
+    severity,
+    note: cleanInlineText(value.note, 360),
+  };
+
+  return barrier.label && barrier.note ? barrier : null;
+}
+
 function normalizeMarketScanDraft(value: unknown): MarketScanDraft | null {
   if (!isPlainRecord(value)) {
     return null;
@@ -2068,6 +2136,21 @@ function normalizeMarketScanDraft(value: unknown): MarketScanDraft | null {
 
   const sources = Array.isArray(value.sources)
     ? value.sources.map(normalizeMarketScanSource).filter((source): source is MarketScanSource => Boolean(source))
+    : [];
+  const marketSignals = Array.isArray(value.market_signals)
+    ? value.market_signals
+        .map(normalizeMarketScanSignal)
+        .filter((signal): signal is MarketScanSignal => Boolean(signal))
+    : [];
+  const competitorMap = Array.isArray(value.competitor_map)
+    ? value.competitor_map
+        .map(normalizeMarketScanCompetitor)
+        .filter((competitor): competitor is MarketScanCompetitor => Boolean(competitor))
+    : [];
+  const entryBarrierChecks = Array.isArray(value.entry_barrier_checks)
+    ? value.entry_barrier_checks
+        .map(normalizeMarketScanBarrier)
+        .filter((barrier): barrier is MarketScanBarrier => Boolean(barrier))
     : [];
   const recommendation: DecisionStatus =
     value.recommendation === "pending" ||
@@ -2086,6 +2169,12 @@ function normalizeMarketScanDraft(value: unknown): MarketScanDraft | null {
     saturation: cleanInlineText(value.saturation),
     entry_barriers: cleanInlineText(value.entry_barriers),
     alternatives: cleanInlineText(value.alternatives),
+    market_signals: marketSignals,
+    competitor_map: competitorMap,
+    entry_barrier_checks: entryBarrierChecks,
+    research_queries: Array.isArray(value.research_queries)
+      ? value.research_queries.map((query) => cleanInlineText(query, 240)).filter(Boolean)
+      : [],
     recommendation,
     confidence,
     next_action: cleanInlineText(value.next_action),
@@ -2101,8 +2190,25 @@ function buildMarketScanResultText(scan: MarketScanDraft) {
     scan.sources.length > 0
       ? scan.sources.map((source) => `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""}`).join("\n")
       : "- 출처 없음";
+  const signalLines =
+    scan.market_signals.length > 0
+      ? scan.market_signals.map((signal) => `- ${signal.label}: ${signal.finding}`).join("\n")
+      : "- 추가 확인 필요";
+  const competitorLines =
+    scan.competitor_map.length > 0
+      ? scan.competitor_map
+          .map((competitor) => `- ${competitor.name} (${competitor.category}): ${competitor.note}`)
+          .join("\n")
+      : "- 경쟁/대체재 추가 확인 필요";
+  const barrierLines =
+    scan.entry_barrier_checks.length > 0
+      ? scan.entry_barrier_checks.map((barrier) => `- ${barrier.label}: ${barrier.note}`).join("\n")
+      : "- 진입장벽 추가 확인 필요";
 
   return `시장성 자동 점검 초안
+
+수요 신호
+${signalLines}
 
 수요 예측
 ${scan.demand_forecast}
@@ -2111,8 +2217,14 @@ ${scan.demand_forecast}
 ${scan.competition}
 ${scan.saturation}
 
+경쟁/대체재 후보
+${competitorLines}
+
 진입장벽
 ${scan.entry_barriers}
+
+진입장벽 체크
+${barrierLines}
 
 대체재
 ${scan.alternatives}
@@ -2135,8 +2247,27 @@ function buildMarketScanEvidenceText(scan: MarketScanDraft) {
     scan.sources.length > 0
       ? scan.sources.map((source) => `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""}`).join("\n")
       : "- 공개 출처가 부족해 AI 추정 초안으로만 참고";
+  const signalLines =
+    scan.market_signals.length > 0
+      ? scan.market_signals.map((signal) => `- ${signal.label}: ${signal.finding}`).join("\n")
+      : "- 추가 확인 필요";
+  const competitorLines =
+    scan.competitor_map.length > 0
+      ? scan.competitor_map
+          .map((competitor) => `- ${competitor.name} (${competitor.category}): ${competitor.note}`)
+          .join("\n")
+      : "- 경쟁/대체재 추가 확인 필요";
+  const barrierLines =
+    scan.entry_barrier_checks.length > 0
+      ? scan.entry_barrier_checks.map((barrier) => `- ${barrier.label}: ${barrier.note}`).join("\n")
+      : "- 진입장벽 추가 확인 필요";
+  const queryLines =
+    scan.research_queries.length > 0 ? scan.research_queries.map((query) => `- ${query}`).join("\n") : "- 추가 검색 질문 없음";
 
   return `AI 시장성 자동 점검
+
+수요 신호
+${signalLines}
 
 예상 수요
 ${scan.demand_forecast}
@@ -2145,11 +2276,20 @@ ${scan.demand_forecast}
 ${scan.competition}
 ${scan.saturation}
 
+경쟁/대체재 후보
+${competitorLines}
+
 진입장벽
 ${scan.entry_barriers}
 
+진입장벽 체크
+${barrierLines}
+
 대체재와 차별화
 ${scan.alternatives}
+
+추가 확인 질문
+${queryLines}
 
 참고 출처
 ${sourceLines}`;
@@ -2164,6 +2304,104 @@ ${scan.next_action}
 
 주의
 ${scan.caveat}`;
+}
+
+function getMarketScanLevelLabel(value: "low" | "medium" | "high") {
+  return value === "high" ? "높음" : value === "medium" ? "보통" : "낮음";
+}
+
+function buildMarketScanArtifactMarkdown({
+  idea,
+  scan,
+  mode,
+}: {
+  idea: Idea;
+  scan: MarketScanDraft;
+  mode: string | null;
+}) {
+  const sourceLines =
+    scan.sources.length > 0
+      ? scan.sources
+          .map((source) => `- ${source.title || source.url}${source.url ? `: ${source.url}` : ""}${source.reason ? ` - ${source.reason}` : ""}`)
+          .join("\n")
+      : "- 공개 출처가 부족해 AI 추정 초안으로 저장";
+  const competitorLines =
+    scan.competitor_map.length > 0
+      ? scan.competitor_map
+          .map(
+            (competitor) =>
+              `- ${competitor.name} (${competitor.category}, 위협 ${getMarketScanLevelLabel(competitor.threat)}): ${competitor.note}`,
+          )
+          .join("\n")
+      : "- 경쟁/대체재 추가 확인 필요";
+  const barrierLines =
+    scan.entry_barrier_checks.length > 0
+      ? scan.entry_barrier_checks
+          .map((barrier) => `- ${barrier.label} (${getMarketScanLevelLabel(barrier.severity)}): ${barrier.note}`)
+          .join("\n")
+      : "- 진입장벽 추가 확인 필요";
+  const signalLines =
+    scan.market_signals.length > 0
+      ? scan.market_signals.map((signal) => `- ${signal.label}: ${signal.finding}`).join("\n")
+      : "- 추가 확인 필요";
+  const queryLines =
+    scan.research_queries.length > 0 ? scan.research_queries.map((query) => `- ${query}`).join("\n") : "- 추가 검색 질문 없음";
+
+  return `# 시장·경쟁 자동 조사: ${idea.name}
+
+이 문서는 사용자가 직접 시장 조사를 시작하기 전에 AI가 먼저 정리한 검토 초안입니다. 공개 자료가 부족한 항목은 추정으로 표시하고, 중요한 수치나 점유율은 최종 판단 전에 다시 확인해야 합니다.
+
+## 요약
+
+${scan.summary}
+
+## 수요 신호
+
+${signalLines}
+
+## 예상 수요
+
+${scan.demand_forecast}
+
+## 경쟁도와 시장 포화도
+
+${scan.competition}
+
+${scan.saturation}
+
+## 경쟁/대체재 후보
+
+${competitorLines}
+
+## 진입장벽
+
+${scan.entry_barriers}
+
+${barrierLines}
+
+## 대체재와 차별화
+
+${scan.alternatives}
+
+## AI 추천 판단
+
+- 추천: ${decisionLabels[scan.recommendation]}
+- 신뢰도: ${getMarketScanLevelLabel(scan.confidence)}
+- 실행 방식: ${mode === "openai_web" ? "웹 검색 포함" : "추정 초안"}
+- 다음 행동: ${scan.next_action}
+
+## 추가 확인 질문
+
+${queryLines}
+
+## 참고 출처
+
+${sourceLines}
+
+## 주의
+
+${scan.caveat}
+`;
 }
 
 function buildValidationSummaryMarkdown({
@@ -10520,8 +10758,31 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         implication: buildMarketScanEvidenceImplication(scan),
         confidence: scan.confidence,
       });
+      const marketScanBody = buildMarketScanArtifactMarkdown({
+        idea: selectedIdea,
+        scan,
+        mode: scanMode,
+      });
+      const savedMarketScan = user
+        ? await saveArtifactDraft(
+            "research_note",
+            `${selectedIdea.name} 시장·경쟁 자동 조사`,
+            marketScanBody,
+            "market_scan",
+            {
+              quiet: true,
+              statusNote:
+                scanMode === "openai_web"
+                  ? "AI 시장성 자동 점검에서 저장한 웹 검색 포함 리서치 노트입니다."
+                  : "AI 시장성 자동 점검에서 저장한 추정 초안입니다.",
+            },
+          )
+        : false;
+
       setMessage(
-        "시장성 자동 점검 초안을 채웠습니다. 검증 결과 기록과 근거 직접 기록에도 초안이 들어갔습니다. 필요한 부분만 고친 뒤 저장하거나, 하단 다음 단계로 넘어가세요.",
+        savedMarketScan
+          ? "시장·경쟁 자동 조사를 리서치 노트로 저장했습니다. 결과 기록과 근거 기록 입력칸에도 초안이 채워졌습니다. 필요한 부분만 고치고 하단 다음 단계로 넘어가세요."
+          : "시장·경쟁 자동 점검 초안을 채웠습니다. 로그인 상태가 아니거나 저장 권한이 없으면 리서치 노트 자동 저장은 건너뜁니다.",
       );
     } catch (error) {
       setMarketScanError(error instanceof Error ? error.message : "시장성 점검을 불러오지 못했습니다.");
@@ -13905,8 +14166,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   기준으로 예상 수요, 경쟁도, 포화도, 진입장벽, 대체재를 정리하고 아래 결과 기록과 근거 기록 입력칸에 초안을 채웁니다.
                 </p>
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
-                  공개 자료를 찾으면 출처를 함께 표시하고, 출처가 부족하면 추정 초안으로 표시합니다. 실제 투자/출시 판단 전에는
-                  중요한 수치만 다시 확인하세요.
+                  공개 자료를 찾으면 출처를 함께 표시하고 리서치 노트로 자동 저장합니다. 출처가 부족하면 추정 초안으로 표시합니다.
+                  실제 투자/출시 판단 전에는 중요한 수치만 다시 확인하세요.
                 </p>
               </div>
               <button
@@ -13916,7 +14177,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
               >
                 <RefreshCw size={16} className={isMarketScanLoading ? "animate-spin" : ""} />
-                {isMarketScanLoading ? "점검 중" : "AI 시장성 점검 시작"}
+                {isMarketScanLoading ? "점검 중" : "AI 시장·경쟁 조사 시작"}
               </button>
             </div>
 
@@ -13926,6 +14187,16 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             {marketScanDraft ? (
               <div className="mt-4 grid gap-4">
+                {marketScanDraft.market_signals.length > 0 ? (
+                  <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+                    {marketScanDraft.market_signals.map((signal) => (
+                      <div key={signal.label} className="border border-emerald-100 bg-emerald-50 px-3 py-3">
+                        <div className="text-xs font-semibold tracking-[0.12em] text-emerald-700">{signal.label}</div>
+                        <p className="mt-1 text-xs leading-5 text-slate-700">{signal.finding}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
                 <div className="grid gap-px bg-slate-200 lg:grid-cols-3">
                   {[
                     ["예상 수요", marketScanDraft.demand_forecast],
@@ -13953,6 +14224,61 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </p>
                   </div>
                 </div>
+                <div className="grid gap-3 lg:grid-cols-2">
+                  <div className="border border-slate-200 bg-white p-4">
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">경쟁/대체재 후보</div>
+                    <div className="mt-3 grid gap-2">
+                      {marketScanDraft.competitor_map.length > 0 ? (
+                        marketScanDraft.competitor_map.map((competitor) => (
+                          <div key={`${competitor.name}-${competitor.category}`} className="border border-slate-100 bg-slate-50 px-3 py-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-semibold text-slate-950">{competitor.name}</span>
+                              <span className="avl-pill avl-pill-neutral text-[11px]">{competitor.category}</span>
+                              <span className="avl-pill avl-pill-info text-[11px]">
+                                위협 {getMarketScanLevelLabel(competitor.threat)}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-xs leading-5 text-slate-600">{competitor.note}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-sm text-slate-500">아직 정리된 경쟁/대체재 후보가 없습니다.</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="border border-slate-200 bg-white p-4">
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">진입장벽 체크</div>
+                    <div className="mt-3 grid gap-2">
+                      {marketScanDraft.entry_barrier_checks.length > 0 ? (
+                        marketScanDraft.entry_barrier_checks.map((barrier) => (
+                          <div key={barrier.label} className="border border-slate-100 bg-slate-50 px-3 py-2">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-semibold text-slate-950">{barrier.label}</span>
+                              <span className="avl-pill avl-pill-warning text-[11px]">
+                                {getMarketScanLevelLabel(barrier.severity)}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-xs leading-5 text-slate-600">{barrier.note}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-sm text-slate-500">아직 정리된 진입장벽이 없습니다.</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {marketScanDraft.research_queries.length > 0 ? (
+                  <div className="border border-slate-200 bg-slate-50 px-4 py-3">
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">추가로 확인할 질문</div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {marketScanDraft.research_queries.map((query) => (
+                        <span key={query} className="avl-pill avl-pill-neutral text-xs">
+                          {query}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
                 <div className="grid gap-2">
                   <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">참고 출처</div>
                   {marketScanDraft.sources.length > 0 ? (
