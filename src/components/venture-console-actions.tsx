@@ -1464,7 +1464,7 @@ function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
     )
     .join("\n");
 
-  return `# 추출 결과 점검
+  return `# AI 정리 다시 보기
 
 ## 실행 메타
 
@@ -1554,7 +1554,7 @@ function buildExtractionReportBody(
 - 추출 시각: ${metaGeneratedAt}
 - 실행 메모: ${runMeta?.note ?? "수동 또는 이전 방식으로 찾은 아이디어입니다."}
 
-${replaySummary ? buildExtractionReplayMarkdown(replaySummary) : "## 추출 결과 점검\n\n- 이번 리포트에는 결과 점검이 포함되지 않았습니다."}
+${replaySummary ? buildExtractionReplayMarkdown(replaySummary) : "## AI 정리 다시 보기\n\n- 이번 리포트에는 다시 보기 결과가 포함되지 않았습니다."}
 
 ## 메모 근거 요약
 
@@ -2405,7 +2405,7 @@ export function VentureConsoleActions({
       const payload = (await response.json().catch(() => ({}))) as AiGenerateSampleIdeasResponse;
 
       if (!response.ok || !payload.source) {
-        setExtractMessage(payload.error ?? `AI 자동생성에 실패했습니다. HTTP ${response.status}`);
+        setExtractMessage(payload.error ?? `샘플 아이디어 생성에 실패했습니다. HTTP ${response.status}`);
         return;
       }
 
@@ -2415,7 +2415,7 @@ export function VentureConsoleActions({
       );
     } catch (error) {
       setExtractMessage(
-        `AI 자동생성 중 오류가 발생했습니다. ${error instanceof Error ? error.message : ""}`.trim(),
+        `샘플 아이디어 생성 중 오류가 발생했습니다. ${error instanceof Error ? error.message : ""}`.trim(),
       );
     } finally {
       setIsGeneratingSample(false);
@@ -2590,13 +2590,13 @@ export function VentureConsoleActions({
           model,
           sourceLength: source.length,
           candidateCount: nextIdeas.length,
-          note: `결과 점검 완료: 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 기준 추출 단독 ${replaySummary.rulesOnlyCount}개.`,
+          note: `AI 정리 다시 보기 완료: 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 기준 추출 단독 ${replaySummary.rulesOnlyCount}개.`,
         }),
       );
       setExtractMessage(
         nextIdeas.length > 0
-          ? `결과 점검 완료. 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 기준 추출 단독 ${replaySummary.rulesOnlyCount}개 아이디어를 비교했습니다.`
-          : "결과 점검을 실행했지만 아이디어를 찾지 못했습니다. 원문에 아이디어, 문제, 솔루션 단서를 더 넣어보세요.",
+          ? `AI 정리 다시 보기 완료. 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 기준 추출 단독 ${replaySummary.rulesOnlyCount}개 아이디어를 비교했습니다.`
+          : "다시 확인했지만 아이디어를 찾지 못했습니다. 원문에 아이디어, 문제, 솔루션 단서를 더 넣어보세요.",
       );
     } finally {
       setIsReplayingExtraction(false);
@@ -2669,7 +2669,7 @@ export function VentureConsoleActions({
     }
 
     window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: data }));
-    setExtractMessage("아이디어 정리 리포트를 실행 문서로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
+    setExtractMessage("아이디어 정리 리포트를 제작 자료로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
     router.refresh();
@@ -2843,7 +2843,7 @@ export function VentureConsoleActions({
         setExtractMessage(`아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${result.partialError}`);
       } else {
         setExtractMessage(
-            `'${candidate.name}' 아이디어를 리스크, 7일 검증 계획, 실행 문서 ${result.artifactCount}개까지 저장했습니다.`,
+            `'${candidate.name}' 아이디어를 리스크, 7일 검증 계획, 제작 자료 ${result.artifactCount}개까지 저장했습니다.`,
         );
       }
     } catch (error) {
@@ -3306,7 +3306,7 @@ export function VentureConsoleActions({
                       className="avl-btn avl-btn-secondary px-4 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                      {isGeneratingSample ? "생성 중" : "AI 자동생성"}
+                      {isGeneratingSample ? "생성 중" : "샘플 아이디어 만들기"}
                     </button>
                     <button
                       type="button"
@@ -3497,7 +3497,7 @@ export function VentureConsoleActions({
                       </p>
                     </div>
                     <div className="flex min-h-[126px] flex-col bg-white px-4 py-3">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">결과 점검</div>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">AI 정리 다시 보기</div>
                       <div className="mt-2 text-sm font-semibold text-slate-950">필요할 때만 다시 확인</div>
                       <p className="mt-2 text-xs leading-5 text-slate-600">
                         결과가 어색하거나 빠진 내용이 있을 때 한 번 더 점검합니다.
@@ -3511,13 +3511,13 @@ export function VentureConsoleActions({
                         className="avl-btn avl-btn-secondary mt-auto h-9 w-fit px-3 disabled:opacity-60"
                       >
                         {isReplayingExtraction ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
-                        빠진 아이디어 다시 확인
+                        누락된 후보 찾기
                       </button>
                     </div>
                   </div>
                   {extractionReplay ? (
                     <details className="border-t border-slate-200 pt-4">
-                      <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">결과 점검 내역</summary>
+                      <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">AI 정리 다시 보기 내역</summary>
                       <div className="mt-3 border border-slate-200 bg-slate-50 p-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>

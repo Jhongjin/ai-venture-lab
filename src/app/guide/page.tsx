@@ -16,7 +16,7 @@ import { AuthAwareCta } from "@/components/auth-aware-cta";
 
 export const metadata: Metadata = {
   title: "가이드 | AI Venture Lab",
-  description: "아이디어 입력부터 검증, 실행 문서, 제작 패키지까지 이어지는 AI Venture Lab 사용 가이드입니다.",
+  description: "아이디어 입력부터 검증, 제작 자료, 제작 패키지까지 이어지는 AI Venture Lab 사용 가이드입니다.",
 };
 
 const newsreader = Newsreader({
@@ -47,7 +47,7 @@ const menuGuide = [
   {
     title: "실행 보드",
     route: "/workspace",
-    body: "아이디어 입력, 결과물 형태 선택, 사업성 검토, 검증 계획, 실행 문서와 제작 패키지를 한 흐름으로 진행합니다.",
+    body: "아이디어 입력, 결과물 형태 선택, 사업성 검토, 검증 계획, 제작 자료와 제작 패키지를 한 흐름으로 진행합니다.",
     icon: GridFour,
   },
 ];
@@ -55,7 +55,7 @@ const menuGuide = [
 const boardSteps = [
   {
     title: "아이디어와 결과물 형태 정리",
-    body: "회의 메모, 대화 기록, 떠오른 아이디어를 붙여넣으면 AI가 먼저 볼 아이디어 한 건과 웹 서비스, 모바일앱, 랜딩/웹사이트, 자동화 같은 결과물 형태를 함께 잡습니다.",
+    body: "회의 메모, 대화 기록, 떠오른 아이디어를 붙여넣으면 AI가 먼저 볼 아이디어 한 건과 웹 서비스, 모바일 앱, 랜딩/웹사이트, 자동화 같은 결과물 형태를 함께 잡습니다.",
     icon: Sparkle,
   },
   {

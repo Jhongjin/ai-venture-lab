@@ -15,7 +15,7 @@ const adminRoles = new Set(["owner", "admin"]);
 function getIdeaProgress(idea: Idea): IdeaProgress {
   switch (idea.stage) {
     case "prd":
-      return { label: "STEP 4 실행 문서 만들기", task: "artifacts" };
+      return { label: "STEP 4 AI 제작 자료 저장", task: "artifacts" };
     case "prototype":
     case "qa":
       return { label: "STEP 5 제작 준비", task: "development" };

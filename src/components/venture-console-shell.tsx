@@ -128,8 +128,8 @@ const shellTasks: Array<{
   },
   {
     id: "workbench:artifacts",
-    label: "실행 문서 만들기",
-    description: "실행 문서",
+    label: "AI 제작 자료 저장",
+    description: "제작 자료",
     group: "제작",
     icon: ClipboardText,
   },
@@ -142,8 +142,8 @@ const shellTasks: Array<{
   },
   {
     id: "workbench:orchestration",
-    label: "실행 관리",
-    description: "실행 큐",
+    label: "작업 순서 확인",
+    description: "작업 순서",
     group: "제작",
     icon: Stack,
   },
@@ -222,12 +222,12 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["확인할 내용 정하기", "직접 할 수 있는 작은 검증 쓰기", "성공/중단 기준 저장"],
   },
   "workbench:orchestration": {
-    summary: "역할과 진행 상태만 간단히 관리합니다.",
-    checklist: ["실행 계획 만들기", "역할별 결과 작성", "완료된 단계 상태 변경"],
+    summary: "제작자가 바로 움직일 수 있도록 작업 순서와 진행 상태만 간단히 확인합니다.",
+    checklist: ["작업 순서 확인", "역할별 결과 확인", "완료된 작업 상태 변경"],
   },
   "workbench:artifacts": {
     summary: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장합니다.",
-    checklist: ["AI 초안 확인", "필요할 때만 메모 보완", "실행 문서 저장"],
+    checklist: ["AI 초안 확인", "필요할 때만 메모 보완", "제작 자료 저장"],
   },
   "workbench:development": {
     summary: "검증 결과와 제작 형태를 바탕으로 제작에 넘길 패키지를 만듭니다.",
@@ -314,8 +314,8 @@ const taskCanvasDetails: Record<
   },
   "workbench:artifacts": {
     question: "이 아이디어를 제작 패키지로 묶을까요?",
-    aiLead: "AI가 아이디어 요약, 기획서, 첫 제작 범위, 디자인 참고 자료를 실행 문서로 정리합니다.",
-    deliverable: "실행 문서 초안",
+    aiLead: "AI가 아이디어 요약, 기획서, 첫 제작 범위, 디자인 참고 자료를 제작 자료로 정리합니다.",
+    deliverable: "제작 자료 초안",
     checkpoint: "사용자는 처음부터 작성하지 않고, 최종 내용만 확인하고 저장하면 됩니다.",
   },
   "workbench:development": {
@@ -327,7 +327,7 @@ const taskCanvasDetails: Record<
   "workbench:orchestration": {
     question: "누가 무엇을 언제 처리할지 명확한가요?",
     aiLead: "전략, 디자인, 제작, 품질 점검, 보안의 순서를 정리하고 막히는 요인을 표시합니다.",
-    deliverable: "실행 순서와 진행 상태",
+    deliverable: "작업 순서와 진행 상태",
     checkpoint: "1인 작업에서도 다음 작업 순서가 분명히 보여야 합니다.",
   },
   "workbench:launch": {
@@ -407,7 +407,7 @@ function getNextTaskOptions({
       return [
         createTransition(
           "workbench:experiment",
-          "다음: 검증 계획",
+          "다음: AI 검증안 확인",
           canEnterExperiment
             ? "사업성 평가를 저장했습니다. 이제 7일 안에 확인할 작은 검증을 정합니다."
             : "사업성 평가를 저장하면 활성화됩니다.",
@@ -417,13 +417,13 @@ function getNextTaskOptions({
       ];
     case "workbench:risk":
       return [
-        createTransition("workbench:experiment", "다음: 검증 계획", "리스크를 적었다면 이제 실제로 확인할 계획을 정합니다."),
+        createTransition("workbench:experiment", "다음: AI 검증안 확인", "리스크를 적었다면 이제 실제로 확인할 계획을 정합니다."),
       ];
     case "workbench:experiment":
       return [
         createTransition(
           "workbench:artifacts",
-          "다음: 실행 문서 만들기",
+          "다음: AI 제작 자료 저장",
           canEnterArtifacts
             ? "검증 계획을 저장했습니다. 이제 아이디어 요약과 제작 범위를 문서로 남깁니다."
             : "검증 계획을 하나 이상 저장하면 활성화됩니다.",
@@ -433,7 +433,7 @@ function getNextTaskOptions({
       ];
     case "workbench:decision":
       return [
-        createTransition("workbench:artifacts", "다음: 실행 문서 만들기", "아이디어 요약, 기획서, 첫 제작 범위를 문서로 남깁니다."),
+        createTransition("workbench:artifacts", "다음: AI 제작 자료 저장", "아이디어 요약, 기획서, 첫 제작 범위를 제작 자료로 남깁니다."),
       ];
     case "workbench:artifacts":
       return [
@@ -451,9 +451,9 @@ function getNextTaskOptions({
       return [
         createTransition(
           "workbench:orchestration",
-          "다음: 실행 관리",
+          "다음: 작업 순서 확인",
           canEnterOrchestration
-            ? "제작 패키지를 저장했습니다. 이제 실행 역할을 배정합니다."
+            ? "제작 패키지를 저장했습니다. 이제 작업 순서를 확인합니다."
             : "최종 제작 패키지를 저장하면 활성화됩니다.",
           "primary",
           !canEnterOrchestration,
@@ -533,7 +533,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "먼저 로그인해 주세요.",
-      detail: "로그인 후 대시보드에서 아이디어 검토, 검증 계획, 실행 문서를 이어서 진행합니다.",
+      detail: "로그인 후 대시보드에서 아이디어 검토, 검증 계획, 제작 자료를 이어서 진행합니다.",
       evidence: "로그인 필요",
       risk: "데이터는 로그인 후 확인",
       targetTask: "console:auth",
@@ -591,7 +591,7 @@ function getExecutiveFocus({
   if (artifactCount === 0) {
     return {
       eyebrow: "지금 할 일",
-      title: "이제 실행 문서를 저장할 차례입니다.",
+      title: "이제 AI 제작 자료를 저장할 차례입니다.",
       detail: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장하면 제작 패키지로 이어갈 수 있습니다.",
       evidence: `${dataNote} · 판단 ${decisionCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
@@ -606,7 +606,7 @@ function getExecutiveFocus({
       eyebrow: "지금 할 일",
       title: "이제 제작 패키지를 저장하세요.",
       detail: "검증 결과와 제작 형태를 묶어 제작 단계로 바로 넘길 패키지를 만듭니다.",
-      evidence: `${dataNote} · 실행 문서 ${artifactCount}건`,
+      evidence: `${dataNote} · 제작 자료 ${artifactCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",
       cta: "제작 패키지 정리",
@@ -617,12 +617,12 @@ function getExecutiveFocus({
   if (runCount === 0) {
     return {
       eyebrow: "지금 할 일",
-      title: "실행 순서와 막히는 지점을 정리하세요.",
+      title: "작업 순서와 막히는 지점을 정리하세요.",
       detail: "1인 작업으로 진행하더라도 전략, 디자인, 제작, 품질 점검 순서를 나누면 다음 작업이 선명해집니다.",
       evidence: `${dataNote} · 제작 작업 ${implementationTaskCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:orchestration",
-      cta: "실행 관리",
+      cta: "작업 순서 확인",
       metrics,
     };
   }

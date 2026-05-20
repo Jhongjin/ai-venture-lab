@@ -66,10 +66,10 @@ const workflowSteps = [
   },
   {
     id: "04",
-    title: "실행 문서",
+    title: "제작 자료",
     ai: "기획서, 첫 제작 범위, 실행 작업, 출시 판단 초안을 한 번에 묶습니다.",
     human: "어디까지 만들고 언제 시작할지 결정합니다.",
-    result: "바로 이어갈 실행 문서",
+    result: "바로 이어갈 제작 자료",
     icon: ShieldCheck,
   },
 ];
@@ -362,7 +362,7 @@ export default function HomePage() {
                   <div>
                     <div className="avl-kicker !text-slate-400">signal route</div>
                     <h3 className="mt-5 max-w-[16ch] break-keep text-[32px] font-semibold leading-[1.02] tracking-tight text-white">
-                        AI 초안이 검토를 거쳐 실행 문서가 됩니다.
+                        AI 초안이 검토를 거쳐 제작 자료가 됩니다.
                     </h3>
                     <p className="mt-5 max-w-[34ch] break-keep text-sm leading-7 text-slate-300">
                       후보, 질문, 리스크가 정리되고 확인할 지점만 남습니다.
@@ -370,7 +370,7 @@ export default function HomePage() {
                   </div>
 
                   <div className="space-y-5 border-l border-white/16 pl-5">
-                    {["AI 초안", "판단 확인", "실행 문서"].map((label, index) => (
+                    {["AI 초안", "판단 확인", "제작 자료"].map((label, index) => (
                       <div key={label} className="relative">
                         <span className={`absolute -left-[27px] top-1.5 h-3 w-3 ${index === 0 ? "bg-[#bcd3ff]" : "border border-white/30 bg-[#10141d]"}`} />
                         <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#bcd3ff]">0{index + 1}</div>
@@ -555,7 +555,7 @@ export default function HomePage() {
                     style={{ fontFamily: "var(--font-newsreader)" }}
                   >
                     <span className="block">AI 초안은</span>
-                    <span className="block">실행 문서로</span>
+                    <span className="block">제작 자료로</span>
                     <span className="block">남습니다.</span>
                   </h2>
                   <p className="mt-5 max-w-[42ch] break-keep text-sm leading-7 text-slate-300">
