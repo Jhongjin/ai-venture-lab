@@ -10703,6 +10703,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
     setMarketScanError(null);
 
     try {
+      const productSurface = getProductSurfaceProfile(
+        editState.product_surface ?? selectedIdea.product_surface,
+        ideaProductSurfaceInput(selectedIdea, editState),
+      );
       const response = await fetch("/api/ideas/market-scan", {
         method: "POST",
         headers: {
@@ -10714,6 +10718,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             one_liner: selectedIdea.one_liner,
             target_user: selectedIdea.target_user,
             buyer: selectedIdea.buyer,
+            product_surface: productSurface.label,
           },
           state: {
             signal: editState.signal,
@@ -10785,7 +10790,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
       setMessage(
         savedMarketScan
-          ? "시장·경쟁 자동 조사를 리서치 노트로 저장했습니다. 결과 기록과 근거 기록 입력칸에도 초안이 채워졌습니다. 필요한 부분만 고치고 하단 다음 단계로 넘어가세요."
+          ? "시장·경쟁 자동 점검을 리서치 노트로 저장했습니다. 제작 형태까지 반영한 초안을 채웠으니 필요한 부분만 고치고 하단 다음 단계로 넘어가세요."
           : "시장·경쟁 자동 점검 초안을 채웠습니다. 로그인 상태가 아니거나 저장 권한이 없으면 리서치 노트 자동 저장은 건너뜁니다.",
       );
     } catch (error) {
@@ -14165,12 +14170,12 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="avl-kicker">시장·경쟁 자동 점검</div>
                 <h3 className="mt-1 text-base font-semibold text-slate-950">AI가 시장성, 경쟁도, 진입장벽을 먼저 채웁니다</h3>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                  이 단계는 사용자가 시장 조사를 직접 끝내야 하는 구간이 아닙니다. 버튼 한 번으로 AI가 현재 아이디어를 기준으로
-                  예상 수요, 경쟁도, 시장 포화도, 진입장벽, 대체재를 정리하고 아래 결과 기록과 근거 기록 입력칸까지 채웁니다.
+                  이 단계는 사용자가 시장 조사를 직접 끝내야 하는 구간이 아닙니다. 버튼 한 번으로 AI가 현재 아이디어와 제작 형태를
+                  함께 보고 예상 수요, 경쟁도, 시장 포화도, 진입장벽, 대체재를 정리합니다.
                 </p>
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
                   로그인 상태라면 자동 점검 결과는 리서치 노트로도 저장됩니다. 공개 자료를 찾으면 출처를 함께 표시하고,
-                  출처가 부족하면 추정 초안으로 남깁니다. 정확한 시장 규모나 점유율은 출처가 있을 때만 신뢰하세요.
+                  출처가 부족하면 추정 초안으로 남깁니다. 웹, 앱, 자동화, 개발 도구 연동처럼 만드는 형태에 따라 경쟁 기준도 달라집니다.
                 </p>
               </div>
               <button
@@ -14191,7 +14196,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             {marketScanDraft ? (
               <div className="mt-4 grid gap-4">
                 <div className="border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-slate-700">
-                  이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 필요한 부분만 손보고 하단 다음 단계로 넘어가면,
+                  이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 필요한 부분만 손보고 하단 다음 단계로 넘어가면
                   제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.
                 </div>
                 {marketScanDraft.market_signals.length > 0 ? (
@@ -14311,26 +14316,35 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             ) : null}
           </div>
 
-          <form onSubmit={saveExperimentResultNote} className="avl-card p-4">
-            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div className="avl-kicker">결과 기록</div>
-                <h3 className="mt-1 text-base font-semibold text-slate-950">검증 결과 기록</h3>
-                <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                  실제로 해본 검증 결과를 남기는 선택 영역입니다. 아직 실행 전이면 시장·경쟁 자동 점검 초안을 먼저 채우거나,
-                  이 칸을 비워두고 하단 다음 단계 버튼으로 실행 문서 만들기 단계로 넘어가도 됩니다.
-                </p>
+          <details className="avl-card p-4">
+            <summary className="cursor-pointer list-none">
+              <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <div className="avl-kicker">선택 기록</div>
+                  <h3 className="mt-1 text-base font-semibold text-slate-950">직접 확인한 결과가 있을 때만 열기</h3>
+                  <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                    인터뷰, 랜딩 페이지, 수동 테스트처럼 이미 직접 확인한 결과가 있으면 여기에 남깁니다. 아직 실행 전이면
+                    위의 자동 점검만으로도 다음 실행 문서 단계로 넘어갈 수 있습니다.
+                  </p>
+                </div>
+                <span className="text-sm font-semibold text-slate-600">열어서 기록</span>
               </div>
-              <button
-                type="button"
-                onClick={() => copyDraft(experimentResultNoteDraft, "검증 결과")}
-                disabled={!experimentResultNoteDraft}
-                className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
-              >
-                <Clipboard size={16} />
-                결과 복사
-              </button>
-            </div>
+            </summary>
+            <form onSubmit={saveExperimentResultNote} className="mt-4 grid gap-4 border-t border-slate-200 pt-4">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm leading-6 text-slate-600">
+                  이 기록은 선택 사항입니다. 저장해도 단계가 자동으로 넘어가지 않고, 이동은 항상 하단 다음 단계 버튼에서만 진행됩니다.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => copyDraft(experimentResultNoteDraft, "검증 결과")}
+                  disabled={!experimentResultNoteDraft}
+                  className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
+                >
+                  <Clipboard size={16} />
+                  결과 복사
+                </button>
+              </div>
             <div className="grid gap-4">
               <div className="grid gap-px bg-slate-200 md:grid-cols-5">
                 {[
@@ -14420,7 +14434,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </button>
               </div>
             </div>
-          </form>
+            </form>
+          </details>
         </div>
 
         <div className={activeTask === "artifacts" ? "avl-card p-4" : "hidden"}>

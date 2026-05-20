@@ -14,6 +14,7 @@ type RequestIdea = {
   one_liner: string;
   target_user: string;
   buyer: string;
+  product_surface: string;
 };
 
 type RequestState = {
@@ -214,6 +215,7 @@ function toIdea(value: unknown): RequestIdea | null {
     one_liner: toText(value.one_liner, 360),
     target_user: toText(value.target_user, 240),
     buyer: toText(value.buyer, 240),
+    product_surface: toText(value.product_surface, 160),
   };
 
   return idea.name || idea.one_liner ? idea : null;
@@ -445,23 +447,41 @@ function createFallbackScan({
   score: number | null;
   reason: string;
 }): MarketScan {
-  const text = `${idea.name} ${idea.one_liner} ${idea.target_user} ${idea.buyer} ${state.signal} ${state.risk_summary} ${state.next_evidence}`;
+  const text = `${idea.name} ${idea.one_liner} ${idea.target_user} ${idea.buyer} ${idea.product_surface} ${state.signal} ${state.risk_summary} ${state.next_evidence}`;
   const isSensitive = /개인정보|비밀번호|유언|상속|의료|건강|금융|보험|법무|계약|결제|신용|상담/.test(text);
   const isB2b = /B2B|기업|팀|사내|업무|운영|CS|리드|파이프라인|회의|자동화/.test(text);
   const isConsumer = /개인|사용자|가족|구독|리뷰|예약|이커머스|지역/.test(text);
+  const isMobileSurface = /앱|모바일|mobile|native|ios|android/i.test(idea.product_surface);
+  const isAutomationSurface = /자동화|운영|콘솔|업무 흐름|workflow|operator/i.test(idea.product_surface);
+  const isDevelopmentHandoffSurface = /mcp|ide|개발 도구|제작 지시|handoff|cursor|codex|claude/i.test(
+    idea.product_surface,
+  );
+  const surfaceHint = idea.product_surface ? `권장 제작 형태는 '${idea.product_surface}'입니다. ` : "";
   const scoreHint = score === null ? "" : `현재 내부 사업성 점수는 ${score}점입니다. `;
-  const competitionHint = isB2b
-    ? "업무 자동화, CRM, 노코드 툴, 기존 스프레드시트 운영이 대체재가 될 가능성이 큽니다."
-    : isConsumer
-      ? "소비자 앱, 메모/알림 앱, 기존 플랫폼 기능이 대체재가 될 가능성이 큽니다."
-      : "범용 SaaS, 수동 운영, 기존 업무 도구가 대체재가 될 가능성이 큽니다.";
+  const competitionHint = isDevelopmentHandoffSurface
+    ? "Cursor, Codex, Claude, Antigravity 같은 개발 도구와 문서 기반 핸드오프 서비스가 비교 대상입니다. 단순 문서보다 바로 제작에 넘길 수 있는 패키지 완성도가 차별점입니다."
+    : isAutomationSurface
+      ? "Zapier, Make, 스프레드시트, 노션, 사내 운영 도구처럼 이미 익숙한 자동화 대체재와 비교해야 합니다."
+      : isMobileSurface
+        ? "앱스토어의 알림/기록/관리 앱, 기존 플랫폼 내장 기능, 모바일 메모 앱이 대체재가 될 가능성이 큽니다."
+        : isB2b
+          ? "업무 자동화, CRM, 노코드 툴, 기존 스프레드시트 운영이 대체재가 될 가능성이 큽니다."
+          : isConsumer
+            ? "소비자 앱, 메모/알림 앱, 기존 플랫폼 기능이 대체재가 될 가능성이 큽니다."
+            : "범용 SaaS, 수동 운영, 기존 업무 도구가 대체재가 될 가능성이 큽니다.";
   const barrierHint = isSensitive
     ? "개인정보, 신뢰, 법적 책임 설명이 진입장벽입니다. 초기 검증은 민감정보 저장 없이 수요와 신뢰 문구를 먼저 확인하는 편이 안전합니다."
-    : "기술 장벽보다 첫 사용자 모집, 기존 습관 전환, 명확한 차별화가 더 큰 장벽일 가능성이 큽니다.";
+    : isDevelopmentHandoffSurface
+      ? "개발 도구 연동은 설치 난이도, 문서 신뢰도, 프롬프트 재현성, 권한 범위 설명이 진입장벽이 될 수 있습니다."
+      : isAutomationSurface
+        ? "자동화형 제품은 계정 연결, 데이터 접근 권한, 업무 흐름 변경에 대한 신뢰가 진입장벽이 될 수 있습니다."
+        : isMobileSurface
+          ? "모바일 앱은 설치 설득, 알림 권한, 개인정보 동의, 앱스토어 리뷰와 신뢰가 진입장벽이 될 수 있습니다."
+          : "기술 장벽보다 첫 사용자 모집, 기존 습관 전환, 명확한 차별화가 더 큰 장벽일 가능성이 큽니다.";
   const recommendation: DecisionStatus = isSensitive ? "research_more" : score !== null && score >= 22 ? "ship" : "research_more";
 
   return {
-    summary: `${scoreHint}현재 정보만 보면 시장성 판단은 아직 확정이 아니라 검증 전 초안입니다.`,
+    summary: `${surfaceHint}${scoreHint}현재 정보만 보면 시장성 판단은 아직 확정이 아니라 검증 전 초안입니다.`,
     demand_forecast: isB2b
       ? "반복 업무를 줄여 시간이나 비용을 아끼는 문제라면 소규모 팀에서도 수요를 확인할 여지가 있습니다. 다만 실제 구매 의지는 예산권자와 반복 빈도를 먼저 확인해야 합니다."
       : "개인이 자주 겪고 직접 불편을 느끼는 문제라면 초기 관심은 만들 수 있습니다. 다만 앱 설치나 결제까지 이어지는지는 별도 확인이 필요합니다.",
@@ -483,13 +503,27 @@ function createFallbackScan({
     ],
     competitor_map: [
       {
-        name: isB2b ? "스프레드시트/노코드 운영" : "메모/알림 앱",
+        name: isDevelopmentHandoffSurface
+          ? "개발 도구 내 AI 에이전트"
+          : isAutomationSurface
+            ? "스프레드시트/노코드 자동화"
+            : isMobileSurface
+              ? "모바일 메모/알림 앱"
+              : isB2b
+                ? "스프레드시트/노코드 운영"
+                : "메모/알림 앱",
         category: "기존 대체재",
         threat: "medium",
         note: "새 서비스가 이 대체 흐름보다 덜 번거롭다는 점을 보여줘야 합니다.",
       },
       {
-        name: isB2b ? "범용 CRM/업무 자동화 도구" : "기존 플랫폼 내장 기능",
+        name: isDevelopmentHandoffSurface
+          ? "문서 기반 개발 핸드오프 서비스"
+          : isAutomationSurface
+            ? "Zapier/Make 같은 범용 자동화 도구"
+            : isB2b
+              ? "범용 CRM/업무 자동화 도구"
+              : "기존 플랫폼 내장 기능",
         category: "범용 경쟁군",
         threat: "medium",
         note: "범용 기능과 직접 경쟁하기보다 좁은 상황에서 빠른 결과를 보여주는 편이 안전합니다.",
@@ -503,9 +537,11 @@ function createFallbackScan({
       },
       {
         label: isSensitive ? "신뢰와 개인정보" : "초기 유통",
-        severity: isSensitive ? "high" : "medium",
+        severity: isSensitive || isDevelopmentHandoffSurface ? "high" : "medium",
         note: isSensitive
           ? "민감정보를 다룬다면 저장 범위, 권한, 책임 경계를 먼저 설명해야 합니다."
+          : isDevelopmentHandoffSurface
+            ? "개발 도구로 넘긴 결과가 실제로 재현되는지 작은 샘플 프로젝트로 확인해야 합니다."
           : "초기 사용자를 어디서 만날지와 첫 전환 경로를 확인해야 합니다.",
       },
     ],
@@ -570,6 +606,7 @@ export async function POST(request: Request) {
 - 설명: ${idea.one_liner || "미정"}
 - 대상 사용자: ${idea.target_user || "미정"}
 - 구매자: ${idea.buyer || "미정"}
+- 권장 제작 형태: ${idea.product_surface || "미정"}
 
 현재 내부 평가:
 - 점수: ${score ?? "미정"}
@@ -620,7 +657,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
             {
               type: "input_text",
               text:
-                "You are a market research assistant for an app venture validation console. Use web search when useful. Write natural Korean. Do not invent precise market share, market size, or saturation numbers. If public sources are weak, say it is an estimate. Cover demand forecast, competition, saturation, entry barriers, alternatives, market signals, competitor map, entry-barrier checks, follow-up research queries, recommendation, confidence, next action, caveat, and sources. Keep findings specific enough to become a saved research note for a build-ready product package.",
+                "You are a market research assistant for an app venture validation console. Use web search when useful. Write natural Korean. Do not invent precise market share, market size, or saturation numbers. If public sources are weak, say it is an estimate. Compare competitors, substitutes, saturation, and entry barriers according to the requested production surface: web app, mobile app, automation workflow, operator console, or development-tool/MCP handoff. Cover demand forecast, competition, saturation, entry barriers, alternatives, market signals, competitor map, entry-barrier checks, follow-up research queries, recommendation, confidence, next action, caveat, and sources. Keep findings specific enough to become a saved research note for a build-ready product package.",
             },
           ],
         },
