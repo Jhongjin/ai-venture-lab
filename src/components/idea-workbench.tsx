@@ -8678,7 +8678,7 @@ export function IdeaWorkbench({
   const developmentAutoReviewSteps = [
     {
       label: "결과물 형태 확인",
-      detail: `${activeProductSurface.label} 기준으로 PRD, 디자인, 구현 지시가 이어지도록 맞춥니다.`,
+      detail: `${activeProductSurface.label} 기준으로 기획서, 디자인, 구현 지시가 이어지도록 맞춥니다.`,
     },
     {
       label: "제작 범위 정리",
@@ -8686,7 +8686,7 @@ export function IdeaWorkbench({
     },
     {
       label: "제작 패키지 구성",
-      detail: "디자인 프롬프트, 기술 스택, 작업 순서, 제외 범위, 확인 기준을 한 패키지로 묶습니다.",
+      detail: "디자인 기준, 기술 스택, 작업 순서, 제외 범위, 확인 기준을 한 패키지로 묶습니다.",
     },
     {
       label: "최종 패키지 저장",
@@ -9683,7 +9683,7 @@ export function IdeaWorkbench({
       `# 제작 패키지: ${selectedIdea.name}`,
       "",
       "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 개발 환경에 넘기기 위한 최종 실행 자료입니다.",
-      "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 프롬프트로 사용할 수 있습니다.",
+      "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 자료로 사용할 수 있습니다.",
       "",
       "## 실행 요약",
       developmentAutoSummaryDraft,
@@ -9697,13 +9697,13 @@ export function IdeaWorkbench({
     if (!hasDesignGenerationPromptArtifact) {
       const savedPrompt = await saveArtifactDraft(
         "design_brief",
-        `${selectedIdea.name} 디자인 생성 프롬프트`,
+        `${selectedIdea.name} 디자인 기준 자료`,
         designGenerationPromptDraft,
         "design_generation_prompt",
         {
           version: nextDesignBriefVersion,
           quiet: true,
-          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 디자인 프롬프트입니다.",
+          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 디자인 기준 자료입니다.",
         },
       );
 
@@ -11059,7 +11059,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">결과물 형태</div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
                       AI가 먼저 이 아이디어가 웹앱, 모바일 앱, 웹사이트, 업무 자동화, 운영 콘솔, 개발 도구 연동 중 어디에 가까운지 정합니다.
-                      이후 PRD, 기술 스택, 디자인, MCP/IDE 전달 문서는 이 값을 기준으로 만들어집니다.
+                      이후 기획서, 기술 스택, 디자인, 개발 도구 전달 자료는 이 값을 기준으로 만들어집니다.
                     </p>
                     <div className="mt-4 grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
                       <label className="grid gap-2 text-sm font-semibold text-slate-900">
@@ -11293,7 +11293,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="avl-kicker">자동 제작 준비</div>
                     <h3 className="mt-2 text-xl font-semibold text-slate-950">AI가 제작 패키지를 한 번에 정리합니다</h3>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                      검증 결과와 결과물 형태를 바탕으로 PRD, 디자인 프롬프트, 기술 방향, 첫 제작 범위를 하나로 묶습니다.
+                      검증 결과와 결과물 형태를 바탕으로 기획서, 디자인 기준, 기술 방향, 첫 제작 범위를 하나로 묶습니다.
                       사용자는 이상 없는지만 확인하고 필요한 메모를 더한 뒤 저장하면 됩니다.
                     </p>
                   </div>
@@ -11414,7 +11414,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         <div className="avl-kicker">최종 실행 내역</div>
                         <h4 className="mt-2 text-base font-semibold text-slate-950">이 내용으로 제작 패키지를 저장합니다</h4>
                         <p className="mt-1 text-sm leading-6 text-slate-600">
-                          저장하면 디자인 프롬프트, 제작 실행 계획, 개발 도구 전달 자료가 함께 남고, 다음 단계 버튼이 열립니다.
+                          저장하면 디자인 기준, 제작 실행 계획, 개발 도구 전달 자료가 함께 남고, 다음 단계 버튼이 열립니다.
                         </p>
                       </div>
                       <button
@@ -13865,7 +13865,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-3">
                 {[
                   ["근거 점수", "현재 입력값만 놓고 다음 단계로 넘겨도 되는지 참고용으로 계산한 값입니다."],
-                  ["질문 프롬프트 복사", "외부 AI, 인터뷰 준비, 조사 메모에 붙여넣을 질문 묶음을 복사합니다."],
+                  ["질문 묶음 복사", "외부 AI, 인터뷰 준비, 조사 메모에 붙여넣을 질문 묶음을 복사합니다."],
                   ["다음 행동에 반영", "부족한 근거를 아래 결과 기록의 '다음 행동' 입력칸에 채웁니다."],
                 ].map(([title, detail]) => (
                   <div key={title} className="bg-slate-50 px-4 py-3">
@@ -13877,11 +13877,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => copyDraft(validationEvidenceCoach.prompt, "검증 질문 프롬프트")}
+                  onClick={() => copyDraft(validationEvidenceCoach.prompt, "검증 질문 묶음")}
                   className="avl-btn avl-btn-secondary h-9 px-3 text-xs"
                 >
                   <Clipboard size={15} />
-                  질문 프롬프트 복사
+                  질문 묶음 복사
                 </button>
                 <button
                   type="button"
