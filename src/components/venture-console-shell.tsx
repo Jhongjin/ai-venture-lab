@@ -364,8 +364,6 @@ function createTransition(
 function getNextTaskOptions({
   activeTask,
   ideaCount,
-  artifactCount,
-  runCount,
   openRisks,
   canEnterExperiment,
   canEnterArtifacts,
@@ -374,8 +372,6 @@ function getNextTaskOptions({
 }: {
   activeTask: ShellTask;
   ideaCount: number;
-  artifactCount: number;
-  runCount: number;
   openRisks: number;
   canEnterExperiment: boolean;
   canEnterArtifacts: boolean;
@@ -418,12 +414,6 @@ function getNextTaskOptions({
     case "workbench:risk":
       return [
         createTransition("workbench:experiment", "다음: 검증 계획", "리스크를 적었다면 이제 실제로 확인할 계획을 정합니다."),
-        createTransition(
-          "workbench:decision",
-          "건너뛰고 진행 판단",
-          "리스크 점검이 충분하면 바로 진행 여부를 판단합니다.",
-          "optional",
-        ),
       ];
     case "workbench:experiment":
       return [
@@ -450,19 +440,6 @@ function getNextTaskOptions({
     case "workbench:decision":
       return [
         createTransition("workbench:artifacts", "다음: 실행 문서 만들기", "아이디어 브리프, 기획서, 첫 제작 범위를 문서로 남깁니다."),
-        ...(artifactCount > 0
-          ? [
-              createTransition(
-                "workbench:development",
-                "건너뛰고 제작 준비",
-                canEnterDevelopment
-                  ? "검증 완료 요약까지 저장되어 제작 준비로 이동할 수 있습니다."
-                  : "검증 완료 요약까지 저장하면 제작 준비로 이동할 수 있습니다.",
-                "optional",
-                !canEnterDevelopment,
-              ),
-            ]
-          : []),
       ];
     case "workbench:artifacts":
       return [
@@ -487,16 +464,6 @@ function getNextTaskOptions({
           "primary",
           !canEnterOrchestration,
         ),
-        ...(runCount > 0 && canEnterOrchestration
-          ? [
-              createTransition(
-                "workbench:launch",
-                "건너뛰고 출시 판단",
-                "이미 실행 관리 기록이 있으면 출시 판단으로 바로 갈 수 있습니다.",
-                "optional",
-              ),
-            ]
-          : []),
       ];
     case "workbench:orchestration":
       return [createTransition("workbench:launch", "다음: 출시 판단", "막히는 항목을 확인하고 출시 여부를 정합니다.")];
@@ -952,8 +919,6 @@ export function VentureConsoleShell({
   const nextTaskOptions = getNextTaskOptions({
     activeTask: visibleTask,
     ideaCount,
-    artifactCount,
-    runCount,
     openRisks,
     canEnterExperiment: validationDocumentReadiness.canEnterExperiment,
     canEnterArtifacts: validationDocumentReadiness.canEnterArtifacts,
