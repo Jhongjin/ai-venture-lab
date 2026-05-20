@@ -2130,6 +2130,42 @@ function buildMarketScanLearningText(scan: MarketScanDraft) {
 주의: ${scan.caveat}`;
 }
 
+function buildMarketScanEvidenceText(scan: MarketScanDraft) {
+  const sourceLines =
+    scan.sources.length > 0
+      ? scan.sources.map((source) => `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""}`).join("\n")
+      : "- 공개 출처가 부족해 AI 추정 초안으로만 참고";
+
+  return `AI 시장성 자동 점검
+
+예상 수요
+${scan.demand_forecast}
+
+경쟁도와 시장 포화도
+${scan.competition}
+${scan.saturation}
+
+진입장벽
+${scan.entry_barriers}
+
+대체재와 차별화
+${scan.alternatives}
+
+참고 출처
+${sourceLines}`;
+}
+
+function buildMarketScanEvidenceImplication(scan: MarketScanDraft) {
+  return `AI 추천 판단: ${decisionLabels[scan.recommendation]}
+신뢰도: ${scan.confidence === "high" ? "높음" : scan.confidence === "medium" ? "보통" : "낮음"}
+
+다음 행동
+${scan.next_action}
+
+주의
+${scan.caveat}`;
+}
+
 function buildValidationSummaryMarkdown({
   idea,
   state,
@@ -10416,8 +10452,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         throw new Error(cleanInlineText(payload.error, 240) || "시장성 점검 결과를 읽지 못했습니다.");
       }
 
+      const scanMode = cleanInlineText(payload.mode, 80);
       setMarketScanDraft(scan);
-      setMarketScanMode(cleanInlineText(payload.mode, 80));
+      setMarketScanMode(scanMode);
       setExperimentResultDraft((current) => ({
         ...current,
         experiment_id: current.experiment_id || selectedExperimentForResult?.id || "",
@@ -10426,7 +10463,21 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         next_decision: scan.recommendation,
         next_action: scan.next_action,
       }));
-      setMessage("시장성 자동 점검 초안을 채웠습니다. 필요한 부분만 고친 뒤 저장하거나, 하단 다음 단계로 넘어가세요.");
+      setEvidenceDraft({
+        title: `시장성 자동 점검 - ${selectedIdea.name}`,
+        source:
+          scan.sources.length > 0
+            ? scan.sources.map((source) => source.url || source.title).filter(Boolean).join(", ")
+            : scanMode === "local_estimate"
+              ? "AI 추정 초안"
+              : "AI 시장성 자동 점검",
+        evidence: buildMarketScanEvidenceText(scan),
+        implication: buildMarketScanEvidenceImplication(scan),
+        confidence: scan.confidence,
+      });
+      setMessage(
+        "시장성 자동 점검 초안을 채웠습니다. 검증 결과 기록과 근거 직접 기록에도 초안이 들어갔습니다. 필요한 부분만 고친 뒤 저장하거나, 하단 다음 단계로 넘어가세요.",
+      );
     } catch (error) {
       setMarketScanError(error instanceof Error ? error.message : "시장성 점검을 불러오지 못했습니다.");
     } finally {
@@ -13806,7 +13857,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <h3 className="mt-1 text-base font-semibold text-slate-950">수요, 경쟁, 진입장벽을 먼저 채웁니다</h3>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
                   일반적으로는 이 버튼부터 누르면 됩니다. 사용자가 직접 시장 조사를 끝내야 하는 구간이 아닙니다. AI가 현재 아이디어를
-                  기준으로 예상 수요, 경쟁도, 포화도, 진입장벽, 대체재를 정리하고 아래 결과 기록 입력칸에 초안을 채웁니다.
+                  기준으로 예상 수요, 경쟁도, 포화도, 진입장벽, 대체재를 정리하고 아래 결과 기록과 근거 기록 입력칸에 초안을 채웁니다.
                 </p>
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
                   공개 자료를 찾으면 출처를 함께 표시하고, 출처가 부족하면 추정 초안으로 표시합니다. 실제 투자/출시 판단 전에는
@@ -14113,8 +14164,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 인터뷰 메모, 외부 자료, 가격 신호, 경쟁 대안 관찰을 리서치 노트로 저장합니다.
               </p>
               <p className="mt-1 text-sm leading-5 text-amber-700">
-                따로 직접 조사한 내용이 없다면 이 영역은 비워둬도 됩니다. 위에서 저장한 브리프와 검증 계획만으로도 다음
-                단계로 넘어갈 수 있습니다.
+                AI 시장성 자동 점검을 실행하면 이 칸도 초안으로 채워집니다. 따로 직접 조사한 내용이 없다면 비워둬도 되고,
+                위에서 저장한 브리프와 검증 계획만으로도 다음 단계로 넘어갈 수 있습니다.
               </p>
             </div>
             <button
