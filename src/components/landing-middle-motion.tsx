@@ -21,7 +21,7 @@ export function LandingMiddleMotion() {
         <div>
           <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#bcd3ff]">validation motion field</div>
           <p className="mt-3 max-w-[34ch] break-keep text-sm font-semibold leading-6 text-slate-100">
-            흩어진 메모가 후보, 질문, 실험 조건으로 정리되는 장면입니다.
+            흩어진 메모가 아이디어, 질문, 실험 조건으로 정리되는 장면입니다.
           </p>
         </div>
         <div className="flex border-b border-white/14 text-center">
@@ -63,8 +63,8 @@ export function LandingMiddleMotion() {
           <span aria-hidden="true" className="absolute left-[-34px] top-1/2 h-px w-7 bg-[#bcd3ff]/70" />
           <span aria-hidden="true" className="absolute right-[-18px] top-4 h-2.5 w-2.5 bg-[#bcd3ff]" />
           <span aria-hidden="true" className="absolute bottom-[-14px] left-0 h-px w-20 bg-white/16" />
-          <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#bcd3ff]">active candidate</div>
-          <div className="mt-3 break-keep text-[24px] font-semibold leading-none tracking-tight text-white">후보 한 건</div>
+          <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#bcd3ff]">active idea</div>
+          <div className="mt-3 break-keep text-[24px] font-semibold leading-none tracking-tight text-white">아이디어 한 건</div>
         </div>
 
         <div className="absolute right-0 top-0 z-[1] hidden max-w-[180px] gap-3 xl:grid">

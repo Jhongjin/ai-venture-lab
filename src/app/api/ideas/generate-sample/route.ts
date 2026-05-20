@@ -65,7 +65,7 @@ const ideaThemes = [
 ];
 
 const productSurfaceLabels: Record<ProductSurfaceKey, string> = {
-  web_app: "웹앱",
+  web_app: "웹 서비스",
   mobile_app: "모바일 앱",
   web_site: "웹사이트",
   automation: "업무 자동화",
@@ -237,10 +237,10 @@ function getFallbackFirstBuild(productSurface: ProductSurfaceKey) {
     case "operator_console":
       return "목록, 상세, 상태 변경이 있는 운영 콘솔";
     case "mcp_handoff":
-      return "하네스 문서와 IDE/MCP 연결 안내";
+      return "제작 패키지와 IDE/MCP 연결 안내";
     case "web_app":
     default:
-      return "로그인, 입력, 결과 확인, 저장까지 이어지는 웹앱 흐름";
+      return "로그인, 입력, 결과 확인, 저장까지 이어지는 웹 서비스 흐름";
   }
 }
 

@@ -492,8 +492,8 @@ function getCurrentStepBlocker({
         : "아이디어가 선정되면 STEP 2 단계로 이동됩니다.";
     case "console:idea":
       return ideaCount > 0
-        ? "후보를 저장하면 검증 단계로 이동합니다."
-        : "후보를 최소 한 건 저장해야 검증 단계로 넘어갈 수 있습니다.";
+        ? "아이디어를 저장하면 검증 단계로 이동합니다."
+        : "아이디어를 최소 한 건 저장해야 검증 단계로 넘어갈 수 있습니다.";
     default:
       return null;
   }
@@ -533,7 +533,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "먼저 로그인해 주세요.",
-      detail: "로그인 후 대시보드에서 후보 검토, 검증 계획, 실행 문서를 이어서 진행합니다.",
+      detail: "로그인 후 대시보드에서 아이디어 검토, 검증 계획, 실행 문서를 이어서 진행합니다.",
       evidence: "로그인 필요",
       risk: "데이터는 로그인 후 확인",
       targetTask: "console:auth",
@@ -547,7 +547,7 @@ function getExecutiveFocus({
       eyebrow: "지금 할 일",
       title: "검토할 아이디어를 먼저 저장해 주세요.",
       detail: "대화 메모나 브리프를 넣으면 AI가 아이디어를 정리합니다. 마음에 드는 한 건을 저장해 검증으로 넘어가세요.",
-      evidence: `${dataNote} · 후보 없음`,
+      evidence: `${dataNote} · 아이디어 없음`,
       risk: "리스크는 저장 뒤 확인",
       metrics,
     };
@@ -569,7 +569,7 @@ function getExecutiveFocus({
       eyebrow: "지금 할 일",
       title: "이 아이디어를 검증할지 먼저 판단합니다.",
       detail: "점수와 판단을 저장하면 바로 검증 계획으로 넘어갈 수 있습니다.",
-      evidence: `${dataNote} · 후보 ${ideaCount}건`,
+      evidence: `${dataNote} · 아이디어 ${ideaCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       metrics,
     };
@@ -579,8 +579,8 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "검증 계획이 아직 없습니다.",
-      detail: "좋아 보이는 후보라도 7일 안에 확인할 행동 기준이 있어야 다음 판단이 빨라집니다.",
-      evidence: `${dataNote} · 후보 ${ideaCount}건`,
+      detail: "좋아 보이는 아이디어라도 7일 안에 확인할 행동 기준이 있어야 다음 판단이 빨라집니다.",
+      evidence: `${dataNote} · 아이디어 ${ideaCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:experiment",
       cta: "검증 계획 만들기",
@@ -632,7 +632,7 @@ function getExecutiveFocus({
     title: telemetryEventCount > 0 ? "성과 신호를 보고 다음 반복을 정하세요." : "출시 전 마지막 확인이 남았습니다.",
     detail:
       telemetryEventCount > 0
-        ? "실제 행동 신호를 보고 계속 투자할지, 보완할지, 새 후보로 돌아갈지 결정하세요."
+        ? "실제 행동 신호를 보고 계속 투자할지, 보완할지, 새 아이디어로 돌아갈지 결정하세요."
         : "막히는 항목이 없다면 출시 판단을 남기고 성과 확인으로 넘어갈 수 있습니다.",
     evidence: `${dataNote} · 실행 기록 ${runCount}건`,
     risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",

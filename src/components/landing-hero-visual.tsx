@@ -19,8 +19,8 @@ const stages = [
   },
   {
     label: "candidate",
-    title: "후보 정리",
-    body: "후보 한 건과 비교 후보를 먼저 나눕니다.",
+    title: "아이디어 정리",
+    body: "먼저 검토할 아이디어와 비교 아이디어를 나눕니다.",
     icon: Sparkle,
     className: "right-6 top-24 md:right-10",
   },
@@ -43,8 +43,8 @@ const stages = [
 const signals = [
   {
     id: "01",
-    label: "one candidate",
-    body: "한 번에 한 후보만 앞으로 꺼냅니다.",
+    label: "one idea",
+    body: "한 번에 한 아이디어만 앞으로 꺼냅니다.",
   },
   {
     id: "02",
