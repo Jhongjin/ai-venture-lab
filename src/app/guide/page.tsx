@@ -16,7 +16,7 @@ import { AuthAwareCta } from "@/components/auth-aware-cta";
 
 export const metadata: Metadata = {
   title: "가이드 | AI Venture Lab",
-  description: "AI Venture Lab의 메뉴, 로그인, 실행 보드 사용 방법을 정리한 가이드입니다.",
+  description: "아이디어 입력부터 검증, 실행 문서, 하네스 패키지까지 이어지는 AI Venture Lab 사용 가이드입니다.",
 };
 
 const newsreader = Newsreader({
@@ -29,7 +29,7 @@ const menuGuide = [
   {
     title: "가이드",
     route: "/guide",
-    body: "현재 페이지입니다. 메뉴 구성, 로그인 상태별 버튼, 실행 보드에서 하는 일을 확인합니다.",
+    body: "현재 페이지입니다. 아이디어를 넣은 뒤 어떤 결과물이 만들어지는지, 각 메뉴가 어디에 쓰이는지 확인합니다.",
     icon: FileDoc,
   },
   {
@@ -47,39 +47,39 @@ const menuGuide = [
   {
     title: "실행 보드",
     route: "/workspace",
-    body: "아이디어 입력, 후보 선택, 검증 자료 저장, 기획서와 실행 작업 준비를 이어서 진행합니다.",
+    body: "아이디어 입력, 결과물 형태 선택, 사업성 검토, 검증 계획, 실행 문서와 하네스 패키지를 한 흐름으로 진행합니다.",
     icon: GridFour,
   },
 ];
 
 const boardSteps = [
   {
-    title: "작업 공간 확인",
-    body: "처음 들어오면 개인 작업 공간을 확인합니다. 팀 협업은 나중에 필요할 때 연결합니다.",
-    icon: GridFour,
-  },
-  {
-    title: "아이디어 찾기",
-    body: "회의 메모, 대화 기록, 브리프 초안을 붙여넣거나 직접 후보를 작성합니다.",
+    title: "아이디어와 결과물 형태 정리",
+    body: "회의 메모, 대화 기록, 떠오른 아이디어를 붙여넣으면 AI가 먼저 볼 아이디어 한 건과 웹앱, 모바일앱, 웹사이트, 자동화 같은 결과물 형태를 함께 잡습니다.",
     icon: Sparkle,
   },
   {
-    title: "검증 자료 저장",
-    body: "후보, 질문, 리스크, 7일 검증 계획, 중단 기준을 한 번에 정리해 저장합니다.",
+    title: "사업성과 리스크 자동 검토",
+    body: "수요, 지불 의향, 구현 속도, 차별성, 개인정보나 운영 리스크를 AI가 먼저 평가합니다. 사용자는 값이 어색할 때만 고치면 됩니다.",
     icon: ShieldCheck,
   },
   {
-    title: "기획과 실행 준비",
-    body: "기획서, 첫 제작 범위, 실행 작업, 출시 판단까지 다음 작업자가 볼 수 있는 형태로 남깁니다.",
+    title: "작은 검증 계획 만들기",
+    body: "시장조사만 길게 하지 않고 7일 안에 확인할 행동, 성공 기준, 중단 기준을 정합니다. 필요하면 사용자가 조사한 근거만 추가로 남깁니다.",
     icon: ClipboardText,
+  },
+  {
+    title: "하네스 패키지로 넘기기",
+    body: "검증된 아이디어를 PRD, 디자인 방향, 기술 스택, 첫 제작 범위, IDE/MCP 전달용 프롬프트로 묶습니다. 직접 만들거나 외부 개발 도구로 이어갈 수 있습니다.",
+    icon: GridFour,
   },
 ];
 
 const quickAnswers = [
   ["실행 보드 버튼이 안 보여요", "로그인 전에는 숨겨집니다. 상단의 로그인 / 회원가입으로 먼저 계정에 들어가세요."],
-  ["회원가입 후 어디로 가나요", "프로필을 확인한 뒤 실행 보드에서 첫 후보를 정리하면 됩니다."],
-  ["가이드와 홈은 무엇이 다른가요", "홈은 제품 소개 페이지이고, 가이드는 실제 메뉴와 사용 방법을 확인하는 페이지입니다."],
-  ["팀 초대가 꼭 필요한가요", "아닙니다. 기본은 혼자 진행하는 방식이고, 협업은 나중에 필요할 때 연결하면 됩니다."],
+  ["처음에 무엇을 준비해야 하나요", "정리된 기획서가 없어도 됩니다. 회의 메모, GPT와 나눈 대화, 평소 적어둔 자동화 아이디어처럼 거친 내용을 그대로 넣으면 됩니다."],
+  ["모든 항목을 직접 채워야 하나요", "아닙니다. 기본은 AI가 먼저 채우고, 사용자는 어색한 판단만 고치거나 그대로 저장합니다."],
+  ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 PRD, 검증 계획, 제작 범위, 기술 방향, IDE/MCP 전달용 프롬프트가 묶인 하네스 패키지를 얻습니다."],
 ];
 
 export default function GuidePage() {
@@ -106,7 +106,7 @@ export default function GuidePage() {
               AI Venture Lab 이용 가이드.
             </h1>
             <p className="mt-5 max-w-[62ch] break-keep text-[15px] leading-7 text-slate-600">
-              이 페이지는 제품 소개가 아니라 실제 사용 방법을 정리한 안내입니다. 상단 메뉴가 무엇을 뜻하는지, 로그인 후 어떤 버튼이 보이는지, 실행 보드에서 어떤 순서로 작업하는지 확인할 수 있습니다.
+              AI Venture Lab은 사용자가 모든 문서를 직접 채우는 도구가 아닙니다. 아이디어나 메모를 넣으면 AI가 사업성, 리스크, 검증 계획, 결과물 형태를 먼저 정리하고, 사용자는 중요한 판단만 확인합니다.
             </p>
           </div>
 
@@ -115,7 +115,7 @@ export default function GuidePage() {
               <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">start here</div>
               <div className="mt-4 text-[26px] font-semibold leading-[1.05] tracking-tight">처음이라면 로그인 후 실행 보드로 들어가세요.</div>
               <p className="mt-4 text-sm leading-6 text-slate-300">
-                홈은 둘러보기용이고, 실제 기록과 저장은 실행 보드에서 진행합니다.
+                홈은 둘러보기용입니다. 실제 아이디어 검토와 하네스 패키지 생성은 실행 보드에서 진행합니다.
               </p>
             </div>
             <div className="bg-white px-6 py-5">
@@ -136,7 +136,7 @@ export default function GuidePage() {
               ))}
             </div>
             <div className="mt-6 border-t border-slate-200 pt-5 text-sm leading-6 text-slate-600">
-              로그인 상태에 따라 상단 메뉴가 달라집니다. 비로그인 사용자는 가이드와 로그인 메뉴만 보고, 로그인한 사용자는 마이페이지와 실행 보드를 볼 수 있습니다.
+              혼자 시작해도 됩니다. 팀 협업은 필수가 아니라, 아이디어가 구체화된 뒤 필요한 시점에 붙이는 옵션입니다.
             </div>
           </aside>
 
@@ -165,7 +165,7 @@ export default function GuidePage() {
 
             <section id="guide-2" className="bg-[#eef3ff] px-6 py-7 sm:px-8">
               <div className="avl-kicker">workspace guide</div>
-              <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">실행 보드에서 하는 일</h2>
+              <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">실행 보드에서 이어지는 흐름</h2>
               <div className="mt-6 grid gap-px bg-slate-300">
                 {boardSteps.map((step, index) => {
                   const Icon = step.icon;
@@ -205,9 +205,9 @@ export default function GuidePage() {
 
               <div className="bg-[#10141d] px-6 py-7 text-white sm:px-8">
                 <div className="avl-kicker !text-slate-300">next action</div>
-                <h2 className="mt-4 text-[28px] font-semibold leading-[1.05] tracking-tight">설명은 여기까지, 실제 작업은 보드에서 이어갑니다.</h2>
+                <h2 className="mt-4 text-[28px] font-semibold leading-[1.05] tracking-tight">아이디어를 넣으면 AI가 먼저 구조를 잡습니다.</h2>
                 <p className="mt-4 break-keep text-sm leading-6 text-slate-300">
-                  계정이 있으면 바로 실행 보드로 이동하고, 아직 없다면 로그인 화면에서 회원가입을 진행하세요.
+                  계정이 있으면 실행 보드로 이동하세요. 아직 없다면 로그인 화면에서 회원가입 후 바로 첫 아이디어를 정리할 수 있습니다.
                 </p>
                 <div className="mt-7 flex flex-wrap gap-3">
                   <AuthAwareCta className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100" />
