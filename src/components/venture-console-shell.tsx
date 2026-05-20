@@ -320,7 +320,7 @@ const taskCanvasDetails: Record<
   },
   "workbench:development": {
     question: "이제 제작에 넘길 패키지를 정리할 차례입니다.",
-    aiLead: "AI가 PRD, 디자인 기준, 기술 방향, 첫 제작 범위를 한 번에 묶습니다.",
+    aiLead: "AI가 제품 기획서, 디자인 기준, 기술 방향, 첫 제작 범위를 한 번에 묶습니다.",
     deliverable: "제작 패키지",
     checkpoint: "사용자는 최종 요약만 확인하고, 필요한 메모만 더하면 됩니다.",
   },

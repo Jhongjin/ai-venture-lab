@@ -365,7 +365,7 @@ function inferText(block: string, type: "target" | "buyer" | "risk" | "next") {
     return "실제 보호자와 케어센터 5명에게 현재 조율 방식과 비용 지불 의향을 확인합니다.";
   }
   if (/구독|결제|해지/.test(block)) {
-    return "사용자 5명의 실제 구독 내역 정리 과정을 관찰하고 수동 해지 안내 MVP를 테스트합니다.";
+    return "사용자 5명의 실제 구독 내역 정리 과정을 관찰하고 수동 해지 안내 검증 버전을 테스트합니다.";
   }
   if (/대화|협상|갈등/.test(block)) {
     return "반복 빈도가 높은 대화 상황 하나를 정하고 스크립트 사용 전후 자신감 변화를 측정합니다.";
@@ -471,7 +471,7 @@ function inferKillCriteria(block: string) {
     return "사용자 5명 중 3명 이상이 반복 고통을 인정하지 않거나, 필수 데이터/권한/규제 리스크를 합법적이고 설명 가능한 방식으로 처리할 수 없으면 중단합니다.";
   }
 
-  return "사용자 5명 중 3명 이상이 현재 대안보다 낫다고 느끼지 않거나, 수동 MVP 결과물에 비용 또는 재사용 의향을 보이지 않으면 중단합니다.";
+  return "사용자 5명 중 3명 이상이 현재 대안보다 낫다고 느끼지 않거나, 수동 검증 결과물에 비용 또는 재사용 의향을 보이지 않으면 중단합니다.";
 }
 
 function inferFirstPrototypeScope(block: string) {
@@ -492,7 +492,7 @@ function inferFirstPrototypeScope(block: string) {
   }
 
   if (/영상|사진|콘텐츠|숏폼/.test(block)) {
-    return "사진 20장과 짧은 메모를 업로드하면 운영자가 1분 스토리보드와 결과물을 반환하는 반자동 MVP.";
+    return "사진 20장과 짧은 메모를 업로드하면 운영자가 1분 스토리보드와 결과물을 반환하는 반자동 검증 버전.";
   }
 
   return "가입, 문제 입력, 수동 결과물 전달, 피드백 수집만 포함한 가장 작은 검증 화면.";
@@ -913,7 +913,7 @@ function buildExtractionGate(
   } else if (candidate.validationScore < 58 || (corePassCount <= 2 && readinessScore < 72)) {
     id = "pivot";
     summary = "문제는 보이지만 사용자, 구매자, 실험 범위 중 하나가 흔들려 재정의가 필요합니다.";
-    nextAction = blockers[0] ? `${blockers[0]}를 다시 정의하고 한 줄 설명을 좁히기` : "대상 세그먼트와 첫 MVP 범위를 다시 좁히기";
+    nextAction = blockers[0] ? `${blockers[0]}를 다시 정의하고 한 줄 설명을 좁히기` : "대상 세그먼트와 첫 제작 범위를 다시 좁히기";
   } else if (
     candidate.validationScore >= 72 &&
     readinessScore >= 80 &&
@@ -936,7 +936,7 @@ function buildExtractionGate(
     proceed: "72점 이상, 준비도 80% 이상, 고위험/중복 없음",
     research: "58-71점 또는 준비도 미달, 증거 보완 필요",
     pivot: "45-57점, 강한 중복, 대상/구매자/범위 재정의",
-    kill: "44점 이하 또는 핵심 문제/MVP 신호 부족",
+    kill: "44점 이하 또는 핵심 문제/첫 제작 신호 부족",
   };
 
   return {
