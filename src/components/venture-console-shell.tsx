@@ -75,7 +75,7 @@ const shellTasks: Array<{
   },
   {
     id: "console:idea",
-    label: "후보 저장",
+    label: "아이디어 저장",
     description: "수정이 필요할 때",
     group: "시작",
     icon: FloppyDisk,
@@ -183,7 +183,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   },
   "console:idea": {
     summary: "AI가 정리한 초안을 확인하고 필요한 의견만 더한 뒤 저장합니다.",
-    checklist: ["이름과 한 줄 설명 확인", "필요할 때만 추가 항목 보완", "후보 저장"],
+    checklist: ["이름과 한 줄 설명 확인", "필요할 때만 추가 항목 보완", "아이디어 저장"],
   },
   "workbench:select": {
     summary: "진행 중인 아이디어를 보고 마지막 단계에서 이어갑니다.",
@@ -260,7 +260,7 @@ const taskCanvasDetails: Record<
   },
   "console:idea": {
     question: "이 후보를 실제 검증 대상으로 올릴 준비가 되었나요?",
-    aiLead: "이름, 한 줄 설명, 신호, 다음 증거를 초안으로 채웁니다.",
+    aiLead: "이름, 한 줄 설명, 신호, 추가로 확인할 내용을 초안으로 채웁니다.",
     deliverable: "검증 가능한 아이디어 한 건",
     checkpoint: "사용자는 꼭 필요한 의견만 더하면 됩니다.",
   },
@@ -503,7 +503,7 @@ function getNextTaskOptions({
     case "workbench:launch":
       return [createTransition("workbench:learning", "다음: 성과 확인", "출시 후 행동 신호를 보고 다음 사이클을 정합니다.")];
     case "workbench:learning":
-      return [createTransition("console:idea", "다음: 새 후보 저장", "이제 다음 후보를 다시 검토합니다.")];
+      return [createTransition("console:idea", "다음: 새 아이디어 저장", "이제 다음 아이디어를 다시 검토합니다.")];
     default:
       return [];
   }
@@ -527,7 +527,7 @@ function getCurrentStepBlocker({
         : "이 단계는 선택 기능입니다. 팀으로 같이 볼 때만 워크스페이스를 만들거나 선택하세요.";
     case "console:extract":
       return consoleStatus.hasExtractedIdeas
-        ? "추천 후보를 저장 양식으로 보내면 후보 저장 단계로 자동 이동합니다."
+        ? "추천 아이디어를 저장 양식으로 보내면 아이디어 저장 단계로 자동 이동합니다."
         : "아이디어가 선정되면 STEP 2 단계로 이동됩니다.";
     case "console:idea":
       return ideaCount > 0

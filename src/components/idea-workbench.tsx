@@ -486,7 +486,7 @@ const artifactSourceLabels: Record<string, string> = {
   prd_readiness_handoff: "기획서 전환 전달 내용",
   mvp_slice_plan: "첫 제작 범위 플랜",
   development_kickoff: "제작 시작 브리프",
-  agent_run_package: "구현 실행 자료",
+  agent_run_package: "하네스 패키지",
   development_process: "제작 준비 과정",
   development_report: "제작 완료 보고서",
   filtered_implementation_run: "필터 실행 프롬프트",
@@ -5143,7 +5143,7 @@ function buildAgentRunPackageMarkdown({
           .join("\n")
       : "- 연결된 실험이 없습니다.";
 
-  return `# 구현 실행 자료: ${idea.name}
+  return `# 하네스 패키지: ${idea.name}
 
 너는 이 제품의 구현 에이전트입니다. 아래 자료에 포함된 승인 실행 문서와 태스크만 기준으로 작업합니다.
 
@@ -10962,8 +10962,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="mt-4 border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">결과물 형태</div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      AI가 먼저 이 아이디어가 웹앱, 앱, 자동화, 개발 도구 연동 중 어디에 가까운지 정합니다. 이후 PRD, 기술 스택, 디자인,
-                      MCP/IDE 전달 문서는 이 값을 기준으로 만들어집니다.
+                      AI가 먼저 이 아이디어가 웹앱, 모바일 앱, 웹사이트, 업무 자동화, 운영 콘솔, 개발 도구 연동 중 어디에 가까운지 정합니다.
+                      이후 PRD, 기술 스택, 디자인, MCP/IDE 전달 문서는 이 값을 기준으로 만들어집니다.
                     </p>
                     <div className="mt-4 grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
                       <label className="grid gap-2 text-sm font-semibold text-slate-900">
@@ -12067,9 +12067,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="avl-card mt-4 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <h4 className="text-sm font-semibold text-slate-950">구현 실행 자료</h4>
+                  <h4 className="text-sm font-semibold text-slate-950">하네스 패키지</h4>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    승인된 실행 문서, 현재 필터의 제작 할 일, 남은 게이트, 검증 명령을 한 번에 묶어 구현 에이전트에게 넘깁니다.
+                    승인된 실행 문서, 제작 할 일, 남은 확인 사항, 검증 명령을 한 번에 묶어 개발 도구나 구현 에이전트에게 넘깁니다.
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <span className="avl-pill avl-pill-neutral">
@@ -12083,7 +12083,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => copyDraft(agentRunPackageDraft, "구현 실행 자료")}
+                    onClick={() => copyDraft(agentRunPackageDraft, "하네스 패키지")}
                     disabled={!agentRunPackageDraft}
                     className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                   >
@@ -12095,7 +12095,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     onClick={() =>
                       saveArtifactDraft(
                         "dev_runbook",
-                        `${selectedIdea.name} 구현 실행 자료`,
+                        `${selectedIdea.name} 하네스 패키지`,
                         agentRunPackageDraft,
                         "agent_run_package",
                       )

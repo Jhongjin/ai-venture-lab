@@ -1020,7 +1020,7 @@ ${buildCandidateStrategyLensMarkdown(candidate)}
 
 ${candidate.risk_summary}
 
-## 다음 증거
+## 추가로 확인할 내용
 
 ${candidate.next_evidence}
 `,
@@ -1157,7 +1157,9 @@ function extractIdeasFromText(source: string): ExtractedIdea[] {
       const buyer = findLabeledValue(block, ["구매자", "BM", "비즈니스 모델", "타겟 고객"]) || inferText(block, "buyer");
       const signal = findLabeledValue(block, ["페인 포인트", "문제", "수요", "핵심"]) || compactText(block, 180);
       const risk_summary = findLabeledValue(block, ["리스크", "주의점", "제약"]) || inferText(block, "risk");
-      const next_evidence = findLabeledValue(block, ["다음 증거", "검증", "다음 단계"]) || inferText(block, "next");
+      const next_evidence =
+        findLabeledValue(block, ["추가로 확인할 내용", "다음에 확인할 내용", "다음 증거", "검증", "다음 단계"]) ||
+        inferText(block, "next");
       const evidence = [
         signal ? "문제 신호" : "",
         oneLiner ? "솔루션 단서" : "",
@@ -1833,7 +1835,7 @@ export function VentureConsoleActions({
     },
     {
       id: "idea",
-      label: "후보 저장",
+      label: "아이디어 저장",
       description: "검증 대상으로 등록합니다.",
       status: user ? "저장" : "로그인 필요",
     },
@@ -3400,7 +3402,7 @@ export function VentureConsoleActions({
                           className="avl-btn avl-btn-primary px-4"
                         >
                           {extractSaveKey === recommendedExtractedIdea.id ? <ArrowsClockwise className="animate-spin" size={16} /> : <PlusCircle size={16} />}
-                          이 후보 저장하고 검증 시작
+                          이 아이디어 저장하고 검증 시작
                         </button>
                       </div>
                     </section>
@@ -3546,7 +3548,7 @@ export function VentureConsoleActions({
                               onClick={() => loadExtractedIdea(item.candidate)}
                               className="avl-btn avl-btn-secondary h-9 px-3 text-sm"
                             >
-                              초안 반영
+                              입력칸에 가져오기
                             </button>
                             <button
                               type="button"
@@ -3667,7 +3669,7 @@ export function VentureConsoleActions({
                             onClick={() => loadExtractedIdea(candidate)}
                   className="avl-btn avl-btn-secondary h-10 px-4"
                           >
-                            초안으로 가져오기
+                            입력칸에 가져오기
                           </button>
                           <button
                             type="button"
@@ -3878,14 +3880,14 @@ export function VentureConsoleActions({
                 className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                 >
                   {isSaving ? <ArrowsClockwise className="animate-spin" size={18} /> : <PlusCircle size={18} />}
-                  후보 저장
+                  아이디어 저장
                 </button>
               </div>
             ) : (
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="mb-2 inline-flex avl-pill avl-pill-neutral px-2.5 py-1 text-[10px] tracking-[0.14em]">초안 확인</div>
-                  <h2 className="mt-3 text-3xl font-semibold text-slate-950">후보 저장</h2>
+                  <h2 className="mt-3 text-3xl font-semibold text-slate-950">아이디어 저장</h2>
                   <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
                     {activeOrganization
                       ? `${activeOrganization.name}에 저장할 초안을 확인합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 이어갈 수 있습니다.`
@@ -3898,7 +3900,7 @@ export function VentureConsoleActions({
                 className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                 >
                   {isSaving ? <ArrowsClockwise className="animate-spin" size={18} /> : <PlusCircle size={18} />}
-                  후보 저장
+                  아이디어 저장
                 </button>
               </div>
             )}
@@ -3954,7 +3956,7 @@ export function VentureConsoleActions({
                       onChange={(value) => setForm({ ...form, risk_summary: value })}
                     />
                     <TextArea
-                      label="다음 증거"
+                      label="추가로 확인할 내용"
                       value={form.next_evidence}
                       onChange={(value) => setForm({ ...form, next_evidence: value })}
                     />
