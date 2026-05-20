@@ -10686,7 +10686,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         validationEvidenceCoach.nextFocus?.action ??
         "완료한 검증 결과를 바탕으로 계속 진행, 추가 조사, 전환, 중단 중 다음 행동을 정합니다.",
     }));
-    setMessage("보완할 근거를 아래 '다음 행동' 입력칸에 반영했습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.");
+    setMessage("보완할 질문을 아래 결과 기록의 다음 행동 입력칸에 넣었습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.");
   }
 
   async function runMarketScan() {
@@ -14117,11 +14117,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
               </summary>
               <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">검증 근거 점검</div>
-                  <h3 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h3>
-                  <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                    일반 흐름에서는 아래 시장성 자동 점검만 먼저 실행하면 됩니다. 이 영역은 외부 AI나 인터뷰 준비에 쓸 질문을
+                  <div>
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">부족한 근거 확인</div>
+                    <h3 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h3>
+                    <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                      일반 흐름에서는 아래 시장성 자동 점검만 먼저 실행하면 됩니다. 이 영역은 외부 AI나 인터뷰 준비에 쓸 질문을
                     더 뽑고 싶을 때만 여는 보조 기능입니다. 버튼을 눌러도 다음 단계로 이동하지 않습니다.
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -14138,8 +14138,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-3">
                 {[
                   ["근거 점수", "현재 입력값만 놓고 다음 단계로 넘겨도 되는지 참고용으로 계산한 값입니다."],
-                  ["질문 묶음 복사", "외부 AI, 인터뷰 준비, 조사 메모에 붙여넣을 질문 묶음을 복사합니다."],
-                  ["다음 행동에 반영", "부족한 근거를 아래 결과 기록의 '다음 행동' 입력칸에 채웁니다."],
+                  ["질문 복사", "외부 AI, 인터뷰 준비, 조사 메모에 붙여넣을 질문을 복사합니다."],
+                  ["아래 입력칸에 넣기", "부족한 근거를 아래 결과 기록의 다음 행동 입력칸에 넣습니다."],
                 ].map(([title, detail]) => (
                   <div key={title} className="bg-slate-50 px-4 py-3">
                     <div className="text-sm font-semibold text-slate-950">{title}</div>
@@ -14154,7 +14154,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   className="avl-btn avl-btn-secondary h-9 px-3 text-xs"
                 >
                   <Clipboard size={15} />
-                  질문 묶음 복사
+                  질문 복사
                 </button>
                 <button
                   type="button"
@@ -14162,7 +14162,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   className="avl-btn avl-btn-primary h-9 px-3 text-xs"
                 >
                   <Save size={15} />
-                  다음 행동에 반영
+                  아래 입력칸에 넣기
                 </button>
               </div>
             </details>
@@ -14339,8 +14339,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="grid gap-4">
               <div className="grid gap-px bg-slate-200 md:grid-cols-5">
                 {[
-                  ["대상 검증 계획", "어떤 하위 검증의 결과인지 고릅니다."],
-                  ["다음 판단", "결과를 보고 계속 진행할지, 더 조사할지, 전환/중단할지 고릅니다."],
+                  ["어떤 검증인가요", "결과를 남길 검증 계획을 고릅니다."],
+                  ["검증 후 판단", "결과를 보고 계속 진행할지, 더 조사할지, 전환/중단할지 고릅니다."],
                   ["결과", "숫자, 사람 수, 반응처럼 실제 확인한 사실을 적습니다."],
                   ["배운 점", "그 결과가 아이디어에 어떤 의미인지 정리합니다."],
                   ["다음 행동", "바로 이어서 할 한 가지 행동을 적습니다."],
@@ -14353,7 +14353,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
               <div className="grid gap-4 lg:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  대상 검증 계획
+                  어떤 검증인가요
                   <select
                     value={selectedExperimentForResult?.id ?? ""}
                     disabled={selectedExperiments.length === 0}
@@ -14373,11 +14373,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     )}
                   </select>
                   <span className="text-xs font-normal leading-5 text-slate-500">
-                    결과를 남길 하위 검증 계획을 선택합니다.
+                    위에서 추가한 검증 계획 중 결과를 남길 항목을 선택합니다.
                   </span>
                 </label>
                 <SelectField
-                  label="다음 판단"
+                  label="검증 후 판단"
                   value={experimentResultDraft.next_decision}
                   options={decisions}
                   labels={decisionLabels}
