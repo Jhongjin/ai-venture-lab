@@ -66,10 +66,10 @@ if ($missingHomeText.Count -gt 0) {
 }
 
 $publicPages = @(
-  @{ Path = "/guide"; RequiredText = "operator guide" },
-  @{ Path = "/login"; RequiredText = "operator access" },
-  @{ Path = "/signup"; RequiredText = "signup route" },
-  @{ Path = "/profile"; RequiredText = "my page" },
+  @{ Path = "/guide"; RequiredText = "data-smoke=`"operator-guide`"" },
+  @{ Path = "/login"; RequiredText = "data-smoke=`"account-access`"" },
+  @{ Path = "/signup"; RequiredText = "data-smoke=`"signup-flow`"" },
+  @{ Path = "/profile"; RequiredText = "data-smoke=`"my-page`"" },
   @{ Path = "/workspace"; RequiredText = $null },
   @{ Path = "/workspace/ideas"; RequiredText = $null },
   @{ Path = "/workspace/deleted"; RequiredText = $null }

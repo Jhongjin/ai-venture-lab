@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function ProfilePage() {
   return (
-    <main id="main-content" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
+    <main id="main-content" data-smoke="my-page" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
       <div className="mx-auto grid w-full max-w-[1320px] gap-px bg-slate-300 px-4 py-6 sm:px-6 lg:grid-cols-[0.75fr_1.25fr]">
         <aside className="relative overflow-hidden bg-[#10141d] px-6 py-8 text-white sm:px-8 lg:px-10">
           <div
@@ -30,7 +30,7 @@ export default function ProfilePage() {
             }}
           />
           <div className="relative">
-            <div className="avl-kicker !text-slate-300">my page</div>
+            <div className="avl-kicker !text-slate-300">마이페이지</div>
             <h1
               className="mt-6 max-w-[12ch] break-keep text-[42px] font-normal leading-[0.96] tracking-[-0.04em] text-white sm:text-[56px]"
               style={{ fontFamily: "var(--font-newsreader)" }}

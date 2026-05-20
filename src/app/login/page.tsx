@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main id="main-content" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
+    <main id="main-content" data-smoke="account-access" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
       <div className="mx-auto grid w-full max-w-[1320px] gap-px bg-slate-300 px-4 py-6 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="relative overflow-hidden bg-[#10141d] px-6 py-8 text-white sm:px-8 lg:px-10">
           <div

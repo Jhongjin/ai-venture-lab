@@ -33,7 +33,7 @@ const menuGuide = [
     icon: FileDoc,
   },
   {
-    title: "로그인 / 회원가입",
+    title: "로그인·회원가입",
     route: "/login, /signup",
     body: "계정을 만들거나 기존 계정으로 로그인합니다. 로그인 전에는 실행 보드 버튼이 보이지 않습니다.",
     icon: SignIn,
@@ -76,7 +76,7 @@ const boardSteps = [
 ];
 
 const quickAnswers = [
-  ["실행 보드 버튼이 안 보여요", "로그인 전에는 숨겨집니다. 상단의 로그인 / 회원가입으로 먼저 계정에 들어가세요."],
+  ["실행 보드 버튼이 안 보여요", "로그인 전에는 숨겨집니다. 상단의 로그인·회원가입으로 먼저 계정에 들어가세요."],
   ["처음에 무엇을 준비해야 하나요", "정리된 기획서가 없어도 됩니다. 회의 메모, GPT와 나눈 대화, 평소 적어둔 자동화 아이디어처럼 거친 내용을 그대로 넣으면 됩니다."],
   ["모든 항목을 직접 채워야 하나요", "아닙니다. 기본은 AI가 먼저 채우고, 사용자는 어색한 판단만 고치거나 그대로 저장합니다."],
   ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 제품 기획서, 검증 계획, 제작 범위, 기술 방향, 개발 도구 전달용 실행 지시가 묶인 제작 패키지를 얻습니다."],
@@ -84,7 +84,7 @@ const quickAnswers = [
 
 export default function GuidePage() {
   return (
-    <main id="main-content" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
+    <main id="main-content" data-smoke="operator-guide" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
       <div
         aria-hidden="true"
         className="fixed inset-0 -z-10 opacity-[0.14]"
@@ -98,7 +98,7 @@ export default function GuidePage() {
       <div className="mx-auto w-full max-w-[1500px] px-4 py-4 sm:px-6 sm:py-6">
         <section className="grid gap-px bg-slate-300 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="bg-white px-6 py-8 sm:px-8 sm:py-10">
-            <div className="avl-kicker">operator guide</div>
+            <div className="avl-kicker">사용 가이드</div>
             <h1
               className="mt-5 max-w-[13ch] break-keep text-[42px] font-normal leading-[0.94] tracking-[-0.05em] text-slate-950 sm:text-[68px]"
               style={{ fontFamily: "var(--font-newsreader)" }}
@@ -112,7 +112,7 @@ export default function GuidePage() {
 
           <aside className="grid gap-px bg-slate-300">
             <div className="bg-[#10141d] px-6 py-6 text-white">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">start here</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">처음 안내</div>
               <div className="mt-4 text-[26px] font-semibold leading-[1.05] tracking-tight">처음이라면 로그인 후 실행 보드로 들어가세요.</div>
               <p className="mt-4 text-sm leading-6 text-slate-300">
                 홈은 둘러보기용입니다. 실제 아이디어 검토와 제작 패키지 생성은 실행 보드에서 진행합니다.
