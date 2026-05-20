@@ -211,7 +211,7 @@ const outputColumns = [
   },
   {
     eyebrow: "handoff pack",
-    title: "마지막에 남는 하네스 패키지",
+    title: "마지막에 남는 제작 패키지",
     body: "기획 문서로 끝나지 않고, 바로 만들거나 개발 도구에 넘길 수 있는 실행 묶음으로 남습니다.",
     items: [outputs[0], outputs[1], outputs[4], outputs[5]],
   },
@@ -609,7 +609,7 @@ export default function HomePage() {
                 <div className="relative min-h-[420px] overflow-hidden border-l border-white/10 pl-6">
                   <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">artifact runway</div>
                   <p className="mt-3 max-w-[36ch] break-keep text-sm leading-6 text-slate-300">
-                    판단 전 초안이 실행 범위와 하네스 프롬프트로 이어지며, 다음 작업자가 바로 볼 수 있는 단위로 정리됩니다.
+                    판단 전 초안이 실행 범위와 개발 도구 전달 자료로 이어지며, 다음 작업자가 바로 볼 수 있는 단위로 정리됩니다.
                   </p>
                   <div className="relative mt-10 min-h-[300px]">
                     {[
@@ -658,7 +658,7 @@ export default function HomePage() {
                 <div>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">final package</div>
                   <p className="mt-3 max-w-[62ch] break-keep text-sm leading-6 text-slate-300">
-                    결과는 설명서가 아니라 바로 검토하고 넘겨줄 수 있는 하네스 패키지입니다.
+                    결과는 설명서가 아니라 바로 검토하고 넘겨줄 수 있는 제작 패키지입니다.
                   </p>
                 </div>
               </div>
@@ -674,7 +674,7 @@ export default function HomePage() {
                 className="mt-3 max-w-[22ch] break-keep text-[30px] font-normal leading-[1] tracking-[-0.03em] text-slate-950 sm:text-[38px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}
               >
-                AI가 준비하고, 사람이 판단하고, 하네스로 넘깁니다.
+                AI가 준비하고, 사람이 판단하고, 제작 패키지로 넘깁니다.
               </p>
             </div>
             <nav aria-label="landing footer" className="flex flex-wrap gap-2">
