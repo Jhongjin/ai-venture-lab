@@ -1610,7 +1610,7 @@ function buildIdeaBriefMarkdown({
           .join("\n")
       : "- 아직 연결된 리스크가 없습니다.";
 
-  return `# 아이디어 브리프: ${idea.name}
+  return `# 아이디어 요약: ${idea.name}
 
 ## 요약
 
@@ -1695,7 +1695,7 @@ function buildResearchBriefMarkdown({
           .join("\n\n")
       : "전략/리서치 오케스트레이션 기록이 아직 없습니다.";
 
-  return `# 리서치 브리프: ${idea.name}
+  return `# 조사 요약: ${idea.name}
 
 ## 1. 검증 목표
 
@@ -3040,7 +3040,7 @@ ${experimentLines}
 
 ### 승인된 실행 문서
 
-${approvedArtifactLines.length > 0 ? approvedArtifactLines.join("\n") : "- 승인된 제품 실행 문서가 없습니다. PRD, 디자인 브리프, 기술 명세 중 최소 하나를 승인하세요."}
+${approvedArtifactLines.length > 0 ? approvedArtifactLines.join("\n") : "- 승인된 제품 실행 문서가 없습니다. 제품 기획서, 디자인 기준, 기술 명세 중 최소 하나를 승인하세요."}
 
 ### 높은 리스크
 
@@ -3176,11 +3176,11 @@ function buildAppDevelopmentPlanMarkdown({
 
 - 현재 단계: ${stageLabels[state.stage]}
 - 현재 판단: ${decisionLabels[state.decision]}
-- 리서치 브리프 저장: ${hasResearchNote ? "완료" : "권장"}
+- 조사 요약 저장: ${hasResearchNote ? "완료" : "권장"}
 - PRD 저장: ${hasPrd ? "완료" : "필요"}
 - 첫 제작 범위 저장: ${hasMvpSpec ? "완료" : "필요"}
 - 백엔드 결정 저장: ${hasBackendDecision ? "완료" : "필요"}
-- 디자인 브리프 저장: ${hasDesignBrief ? "완료" : "필요"}
+- 디자인 기준 저장: ${hasDesignBrief ? "완료" : "필요"}
 - 기술 명세 저장: ${hasTechSpec ? "완료" : "필요"}
 - 검증 계획: ${primaryExperiment ? `${primaryExperiment.name} / ${primaryExperiment.success_metric || "성공 지표 미정"}` : "측정 가능한 검증 계획 필요"}
 - 추가 확인 내용: ${state.next_evidence || "미정"}
@@ -3190,7 +3190,7 @@ ${productSurfaceMarkdown(productSurface)}
 ## 0.1 준비도 게이트
 
 - 디자인 준비도: 핵심 여정, PRD, MVP 범위, 백엔드 결정, 빈 상태/로딩/오류/권한/모바일/접근성 커버리지를 확인합니다.
-- 개발 착수 준비도: 승인된 제품 기획서, 승인된 첫 제작 범위, 백엔드 결정, 승인된 디자인 브리프, 승인된 기술 명세, 개발 런북, 구현 할 일, 높은 리스크 상태를 확인합니다.
+- 개발 착수 준비도: 승인된 제품 기획서, 승인된 첫 제작 범위, 백엔드 결정, 승인된 디자인 기준, 승인된 기술 명세, 개발 런북, 구현 할 일, 높은 리스크 상태를 확인합니다.
 - 운영 안전장치: Vercel 환경변수, Supabase RLS 또는 Firebase Security Rules, Preview/Production 배포 로그, 롤백 기준을 코드 작업 전에 기록합니다.
 - 준비도 게이트는 출시 준비도보다 앞선 작업 게이트입니다. 부족한 항목이 있으면 코드 작업보다 실행 문서 또는 리스크 정리를 우선합니다.
 
@@ -3801,7 +3801,7 @@ function buildDesignBriefMarkdown({
   const productSurface = inferIdeaProductSurface(idea, state);
   const designRun = runs.find((run) => run.phase === "design");
 
-  return `# 디자인 브리프: ${idea.name}
+  return `# 디자인 기준: ${idea.name}
 
 ## 제품 맥락
 
@@ -4129,7 +4129,7 @@ function buildAppBlueprintMarkdown({
 
   return `# 앱 블루프린트: ${idea.name}
 
-이 문서는 PRD, MVP, 디자인 브리프, 기술 명세를 실제 앱 구조로 번역하는 구현 청사진입니다. 개발자는 이 문서를 기준으로 라우트, 컴포넌트, 데이터 모델, API/액션, 테스트를 만들고 과한 확장을 피합니다.
+이 문서는 제품 기획서, 첫 제작 범위, 디자인 기준, 기술 명세를 실제 앱 구조로 번역하는 구현 청사진입니다. 개발자는 이 문서를 기준으로 라우트, 컴포넌트, 데이터 모델, API/액션, 테스트를 만들고 과한 확장을 피합니다.
 
 ## 1. 제품 경계
 
@@ -5274,7 +5274,7 @@ function buildDevelopmentKickoffMarkdown({
       ? failedChecks.map((check) => `- ${check.label}: ${check.detail}`).join("\n")
       : "- 개발 착수 전 필수 게이트가 통과 상태입니다.";
 
-  return `# 개발 킥오프 브리프: ${idea.name}
+  return `# 제작 시작 요약: ${idea.name}
 
 ## 킥오프 판정
 
@@ -5379,7 +5379,7 @@ function buildAgentRunPackageMarkdown({
               } / v${artifact.version ?? 1}`,
           )
           .join("\n")
-      : "- 승인된 실행 문서가 없습니다. 실행 전 제품 기획서, 첫 제작 범위, 디자인 브리프, 기술 명세 중 필요한 항목을 승인하세요.";
+      : "- 승인된 실행 문서가 없습니다. 실행 전 제품 기획서, 첫 제작 범위, 디자인 기준, 기술 명세 중 필요한 항목을 승인하세요.";
   const taskLines =
     tasks.length > 0
       ? sortImplementationTasksForAction(tasks)
@@ -5926,7 +5926,7 @@ function buildFilteredImplementationRunPromptMarkdown({
           .join("\n\n")
       : "현재 필터 조건에 맞는 실행 태스크가 없습니다.";
 
-  return `# Codex 구현 실행 프롬프트: ${idea.name}
+  return `# Codex 구현 지시: ${idea.name}
 
 너는 이 프로젝트의 구현 에이전트입니다. 아래 필터 조건에 해당하는 태스크만 처리하고, 범위를 벗어나는 리팩터링이나 기능 확장은 하지 않습니다.
 
@@ -6164,13 +6164,13 @@ function buildLaunchChecklistMarkdown({
 - [${hasMvpSpec ? "x" : " "}] 첫 제작 범위 저장
 - [${hasApprovedMvpSpec ? "x" : " "}] 첫 제작 범위 승인
 - [${hasBackendDecision ? "x" : " "}] 백엔드 결정 저장
-- [${hasDesignBrief ? "x" : " "}] 디자인 브리프 저장
-- [${hasApprovedDesignBrief ? "x" : " "}] 디자인 브리프 실행 문서 승인
+- [${hasDesignBrief ? "x" : " "}] 디자인 기준 저장
+- [${hasApprovedDesignBrief ? "x" : " "}] 디자인 기준 실행 문서 승인
 - [${hasTechSpec ? "x" : " "}] 기술 명세 저장
 - [${hasApprovedTechSpec ? "x" : " "}] 기술 명세 실행 문서 승인
 - [${hasDevRunbook ? "x" : " "}] 개발 런북 저장
-- [${artifacts.some((artifact) => artifact.artifact_type === "idea_brief") ? "x" : " "}] 아이디어 브리프 저장
-- [${hasResearchNote ? "x" : " "}] 리서치 브리프 저장
+- [${artifacts.some((artifact) => artifact.artifact_type === "idea_brief") ? "x" : " "}] 아이디어 요약 저장
+- [${hasResearchNote ? "x" : " "}] 조사 요약 저장
 - [${implementationTasks.length > 0 ? "x" : " "}] 구현 태스크 생성
 - [${implementationTasks.length > 0 && doneImplementationTaskCount === implementationTasks.length ? "x" : " "}] 구현 태스크 완료 (${doneImplementationTaskCount}/${implementationTasks.length})
 
@@ -6548,7 +6548,7 @@ ${context}
 
 ${context}
 
-## 디자인 브리프
+## 디자인 기준
 - 제품 맥락:
 - 대상 사용자:
 - primary action:
@@ -12075,7 +12075,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="avl-kicker">
                     kickoff guardrail
                   </div>
-                  <h3 className="mt-2 text-base font-semibold text-slate-950">제작 시작 브리프</h3>
+                  <h3 className="mt-2 text-base font-semibold text-slate-950">제작 시작 요약</h3>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
                     구현에 필요한 할 일을 만들기 전에 범위, 금지 범위, 막히는 항목, 완료 근거를 한 문서로 정리합니다.
                   </p>
@@ -12108,19 +12108,19 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                   <button
                     type="button"
-                    onClick={() => copyDraft(developmentKickoffDraft, "제작 시작 브리프")}
+                    onClick={() => copyDraft(developmentKickoffDraft, "제작 시작 요약")}
                     disabled={!developmentKickoffDraft}
                     className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                   >
                     <Clipboard size={16} />
-                    브리프 복사
+                    요약 복사
                   </button>
                   <button
                     type="button"
                     onClick={() =>
                       saveArtifactDraft(
                         "dev_runbook",
-                        `${selectedIdea.name} 제작 시작 브리프`,
+                        `${selectedIdea.name} 제작 시작 요약`,
                         developmentKickoffDraft,
                         "development_kickoff",
                       )
@@ -12129,7 +12129,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                   >
                     <Save size={16} />
-                    브리프 저장
+                    요약 저장
                   </button>
                 </div>
               </div>
@@ -12631,11 +12631,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="flex items-end">
                     <button
                       type="button"
-                      onClick={() => copyDraft(filteredImplementationRunPromptDraft, "필터된 구현 실행 프롬프트")}
+                      onClick={() => copyDraft(filteredImplementationRunPromptDraft, "필터된 구현 지시")}
                       className="avl-btn avl-btn-secondary h-11 w-full px-3 lg:w-auto"
                     >
                       <Code2 size={15} />
-                      실행 프롬프트
+                      구현 지시
                     </button>
                   </div>
                   <div className="flex items-end">
@@ -12648,7 +12648,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
                         saveArtifactDraft(
                           "dev_runbook",
-                          `${selectedIdea.name} 필터된 구현 실행 프롬프트`,
+                          `${selectedIdea.name} 필터된 구현 지시`,
                           filteredImplementationRunPromptDraft,
                           "filtered_implementation_run",
                         );
@@ -14556,7 +14556,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </p>
               <p className="mt-1 text-sm leading-5 text-amber-700">
                 AI 시장·경쟁 자동 점검을 실행하면 이 칸도 초안으로 채워집니다. 따로 직접 조사한 내용이 없다면 비워둬도 되고,
-                위에서 저장한 브리프와 검증 계획만으로도 다음 단계로 넘어갈 수 있습니다.
+                위에서 저장한 요약 자료와 검증 계획만으로도 다음 단계로 넘어갈 수 있습니다.
               </p>
             </div>
             <button
@@ -14982,7 +14982,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="avl-kicker">전달 자료</div>
                   <h3 className="mt-2 text-sm font-semibold text-slate-950">최근 제작 전달 자료</h3>
                   <p className="mt-1 text-sm leading-5 text-slate-600">
-                    실행 프롬프트와 제작 실행 계획 저장본을 먼저 보여줍니다. 최신본을 복사해 다음 제작 루프에 넘기세요.
+                    구현 지시와 제작 실행 계획 저장본을 먼저 보여줍니다. 최신본을 복사해 다음 제작 루프에 넘기세요.
                   </p>
                 </div>
                 <span className="avl-pill avl-pill-neutral">

@@ -978,9 +978,9 @@ function buildExtractedIdeaArtifacts(
     {
       ...base,
       artifact_type: "idea_brief",
-      title: `${candidate.name} 아이디어 브리프`,
+      title: `${candidate.name} 아이디어 요약`,
       source: "extracted_idea_package",
-      body: `# 아이디어 브리프: ${candidate.name}
+      body: `# 아이디어 요약: ${candidate.name}
 
 ## 한 줄 설명
 
@@ -1028,9 +1028,9 @@ ${candidate.next_evidence}
     {
       ...base,
       artifact_type: "research_note",
-      title: `${candidate.name} 리서치 브리프`,
+      title: `${candidate.name} 조사 요약`,
       source: "extracted_research_brief",
-      body: `# 리서치 브리프: ${candidate.name}
+      body: `# 조사 요약: ${candidate.name}
 
 ## 확인된 단서
 
