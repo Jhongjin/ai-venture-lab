@@ -10,6 +10,9 @@ import {
   getProductSurfaceProfile,
   inferProductSurface,
   productSurfaceMarkdown,
+  productSurfaceOrder,
+  productSurfaceProfiles,
+  type ProductSurfaceKey,
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
@@ -2672,6 +2675,22 @@ export function VentureConsoleActions({
     router.refresh();
   }
 
+  function updateExtractedIdeaProductSurface(candidateId: string, surfaceKey: ProductSurfaceKey) {
+    const nextSurface = productSurfaceProfiles[surfaceKey];
+
+    setExtractedIdeas((currentIdeas) =>
+      currentIdeas.map((candidate) =>
+        candidate.id === candidateId
+          ? {
+              ...candidate,
+              productSurface: nextSurface,
+            }
+          : candidate,
+      ),
+    );
+    setExtractMessage(`${nextSurface.label} 기준으로 제작 패키지 방향을 바꿨습니다. 저장하면 이 기준이 다음 단계까지 이어집니다.`);
+  }
+
   function loadExtractedIdea(candidate: ExtractedIdea) {
     setForm({
       name: candidate.name,
@@ -3369,8 +3388,27 @@ export function VentureConsoleActions({
                         <p className="mt-1 text-sm leading-6 text-slate-700">
                           {recommendedExtractedIdea.productSurface.firstBuild}
                         </p>
+                        <label className="mt-3 grid gap-2 text-sm font-semibold text-slate-900">
+                          저장 전에 결과물 형태 확인
+                          <select
+                            value={recommendedExtractedIdea.productSurface.key}
+                            onChange={(event) =>
+                              updateExtractedIdeaProductSurface(
+                                recommendedExtractedIdea.id,
+                                event.target.value as ProductSurfaceKey,
+                              )
+                            }
+                            className="h-10 cursor-pointer border border-blue-200 bg-white px-3 text-sm font-semibold text-slate-950"
+                          >
+                            {productSurfaceOrder.map((key) => (
+                              <option key={key} value={key}>
+                                {productSurfaceProfiles[key].label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
                         <p className="mt-1 text-xs leading-5 text-slate-600">
-                          이 기준으로 기획서, 디자인, 기술 스택, 제작 패키지가 이어집니다. 다르게 보이면 저장 후 STEP 2에서 바꿀 수 있습니다.
+                          이 기준으로 기획서, 디자인, 기술 스택, 제작 패키지가 이어집니다.
                         </p>
                       </div>
                       <div className="mt-4 border-t border-slate-200 pt-4">
