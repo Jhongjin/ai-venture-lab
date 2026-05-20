@@ -239,7 +239,7 @@ export function getProductSurfaceProfile(key: unknown, fallbackInput: ProductSur
 }
 
 export function productSurfaceMarkdown(profile: ProductSurfaceProfile) {
-  return `## 산출물 방향
+  return `## 결과물 형태
 
 - 권장 형태: ${profile.label}
 - 첫 제작 형태: ${profile.firstBuild}

@@ -137,7 +137,7 @@ const shellTasks: Array<{
   {
     id: "workbench:development",
     label: "제작 준비",
-    description: "제작 준비",
+    description: "하네스 패키지",
     group: "제작",
     icon: Code,
   },
@@ -218,8 +218,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["필요 자료 저장", "기획서와 제작 범위 확인", "상태 메모 작성"],
   },
   "workbench:development": {
-    summary: "기획, 디자인, 개발, 품질 점검, 출시 준비를 한 묶음으로 정리합니다.",
-    checklist: ["제작 준비 자료 만들기", "제작 실행 계획 저장", "출시 전 확인 조건 점검"],
+    summary: "검증 결과를 바탕으로 PRD, 디자인 프롬프트, 기술 방향, 첫 제작 범위를 한 패키지로 묶습니다.",
+    checklist: ["결과물 형태 확인", "AI가 만든 하네스 요약 검토", "최종 하네스 패키지 저장"],
   },
   "workbench:launch": {
     summary: "출시 전 막히는 항목을 확인하고 최종 출시 판단을 기록합니다.",
@@ -307,10 +307,10 @@ const taskCanvasDetails: Record<
     checkpoint: "사용자는 문서를 처음부터 쓰기보다 승인 여부만 확인하면 됩니다.",
   },
   "workbench:development": {
-    question: "이제 실제 앱 제작으로 넘어갈 준비가 되었나요?",
-    aiLead: "기획, 디자인, 개발, 품질 점검, 출시 순서를 묶어 제안합니다.",
-    deliverable: "제작 전달 자료",
-    checkpoint: "한 명의 운영자가 끝까지 볼 수 있도록 복잡한 개발 정보를 압축합니다.",
+    question: "이제 제작에 넘길 하네스 패키지를 정리할 차례입니다.",
+    aiLead: "PRD, 디자인 프롬프트, 기술 방향, 첫 제작 범위를 한 번에 묶습니다.",
+    deliverable: "하네스 패키지",
+    checkpoint: "사용자는 최종 요약만 확인하고, 필요한 메모만 더하면 됩니다.",
   },
   "workbench:orchestration": {
     question: "누가 무엇을 언제 처리할지 명확한가요?",
@@ -482,8 +482,8 @@ function getNextTaskOptions({
           "workbench:orchestration",
           "다음: 실행 관리",
           canEnterOrchestration
-            ? "디자인 프롬프트와 제작 실행 계획을 저장했습니다. 이제 실행 역할을 배정합니다."
-            : "디자인 프롬프트와 제작 실행 계획을 저장하면 활성화됩니다.",
+            ? "하네스 패키지를 저장했습니다. 이제 실행 역할을 배정합니다."
+            : "최종 하네스 패키지를 저장하면 활성화됩니다.",
           "primary",
           !canEnterOrchestration,
         ),
@@ -658,12 +658,12 @@ function getExecutiveFocus({
   if (implementationTaskCount === 0) {
     return {
       eyebrow: "다음에 할 일",
-      title: "이제 제작 준비를 확인하세요.",
-      detail: "기획, 디자인, 개발, 품질 점검, 배포 조건을 한 묶음으로 정리하면 제작 단계가 흔들리지 않습니다.",
+      title: "이제 하네스 패키지를 저장하세요.",
+      detail: "검증 결과를 PRD, 디자인 프롬프트, 기술 방향, 첫 제작 범위로 묶으면 바로 개발에 넘길 수 있습니다.",
       evidence: `${dataNote} · 실행 문서 ${artifactCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",
-      cta: "제작 준비",
+      cta: "하네스 정리",
       metrics,
     };
   }

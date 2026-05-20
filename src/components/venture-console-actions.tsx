@@ -1476,7 +1476,7 @@ function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
 
 ## 비교 결과
 
-| 순서 | 후보 | 산출물 방향 | 판정 | 매칭 후보 | 유사도 | 검증 점수 | 다음 행동 |
+| 순서 | 후보 | 결과물 형태 | 판정 | 매칭 후보 | 유사도 | 검증 점수 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows || "| - | 후보 없음 | - | - | - | - | - | - |"}
 `;
@@ -1510,7 +1510,7 @@ ${gateSummary}
 
 ## 실행 순서
 
-| 순서 | 후보 | 산출물 방향 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
+| 순서 | 후보 | 결과물 형태 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows || "| - | 후보 없음 | - | - | - | - | - | - | - |"}
 
@@ -2661,7 +2661,7 @@ export function VentureConsoleActions({
       buyer: candidate.buyer,
       signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
       risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-      next_evidence: `산출물 방향\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+      next_evidence: `결과물 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
         "\n- ",
       )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
     });
@@ -2682,7 +2682,7 @@ export function VentureConsoleActions({
       buyer: candidate.buyer.trim(),
       signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
       risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-      next_evidence: `산출물 방향\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+      next_evidence: `결과물 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
         "\n- ",
       )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n진행 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
       product_surface: candidate.productSurface.key,
@@ -3359,7 +3359,7 @@ export function VentureConsoleActions({
                           <p className="mt-1 text-xs leading-5 text-slate-700">아이디어, 리스크, 7일 검증 계획이 한 묶음으로 만들어집니다.</p>
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
-                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">산출물 방향</div>
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">결과물 형태</div>
                           <p className="mt-1 text-xs leading-5 text-slate-700">
                             {recommendedExtractedIdea.productSurface.label} 기준으로 PRD, 디자인, 기술 프롬프트를 맞춥니다.
                           </p>
