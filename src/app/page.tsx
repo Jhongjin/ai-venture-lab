@@ -67,7 +67,7 @@ const workflowSteps = [
   {
     id: "04",
     title: "제작 자료",
-    ai: "기획서, 첫 제작 범위, 실행 작업, 출시 판단 초안을 한 번에 묶습니다.",
+    ai: "기획서, 첫 제작 범위, 제작 작업, 출시 판단 초안을 한 번에 묶습니다.",
     human: "어디까지 만들고 언제 시작할지 결정합니다.",
     result: "바로 이어갈 제작 자료",
     icon: ShieldCheck,
@@ -78,7 +78,7 @@ const workflowOverview = [
   {
     eyebrow: "AI 초안",
     title: "초안과 질문을 잡습니다",
-    body: "후보, 질문, 리스크, 실행 초안을 정리합니다.",
+    body: "후보, 질문, 리스크, 검증·제작 초안을 정리합니다.",
     chips: ["후보 한 건", "질문 초안", "리스크 메모"],
   },
   {
@@ -89,8 +89,8 @@ const workflowOverview = [
   },
   {
     eyebrow: "보드에 남는 것",
-    title: "다음 실행으로 이어집니다",
-    body: "검증 자료, 기획서, 실행 작업, 학습 리포트가 이어집니다.",
+    title: "다음 제작으로 이어집니다",
+    body: "검증 자료, 기획서, 제작 작업, 학습 리포트가 이어집니다.",
     chips: ["검증 자료", "기획서", "학습 리포트"],
   },
 ];
@@ -156,7 +156,7 @@ const aiOutputs = [
     icon: GridFour,
   },
   {
-    title: "실행 작업",
+    title: "제작 작업",
     body: "디자인, 제작, 품질 점검, 출시 판단에 필요한 작업으로 나눕니다.",
     meta: "task board",
     icon: ListChecks,
@@ -180,7 +180,7 @@ const outputs = [
     icon: Target,
   },
   {
-    title: "실행 작업",
+    title: "제작 작업",
     body: "기획, 디자인, 제작, 품질 점검 담당자가 바로 볼 수 있게 정리합니다.",
     icon: Path,
   },
@@ -205,8 +205,8 @@ const outputColumns = [
   },
   {
     eyebrow: "build layer",
-    title: "실행으로 넘기는 구조",
-    body: "검증 조건, 첫 제작 범위, 실행 작업을 이어서 정리하고 바로 넘겨줄 수 있게 만듭니다.",
+    title: "제작으로 넘기는 구조",
+    body: "검증 조건, 첫 제작 범위, 제작 작업을 이어서 정리하고 바로 넘겨줄 수 있게 만듭니다.",
     items: [aiOutputs[3], aiOutputs[4], aiOutputs[5]],
   },
   {
@@ -221,7 +221,7 @@ const packageHighlights = [
   "아이디어 브리프",
   "검증 자료",
   "첫 제작 범위",
-  "실행 작업",
+  "제작 작업",
   "출시 판단",
   "학습 리포트",
 ];
@@ -274,7 +274,7 @@ export default function HomePage() {
                   정리한 아이디어의 사업성을 검토하고, 제작까지 이어갑니다.
                 </p>
                 <p className="relative mt-5 max-w-[48ch] break-keep text-[15px] leading-7 text-slate-300">
-                  회의 메모나 브리프 초안만 있어도 시작할 수 있습니다. AI가 후보, 질문, 실행 초안을 먼저 정리하고 사용자는 중요한 판단만 더하면 됩니다.
+                  회의 메모나 브리프 초안만 있어도 시작할 수 있습니다. AI가 후보, 질문, 검증·제작 초안을 먼저 정리하고 사용자는 중요한 판단만 더하면 됩니다.
                 </p>
               </div>
 
