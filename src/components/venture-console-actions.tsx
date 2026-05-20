@@ -902,8 +902,8 @@ function buildExtractionGate(
   const corePassCount = [hasCoreProblem, hasUserBuyer, hasMetric, hasMvp].filter(Boolean).length;
 
   let id: ExtractionGateId = "research";
-  let summary = "증거를 더 모은 뒤 저장하거나 점수화할 아이디어입니다.";
-  let nextAction = blockers[0] ? `${blockers[0]} 보완 후 7일 검증 자료로 저장` : "인터뷰와 대체재 조사를 먼저 붙인 뒤 저장";
+  let summary = "증거를 더 모은 뒤 저장할지 판단할 아이디어입니다.";
+  let nextAction = blockers[0] ? `${blockers[0]} 보완 후 검증 자료로 저장` : "인터뷰와 대체재 조사를 먼저 붙인 뒤 저장";
 
   if (candidate.validationScore <= 44 || corePassCount <= 1) {
     id = "kill";
@@ -925,13 +925,13 @@ function buildExtractionGate(
   ) {
     id = "proceed";
     summary = "문제, 구매자, 확인 방법, 첫 제작 범위가 충분해 검증 자료로 저장할 만한 아이디어입니다.";
-    nextAction = "검증 자료 저장 후 실행 보드에서 점수와 첫 검증 계획을 확정";
+    nextAction = "검증 자료 저장 후 실행 보드에서 사업성 평가와 첫 검증 계획을 확정";
   } else {
     id = "research";
     summary =
       candidate.riskLevel === "높음"
         ? "수요가 보여도 규제, 개인정보, 운영 책임을 먼저 검증해야 합니다."
-        : "점수나 준비도 일부가 부족해 추가 증거를 붙인 뒤 진행 여부를 봐야 합니다.";
+        : "근거가 아직 부족해 추가 증거를 붙인 뒤 진행 여부를 봐야 합니다.";
     nextAction = blockers[0] ? `${blockers[0]} 보완 후 저장` : "인터뷰, 가격 신호, 대체재 증거를 추가";
   }
 
@@ -1011,7 +1011,7 @@ ${candidate.assumptions.map((item) => `- ${item}`).join("\n")}
 - 검증 점수: ${candidate.validationScore}/100
 - 신뢰도: ${candidate.confidence}%
 - 추천: ${candidate.recommendation}
-- 진행 판정: ${gate.label}
+- 추천 판단: ${gate.label}
 - 다음 작업: ${gate.nextAction}
 - 리스크: ${candidate.riskLevel}
 
@@ -1509,19 +1509,19 @@ function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
 
   return `# 아이디어 도출 실행 요약
 
-## 진행 판정 분포
+## 추천 판단 분포
 
 ${gateSummary}
 
 ## 실행 순서
 
-| 순서 | 아이디어 | 제작 형태 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
+| 순서 | 아이디어 | 제작 형태 | 추천 판단 | 검증 기준 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows || "| - | 아이디어 없음 | - | - | - | - | - | - | - |"}
 
 ## 운영 원칙
 
-- 진행 가능한 아이디어는 검증 자료로 저장한 뒤 실행 보드에서 점수와 첫 검증 계획을 확정합니다.
+- 진행 가능한 아이디어는 검증 자료로 저장한 뒤 실행 보드에서 사업성 평가와 첫 검증 계획을 확정합니다.
 - 추가 조사가 필요한 아이디어는 부족한 문제 신호, 구매자, 지표, 리스크, MVP 범위를 보완합니다.
 - 전환 검토 아이디어는 기존 기록 병합, 세그먼트 축소, 구매자 변경 중 하나를 먼저 결정합니다.
 - 보류 아이디어는 새 증거가 생길 때까지 저장하지 않습니다.
@@ -2722,7 +2722,7 @@ export function VentureConsoleActions({
       risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
       next_evidence: `제작 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
         "\n- ",
-      )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n진행 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
+      )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n추천 판단\n${extractionGate.label}: ${extractionGate.nextAction}`,
       product_surface: candidate.productSurface.key,
       stage: "research",
       decision: "research_more",
@@ -3425,7 +3425,7 @@ export function VentureConsoleActions({
                       <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-4">
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이유</div>
-                          <p className="mt-1 text-xs leading-5 text-slate-700">점수, 준비도, 리스크를 비교해 지금 먼저 볼 아이디어로 골랐습니다.</p>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">AI가 수요, 실행 가능성, 리스크를 비교해 먼저 검토할 아이디어로 골랐습니다.</p>
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">저장하면 생기는 것</div>
@@ -3625,7 +3625,7 @@ export function VentureConsoleActions({
                   </div>
 
                   <details className="avl-surface-muted mt-4 p-4">
-                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">보조 기능</summary>
+                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">추가 확인</summary>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -3747,7 +3747,7 @@ export function VentureConsoleActions({
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <div className={`text-sm font-semibold ${gateStyle.title}`}>
-                              진행 판정: {extractionGate.label}
+                              추천 판단: {extractionGate.label}
                             </div>
                             <p className="mt-1 text-sm leading-6 text-slate-700">{extractionGate.summary}</p>
                             <p className="mt-1 text-sm leading-6 text-slate-700">

@@ -302,7 +302,7 @@ const taskCanvasDetails: Record<
   },
   "workbench:decision": {
     question: "지금은 진행, 보완, 전환, 중단 중 무엇이 맞을까요?",
-    aiLead: "점수, 리스크, 실험 조건을 묶어 의사결정용 근거를 정리합니다.",
+    aiLead: "사업성 평가, 리스크, 실험 조건을 묶어 의사결정용 근거를 정리합니다.",
     deliverable: "진행 판단 메모",
     checkpoint: "회의 공유가 가능한 한 문단 결론이 가장 중요합니다.",
   },
@@ -605,7 +605,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "이제 제작 패키지를 저장하세요.",
-      detail: "검증 결과와 제작 형태를 묶어 개발 도구에 바로 넘길 제작 패키지를 만듭니다.",
+      detail: "검증 결과와 제작 형태를 묶어 제작 단계로 바로 넘길 패키지를 만듭니다.",
       evidence: `${dataNote} · 실행 문서 ${artifactCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",

@@ -92,13 +92,13 @@ export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfacePro
   },
   mcp_handoff: {
     key: "mcp_handoff",
-    label: "개발 도구 연동",
+    label: "제작 도구 연동",
     shortLabel: "연동",
-    description: "Cursor, Codex, Claude 같은 개발 도구로 넘길 제작 패키지와 연결 흐름이 핵심입니다.",
-    firstBuild: "제작 패키지, 개발 도구 연결 지침, CLI 설치 흐름",
+    description: "Cursor, Codex, Claude 같은 제작 도구로 넘길 제작 패키지와 연결 흐름이 핵심입니다.",
+    firstBuild: "제작 패키지, 제작 도구 연결 지침, CLI 설치 흐름",
     stackHint: "Next.js 제어 화면, 연결 서버/CLI 패키지, 문서와 제작 지시 버전 관리를 검토합니다.",
-    harnessFocus: "제작 패키지에는 기획서, 디자인, 기술 명세, 구현 지시, 검증 명령을 개발 도구에서 바로 쓸 수 있게 담습니다.",
-    promptFocus: "개발 도구별 설치, 연결 등록, 코드 생성 지시, 검증/배포 명령을 우선 반영합니다.",
+    harnessFocus: "제작 패키지에는 기획서, 디자인, 기술 명세, 제작 지시, 검증 명령을 제작 도구에서 바로 쓸 수 있게 담습니다.",
+    promptFocus: "제작 도구별 설치, 연결 등록, 코드 생성 지시, 검증/배포 명령을 우선 반영합니다.",
   },
 };
 
@@ -245,5 +245,5 @@ export function productSurfaceMarkdown(profile: ProductSurfaceProfile) {
 - 첫 제작 형태: ${profile.firstBuild}
 - 기술 스택 기준: ${profile.stackHint}
 - 제작 기준: ${profile.harnessFocus}
-- 개발 도구 전달 기준: ${profile.promptFocus}`;
+- 제작 도구 전달 기준: ${profile.promptFocus}`;
 }

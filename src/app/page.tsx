@@ -212,7 +212,7 @@ const outputColumns = [
   {
     eyebrow: "handoff pack",
     title: "마지막에 남는 제작 패키지",
-    body: "기획 문서로 끝나지 않고, 바로 만들거나 개발 도구에 넘길 수 있는 실행 묶음으로 남습니다.",
+    body: "기획 문서로 끝나지 않고, 바로 만들거나 외부 제작 도구에 넘길 수 있는 실행 묶음으로 남습니다.",
     items: [outputs[0], outputs[1], outputs[4], outputs[5]],
   },
 ];
@@ -609,7 +609,7 @@ export default function HomePage() {
                 <div className="relative min-h-[420px] overflow-hidden border-l border-white/10 pl-6">
                   <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">artifact runway</div>
                   <p className="mt-3 max-w-[36ch] break-keep text-sm leading-6 text-slate-300">
-                    판단 전 초안이 실행 범위와 개발 도구 전달 자료로 이어지며, 다음 작업자가 바로 볼 수 있는 단위로 정리됩니다.
+                    판단 전 초안이 실행 범위와 제작 전달 자료로 이어지며, 다음 작업자가 바로 볼 수 있는 단위로 정리됩니다.
                   </p>
                   <div className="relative mt-10 min-h-[300px]">
                     {[

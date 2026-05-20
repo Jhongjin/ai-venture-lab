@@ -70,7 +70,7 @@ const productSurfaceLabels: Record<ProductSurfaceKey, string> = {
   web_site: "웹사이트",
   automation: "업무 자동화",
   operator_console: "운영 콘솔",
-  mcp_handoff: "개발 도구 연동",
+  mcp_handoff: "제작 도구 연동",
 };
 
 const allowedProductSurfaceKeys = Object.keys(productSurfaceLabels) as ProductSurfaceKey[];

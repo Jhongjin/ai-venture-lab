@@ -453,13 +453,13 @@ function createFallbackScan({
   const isConsumer = /개인|사용자|가족|구독|리뷰|예약|이커머스|지역/.test(text);
   const isMobileSurface = /앱|모바일|mobile|native|ios|android/i.test(idea.product_surface);
   const isAutomationSurface = /자동화|운영|콘솔|업무 흐름|workflow|operator/i.test(idea.product_surface);
-  const isDevelopmentHandoffSurface = /mcp|ide|개발 도구|제작 지시|handoff|cursor|codex|claude/i.test(
+  const isDevelopmentHandoffSurface = /mcp|ide|개발 도구|제작 도구|제작 지시|handoff|cursor|codex|claude/i.test(
     idea.product_surface,
   );
   const surfaceHint = idea.product_surface ? `권장 제작 형태는 '${idea.product_surface}'입니다. ` : "";
   const scoreHint = score === null ? "" : `현재 내부 사업성 점수는 ${score}점입니다. `;
   const competitionHint = isDevelopmentHandoffSurface
-    ? "Cursor, Codex, Claude, Antigravity 같은 개발 도구와 문서 기반 핸드오프 서비스가 비교 대상입니다. 단순 문서보다 바로 제작에 넘길 수 있는 패키지 완성도가 차별점입니다."
+    ? "Cursor, Codex, Claude, Antigravity 같은 제작 도구와 문서 기반 전달 서비스가 비교 대상입니다. 단순 문서보다 바로 제작에 넘길 수 있는 패키지 완성도가 차별점입니다."
     : isAutomationSurface
       ? "Zapier, Make, 스프레드시트, 노션, 사내 운영 도구처럼 이미 익숙한 자동화 대체재와 비교해야 합니다."
       : isMobileSurface
@@ -472,7 +472,7 @@ function createFallbackScan({
   const barrierHint = isSensitive
     ? "개인정보, 신뢰, 법적 책임 설명이 진입장벽입니다. 초기 검증은 민감정보 저장 없이 수요와 신뢰 문구를 먼저 확인하는 편이 안전합니다."
     : isDevelopmentHandoffSurface
-      ? "개발 도구 연동은 설치 난이도, 문서 신뢰도, 프롬프트 재현성, 권한 범위 설명이 진입장벽이 될 수 있습니다."
+      ? "제작 도구 연동은 설치 난이도, 문서 신뢰도, 재현성, 권한 범위 설명이 진입장벽이 될 수 있습니다."
       : isAutomationSurface
         ? "자동화형 제품은 계정 연결, 데이터 접근 권한, 업무 흐름 변경에 대한 신뢰가 진입장벽이 될 수 있습니다."
         : isMobileSurface
@@ -504,7 +504,7 @@ function createFallbackScan({
     competitor_map: [
       {
         name: isDevelopmentHandoffSurface
-          ? "개발 도구 내 AI 에이전트"
+          ? "제작 도구 내 AI 에이전트"
           : isAutomationSurface
             ? "스프레드시트/노코드 자동화"
             : isMobileSurface
@@ -518,7 +518,7 @@ function createFallbackScan({
       },
       {
         name: isDevelopmentHandoffSurface
-          ? "문서 기반 개발 핸드오프 서비스"
+          ? "문서 기반 제작 전달 서비스"
           : isAutomationSurface
             ? "Zapier/Make 같은 범용 자동화 도구"
             : isB2b
@@ -541,7 +541,7 @@ function createFallbackScan({
         note: isSensitive
           ? "민감정보를 다룬다면 저장 범위, 권한, 책임 경계를 먼저 설명해야 합니다."
           : isDevelopmentHandoffSurface
-            ? "개발 도구로 넘긴 결과가 실제로 재현되는지 작은 샘플 프로젝트로 확인해야 합니다."
+            ? "제작 도구로 넘긴 결과가 실제로 재현되는지 작은 샘플 프로젝트로 확인해야 합니다."
           : "초기 사용자를 어디서 만날지와 첫 전환 경로를 확인해야 합니다.",
       },
     ],

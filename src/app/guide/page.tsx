@@ -70,7 +70,7 @@ const boardSteps = [
   },
   {
     title: "제작 패키지로 넘기기",
-    body: "검증된 아이디어를 제품 기획서, 디자인 방향, 기술 스택, 첫 제작 범위, 개발 도구에 바로 넘길 제작 패키지로 묶습니다. 직접 만들거나 외부 개발 도구로 이어갈 수 있습니다.",
+    body: "검증된 아이디어를 제품 기획서, 디자인 방향, 기술 스택, 첫 제작 범위, 제작 단계로 바로 넘길 패키지로 묶습니다. 직접 만들거나 외부 제작 도구로 이어갈 수 있습니다.",
     icon: GridFour,
   },
 ];
@@ -79,7 +79,7 @@ const quickAnswers = [
   ["실행 보드 버튼이 안 보여요", "로그인 전에는 숨겨집니다. 상단의 로그인·회원가입으로 먼저 계정에 들어가세요."],
   ["처음에 무엇을 준비해야 하나요", "정리된 기획서가 없어도 됩니다. 회의 메모, GPT와 나눈 대화, 평소 적어둔 자동화 아이디어처럼 거친 내용을 그대로 넣으면 됩니다."],
   ["모든 항목을 직접 채워야 하나요", "아닙니다. 기본은 AI가 먼저 채우고, 사용자는 어색한 판단만 고치거나 그대로 저장합니다."],
-  ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 제품 기획서, 검증 계획, 제작 범위, 기술 방향, 개발 도구 전달용 실행 지시가 묶인 제작 패키지를 얻습니다."],
+  ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 제품 기획서, 검증 계획, 제작 범위, 기술 방향, 제작에 필요한 작업 순서와 확인 기준이 묶인 제작 패키지를 얻습니다."],
 ];
 
 export default function GuidePage() {
@@ -126,7 +126,7 @@ export default function GuidePage() {
 
         <section className="mt-4 grid gap-px bg-slate-300 xl:grid-cols-[300px_minmax(0,1fr)]">
           <aside className="bg-white px-6 py-6">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">guide map</div>
+            <div className="text-[11px] font-semibold tracking-[0.18em] text-slate-500">가이드 목차</div>
             <div className="mt-5 grid gap-px bg-slate-200">
               {["상단 메뉴", "실행 보드", "자주 묻는 질문"].map((item, index) => (
                 <a key={item} href={`#guide-${index + 1}`} className="grid grid-cols-[3.5rem_1fr] bg-[#f7f6f2] text-sm font-semibold text-slate-700 transition hover:bg-white">
@@ -142,7 +142,7 @@ export default function GuidePage() {
 
           <div className="grid gap-px bg-slate-300">
             <section id="guide-1" className="bg-white px-6 py-7 sm:px-8">
-              <div className="avl-kicker">top navigation</div>
+              <div className="avl-kicker">상단 메뉴</div>
               <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">상단 메뉴</h2>
               <div className="mt-6 grid gap-px bg-slate-200 lg:grid-cols-2">
                 {menuGuide.map((item) => {

@@ -486,10 +486,10 @@ const artifactSourceLabels: Record<string, string> = {
   prd_readiness_handoff: "기획서 전환 전달 내용",
   mvp_slice_plan: "첫 제작 범위 플랜",
   development_kickoff: "제작 시작 요약",
-  agent_run_package: "개발 도구 전달 자료",
+  agent_run_package: "제작 도구 전달 자료",
   development_process: "제작 준비 과정",
   development_report: "제작 완료 보고서",
-  filtered_implementation_run: "필터 실행 지시",
+  filtered_implementation_run: "선별 제작 자료",
   mvp_build_command: "제작 시작 명령",
   qa_acceptance_matrix: "품질 점검표",
   post_launch_learning: "출시 후 성과 확인",
@@ -506,7 +506,7 @@ const evidenceConfidenceLabels: Record<EvidenceConfidence, string> = {
 const telemetryEventLabels: Record<string, string> = {
   idea_created: "아이디어 생성",
   idea_package_created: "검증 자료 저장",
-  idea_updated: "점수/상태 저장",
+  idea_updated: "사업성 평가 저장",
   product_page_view: "제품 화면 조회",
   product_signup_started: "가입 시작",
   product_signup_completed: "가입 완료",
@@ -916,7 +916,7 @@ const artifactReviewIntensityTone: Record<ArtifactReviewIntensity, string> = {
   major: "avl-pill avl-pill-danger",
 };
 const artifactApprovalReviewChecks: Record<VentureArtifactType, string[]> = {
-  idea_brief: ["문제와 대상 사용자가 현재 점수/리스크와 일치하는지 확인", "추가 확인 내용이 실제 실행 가능한지 확인"],
+  idea_brief: ["문제와 대상 사용자가 현재 평가/리스크와 일치하는지 확인", "추가 확인 내용이 실제 실행 가능한지 확인"],
   research_note: ["출처와 관찰 사실이 추정과 분리되어 있는지 확인", "개인정보나 원문 민감정보가 남아 있지 않은지 확인"],
   prd: ["사용자, 문제, 범위, 제외 범위, 수용 기준이 서로 모순되지 않는지 확인", "성공 지표와 중단 기준이 측정 가능한지 확인"],
   mvp_spec: ["첫 제작 범위가 얇은 제품으로 제한되어 있는지 확인", "AI/자동화, 결제, 외부 계정 조작 등 제외 범위가 명확한지 확인"],
@@ -8924,7 +8924,7 @@ export function IdeaWorkbench({
   const developmentAutoReviewSteps = [
     {
       label: "제작 형태 확인",
-      detail: `${activeProductSurface.label} 기준으로 기획서, 디자인, 제작 지시가 이어지도록 맞춥니다.`,
+      detail: `${activeProductSurface.label} 기준으로 기획서, 디자인, 제작 자료가 이어지도록 맞춥니다.`,
     },
     {
       label: "제작 범위 정리",
@@ -8936,7 +8936,7 @@ export function IdeaWorkbench({
     },
     {
       label: "최종 패키지 저장",
-      detail: "외부 개발 도구에 넘길 실행 자료까지 포함해 한 번에 저장합니다.",
+      detail: "외부 제작 도구에 넘길 자료까지 포함해 한 번에 저장합니다.",
     },
   ];
   const developmentAutoSummaryCards = [
@@ -8991,8 +8991,8 @@ export function IdeaWorkbench({
         activeProductSurface.promptFocus,
         activeProductSurface.stackHint,
         "",
-        "## 개발 도구 전달 기준",
-        "저장 후 생성되는 제작 패키지는 Codex, Cursor, Claude, Antigravity 같은 개발 도구에 넘길 실행 자료로 사용합니다.",
+        "## 제작 도구 전달 기준",
+        "저장 후 생성되는 제작 패키지는 Codex, Cursor, Claude, Antigravity 같은 제작 도구에 넘길 자료로 사용합니다.",
         "제품 기획서, 디자인 방향, 기술 스택, 첫 제작 범위, 제외 범위, 검증 기준을 같은 맥락으로 묶어 다음 제작 단계가 흔들리지 않게 합니다.",
         "",
         "## 사용자 보완 메모",
@@ -9998,7 +9998,7 @@ export function IdeaWorkbench({
     const finalAgentRunPackage = [
       `# 제작 패키지: ${selectedIdea.name}`,
       "",
-      "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 개발 환경에 넘기기 위한 최종 실행 자료입니다.",
+      "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 제작 환경에 넘기기 위한 최종 자료입니다.",
       "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 자료로 사용할 수 있습니다.",
       "",
       "## 실행 요약",
@@ -10006,7 +10006,7 @@ export function IdeaWorkbench({
       "",
       "---",
       "",
-      "## 개발 도구 전달 자료",
+      "## 제작 도구 전달 자료",
       agentRunPackageDraft,
     ].join("\n");
 
@@ -10057,7 +10057,7 @@ export function IdeaWorkbench({
         {
           version: plannedDevRunbookVersion,
           quiet: true,
-          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 개발 도구 전달 자료입니다.",
+          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 제작 도구 전달 자료입니다.",
         },
       );
 
@@ -10067,7 +10067,7 @@ export function IdeaWorkbench({
     }
 
     setDevelopmentAutoFlowState("summary");
-    setMessage("제작 패키지를 저장했습니다. 외부 개발 도구에 넘길 실행 자료까지 준비됐습니다.");
+    setMessage("제작 패키지를 저장했습니다. 외부 제작 도구에 넘길 자료까지 준비됐습니다.");
   }
 
   async function runAiExecutionAutopilot() {
@@ -11507,10 +11507,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
                     />
                     <div className="border border-slate-200 bg-white p-4">
-                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-700">현재 점수</div>
+                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-700">현재 평가</div>
                       <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>
                       <p className="mt-2 text-sm leading-5 text-slate-600">
-                        위 6개 가점에서 리스크 감점을 뺀 참고 점수입니다. 저장하면 AI가 다음 검증 계획의 기준으로 사용합니다.
+                        위 6개 항목에서 리스크를 반영한 참고값입니다. 저장하면 AI가 다음 검증 계획의 기준으로 사용합니다.
                       </p>
                     </div>
                   </div>
@@ -11610,7 +11610,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div>
               <h2 className="text-lg font-semibold text-slate-950">제작 패키지 정리</h2>
               <p className="mt-1 text-sm text-slate-500">
-                검증된 아이디어를 실제 제작이나 외부 개발 도구로 넘기기 전에 필요한 자료를 한 묶음으로 정리합니다.
+                검증된 아이디어를 실제 제작이나 외부 제작 도구로 넘기기 전에 필요한 자료를 한 묶음으로 정리합니다.
               </p>
             </div>
             <Code2 className="text-blue-600" size={22} />
@@ -11732,7 +11732,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         추가로 남길 내용
                       </label>
                       <p className="mt-1 text-sm leading-6 text-slate-600">
-                        개발자나 다음 작업자가 꼭 알아야 할 내용이 있으면 적으세요. 없으면 비워둬도 됩니다.
+                        다음 작업자가 꼭 알아야 할 내용이 있으면 적으세요. 없으면 비워둬도 됩니다.
                       </p>
                       <textarea
                         id="development-auto-note"
@@ -11757,7 +11757,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         <div className="avl-kicker">최종 실행 내역</div>
                         <h4 className="mt-2 text-base font-semibold text-slate-950">이 내용으로 제작 패키지를 저장합니다</h4>
                         <p className="mt-1 text-sm leading-6 text-slate-600">
-                          저장하면 디자인 기준, 제작 실행 계획, 개발 도구 전달 자료가 함께 남고, 하단 다음 단계 버튼이 열립니다.
+                          저장하면 디자인 기준, 제작 실행 계획, 제작 도구 전달 자료가 함께 남고, 하단 다음 단계 버튼이 열립니다.
                         </p>
                       </div>
                       <button
@@ -12508,7 +12508,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div>
                   <h4 className="text-sm font-semibold text-slate-950">제작 패키지</h4>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    승인된 실행 문서, 제작 할 일, 남은 확인 사항, 검증 명령을 한 번에 묶어 개발 도구나 구현 에이전트에게 넘깁니다.
+                    승인된 실행 문서, 제작 할 일, 남은 확인 사항, 검증 명령을 한 번에 묶어 제작 도구나 작업 에이전트에게 넘깁니다.
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <span className="avl-pill avl-pill-neutral">
@@ -12942,16 +12942,16 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="avl-card mt-5 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <div className="avl-kicker">implementation handoff</div>
-                      <h3 className="mt-2 text-base font-semibold text-slate-950">외부 개발 도구 전달 자료</h3>
+                      <div className="avl-kicker">제작 전달 자료</div>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">외부 제작 도구 전달 자료</h3>
                       <p className="mt-1 text-sm leading-5 text-slate-600">
-                        검증된 아이디어를 Codex 같은 개발 도구로 넘길 때 쓰는 제작 지시문입니다.
+                        검증된 아이디어를 Codex 같은 제작 도구로 넘길 때 쓰는 제작 기준 자료입니다.
                       </p>
                     </div>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => copyDraft(implementationHandoffDraft, "Codex 제작 핸드오프")}
+                      onClick={() => copyDraft(implementationHandoffDraft, "Codex 제작 전달 자료")}
                       className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3"
                     >
                       <Clipboard size={16} />
@@ -12962,7 +12962,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       onClick={() =>
                         saveArtifactDraft(
                           "dev_runbook",
-                          `${selectedIdea.name} Codex 제작 핸드오프`,
+                          `${selectedIdea.name} Codex 제작 전달 자료`,
                           implementationHandoffDraft,
                           "development_process",
                         )
@@ -13076,10 +13076,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="avl-surface-muted mt-5 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <div className="avl-kicker">role prompt pack</div>
-                      <h3 className="mt-2 text-base font-semibold text-slate-950">역할별 작업 지시 묶음</h3>
+                      <div className="avl-kicker">역할별 작업 안내</div>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">역할별 작업 안내 묶음</h3>
                       <p className="mt-1 text-sm leading-5 text-slate-600">
-                        전략, 리서치, 제품, 디자인, 개발, 품질 점검, 디버깅, 보안, 출시 역할에 같은 문맥을 나눠주는 실행 지시서입니다.
+                        전략, 리서치, 제품, 디자인, 개발, 품질 점검, 디버깅, 보안, 출시 역할에 같은 문맥을 나눠주는 작업 안내서입니다.
                       </p>
                     </div>
                   <div className="flex flex-wrap gap-2">
@@ -13096,7 +13096,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       onClick={() =>
                         saveArtifactDraft(
                           "dev_runbook",
-                          `${selectedIdea.name} 역할별 작업 지시 묶음`,
+                          `${selectedIdea.name} 역할별 작업 안내 묶음`,
                           rolePromptPackDraft,
                           "development_process",
                         )
@@ -13975,7 +13975,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">현재 판단</div>
                 <div className="mt-2 text-xl font-semibold text-slate-950">{decisionLabels[editState.decision]}</div>
                 <p className="mt-2 text-sm leading-5 text-slate-600">
-                  점수와 위험을 보고 남길 판단입니다. 문장 하나면 충분합니다.
+                  지금까지의 평가와 위험 신호를 보고 남길 판단입니다. 문장 하나면 충분합니다.
                 </p>
               </div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">history</div>
@@ -14192,7 +14192,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <h3 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h3>
                     <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
                       일반 흐름에서는 아래 시장·경쟁 자동 점검만 먼저 실행하면 됩니다. 이 영역은 외부 AI나 인터뷰 준비에 쓸 질문을
-                    더 뽑고 싶을 때만 여는 보조 기능입니다. 버튼을 눌러도 다음 단계로 이동하지 않습니다.
+                    더 뽑고 싶을 때만 여는 추가 확인 영역입니다. 버튼을 눌러도 다음 단계로 이동하지 않습니다.
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {validationEvidenceCoach.nextFocus
@@ -14207,7 +14207,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               </div>
               <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-3">
                 {[
-                  ["근거 점수", "현재 입력값만 놓고 다음 단계로 넘겨도 되는지 참고용으로 계산한 값입니다."],
+                  ["근거 충분도", "현재 확인한 내용이 다음 단계로 넘어가기에 충분한지 참고로 보여줍니다."],
                   ["질문 복사", "외부 AI, 인터뷰 준비, 조사 메모에 붙여넣을 질문을 복사합니다."],
                   ["아래 입력칸에 넣기", "부족한 근거를 아래 결과 기록의 다음 행동 입력칸에 넣습니다."],
                 ].map(([title, detail]) => (
@@ -14249,7 +14249,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </p>
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
                   로그인 상태라면 자동 점검 결과는 리서치 노트로도 저장됩니다. 공개 자료를 찾으면 출처를 함께 표시하고,
-                  출처가 부족하면 추정 초안으로 남깁니다. 웹, 앱, 자동화, 개발 도구 연동처럼 만드는 형태에 따라 경쟁 기준도 달라집니다.
+                  출처가 부족하면 추정 초안으로 남깁니다. 웹, 앱, 자동화, 제작 도구 연동처럼 만드는 형태에 따라 경쟁 기준도 달라집니다.
                 </p>
               </div>
               <button
@@ -14827,7 +14827,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           className={activeTask === "artifacts" && artifactPanel === "product" && hasValidationSummaryArtifact ? "" : "hidden"}
           kicker="product"
           title="제품 기획서 초안"
-           description="점수, 증거, 리스크, 검증 계획, 실행 관리 결과를 바탕으로 생성되는 기획서 초안입니다."
+           description="사업성 평가, 증거, 리스크, 검증 계획, 실행 관리 결과를 바탕으로 생성되는 기획서 초안입니다."
           body={prdDraft}
           rows={18}
           copyLabel="기획서 복사"
@@ -15380,7 +15380,7 @@ function DraftDocumentCard({
             <span>이 문서는 저장되어 상단 진행 상태에 반영되었습니다.</span>
           ) : (
             <>
-              복사는 외부 문서나 메신저에 붙여 넣을 때 쓰는 보조 기능입니다. 일반 진행은 내용을 확인한 뒤{" "}
+              복사는 외부 문서나 메신저에 붙여 넣을 때 쓰는 보조 동작입니다. 일반 진행은 내용을 확인한 뒤{" "}
               <span className="font-semibold text-slate-950">{saveLabel}</span>을 누르면 됩니다.
             </>
           )}
