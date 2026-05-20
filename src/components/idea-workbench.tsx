@@ -11619,7 +11619,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 {effectiveDevelopmentAutoFlowState === "idle" ? (
                   <div className="mt-5 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm leading-6 text-blue-950">
-                      시작하면 AI가 준비된 내용을 묶고, 저장 전 최종 제작 요약을 먼저 보여줍니다.
+                      시작하면 AI가 필요한 내용을 순서대로 묶고, 저장 전 확인할 최종 제작 요약을 바로 보여줍니다.
                     </p>
                     <button
                       type="button"
@@ -11665,33 +11665,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       />
                     </div>
 
-                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                      <button
-                        type="button"
-                        onClick={() => updateActiveTask("artifacts")}
-                        className="avl-btn avl-btn-secondary h-11 px-4"
-                      >
-                        이전 단계로 이동
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDevelopmentAutoFlowState("summary")}
-                        className="avl-btn avl-btn-primary h-11 px-4"
-                      >
-                        최종 내용 보기
-                      </button>
-                    </div>
+                    <p className="text-sm leading-6 text-slate-600">
+                      아래 최종 실행 내역까지 확인한 뒤 저장하세요. 보완할 내용이 없다면 메모는 비워둬도 됩니다.
+                    </p>
                   </div>
                 ) : null}
 
-                {effectiveDevelopmentAutoFlowState === "summary" || effectiveDevelopmentAutoFlowState === "saved" ? (
+                {effectiveDevelopmentAutoFlowState !== "idle" ? (
                   <div className="mt-5 border border-slate-200 bg-slate-50 p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div>
                         <div className="avl-kicker">최종 실행 내역</div>
                         <h4 className="mt-2 text-base font-semibold text-slate-950">이 내용으로 제작 패키지를 저장합니다</h4>
                         <p className="mt-1 text-sm leading-6 text-slate-600">
-                          저장하면 디자인 기준, 제작 실행 계획, 개발 도구 전달 자료가 함께 남고, 다음 단계 버튼이 열립니다.
+                          저장하면 디자인 기준, 제작 실행 계획, 개발 도구 전달 자료가 함께 남고, 하단 다음 단계 버튼이 열립니다.
                         </p>
                       </div>
                       <button
