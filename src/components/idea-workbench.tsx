@@ -828,6 +828,7 @@ export type WorkbenchStepReadiness = {
   hasValidationSummaryArtifact: boolean;
   hasDesignGenerationPromptArtifact: boolean;
   hasDevelopmentPlanArtifact: boolean;
+  hasAgentRunPackageArtifact: boolean;
 };
 
 type ArtifactPanel = "validation" | "product" | "library";
@@ -8164,7 +8165,15 @@ export function IdeaWorkbench({
       artifact.artifact_type === "dev_runbook" &&
       (artifact.source === "development_process" || (artifact.title || "").includes("제작 실행 계획")),
   );
-  const canEnterOrchestrationFromDevelopmentDocs = hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact;
+  const hasAgentRunPackageArtifact = selectedArtifactRecords.some(
+    (artifact) =>
+      artifact.artifact_type === "dev_runbook" &&
+      (artifact.source === "agent_run_package" ||
+        (artifact.title || "").includes("하네스 패키지") ||
+        (artifact.title || "").includes("구현 실행 자료")),
+  );
+  const canEnterOrchestrationFromDevelopmentDocs =
+    hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact && hasAgentRunPackageArtifact;
 
   useEffect(() => {
     onStepReadinessChange?.({
@@ -8179,10 +8188,12 @@ export function IdeaWorkbench({
       hasValidationSummaryArtifact,
       hasDesignGenerationPromptArtifact,
       hasDevelopmentPlanArtifact,
+      hasAgentRunPackageArtifact,
     });
   }, [
     canEnterDevelopmentFromValidationDocs,
     canEnterOrchestrationFromDevelopmentDocs,
+    hasAgentRunPackageArtifact,
     hasDesignGenerationPromptArtifact,
     hasDevelopmentPlanArtifact,
     hasIdeaBriefArtifact,
@@ -8613,7 +8624,8 @@ export function IdeaWorkbench({
     : [];
   const visibleDevelopmentPanel: DevelopmentPanel =
     experienceMode === "guided" ? "setup" : developmentPanel;
-  const hasSavedDevelopmentAutoPackage = hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact;
+  const hasSavedDevelopmentAutoPackage =
+    hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact && hasAgentRunPackageArtifact;
   const effectiveDevelopmentAutoFlowState: DevelopmentAutoFlowState | "saved" =
     hasSavedDevelopmentAutoPackage ? "saved" : developmentAutoFlowState;
   const developmentAutoReviewSteps = [
@@ -8631,7 +8643,7 @@ export function IdeaWorkbench({
     },
     {
       label: "최종 패키지 저장",
-      detail: "사용자는 보완 메모만 더하고, 이상 없으면 한 번에 저장합니다.",
+      detail: "외부 IDE/MCP에 넘길 실행 자료까지 포함해 한 번에 저장합니다.",
     },
   ];
   const developmentAutoSummaryCards = [
@@ -8685,6 +8697,10 @@ export function IdeaWorkbench({
         "## 하네스 기준",
         activeProductSurface.promptFocus,
         activeProductSurface.stackHint,
+        "",
+        "## IDE/MCP 전달 기준",
+        "저장 후 생성되는 하네스 패키지는 Codex, Cursor, Claude, Antigravity 같은 개발 도구에 넘길 실행 자료로 사용합니다.",
+        "PRD, 디자인 방향, 기술 스택, 첫 제작 범위, 제외 범위, 검증 기준을 같은 맥락으로 묶어 다음 제작 단계가 흔들리지 않게 합니다.",
         "",
         "## 사용자 보완 메모",
         developmentAutoNote.trim() || "- 추가 메모 없음",
@@ -9599,6 +9615,20 @@ export function IdeaWorkbench({
       "## 상세 실행 계획",
       developmentPlanDraft,
     ].join("\n");
+    const finalAgentRunPackage = [
+      `# 하네스 패키지: ${selectedIdea.name}`,
+      "",
+      "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 IDE/MCP에 넘기기 위한 최종 실행 자료입니다.",
+      "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 프롬프트로 사용할 수 있습니다.",
+      "",
+      "## 실행 요약",
+      developmentAutoSummaryDraft,
+      "",
+      "---",
+      "",
+      "## IDE/MCP 전달 자료",
+      agentRunPackageDraft,
+    ].join("\n");
 
     if (!hasDesignGenerationPromptArtifact) {
       const savedPrompt = await saveArtifactDraft(
@@ -9626,8 +9656,21 @@ export function IdeaWorkbench({
       }
     }
 
+    if (!hasAgentRunPackageArtifact) {
+      const savedRunPackage = await saveArtifactDraft(
+        "dev_runbook",
+        `${selectedIdea.name} 하네스 패키지`,
+        finalAgentRunPackage,
+        "agent_run_package",
+      );
+
+      if (!savedRunPackage) {
+        return;
+      }
+    }
+
     setDevelopmentAutoFlowState("summary");
-    setMessage("하네스 패키지를 저장했습니다. 이제 다음 단계로 이동할 수 있습니다.");
+    setMessage("하네스 패키지를 저장했습니다. 외부 IDE/MCP에 넘길 실행 자료까지 준비됐습니다.");
   }
 
   async function runAiExecutionAutopilot() {
@@ -11275,7 +11318,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         <div className="avl-kicker">최종 실행 내역</div>
                         <h4 className="mt-2 text-base font-semibold text-slate-950">이 내용으로 하네스 패키지를 저장합니다</h4>
                         <p className="mt-1 text-sm leading-6 text-slate-600">
-                          저장하면 디자인 생성 프롬프트와 제작 실행 계획이 실행 문서로 남고, 다음 단계 버튼이 열립니다.
+                          저장하면 디자인 프롬프트, 제작 실행 계획, IDE/MCP용 실행 자료가 함께 남고, 다음 단계 버튼이 열립니다.
                         </p>
                       </div>
                       <button
@@ -11286,14 +11329,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           !user ||
                           hasSavedDevelopmentAutoPackage ||
                           !designGenerationPromptDraft ||
-                          !developmentPlanDraft
+                          !developmentPlanDraft ||
+                          !agentRunPackageDraft
                         }
                         className={`avl-btn h-11 px-4 disabled:cursor-not-allowed disabled:opacity-50 ${
                           hasSavedDevelopmentAutoPackage ? "avl-btn-secondary" : "avl-btn-primary"
                         }`}
                       >
                         {hasSavedDevelopmentAutoPackage ? <CheckCircle2 size={18} /> : <Save size={18} />}
-                        {hasSavedDevelopmentAutoPackage ? "최종 저장 완료" : "최종 하네스 패키지 저장"}
+                        {hasSavedDevelopmentAutoPackage ? "하네스 저장 완료" : "최종 하네스 패키지 저장"}
                       </button>
                     </div>
                     <textarea
@@ -11304,7 +11348,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     />
                     {hasSavedDevelopmentAutoPackage ? (
                       <p className="mt-3 text-sm font-semibold text-emerald-700">
-                        하네스 패키지가 저장되었습니다. 화면 하단의 다음 단계 버튼으로 이동할 수 있습니다.
+                        하네스 패키지가 저장되었습니다. 화면 하단의 다음 단계 버튼으로 실행 관리를 이어갈 수 있습니다.
                       </p>
                     ) : null}
                   </div>

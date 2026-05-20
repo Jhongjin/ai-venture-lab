@@ -782,6 +782,7 @@ export function VentureConsoleShell({
     hasValidationSummaryArtifact: false,
     hasDesignGenerationPromptArtifact: false,
     hasDevelopmentPlanArtifact: false,
+    hasAgentRunPackageArtifact: false,
   });
   const [visitedTaskIds, setVisitedTaskIds] = useState<ShellTask[]>([
     "console:auth",
