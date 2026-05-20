@@ -89,7 +89,7 @@ export function SiteHeader() {
               </>
             ) : (
               <Link href="/login" className="avl-btn avl-btn-primary h-9 px-4 text-sm">
-                로그인 / 회원가입
+                로그인·회원가입
                 <ArrowRight size={15} />
               </Link>
             )}

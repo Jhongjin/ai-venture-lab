@@ -32,7 +32,7 @@ export default function LoginPage() {
           />
           <div className="relative flex min-h-[520px] flex-col justify-between">
             <div>
-              <div className="avl-kicker !text-slate-300">operator access</div>
+              <div className="avl-kicker !text-slate-300">계정 접속</div>
               <h1
                 className="mt-6 max-w-[12ch] break-keep text-[42px] font-normal leading-[0.96] tracking-[-0.04em] text-white sm:text-[58px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}

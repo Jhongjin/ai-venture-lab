@@ -16,17 +16,17 @@ export const metadata: Metadata = {
 
 const recoveryRoutes = [
   {
-    label: "home",
+    label: "홈",
     title: "랜딩으로 돌아가기",
     href: "/",
   },
   {
-    label: "board",
+    label: "로그인",
     title: "로그인 후 시작",
     href: "/login",
   },
   {
-    label: "guide",
+    label: "가이드",
     title: "가이드 보기",
     href: "/guide",
   },
@@ -50,7 +50,7 @@ export default function NotFound() {
           <div className="relative">
             <div className="avl-kicker !text-slate-300">
               <Sparkle size={14} />
-              route missing
+              경로 없음
             </div>
             <h1
               className="mt-8 max-w-[10ch] break-keep text-[48px] font-normal leading-[0.94] tracking-[-0.05em] text-white sm:text-[68px]"
@@ -64,7 +64,7 @@ export default function NotFound() {
           </div>
 
           <div className="relative mt-10 grid grid-cols-4 gap-px bg-white/10">
-            {["idea", "validate", "build", "learn"].map((label, index) => (
+            {["아이디어", "검증", "제작", "학습"].map((label, index) => (
               <div key={label} className={`${index === 0 ? "bg-[#bcd3ff] text-slate-950" : "bg-white/[0.04] text-slate-300"} px-3 py-4`}>
                 <div className="font-mono text-[11px] uppercase tracking-[0.2em]">0{index + 1}</div>
                 <div className="mt-8 text-[10px] font-semibold uppercase tracking-[0.16em]">{label}</div>
@@ -106,7 +106,7 @@ export default function NotFound() {
             </div>
 
             <div className="mt-10 border-y border-slate-300 py-5">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">recovery note</div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">복구 안내</div>
               <p className="mt-3 max-w-[48ch] text-sm leading-6 text-slate-600">
                 링크가 오래됐거나 주소가 잘못됐을 수 있습니다. 저장된 작업은 실행 보드에서 계속 확인할 수 있습니다.
               </p>
