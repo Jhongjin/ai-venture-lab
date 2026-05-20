@@ -40,12 +40,12 @@ export default function LoginPage() {
                 로그인 후 대시보드로 이동합니다.
               </h1>
               <p className="mt-5 max-w-[42ch] break-keep text-sm leading-7 text-slate-300">
-                아이디어 후보, 검증 자료, 실행 준비 기록을 대시보드에서 이어서 관리합니다.
+                아이디어, 검증 자료, 실행 준비 기록을 대시보드에서 이어서 관리합니다.
               </p>
             </div>
 
             <div className="grid gap-px bg-white/10 sm:grid-cols-3">
-              {["후보", "검증", "실행"].map((item, index) => (
+              {["아이디어", "검증", "실행"].map((item, index) => (
                 <div key={item} className={`${index === 0 ? "bg-[#bcd3ff] text-slate-950" : "bg-white/[0.04] text-slate-300"} px-4 py-4`}>
                   <div className="font-mono text-[11px] uppercase tracking-[0.2em]">0{index + 1}</div>
                   <div className="mt-8 text-xs font-semibold">{item}</div>
@@ -62,7 +62,7 @@ export default function LoginPage() {
             </div>
             <h2 className="mt-6 text-[30px] font-semibold tracking-tight text-slate-950">로그인</h2>
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              로그인 후 대시보드에서 진행 중인 후보, 검증 기록, 실행 문서를 이어서 확인합니다.
+              로그인 후 대시보드에서 진행 중인 아이디어, 검증 기록, 실행 문서를 이어서 확인합니다.
             </p>
 
             <div className="mt-8">

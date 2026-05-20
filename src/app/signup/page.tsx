@@ -47,7 +47,7 @@ export default function SignupPage() {
             <div className="border-l border-slate-950 pl-5">
               <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-slate-500">signup route</div>
               <p className="mt-3 max-w-[38ch] break-keep text-base font-semibold leading-7 text-slate-950">
-                회원가입 후 기본 프로필을 설정하고 대시보드에서 첫 후보를 정리합니다.
+                회원가입 후 기본 프로필을 설정하고 대시보드에서 첫 아이디어를 정리합니다.
               </p>
             </div>
           </div>

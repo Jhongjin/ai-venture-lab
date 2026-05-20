@@ -866,7 +866,7 @@ function buildCandidateReadiness(
       passed: !similarIdea || similarIdea.score < 70,
       detail: similarIdea
         ? `${similarIdea.idea.name}와 유사도 ${similarIdea.score}%입니다. 기존 기록 확장 여부를 확인하세요.`
-        : "기존 포트폴리오와 강하게 겹치는 후보가 없습니다.",
+        : "기존 기록과 강하게 겹치는 아이디어가 없습니다.",
     },
     {
       label: "민감정보",
@@ -899,13 +899,13 @@ function buildExtractionGate(
   const corePassCount = [hasCoreProblem, hasUserBuyer, hasMetric, hasMvp].filter(Boolean).length;
 
   let id: ExtractionGateId = "research";
-  let summary = "증거를 더 모은 뒤 저장 또는 점수화할 후보입니다.";
+  let summary = "증거를 더 모은 뒤 저장하거나 점수화할 아이디어입니다.";
   let nextAction = blockers[0] ? `${blockers[0]} 보완 후 7일 검증 자료로 저장` : "인터뷰와 대체재 조사를 먼저 붙인 뒤 저장";
 
   if (candidate.validationScore <= 44 || corePassCount <= 1) {
     id = "kill";
-    summary = "핵심 문제, 구매자, 실험 단서가 약해 지금은 중단 후보입니다.";
-    nextAction = "문제 신호가 새로 확인될 때까지 저장하지 말고 후보 목록에서 보류";
+    summary = "핵심 문제, 구매자, 실험 단서가 약해 지금은 중단하는 편이 낫습니다.";
+    nextAction = "문제 신호가 새로 확인될 때까지 저장하지 말고 보류";
   } else if (hasDuplicateBlocker) {
     id = "pivot";
     summary = "기존 기록과 강하게 겹쳐 새 아이디어보다 병합 또는 포지션 전환을 먼저 봐야 합니다.";
@@ -921,7 +921,7 @@ function buildExtractionGate(
     !hasSensitiveBlocker
   ) {
     id = "proceed";
-    summary = "문제, 구매자, 확인 방법, 첫 제작 범위가 충분해 검증 자료로 저장할 후보입니다.";
+    summary = "문제, 구매자, 확인 방법, 첫 제작 범위가 충분해 검증 자료로 저장할 만한 아이디어입니다.";
     nextAction = "검증 자료 저장 후 실행 보드에서 점수와 첫 검증 계획을 확정";
   } else {
     id = "research";
@@ -941,7 +941,7 @@ function buildExtractionGate(
 
   return {
     id,
-    label: id === "proceed" ? "진행 후보" : id === "research" ? "추가 조사" : id === "pivot" ? "전환 검토" : "중단 후보",
+    label: id === "proceed" ? "진행 가능" : id === "research" ? "추가 조사" : id === "pivot" ? "전환 검토" : "보류",
     summary,
     nextAction,
     threshold: thresholdByGate[id],
@@ -971,7 +971,7 @@ function buildExtractedIdeaArtifacts(
     organization_id: organizationId,
     status: "draft" as const,
     version: 1,
-    status_note: "메모에서 찾은 후보를 검증 자료로 정리함",
+    status_note: "메모에서 찾은 아이디어를 검증 자료로 정리함",
   };
 
   return [
@@ -1237,9 +1237,9 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
   return candidates
     .slice(0, 8)
     .map((candidate, index) => {
-      const name = firstText([candidate.name], `AI 후보 ${index + 1}`, 42);
+      const name = firstText([candidate.name], `AI 아이디어 ${index + 1}`, 42);
       const sourceBlock = [
-        `AI 후보: ${name}`,
+        `AI 아이디어: ${name}`,
         candidate.signal ? `문제 신호: ${candidate.signal}` : "",
         candidate.one_liner ? `솔루션: ${candidate.one_liner}` : "",
         candidate.target_user ? `대상 사용자: ${candidate.target_user}` : "",
@@ -1323,7 +1323,7 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
         validationRationale:
           riskLevel === "높음"
             ? "AI가 수요는 정리했지만 규제, 개인정보, 운영 책임 검증이 먼저 필요합니다."
-            : "AI가 문제, 대상, 구매자, 첫 실험을 정리해 검증 후보로 볼 수 있습니다.",
+            : "AI가 문제, 대상, 구매자, 첫 실험을 정리해 검증할 아이디어로 볼 수 있습니다.",
       };
     })
     .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
@@ -1389,7 +1389,7 @@ function buildExtractionReplaySummary({
         primaryCandidate,
         matchedName: primaryCandidate.id === match.item.id ? rulesCandidate.name : match.item.name,
         overlapScore: match.score,
-        verdict: "공통 후보",
+        verdict: "공통 아이디어",
         nextAction: "두 방식이 모두 포착했습니다. 검증 자료 저장 또는 실행 보드 평가 우선순위로 봅니다.",
       });
       continue;
@@ -1402,7 +1402,7 @@ function buildExtractionReplaySummary({
       matchedName: null,
       overlapScore: 0,
       verdict: "규칙 단독",
-      nextAction: "원문 라벨이나 키워드가 강한 후보입니다. AI가 놓쳤을 수 있으니 문제/구매자 증거를 보완합니다.",
+      nextAction: "원문 라벨이나 키워드가 강한 아이디어입니다. AI가 놓쳤을 수 있으니 문제/구매자 증거를 보완합니다.",
     });
   }
 
@@ -1418,7 +1418,7 @@ function buildExtractionReplaySummary({
       matchedName: null,
       overlapScore: 0,
       verdict: "AI 단독",
-      nextAction: "AI가 문맥에서 추론한 후보입니다. 메모 근거와 과잉 해석 여부를 먼저 확인합니다.",
+      nextAction: "AI가 문맥에서 추론한 아이디어입니다. 메모 근거와 과잉 해석 여부를 먼저 확인합니다.",
     });
   }
 
@@ -1467,9 +1467,9 @@ function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
 
 - 실행 시각: ${generatedAt}
 - 입력 길이: ${summary.sourceLength}자
-- 기준 추출 후보: ${summary.rulesCount}개
-- AI 후보: ${summary.aiCount}개
-- 공통 후보: ${summary.consensusCount}개
+- 기준 추출 아이디어: ${summary.rulesCount}개
+- AI 아이디어: ${summary.aiCount}개
+- 공통 아이디어: ${summary.consensusCount}개
 - 기준 추출 단독: ${summary.rulesOnlyCount}개
 - AI 단독: ${summary.aiOnlyCount}개
 - AI 모드: ${summary.aiMode}
@@ -1478,9 +1478,9 @@ function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
 
 ## 비교 결과
 
-| 순서 | 후보 | 결과물 형태 | 판정 | 매칭 후보 | 유사도 | 검증 점수 | 다음 행동 |
+| 순서 | 아이디어 | 결과물 형태 | 판정 | 매칭 아이디어 | 유사도 | 검증 점수 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-${rows || "| - | 후보 없음 | - | - | - | - | - | - |"}
+${rows || "| - | 아이디어 없음 | - | - | - | - | - | - |"}
 `;
 }
 
@@ -1498,7 +1498,7 @@ function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
   const gateSummary = (["proceed", "research", "pivot", "kill"] as ExtractionGateId[])
     .map((gateId) => {
       const count = items.filter((item) => item.gate.id === gateId).length;
-      const label = gateId === "proceed" ? "진행 후보" : gateId === "research" ? "추가 조사" : gateId === "pivot" ? "전환 검토" : "중단 후보";
+      const label = gateId === "proceed" ? "진행 가능" : gateId === "research" ? "추가 조사" : gateId === "pivot" ? "전환 검토" : "보류";
 
       return `- ${label}: ${count}개`;
     })
@@ -1512,16 +1512,16 @@ ${gateSummary}
 
 ## 실행 순서
 
-| 순서 | 후보 | 결과물 형태 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
+| 순서 | 아이디어 | 결과물 형태 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-${rows || "| - | 후보 없음 | - | - | - | - | - | - | - |"}
+${rows || "| - | 아이디어 없음 | - | - | - | - | - | - | - |"}
 
 ## 운영 원칙
 
-- 진행 후보는 검증 자료로 저장한 뒤 실행 보드에서 점수와 첫 검증 계획을 확정합니다.
-- 추가 조사 후보는 부족한 문제 신호, 구매자, 지표, 리스크, MVP 범위를 보완합니다.
-- 전환 검토 후보는 기존 기록 병합, 세그먼트 축소, 구매자 변경 중 하나를 먼저 결정합니다.
-- 중단 후보는 새 증거가 생길 때까지 저장하지 않습니다.
+- 진행 가능한 아이디어는 검증 자료로 저장한 뒤 실행 보드에서 점수와 첫 검증 계획을 확정합니다.
+- 추가 조사가 필요한 아이디어는 부족한 문제 신호, 구매자, 지표, 리스크, MVP 범위를 보완합니다.
+- 전환 검토 아이디어는 기존 기록 병합, 세그먼트 축소, 구매자 변경 중 하나를 먼저 결정합니다.
+- 보류 아이디어는 새 증거가 생길 때까지 저장하지 않습니다.
 `;
 }
 
@@ -1544,12 +1544,12 @@ function buildExtractionReportBody(
 
 - 생성 시각: ${generatedAt}
 - 워크스페이스: ${organizationName ?? "개인 기록"}
-- 후보 수: ${items.length}개
+- 아이디어 수: ${items.length}개
 - 추출 엔진: ${runMeta?.engine ?? "미기록"}
 - 모델: ${runMeta?.model ?? "해당 없음"}
 - 입력 길이: ${runMeta?.sourceLength ?? source.length}자
 - 추출 시각: ${metaGeneratedAt}
-- 실행 메모: ${runMeta?.note ?? "수동 또는 이전 방식으로 찾은 후보입니다."}
+- 실행 메모: ${runMeta?.note ?? "수동 또는 이전 방식으로 찾은 아이디어입니다."}
 
 ${replaySummary ? buildExtractionReplayMarkdown(replaySummary) : "## 추출 결과 점검\n\n- 이번 리포트에는 결과 점검이 포함되지 않았습니다."}
 
@@ -1559,10 +1559,10 @@ ${sourceExcerpt || "메모 근거가 비어 있습니다."}
 
 ## 다음 처리
 
-1. 진행 후보는 검증 자료로 저장합니다.
-2. 추가 조사 후보는 부족한 증거를 보완한 뒤 다시 찾습니다.
-3. 전환 검토 후보는 기존 아이디어 병합 또는 세그먼트 축소를 먼저 판단합니다.
-4. 중단 후보는 새 증거가 생길 때까지 실행 목록에서 제외합니다.
+1. 진행 가능한 아이디어는 검증 자료로 저장합니다.
+2. 추가 조사가 필요한 아이디어는 부족한 증거를 보완한 뒤 다시 찾습니다.
+3. 전환 검토 아이디어는 기존 아이디어 병합 또는 세그먼트 축소를 먼저 판단합니다.
+4. 보류 아이디어는 새 증거가 생길 때까지 실행 목록에서 제외합니다.
 `;
 }
 
@@ -2415,7 +2415,7 @@ export function VentureConsoleActions({
 
     setExtractionReplay(null);
     setIsAiExtracting(true);
-    setExtractMessage("AI가 메모를 살펴보고 후보를 정리하는 중입니다. 문제가 생기면 기본 방식으로 계속 진행합니다.");
+    setExtractMessage("AI가 메모를 살펴보고 아이디어를 정리하는 중입니다. 문제가 생기면 기본 방식으로 계속 진행합니다.");
 
     try {
       const response = await fetch("/api/ideas/extract", {
@@ -2447,10 +2447,10 @@ export function VentureConsoleActions({
         );
         setExtractMessage(
           fallbackIdeas.length > 0
-            ? `AI 정리를 끝까지 사용할 수 없어 기본 방식으로 ${fallbackIdeas.length}개 후보를 정리했습니다. 사유: ${
+            ? `AI 정리를 끝까지 사용할 수 없어 기본 방식으로 ${fallbackIdeas.length}개 아이디어를 정리했습니다. 사유: ${
                 payload.error ?? `HTTP ${response.status}`
               }`
-            : `AI 정리를 끝까지 사용할 수 없었고 기본 방식으로도 후보를 찾지 못했습니다. 사유: ${
+            : `AI 정리를 끝까지 사용할 수 없었고 기본 방식으로도 아이디어를 찾지 못했습니다. 사유: ${
                 payload.error ?? `HTTP ${response.status}`
               }`,
         );
@@ -2465,11 +2465,11 @@ export function VentureConsoleActions({
           model: payload.model ?? "OpenAI",
           sourceLength: source.length,
           candidateCount: aiIdeas.length,
-          note: "AI가 메모에서 후보를 정리했습니다.",
+          note: "AI가 메모에서 아이디어를 정리했습니다.",
         }),
       );
       setExtractMessage(
-        `${aiIdeas.length}개 후보를 정리했습니다. 추천 후보의 결과물 형태, 검증 판단, 중복 가능성을 확인하세요.`,
+        `${aiIdeas.length}개 아이디어를 정리했습니다. 추천 아이디어의 결과물 형태, 검증 판단, 중복 가능성을 확인하세요.`,
       );
     } catch (error) {
       const fallbackIdeas = extractIdeasFromText(source);
@@ -2487,10 +2487,10 @@ export function VentureConsoleActions({
       );
       setExtractMessage(
         fallbackIdeas.length > 0
-          ? `AI 정리 중 오류가 발생해 기본 방식으로 ${fallbackIdeas.length}개 후보를 정리했습니다. ${
+          ? `AI 정리 중 오류가 발생해 기본 방식으로 ${fallbackIdeas.length}개 아이디어를 정리했습니다. ${
               error instanceof Error ? error.message : ""
             }`
-          : `AI 정리 중 오류가 발생했고 기본 방식으로도 후보를 찾지 못했습니다. ${
+          : `AI 정리 중 오류가 발생했고 기본 방식으로도 아이디어를 찾지 못했습니다. ${
               error instanceof Error ? error.message : ""
             }`,
       );
@@ -2511,7 +2511,7 @@ export function VentureConsoleActions({
     }
 
     setIsReplayingExtraction(true);
-    setExtractMessage("같은 메모를 기본 기준과 AI 결과로 다시 비교해 빠진 후보나 과한 해석이 없는지 점검하는 중입니다.");
+    setExtractMessage("같은 메모를 기본 기준과 AI 결과로 다시 비교해 빠진 아이디어나 과한 해석이 없는지 점검하는 중입니다.");
 
     try {
       const rulesIdeas = extractIdeasFromText(source);
@@ -2575,8 +2575,8 @@ export function VentureConsoleActions({
       );
       setExtractMessage(
         nextIdeas.length > 0
-          ? `결과 점검 완료. 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 기준 추출 단독 ${replaySummary.rulesOnlyCount}개 후보를 비교했습니다.`
-          : "결과 점검을 실행했지만 후보를 찾지 못했습니다. 원문에 아이디어, 문제, 솔루션 단서를 더 넣어보세요.",
+          ? `결과 점검 완료. 공통 ${replaySummary.consensusCount}개, AI 단독 ${replaySummary.aiOnlyCount}개, 기준 추출 단독 ${replaySummary.rulesOnlyCount}개 아이디어를 비교했습니다.`
+          : "결과 점검을 실행했지만 아이디어를 찾지 못했습니다. 원문에 아이디어, 문제, 솔루션 단서를 더 넣어보세요.",
       );
     } finally {
       setIsReplayingExtraction(false);
@@ -2585,17 +2585,17 @@ export function VentureConsoleActions({
 
   async function copyExtractionPortfolio() {
     if (extractionPortfolioItems.length === 0) {
-      setExtractMessage("복사할 후보 비교 요약이 없습니다. 먼저 후보를 찾아 주세요.");
+      setExtractMessage("복사할 아이디어 비교 요약이 없습니다. 먼저 아이디어를 찾아 주세요.");
       return;
     }
 
     await navigator.clipboard.writeText(extractionPortfolioMarkdown);
-    setExtractMessage("후보 비교 실행 요약을 클립보드에 복사했습니다.");
+    setExtractMessage("아이디어 비교 실행 요약을 클립보드에 복사했습니다.");
   }
 
   async function saveExtractionPortfolioReport() {
     if (extractionPortfolioItems.length === 0) {
-      setExtractMessage("저장할 후보 비교 리포트가 없습니다. 먼저 후보를 찾아 주세요.");
+      setExtractMessage("저장할 아이디어 비교 리포트가 없습니다. 먼저 아이디어를 찾아 주세요.");
       return;
     }
 
@@ -2605,7 +2605,7 @@ export function VentureConsoleActions({
     }
 
     if (!user) {
-      setExtractMessage("후보 정리 리포트를 저장하려면 먼저 로그인하세요.");
+      setExtractMessage("아이디어 정리 리포트를 저장하려면 먼저 로그인하세요.");
       return;
     }
 
@@ -2627,7 +2627,7 @@ export function VentureConsoleActions({
         artifact_type: "research_note",
         status: "draft",
         version: 1,
-        title: `후보 정리 리포트 ${titleDate}`,
+        title: `아이디어 정리 리포트 ${titleDate}`,
         body: buildExtractionReportBody(
           extractionPortfolioItems,
           rawIdeaSource,
@@ -2636,7 +2636,7 @@ export function VentureConsoleActions({
           extractionReplay,
         ),
         source: "extraction_portfolio",
-        status_note: "메모에서 찾은 후보와 근거를 비교해 저장한 리포트입니다.",
+        status_note: "메모에서 찾은 아이디어와 근거를 비교해 저장한 리포트입니다.",
       })
       .select()
       .single();
@@ -2649,7 +2649,7 @@ export function VentureConsoleActions({
     }
 
     window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: data }));
-    setExtractMessage("후보 정리 리포트를 실행 문서로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
+    setExtractMessage("아이디어 정리 리포트를 실행 문서로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
     router.refresh();
@@ -2667,7 +2667,7 @@ export function VentureConsoleActions({
         "\n- ",
       )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
     });
-    setSaveMessage(`'${candidate.name}' 후보를 검증 메모까지 포함해 입력 폼에 채웠습니다. 검토 후 저장하세요.`);
+    setSaveMessage(`'${candidate.name}' 아이디어를 검증 메모까지 포함해 입력 폼에 채웠습니다. 검토 후 저장하세요.`);
     updateActiveTask("idea");
   }
 
@@ -2791,7 +2791,7 @@ export function VentureConsoleActions({
     }
 
     if (!user) {
-      setExtractMessage("후보를 저장하려면 먼저 로그인하세요.");
+      setExtractMessage("아이디어를 저장하려면 먼저 로그인하세요.");
       return;
     }
 
@@ -2807,11 +2807,11 @@ export function VentureConsoleActions({
         setExtractMessage(`아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${result.partialError}`);
       } else {
         setExtractMessage(
-            `'${candidate.name}' 후보를 아이디어, 리스크, 7일 검증 계획, 실행 문서 ${result.artifactCount}개까지 저장했습니다.`,
+            `'${candidate.name}' 아이디어를 리스크, 7일 검증 계획, 실행 문서 ${result.artifactCount}개까지 저장했습니다.`,
         );
       }
     } catch (error) {
-      setExtractMessage(error instanceof Error ? error.message : "후보를 검증 자료로 저장하지 못했습니다.");
+      setExtractMessage(error instanceof Error ? error.message : "아이디어를 검증 자료로 저장하지 못했습니다.");
     }
 
     setExtractSaveKey(null);
@@ -2828,12 +2828,12 @@ export function VentureConsoleActions({
     }
 
     if (!user) {
-      setExtractMessage("후보를 저장하려면 먼저 로그인하세요.");
+      setExtractMessage("아이디어를 저장하려면 먼저 로그인하세요.");
       return;
     }
 
     if (bulkSavableExtractionItems.length === 0) {
-      setExtractMessage("일괄 저장할 진행/추가 조사 후보가 없습니다. 중복 후보나 준비도 70% 미만 후보는 제외됩니다.");
+      setExtractMessage("일괄 저장할 진행/추가 조사 아이디어가 없습니다. 중복 아이디어나 준비도 70% 미만 아이디어는 제외됩니다.");
       return;
     }
 
@@ -2857,7 +2857,7 @@ export function VentureConsoleActions({
     setExtractSaveKey(null);
     setExtractMessage(
       savedNames.length > 0
-        ? `상위 후보 ${savedNames.length}개를 검증 자료로 저장했습니다: ${savedNames.join(", ")}${
+        ? `상위 아이디어 ${savedNames.length}개를 검증 자료로 저장했습니다: ${savedNames.join(", ")}${
             partialErrors.length > 0 ? ` / 일부 보완 필요: ${partialErrors.join(" | ")}` : ""
           }`
         : `일괄 저장에 실패했습니다: ${partialErrors.join(" | ")}`,
@@ -3304,7 +3304,7 @@ export function VentureConsoleActions({
                   ) : null}
                   {duplicateCandidateCount > 0 ? (
                     <div className="avl-surface-muted border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-                      {duplicateCandidateCount}개 후보가 기존 기록과 유사합니다. 새로 만들기보다 기존 기록 확장을 먼저
+                      {duplicateCandidateCount}개 아이디어가 기존 기록과 유사합니다. 새로 만들기보다 기존 기록 확장을 먼저
                       확인하세요.
                     </div>
                   ) : null}
@@ -3370,7 +3370,7 @@ export function VentureConsoleActions({
                       <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-4">
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">선택 이유</div>
-                          <p className="mt-1 text-xs leading-5 text-slate-700">점수, 준비도, 리스크를 비교해 지금 먼저 볼 후보로 골랐습니다.</p>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">점수, 준비도, 리스크를 비교해 지금 먼저 볼 아이디어로 골랐습니다.</p>
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">저장하면 생기는 것</div>
@@ -3409,7 +3409,7 @@ export function VentureConsoleActions({
                   ) : (
                     <section className="border border-dashed border-slate-300 bg-slate-50 p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음에 보이는 것</div>
-                      <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 후보가 없습니다</h3>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 아이디어가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                         <li>1. 왼쪽 입력칸에 아이디어를 붙여 넣습니다.</li>
                         <li>2. AI로 아이디어 구체화를 눌러 한 개 아이디어와 결과물 형태를 선정합니다.</li>
@@ -3913,7 +3913,7 @@ export function VentureConsoleActions({
                     value={form.name}
                     onChange={(value) => setForm({ ...form, name: value })}
                     required
-                    hint="AI가 추천한 후보명을 그대로 두거나, 본인이 이해하기 쉬운 이름으로 다듬어도 됩니다."
+                    hint="AI가 추천한 이름을 그대로 두거나, 본인이 이해하기 쉬운 이름으로 다듬어도 됩니다."
                   />
                   <Field
                     label="한 줄 설명"
