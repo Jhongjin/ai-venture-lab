@@ -486,7 +486,7 @@ const artifactSourceLabels: Record<string, string> = {
   prd_readiness_handoff: "기획서 전환 전달 내용",
   mvp_slice_plan: "첫 제작 범위 플랜",
   development_kickoff: "제작 시작 브리프",
-  agent_run_package: "하네스 패키지",
+  agent_run_package: "개발 도구 전달 자료",
   development_process: "제작 준비 과정",
   development_report: "제작 완료 보고서",
   filtered_implementation_run: "필터 실행 프롬프트",
@@ -2788,7 +2788,7 @@ function buildMvpSlicePlanMarkdown({
 - 범위 원칙: 자동화를 전제로 하되, 첫 버전은 검증 속도에 맞춰 기능을 줄입니다.
 - 개발 진입 조건: 문제, 구매자, 수요 신호, 추가 확인 내용이 한 문장으로 연결되어야 합니다.
 - 결과물 형태: ${productSurface.label}
-- 하네스 기준: ${productSurface.harnessFocus}
+- 제작 기준: ${productSurface.harnessFocus}
 
 ## 현재 검증 재료
 
@@ -3658,7 +3658,7 @@ function buildDesignGenerationPromptMarkdown({
 - 추천 백엔드: ${topBackend}
 - 결과물 형태: ${productSurface.label}
 - 첫 제작 형태: ${productSurface.firstBuild}
-- 하네스 기준: ${productSurface.harnessFocus}
+- 제작 기준: ${productSurface.harnessFocus}
 - 다음 검증 증거: ${state.next_evidence || "미정"}
 
 ## 사용자가 해결하려는 문제
@@ -3905,7 +3905,7 @@ function buildAppBlueprintMarkdown({
 - 첫 제작 형태: ${productSurface.firstBuild}
 - 추천 백엔드: ${topBackend}
 - 빌드 원칙: 가장 작은 수직 슬라이스로 ${state.next_evidence || "추가 확인 내용"}을 확인합니다.
-- 하네스 기준: ${productSurface.harnessFocus}
+- 제작 기준: ${productSurface.harnessFocus}
 
 ## 2. 첫 버전 정보 구조
 
@@ -4104,7 +4104,7 @@ with check (owner_id = auth.uid());
 - 현재 판단: ${decisionLabels[state.decision]}
 - 결과물 형태: ${productSurface.label}
 - 첫 제작 형태: ${productSurface.firstBuild}
-- 하네스 기준: ${productSurface.harnessFocus}
+- 제작 기준: ${productSurface.harnessFocus}
 - 추천 백엔드: ${topBackend}
 
 ## 권장 스택
@@ -4116,7 +4116,7 @@ with check (owner_id = auth.uid());
 - Vercel Preview/Production
 - ${topBackend}
 
-## 하네스 기준
+## 제작 기준
 
 ${productSurfaceMarkdown(productSurface)}
 
@@ -4283,7 +4283,7 @@ function buildMvpBuildCommandPacketMarkdown({
 - 현재 단계/판단: ${stageLabels[state.stage]} / ${decisionLabels[state.decision]}
 - 결과물 형태: ${productSurface.label}
 - 첫 제작 형태: ${productSurface.firstBuild}
-- 하네스 기준: ${productSurface.harnessFocus}
+- 제작 기준: ${productSurface.harnessFocus}
 - 추천 백엔드: ${recommendedBackend}
 - 출시 권고: ${releaseDecisionPacket ? decisionLabels[releaseDecisionPacket.recommendation] : "미계산"}
 - 출시 지침: ${launchInstruction}
@@ -4728,7 +4728,7 @@ function buildImplementationHandoffMarkdown({
 - 현재 판단: ${decisionLabels[state.decision]}
 - 결과물 형태: ${productSurface.label}
 - 첫 제작 형태: ${productSurface.firstBuild}
-- 하네스 기준: ${productSurface.harnessFocus}
+- 제작 기준: ${productSurface.harnessFocus}
 - 추가 확인 내용: ${state.next_evidence || "미정"}
 
 ## 구현 원칙
@@ -4942,7 +4942,7 @@ ${instructionLines}
 - 현재 판단: ${decisionLabels[state.decision]}
 - 결과물 형태: ${productSurface.label}
 - 첫 제작 형태: ${productSurface.firstBuild}
-- 하네스 기준: ${productSurface.harnessFocus}
+- 제작 기준: ${productSurface.harnessFocus}
 - 추가 확인 내용: ${state.next_evidence || "미정"}
 - 수요 신호: ${state.signal || "미정"}
 - 리스크 요약: ${state.risk_summary || "미정"}
@@ -5048,7 +5048,7 @@ function buildDevelopmentKickoffMarkdown({
 - 구매자: ${idea.buyer || "미정"}
 - 결과물 형태: ${productSurface.label}
 - 첫 제작 형태: ${productSurface.firstBuild}
-- 하네스 기준: ${productSurface.harnessFocus}
+- 제작 기준: ${productSurface.harnessFocus}
 - 추가 확인 내용: ${state.next_evidence || "미정"}
 
 ## 시작 전 차단 항목
@@ -5179,7 +5179,7 @@ function buildAgentRunPackageMarkdown({
           .join("\n")
       : "- 연결된 실험이 없습니다.";
 
-  return `# 하네스 패키지: ${idea.name}
+  return `# 제작 패키지: ${idea.name}
 
 너는 이 제품의 구현 에이전트입니다. 아래 자료에 포함된 승인 실행 문서와 태스크만 기준으로 작업합니다.
 
@@ -5193,7 +5193,7 @@ function buildAgentRunPackageMarkdown({
 - 현재 단계/판단: ${stageLabels[state.stage]} / ${decisionLabels[state.decision]}
 - 결과물 형태: ${productSurface.label}
 - 첫 제작 형태: ${productSurface.firstBuild}
-- 하네스 기준: ${productSurface.harnessFocus}
+- 제작 기준: ${productSurface.harnessFocus}
 - 추가 확인 내용: ${state.next_evidence || "미정"}
 
 ## 승인된 원천 실행 문서
@@ -8684,12 +8684,12 @@ export function IdeaWorkbench({
       detail: firstBuildBridge?.firstTasks.slice(0, 2).join(" · ") || "처음 만들 핵심 화면과 기능을 한 묶음으로 정리합니다.",
     },
     {
-      label: "하네스 구성",
+      label: "제작 패키지 구성",
       detail: "디자인 프롬프트, 기술 스택, 작업 순서, 제외 범위, 확인 기준을 한 패키지로 묶습니다.",
     },
     {
       label: "최종 패키지 저장",
-      detail: "외부 IDE/MCP에 넘길 실행 자료까지 포함해 한 번에 저장합니다.",
+      detail: "외부 개발 도구에 넘길 실행 자료까지 포함해 한 번에 저장합니다.",
     },
   ];
   const developmentAutoSummaryCards = [
@@ -8740,12 +8740,12 @@ export function IdeaWorkbench({
         developmentAutoSummaryCards[3]?.value ?? "",
         developmentAutoSummaryCards[3]?.detail ?? "",
         "",
-        "## 하네스 기준",
+        "## 제작 기준",
         activeProductSurface.promptFocus,
         activeProductSurface.stackHint,
         "",
-        "## IDE/MCP 전달 기준",
-        "저장 후 생성되는 하네스 패키지는 Codex, Cursor, Claude, Antigravity 같은 개발 도구에 넘길 실행 자료로 사용합니다.",
+        "## 개발 도구 전달 기준",
+        "저장 후 생성되는 제작 패키지는 Codex, Cursor, Claude, Antigravity 같은 개발 도구에 넘길 실행 자료로 사용합니다.",
         "PRD, 디자인 방향, 기술 스택, 첫 제작 범위, 제외 범위, 검증 기준을 같은 맥락으로 묶어 다음 제작 단계가 흔들리지 않게 합니다.",
         "",
         "## 사용자 보완 메모",
@@ -9679,9 +9679,9 @@ export function IdeaWorkbench({
       developmentPlanDraft,
     ].join("\n");
     const finalAgentRunPackage = [
-      `# 하네스 패키지: ${selectedIdea.name}`,
+      `# 제작 패키지: ${selectedIdea.name}`,
       "",
-      "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 IDE/MCP에 넘기기 위한 최종 실행 자료입니다.",
+      "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 개발 환경에 넘기기 위한 최종 실행 자료입니다.",
       "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 프롬프트로 사용할 수 있습니다.",
       "",
       "## 실행 요약",
@@ -9689,7 +9689,7 @@ export function IdeaWorkbench({
       "",
       "---",
       "",
-      "## IDE/MCP 전달 자료",
+      "## 개발 도구 전달 자료",
       agentRunPackageDraft,
     ].join("\n");
 
@@ -9734,13 +9734,13 @@ export function IdeaWorkbench({
     if (!hasAgentRunPackageArtifact) {
       const savedRunPackage = await saveArtifactDraft(
         "dev_runbook",
-        `${selectedIdea.name} 하네스 패키지`,
+        `${selectedIdea.name} 제작 패키지`,
         finalAgentRunPackage,
         "agent_run_package",
         {
           version: plannedDevRunbookVersion,
           quiet: true,
-          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 IDE/MCP 전달 자료입니다.",
+          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 개발 도구 전달 자료입니다.",
         },
       );
 
@@ -9750,7 +9750,7 @@ export function IdeaWorkbench({
     }
 
     setDevelopmentAutoFlowState("summary");
-    setMessage("하네스 패키지를 저장했습니다. 외부 IDE/MCP에 넘길 실행 자료까지 준비됐습니다.");
+    setMessage("제작 패키지를 저장했습니다. 외부 개발 도구에 넘길 실행 자료까지 준비됐습니다.");
   }
 
   async function runAiExecutionAutopilot() {
@@ -11244,7 +11244,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         >
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">하네스 패키지 정리</h2>
+              <h2 className="text-lg font-semibold text-slate-950">제작 패키지 정리</h2>
               <p className="mt-1 text-sm text-slate-500">
                 검증된 아이디어를 실제 제작이나 외부 IDE로 넘기기 전에 필요한 자료를 한 묶음으로 정리합니다.
               </p>
@@ -11274,7 +11274,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           ) : (
             <div className="avl-surface-muted mb-5 p-4">
               <div className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">현재 단계</div>
-              <h3 className="mt-2 text-base font-semibold text-slate-950">하네스 자동 정리</h3>
+              <h3 className="mt-2 text-base font-semibold text-slate-950">제작 패키지 자동 정리</h3>
               <p className="mt-1 text-sm leading-6 text-slate-600">
                 아래 카드에서 AI가 제작 방향과 실행 패키지를 순서대로 묶습니다. 사용자는 최종 저장 전 한 번만 확인하면 됩니다.
               </p>
@@ -11290,7 +11290,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <div className="avl-kicker">자동 제작 준비</div>
-                    <h3 className="mt-2 text-xl font-semibold text-slate-950">AI가 하네스 패키지를 한 번에 정리합니다</h3>
+                    <h3 className="mt-2 text-xl font-semibold text-slate-950">AI가 제작 패키지를 한 번에 정리합니다</h3>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                       검증 결과와 결과물 형태를 바탕으로 PRD, 디자인 프롬프트, 기술 방향, 첫 제작 범위를 하나로 묶습니다.
                       사용자는 이상 없는지만 확인하고 필요한 메모를 더한 뒤 저장하면 됩니다.
@@ -11334,7 +11334,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 {effectiveDevelopmentAutoFlowState === "idle" ? (
                   <div className="mt-5 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm leading-6 text-blue-950">
-                      시작하면 AI가 준비된 내용을 순서대로 묶고, 저장 전 최종 하네스 요약을 먼저 보여줍니다.
+                      시작하면 AI가 준비된 내용을 순서대로 묶고, 저장 전 최종 제작 요약을 먼저 보여줍니다.
                     </p>
                     <button
                       type="button"
@@ -11411,9 +11411,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div>
                         <div className="avl-kicker">최종 실행 내역</div>
-                        <h4 className="mt-2 text-base font-semibold text-slate-950">이 내용으로 하네스 패키지를 저장합니다</h4>
+                        <h4 className="mt-2 text-base font-semibold text-slate-950">이 내용으로 제작 패키지를 저장합니다</h4>
                         <p className="mt-1 text-sm leading-6 text-slate-600">
-                          저장하면 디자인 프롬프트, 제작 실행 계획, IDE/MCP용 실행 자료가 함께 남고, 다음 단계 버튼이 열립니다.
+                          저장하면 디자인 프롬프트, 제작 실행 계획, 개발 도구 전달 자료가 함께 남고, 다음 단계 버튼이 열립니다.
                         </p>
                       </div>
                       <button
@@ -11432,7 +11432,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         }`}
                       >
                         {hasSavedDevelopmentAutoPackage ? <CheckCircle2 size={18} /> : <Save size={18} />}
-                        {hasSavedDevelopmentAutoPackage ? "하네스 저장 완료" : "최종 하네스 패키지 저장"}
+                        {hasSavedDevelopmentAutoPackage ? "제작 패키지 저장 완료" : "최종 제작 패키지 저장"}
                       </button>
                     </div>
                     <textarea
@@ -11443,7 +11443,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     />
                     {hasSavedDevelopmentAutoPackage ? (
                       <p className="mt-3 text-sm font-semibold text-emerald-700">
-                        하네스 패키지가 저장되었습니다. 화면 하단의 다음 단계 버튼으로 실행 관리를 이어갈 수 있습니다.
+                        제작 패키지가 저장되었습니다. 화면 하단의 다음 단계 버튼으로 실행 관리를 이어갈 수 있습니다.
                       </p>
                     ) : null}
                   </div>
@@ -12162,7 +12162,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="avl-card mt-4 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <h4 className="text-sm font-semibold text-slate-950">하네스 패키지</h4>
+                  <h4 className="text-sm font-semibold text-slate-950">제작 패키지</h4>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
                     승인된 실행 문서, 제작 할 일, 남은 확인 사항, 검증 명령을 한 번에 묶어 개발 도구나 구현 에이전트에게 넘깁니다.
                   </p>
@@ -12178,7 +12178,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => copyDraft(agentRunPackageDraft, "하네스 패키지")}
+                    onClick={() => copyDraft(agentRunPackageDraft, "제작 패키지")}
                     disabled={!agentRunPackageDraft}
                     className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                   >
@@ -12190,7 +12190,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     onClick={() =>
                       saveArtifactDraft(
                         "dev_runbook",
-                        `${selectedIdea.name} 하네스 패키지`,
+                        `${selectedIdea.name} 제작 패키지`,
                         agentRunPackageDraft,
                         "agent_run_package",
                       )
