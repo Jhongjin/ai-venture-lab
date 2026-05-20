@@ -11463,8 +11463,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="mt-4 border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">제작 형태</div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      AI가 먼저 이 아이디어를 웹 서비스, 모바일 앱, 자동화, 운영 콘솔 중 어떤 형태로 만들지 정합니다.
-                      이 값은 기획서, 디자인, 기술 스택, 제작 패키지까지 이어지는 기준입니다.
+                      AI가 이 아이디어를 웹 서비스, 모바일 앱, 랜딩/웹사이트, 업무 자동화, 운영 콘솔, 제작 도구 연동 중
+                      어떤 형태로 만들지 먼저 정합니다. 이 값은 사업성 평가, 디자인 방향, 기술 스택, 제작 패키지까지
+                      이어지는 기준입니다.
                     </p>
                     <div className="mt-4 grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
                       <label className="grid gap-2 text-sm font-semibold text-slate-900">

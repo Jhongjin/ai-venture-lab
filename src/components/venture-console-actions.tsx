@@ -3292,9 +3292,9 @@ export function VentureConsoleActions({
                     className="avl-textarea min-h-[280px] leading-7"
                   />
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
-                    <span><strong className="text-slate-950">1.</strong> 아이디어를 붙여 넣기 합니다.</span>
-                    <span><strong className="text-slate-950">2.</strong> AI가 아이디어 한 건과 제작 형태를 추천합니다.</span>
-                    <span><strong className="text-slate-950">3.</strong> 저장하면 검증 단계가 열립니다.</span>
+                    <span><strong className="text-slate-950">1.</strong> 아이디어를 붙여넣습니다.</span>
+                    <span><strong className="text-slate-950">2.</strong> AI가 아이디어와 제작 형태를 함께 정리합니다.</span>
+                    <span><strong className="text-slate-950">3.</strong> 저장하면 사업성 평가로 이어집니다.</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -3354,7 +3354,7 @@ export function VentureConsoleActions({
                           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI 추천 아이디어</div>
                           <h3 className="mt-2 text-lg font-semibold text-slate-950">{recommendedExtractedIdea.name}</h3>
                           <p className="mt-1 text-sm leading-5 text-slate-600">
-                            지금 먼저 검토할 한 건과 권장 제작 형태입니다.
+                            먼저 볼 아이디어와 만들 형태를 함께 정리했습니다.
                           </p>
                         </div>
                         {recommendedExtractionGate && recommendedGateStyle ? (
@@ -3380,7 +3380,7 @@ export function VentureConsoleActions({
                       </div>
                       <div className="mt-4 border border-blue-200 bg-blue-50 px-4 py-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
-                          AI가 추천한 제작 형태
+                          먼저 만들 형태
                         </div>
                         <div className="mt-2 text-base font-semibold text-slate-950">
                           {recommendedExtractedIdea.productSurface.label}
@@ -3389,7 +3389,7 @@ export function VentureConsoleActions({
                           {recommendedExtractedIdea.productSurface.firstBuild}
                         </p>
                         <label className="mt-3 grid gap-2 text-sm font-semibold text-slate-900">
-                          저장 전에 웹/앱/자동화 형태 확인
+                          제작 형태 확인
                           <select
                             value={recommendedExtractedIdea.productSurface.key}
                             onChange={(event) =>
@@ -3408,7 +3408,7 @@ export function VentureConsoleActions({
                           </select>
                         </label>
                         <p className="mt-1 text-xs leading-5 text-slate-600">
-                          이 기준으로 기획서, 디자인, 기술 스택, 제작 패키지가 이어집니다.
+                          이 기준이 사업성 평가, 디자인 방향, 기술 스택, 제작 패키지까지 이어집니다.
                         </p>
                       </div>
                       <div className="mt-4 border-t border-slate-200 pt-4">
@@ -3429,17 +3429,17 @@ export function VentureConsoleActions({
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">저장하면 생기는 것</div>
-                          <p className="mt-1 text-xs leading-5 text-slate-700">아이디어, 리스크, 7일 검증 계획이 한 묶음으로 만들어집니다.</p>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">아이디어, 리스크, 사업성 평가 초안이 한 묶음으로 만들어집니다.</p>
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">제작 형태</div>
                           <p className="mt-1 text-xs leading-5 text-slate-700">
-                            {recommendedExtractedIdea.productSurface.label} 기준으로 제작 패키지를 맞춥니다.
+                            {recommendedExtractedIdea.productSurface.label} 기준으로 이후 문서를 맞춥니다.
                           </p>
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">다음 단계</div>
-                          <p className="mt-1 text-xs leading-5 text-slate-700">저장 후에는 무엇을 확인할지 7일 검증 계획으로 정합니다.</p>
+                          <p className="mt-1 text-xs leading-5 text-slate-700">저장 후에는 이 아이디어를 검증할 만한지 먼저 판단합니다.</p>
                         </div>
                       </div>
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -3466,9 +3466,9 @@ export function VentureConsoleActions({
                       <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">다음에 보이는 것</div>
                       <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 아이디어가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
-                        <li>1. 왼쪽 입력칸에 아이디어를 붙여 넣습니다.</li>
-                        <li>2. AI로 아이디어 구체화를 눌러 한 개 아이디어와 제작 형태를 확인합니다.</li>
-                        <li>3. 마음에 들면 저장하고 검증 단계로 넘어갑니다.</li>
+                        <li>1. 왼쪽 입력칸에 아이디어를 붙여넣습니다.</li>
+                        <li>2. AI가 아이디어 한 건과 제작 형태를 함께 정리합니다.</li>
+                        <li>3. 마음에 들면 저장하고 사업성 평가로 넘어갑니다.</li>
                       </ul>
                     </section>
                   )}
@@ -3590,7 +3590,7 @@ export function VentureConsoleActions({
                               </span>
                             </div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
-                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · 결과물 {item.candidate.productSurface.label} · {item.nextGap}
+                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · 제작 형태 {item.candidate.productSurface.label} · {item.nextGap}
                             </p>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
                               {item.gate.nextAction}
@@ -3710,7 +3710,7 @@ export function VentureConsoleActions({
                               사업/제작 {strategyScore}%
                             </span>
                             <span className="avl-pill avl-pill-brand">
-                              결과물 {candidate.productSurface.shortLabel}
+                              제작 형태 {candidate.productSurface.shortLabel}
                             </span>
                             <span className={`${gateStyle.badge}`}>
                               {extractionGate.label}
