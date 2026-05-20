@@ -61,6 +61,15 @@ AI Venture Lab turns raw app ideas into tested MVPs using a fixed operating loop
 - No sensitive feature without explicit data handling notes.
 - No factual market or regulatory claim without a source.
 
+## AI-first Console Contract
+
+The console should follow `docs/AI_FIRST_PRODUCT_FLOW.md`: AI prepares the idea, market check, risk check, validation plan, execution documents, and production package first. The user confirms, corrects, or stops the work.
+
+- Do not turn generated artifacts into a manual checklist in the primary path.
+- Do not advance steps from helper buttons; only the bottom next-step button should move the workflow forward.
+- Do not enable the next step until the required save or confirmation is complete.
+- Keep product-surface classification visible from idea discovery onward because it shapes the PRD, design direction, stack choice, first build scope, and external handoff.
+
 ## Agent Work Loop
 
 Use this loop for every implementation or harness phase:
@@ -80,7 +89,7 @@ The app now supports the first live operating loop:
 
 1. Discover idea candidates from pasted conversations or notes.
 2. Classify the intended product surface before validation: web app, mobile app, web site, automation workflow, operator console, or MCP/IDE handoff.
-3. Save a strong candidate as a validation package with an idea record, product surface, initial risk, planned 7-day experiment, idea brief, research brief, and validation sprint artifacts.
+3. Save a strong candidate as a validation package with an idea record, product surface, initial risk, planned 7-day experiment, idea brief, research brief, and validation sprint artifacts. AI creates the first draft; the user only confirms or corrects.
 4. Check similar existing ideas before saving a candidate so duplicate records do not fragment the evidence trail.
 5. Check validation-package readiness and source excerpts on extracted candidates so problem signal, user/buyer separation, measurable metric, risk, first MVP scope, duplicate risk, sensitive-source risk, origin text, and product surface are visible before saving. Saved source excerpts are automatically redacted for obvious contact and identifier patterns.
 6. Apply the extraction gate before saving: proceed when validation score, readiness, risk, and duplicate checks are strong; research more when evidence is missing; pivot when the segment, buyer, product surface, MVP scope, or duplicate boundary needs redefinition; kill when the core problem or MVP signal is too weak.
@@ -99,7 +108,7 @@ The app now supports the first live operating loop:
 19. Create an orchestration runbook so strategy, research, product, design, build, QA, debug, security, and launch work have explicit status.
 20. Save each orchestration output and copy the generated PRD draft when the evidence is ready.
 21. Save generated briefs, research notes, and PRDs into the artifact library before moving to MVP scope.
-22. Generate and save the MVP spec, backend decision, design brief, technical spec, development runbook, launch checklist, and IDE/MCP handoff text before build or release work starts.
+22. Generate and save the MVP spec, backend decision, design brief, technical spec, development runbook, launch checklist, and production package before build or release work starts.
 23. Promote artifacts from draft to approved only after the relevant gates are complete.
 24. Use launch readiness to see which approved artifacts and gates still block build or release.
 25. Save revised artifacts as new versions instead of overwriting prior evidence.

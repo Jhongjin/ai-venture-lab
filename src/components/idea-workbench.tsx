@@ -2971,7 +2971,7 @@ ${productSurfaceMarkdown(productSurface)}
 - 현재 권장 형태: ${productSurface.label}
 - 첫 제작 형태: ${productSurface.firstBuild}
 - 스택 기본값: ${productSurface.stackHint}
-- 이 값은 PRD, 디자인 프롬프트, 기술 명세, IDE/MCP 전달 프롬프트의 기준입니다.
+- 이 값은 기획서, 디자인 기준, 기술 명세, 개발 도구 전달 자료의 기준입니다.
 
 ### 선택 기록
 
@@ -8215,6 +8215,7 @@ export function IdeaWorkbench({
     (artifact) =>
       artifact.artifact_type === "dev_runbook" &&
       (artifact.source === "agent_run_package" ||
+        (artifact.title || "").includes("제작 패키지") ||
         (artifact.title || "").includes("하네스 패키지") ||
         (artifact.title || "").includes("구현 실행 자료")),
   );

@@ -9,4 +9,6 @@
 - Keep the default path AI-first: the platform drafts research, risks, validation, product scope, and handoff materials before asking the user to decide.
 - Ask the user for judgment, not busywork. Manual editing is a correction path, not the main workflow.
 - Classify the intended product surface early: web app, mobile app, web site, automation, operator console, or MCP/IDE handoff.
-- Make every downstream artifact serve the final harness package: PRD, design direction, stack choice, build scope, and prompts should be ready for native build or external IDE/MCP execution.
+- Make every downstream artifact serve the final production package: PRD, design direction, stack choice, build scope, and prompts should be ready for native build or external IDE/MCP execution.
+- Keep the visible console simple enough for a first-time operator: one main action, AI-prepared drafts, optional manual corrections, and bottom-only step advancement.
+- Do not expose internal implementation vocabulary in primary UI copy. Use product-facing terms such as result type, production package, execution document, market check, risk check, and first build scope.

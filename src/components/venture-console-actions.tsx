@@ -3353,7 +3353,7 @@ export function VentureConsoleActions({
                           {recommendedExtractedIdea.productSurface.firstBuild}
                         </p>
                         <p className="mt-1 text-xs leading-5 text-slate-600">
-                          이 기준으로 PRD, 디자인, 기술 스택, 하네스 프롬프트가 이어집니다. 다르게 보이면 저장 후 STEP 2에서 바꿀 수 있습니다.
+                          이 기준으로 기획서, 디자인, 기술 스택, 제작 패키지가 이어집니다. 다르게 보이면 저장 후 STEP 2에서 바꿀 수 있습니다.
                         </p>
                       </div>
                       <div className="mt-4 border-t border-slate-200 pt-4">
@@ -3379,7 +3379,7 @@ export function VentureConsoleActions({
                         <div className="bg-slate-50 px-3 py-3">
                           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">결과물 형태</div>
                           <p className="mt-1 text-xs leading-5 text-slate-700">
-                            {recommendedExtractedIdea.productSurface.label} 기준으로 하네스 패키지를 맞춥니다.
+                            {recommendedExtractedIdea.productSurface.label} 기준으로 제작 패키지를 맞춥니다.
                           </p>
                         </div>
                         <div className="bg-slate-50 px-3 py-3">

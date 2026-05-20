@@ -214,12 +214,12 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["실행 계획 만들기", "역할별 결과 작성", "완료된 단계 상태 변경"],
   },
   "workbench:artifacts": {
-    summary: "아이디어 브리프, 기획서, 첫 제작 범위를 저장하고 승인 상태를 관리합니다.",
-    checklist: ["필요 자료 저장", "기획서와 제작 범위 확인", "상태 메모 작성"],
+    summary: "AI가 만든 아이디어 브리프, 기획서, 첫 제작 범위를 확인하고 저장합니다.",
+    checklist: ["AI 초안 확인", "필요할 때만 메모 보완", "실행 문서 저장"],
   },
   "workbench:development": {
-    summary: "검증 결과를 바탕으로 PRD, 디자인 프롬프트, 기술 방향, 첫 제작 범위를 한 패키지로 묶습니다.",
-    checklist: ["결과물 형태 확인", "AI가 만든 제작 요약 검토", "최종 제작 패키지 저장"],
+    summary: "검증 결과와 결과물 형태를 바탕으로 제작에 넘길 패키지를 만듭니다.",
+    checklist: ["결과물 형태 확인", "AI가 만든 제작 요약 확인", "최종 제작 패키지 저장"],
   },
   "workbench:launch": {
     summary: "출시 전 막히는 항목을 확인하고 최종 출시 판단을 기록합니다.",
@@ -301,14 +301,14 @@ const taskCanvasDetails: Record<
     checkpoint: "되살리면 사업성 평가 단계에서 다시 이어갈 수 있습니다.",
   },
   "workbench:artifacts": {
-    question: "이 후보를 팀이나 개발 도구에 넘길 자료가 준비됐나요?",
-    aiLead: "아이디어 브리프, 기획서, 첫 제작 범위, 디자인 참고 자료를 실행 문서로 묶습니다.",
+    question: "이 아이디어를 개발 도구에 넘길 자료로 묶을까요?",
+    aiLead: "AI가 아이디어 브리프, 기획서, 첫 제작 범위, 디자인 참고 자료를 실행 문서로 정리합니다.",
     deliverable: "실행 문서 초안",
-    checkpoint: "사용자는 문서를 처음부터 쓰기보다 승인 여부만 확인하면 됩니다.",
+    checkpoint: "사용자는 처음부터 작성하지 않고, 최종 내용만 확인하고 저장하면 됩니다.",
   },
   "workbench:development": {
     question: "이제 제작에 넘길 패키지를 정리할 차례입니다.",
-    aiLead: "PRD, 디자인 프롬프트, 기술 방향, 첫 제작 범위를 한 번에 묶습니다.",
+    aiLead: "AI가 PRD, 디자인 기준, 기술 방향, 첫 제작 범위를 한 번에 묶습니다.",
     deliverable: "제작 패키지",
     checkpoint: "사용자는 최종 요약만 확인하고, 필요한 메모만 더하면 됩니다.",
   },
@@ -572,7 +572,7 @@ function getExecutiveFocus({
 
   if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {
     return {
-      eyebrow: "다음에 할 일",
+      eyebrow: "지금 할 일",
       title: "먼저 로그인해 주세요.",
       detail: "로그인 후 대시보드에서 후보 검토, 검증 계획, 실행 문서를 이어서 진행합니다.",
       evidence: "로그인 필요",
@@ -618,7 +618,7 @@ function getExecutiveFocus({
 
   if (highRisks > 0) {
     return {
-      eyebrow: "다음에 할 일",
+      eyebrow: "지금 할 일",
       title: "높은 리스크부터 닫아야 합니다.",
       detail: "진행 전에 법무, 보안, 운영상 막히는 지점을 먼저 정리하세요.",
       evidence: `${dataNote} · 높은 리스크 ${highRisks}건`,
@@ -631,7 +631,7 @@ function getExecutiveFocus({
 
   if (experimentCount === 0) {
     return {
-      eyebrow: "다음에 할 일",
+      eyebrow: "지금 할 일",
       title: "검증 계획이 아직 없습니다.",
       detail: "좋아 보이는 후보라도 7일 안에 확인할 행동 기준이 있어야 다음 판단이 빨라집니다.",
       evidence: `${dataNote} · 후보 ${ideaCount}건`,
@@ -644,9 +644,9 @@ function getExecutiveFocus({
 
   if (artifactCount === 0) {
     return {
-      eyebrow: "다음에 할 일",
-      title: "이제 판단을 실행 문서로 묶을 차례입니다.",
-      detail: "아이디어 브리프, 기획서, 첫 제작 범위를 준비해야 다음 제작 도구로 넘길 수 있습니다.",
+      eyebrow: "지금 할 일",
+      title: "이제 실행 문서를 저장할 차례입니다.",
+      detail: "AI가 만든 아이디어 브리프, 기획서, 첫 제작 범위를 확인하고 저장하면 다음 제작 도구로 넘길 수 있습니다.",
       evidence: `${dataNote} · 판단 ${decisionCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:artifacts",
@@ -657,9 +657,9 @@ function getExecutiveFocus({
 
   if (implementationTaskCount === 0) {
     return {
-      eyebrow: "다음에 할 일",
+      eyebrow: "지금 할 일",
       title: "이제 제작 패키지를 저장하세요.",
-      detail: "검증 결과를 PRD, 디자인 프롬프트, 기술 방향, 첫 제작 범위로 묶으면 바로 개발에 넘길 수 있습니다.",
+      detail: "검증 결과와 결과물 형태를 묶어 개발 도구에 바로 넘길 제작 패키지를 만듭니다.",
       evidence: `${dataNote} · 실행 문서 ${artifactCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",
@@ -670,7 +670,7 @@ function getExecutiveFocus({
 
   if (runCount === 0) {
     return {
-      eyebrow: "다음에 할 일",
+      eyebrow: "지금 할 일",
       title: "실행 순서와 막히는 지점을 정리하세요.",
       detail: "혼자 진행하더라도 전략, 디자인, 개발, 품질 점검 순서를 나누면 다음 작업이 선명해집니다.",
       evidence: `${dataNote} · 제작 작업 ${implementationTaskCount}건`,
@@ -682,7 +682,7 @@ function getExecutiveFocus({
   }
 
   return {
-    eyebrow: "다음에 할 일",
+    eyebrow: "지금 할 일",
     title: telemetryEventCount > 0 ? "성과 신호를 보고 다음 반복을 정하세요." : "출시 전 마지막 확인이 남았습니다.",
     detail:
       telemetryEventCount > 0
