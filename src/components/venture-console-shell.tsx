@@ -259,7 +259,7 @@ const taskCanvasDetails: Record<
     checkpoint: "이후 단계는 한 명이 끝까지 처리할 수 있게 이어집니다.",
   },
   "console:workspace": {
-    question: "이 후보를 혼자 다룰지, 팀과 함께 볼지 결정했나요?",
+    question: "이 아이디어를 혼자 다룰지, 팀과 함께 볼지 결정했나요?",
     aiLead: "혼자 진행하는 흐름을 기본으로 두고, 팀 검토가 필요할 때만 협업 공간을 연결합니다.",
     deliverable: "선택형 팀 공간 연결 상태",
     checkpoint: "협업이 필요하지 않다면 이 단계는 건너뛰어도 괜찮습니다.",
@@ -271,7 +271,7 @@ const taskCanvasDetails: Record<
     checkpoint: "처음에는 입력칸 하나만 쓰면 됩니다. 결과물 형태는 저장 후 STEP 2에서 바꿀 수 있습니다.",
   },
   "console:idea": {
-    question: "이 후보를 실제 검증 대상으로 올릴 준비가 되었나요?",
+    question: "이 아이디어를 실제 검증 대상으로 올릴 준비가 되었나요?",
     aiLead: "이름, 한 줄 설명, 신호, 추가로 확인할 내용을 초안으로 채웁니다.",
     deliverable: "검증 가능한 아이디어 한 건",
     checkpoint: "사용자는 꼭 필요한 의견만 더하면 됩니다.",

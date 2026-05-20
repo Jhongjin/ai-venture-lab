@@ -9303,7 +9303,7 @@ export function IdeaWorkbench({
   if (!selectedIdea || !editState) {
     return (
       <section className="avl-card p-6">
-        <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
+        <h2 className="text-xl font-semibold text-slate-950">아이디어 선택</h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           아직 검토할 아이디어가 없습니다. 왼쪽 의사결정 흐름에서 아이디어를 먼저 접수하세요.
         </p>
@@ -10799,7 +10799,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
             <div className="avl-pill avl-pill-neutral mb-3 inline-flex px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]">Candidate queue</div>
-            <h2 className="text-xl font-semibold text-slate-950">후보 선택</h2>
+            <h2 className="text-xl font-semibold text-slate-950">아이디어 선택</h2>
             <p className="mt-1 text-sm leading-5 text-slate-600">오늘 먼저 볼 아이디어 한 건을 고르고 다음 단계로 넘어갑니다.</p>
           </div>
           <ClipboardList className="text-slate-400" size={24} />
@@ -11184,7 +11184,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           })
                         ) : (
                           <div className="avl-surface-muted border-dashed p-4 text-sm leading-5 text-slate-600 md:col-span-2">
-                            지금은 이 후보 한 건만 보면 충분합니다. 새 아이디어를 더 넣거나, 나중에 다른 후보를 다시 비교해도 됩니다.
+                            지금은 이 아이디어 한 건만 보면 충분합니다. 새 아이디어를 더 넣거나, 나중에 다른 아이디어를 다시 비교해도 됩니다.
                           </div>
                         )}
                       </div>

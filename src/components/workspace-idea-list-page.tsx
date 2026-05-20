@@ -15,12 +15,12 @@ const adminRoles = new Set(["owner", "admin"]);
 function getIdeaProgress(idea: Idea): IdeaProgress {
   switch (idea.stage) {
     case "prd":
-      return { label: "STEP 5 실행 문서", task: "artifacts" };
+      return { label: "STEP 4 실행 문서 만들기", task: "artifacts" };
     case "prototype":
     case "qa":
-      return { label: "STEP 6 제작 준비", task: "development" };
+      return { label: "STEP 5 제작 준비", task: "development" };
     case "launch":
-      return { label: "STEP 8 출시 판단", task: "launch" };
+      return { label: "STEP 7 출시 판단", task: "launch" };
     case "paused":
       return { label: "STEP 2 사업성 평가", task: "score" };
     case "intake":
@@ -73,8 +73,8 @@ export async function WorkspaceIdeaListPage({ mode }: { mode: IdeaListMode }) {
   const title = mode === "deleted" ? "삭제한 아이디어" : "검토 아이디어";
   const description =
     mode === "deleted"
-      ? "삭제 목록으로 옮긴 아이디어입니다. 되살리기와 완전 삭제는 실행 보드에서 처리합니다."
-      : "진행 중인 아이디어입니다. 항목을 선택하면 마지막으로 이어갈 단계가 열립니다.";
+      ? "삭제 목록으로 옮긴 아이디어입니다. 여기서 되살리거나 완전히 삭제할 수 있습니다."
+      : "진행 중인 아이디어입니다. 항목을 선택하면 저장된 다음 단계가 열립니다.";
 
   return (
     <main id="main-content" className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
