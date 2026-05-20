@@ -2205,7 +2205,7 @@ function buildMarketScanResultText(scan: MarketScanDraft) {
       ? scan.entry_barrier_checks.map((barrier) => `- ${barrier.label}: ${barrier.note}`).join("\n")
       : "- 진입장벽 추가 확인 필요";
 
-  return `시장성 자동 점검 초안
+  return `시장·경쟁 자동 점검 초안
 
 수요 신호
 ${signalLines}
@@ -2264,7 +2264,7 @@ function buildMarketScanEvidenceText(scan: MarketScanDraft) {
   const queryLines =
     scan.research_queries.length > 0 ? scan.research_queries.map((query) => `- ${query}`).join("\n") : "- 추가 검색 질문 없음";
 
-  return `AI 시장성 자동 점검
+  return `AI 시장·경쟁 자동 점검
 
 수요 신호
 ${signalLines}
@@ -10747,13 +10747,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         next_action: scan.next_action,
       }));
       setEvidenceDraft({
-        title: `시장성 자동 점검 - ${selectedIdea.name}`,
+        title: `시장·경쟁 자동 점검 - ${selectedIdea.name}`,
         source:
           scan.sources.length > 0
             ? scan.sources.map((source) => source.url || source.title).filter(Boolean).join(", ")
             : scanMode === "local_estimate"
               ? "AI 추정 초안"
-              : "AI 시장성 자동 점검",
+              : "AI 시장·경쟁 자동 점검",
         evidence: buildMarketScanEvidenceText(scan),
         implication: buildMarketScanEvidenceImplication(scan),
         confidence: scan.confidence,
@@ -10773,8 +10773,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               quiet: true,
               statusNote:
                 scanMode === "openai_web"
-                  ? "AI 시장성 자동 점검에서 저장한 웹 검색 포함 리서치 노트입니다."
-                  : "AI 시장성 자동 점검에서 저장한 추정 초안입니다.",
+                  ? "AI 시장·경쟁 자동 점검에서 저장한 웹 검색 포함 리서치 노트입니다."
+                  : "AI 시장·경쟁 자동 점검에서 저장한 추정 초안입니다.",
             },
           )
         : false;
@@ -14121,7 +14121,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">부족한 근거 확인</div>
                     <h3 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h3>
                     <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                      일반 흐름에서는 아래 시장성 자동 점검만 먼저 실행하면 됩니다. 이 영역은 외부 AI나 인터뷰 준비에 쓸 질문을
+                      일반 흐름에서는 아래 시장·경쟁 자동 점검만 먼저 실행하면 됩니다. 이 영역은 외부 AI나 인터뷰 준비에 쓸 질문을
                     더 뽑고 싶을 때만 여는 보조 기능입니다. 버튼을 눌러도 다음 단계로 이동하지 않습니다.
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -14171,15 +14171,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="avl-card p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <div className="avl-kicker">시장 자동 점검</div>
-                <h3 className="mt-1 text-base font-semibold text-slate-950">수요, 경쟁, 진입장벽을 먼저 채웁니다</h3>
+                <div className="avl-kicker">시장·경쟁 자동 점검</div>
+                <h3 className="mt-1 text-base font-semibold text-slate-950">AI가 수요, 경쟁, 진입장벽을 먼저 조사합니다</h3>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                  일반적으로는 이 버튼부터 누르면 됩니다. 사용자가 직접 시장 조사를 끝내야 하는 구간이 아닙니다. AI가 현재 아이디어를
-                  기준으로 예상 수요, 경쟁도, 포화도, 진입장벽, 대체재를 정리하고 아래 결과 기록과 근거 기록 입력칸에 초안을 채웁니다.
+                  이 단계는 사용자가 시장 조사를 직접 끝내야 하는 구간이 아닙니다. 버튼을 누르면 AI가 현재 아이디어를 기준으로
+                  예상 수요, 경쟁도, 시장 포화도, 진입장벽, 대체재를 먼저 정리하고 아래 결과 기록과 근거 기록 입력칸에 초안을 채웁니다.
                 </p>
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
-                  공개 자료를 찾으면 출처를 함께 표시하고 리서치 노트로 자동 저장합니다. 출처가 부족하면 추정 초안으로 표시합니다.
-                  실제 투자/출시 판단 전에는 중요한 수치만 다시 확인하세요.
+                  로그인 상태라면 자동 점검 결과는 리서치 노트로도 저장됩니다. 공개 자료를 찾으면 출처를 함께 표시하고,
+                  출처가 부족하면 추정 초안으로 남깁니다. 정확한 시장 규모나 점유율은 출처가 있을 때만 신뢰하세요.
                 </p>
               </div>
               <button
@@ -14189,7 +14189,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
               >
                 <RefreshCw size={16} className={isMarketScanLoading ? "animate-spin" : ""} />
-                {isMarketScanLoading ? "점검 중" : "AI 시장·경쟁 조사 시작"}
+                {isMarketScanLoading ? "점검 중" : marketScanDraft ? "AI 시장·경쟁 다시 점검" : "AI 시장·경쟁 조사 시작"}
               </button>
             </div>
 
@@ -14199,6 +14199,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             {marketScanDraft ? (
               <div className="mt-4 grid gap-4">
+                <div className="border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-slate-700">
+                  이 결과는 현재 아이디어에 연결되는 자동 조사 초안입니다. 필요한 부분만 손보고 하단 다음 단계로 넘어가면,
+                  제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.
+                </div>
                 {marketScanDraft.market_signals.length > 0 ? (
                   <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
                     {marketScanDraft.market_signals.map((signal) => (
@@ -14322,7 +14326,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="avl-kicker">결과 기록</div>
                 <h3 className="mt-1 text-base font-semibold text-slate-950">검증 결과 기록</h3>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                  실제로 해본 검증 결과를 남기는 선택 영역입니다. 아직 실행 전이면 시장성 자동 점검 초안을 먼저 채우거나,
+                  실제로 해본 검증 결과를 남기는 선택 영역입니다. 아직 실행 전이면 시장·경쟁 자동 점검 초안을 먼저 채우거나,
                   이 칸을 비워두고 하단 다음 단계 버튼으로 실행 문서 만들기 단계로 넘어가도 됩니다.
                 </p>
               </div>
@@ -14547,7 +14551,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 인터뷰 메모, 외부 자료, 가격 신호, 경쟁 대안 관찰을 리서치 노트로 저장합니다.
               </p>
               <p className="mt-1 text-sm leading-5 text-amber-700">
-                AI 시장성 자동 점검을 실행하면 이 칸도 초안으로 채워집니다. 따로 직접 조사한 내용이 없다면 비워둬도 되고,
+                AI 시장·경쟁 자동 점검을 실행하면 이 칸도 초안으로 채워집니다. 따로 직접 조사한 내용이 없다면 비워둬도 되고,
                 위에서 저장한 브리프와 검증 계획만으로도 다음 단계로 넘어갈 수 있습니다.
               </p>
             </div>
