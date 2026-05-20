@@ -254,9 +254,9 @@ const taskCanvasDetails: Record<
   },
   "console:extract": {
     question: "회의 내용, 아이디어, 자동화하고 싶은 업무 내용을 입력칸에 붙여넣으세요.",
-    aiLead: "AI가 원문에서 검토할 후보 한 건과 검증 질문을 먼저 정리합니다.",
-    deliverable: "먼저 볼 추천 후보와 저장 후 이어질 검증 초안",
-    checkpoint: "처음에는 입력칸 하나만 쓰면 됩니다. 비교 후보는 필요할 때만 펼칩니다.",
+    aiLead: "AI가 원문에서 먼저 검토할 아이디어, 결과물 형태, 검증 질문을 함께 정리합니다.",
+    deliverable: "먼저 볼 아이디어와 이후 하네스 패키지에 쓰일 결과물 형태",
+    checkpoint: "처음에는 입력칸 하나만 쓰면 됩니다. 결과물 형태는 저장 후 STEP 2에서 바꿀 수 있습니다.",
   },
   "console:idea": {
     question: "이 후보를 실제 검증 대상으로 올릴 준비가 되었나요?",
