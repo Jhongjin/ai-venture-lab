@@ -126,7 +126,7 @@ const experimentStatusLabels: Record<string, string> = {
 };
 const experimentStatusGuides: Record<string, string> = {
   planned: "아직 실행 전입니다. 방법과 성공/중단 기준만 정해둔 상태입니다.",
-  running: "인터뷰, 랜딩, 수동 테스트처럼 실제 확인을 시작했을 때 바꿉니다.",
+  running: "인터뷰, 랜딩, 직접 테스트처럼 실제 확인을 시작했을 때 바꿉니다.",
   done: "결과와 배운 점을 기록할 수 있을 만큼 확인이 끝났을 때 바꿉니다.",
 };
 const runStatusLabels: Record<OrchestrationStatus, string> = {
@@ -4953,7 +4953,7 @@ function buildImplementationHandoffMarkdown({
       : "- 연결된 실험이 없습니다.";
   const donePhases = runs.filter((run) => run.status === "done").map((run) => phaseLabels[run.phase]);
 
-  return `# Codex 구현 핸드오프: ${idea.name}
+  return `# Codex 제작 핸드오프: ${idea.name}
 
 너는 이 아이디어의 MVP를 구현하는 선임 개발 에이전트다. 아래 범위만 구현하고, 불확실한 것은 작게 검증 가능한 형태로 남겨라.
 
@@ -5208,7 +5208,7 @@ ${taskLines}
 - 새 기능보다 현재 점검을 통과시키는 데 필요한 가장 작은 실행 문서를 우선한다.
 - 개인정보, 결제, 의료/요양, 법률, 금융, 가족/직장 대화 데이터는 민감 데이터로 다룬다.
 - 결과는 실행 문서 보관함에 저장할 수 있도록 복사 가능한 Markdown으로 작성한다.
-- 결과는 ${productSurface.label} 기준의 PRD, 디자인, 기술 스택, 구현 프롬프트로 이어질 수 있어야 한다.
+- 결과는 ${productSurface.label} 기준의 PRD, 디자인, 기술 스택, 제작 지시로 이어질 수 있어야 한다.
 
 ${rolePrompts}
 `;
@@ -5926,7 +5926,7 @@ function buildFilteredImplementationRunPromptMarkdown({
           .join("\n\n")
       : "현재 필터 조건에 맞는 실행 태스크가 없습니다.";
 
-  return `# Codex 구현 지시: ${idea.name}
+  return `# Codex 제작 지시: ${idea.name}
 
 너는 이 프로젝트의 구현 에이전트입니다. 아래 필터 조건에 해당하는 태스크만 처리하고, 범위를 벗어나는 리팩터링이나 기능 확장은 하지 않습니다.
 
@@ -12697,11 +12697,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="flex items-end">
                     <button
                       type="button"
-                      onClick={() => copyDraft(filteredImplementationRunPromptDraft, "필터된 구현 지시")}
+                      onClick={() => copyDraft(filteredImplementationRunPromptDraft, "필터된 제작 지시")}
                       className="avl-btn avl-btn-secondary h-11 w-full px-3 lg:w-auto"
                     >
                       <Code2 size={15} />
-                      구현 지시
+                      제작 지시
                     </button>
                   </div>
                   <div className="flex items-end">
@@ -12714,7 +12714,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
                         saveArtifactDraft(
                           "dev_runbook",
-                          `${selectedIdea.name} 필터된 구현 지시`,
+                          `${selectedIdea.name} 필터된 제작 지시`,
                           filteredImplementationRunPromptDraft,
                           "filtered_implementation_run",
                         );
@@ -12943,15 +12943,15 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <div className="avl-kicker">implementation handoff</div>
-                      <h3 className="mt-2 text-base font-semibold text-slate-950">Codex 구현 핸드오프</h3>
+                      <h3 className="mt-2 text-base font-semibold text-slate-950">외부 개발 도구 전달 자료</h3>
                       <p className="mt-1 text-sm leading-5 text-slate-600">
-                        검증된 아이디어를 실제 앱 개발 작업으로 넘길 때 쓰는 구현 프롬프트입니다.
+                        검증된 아이디어를 Codex 같은 개발 도구로 넘길 때 쓰는 제작 지시문입니다.
                       </p>
                     </div>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => copyDraft(implementationHandoffDraft, "Codex 구현 핸드오프")}
+                      onClick={() => copyDraft(implementationHandoffDraft, "Codex 제작 핸드오프")}
                       className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3"
                     >
                       <Clipboard size={16} />
@@ -12962,7 +12962,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       onClick={() =>
                         saveArtifactDraft(
                           "dev_runbook",
-                          `${selectedIdea.name} Codex 구현 핸드오프`,
+                          `${selectedIdea.name} Codex 제작 핸드오프`,
                           implementationHandoffDraft,
                           "development_process",
                         )
@@ -14013,7 +14013,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="mb-5 grid gap-px bg-slate-200 md:grid-cols-3">
                   {[
                     ["무엇을 확인할지", "가장 불확실한 한 가지를 고릅니다. 예: 실제로 자주 겪는 문제인지, 돈을 낼 만큼 불편한지."],
-                    ["어떻게 확인할지", "7일 안에 직접 할 수 있는 행동 하나만 정합니다. 예: 5명 인터뷰, 랜딩/대기자, 수동 테스트."],
+                    ["어떻게 확인할지", "7일 안에 직접 할 수 있는 행동 하나만 정합니다. 예: 5명 인터뷰, 랜딩/대기자, 직접 테스트."],
                     ["어디까지 보면 될지", "몇 명이 어떤 행동을 하면 계속할지, 어떤 반응이면 멈출지 숫자로 정합니다."],
                   ].map(([title, detail], index) => (
                     <div key={title} className="bg-slate-50 px-4 py-3">
@@ -14397,7 +14397,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="avl-kicker">선택 기록</div>
                   <h3 className="mt-1 text-base font-semibold text-slate-950">직접 확인한 결과가 있을 때만 열기</h3>
                   <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                    인터뷰, 랜딩 페이지, 수동 테스트처럼 이미 직접 확인한 결과가 있으면 여기에 남깁니다. 아직 실행 전이면
+                    인터뷰, 랜딩 페이지, 직접 테스트처럼 이미 확인한 결과가 있으면 여기에 남깁니다. 아직 실행 전이면
                     위의 자동 점검만으로도 다음 실행 문서 단계로 넘어갈 수 있습니다.
                   </p>
                 </div>
@@ -15073,7 +15073,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="avl-kicker">전달 자료</div>
                   <h3 className="mt-2 text-sm font-semibold text-slate-950">최근 제작 전달 자료</h3>
                   <p className="mt-1 text-sm leading-5 text-slate-600">
-                    구현 지시와 제작 실행 계획 저장본을 먼저 보여줍니다. 최신본을 복사해 다음 제작 루프에 넘기세요.
+                    제작 지시와 실행 계획 저장본을 먼저 보여줍니다. 최신본을 복사해 다음 제작 루프에 넘기세요.
                   </p>
                 </div>
                 <span className="avl-pill avl-pill-neutral">
