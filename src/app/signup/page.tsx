@@ -13,7 +13,7 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   title: "회원가입 | AI Venture Lab",
-  description: "AI Venture Lab 대시보드 계정을 만듭니다.",
+  description: "AI Venture Lab 실행 보드 계정을 만듭니다.",
 };
 
 export default function SignupPage() {
@@ -32,12 +32,12 @@ export default function SignupPage() {
           />
           <div className="relative flex min-h-[520px] flex-col justify-between">
             <div>
-              <div className="avl-kicker">혼자 시작</div>
+              <div className="avl-kicker">1인 작업</div>
               <h1
                 className="mt-6 max-w-[12ch] break-keep text-[42px] font-normal leading-[0.96] tracking-[-0.04em] text-slate-950 sm:text-[58px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}
               >
-                혼자서도 기획부터 구축까지 이어갈 수 있습니다.
+                혼자서도 기획부터 제작 패키지까지 이어갈 수 있습니다.
               </h1>
               <p className="mt-5 max-w-[42ch] break-keep text-sm leading-7 text-slate-600">
                 아이디어 검토, 검증, 첫 제작 준비를 한 흐름으로 저장하고 다시 이어갈 수 있습니다.
@@ -47,7 +47,7 @@ export default function SignupPage() {
             <div className="border-l border-slate-950 pl-5">
               <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-slate-500">가입 후 흐름</div>
               <p className="mt-3 max-w-[38ch] break-keep text-base font-semibold leading-7 text-slate-950">
-                회원가입 후 기본 프로필을 설정하고 대시보드에서 첫 아이디어를 정리합니다.
+                회원가입 후 기본 프로필을 설정하고 실행 보드에서 첫 아이디어를 정리합니다.
               </p>
             </div>
           </div>

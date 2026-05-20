@@ -38,7 +38,7 @@ export default function ProfilePage() {
               작업자 정보를 정리합니다.
             </h1>
             <p className="mt-5 max-w-[38ch] break-keep text-sm leading-7 text-slate-300">
-              표시 이름, 소속, 역할을 저장해 실행 보드에서 누가 판단하고 있는지 분명하게 남깁니다.
+              표시 이름, 소속, 역할을 저장해 실행 보드에서 누가 진행 중인지 분명하게 남깁니다.
             </p>
           </div>
         </aside>

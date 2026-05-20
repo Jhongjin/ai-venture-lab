@@ -136,7 +136,7 @@ export default function GuidePage() {
               ))}
             </div>
             <div className="mt-6 border-t border-slate-200 pt-5 text-sm leading-6 text-slate-600">
-              혼자 시작해도 됩니다. 팀 협업은 필수가 아니라, 아이디어가 구체화된 뒤 필요한 시점에 붙이는 옵션입니다.
+              1인으로 시작해도 됩니다. 팀 협업은 필수가 아니라, 아이디어가 구체화된 뒤 필요한 시점에 붙이는 옵션입니다.
             </div>
           </aside>
 

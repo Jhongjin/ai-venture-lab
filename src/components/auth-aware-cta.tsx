@@ -17,7 +17,7 @@ type AuthAwareCtaProps = {
 export function AuthAwareCta({
   className,
   signedInLabel = "실행 보드 열기",
-  signedOutLabel = "로그인 후 시작",
+  signedOutLabel = "로그인 / 회원가입",
   pendingLabel = "계정 확인 중",
 }: AuthAwareCtaProps) {
   const supabase = getSupabaseBrowserClient();

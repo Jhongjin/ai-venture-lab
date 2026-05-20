@@ -29,13 +29,13 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   title: "AI Venture Lab",
-  description: "아이디어 검증, 기획, 첫 제작 준비까지 한 보드에서 이어가는 AI 실행 워크스페이스입니다.",
+  description: "아이디어 검증, 기획, 제작 패키지까지 한 흐름으로 이어가는 AI 실행 워크스페이스입니다.",
 };
 
 const heroStats = [
   { value: "01", label: "우선 검토 후보" },
   { value: "7 day", label: "7일 검증" },
-  { value: "1 sheet", label: "실행 워크시트" },
+  { value: "1 worksheet", label: "실행 워크시트" },
   { value: "team-ready", label: "협업 전환" },
 ];
 
@@ -109,9 +109,9 @@ const useCases = [
     icon: FadersHorizontal,
   },
   {
-    title: "기획부터 첫 제작까지 혼자 밀고 가야 할 때",
+    title: "기획부터 첫 제작까지 1인으로 이어가야 할 때",
     body: "팀이 없어도 아이디어 검토부터 첫 제작 준비까지 한 흐름으로 정리할 수 있습니다.",
-    tag: "혼자 시작",
+    tag: "1인 시작",
     icon: UsersThree,
   },
 ];
@@ -157,7 +157,7 @@ const aiOutputs = [
   },
   {
     title: "실행 작업",
-    body: "디자인, 개발, 품질 점검, 출시 판단에 필요한 작업으로 나눕니다.",
+    body: "디자인, 제작, 품질 점검, 출시 판단에 필요한 작업으로 나눕니다.",
     meta: "task board",
     icon: ListChecks,
   },
@@ -181,7 +181,7 @@ const outputs = [
   },
   {
     title: "실행 작업",
-    body: "기획, 디자인, 개발, 품질 점검 담당자가 바로 볼 수 있게 정리합니다.",
+    body: "기획, 디자인, 제작, 품질 점검 담당자가 바로 볼 수 있게 정리합니다.",
     icon: Path,
   },
   {
@@ -271,7 +271,7 @@ export default function HomePage() {
                   <span>Venture Lab</span>
                 </h1>
                 <p className="relative mt-8 max-w-[16ch] break-keep text-[24px] font-semibold leading-[1.04] tracking-tight text-white sm:text-[32px] xl:text-[38px]">
-                  도출된 아이디어를 사업성 기준으로 검토하고, 실행까지 이어갑니다.
+                  정리한 아이디어의 사업성을 검토하고, 제작까지 이어갑니다.
                 </p>
                 <p className="relative mt-5 max-w-[48ch] break-keep text-[15px] leading-7 text-slate-300">
                   회의 메모나 브리프 초안만 있어도 시작할 수 있습니다. AI가 후보, 질문, 실행 초안을 먼저 정리하고 사용자는 중요한 판단만 더하면 됩니다.
@@ -282,7 +282,7 @@ export default function HomePage() {
                 <div className="flex flex-wrap gap-3">
                   <AuthAwareCta className="avl-btn h-11 border border-white bg-white px-5 text-sm text-slate-950 hover:bg-slate-100" />
                   <a href="#workflow" className="avl-btn h-11 border border-white/14 bg-white/6 px-5 text-sm text-white hover:bg-white/10">
-                    작동 흐름 보기
+                    진행 흐름 보기
                   </a>
                 </div>
 

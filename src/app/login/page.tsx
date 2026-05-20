@@ -13,7 +13,7 @@ const newsreader = Newsreader({
 
 export const metadata: Metadata = {
   title: "로그인 | AI Venture Lab",
-  description: "AI Venture Lab 대시보드에 로그인합니다.",
+  description: "AI Venture Lab 실행 보드에 로그인합니다.",
 };
 
 export default function LoginPage() {
@@ -37,10 +37,10 @@ export default function LoginPage() {
                 className="mt-6 max-w-[12ch] break-keep text-[42px] font-normal leading-[0.96] tracking-[-0.04em] text-white sm:text-[58px]"
                 style={{ fontFamily: "var(--font-newsreader)" }}
               >
-                로그인 후 대시보드로 이동합니다.
+                로그인 후 실행 보드로 이동합니다.
               </h1>
               <p className="mt-5 max-w-[42ch] break-keep text-sm leading-7 text-slate-300">
-                아이디어, 검증 자료, 실행 준비 기록을 대시보드에서 이어서 관리합니다.
+                아이디어, 검증 자료, 제작 준비 기록을 실행 보드에서 이어서 관리합니다.
               </p>
             </div>
 
@@ -62,7 +62,7 @@ export default function LoginPage() {
             </div>
             <h2 className="mt-6 text-[30px] font-semibold tracking-tight text-slate-950">로그인</h2>
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              로그인 후 대시보드에서 진행 중인 아이디어, 검증 기록, 실행 문서를 이어서 확인합니다.
+              로그인하면 진행 중인 아이디어, 검증 기록, 제작 자료를 이어서 확인할 수 있습니다.
             </p>
 
             <div className="mt-8">
