@@ -450,7 +450,7 @@ const stageLabels: Record<IdeaStage, string> = {
 
 const decisionLabels: Record<DecisionStatus, string> = {
   pending: "아직 정하지 않음",
-  research_more: "추가 조사",
+  research_more: "근거 더 확인",
   ship: "진행",
   pivot: "방향 수정",
   kill: "중단",
@@ -463,7 +463,7 @@ const scoreFieldDescriptions = {
   willingness_to_pay: "돈, 예산, 시간을 써서 해결하려는 의지가 있는지입니다.",
   mvp_speed: "작게 만들어 1차 확인까지 얼마나 빨리 갈 수 있는지입니다.",
   differentiation: "기존 대안보다 분명히 나은 이유가 있는지입니다.",
-  regulatory_risk: "법무, 개인정보, 운영, 신뢰 문제가 클수록 높게 잡습니다. 이 값은 총점에서 빠집니다.",
+  regulatory_risk: "법무, 개인정보, 운영, 신뢰 문제가 클수록 높게 잡습니다. 이 값은 현재 평가에서 제외됩니다.",
 };
 function isDiscardedIdea(idea: Idea) {
   return idea.decision === "kill";
@@ -11439,9 +11439,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
               <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
                 <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
-                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">사업성 평가값 확인</div>
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">사업성 평가 확인</div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    아래 항목만 조정하면 됩니다. 단계와 판단은 점수를 기준으로 자동 정리되고, 삭제는 상단 삭제 버튼으로만 처리합니다.
+                    AI가 먼저 채운 값을 확인하세요. 다르게 보이는 항목만 조정하면 되고, 단계와 판단은 저장할 때 자동으로 정리됩니다.
                   </p>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <div className="border border-slate-200 bg-white p-4">
@@ -11452,10 +11452,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       </p>
                     </div>
                     <div className="border border-slate-200 bg-white p-4">
-                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">저장되는 판단</div>
+                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
                       <div className="mt-2 text-base font-semibold text-slate-950">{decisionLabels[scoreSaveDecision]}</div>
                       <p className="mt-2 text-xs leading-5 text-slate-500">
-                        아래 평가값으로 계산한 추천 판단입니다. 점수가 낮아도 자동 삭제하지 않고, 삭제는 사용자가 직접 선택합니다.
+                        아래 평가값으로 계산한 추천입니다. 평가가 낮아도 자동 삭제하지 않고, 삭제는 사용자가 직접 선택합니다.
                       </p>
                     </div>
                   </div>
@@ -11567,7 +11567,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </p>
                     {scoreRecommendation === "kill" ? (
                       <p className="mt-3 border-l border-amber-300 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
-                        점수만 보면 중단에 가깝지만, 아이디어를 바로 삭제하지는 않습니다. 삭제는 상단 삭제 버튼을 눌렀을 때만 진행됩니다.
+                        현재 평가만 보면 중단에 가깝지만, 아이디어를 바로 삭제하지는 않습니다. 삭제는 상단 삭제 버튼을 눌렀을 때만 진행됩니다.
                       </p>
                     ) : null}
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -11625,10 +11625,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
             <div className="grid gap-4">
               <section className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">필드 읽는 법</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">평가값 읽는 법</div>
                 <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                   <li>- 처음 값은 AI가 원문을 보고 채운 추천값입니다. 그대로 써도 되고 직접 바꿔도 됩니다.</li>
-                  <li>- 만들기는 쉬운데 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.</li>
+                  <li>- 작게 만들기 쉽지만 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.</li>
                   <li>- 리스크 감점이 높다면 검증 계획보다 개인정보, 법무, 운영 리스크를 먼저 확인하세요.</li>
                 </ul>
               </section>
@@ -11636,7 +11636,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <section className="border border-slate-200 bg-white p-5">
                 <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">다음 판단</div>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  사업성 평가를 저장하면 AI가 `검증 계획` 단계에서 첫 확인 방법과 성공 기준을 이어서 준비합니다. 여기서는 현재 평가값만 확인하면 충분합니다.
+                  사업성 평가를 저장하면 AI가 다음 검증 계획에서 첫 확인 방법과 성공 기준을 이어서 준비합니다. 여기서는 현재 평가값만 확인하면 충분합니다.
                 </p>
               </section>
             </div>

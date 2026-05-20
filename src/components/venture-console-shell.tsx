@@ -182,8 +182,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["이메일과 비밀번호 입력", "로그인 상태 확인", "다음 단계로 이동"],
   },
   "console:workspace": {
-    summary: "기본은 혼자 진행하고, 팀과 함께 봐야 할 때만 협업 공간을 연결합니다.",
-    checklist: ["혼자 진행할 때는 건너뛰기", "팀 공간 생성 또는 선택", "필요한 멤버만 추가"],
+    summary: "기본은 1인 작업 기준으로 진행하고, 팀과 함께 봐야 할 때만 협업 공간을 연결합니다.",
+    checklist: ["1인 작업으로 진행할 때는 건너뛰기", "팀 공간 생성 또는 선택", "필요한 멤버만 추가"],
   },
   "console:extract": {
     summary: "아이디어 입력 후 AI가 내용을 구체화합니다.",
@@ -259,8 +259,8 @@ const taskCanvasDetails: Record<
     checkpoint: "이후 단계는 한 명이 끝까지 처리할 수 있게 이어집니다.",
   },
   "console:workspace": {
-    question: "이 아이디어를 혼자 다룰지, 팀과 함께 볼지 결정했나요?",
-    aiLead: "혼자 진행하는 흐름을 기본으로 두고, 팀 검토가 필요할 때만 협업 공간을 연결합니다.",
+    question: "이 아이디어를 1인 작업으로 다룰지, 팀과 함께 볼지 결정했나요?",
+    aiLead: "1인 작업 흐름을 기본으로 두고, 팀 검토가 필요할 때만 협업 공간을 연결합니다.",
     deliverable: "선택형 팀 공간 연결 상태",
     checkpoint: "협업이 필요하지 않다면 이 단계는 건너뛰어도 괜찮습니다.",
   },
@@ -326,9 +326,9 @@ const taskCanvasDetails: Record<
   },
   "workbench:orchestration": {
     question: "누가 무엇을 언제 처리할지 명확한가요?",
-    aiLead: "전략, 디자인, 개발, 품질 점검, 보안의 순서를 정리하고 막히는 요인을 표시합니다.",
+    aiLead: "전략, 디자인, 제작, 품질 점검, 보안의 순서를 정리하고 막히는 요인을 표시합니다.",
     deliverable: "실행 순서와 진행 상태",
-    checkpoint: "혼자 쓰더라도 다음 작업 순서가 분명히 보여야 합니다.",
+    checkpoint: "1인 작업에서도 다음 작업 순서가 분명히 보여야 합니다.",
   },
   "workbench:launch": {
     question: "지금 이 첫 버전을 밖으로 내보내도 괜찮을까요?",
@@ -441,7 +441,7 @@ function getNextTaskOptions({
           "workbench:development",
           "다음: 제작 준비",
           canEnterDevelopment
-            ? "검증 완료 요약까지 저장했습니다. 이제 디자인, 개발, 배포 준비를 구체화합니다."
+            ? "검증 완료 요약까지 저장했습니다. 이제 디자인, 제작, 배포 준비를 구체화합니다."
             : "아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 모두 저장하면 활성화됩니다.",
           "primary",
           !canEnterDevelopment,
@@ -618,7 +618,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "실행 순서와 막히는 지점을 정리하세요.",
-      detail: "혼자 진행하더라도 전략, 디자인, 개발, 품질 점검 순서를 나누면 다음 작업이 선명해집니다.",
+      detail: "1인 작업으로 진행하더라도 전략, 디자인, 제작, 품질 점검 순서를 나누면 다음 작업이 선명해집니다.",
       evidence: `${dataNote} · 제작 작업 ${implementationTaskCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:orchestration",
