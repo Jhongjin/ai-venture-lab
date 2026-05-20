@@ -202,8 +202,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["아이디어 목록 확인", "진행 단계 확인", "이어서 볼 아이디어 선택"],
   },
   "workbench:score": {
-    summary: "수요, 속도, 지불 의향, 위험 감점을 숫자로 빠르게 맞춥니다.",
-    checklist: ["이 아이디어를 계속 검증할지 정하기", "부족한 근거 확인", "평가 저장"],
+    summary: "AI가 수요, 구매 의향, 제작 난이도, 위험도를 먼저 정리합니다.",
+    checklist: ["이 아이디어를 계속 검증할지 정하기", "부족한 근거 확인", "사업성 평가 저장"],
   },
   "workbench:risk": {
     summary: "출시를 막을 수 있는 위험만 먼저 꺼냅니다.",
@@ -284,9 +284,9 @@ const taskCanvasDetails: Record<
   },
   "workbench:score": {
     question: "이 아이디어는 시간과 자원을 써서 검증할 만한가?",
-    aiLead: "수요, 돈, 속도, 차별성, 위험을 묶어 점수를 정리합니다.",
-    deliverable: "사업성 점수와 권장 판단",
-    checkpoint: "숫자는 AI가 초안으로 제시하고, 사용자는 최종 감각만 조정합니다.",
+    aiLead: "AI가 수요, 구매 의향, 제작 난이도, 위험도를 묶어 평가 초안을 채웁니다.",
+    deliverable: "사업성 평가와 권장 판단",
+    checkpoint: "기준값은 AI가 먼저 채우고, 사용자는 맞지 않는 부분만 조정합니다.",
   },
   "workbench:risk": {
     question: "출시를 막을 만한 법무·운영·보안 이슈가 있나요?",
@@ -313,7 +313,7 @@ const taskCanvasDetails: Record<
     checkpoint: "되살리면 사업성 평가 단계에서 다시 이어갈 수 있습니다.",
   },
   "workbench:artifacts": {
-    question: "이 아이디어를 개발 도구에 넘길 자료로 묶을까요?",
+    question: "이 아이디어를 제작 패키지로 묶을까요?",
     aiLead: "AI가 아이디어 요약, 기획서, 첫 제작 범위, 디자인 참고 자료를 실행 문서로 정리합니다.",
     deliverable: "실행 문서 초안",
     checkpoint: "사용자는 처음부터 작성하지 않고, 최종 내용만 확인하고 저장하면 됩니다.",
@@ -568,7 +568,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "이 아이디어를 검증할지 먼저 판단합니다.",
-      detail: "점수와 판단을 저장하면 바로 검증 계획으로 넘어갈 수 있습니다.",
+      detail: "사업성 평가를 저장하면 바로 검증 계획으로 넘어갈 수 있습니다.",
       evidence: `${dataNote} · 아이디어 ${ideaCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       metrics,
@@ -592,7 +592,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "이제 실행 문서를 저장할 차례입니다.",
-      detail: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장하면 다음 제작 도구로 넘길 수 있습니다.",
+      detail: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장하면 제작 패키지로 이어갈 수 있습니다.",
       evidence: `${dataNote} · 판단 ${decisionCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:artifacts",
