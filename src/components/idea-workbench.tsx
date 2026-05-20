@@ -13693,14 +13693,23 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             </div>
 
           {validationEvidenceCoach ? (
-            <div className="avl-card p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <details className="avl-card p-4">
+              <summary className="cursor-pointer list-none">
+                <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">선택 보조</div>
+                    <h3 className="mt-1 text-base font-semibold text-slate-950">부족한 질문을 더 보고 싶을 때만 열기</h3>
+                  </div>
+                  <span className="text-sm font-semibold text-slate-600">열어서 보기</span>
+                </div>
+              </summary>
+              <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">검증 근거 점검</div>
                   <h3 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h3>
                   <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                    현재 아이디어, 리스크, 검증 계획을 바탕으로 부족한 근거가 있는지 자동으로 점검한 참고 영역입니다.
-                    이 영역의 버튼은 입력을 돕기만 하며, 다음 단계로 이동하지 않습니다.
+                    일반 흐름에서는 아래 시장성 자동 점검만 먼저 실행하면 됩니다. 이 영역은 외부 AI나 인터뷰 준비에 쓸 질문을
+                    더 뽑고 싶을 때만 여는 보조 기능입니다. 버튼을 눌러도 다음 단계로 이동하지 않습니다.
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {validationEvidenceCoach.nextFocus
@@ -13743,7 +13752,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   다음 행동에 반영
                 </button>
               </div>
-            </div>
+            </details>
           ) : null}
 
           <div className="avl-card p-4">
@@ -13752,7 +13761,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="avl-kicker">시장 자동 점검</div>
                 <h3 className="mt-1 text-base font-semibold text-slate-950">수요, 경쟁, 진입장벽을 먼저 채웁니다</h3>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                  이 단계는 사용자가 직접 시장 조사를 끝내야 하는 구간이 아닙니다. 버튼을 누르면 AI가 현재 아이디어를
+                  일반적으로는 이 버튼부터 누르면 됩니다. 사용자가 직접 시장 조사를 끝내야 하는 구간이 아닙니다. AI가 현재 아이디어를
                   기준으로 예상 수요, 경쟁도, 포화도, 진입장벽, 대체재를 정리하고 아래 결과 기록 입력칸에 초안을 채웁니다.
                 </p>
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
@@ -13767,7 +13776,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
               >
                 <RefreshCw size={16} className={isMarketScanLoading ? "animate-spin" : ""} />
-                {isMarketScanLoading ? "점검 중" : "시장성 자동 점검"}
+                {isMarketScanLoading ? "점검 중" : "AI 시장성 점검 시작"}
               </button>
             </div>
 
