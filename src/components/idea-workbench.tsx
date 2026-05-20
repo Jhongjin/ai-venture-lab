@@ -8443,7 +8443,9 @@ export function IdeaWorkbench({
   const hasDesignGenerationPromptArtifact = selectedArtifactRecords.some(
     (artifact) =>
       artifact.artifact_type === "design_brief" &&
-      (artifact.source === "design_generation_prompt" || (artifact.title || "").includes("디자인 생성 프롬프트")),
+      (artifact.source === "design_generation_prompt" ||
+        (artifact.title || "").includes("디자인 기준 자료") ||
+        (artifact.title || "").includes("디자인 생성 프롬프트")),
   );
   const hasTechSpecArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "tech_spec");
   const hasApprovedTechSpecArtifact = selectedArtifactRecords.some(
@@ -8453,15 +8455,15 @@ export function IdeaWorkbench({
   const hasDevelopmentPlanArtifact = selectedArtifactRecords.some(
     (artifact) =>
       artifact.artifact_type === "dev_runbook" &&
-      (artifact.source === "development_process" || (artifact.title || "").includes("제작 실행 계획")),
+      artifact.source === "development_process" &&
+      (artifact.title || "").includes("제작 실행 계획"),
   );
   const hasAgentRunPackageArtifact = selectedArtifactRecords.some(
     (artifact) =>
       artifact.artifact_type === "dev_runbook" &&
       (artifact.source === "agent_run_package" ||
         (artifact.title || "").includes("제작 패키지") ||
-        (artifact.title || "").includes("하네스 패키지") ||
-        (artifact.title || "").includes("구현 실행 자료")),
+        (artifact.title || "").includes("하네스 패키지")),
   );
   const canEnterOrchestrationFromDevelopmentDocs =
     hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact && hasAgentRunPackageArtifact;
@@ -8922,7 +8924,7 @@ export function IdeaWorkbench({
   const developmentAutoReviewSteps = [
     {
       label: "제작 형태 확인",
-      detail: `${activeProductSurface.label} 기준으로 기획서, 디자인, 구현 지시가 이어지도록 맞춥니다.`,
+      detail: `${activeProductSurface.label} 기준으로 기획서, 디자인, 제작 지시가 이어지도록 맞춥니다.`,
     },
     {
       label: "제작 범위 정리",
