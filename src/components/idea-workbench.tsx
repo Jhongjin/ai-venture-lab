@@ -7311,6 +7311,7 @@ export function IdeaWorkbench({
   const [marketScanMode, setMarketScanMode] = useState<string | null>(null);
   const [marketScanError, setMarketScanError] = useState<string | null>(null);
   const [isMarketScanLoading, setIsMarketScanLoading] = useState(false);
+  const [isSavingValidationBundle, setIsSavingValidationBundle] = useState(false);
   const [runOutputs, setRunOutputs] = useState<Record<string, string>>(
     Object.fromEntries(initialOrchestrationRuns.map((run) => [run.id, run.output])),
   );
@@ -8410,6 +8411,7 @@ export function IdeaWorkbench({
     { label: "7일 검증 계획", passed: hasValidationSprintArtifact },
   ];
   const canSaveValidationSummary = validationSummaryRequirements.every((requirement) => requirement.passed);
+  const isValidationBundleSaved = canSaveValidationSummary && hasValidationSummaryArtifact;
   const canEnterDevelopmentFromValidationDocs =
     canSaveValidationSummary && hasValidationSummaryArtifact;
   const hasPrdArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "prd");
@@ -9901,6 +9903,76 @@ export function IdeaWorkbench({
     }
     router.refresh();
     return true;
+  }
+
+  async function saveValidationPackageDrafts() {
+    if (!selectedIdea) {
+      setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("검증 자료를 저장하려면 먼저 로그인하세요.");
+      return;
+    }
+
+    setIsSavingValidationBundle(true);
+    const jobs = [
+      {
+        done: hasIdeaBriefArtifact,
+        artifactType: "idea_brief" as VentureArtifactType,
+        title: `${selectedIdea.name} 아이디어 요약`,
+        body: ideaBrief,
+        source: "workbench",
+      },
+      {
+        done: hasResearchBriefArtifact,
+        artifactType: "research_note" as VentureArtifactType,
+        title: `${selectedIdea.name} 조사 요약`,
+        body: researchBriefDraft,
+        source: "workbench",
+      },
+      {
+        done: hasValidationSprintArtifact,
+        artifactType: "research_note" as VentureArtifactType,
+        title: `${selectedIdea.name} 7일 검증 계획`,
+        body: validationSprintDraft,
+        source: "validation_sprint",
+      },
+      {
+        done: hasValidationSummaryArtifact,
+        artifactType: "research_note" as VentureArtifactType,
+        title: `${selectedIdea.name} 검증 완료 요약`,
+        body: validationSummaryDraft,
+        source: "validation_summary",
+      },
+    ];
+
+    let savedCount = 0;
+    for (const job of jobs) {
+      if (job.done) {
+        continue;
+      }
+
+      const saved = await saveArtifactDraft(job.artifactType, job.title, job.body, job.source, {
+        quiet: true,
+        statusNote: "검증 자료 자동 저장에서 생성한 초안입니다.",
+      });
+
+      if (!saved) {
+        setIsSavingValidationBundle(false);
+        return;
+      }
+
+      savedCount += 1;
+    }
+
+    setIsSavingValidationBundle(false);
+    setMessage(
+      savedCount > 0
+        ? "검증 자료를 한 번에 저장했습니다. 하단 다음 단계 버튼으로 제작 준비에 들어갈 수 있습니다."
+        : "이미 필요한 검증 자료가 모두 저장되어 있습니다. 하단 다음 단계 버튼으로 제작 준비에 들어갈 수 있습니다.",
+    );
   }
 
   async function saveDevelopmentAutoPackage() {
@@ -14444,7 +14516,21 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <h2 className="text-lg font-semibold text-slate-950">실행 문서 만들기</h2>
               <p className="mt-1 text-sm text-slate-500">{artifactPanelDescriptions[artifactPanel]}</p>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+              <button
+                type="button"
+                onClick={() => void saveValidationPackageDrafts()}
+                disabled={isBusy || isSavingValidationBundle || !user || isValidationBundleSaved}
+                className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
+              >
+                <Save size={17} />
+                {isSavingValidationBundle
+                  ? "저장 중"
+                  : isValidationBundleSaved
+                    ? "검증 자료 저장 완료"
+                    : "검증 자료 한 번에 저장"}
+              </button>
+              <div className="grid gap-2 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() => setArtifactPanel("validation")}
@@ -14472,6 +14558,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   {hasValidationSummaryArtifact ? "기획서 만들기" : "기획서 만들기 잠김"}
                 </div>
               </button>
+              </div>
             </div>
           </div>
           <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-4">
