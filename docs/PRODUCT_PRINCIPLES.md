@@ -12,3 +12,4 @@
 - Make every downstream artifact serve the final production package: PRD, design direction, stack choice, build scope, and prompts should be ready for native build or external IDE/MCP execution.
 - Keep the visible console simple enough for a first-time operator: one main action, AI-prepared drafts, optional manual corrections, and bottom-only step advancement.
 - Do not expose internal implementation vocabulary in primary UI copy. Use product-facing terms such as result type, production package, execution document, market check, risk check, and first build scope.
+- When several artifacts are needed, let AI prepare them as one guided sequence and ask the user for one clear confirmation instead of several manual save chores.

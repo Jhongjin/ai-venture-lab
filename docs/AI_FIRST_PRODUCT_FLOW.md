@@ -8,6 +8,8 @@ The user can start with a rough idea, meeting note, chat transcript, or vague au
 
 The final package should be strong enough to guide a real build: product requirements, result type, design direction, stack direction, first build scope, validation context, risks, and implementation prompts.
 
+The product should feel closer to an automated venture operator than a document editor. It can show the reasoning, but the default journey should not ask the user to open every panel, fill every document, or understand every development artifact before progress is possible.
+
 ## Role Split
 
 AI owns the first draft:
@@ -27,6 +29,8 @@ The user owns judgment:
 
 Manual fields are correction paths. They are not the default workflow.
 
+When a step needs several internal artifacts, AI should prepare them in sequence and present a concise review state. The user should either approve, revise one visible item, go back, or stop. Requiring separate manual saves for every intermediate artifact is an advanced path, not the default path.
+
 ## Product Surface Rule
 
 Every saved idea needs a visible result type before downstream artifacts are generated. Supported types:
@@ -38,7 +42,9 @@ Every saved idea needs a visible result type before downstream artifacts are gen
 - operator console
 - development-tool handoff
 
-The result type shapes the PRD, design direction, stack choice, first build scope, and final production package. AI should classify it during idea discovery, then expose one correction point during business evaluation.
+The result type shapes the product requirements, design direction, stack choice, first build scope, and final production package. AI should classify it during idea discovery, then expose one correction point during business evaluation.
+
+Changing the result type should update all downstream drafts. For example, a mobile app should produce different design states, stack assumptions, launch risks, and handoff instructions than a web service, automation workflow, or development-tool handoff.
 
 ## Korean Operating Principle
 
@@ -58,7 +64,7 @@ The result type shapes the PRD, design direction, stack choice, first build scop
 - STEP 2: 사업성 평가와 결과물 형태를 한 번 더 확인한다. 이 값은 이후 기획서, 디자인 기준, 기술 스택, 제작 패키지의 기준이 된다.
 - STEP 3: AI가 7일 검증 계획과 부족한 근거를 먼저 채운다. 사용자는 필요한 부분만 고친다.
 - STEP 4: 검증 자료와 실행 문서를 저장한다. 저장 상태가 맞아야 다음 단계가 열린다.
-- STEP 5: AI가 디자인 기준, 제작 실행 계획, 개발 도구 전달 자료를 묶어 최종 제작 패키지를 만든다.
+- STEP 5: AI가 디자인 기준, 제작 실행 계획, 개발 도구 전달 자료를 순서대로 묶어 최종 제작 패키지를 만든다. 사용자는 자동으로 정리된 결과를 확인하고, 필요하면 보완한 뒤 최종 저장만 한다.
 
 Any new UI should make this flow feel like "AI prepares, user confirms" rather than "user fills every form."
 
@@ -71,6 +77,9 @@ Any new UI should make this flow feel like "AI prepares, user confirms" rather t
 - Advanced panels should stay optional unless the user deliberately opens them.
 - Saved buttons should become disabled or clearly show saved state.
 - Empty states should tell the user what to do next in plain language.
+- Copy buttons are secondary. They exist for external documents or messages and should never look like the main path.
+- A button that creates many artifacts should explain what will happen before it runs and summarize what changed after it finishes.
+- If a step is already saved, the main save action should show a saved state and the next-step button should become the only primary action.
 
 ## Copy Rules
 
@@ -81,8 +90,20 @@ Use user-facing language in primary UI:
 - Use `실행 문서`, not approval-library language.
 - Use `결과물 형태`, not implementation surface.
 - Use `AI가 먼저 정리`, then `필요할 때만 수정`.
+- Use `웹 서비스`, `모바일 앱`, `웹사이트`, `업무 자동화`, `운영 콘솔`, and `개발 도구 연동` when classifying result type.
 
 Technical terms can remain inside generated artifacts when they are useful for developers, but the main operating console should not make the user decode them.
+
+## Anti-patterns
+
+Avoid these patterns unless the user explicitly opens an advanced mode:
+
+- asking the user to manually save three or more internal artifacts before they can continue
+- placing multiple primary-looking buttons in one step
+- using copy, prefill, or helper buttons to advance workflow state
+- showing development terms such as PRD, MVP, MCP, IDE, prompt, gate, or harness in primary UI before the user reaches an export/handoff context
+- making the user decide technical stack details before the platform has classified the result type and business context
+- showing optional research or evidence forms as if they are required for first-time progress
 
 ## Output Contract
 
