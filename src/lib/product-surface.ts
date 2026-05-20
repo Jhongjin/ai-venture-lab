@@ -42,12 +42,12 @@ export const productSurfaceOrder: ProductSurfaceKey[] = [
 export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfaceProfile> = {
   web_app: {
     key: "web_app",
-    label: "웹앱",
-    shortLabel: "웹앱",
+    label: "웹 서비스",
+    shortLabel: "웹",
     description: "브라우저에서 로그인, 입력, 저장, 결과 확인까지 이어지는 제품형 서비스입니다.",
     firstBuild: "Next.js 기반의 핵심 입력-결과-저장 흐름",
     stackHint: "Next.js App Router, TypeScript, Supabase, Vercel을 기본값으로 둡니다.",
-    harnessFocus: "PRD, 화면 흐름, 데이터 모델, 권한, 배포 스모크가 한 묶음으로 이어져야 합니다.",
+    harnessFocus: "제작 패키지에는 화면 흐름, 데이터 모델, 권한, 배포 확인까지 함께 담습니다.",
     promptFocus: "웹 화면, 인증, 데이터 저장, 상태 UX, Vercel 배포 조건을 우선 반영합니다.",
   },
   mobile_app: {
@@ -57,17 +57,17 @@ export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfacePro
     description: "휴대폰 사용 맥락, 알림, 위치, 카메라, 네이티브 경험이 중요한 서비스입니다.",
     firstBuild: "모바일 핵심 화면 또는 반응형 웹앱으로 먼저 검증한 뒤 네이티브 전환",
     stackHint: "Expo/React Native 또는 Flutter, Firebase/Supabase, 푸시/분석 도구를 비교합니다.",
-    harnessFocus: "모바일 화면, 권한 요청, 알림, 오프라인/재방문, 앱 배포 전 검증 기준이 필요합니다.",
+    harnessFocus: "제작 패키지에는 모바일 화면, 권한 요청, 알림, 재방문 흐름, 앱 배포 전 검증 기준을 담습니다.",
     promptFocus: "모바일 첫 화면, 권한 상태, 푸시/알림, 앱스토어 이전 검증 경로를 우선 반영합니다.",
   },
   web_site: {
     key: "web_site",
-    label: "웹사이트",
+    label: "랜딩/웹사이트",
     shortLabel: "사이트",
     description: "랜딩, 예약, 신청, 설명, 콘텐츠 전환처럼 공개 페이지가 중심인 서비스입니다.",
     firstBuild: "랜딩 페이지, 신청 폼, 대기자 또는 상담 신청 흐름",
     stackHint: "Next.js, Vercel, 폼/이메일/CRM 연동, 간단한 CMS를 우선 검토합니다.",
-    harnessFocus: "카피, 전환 CTA, SEO, 폼 저장, 신청 후 후속 처리까지 이어져야 합니다.",
+    harnessFocus: "제작 패키지에는 카피, 전환 버튼, 검색 노출, 신청 저장, 신청 후 후속 처리까지 담습니다.",
     promptFocus: "랜딩 구조, 신청 폼, 전환 지표, 콘텐츠/SEO, 문의 처리 흐름을 우선 반영합니다.",
   },
   automation: {
@@ -77,7 +77,7 @@ export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfacePro
     description: "반복 업무를 받아 정리, 분류, 알림, 리포트, 워크플로로 처리하는 서비스입니다.",
     firstBuild: "수동 운영이 가능한 작업 콘솔과 자동화 전후 비교 흐름",
     stackHint: "Next.js 운영 화면, Supabase, queue/webhook, n8n 또는 서버 작업자를 검토합니다.",
-    harnessFocus: "입력 출처, 자동 처리 규칙, 재시도, 사람 검토, 로그, 실패 복구가 필요합니다.",
+    harnessFocus: "제작 패키지에는 입력 출처, 자동 처리 규칙, 사람 검토, 로그, 실패 복구 기준을 담습니다.",
     promptFocus: "자동화 트리거, 처리 단계, 예외 처리, 사람 승인, 로그/리포트 생성을 우선 반영합니다.",
   },
   operator_console: {
@@ -87,7 +87,7 @@ export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfacePro
     description: "팀이나 운영자가 기록을 보고 판단, 배정, 처리, 추적하는 업무형 제품입니다.",
     firstBuild: "리스트, 상세, 상태 변경, 담당자/권한이 있는 콘솔형 MVP",
     stackHint: "Next.js App Router, Supabase Postgres/RLS, Vercel을 우선 검토합니다.",
-    harnessFocus: "권한, 상태 전환, 감사 로그, 필터, 빈/오류/읽기 전용 상태가 중요합니다.",
+    harnessFocus: "제작 패키지에는 권한, 상태 변경, 감사 로그, 필터, 빈/오류/읽기 전용 상태를 담습니다.",
     promptFocus: "대시보드, 리스트/상세, 상태 변경, 권한, 감사 로그, 운영 지표를 우선 반영합니다.",
   },
   mcp_handoff: {
@@ -97,7 +97,7 @@ export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfacePro
     description: "Cursor, Codex, Claude 같은 개발 도구로 넘길 제작 패키지와 연결 흐름이 핵심입니다.",
     firstBuild: "제작 패키지, 개발 도구 연결 지침, CLI 설치 흐름",
     stackHint: "Next.js 제어 화면, 연결 서버/CLI 패키지, 문서와 프롬프트 버전 관리를 검토합니다.",
-    harnessFocus: "기획서, 디자인, 기술 명세, 구현 지시, 검증 명령이 개발 도구에서 바로 이어져야 합니다.",
+    harnessFocus: "제작 패키지에는 기획서, 디자인, 기술 명세, 구현 지시, 검증 명령을 개발 도구에서 바로 쓸 수 있게 담습니다.",
     promptFocus: "개발 도구별 설치, 연결 등록, 코드 생성 지시, 검증/배포 명령을 우선 반영합니다.",
   },
 };
