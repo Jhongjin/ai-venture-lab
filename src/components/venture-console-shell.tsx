@@ -226,7 +226,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["실행 계획 만들기", "역할별 결과 작성", "완료된 단계 상태 변경"],
   },
   "workbench:artifacts": {
-    summary: "AI가 만든 아이디어 브리프, 기획서, 첫 제작 범위를 확인하고 저장합니다.",
+    summary: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장합니다.",
     checklist: ["AI 초안 확인", "필요할 때만 메모 보완", "실행 문서 저장"],
   },
   "workbench:development": {
@@ -314,7 +314,7 @@ const taskCanvasDetails: Record<
   },
   "workbench:artifacts": {
     question: "이 아이디어를 개발 도구에 넘길 자료로 묶을까요?",
-    aiLead: "AI가 아이디어 브리프, 기획서, 첫 제작 범위, 디자인 참고 자료를 실행 문서로 정리합니다.",
+    aiLead: "AI가 아이디어 요약, 기획서, 첫 제작 범위, 디자인 참고 자료를 실행 문서로 정리합니다.",
     deliverable: "실행 문서 초안",
     checkpoint: "사용자는 처음부터 작성하지 않고, 최종 내용만 확인하고 저장하면 됩니다.",
   },
@@ -425,7 +425,7 @@ function getNextTaskOptions({
           "workbench:artifacts",
           "다음: 실행 문서 만들기",
           canEnterArtifacts
-            ? "검증 계획을 저장했습니다. 이제 아이디어 브리프와 제작 범위를 문서로 남깁니다."
+            ? "검증 계획을 저장했습니다. 이제 아이디어 요약과 제작 범위를 문서로 남깁니다."
             : "검증 계획을 하나 이상 저장하면 활성화됩니다.",
           "primary",
           !canEnterArtifacts,
@@ -433,7 +433,7 @@ function getNextTaskOptions({
       ];
     case "workbench:decision":
       return [
-        createTransition("workbench:artifacts", "다음: 실행 문서 만들기", "아이디어 브리프, 기획서, 첫 제작 범위를 문서로 남깁니다."),
+        createTransition("workbench:artifacts", "다음: 실행 문서 만들기", "아이디어 요약, 기획서, 첫 제작 범위를 문서로 남깁니다."),
       ];
     case "workbench:artifacts":
       return [
@@ -442,7 +442,7 @@ function getNextTaskOptions({
           "다음: 제작 준비",
           canEnterDevelopment
             ? "검증 완료 요약까지 저장했습니다. 이제 디자인, 개발, 배포 준비를 구체화합니다."
-            : "아이디어 브리프, 리서치 브리프, 7일 검증 계획, 검증 완료 요약을 모두 저장하면 활성화됩니다.",
+            : "아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 모두 저장하면 활성화됩니다.",
           "primary",
           !canEnterDevelopment,
         ),
@@ -546,7 +546,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "검토할 아이디어를 먼저 저장해 주세요.",
-      detail: "대화 메모나 브리프를 넣으면 AI가 아이디어를 정리합니다. 마음에 드는 한 건을 저장해 검증으로 넘어가세요.",
+      detail: "대화 메모나 거친 아이디어를 넣으면 AI가 아이디어를 정리합니다. 마음에 드는 한 건을 저장해 검증으로 넘어가세요.",
       evidence: `${dataNote} · 아이디어 없음`,
       risk: "리스크는 저장 뒤 확인",
       metrics,
@@ -592,7 +592,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "이제 실행 문서를 저장할 차례입니다.",
-      detail: "AI가 만든 아이디어 브리프, 기획서, 첫 제작 범위를 확인하고 저장하면 다음 제작 도구로 넘길 수 있습니다.",
+      detail: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장하면 다음 제작 도구로 넘길 수 있습니다.",
       evidence: `${dataNote} · 판단 ${decisionCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:artifacts",

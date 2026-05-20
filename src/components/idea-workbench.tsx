@@ -72,12 +72,12 @@ const implementationTaskTypes: ImplementationTaskType[] = [
 ];
 const implementationTaskPriorities: ImplementationTaskPriority[] = ["low", "medium", "high"];
 const artifactLabels: Record<VentureArtifactType, string> = {
-  idea_brief: "아이디어 브리프",
+  idea_brief: "아이디어 요약",
   research_note: "리서치 노트",
   prd: "제품 기획서",
   mvp_spec: "첫 제작 범위",
   backend_decision: "백엔드 결정",
-  design_brief: "디자인 브리프",
+  design_brief: "디자인 기준",
   tech_spec: "기술 명세",
   dev_runbook: "제작 실행 계획",
   launch_checklist: "출시 체크리스트",
@@ -481,15 +481,15 @@ const artifactSourceLabels: Record<string, string> = {
   validation_summary: "검증 완료 요약",
   validation_sprint: "7일 검증 계획",
   extracted_idea_package: "아이디어 정리 자료",
-  extracted_research_brief: "아이디어 리서치 브리프",
+  extracted_research_brief: "아이디어 조사 요약",
   extraction_portfolio: "아이디어 비교 리포트",
   prd_readiness_handoff: "기획서 전환 전달 내용",
   mvp_slice_plan: "첫 제작 범위 플랜",
-  development_kickoff: "제작 시작 브리프",
+  development_kickoff: "제작 시작 요약",
   agent_run_package: "개발 도구 전달 자료",
   development_process: "제작 준비 과정",
   development_report: "제작 완료 보고서",
-  filtered_implementation_run: "필터 실행 프롬프트",
+  filtered_implementation_run: "필터 실행 지시",
   mvp_build_command: "제작 시작 명령",
   qa_acceptance_matrix: "품질 점검표",
   post_launch_learning: "출시 후 성과 확인",
@@ -893,7 +893,7 @@ const artifactPanelLabels: Record<ArtifactPanel, string> = {
 };
 
 const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
-  validation: "아이디어 브리프, 리서치 브리프, 7일 검증 계획을 먼저 저장합니다.",
+  validation: "아이디어 요약, 조사 요약, 7일 검증 계획을 먼저 저장합니다.",
   product: "기획서, 첫 제작 범위, 출시 체크리스트를 생성합니다.",
   library: "저장된 자료를 필터링하고 승인 상태를 관리합니다.",
 };
@@ -948,15 +948,15 @@ const artifactReviewBlueprint: Array<
 > = [
   {
     id: "idea-brief",
-    label: "아이디어 브리프",
+    label: "아이디어 요약",
     artifactType: "idea_brief",
     requiredStatus: "approved",
-    action: "문제, 대상, 구매자, 리스크 요약을 승인 가능한 브리프로 잠급니다.",
+    action: "문제, 대상, 구매자, 리스크 요약을 확인 가능한 문서로 저장합니다.",
     task: "artifacts",
     panel: "validation",
-    missingDetail: "아이디어 브리프가 없습니다.",
-    draftDetail: "아이디어 브리프 초안은 있으나 승인 전입니다.",
-    approvedDetail: "아이디어 브리프가 승인되었습니다.",
+    missingDetail: "아이디어 요약이 없습니다.",
+    draftDetail: "아이디어 요약 초안은 있으나 승인 전입니다.",
+    approvedDetail: "아이디어 요약이 승인되었습니다.",
   },
   {
     id: "research-note",
@@ -966,7 +966,7 @@ const artifactReviewBlueprint: Array<
     action: "인터뷰, 대체재, 가격 신호, 리플레이 리포트를 승인 근거로 정리합니다.",
     task: "artifacts",
     panel: "validation",
-    missingDetail: "리서치 노트나 후보 정리 리포트가 없습니다.",
+    missingDetail: "리서치 노트나 아이디어 정리 리포트가 없습니다.",
     draftDetail: "리서치 초안은 있으나 승인 전입니다.",
     approvedDetail: "리서치 노트가 승인되었습니다.",
   },
@@ -1008,15 +1008,15 @@ const artifactReviewBlueprint: Array<
   },
   {
     id: "design-brief",
-    label: "디자인 브리프",
+    label: "디자인 기준",
     artifactType: "design_brief",
     requiredStatus: "approved",
     action: "핵심 화면, 빈/오류/권한 상태, 모바일 흐름을 승인합니다.",
     task: "development",
     developmentPanel: "setup",
-    missingDetail: "디자인 브리프가 없습니다.",
-    draftDetail: "디자인 브리프 초안은 있으나 승인 전입니다.",
-    approvedDetail: "디자인 브리프가 승인되었습니다.",
+    missingDetail: "디자인 기준이 없습니다.",
+    draftDetail: "디자인 기준 초안은 있으나 승인 전입니다.",
+    approvedDetail: "디자인 기준이 승인되었습니다.",
   },
   {
     id: "tech-spec",
@@ -8382,7 +8382,10 @@ export function IdeaWorkbench({
     ["tech_spec", "dev_runbook", "mvp_spec", "prd"].includes(artifact.artifact_type),
   );
   const hasIdeaBriefArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.artifact_type === "idea_brief" || (artifact.title || "").includes("아이디어 브리프"),
+    (artifact) =>
+      artifact.artifact_type === "idea_brief" ||
+      (artifact.title || "").includes("아이디어 브리프") ||
+      (artifact.title || "").includes("아이디어 요약"),
   );
   const hasResearchNoteArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note");
   const hasResearchBriefArtifact = selectedArtifactRecords.some(
@@ -8390,6 +8393,7 @@ export function IdeaWorkbench({
       artifact.artifact_type === "research_note" &&
       (artifact.source === "extracted_research_brief" ||
         ((artifact.source || "workbench") === "workbench" && (artifact.title || "").includes("리서치 브리프")) ||
+        ((artifact.source || "workbench") === "workbench" && (artifact.title || "").includes("조사 요약")) ||
         (artifact.body || "").startsWith("# 리서치 브리프")),
   );
   const hasValidationSprintArtifact = selectedArtifactRecords.some(
@@ -8401,8 +8405,8 @@ export function IdeaWorkbench({
   const hasEvidenceCaptureArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "evidence_capture");
   const hasExperimentResultArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "experiment_result");
   const validationSummaryRequirements = [
-    { label: "아이디어 브리프", passed: hasIdeaBriefArtifact },
-    { label: "리서치 브리프", passed: hasResearchBriefArtifact },
+    { label: "아이디어 요약", passed: hasIdeaBriefArtifact },
+    { label: "조사 요약", passed: hasResearchBriefArtifact },
     { label: "7일 검증 계획", passed: hasValidationSprintArtifact },
   ];
   const canSaveValidationSummary = validationSummaryRequirements.every((requirement) => requirement.passed);
@@ -8529,14 +8533,14 @@ export function IdeaWorkbench({
           detail: missing.length === 0 ? "한 줄 설명, 대상 사용자, 구매자, 수요 신호가 채워져 있습니다." : missing.join(", "),
         },
         {
-          label: "아이디어 브리프",
+          label: "아이디어 요약",
           passed: hasIdeaBriefArtifact,
-          detail: hasIdeaBriefArtifact ? "짧은 요약 문서가 저장되어 있습니다." : "검증 자료에서 아이디어 브리프를 저장하세요.",
+          detail: hasIdeaBriefArtifact ? "짧은 요약 문서가 저장되어 있습니다." : "검증 자료에서 아이디어 요약을 저장하세요.",
         },
         {
           label: "리서치 근거",
           passed: hasResearchNoteArtifact,
-          detail: hasResearchNoteArtifact ? "리서치 노트가 1개 이상 저장되어 있습니다." : "리서치 브리프 또는 근거 노트를 저장하세요.",
+          detail: hasResearchNoteArtifact ? "리서치 노트가 1개 이상 저장되어 있습니다." : "조사 요약 또는 근거 노트를 저장하세요.",
         },
         {
           label: "7일 검증 계획",
@@ -8632,16 +8636,16 @@ export function IdeaWorkbench({
           label: "디자인 상태 커버리지",
           passed: hasDesignStateCoverage,
           detail: hasDesignStateCoverage
-            ? "빈 상태, 로딩, 오류, 권한, 모바일, 접근성 상태가 디자인 브리프에 포함되어 있습니다."
-            : "디자인 브리프에 빈 상태, 로딩, 오류, 권한, 모바일, 접근성을 명시하세요.",
+            ? "빈 상태, 로딩, 오류, 권한, 모바일, 접근성 상태가 디자인 기준에 포함되어 있습니다."
+            : "디자인 기준에 빈 상태, 로딩, 오류, 권한, 모바일, 접근성을 명시하세요.",
         },
         {
           label: "디자인 실행",
           passed: selectedRuns.some((run) => run.phase === "design" && run.status === "done") || hasDesignBriefArtifact,
           detail:
             selectedRuns.some((run) => run.phase === "design" && run.status === "done") || hasDesignBriefArtifact
-              ? "디자인 오케스트레이션 또는 브리프가 준비되어 있습니다."
-              : "오케스트레이션에서 디자인 단계를 완료하거나 디자인 브리프를 저장하세요.",
+              ? "디자인 기준이 준비되어 있습니다."
+              : "디자인 기준을 저장하세요.",
         },
       ]
     : [];
@@ -8690,8 +8694,8 @@ export function IdeaWorkbench({
           detail: hasApprovedDesignBriefArtifact
             ? "구현 전 화면 흐름과 상태가 승인되었습니다."
             : hasDesignBriefArtifact
-              ? "디자인 브리프 초안은 있고 승인이 필요합니다."
-              : "디자인 브리프를 저장하세요.",
+              ? "디자인 기준 초안은 있고 승인이 필요합니다."
+              : "디자인 기준을 저장하세요.",
         },
         {
           label: "기술 명세 승인",
@@ -8862,7 +8866,7 @@ export function IdeaWorkbench({
         },
         {
           artifactType: "design_brief",
-          title: `${selectedIdea.name} 디자인 브리프`,
+          title: `${selectedIdea.name} 디자인 기준`,
           body: designBriefDraft,
           description: "핵심 여정, 화면 상태, 모바일/접근성 체크를 제작 전에 고정합니다.",
         },
@@ -8999,11 +9003,11 @@ export function IdeaWorkbench({
           detail: missing.length === 0 ? "필수 증거 공백이 없습니다." : missing.join(", "),
         },
         {
-          label: "리서치 브리프 저장",
+          label: "조사 요약 저장",
           passed: hasResearchNoteArtifact,
           detail: hasResearchNoteArtifact
             ? "인터뷰, 경쟁/대안, 가격, 규제 체크가 문서화되어 있습니다."
-            : "실행 문서 단계에서 리서치 브리프를 저장하세요.",
+            : "실행 문서 단계에서 조사 요약을 저장하세요.",
         },
         {
           label: "검증 완료 요약 저장",
@@ -9038,13 +9042,13 @@ export function IdeaWorkbench({
             : "Supabase/Firebase 선택 근거가 필요합니다.",
         },
         {
-          label: "디자인 브리프 승인",
+          label: "디자인 기준 승인",
           passed: selectedArtifactRecords.some(
             (artifact) => artifact.artifact_type === "design_brief" && artifact.status === "approved",
           ),
           detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "design_brief")
             ? "초안은 저장되어 있고 승인이 필요합니다."
-            : "핵심 여정과 화면 상태를 디자인 브리프로 고정하세요.",
+            : "핵심 여정과 화면 상태를 디자인 기준으로 고정하세요.",
         },
         {
           label: "기술 명세 승인",
@@ -10587,7 +10591,7 @@ export function IdeaWorkbench({
     }
 
     await navigator.clipboard.writeText(ideaBrief);
-    setCopyMessage("아이디어 브리프를 클립보드에 복사했습니다.");
+    setCopyMessage("아이디어 요약을 클립보드에 복사했습니다.");
   }
 
   async function copyPrdDraft() {
@@ -14470,8 +14474,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           </div>
           <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-4">
             {[
-              ["아이디어 브리프", hasIdeaBriefArtifact],
-              ["리서치 브리프", hasResearchBriefArtifact],
+              ["아이디어 요약", hasIdeaBriefArtifact],
+              ["조사 요약", hasResearchBriefArtifact],
               ["7일 검증 계획", hasValidationSprintArtifact],
               ["검증 완료 요약", hasValidationSummaryArtifact],
             ].map(([label, passed]) => (
@@ -14488,33 +14492,33 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <DraftDocumentCard
           className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
           kicker="validation"
-          title="아이디어 브리프 초안"
-          description="기획서나 리서치 문서에 바로 붙여 넣을 수 있는 1차 요약 초안입니다."
+          title="아이디어 요약"
+          description="기획서나 조사 문서에 바로 이어 쓸 수 있는 1차 요약입니다."
           body={ideaBrief}
           rows={12}
-          copyLabel="브리프 복사"
+          copyLabel="요약 복사"
           onCopy={copyIdeaBrief}
-          onSave={() => saveArtifactDraft("idea_brief", `${selectedIdea.name} 아이디어 브리프`, ideaBrief, "workbench")}
+          onSave={() => saveArtifactDraft("idea_brief", `${selectedIdea.name} 아이디어 요약`, ideaBrief, "workbench")}
           saveLabel={hasIdeaBriefArtifact ? "저장 완료" : "실행 문서 저장"}
           saveDisabled={isBusy || !user || hasIdeaBriefArtifact}
-          disabledNote={hasIdeaBriefArtifact ? "아이디어 브리프가 저장되어 상단 상태에 반영되었습니다." : undefined}
+          disabledNote={hasIdeaBriefArtifact ? "아이디어 요약이 저장되어 상단 상태에 반영되었습니다." : undefined}
         />
 
         <DraftDocumentCard
           className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
           kicker="research"
-          title="리서치 브리프 초안"
-          description="인터뷰, 경쟁/대안, 가격, 규제, 개인정보 검증을 한 문서로 묶어 바로 조사에 넘깁니다."
+          title="조사 요약"
+          description="인터뷰, 경쟁/대안, 가격, 규제, 개인정보 확인 내용을 한 문서로 묶습니다."
           body={researchBriefDraft}
           rows={18}
-          copyLabel="리서치 복사"
-          onCopy={() => copyDraft(researchBriefDraft, "리서치 브리프")}
+          copyLabel="조사 요약 복사"
+          onCopy={() => copyDraft(researchBriefDraft, "조사 요약")}
           onSave={() =>
-            saveArtifactDraft("research_note", `${selectedIdea.name} 리서치 브리프`, researchBriefDraft, "workbench")
+            saveArtifactDraft("research_note", `${selectedIdea.name} 조사 요약`, researchBriefDraft, "workbench")
           }
           saveLabel={hasResearchBriefArtifact ? "저장 완료" : "실행 문서 저장"}
           saveDisabled={isBusy || !user || hasResearchBriefArtifact}
-          disabledNote={hasResearchBriefArtifact ? "리서치 브리프가 저장되어 상단 상태에 반영되었습니다." : undefined}
+          disabledNote={hasResearchBriefArtifact ? "조사 요약이 저장되어 상단 상태에 반영되었습니다." : undefined}
         />
 
         <DraftDocumentCard
@@ -14616,7 +14620,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           className={activeTask === "artifacts" && artifactPanel === "validation" ? "" : "hidden"}
           kicker="summary"
           title="검증 완료 요약"
-          description="아이디어 브리프, 리서치 브리프, 7일 검증 계획이 모두 저장된 뒤 마지막으로 저장하는 요약입니다."
+          description="아이디어 요약, 조사 요약, 7일 검증 계획이 모두 저장된 뒤 마지막으로 저장하는 요약입니다."
           body={validationSummaryDraft}
           rows={16}
           copyLabel="요약 복사"
