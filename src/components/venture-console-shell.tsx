@@ -230,8 +230,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["AI 초안 확인", "필요할 때만 메모 보완", "실행 문서 저장"],
   },
   "workbench:development": {
-    summary: "검증 결과와 결과물 형태를 바탕으로 제작에 넘길 패키지를 만듭니다.",
-    checklist: ["결과물 형태 확인", "AI가 만든 제작 요약 확인", "최종 제작 패키지 저장"],
+    summary: "검증 결과와 제작 형태를 바탕으로 제작에 넘길 패키지를 만듭니다.",
+    checklist: ["제작 형태 확인", "AI가 만든 제작 요약 확인", "최종 제작 패키지 저장"],
   },
   "workbench:launch": {
     summary: "출시 전 막히는 항목을 확인하고 최종 출시 판단을 기록합니다.",
@@ -266,9 +266,9 @@ const taskCanvasDetails: Record<
   },
   "console:extract": {
     question: "회의 내용, 아이디어, 자동화하고 싶은 업무 내용을 입력칸에 붙여넣으세요.",
-    aiLead: "AI가 원문에서 먼저 검토할 아이디어, 결과물 형태, 검증 질문을 함께 정리합니다.",
-    deliverable: "먼저 볼 아이디어와 이후 제작 패키지에 쓰일 결과물 형태",
-    checkpoint: "처음에는 입력칸 하나만 쓰면 됩니다. 결과물 형태는 저장 전에 확인하고 STEP 2에서도 다시 바꿀 수 있습니다.",
+    aiLead: "AI가 원문에서 먼저 검토할 아이디어, 제작 형태, 검증 질문을 함께 정리합니다.",
+    deliverable: "먼저 볼 아이디어와 이후 제작 패키지에 쓰일 제작 형태",
+    checkpoint: "처음에는 입력칸 하나만 쓰면 됩니다. 제작 형태는 저장 전에 웹/앱/자동화 기준으로 확인하고 STEP 2에서도 다시 바꿀 수 있습니다.",
   },
   "console:idea": {
     question: "이 아이디어를 실제 검증 대상으로 올릴 준비가 되었나요?",
@@ -605,7 +605,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "이제 제작 패키지를 저장하세요.",
-      detail: "검증 결과와 결과물 형태를 묶어 개발 도구에 바로 넘길 제작 패키지를 만듭니다.",
+      detail: "검증 결과와 제작 형태를 묶어 개발 도구에 바로 넘길 제작 패키지를 만듭니다.",
       evidence: `${dataNote} · 실행 문서 ${artifactCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",

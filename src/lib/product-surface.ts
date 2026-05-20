@@ -85,7 +85,7 @@ export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfacePro
     label: "운영 콘솔",
     shortLabel: "콘솔",
     description: "팀이나 운영자가 기록을 보고 판단, 배정, 처리, 추적하는 업무형 제품입니다.",
-    firstBuild: "리스트, 상세, 상태 변경, 담당자/권한이 있는 콘솔형 MVP",
+    firstBuild: "리스트, 상세, 상태 변경, 담당자/권한이 있는 콘솔형 첫 제작 범위",
     stackHint: "Next.js App Router, Supabase Postgres/RLS, Vercel을 우선 검토합니다.",
     harnessFocus: "제작 패키지에는 권한, 상태 변경, 감사 로그, 필터, 빈/오류/읽기 전용 상태를 담습니다.",
     promptFocus: "대시보드, 리스트/상세, 상태 변경, 권한, 감사 로그, 운영 지표를 우선 반영합니다.",
@@ -96,7 +96,7 @@ export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfacePro
     shortLabel: "연동",
     description: "Cursor, Codex, Claude 같은 개발 도구로 넘길 제작 패키지와 연결 흐름이 핵심입니다.",
     firstBuild: "제작 패키지, 개발 도구 연결 지침, CLI 설치 흐름",
-    stackHint: "Next.js 제어 화면, 연결 서버/CLI 패키지, 문서와 프롬프트 버전 관리를 검토합니다.",
+    stackHint: "Next.js 제어 화면, 연결 서버/CLI 패키지, 문서와 제작 지시 버전 관리를 검토합니다.",
     harnessFocus: "제작 패키지에는 기획서, 디자인, 기술 명세, 구현 지시, 검증 명령을 개발 도구에서 바로 쓸 수 있게 담습니다.",
     promptFocus: "개발 도구별 설치, 연결 등록, 코드 생성 지시, 검증/배포 명령을 우선 반영합니다.",
   },
@@ -239,9 +239,9 @@ export function getProductSurfaceProfile(key: unknown, fallbackInput: ProductSur
 }
 
 export function productSurfaceMarkdown(profile: ProductSurfaceProfile) {
-  return `## 결과물 형태
+  return `## 제작 형태
 
-- 권장 형태: ${profile.label}
+- 권장 제작 형태: ${profile.label}
 - 첫 제작 형태: ${profile.firstBuild}
 - 기술 스택 기준: ${profile.stackHint}
 - 제작 기준: ${profile.harnessFocus}

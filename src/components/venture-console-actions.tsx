@@ -1481,7 +1481,7 @@ function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
 
 ## 비교 결과
 
-| 순서 | 아이디어 | 결과물 형태 | 판정 | 매칭 아이디어 | 유사도 | 검증 점수 | 다음 행동 |
+| 순서 | 아이디어 | 제작 형태 | 판정 | 매칭 아이디어 | 유사도 | 검증 점수 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows || "| - | 아이디어 없음 | - | - | - | - | - | - |"}
 `;
@@ -1515,7 +1515,7 @@ ${gateSummary}
 
 ## 실행 순서
 
-| 순서 | 아이디어 | 결과물 형태 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
+| 순서 | 아이디어 | 제작 형태 | 진행 판정 | 검증 점수 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows || "| - | 아이디어 없음 | - | - | - | - | - | - | - |"}
 
@@ -2411,7 +2411,7 @@ export function VentureConsoleActions({
 
       setRawIdeaSource(payload.source);
       setExtractMessage(
-        `${payload.ideas?.length ?? 3}개 아이디어를 생성했습니다. 내용을 확인한 뒤 AI로 아이디어 구체화를 눌러 한 개 아이디어와 결과물 형태를 선정하세요.`,
+        `${payload.ideas?.length ?? 3}개 아이디어를 생성했습니다. 내용을 확인한 뒤 AI로 아이디어 구체화를 눌러 한 개 아이디어와 제작 형태를 선정하세요.`,
       );
     } catch (error) {
       setExtractMessage(
@@ -2489,7 +2489,7 @@ export function VentureConsoleActions({
         }),
       );
       setExtractMessage(
-        `${aiIdeas.length}개 아이디어를 정리했습니다. 추천 아이디어의 결과물 형태, 검증 판단, 중복 가능성을 확인하세요.`,
+        `${aiIdeas.length}개 아이디어를 정리했습니다. 추천 아이디어의 제작 형태, 검증 판단, 중복 가능성을 확인하세요.`,
       );
     } catch (error) {
       const fallbackIdeas = extractIdeasFromText(source);
@@ -2699,7 +2699,7 @@ export function VentureConsoleActions({
       buyer: candidate.buyer,
       signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
       risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-      next_evidence: `결과물 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+      next_evidence: `제작 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
         "\n- ",
       )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
     });
@@ -2720,7 +2720,7 @@ export function VentureConsoleActions({
       buyer: candidate.buyer.trim(),
       signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
       risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-      next_evidence: `결과물 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+      next_evidence: `제작 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
         "\n- ",
       )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n진행 판정\n${extractionGate.label}: ${extractionGate.nextAction}`,
       product_surface: candidate.productSurface.key,
@@ -3253,7 +3253,7 @@ export function VentureConsoleActions({
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">아이디어 도출</div>
                 <h2 className="mt-2 text-xl font-semibold text-slate-950">메모에서 검토할 아이디어 정리</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                  메모를 넣으면 AI가 지금 먼저 검토할 아이디어 한 건과 결과물 형태를 함께 정리합니다.
+                  메모를 넣으면 AI가 지금 먼저 검토할 아이디어 한 건과 웹/앱/자동화 같은 제작 형태를 함께 정리합니다.
                 </p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 lg:mt-0">
@@ -3293,7 +3293,7 @@ export function VentureConsoleActions({
                   />
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
                     <span><strong className="text-slate-950">1.</strong> 아이디어를 붙여 넣기 합니다.</span>
-                    <span><strong className="text-slate-950">2.</strong> AI가 아이디어 한 건과 결과물 형태를 추천합니다.</span>
+                    <span><strong className="text-slate-950">2.</strong> AI가 아이디어 한 건과 제작 형태를 추천합니다.</span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 검증 단계가 열립니다.</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -3354,7 +3354,7 @@ export function VentureConsoleActions({
                           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI 추천 아이디어</div>
                           <h3 className="mt-2 text-lg font-semibold text-slate-950">{recommendedExtractedIdea.name}</h3>
                           <p className="mt-1 text-sm leading-5 text-slate-600">
-                            지금 먼저 검토할 한 건과 권장 결과물 형태입니다.
+                            지금 먼저 검토할 한 건과 권장 제작 형태입니다.
                           </p>
                         </div>
                         {recommendedExtractionGate && recommendedGateStyle ? (
@@ -3375,12 +3375,12 @@ export function VentureConsoleActions({
                           준비 {recommendedPortfolioItem?.readinessScore ?? 0}%
                         </span>
                         <span className="avl-pill avl-pill-brand">
-                          결과물 {recommendedExtractedIdea.productSurface.shortLabel}
+                          형태 {recommendedExtractedIdea.productSurface.shortLabel}
                         </span>
                       </div>
                       <div className="mt-4 border border-blue-200 bg-blue-50 px-4 py-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
-                          AI가 추천한 결과물 형태
+                          AI가 추천한 제작 형태
                         </div>
                         <div className="mt-2 text-base font-semibold text-slate-950">
                           {recommendedExtractedIdea.productSurface.label}
@@ -3389,7 +3389,7 @@ export function VentureConsoleActions({
                           {recommendedExtractedIdea.productSurface.firstBuild}
                         </p>
                         <label className="mt-3 grid gap-2 text-sm font-semibold text-slate-900">
-                          저장 전에 결과물 형태 확인
+                          저장 전에 웹/앱/자동화 형태 확인
                           <select
                             value={recommendedExtractedIdea.productSurface.key}
                             onChange={(event) =>
@@ -3432,7 +3432,7 @@ export function VentureConsoleActions({
                           <p className="mt-1 text-xs leading-5 text-slate-700">아이디어, 리스크, 7일 검증 계획이 한 묶음으로 만들어집니다.</p>
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
-                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">결과물 형태</div>
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">제작 형태</div>
                           <p className="mt-1 text-xs leading-5 text-slate-700">
                             {recommendedExtractedIdea.productSurface.label} 기준으로 제작 패키지를 맞춥니다.
                           </p>
@@ -3467,7 +3467,7 @@ export function VentureConsoleActions({
                       <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 아이디어가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                         <li>1. 왼쪽 입력칸에 아이디어를 붙여 넣습니다.</li>
-                        <li>2. AI로 아이디어 구체화를 눌러 한 개 아이디어와 결과물 형태를 선정합니다.</li>
+                        <li>2. AI로 아이디어 구체화를 눌러 한 개 아이디어와 제작 형태를 확인합니다.</li>
                         <li>3. 마음에 들면 저장하고 검증 단계로 넘어갑니다.</li>
                       </ul>
                     </section>
@@ -4038,7 +4038,7 @@ export function VentureConsoleActions({
                       </p>
                     </div>
                     <div className="border border-blue-200 bg-blue-50 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">결과물 형태</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">제작 형태</div>
                       {manualFormProductSurface ? (
                         <>
                           <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">
