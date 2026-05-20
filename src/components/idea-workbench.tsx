@@ -2217,7 +2217,7 @@ ${scan.demand_forecast}
 ${scan.competition}
 ${scan.saturation}
 
-경쟁/대체재 후보
+경쟁/대체재
 ${competitorLines}
 
 진입장벽
@@ -2276,7 +2276,7 @@ ${scan.demand_forecast}
 ${scan.competition}
 ${scan.saturation}
 
-경쟁/대체재 후보
+경쟁/대체재
 ${competitorLines}
 
 진입장벽
@@ -2369,7 +2369,7 @@ ${scan.competition}
 
 ${scan.saturation}
 
-## 경쟁/대체재 후보
+## 경쟁/대체재
 
 ${competitorLines}
 
@@ -14172,10 +14172,10 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <div className="avl-kicker">시장·경쟁 자동 점검</div>
-                <h3 className="mt-1 text-base font-semibold text-slate-950">AI가 수요, 경쟁, 진입장벽을 먼저 조사합니다</h3>
+                <h3 className="mt-1 text-base font-semibold text-slate-950">AI가 시장성, 경쟁도, 진입장벽을 먼저 채웁니다</h3>
                 <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                  이 단계는 사용자가 시장 조사를 직접 끝내야 하는 구간이 아닙니다. 버튼을 누르면 AI가 현재 아이디어를 기준으로
-                  예상 수요, 경쟁도, 시장 포화도, 진입장벽, 대체재를 먼저 정리하고 아래 결과 기록과 근거 기록 입력칸에 초안을 채웁니다.
+                  이 단계는 사용자가 시장 조사를 직접 끝내야 하는 구간이 아닙니다. 버튼 한 번으로 AI가 현재 아이디어를 기준으로
+                  예상 수요, 경쟁도, 시장 포화도, 진입장벽, 대체재를 정리하고 아래 결과 기록과 근거 기록 입력칸까지 채웁니다.
                 </p>
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
                   로그인 상태라면 자동 점검 결과는 리서치 노트로도 저장됩니다. 공개 자료를 찾으면 출처를 함께 표시하고,
@@ -14189,7 +14189,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
               >
                 <RefreshCw size={16} className={isMarketScanLoading ? "animate-spin" : ""} />
-                {isMarketScanLoading ? "점검 중" : marketScanDraft ? "AI 시장·경쟁 다시 점검" : "AI 시장·경쟁 조사 시작"}
+                {isMarketScanLoading ? "채우는 중" : marketScanDraft ? "AI가 다시 채우기" : "AI가 자동으로 채우기"}
               </button>
             </div>
 
@@ -14200,7 +14200,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             {marketScanDraft ? (
               <div className="mt-4 grid gap-4">
                 <div className="border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-slate-700">
-                  이 결과는 현재 아이디어에 연결되는 자동 조사 초안입니다. 필요한 부분만 손보고 하단 다음 단계로 넘어가면,
+                  이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 필요한 부분만 손보고 하단 다음 단계로 넘어가면,
                   제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.
                 </div>
                 {marketScanDraft.market_signals.length > 0 ? (
@@ -14242,7 +14242,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </div>
                 <div className="grid gap-3 lg:grid-cols-2">
                   <div className="border border-slate-200 bg-white p-4">
-                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">경쟁/대체재 후보</div>
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">경쟁/대체재</div>
                     <div className="mt-3 grid gap-2">
                       {marketScanDraft.competitor_map.length > 0 ? (
                         marketScanDraft.competitor_map.map((competitor) => (
@@ -14258,7 +14258,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           </div>
                         ))
                       ) : (
-                        <div className="text-sm text-slate-500">아직 정리된 경쟁/대체재 후보가 없습니다.</div>
+                        <div className="text-sm text-slate-500">아직 정리된 경쟁/대체재가 없습니다.</div>
                       )}
                     </div>
                   </div>
