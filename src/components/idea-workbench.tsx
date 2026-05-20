@@ -8179,6 +8179,16 @@ export function IdeaWorkbench({
     (artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved",
   );
   const hasMvpSlicePlanArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "mvp_slice_plan");
+  const hasMvpScopeArtifact = selectedArtifactRecords.some(
+    (artifact) =>
+      artifact.artifact_type === "mvp_spec" &&
+      (artifact.source || "workbench") === "workbench" &&
+      (artifact.title || "").includes("첫 제작 범위") &&
+      !(artifact.title || "").includes("플랜"),
+  );
+  const hasLaunchChecklistArtifact = selectedArtifactRecords.some(
+    (artifact) => artifact.artifact_type === "launch_checklist",
+  );
   const hasBackendDecisionArtifact = selectedArtifactRecords.some(
     (artifact) => artifact.artifact_type === "backend_decision",
   );
@@ -9571,7 +9581,24 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
-  async function saveArtifactDraft(artifactType: VentureArtifactType, title: string, body: string, source: string) {
+  function getNextArtifactVersion(artifactType: VentureArtifactType) {
+    return (
+      Math.max(
+        0,
+        ...selectedArtifactRecords
+          .filter((artifact) => artifact.artifact_type === artifactType)
+          .map((artifact) => artifact.version ?? 1),
+      ) + 1
+    );
+  }
+
+  async function saveArtifactDraft(
+    artifactType: VentureArtifactType,
+    title: string,
+    body: string,
+    source: string,
+    options: { version?: number; quiet?: boolean; statusNote?: string } = {},
+  ) {
     if (!supabase || !selectedIdea) {
       setMessage("먼저 아이디어를 선택하세요.");
       return false;
@@ -9587,13 +9614,7 @@ export function IdeaWorkbench({
       return false;
     }
 
-    const nextVersion =
-      Math.max(
-        0,
-        ...selectedArtifactRecords
-          .filter((artifact) => artifact.artifact_type === artifactType)
-          .map((artifact) => artifact.version ?? 1),
-      ) + 1;
+    const nextVersion = options.version ?? getNextArtifactVersion(artifactType);
 
     setIsBusy(true);
     setMessage(null);
@@ -9608,7 +9629,7 @@ export function IdeaWorkbench({
         title,
         body,
         source,
-        status_note: "실행 보드에서 생성한 초기 초안입니다.",
+        status_note: options.statusNote ?? "실행 보드에서 생성한 초기 초안입니다.",
       })
       .select()
       .single();
@@ -9632,7 +9653,9 @@ export function IdeaWorkbench({
         body_length: data.body.length,
       },
     });
-    setMessage(`${artifactLabels[artifactType]} v${nextVersion}을 저장했습니다.`);
+    if (!options.quiet) {
+      setMessage(`${artifactLabels[artifactType]} v${nextVersion}을 저장했습니다.`);
+    }
     router.refresh();
     return true;
   }
@@ -9642,6 +9665,10 @@ export function IdeaWorkbench({
       setMessage("먼저 아이디어를 선택하세요.");
       return;
     }
+
+    const nextDesignBriefVersion = getNextArtifactVersion("design_brief");
+    const nextDevRunbookVersion = getNextArtifactVersion("dev_runbook");
+    let plannedDevRunbookVersion = nextDevRunbookVersion;
 
     const finalDevelopmentPlan = [
       developmentAutoSummaryDraft,
@@ -9672,6 +9699,11 @@ export function IdeaWorkbench({
         `${selectedIdea.name} 디자인 생성 프롬프트`,
         designGenerationPromptDraft,
         "design_generation_prompt",
+        {
+          version: nextDesignBriefVersion,
+          quiet: true,
+          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 디자인 프롬프트입니다.",
+        },
       );
 
       if (!savedPrompt) {
@@ -9685,11 +9717,18 @@ export function IdeaWorkbench({
         `${selectedIdea.name} 제작 실행 계획`,
         finalDevelopmentPlan,
         "development_process",
+        {
+          version: plannedDevRunbookVersion,
+          quiet: true,
+          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 제작 실행 계획입니다.",
+        },
       );
 
       if (!savedPlan) {
         return;
       }
+
+      plannedDevRunbookVersion += 1;
     }
 
     if (!hasAgentRunPackageArtifact) {
@@ -9698,6 +9737,11 @@ export function IdeaWorkbench({
         `${selectedIdea.name} 하네스 패키지`,
         finalAgentRunPackage,
         "agent_run_package",
+        {
+          version: plannedDevRunbookVersion,
+          quiet: true,
+          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 IDE/MCP 전달 자료입니다.",
+        },
       );
 
       if (!savedRunPackage) {
@@ -14379,7 +14423,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           copyLabel="기획서 복사"
           onCopy={copyPrdDraft}
           onSave={() => saveArtifactDraft("prd", `${selectedIdea.name} 제품 기획서`, prdDraft, "workbench")}
-          saveDisabled={isBusy || !user}
+          saveLabel={hasPrdArtifact ? "저장 완료" : "실행 문서 저장"}
+          saveDisabled={isBusy || !user || hasPrdArtifact}
+          disabledNote={hasPrdArtifact ? "제품 기획서가 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
         />
 
         <div
@@ -14406,7 +14452,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 "mvp_slice_plan",
               )
             }
-            saveDisabled={isBusy || !user || !mvpSlicePlanDraft}
+            saveLabel={hasMvpSlicePlanArtifact ? "저장 완료" : "실행 문서 저장"}
+            saveDisabled={isBusy || !user || !mvpSlicePlanDraft || hasMvpSlicePlanArtifact}
+            disabledNote={hasMvpSlicePlanArtifact ? "첫 제작 범위 플랜이 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
           />
 
           <DraftDocumentCard
@@ -14418,7 +14466,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             copyLabel="명세 복사"
             onCopy={copyMvpSpecDraft}
             onSave={() => saveArtifactDraft("mvp_spec", `${selectedIdea.name} 첫 제작 범위`, mvpSpecDraft, "workbench")}
-            saveDisabled={isBusy || !user}
+            saveLabel={hasMvpScopeArtifact ? "저장 완료" : "실행 문서 저장"}
+            saveDisabled={isBusy || !user || hasMvpScopeArtifact}
+            disabledNote={hasMvpScopeArtifact ? "첫 제작 범위 초안이 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
           />
 
           <DraftDocumentCard
@@ -14437,7 +14487,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 "workbench",
               )
             }
-            saveDisabled={isBusy || !user}
+            saveLabel={hasLaunchChecklistArtifact ? "저장 완료" : "실행 문서 저장"}
+            saveDisabled={isBusy || !user || hasLaunchChecklistArtifact}
+            disabledNote={hasLaunchChecklistArtifact ? "출시 체크리스트가 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
           />
         </div>
 
