@@ -8669,7 +8669,7 @@ export function IdeaWorkbench({
           passed: hasBackendDecisionArtifact,
           detail: hasBackendDecisionArtifact
             ? "데이터/인증/운영 경계가 백엔드 결정에 기록되어 있습니다."
-            : "백엔드 선택 스코어카드를 보고 결정을 저장하세요.",
+            : "백엔드 선택 비교를 보고 결정을 저장하세요.",
         },
         {
           label: "디자인 상태 커버리지",
@@ -8725,7 +8725,7 @@ export function IdeaWorkbench({
           passed: hasBackendDecisionArtifact,
           detail: hasBackendDecisionArtifact
             ? "Supabase/Firebase 선택 근거가 기록되어 있습니다."
-            : "백엔드 선택 스코어카드에서 결정을 저장하세요.",
+            : "백엔드 선택 비교에서 결정을 저장하세요.",
         },
         {
           label: "디자인 승인",
@@ -9328,7 +9328,7 @@ export function IdeaWorkbench({
 
     switch (idea.stage) {
       case "prd":
-        return { label: "STEP 4 실행 문서 만들기", task: "artifacts" as WorkbenchTask };
+        return { label: "STEP 4 AI 제작 자료 저장", task: "artifacts" as WorkbenchTask };
       case "prototype":
       case "qa":
         return { label: "STEP 5 제작 준비", task: "development" as WorkbenchTask };
@@ -11861,9 +11861,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="avl-card mt-5 flex flex-col gap-3 p-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="avl-kicker">advanced</div>
-              <h3 className="mt-2 text-base font-semibold text-slate-950">고급 제작 자료 자동 생성</h3>
+              <h3 className="mt-2 text-base font-semibold text-slate-950">제작 패키지 자동 정리</h3>
               <p className="mt-1 text-sm leading-6 text-slate-600">
-                백엔드 결정, 실행 문서, 실행 단계, 기본 제작 할 일을 한 번에 만듭니다.
+                백엔드 선택, 제작 자료, 실행 순서, 기본 제작 할 일을 한 번에 정리합니다.
               </p>
             </div>
             <button
@@ -11873,7 +11873,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />
-              고급 자동 생성
+              제작 패키지 정리
             </button>
           </div>
 
@@ -11881,7 +11881,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <div className="avl-kicker">backend choice</div>
-                <h3 className="mt-2 text-base font-semibold text-slate-950">백엔드 선택 스코어카드</h3>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">백엔드 선택 비교</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
                   아이디어 문맥, 실험, 리스크를 바탕으로 Supabase, Firebase, SQL Connect, Hybrid 적합도를 비교합니다.
                 </p>
@@ -12586,7 +12586,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                   >
                     <Save size={16} />
-                    자료 저장
+                    제작 자료 저장
                   </button>
                 </div>
               </div>
@@ -14563,7 +14563,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className={activeTask === "artifacts" ? "avl-card p-4" : "hidden"}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">실행 문서 만들기</h2>
+              <h2 className="text-lg font-semibold text-slate-950">AI 제작 자료 저장</h2>
               <p className="mt-1 text-sm text-slate-500">
                 {experienceMode === "guided"
                   ? "AI가 아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 한 번에 저장합니다."
@@ -14807,8 +14807,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <div className="avl-kicker">진입 준비도</div>
-              <h2 className="mt-3 text-lg font-semibold text-slate-950">기획서 전환 준비도</h2>
+              <div className="avl-kicker">다음 단계 준비</div>
+              <h2 className="mt-3 text-lg font-semibold text-slate-950">AI가 기획서로 넘길 준비를 확인했습니다</h2>
               <p className="mt-1 text-sm leading-5 text-slate-600">
                 검증 근거가 제품 요구사항으로 넘어갈 만큼 정리되었는지 먼저 확인합니다.
               </p>

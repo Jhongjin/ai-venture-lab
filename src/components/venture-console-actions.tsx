@@ -896,7 +896,7 @@ function buildExtractionGate(
   const hasCoreProblem = hasReadiness(readinessChecks, "문제 신호");
   const hasUserBuyer = hasReadiness(readinessChecks, "사용자/구매자");
   const hasMetric = hasReadiness(readinessChecks, "검증 지표");
-  const hasMvp = hasReadiness(readinessChecks, "첫 MVP");
+  const hasMvp = hasReadiness(readinessChecks, "첫 제작 범위");
   const hasDuplicateBlocker = Boolean(similarIdea && similarIdea.score >= 70);
   const hasSensitiveBlocker = !hasReadiness(readinessChecks, "민감정보");
   const corePassCount = [hasCoreProblem, hasUserBuyer, hasMetric, hasMvp].filter(Boolean).length;
@@ -925,7 +925,7 @@ function buildExtractionGate(
   ) {
     id = "proceed";
     summary = "문제, 구매자, 확인 방법, 첫 제작 범위가 충분해 검증 자료로 저장할 만한 아이디어입니다.";
-    nextAction = "검증 자료 저장 후 실행 보드에서 사업성 평가와 첫 검증 계획을 확정";
+    nextAction = "아이디어 패키지 저장 후 실행 보드에서 사업성 평가와 첫 검증 계획을 확정";
   } else {
     id = "research";
     summary =
@@ -1393,7 +1393,7 @@ function buildExtractionReplaySummary({
         matchedName: primaryCandidate.id === match.item.id ? rulesCandidate.name : match.item.name,
         overlapScore: match.score,
         verdict: "공통 아이디어",
-        nextAction: "두 방식이 모두 포착했습니다. 검증 자료 저장 또는 실행 보드 평가 우선순위로 봅니다.",
+        nextAction: "두 방식이 모두 포착했습니다. 아이디어 패키지로 저장하거나 실행 보드에서 먼저 평가하세요.",
       });
       continue;
     }
@@ -2411,7 +2411,7 @@ export function VentureConsoleActions({
 
       setRawIdeaSource(payload.source);
       setExtractMessage(
-        `${payload.ideas?.length ?? 3}개 아이디어를 생성했습니다. 내용을 확인한 뒤 AI로 아이디어 구체화를 눌러 한 개 아이디어와 제작 형태를 선정하세요.`,
+        `${payload.ideas?.length ?? 3}개 아이디어를 생성했습니다. 내용을 확인한 뒤 아이디어 자동 정리를 눌러 한 개 아이디어와 제작 형태를 선정하세요.`,
       );
     } catch (error) {
       setExtractMessage(
@@ -3251,7 +3251,7 @@ export function VentureConsoleActions({
             <div className="border border-slate-200 bg-white px-5 py-4 lg:flex lg:items-end lg:justify-between">
               <div>
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">아이디어 도출</div>
-                <h2 className="mt-2 text-xl font-semibold text-slate-950">메모에서 검토할 아이디어 정리</h2>
+                <h2 className="mt-2 text-xl font-semibold text-slate-950">아이디어를 붙이면 AI가 사업 후보를 정리합니다</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                   메모를 넣으면 AI가 지금 먼저 검토할 아이디어 한 건과 웹/앱/자동화 같은 제작 형태를 함께 정리합니다.
                 </p>
@@ -3266,7 +3266,7 @@ export function VentureConsoleActions({
                   className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={18} /> : <Sparkle size={18} />}
-                  AI로 아이디어 구체화
+                  아이디어 자동 정리
                 </button>
               </div>
             </div>
@@ -3293,7 +3293,7 @@ export function VentureConsoleActions({
                   />
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
                     <span><strong className="text-slate-950">1.</strong> 아이디어를 붙여넣습니다.</span>
-                    <span><strong className="text-slate-950">2.</strong> AI가 아이디어와 제작 형태를 함께 정리합니다.</span>
+                    <span><strong className="text-slate-950">2.</strong> AI가 아이디어와 제작 형태를 정리합니다.</span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 사업성 평가로 이어집니다.</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -3330,7 +3330,7 @@ export function VentureConsoleActions({
                       className="avl-btn avl-btn-primary px-4 disabled:opacity-60"
                     >
                       {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                      AI로 아이디어 구체화
+                      아이디어 자동 정리
                     </button>
                   </div>
                   {extractMessage ? (
@@ -3467,7 +3467,7 @@ export function VentureConsoleActions({
                       <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 아이디어가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                         <li>1. 왼쪽 입력칸에 아이디어를 붙여넣습니다.</li>
-                        <li>2. AI가 아이디어 한 건과 제작 형태를 함께 정리합니다.</li>
+                        <li>2. AI가 아이디어 한 건과 제작 형태를 정리합니다.</li>
                         <li>3. 마음에 들면 저장하고 사업성 평가로 넘어갑니다.</li>
                       </ul>
                     </section>
@@ -3511,7 +3511,7 @@ export function VentureConsoleActions({
                         className="avl-btn avl-btn-secondary mt-auto h-9 w-fit px-3 disabled:opacity-60"
                       >
                         {isReplayingExtraction ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
-                        점검 실행
+                        빠진 아이디어 다시 확인
                       </button>
                     </div>
                   </div>
@@ -3612,7 +3612,7 @@ export function VentureConsoleActions({
                               className="avl-btn avl-btn-primary h-9 px-3 text-sm disabled:opacity-50"
                             >
                               {extractSaveKey === item.candidate.id ? <ArrowsClockwise className="animate-spin" size={14} /> : <PlusCircle size={14} />}
-                              저장
+                              이 아이디어 저장
                             </button>
                           </div>
                         </div>
@@ -3733,7 +3733,7 @@ export function VentureConsoleActions({
                   className="avl-btn avl-btn-accent h-10 px-4 disabled:opacity-50"
                           >
                             {extractSaveKey === candidate.id ? <ArrowsClockwise className="animate-spin" size={16} /> : <PlusCircle size={16} />}
-                            검증 자료 저장
+                            아이디어 패키지 저장
                           </button>
                         </div>
                       </div>
@@ -3776,7 +3776,7 @@ export function VentureConsoleActions({
                       <div className="avl-surface-muted mt-3 border-slate-200 p-3">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                           <div>
-                            <div className="text-sm font-semibold text-slate-950">사업/제작 스코어카드</div>
+                            <div className="text-sm font-semibold text-slate-950">AI가 본 사업성과 제작 난이도</div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
                               수요, 수익화, 첫 제작 난이도, 도달 채널, 자동화 가치, 보안 부담을 함께 봅니다.
                             </p>
@@ -4088,7 +4088,7 @@ export function VentureConsoleActions({
             </section>
 
             <section className="avl-card p-5 text-slate-900">
-              <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">저장 준비</div>
+              <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI가 채운 초안 상태</div>
               <div className="mt-3 grid gap-3">
                 {([
                   ["필수 입력", Boolean(form.name && form.one_liner)],
