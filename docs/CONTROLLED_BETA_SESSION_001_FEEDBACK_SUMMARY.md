@@ -157,3 +157,12 @@ Validation keywords: `plain_korean_label_pass_completed`, `developer_term_reduct
 - This is intentionally a small bridge before deeper external IDE or MCP handoff work.
 
 Validation keywords: `technical_stack_gap_bridge_implemented`, `first_build_order_visible`, `wq_061_d_implemented`.
+
+2026-05-20 AI-first flow follow-up:
+
+- The product direction is now fixed as AI-first automation rather than a manual checklist.
+- `docs/AI_FIRST_PRODUCT_FLOW.md` records that AI drafts idea extraction, result type, market checks, risks, validation plans, execution documents, and the final production package before asking for user judgment.
+- The primary console copy now avoids skip-style transitions and developer-heavy terms in first-use surfaces.
+- Product surface classification remains visible from idea discovery through business evaluation and final production package generation.
+
+Validation keywords: `ai_first_product_flow_recorded`, `manual_checklist_path_reduced`, `product_surface_to_production_package_bridge`, `wq_061_followup_20260520`.
