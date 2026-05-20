@@ -21,7 +21,11 @@ type GeneratedSampleIdea = {
   targetUser: string;
   buyer: string;
   firstValidation: string;
+  productSurface: ProductSurfaceKey;
+  firstBuild: string;
 };
+
+type ProductSurfaceKey = "web_app" | "mobile_app" | "web_site" | "automation" | "operator_console" | "mcp_handoff";
 
 type RequestBody = {
   existingIdeas?: unknown;
@@ -60,6 +64,17 @@ const ideaThemes = [
   "금융 조언이 아닌 지출 분류 운영",
 ];
 
+const productSurfaceLabels: Record<ProductSurfaceKey, string> = {
+  web_app: "웹앱",
+  mobile_app: "모바일 앱",
+  web_site: "웹사이트",
+  automation: "업무 자동화",
+  operator_console: "운영 콘솔",
+  mcp_handoff: "개발 도구 연동",
+};
+
+const allowedProductSurfaceKeys = Object.keys(productSurfaceLabels) as ProductSurfaceKey[];
+
 const sampleIdeasSchema = {
   type: "object",
   additionalProperties: false,
@@ -78,8 +93,13 @@ const sampleIdeasSchema = {
           targetUser: { type: "string" },
           buyer: { type: "string" },
           firstValidation: { type: "string" },
+          productSurface: {
+            type: "string",
+            enum: ["web_app", "mobile_app", "web_site", "automation", "operator_console", "mcp_handoff"],
+          },
+          firstBuild: { type: "string" },
         },
-        required: ["title", "pain", "solution", "targetUser", "buyer", "firstValidation"],
+        required: ["title", "pain", "solution", "targetUser", "buyer", "firstValidation", "productSurface", "firstBuild"],
       },
     },
   },
@@ -176,11 +196,62 @@ function pickRandomItems<T>(items: T[], count: number) {
   return picked;
 }
 
+function toProductSurfaceKey(value: unknown): ProductSurfaceKey {
+  if (typeof value === "string" && allowedProductSurfaceKeys.includes(value as ProductSurfaceKey)) {
+    return value as ProductSurfaceKey;
+  }
+
+  const text = toText(value, 80).toLowerCase();
+
+  if (/mcp|cursor|codex|claude|ide|프롬프트|개발 도구/.test(text)) {
+    return "mcp_handoff";
+  }
+
+  if (/모바일|앱|푸시|알림|위치|카메라/.test(text)) {
+    return "mobile_app";
+  }
+
+  if (/랜딩|홈페이지|웹사이트|사이트|신청/.test(text)) {
+    return "web_site";
+  }
+
+  if (/자동화|워크플로|리포트|메일|분류/.test(text)) {
+    return "automation";
+  }
+
+  if (/콘솔|관리자|운영|대시보드|배정|승인/.test(text)) {
+    return "operator_console";
+  }
+
+  return "web_app";
+}
+
+function getFallbackFirstBuild(productSurface: ProductSurfaceKey) {
+  switch (productSurface) {
+    case "mobile_app":
+      return "핵심 모바일 화면과 알림/권한 흐름";
+    case "web_site":
+      return "랜딩 페이지와 신청 폼";
+    case "automation":
+      return "수동 운영이 가능한 작업 콘솔과 자동화 결과 비교";
+    case "operator_console":
+      return "목록, 상세, 상태 변경이 있는 운영 콘솔";
+    case "mcp_handoff":
+      return "하네스 문서와 IDE/MCP 연결 안내";
+    case "web_app":
+    default:
+      return "로그인, 입력, 결과 확인, 저장까지 이어지는 웹앱 흐름";
+  }
+}
+
 function toGeneratedSampleIdea(value: unknown): GeneratedSampleIdea | null {
   if (!isRecord(value)) {
     return null;
   }
 
+  const productSurface = toProductSurfaceKey(
+    value.productSurface || value.product_surface || value["결과물 형태"] || value["예상 결과물"],
+  );
   const idea = {
     title: toText(value.title, 80) || toText(value.name, 80) || toText(value["제목"], 80),
     pain:
@@ -205,6 +276,13 @@ function toGeneratedSampleIdea(value: unknown): GeneratedSampleIdea | null {
       toText(value.validation, 220) ||
       toText(value["첫 검증"], 220) ||
       toText(value["먼저 확인할 것"], 220),
+    productSurface,
+    firstBuild:
+      toText(value.firstBuild, 220) ||
+      toText(value.first_build, 220) ||
+      toText(value["첫 제작 형태"], 220) ||
+      toText(value["처음 만들 것"], 220) ||
+      getFallbackFirstBuild(productSurface),
   };
 
   return idea.title && idea.pain && idea.solution ? idea : null;
@@ -218,6 +296,8 @@ function buildSampleIdeaSource(ideas: GeneratedSampleIdea[]) {
 해결: ${idea.solution}
 대상: ${idea.targetUser}
 구매자: ${idea.buyer}
+예상 결과물: ${productSurfaceLabels[idea.productSurface]}
+첫 제작 형태: ${idea.firstBuild}
 먼저 확인할 것: ${idea.firstValidation}`,
     )
     .join("\n\n");
@@ -260,6 +340,8 @@ function getGeneratedIdeasFromText(text: string): GeneratedSampleIdea[] {
       const targetUser = readGeneratedField(chunk, ["대상", "대상 사용자", "targetUser", "target user"]);
       const buyer = readGeneratedField(chunk, ["구매자", "buyer"]);
       const firstValidation = readGeneratedField(chunk, ["첫 검증", "먼저 확인할 것", "firstValidation", "validation"]);
+      const productSurface = readGeneratedField(chunk, ["예상 결과물", "결과물 형태", "productSurface", "product surface"]);
+      const firstBuild = readGeneratedField(chunk, ["첫 제작 형태", "처음 만들 것", "firstBuild", "first build"]);
 
       return toGeneratedSampleIdea({
         title,
@@ -268,6 +350,8 @@ function getGeneratedIdeasFromText(text: string): GeneratedSampleIdea[] {
         targetUser,
         buyer,
         firstValidation,
+        productSurface,
+        firstBuild,
       });
     })
     .filter((idea): idea is GeneratedSampleIdea => Boolean(idea))
@@ -352,7 +436,7 @@ export async function POST(request: Request) {
             {
               type: "input_text",
               text:
-                "You generate practical Korean app, web, or automation ideas for a venture validation workspace. Generate exactly 3 distinct ideas. Make each idea concrete enough to validate in 7 days. Avoid repeating subscription management, caregiving console, or conversation coach examples. Avoid legal, medical, financial advice, hiring decisions, counseling, or other heavily regulated services unless framed as low-risk internal operations. Write natural Korean that a real product user would understand.",
+                "You generate practical Korean app, web, automation, operator-console, or IDE/MCP handoff ideas for a venture validation workspace. Generate exactly 3 distinct ideas. Make each idea concrete enough to validate in 7 days. Classify each idea with productSurface as one of web_app, mobile_app, web_site, automation, operator_console, or mcp_handoff, and write a firstBuild that describes the smallest useful first build. Avoid repeating subscription management, caregiving console, or conversation coach examples. Avoid legal, medical, financial advice, hiring decisions, counseling, or other heavily regulated services unless framed as low-risk internal operations. Write natural Korean that a real product user would understand.",
             },
           ],
         },
@@ -366,7 +450,7 @@ export async function POST(request: Request) {
 기존 포트폴리오:
 ${existingIdeaContext}
 
-서로 겹치지 않는 아이디어 3개를 만들어주세요. 각 아이디어는 문제, 해결 방식, 대상 사용자, 구매자, 첫 검증 방법이 바로 드러나야 합니다.`,
+서로 겹치지 않는 아이디어 3개를 만들어주세요. 각 아이디어는 문제, 해결 방식, 대상 사용자, 구매자, 결과물 형태, 첫 제작 형태, 첫 검증 방법이 바로 드러나야 합니다.`,
             },
           ],
         },
