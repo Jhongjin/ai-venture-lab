@@ -3,7 +3,7 @@ import { loadLocalEnvFiles } from "./load_local_env.mjs";
 loadLocalEnvFiles();
 
 const baseUrl = process.env.MARKET_SCAN_SMOKE_URL || process.env.SMOKE_URL || "https://ai-venture-lab.vercel.app";
-const timeoutMs = Number.parseInt(process.env.MARKET_SCAN_SMOKE_TIMEOUT_MS || "90000", 10);
+const timeoutMs = Number.parseInt(process.env.MARKET_SCAN_SMOKE_TIMEOUT_MS || "180000", 10);
 const requireWeb = process.env.MARKET_SCAN_SMOKE_ALLOW_ESTIMATE !== "1";
 
 function fail(message) {

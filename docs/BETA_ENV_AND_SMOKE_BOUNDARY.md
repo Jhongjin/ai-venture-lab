@@ -37,7 +37,7 @@ Validation keywords: `public_client_boundary`, `server_only_secret_boundary`, `s
 | --- | --- | --- | --- |
 | Production shell smoke | `pnpm smoke:prod` | Read-only HTTP check | No credentials. Records URL/result only. |
 | Route smoke | `pnpm smoke:routes` | Read-only and negative-path checks | Confirms telemetry ingest rejects unauthenticated requests. |
-| Market scan smoke | `pnpm smoke:market` | Read-only API check | Sends a synthetic non-PII idea and records only structured result counts/mode. Local estimate fallback requires explicit `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`. |
+| Market scan smoke | `pnpm smoke:market` | Read-only API check | Sends a synthetic non-PII idea and records only structured result counts/mode. Default timeout is 180 seconds because web-search model responses can run longer than ordinary route smoke. Local estimate fallback requires explicit `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`. |
 | Anonymous browser smoke | `pnpm smoke:browser` | Read-only UI smoke | May see empty private workspace state because RLS hides authenticated data. |
 | Authenticated visibility smoke | `pnpm smoke:browser:auth` | Login and workspace visibility only | Uses a disposable Supabase Auth user. No writes by default. |
 | RLS allowed/denied smoke | `pnpm smoke:browser:rls` | Blocked-safe by default when fixtures are missing | Requires two disposable Supabase Auth users and two disposable workspace labels. No writes, no screenshots, no telemetry. |
