@@ -2398,11 +2398,11 @@ required_before_build:
   - saved_market_competition_scan
   - saved_design_direction
   - saved_development_plan
-  - saved_agent_run_package
+  - saved_production_package
 first_build: ${profile.firstBuild}
 implementation_boundary: ${profile.harnessFocus}
 handoff_boundary: ${profile.handoffHint}
-secret_policy: never include secret values in prompts, artifacts, screenshots, MCP resources, or completion reports
+secret_policy: never include secret values in execution instructions, artifacts, screenshots, external resources, or completion reports
 completion_report:
   - changed_files
   - quality_commands
@@ -2411,7 +2411,7 @@ completion_report:
   - rollback_notes
 \`\`\`
 
-## MCP 리소스 후보
+## 외부 제작 도구 자료
 
 | 리소스 URI | 내용 | 권한 |
 | --- | --- | --- |
@@ -2429,7 +2429,7 @@ completion_report:
 - Cursor: 목차 00-06을 프로젝트 규칙 문서로 붙이고, 첫 태스크 하나만 선택해 구현합니다.
 - Claude Code: 승인된 제작 자료와 작업 순서만 컨텍스트로 넣고, 제외 범위를 먼저 고정합니다.
 - Google Antigravity: 화면 구조, 기술 방향, 검증/배포 기준을 순서대로 등록한 뒤 첫 수직 슬라이스만 실행합니다.
-- MCP/연동 서버: 이 문서를 리소스 또는 컨텍스트 파일로 노출하고, 읽기 전용 기준 자료와 실행 명령을 분리합니다.
+- 연동 서버: 이 문서를 읽기 전용 기준 자료로 노출하고, 실행 명령과 권한 범위를 분리합니다.
 
 ## 전달 전 확인
 
@@ -5816,7 +5816,7 @@ const implementationSurfaceTaskGuidance: Record<ProductSurfaceKey, Implementatio
     qaSmoke: "패키지에 기획서, 정보 구조, 디자인 기준, 기술 스택, 작업 순서, 검증 명령이 모두 들어있는지 확인합니다.",
     securityFocus: "비밀값 제거, 허용/금지 범위, 외부 도구에 넘기면 안 되는 사용자 원문을 확인합니다.",
     deployHandoff: "외부 제작 도구에는 제작 지시서, 읽어야 할 문서, 허용/금지 범위, 검증 명령, 보고 형식을 넘깁니다.",
-    expansionGuard: "외부 IDE 직접 제어, 자동 repo 수정, credentials 전달은 별도 승인 전까지 제외합니다.",
+    expansionGuard: "외부 제작 도구 직접 제어, 자동 repo 수정, credentials 전달은 별도 승인 전까지 제외합니다.",
   },
 };
 

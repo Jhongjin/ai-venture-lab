@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-22 | Polished production-package terminology and smoke env boundaries | Current commit | Pending Git integration after push | Pending `pnpm quality:full`, production smoke, route smoke, market smoke, browser smoke |
 | 2026-05-22 | Added market and competition auto-research smoke command | `3d11974` | Pushed to `main`; script/docs only, production shell smoke passed | `node --check scripts/smoke_market_scan.mjs`, `pnpm smoke:market` (`openai_web`, 5 sources, 5 competitors), `pnpm quality:full`, `pnpm smoke:prod`; GitHub Actions run `26285315809` passed on Node 20 and Node 24 |
 | 2026-05-22 | Made development package design and architecture context result-type-specific | `e70270a` | Pushed to `main`; production smoke passed after Git integration | `pnpm quality:full`, `pnpm release:check`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth`; GitHub Actions run `26284899772` passed on Node 20 and Node 24 |
 | 2026-05-22 | Reframed the user test guide around the automation-first happy path | Current commit | Docs-only; no runtime deploy intended beyond Git integration | `pnpm release:check`; stale manual-first button names remain only as advanced operator checks |

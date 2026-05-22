@@ -89,8 +89,8 @@ const localizedIdeaSeeds: Record<
     next_evidence: "반복 빈도가 높은 세부 상황 하나를 고르고 측정 가능한 결과를 정의합니다.",
   },
   "Subscription agent": {
-    name: "구독 관리 에이전트",
-    one_liner: "반복 결제를 찾아내고 낮은 마찰로 해지 절차를 안내하는 개인 지출 에이전트입니다.",
+    name: "구독 정리 도우미",
+    one_liner: "반복 결제를 찾아내고 낮은 마찰로 해지 절차를 안내하는 개인 지출 정리 도구입니다.",
     target_user: "디지털 구독이 많은 바쁜 소비자",
     buyer: "개인 소비자",
     signal: "절약 금액이 바로 보이는 명확한 후킹 포인트가 있습니다.",
@@ -168,8 +168,8 @@ export const seedIdeas: Idea[] = [
   },
   {
     id: "seed-subscription-agent",
-    name: "구독 관리 에이전트",
-    one_liner: "반복 결제를 찾아내고 낮은 마찰로 해지 절차를 안내하는 개인 지출 에이전트입니다.",
+    name: "구독 정리 도우미",
+    one_liner: "반복 결제를 찾아내고 낮은 마찰로 해지 절차를 안내하는 개인 지출 정리 도구입니다.",
     target_user: "디지털 구독이 많은 바쁜 소비자",
     buyer: "개인 소비자",
     stage: "intake",

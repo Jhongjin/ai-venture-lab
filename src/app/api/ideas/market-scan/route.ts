@@ -479,7 +479,7 @@ function createFallbackScan({
   const surfaceHint = idea.product_surface ? `권장 제작 형태는 '${idea.product_surface}'입니다. ` : "";
   const scoreHint = score === null ? "" : `현재 내부 사업성 점수는 ${score}점입니다. `;
   const competitionHint = isDevelopmentHandoffSurface
-    ? "Cursor, Codex, Claude, Antigravity 같은 제작 도구와 문서 기반 전달 서비스가 비교 대상입니다. 단순 문서보다 바로 제작에 넘길 수 있는 패키지 완성도가 차별점입니다."
+    ? "외부 제작 도구와 문서 기반 전달 서비스가 비교 대상입니다. 단순 문서보다 바로 제작에 넘길 수 있는 패키지 완성도가 차별점입니다."
     : isAutomationSurface
       ? "Zapier, Make, 스프레드시트, 노션, 사내 운영 도구처럼 이미 익숙한 자동화 대체재와 비교해야 합니다."
       : isMobileSurface

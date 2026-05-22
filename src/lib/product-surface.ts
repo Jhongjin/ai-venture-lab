@@ -106,13 +106,13 @@ export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfacePro
     key: "mcp_handoff",
     label: "제작 도구 연동",
     shortLabel: "연동",
-    description: "Cursor, Codex, Claude 같은 제작 도구로 넘길 제작 패키지와 연결 흐름이 핵심입니다.",
+    description: "외부 제작 도구로 넘길 제작 패키지와 연결 흐름이 핵심입니다.",
     iaHint: "패키지 생성, 도구 선택, 연결 지침, 실행 로그, 재생성/버전 관리, 권한 안내 화면을 기본 구조로 둡니다.",
-    firstBuild: "제작 패키지, 제작 도구 연결 지침, CLI 설치 흐름",
-    stackHint: "Next.js 제어 화면, 연결 서버/CLI 패키지, 문서와 제작 지시 버전 관리를 검토합니다.",
+    firstBuild: "제작 패키지, 제작 도구 연결 지침, 설치/연결 흐름",
+    stackHint: "Next.js 제어 화면, 연결 서버나 배포 가능한 전달 파일, 문서와 제작 지시 버전 관리를 검토합니다.",
     harnessFocus: "제작 패키지에는 기획서, 디자인, 기술 명세, 제작 지시, 검증 명령을 제작 도구에서 바로 쓸 수 있게 담습니다.",
-    promptFocus: "제작 도구별 설치, 연결 등록, 코드 생성 지시, 검증/배포 명령을 우선 반영합니다.",
-    handoffHint: "외부 제작 도구에는 실행 프롬프트, 읽어야 할 문서, 허용/금지 범위, 검증 명령, 보고 형식을 함께 넘깁니다.",
+    promptFocus: "제작 도구별 설치, 연결 등록, 실행 지시, 검증/배포 명령을 우선 반영합니다.",
+    handoffHint: "외부 제작 도구에는 실행 지시서, 읽어야 할 문서, 허용/금지 범위, 검증 명령, 보고 형식을 함께 넘깁니다.",
   },
 };
 
