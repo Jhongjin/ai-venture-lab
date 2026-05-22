@@ -2,6 +2,10 @@ import { chromium } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
+import { loadLocalEnvFiles } from "./load_local_env.mjs";
+
+loadLocalEnvFiles();
+
 const baseUrl = process.env.BROWSER_SMOKE_URL || process.env.SMOKE_URL || "https://ai-venture-lab.vercel.app";
 const email = process.env.BROWSER_SMOKE_EMAIL;
 const password = process.env.BROWSER_SMOKE_PASSWORD;

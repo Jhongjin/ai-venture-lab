@@ -1,5 +1,9 @@
 import { chromium } from "@playwright/test";
 
+import { loadLocalEnvFiles } from "./load_local_env.mjs";
+
+loadLocalEnvFiles();
+
 const preflightOnly = process.argv.includes("--preflight");
 const baseUrl = process.env.BROWSER_RLS_SMOKE_URL || process.env.RLS_SMOKE_URL;
 const headless = (process.env.BROWSER_RLS_SMOKE_HEADLESS || process.env.RLS_SMOKE_HEADLESS || process.env.BROWSER_SMOKE_HEADLESS) !== "0";
@@ -26,6 +30,7 @@ const forbiddenFlags = [
   "RLS_SMOKE_SCREENSHOT",
   "SUPABASE_SERVICE_ROLE_KEY",
 ];
+const forbiddenEnabledFlags = new Set(["BROWSER_SMOKE_ALLOW_WRITE", "BROWSER_SMOKE_ALLOW_WORKSPACE_CREATE"]);
 
 const ignoredConsoleErrors = [
   "favicon",
@@ -62,8 +67,22 @@ function blocked(reason, missing = []) {
   process.exitCode = 2;
 }
 
+function isForbiddenFlagSet(name) {
+  const value = process.env[name];
+
+  if (!value) {
+    return false;
+  }
+
+  if (forbiddenEnabledFlags.has(name)) {
+    return value === "1" || value.toLowerCase() === "true";
+  }
+
+  return true;
+}
+
 function validatePreflight() {
-  const setForbiddenFlags = forbiddenFlags.filter((name) => Boolean(process.env[name]));
+  const setForbiddenFlags = forbiddenFlags.filter((name) => isForbiddenFlagSet(name));
   if (setForbiddenFlags.length > 0) {
     blocked("forbidden smoke flags are set", setForbiddenFlags);
     return false;
