@@ -8664,7 +8664,7 @@ export function IdeaWorkbench({
     onStepReadinessChange?.({
       selectedIdeaId: selectedIdea?.id ?? null,
       canEnterExperiment: isScoreEvaluationSaved,
-      canEnterArtifacts: selectedExperiments.length > 0,
+      canEnterArtifacts: selectedExperiments.length > 0 && hasMarketScanArtifact,
       canEnterDevelopment: canEnterDevelopmentFromValidationDocs,
       canEnterOrchestration: canEnterOrchestrationFromDevelopmentDocs,
       hasIdeaBriefArtifact,
@@ -8682,6 +8682,7 @@ export function IdeaWorkbench({
     hasDesignGenerationPromptArtifact,
     hasDevelopmentPlanArtifact,
     hasIdeaBriefArtifact,
+    hasMarketScanArtifact,
     hasResearchBriefArtifact,
     hasValidationSprintArtifact,
     hasValidationSummaryArtifact,
@@ -9630,9 +9631,9 @@ export function IdeaWorkbench({
       case "experiment":
         return {
           title: hasMarketScanArtifact
-            ? "시장·경쟁 점검이 저장됐습니다. 직접 확인한 결과가 없으면 다음 단계로 넘어가도 됩니다."
+            ? "검증 계획과 시장·경쟁 점검이 저장됐습니다. 하단 다음 단계 버튼으로 이어가세요."
             : "AI가 시장·경쟁 점검을 먼저 정리합니다. 사용자는 결과만 확인하세요.",
-          detail: "수동 결과 기록은 선택 사항입니다. 실제 인터뷰나 테스트 결과가 있을 때만 열면 됩니다.",
+          detail: "다음 단계는 검증 계획과 AI 조사 노트가 저장된 뒤에만 열립니다. 수동 결과 기록은 실제 인터뷰나 테스트 결과가 있을 때만 열면 됩니다.",
         };
       case "artifacts":
         return {
@@ -14733,7 +14734,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
                   로그인 상태라면 자동 점검 결과는 리서치 노트로도 저장됩니다. 공개 자료를 찾으면 출처를 함께 표시하고,
                   출처가 부족하면 추정 초안으로 남깁니다. 웹, 앱, 자동화처럼 만드는 형태에 맞춰 경쟁 기준을 잡고, 다시 정리는
-                  결과를 새로 고칠 때만 사용합니다.
+                  결과를 새로 고칠 때만 사용합니다. 다음 단계는 이 점검 노트가 저장된 뒤에만 열립니다.
                 </p>
               </div>
               <div className="grid w-full gap-2 sm:w-auto lg:min-w-[240px]">
@@ -14769,7 +14770,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             {visibleMarketScanDraft ? (
               <div className="mt-4 grid gap-4">
                 <div className="border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-slate-700">
-                  이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 필요한 부분만 손보고 하단 다음 단계로 넘어가면
+                  이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고,
                   제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.
                 </div>
                 {visibleMarketScanDraft.market_signals.length > 0 ? (

@@ -443,8 +443,8 @@ function getNextTaskOptions({
           "workbench:artifacts",
           "다음: AI 제작 자료 저장",
           canEnterArtifacts
-            ? "검증 계획을 저장했습니다. 이제 아이디어 요약과 제작 범위를 문서로 남깁니다."
-            : "검증 계획을 하나 이상 저장하면 활성화됩니다.",
+            ? "검증 계획과 시장·경쟁 점검이 저장됐습니다. 이제 아이디어 요약과 제작 범위를 문서로 남깁니다."
+            : "검증 계획과 시장·경쟁 점검이 모두 저장되면 활성화됩니다.",
           "primary",
           !canEnterArtifacts,
         ),
