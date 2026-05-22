@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -79,6 +79,17 @@ function getProvidedSecret(request: Request) {
   return request.headers.get("x-venture-telemetry-secret")?.trim() ?? "";
 }
 
+function hasValidSecret(providedSecret: string, configuredSecret: string) {
+  if (!configuredSecret || !providedSecret) {
+    return false;
+  }
+
+  const expectedDigest = createHmac("sha256", configuredSecret).update(configuredSecret).digest();
+  const providedDigest = createHmac("sha256", configuredSecret).update(providedSecret).digest();
+
+  return timingSafeEqual(expectedDigest, providedDigest);
+}
+
 function hashIdentifier(value: unknown, secret: string) {
   const text = toText(value, 260);
 
@@ -105,7 +116,7 @@ export async function POST(request: Request) {
   const configuredSecret = process.env.TELEMETRY_INGEST_SECRET ?? "";
   const providedSecret = getProvidedSecret(request);
 
-  if (!configuredSecret || providedSecret !== configuredSecret) {
+  if (!hasValidSecret(providedSecret, configuredSecret)) {
     return NextResponse.json({ error: "Valid telemetry secret is required." }, { status: 401 });
   }
 

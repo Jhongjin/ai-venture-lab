@@ -3,10 +3,23 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import type { Database } from "@/lib/supabase/types";
 
+function getSafeNextPath(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return "/workspace";
+  }
+
+  try {
+    const parsed = new URL(value, "https://ai-venture-lab.local");
+    return `${parsed.pathname}${parsed.search}${parsed.hash}` || "/workspace";
+  } catch {
+    return "/workspace";
+  }
+}
+
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") || "/workspace";
+  const next = getSafeNextPath(requestUrl.searchParams.get("next"));
   const redirectUrl = new URL(next, requestUrl.origin);
   const response = NextResponse.redirect(redirectUrl);
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

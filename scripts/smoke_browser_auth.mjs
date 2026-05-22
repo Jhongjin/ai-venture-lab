@@ -15,7 +15,7 @@ const headless = process.env.BROWSER_SMOKE_HEADLESS !== "0";
 const timeout = Number.parseInt(process.env.BROWSER_SMOKE_TIMEOUT_MS || "45000", 10);
 const workspaceSettleTimeout = Number.parseInt(process.env.BROWSER_SMOKE_WORKSPACE_SETTLE_MS || "15000", 10);
 const screenshotPath = process.env.BROWSER_SMOKE_SCREENSHOT;
-const extractActionPattern = /아이디어 자동 정리|AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/;
+const extractActionPattern = /아이디어 자동 정리|내용 입력 후 자동 정리|AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/;
 const ideaSourcePlaceholderPattern = /예\).*아이디어|회의 내용|LLM/i;
 
 const ignoredConsoleErrors = [
