@@ -1463,7 +1463,7 @@ function buildValidationEvidenceCoach({
   const doneExperiments = experiments.filter((experiment) => experiment.status === "done");
   const runningExperiments = experiments.filter((experiment) => experiment.status === "running");
   const evidenceArtifacts = artifacts.filter((artifact) =>
-    ["evidence_capture", "experiment_result", "validation_summary"].includes(artifact.source || ""),
+    ["evidence_capture", "experiment_result", "validation_summary", "market_scan"].includes(artifact.source || ""),
   );
   const openHighRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
   const domainQuestions: Record<string, string[]> = {
@@ -1535,7 +1535,7 @@ function buildValidationEvidenceCoach({
       label: "대안/경쟁",
       passed:
         includesAnyNormalized(combinedText, ["대안", "경쟁", "엑셀", "카카오", "전화", "수동", "현재 방식", "우회"]) ||
-        artifacts.some((artifact) => artifact.source === "extracted_research_brief"),
+        artifacts.some((artifact) => ["extracted_research_brief", "market_scan"].includes(artifact.source || "")),
       detail: "현재 대체재를 알아야 차별성과 가격을 판단할 수 있습니다.",
       action: "사용자가 지금 쓰는 대안 3개와 각 대안의 불만을 표로 정리하세요.",
     },
@@ -8262,6 +8262,7 @@ export function IdeaWorkbench({
         missing,
       })
     : null;
+  const recommendedValidationExperiment = validationPlan?.experiments[0] ?? null;
   const validationEvidenceCoach = selectedIdea && editState
     ? buildValidationEvidenceCoach({
         idea: selectedIdea,
@@ -9787,22 +9788,23 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
-  async function addExperiment(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function createExperimentFromDraft(
+    draft: ExperimentDraft,
+    options: { clearDraft?: boolean; source?: string; successMessage?: string } = {},
+  ) {
     if (!supabase || !selectedIdea) {
       setMessage("먼저 아이디어를 선택하세요.");
-      return;
+      return false;
     }
 
     if (!user) {
-      setMessage("실험을 추가하려면 먼저 로그인하세요.");
-      return;
+      setMessage("검증 계획을 저장하려면 먼저 로그인하세요.");
+      return false;
     }
 
-    if (!experimentDraft.name.trim()) {
+    if (!draft.name.trim()) {
       setMessage("검증 계획 이름은 필수입니다.");
-      return;
+      return false;
     }
 
     setIsBusy(true);
@@ -9811,8 +9813,8 @@ export function IdeaWorkbench({
       .from("experiments")
       .insert({
         idea_id: selectedIdea.id,
-        name: experimentDraft.name.trim(),
-        success_metric: experimentDraft.success_metric.trim(),
+        name: draft.name.trim(),
+        success_metric: draft.success_metric.trim(),
         status: "planned",
         organization_id: selectedIdea.organization_id,
       })
@@ -9822,7 +9824,7 @@ export function IdeaWorkbench({
 
     if (error) {
       setMessage(error.message);
-      return;
+      return false;
     }
 
     setExperiments((current) => [data, ...current]);
@@ -9834,11 +9836,25 @@ export function IdeaWorkbench({
         status: data.status,
         name_length: data.name.length,
         success_metric_length: data.success_metric.length,
+        source: options.source || "manual",
       },
     });
-    setExperimentDraft({ name: "", success_metric: "" });
-    setMessage("실험을 추가했습니다.");
+    if (options.clearDraft) {
+      setExperimentDraft({ name: "", success_metric: "" });
+    }
+    setMessage(options.successMessage || "검증 계획을 저장했습니다.");
     router.refresh();
+    return true;
+  }
+
+  async function addExperiment(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    await createExperimentFromDraft(experimentDraft, {
+      clearDraft: true,
+      source: "manual_or_edited",
+      successMessage: "검증 계획을 저장했습니다.",
+    });
   }
 
   async function addOrchestrationRun(event: FormEvent<HTMLFormElement>) {
@@ -11057,6 +11073,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
     setExperimentDraft(suggestion);
     updateActiveTask("experiment");
     setMessage("추천 실험을 실험 입력란에 채웠습니다. 성공 지표를 검토한 뒤 저장하세요.");
+  }
+
+  async function saveRecommendedExperiment(suggestion: ExperimentDraft) {
+    await createExperimentFromDraft(suggestion, {
+      source: "ai_recommended",
+      successMessage:
+        "AI 추천 검증 계획을 저장했습니다. 시장·경쟁 점검은 자동으로 정리되고, 이동은 하단 다음 단계 버튼에서만 진행됩니다.",
+    });
   }
 
   function loadRiskSuggestion(suggestion: RiskDraft) {
@@ -14402,11 +14426,26 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="grid gap-0">
                   {validationPlan ? (
                     <div className="border border-sky-100 bg-sky-50 px-4 py-3">
-                      <div className="text-xs font-semibold tracking-[0.14em] text-sky-700">AI 추천 검증 계획</div>
-                      <p className="mt-2 text-sm leading-6 text-sky-950">
-                        아래 추천안은 현재 아이디어를 검토하기 위한 하위 검증입니다. 하나를 누르면 바로 아래 입력칸에 채워지고,
-                        그대로 저장하거나 직접 고쳐 저장할 수 있습니다.
-                      </p>
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                          <div className="text-xs font-semibold tracking-[0.14em] text-sky-700">AI 추천 검증 계획</div>
+                          <p className="mt-2 text-sm leading-6 text-sky-950">
+                            AI가 이번 주에 확인할 검증 하나를 먼저 정했습니다. 저장하면 이 아이디어의 하위 검증 계획으로 남고,
+                            다음 단계 이동은 하단 버튼에서만 열립니다.
+                          </p>
+                        </div>
+                        {recommendedValidationExperiment ? (
+                          <button
+                            type="button"
+                            onClick={() => void saveRecommendedExperiment(recommendedValidationExperiment)}
+                            disabled={isBusy || !user || selectedExperiments.length > 0}
+                            className="avl-btn avl-btn-primary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Save size={17} />
+                            {selectedExperiments.length > 0 ? "검증 계획 저장 완료" : "AI 추천 검증 계획 저장"}
+                          </button>
+                        ) : null}
+                      </div>
                       <div className="mt-3 grid gap-2 md:grid-cols-2">
                         {validationPlan.experiments.slice(0, 2).map((experiment) => (
                           <button
@@ -14417,47 +14456,54 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           >
                             <div className="text-sm font-semibold text-slate-950">{experiment.name}</div>
                             <div className="mt-1 text-xs leading-5 text-slate-600">{experiment.success_metric}</div>
+                            <div className="mt-2 text-[11px] font-semibold text-sky-700">눌러서 수정안으로 불러오기</div>
                           </button>
                         ))}
                       </div>
                     </div>
                   ) : null}
 
-                  <form
-                    onSubmit={addExperiment}
+                  <details
                     className={`border border-slate-200 bg-white p-4 ${
                       validationPlan ? "border-t-0" : ""
                     }`}
                   >
-                    <div className="mb-3">
-                      <div className="text-sm font-semibold text-slate-950">직접 입력하거나 추천안을 수정하기</div>
-                      <p className="mt-1 text-xs leading-5 text-slate-500">
-                        AI 추천을 쓰지 않아도 됩니다. 사용자가 직접 입력하거나 추천안을 수정해 저장할 수 있습니다.
-                      </p>
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
-                      <InputField
-                        label="이번에 해볼 작은 검증"
-                        value={experimentDraft.name}
-                        placeholder="예) 타깃 5명에게 문제 인터뷰하기"
-                        onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
-                      />
-                      <InputField
-                        label="성공/중단 기준"
-                        value={experimentDraft.success_metric}
-                        placeholder="예) 5명 중 3명이 최근 사례와 비용 지불 의향을 말하면 진행"
-                        onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
-                      />
-                      <button
-                        type="submit"
-                        disabled={isBusy || !user}
-                        className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
-                      >
-                        <Beaker size={18} />
-                        계획 추가
-                      </button>
-                    </div>
-                  </form>
+                    <summary className="cursor-pointer list-none">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <div className="text-sm font-semibold text-slate-950">필요할 때만 직접 수정하기</div>
+                          <p className="mt-1 text-xs leading-5 text-slate-500">
+                            AI 추천 기준이 맞지 않을 때만 열어서 검증 이름과 성공 기준을 바꿉니다.
+                          </p>
+                        </div>
+                        <span className="text-sm font-semibold text-slate-600">열어서 수정</span>
+                      </div>
+                    </summary>
+                    <form onSubmit={addExperiment} className="mt-4 grid gap-4 border-t border-slate-200 pt-4">
+                      <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                        <InputField
+                          label="이번에 해볼 작은 검증"
+                          value={experimentDraft.name}
+                          placeholder="예) 타깃 5명에게 문제 인터뷰하기"
+                          onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
+                        />
+                        <InputField
+                          label="성공/중단 기준"
+                          value={experimentDraft.success_metric}
+                          placeholder="예) 5명 중 3명이 최근 사례와 비용 지불 의향을 말하면 진행"
+                          onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
+                        />
+                        <button
+                          type="submit"
+                          disabled={isBusy || !user}
+                          className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
+                        >
+                          <Beaker size={18} />
+                          수정한 계획 저장
+                        </button>
+                      </div>
+                    </form>
+                  </details>
                 </div>
 
               <div className="mt-5 grid gap-3">
@@ -14537,7 +14583,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   ))
                 ) : (
                     <div className="avl-surface-muted border-dashed p-4 text-sm text-slate-600">
-                      아직 저장한 하위 검증 계획이 없습니다. AI 추천안을 고르거나 직접 입력해 첫 검증을 추가하세요.
+                      아직 저장한 하위 검증 계획이 없습니다. 위의 AI 추천 검증 계획을 저장하면 다음 단계가 열립니다.
                     </div>
                 )}
               </div>

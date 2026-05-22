@@ -4,6 +4,7 @@ Use this file for durable product, architecture, and operating decisions.
 
 | Date | Decision | Reason | Revisit When |
 | --- | --- | --- | --- |
+| 2026-05-22 | Save the recommended validation plan in one action | STEP 3 should not ask operators to pick a recommendation, copy it into a form, and save it separately before AI can continue; one explicit save keeps the real action visible while manual edits stay optional | Validation plans become fully generated multi-step experiments or require approval workflows per workspace |
 | 2026-05-22 | Add a current-action guide to the workbench | First-time operators need one visible sentence for what to do now, while AI continues preparing deeper material in the background | Step navigation becomes personalized or user-tested onboarding replaces the static guide |
 | 2026-05-22 | Show source type and evidence strength in market checks | Auto research should reduce interpretation work by separating direct sources, secondary summaries, directories, news, and user-input estimates | Source capture needs citations, freshness dates, or scheduled refresh |
 | 2026-05-22 | Add an external production package manifest | Final production packages should tell Codex, Cursor, Claude Code, Antigravity, and MCP-style integrations what to read first, what to build, and how to report verification | Package export becomes a downloadable file set or live connector resource |
