@@ -81,7 +81,7 @@ async function main() {
     const loginHeading = page.getByRole("heading", { name: /^로그인$/ }).first();
     const extractHeading = page.getByRole("heading", { name: /^메모에서 검토할 아이디어 정리$/ }).first();
     const loginButton = page.getByRole("button", { name: /비밀번호로 로그인/ }).first();
-    const extractButton = page.getByRole("button", { name: /AI로 아이디어 구체화|AI 후보 발굴/ }).first();
+    const extractButton = page.getByRole("button", { name: /아이디어 자동 정리|내용 입력 후 자동 정리|AI로 아이디어 구체화|AI 후보 발굴/ }).first();
 
     const stageVisible = await Promise.race([
       loginHeading

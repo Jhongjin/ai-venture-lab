@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-22 | Simplified STEP 1 first-click path to one primary run action | Current commit | User-facing change; deploy via Git integration after push | `pnpm quality:full`, `pnpm release:check`; production smoke pending after push |
 | 2026-05-22 | Confirmed latest GitHub Actions quality gate pass | Current commit | GitHub Actions only; no runtime deploy intended | Quality Gate run `26282567364` passed on `main` for Node 20 and Node 24; workflow remains read-only, no secrets, no deploys, no authenticated/telemetry smoke |
 | 2026-05-22 | Reran RLS allowed/denied browser smoke with retained disposable fixtures | Current commit | Smoke-only; no app deploy or production mutation | `pnpm smoke:browser:rls:preflight`, `pnpm smoke:browser:rls`; anonymous denied, A/B allowed, A->B and B->A denied, no writes, no screenshots, no secret output |
 | 2026-05-22 | Reran telemetry ingest and funnel smoke after local secret alignment | Current commit | Smoke-only; no app deploy or production mutation | `pnpm smoke:telemetry`, `pnpm smoke:telemetry:funnel`; disposable idea data, summary-only evidence, no secret values recorded |

@@ -4,6 +4,7 @@ Use this file for durable product, architecture, and operating decisions.
 
 | Date | Decision | Reason | Revisit When |
 | --- | --- | --- | --- |
+| 2026-05-22 | Keep STEP 1 to one primary action | The first-use screen should not show duplicate action buttons before the operator understands the input path; the header can state that AI prepares the draft, while the input panel owns the only run action | Personalized onboarding or analytics show a different first-click blocker |
 | 2026-05-22 | Treat market scans as result-type-specific evidence | A market scan for a web service, app, website, automation, console, or development-tool handoff can produce different competitors, barriers, and build implications; STEP 4 should only open when the saved scan matches the current result type | Market scans become continuously refreshed structured evidence records with explicit version links |
 | 2026-05-22 | Carry result type into implementation task drafts | The final production package should not hand external builders generic tasks; planning, design, data, backend, frontend, QA, security, and deploy tasks must reflect the chosen result type | Tasks become synced issues with per-tool templates or multi-surface packages |
 | 2026-05-22 | Demote secondary validation suggestions to read-only cards | STEP 3 should keep one real action, saving the AI recommended validation plan, while optional manual correction stays inside the collapsed edit area | Multi-option experiment approval becomes a deliberate feature with clear selection state |

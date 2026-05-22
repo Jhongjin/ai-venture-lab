@@ -174,3 +174,11 @@ Validation keywords: `ai_first_product_flow_recorded`, `manual_checklist_path_re
 - Validation passed with `pnpm quality:full`, production shell/routes/browser smoke, authenticated browser smoke, and RLS allowed/denied browser smoke.
 
 Validation keywords: `wq_061_d_reinforced`, `wq_061_e_reinforced`, `automation_first_hardening_20260522`.
+
+2026-05-22 first-click simplification follow-up:
+
+- WQ-061-A is reinforced by keeping STEP 1 to one visible run action inside the input panel.
+- The header now explains the automation-first posture with status chips instead of a second primary button.
+- The run button stays disabled until the operator has pasted meeting notes, idea memos, GPT conversation, or an automation need.
+
+Validation keywords: `wq_061_a_first_click_simplified`, `single_primary_step1_action`, `input_required_before_ai_run`.

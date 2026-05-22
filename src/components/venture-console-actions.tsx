@@ -3257,17 +3257,8 @@ export function VentureConsoleActions({
                 </p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 lg:mt-0">
-                <button
-                  type="button"
-                  onClick={() => {
-                    void handleAiExtractIdeas();
-                  }}
-                  disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
-                  className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={18} /> : <Sparkle size={18} />}
-                  아이디어 자동 정리
-                </button>
+                <span className="avl-pill avl-pill-info px-3 py-2">AI가 먼저 정리</span>
+                <span className="avl-pill avl-pill-neutral px-3 py-2">저장 후 다음 단계</span>
               </div>
             </div>
           ) : null}
@@ -3279,6 +3270,9 @@ export function VentureConsoleActions({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <h3 className="text-base font-semibold text-slate-950">입력칸에 내용 붙여넣기</h3>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">
+                        여기만 채우면 됩니다. 회의 메모, 아이디어, GPT 대화, 자동화하고 싶은 업무를 그대로 넣으세요.
+                      </p>
                     </div>
                     <div className="avl-pill avl-pill-neutral">
                       {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length}자 입력됨` : "입력 대기"}
@@ -3326,11 +3320,11 @@ export function VentureConsoleActions({
                       onClick={() => {
                         void handleAiExtractIdeas();
                       }}
-                      disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
+                      disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction || rawIdeaSource.trim().length === 0}
                       className="avl-btn avl-btn-primary px-4 disabled:opacity-60"
                     >
                       {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                      아이디어 자동 정리
+                      {rawIdeaSource.trim().length > 0 ? "아이디어 자동 정리" : "내용 입력 후 자동 정리"}
                     </button>
                   </div>
                   {extractMessage ? (
