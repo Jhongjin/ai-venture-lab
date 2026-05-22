@@ -9,6 +9,7 @@ import {
   Clipboard,
   ClipboardList,
   Code2,
+  Download,
   Flag,
   Layers3,
   RefreshCw,
@@ -2079,6 +2080,16 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 
 function cleanInlineText(value: unknown, maxLength = 900) {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, maxLength) : "";
+}
+
+function toDownloadFileName(value: string, suffix: string) {
+  const base = value
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+
+  return `${base || "venture-lab"}-${suffix}.md`;
 }
 
 function normalizeMarketScanSource(value: unknown): MarketScanSource | null {
@@ -9102,6 +9113,8 @@ export function IdeaWorkbench({
     hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact && hasAgentRunPackageArtifact;
   const effectiveDevelopmentAutoFlowState: DevelopmentAutoFlowState | "saved" =
     hasSavedDevelopmentAutoPackage ? "saved" : developmentAutoFlowState;
+  const canDownloadDevelopmentAutoPackage =
+    effectiveDevelopmentAutoFlowState === "summary" || effectiveDevelopmentAutoFlowState === "saved";
   const developmentAutoProgressSteps = [
     {
       label: "검증 결과 읽는 중",
@@ -9211,6 +9224,37 @@ export function IdeaWorkbench({
         "",
         "## 사용자 보완 메모",
         developmentAutoNote.trim() || "- 추가 메모 없음",
+      ].join("\n")
+    : "";
+  const finalDevelopmentPlanDraft = selectedIdea
+    ? [
+        developmentAutoSummaryDraft,
+        "",
+        "---",
+        "",
+        "## 상세 실행 계획",
+        developmentPlanDraft,
+      ].join("\n")
+    : "";
+  const finalAgentRunPackageDraft = selectedIdea
+    ? [
+        `# 제작 패키지: ${selectedIdea.name}`,
+        "",
+        "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 제작 환경에 넘기기 위한 최종 자료입니다.",
+        "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 자료로 사용할 수 있습니다.",
+        "",
+        buildExternalProductionPackageGuide(activeProductSurface),
+        "",
+        "## 실행 요약",
+        developmentAutoSummaryDraft,
+        "",
+        "## 작업 순서 초안",
+        developmentAutoTaskDraftLines,
+        "",
+        "---",
+        "",
+        "## 제작 도구 전달 자료",
+        agentRunPackageDraft,
       ].join("\n")
     : "";
   const launchReadiness = selectedIdea && editState
@@ -10324,34 +10368,6 @@ export function IdeaWorkbench({
     const nextDevRunbookVersion = getNextArtifactVersion("dev_runbook");
     let plannedDevRunbookVersion = nextDevRunbookVersion;
 
-    const finalDevelopmentPlan = [
-      developmentAutoSummaryDraft,
-      "",
-      "---",
-      "",
-      "## 상세 실행 계획",
-      developmentPlanDraft,
-    ].join("\n");
-    const finalAgentRunPackage = [
-      `# 제작 패키지: ${selectedIdea.name}`,
-      "",
-      "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 제작 환경에 넘기기 위한 최종 자료입니다.",
-      "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 자료로 사용할 수 있습니다.",
-      "",
-      buildExternalProductionPackageGuide(activeProductSurface),
-      "",
-      "## 실행 요약",
-      developmentAutoSummaryDraft,
-      "",
-      "## 작업 순서 초안",
-      developmentAutoTaskDraftLines,
-      "",
-      "---",
-      "",
-      "## 제작 도구 전달 자료",
-      agentRunPackageDraft,
-    ].join("\n");
-
     if (!hasDesignGenerationPromptArtifact) {
       const savedPrompt = await saveArtifactDraft(
         "design_brief",
@@ -10374,7 +10390,7 @@ export function IdeaWorkbench({
       const savedPlan = await saveArtifactDraft(
         "dev_runbook",
         `${selectedIdea.name} 제작 실행 계획`,
-        finalDevelopmentPlan,
+        finalDevelopmentPlanDraft,
         "development_process",
         {
           version: plannedDevRunbookVersion,
@@ -10394,7 +10410,7 @@ export function IdeaWorkbench({
       const savedRunPackage = await saveArtifactDraft(
         "dev_runbook",
         `${selectedIdea.name} 제작 패키지`,
-        finalAgentRunPackage,
+        finalAgentRunPackageDraft,
         "agent_run_package",
         {
           version: plannedDevRunbookVersion,
@@ -11036,6 +11052,22 @@ export function IdeaWorkbench({
 
     await navigator.clipboard.writeText(body);
     setCopyMessage(`${label}을 클립보드에 복사했습니다.`);
+  }
+
+  function downloadMarkdownFile(body: string, label: string, fileName: string) {
+    if (!body) {
+      return;
+    }
+
+    const url = window.URL.createObjectURL(new Blob([body], { type: "text/markdown;charset=utf-8" }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
+    setCopyMessage(`${label} 파일을 준비했습니다.`);
   }
 
   async function copyLaunchChecklistDraft() {
@@ -12172,6 +12204,21 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       >
                         {hasSavedDevelopmentAutoPackage ? <CheckCircle2 size={18} /> : <Save size={18} />}
                         {hasSavedDevelopmentAutoPackage ? "제작 패키지 저장 완료" : "제작 패키지 저장"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          downloadMarkdownFile(
+                            finalAgentRunPackageDraft,
+                            "제작 패키지",
+                            toDownloadFileName(selectedIdea.name, "production-package"),
+                          )
+                        }
+                        disabled={!canDownloadDevelopmentAutoPackage || !finalAgentRunPackageDraft}
+                        className="avl-btn avl-btn-secondary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <Download size={18} />
+                        {canDownloadDevelopmentAutoPackage ? "파일로 받기" : "저장 후 파일 받기"}
                       </button>
                     </div>
                     <div className="mt-4 grid gap-3 md:grid-cols-3">
