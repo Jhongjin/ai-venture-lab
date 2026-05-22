@@ -179,18 +179,18 @@ const primaryShellTaskSet = new Set<ShellTask>(primaryShellTaskIds);
 const firstRunGuideSteps = [
   {
     label: "1",
-    title: "메모 붙여넣기",
-    detail: "회의 내용, 아이디어, GPT 대화를 그대로 넣습니다.",
+    title: "메모만 넣기",
+    detail: "정리된 기획서가 없어도 됩니다. 회의 내용, 아이디어, GPT 대화를 그대로 넣습니다.",
   },
   {
     label: "2",
     title: "AI 정리 확인",
-    detail: "후보 아이디어와 제작 형태를 먼저 봅니다.",
+    detail: "후보 아이디어와 제작 형태가 맞는지만 봅니다.",
   },
   {
     label: "3",
-    title: "아이디어 저장",
-    detail: "마음에 드는 한 건을 저장하면 사업성 평가로 이어집니다.",
+    title: "저장 후 다음 단계",
+    detail: "저장 완료 후에는 화면 하단의 다음 단계 버튼만 따라가면 됩니다.",
   },
 ] as const;
 
@@ -207,8 +207,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     summary: "아이디어 입력 후 AI가 내용을 구체화합니다.",
     checklist: [
       "아이디어 입력",
-      "AI로 아이디어 구체화",
-      "도출된 아이디어 저장",
+      "AI 정리 결과 확인",
+      "마음에 드는 한 건 저장",
     ],
   },
   "console:idea": {
@@ -221,7 +221,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   },
   "workbench:score": {
     summary: "AI가 수요, 구매 의향, 제작 난이도, 위험도를 먼저 정리합니다.",
-    checklist: ["이 아이디어를 계속 검증할지 정하기", "부족한 근거 확인", "사업성 평가 저장"],
+    checklist: ["제작 형태 확인", "평가값이 맞는지 확인", "사업성 평가 저장"],
   },
   "workbench:risk": {
     summary: "출시를 막을 수 있는 위험만 먼저 꺼냅니다.",
@@ -237,7 +237,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   },
   "workbench:experiment": {
     summary: "AI가 추천한 가장 작은 검증 계획을 확인하고 저장합니다.",
-    checklist: ["AI 추천 검증 계획 확인", "필요할 때만 메모 보완", "검증 계획 저장"],
+    checklist: ["AI 추천 검증 계획 확인", "검증 계획 저장", "시장·경쟁 자동 점검 확인"],
   },
   "workbench:orchestration": {
     summary: "제작자가 바로 움직일 수 있도록 작업 순서와 진행 상태만 간단히 확인합니다.",
@@ -245,11 +245,11 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   },
   "workbench:artifacts": {
     summary: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장합니다.",
-    checklist: ["AI 초안 확인", "필요할 때만 메모 보완", "제작 자료 저장"],
+    checklist: ["AI 초안 확인", "필요할 때만 메모 보완", "검증 자료 한 번에 저장"],
   },
   "workbench:development": {
     summary: "검증 결과와 제작 형태를 바탕으로 제작에 넘길 패키지를 만듭니다.",
-    checklist: ["제작 형태 확인", "AI가 만든 제작 요약 확인", "최종 제작 패키지 저장"],
+    checklist: ["AI 제작 패키지 만들기", "최종 요약 확인", "제작 패키지 저장"],
   },
   "workbench:launch": {
     summary: "출시 전 막히는 항목을 확인하고 최종 출시 판단을 기록합니다.",
@@ -331,10 +331,10 @@ const taskCanvasDetails: Record<
     checkpoint: "되살리면 사업성 평가 단계에서 다시 이어갈 수 있습니다.",
   },
   "workbench:artifacts": {
-    question: "이 아이디어를 제작 패키지로 묶을까요?",
-    aiLead: "AI가 아이디어 요약, 기획서, 첫 제작 범위, 디자인 참고 자료를 제작 자료로 정리합니다.",
-    deliverable: "제작 자료 초안",
-    checkpoint: "사용자는 처음부터 작성하지 않고, 최종 내용만 확인하고 저장하면 됩니다.",
+    question: "검증 자료와 기획 초안을 저장할까요?",
+    aiLead: "AI가 아이디어 요약, 조사 요약, 검증 완료 요약, 기획서와 첫 제작 범위를 정리합니다.",
+    deliverable: "검증 자료와 기획 초안",
+    checkpoint: "사용자는 처음부터 작성하지 않고, 저장할 내용만 확인하면 됩니다.",
   },
   "workbench:development": {
     question: "이제 제작에 넘길 패키지를 정리할 차례입니다.",
