@@ -210,9 +210,12 @@ pnpm smoke:telemetry:funnel
 pnpm quality:full
 pnpm smoke:prod
 pnpm smoke:routes
+pnpm smoke:market
 pnpm smoke:browser
 pnpm smoke:browser:auth
 ```
+
+`pnpm smoke:market`은 프로덕션 시장·경쟁 자동 점검 API가 웹 검색 포함 모드로 응답하는지 확인합니다. OpenAI 또는 웹 검색이 일시적으로 불안정한 상황에서 로컬 추정 응답까지 허용하려면 현재 터미널에 `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`을 설정한 뒤 실행합니다.
 
 인증된 쓰기 스모크가 필요할 때만 아래처럼 실행합니다. 이 명령은 실제 테스트 아이디어를 만들 수 있으므로 베타 전용 계정에서만 사용합니다.
 
