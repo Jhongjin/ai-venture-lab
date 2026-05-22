@@ -138,7 +138,7 @@ Validation keywords: `fix_now_first_run_clarity`, `candidate_save_bridge`, `vali
 - WQ-061-A is addressed by making the first input path explicit: paste meeting notes, idea memos, or work automation needs into one field before touching deeper panels.
 - WQ-061-B is addressed by explaining why the recommended candidate was selected, what saving creates, and what the next validation step is.
 - WQ-061-C is addressed by adding a plain-language validation experiment guide for `무엇을 확인할지`, `7일 동안 할 일`, and `성공/중단 기준`.
-- WQ-061-D and WQ-061-E remain as follow-up queues after the next participant check.
+- WQ-061-D and WQ-061-E moved into follow-up hardening queues and are tracked by the later notes below.
 
 Validation keywords: `wq_061_p1_implemented`, `first_run_clarity_implemented`, `candidate_save_bridge_implemented`, `validation_experiment_guidance_implemented`.
 
@@ -166,3 +166,11 @@ Validation keywords: `technical_stack_gap_bridge_implemented`, `first_build_orde
 - Product surface classification remains visible from idea discovery through business evaluation and final production package generation.
 
 Validation keywords: `ai_first_product_flow_recorded`, `manual_checklist_path_reduced`, `product_surface_to_production_package_bridge`, `wq_061_followup_20260520`.
+
+2026-05-22 automation-first hardening follow-up:
+
+- WQ-061-D is reinforced by carrying the selected result type into generated implementation tasks, current market-scan gates, and the final external production package contract.
+- WQ-061-E is reinforced by another plain-Korean pass across landing labels, first-run guidance, candidate selection, sample output wording, and primary STEP 5 copy.
+- Validation passed with `pnpm quality:full`, production shell/routes/browser smoke, authenticated browser smoke, and RLS allowed/denied browser smoke.
+
+Validation keywords: `wq_061_d_reinforced`, `wq_061_e_reinforced`, `automation_first_hardening_20260522`.
