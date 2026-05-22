@@ -2,6 +2,12 @@
 
 AI Venture Lab의 최종 제작 패키지는 사람이 읽는 문서이면서 외부 개발 도구가 순서대로 읽을 수 있는 실행 자료다. 사용자가 별도 문서를 조합하지 않도록, STEP 5 저장물은 아래 구조를 같은 패키지 안에 포함한다.
 
+## Surface and Evidence Contract
+
+Each package is valid for one selected result type: web service, mobile app, website, workflow automation, operator console, or development-tool handoff. PRD, IA, design direction, stack guidance, implementation tasks, and external handoff notes must all use that same result type.
+
+The market and competition scan must also match the current result type. If the result type changes after a scan was saved, STEP 3 should regenerate and save a current scan before STEP 4 or STEP 5 can continue.
+
 ## Read Order
 
 | Order | Resource | Purpose |

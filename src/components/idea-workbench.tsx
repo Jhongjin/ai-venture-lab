@@ -9363,7 +9363,7 @@ export function IdeaWorkbench({
     },
     {
       label: "개발 도구 전달 자료",
-      detail: "패키지 목차, MCP 리소스 매니페스트, 도구별 시작 방법, 검증/보고 형식을 포함해 외부 제작 도구가 바로 읽을 자료를 저장합니다.",
+      detail: "패키지 목차, 도구별 전달 순서, 시작 방법, 검증/보고 형식을 포함해 외부 제작 도구가 바로 읽을 자료를 저장합니다.",
     },
   ];
   const developmentAutoTaskDraftLines =
