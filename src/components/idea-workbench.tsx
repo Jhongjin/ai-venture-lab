@@ -1981,6 +1981,8 @@ function buildEvidenceNoteMarkdown({
   state: EditState;
   draft: EvidenceDraft;
 }) {
+  const productSurface = inferIdeaProductSurface(idea, state);
+
   return `# 근거 기록: ${draft.title || "제목 미정"}
 
 ## 아이디어 맥락
@@ -1991,6 +1993,8 @@ function buildEvidenceNoteMarkdown({
 - 구매자: ${idea.buyer || "미정"}
 - 현재 단계: ${stageLabels[state.stage]}
 - 현재 판단: ${decisionLabels[state.decision]}
+
+${productSurfaceMarkdown(productSurface)}
 
 ## 출처
 
@@ -2025,6 +2029,8 @@ function buildExperimentResultMarkdown({
   experiment: Experiment;
   draft: ExperimentResultDraft;
 }) {
+  const productSurface = inferIdeaProductSurface(idea, state);
+
   return `# 실험 결과: ${experiment.name}
 
 ## 아이디어 맥락
@@ -2035,6 +2041,8 @@ function buildExperimentResultMarkdown({
 - 구매자: ${idea.buyer || "미정"}
 - 현재 단계: ${stageLabels[state.stage]}
 - 현재 판단: ${decisionLabels[state.decision]}
+
+${productSurfaceMarkdown(productSurface)}
 
 ## 실험
 
@@ -2455,6 +2463,7 @@ function buildValidationSummaryMarkdown({
   artifacts: VentureArtifact[];
   decisions: Decision[];
 }) {
+  const productSurface = inferIdeaProductSurface(idea, state);
   const researchArtifacts = artifacts.filter((artifact) => artifact.artifact_type === "research_note");
   const riskLines =
     risks.length > 0
@@ -2514,6 +2523,8 @@ function buildValidationSummaryMarkdown({
 - 한 줄 설명: ${idea.one_liner || "미정"}
 - 대상 사용자: ${idea.target_user || "미정"}
 - 구매자: ${idea.buyer || "미정"}
+
+${productSurfaceMarkdown(productSurface)}
 
 ## 핵심 수요 신호
 
