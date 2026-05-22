@@ -4,6 +4,7 @@ Use this file for durable product, architecture, and operating decisions.
 
 | Date | Decision | Reason | Revisit When |
 | --- | --- | --- | --- |
+| 2026-05-22 | Demote secondary validation suggestions to read-only cards | STEP 3 should keep one real action, saving the AI recommended validation plan, while optional manual correction stays inside the collapsed edit area | Multi-option experiment approval becomes a deliberate feature with clear selection state |
 | 2026-05-22 | Align tester guidance with the automation-first flow | First-time testers should not follow older copy/paste and manual evidence instructions as if they are required; the guide must match one-action validation and production package saves | In-app onboarding replaces the static user test guide or the guided/full modes are split into separate docs |
 | 2026-05-22 | Embed an external package manifest in STEP 5 handoffs | Cursor, Codex, Claude Code, Antigravity, and MCP-style tools need a stable read order, resource shape, gates, and completion report format instead of a loose document bundle | A live connector serves the same resources directly with scoped permissions |
 | 2026-05-22 | Require saved market and competition scan before production materials | STEP 3 should not advance on a validation plan alone; AI-prepared market, competition, saturation, entry-barrier, and source notes must be saved before production materials are generated | Market scans become continuously refreshed or external source capture replaces the current generated research note |

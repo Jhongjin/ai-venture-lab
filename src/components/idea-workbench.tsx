@@ -11164,12 +11164,6 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
     setMessage("출시 판단 패킷을 판단 근거 입력란에 채웠습니다. 최종 내용을 검토한 뒤 기록하세요.");
   }
 
-  function loadExperimentSuggestion(suggestion: ExperimentDraft) {
-    setExperimentDraft(suggestion);
-    updateActiveTask("experiment");
-    setMessage("추천 실험을 실험 입력란에 채웠습니다. 성공 지표를 검토한 뒤 저장하세요.");
-  }
-
   async function saveRecommendedExperiment(suggestion: ExperimentDraft) {
     await createExperimentFromDraft(suggestion, {
       source: "ai_recommended",
@@ -14511,8 +14505,8 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="avl-kicker">검증 계획</div>
                     <h2 className="mt-1 text-lg font-semibold text-slate-950">7일 검증 계획</h2>
                     <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                      선택한 아이디어가 실제로 해볼 만한지 확인하는 단계입니다. AI가 추천한 방법을 고르거나 직접 입력하면,
-                      현재 아이디어 아래에 붙는 하위 검증 계획으로 저장됩니다.
+                      선택한 아이디어가 실제로 해볼 만한지 확인하는 단계입니다. AI가 추천한 검증 계획을 저장하면,
+                      현재 아이디어 아래에 붙는 하위 검증 계획으로 남습니다.
                     </p>
                   </div>
                   <Beaker className="text-sky-600" size={22} />
@@ -14558,16 +14552,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       </div>
                       <div className="mt-3 grid gap-2 md:grid-cols-2">
                         {validationPlan.experiments.slice(0, 2).map((experiment) => (
-                          <button
+                          <div
                             key={experiment.name}
-                            type="button"
-                            onClick={() => loadExperimentSuggestion(experiment)}
-                            className="border border-sky-200 bg-white p-3 text-left transition hover:border-sky-300 hover:bg-sky-50"
+                            className="border border-sky-200 bg-white p-3"
                           >
                             <div className="text-sm font-semibold text-slate-950">{experiment.name}</div>
                             <div className="mt-1 text-xs leading-5 text-slate-600">{experiment.success_metric}</div>
-                            <div className="mt-2 text-[11px] font-semibold text-sky-700">눌러서 수정안으로 불러오기</div>
-                          </button>
+                          </div>
                         ))}
                       </div>
                     </div>
