@@ -8,6 +8,59 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Import-SmokeEnvFile {
+  param(
+    [string]$Path,
+    [string[]]$AllowedNames
+  )
+
+  if (-not (Test-Path -LiteralPath $Path)) {
+    return
+  }
+
+  foreach ($line in Get-Content -LiteralPath $Path) {
+    $trimmed = $line.Trim()
+
+    if ([string]::IsNullOrWhiteSpace($trimmed) -or $trimmed.StartsWith("#") -or -not $trimmed.Contains("=")) {
+      continue
+    }
+
+    $parts = $trimmed.Split("=", 2)
+    $name = $parts[0].Trim()
+
+    if ($AllowedNames -notcontains $name) {
+      continue
+    }
+
+    $value = $parts[1].Trim()
+
+    if (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'"))) {
+      $value = $value.Substring(1, $value.Length - 2)
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($value)) {
+      Set-Item -Path "Env:$name" -Value $value
+    }
+  }
+}
+
+$allowedEnvNames = @(
+  "TELEMETRY_INGEST_SECRET",
+  "TELEMETRY_SMOKE_IDEA_ID",
+  "TELEMETRY_SMOKE_URL"
+)
+
+Import-SmokeEnvFile -Path ".env.production.local" -AllowedNames $allowedEnvNames
+Import-SmokeEnvFile -Path ".env.local" -AllowedNames $allowedEnvNames
+
+if ([string]::IsNullOrWhiteSpace($Secret)) {
+  $Secret = $env:TELEMETRY_INGEST_SECRET
+}
+
+if ([string]::IsNullOrWhiteSpace($IdeaId)) {
+  $IdeaId = $env:TELEMETRY_SMOKE_IDEA_ID
+}
+
 if ([string]::IsNullOrWhiteSpace($Secret)) {
   Write-Error "Telemetry smoke requires TELEMETRY_INGEST_SECRET. Set it in the current terminal before running pnpm smoke:telemetry."
 }
@@ -95,12 +148,14 @@ $defaultFunnelEvents = @(
   "product_payment_signal"
 )
 
-$eventsToSend = if ($EventNames.Count -gt 0) {
-  $EventNames
+[string[]]$eventsToSend = @()
+
+if ($EventNames.Count -gt 0) {
+  $eventsToSend = @($EventNames)
 } elseif ($Funnel) {
-  $defaultFunnelEvents
+  $eventsToSend = @($defaultFunnelEvents)
 } else {
-  @("product_core_action")
+  $eventsToSend = @("product_core_action")
 }
 
 $inserted = @()
