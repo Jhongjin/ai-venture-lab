@@ -1,7 +1,7 @@
 # CI Workflow Scope Boundary
 
 Status: WQ-055 app Node runtime matrix passed
-Last updated: 2026-05-17
+Last updated: 2026-05-22
 Scope: approved read-only GitHub Actions quality gate; Node24 JavaScript action runtime and Windows 2025 VS2026 image tested early; application build compatibility matrix passed for Node 20 and Node 24; no secrets, deploys, production mutation, authenticated write smoke, telemetry smoke, or Build Relay execution
 
 ## Purpose
@@ -124,7 +124,9 @@ Validation keywords: `ci_runtime_maintenance_applied`, `force_javascript_actions
 
 The matrix was promoted to `ci_app_node_matrix_passed` after pushed GitHub Actions run `25985698631` passed both Node 20 and Node 24 jobs for commit `9f0a163`.
 
-Validation keywords: `ci_app_node_matrix_pass_requires_github_run`, `matrix_evidence_summary_only`, `ci_app_node_matrix_passed`, `ci_app_node_matrix_run_25985698631`, `node_20_matrix_job_passed`, `node_24_matrix_job_passed`.
+The 2026-05-22 follow-up Quality Gate run `26282567364` passed on `main` for commit `0aed2ed`, with both Node 20 and Node 24 matrix jobs completing `pnpm quality:full`. The run stayed inside the approved boundary: read-only contents permission, no secrets, no deploys, no authenticated write smoke, no telemetry smoke, and no production mutation. GitHub still emitted the Node.js 20 JavaScript action deprecation annotation while the workflow forces listed JavaScript actions to Node 24; this remains a non-blocking maintenance notice.
+
+Validation keywords: `ci_app_node_matrix_pass_requires_github_run`, `matrix_evidence_summary_only`, `ci_app_node_matrix_passed`, `ci_app_node_matrix_run_25985698631`, `ci_app_node_matrix_run_26282567364`, `node_20_matrix_job_passed`, `node_24_matrix_job_passed`.
 
 ## Future CI Expansion
 

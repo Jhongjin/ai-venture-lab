@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-22 | Confirmed latest GitHub Actions quality gate pass | Current commit | GitHub Actions only; no runtime deploy intended | Quality Gate run `26282567364` passed on `main` for Node 20 and Node 24; workflow remains read-only, no secrets, no deploys, no authenticated/telemetry smoke |
 | 2026-05-22 | Reran RLS allowed/denied browser smoke with retained disposable fixtures | Current commit | Smoke-only; no app deploy or production mutation | `pnpm smoke:browser:rls:preflight`, `pnpm smoke:browser:rls`; anonymous denied, A/B allowed, A->B and B->A denied, no writes, no screenshots, no secret output |
 | 2026-05-22 | Checked telemetry smoke rerun readiness | Current commit | Blocked before telemetry write; no app deploy or production mutation | `pnpm smoke:telemetry` blocked because local `TELEMETRY_INGEST_SECRET` and `TELEMETRY_SMOKE_IDEA_ID` were not available as runnable local values; no secret values read back or recorded |
 | 2026-05-22 | Updated authenticated write smoke for the optional collaboration setup flow | Current commit | Script/docs only; no product deploy required beyond normal Git integration | `node --check scripts/smoke_browser_auth.mjs`, `pnpm smoke:browser:auth`, `BROWSER_SMOKE_ALLOW_WRITE=1; pnpm smoke:browser:auth`; disposable smoke-prefixed idea/package, no secret output |
@@ -154,7 +155,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Item | Type | Reason | Next Handling |
 | --- | --- | --- | --- |
-| GitHub Actions runner/action notices | Monitoring | First `Quality Gate` run passed, but GitHub warned about Node.js 20 JavaScript action deprecation and `windows-latest` image redirection | Current workflow opts into Node24 JavaScript action runtime and `windows-2025-vs2026`, and app build compatibility passed on Node 20/24 without secrets or deploys |
+| GitHub Actions runner/action notices | Monitoring | Latest approved check run passed, but GitHub still reports the Node.js 20 JavaScript action deprecation notice while forcing listed actions to Node 24 | Current workflow opts into Node24 JavaScript action runtime and `windows-2025-vs2026`, and app build compatibility passed on Node 20/24 without secrets or deploys |
 | GitHub Actions workflow push | Completed | User approved workflow creation; `.github/workflows/quality.yml` mirrors `pnpm quality:full` with `permissions: contents: read` | Keep CI no-secret/no-deploy; local `pnpm quality:full` and production smoke remain required release evidence |
 | Browser-level authenticated write smoke execution | Completed | Explicit per-run approval was granted and disposable workspace/idea data was used; the 2026-05-22 rerun passed after aligning the smoke runner with the optional collaboration setup flow | Rerun only with explicit approval, disposable data, and cleanup ownership |
 | RLS allowed/denied smoke execution | Completed | Two disposable accounts and two private workspace labels passed anonymous/allowed/denied checks; the 2026-05-22 approved rerun passed with no writes, screenshots, telemetry, or secret output | Rerun when fixtures, RLS policy, migration, or workspace access code changes |
