@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   Activity,
+  ArrowDownToLine,
   Beaker,
   CheckCircle2,
   Clipboard,
@@ -2339,10 +2340,12 @@ function buildMarketScanArtifactMarkdown({
   idea,
   scan,
   mode,
+  productSurfaceLabel,
 }: {
   idea: Idea;
   scan: MarketScanDraft;
   mode: string | null;
+  productSurfaceLabel: string;
 }) {
   const sourceLines =
     scan.sources.length > 0
@@ -2374,7 +2377,11 @@ function buildMarketScanArtifactMarkdown({
 
   return `# 시장·경쟁 자동 조사: ${idea.name}
 
-이 문서는 사용자가 직접 시장 조사를 시작하기 전에 AI가 먼저 정리한 검토 초안입니다. 공개 자료가 부족한 항목은 추정으로 표시하고, 중요한 수치나 점유율은 최종 판단 전에 다시 확인해야 합니다.
+이 문서는 STEP 3에 들어오면 AI가 먼저 정리하는 검토 초안입니다. 공개 자료가 부족한 항목은 추정으로 표시하고, 중요한 수치나 점유율은 최종 판단 전에 다시 확인해야 합니다.
+
+## 제작 형태
+
+${productSurfaceLabel}
 
 ## 요약
 
@@ -8449,6 +8456,34 @@ export function IdeaWorkbench({
       : null;
   const visibleMarketScanDraft =
     marketScanContextKey && marketScanDraftKey === marketScanContextKey ? marketScanDraft : null;
+  const marketScanStatus = isMarketScanLoading
+    ? {
+        label: "정리 중",
+        tone: "avl-pill avl-pill-info",
+        detail: "AI가 수요, 경쟁도, 시장 포화도, 진입장벽을 확인하고 있습니다.",
+      }
+    : hasMarketScanArtifact
+      ? {
+          label: "저장 완료",
+          tone: "avl-pill avl-pill-success",
+          detail: "리서치 노트로 저장되어 다음 단계 판단과 제작 자료에 함께 반영됩니다.",
+        }
+      : visibleMarketScanDraft
+        ? {
+            label: "초안 준비",
+            tone: "avl-pill avl-pill-warning",
+            detail: "자동 점검 초안이 준비됐습니다. 필요한 부분만 보완하면 됩니다.",
+          }
+        : {
+            label: "자동 대기",
+            tone: "avl-pill avl-pill-neutral",
+            detail: "이 단계가 열리면 AI가 먼저 시장과 경쟁 상황을 정리합니다.",
+          };
+  const marketScanActionLabel = isMarketScanLoading
+    ? "정리 중"
+    : hasMarketScanArtifact || visibleMarketScanDraft
+      ? "다시 정리"
+      : "자동 점검 다시 실행";
   const hasResearchBriefArtifact = selectedArtifactRecords.some(
     (artifact) =>
       artifact.artifact_type === "research_note" &&
@@ -10971,6 +11006,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         idea: selectedIdea,
         scan,
         mode: scanMode,
+        productSurfaceLabel: productSurface.label,
       });
       const savedMarketScan = user
         ? await saveArtifactDraft(
@@ -10990,7 +11026,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
 
       setMessage(
         savedMarketScan
-          ? "시장·경쟁 자동 점검을 리서치 노트로 저장했습니다. 제작 형태까지 반영한 초안을 채웠으니 필요한 부분만 고치고 하단 다음 단계로 넘어가세요."
+          ? "시장·경쟁 자동 점검을 리서치 노트로 저장했습니다. 제작 형태까지 반영했으니 필요한 부분만 보완하고 하단 다음 단계로 넘어가세요."
           : "시장·경쟁 자동 점검 초안을 채웠습니다. 로그인 상태가 아니거나 저장 권한이 없으면 리서치 노트 자동 저장은 건너뜁니다.",
       );
     } catch (error) {
@@ -14346,7 +14382,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">부족한 근거 확인</div>
                     <h3 className="mt-1 text-base font-semibold text-slate-950">{validationEvidenceCoach.label}</h3>
                     <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                      일반 흐름에서는 아래 시장·경쟁 자동 점검만 먼저 실행하면 됩니다. 이 영역은 외부 AI나 인터뷰 준비에 쓸 질문을
+                      일반 흐름에서는 아래 시장·경쟁 자동 점검이 먼저 정리됩니다. 이 영역은 외부 AI나 인터뷰 준비에 쓸 질문을
                     더 뽑고 싶을 때만 여는 추가 확인 영역입니다. 버튼을 눌러도 다음 단계로 이동하지 않습니다.
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -14384,9 +14420,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <button
                   type="button"
                   onClick={loadEvidenceCoachPrompt}
-                  className="avl-btn avl-btn-primary h-9 px-3 text-xs"
+                  className="avl-btn avl-btn-secondary h-9 px-3 text-xs"
                 >
-                  <Save size={15} />
+                  <ArrowDownToLine size={15} />
                   아래 입력칸에 넣기
                 </button>
               </div>
@@ -14404,22 +14440,38 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 </p>
                 <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
                   로그인 상태라면 자동 점검 결과는 리서치 노트로도 저장됩니다. 공개 자료를 찾으면 출처를 함께 표시하고,
-                  출처가 부족하면 추정 초안으로 남깁니다. 웹, 앱, 자동화, 제작 도구 연동처럼 만드는 형태에 따라 경쟁 기준도 달라집니다.
+                  출처가 부족하면 추정 초안으로 남깁니다. 웹, 앱, 자동화처럼 만드는 형태에 맞춰 경쟁 기준을 잡고, 다시 정리는
+                  결과를 새로 고칠 때만 사용합니다.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => void runMarketScan()}
-                disabled={isMarketScanLoading || !selectedIdea || !editState}
-                className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
-              >
-                <RefreshCw size={16} className={isMarketScanLoading ? "animate-spin" : ""} />
-                {isMarketScanLoading ? "조사 중" : visibleMarketScanDraft ? "시장·경쟁 다시 정리" : "AI 시장 조사 시작"}
-              </button>
+              <div className="grid w-full gap-2 sm:w-auto lg:min-w-[240px]">
+                <div className="bg-slate-50 px-3 py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">자동 점검 상태</div>
+                    <span className={marketScanStatus.tone}>{marketScanStatus.label}</span>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-slate-600">{marketScanStatus.detail}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void runMarketScan()}
+                  disabled={isMarketScanLoading || !selectedIdea || !editState}
+                  className="avl-btn avl-btn-secondary justify-center px-4 disabled:opacity-50"
+                >
+                  <RefreshCw size={16} className={isMarketScanLoading ? "animate-spin" : ""} />
+                  {marketScanActionLabel}
+                </button>
+              </div>
             </div>
 
             {marketScanError ? (
               <div className="mt-3 border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{marketScanError}</div>
+            ) : null}
+
+            {hasMarketScanArtifact && !visibleMarketScanDraft && !isMarketScanLoading ? (
+              <div className="mt-4 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-900">
+                시장·경쟁 점검이 이미 저장되어 있습니다. 새로 확인할 내용이 없다면 하단 다음 단계 버튼으로 제작 자료를 이어가면 됩니다.
+              </div>
             ) : null}
 
             {visibleMarketScanDraft ? (
@@ -14813,7 +14865,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 인터뷰 메모, 외부 자료, 가격 신호, 경쟁 대안 관찰을 리서치 노트로 저장합니다.
               </p>
               <p className="mt-1 text-sm leading-5 text-amber-700">
-                AI 시장·경쟁 자동 점검을 실행하면 이 칸도 초안으로 채워집니다. 따로 직접 조사한 내용이 없다면 비워둬도 되고,
+                AI 시장·경쟁 자동 점검이 정리되면 이 칸도 초안으로 채워집니다. 따로 직접 조사한 내용이 없다면 비워둬도 되고,
                 위에서 저장한 요약 자료와 검증 계획만으로도 다음 단계로 넘어갈 수 있습니다.
               </p>
             </div>

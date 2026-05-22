@@ -4,6 +4,7 @@ Use this file for durable product, architecture, and operating decisions.
 
 | Date | Decision | Reason | Revisit When |
 | --- | --- | --- | --- |
+| 2026-05-22 | Make market and competition checking auto-first in validation | Operators should see AI-prepared demand, competition, saturation, entry barrier, and source notes before deciding, with manual input kept as optional correction | Market scans need structured source confidence, pricing, or competitor refresh scheduling |
 | 2026-05-03 | Start with a venture lab harness before building a single app | Multiple ideas need the same screening, PRD, QA, and security loop | First MVP is selected |
 | 2026-05-03 | Use Next.js, TypeScript, Tailwind, pnpm, Vercel, and Supabase-ready envs | Fast deploy path, strong TypeScript ergonomics, simple Vercel integration | Backend needs exceed Supabase |
 | 2026-05-03 | Use Supabase magic links for the first operator workflow | It works with the anon key, keeps writes behind `authenticated`, and avoids password handling in the first pass | Organization-scoped access is needed |
