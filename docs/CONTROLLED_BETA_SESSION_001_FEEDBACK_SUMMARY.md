@@ -182,3 +182,12 @@ Validation keywords: `wq_061_d_reinforced`, `wq_061_e_reinforced`, `automation_f
 - The run button stays disabled until the operator has pasted meeting notes, idea memos, GPT conversation, or an automation need.
 
 Validation keywords: `wq_061_a_first_click_simplified`, `single_primary_step1_action`, `input_required_before_ai_run`.
+
+2026-05-22 continued automation-first follow-up:
+
+- WQ-061-A is further reinforced by moving sample generation behind an optional reveal and keeping the default first-run panel focused on one execution button.
+- WQ-061-D is reinforced in STEP 5 by showing `첫 제작 순서`, `기술 스택 후보`, and `이번엔 뺄 것` directly in the save-before-review summary.
+- WQ-061-E is reinforced by replacing stray English micro-labels in workbench screens and keeping package terminology product-facing by default.
+- Market automation evidence is more stable because `pnpm smoke:market` now allows realistic web-search latency by default while still requiring `openai_web` unless estimate mode is explicitly allowed.
+
+Validation keywords: `wq_061_a_optional_example_reveal`, `wq_061_d_step5_first_build_bridge`, `wq_061_e_micro_label_pass`, `market_smoke_timeout_hardened`.
