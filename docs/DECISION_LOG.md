@@ -4,6 +4,7 @@ Use this file for durable product, architecture, and operating decisions.
 
 | Date | Decision | Reason | Revisit When |
 | --- | --- | --- | --- |
+| 2026-05-22 | Add first-run guidance to the console | New operators should see the first three actions as input, AI review, and save instead of interpreting the whole venture workflow up front | User onboarding becomes personalized or analytics show the first-run drop-off has moved elsewhere |
 | 2026-05-22 | Make the saved production package exportable | External development tools should receive the exact package the platform saved, not a manually reconstructed copy from several panels | A live MCP/resource connector replaces Markdown handoff files |
 | 2026-05-22 | Save the recommended validation plan in one action | STEP 3 should not ask operators to pick a recommendation, copy it into a form, and save it separately before AI can continue; one explicit save keeps the real action visible while manual edits stay optional | Validation plans become fully generated multi-step experiments or require approval workflows per workspace |
 | 2026-05-22 | Add a current-action guide to the workbench | First-time operators need one visible sentence for what to do now, while AI continues preparing deeper material in the background | Step navigation becomes personalized or user-tested onboarding replaces the static guide |

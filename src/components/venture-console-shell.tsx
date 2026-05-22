@@ -176,6 +176,24 @@ const primaryShellTaskIds: ShellTask[] = [
 
 const primaryShellTaskSet = new Set<ShellTask>(primaryShellTaskIds);
 
+const firstRunGuideSteps = [
+  {
+    label: "1",
+    title: "메모 붙여넣기",
+    detail: "회의 내용, 아이디어, GPT 대화를 그대로 넣습니다.",
+  },
+  {
+    label: "2",
+    title: "AI 정리 확인",
+    detail: "후보 아이디어와 제작 형태를 먼저 봅니다.",
+  },
+  {
+    label: "3",
+    title: "아이디어 저장",
+    detail: "마음에 드는 한 건을 저장하면 사업성 평가로 이어집니다.",
+  },
+] as const;
+
 const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> = {
   "console:auth": {
     summary: "관리자 계정으로 바로 로그인합니다. 별도 인증키나 메일 링크는 다루지 않아도 됩니다.",
@@ -218,8 +236,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["삭제한 아이디어 확인", "되살릴지 결정", "필요할 때만 완전 삭제"],
   },
   "workbench:experiment": {
-    summary: "이 아이디어의 가능성을 판단하기 위해 가장 먼저 확인할 내용을 정합니다.",
-    checklist: ["확인할 내용 정하기", "직접 할 수 있는 작은 검증 쓰기", "성공/중단 기준 저장"],
+    summary: "AI가 추천한 가장 작은 검증 계획을 확인하고 저장합니다.",
+    checklist: ["AI 추천 검증 계획 확인", "필요할 때만 메모 보완", "검증 계획 저장"],
   },
   "workbench:orchestration": {
     summary: "제작자가 바로 움직일 수 있도록 작업 순서와 진행 상태만 간단히 확인합니다.",
@@ -295,10 +313,10 @@ const taskCanvasDetails: Record<
     checkpoint: "막는 리스크인지, 관리 가능한 리스크인지 구분하는 단계입니다.",
   },
   "workbench:experiment": {
-    question: "이 아이디어의 가능성을 검토하기 위해 무엇을 확인해야 할까요?",
-    aiLead: "AI가 인터뷰, 랜딩, 수동 결과물 테스트 중 가장 작은 검증 행동을 제안합니다.",
-    deliverable: "7일 동안 할 행동과 성공/중단 기준",
-    checkpoint: "좋은 계획보다 바로 해볼 수 있는 행동 하나가 더 중요합니다.",
+    question: "AI가 추천한 검증 계획을 저장할까요?",
+    aiLead: "AI가 인터뷰, 랜딩, 수동 결과물 테스트 중 가장 작은 검증 행동과 성공/중단 기준을 정리합니다.",
+    deliverable: "7일 검증 계획",
+    checkpoint: "사용자는 추천안을 확인하고, 필요한 메모만 보완하면 됩니다.",
   },
   "workbench:decision": {
     question: "지금은 진행, 보완, 전환, 중단 중 무엇이 맞을까요?",
@@ -545,8 +563,8 @@ function getExecutiveFocus({
   if (ideaCount === 0) {
     return {
       eyebrow: "지금 할 일",
-      title: "검토할 아이디어를 먼저 저장해 주세요.",
-      detail: "대화 메모나 거친 아이디어를 넣으면 AI가 아이디어를 정리합니다. 마음에 드는 한 건을 저장해 검증으로 넘어가세요.",
+      title: "메모를 넣으면 AI가 검토할 아이디어를 정리합니다.",
+      detail: "회의 내용, GPT 대화, 자동화하고 싶은 업무를 그대로 붙여넣으세요. 마음에 드는 한 건을 저장하면 사업성 평가로 이어집니다.",
       evidence: `${dataNote} · 아이디어 없음`,
       risk: "리스크는 저장 뒤 확인",
       metrics,
@@ -963,6 +981,7 @@ export function VentureConsoleShell({
     runCount,
     telemetryEventCount,
   });
+  const showFirstRunGuide = visibleTask === "console:extract" && ideaCount === 0;
 
   function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
     if (task.optional) {
@@ -1132,6 +1151,20 @@ export function VentureConsoleShell({
               {currentStepBlocker ? (
                 <div className="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-900">
                   {currentStepBlocker}
+                </div>
+              ) : null}
+
+              {showFirstRunGuide ? (
+                <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                  {firstRunGuideSteps.map((step) => (
+                    <div key={step.title} className="border-l border-slate-200 pl-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                        {step.label}
+                      </div>
+                      <div className="mt-1 text-sm font-semibold text-slate-950">{step.title}</div>
+                      <p className="mt-1 text-[12px] leading-5 text-slate-600">{step.detail}</p>
+                    </div>
+                  ))}
                 </div>
               ) : null}
             </div>

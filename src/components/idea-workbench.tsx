@@ -9567,12 +9567,29 @@ export function IdeaWorkbench({
   }
 
   if (!selectedIdea || !editState) {
+    const hasSelectableIdeas = visibleIdeas.length > 0;
+
     return (
       <section className="avl-card p-6">
-        <h2 className="text-xl font-semibold text-slate-950">아이디어 선택</h2>
+        <h2 className="text-xl font-semibold text-slate-950">
+          {hasSelectableIdeas ? "이어갈 아이디어를 선택하세요" : "먼저 검토할 아이디어를 저장하세요"}
+        </h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          아직 검토할 아이디어가 없습니다. 왼쪽 의사결정 흐름에서 아이디어를 먼저 접수하세요.
+          {hasSelectableIdeas
+            ? "저장된 아이디어가 있습니다. 검토 목록에서 한 건을 고르면 저장된 단계부터 이어집니다."
+            : "메모나 대화 내용을 넣으면 AI가 후보 아이디어와 제작 형태를 먼저 정리합니다."}
         </p>
+        <div className="mt-5">
+          {hasSelectableIdeas ? (
+            <button type="button" className="avl-btn avl-btn-primary px-4" onClick={() => updateActiveTask("select")}>
+              검토 아이디어 보기
+            </button>
+          ) : (
+            <a className="avl-btn avl-btn-primary px-4" href="/workspace">
+              아이디어 도출로 가기
+            </a>
+          )}
+        </div>
       </section>
     );
   }
