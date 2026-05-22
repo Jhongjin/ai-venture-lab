@@ -172,17 +172,22 @@ async function openOptionalTaskList(page) {
 
 async function openWorkspaceTask(page) {
   if (await isFirstVisible(page.getByRole("heading", { name: /협업 공간 상태/ }))) {
-    return;
+    return true;
   }
 
-  let workspaceNav = page.getByRole("button", { name: /팀 연결/ });
+  let workspaceNav = page.getByRole("button", { name: /협업 설정|팀 연결|협업 공간|워크스페이스/ });
   if (!(await isFirstVisible(workspaceNav))) {
     await openOptionalTaskList(page);
-    workspaceNav = page.getByRole("button", { name: /팀 연결/ });
+    workspaceNav = page.getByRole("button", { name: /협업 설정|팀 연결|협업 공간|워크스페이스/ });
+  }
+
+  if (!(await isFirstVisible(workspaceNav))) {
+    return false;
   }
 
   await clickFirst(workspaceNav, "workspace navigation");
   await waitForVisible(page.getByRole("heading", { name: /협업 공간 상태/ }), "workspace panel", 15000);
+  return true;
 }
 
 async function resolveWorkspaceState(page) {
@@ -223,7 +228,7 @@ async function resolveWorkspaceState(page) {
   }
 
   if ((workspaceState === "empty" || workspaceState === "create-available") && allowWorkspaceCreate) {
-    await clickFirst(page.getByRole("button", { name: /워크스페이스 만들기/ }), "create workspace button");
+    await clickFirst(page.getByRole("button", { name: /워크스페이스 만들기|협업 공간 만들기/ }), "create workspace button");
     await waitForVisible(page.getByLabel(/활성 워크스페이스/), "created active workspace", 25000);
     workspaceState = "active";
   }
@@ -241,8 +246,8 @@ async function summarizeWorkspaceDiagnostics(page, workspaceApiEvents) {
   );
   const [activeVisible, emptyVisible, createVisible, loginRequiredVisible, messageText] = await Promise.all([
     isFirstVisible(page.getByLabel(/활성 워크스페이스/)),
-    isFirstVisible(page.getByText(/연결된 워크스페이스가 없습니다/)),
-    isFirstVisible(page.getByRole("button", { name: /워크스페이스 만들기/ })),
+    isFirstVisible(page.getByText(/연결된 워크스페이스가 없습니다|연결된 협업 공간이 없습니다/)),
+    isFirstVisible(page.getByRole("button", { name: /워크스페이스 만들기|협업 공간 만들기/ })),
     isFirstVisible(page.getByText(/워크스페이스 멤버십을 불러오려면 로그인하세요/)),
     visibleText(page.getByText(/워크스페이스|협업 공간|row-level security|permission denied/i)),
   ]);
@@ -256,6 +261,29 @@ async function summarizeWorkspaceDiagnostics(page, workspaceApiEvents) {
     workspaceApiEvents.length > 0 ? `workspaceApi=${workspaceApiEvents.slice(-6).join("; ")}` : "workspaceApi=none",
     workspaceResources.length > 0 ? `workspaceResources=${workspaceResources.join("; ")}` : "workspaceResources=none",
   ].join(" | ");
+}
+
+async function waitForWorkspaceApiRows(workspaceApiEvents, waitMs = 15000) {
+  const deadline = Date.now() + waitMs;
+
+  while (Date.now() < deadline) {
+    const hasOrganizationRows = workspaceApiEvents.some((event) => {
+      const match = event.match(/organizations rows=(\d+)/);
+      return match ? Number.parseInt(match[1], 10) > 0 : false;
+    });
+    const hasMembershipRows = workspaceApiEvents.some((event) => {
+      const match = event.match(/organization_members rows=(\d+)/);
+      return match ? Number.parseInt(match[1], 10) > 0 : false;
+    });
+
+    if (hasOrganizationRows || hasMembershipRows) {
+      return true;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+
+  return false;
 }
 
 async function openExtractTask(page) {
@@ -389,11 +417,17 @@ async function main() {
       await waitForVisible(page.getByText(new RegExp(escapeRegExp(email))), "signed-in email", 10000);
     }
 
-    if (allowWrite || allowWorkspaceCreate) {
-      await openWorkspaceTask(page);
-    }
+    const workspacePanelOpened = allowWrite || allowWorkspaceCreate ? await openWorkspaceTask(page) : false;
 
-    let workspaceState = await resolveWorkspaceState(page);
+    let workspaceState = workspacePanelOpened ? await resolveWorkspaceState(page) : "unknown";
+
+    if (allowWrite && workspaceState !== "active") {
+      const hasWorkspaceRows = await waitForWorkspaceApiRows(workspaceApiEvents, workspaceSettleTimeout);
+
+      if (hasWorkspaceRows) {
+        workspaceState = "active";
+      }
+    }
 
     if (workspaceState !== "active" && allowWrite) {
       const diagnostics = await summarizeWorkspaceDiagnostics(page, workspaceApiEvents);
