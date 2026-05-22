@@ -4,6 +4,7 @@ Use this file for durable product, architecture, and operating decisions.
 
 | Date | Decision | Reason | Revisit When |
 | --- | --- | --- | --- |
+| 2026-05-22 | Embed an external package manifest in STEP 5 handoffs | Cursor, Codex, Claude Code, Antigravity, and MCP-style tools need a stable read order, resource shape, gates, and completion report format instead of a loose document bundle | A live connector serves the same resources directly with scoped permissions |
 | 2026-05-22 | Require saved market and competition scan before production materials | STEP 3 should not advance on a validation plan alone; AI-prepared market, competition, saturation, entry-barrier, and source notes must be saved before production materials are generated | Market scans become continuously refreshed or external source capture replaces the current generated research note |
 | 2026-05-22 | Add first-run guidance to the console | New operators should see the first three actions as input, AI review, and save instead of interpreting the whole venture workflow up front | User onboarding becomes personalized or analytics show the first-run drop-off has moved elsewhere |
 | 2026-05-22 | Make the saved production package exportable | External development tools should receive the exact package the platform saved, not a manually reconstructed copy from several panels | A live MCP/resource connector replaces Markdown handoff files |

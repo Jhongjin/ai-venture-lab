@@ -121,3 +121,4 @@ Before the user moves into actual build work, the platform should have one saved
 - implementation prompt or handoff package
 
 If an external IDE or MCP integration is available later, it should consume this same package instead of asking the user to reassemble documents.
+The canonical external handoff structure is defined in `docs/EXTERNAL_PRODUCTION_PACKAGE.md` and embedded in the STEP 5 package.

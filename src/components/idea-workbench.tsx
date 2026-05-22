@@ -2365,6 +2365,51 @@ function buildExternalProductionPackageGuide(profile: ProductSurfaceProfile) {
 | 05 작업 순서 | 바로 시작할 태스크, 대기 태스크, 수용 기준 | 첫 태스크부터 작게 구현하고 증거 저장 |
 | 06 검증/배포 | 품질 명령, smoke, 배포/롤백 기준 | 완료 보고에 실행 결과와 URL 남기기 |
 
+## 외부 제작 패키지 매니페스트
+
+\`\`\`yaml
+package_version: 1
+product_surface: ${profile.key}
+product_surface_label: ${profile.label}
+entrypoint: 00-execution-summary
+read_order:
+  - 00-execution-summary
+  - 01-validation-evidence
+  - 02-product-scope
+  - 03-design-direction
+  - 04-technical-boundary
+  - 05-implementation-sequence
+  - 06-quality-deploy
+required_before_build:
+  - saved_validation_summary
+  - saved_market_competition_scan
+  - saved_design_direction
+  - saved_development_plan
+  - saved_agent_run_package
+first_build: ${profile.firstBuild}
+implementation_boundary: ${profile.harnessFocus}
+handoff_boundary: ${profile.handoffHint}
+secret_policy: never include secret values in prompts, artifacts, screenshots, MCP resources, or completion reports
+completion_report:
+  - changed_files
+  - quality_commands
+  - deployment_or_preview_url
+  - remaining_risks
+  - rollback_notes
+\`\`\`
+
+## MCP 리소스 후보
+
+| 리소스 URI | 내용 | 권한 |
+| --- | --- | --- |
+| venture://production-package/00-execution-summary | 가치, 사용자, 제작 형태, 현재 판단 | 읽기 전용 |
+| venture://production-package/01-validation-evidence | 조사 요약, 시장·경쟁 점검, 검증 결과 | 읽기 전용 |
+| venture://production-package/02-product-scope | 제품 기획서, 첫 제작 범위, 제외 범위 | 읽기 전용 |
+| venture://production-package/03-design-direction | 화면 구조, 상태, 모바일/접근성 기준 | 읽기 전용 |
+| venture://production-package/04-technical-boundary | 스택, 데이터/권한 경계, 환경변수 경계 | 읽기 전용 |
+| venture://production-package/05-implementation-sequence | 작업 순서, 수용 기준, 담당 역할 | 읽기 전용 |
+| venture://production-package/06-quality-deploy | 품질 명령, smoke, 배포/롤백 기준 | 읽기 전용 |
+
 ## 제작 도구별 시작 방법
 
 - Codex: 이 문서 전체를 첫 메시지로 넣고, 변경 파일·검증 명령·배포 URL·남은 리스크를 완료 보고에 포함합니다.
@@ -9185,7 +9230,7 @@ export function IdeaWorkbench({
     },
     {
       label: "개발 도구 전달 자료",
-      detail: "패키지 목차, 도구별 시작 방법, 검증/보고 형식을 포함해 외부 제작 도구가 바로 읽을 자료를 저장합니다.",
+      detail: "패키지 목차, MCP 리소스 매니페스트, 도구별 시작 방법, 검증/보고 형식을 포함해 외부 제작 도구가 바로 읽을 자료를 저장합니다.",
     },
   ];
   const developmentAutoTaskDraftLines =
