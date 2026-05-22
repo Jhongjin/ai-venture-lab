@@ -11,6 +11,8 @@ const headless = process.env.BROWSER_SMOKE_HEADLESS !== "0";
 const timeout = Number.parseInt(process.env.BROWSER_SMOKE_TIMEOUT_MS || "45000", 10);
 const workspaceSettleTimeout = Number.parseInt(process.env.BROWSER_SMOKE_WORKSPACE_SETTLE_MS || "15000", 10);
 const screenshotPath = process.env.BROWSER_SMOKE_SCREENSHOT;
+const extractActionPattern = /아이디어 자동 정리|AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/;
+const ideaSourcePlaceholderPattern = /예\).*아이디어|회의 내용|LLM/i;
 
 const ignoredConsoleErrors = [
   "favicon",
@@ -70,7 +72,10 @@ async function getWorkspaceState(page, waitMs = 20000) {
       { name: "create-available", locator: page.getByRole("button", { name: /워크스페이스 만들기/ }) },
       { name: "login-required", locator: page.getByText(/워크스페이스 멤버십을 불러오려면 로그인하세요/) },
       ...(!allowWrite && !allowWorkspaceCreate
-        ? [{ name: "extract-ready", locator: page.getByRole("button", { name: /AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/ }) }]
+        ? [
+            { name: "extract-ready", locator: page.getByRole("button", { name: extractActionPattern }) },
+            { name: "score-ready", locator: page.getByRole("heading", { name: /사업성 평가|후보 선택/ }) },
+          ]
         : []),
     ],
     "authenticated session state",
@@ -250,13 +255,13 @@ async function summarizeWorkspaceDiagnostics(page, workspaceApiEvents) {
 }
 
 async function openExtractTask(page) {
-  const sourceInput = page.getByPlaceholder(/예\) 아이디어:/);
+  const sourceInput = page.getByPlaceholder(ideaSourcePlaceholderPattern);
 
   if (await isFirstVisible(sourceInput)) {
     return;
   }
 
-  const focusCta = page.getByRole("button", { name: /아이디어 구체화|후보 찾기/ });
+  const focusCta = page.getByRole("button", { name: /아이디어 자동 정리|아이디어 구체화|후보 찾기/ });
   if (await isFirstVisible(focusCta)) {
     await focusCta.first().click({ timeout: 10000 });
   } else if (await isFirstVisible(page.getByRole("button", { name: /아이디어 찾기/ }))) {
@@ -279,6 +284,22 @@ async function openExtractTask(page) {
   }
 
   await waitForVisible(sourceInput, "idea source input", 15000);
+}
+
+async function openAuthEntry(page) {
+  await clickFirst(
+    page.getByRole("link", { name: /실행 보드 열기|로그인\s*\/\s*회원가입|로그인하기|로그인/ }),
+    "auth or workspace cta",
+  );
+  await waitForAnyVisible(
+    [
+      { name: "workspace heading", locator: page.getByRole("heading", { name: /실행 보드/ }) },
+      { name: "login heading", locator: page.getByRole("heading", { name: /^로그인$/ }) },
+      { name: "password sign-in", locator: page.getByRole("button", { name: /비밀번호로 로그인|^로그인$/ }) },
+    ],
+    "auth entry",
+    20000,
+  );
 }
 
 async function main() {
@@ -343,17 +364,18 @@ async function main() {
       "homepage hero heading",
     );
 
-    await clickFirst(page.getByRole("link", { name: /실행 보드 열기/ }), "workspace cta");
-    await waitForVisible(page.getByRole("heading", { name: /실행 보드/ }), "workspace heading");
+    await openAuthEntry(page);
     await fillFirst(page.getByLabel(/이메일/), email, "email input");
     await fillFirst(page.getByLabel(/비밀번호/), password, "password input");
-    await clickFirst(page.getByRole("button", { name: /비밀번호로 로그인/ }), "password sign-in button");
+    await clickFirst(page.getByRole("button", { name: /비밀번호로 로그인|^로그인$/ }), "password sign-in button");
     const postLoginState = await waitForAnyVisible(
       [
         { name: "signed-in state", locator: page.getByText(/로그인됨/) },
         { name: "login success message", locator: page.getByText(/로그인되었습니다/) },
+        { name: "workspace heading", locator: page.getByRole("heading", { name: /실행 보드/ }) },
         { name: "next extract stage", locator: page.getByRole("heading", { name: /아이디어 찾기/ }) },
-        { name: "extract action", locator: page.getByRole("button", { name: /AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/ }) },
+        { name: "score heading", locator: page.getByRole("heading", { name: /사업성 평가|후보 선택/ }) },
+        { name: "extract action", locator: page.getByRole("button", { name: extractActionPattern }) },
       ],
       "post-login state",
       25000,
@@ -361,8 +383,6 @@ async function main() {
 
     if (postLoginState === "signed-in state" || postLoginState === "login success message") {
       await waitForVisible(page.getByText(new RegExp(escapeRegExp(email))), "signed-in email", 10000);
-    } else {
-      await waitForVisible(page.getByRole("button", { name: /AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/ }), "authenticated extract action", 10000);
     }
 
     if (allowWrite || allowWorkspaceCreate) {
@@ -382,8 +402,8 @@ async function main() {
       const idea = makeSmokeIdea();
 
       await openExtractTask(page);
-      await fillFirst(page.getByPlaceholder(/예\) 아이디어:/), buildSmokeIdeaSource(idea), "idea source");
-      await clickFirst(page.getByRole("button", { name: /AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/ }), "extract ideas button");
+      await fillFirst(page.getByPlaceholder(ideaSourcePlaceholderPattern), buildSmokeIdeaSource(idea), "idea source");
+      await clickFirst(page.getByRole("button", { name: extractActionPattern }), "extract ideas button");
       await clickFirst(page.getByRole("button", { name: /이 아이디어 저장하고 검증 시작|이 후보 저장하고 검증 시작|검증 자료 저장|검증 패키지 저장/ }), "save validation package button", 45000);
       const saveResult = await waitForAnyVisible(
         [
