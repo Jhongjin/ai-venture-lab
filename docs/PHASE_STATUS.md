@@ -45,7 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-22 | Made development package design and architecture context result-type-specific | Current commit | User-facing generated package content; deploy via Git integration after push | `pnpm quality:full`; production smoke pending after push |
+| 2026-05-22 | Made development package design and architecture context result-type-specific | `e70270a` | Pushed to `main`; production smoke passed after Git integration | `pnpm quality:full`, `pnpm release:check`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth`; GitHub Actions run `26284899772` passed on Node 20 and Node 24 |
 | 2026-05-22 | Reframed the user test guide around the automation-first happy path | Current commit | Docs-only; no runtime deploy intended beyond Git integration | `pnpm release:check`; stale manual-first button names remain only as advanced operator checks |
 | 2026-05-22 | Simplified STEP 1 first-click path to one primary run action | `d414133` | Pushed to `main`; production smoke passed after Git integration; direct Vercel CLI inspect remains blocked by local certificate chain | `pnpm quality:full`, `pnpm release:check`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth`, production Playwright STEP 1 single-action check |
 | 2026-05-22 | Confirmed latest GitHub Actions quality gate pass | Current commit | GitHub Actions only; no runtime deploy intended | Quality Gate run `26282567364` passed on `main` for Node 20 and Node 24; workflow remains read-only, no secrets, no deploys, no authenticated/telemetry smoke |
