@@ -11949,7 +11949,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <section className="avl-card p-5 text-slate-900">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">deleted ideas</div>
+                <div className="text-[11px] font-semibold tracking-[0.18em] text-slate-500">삭제 보관함</div>
                 <h2 className="mt-2 text-xl font-semibold text-slate-950">삭제한 아이디어</h2>
                 <p className="mt-2 max-w-2xl text-sm leading-5 text-slate-600">
                   삭제한 아이디어는 이곳에 남겨둡니다. 다시 이어갈 수 있고, 필요할 때만 완전히 삭제합니다.
@@ -14692,7 +14692,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   지금까지의 평가와 위험 신호를 보고 남길 판단입니다. 문장 하나면 충분합니다.
                 </p>
               </div>
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">history</div>
+              <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">판단 기록</div>
               <h3 className="mt-1 text-lg font-semibold text-slate-950">기록된 판단</h3>
               <div className="mt-4 grid gap-2">
                 {selectedDecisions.length > 0 ? (
