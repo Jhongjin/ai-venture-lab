@@ -26,6 +26,7 @@ import {
   productSurfaceOrder,
   productSurfaceProfiles,
   type ProductSurfaceKey,
+  type ProductSurfaceProfile,
 } from "@/lib/product-surface";
 import type {
   Decision,
@@ -2313,6 +2314,36 @@ ${scan.next_action}
 
 주의
 ${scan.caveat}`;
+}
+
+function buildExternalProductionPackageGuide(profile: ProductSurfaceProfile) {
+  return `## 제작 패키지 목차
+
+| 묶음 | 포함 내용 | 다음 제작 환경에서 할 일 |
+| --- | --- | --- |
+| 00 실행 요약 | 가치, 사용자, 현재 판단, 제작 형태 | 이번 제작 범위가 맞는지 먼저 확인 |
+| 01 검증 근거 | 조사 요약, 시장·경쟁 점검, 실험/근거 기록 | 아직 추정인 항목과 확정 근거를 분리 |
+| 02 제품 기획 | 제품 기획서, 첫 제작 범위, 제외 범위 | Slice 1에 들어갈 화면과 기능만 잠금 |
+| 03 디자인 기준 | 화면 구조, 상태, 모바일/접근성 기준 | ${profile.iaHint} 기준으로 화면 설계 |
+| 04 기술 방향 | 스택, 데이터/권한 경계, 환경변수 | ${profile.stackHint} 기준으로 구현 경계 확인 |
+| 05 작업 순서 | 바로 시작할 태스크, 대기 태스크, 수용 기준 | 첫 태스크부터 작게 구현하고 증거 저장 |
+| 06 검증/배포 | 품질 명령, smoke, 배포/롤백 기준 | 완료 보고에 실행 결과와 URL 남기기 |
+
+## 제작 도구별 시작 방법
+
+- Codex: 이 문서 전체를 첫 메시지로 넣고, 변경 파일·검증 명령·배포 URL·남은 리스크를 완료 보고에 포함합니다.
+- Cursor: 목차 00-06을 프로젝트 규칙 문서로 붙이고, 첫 태스크 하나만 선택해 구현합니다.
+- Claude Code: 승인된 제작 자료와 작업 순서만 컨텍스트로 넣고, 제외 범위를 먼저 고정합니다.
+- Google Antigravity: 화면 구조, 기술 방향, 검증/배포 기준을 순서대로 등록한 뒤 첫 수직 슬라이스만 실행합니다.
+- MCP/연동 서버: 이 문서를 리소스 또는 컨텍스트 파일로 노출하고, 읽기 전용 기준 자료와 실행 명령을 분리합니다.
+
+## 전달 전 확인
+
+- 제작 형태: ${profile.label}
+- 첫 제작 형태: ${profile.firstBuild}
+- 제작 기준: ${profile.harnessFocus}
+- 외부 전달 기준: ${profile.handoffHint}
+- 승인되지 않은 결제, 고급 자동화, 외부 계정 직접 조작, 대규모 관리자 기능은 만들지 않습니다.`;
 }
 
 function MarketScanAutoRunner({
@@ -5499,6 +5530,8 @@ function buildAgentRunPackageMarkdown({
 - 제작 기준: ${productSurface.harnessFocus}
 - 외부 전달 기준: ${productSurface.handoffHint}
 - 추가 확인 내용: ${state.next_evidence || "미정"}
+
+${buildExternalProductionPackageGuide(productSurface)}
 
 ## 승인된 원천 제작 자료
 
@@ -9096,7 +9129,7 @@ export function IdeaWorkbench({
     },
     {
       label: "개발 도구 전달 자료",
-      detail: "Cursor, Codex, Claude, Antigravity 같은 제작 도구가 읽을 최종 제작 패키지를 저장합니다.",
+      detail: "패키지 목차, 도구별 시작 방법, 검증/보고 형식을 포함해 외부 제작 도구가 바로 읽을 자료를 저장합니다.",
     },
   ];
   const developmentAutoTaskDraftLines =
@@ -9124,6 +9157,8 @@ export function IdeaWorkbench({
         activeProductSurface.promptFocus,
         activeProductSurface.stackHint,
         activeProductSurface.handoffHint,
+        "",
+        buildExternalProductionPackageGuide(activeProductSurface),
         "",
         "## 작업 순서 초안",
         developmentAutoTaskDraftLines,
@@ -10167,6 +10202,8 @@ export function IdeaWorkbench({
       "",
       "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 제작 환경에 넘기기 위한 최종 자료입니다.",
       "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 자료로 사용할 수 있습니다.",
+      "",
+      buildExternalProductionPackageGuide(activeProductSurface),
       "",
       "## 실행 요약",
       developmentAutoSummaryDraft,
