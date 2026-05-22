@@ -1620,6 +1620,8 @@ export function VentureConsoleActions({
   const activeTask = controlledActiveTask ?? localActiveTask;
   const showAdvancedExtractionReview = false;
   const hasWorkspace = organizations.length > 0 && Boolean(activeOrganizationId || organizations[0]?.id);
+  const trimmedIdeaSource = rawIdeaSource.trim();
+  const hasIdeaSourceInput = trimmedIdeaSource.length > 0;
   const updateActiveTask = useCallback(
     (task: ConsoleActionTask) => {
       setLocalActiveTask(task);
@@ -1634,9 +1636,9 @@ export function VentureConsoleActions({
       isAuthenticated: Boolean(user),
       hasWorkspace,
       hasExtractedIdeas: extractedIdeas.length > 0,
-      hasIdeaSource: rawIdeaSource.trim().length > 0,
+      hasIdeaSource: hasIdeaSourceInput,
     });
-  }, [extractedIdeas.length, hasWorkspace, isAuthLoaded, onWorkflowStatusChange, rawIdeaSource, user]);
+  }, [extractedIdeas.length, hasIdeaSourceInput, hasWorkspace, isAuthLoaded, onWorkflowStatusChange, user]);
 
   async function recordTelemetryEvent({
     eventName,
@@ -3275,18 +3277,18 @@ export function VentureConsoleActions({
                       </p>
                     </div>
                     <div className="avl-pill avl-pill-neutral">
-                      {rawIdeaSource.trim().length > 0 ? `${rawIdeaSource.trim().length}자 입력됨` : "입력 대기"}
+                      {hasIdeaSourceInput ? `${trimmedIdeaSource.length}자 입력됨` : "입력 대기"}
                     </div>
                   </div>
                   <textarea
                     value={rawIdeaSource}
                     onChange={(event) => setRawIdeaSource(event.target.value)}
                     rows={12}
-                    placeholder="예) 회의 내용, 아이디어, LLM(GPT 등)과의 대화 내용 등 정리되지 않았으나 구체화해 보고 싶은 내용을 입력하세요."
+                    placeholder="예) 고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요. 반복 입력을 줄이고 누락을 확인하는 도구가 필요합니다."
                     className="avl-textarea min-h-[280px] leading-7"
                   />
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
-                    <span><strong className="text-slate-950">1.</strong> 아이디어를 붙여넣습니다.</span>
+                    <span><strong className="text-slate-950">1.</strong> 정리 안 된 메모를 넣습니다.</span>
                     <span><strong className="text-slate-950">2.</strong> AI가 아이디어와 제작 형태를 정리합니다.</span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 사업성 평가로 이어집니다.</span>
                   </div>
@@ -3294,39 +3296,51 @@ export function VentureConsoleActions({
                     <button
                       type="button"
                       onClick={() => {
-                        void handleGenerateSampleIdeas();
-                      }}
-                      disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
-                      className="avl-btn avl-btn-secondary px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                      {isGeneratingSample ? "생성 중" : "샘플 아이디어 만들기"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRawIdeaSource("");
-                        setExtractedIdeas([]);
-                        setExtractionRunMeta(null);
-                        setExtractionReplay(null);
-                        setExtractMessage(null);
-                      }}
-                      className="avl-btn avl-btn-subtle px-4 text-slate-600 hover:text-slate-900"
-                    >
-                      비우기
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
                         void handleAiExtractIdeas();
                       }}
-                      disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction || rawIdeaSource.trim().length === 0}
+                      disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction || !hasIdeaSourceInput}
                       className="avl-btn avl-btn-primary px-4 disabled:opacity-60"
                     >
                       {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                      {rawIdeaSource.trim().length > 0 ? "아이디어 자동 정리" : "내용 입력 후 자동 정리"}
+                      {hasIdeaSourceInput ? "아이디어 자동 정리" : "내용 입력 후 자동 정리"}
                     </button>
+                    {hasIdeaSourceInput ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRawIdeaSource("");
+                          setExtractedIdeas([]);
+                          setExtractionRunMeta(null);
+                          setExtractionReplay(null);
+                          setExtractMessage(null);
+                        }}
+                        className="avl-btn avl-btn-subtle px-4 text-slate-600 hover:text-slate-900"
+                      >
+                        비우기
+                      </button>
+                    ) : null}
                   </div>
+                  <details className="border border-slate-200 bg-slate-50 px-4 py-3">
+                    <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
+                      예시가 필요할 때만 열기
+                    </summary>
+                    <div className="mt-3 flex flex-col gap-3 border-t border-slate-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm leading-6 text-slate-600">
+                        샘플은 입력칸만 채웁니다. 내용을 확인한 뒤 아이디어 자동 정리를 눌러야 다음 정리가 시작됩니다.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void handleGenerateSampleIdeas();
+                        }}
+                        disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
+                        className="avl-btn avl-btn-secondary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
+                        {isGeneratingSample ? "채우는 중" : "샘플 내용 채우기"}
+                      </button>
+                    </div>
+                  </details>
                   {extractMessage ? (
                     <div aria-live="polite" role="status" className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-700">
                       {extractMessage}
