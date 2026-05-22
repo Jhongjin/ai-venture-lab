@@ -4,9 +4,9 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 ## Current Phase
 
-- Phase: Controlled beta launch evidence
-- Goal: Keep controlled beta launch evidence, constraints, rollback, and rerun gates current.
-- Status: `ship` for controlled beta
+- Phase: Automation-first product OS hardening
+- Goal: Keep the idea-to-production-package flow aligned with the rule that AI prepares and the operator confirms only the important decisions.
+- Status: `ship` for controlled beta; active hardening queue is focused on result-type propagation, market automation, external production packages, and first-use clarity.
 
 ## Loop Rules
 
@@ -45,6 +45,9 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-22 | Aligned result type with implementation tasks and current market scans | `db0c91e`, `8d8b1da` | Pushed to `main`; Vercel Git integration expected to deploy production, direct Vercel CLI deploy remains blocked by local certificate chain | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth`, `pnpm smoke:browser:rls` |
+| 2026-05-22 | Stabilized browser smoke env loading and production smoke marker | `c3e0b1a`, `363f25b` | Script-only; no product deploy required beyond normal Git integration | `pnpm quality:full`, authenticated browser smoke, RLS allowed/denied browser smoke, production smoke |
+| 2026-05-22 | Documented the external package contract and clarified first-use/user-facing labels | `11375bd`, `6bbc473`, `fec146d` | Pushed to `main`; production smoke passed after Git integration | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth`, `pnpm smoke:browser:rls` |
 | 2026-05-18 | Implemented WQ-061 P1 first-use clarity fixes | Current commit | Production deploy required after commit | `first_run_clarity_implemented`, `candidate_save_bridge_implemented`, `validation_experiment_guidance_implemented`; pending lint/typecheck/build/prod smoke |
 | 2026-05-17 | Configured app Node 20/24 compatibility matrix | Current commit | GitHub Actions only; no runtime deploy intended | `ci_app_node_matrix_20_24_configured`, `no_runtime_selection_change`, no secrets/deploys/production mutation; pass evidence requires pushed GitHub matrix run |
 | 2026-05-17 | Recorded app Node 20/24 matrix pass evidence | Current commit | GitHub Actions only; no runtime deploy intended | `ci_app_node_matrix_passed`, run `25985698631`, Node 20/24 jobs passed; no secrets/deploys/production mutation |
