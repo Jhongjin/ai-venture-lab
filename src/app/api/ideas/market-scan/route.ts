@@ -524,7 +524,7 @@ function createFallbackScan({
     competitor_map: [
       {
         name: isDevelopmentHandoffSurface
-          ? "제작 도구 내 AI 에이전트"
+          ? "제작 도구의 AI 기능"
           : isAutomationSurface
             ? "스프레드시트/노코드 자동화"
             : isMobileSurface

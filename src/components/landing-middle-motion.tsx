@@ -19,13 +19,13 @@ export function LandingMiddleMotion() {
 
       <div className="relative flex flex-wrap items-start justify-between gap-5 xl:pl-6 xl:pr-8">
         <div>
-          <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#bcd3ff]">validation motion field</div>
+          <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#bcd3ff]">검증 흐름</div>
           <p className="mt-3 max-w-[34ch] break-keep text-sm font-semibold leading-6 text-slate-100">
             흩어진 메모가 아이디어, 질문, 실험 조건으로 정리되는 장면입니다.
           </p>
         </div>
         <div className="flex border-b border-white/14 text-center">
-          {["intake", "select", "package"].map((label, index) => (
+          {["입력", "선택", "패키지"].map((label, index) => (
             <span key={label} className={`${index === 1 ? "text-[#bcd3ff]" : "text-slate-400"} px-3 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.16em]`}>
               {label}
             </span>
@@ -43,7 +43,7 @@ export function LandingMiddleMotion() {
         <div className="absolute left-0 top-0 z-[1] hidden gap-3 xl:grid">
           {intakeItems.map((item, index) => (
             <div key={item} className={`max-w-[170px] border-t border-white/12 px-4 py-3 ${index === 1 ? "ml-7" : index === 2 ? "ml-14" : ""}`}>
-              <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">input 0{index + 1}</div>
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">입력 0{index + 1}</div>
               <div className="mt-4 text-sm font-semibold text-white">{item}</div>
             </div>
           ))}

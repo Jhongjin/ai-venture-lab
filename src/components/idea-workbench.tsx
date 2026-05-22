@@ -11464,7 +11464,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className="border border-slate-200 bg-white p-5 text-slate-900">
         <div className="mb-5 flex items-center justify-between gap-4">
           <div>
-            <div className="avl-pill avl-pill-neutral mb-3 inline-flex px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]">Candidate queue</div>
+            <div className="avl-pill avl-pill-neutral mb-3 inline-flex px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]">검토 목록</div>
             <h2 className="text-xl font-semibold text-slate-950">아이디어 선택</h2>
             <p className="mt-1 text-sm leading-5 text-slate-600">오늘 먼저 볼 아이디어 한 건을 고르고 다음 단계로 넘어갑니다.</p>
           </div>

@@ -11,28 +11,28 @@ import {
 
 const stages = [
   {
-    label: "raw input",
+    label: "원문 입력",
     title: "초안 수집",
     body: "회의 내용과 브리프 초안을 그대로 가져옵니다.",
     icon: ClipboardText,
     className: "left-6 top-16 md:left-10",
   },
   {
-    label: "candidate",
+    label: "후보 정리",
     title: "아이디어 정리",
     body: "먼저 검토할 아이디어와 비교 아이디어를 나눕니다.",
     icon: Sparkle,
     className: "right-6 top-24 md:right-10",
   },
   {
-    label: "validation",
+    label: "검증 계획",
     title: "7일 검증",
     body: "질문, 리스크, 7일 실험을 한 흐름으로 묶습니다.",
     icon: ShieldCheck,
     className: "left-8 bottom-64 md:left-14",
   },
   {
-    label: "ship path",
+    label: "제작 연결",
     title: "실행 연결",
     body: "기획, MVP, 출시 판단을 같은 보드에 이어둡니다.",
     icon: RocketLaunch,
@@ -43,17 +43,17 @@ const stages = [
 const signals = [
   {
     id: "01",
-    label: "one idea",
+    label: "한 아이디어",
     body: "한 번에 한 아이디어만 앞으로 꺼냅니다.",
   },
   {
     id: "02",
-    label: "evidence trail",
+    label: "근거 흐름",
     body: "결정에 필요한 질문과 증거를 함께 남깁니다.",
   },
   {
     id: "03",
-    label: "feedback loop",
+    label: "피드백 흐름",
     body: "출시 후 신호도 다시 보드에 남깁니다.",
   },
 ];
@@ -135,11 +135,11 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
       <div className="absolute inset-x-6 top-6 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400 md:inset-x-8">
         <span className="inline-flex items-center gap-2">
           <Path size={14} weight="bold" />
-          execution field
+          실행 흐름
         </span>
         <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-1 text-[10px] tracking-[0.22em] text-slate-300">
           <span className="h-2 w-2 rounded-full bg-sky-300 landing-hero-live-dot" />
-          live signal
+          실시간 신호
         </span>
       </div>
 

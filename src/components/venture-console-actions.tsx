@@ -2907,7 +2907,7 @@ export function VentureConsoleActions({
       {showSidebar ? (
               <aside className="avl-card p-5 lg:sticky lg:top-6 lg:self-start">
         <div className="mb-4">
-          <div className="avl-kicker mb-3">Quick setup</div>
+          <div className="avl-kicker mb-3">시작 안내</div>
           <h2 className="text-lg font-semibold text-slate-950">시작 준비</h2>
           <p className="mt-1 text-sm leading-6 text-slate-600">AI가 초안을 만들고, 필요한 순간에만 사용자가 보완합니다.</p>
         </div>

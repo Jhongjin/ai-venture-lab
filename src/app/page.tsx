@@ -128,37 +128,37 @@ const aiOutputs = [
   {
     title: "후보 정리",
     body: "먼저 검토할 후보와 비교 후보를 나눕니다.",
-    meta: "candidate queue",
+    meta: "후보 목록",
     icon: Sparkle,
   },
   {
     title: "검증 질문",
     body: "사용자, 구매자, 문제의 강도를 확인할 질문을 제안합니다.",
-    meta: "question pack",
+    meta: "질문 묶음",
     icon: Brain,
   },
   {
     title: "리스크 초안",
     body: "개인정보, 운영, 법무, 신뢰 리스크를 먼저 정리합니다.",
-    meta: "risk frame",
+    meta: "위험 정리",
     icon: ShieldCheck,
   },
   {
     title: "7일 검증 계획",
     body: "기간, 대상, 성공 기준, 중단 기준을 함께 세웁니다.",
-    meta: "validation sprint",
+    meta: "검증 계획",
     icon: ChartLineUp,
   },
   {
     title: "기획서와 첫 제작 범위",
     body: "무엇을 만들고 무엇을 뒤로 미룰지 정리합니다.",
-    meta: "scope draft",
+    meta: "범위 초안",
     icon: GridFour,
   },
   {
     title: "제작 작업",
     body: "디자인, 제작, 품질 점검, 출시 판단에 필요한 작업으로 나눕니다.",
-    meta: "task board",
+    meta: "작업 보드",
     icon: ListChecks,
   },
 ];

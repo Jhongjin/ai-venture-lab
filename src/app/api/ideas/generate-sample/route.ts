@@ -237,7 +237,7 @@ function getFallbackFirstBuild(productSurface: ProductSurfaceKey) {
     case "operator_console":
       return "목록, 상세, 상태 변경이 있는 운영 콘솔";
     case "mcp_handoff":
-      return "제작 패키지와 IDE/MCP 연결 안내";
+      return "제작 패키지와 개발 도구 연결 안내";
     case "web_app":
     default:
       return "로그인, 입력, 결과 확인, 저장까지 이어지는 웹 서비스 흐름";
