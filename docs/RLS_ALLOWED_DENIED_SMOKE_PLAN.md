@@ -1,7 +1,7 @@
 # RLS Allowed/Denied Smoke Plan
 
 Status: RLS allowed/denied browser smoke passed
-Last updated: 2026-05-17
+Last updated: 2026-05-22
 Scope: plan, evidence boundary, and summary-only execution evidence; no account provisioning, DB/Auth mutation, raw private payloads, screenshots, or secret output
 
 ## Purpose
@@ -119,6 +119,27 @@ Validation keywords: `summary_only_rls_evidence`, `no_credentials_in_evidence`, 
 
 ## Execution Evidence
 
+2026-05-22 approved production browser rerun:
+
+```text
+Smoke class: rls_allowed_denied_smoke
+Target URL: https://ai-venture-lab.vercel.app
+Accounts: disposable_pair_confirmed
+Workspace pair: disposable_pair_confirmed
+Anonymous denied check: pass
+Allowed check A: pass
+Allowed check B: pass
+Cross-workspace denied check A->B: pass
+Cross-workspace denied check B->A: pass
+Direct private-record probe: not_run
+Writes performed: no
+Secrets printed: no
+Screenshots stored: no
+Telemetry smoke: not_run
+Production mutation: no
+Result: RLS allowed/denied browser smoke passed.
+```
+
 2026-05-17 production browser run:
 
 ```text
@@ -192,7 +213,7 @@ Static SQL posture is documented and the 2026-05-17 production posture summary c
 
 Use `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md` to prepare or refresh `two_disposable_auth_users_required`, `two_private_workspace_labels_required`, `local_env_names_only`, and `disposable_pair_confirmed_before_rerun`.
 
-Recommended current state after this plan:
+Recommended current state after the 2026-05-22 approved rerun:
 
 ```text
 rls_allowed_denied_browser_smoke_passed

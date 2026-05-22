@@ -33,7 +33,7 @@ Every smoke surface needs a row before broader beta. A missing row is unresolved
 | Smoke surface | Cleanup status | Cleanup owner | Notes |
 | --- | --- | --- | --- |
 | Authenticated write smoke workspace/idea | `retained_for_rerun` | Operator | Keep as disposable beta fixture until no longer useful. The 2026-05-22 approved rerun created a smoke-prefixed disposable idea/package with summary-only evidence and no credentials, raw payloads, or screenshots recorded. |
-| RLS fixture pair | `retained_for_rerun` | Operator | Keep only while synthetic and reserved for RLS reruns. |
+| RLS fixture pair | `retained_for_rerun` | Operator | Keep only while synthetic and reserved for RLS reruns. The 2026-05-22 approved rerun used the retained disposable pair with no writes, telemetry, screenshots, credentials, or raw payloads recorded. |
 | Telemetry smoke events | `not_applicable` | Operator | Disposable smoke payloads were used; keep summary evidence only. |
 | Screenshot artifacts | `not_applicable` | Operator | Use `completed_cleanup` if any local sensitive screenshots were created and deleted. |
 
