@@ -15,7 +15,7 @@ $requiredText = @(
   "<!DOCTYPE html>",
   "_next/static",
   "AI Venture Lab",
-  "validation motion field",
+  "landing-hero-visual",
   "landing-middle-motion"
 )
 
