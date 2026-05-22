@@ -99,6 +99,21 @@ if (-not $location.Contains("auth_error=missing_callback_state")) {
   Write-Error "Route smoke failed for /auth/callback: missing auth_error=missing_callback_state in redirect location."
 }
 
+$externalCallback = Invoke-RouteSmokeRequest -Path "/auth/callback?next=https%3A%2F%2Fevil.example%2Fphish" -AllowRedirect $false
+
+if ($redirectCodes -notcontains $externalCallback.StatusCode) {
+  Write-Error "Route smoke failed for /auth/callback external next: expected redirect but received $($externalCallback.StatusCode)."
+}
+
+$externalLocation = [string]$externalCallback.Location
+if ($externalLocation.StartsWith("https://evil.example")) {
+  Write-Error "Route smoke failed for /auth/callback external next: redirected to an external origin."
+}
+
+if (-not $externalLocation.Contains("/workspace") -or -not $externalLocation.Contains("auth_error=missing_callback_state")) {
+  Write-Error "Route smoke failed for /auth/callback external next: expected safe workspace redirect with auth error."
+}
+
 $extractApi = Invoke-RouteSmokeRequest -Path "/api/ideas/extract" -Method "POST" -Body "{}"
 
 if ($extractApi.StatusCode -ne 400) {
