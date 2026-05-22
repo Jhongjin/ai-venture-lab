@@ -45,7 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-22 | Polished full-preview production package language for manager-facing terms | Current commit | Push to `main`; production smoke required after Git integration | `pnpm quality:full`; production smoke pending after push |
+| 2026-05-22 | Polished full-preview production package language for manager-facing terms | `03189ae` | Pushed to `main`; production smoke passed after Git integration | `pnpm quality:full`, `pnpm release:check`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth` |
 | 2026-05-22 | Aligned result type with implementation tasks and current market scans | `db0c91e`, `8d8b1da` | Pushed to `main`; Vercel Git integration expected to deploy production, direct Vercel CLI deploy remains blocked by local certificate chain | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth`, `pnpm smoke:browser:rls` |
 | 2026-05-22 | Stabilized browser smoke env loading and production smoke marker | `c3e0b1a`, `363f25b` | Script-only; no product deploy required beyond normal Git integration | `pnpm quality:full`, authenticated browser smoke, RLS allowed/denied browser smoke, production smoke |
 | 2026-05-22 | Documented the external package contract and clarified first-use/user-facing labels | `11375bd`, `6bbc473`, `fec146d` | Pushed to `main`; production smoke passed after Git integration | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth`, `pnpm smoke:browser:rls` |
