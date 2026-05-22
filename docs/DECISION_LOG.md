@@ -4,6 +4,7 @@ Use this file for durable product, architecture, and operating decisions.
 
 | Date | Decision | Reason | Revisit When |
 | --- | --- | --- | --- |
+| 2026-05-22 | Show source type and evidence strength in market checks | Auto research should reduce interpretation work by separating direct sources, secondary summaries, directories, news, and user-input estimates | Source capture needs citations, freshness dates, or scheduled refresh |
 | 2026-05-22 | Add an external production package manifest | Final production packages should tell Codex, Cursor, Claude Code, Antigravity, and MCP-style integrations what to read first, what to build, and how to report verification | Package export becomes a downloadable file set or live connector resource |
 | 2026-05-22 | Carry product surface into validation artifacts | Evidence notes, experiment results, and validation summaries should preserve the same result-type basis used by PRD, design, stack, and handoff materials | Product-surface classification becomes multi-surface or per-audience |
 | 2026-05-22 | Make market and competition checking auto-first in validation | Operators should see AI-prepared demand, competition, saturation, entry barrier, and source notes before deciding, with manual input kept as optional correction | Market scans need structured source confidence, pricing, or competitor refresh scheduling |

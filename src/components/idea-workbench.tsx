@@ -717,6 +717,8 @@ type MarketScanSource = {
   title: string;
   url: string;
   reason: string;
+  source_type: "primary" | "secondary" | "directory" | "news" | "user_input" | "unknown";
+  strength: "low" | "medium" | "high";
 };
 
 type MarketScanSignal = {
@@ -2084,10 +2086,23 @@ function normalizeMarketScanSource(value: unknown): MarketScanSource | null {
     return null;
   }
 
+  const sourceType: MarketScanSource["source_type"] =
+    value.source_type === "primary" ||
+    value.source_type === "secondary" ||
+    value.source_type === "directory" ||
+    value.source_type === "news" ||
+    value.source_type === "user_input" ||
+    value.source_type === "unknown"
+      ? value.source_type
+      : "unknown";
+  const strength: MarketScanSource["strength"] =
+    value.strength === "high" || value.strength === "medium" || value.strength === "low" ? value.strength : "low";
   const source = {
     title: cleanInlineText(value.title, 160),
     url: cleanInlineText(value.url, 500),
     reason: cleanInlineText(value.reason, 240),
+    source_type: sourceType,
+    strength,
   };
 
   return source.title || source.url ? source : null;
@@ -2198,7 +2213,12 @@ function normalizeMarketScanDraft(value: unknown): MarketScanDraft | null {
 function buildMarketScanResultText(scan: MarketScanDraft) {
   const sourceLines =
     scan.sources.length > 0
-      ? scan.sources.map((source) => `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""}`).join("\n")
+      ? scan.sources
+          .map(
+            (source) =>
+              `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}`,
+          )
+          .join("\n")
       : "- 출처 없음";
   const signalLines =
     scan.market_signals.length > 0
@@ -2255,7 +2275,12 @@ function buildMarketScanLearningText(scan: MarketScanDraft) {
 function buildMarketScanEvidenceText(scan: MarketScanDraft) {
   const sourceLines =
     scan.sources.length > 0
-      ? scan.sources.map((source) => `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""}`).join("\n")
+      ? scan.sources
+          .map(
+            (source) =>
+              `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}`,
+          )
+          .join("\n")
       : "- 공개 출처가 부족해 AI 추정 초안으로만 참고";
   const signalLines =
     scan.market_signals.length > 0
@@ -2375,6 +2400,19 @@ function getMarketScanLevelLabel(value: "low" | "medium" | "high") {
   return value === "high" ? "높음" : value === "medium" ? "보통" : "낮음";
 }
 
+const marketScanSourceTypeLabels: Record<MarketScanSource["source_type"], string> = {
+  primary: "직접 출처",
+  secondary: "해석 자료",
+  directory: "목록/디렉터리",
+  news: "뉴스/보도",
+  user_input: "사용자 입력",
+  unknown: "출처 유형 미확인",
+};
+
+function getMarketScanSourceStrengthTone(strength: MarketScanSource["strength"]) {
+  return strength === "high" ? "avl-pill-success" : strength === "medium" ? "avl-pill-warning" : "avl-pill-neutral";
+}
+
 function buildMarketScanArtifactMarkdown({
   idea,
   scan,
@@ -2389,7 +2427,10 @@ function buildMarketScanArtifactMarkdown({
   const sourceLines =
     scan.sources.length > 0
       ? scan.sources
-          .map((source) => `- ${source.title || source.url}${source.url ? `: ${source.url}` : ""}${source.reason ? ` - ${source.reason}` : ""}`)
+          .map(
+            (source) =>
+              `- ${source.title || source.url}${source.url ? `: ${source.url}` : ""} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}${source.reason ? ` - ${source.reason}` : ""}`,
+          )
           .join("\n")
       : "- 공개 출처가 부족해 AI 추정 초안으로 저장";
   const competitorLines =
@@ -14626,11 +14667,26 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   </div>
                 ) : null}
                 <div className="grid gap-2">
-                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">참고 출처</div>
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">참고 출처</div>
+                    <div className="text-xs text-slate-500">
+                      근거 강도 높음{" "}
+                      {visibleMarketScanDraft.sources.filter((source) => source.strength === "high").length}개 / 전체{" "}
+                      {visibleMarketScanDraft.sources.length}개
+                    </div>
+                  </div>
                   {visibleMarketScanDraft.sources.length > 0 ? (
                     <div className="grid gap-2">
                       {visibleMarketScanDraft.sources.map((source, index) => (
                         <div key={`${source.url}-${index}`} className="border border-slate-200 bg-white px-3 py-2 text-xs leading-5">
+                          <div className="mb-1 flex flex-wrap gap-2">
+                            <span className={`avl-pill ${getMarketScanSourceStrengthTone(source.strength)} text-[11px]`}>
+                              근거 강도 {getMarketScanLevelLabel(source.strength)}
+                            </span>
+                            <span className="avl-pill avl-pill-neutral text-[11px]">
+                              {marketScanSourceTypeLabels[source.source_type]}
+                            </span>
+                          </div>
                           {source.url ? (
                             <a href={source.url} target="_blank" rel="noreferrer" className="font-semibold text-slate-950 underline-offset-2 hover:underline">
                               {source.title || source.url}

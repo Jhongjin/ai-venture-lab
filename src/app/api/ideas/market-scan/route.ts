@@ -8,6 +8,7 @@ const MAX_LIST_ITEMS = 8;
 
 type DecisionStatus = "pending" | "research_more" | "ship" | "pivot" | "kill";
 type ConfidenceLevel = "low" | "medium" | "high";
+type SourceType = "primary" | "secondary" | "directory" | "news" | "user_input" | "unknown";
 
 type RequestIdea = {
   name: string;
@@ -27,6 +28,8 @@ type MarketScanSource = {
   title: string;
   url: string;
   reason: string;
+  source_type: SourceType;
+  strength: ConfidenceLevel;
 };
 
 type MarketScanSignal = {
@@ -161,8 +164,10 @@ const marketScanSchema = {
           title: { type: "string" },
           url: { type: "string" },
           reason: { type: "string" },
+          source_type: { type: "string", enum: ["primary", "secondary", "directory", "news", "user_input", "unknown"] },
+          strength: { type: "string", enum: ["low", "medium", "high"] },
         },
-        required: ["title", "url", "reason"],
+        required: ["title", "url", "reason", "source_type", "strength"],
       },
     },
   },
@@ -273,6 +278,17 @@ function normalizeConfidence(value: unknown): ConfidenceLevel {
   return value === "low" || value === "medium" || value === "high" ? value : "low";
 }
 
+function normalizeSourceType(value: unknown): SourceType {
+  return value === "primary" ||
+    value === "secondary" ||
+    value === "directory" ||
+    value === "news" ||
+    value === "user_input" ||
+    value === "unknown"
+    ? value
+    : "unknown";
+}
+
 function toMarketScanSource(value: unknown): MarketScanSource | null {
   if (!isRecord(value)) {
     return null;
@@ -282,6 +298,8 @@ function toMarketScanSource(value: unknown): MarketScanSource | null {
     title: toText(value.title, 160),
     url: toText(value.url, 500),
     reason: toText(value.reason, 240),
+    source_type: normalizeSourceType(value.source_type),
+    strength: normalizeConfidence(value.strength),
   };
 
   return source.title || source.url ? source : null;
@@ -426,6 +444,8 @@ function collectSourcesFromPayload(payload: unknown): MarketScanSource[] {
         title: title || url,
         url,
         reason: "웹 검색에서 참고한 공개 자료입니다.",
+        source_type: "secondary",
+        strength: "medium",
       });
     }
 
@@ -561,6 +581,8 @@ function createFallbackScan({
         title: "사용자 입력 기반 추정",
         url: "",
         reason,
+        source_type: "user_input",
+        strength: "low",
       },
     ],
   };
@@ -657,7 +679,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
             {
               type: "input_text",
               text:
-                "You are a market research assistant for an app venture validation console. Use web search when useful. Write natural Korean. Do not invent precise market share, market size, or saturation numbers. If public sources are weak, say it is an estimate. Compare competitors, substitutes, saturation, and entry barriers according to the requested production surface: web app, mobile app, automation workflow, operator console, or development-tool/MCP handoff. Cover demand forecast, competition, saturation, entry barriers, alternatives, market signals, competitor map, entry-barrier checks, follow-up research queries, recommendation, confidence, next action, caveat, and sources. Keep findings specific enough to become a saved research note for a build-ready product package.",
+                "You are a market research assistant for an app venture validation console. Use web search when useful. Write natural Korean. Do not invent precise market share, market size, or saturation numbers. If public sources are weak, say it is an estimate. Compare competitors, substitutes, saturation, and entry barriers according to the requested production surface: web app, mobile app, automation workflow, operator console, or development-tool/MCP handoff. Cover demand forecast, competition, saturation, entry barriers, alternatives, market signals, competitor map, entry-barrier checks, follow-up research queries, recommendation, confidence, next action, caveat, and sources. For each source, classify source_type as primary, secondary, directory, news, user_input, or unknown, and strength as low, medium, or high based on how directly it supports the finding. Keep findings specific enough to become a saved research note for a build-ready product package.",
             },
           ],
         },
