@@ -4,7 +4,10 @@ const preflightOnly = process.argv.includes("--preflight");
 const baseUrl = process.env.BROWSER_RLS_SMOKE_URL || process.env.RLS_SMOKE_URL;
 const headless = (process.env.BROWSER_RLS_SMOKE_HEADLESS || process.env.RLS_SMOKE_HEADLESS || process.env.BROWSER_SMOKE_HEADLESS) !== "0";
 const timeout = Number.parseInt(process.env.BROWSER_RLS_SMOKE_TIMEOUT_MS || process.env.RLS_SMOKE_TIMEOUT_MS || process.env.BROWSER_SMOKE_TIMEOUT_MS || "45000", 10);
-const expectBlocked = preflightOnly || process.env.BROWSER_RLS_SMOKE_EXPECT_BLOCKED === "1" || process.env.RLS_SMOKE_EXPECT_BLOCKED === "1";
+const expectBlocked = preflightOnly;
+const extractActionPattern = /아이디어 자동 정리|AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/;
+const authEntryLinkPattern = /실행 보드 열기|로그인\s*\/\s*회원가입|로그인하기|로그인/;
+const passwordSignInPattern = /비밀번호로 로그인|^로그인$/;
 
 const fixtures = {
   emailA: process.env.BROWSER_RLS_SMOKE_EMAIL_A || process.env.RLS_SMOKE_USER_A_EMAIL,
@@ -154,63 +157,15 @@ async function hasVisibleText(page, text) {
   }
 }
 
-async function isFirstVisible(locator, waitMs = 1000) {
-  try {
-    return await locator.first().isVisible({ timeout: waitMs });
-  } catch {
-    return false;
-  }
-}
-
-async function openOptionalTaskList(page) {
-  const optionalSummary = page.getByText(/^선택 기능$/);
-
-  if (await isFirstVisible(optionalSummary)) {
-    await optionalSummary.first().click({ timeout: 10000 });
-  }
-}
-
-async function openWorkspaceTask(page) {
-  if (await isFirstVisible(page.getByRole("heading", { name: /협업 공간 상태/ }))) {
-    return;
-  }
-
-  let workspaceNav = page.getByRole("button", { name: /팀 연결/ });
-  if (!(await isFirstVisible(workspaceNav))) {
-    await openOptionalTaskList(page);
-    workspaceNav = page.getByRole("button", { name: /팀 연결/ });
-  }
-
-  await clickFirst(workspaceNav, "workspace navigation");
-  await waitForVisible(page.getByRole("heading", { name: /협업 공간 상태/ }), "workspace panel", 15000);
-}
-
 async function assertHiddenText(page, text, label) {
   if (await hasVisibleText(page, text)) {
     fail(`cross-workspace private data was visible: ${label}`);
   }
 }
 
-async function getWorkspaceOptionLabels(page) {
-  return page.getByLabel(/활성 워크스페이스/).evaluate((select) =>
-    Array.from(select.options).map((option) => option.textContent?.trim() ?? "").filter(Boolean),
-  );
-}
-
-async function assertWorkspaceOptionBoundary(page, expectedWorkspace, deniedWorkspace, actorLabel) {
-  const optionLabels = await getWorkspaceOptionLabels(page);
-
-  if (!optionLabels.includes(expectedWorkspace)) {
-    fail(
-      `${actorLabel} allowed workspace option was not available. Expected "${expectedWorkspace}". Available: ${
-        optionLabels.length > 0 ? optionLabels.join(", ") : "none"
-      }`,
-    );
-  }
-
-  if (optionLabels.includes(deniedWorkspace)) {
-    fail(`${actorLabel} could see denied workspace option "${deniedWorkspace}". Available: ${optionLabels.join(", ")}`);
-  }
+function isExpectedDeniedError(error) {
+  const text = `${error?.message ?? ""} ${error?.details ?? ""} ${error?.hint ?? ""}`.toLowerCase();
+  return text.includes("permission denied") || text.includes("row-level security") || text.includes("jwt");
 }
 
 async function createCheckedContext(browser, label) {
@@ -220,6 +175,8 @@ async function createCheckedContext(browser, label) {
   const page = await context.newPage();
   const consoleErrors = [];
   const pageErrors = [];
+  const organizationNames = new Set();
+  const organizationResponseErrors = [];
 
   page.on("console", (message) => {
     if (message.type() !== "error") {
@@ -234,10 +191,68 @@ async function createCheckedContext(browser, label) {
   page.on("pageerror", (error) => {
     pageErrors.push(error.message);
   });
+  page.on("response", (response) => {
+    const url = response.url();
+
+    if (!url.includes("/rest/v1/organizations")) {
+      return;
+    }
+
+    void response
+      .json()
+      .then((body) => {
+        if (!Array.isArray(body)) {
+          return;
+        }
+
+        body.forEach((row) => {
+          if (row && typeof row.name === "string") {
+            organizationNames.add(row.name);
+          }
+        });
+      })
+      .catch((error) => {
+        if (!isExpectedDeniedError(error)) {
+          organizationResponseErrors.push(error instanceof Error ? error.message : String(error));
+        }
+      });
+  });
 
   return {
     context,
     page,
+    async assertWorkspaceBoundary(expectedWorkspace, deniedWorkspace, actorLabel, waitMs = 20000) {
+      const deadline = Date.now() + waitMs;
+
+      while (Date.now() < deadline) {
+        const names = Array.from(organizationNames);
+
+        if (names.includes(deniedWorkspace)) {
+          fail(`${actorLabel} could read denied workspace "${deniedWorkspace}". Available: ${names.join(", ")}`);
+        }
+
+        if (names.includes(expectedWorkspace)) {
+          return;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+
+      const names = Array.from(organizationNames);
+      fail(
+        `${actorLabel} could not read allowed workspace "${expectedWorkspace}". Available: ${
+          names.length > 0 ? names.join(", ") : "none"
+        }`,
+      );
+    },
+    assertNoWorkspaceLeak(deniedWorkspaces, actorLabel) {
+      const names = Array.from(organizationNames);
+      const leaked = deniedWorkspaces.filter((workspace) => names.includes(workspace));
+
+      if (leaked.length > 0) {
+        fail(`${actorLabel} could read denied workspace names: ${leaked.join(", ")}`);
+      }
+    },
     async assertClean() {
       if (pageErrors.length > 0) {
         fail(`${label} page errors: ${pageErrors.join(" | ")}`);
@@ -245,6 +260,10 @@ async function createCheckedContext(browser, label) {
 
       if (consoleErrors.length > 0) {
         fail(`${label} console errors: ${consoleErrors.join(" | ")}`);
+      }
+
+      if (organizationResponseErrors.length > 0) {
+        fail(`${label} organization response errors: ${organizationResponseErrors.join(" | ")}`);
       }
     },
   };
@@ -262,23 +281,35 @@ async function openWorkspace(page) {
   );
 
   if (!page.url().includes("/workspace")) {
-    await clickFirst(page.getByRole("link", { name: /실행 보드 열기/ }), "workspace cta");
+    await clickFirst(page.getByRole("link", { name: authEntryLinkPattern }), "auth or workspace cta");
   }
 
-  await waitForVisible(page.getByRole("heading", { name: /실행 보드/ }), "workspace heading");
+  await waitForAnyVisible(
+    [
+      { name: "workspace heading", locator: page.getByRole("heading", { name: /실행 보드/ }) },
+      { name: "login heading", locator: page.getByRole("heading", { name: /^로그인$/ }) },
+      { name: "password sign-in", locator: page.getByRole("button", { name: passwordSignInPattern }) },
+    ],
+    "auth or workspace entry",
+    20000,
+  );
 }
 
-async function loginAndCheck(page, credentials, expectedWorkspace, deniedWorkspace, actorLabel) {
+async function loginAndCheck(session, credentials, expectedWorkspace, deniedWorkspace, actorLabel) {
+  const { page } = session;
+
   await openWorkspace(page);
   await fillFirst(page.getByLabel(/이메일/), credentials.email, `${actorLabel} email input`);
   await fillFirst(page.getByLabel(/비밀번호/), credentials.password, `${actorLabel} password input`);
-  await clickFirst(page.getByRole("button", { name: /비밀번호로 로그인/ }), `${actorLabel} password sign-in button`);
+  await clickFirst(page.getByRole("button", { name: passwordSignInPattern }), `${actorLabel} password sign-in button`);
 
   await waitForAnyVisible(
     [
       { name: "signed-in state", locator: page.getByText(/로그인됨/) },
       { name: "login success message", locator: page.getByText(/로그인되었습니다/) },
-      { name: "extract action", locator: page.getByRole("button", { name: /AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/ }) },
+      { name: "workspace heading", locator: page.getByRole("heading", { name: /실행 보드/ }) },
+      { name: "score heading", locator: page.getByRole("heading", { name: /사업성 평가|후보 선택/ }) },
+      { name: "extract action", locator: page.getByRole("button", { name: extractActionPattern }) },
     ],
     `${actorLabel} post-login state`,
     25000,
@@ -287,15 +318,14 @@ async function loginAndCheck(page, credentials, expectedWorkspace, deniedWorkspa
   await waitForAnyVisible(
     [
       { name: "active", locator: page.getByLabel(/활성 워크스페이스/) },
-      { name: "extract-ready", locator: page.getByRole("button", { name: /AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/ }) },
+      { name: "extract-ready", locator: page.getByRole("button", { name: extractActionPattern }) },
+      { name: "score-ready", locator: page.getByRole("heading", { name: /사업성 평가|후보 선택/ }) },
     ],
     `${actorLabel} authenticated workspace state`,
     20000,
   );
 
-  await openWorkspaceTask(page);
-  await waitForVisible(page.getByLabel(/활성 워크스페이스/), `${actorLabel} active workspace selector`, 20000);
-  await assertWorkspaceOptionBoundary(page, expectedWorkspace, deniedWorkspace, actorLabel);
+  await session.assertWorkspaceBoundary(expectedWorkspace, deniedWorkspace, actorLabel);
 }
 
 async function main() {
@@ -311,19 +341,20 @@ async function main() {
     await waitForAnyVisible(
       [
         { name: "login required", locator: anonymous.page.getByText(/워크스페이스 멤버십을 불러오려면 로그인하세요/) },
-        { name: "login form", locator: anonymous.page.getByRole("button", { name: /비밀번호로 로그인/ }) },
+        { name: "login form", locator: anonymous.page.getByRole("button", { name: passwordSignInPattern }) },
       ],
       "anonymous private-read denied state",
       15000,
     );
     await assertHiddenText(anonymous.page, fixtures.workspaceA, "anonymous denied workspace A");
     await assertHiddenText(anonymous.page, fixtures.workspaceB, "anonymous denied workspace B");
+    anonymous.assertNoWorkspaceLeak([fixtures.workspaceA, fixtures.workspaceB], "anonymous");
     await anonymous.assertClean();
     await anonymous.context.close();
 
     const actorA = await createCheckedContext(browser, "disposable account A");
     await loginAndCheck(
-      actorA.page,
+      actorA,
       { email: fixtures.emailA, password: fixtures.passwordA },
       fixtures.workspaceA,
       fixtures.workspaceB,
@@ -334,7 +365,7 @@ async function main() {
 
     const actorB = await createCheckedContext(browser, "disposable account B");
     await loginAndCheck(
-      actorB.page,
+      actorB,
       { email: fixtures.emailB, password: fixtures.passwordB },
       fixtures.workspaceB,
       fixtures.workspaceA,
