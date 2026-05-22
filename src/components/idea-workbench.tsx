@@ -9532,6 +9532,84 @@ export function IdeaWorkbench({
     );
   }
 
+  const activeTaskMeta = workbenchTasks.find((task) => task.id === activeTask) ?? workbenchTasks[0];
+  const selectedIdeaProgress = getIdeaProgress(selectedIdea);
+  const operatorFocus = (() => {
+    if (isDiscardedIdea(selectedIdea)) {
+      return {
+        title: "삭제한 아이디어는 필요할 때만 복구하거나 완전히 삭제하세요.",
+        detail: "진행 흐름으로 돌아가려면 검토 중인 아이디어를 다시 선택하면 됩니다.",
+      };
+    }
+
+    switch (activeTask) {
+      case "select":
+        return {
+          title: "오늘 이어갈 아이디어 한 건만 고르면 됩니다.",
+          detail: "선택한 아이디어의 저장된 단계가 열리고, AI가 다음 판단 자료를 이어서 준비합니다.",
+        };
+      case "score":
+        return {
+          title: isScoreEvaluationSaved
+            ? "사업성 평가가 저장됐습니다. 하단 다음 단계 버튼으로 검증 계획을 이어가세요."
+            : "AI가 채운 사업성 평가와 제작 형태만 확인한 뒤 저장하세요.",
+          detail: "점수는 참고값입니다. 사용자는 맞는지 확인하고 저장하면 다음 단계가 열립니다.",
+        };
+      case "risk":
+        return {
+          title: "막힐 수 있는 위험 하나와 대응 방향만 확인하세요.",
+          detail: "긴 위험 목록보다 높은 위험과 완화 조건이 다음 제작 판단에 더 중요합니다.",
+        };
+      case "decision":
+        return {
+          title: "진행, 추가 조사, 전환, 중단 중 지금 판단을 한 번만 남기세요.",
+          detail: "보조 버튼은 근거를 채울 뿐이고, 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.",
+        };
+      case "experiment":
+        return {
+          title: hasMarketScanArtifact
+            ? "시장·경쟁 점검이 저장됐습니다. 직접 확인한 결과가 없으면 다음 단계로 넘어가도 됩니다."
+            : "AI가 시장·경쟁 점검을 먼저 정리합니다. 사용자는 결과만 확인하세요.",
+          detail: "수동 결과 기록은 선택 사항입니다. 실제 인터뷰나 테스트 결과가 있을 때만 열면 됩니다.",
+        };
+      case "artifacts":
+        return {
+          title: isValidationBundleSaved
+            ? "검증 자료가 저장됐습니다. 하단 다음 단계 버튼으로 제작 패키지를 이어가세요."
+            : "AI가 만든 검증 자료를 한 번에 저장하세요.",
+          detail: "아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 같은 기준으로 묶습니다.",
+        };
+      case "development":
+        return {
+          title: hasSavedDevelopmentAutoPackage
+            ? "제작 패키지가 저장됐습니다. 하단 다음 단계 버튼으로 작업 순서를 확인하세요."
+            : "AI 제작 패키지 만들기를 누르고 최종 요약만 확인하세요.",
+          detail: "디자인 기준, 제작 실행 계획, 외부 제작 도구 전달 자료가 한 번에 저장됩니다.",
+        };
+      case "orchestration":
+        return {
+          title: "저장된 제작 패키지를 기준으로 작업 순서를 확인하세요.",
+          detail: "전략, 기획, 디자인, 제작, 품질, 출시 흐름이 같은 아이디어 기준으로 이어집니다.",
+        };
+      case "launch":
+        return {
+          title: "출시 판단은 준비도와 남은 차단 항목만 확인하면 됩니다.",
+          detail: "검증, 제작 자료, 구현 증거, 배포/롤백 기준이 부족하면 공개 출시 대신 보완으로 남깁니다.",
+        };
+      case "learning":
+        return {
+          title: "출시 후에는 실제 사용 신호로 다음 결정을 정리하세요.",
+          detail: "방문, 가입, 핵심 행동, 활성화, 결제 신호를 보고 다음 개선 또는 중단 판단을 남깁니다.",
+        };
+      case "archive":
+      default:
+        return {
+          title: "삭제한 아이디어는 복구하거나 완전히 삭제할 때만 확인하세요.",
+          detail: "현재 진행에는 영향을 주지 않으니 필요한 항목만 처리하면 됩니다.",
+        };
+    }
+  })();
+
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -11300,6 +11378,21 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
       ) : null}
 
       <div className="grid min-w-0 gap-6">
+        <div className="border border-blue-100 bg-blue-50 p-4 text-slate-950">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <div className="text-[11px] font-semibold tracking-[0.16em] text-blue-700">지금 할 일</div>
+              <h2 className="mt-2 text-base font-semibold text-slate-950">{operatorFocus.title}</h2>
+              <p className="mt-1 text-sm leading-6 text-slate-700">{operatorFocus.detail}</p>
+            </div>
+            <div className="flex flex-wrap gap-2 lg:justify-end">
+              <span className="avl-pill avl-pill-info">{activeTaskMeta.label}</span>
+              <span className="avl-pill avl-pill-neutral">{selectedIdeaProgress.label}</span>
+              <span className="avl-pill avl-pill-neutral">{activeProductSurface.label}</span>
+            </div>
+          </div>
+        </div>
+
         <div
           className={`grid gap-5 ${
             activeTask === "select" ? "" : "hidden"
