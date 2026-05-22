@@ -48,6 +48,10 @@ Validation keywords: `public_client_boundary`, `server_only_secret_boundary`, `s
 
 Validation keywords: `authenticated_visibility_smoke`, `rls_allowed_denied_smoke`, `browser_smoke_allow_write_explicit`, `browser_smoke_allow_workspace_create_explicit`, `write_smoke_requires_explicit_approval`, `telemetry_smoke_local_secret_only`, `telemetry_smoke_disposable_idea_only`, `build_relay_env_manifest_valuesIncluded_false`.
 
+Post-cleanup note, 2026-05-22: the operator-approved test account cleanup removed the prior disposable RLS fixture pair and retained only the primary operator account/workspace. Until a fresh disposable pair is created, `pnpm smoke:browser:rls` full execution is intentionally blocked; use read-only production, route, anonymous browser, authenticated visibility, and market scan smoke for the primary operator boundary. Do not run write smoke against the primary operator account.
+
+Validation keywords: `post_cleanup_primary_operator_boundary`, `rls_fixture_reprovision_required`, `primary_operator_write_smoke_forbidden`.
+
 If a telemetry secret is pasted into chat, a document, logs, screenshots, or any surface outside the local terminal/trusted server environment, treat the value as disclosed. Rotate `TELEMETRY_INGEST_SECRET` in Vercel Production and every external runtime that uses it, then rerun telemetry smoke with the rotated value before closing beta readiness evidence.
 
 Validation keywords: `telemetry_secret_disclosure_requires_rotation`, `telemetry_smoke_rerun_after_rotation`.
@@ -96,7 +100,7 @@ RLS is the authorization boundary for Supabase browser access.
 
 - Anonymous smoke can confirm public shell behavior and private empty states.
 - Authenticated visibility smoke confirms the signed-in session can reach the workspace surface.
-- Current allowed and denied RLS evidence has passed with disposable account/workspace fixtures and summary-only evidence.
+- Current allowed and denied RLS evidence passed with disposable account/workspace fixtures and summary-only evidence before the 2026-05-22 cleanup. Rerun requires a newly provisioned disposable fixture pair.
 - Cross-workspace or second-user denied checks must be rerun before treating changed private reads/writes as beta-ready after RLS policy, fixture, migration, or workspace access changes.
 - Service-role access is server-only and must not be used to bypass beta smoke from a browser or external handoff.
 - Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md` before any cross-workspace, second-account, or denied-case smoke. The WQ-040 runner `pnpm smoke:browser:rls` must fail closed or report blocked when disposable fixtures are missing; no account provisioning, DB/Auth mutation, write smoke, screenshots, or secret output.

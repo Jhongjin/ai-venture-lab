@@ -32,12 +32,36 @@ Every smoke surface needs a row before broader beta. A missing row is unresolved
 
 | Smoke surface | Cleanup status | Cleanup owner | Notes |
 | --- | --- | --- | --- |
-| Authenticated write smoke workspace/idea | `retained_for_rerun` | Operator | Keep as disposable beta fixture until no longer useful. The 2026-05-22 approved rerun created a smoke-prefixed disposable idea/package with summary-only evidence and no credentials, raw payloads, or screenshots recorded. |
-| RLS fixture pair | `retained_for_rerun` | Operator | Keep only while synthetic and reserved for RLS reruns. The 2026-05-22 approved rerun used the retained disposable pair with no writes, telemetry, screenshots, credentials, or raw payloads recorded. |
+| Authenticated write smoke workspace/idea | `completed_cleanup` | Operator | The 2026-05-22 operator-approved cleanup removed non-primary test account data and retained only the primary operator workspace. Summary-only evidence recorded; no credentials, raw payloads, screenshots, or row payloads recorded. |
+| RLS fixture pair | `completed_cleanup` | Operator | The 2026-05-22 operator-approved cleanup removed the prior disposable RLS Auth/workspace pair. Future `pnpm smoke:browser:rls` full runs are blocked until a fresh two-account/two-workspace disposable fixture pair is created. |
 | Telemetry smoke events | `not_applicable` | Operator | Disposable smoke payloads were used; keep summary evidence only. The 2026-05-22 approved ingest and funnel rerun passed with no credentials, raw payloads, or event ids recorded in docs. |
 | Screenshot artifacts | `not_applicable` | Operator | Use `completed_cleanup` if any local sensitive screenshots were created and deleted. |
 
 Validation keywords: `smoke_cleanup_evidence_recorded`, `missing_cleanup_row_blocks_beta`, `cleanup_status_closed_for_controlled_beta`, `cleanup_disposition_closed`.
+
+## Cleanup Result
+
+2026-05-22 operator-approved cleanup result:
+
+```text
+Cleanup class: smoke_data_cleanup
+Target surface: auth_write_smoke | rls_fixture_pair | non_primary_test_account_data
+Cleanup status: completed_cleanup
+Cleanup owner: Operator
+Secrets printed: no
+Raw private payloads recorded: no
+Screenshots stored in git: no
+Skipped cleanup: primary operator account and primary operator workspace
+Reason: The operator confirmed the primary account boundary and approved removal of all other test accounts and their linked data.
+```
+
+Post-cleanup smoke posture:
+
+- Read-only production, route, anonymous browser, authenticated visibility, and market scan smoke may run with the primary operator boundary when no writes are enabled.
+- Full RLS allowed/denied browser smoke requires a new disposable two-account/two-workspace pair before rerun.
+- Authenticated write smoke remains disabled unless the operator explicitly provisions disposable write data for that exact run.
+
+Validation keywords: `operator_cleanup_completed`, `primary_operator_workspace_retained`, `rls_fixture_removed_requires_reprovision`, `summary_only_cleanup_result`.
 
 ## Cleanup Decision
 
