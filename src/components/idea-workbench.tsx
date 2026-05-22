@@ -2585,6 +2585,20 @@ ${scan.caveat}
 `;
 }
 
+function isMarketScanArtifactRecord(artifact: VentureArtifact) {
+  return artifact.source === "market_scan" || (artifact.title || "").includes("시장·경쟁 자동 조사");
+}
+
+function isMarketScanArtifactForProductSurface(artifact: VentureArtifact, productSurfaceLabel: string) {
+  const body = artifact.body || "";
+
+  return (
+    body.includes(`## 제작 형태\n\n${productSurfaceLabel}`) ||
+    body.includes(`제작 형태: ${productSurfaceLabel}`) ||
+    body.includes(`권장 제작 형태: ${productSurfaceLabel}`)
+  );
+}
+
 function buildValidationSummaryMarkdown({
   idea,
   state,
@@ -8697,9 +8711,12 @@ export function IdeaWorkbench({
       (artifact.title || "").includes("아이디어 요약"),
   );
   const hasResearchNoteArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note");
-  const hasMarketScanArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.source === "market_scan" || (artifact.title || "").includes("시장·경쟁 자동 조사"),
+  const marketScanArtifacts = selectedArtifactRecords.filter(isMarketScanArtifactRecord);
+  const currentMarketScanArtifact = marketScanArtifacts.find((artifact) =>
+    isMarketScanArtifactForProductSurface(artifact, activeProductSurface.label),
   );
+  const hasMarketScanArtifact = Boolean(currentMarketScanArtifact);
+  const hasOutdatedMarketScanArtifact = marketScanArtifacts.length > 0 && !hasMarketScanArtifact;
   const marketScanContextKey =
     selectedIdea && editState
       ? `${selectedIdea.id}:${editState.product_surface ?? selectedIdea.product_surface ?? "undecided"}`
@@ -8724,6 +8741,12 @@ export function IdeaWorkbench({
             tone: "avl-pill avl-pill-warning",
             detail: "자동 점검 초안이 준비됐습니다. 필요한 부분만 보완하면 됩니다.",
           }
+        : hasOutdatedMarketScanArtifact
+          ? {
+              label: "다시 정리 필요",
+              tone: "avl-pill avl-pill-warning",
+              detail: "제작 형태가 바뀌어서 현재 기준의 시장·경쟁 점검을 다시 저장해야 합니다.",
+            }
         : {
             label: "자동 대기",
             tone: "avl-pill avl-pill-neutral",
@@ -8731,7 +8754,9 @@ export function IdeaWorkbench({
           };
   const marketScanActionLabel = isMarketScanLoading
     ? "정리 중"
-    : hasMarketScanArtifact || visibleMarketScanDraft
+    : hasOutdatedMarketScanArtifact
+      ? "현재 제작 형태로 다시 정리"
+      : hasMarketScanArtifact || visibleMarketScanDraft
       ? "다시 정리"
       : "자동 점검 다시 실행";
   const hasResearchBriefArtifact = selectedArtifactRecords.some(
@@ -9785,6 +9810,8 @@ export function IdeaWorkbench({
         return {
           title: hasMarketScanArtifact
             ? "검증 계획과 시장·경쟁 점검이 저장됐습니다. 하단 다음 단계 버튼으로 이어가세요."
+            : hasOutdatedMarketScanArtifact
+              ? "제작 형태가 바뀌었습니다. AI가 현재 기준으로 시장·경쟁 점검을 다시 정리합니다."
             : "AI가 시장·경쟁 점검을 먼저 정리합니다. 사용자는 결과만 확인하세요.",
           detail: "다음 단계는 검증 계획과 AI 조사 노트가 저장된 뒤에만 열립니다. 수동 결과 기록은 실제 인터뷰나 테스트 결과가 있을 때만 열면 됩니다.",
         };
@@ -14908,6 +14935,13 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             {hasMarketScanArtifact && !visibleMarketScanDraft && !isMarketScanLoading ? (
               <div className="mt-4 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-900">
                 시장·경쟁 점검이 이미 저장되어 있습니다. 새로 확인할 내용이 없다면 하단 다음 단계 버튼으로 제작 자료를 이어가면 됩니다.
+              </div>
+            ) : null}
+
+            {hasOutdatedMarketScanArtifact && !visibleMarketScanDraft && !isMarketScanLoading ? (
+              <div className="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+                이전 제작 형태로 저장된 시장·경쟁 점검이 있습니다. 현재 제작 형태인 {activeProductSurface.label} 기준으로
+                다시 정리한 뒤 다음 단계가 열립니다.
               </div>
             ) : null}
 
