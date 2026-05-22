@@ -4,6 +4,7 @@ Use this file for durable product, architecture, and operating decisions.
 
 | Date | Decision | Reason | Revisit When |
 | --- | --- | --- | --- |
+| 2026-05-22 | Show the first-build bridge inside the STEP 5 summary | The final production package is more useful when the operator can see first build order, stack direction, and excluded scope before saving, without opening deeper documents or adding more buttons | STEP 5 gets a separate technical review mode or user testing shows the summary is too dense |
 | 2026-05-22 | Give market scan smoke a 180 second default timeout | The production web-search research path has repeatedly returned valid `openai_web` results after the previous 90 second smoke limit, so the smoke should reflect realistic latency instead of failing a healthy API | The market scan API gets streaming/progress states or consistently finishes under a lower threshold |
 | 2026-05-22 | Keep first-run examples behind an optional reveal | The first idea screen should show one primary execution action and a concrete input example without making sample generation look like the main path | User testing shows first-time operators still need a more guided sample picker |
 | 2026-05-22 | Keep production-package language product-facing by default | STEP 5 may still generate structured materials for external builders, but the operator should see 제작 패키지, 제작 자료, 제작 지시, and 제작 도구 language instead of internal harness, prompt, IDE, or MCP-first terms | A dedicated technical export view separates operator copy from tool-specific connector metadata |

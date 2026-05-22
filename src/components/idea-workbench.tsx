@@ -9393,6 +9393,29 @@ export function IdeaWorkbench({
         ].join(" "),
     },
   ];
+  const developmentAutoBuildBridgeCards = [
+    {
+      label: "첫 제작 순서",
+      items:
+        firstBuildBridge?.firstTasks.slice(0, 3) ??
+        ["첫 화면에서 사용자가 입력할 한 가지 행동을 만든다", "저장과 조회를 연결한다", "성공/실패 상태를 확인한다"],
+    },
+    {
+      label: "기술 스택 후보",
+      items: [
+        firstBuildBridge?.stackTitle || backendCandidateScores[0]?.label || "Next.js + Supabase",
+        firstBuildBridge?.stackReason ||
+          activeProductSurface.stackHint ||
+          "인증, 저장, 권한 경계를 빠르게 붙이고 첫 제작 범위를 작게 시작합니다.",
+      ],
+    },
+    {
+      label: "이번엔 뺄 것",
+      items:
+        firstBuildBridge?.excludeNow.slice(0, 3) ??
+        ["결제, 관리자 고급 기능, 자동화 전체 흐름", "여러 사용자군과 여러 가격 모델 동시 검증", "검증 목표와 관계없는 부가 기능"],
+    },
+  ];
   const developmentAutoOutputItems = [
     {
       label: "디자인 기준",
@@ -12382,6 +12405,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                             <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{card.label}</div>
                             <div className="mt-2 text-sm font-semibold text-slate-950">{card.value}</div>
                             <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                        {developmentAutoBuildBridgeCards.map((card) => (
+                          <div key={card.label} className="border border-slate-200 bg-white p-3">
+                            <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{card.label}</div>
+                            <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700">
+                              {card.items.map((item) => (
+                                <li key={item} className="border-l border-slate-200 pl-3">
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
                           </div>
                         ))}
                       </div>
