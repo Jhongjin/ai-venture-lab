@@ -485,8 +485,8 @@ function getNextTaskOptions({
           "workbench:launch",
           "다음: 최종 실행",
           canEnterLaunch
-            ? "모든 준비 항목이 통과했습니다. 이제 선택한 제작 방식으로 넘깁니다."
-            : "작업 완료, QA, 보안, 승인 항목이 모두 통과하면 활성화됩니다.",
+            ? "작업 순서와 제작 패키지가 준비되었습니다. 이제 선택한 제작 방식으로 넘깁니다."
+            : "제작 패키지를 저장하고 작업 순서를 만들면 활성화됩니다.",
           "primary",
           !canEnterLaunch,
         ),
@@ -659,6 +659,32 @@ function getExecutiveFocus({
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:orchestration",
       cta: "작업 순서 확인",
+      metrics,
+    };
+  }
+
+  if (activeTask === "workbench:orchestration") {
+    return {
+      eyebrow: "지금 할 일",
+      title: "작업 순서를 확인하고 최종 실행으로 넘기세요.",
+      detail: "작업 순서와 제작 패키지가 준비되어 있으면 외부 제작 도구 연결 또는 내부 개발 시작 화면으로 넘어갈 수 있습니다.",
+      evidence: `${dataNote} · 실행 기록 ${runCount}건`,
+      risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
+      targetTask: "workbench:launch",
+      cta: "최종 실행",
+      metrics,
+    };
+  }
+
+  if (activeTask === "workbench:launch") {
+    return {
+      eyebrow: "지금 할 일",
+      title: "선택한 제작 방식으로 넘길 차례입니다.",
+      detail: "외부 제작 도구를 선택했다면 패키지와 지시문을 받고, 내부 진행을 선택했다면 내부 개발 시작점으로 넘깁니다.",
+      evidence: `${dataNote} · 실행 기록 ${runCount}건`,
+      risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
+      targetTask: "workbench:launch",
+      cta: "최종 실행",
       metrics,
     };
   }

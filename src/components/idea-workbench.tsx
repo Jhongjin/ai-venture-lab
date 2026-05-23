@@ -9556,109 +9556,36 @@ export function IdeaWorkbench({
         agentRunPackageDraft,
       ].join("\n")
     : "";
+  const hasFinalExecutionPackage =
+    canEnterOrchestrationFromDevelopmentDocs ||
+    hasAgentRunPackageArtifact ||
+    hasDevelopmentHandoffPackageArtifact ||
+    hasManualDevelopmentPackageFallback;
+  const hasFinalExecutionWorkOrder =
+    selectedRuns.length > 0 || selectedImplementationTasks.length > 0 || hasDevelopmentPlanArtifact;
   const launchReadiness = selectedIdea && editState
     ? [
         {
-          label: "기본 증거 완료",
-          passed: missing.length === 0,
-          detail: missing.length === 0 ? "필수 증거 공백이 없습니다." : missing.join(", "),
+          label: "제작 패키지 저장",
+          passed: hasFinalExecutionPackage,
+          detail: hasFinalExecutionPackage
+            ? "최종 실행에서 쓸 제작 패키지가 저장되어 있습니다."
+            : "STEP 5에서 제작 패키지를 저장하세요.",
         },
         {
-          label: "조사 요약 저장",
-          passed: hasResearchNoteArtifact,
-          detail: hasResearchNoteArtifact
-            ? "인터뷰, 경쟁/대안, 가격, 규제 체크가 문서화되어 있습니다."
-            : "제작 자료 단계에서 조사 요약을 저장하세요.",
+          label: "작업 순서 준비",
+          passed: hasFinalExecutionWorkOrder,
+          detail: hasFinalExecutionWorkOrder
+            ? `작업 순서 ${selectedRuns.length}개, 제작 할 일 ${selectedImplementationTasks.length}개가 준비되어 있습니다.`
+            : "작업 순서 자동 만들기를 눌러 제작자가 볼 순서를 준비하세요.",
         },
         {
-          label: "검증 완료 요약 저장",
-          passed: hasValidationSummaryArtifact,
-          detail: hasValidationSummaryArtifact
-            ? "기획서로 넘어가기 전 검증 메모가 저장되어 있습니다."
-            : "검증 자료에서 완료 요약을 저장하세요.",
-        },
-        {
-          label: "제품 기획서 승인",
-          passed: selectedArtifactRecords.some(
-            (artifact) => artifact.artifact_type === "prd" && artifact.status === "approved",
-          ),
-          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "prd")
-            ? "초안은 저장되어 있고 승인이 필요합니다."
-            : "제품 기획서가 필요합니다.",
-        },
-        {
-          label: "첫 제작 범위 승인",
-          passed: selectedArtifactRecords.some(
-            (artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved",
-          ),
-          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "mvp_spec")
-            ? "초안은 저장되어 있고 승인이 필요합니다."
-            : "첫 제작 범위 정의가 필요합니다.",
-        },
-        {
-          label: "백엔드 결정 저장",
-          passed: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "backend_decision"),
-          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "backend_decision")
-            ? "백엔드 선택 근거가 기록되어 있습니다."
-            : "Supabase/Firebase 선택 근거가 필요합니다.",
-        },
-        {
-          label: "디자인 기준 승인",
-          passed: selectedArtifactRecords.some(
-            (artifact) => artifact.artifact_type === "design_brief" && artifact.status === "approved",
-          ),
-          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "design_brief")
-            ? "초안은 저장되어 있고 승인이 필요합니다."
-            : "핵심 여정과 화면 상태를 디자인 기준으로 고정하세요.",
-        },
-        {
-          label: "기술 명세 승인",
-          passed: selectedArtifactRecords.some(
-            (artifact) => artifact.artifact_type === "tech_spec" && artifact.status === "approved",
-          ),
-          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "tech_spec")
-            ? "초안은 저장되어 있고 승인이 필요합니다."
-            : "데이터 모델, 권한, 검증 명령이 담긴 기술 명세가 필요합니다.",
-        },
-        {
-          label: "제작 실행 계획 저장",
-          passed: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "dev_runbook"),
-          detail: selectedArtifactRecords.some((artifact) => artifact.artifact_type === "dev_runbook")
-            ? "제작 실행 순서와 확인 기준이 기록되어 있습니다."
-            : "제작 준비 과정에서 제작 실행 계획을 저장하세요.",
-        },
-        {
-          label: "제작 할 일 완료",
-          passed: implementationGateChecks.every((check) => check.passed),
+          label: "제작 방식 확정",
+          passed: Boolean(buildDeliveryMode && activeBuildDeliveryLabel),
           detail:
-            selectedImplementationTasks.length > 0
-              ? `제작 완료 점검 ${passedImplementationGateCount}/${implementationGateChecks.length}개 통과`
-              : "제작 준비 과정에서 기본 실행 할 일을 생성하세요.",
-        },
-        {
-          label: "실험 계획",
-          passed: selectedExperiments.length > 0,
-          detail: selectedExperiments[0]?.success_metric || "성공 지표가 필요합니다.",
-        },
-        {
-          label: "QA 점검",
-          passed: selectedRuns.some((run) => run.phase === "qa" && run.status === "done"),
-          detail: "QA 단계가 완료 상태여야 합니다.",
-        },
-        {
-          label: "보안 점검",
-          passed: selectedRuns.some((run) => run.phase === "security" && run.status === "done"),
-          detail: "보안 단계가 완료 상태여야 합니다.",
-        },
-        {
-          label: "높은 리스크 정리",
-          passed: selectedIdeaRisks.every((risk) => !["high", "critical"].includes(risk.severity) || risk.status === "closed"),
-          detail: "높음/매우 높은 리스크는 종료 또는 수용 판단이 필요합니다.",
-        },
-        {
-          label: "최종 판단 기록",
-          passed: editState.decision !== "pending" && selectedDecisions.length > 0,
-          detail: `${decisionLabels[editState.decision]} / 기록 ${selectedDecisions.length}개`,
+            buildDeliveryMode === "external_tool"
+              ? `${activeExternalBuildTool.label}로 넘길 준비 자료를 보여줍니다.`
+              : "Venture Lab 내부 개발로 이어질 준비 자료를 보여줍니다.",
         },
       ]
     : [];
@@ -10010,7 +9937,7 @@ export function IdeaWorkbench({
             ? "외부 제작 도구를 선택했다면 패키지와 지시문을 받고, 내부 진행을 선택했다면 내부 개발 도구로 이어갑니다."
             : nextLaunchBlocker
               ? `${nextLaunchBlocker.label}: ${nextLaunchBlocker.detail}`
-              : "검증, 제작 자료, 작업 순서, QA와 보안이 모두 통과해야 합니다.",
+              : "제작 패키지와 작업 순서를 먼저 준비해야 합니다.",
         };
       case "learning":
         return {
@@ -14005,7 +13932,7 @@ export function IdeaWorkbench({
                   {nextLaunchBlocker?.label ?? "준비 항목 확인"}
                 </div>
                 <p className="mt-1 text-sm leading-6 text-slate-700">
-                  {nextLaunchBlocker?.detail ?? "검증, 제작 자료, 작업 순서, QA와 보안이 모두 통과해야 합니다."}
+                  {nextLaunchBlocker?.detail ?? "제작 패키지와 작업 순서를 먼저 준비해야 합니다."}
                 </p>
               </div>
             </div>
@@ -14014,8 +13941,8 @@ export function IdeaWorkbench({
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="border border-emerald-200 bg-emerald-50 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">준비 상태</div>
-                  <div className="mt-2 text-base font-semibold text-slate-950">모든 준비 완료</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-700">검증, 제작 자료, 작업 순서, QA와 보안이 통과했습니다.</p>
+                  <div className="mt-2 text-base font-semibold text-slate-950">실행 준비 완료</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-700">제작 패키지와 작업 순서가 준비되어 선택한 제작 방식으로 넘길 수 있습니다.</p>
                 </div>
                 <div className="border border-slate-200 bg-white p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">결과물 형태</div>
