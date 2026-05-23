@@ -104,7 +104,12 @@ export default function HomePage() {
   return (
     <main id="main-content" data-smoke="landing-command-deck" className="min-h-screen bg-[#F7F7F7] text-[#0D0D0D]">
       <section className="relative isolate overflow-hidden bg-[#05070C] text-white">
-        <div aria-hidden="true" className="absolute inset-0 opacity-60 sm:opacity-80 [&>*]:h-full [&>*]:w-full">
+        <div aria-hidden="true" className="absolute inset-y-0 right-0 hidden w-[60vw] min-w-[760px] opacity-95 lg:block">
+          <div className="h-full translate-x-[4%] [&>*]:h-full [&>*]:w-full">
+            <VentureHeroMotion />
+          </div>
+        </div>
+        <div aria-hidden="true" className="absolute inset-0 opacity-50 sm:opacity-65 lg:hidden [&>*]:h-full [&>*]:w-full">
           <VentureHeroMotion />
         </div>
         <div
@@ -113,7 +118,7 @@ export default function HomePage() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,12,0.94)_0%,rgba(5,7,12,0.8)_42%,rgba(5,7,12,0.34)_68%,rgba(5,7,12,0.82)_100%)]"
+          className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,12,0.98)_0%,rgba(5,7,12,0.9)_42%,rgba(5,7,12,0.28)_66%,rgba(5,7,12,0.05)_100%)]"
         />
         <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:56px_56px]" />
         <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-[#F7F7F7]" />
@@ -178,13 +183,6 @@ export default function HomePage() {
             <p className="mt-5 max-w-[54ch] break-keep text-base leading-7 text-[#5E5E5E]">
               메모만 넣으면 AI가 사업성, 리스크, 시장성, 검증 계획, 제작 자료를 먼저 정리합니다. 사용자는 중요한 판단만 확인하고 저장합니다.
             </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <AuthAwareCta className="avl-btn h-11 border border-[#0D0D0D] bg-[#0D0D0D] px-5 text-sm text-white hover:bg-[#252525]" />
-              <a href="#flow" className="avl-btn h-11 border border-[#D6D6D6] bg-white px-5 text-sm text-[#0D0D0D] hover:bg-[#F4F4F4]">
-                흐름 보기
-              </a>
-            </div>
 
             <dl className="mt-9 grid max-w-[520px] grid-cols-3 border-y border-[#E5E5E5] text-sm">
               {[
@@ -340,7 +338,6 @@ export default function HomePage() {
               Cursor, Codex, Claude Code 같은 외부 개발 도구가 읽을 수 있도록 판단 근거와 작업 순서를 함께 묶습니다.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <AuthAwareCta className="avl-btn h-11 border border-[#0D0D0D] bg-[#0D0D0D] px-5 text-sm text-white hover:bg-[#252525]" />
               <Link href="/guide" className="avl-btn h-11 border border-[#D6D6D6] bg-white px-5 text-sm text-[#0D0D0D] hover:bg-[#F4F4F4]">
                 가이드 보기
               </Link>
