@@ -101,7 +101,7 @@ const packageRows = [
 
 export default function HomePage() {
   return (
-    <main id="main-content" className="min-h-screen bg-[#F7F7F7] text-[#0D0D0D]">
+    <main id="main-content" data-smoke="landing-command-deck" className="min-h-screen bg-[#F7F7F7] text-[#0D0D0D]">
       <section className="border-b border-[#E5E5E5] bg-[#F7F7F7]">
         <div className="mx-auto grid w-full max-w-[1240px] gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <div>
@@ -139,7 +139,7 @@ export default function HomePage() {
             </dl>
           </div>
 
-          <div className="border border-[#DADADA] bg-white p-3 shadow-[0_18px_48px_rgba(13,13,13,0.08)]">
+          <div data-smoke="landing-package-preview" className="border border-[#DADADA] bg-white p-3 shadow-[0_18px_48px_rgba(13,13,13,0.08)]">
             <div className="border border-[#202938] bg-[#101820] text-white">
               <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                 <div>
@@ -286,7 +286,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="border border-[#DADADA] bg-[#FAFAFA] p-3">
+          <div data-smoke="landing-package-table" className="border border-[#DADADA] bg-[#FAFAFA] p-3">
             <div className="grid gap-px bg-[#E5E5E5]">
               <div className="grid grid-cols-[0.28fr_0.34fr_0.38fr] bg-[#101820] px-4 py-3 text-xs font-semibold text-white">
                 <span>항목</span>

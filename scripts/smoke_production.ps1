@@ -16,8 +16,9 @@ $requiredText = @(
   "_next/static",
   "AI Venture Lab",
   "automation-first product OS",
-  "AI 제작 패키지 만들기",
-  "제작 패키지 저장"
+  "data-smoke=`"landing-command-deck`"",
+  "data-smoke=`"landing-package-preview`"",
+  "data-smoke=`"landing-package-table`""
 )
 
 $missing = @()
