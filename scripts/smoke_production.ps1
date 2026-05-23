@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$response = Invoke-WebRequest -Uri $Url -UseBasicParsing
+$response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 30
 
 if ($response.StatusCode -ne 200) {
   Write-Error "Production smoke failed: expected HTTP 200 but received $($response.StatusCode)."
@@ -15,8 +15,9 @@ $requiredText = @(
   "<!DOCTYPE html>",
   "_next/static",
   "AI Venture Lab",
-  "landing-hero-visual",
-  "landing-middle-motion"
+  "automation-first product OS",
+  "AI 제작 패키지 만들기",
+  "제작 패키지 저장"
 )
 
 $missing = @()
