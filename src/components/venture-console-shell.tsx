@@ -959,10 +959,10 @@ export function VentureConsoleShell({
     ? executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id) + 1
     : null;
   const completedRequiredCount = completedTasks.filter((task) => primaryShellTaskSet.has(task.id)).length;
-  const currentProgressCount = activeExecutionStepIndex >= 0 ? activeExecutionStepIndex + 1 : completedRequiredCount;
+  const progressCompletedCount = activeExecutionStepIndex >= 0 ? activeExecutionStepIndex : completedRequiredCount;
   const workflowProgress = Math.min(
     100,
-    Math.round((currentProgressCount / Math.max(1, executionStepTotal)) * 100),
+    Math.round((progressCompletedCount / Math.max(1, executionStepTotal)) * 100),
   );
   const activeCanvas = taskCanvasDetails[visibleTask];
   const railPrimaryTasks = executionStepTasks.filter(
@@ -1015,7 +1015,7 @@ export function VentureConsoleShell({
               <div className="h-full bg-slate-950 transition-all" style={{ width: `${workflowProgress}%` }} />
             </div>
             <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-slate-500">
-              <span>진행 {currentProgressCount}/{executionStepTotal}</span>
+              <span>완료 {progressCompletedCount}/{executionStepTotal}</span>
               <span>{workflowProgress}%</span>
             </div>
           </div>
@@ -1134,7 +1134,7 @@ export function VentureConsoleShell({
                 <span className="text-slate-500">
                   {stepNumber ? `Step ${stepNumber}` : activeTaskConfig.group}
                 </span>
-                {!activeTaskConfig.optional && stepNumber ? <span>진행 {currentProgressCount}/{executionStepTotal}</span> : null}
+                {!activeTaskConfig.optional && stepNumber ? <span>완료 {progressCompletedCount}/{executionStepTotal}</span> : null}
               </div>
 
               <div className="mt-3 flex items-start gap-3">

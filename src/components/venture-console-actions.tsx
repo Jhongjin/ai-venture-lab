@@ -2389,7 +2389,7 @@ export function VentureConsoleActions({
     setExtractedIdeas([]);
     setExtractionRunMeta(null);
     setExtractionReplay(null);
-    setExtractMessage("AI가 검토용 아이디어 3개를 새로 만드는 중입니다.");
+    setExtractMessage("AI가 검토할 아이디어 후보 3개를 도출하는 중입니다.");
 
     try {
       const response = await fetch("/api/ideas/generate-sample", {
@@ -2407,17 +2407,17 @@ export function VentureConsoleActions({
       const payload = (await response.json().catch(() => ({}))) as AiGenerateSampleIdeasResponse;
 
       if (!response.ok || !payload.source) {
-        setExtractMessage(payload.error ?? `샘플 아이디어 생성에 실패했습니다. HTTP ${response.status}`);
+        setExtractMessage(payload.error ?? `AI 아이디어 도출에 실패했습니다. HTTP ${response.status}`);
         return;
       }
 
       setRawIdeaSource(payload.source);
       setExtractMessage(
-        `${payload.ideas?.length ?? 3}개 아이디어를 생성했습니다. 내용을 확인한 뒤 아이디어 자동 정리를 눌러 한 개 아이디어와 제작 형태를 선정하세요.`,
+        `AI가 ${payload.ideas?.length ?? 3}개 아이디어 후보를 도출했습니다. 내용을 확인한 뒤 아이디어 자동 정리를 눌러 한 개 아이디어와 제작 형태를 선정하세요.`,
       );
     } catch (error) {
       setExtractMessage(
-        `샘플 아이디어 생성 중 오류가 발생했습니다. ${error instanceof Error ? error.message : ""}`.trim(),
+        `AI 아이디어 도출 중 오류가 발생했습니다. ${error instanceof Error ? error.message : ""}`.trim(),
       );
     } finally {
       setIsGeneratingSample(false);
@@ -3322,11 +3322,11 @@ export function VentureConsoleActions({
                   </div>
                   <details className="border border-slate-200 bg-slate-50 px-4 py-3">
                     <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
-                      예시가 필요할 때만 열기
+                      아이디어가 없을 때 AI에게 맡기기
                     </summary>
                     <div className="mt-3 flex flex-col gap-3 border-t border-slate-200 pt-3 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-sm leading-6 text-slate-600">
-                        샘플은 입력칸만 채웁니다. 내용을 확인한 뒤 아이디어 자동 정리를 눌러야 다음 정리가 시작됩니다.
+                        AI가 검토할 아이디어 후보를 먼저 만들어 입력칸에 넣습니다. 내용을 확인한 뒤 아이디어 자동 정리를 누르면 한 건으로 정리됩니다.
                       </p>
                       <button
                         type="button"
@@ -3337,7 +3337,7 @@ export function VentureConsoleActions({
                         className="avl-btn avl-btn-secondary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                        {isGeneratingSample ? "채우는 중" : "샘플 내용 채우기"}
+                        {isGeneratingSample ? "도출하는 중" : "AI가 아이디어 도출하기"}
                       </button>
                     </div>
                   </details>
