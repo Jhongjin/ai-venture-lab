@@ -5,6 +5,7 @@ export type ProductSurfaceKey =
   | "automation"
   | "operator_console"
   | "mcp_handoff";
+export type BuildableProductSurfaceKey = Exclude<ProductSurfaceKey, "mcp_handoff">;
 
 export type ProductSurfaceProfile = {
   key: ProductSurfaceKey;
@@ -32,14 +33,21 @@ export type ProductSurfaceInput = {
   sourceBlock?: string | null;
 };
 
-export const productSurfaceOrder: ProductSurfaceKey[] = [
+export const buildableProductSurfaceOrder: BuildableProductSurfaceKey[] = [
   "web_app",
   "mobile_app",
   "web_site",
   "automation",
   "operator_console",
-  "mcp_handoff",
 ];
+export const productSurfaceOrder: ProductSurfaceKey[] = [...buildableProductSurfaceOrder, "mcp_handoff"];
+
+export function isBuildableProductSurfaceKey(value: unknown): value is BuildableProductSurfaceKey {
+  return (
+    typeof value === "string" &&
+    buildableProductSurfaceOrder.includes(value as BuildableProductSurfaceKey)
+  );
+}
 
 export const productSurfaceProfiles: Record<ProductSurfaceKey, ProductSurfaceProfile> = {
   web_app: {
@@ -201,11 +209,11 @@ function normalizeSurfaceText(input: ProductSurfaceInput) {
 export function inferProductSurface(input: ProductSurfaceInput): ProductSurfaceProfile {
   const text = normalizeSurfaceText(input);
   const scores = Object.fromEntries(
-    productSurfaceOrder.map((key) => [
+    buildableProductSurfaceOrder.map((key) => [
       key,
       surfaceSignals[key].reduce((score, signal) => score + (text.includes(signal.toLowerCase()) ? 1 : 0), 0),
     ]),
-  ) as Record<ProductSurfaceKey, number>;
+  ) as Record<BuildableProductSurfaceKey, number>;
 
   if (/(^|\s)앱(\s|$)|앱을|앱으로|앱에서|앱 기반/.test(text)) {
     scores.mobile_app += 1;
@@ -225,15 +233,14 @@ export function inferProductSurface(input: ProductSurfaceInput): ProductSurfaceP
     scores.web_app += 2;
   }
 
-  const orderedKeys: ProductSurfaceKey[] = [
-    "mcp_handoff",
+  const orderedKeys: BuildableProductSurfaceKey[] = [
     "mobile_app",
     "automation",
     "operator_console",
     "web_site",
     "web_app",
   ];
-  const bestKey = orderedKeys.reduce<ProductSurfaceKey>((best, key) => {
+  const bestKey = orderedKeys.reduce<BuildableProductSurfaceKey>((best, key) => {
     if (scores[key] > scores[best]) {
       return key;
     }
@@ -245,8 +252,8 @@ export function inferProductSurface(input: ProductSurfaceInput): ProductSurfaceP
 }
 
 export function getProductSurfaceProfile(key: unknown, fallbackInput: ProductSurfaceInput): ProductSurfaceProfile {
-  if (typeof key === "string" && key in productSurfaceProfiles) {
-    return productSurfaceProfiles[key as ProductSurfaceKey];
+  if (isBuildableProductSurfaceKey(key)) {
+    return productSurfaceProfiles[key];
   }
 
   return inferProductSurface(fallbackInput);

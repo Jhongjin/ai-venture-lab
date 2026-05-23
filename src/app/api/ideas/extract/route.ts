@@ -117,7 +117,7 @@ const ideaExtractionSchema = {
           pricing_hypothesis: { type: "string" },
           product_surface: {
             type: "string",
-            enum: ["web_app", "mobile_app", "web_site", "automation", "operator_console", "mcp_handoff"],
+            enum: ["web_app", "mobile_app", "web_site", "automation", "operator_console"],
           },
           product_surface_reason: { type: "string" },
         },
@@ -205,7 +205,7 @@ export async function POST(request: Request) {
             {
               type: "input_text",
               text:
-                "You extract app startup ideas from Korean or English notes. Return only grounded candidates. Prefer practical app/MVP ideas with target users, buyers, validation plans, risks, kill criteria, and a product_surface classification. product_surface must be one of web_app, mobile_app, web_site, automation, operator_console, or mcp_handoff. Choose the surface that should guide PRD, design, tech stack, implementation prompt, and IDE/MCP handoff. Avoid inventing evidence not implied by the source. Keep every field concise but specific. Write Korean text except product_surface.",
+                "You extract app startup ideas from Korean or English notes. Return only grounded candidates. Prefer practical app/MVP ideas with target users, buyers, validation plans, risks, kill criteria, and a product_surface classification. product_surface must be one of web_app, mobile_app, web_site, automation, or operator_console. Choose the result type that should guide PRD, design, tech stack, implementation prompt, and handoff materials. Development tools such as Cursor, Codex, Claude Code, Antigravity, or MCP are delivery options, not product_surface values. Avoid inventing evidence not implied by the source. Keep every field concise but specific. Write Korean text except product_surface.",
             },
           ],
         },

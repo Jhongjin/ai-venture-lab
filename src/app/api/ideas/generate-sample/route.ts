@@ -25,7 +25,7 @@ type GeneratedSampleIdea = {
   firstBuild: string;
 };
 
-type ProductSurfaceKey = "web_app" | "mobile_app" | "web_site" | "automation" | "operator_console" | "mcp_handoff";
+type ProductSurfaceKey = "web_app" | "mobile_app" | "web_site" | "automation" | "operator_console";
 
 type RequestBody = {
   existingIdeas?: unknown;
@@ -70,7 +70,6 @@ const productSurfaceLabels: Record<ProductSurfaceKey, string> = {
   web_site: "웹사이트",
   automation: "업무 자동화",
   operator_console: "운영 콘솔",
-  mcp_handoff: "제작 도구 연동",
 };
 
 const allowedProductSurfaceKeys = Object.keys(productSurfaceLabels) as ProductSurfaceKey[];
@@ -95,7 +94,7 @@ const sampleIdeasSchema = {
           firstValidation: { type: "string" },
           productSurface: {
             type: "string",
-            enum: ["web_app", "mobile_app", "web_site", "automation", "operator_console", "mcp_handoff"],
+            enum: ["web_app", "mobile_app", "web_site", "automation", "operator_console"],
           },
           firstBuild: { type: "string" },
         },
@@ -203,10 +202,6 @@ function toProductSurfaceKey(value: unknown): ProductSurfaceKey {
 
   const text = toText(value, 80).toLowerCase();
 
-  if (/mcp|cursor|codex|claude|ide|프롬프트|개발 도구/.test(text)) {
-    return "mcp_handoff";
-  }
-
   if (/모바일|앱|푸시|알림|위치|카메라/.test(text)) {
     return "mobile_app";
   }
@@ -236,8 +231,6 @@ function getFallbackFirstBuild(productSurface: ProductSurfaceKey) {
       return "수동 운영이 가능한 작업 콘솔과 자동화 결과 비교";
     case "operator_console":
       return "목록, 상세, 상태 변경이 있는 운영 콘솔";
-    case "mcp_handoff":
-      return "제작 패키지와 개발 도구 연결 안내";
     case "web_app":
     default:
       return "로그인, 입력, 결과 확인, 저장까지 이어지는 웹 서비스 흐름";
@@ -436,7 +429,7 @@ export async function POST(request: Request) {
             {
               type: "input_text",
               text:
-                "You generate practical Korean app, web, automation, operator-console, or IDE/MCP handoff ideas for a venture validation workspace. Generate exactly 3 distinct ideas. Make each idea concrete enough to validate in 7 days. Classify each idea with productSurface as one of web_app, mobile_app, web_site, automation, operator_console, or mcp_handoff, and write a firstBuild that describes the smallest useful first build. Avoid repeating subscription management, caregiving console, or conversation coach examples. Avoid legal, medical, financial advice, hiring decisions, counseling, or other heavily regulated services unless framed as low-risk internal operations. Write natural Korean that a real product user would understand.",
+                "You generate practical Korean app, web, automation, or operator-console ideas for a venture validation workspace. Generate exactly 3 distinct ideas. Make each idea concrete enough to validate in 7 days. Classify each idea with productSurface as one of web_app, mobile_app, web_site, automation, or operator_console, and write a firstBuild that describes the smallest useful first build. Cursor, Codex, Claude Code, Antigravity, and MCP are later delivery options, not productSurface values. Avoid repeating subscription management, caregiving console, or conversation coach examples. Avoid legal, medical, financial advice, hiring decisions, counseling, or other heavily regulated services unless framed as low-risk internal operations. Write natural Korean that a real product user would understand.",
             },
           ],
         },

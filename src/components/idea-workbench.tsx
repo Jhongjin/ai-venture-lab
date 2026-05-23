@@ -22,9 +22,9 @@ import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
+  buildableProductSurfaceOrder,
   getProductSurfaceProfile,
   productSurfaceMarkdown,
-  productSurfaceOrder,
   productSurfaceProfiles,
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
@@ -874,7 +874,17 @@ export type WorkbenchStepReadiness = {
 type ArtifactPanel = "validation" | "product" | "library";
 type DevelopmentPanel = "setup" | "tasks" | "handoff";
 type DevelopmentAutoFlowState = "idle" | "running" | "review" | "summary";
+type BuildDeliveryMode = "venture_lab" | "external_tool";
+type ExternalBuildToolKey = "cursor" | "codex" | "claude_code" | "antigravity" | "generic_mcp";
 type ArtifactReviewStatus = "approved" | "draft" | "missing";
+
+type ExternalBuildToolProfile = {
+  key: ExternalBuildToolKey;
+  label: string;
+  description: string;
+  packageFocus: string;
+  startMethod: string;
+};
 
 type ArtifactReviewItem = {
   id: string;
@@ -914,6 +924,47 @@ const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
   validation: "아이디어 요약, 조사 요약, 7일 검증 계획을 먼저 저장합니다.",
   product: "기획서, 첫 제작 범위, 출시 체크리스트를 생성합니다.",
   library: "저장된 자료를 필터링하고 승인 상태를 관리합니다.",
+};
+const buildDeliveryModeLabels: Record<BuildDeliveryMode, string> = {
+  venture_lab: "Venture Lab에서 계속 진행",
+  external_tool: "외부 제작 도구로 넘기기",
+};
+const externalBuildToolProfiles: Record<ExternalBuildToolKey, ExternalBuildToolProfile> = {
+  cursor: {
+    key: "cursor",
+    label: "Cursor",
+    description: "프로젝트 규칙과 작업 순서를 붙여 첫 수직 슬라이스를 구현합니다.",
+    packageFocus: "목차 00-06, 제외 범위, 첫 태스크, 품질 명령을 Cursor 규칙 문맥으로 묶습니다.",
+    startMethod: "제작 패키지를 프로젝트 규칙/참고 문서로 넣고 첫 태스크 하나만 선택해 구현합니다.",
+  },
+  codex: {
+    key: "codex",
+    label: "Codex",
+    description: "작업 범위, 변경 파일, 검증 명령, 배포/롤백 보고 형식까지 한 번에 전달합니다.",
+    packageFocus: "AGENTS 지침, 변경 허용 범위, 품질 명령, 완료 보고 형식을 명확히 분리합니다.",
+    startMethod: "제작 패키지를 첫 메시지로 넣고 변경 파일, 검증 명령, 배포 URL, 남은 리스크를 보고하게 합니다.",
+  },
+  claude_code: {
+    key: "claude_code",
+    label: "Claude Code",
+    description: "승인된 제작 자료와 제외 범위를 먼저 고정하고 구현 대화를 시작합니다.",
+    packageFocus: "기획/디자인/기술 자료와 제외 범위를 짧은 컨텍스트 순서로 정리합니다.",
+    startMethod: "승인된 제작 자료와 작업 순서만 컨텍스트로 넣고 제외 범위를 먼저 확인합니다.",
+  },
+  antigravity: {
+    key: "antigravity",
+    label: "Google Antigravity",
+    description: "화면 구조, 기술 방향, 검증/배포 기준을 순서대로 등록해 첫 빌드를 진행합니다.",
+    packageFocus: "화면 구조, 기술 경계, 검증 기준, 첫 수직 슬라이스를 단계 자료로 나눕니다.",
+    startMethod: "화면 구조, 기술 방향, 검증/배포 기준을 순서대로 등록한 뒤 첫 수직 슬라이스만 실행합니다.",
+  },
+  generic_mcp: {
+    key: "generic_mcp",
+    label: "범용 MCP 전달",
+    description: "외부 도구가 읽을 리소스 URI, 권한, 완료 보고 형식을 중심으로 넘깁니다.",
+    packageFocus: "읽기 전용 리소스 URI, 실행 명령 분리, 권한 범위, 완료 보고 형식을 고정합니다.",
+    startMethod: "제작 패키지를 읽기 전용 기준 자료로 노출하고 실행 명령과 권한 범위를 분리합니다.",
+  },
 };
 const releaseDecisionTone: Record<DecisionStatus, string> = {
   pending: "avl-pill avl-pill-neutral",
@@ -2365,7 +2416,20 @@ ${scan.next_action}
 ${scan.caveat}`;
 }
 
-function buildExternalProductionPackageGuide(profile: ProductSurfaceProfile) {
+function buildExternalProductionPackageGuide(
+  profile: ProductSurfaceProfile,
+  deliveryMode: BuildDeliveryMode = "external_tool",
+  selectedTool: ExternalBuildToolProfile = externalBuildToolProfiles.cursor,
+) {
+  const isExternalDelivery = deliveryMode === "external_tool";
+  const deliveryLabel = buildDeliveryModeLabels[deliveryMode];
+  const deliveryFocus = isExternalDelivery
+    ? selectedTool.packageFocus
+    : "Venture Lab의 작업 순서 보드, 실행 할 일, 출시 판단, 성과 확인 화면에서 이어서 처리합니다.";
+  const startMethod = isExternalDelivery
+    ? selectedTool.startMethod
+    : "STEP 6 작업 순서 보드에서 필요한 단계 결과만 저장하고, STEP 7 출시 판단과 STEP 8 성과 확인으로 이어갑니다.";
+
   return `## 제작 패키지 목차
 
 | 묶음 | 포함 내용 | 다음 제작 환경에서 할 일 |
@@ -2384,6 +2448,10 @@ function buildExternalProductionPackageGuide(profile: ProductSurfaceProfile) {
 package_version: 1
 product_surface: ${profile.key}
 product_surface_label: ${profile.label}
+build_delivery_mode: ${deliveryMode}
+build_delivery_label: ${deliveryLabel}
+external_tool: ${isExternalDelivery ? selectedTool.key : "none"}
+external_tool_label: ${isExternalDelivery ? selectedTool.label : "none"}
 entrypoint: 00-execution-summary
 read_order:
   - 00-execution-summary
@@ -2402,6 +2470,7 @@ required_before_build:
 first_build: ${profile.firstBuild}
 implementation_boundary: ${profile.harnessFocus}
 handoff_boundary: ${profile.handoffHint}
+delivery_focus: ${deliveryFocus}
 secret_policy: never include secret values in execution instructions, artifacts, screenshots, external resources, or completion reports
 completion_report:
   - changed_files
@@ -2410,6 +2479,14 @@ completion_report:
   - remaining_risks
   - rollback_notes
 \`\`\`
+
+## 선택한 제작 방식
+
+- 결과물 형태: ${profile.label}
+- 제작 방식: ${deliveryLabel}
+- 선택 도구: ${isExternalDelivery ? selectedTool.label : "Venture Lab 내부 진행"}
+- 전달 초점: ${deliveryFocus}
+- 시작 방법: ${startMethod}
 
 ## 외부 제작 도구 자료
 
@@ -2425,15 +2502,17 @@ completion_report:
 
 ## 제작 도구별 시작 방법
 
-- Codex: 이 문서 전체를 첫 메시지로 넣고, 변경 파일·검증 명령·배포 URL·남은 리스크를 완료 보고에 포함합니다.
-- Cursor: 목차 00-06을 프로젝트 규칙 문서로 붙이고, 첫 태스크 하나만 선택해 구현합니다.
-- Claude Code: 승인된 제작 자료와 작업 순서만 컨텍스트로 넣고, 제외 범위를 먼저 고정합니다.
-- Google Antigravity: 화면 구조, 기술 방향, 검증/배포 기준을 순서대로 등록한 뒤 첫 수직 슬라이스만 실행합니다.
-- 연동 서버: 이 문서를 읽기 전용 기준 자료로 노출하고, 실행 명령과 권한 범위를 분리합니다.
+- Codex: ${externalBuildToolProfiles.codex.startMethod}
+- Cursor: ${externalBuildToolProfiles.cursor.startMethod}
+- Claude Code: ${externalBuildToolProfiles.claude_code.startMethod}
+- Google Antigravity: ${externalBuildToolProfiles.antigravity.startMethod}
+- 범용 MCP 전달: ${externalBuildToolProfiles.generic_mcp.startMethod}
 
 ## 전달 전 확인
 
 - 제작 형태: ${profile.label}
+- 제작 방식: ${deliveryLabel}
+- 선택 도구: ${isExternalDelivery ? selectedTool.label : "내부 진행"}
 - 첫 제작 형태: ${profile.firstBuild}
 - 제작 기준: ${profile.harnessFocus}
 - 외부 전달 기준: ${profile.handoffHint}
@@ -7703,6 +7782,8 @@ export function IdeaWorkbench({
   const [developmentAutoFlowState, setDevelopmentAutoFlowState] = useState<DevelopmentAutoFlowState>("idle");
   const [developmentAutoStepIndex, setDevelopmentAutoStepIndex] = useState(0);
   const [developmentAutoNote, setDevelopmentAutoNote] = useState("");
+  const [buildDeliveryMode, setBuildDeliveryMode] = useState<BuildDeliveryMode>("external_tool");
+  const [externalBuildTool, setExternalBuildTool] = useState<ExternalBuildToolKey>("cursor");
   const developmentAutoRunIdRef = useRef(0);
   const experienceMode = "guided" as "guided" | "full";
   const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
@@ -8449,6 +8530,12 @@ export function IdeaWorkbench({
   const savedEditState = selectedIdea ? toEditState(selectedIdea) : null;
   const selectedProductSurface = selectedIdea && editState ? inferIdeaProductSurface(selectedIdea, editState) : null;
   const activeProductSurface = selectedProductSurface ?? productSurfaceProfiles.web_app;
+  const activeExternalBuildTool = externalBuildToolProfiles[externalBuildTool];
+  const activeBuildDeliveryLabel = buildDeliveryModeLabels[buildDeliveryMode];
+  const activeBuildDeliveryDetail =
+    buildDeliveryMode === "external_tool"
+      ? `${activeExternalBuildTool.label}에 맞춰 전달 자료와 시작 방법을 정리합니다.`
+      : "Venture Lab 안에서 작업 순서, 실행 할 일, 출시 판단, 성과 확인을 이어갑니다.";
   const hasReachedScoreStage = selectedIdea
     ? (stageRank.get(selectedIdea.stage) ?? 0) >= (stageRank.get("score") ?? 0)
     : false;
@@ -9355,8 +9442,14 @@ export function IdeaWorkbench({
       detail: `${activeProductSurface.iaHint} ${firstBuildBridge?.stackReason || activeProductSurface.stackHint}`,
     },
     {
-      label: "외부 개발 도구 전달 자료 정리 중",
-      detail: activeProductSurface.handoffHint,
+      label:
+        buildDeliveryMode === "external_tool"
+          ? `${activeExternalBuildTool.label} 전달 자료 정리 중`
+          : "Venture Lab 실행 자료 정리 중",
+      detail:
+        buildDeliveryMode === "external_tool"
+          ? `${activeExternalBuildTool.packageFocus} ${activeProductSurface.handoffHint}`
+          : "작업 순서 보드, 실행 할 일, 출시 판단, 성과 확인 화면에서 이어서 처리할 자료를 묶습니다.",
     },
   ];
   const developmentAutoSummaryCards = [
@@ -9381,6 +9474,11 @@ export function IdeaWorkbench({
       detail:
         firstBuildBridge?.stackReason ||
         "인증, 저장, 권한 경계를 빠르게 붙이고 첫 제작 범위를 작게 시작하는 방향입니다.",
+    },
+    {
+      label: "제작 방식",
+      value: activeBuildDeliveryLabel,
+      detail: activeBuildDeliveryDetail,
     },
     {
       label: "제작 범위",
@@ -9426,8 +9524,11 @@ export function IdeaWorkbench({
       detail: "기술 방향, 백엔드 후보, 작업 순서, 품질 점검, 배포/롤백 기준을 저장합니다.",
     },
     {
-      label: "개발 도구 전달 자료",
-      detail: "패키지 목차, 도구별 전달 순서, 시작 방법, 검증/보고 형식을 포함해 외부 제작 도구가 바로 읽을 자료를 저장합니다.",
+      label: buildDeliveryMode === "external_tool" ? "개발 도구 전달 자료" : "내부 실행 자료",
+      detail:
+        buildDeliveryMode === "external_tool"
+          ? `${activeExternalBuildTool.label} 기준의 시작 방법, 검증/보고 형식, 읽을 자료 순서를 저장합니다.`
+          : "Venture Lab 안에서 이어서 볼 작업 순서, 검증 기준, 출시 판단 기준을 저장합니다.",
     },
   ];
   const developmentAutoTaskDraftLines =
@@ -9456,13 +9557,20 @@ export function IdeaWorkbench({
         activeProductSurface.stackHint,
         activeProductSurface.handoffHint,
         "",
-        buildExternalProductionPackageGuide(activeProductSurface),
+        "## 제작 방식",
+        `- 제작 방식: ${activeBuildDeliveryLabel}`,
+        `- 선택 도구: ${buildDeliveryMode === "external_tool" ? activeExternalBuildTool.label : "Venture Lab 내부 진행"}`,
+        `- 반영 기준: ${activeBuildDeliveryDetail}`,
+        "",
+        buildExternalProductionPackageGuide(activeProductSurface, buildDeliveryMode, activeExternalBuildTool),
         "",
         "## 작업 순서 초안",
         developmentAutoTaskDraftLines,
         "",
         "## 제작 도구 전달 기준",
-        "저장 후 생성되는 제작 패키지는 Codex, Cursor, Claude, Antigravity 같은 제작 도구에 넘길 자료로 사용합니다.",
+        buildDeliveryMode === "external_tool"
+          ? `저장 후 생성되는 제작 패키지는 ${activeExternalBuildTool.label}에 넘길 자료로 사용합니다.`
+          : "저장 후 생성되는 제작 패키지는 Venture Lab 안에서 작업 순서와 출시 판단을 이어가는 기준 자료로 사용합니다.",
         "제품 기획서, 디자인 방향, 기술 스택, 첫 제작 범위, 제외 범위, 검증 기준을 같은 맥락으로 묶어 다음 제작 단계가 흔들리지 않게 합니다.",
         "",
         "## 사용자 보완 메모",
@@ -9486,7 +9594,7 @@ export function IdeaWorkbench({
         "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 제작 환경에 넘기기 위한 최종 자료입니다.",
         "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 자료로 사용할 수 있습니다.",
         "",
-        buildExternalProductionPackageGuide(activeProductSurface),
+        buildExternalProductionPackageGuide(activeProductSurface, buildDeliveryMode, activeExternalBuildTool),
         "",
         "## 실행 요약",
         developmentAutoSummaryDraft,
@@ -10397,6 +10505,51 @@ export function IdeaWorkbench({
       },
     });
     setMessage(`${phaseLabels[run.phase]} 상태를 ${runStatusLabels[status]}(으)로 변경했습니다.`);
+    router.refresh();
+  }
+
+  async function deleteOrchestrationRun(run: OrchestrationRun) {
+    if (!supabase) {
+      setMessage("Supabase가 설정되어 있지 않습니다.");
+      return;
+    }
+
+    if (!canManageRecord(run)) {
+      setMessage("단계 작성자 또는 워크스페이스 관리자만 이 실행 단계를 삭제할 수 있습니다.");
+      return;
+    }
+
+    const confirmed = window.confirm(`${phaseLabels[run.phase]} 실행 단계를 삭제할까요? 저장된 단계 결과도 함께 사라집니다.`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage(null);
+    const { error } = await supabase.from("orchestration_runs").delete().eq("id", run.id);
+    setIsBusy(false);
+
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setOrchestrationRuns((current) => current.filter((item) => item.id !== run.id));
+    setRunOutputs((current) => {
+      const next = { ...current };
+      delete next[run.id];
+      return next;
+    });
+    void recordTelemetryEvent({
+      eventName: "run_deleted",
+      eventCategory: "orchestration",
+      properties: {
+        phase: run.phase,
+        previous_status: run.status,
+      },
+    });
+    setMessage("실행 단계를 삭제했습니다.");
     router.refresh();
   }
 
@@ -12083,15 +12236,14 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                   <div className="mt-4 border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">제작 형태</div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      AI가 이 아이디어를 웹 서비스, 모바일 앱, 랜딩/웹사이트, 업무 자동화, 운영 콘솔, 제작 도구 연동 중
-                      어떤 형태로 만들지 먼저 정합니다. 이 값은 사업성 평가, 디자인 방향, 기술 스택, 제작 패키지까지
-                      이어지는 기준입니다.
+                      AI가 이 아이디어를 웹 서비스, 모바일 앱, 랜딩/웹사이트, 업무 자동화, 운영 콘솔 중 어떤 결과물로
+                      만들지 먼저 정합니다. Cursor, Codex 같은 제작 도구는 다음 제작 패키지 단계에서 따로 고릅니다.
                     </p>
                     <div className="mt-4 grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
                       <label className="grid gap-2 text-sm font-semibold text-slate-900">
                         AI가 추천한 제작 형태
                         <select
-                          value={(editState.product_surface ?? activeProductSurface.key) as ProductSurfaceKey}
+                          value={activeProductSurface.key}
                           disabled={!canEdit}
                           onChange={(event) =>
                             setEditState({
@@ -12101,7 +12253,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           }
                           className="h-11 cursor-pointer border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-100"
                         >
-                          {productSurfaceOrder.map((key) => (
+                          {buildableProductSurfaceOrder.map((key) => (
                             <option key={key} value={key}>
                               {productSurfaceProfiles[key].label}
                             </option>
@@ -12328,6 +12480,68 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     <div className="mt-2 text-lg font-semibold text-slate-950">
                       {hasSavedDevelopmentAutoPackage ? "저장 완료" : "저장 전"}
                     </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 border border-slate-200 bg-white p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <div className="avl-kicker">제작 방식</div>
+                      <h4 className="mt-2 text-base font-semibold text-slate-950">결과물 형태와 제작 도구를 분리합니다</h4>
+                      <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                        결과물 형태는 무엇을 만들지입니다. 제작 방식은 Venture Lab 안에서 이어갈지, Cursor 같은 외부 제작 도구로
+                        넘길지 정하는 값입니다.
+                      </p>
+                    </div>
+                    <span className="avl-pill avl-pill-info">{activeBuildDeliveryLabel}</span>
+                  </div>
+                  <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.7fr)_minmax(280px,0.3fr)]">
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {(["external_tool", "venture_lab"] as BuildDeliveryMode[]).map((mode) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => setBuildDeliveryMode(mode)}
+                          disabled={effectiveDevelopmentAutoFlowState === "running" || hasSavedDevelopmentAutoPackage}
+                          className={`border px-4 py-3 text-left text-sm disabled:cursor-not-allowed disabled:opacity-50 ${
+                            buildDeliveryMode === mode
+                              ? "border-slate-950 bg-slate-950 text-white"
+                              : "border-slate-200 bg-slate-50 text-slate-900"
+                          }`}
+                        >
+                          <span className="block font-semibold">{buildDeliveryModeLabels[mode]}</span>
+                          <span className={`mt-1 block leading-5 ${buildDeliveryMode === mode ? "text-slate-200" : "text-slate-600"}`}>
+                            {mode === "external_tool"
+                              ? "선택한 도구가 바로 읽을 제작 패키지를 만듭니다."
+                              : "이 플랫폼 안에서 작업 순서와 출시 판단을 이어갑니다."}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <label className="grid gap-2 text-sm font-semibold text-slate-900">
+                      외부 제작 도구
+                      <select
+                        value={externalBuildTool}
+                        disabled={
+                          buildDeliveryMode !== "external_tool" ||
+                          effectiveDevelopmentAutoFlowState === "running" ||
+                          hasSavedDevelopmentAutoPackage
+                        }
+                        onChange={(event) => setExternalBuildTool(event.target.value as ExternalBuildToolKey)}
+                        className="h-11 cursor-pointer border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-100"
+                      >
+                        {Object.values(externalBuildToolProfiles).map((tool) => (
+                          <option key={tool.key} value={tool.key}>
+                            {tool.label}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="text-xs font-normal leading-5 text-slate-500">
+                        {buildDeliveryMode === "external_tool"
+                          ? activeExternalBuildTool.description
+                          : "내부 진행을 선택하면 도구별 전달 코드는 패키지 보조 정보로만 남깁니다."}
+                      </span>
+                    </label>
                   </div>
                 </div>
 
@@ -13839,7 +14053,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">출시 판단</h2>
-              <p className="mt-1 text-sm text-slate-500">출시 전 남은 조건만 빠르게 확인합니다.</p>
+              <p className="mt-1 text-sm text-slate-500">출시 전 남은 조건과 다음 확인 화면의 의미를 빠르게 확인합니다.</p>
             </div>
             <div className="border border-slate-200 bg-white px-4 py-3 text-right text-slate-950">
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -13859,6 +14073,20 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-1 text-sm leading-5 text-slate-600">
                 {nextLaunchBlocker ? nextLaunchBlocker.detail : "출시 전 최종 판단을 기록하세요."}
               </div>
+            </div>
+            <div
+              className={`mb-4 border p-4 ${
+                nextLaunchBlocker ? "border-amber-200 bg-amber-50" : "border-emerald-200 bg-emerald-50"
+              }`}
+            >
+              <div className="text-sm font-semibold text-slate-950">
+                {nextLaunchBlocker ? "다음 버튼은 출시 완료가 아니라 성과 확인 화면 이동입니다." : "이제 성과 확인 화면으로 이동해도 됩니다."}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-700">
+                {nextLaunchBlocker
+                  ? "남은 차단 항목이 있으면 실제 출시는 보류 상태입니다. 그래도 다음 화면에서 어떤 행동 신호를 볼지 미리 확인할 수 있습니다."
+                  : "차단 항목이 닫혔다면 다음 화면에서 Day 7, 14, 30 기준과 실제 행동 신호를 확인하세요."}
+              </p>
             </div>
           {releaseDecisionPacket ? (
           <div className="mb-4 border border-slate-200 bg-slate-50 p-4 text-slate-900">
@@ -14374,7 +14602,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">작업 순서 보드</h2>
-              <p className="mt-1 text-sm text-slate-500">역할과 진행 상태만 간단히 확인합니다.</p>
+              <p className="mt-1 text-sm text-slate-500">AI가 만든 작업 순서를 확인하고 필요한 단계만 보완합니다.</p>
             </div>
             <button
               type="button"
@@ -14383,49 +14611,59 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />
-              작업 순서 만들기
+              작업 순서 자동 만들기
             </button>
           </div>
 
-          <form onSubmit={addOrchestrationRun} className="avl-surface-muted grid gap-3 p-4">
-            <div className="grid gap-3 md:grid-cols-[0.75fr_1fr]">
-              <SelectField
-                label="단계"
-                value={runDraft.phase}
-                options={orchestrationPhaseConfigs.map((config) => config.phase)}
-                labels={phaseLabels}
+          <div className="border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+            기본 흐름은 작업 순서 자동 만들기, 필요한 단계 결과 확인/저장, 다음 단계입니다. 상태 버튼은 실제 실행 추적이 필요할 때만
+            바꾸면 됩니다.
+          </div>
+
+          <details className="mt-4 border border-slate-200 bg-white p-4">
+            <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
+              필요할 때만 직접 단계 추가
+            </summary>
+            <form onSubmit={addOrchestrationRun} className="mt-4 grid gap-3">
+              <div className="grid gap-3 md:grid-cols-[0.75fr_1fr]">
+                <SelectField
+                  label="단계"
+                  value={runDraft.phase}
+                  options={orchestrationPhaseConfigs.map((config) => config.phase)}
+                  labels={phaseLabels}
+                  disabled={!user}
+                  onChange={(value) => {
+                    const nextPhase = value as OrchestrationPhase;
+                    const config = orchestrationPhaseConfigs.find((item) => item.phase === nextPhase);
+                    setRunDraft({
+                      phase: nextPhase,
+                      owner_role: config?.ownerRole ?? runDraft.owner_role,
+                      objective: config?.objective ?? runDraft.objective,
+                    });
+                  }}
+                />
+                <InputField
+                  label="담당 역할"
+                  value={runDraft.owner_role}
+                  onChange={(value) => setRunDraft({ ...runDraft, owner_role: value })}
+                />
+              </div>
+              <TextArea
+                label="목표"
+                value={runDraft.objective}
                 disabled={!user}
-                onChange={(value) => {
-                  const nextPhase = value as OrchestrationPhase;
-                  const config = orchestrationPhaseConfigs.find((item) => item.phase === nextPhase);
-                  setRunDraft({
-                    phase: nextPhase,
-                    owner_role: config?.ownerRole ?? runDraft.owner_role,
-                    objective: config?.objective ?? runDraft.objective,
-                  });
-                }}
+                onChange={(value) => setRunDraft({ ...runDraft, objective: value })}
               />
-              <InputField
-                label="담당 역할"
-                value={runDraft.owner_role}
-                onChange={(value) => setRunDraft({ ...runDraft, owner_role: value })}
-              />
-            </div>
-            <TextArea
-              label="목표"
-              value={runDraft.objective}
-              disabled={!user}
-              onChange={(value) => setRunDraft({ ...runDraft, objective: value })}
-            />
-            <button
-              type="submit"
-              disabled={isBusy || !user}
-              className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
-            >
-              <Layers3 size={18} />
-              단계 추가
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={isBusy || !user}
+                className="avl-btn avl-btn-secondary px-4 disabled:opacity-50"
+              >
+                <Layers3 size={18} />
+                단계 추가
+              </button>
+            </form>
+          </details>
 
           <div className="mt-4 grid gap-3">
             {selectedRuns.length > 0 ? (
@@ -14444,18 +14682,30 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         {run.owner_role || "담당 미정"}
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {orchestrationStatuses.map((status) => (
+                    <div className="grid gap-2">
+                      <div className="text-xs font-semibold text-slate-500">상태는 필요할 때만 바꿉니다</div>
+                      <div className="flex flex-wrap gap-2">
+                        {orchestrationStatuses.map((status) => (
+                          <button
+                            key={status}
+                            type="button"
+                            onClick={() => updateRunStatus(run, status)}
+                            disabled={isBusy || !canManageRecord(run) || run.status === status}
+                            className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
+                          >
+                            {runStatusLabels[status]}
+                          </button>
+                        ))}
                         <button
-                          key={status}
                           type="button"
-                          onClick={() => updateRunStatus(run, status)}
-                          disabled={isBusy || !canManageRecord(run) || run.status === status}
-                          className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
+                          onClick={() => deleteOrchestrationRun(run)}
+                          disabled={isBusy || !canManageRecord(run)}
+                          className="avl-btn avl-btn-danger h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                         >
-                          {runStatusLabels[status]}
+                          <Trash2 size={14} />
+                          삭제
                         </button>
-                      ))}
+                      </div>
                     </div>
                   </div>
                   <div className="mt-4 grid gap-3">
@@ -14465,6 +14715,9 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                       disabled={!canManageRecord(run)}
                       onChange={(value) => setRunOutputs((current) => ({ ...current, [run.id]: value }))}
                     />
+                    <p className="text-xs leading-5 text-slate-500">
+                      초안 채우기는 입력칸만 채웁니다. 저장하려면 단계 결과 저장을 눌러야 합니다.
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -14478,7 +14731,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           className="avl-btn avl-btn-secondary px-4 shadow-none disabled:opacity-45"
                       >
                         <ClipboardList size={16} />
-                        템플릿 사용
+                        초안 채우기
                       </button>
                       <button
                         type="button"
@@ -14487,7 +14740,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                           className="avl-btn avl-btn-secondary px-4 shadow-none disabled:opacity-45"
                       >
                         <Save size={16} />
-                        결과 저장
+                        단계 결과 저장
                       </button>
                     </div>
                   </div>

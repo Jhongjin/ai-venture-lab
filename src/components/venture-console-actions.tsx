@@ -7,10 +7,10 @@ import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
+  buildableProductSurfaceOrder,
   getProductSurfaceProfile,
   inferProductSurface,
   productSurfaceMarkdown,
-  productSurfaceOrder,
   productSurfaceProfiles,
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
@@ -3699,7 +3699,7 @@ export function VentureConsoleActions({
                             }
                             className="h-10 cursor-pointer border border-blue-200 bg-white px-3 text-sm font-semibold text-slate-950"
                           >
-                            {productSurfaceOrder.map((key) => (
+                            {buildableProductSurfaceOrder.map((key) => (
                               <option key={key} value={key}>
                                 {productSurfaceProfiles[key].label}
                               </option>

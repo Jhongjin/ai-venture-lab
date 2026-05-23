@@ -480,7 +480,13 @@ function getNextTaskOptions({
     case "workbench:orchestration":
       return [createTransition("workbench:launch", "다음: 출시 판단", "막히는 항목을 확인하고 출시 여부를 정합니다.")];
     case "workbench:launch":
-      return [createTransition("workbench:learning", "다음: 성과 확인", "출시 후 행동 신호를 보고 다음 사이클을 정합니다.")];
+      return [
+        createTransition(
+          "workbench:learning",
+          "성과 확인 화면 보기",
+          "출시 완료 여부와 별개로 저장된 판단을 바탕으로 행동 신호 기준을 확인합니다.",
+        ),
+      ];
     case "workbench:learning":
       return [createTransition("console:idea", "다음: 새 아이디어 저장", "이제 다음 아이디어를 다시 검토합니다.")];
     default:
