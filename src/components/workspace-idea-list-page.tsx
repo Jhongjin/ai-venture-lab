@@ -1,7 +1,7 @@
-import { ArrowRight, Trash, WarningCircle } from "@phosphor-icons/react/dist/ssr";
+import { WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 
-import { WorkspaceIdeaListActions } from "@/components/workspace-idea-list-actions";
+import { WorkspaceIdeaSelectableList } from "@/components/workspace-idea-selectable-list";
 import { getConsoleData } from "@/lib/venture-data";
 import type { Idea } from "@/lib/venture-data";
 
@@ -75,6 +75,23 @@ export async function WorkspaceIdeaListPage({ mode }: { mode: IdeaListMode }) {
     mode === "deleted"
       ? "삭제 목록으로 옮긴 아이디어입니다. 여기서 되살리거나 완전히 삭제할 수 있습니다."
       : "진행 중인 아이디어입니다. 항목을 선택하면 저장된 다음 단계가 열립니다.";
+  const listItems = records.map((idea) => {
+    const progress = getIdeaProgress(idea);
+    const href = mode === "deleted" ? "/workspace?task=archive" : getIdeaHref(idea);
+    const canManage = canManageIdea({ idea, viewerUserId, viewerMemberships });
+
+    return {
+      idea,
+      progressLabel: progress.label,
+      href,
+      canManage,
+      sourceLabel: source === "supabase" ? "저장됨" : "샘플",
+    };
+  });
+  const emptyMessage =
+    mode === "deleted"
+      ? "삭제한 아이디어가 없습니다."
+      : "현재 검토 중인 아이디어가 없습니다. 실행 보드에서 새 아이디어를 도출해 주세요.";
 
   return (
     <main id="main-content" className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -121,55 +138,7 @@ export async function WorkspaceIdeaListPage({ mode }: { mode: IdeaListMode }) {
           </div>
         </section>
 
-        <section className="grid gap-3">
-          {records.length > 0 ? (
-            records.map((idea) => {
-              const progress = getIdeaProgress(idea);
-              const href = mode === "deleted" ? "/workspace?task=archive" : getIdeaHref(idea);
-              const canManage = canManageIdea({ idea, viewerUserId, viewerMemberships });
-
-              return (
-                <article
-                  key={idea.id}
-                  className="grid gap-4 border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:bg-slate-50 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center"
-                >
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className={mode === "deleted" ? "avl-pill avl-pill-warning" : "avl-pill avl-pill-info"}>
-                        {mode === "deleted" ? "삭제됨" : progress.label}
-                      </span>
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                        {source === "supabase" ? "저장됨" : "샘플"}
-                      </span>
-                    </div>
-                    <h2 className="mt-3 text-lg font-semibold tracking-tight text-slate-950">{idea.name}</h2>
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
-                  </div>
-                  <div className="grid justify-items-start gap-3 lg:justify-items-end">
-                    {mode === "deleted" ? (
-                      <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                        <Trash size={16} />
-                        삭제 목록에서 관리
-                      </div>
-                    ) : (
-                      <Link href={href} className="avl-btn avl-btn-secondary h-10 px-3 text-sm">
-                        이어서 보기
-                        <ArrowRight size={16} />
-                      </Link>
-                    )}
-                    <WorkspaceIdeaListActions idea={idea} mode={mode} canManage={canManage} />
-                  </div>
-                </article>
-              );
-            })
-          ) : (
-            <div className="border border-dashed border-slate-300 bg-white p-8 text-sm leading-6 text-slate-600">
-              {mode === "deleted"
-                ? "삭제한 아이디어가 없습니다."
-                : "현재 검토 중인 아이디어가 없습니다. 실행 보드에서 새 아이디어를 도출해 주세요."}
-            </div>
-          )}
-        </section>
+        <WorkspaceIdeaSelectableList mode={mode} items={listItems} emptyMessage={emptyMessage} />
       </div>
     </main>
   );
