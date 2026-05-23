@@ -121,6 +121,8 @@ type AiGeneratedSampleIdea = {
   targetUser: string;
   buyer: string;
   firstValidation: string;
+  productSurface?: ProductSurfaceKey;
+  firstBuild?: string;
 };
 
 type AiGenerateSampleIdeasResponse = {
@@ -129,6 +131,12 @@ type AiGenerateSampleIdeasResponse = {
   error?: string;
   ideas?: AiGeneratedSampleIdea[];
   source?: string;
+};
+
+type GeneratedIdeaSlot = {
+  id: string;
+  idea: AiGeneratedSampleIdea | null;
+  kept: boolean;
 };
 
 type ExtractionRunMeta = {
@@ -303,6 +311,124 @@ function stripLabel(value: string) {
     .replace(/^아이디어\s*[:：]\s*/, "")
     .replace(/^["“”']|["“”']$/g, "")
     .trim();
+}
+
+const generatedIdeaSlotIndexes = [0, 1, 2] as const;
+
+function isProductSurfaceKey(value: string | undefined): value is ProductSurfaceKey {
+  return Boolean(value && value in productSurfaceProfiles);
+}
+
+function getGeneratedIdeaProductSurface(idea: AiGeneratedSampleIdea) {
+  return isProductSurfaceKey(idea.productSurface) ? productSurfaceProfiles[idea.productSurface] : null;
+}
+
+function normalizeGeneratedIdea(idea: AiGeneratedSampleIdea | null | undefined): AiGeneratedSampleIdea | null {
+  if (!idea) {
+    return null;
+  }
+
+  const title = compactText(idea.title ?? "", 80);
+  const solution = compactText(idea.solution ?? "", 260);
+
+  if (!title || !solution) {
+    return null;
+  }
+
+  return {
+    title,
+    pain: compactText(idea.pain ?? "", 260),
+    solution,
+    targetUser: compactText(idea.targetUser ?? "", 180),
+    buyer: compactText(idea.buyer ?? "", 180),
+    firstValidation: compactText(idea.firstValidation ?? "", 260),
+    productSurface: isProductSurfaceKey(idea.productSurface) ? idea.productSurface : undefined,
+    firstBuild: compactText(idea.firstBuild ?? "", 260),
+  };
+}
+
+function getGeneratedIdeaKey(idea: AiGeneratedSampleIdea) {
+  return compactText(`${idea.title} ${idea.solution}`, 260).toLowerCase();
+}
+
+function createGeneratedIdeaSlot(idea: AiGeneratedSampleIdea | null, index: number, kept = false): GeneratedIdeaSlot {
+  const safeTitle = idea ? compactText(idea.title, 28).replace(/\s+/g, "-") : "empty";
+
+  return {
+    id: `${Date.now()}-${index}-${safeTitle}-${Math.random().toString(36).slice(2, 8)}`,
+    idea,
+    kept,
+  };
+}
+
+function mergeGeneratedIdeaSlots({
+  currentSlots,
+  generatedIdeas,
+  preserveKept,
+}: {
+  currentSlots: GeneratedIdeaSlot[];
+  generatedIdeas: AiGeneratedSampleIdea[];
+  preserveKept: boolean;
+}) {
+  const normalizedCurrentSlots = generatedIdeaSlotIndexes.map(
+    (index) => currentSlots[index] ?? createGeneratedIdeaSlot(null, index),
+  );
+  const existingKeys = new Set(
+    normalizedCurrentSlots
+      .filter((slot) => preserveKept && slot.kept && slot.idea)
+      .map((slot) => getGeneratedIdeaKey(slot.idea as AiGeneratedSampleIdea)),
+  );
+  const replacementIdeas = generatedIdeas
+    .map(normalizeGeneratedIdea)
+    .filter((idea): idea is AiGeneratedSampleIdea => Boolean(idea))
+    .filter((idea) => {
+      const key = getGeneratedIdeaKey(idea);
+
+      if (existingKeys.has(key)) {
+        return false;
+      }
+
+      existingKeys.add(key);
+      return true;
+    });
+  let replacementIndex = 0;
+
+  return normalizedCurrentSlots.map((slot, index) => {
+    if (preserveKept && slot.kept && slot.idea) {
+      return slot;
+    }
+
+    return createGeneratedIdeaSlot(replacementIdeas[replacementIndex++] ?? slot.idea, index, false);
+  });
+}
+
+function formatGeneratedIdeaSource(idea: AiGeneratedSampleIdea, index: number) {
+  const productSurface = getGeneratedIdeaProductSurface(idea);
+
+  return `아이디어 ${index + 1}: ${idea.title}
+문제: ${idea.pain}
+해결: ${idea.solution}
+대상: ${idea.targetUser}
+구매자: ${idea.buyer}
+예상 결과물: ${productSurface?.label ?? "웹 서비스"}
+첫 제작 형태: ${idea.firstBuild || productSurface?.firstBuild || "로그인, 입력, 결과 확인, 저장까지 이어지는 첫 제작 흐름"}
+먼저 확인할 것: ${idea.firstValidation}`;
+}
+
+function buildGeneratedIdeaSourceFromSlots(slots: GeneratedIdeaSlot[]) {
+  return slots
+    .map((slot, index) => (slot.idea ? formatGeneratedIdeaSource(slot.idea, index) : ""))
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function generatedIdeaToExistingContext(idea: AiGeneratedSampleIdea) {
+  return {
+    name: idea.title,
+    one_liner: idea.solution,
+    target_user: idea.targetUser,
+    buyer: idea.buyer,
+  };
 }
 
 function findLabeledValue(block: string, labels: string[]) {
@@ -1609,6 +1735,7 @@ export function VentureConsoleActions({
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
   const [rawIdeaSource, setRawIdeaSource] = useState("");
   const [isAiGeneratedIdeaSource, setIsAiGeneratedIdeaSource] = useState(false);
+  const [generatedIdeaSlots, setGeneratedIdeaSlots] = useState<GeneratedIdeaSlot[]>([]);
   const [extractedIdeas, setExtractedIdeas] = useState<ExtractedIdea[]>([]);
   const [extractionRunMeta, setExtractionRunMeta] = useState<ExtractionRunMeta | null>(null);
   const [extractionReplay, setExtractionReplay] = useState<ExtractionReplaySummary | null>(null);
@@ -1623,6 +1750,10 @@ export function VentureConsoleActions({
   const hasWorkspace = organizations.length > 0 && Boolean(activeOrganizationId || organizations[0]?.id);
   const trimmedIdeaSource = rawIdeaSource.trim();
   const hasIdeaSourceInput = trimmedIdeaSource.length > 0;
+  const filledGeneratedIdeaSlots = generatedIdeaSlots.filter((slot) => slot.idea);
+  const hasGeneratedIdeaSlots = filledGeneratedIdeaSlots.length > 0;
+  const keptGeneratedIdeaCount = filledGeneratedIdeaSlots.filter((slot) => slot.kept).length;
+  const refreshableGeneratedIdeaCount = Math.max(0, filledGeneratedIdeaSlots.length - keptGeneratedIdeaCount);
   const updateActiveTask = useCallback(
     (task: ConsoleActionTask) => {
       setLocalActiveTask(task);
@@ -2385,25 +2516,55 @@ export function VentureConsoleActions({
     router.refresh();
   }
 
-  async function handleGenerateSampleIdeas() {
+  function toggleGeneratedIdeaKeep(slotId: string) {
+    setGeneratedIdeaSlots((currentSlots) =>
+      currentSlots.map((slot) => (slot.id === slotId ? { ...slot, kept: !slot.kept } : slot)),
+    );
+  }
+
+  async function handleGenerateSampleIdeas({ preserveKept = false }: { preserveKept?: boolean } = {}) {
+    const currentGeneratedIdeas = generatedIdeaSlots
+      .map((slot) => slot.idea)
+      .filter((idea): idea is AiGeneratedSampleIdea => Boolean(idea));
+    const keptIdeas = generatedIdeaSlots
+      .filter((slot) => slot.kept && slot.idea)
+      .map((slot) => slot.idea as AiGeneratedSampleIdea);
+    const replaceCount = preserveKept && hasGeneratedIdeaSlots ? refreshableGeneratedIdeaCount : 3;
+
+    if (preserveKept && hasGeneratedIdeaSlots && replaceCount === 0) {
+      setExtractMessage("세 후보가 모두 킵되어 바꿀 자리가 없습니다. 새로 보고 싶은 후보의 킵을 먼저 해제하세요.");
+      return;
+    }
+
     setIsGeneratingSample(true);
     setExtractedIdeas([]);
     setExtractionRunMeta(null);
     setExtractionReplay(null);
-    setExtractMessage("AI가 검토할 아이디어 후보 3개를 도출하는 중입니다.");
-    setIsAiGeneratedIdeaSource(false);
+    setExtractMessage(
+      preserveKept && hasGeneratedIdeaSlots
+        ? `킵한 후보 ${keptIdeas.length}개는 유지하고 ${replaceCount}개 후보를 새로 도출하는 중입니다.`
+        : "AI가 검토할 아이디어 후보 3개를 도출하는 중입니다.",
+    );
+
+    if (!preserveKept) {
+      setGeneratedIdeaSlots([]);
+      setIsAiGeneratedIdeaSource(false);
+    }
 
     try {
       const response = await fetch("/api/ideas/generate-sample", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          existingIdeas: existingIdeas.slice(0, 20).map((idea) => ({
-            name: idea.name,
-            one_liner: idea.one_liner,
-            target_user: idea.target_user,
-            buyer: idea.buyer,
-          })),
+          existingIdeas: [
+            ...currentGeneratedIdeas.map(generatedIdeaToExistingContext),
+            ...existingIdeas.slice(0, 20).map((idea) => ({
+              name: idea.name,
+              one_liner: idea.one_liner,
+              target_user: idea.target_user,
+              buyer: idea.buyer,
+            })),
+          ],
         }),
       });
       const payload = (await response.json().catch(() => ({}))) as AiGenerateSampleIdeasResponse;
@@ -2413,10 +2574,20 @@ export function VentureConsoleActions({
         return;
       }
 
-      setRawIdeaSource(payload.source);
+      const nextSlots = mergeGeneratedIdeaSlots({
+        currentSlots: generatedIdeaSlots,
+        generatedIdeas: payload.ideas ?? [],
+        preserveKept,
+      });
+      const nextSource = buildGeneratedIdeaSourceFromSlots(nextSlots) || payload.source;
+
+      setGeneratedIdeaSlots(nextSlots);
+      setRawIdeaSource(nextSource);
       setIsAiGeneratedIdeaSource(true);
       setExtractMessage(
-        `AI가 ${payload.ideas?.length ?? 3}개 아이디어 후보를 도출했습니다. 내용을 확인한 뒤 이 후보들 중 하나로 정리하세요.`,
+        preserveKept && hasGeneratedIdeaSlots
+          ? `킵한 후보 ${keptIdeas.length}개를 유지하고 ${replaceCount}개 후보를 새로 채웠습니다. 마음에 드는 후보는 계속 킵하세요.`
+          : `AI가 ${payload.ideas?.length ?? 3}개 아이디어 후보를 도출했습니다. 좋은 후보는 킵하고, 더 보고 싶으면 다른 후보 더 확인하기를 누르세요.`,
       );
     } catch (error) {
       setExtractMessage(
@@ -2432,6 +2603,7 @@ export function VentureConsoleActions({
 
     if (!source) {
       setExtractMessage("대화 내용이나 메모를 먼저 붙여넣으세요.");
+      setGeneratedIdeaSlots([]);
       setExtractedIdeas([]);
       setExtractionRunMeta(null);
       setExtractionReplay(null);
@@ -3274,28 +3446,117 @@ export function VentureConsoleActions({
                 <div className="grid gap-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-base font-semibold text-slate-950">입력칸에 내용 붙여넣기</h3>
+                      <h3 className="text-base font-semibold text-slate-950">
+                        {hasGeneratedIdeaSlots ? "AI가 도출한 후보 3칸" : "입력칸에 내용 붙여넣기"}
+                      </h3>
                       <p className="mt-1 text-sm leading-5 text-slate-600">
-                        여기만 채우면 됩니다. 회의 메모, 아이디어, GPT 대화, 자동화하고 싶은 업무를 그대로 넣으세요.
+                        {hasGeneratedIdeaSlots
+                          ? "좋은 후보는 킵해두세요. 다른 후보를 더 확인하면 킵하지 않은 칸만 새로 채워집니다."
+                          : "여기만 채우면 됩니다. 회의 메모, 아이디어, GPT 대화, 자동화하고 싶은 업무를 그대로 넣으세요."}
                       </p>
                     </div>
                     <div className="avl-pill avl-pill-neutral">
-                      {hasIdeaSourceInput ? `${trimmedIdeaSource.length}자 입력됨` : "입력 대기"}
+                      {hasGeneratedIdeaSlots
+                        ? `킵 ${keptGeneratedIdeaCount}/${filledGeneratedIdeaSlots.length}`
+                        : hasIdeaSourceInput
+                          ? `${trimmedIdeaSource.length}자 입력됨`
+                          : "입력 대기"}
                     </div>
                   </div>
-                  <textarea
-                    value={rawIdeaSource}
-                    onChange={(event) => {
-                      setRawIdeaSource(event.target.value);
-                      setIsAiGeneratedIdeaSource(false);
-                    }}
-                    rows={12}
-                    placeholder="예) 고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요. 반복 입력을 줄이고 누락을 확인하는 도구가 필요합니다."
-                    className="avl-textarea min-h-[280px] leading-7"
-                  />
+                  {hasGeneratedIdeaSlots ? (
+                    <div className="grid min-h-[280px] gap-3 lg:grid-cols-3">
+                      {generatedIdeaSlotIndexes.map((slotIndex) => {
+                        const slot = generatedIdeaSlots[slotIndex];
+                        const idea = slot?.idea;
+                        const productSurface = idea ? getGeneratedIdeaProductSurface(idea) : null;
+
+                        return (
+                          <article
+                            key={slot?.id ?? `generated-slot-${slotIndex}`}
+                            className={`flex min-h-[280px] flex-col border p-4 ${
+                              slot?.kept ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                  후보 {slotIndex + 1}
+                                </div>
+                                <h4 className="mt-2 break-words text-base font-semibold leading-6 text-slate-950">
+                                  {idea?.title ?? "새 후보 대기"}
+                                </h4>
+                              </div>
+                              {slot ? (
+                                <label className="flex shrink-0 cursor-pointer items-center gap-2 text-sm font-semibold text-slate-950">
+                                  <input
+                                    type="checkbox"
+                                    checked={slot.kept}
+                                    onChange={() => toggleGeneratedIdeaKeep(slot.id)}
+                                    className="h-4 w-4 accent-slate-950"
+                                  />
+                                  킵
+                                </label>
+                              ) : null}
+                            </div>
+                            {idea ? (
+                              <>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  <span className="avl-pill avl-pill-brand">
+                                    {productSurface?.shortLabel ?? "웹 서비스"}
+                                  </span>
+                                  {slot?.kept ? <span className="avl-pill avl-pill-success">유지됨</span> : null}
+                                </div>
+                                <div className="mt-4 grid gap-3 text-sm leading-6 text-slate-700">
+                                  <p>
+                                    <span className="font-semibold text-slate-950">문제 </span>
+                                    {idea.pain}
+                                  </p>
+                                  <p>
+                                    <span className="font-semibold text-slate-950">해결 </span>
+                                    {idea.solution}
+                                  </p>
+                                  <p>
+                                    <span className="font-semibold text-slate-950">첫 확인 </span>
+                                    {idea.firstValidation}
+                                  </p>
+                                </div>
+                                <p className="mt-auto pt-4 text-xs leading-5 text-slate-600">
+                                  {slot?.kept
+                                    ? "다른 후보를 더 확인해도 이 칸은 유지됩니다."
+                                    : "마음에 들면 킵하세요. 아니면 다음 확인 때 이 칸만 바뀝니다."}
+                                </p>
+                              </>
+                            ) : (
+                              <p className="mt-4 text-sm leading-6 text-slate-600">
+                                다른 후보 더 확인하기를 누르면 이 칸에 새 아이디어가 들어옵니다.
+                              </p>
+                            )}
+                          </article>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <textarea
+                      value={rawIdeaSource}
+                      onChange={(event) => {
+                        setRawIdeaSource(event.target.value);
+                        setGeneratedIdeaSlots([]);
+                        setIsAiGeneratedIdeaSource(false);
+                      }}
+                      rows={12}
+                      placeholder="예) 고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요. 반복 입력을 줄이고 누락을 확인하는 도구가 필요합니다."
+                      className="avl-textarea min-h-[280px] leading-7"
+                    />
+                  )}
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
-                    <span><strong className="text-slate-950">1.</strong> 정리 안 된 메모를 넣습니다.</span>
-                    <span><strong className="text-slate-950">2.</strong> AI가 아이디어와 제작 형태를 정리합니다.</span>
+                    <span>
+                      <strong className="text-slate-950">1.</strong>{" "}
+                      {hasGeneratedIdeaSlots ? "좋은 후보를 킵합니다." : "정리 안 된 메모를 넣습니다."}
+                    </span>
+                    <span>
+                      <strong className="text-slate-950">2.</strong>{" "}
+                      {hasGeneratedIdeaSlots ? "나머지 후보만 새로 확인합니다." : "AI가 아이디어와 제작 형태를 정리합니다."}
+                    </span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 사업성 평가로 이어집니다.</span>
                   </div>
                   <div className="border border-slate-200 bg-slate-50 px-4 py-3">
@@ -3303,7 +3564,9 @@ export function VentureConsoleActions({
                       <div>
                         <h4 className="text-sm font-semibold text-slate-950">AI 정리 작업</h4>
                         <p className="mt-1 text-sm leading-6 text-slate-600">
-                          아이디어가 없으면 후보를 먼저 만들고, 입력칸 내용을 한 건의 검토 아이디어로 정리합니다.
+                          {hasGeneratedIdeaSlots
+                            ? "킵한 후보는 유지하고, 마음에 들지 않은 후보만 새로 확인한 뒤 한 건으로 정리합니다."
+                            : "아이디어가 없으면 후보를 먼저 만들고, 입력칸 내용을 한 건의 검토 아이디어로 정리합니다."}
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -3332,12 +3595,21 @@ export function VentureConsoleActions({
                         <button
                           type="button"
                           onClick={() => {
+                            if (hasGeneratedIdeaSlots) {
+                              void handleGenerateSampleIdeas({ preserveKept: true });
+                              return;
+                            }
+
                             void handleReplayExtractionComparison();
                           }}
                           disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction || !hasIdeaSourceInput}
                           className="avl-btn avl-btn-secondary px-4 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          {isReplayingExtraction ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
+                          {(isGeneratingSample && hasGeneratedIdeaSlots) || isReplayingExtraction ? (
+                            <ArrowsClockwise className="animate-spin" size={15} />
+                          ) : (
+                            <ArrowsClockwise size={15} />
+                          )}
                           다른 후보 더 확인하기
                         </button>
                         {hasIdeaSourceInput ? (
@@ -3345,6 +3617,7 @@ export function VentureConsoleActions({
                             type="button"
                             onClick={() => {
                               setRawIdeaSource("");
+                              setGeneratedIdeaSlots([]);
                               setIsAiGeneratedIdeaSource(false);
                               setExtractedIdeas([]);
                               setExtractionRunMeta(null);
@@ -3523,10 +3796,14 @@ export function VentureConsoleActions({
                       </p>
                     </div>
                     <div className="flex min-h-[126px] flex-col bg-white px-4 py-3">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">AI 정리 다시 보기</div>
-                      <div className="mt-2 text-sm font-semibold text-slate-950">다른 후보 더 확인</div>
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">후보 탐색</div>
+                      <div className="mt-2 text-sm font-semibold text-slate-950">
+                        {hasGeneratedIdeaSlots ? "킵한 후보는 유지" : "다른 후보 더 확인"}
+                      </div>
                       <p className="mt-2 text-xs leading-5 text-slate-600">
-                        결과가 어색하거나 빠진 후보가 있을 때 입력칸 아래 버튼으로 다시 점검합니다.
+                        {hasGeneratedIdeaSlots
+                          ? "다른 후보를 더 확인하면 킵하지 않은 칸만 새 후보로 바뀝니다."
+                          : "결과가 어색하거나 빠진 후보가 있을 때 입력칸 아래 버튼으로 다시 점검합니다."}
                       </p>
                     </div>
                   </div>
