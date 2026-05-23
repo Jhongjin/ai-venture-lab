@@ -9,7 +9,7 @@ const baseUrl = process.env.BROWSER_RLS_SMOKE_URL || process.env.RLS_SMOKE_URL;
 const headless = (process.env.BROWSER_RLS_SMOKE_HEADLESS || process.env.RLS_SMOKE_HEADLESS || process.env.BROWSER_SMOKE_HEADLESS) !== "0";
 const timeout = Number.parseInt(process.env.BROWSER_RLS_SMOKE_TIMEOUT_MS || process.env.RLS_SMOKE_TIMEOUT_MS || process.env.BROWSER_SMOKE_TIMEOUT_MS || "45000", 10);
 const expectBlocked = preflightOnly;
-const extractActionPattern = /아이디어 자동 정리|내용 입력 후 자동 정리|AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/;
+const extractActionPattern = /이 내용으로 아이디어 정리하기|이 후보들 중 하나로 정리하기|AI가 아이디어 도출하기|AI로 아이디어 구체화|AI로 후보 찾기|AI 후보 발굴/;
 const authEntryLinkPattern = /실행 보드 열기|로그인\s*\/\s*회원가입|로그인하기|로그인/;
 const passwordSignInPattern = /비밀번호로 로그인|^로그인$/;
 
