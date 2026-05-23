@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 
 import { AuthAwareCta } from "@/components/auth-aware-cta";
+import { VentureHeroMotion } from "@/components/venture-hero-motion";
 
 export const metadata: Metadata = {
   title: "AI Venture Lab",
@@ -102,7 +103,67 @@ const packageRows = [
 export default function HomePage() {
   return (
     <main id="main-content" data-smoke="landing-command-deck" className="min-h-screen bg-[#F7F7F7] text-[#0D0D0D]">
-      <section className="border-b border-[#E5E5E5] bg-[#F7F7F7]">
+      <section className="relative isolate overflow-hidden bg-[#05070C] text-white">
+        <div aria-hidden="true" className="absolute inset-0 opacity-60 sm:opacity-80 [&>*]:h-full [&>*]:w-full">
+          <VentureHeroMotion />
+        </div>
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(159,229,193,0.28),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(72,177,255,0.22),transparent_28%),linear-gradient(180deg,rgba(5,7,12,0.18),rgba(5,7,12,0.96))]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,12,0.94)_0%,rgba(5,7,12,0.8)_42%,rgba(5,7,12,0.34)_68%,rgba(5,7,12,0.82)_100%)]"
+        />
+        <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:56px_56px]" />
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-[#F7F7F7]" />
+
+        <div className="relative z-10 mx-auto flex min-h-[calc(100svh-12rem)] w-full max-w-[1240px] flex-col px-4 py-6 sm:min-h-[calc(100svh-11rem)] sm:px-6 sm:py-8">
+          <div className="flex items-center justify-between gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-white/62">
+            <span>AI Venture Lab</span>
+            <span>Package OS</span>
+          </div>
+
+          <div className="flex flex-1 items-end py-12 sm:py-14 lg:py-16">
+            <div className="max-w-[860px]">
+              <p className="inline-flex border border-white/16 bg-white/8 px-2.5 py-1 text-xs font-semibold text-[#9FE5C1] backdrop-blur">
+                automation-first product OS
+              </p>
+              <h1 className="mt-7 max-w-[10ch] text-6xl font-semibold leading-none text-white sm:text-7xl lg:text-8xl">
+                AI Venture Lab
+              </h1>
+              <p className="mt-6 max-w-[18ch] break-keep text-3xl font-semibold leading-tight text-[#DDFBEA] sm:text-4xl lg:text-5xl">
+                아이디어는 메모로 들어오고, 제작 패키지로 나갑니다.
+              </p>
+              <p className="mt-6 max-w-[58ch] break-keep text-base leading-7 text-white/72 sm:text-lg">
+                AI가 사업성, 시장성, 리스크, 검증 계획, 제작 범위를 먼저 정리합니다. 사용자는 중요한 판단만 확인합니다.
+              </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <AuthAwareCta className="avl-btn h-11 border border-[#9FE5C1] bg-[#9FE5C1] px-5 text-sm text-[#05070C] hover:bg-[#C9F4DA]" />
+                <a href="#command-deck" className="avl-btn h-11 border border-white/18 bg-white/8 px-5 text-sm text-white hover:bg-white/14">
+                  패키지 미리보기
+                </a>
+              </div>
+
+              <dl className="mt-10 hidden max-w-[720px] grid-cols-1 gap-px bg-white/12 text-sm sm:grid sm:grid-cols-3">
+                {[
+                  ["입력", "메모, 회의록, 대화"],
+                  ["정리", "시장성, 리스크, 범위"],
+                  ["출력", "제작 패키지"],
+                ].map(([label, value]) => (
+                  <div key={label} className="bg-[#05070C]/58 p-4 backdrop-blur">
+                    <dt className="text-xs font-semibold text-white/48">{label}</dt>
+                    <dd className="mt-2 break-keep text-sm font-semibold text-white">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="command-deck" className="border-b border-[#E5E5E5] bg-[#F7F7F7]">
         <div className="mx-auto grid w-full max-w-[1240px] gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <div>
             <p className="inline-flex border border-[#E5E5E5] bg-white px-2.5 py-1 text-xs font-semibold text-[#5E5E5E]">
