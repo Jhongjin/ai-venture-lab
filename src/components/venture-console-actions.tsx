@@ -3472,7 +3472,7 @@ export function VentureConsoleActions({
 
           <div className="space-y-3">
             <section className="avl-card p-4 text-slate-900">
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
                 <div className="grid gap-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -3675,7 +3675,7 @@ export function VentureConsoleActions({
                   ) : null}
                 </div>
 
-                <div className="grid gap-3">
+                <div className="grid min-w-0 gap-3">
                   {extractedIdeas.length > 0 && recommendedExtractedIdea ? (
                     <section className="border border-slate-200 bg-white p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -3746,8 +3746,8 @@ export function VentureConsoleActions({
                         </p>
                       </div>
                       <div className="mt-4 border border-slate-200 bg-slate-50 px-4 py-3">
-                        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                          <div>
+                        <div className="grid gap-3">
+                          <div className="min-w-0">
                             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
                               제작 방식
                             </div>
@@ -3759,12 +3759,12 @@ export function VentureConsoleActions({
                               마지막 단계에서 열립니다.
                             </p>
                           </div>
-                          <span className="avl-pill avl-pill-neutral">
+                          <span className="avl-pill avl-pill-neutral w-fit">
                             {buildDeliveryModeLabels[normalizedBuildDeliveryPreference.mode]}
                           </span>
                         </div>
-                        <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.62fr)_minmax(260px,0.38fr)]">
-                          <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="mt-4 grid gap-3">
+                          <div className="grid gap-2">
                             {(["external_tool", "venture_lab"] as BuildDeliveryMode[]).map((mode) => (
                               <button
                                 key={mode}
@@ -3774,7 +3774,7 @@ export function VentureConsoleActions({
                                     normalizeBuildDeliveryPreference({ ...current, mode }),
                                   )
                                 }
-                                className={`border px-4 py-3 text-left text-sm ${
+                                className={`min-w-0 border px-4 py-3 text-left text-sm ${
                                   normalizedBuildDeliveryPreference.mode === mode
                                     ? "border-slate-950 bg-slate-950 text-white"
                                     : "border-slate-200 bg-white text-slate-900"
@@ -3793,7 +3793,7 @@ export function VentureConsoleActions({
                               </button>
                             ))}
                           </div>
-                          <label className="grid gap-2 text-sm font-semibold text-slate-900">
+                          <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-900">
                             외부 제작 도구
                             <select
                               value={normalizedBuildDeliveryPreference.externalTool}

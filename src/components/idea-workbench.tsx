@@ -8915,8 +8915,37 @@ export function IdeaWorkbench({
         (artifact.title || "").includes("제작 패키지") ||
         (artifact.title || "").includes("하네스 패키지")),
   );
+  const hasDevelopmentDesignPackageArtifact = hasDesignGenerationPromptArtifact || hasDesignBriefArtifact;
+  const hasDevelopmentExecutionPackageArtifact =
+    hasDevelopmentPlanArtifact ||
+    selectedArtifactRecords.some(
+      (artifact) =>
+        artifact.artifact_type === "dev_runbook" &&
+        (artifact.source === "development_process" ||
+          (artifact.title || "").includes("제작 실행 계획") ||
+          (artifact.body || "").includes("## 상세 실행 계획")),
+    );
+  const hasDevelopmentHandoffPackageArtifact =
+    hasAgentRunPackageArtifact ||
+    selectedArtifactRecords.some(
+      (artifact) =>
+        artifact.artifact_type === "dev_runbook" &&
+        ((artifact.body || "").includes("# 제작 패키지") ||
+          (artifact.body || "").includes("제작 도구 전달 자료") ||
+          (artifact.body || "").includes("외부 제작 패키지 구성")),
+    );
+  const manualDevelopmentDraftCount = [
+    hasBackendDecisionArtifact,
+    hasDevelopmentDesignPackageArtifact,
+    hasTechSpecArtifact,
+    hasDevRunbookArtifact,
+  ].filter(Boolean).length;
+  const hasManualDevelopmentPackageFallback = hasDevRunbookArtifact && manualDevelopmentDraftCount >= 3;
   const canEnterOrchestrationFromDevelopmentDocs =
-    hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact && hasAgentRunPackageArtifact;
+    (hasDevelopmentDesignPackageArtifact &&
+      hasDevelopmentExecutionPackageArtifact &&
+      hasDevelopmentHandoffPackageArtifact) ||
+    hasManualDevelopmentPackageFallback;
 
   const developmentOpsArtifacts = selectedArtifactRecords.filter((artifact) =>
     ["backend_decision", "tech_spec", "dev_runbook"].includes(artifact.artifact_type),
@@ -9338,7 +9367,7 @@ export function IdeaWorkbench({
   const visibleDevelopmentPanel: DevelopmentPanel =
     experienceMode === "guided" ? "setup" : developmentPanel;
   const hasSavedDevelopmentAutoPackage =
-    hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact && hasAgentRunPackageArtifact;
+    canEnterOrchestrationFromDevelopmentDocs;
   const effectiveDevelopmentAutoFlowState: DevelopmentAutoFlowState | "saved" =
     hasSavedDevelopmentAutoPackage ? "saved" : developmentAutoFlowState;
   const developmentAutoProgressSteps = [
