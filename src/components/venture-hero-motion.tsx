@@ -40,6 +40,63 @@ const packageItems = [
 
 const signalBars = [38, 58, 31, 72, 44, 64, 26, 52, 84, 46, 68, 34];
 
+const signalStreams = [
+  {
+    top: "16%",
+    left: "2%",
+    width: "72%",
+    rotate: "-7deg",
+    delay: "0s",
+    duration: "5.8s",
+    color: "from-transparent via-cyan-100/85 to-transparent",
+  },
+  {
+    top: "27%",
+    left: "9%",
+    width: "78%",
+    rotate: "4deg",
+    delay: "1.1s",
+    duration: "6.7s",
+    color: "from-transparent via-emerald-200/76 to-transparent",
+  },
+  {
+    top: "39%",
+    left: "-2%",
+    width: "86%",
+    rotate: "-2deg",
+    delay: "0.4s",
+    duration: "6.2s",
+    color: "from-transparent via-sky-100/74 to-transparent",
+  },
+  {
+    top: "57%",
+    left: "7%",
+    width: "82%",
+    rotate: "6deg",
+    delay: "2.2s",
+    duration: "7.1s",
+    color: "from-transparent via-amber-200/68 to-transparent",
+  },
+  {
+    top: "72%",
+    left: "0%",
+    width: "74%",
+    rotate: "-5deg",
+    delay: "1.7s",
+    duration: "6.4s",
+    color: "from-transparent via-teal-200/74 to-transparent",
+  },
+];
+
+const signalNodes = [
+  { top: "22%", left: "18%", delay: "0.2s", color: "bg-cyan-200" },
+  { top: "33%", left: "28%", delay: "1.5s", color: "bg-emerald-200" },
+  { top: "46%", left: "13%", delay: "2.1s", color: "bg-sky-100" },
+  { top: "63%", left: "24%", delay: "0.9s", color: "bg-amber-200" },
+  { top: "76%", left: "36%", delay: "2.8s", color: "bg-teal-200" },
+  { top: "18%", left: "52%", delay: "3.3s", color: "bg-cyan-100" },
+];
+
 export function VentureHeroMotion() {
   return (
     <div
@@ -100,6 +157,37 @@ export function VentureHeroMotion() {
             100% { opacity: 0; transform: translate3d(0, 28px, 0); }
           }
 
+          @keyframes vhm-signal-track {
+            0% { opacity: 0.14; transform: scaleX(0.86); }
+            42% { opacity: 0.56; transform: scaleX(1); }
+            100% { opacity: 0.18; transform: scaleX(0.92); }
+          }
+
+          @keyframes vhm-signal-packet {
+            0% { opacity: 0.12; transform: translate3d(-18%, -50%, 0) scaleX(0.1); }
+            12% { opacity: 1; }
+            52% { opacity: 0.86; transform: translate3d(54%, -50%, 0) scaleX(1); }
+            100% { opacity: 0.14; transform: translate3d(118%, -50%, 0) scaleX(0.26); }
+          }
+
+          @keyframes vhm-bit-drift {
+            0% { opacity: 0; transform: translate3d(-12px, 18px, 0) scale(0.72); }
+            18% { opacity: 0.9; }
+            68% { opacity: 0.64; }
+            100% { opacity: 0; transform: translate3d(148px, -18px, 0) scale(1.28); }
+          }
+
+          @keyframes vhm-core-ripple {
+            0% { opacity: 0; transform: scale(0.76); }
+            28% { opacity: 0.42; }
+            100% { opacity: 0; transform: scale(1.28); }
+          }
+
+          @keyframes vhm-output-spark {
+            0%, 100% { opacity: 0.28; transform: translate3d(0, 0, 0); }
+            50% { opacity: 0.94; transform: translate3d(12px, 0, 0); }
+          }
+
           .vhm-motion {
             will-change: transform, opacity;
           }
@@ -147,6 +235,28 @@ export function VentureHeroMotion() {
             animation: vhm-scanline 4.8s linear infinite;
           }
 
+          .vhm-signal-track {
+            animation: vhm-signal-track 5.8s ease-in-out infinite;
+            transform-origin: center;
+          }
+
+          .vhm-signal-packet {
+            animation: vhm-signal-packet 6.4s cubic-bezier(0.42, 0, 0.2, 1) infinite;
+            transform-origin: left center;
+          }
+
+          .vhm-bit-drift {
+            animation: vhm-bit-drift 6.2s cubic-bezier(0.38, 0, 0.2, 1) infinite;
+          }
+
+          .vhm-core-ripple {
+            animation: vhm-core-ripple 3.8s ease-out infinite;
+          }
+
+          .vhm-output-spark {
+            animation: vhm-output-spark 2.8s ease-in-out infinite;
+          }
+
           @media (prefers-reduced-motion: reduce) {
             .venture-hero-motion .vhm-motion {
               animation: none !important;
@@ -175,6 +285,42 @@ export function VentureHeroMotion() {
       />
       <div aria-hidden="true" className="vhm-motion vhm-scanline absolute inset-x-0 top-[32%] h-px bg-cyan-200/35" />
       <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,transparent_48%,rgba(0,0,0,0.54)_100%)]" />
+
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-[1] overflow-hidden opacity-90 [mask-image:linear-gradient(90deg,transparent,black_12%,black_86%,transparent)]"
+      >
+        {signalStreams.map((stream) => (
+          <div
+            className="absolute"
+            key={`${stream.top}-${stream.left}`}
+            style={{
+              left: stream.left,
+              top: stream.top,
+              transform: `rotate(${stream.rotate})`,
+              width: stream.width,
+            }}
+          >
+            <span
+              className={`vhm-motion vhm-signal-track absolute left-0 top-1/2 h-px w-full rounded-full bg-gradient-to-r ${stream.color}`}
+              style={{ animationDelay: stream.delay, animationDuration: stream.duration }}
+            />
+            <span
+              className={`vhm-motion vhm-signal-packet absolute left-0 top-1/2 h-1 w-36 rounded-full bg-gradient-to-r ${stream.color} shadow-[0_0_30px_rgba(125,211,252,0.44)]`}
+              style={{ animationDelay: stream.delay, animationDuration: stream.duration }}
+            />
+          </div>
+        ))}
+
+        {signalNodes.map((node) => (
+          <span
+            aria-hidden="true"
+            className={`vhm-motion vhm-bit-drift absolute h-2.5 w-2.5 rounded-[3px] ${node.color} shadow-[0_0_20px_rgba(125,211,252,0.5)]`}
+            key={`${node.top}-${node.left}`}
+            style={{ animationDelay: node.delay, left: node.left, top: node.top }}
+          />
+        ))}
+      </div>
 
       <div className="relative z-10 flex min-h-[620px] flex-col p-4 sm:min-h-[560px] sm:p-5 lg:min-h-[520px] lg:p-6">
         <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
@@ -267,6 +413,12 @@ export function VentureHeroMotion() {
 
             <div className="absolute left-1/2 top-1/2 w-[min(68%,280px)] -translate-x-1/2 -translate-y-1/2">
               <div className="relative rounded-[6px] border border-cyan-200/30 bg-slate-950/90 p-4 text-center shadow-[0_24px_70px_rgba(0,0,0,0.42)]">
+                <span aria-hidden="true" className="vhm-motion vhm-core-ripple absolute inset-[-28px] rounded-[10px] border border-cyan-200/24" />
+                <span
+                  aria-hidden="true"
+                  className="vhm-motion vhm-core-ripple absolute inset-[-48px] rounded-[14px] border border-emerald-200/16"
+                  style={{ animationDelay: "1.4s" }}
+                />
                 <span aria-hidden="true" className="absolute -left-8 top-1/2 h-px w-8 bg-cyan-200/45" />
                 <span aria-hidden="true" className="absolute -right-8 top-1/2 h-px w-8 bg-cyan-200/45" />
                 <span aria-hidden="true" className="absolute left-1/2 top-[-32px] h-8 w-px bg-cyan-200/28" />
@@ -316,7 +468,7 @@ export function VentureHeroMotion() {
                         <span className="font-mono text-[12px] font-semibold uppercase text-white">{item.label}</span>
                       </div>
                       <span
-                        className="vhm-motion vhm-stack font-mono text-[10px] uppercase text-slate-500"
+                        className="vhm-motion vhm-output-spark font-mono text-[10px] uppercase text-slate-500"
                         style={{ animationDelay: `${index * 0.18}s` }}
                       >
                         {item.value}
