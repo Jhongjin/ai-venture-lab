@@ -29,6 +29,14 @@ import {
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
+import {
+  buildDeliveryModeLabels,
+  externalBuildToolProfiles,
+  getBuildDeliveryPreferenceFromArtifacts,
+  getExternalBuildToolProfile,
+  type BuildDeliveryMode,
+  type ExternalBuildToolProfile,
+} from "@/lib/build-delivery";
 import type {
   Decision,
   Experiment,
@@ -862,6 +870,10 @@ export type WorkbenchStepReadiness = {
   canEnterArtifacts: boolean;
   canEnterDevelopment: boolean;
   canEnterOrchestration: boolean;
+  canEnterLaunch: boolean;
+  launchReadinessScore: number;
+  nextLaunchBlockerLabel: string | null;
+  nextLaunchBlockerDetail: string | null;
   hasIdeaBriefArtifact: boolean;
   hasResearchBriefArtifact: boolean;
   hasValidationSprintArtifact: boolean;
@@ -874,17 +886,7 @@ export type WorkbenchStepReadiness = {
 type ArtifactPanel = "validation" | "product" | "library";
 type DevelopmentPanel = "setup" | "tasks" | "handoff";
 type DevelopmentAutoFlowState = "idle" | "running" | "review" | "summary";
-type BuildDeliveryMode = "venture_lab" | "external_tool";
-type ExternalBuildToolKey = "cursor" | "codex" | "claude_code" | "antigravity" | "generic_mcp";
 type ArtifactReviewStatus = "approved" | "draft" | "missing";
-
-type ExternalBuildToolProfile = {
-  key: ExternalBuildToolKey;
-  label: string;
-  description: string;
-  packageFocus: string;
-  startMethod: string;
-};
 
 type ArtifactReviewItem = {
   id: string;
@@ -924,59 +926,6 @@ const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
   validation: "아이디어 요약, 조사 요약, 7일 검증 계획을 먼저 저장합니다.",
   product: "기획서, 첫 제작 범위, 출시 체크리스트를 생성합니다.",
   library: "저장된 자료를 필터링하고 승인 상태를 관리합니다.",
-};
-const buildDeliveryModeLabels: Record<BuildDeliveryMode, string> = {
-  venture_lab: "Venture Lab에서 계속 진행",
-  external_tool: "외부 제작 도구로 넘기기",
-};
-const externalBuildToolProfiles: Record<ExternalBuildToolKey, ExternalBuildToolProfile> = {
-  cursor: {
-    key: "cursor",
-    label: "Cursor",
-    description: "프로젝트 규칙과 작업 순서를 붙여 첫 수직 슬라이스를 구현합니다.",
-    packageFocus: "목차 00-06, 제외 범위, 첫 태스크, 품질 명령을 Cursor 규칙 문맥으로 묶습니다.",
-    startMethod: "제작 패키지를 프로젝트 규칙/참고 문서로 넣고 첫 태스크 하나만 선택해 구현합니다.",
-  },
-  codex: {
-    key: "codex",
-    label: "Codex",
-    description: "작업 범위, 변경 파일, 검증 명령, 배포/롤백 보고 형식까지 한 번에 전달합니다.",
-    packageFocus: "AGENTS 지침, 변경 허용 범위, 품질 명령, 완료 보고 형식을 명확히 분리합니다.",
-    startMethod: "제작 패키지를 첫 메시지로 넣고 변경 파일, 검증 명령, 배포 URL, 남은 리스크를 보고하게 합니다.",
-  },
-  claude_code: {
-    key: "claude_code",
-    label: "Claude Code",
-    description: "승인된 제작 자료와 제외 범위를 먼저 고정하고 구현 대화를 시작합니다.",
-    packageFocus: "기획/디자인/기술 자료와 제외 범위를 짧은 컨텍스트 순서로 정리합니다.",
-    startMethod: "승인된 제작 자료와 작업 순서만 컨텍스트로 넣고 제외 범위를 먼저 확인합니다.",
-  },
-  antigravity: {
-    key: "antigravity",
-    label: "Google Antigravity",
-    description: "화면 구조, 기술 방향, 검증/배포 기준을 순서대로 등록해 첫 빌드를 진행합니다.",
-    packageFocus: "화면 구조, 기술 경계, 검증 기준, 첫 수직 슬라이스를 단계 자료로 나눕니다.",
-    startMethod: "화면 구조, 기술 방향, 검증/배포 기준을 순서대로 등록한 뒤 첫 수직 슬라이스만 실행합니다.",
-  },
-  generic_mcp: {
-    key: "generic_mcp",
-    label: "범용 MCP 전달",
-    description: "외부 도구가 읽을 리소스 URI, 권한, 완료 보고 형식을 중심으로 넘깁니다.",
-    packageFocus: "읽기 전용 리소스 URI, 실행 명령 분리, 권한 범위, 완료 보고 형식을 고정합니다.",
-    startMethod: "제작 패키지를 읽기 전용 기준 자료로 노출하고 실행 명령과 권한 범위를 분리합니다.",
-  },
-};
-const releaseDecisionTone: Record<DecisionStatus, string> = {
-  pending: "avl-pill avl-pill-neutral",
-  research_more: "avl-pill avl-pill-warning",
-  ship: "avl-pill avl-pill-success",
-  pivot: "avl-pill avl-pill-neutral",
-  kill: "avl-pill avl-pill-danger",
-};
-const releaseDecisionConfidenceTone: Record<ReleaseDecisionConfidence, string> = {
-  high: "avl-pill avl-pill-success",
-  medium: "avl-pill avl-pill-warning",
-  low: "avl-pill avl-pill-danger",
 };
 const artifactReviewIntensityTone: Record<ArtifactReviewIntensity, string> = {
   new: "avl-pill avl-pill-info",
@@ -2425,10 +2374,10 @@ function buildExternalProductionPackageGuide(
   const deliveryLabel = buildDeliveryModeLabels[deliveryMode];
   const deliveryFocus = isExternalDelivery
     ? selectedTool.packageFocus
-    : "Venture Lab의 작업 순서 보드, 실행 할 일, 출시 판단, 성과 확인 화면에서 이어서 처리합니다.";
+    : "Venture Lab의 작업 순서 보드, 실행 할 일, 최종 실행, 성과 확인 화면에서 이어서 처리합니다.";
   const startMethod = isExternalDelivery
     ? selectedTool.startMethod
-    : "STEP 6 작업 순서 보드에서 필요한 단계 결과만 저장하고, STEP 7 출시 판단과 STEP 8 성과 확인으로 이어갑니다.";
+    : "STEP 6 작업 순서 보드에서 필요한 단계 결과만 저장하고, STEP 7 최종 실행과 STEP 8 성과 확인으로 이어갑니다.";
 
   return `## 제작 패키지 목차
 
@@ -7782,8 +7731,6 @@ export function IdeaWorkbench({
   const [developmentAutoFlowState, setDevelopmentAutoFlowState] = useState<DevelopmentAutoFlowState>("idle");
   const [developmentAutoStepIndex, setDevelopmentAutoStepIndex] = useState(0);
   const [developmentAutoNote, setDevelopmentAutoNote] = useState("");
-  const [buildDeliveryMode, setBuildDeliveryMode] = useState<BuildDeliveryMode>("external_tool");
-  const [externalBuildTool, setExternalBuildTool] = useState<ExternalBuildToolKey>("cursor");
   const developmentAutoRunIdRef = useRef(0);
   const experienceMode = "guided" as "guided" | "full";
   const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
@@ -8003,6 +7950,17 @@ export function IdeaWorkbench({
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     [artifacts, selectedIdea?.id],
   );
+  const buildDeliveryPreference = useMemo(
+    () => getBuildDeliveryPreferenceFromArtifacts(selectedArtifactRecords),
+    [selectedArtifactRecords],
+  );
+  const buildDeliveryMode: BuildDeliveryMode = buildDeliveryPreference.mode;
+  const activeExternalBuildTool = getExternalBuildToolProfile(buildDeliveryPreference);
+  const activeBuildDeliveryLabel = buildDeliveryModeLabels[buildDeliveryMode];
+  const activeBuildDeliveryDetail =
+    buildDeliveryMode === "external_tool"
+      ? `${activeExternalBuildTool.label}에 맞춰 전달 자료와 시작 방법을 정리합니다. 실제 파일 받기와 연동은 마지막 단계에서 열립니다.`
+      : "Venture Lab 안에서 작업 순서, 실행 할 일, 최종 실행, 성과 확인 화면으로 이어갑니다.";
   const artifactReviewQueue = useMemo(() => buildArtifactReviewQueue(selectedArtifactRecords), [selectedArtifactRecords]);
   const approvedArtifactReviewCount = artifactReviewQueue.filter((item) => item.status === "approved").length;
   const nextArtifactReviewItem = artifactReviewQueue.find((item) => item.status !== "approved") ?? null;
@@ -8530,12 +8488,6 @@ export function IdeaWorkbench({
   const savedEditState = selectedIdea ? toEditState(selectedIdea) : null;
   const selectedProductSurface = selectedIdea && editState ? inferIdeaProductSurface(selectedIdea, editState) : null;
   const activeProductSurface = selectedProductSurface ?? productSurfaceProfiles.web_app;
-  const activeExternalBuildTool = externalBuildToolProfiles[externalBuildTool];
-  const activeBuildDeliveryLabel = buildDeliveryModeLabels[buildDeliveryMode];
-  const activeBuildDeliveryDetail =
-    buildDeliveryMode === "external_tool"
-      ? `${activeExternalBuildTool.label}에 맞춰 전달 자료와 시작 방법을 정리합니다.`
-      : "Venture Lab 안에서 작업 순서, 실행 할 일, 출시 판단, 성과 확인을 이어갑니다.";
   const hasReachedScoreStage = selectedIdea
     ? (stageRank.get(selectedIdea.stage) ?? 0) >= (stageRank.get("score") ?? 0)
     : false;
@@ -8966,37 +8918,6 @@ export function IdeaWorkbench({
   const canEnterOrchestrationFromDevelopmentDocs =
     hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact && hasAgentRunPackageArtifact;
 
-  useEffect(() => {
-    onStepReadinessChange?.({
-      selectedIdeaId: selectedIdea?.id ?? null,
-      canEnterExperiment: isScoreEvaluationSaved,
-      canEnterArtifacts: selectedExperiments.length > 0 && hasMarketScanArtifact,
-      canEnterDevelopment: canEnterDevelopmentFromValidationDocs,
-      canEnterOrchestration: canEnterOrchestrationFromDevelopmentDocs,
-      hasIdeaBriefArtifact,
-      hasResearchBriefArtifact,
-      hasValidationSprintArtifact,
-      hasValidationSummaryArtifact,
-      hasDesignGenerationPromptArtifact,
-      hasDevelopmentPlanArtifact,
-      hasAgentRunPackageArtifact,
-    });
-  }, [
-    canEnterDevelopmentFromValidationDocs,
-    canEnterOrchestrationFromDevelopmentDocs,
-    hasAgentRunPackageArtifact,
-    hasDesignGenerationPromptArtifact,
-    hasDevelopmentPlanArtifact,
-    hasIdeaBriefArtifact,
-    hasMarketScanArtifact,
-    hasResearchBriefArtifact,
-    hasValidationSprintArtifact,
-    hasValidationSummaryArtifact,
-    isScoreEvaluationSaved,
-    onStepReadinessChange,
-    selectedExperiments.length,
-    selectedIdea?.id,
-  ]);
   const developmentOpsArtifacts = selectedArtifactRecords.filter((artifact) =>
     ["backend_decision", "tech_spec", "dev_runbook"].includes(artifact.artifact_type),
   );
@@ -9420,8 +9341,6 @@ export function IdeaWorkbench({
     hasDesignGenerationPromptArtifact && hasDevelopmentPlanArtifact && hasAgentRunPackageArtifact;
   const effectiveDevelopmentAutoFlowState: DevelopmentAutoFlowState | "saved" =
     hasSavedDevelopmentAutoPackage ? "saved" : developmentAutoFlowState;
-  const canDownloadDevelopmentAutoPackage =
-    effectiveDevelopmentAutoFlowState === "summary" || effectiveDevelopmentAutoFlowState === "saved";
   const developmentAutoProgressSteps = [
     {
       label: "검증 결과 읽는 중",
@@ -9449,7 +9368,7 @@ export function IdeaWorkbench({
       detail:
         buildDeliveryMode === "external_tool"
           ? `${activeExternalBuildTool.packageFocus} ${activeProductSurface.handoffHint}`
-          : "작업 순서 보드, 실행 할 일, 출시 판단, 성과 확인 화면에서 이어서 처리할 자료를 묶습니다.",
+          : "작업 순서 보드, 실행 할 일, 최종 실행, 성과 확인 화면에서 이어서 처리할 자료를 묶습니다.",
     },
   ];
   const developmentAutoSummaryCards = [
@@ -9528,7 +9447,7 @@ export function IdeaWorkbench({
       detail:
         buildDeliveryMode === "external_tool"
           ? `${activeExternalBuildTool.label} 기준의 시작 방법, 검증/보고 형식, 읽을 자료 순서를 저장합니다.`
-          : "Venture Lab 안에서 이어서 볼 작업 순서, 검증 기준, 출시 판단 기준을 저장합니다.",
+          : "Venture Lab 안에서 이어서 볼 작업 순서, 검증 기준, 최종 실행 기준을 저장합니다.",
     },
   ];
   const developmentAutoTaskDraftLines =
@@ -9570,7 +9489,7 @@ export function IdeaWorkbench({
         "## 제작 도구 전달 기준",
         buildDeliveryMode === "external_tool"
           ? `저장 후 생성되는 제작 패키지는 ${activeExternalBuildTool.label}에 넘길 자료로 사용합니다.`
-          : "저장 후 생성되는 제작 패키지는 Venture Lab 안에서 작업 순서와 출시 판단을 이어가는 기준 자료로 사용합니다.",
+          : "저장 후 생성되는 제작 패키지는 Venture Lab 안에서 작업 순서와 최종 실행을 이어가는 기준 자료로 사용합니다.",
         "제품 기획서, 디자인 방향, 기술 스택, 첫 제작 범위, 제외 범위, 검증 기준을 같은 맥락으로 묶어 다음 제작 단계가 흔들리지 않게 합니다.",
         "",
         "## 사용자 보완 메모",
@@ -9720,6 +9639,47 @@ export function IdeaWorkbench({
       ? 0
       : Math.round((passedLaunchReadinessCount / launchReadiness.length) * 100);
   const nextLaunchBlocker = launchReadiness.find((check) => !check.passed) ?? null;
+  const canEnterLaunch = launchReadiness.length > 0 && !nextLaunchBlocker;
+
+  useEffect(() => {
+    onStepReadinessChange?.({
+      selectedIdeaId: selectedIdea?.id ?? null,
+      canEnterExperiment: isScoreEvaluationSaved,
+      canEnterArtifacts: selectedExperiments.length > 0 && hasMarketScanArtifact,
+      canEnterDevelopment: canEnterDevelopmentFromValidationDocs,
+      canEnterOrchestration: canEnterOrchestrationFromDevelopmentDocs,
+      canEnterLaunch,
+      launchReadinessScore,
+      nextLaunchBlockerLabel: nextLaunchBlocker?.label ?? null,
+      nextLaunchBlockerDetail: nextLaunchBlocker?.detail ?? null,
+      hasIdeaBriefArtifact,
+      hasResearchBriefArtifact,
+      hasValidationSprintArtifact,
+      hasValidationSummaryArtifact,
+      hasDesignGenerationPromptArtifact,
+      hasDevelopmentPlanArtifact,
+      hasAgentRunPackageArtifact,
+    });
+  }, [
+    canEnterDevelopmentFromValidationDocs,
+    canEnterLaunch,
+    canEnterOrchestrationFromDevelopmentDocs,
+    hasAgentRunPackageArtifact,
+    hasDesignGenerationPromptArtifact,
+    hasDevelopmentPlanArtifact,
+    hasIdeaBriefArtifact,
+    hasMarketScanArtifact,
+    hasResearchBriefArtifact,
+    hasValidationSprintArtifact,
+    hasValidationSummaryArtifact,
+    isScoreEvaluationSaved,
+    launchReadinessScore,
+    nextLaunchBlocker?.detail,
+    nextLaunchBlocker?.label,
+    onStepReadinessChange,
+    selectedExperiments.length,
+    selectedIdea?.id,
+  ]);
   const releaseDecisionPacket = selectedIdea && editState
     ? buildReleaseDecisionPacket({
         idea: selectedIdea,
@@ -9741,7 +9701,6 @@ export function IdeaWorkbench({
         decisions: selectedDecisions,
       })
     : null;
-  const releaseDecisionPacketDraft = releaseDecisionPacket?.markdown ?? "";
   const mvpBuildCommandPacketDraft = selectedIdea && editState
     ? buildMvpBuildCommandPacketMarkdown({
         idea: selectedIdea,
@@ -9794,6 +9753,13 @@ export function IdeaWorkbench({
         nextLaunchBlocker,
       })
     : "";
+  const finalExecutionProjectKey = selectedIdea ? selectedIdea.id.slice(0, 8).toUpperCase() : "PROJECT";
+  const finalExecutionCommandPreview = [
+    "npm i -g @ai-venture-lab/cli",
+    `ai-venture-lab init ${finalExecutionProjectKey} --tool ${activeExternalBuildTool.key}`,
+    `ai-venture-lab next ${finalExecutionProjectKey}`,
+  ];
+  const finalExecutionTaskPreview = selectedImplementationTasks.slice(0, 6);
   const doneRunCount = selectedRuns.filter((run) => run.status === "done").length;
   const workbenchTasks: Array<{
     id: WorkbenchTask;
@@ -9862,9 +9828,9 @@ export function IdeaWorkbench({
     },
     {
       id: "launch",
-      label: "출시 판단",
-      description: "출시 점검 통과 상태를 확인합니다.",
-      status: `${launchReadinessScore}%`,
+      label: "최종 실행",
+      description: "외부 연동 또는 내부 개발로 넘깁니다.",
+      status: canEnterLaunch ? "준비 완료" : `${launchReadinessScore}%`,
     },
     {
       id: "learning",
@@ -9907,7 +9873,7 @@ export function IdeaWorkbench({
       case "qa":
         return { label: "STEP 5 제작 준비", task: "development" as WorkbenchTask };
       case "launch":
-        return { label: "STEP 7 출시 판단", task: "launch" as WorkbenchTask };
+        return { label: "STEP 7 최종 실행", task: "launch" as WorkbenchTask };
       case "intake":
       case "research":
       case "score":
@@ -10008,8 +9974,14 @@ export function IdeaWorkbench({
         };
       case "launch":
         return {
-          title: "출시 판단은 준비도와 남은 차단 항목만 확인하면 됩니다.",
-          detail: "검증, 제작 자료, 구현 증거, 배포/롤백 기준이 부족하면 공개 출시 대신 보완으로 남깁니다.",
+          title: canEnterLaunch
+            ? "모든 준비가 끝났습니다. 이제 선택한 제작 방식으로 실행하면 됩니다."
+            : "최종 실행 전 준비가 남아 있습니다. 이 단계는 준비가 끝나야 열립니다.",
+          detail: canEnterLaunch
+            ? "외부 제작 도구를 선택했다면 패키지와 지시문을 받고, 내부 진행을 선택했다면 내부 개발 도구로 이어갑니다."
+            : nextLaunchBlocker
+              ? `${nextLaunchBlocker.label}: ${nextLaunchBlocker.detail}`
+              : "검증, 제작 자료, 작업 순서, QA와 보안이 모두 통과해야 합니다.",
         };
       case "learning":
         return {
@@ -10841,7 +10813,7 @@ export function IdeaWorkbench({
 
     setDevelopmentAutoFlowState("summary");
     setDevelopmentAutoStepIndex(developmentAutoProgressSteps.length);
-    setMessage("제작 패키지를 저장했습니다. 외부 제작 도구에 넘길 자료까지 준비됐습니다.");
+    setMessage("제작 패키지를 저장했습니다. 실제 파일 받기와 제작 도구 연동은 최종 실행 단계에서 열립니다.");
   }
 
   async function runAiExecutionAutopilot() {
@@ -11494,28 +11466,6 @@ export function IdeaWorkbench({
     setCopyMessage("출시 체크리스트를 클립보드에 복사했습니다.");
   }
 
-  function loadReleaseDecisionReason() {
-    if (!releaseDecisionPacket || !editState) {
-      return;
-    }
-
-    setEditState({ ...editState, decision: releaseDecisionPacket.recommendation });
-    setDecisionReason(
-      `${decisionLabels[releaseDecisionPacket.recommendation]}: ${releaseDecisionPacket.headline}
-
-출시 판단 근거
-${releaseDecisionPacket.greenSignals.map((item) => `- ${item}`).join("\n")}
-
-남은 차단 항목
-${releaseDecisionPacket.blockers.length > 0 ? releaseDecisionPacket.blockers.map((item) => `- ${item}`).join("\n") : "- 차단 항목 없음"}
-
-다음 행동
-${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
-    );
-    updateActiveTask("decision");
-    setMessage("출시 판단 패킷을 판단 근거 입력란에 채웠습니다. 최종 내용을 검토한 뒤 기록하세요.");
-  }
-
   async function saveRecommendedExperiment(suggestion: ExperimentDraft) {
     await createExperimentFromDraft(suggestion, {
       source: "ai_recommended",
@@ -11805,38 +11755,45 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
             <p className="mt-1 text-sm leading-6 text-slate-500">단계를 고르면 오른쪽 작업 화면만 바뀝니다.</p>
           </div>
           <div className="grid gap-2">
-            {workbenchTasks.map((task, index) => (
-              <button
-                key={task.id}
-                type="button"
-                onClick={() => updateActiveTask(task.id)}
-                aria-current={activeTask === task.id ? "step" : undefined}
-                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition ${
-                  activeTask === task.id
-                    ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
-                    : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-slate-300 hover:bg-white"
-                }`}
-              >
-                <span
-                  className={`avl-step-dot h-8 w-8 text-sm ${
-                    activeTask === task.id ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-700"
+            {workbenchTasks.map((task, index) => {
+              const isTaskLocked = task.id === "launch" && !canEnterLaunch && activeTask !== "launch";
+
+              return (
+                <button
+                  key={task.id}
+                  type="button"
+                  onClick={() => updateActiveTask(task.id)}
+                  disabled={isTaskLocked}
+                  aria-current={activeTask === task.id ? "step" : undefined}
+                  className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-55 ${
+                    activeTask === task.id
+                      ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
+                      : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-slate-300 hover:bg-white"
                   }`}
                 >
-                  {index + 1}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold">{task.label}</span>
-                  <span className="mt-0.5 block text-xs leading-5 text-slate-500">{task.description}</span>
-                </span>
-                <span
-                  className={`avl-pill ${
-                    activeTask === task.id ? "avl-pill-info" : "avl-pill-neutral"
-                  }`}
-                >
-                  {task.status}
-                </span>
-              </button>
-            ))}
+                  <span
+                    className={`avl-step-dot h-8 w-8 text-sm ${
+                      activeTask === task.id ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-700"
+                    }`}
+                  >
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold">{task.label}</span>
+                    <span className="mt-0.5 block text-xs leading-5 text-slate-500">
+                      {isTaskLocked ? "준비 완료 후 열립니다" : task.description}
+                    </span>
+                  </span>
+                  <span
+                    className={`avl-pill ${
+                      activeTask === task.id ? "avl-pill-info" : isTaskLocked ? "avl-pill-warning" : "avl-pill-neutral"
+                    }`}
+                  >
+                    {isTaskLocked ? "잠김" : task.status}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </aside>
@@ -12486,62 +12443,18 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                 <div className="mt-5 border border-slate-200 bg-white p-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                      <div className="avl-kicker">제작 방식</div>
-                      <h4 className="mt-2 text-base font-semibold text-slate-950">결과물 형태와 제작 도구를 분리합니다</h4>
+                      <div className="avl-kicker">STEP 1에서 정한 제작 방향</div>
+                      <h4 className="mt-2 text-base font-semibold text-slate-950">
+                        {activeProductSurface.label} · {activeBuildDeliveryLabel}
+                      </h4>
                       <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                        결과물 형태는 무엇을 만들지입니다. 제작 방식은 Venture Lab 안에서 이어갈지, Cursor 같은 외부 제작 도구로
-                        넘길지 정하는 값입니다.
+                        이 단계에서는 제작 방향을 바꾸지 않습니다. AI가 저장된 방향을 기준으로 기획서, 디자인, 기술 방향,
+                        작업 순서를 묶고, 실제 파일 받기와 외부 도구 연동은 마지막 단계에서 열립니다.
                       </p>
                     </div>
-                    <span className="avl-pill avl-pill-info">{activeBuildDeliveryLabel}</span>
-                  </div>
-                  <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.7fr)_minmax(280px,0.3fr)]">
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      {(["external_tool", "venture_lab"] as BuildDeliveryMode[]).map((mode) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => setBuildDeliveryMode(mode)}
-                          disabled={effectiveDevelopmentAutoFlowState === "running" || hasSavedDevelopmentAutoPackage}
-                          className={`border px-4 py-3 text-left text-sm disabled:cursor-not-allowed disabled:opacity-50 ${
-                            buildDeliveryMode === mode
-                              ? "border-slate-950 bg-slate-950 text-white"
-                              : "border-slate-200 bg-slate-50 text-slate-900"
-                          }`}
-                        >
-                          <span className="block font-semibold">{buildDeliveryModeLabels[mode]}</span>
-                          <span className={`mt-1 block leading-5 ${buildDeliveryMode === mode ? "text-slate-200" : "text-slate-600"}`}>
-                            {mode === "external_tool"
-                              ? "선택한 도구가 바로 읽을 제작 패키지를 만듭니다."
-                              : "이 플랫폼 안에서 작업 순서와 출시 판단을 이어갑니다."}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                    <label className="grid gap-2 text-sm font-semibold text-slate-900">
-                      외부 제작 도구
-                      <select
-                        value={externalBuildTool}
-                        disabled={
-                          buildDeliveryMode !== "external_tool" ||
-                          effectiveDevelopmentAutoFlowState === "running" ||
-                          hasSavedDevelopmentAutoPackage
-                        }
-                        onChange={(event) => setExternalBuildTool(event.target.value as ExternalBuildToolKey)}
-                        className="h-11 cursor-pointer border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-100"
-                      >
-                        {Object.values(externalBuildToolProfiles).map((tool) => (
-                          <option key={tool.key} value={tool.key}>
-                            {tool.label}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="text-xs font-normal leading-5 text-slate-500">
-                        {buildDeliveryMode === "external_tool"
-                          ? activeExternalBuildTool.description
-                          : "내부 진행을 선택하면 도구별 전달 코드는 패키지 보조 정보로만 남깁니다."}
-                      </span>
-                    </label>
+                    <span className="avl-pill avl-pill-info">
+                      {buildDeliveryMode === "external_tool" ? activeExternalBuildTool.label : "내부 진행"}
+                    </span>
                   </div>
                 </div>
 
@@ -12689,21 +12602,6 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                         {hasSavedDevelopmentAutoPackage ? <CheckCircle2 size={18} /> : <Save size={18} />}
                         {hasSavedDevelopmentAutoPackage ? "제작 패키지 저장 완료" : "제작 패키지 저장"}
                       </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          downloadMarkdownFile(
-                            finalAgentRunPackageDraft,
-                            "제작 패키지",
-                            toDownloadFileName(selectedIdea.name, "production-package"),
-                          )
-                        }
-                        disabled={!canDownloadDevelopmentAutoPackage || !finalAgentRunPackageDraft}
-                        className="avl-btn avl-btn-secondary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <Download size={18} />
-                        {canDownloadDevelopmentAutoPackage ? "파일로 받기" : "저장 후 파일 받기"}
-                      </button>
                     </div>
                     <div className="mt-4 grid gap-3 md:grid-cols-3">
                       {developmentAutoOutputItems.map((item) => (
@@ -12715,7 +12613,7 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
                     </div>
                     {hasSavedDevelopmentAutoPackage ? (
                       <p className="mt-3 text-sm font-semibold text-emerald-700">
-                        제작 패키지가 저장되었습니다. 화면 하단의 다음 단계 버튼으로 작업 순서 확인을 이어갈 수 있습니다.
+                        제작 패키지가 저장되었습니다. 실제 파일 받기와 외부 제작 도구 연동은 최종 실행 단계에서 열립니다.
                       </p>
                     ) : null}
                   </div>
@@ -14052,8 +13950,11 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
         <div className={`avl-card p-4 ${activeTask === "launch" ? "" : "hidden"}`}>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">출시 판단</h2>
-              <p className="mt-1 text-sm text-slate-500">출시 전 남은 조건과 다음 확인 화면의 의미를 빠르게 확인합니다.</p>
+              <div className="avl-kicker">final execution</div>
+              <h2 className="mt-2 text-lg font-semibold text-slate-950">최종 실행</h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">
+                모든 검증과 제작 준비가 끝난 뒤, 선택한 방식으로 실제 제작 환경에 넘깁니다.
+              </p>
             </div>
             <div className="border border-slate-200 bg-white px-4 py-3 text-right text-slate-950">
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -14062,194 +13963,244 @@ ${releaseDecisionPacket.requiredActions.map((item) => `- ${item}`).join("\n")}`,
               <div className="mt-1 text-2xl font-semibold">{launchReadinessScore}%</div>
             </div>
           </div>
-            <div
-              className={`mb-4 border-l-4 pl-4 ${
-                nextLaunchBlocker ? "border-amber-300" : "border-emerald-300"
-              }`}
-            >
-              <div className="text-sm font-semibold text-slate-950">
-                {nextLaunchBlocker ? `다음 해소 항목: ${nextLaunchBlocker.label}` : "현재 출시 점검이 모두 통과 상태입니다."}
-              </div>
-              <div className="mt-1 text-sm leading-5 text-slate-600">
-                {nextLaunchBlocker ? nextLaunchBlocker.detail : "출시 전 최종 판단을 기록하세요."}
-              </div>
-            </div>
-            <div
-              className={`mb-4 border p-4 ${
-                nextLaunchBlocker ? "border-amber-200 bg-amber-50" : "border-emerald-200 bg-emerald-50"
-              }`}
-            >
-              <div className="text-sm font-semibold text-slate-950">
-                {nextLaunchBlocker ? "다음 버튼은 출시 완료가 아니라 성과 확인 화면 이동입니다." : "이제 성과 확인 화면으로 이동해도 됩니다."}
-              </div>
-              <p className="mt-2 text-sm leading-6 text-slate-700">
-                {nextLaunchBlocker
-                  ? "남은 차단 항목이 있으면 실제 출시는 보류 상태입니다. 그래도 다음 화면에서 어떤 행동 신호를 볼지 미리 확인할 수 있습니다."
-                  : "차단 항목이 닫혔다면 다음 화면에서 Day 7, 14, 30 기준과 실제 행동 신호를 확인하세요."}
+
+          {!canEnterLaunch ? (
+            <div className="border border-amber-200 bg-amber-50 p-5">
+              <div className="text-sm font-semibold text-amber-950">아직 최종 실행 단계가 아닙니다.</div>
+              <p className="mt-2 text-sm leading-6 text-amber-900">
+                이 화면은 파일 받기나 외부 도구 연동을 시작하는 마지막 단계입니다. 아래 항목을 먼저 끝내야 열립니다.
               </p>
-            </div>
-          {releaseDecisionPacket ? (
-          <div className="mb-4 border border-slate-200 bg-slate-50 p-4 text-slate-900">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">go / no-go</div>
-                  <h3 className="mt-2 text-base font-semibold text-slate-950">출시 판단 패킷</h3>
-                  <p className="mt-1 text-sm leading-5 text-slate-600">{releaseDecisionPacket.headline}</p>
+              <div className="mt-4 border border-amber-200 bg-white p-4">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">다음 해소 항목</div>
+                <div className="mt-2 text-base font-semibold text-slate-950">
+                  {nextLaunchBlocker?.label ?? "준비 항목 확인"}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => copyDraft(releaseDecisionPacketDraft, "출시 판단 패킷")}
-                    disabled={!releaseDecisionPacketDraft}
-                    className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
-                  >
-                    <Clipboard size={16} />
-                    패킷 복사
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      saveArtifactDraft(
-                        "launch_checklist",
-                        `${selectedIdea.name} 출시 판단 패킷`,
-                        releaseDecisionPacketDraft,
-                        "release_decision_packet",
-                      )
-                    }
-                    disabled={isBusy || !user || !releaseDecisionPacketDraft}
-                    className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
-                  >
-                    <Save size={16} />
-                    패킷 저장
-                  </button>
-                  <button
-                    type="button"
-                    onClick={loadReleaseDecisionReason}
-                    disabled={!canEdit}
-                    className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
-                  >
-                    판단 근거 채우기
-                  </button>
+                <p className="mt-1 text-sm leading-6 text-slate-700">
+                  {nextLaunchBlocker?.detail ?? "검증, 제작 자료, 작업 순서, QA와 보안이 모두 통과해야 합니다."}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-5">
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="border border-emerald-200 bg-emerald-50 p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">준비 상태</div>
+                  <div className="mt-2 text-base font-semibold text-slate-950">모든 준비 완료</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-700">검증, 제작 자료, 작업 순서, QA와 보안이 통과했습니다.</p>
+                </div>
+                <div className="border border-slate-200 bg-white p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">결과물 형태</div>
+                  <div className="mt-2 text-base font-semibold text-slate-950">{activeProductSurface.label}</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{activeProductSurface.firstBuild}</p>
+                </div>
+                <div className="border border-slate-200 bg-white p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">제작 방식</div>
+                  <div className="mt-2 text-base font-semibold text-slate-950">{activeBuildDeliveryLabel}</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {buildDeliveryMode === "external_tool"
+                      ? `${activeExternalBuildTool.label} 기준으로 패키지와 지시문을 준비했습니다.`
+                      : "Venture Lab 내부 개발 도구로 이어질 준비 자료를 묶었습니다."}
+                  </p>
                 </div>
               </div>
 
-              <details className="mt-4 border border-slate-200 bg-white p-3">
-                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
-                  추천 판단과 차단 항목 펼쳐 보기
-                </summary>
+              {buildDeliveryMode === "external_tool" ? (
+                <section className="border border-slate-200 bg-slate-50 p-5">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <div className="avl-kicker">external build tool</div>
+                      <h3 className="mt-2 text-lg font-semibold text-slate-950">
+                        {activeExternalBuildTool.label}로 제작 패키지를 넘깁니다
+                      </h3>
+                      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                        지금 받을 수 있는 것은 외부 제작 도구가 읽을 최종 패키지와 첫 지시문입니다. MCP/CLI 자동 동기화는 같은
+                        패키지 구조를 기준으로 연결됩니다.
+                      </p>
+                    </div>
+                    <span className="avl-pill avl-pill-info">{activeExternalBuildTool.label}</span>
+                  </div>
 
+                  <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.56fr)_minmax(360px,0.44fr)]">
+                    <div className="border border-slate-200 bg-white p-4">
+                      <div className="text-sm font-semibold text-slate-950">최종 패키지</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        PRD, IA, 디자인 기준, 기술 경계, 작업 순서, 검증 기준, 완료 보고 형식을 한 문서로 묶었습니다.
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => copyDraft(finalAgentRunPackageDraft, "최종 제작 패키지")}
+                          disabled={!finalAgentRunPackageDraft}
+                          className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
+                        >
+                          <Clipboard size={16} />
+                          지시문 복사
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            downloadMarkdownFile(
+                              finalAgentRunPackageDraft,
+                              "최종 제작 패키지",
+                              toDownloadFileName(selectedIdea.name, "production-package"),
+                            )
+                          }
+                          disabled={!finalAgentRunPackageDraft}
+                          className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
+                        >
+                          <Download size={16} />
+                          패키지 파일 받기
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="border border-slate-200 bg-white p-4">
+                      <div className="text-sm font-semibold text-slate-950">MCP/CLI 연결 형태</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        자동 연동이 켜지면 아래 순서로 프로젝트와 작업 상태를 연결합니다. 현재 화면에서는 패키지 파일과 지시문을
+                        먼저 제공합니다.
+                      </p>
+                      <div className="mt-3 grid gap-2">
+                        {finalExecutionCommandPreview.map((command) => (
+                          <div key={command} className="flex items-center justify-between gap-3 bg-slate-950 px-3 py-2 font-mono text-xs text-white">
+                            <span className="truncate">{command}</span>
+                            <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400">preview</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              ) : (
+                <section className="border border-slate-200 bg-slate-50 p-5">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <div className="avl-kicker">internal builder</div>
+                      <h3 className="mt-2 text-lg font-semibold text-slate-950">Venture Lab 내부 개발로 이어갑니다</h3>
+                      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                        내부 개발 도구가 연결되면 이 패키지를 기준으로 작업 보드와 구현 세션이 이어집니다. 현재는 같은 기준 자료를
+                        보관하고 받을 수 있습니다.
+                      </p>
+                    </div>
+                    <button type="button" disabled className="avl-btn avl-btn-secondary h-10 px-3 opacity-60">
+                      내부 개발 도구 준비 중
+                    </button>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(finalAgentRunPackageDraft, "내부 개발 패키지")}
+                      disabled={!finalAgentRunPackageDraft}
+                      className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
+                    >
+                      <Clipboard size={16} />
+                      패키지 복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        downloadMarkdownFile(
+                          finalAgentRunPackageDraft,
+                          "내부 개발 패키지",
+                          toDownloadFileName(selectedIdea.name, "venture-lab-build-package"),
+                        )
+                      }
+                      disabled={!finalAgentRunPackageDraft}
+                      className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
+                    >
+                      <Download size={16} />
+                      패키지 파일 받기
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              <section className="border border-slate-200 bg-white p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="avl-kicker">task sync preview</div>
+                    <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 목록</h3>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      외부 제작 도구 연동이 켜지면 이 작업들이 진행/완료 상태로 동기화되는 기준 목록입니다.
+                    </p>
+                  </div>
+                  <span className="avl-pill avl-pill-success">{finalExecutionTaskPreview.length}개 표시</span>
+                </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-3">
+                  {finalExecutionTaskPreview.length > 0 ? (
+                    finalExecutionTaskPreview.map((task) => (
+                      <div key={task.id} className="border border-slate-200 bg-slate-50 p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="text-sm font-semibold text-slate-950">{task.title}</div>
+                          <span className={implementationTaskStatusTone[task.status]}>
+                            {implementationTaskStatusLabels[task.status]}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-xs leading-5 text-slate-600">
+                          {task.acceptance_criteria || "수용 기준은 제작 패키지의 작업 순서를 따릅니다."}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600 md:col-span-3">
+                      저장된 제작 작업이 없습니다. STEP 6에서 작업 순서를 먼저 생성해야 최종 실행이 열립니다.
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <section className="border border-slate-200 bg-white p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="avl-kicker">performance review</div>
+                    <h3 className="mt-2 text-base font-semibold text-slate-950">출시 후 성과 확인 기준</h3>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">Day 7, 14, 30에 무엇을 보고 판단할지 정리합니다.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(postLaunchLearningLoopDraft, "출시 후 성과 확인")}
+                      disabled={!postLaunchLearningLoopDraft}
+                      className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
+                    >
+                      <Clipboard size={16} />
+                      기준 복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        saveArtifactDraft(
+                          "launch_checklist",
+                          `${selectedIdea.name} 출시 후 성과 확인`,
+                          postLaunchLearningLoopDraft,
+                          "post_launch_learning",
+                        )
+                      }
+                      disabled={isBusy || !user || !postLaunchLearningLoopDraft}
+                      className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
+                    >
+                      <Save size={16} />
+                      기준 저장
+                    </button>
+                  </div>
+                </div>
                 <div className="mt-3 grid gap-3 md:grid-cols-3">
                   <div className="border border-slate-200 bg-slate-50 p-3">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">추천 판단</div>
-                    <span className={`mt-2 inline-flex text-sm font-semibold ${releaseDecisionTone[releaseDecisionPacket.recommendation]}`}>
-                      {decisionLabels[releaseDecisionPacket.recommendation]}
-                    </span>
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Day 7</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-700">핵심 행동 완료율과 반복 사용을 확인합니다.</p>
                   </div>
                   <div className="border border-slate-200 bg-slate-50 p-3">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">판단 신뢰도</div>
-                    <span
-                      className={`mt-2 inline-flex text-sm font-semibold ${
-                        releaseDecisionConfidenceTone[releaseDecisionPacket.confidence]
-                      }`}
-                    >
-                      {releaseDecisionPacket.confidenceLabel}
-                    </span>
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Day 14</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-700">구매 신호와 온보딩 병목을 분리합니다.</p>
                   </div>
                   <div className="border border-slate-200 bg-slate-50 p-3">
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">차단 항목</div>
-                    <div className="mt-2 text-2xl font-semibold text-slate-950">{releaseDecisionPacket.blockers.length}</div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Day 30</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-700">반복 사용과 지불 의향으로 다음 빌드를 결정합니다.</p>
                   </div>
                 </div>
-
-                <div className="mt-4 grid gap-3 lg:grid-cols-2">
-                  <div className="border border-slate-200 bg-white p-3">
-                    <div className="text-sm font-semibold text-slate-950">다음 액션</div>
-                    <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
-                      {releaseDecisionPacket.requiredActions.slice(0, 4).map((action) => (
-                        <li key={action}>- {action}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="border border-slate-200 bg-white p-3">
-                    <div className="text-sm font-semibold text-slate-950">핵심 차단</div>
-                    <ul className="mt-2 grid gap-1 text-sm leading-6 text-slate-700">
-                      {releaseDecisionPacket.blockers.length > 0 ? (
-                        releaseDecisionPacket.blockers.slice(0, 4).map((blocker) => <li key={blocker}>- {blocker}</li>)
-                      ) : (
-                        <li>- 차단 항목이 없습니다. 최종 판단과 배포 증거만 남기세요.</li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-              </details>
+              </section>
             </div>
-          ) : null}
-          <div className="mb-5 border border-slate-200 bg-white p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div className="avl-kicker">performance review</div>
-                <h3 className="mt-2 text-base font-semibold text-slate-950">출시 후 성과 확인</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">Day 7, 14, 30에 무엇을 보고 판단할지 정리합니다.</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => copyDraft(postLaunchLearningLoopDraft, "출시 후 성과 확인")}
-                  disabled={!postLaunchLearningLoopDraft}
-                  className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
-                >
-                  <Clipboard size={16} />
-                  기준 복사
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    saveArtifactDraft(
-                      "launch_checklist",
-                      `${selectedIdea.name} 출시 후 성과 확인`,
-                      postLaunchLearningLoopDraft,
-                      "post_launch_learning",
-                    )
-                  }
-                  disabled={isBusy || !user || !postLaunchLearningLoopDraft}
-                  className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
-                >
-                  <Save size={16} />
-                  기준 저장
-                </button>
-              </div>
-            </div>
-            <div className="mt-3 grid gap-3 md:grid-cols-3">
-              <div className="border border-slate-200 bg-slate-50 p-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Day 7</div>
-                <p className="mt-2 text-sm leading-6 text-slate-700">핵심 행동 완료율과 반복 사용을 확인합니다.</p>
-              </div>
-              <div className="border border-slate-200 bg-slate-50 p-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Day 14</div>
-                <p className="mt-2 text-sm leading-6 text-slate-700">구매 신호와 온보딩 병목을 분리합니다.</p>
-              </div>
-              <div className="border border-slate-200 bg-slate-50 p-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Day 30</div>
-                <p className="mt-2 text-sm leading-6 text-slate-700">반복 사용과 지불 의향으로 다음 빌드를 결정합니다.</p>
-              </div>
-            </div>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {launchReadiness.map((check) => (
-              <div key={check.label} className="border border-slate-200 bg-white p-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2
-                    className={check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400"}
-                    size={18}
-                  />
-                  <div>
-                    <div className="text-sm font-semibold text-slate-950">{check.label}</div>
-                    <div className="mt-1 text-sm leading-6 text-slate-600">{check.detail}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
 
         <div className={`avl-card p-4 ${activeTask === "learning" ? "" : "hidden"}`}>

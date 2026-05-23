@@ -15,6 +15,17 @@ import {
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
+import {
+  buildDeliveryModeLabels,
+  buildDeliveryPreferenceMarkdown,
+  defaultBuildDeliveryPreference,
+  externalBuildToolOrder,
+  externalBuildToolProfiles,
+  normalizeBuildDeliveryPreference,
+  type BuildDeliveryMode,
+  type BuildDeliveryPreference,
+  type ExternalBuildToolKey,
+} from "@/lib/build-delivery";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -1085,9 +1096,12 @@ function buildExtractedIdeaArtifacts(
   idea: Idea,
   organizationId: string | null,
   extractionGate?: ExtractionGate,
+  buildDeliveryPreference: BuildDeliveryPreference = defaultBuildDeliveryPreference,
 ): VentureArtifactInsert[] {
   const gate = extractionGate ?? buildExtractionGate(candidate, buildCandidateReadiness(candidate, null), null);
   const productSurface = candidate.productSurface;
+  const buildDelivery = normalizeBuildDeliveryPreference(buildDeliveryPreference);
+  const buildDeliveryMarkdown = buildDeliveryPreferenceMarkdown(buildDelivery);
   const redactedSourceBlock = redactSensitiveSource(candidate.sourceBlock);
   const sourceBlock =
     redactedSourceBlock === candidate.sourceBlock
@@ -1143,6 +1157,8 @@ ${candidate.assumptions.map((item) => `- ${item}`).join("\n")}
 
 ${productSurfaceMarkdown(productSurface)}
 
+${buildDeliveryMarkdown}
+
 ${buildCandidateStrategyLensMarkdown(candidate)}
 
 ## 리스크 요약
@@ -1179,6 +1195,8 @@ ${candidate.pricingHypothesis}
 
 ${productSurfaceMarkdown(productSurface)}
 
+${buildDeliveryMarkdown}
+
 ## 첫 제작 범위
 
 ${candidate.firstPrototypeScope}
@@ -1204,6 +1222,8 @@ ${candidate.validationRationale}
 ${candidate.sevenDayExperiment}
 
 ${productSurfaceMarkdown(productSurface)}
+
+${buildDeliveryMarkdown}
 
 ## 메모 근거
 
@@ -1737,6 +1757,8 @@ export function VentureConsoleActions({
   const [isAiGeneratedIdeaSource, setIsAiGeneratedIdeaSource] = useState(false);
   const [generatedIdeaSlots, setGeneratedIdeaSlots] = useState<GeneratedIdeaSlot[]>([]);
   const [extractedIdeas, setExtractedIdeas] = useState<ExtractedIdea[]>([]);
+  const [buildDeliveryPreference, setBuildDeliveryPreference] =
+    useState<BuildDeliveryPreference>(defaultBuildDeliveryPreference);
   const [extractionRunMeta, setExtractionRunMeta] = useState<ExtractionRunMeta | null>(null);
   const [extractionReplay, setExtractionReplay] = useState<ExtractionReplaySummary | null>(null);
   const [extractMessage, setExtractMessage] = useState<string | null>(null);
@@ -1754,6 +1776,8 @@ export function VentureConsoleActions({
   const hasGeneratedIdeaSlots = filledGeneratedIdeaSlots.length > 0;
   const keptGeneratedIdeaCount = filledGeneratedIdeaSlots.filter((slot) => slot.kept).length;
   const refreshableGeneratedIdeaCount = Math.max(0, filledGeneratedIdeaSlots.length - keptGeneratedIdeaCount);
+  const normalizedBuildDeliveryPreference = normalizeBuildDeliveryPreference(buildDeliveryPreference);
+  const selectedExternalBuildTool = externalBuildToolProfiles[normalizedBuildDeliveryPreference.externalTool];
   const updateActiveTask = useCallback(
     (task: ConsoleActionTask) => {
       setLocalActiveTask(task);
@@ -2884,7 +2908,11 @@ export function VentureConsoleActions({
     updateActiveTask("idea");
   }
 
-  async function createExtractedIdeaPackage(candidate: ExtractedIdea, extractionGate: ExtractionGate) {
+  async function createExtractedIdeaPackage(
+    candidate: ExtractedIdea,
+    extractionGate: ExtractionGate,
+    deliveryPreference: BuildDeliveryPreference = normalizedBuildDeliveryPreference,
+  ) {
     if (!supabase) {
       throw new Error("저장소가 설정되어 있지 않습니다.");
     }
@@ -2953,7 +2981,7 @@ export function VentureConsoleActions({
         .single(),
       supabase
         .from("venture_artifacts")
-        .insert(buildExtractedIdeaArtifacts(candidate, idea, organizationId, extractionGate))
+        .insert(buildExtractedIdeaArtifacts(candidate, idea, organizationId, extractionGate, deliveryPreference))
         .select(),
     ]);
 
@@ -2982,6 +3010,8 @@ export function VentureConsoleActions({
         gate: extractionGate.id,
         validation_score: candidate.validationScore,
         product_surface: candidate.productSurface.key,
+        build_delivery_mode: deliveryPreference.mode,
+        external_build_tool: deliveryPreference.mode === "external_tool" ? deliveryPreference.externalTool : "none",
         risk_created: Boolean(riskResult.data),
         experiment_created: Boolean(experimentResult.data),
         artifact_count: artifactResult.data?.length ?? 0,
@@ -3676,6 +3706,11 @@ export function VentureConsoleActions({
                         <span className="avl-pill avl-pill-brand">
                           형태 {recommendedExtractedIdea.productSurface.shortLabel}
                         </span>
+                        <span className="avl-pill avl-pill-info">
+                          {normalizedBuildDeliveryPreference.mode === "external_tool"
+                            ? selectedExternalBuildTool.label
+                            : "내부 개발"}
+                        </span>
                       </div>
                       <div className="mt-4 border border-blue-200 bg-blue-50 px-4 py-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
@@ -3709,6 +3744,83 @@ export function VentureConsoleActions({
                         <p className="mt-1 text-xs leading-5 text-slate-600">
                           이 기준이 사업성 평가, 디자인 방향, 기술 스택, 제작 패키지까지 이어집니다.
                         </p>
+                      </div>
+                      <div className="mt-4 border border-slate-200 bg-slate-50 px-4 py-3">
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                          <div>
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                              제작 방식
+                            </div>
+                            <h4 className="mt-2 text-base font-semibold text-slate-950">
+                              어디서 개발할지도 처음에 정합니다
+                            </h4>
+                            <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                              지금은 방향만 저장합니다. 실제 패키지 파일 받기와 외부 도구 연동은 모든 검증과 제작 준비가 끝난
+                              마지막 단계에서 열립니다.
+                            </p>
+                          </div>
+                          <span className="avl-pill avl-pill-neutral">
+                            {buildDeliveryModeLabels[normalizedBuildDeliveryPreference.mode]}
+                          </span>
+                        </div>
+                        <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.62fr)_minmax(260px,0.38fr)]">
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            {(["external_tool", "venture_lab"] as BuildDeliveryMode[]).map((mode) => (
+                              <button
+                                key={mode}
+                                type="button"
+                                onClick={() =>
+                                  setBuildDeliveryPreference((current) =>
+                                    normalizeBuildDeliveryPreference({ ...current, mode }),
+                                  )
+                                }
+                                className={`border px-4 py-3 text-left text-sm ${
+                                  normalizedBuildDeliveryPreference.mode === mode
+                                    ? "border-slate-950 bg-slate-950 text-white"
+                                    : "border-slate-200 bg-white text-slate-900"
+                                }`}
+                              >
+                                <span className="block font-semibold">{buildDeliveryModeLabels[mode]}</span>
+                                <span
+                                  className={`mt-1 block leading-5 ${
+                                    normalizedBuildDeliveryPreference.mode === mode ? "text-slate-200" : "text-slate-600"
+                                  }`}
+                                >
+                                  {mode === "external_tool"
+                                    ? "마지막 단계에서 선택 도구용 패키지와 연동 자료를 받습니다."
+                                    : "추후 Venture Lab 내부 개발 도구로 이어갑니다."}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                          <label className="grid gap-2 text-sm font-semibold text-slate-900">
+                            외부 제작 도구
+                            <select
+                              value={normalizedBuildDeliveryPreference.externalTool}
+                              disabled={normalizedBuildDeliveryPreference.mode !== "external_tool"}
+                              onChange={(event) =>
+                                setBuildDeliveryPreference((current) =>
+                                  normalizeBuildDeliveryPreference({
+                                    ...current,
+                                    externalTool: event.target.value as ExternalBuildToolKey,
+                                  }),
+                                )
+                              }
+                              className="h-11 cursor-pointer border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-100"
+                            >
+                              {externalBuildToolOrder.map((key) => (
+                                <option key={key} value={key}>
+                                  {externalBuildToolProfiles[key].label}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="text-xs font-normal leading-5 text-slate-500">
+                              {normalizedBuildDeliveryPreference.mode === "external_tool"
+                                ? selectedExternalBuildTool.description
+                                : "내부 개발을 선택하면 외부 도구 코드는 최종 패키지의 보조 정보로만 남습니다."}
+                            </span>
+                          </label>
+                        </div>
                       </div>
                       <div className="mt-4 border-t border-slate-200 pt-4">
                         <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선정 이유</div>

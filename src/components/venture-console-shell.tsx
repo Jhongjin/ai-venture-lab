@@ -149,8 +149,8 @@ const shellTasks: Array<{
   },
   {
     id: "workbench:launch",
-    label: "출시 판단",
-    description: "출시 조건",
+    label: "최종 실행",
+    description: "연동/실행",
     group: "제작",
     icon: RocketLaunch,
   },
@@ -252,8 +252,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["AI 제작 패키지 만들기", "최종 요약 확인", "제작 패키지 저장"],
   },
   "workbench:launch": {
-    summary: "출시 전 막히는 항목을 확인하고 최종 출시 판단을 기록합니다.",
-    checklist: ["남은 항목 확인", "높은 위험 종료 또는 수용", "최종 판단 기록"],
+    summary: "검증과 제작 준비가 모두 끝난 뒤 외부 제작 도구 연결 또는 내부 개발 이동을 실행합니다.",
+    checklist: ["준비 완료 상태 확인", "제작 패키지 받기", "선택한 제작 방식으로 실행"],
   },
   "workbench:learning": {
     summary: "출시 후 행동 신호를 보고 다음 투자 또는 보완 여부를 정합니다.",
@@ -349,10 +349,10 @@ const taskCanvasDetails: Record<
     checkpoint: "1인 작업에서도 다음 작업 순서가 분명히 보여야 합니다.",
   },
   "workbench:launch": {
-    question: "지금 이 첫 버전을 밖으로 내보내도 괜찮을까요?",
-    aiLead: "출시 전 남은 리스크, 문서, 품질 점검, 보안 상태를 하나로 모아 점검합니다.",
-    deliverable: "출시 전 최종 판단",
-    checkpoint: "막히는 항목이 없으면 바로 성과 확인으로 이동합니다.",
+    question: "이제 어떤 제작 환경으로 넘길까요?",
+    aiLead: "저장된 제작 방식에 맞춰 외부 제작 도구 패키지 또는 내부 개발 이동 자료를 보여줍니다.",
+    deliverable: "최종 제작 패키지와 실행 시작점",
+    checkpoint: "준비가 부족하면 이 단계는 열리지 않습니다.",
   },
   "workbench:learning": {
     question: "출시 후 행동 신호를 보고 다음 결정을 어떻게 바꿀까요?",
@@ -398,6 +398,7 @@ function getNextTaskOptions({
   canEnterArtifacts,
   canEnterDevelopment,
   canEnterOrchestration,
+  canEnterLaunch,
 }: {
   activeTask: ShellTask;
   ideaCount: number;
@@ -405,6 +406,7 @@ function getNextTaskOptions({
   canEnterArtifacts: boolean;
   canEnterDevelopment: boolean;
   canEnterOrchestration: boolean;
+  canEnterLaunch: boolean;
 }) {
   switch (activeTask) {
     case "console:auth":
@@ -478,7 +480,17 @@ function getNextTaskOptions({
         ),
       ];
     case "workbench:orchestration":
-      return [createTransition("workbench:launch", "다음: 출시 판단", "막히는 항목을 확인하고 출시 여부를 정합니다.")];
+      return [
+        createTransition(
+          "workbench:launch",
+          "다음: 최종 실행",
+          canEnterLaunch
+            ? "모든 준비 항목이 통과했습니다. 이제 선택한 제작 방식으로 넘깁니다."
+            : "작업 완료, QA, 보안, 승인 항목이 모두 통과하면 활성화됩니다.",
+          "primary",
+          !canEnterLaunch,
+        ),
+      ];
     case "workbench:launch":
       return [
         createTransition(
@@ -653,15 +665,15 @@ function getExecutiveFocus({
 
   return {
     eyebrow: "지금 할 일",
-    title: telemetryEventCount > 0 ? "성과 신호를 보고 다음 반복을 정하세요." : "출시 전 마지막 확인이 남았습니다.",
+    title: telemetryEventCount > 0 ? "성과 신호를 보고 다음 반복을 정하세요." : "최종 실행 준비가 남았습니다.",
     detail:
       telemetryEventCount > 0
         ? "실제 행동 신호를 보고 계속 투자할지, 보완할지, 새 아이디어로 돌아갈지 결정하세요."
-        : "막히는 항목이 없다면 출시 판단을 남기고 성과 확인으로 넘어갈 수 있습니다.",
+        : "검증과 제작 준비가 끝나면 선택한 제작 방식으로 외부 도구 연동 또는 내부 개발 이동을 시작합니다.",
     evidence: `${dataNote} · 실행 기록 ${runCount}건`,
     risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
     targetTask: telemetryEventCount > 0 ? "workbench:learning" : "workbench:launch",
-    cta: telemetryEventCount > 0 ? "성과 확인" : "출시 판단",
+    cta: telemetryEventCount > 0 ? "성과 확인" : "최종 실행",
     metrics,
   };
 }
@@ -746,6 +758,10 @@ export function VentureConsoleShell({
     canEnterArtifacts: false,
     canEnterDevelopment: false,
     canEnterOrchestration: false,
+    canEnterLaunch: false,
+    launchReadinessScore: 0,
+    nextLaunchBlockerLabel: null,
+    nextLaunchBlockerDetail: null,
     hasIdeaBriefArtifact: false,
     hasResearchBriefArtifact: false,
     hasValidationSprintArtifact: false,
@@ -909,7 +925,6 @@ export function VentureConsoleShell({
     ? (visibleTask.replace("workbench:", "") as WorkbenchTask)
     : "select";
   const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
-  const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
   const experimentCount = experiments.length;
   const decisionCount = decisions.length;
   const runCount = orchestrationRuns.length;
@@ -926,6 +941,7 @@ export function VentureConsoleShell({
     canEnterArtifacts: validationDocumentReadiness.canEnterArtifacts,
     canEnterDevelopment: validationDocumentReadiness.canEnterDevelopment,
     canEnterOrchestration: validationDocumentReadiness.canEnterOrchestration,
+    canEnterLaunch: validationDocumentReadiness.canEnterLaunch,
   });
   const enabledNextTaskOptions = nextTaskOptions.filter((option) => !option.disabled);
   const primaryNextTask = nextTaskOptions.find((option) => option.variant === "primary") ?? null;
@@ -949,7 +965,9 @@ export function VentureConsoleShell({
     "workbench:artifacts": `${artifactCount}개`,
     "workbench:development": implementationTaskCount > 0 ? `${implementationTaskCount}개` : "준비",
     "workbench:orchestration": `${runCount}개`,
-    "workbench:launch": highRisks > 0 ? "점검" : "확인",
+    "workbench:launch": validationDocumentReadiness.canEnterLaunch
+      ? "준비 완료"
+      : validationDocumentReadiness.nextLaunchBlockerLabel ?? `${validationDocumentReadiness.launchReadinessScore}%`,
     "workbench:learning": telemetryEventCount > 0 ? `${telemetryEventCount}개` : "대기",
   };
   const executionStepTasks = shellTasks.filter((task) => primaryShellTaskSet.has(task.id));

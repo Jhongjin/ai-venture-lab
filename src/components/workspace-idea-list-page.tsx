@@ -20,7 +20,7 @@ function getIdeaProgress(idea: Idea): IdeaProgress {
     case "qa":
       return { label: "STEP 5 제작 준비", task: "development" };
     case "launch":
-      return { label: "STEP 7 출시 판단", task: "launch" };
+      return { label: "STEP 7 최종 실행", task: "launch" };
     case "paused":
       return { label: "STEP 2 사업성 평가", task: "score" };
     case "intake":
