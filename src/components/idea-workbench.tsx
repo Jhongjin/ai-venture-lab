@@ -31,10 +31,12 @@ import {
 } from "@/lib/product-surface";
 import {
   buildDeliveryModeLabels,
+  externalBuildToolOrder,
   externalBuildToolProfiles,
   getBuildDeliveryPreferenceFromArtifacts,
   getExternalBuildToolProfile,
   type BuildDeliveryMode,
+  type ExternalBuildToolKey,
   type ExternalBuildToolProfile,
 } from "@/lib/build-delivery";
 import type {
@@ -8440,8 +8442,22 @@ export function IdeaWorkbench({
     () => getBuildDeliveryPreferenceFromArtifacts(selectedArtifactRecords),
     [selectedArtifactRecords],
   );
+  const [finalExternalToolOverride, setFinalExternalToolOverride] = useState<{
+    ideaId: string | null;
+    key: ExternalBuildToolKey;
+  } | null>(null);
   const buildDeliveryMode: BuildDeliveryMode = buildDeliveryPreference.mode;
-  const activeExternalBuildTool = getExternalBuildToolProfile(buildDeliveryPreference);
+  const persistedExternalBuildTool = getExternalBuildToolProfile(buildDeliveryPreference);
+  const finalExternalToolOverrideKey =
+    finalExternalToolOverride?.ideaId === (selectedIdea?.id ?? null) ? finalExternalToolOverride.key : null;
+  const activeExternalBuildTool =
+    buildDeliveryMode === "external_tool" && finalExternalToolOverrideKey
+      ? externalBuildToolProfiles[finalExternalToolOverrideKey]
+      : persistedExternalBuildTool;
+  const hasFinalExternalToolOverride =
+    buildDeliveryMode === "external_tool" &&
+    Boolean(finalExternalToolOverrideKey) &&
+    finalExternalToolOverrideKey !== persistedExternalBuildTool.key;
   const activeBuildDeliveryLabel = buildDeliveryModeLabels[buildDeliveryMode];
   const activeBuildDeliveryDetail =
     buildDeliveryMode === "external_tool"
@@ -14513,6 +14529,37 @@ export function IdeaWorkbench({
                       ? `${activeExternalBuildTool.label} 기준으로 패키지와 지시문을 준비했습니다.`
                       : "Venture Lab 내부 개발 도구로 이어질 준비 자료를 묶었습니다."}
                   </p>
+                  {buildDeliveryMode === "external_tool" ? (
+                    <div className="mt-3 border-t border-slate-200 pt-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">사용할 개발 도구</div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {externalBuildToolOrder.map((toolKey) => {
+                          const tool = externalBuildToolProfiles[toolKey];
+                          const selected = activeExternalBuildTool.key === toolKey;
+
+                          return (
+                            <button
+                              key={tool.key}
+                              type="button"
+                              onClick={() =>
+                                setFinalExternalToolOverride({ ideaId: selectedIdea?.id ?? null, key: tool.key })
+                              }
+                              className={`avl-btn h-9 px-3 text-xs shadow-none ${
+                                selected ? "avl-btn-primary" : "avl-btn-secondary"
+                              }`}
+                            >
+                              {tool.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="mt-2 text-xs leading-5 text-slate-500">
+                        {hasFinalExternalToolOverride
+                          ? `이번 최종 전달 파일은 ${activeExternalBuildTool.label} 기준으로 다시 만듭니다. 저장된 이전 선택은 바꾸지 않습니다.`
+                          : "STEP 1에서 저장한 도구가 기본값입니다. 최종 전달 직전에 다른 도구로 바꿔 받을 수 있습니다."}
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
               </div>
 
@@ -14534,6 +14581,24 @@ export function IdeaWorkbench({
                     </div>
                     <span className="avl-pill avl-pill-info">{activeExternalBuildTool.label}</span>
                   </div>
+
+                  {!isCursorExternalDelivery ? (
+                    <div className="mt-4 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-sm leading-6 text-blue-950">
+                        Cursor 연결 파일이 필요하면 위의 개발 도구에서 Cursor를 선택하세요. 선택 즉시 아래 버튼이
+                        <span className="font-semibold"> Cursor 연결 파일 받기</span>로 바뀝니다.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFinalExternalToolOverride({ ideaId: selectedIdea?.id ?? null, key: "cursor" })
+                        }
+                        className="avl-btn avl-btn-primary h-10 px-3"
+                      >
+                        Cursor로 바꾸기
+                      </button>
+                    </div>
+                  ) : null}
 
                   <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.56fr)_minmax(360px,0.44fr)]">
                     <div className="border border-slate-200 bg-white p-4">
@@ -14616,19 +14681,36 @@ export function IdeaWorkbench({
                         <>
                           <ol className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              1. 실제 개발할 프로젝트 루트에 받은 PowerShell 파일을 둡니다.
+                              1. <span className="font-semibold text-slate-950">Cursor 연결 파일 받기</span>를 눌러
+                              PowerShell 파일을 받습니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              2. PowerShell에서 파일을 실행하면 Cursor 규칙과 MCP 설정이 만들어집니다.
+                              2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              3. Cursor를 다시 열고 시작 지시문을 Composer에 붙여 넣습니다.
+                              3. Cursor에서 그 프로젝트 폴더를 엽니다.
+                            </li>
+                            <li className="border border-slate-200 bg-slate-50 p-3">
+                              4. Cursor 터미널 또는 PowerShell에서 아래 명령을 실행합니다.
+                            </li>
+                            <li className="border border-slate-200 bg-slate-50 p-3">
+                              5. Cursor를 다시 열고 MCP 설정에서 <span className="font-semibold text-slate-950">ai-venture-lab</span>
+                              이 보이는지 확인합니다.
+                            </li>
+                            <li className="border border-slate-200 bg-slate-50 p-3">
+                              6. <span className="font-mono text-xs">AI_VENTURE_CURSOR_START.md</span> 내용을 Composer에 붙여 넣고
+                              첫 작업을 시작합니다.
                             </li>
                           </ol>
                           <div className="mt-3 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white">
                             {"powershell -ExecutionPolicy Bypass -File .\\"}
                             {toDownloadFileName(selectedIdea.name, "cursor-setup", "ps1")}
                           </div>
+                          <p className="mt-3 text-xs leading-5 text-slate-500">
+                            실행 위치는 다운로드 폴더가 아니라 실제 개발할 프로젝트 루트입니다. 이 스크립트가 그 위치에
+                            <span className="font-mono"> .cursor/rules</span>,
+                            <span className="font-mono"> .cursor/mcp.json</span>, 제작 패키지와 작업 목록을 만듭니다.
+                          </p>
                           <div className="mt-3 flex flex-wrap gap-2">
                             <button
                               type="button"

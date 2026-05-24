@@ -6,15 +6,18 @@ AI Venture Lab의 외부 제작 도구 흐름은 최종 실행 단계에서 Curs
 
 1. Venture Lab에서 아이디어 검증과 제작 패키지 저장을 끝낸다.
 2. 최종 실행 단계에서 제작 방식이 `외부 제작 도구로 개발`이고 도구가 `Cursor`인지 확인한다.
-3. `Cursor 연결 파일 받기`를 눌러 `*-cursor-setup.ps1` 파일을 받는다.
-4. 실제 개발할 Cursor 프로젝트 루트에 이 파일을 둔다.
-5. PowerShell에서 실행한다.
+3. 화면이 `Codex`, `Claude Code`, `Google Antigravity` 등 다른 도구로 보이면 최종 실행 단계의 `사용할 개발 도구`에서 `Cursor`를 선택한다.
+4. `Cursor 연결 파일 받기`를 눌러 `*-cursor-setup.ps1` 파일을 받는다.
+5. 브라우저 다운로드 폴더에 있는 파일을 실제 개발할 Cursor 프로젝트 루트로 옮긴다.
+6. Cursor에서 해당 프로젝트 폴더를 연다.
+7. Cursor 터미널 또는 PowerShell에서 실행한다.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 ```
 
-6. Cursor를 다시 열고 `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣어 첫 작업을 시작한다.
+8. Cursor를 다시 열고 MCP 설정에서 `ai-venture-lab` 서버가 보이는지 확인한다.
+9. `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣어 첫 작업을 시작한다.
 
 ## 생성되는 파일
 
