@@ -256,8 +256,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["준비 완료 상태 확인", "제작 패키지 받기", "선택한 제작 방식으로 실행"],
   },
   "workbench:learning": {
-    summary: "출시 후 행동 신호를 보고 다음 투자 또는 보완 여부를 정합니다.",
-    checklist: ["최근 사용 신호 확인", "출시 후 7/14/30일 판단 신호 점검", "학습 리포트 저장"],
+    summary: "외부 제작 도구가 반영한 작업 상태와 실제 행동 신호를 보고 다음 결정을 정합니다.",
+    checklist: ["제작 작업 완료 상태 확인", "다음 작업이나 보완 지점 확인", "필요할 때 사용 신호 펼쳐보기"],
   },
 };
 
@@ -355,10 +355,10 @@ const taskCanvasDetails: Record<
     checkpoint: "준비가 부족하면 이 단계는 열리지 않습니다.",
   },
   "workbench:learning": {
-    question: "출시 후 행동 신호를 보고 다음 결정을 어떻게 바꿀까요?",
-    aiLead: "출시 후 7일, 14일, 30일 신호, 퍼널, 리텐션, 지불 의향 데이터를 다시 요약합니다.",
-    deliverable: "성과 확인 리포트",
-    checkpoint: "다음 반복은 여기서 얻은 학습으로 다시 시작합니다.",
+    question: "제작 작업이 어디까지 끝났고, 다음에 무엇을 해야 하나요?",
+    aiLead: "외부 제작 도구의 완료 보고를 작업별 상태로 정리하고, 실제 사용 신호는 필요할 때만 펼쳐 보여줍니다.",
+    deliverable: "작업 진행표와 다음 판단",
+    checkpoint: "사용자는 작업표를 보고 이어서 제작할지, 보완할지, 새 검증으로 돌아갈지만 정하면 됩니다.",
   },
 };
 
@@ -691,15 +691,18 @@ function getExecutiveFocus({
 
   return {
     eyebrow: "지금 할 일",
-    title: telemetryEventCount > 0 ? "성과 신호를 보고 다음 반복을 정하세요." : "최종 실행 준비가 남았습니다.",
+    title:
+      telemetryEventCount > 0
+        ? "성과 신호를 보고 다음 반복을 정하세요."
+        : "제작 작업 상태를 보고 다음 행동을 정하세요.",
     detail:
       telemetryEventCount > 0
         ? "실제 행동 신호를 보고 계속 투자할지, 보완할지, 새 아이디어로 돌아갈지 결정하세요."
-        : "검증과 제작 준비가 끝나면 선택한 제작 방식으로 외부 도구 연동 또는 내부 개발 이동을 시작합니다.",
-    evidence: `${dataNote} · 실행 기록 ${runCount}건`,
+        : "외부 제작 도구나 내부 작업에서 반영된 완료, 진행, 차단 상태를 먼저 확인하고 다음 작업을 정합니다.",
+    evidence: `${dataNote} · 제작 작업 ${implementationTaskCount}건 · 실행 기록 ${runCount}건`,
     risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
-    targetTask: telemetryEventCount > 0 ? "workbench:learning" : "workbench:launch",
-    cta: telemetryEventCount > 0 ? "성과 확인" : "최종 실행",
+    targetTask: "workbench:learning",
+    cta: "성과 확인",
     metrics,
   };
 }
@@ -956,6 +959,7 @@ export function VentureConsoleShell({
   const runCount = orchestrationRuns.length;
   const artifactCount = artifacts.length;
   const implementationTaskCount = implementationTasks.length;
+  const completedImplementationTaskCount = implementationTasks.filter((task) => task.status === "done").length;
   const telemetryEventCount = telemetryEvents.length;
   const activeTaskIndex = shellTasks.findIndex((task) => task.id === visibleTask);
   const activeTaskConfig = shellTasks[activeTaskIndex] ?? shellTasks[0];
@@ -994,7 +998,12 @@ export function VentureConsoleShell({
     "workbench:launch": validationDocumentReadiness.canEnterLaunch
       ? "준비 완료"
       : validationDocumentReadiness.nextLaunchBlockerLabel ?? `${validationDocumentReadiness.launchReadinessScore}%`,
-    "workbench:learning": telemetryEventCount > 0 ? `${telemetryEventCount}개` : "대기",
+    "workbench:learning":
+      implementationTaskCount > 0
+        ? `${completedImplementationTaskCount}/${implementationTaskCount}`
+        : telemetryEventCount > 0
+          ? `${telemetryEventCount}개`
+          : "대기",
   };
   const executionStepTasks = shellTasks.filter((task) => primaryShellTaskSet.has(task.id));
   const executionStepTotal = executionStepTasks.length;

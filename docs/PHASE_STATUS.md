@@ -45,7 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-24 | Made STEP 7 task sync automatic-first and folded manual progress import into a backup path | Current commit | Pending deployment after validation | `pnpm typecheck` passed; pending `pnpm quality:full` and production smoke |
+| 2026-05-24 | Made STEP 7/8 task sync automatic-first and folded manual progress import into a backup path | Current commit | Pending deployment after validation | `pnpm quality:full` passed; production smoke pending |
 | 2026-05-24 | Simplified STEP 8 into a task-led learning review before telemetry details | `0ed9adc` | Pushed to `main`; production alias `https://ai-venture-lab.vercel.app` updated | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, direct `node ./scripts/smoke_browser_auth.mjs` after one transient `pnpm smoke:browser:auth` spawn EPERM |
 | 2026-05-24 | Clarified Cursor live sync versus Codex, Claude Code, Antigravity, and generic MCP package handoffs | `886c8a6` | Pushed to `main`; production alias updated | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth` |
 | 2026-05-24 | Refreshed synced Cursor tasks from the server before showing final execution status | `c54a208` | Pushed to `main`; production alias updated | `pnpm quality:full`, production smoke and browser/auth smoke passed |
