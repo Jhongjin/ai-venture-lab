@@ -2121,6 +2121,13 @@ type CursorProgressImportDraft = ImplementationTaskDraft & {
   evidence: string;
 };
 
+type CursorProgressDisplayItem = {
+  taskCode: string;
+  title: string;
+  status: ImplementationTaskStatus;
+  detail: string;
+};
+
 function getCursorTaskCode(index: number) {
   return `T-${String(index + 1).padStart(3, "0")}`;
 }
@@ -2208,6 +2215,21 @@ function buildCursorProgressEvidence(sourceText: string, taskCode: string, title
     .filter(Boolean)
     .join("\n")
     .slice(0, 3600);
+}
+
+function summarizeCursorProgressEvidence(evidence: string) {
+  const preferredLine =
+    evidence
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find((line) => /요약|검증|변경 파일|범위|다음 언급/.test(line) && !line.startsWith("##")) ??
+    evidence
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find((line) => line.startsWith("- ")) ??
+    "";
+
+  return preferredLine.replace(/^-\s*/, "").replace(/^요약:\s*/, "").slice(0, 140);
 }
 
 function parseCursorProgressJsonItems(sourceText: string): CursorProgressImportItem[] {
@@ -8540,6 +8562,7 @@ export function IdeaWorkbench({
   const [developmentAutoNote, setDevelopmentAutoNote] = useState("");
   const [cursorProgressImportText, setCursorProgressImportText] = useState("");
   const [cursorProgressImportMessage, setCursorProgressImportMessage] = useState<string | null>(null);
+  const [cursorProgressImportItems, setCursorProgressImportItems] = useState<CursorProgressDisplayItem[]>([]);
   const developmentAutoRunIdRef = useRef(0);
   const experienceMode = "guided" as "guided" | "full";
   const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
@@ -8930,6 +8953,54 @@ export function IdeaWorkbench({
   const nextImplementationTask = readyImplementationDependencyStatuses[0]?.task ?? selectedOpenImplementationTasks[0] ?? null;
   const nextImplementationDependencyStatus =
     implementationDependencyStatuses.find((status) => status.task.id === nextImplementationTask?.id) ?? null;
+  const completedLearningImplementationTasks = selectedImplementationTasks.filter((task) => task.status === "done");
+  const totalLearningImplementationTasks = selectedImplementationTasks.length;
+  const productSignalCount = selectedProductTelemetryEvents.length;
+  const recentSignalCount = eventCountForWindow(selectedTelemetryEvents, 14);
+  const learningDecisionLabel =
+    totalLearningImplementationTasks > 0 && completedLearningImplementationTasks.length < totalLearningImplementationTasks
+      ? "제작 계속"
+      : productSignalCount === 0
+        ? "출시 전"
+        : openSelectedIdeaRisks.length > 0
+          ? "보완 판단"
+          : "관찰 계속";
+  const learningDecisionDetail =
+    learningDecisionLabel === "제작 계속"
+      ? "아직 완료되지 않은 제작 작업이 있습니다. Cursor나 내부 제작 도구에서 다음 작업을 끝내고 결과를 다시 반영하세요."
+      : learningDecisionLabel === "출시 전"
+        ? "아직 실제 제품 이벤트가 없습니다. 먼저 첫 사용자에게 보여줄 버전을 만들고 핵심 행동 신호를 연결하세요."
+        : learningDecisionLabel === "보완 판단"
+          ? "사용 신호와 열린 리스크를 같이 보고 다음 빌드에서 제거할 차단 요인을 정하세요."
+          : "최근 사용 신호를 보며 다음 빌드 범위를 작게 승인할지 판단하세요.";
+  const learningDecisionCards = [
+    {
+      label: "제작 진행",
+      value:
+        totalLearningImplementationTasks > 0
+          ? `${completedLearningImplementationTasks.length}/${totalLearningImplementationTasks}`
+          : "대기",
+      detail:
+        nextImplementationTask
+          ? `다음 작업: ${nextImplementationTask.title}`
+          : totalLearningImplementationTasks > 0
+            ? "모든 제작 작업이 완료 상태입니다."
+            : "최종 실행에서 제작 작업을 먼저 연결하세요.",
+    },
+    {
+      label: "실제 사용 신호",
+      value: `${productSignalCount}개`,
+      detail:
+        productSignalCount > 0
+          ? "외부 제품 또는 첫 버전에서 들어온 핵심 행동 신호입니다."
+          : "아직 실제 제품 이벤트가 없어 출시 후 판단은 대기 상태입니다.",
+    },
+    {
+      label: "다음 판단",
+      value: learningDecisionLabel,
+      detail: learningDecisionDetail,
+    },
+  ];
   const implementationDependencyPlanDraft = selectedIdea && editState
     ? buildImplementationDependencyPlanMarkdown({
         idea: selectedIdea,
@@ -10565,6 +10636,22 @@ export function IdeaWorkbench({
   const cursorMcpConfigDraft = buildCursorMcpConfigJson();
   const cursorMcpServerDraft = buildCursorMcpServerScript();
   const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "cursor";
+  const cursorProgressPreviewItems =
+    cursorProgressImportText.trim() && cursorHandoffTaskDrafts.length > 0
+      ? buildCursorProgressImportDrafts({
+          sourceText: cursorProgressImportText,
+          fallbackTasks: cursorHandoffTaskDrafts,
+        }).drafts
+          .filter((draft) => draft.status !== "todo" || draft.evidence.trim())
+          .map((draft) => ({
+            taskCode: draft.taskCode,
+            title: draft.title,
+            status: draft.status,
+            detail: summarizeCursorProgressEvidence(draft.evidence) || "붙여넣은 진행 결과에서 자동으로 읽은 작업입니다.",
+          }))
+      : [];
+  const visibleCursorProgressImportItems =
+    cursorProgressImportItems.length > 0 ? cursorProgressImportItems : cursorProgressPreviewItems;
   const finalExecutionTaskPreview = selectedImplementationTasks.slice(0, 6);
   const finalExecutionFallbackTaskPreview =
     selectedImplementationTasks.length === 0 ? cursorHandoffTaskDrafts.slice(0, 6) : [];
@@ -12030,6 +12117,7 @@ export function IdeaWorkbench({
     const text = await file.text();
     setCursorProgressImportText(text);
     setCursorProgressImportMessage(`${file.name} 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.`);
+    setCursorProgressImportItems([]);
     setMessage(`${file.name} 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.`);
     event.currentTarget.value = "";
   }
@@ -12065,9 +12153,26 @@ export function IdeaWorkbench({
       sourceText: cursorProgressImportText,
       fallbackTasks: cursorHandoffTaskDrafts,
     });
+    const displayItems = importPlan.drafts
+      .filter((draft) => draft.status !== "todo" || draft.evidence.trim())
+      .map((draft) => ({
+        taskCode: draft.taskCode,
+        title: draft.title,
+        status: draft.status,
+        detail:
+          summarizeCursorProgressEvidence(draft.evidence) ||
+          (draft.status === "done"
+            ? "Cursor 완료 보고가 반영되었습니다."
+            : draft.status === "doing"
+              ? "Cursor에서 진행 중인 작업으로 표시되었습니다."
+              : draft.status === "blocked"
+                ? "Cursor 완료 보고에서 차단 상태로 표시되었습니다."
+                : "다음 미완료 작업으로 표시되었습니다."),
+      }));
 
     if (importPlan.parsedCount === 0) {
       setCursorProgressImportMessage("T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
+      setCursorProgressImportItems([]);
       setMessage("Cursor 결과에서 T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
       return;
     }
@@ -12147,6 +12252,7 @@ export function IdeaWorkbench({
           ? `반영할 수 있는 작업이 없습니다. 권한 때문에 ${skippedTaskCount}개 작업을 건너뛰었습니다.`
           : "반영할 새 작업이나 변경된 상태가 없습니다.";
       setCursorProgressImportMessage(noChangeMessage);
+      setCursorProgressImportItems(displayItems);
       setMessage(noChangeMessage);
       return;
     }
@@ -12217,6 +12323,7 @@ export function IdeaWorkbench({
       setDevelopmentPanel("tasks");
       const successMessage = `Cursor 진행 결과를 반영했습니다. 새 작업 ${insertedTasks.length}개, 상태 업데이트 ${updatedTasks.length}개, 완료 인식 ${importPlan.completedCount}개입니다.`;
       setCursorProgressImportMessage(successMessage);
+      setCursorProgressImportItems(displayItems);
       setMessage(successMessage);
       router.refresh();
     } catch (error) {
@@ -15374,7 +15481,7 @@ export function IdeaWorkbench({
                         <div className="text-sm font-semibold text-slate-950">Cursor 진행 결과 가져오기</div>
                         <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
                           Cursor가 완료 보고를 남겼거나 <span className="font-mono">.cursor/venture-lab-progress.json</span>이
-                          생겼다면 여기에 붙여넣어 Venture Lab 작업 목록과 상태를 업데이트합니다.
+                          생겼다면 여기에 넣으세요. 작업별 완료/진행/다음 상태를 자동으로 읽고 Venture Lab에 반영합니다.
                         </p>
                       </div>
                       <label className="avl-btn avl-btn-secondary h-10 cursor-pointer px-3">
@@ -15392,6 +15499,7 @@ export function IdeaWorkbench({
                       onChange={(event) => {
                         setCursorProgressImportText(event.target.value);
                         setCursorProgressImportMessage(null);
+                        setCursorProgressImportItems([]);
                       }}
                       rows={7}
                       className="mt-3 w-full border border-slate-300 bg-white p-3 text-sm leading-6 text-slate-900 outline-none focus:border-slate-950"
@@ -15402,9 +15510,30 @@ export function IdeaWorkbench({
                         {cursorProgressImportMessage}
                       </div>
                     ) : null}
+                    {visibleCursorProgressImportItems.length > 0 ? (
+                      <div className="mt-3 grid gap-2">
+                        {visibleCursorProgressImportItems.map((item) => (
+                          <div
+                            key={`${item.taskCode}-${item.title}`}
+                            className="flex flex-col gap-2 border border-slate-200 bg-white p-3 sm:flex-row sm:items-start sm:justify-between"
+                          >
+                            <div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-mono text-xs font-semibold text-slate-500">{item.taskCode}</span>
+                                <span className="text-sm font-semibold text-slate-950">{item.title}</span>
+                              </div>
+                              <p className="mt-1 text-xs leading-5 text-slate-500">{item.detail}</p>
+                            </div>
+                            <span className={`${implementationTaskStatusTone[item.status]} shrink-0`}>
+                              {implementationTaskStatusLabels[item.status]}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                     <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-xs leading-5 text-slate-500">
-                        자동 원격 쓰기는 아직 켜지지 않았습니다. 이 가져오기는 현재 로그인한 사용자 권한으로만 저장합니다.
+                        자동 원격 쓰기는 아직 켜지지 않았습니다. 붙여넣은 결과를 해석한 뒤 현재 로그인한 사용자 권한으로만 저장합니다.
                       </p>
                       <button
                         type="button"
@@ -15413,7 +15542,7 @@ export function IdeaWorkbench({
                         className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                       >
                         <Save size={16} />
-                        {isBusy ? "반영 중" : "진행 결과 반영"}
+                        {isBusy ? "자동 반영 중" : "자동 반영 실행"}
                       </button>
                     </div>
                   </div>
@@ -15482,7 +15611,7 @@ export function IdeaWorkbench({
                 실제 사용 신호
               </div>
               <h2 className="text-lg font-semibold text-slate-950">성과 확인</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-500">첫 버전의 실제 사용 신호를 모아 후속 판단으로 연결합니다.</p>
+                <p className="mt-1 text-sm leading-6 text-slate-500">여기서는 리포트를 읽는 것이 아니라, 지금 계속 만들지 보완할지 판단합니다.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -15513,8 +15642,8 @@ export function IdeaWorkbench({
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-5">
-            {learningSignalCards.map((card) => (
+          <div className="grid gap-3 md:grid-cols-3">
+            {learningDecisionCards.map((card) => (
               <div key={card.label} className="avl-surface-muted p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{card.label}</div>
                 <div className="mt-2 text-2xl font-semibold text-slate-950">{card.value}</div>
@@ -15524,10 +15653,14 @@ export function IdeaWorkbench({
           </div>
 
           {experienceMode === "guided" ? (
-            <div className="mt-4 border border-slate-200 bg-slate-50 p-4">
-              <div className="text-sm font-semibold text-slate-950">제작 전달 정보는 필요할 때만 펼치면 됩니다.</div>
+            <div className="mt-4 border border-blue-200 bg-blue-50 p-4">
+              <div className="text-sm font-semibold text-blue-950">지금 할 일</div>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                지금은 퍼널과 최근 이벤트 숫자만 보면 됩니다. 실제 서버 연결 정보는 필요한 시점에 상세 자료에서 확인하세요.
+                {nextImplementationTask
+                  ? `${nextImplementationTask.title} 작업을 외부 개발 도구에서 이어서 진행하고, 완료 보고를 최종 실행 화면에 다시 반영하세요.`
+                  : productSignalCount === 0
+                    ? "첫 버전을 배포하거나 내부 개발로 넘긴 뒤, 방문과 핵심 행동 이벤트가 들어오는지 확인하세요."
+                    : `최근 14일 신호 ${recentSignalCount}개를 기준으로 다음 빌드 범위를 작게 정하세요.`}
               </p>
             </div>
           ) : (
@@ -15649,6 +15782,20 @@ export function IdeaWorkbench({
             </details>
           </div>
           )}
+
+          <details className="mt-4 border border-slate-200 bg-white p-4">
+            <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
+              상세 사용 신호와 리포트 보기
+            </summary>
+            <div className="mt-4 grid gap-3 md:grid-cols-5">
+              {learningSignalCards.map((card) => (
+                <div key={card.label} className="avl-surface-muted p-4">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{card.label}</div>
+                  <div className="mt-2 text-2xl font-semibold text-slate-950">{card.value}</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
+                </div>
+              ))}
+            </div>
 
             <div className="mt-3 grid gap-3 lg:grid-cols-3">
               {[
@@ -15814,6 +15961,7 @@ export function IdeaWorkbench({
               />
             </div>
           </div>
+          </details>
         </div>
 
         <div
