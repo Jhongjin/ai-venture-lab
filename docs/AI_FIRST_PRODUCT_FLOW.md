@@ -120,5 +120,5 @@ Before the user moves into actual build work, the platform should have one saved
 - first build scope and excluded scope
 - implementation prompt or handoff package
 
-If an external IDE or MCP integration is available later, it should consume this same package instead of asking the user to reassemble documents.
-The canonical external handoff structure is defined in `docs/EXTERNAL_PRODUCTION_PACKAGE.md` and embedded in the STEP 5 package.
+External development tools should consume this same package instead of asking the user to reassemble documents. Cursor now receives the package through installable project files, a local MCP bridge, and scoped task progress write-back. Other external tools should follow the same package contract when their connectors are added.
+The canonical external handoff and connector structure is defined in `docs/EXTERNAL_PRODUCTION_PACKAGE.md` and embedded in the STEP 5 package.

@@ -22,7 +22,7 @@ The market and competition scan must also match the current result type. If the 
 
 ## MCP Resource Shape
 
-Suggested read-only resource URIs:
+Canonical package resources:
 
 - `venture://production-package/00-execution-summary`
 - `venture://production-package/01-validation-evidence`
@@ -34,6 +34,27 @@ Suggested read-only resource URIs:
 
 The package must never expose secret values. Environment variables should be represented as names, visibility boundaries, and verification expectations only.
 
+## Current Cursor Connector
+
+The first live connector is Cursor. Final execution generates an install script that creates these project files in the external Cursor project:
+
+- `AI_VENTURE_PACKAGE.md`
+- `AI_VENTURE_TASKS.md`
+- `AI_VENTURE_CURSOR_START.md`
+- `README_VENTURE_LAB_CURSOR.md`
+- `.cursor/rules/ai-venture-lab.mdc`
+- `.cursor/mcp.json`
+- `.cursor/venture-lab-mcp-server.mjs`
+- `.cursor/venture-lab-sync.json`
+- `.cursor/venture-lab-progress.json`
+
+Cursor's local MCP bridge exposes the package, task list, guide, and start prompt as local resources. It also exposes:
+
+- `venture_next_task`: reads the next unfinished implementation task
+- `venture_record_progress`: records task progress locally and writes the same progress back to Venture Lab through `/api/build-sync/progress`
+
+The write-back token is scoped to the selected idea, signed by a server-only secret, and can only create or update implementation tasks. The sync token and progress file are added to the external project's `.gitignore` by the setup script.
+
 ## Completion Report
 
 External tools should report:
@@ -44,4 +65,4 @@ External tools should report:
 - remaining risks or skipped checks
 - rollback notes
 
-This structure is embedded in the STEP 5 production package until a live MCP or IDE connector can expose the same resources directly.
+This structure remains embedded in the STEP 5 production package. Cursor can now consume the same package through local project files and MCP resources, while Codex, Claude Code, and Antigravity still use the package as a copyable or downloadable handoff until their connectors get matching write-back behavior.
