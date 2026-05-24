@@ -107,12 +107,12 @@ build_delivery_mode: ${normalized.mode}
 build_delivery_label: ${buildDeliveryModeLabels[normalized.mode]}
 external_tool: ${isExternal ? tool.key : "none"}
 external_tool_label: ${isExternal ? tool.label : "none"}
-final_execution_rule: actual package download or MCP/CLI connection opens only after validation, production documents, task sequence, QA, security, and launch readiness pass
+final_execution_rule: external handoff or internal build opens only after the production package and task sequence are prepared
 \`\`\`
 
 - 제작 방식: ${buildDeliveryModeLabels[normalized.mode]}
 - 선택 도구: ${isExternal ? tool.label : "Venture Lab 내부 진행"}
-- 실행 시점: 모든 검증과 제작 준비가 끝난 마지막 단계에서 실행합니다.`;
+- 실행 시점: 제작 패키지와 작업 순서가 준비된 마지막 단계에서 실행합니다.`;
 }
 
 export function getBuildDeliveryPreferenceFromText(text: string | null | undefined): BuildDeliveryPreference | null {

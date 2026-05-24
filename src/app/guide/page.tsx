@@ -80,6 +80,13 @@ const quickAnswers = [
   ["처음에 무엇을 준비해야 하나요", "정리된 기획서가 없어도 됩니다. 회의 메모, GPT와 나눈 대화, 평소 적어둔 자동화 아이디어처럼 거친 내용을 그대로 넣으면 됩니다."],
   ["모든 항목을 직접 채워야 하나요", "아닙니다. 기본은 AI가 먼저 채우고, 사용자는 어색한 판단만 고치거나 그대로 저장합니다."],
   ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 제품 기획서, 검증 계획, 제작 범위, 기술 방향, 제작에 필요한 작업 순서와 확인 기준이 묶인 제작 패키지를 얻습니다."],
+  ["Cursor와 어떻게 연결하나요", "최종 실행 단계에서 Cursor 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트에서 PowerShell 파일을 실행합니다. 그러면 Cursor 규칙, MCP 설정, 제작 패키지, 작업 목록이 프로젝트 안에 생성됩니다."],
+];
+
+const externalToolGuide = [
+  ["1", "Cursor 연결 파일 받기", "최종 실행 단계에서 제작 방식이 외부 제작 도구이고 도구가 Cursor인지 확인한 뒤 연결 파일을 받습니다."],
+  ["2", "프로젝트 루트에서 실행", "받은 PowerShell 파일을 실제 개발할 Cursor 프로젝트 루트에 두고 실행하면 .cursor/rules, .cursor/mcp.json, 제작 문서가 생성됩니다."],
+  ["3", "Cursor에서 시작", "Cursor를 다시 열고 AI_VENTURE_CURSOR_START.md 내용을 Composer에 붙여 넣으면 첫 작업부터 진행할 수 있습니다."],
 ];
 
 export default function GuidePage() {
@@ -128,7 +135,7 @@ export default function GuidePage() {
           <aside className="bg-white px-6 py-6">
             <div className="text-[11px] font-semibold tracking-[0.18em] text-slate-500">가이드 목차</div>
             <div className="mt-5 grid gap-px bg-slate-200">
-              {["상단 메뉴", "실행 보드", "자주 묻는 질문"].map((item, index) => (
+              {["상단 메뉴", "실행 보드", "외부 도구 연결", "자주 묻는 질문"].map((item, index) => (
                 <a key={item} href={`#guide-${index + 1}`} className="grid grid-cols-[3.5rem_1fr] bg-[#f7f6f2] text-sm font-semibold text-slate-700 transition hover:bg-white">
                   <span className="px-4 py-4 font-mono text-[11px] uppercase tracking-[0.18em] text-slate-400">0{index + 1}</span>
                   <span className="px-4 py-4">{item}</span>
@@ -141,7 +148,7 @@ export default function GuidePage() {
           </aside>
 
           <div className="grid gap-px bg-slate-300">
-            <section id="guide-1" className="bg-white px-6 py-7 sm:px-8">
+            <section id="guide-1" className="scroll-mt-28 bg-white px-6 py-7 sm:px-8">
               <div className="avl-kicker">상단 메뉴</div>
               <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">상단 메뉴</h2>
               <div className="mt-6 grid gap-px bg-slate-200 lg:grid-cols-2">
@@ -163,7 +170,7 @@ export default function GuidePage() {
               </div>
             </section>
 
-            <section id="guide-2" className="bg-[#eef3ff] px-6 py-7 sm:px-8">
+            <section id="guide-2" className="scroll-mt-28 bg-[#eef3ff] px-6 py-7 sm:px-8">
               <div className="avl-kicker">workspace guide</div>
               <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">실행 보드에서 이어지는 흐름</h2>
               <div className="mt-6 grid gap-px bg-slate-300">
@@ -189,7 +196,43 @@ export default function GuidePage() {
               </div>
             </section>
 
-            <section id="guide-3" className="grid gap-px bg-slate-300 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <section id="guide-3" className="grid scroll-mt-28 gap-px bg-slate-300 lg:grid-cols-[minmax(0,1fr)_340px]">
+              <div className="bg-white px-6 py-7 sm:px-8 lg:col-span-2">
+                <div className="avl-kicker">external tool</div>
+                <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">Cursor로 제작을 시작하는 법</h2>
+                <p className="mt-4 max-w-[72ch] break-keep text-sm leading-6 text-slate-600">
+                  최종 패키지는 단순 확인용 문서가 아닙니다. Cursor를 선택하면 프로젝트 안에 규칙, MCP 설정, 로컬 MCP 브리지, 제작 패키지, 작업 목록을 설치하는 파일을 받을 수 있습니다.
+                </p>
+                <div className="mt-6 grid gap-px bg-slate-200 lg:grid-cols-3">
+                  {externalToolGuide.map(([number, title, body]) => (
+                    <article key={title} className="bg-[#f7f6f2] px-5 py-5">
+                      <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">{number}</div>
+                      <h3 className="mt-4 text-[19px] font-semibold tracking-tight text-slate-950">{title}</h3>
+                      <p className="mt-3 break-keep text-sm leading-6 text-slate-600">{body}</p>
+                    </article>
+                  ))}
+                </div>
+                <div className="mt-6 grid gap-px bg-slate-200 lg:grid-cols-[0.48fr_0.52fr]">
+                  <div className="bg-white px-5 py-5">
+                    <div className="text-sm font-semibold text-slate-950">생성되는 핵심 파일</div>
+                    <div className="mt-3 grid gap-2 font-mono text-xs text-slate-600">
+                      <span>.cursor/rules/ai-venture-lab.mdc</span>
+                      <span>.cursor/mcp.json</span>
+                      <span>AI_VENTURE_PACKAGE.md</span>
+                      <span>AI_VENTURE_TASKS.md</span>
+                    </div>
+                  </div>
+                  <div className="bg-white px-5 py-5">
+                    <div className="text-sm font-semibold text-slate-950">현재 연결 범위</div>
+                    <p className="mt-3 break-keep text-sm leading-6 text-slate-600">
+                      Cursor는 패키지와 작업 목록을 로컬 MCP 리소스로 읽고, 진행 기록을 프로젝트 안의 .cursor/venture-lab-progress.json에 남깁니다. Venture Lab 서버 상태 자동 업데이트는 인증과 권한 설계가 끝난 뒤 추가됩니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="guide-4" className="grid scroll-mt-28 gap-px bg-slate-300 lg:grid-cols-[minmax(0,1fr)_340px]">
               <div className="bg-white px-6 py-7 sm:px-8">
                 <div className="avl-kicker">common questions</div>
                 <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">자주 묻는 질문</h2>

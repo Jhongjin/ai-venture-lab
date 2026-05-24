@@ -2095,14 +2095,500 @@ function cleanInlineText(value: unknown, maxLength = 900) {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, maxLength) : "";
 }
 
-function toDownloadFileName(value: string, suffix: string) {
+function toDownloadFileName(value: string, suffix: string, extension = "md") {
   const base = value
     .toLowerCase()
     .replace(/[^a-z0-9가-힣]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
 
-  return `${base || "venture-lab"}-${suffix}.md`;
+  return `${base || "venture-lab"}-${suffix}.${extension}`;
+}
+
+function buildCursorTaskMarkdown({
+  idea,
+  productSurface,
+  tasks,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  tasks: ImplementationTask[];
+}) {
+  const sortedTasks = sortImplementationTasksForExecution(tasks);
+  const taskBody =
+    sortedTasks.length > 0
+      ? sortedTasks
+          .map((task, index) => {
+            const taskCode = `T-${String(index + 1).padStart(3, "0")}`;
+            return `## ${taskCode} ${task.title}
+
+- 상태: ${implementationTaskStatusLabels[task.status]}
+- 유형: ${implementationTaskTypeLabels[task.task_type]}
+- 우선순위: ${implementationTaskPriorityLabels[task.priority]}
+- 담당 역할: ${task.owner_role || "미정"}
+
+### 수용 기준
+
+${task.acceptance_criteria || "제작 패키지의 범위와 품질 기준을 따릅니다."}
+
+### 완료 보고 형식
+
+- 변경 파일:
+- 실행한 검증:
+- 남은 리스크:
+- 다음 작업:`;
+          })
+          .join("\n\n")
+      : "아직 저장된 제작 작업이 없습니다. Venture Lab STEP 6에서 작업 순서를 먼저 생성하세요.";
+
+  return `# Cursor 작업 목록
+
+## 프로젝트
+
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 작업 원칙
+
+- 한 번에 하나의 작업만 진행합니다.
+- 작업 전 \`AI_VENTURE_PACKAGE.md\`와 이 파일을 먼저 읽습니다.
+- 완료 보고에는 변경 파일, 검증 명령, 남은 리스크를 남깁니다.
+- 범위 밖 기능은 바로 구현하지 말고 보류 메모로 남깁니다.
+
+${taskBody}
+`;
+}
+
+function buildCursorStartPromptMarkdown({
+  idea,
+  productSurface,
+  projectKey,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+}) {
+  return `# Cursor 시작 지시문
+
+당신은 AI Venture Lab에서 검증과 제작 준비가 끝난 프로젝트를 이어받는 Cursor 개발 에이전트입니다.
+
+먼저 아래 파일을 읽고, 첫 번째 작업부터 순서대로 진행하세요.
+
+1. \`AI_VENTURE_PACKAGE.md\`
+2. \`AI_VENTURE_TASKS.md\`
+3. \`.cursor/rules/ai-venture-lab.mdc\`
+
+## 프로젝트 맥락
+
+- 프로젝트 키: ${projectKey}
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 진행 방식
+
+1. 제작 패키지에서 포함 범위와 제외 범위를 확인합니다.
+2. \`AI_VENTURE_TASKS.md\`의 첫 번째 미완료 작업을 선택합니다.
+3. 구현 전 변경할 파일과 검증 명령을 짧게 계획합니다.
+4. 작업 완료 후 테스트 또는 품질 명령을 실행합니다.
+5. MCP 도구가 보이면 \`venture_record_progress\`에 작업 결과를 기록합니다.
+
+Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.
+`;
+}
+
+function buildCursorRulesMarkdown({
+  idea,
+  productSurface,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+}) {
+  return `---
+description: AI Venture Lab 제작 패키지와 작업 순서를 따르는 Cursor 규칙
+alwaysApply: true
+---
+
+# AI Venture Lab 규칙
+
+이 프로젝트는 AI Venture Lab에서 검증된 제작 패키지를 기준으로 구현합니다.
+
+## 반드시 먼저 읽을 파일
+
+- \`AI_VENTURE_PACKAGE.md\`
+- \`AI_VENTURE_TASKS.md\`
+- \`AI_VENTURE_CURSOR_START.md\`
+
+## 프로젝트 기준
+
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 실행 원칙
+
+- 한 번에 하나의 작업만 구현합니다.
+- 패키지에 없는 큰 기능은 임의로 추가하지 않습니다.
+- 변경 전 포함 범위, 제외 범위, 수용 기준을 확인합니다.
+- 작업이 끝나면 변경 파일, 검증 명령, 남은 리스크를 보고합니다.
+- MCP 도구가 연결되어 있으면 \`venture_next_task\`로 다음 작업을 확인하고 \`venture_record_progress\`로 진행 결과를 남깁니다.
+`;
+}
+
+function buildCursorGuideMarkdown({
+  idea,
+  productSurface,
+  projectKey,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+}) {
+  return `# Cursor 연결 가이드
+
+이 폴더는 AI Venture Lab에서 만든 제작 패키지를 Cursor 프로젝트에 연결하기 위한 자료입니다.
+
+## 이 패키지가 만드는 것
+
+- \`AI_VENTURE_PACKAGE.md\`: 최종 제작 패키지
+- \`AI_VENTURE_TASKS.md\`: Cursor가 순서대로 처리할 제작 작업
+- \`AI_VENTURE_CURSOR_START.md\`: Cursor Composer에 붙여 넣을 시작 지시문
+- \`.cursor/rules/ai-venture-lab.mdc\`: Cursor가 항상 참고할 프로젝트 규칙
+- \`.cursor/mcp.json\`: 프로젝트 전용 MCP 서버 설정
+- \`.cursor/venture-lab-mcp-server.mjs\`: 로컬 MCP 브리지
+- \`.cursor/venture-lab-progress.json\`: Cursor 작업 진행 기록
+
+## 실행 순서
+
+1. Cursor에서 실제 개발할 프로젝트 폴더를 엽니다.
+2. Venture Lab에서 받은 \`*-cursor-setup.ps1\` 파일을 프로젝트 루트에 둡니다.
+3. PowerShell에서 아래 명령을 실행합니다.
+
+\`\`\`powershell
+powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cursor-setup", "ps1")}
+\`\`\`
+
+4. Cursor를 새로고침하거나 다시 열고, MCP 설정에서 \`ai-venture-lab\` 서버가 보이는지 확인합니다.
+5. Cursor Composer에 \`AI_VENTURE_CURSOR_START.md\` 내용을 붙여 넣고 첫 작업을 시작합니다.
+
+## 프로젝트 정보
+
+- 프로젝트 키: ${projectKey}
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 현재 동기화 범위
+
+이번 연결은 Cursor 프로젝트 안에 파일과 로컬 MCP 브리지를 설치합니다. Cursor는 제작 패키지, 작업 목록, 시작 지시문을 바로 읽을 수 있고, 진행 기록은 \`.cursor/venture-lab-progress.json\`에 남습니다.
+
+Venture Lab 서버의 작업 상태를 자동으로 다시 업데이트하는 원격 동기화는 별도 인증 토큰과 안전한 쓰기 경계가 필요하므로 이 패키지에는 포함하지 않았습니다.
+`;
+}
+
+function buildCursorMcpConfigJson() {
+  return `${JSON.stringify(
+    {
+      mcpServers: {
+        "ai-venture-lab": {
+          command: "node",
+          args: [".cursor/venture-lab-mcp-server.mjs"],
+        },
+      },
+    },
+    null,
+    2,
+  )}
+`;
+}
+
+function buildCursorMcpServerScript() {
+  return `#!/usr/bin/env node
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import readline from "node:readline";
+
+const root = process.cwd();
+const resourceFiles = {
+  "venture://package": "AI_VENTURE_PACKAGE.md",
+  "venture://tasks": "AI_VENTURE_TASKS.md",
+  "venture://guide": "README_VENTURE_LAB_CURSOR.md",
+  "venture://start": "AI_VENTURE_CURSOR_START.md"
+};
+
+function send(payload) {
+  process.stdout.write(JSON.stringify({ jsonrpc: "2.0", ...payload }) + "\\n");
+}
+
+function result(id, value) {
+  if (id !== undefined && id !== null) {
+    send({ id, result: value });
+  }
+}
+
+function error(id, code, message) {
+  if (id !== undefined && id !== null) {
+    send({ id, error: { code, message } });
+  }
+}
+
+async function readText(relativePath) {
+  try {
+    return await readFile(path.join(root, relativePath), "utf8");
+  } catch {
+    return "";
+  }
+}
+
+function extractNextTask(taskText) {
+  const sections = taskText.split(/\\n## T-/).slice(1).map((section) => "## T-" + section.trim());
+  if (sections.length === 0) {
+    return taskText.trim() || "저장된 작업 목록이 없습니다.";
+  }
+
+  const active = sections.find((section) => !section.includes("- 상태: 완료")) || sections[0];
+  return active.trim();
+}
+
+async function recordProgress(args) {
+  const progressPath = path.join(root, ".cursor", "venture-lab-progress.json");
+  let records = [];
+
+  try {
+    records = JSON.parse(await readFile(progressPath, "utf8"));
+    if (!Array.isArray(records)) {
+      records = [];
+    }
+  } catch {
+    records = [];
+  }
+
+  records.push({
+    task: String(args?.task || "unnamed task"),
+    status: String(args?.status || "reported"),
+    summary: String(args?.summary || ""),
+    files: Array.isArray(args?.files) ? args.files.map(String) : [],
+    verification: String(args?.verification || ""),
+    recordedAt: new Date().toISOString()
+  });
+
+  await mkdir(path.dirname(progressPath), { recursive: true });
+  await writeFile(progressPath, JSON.stringify(records, null, 2) + "\\n", "utf8");
+  return "진행 기록을 .cursor/venture-lab-progress.json에 저장했습니다.";
+}
+
+async function handle(message) {
+  const id = message.id;
+  const method = message.method;
+
+  if (!method) {
+    return;
+  }
+
+  if (method === "initialize") {
+    result(id, {
+      protocolVersion: message.params?.protocolVersion || "2025-06-18",
+      capabilities: {
+        resources: {},
+        tools: {},
+        prompts: {}
+      },
+      serverInfo: {
+        name: "ai-venture-lab-local",
+        version: "0.1.0"
+      }
+    });
+    return;
+  }
+
+  if (method === "notifications/initialized") {
+    return;
+  }
+
+  if (method === "resources/list") {
+    result(id, {
+      resources: [
+        { uri: "venture://package", name: "AI Venture Lab package", mimeType: "text/markdown" },
+        { uri: "venture://tasks", name: "AI Venture Lab tasks", mimeType: "text/markdown" },
+        { uri: "venture://guide", name: "AI Venture Lab guide", mimeType: "text/markdown" },
+        { uri: "venture://start", name: "AI Venture Lab start prompt", mimeType: "text/markdown" }
+      ]
+    });
+    return;
+  }
+
+  if (method === "resources/read") {
+    const uri = message.params?.uri;
+    const relativePath = resourceFiles[uri];
+    if (!relativePath) {
+      error(id, -32602, "Unknown AI Venture Lab resource URI.");
+      return;
+    }
+
+    result(id, {
+      contents: [
+        {
+          uri,
+          mimeType: "text/markdown",
+          text: await readText(relativePath)
+        }
+      ]
+    });
+    return;
+  }
+
+  if (method === "tools/list") {
+    result(id, {
+      tools: [
+        {
+          name: "venture_next_task",
+          description: "Read the next AI Venture Lab implementation task from AI_VENTURE_TASKS.md.",
+          inputSchema: { type: "object", properties: {}, additionalProperties: false }
+        },
+        {
+          name: "venture_record_progress",
+          description: "Record local Cursor progress for an AI Venture Lab task.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              task: { type: "string" },
+              status: { type: "string" },
+              summary: { type: "string" },
+              files: { type: "array", items: { type: "string" } },
+              verification: { type: "string" }
+            },
+            required: ["task", "status", "summary"]
+          }
+        }
+      ]
+    });
+    return;
+  }
+
+  if (method === "tools/call") {
+    const name = message.params?.name;
+    const args = message.params?.arguments || {};
+
+    if (name === "venture_next_task") {
+      result(id, {
+        content: [
+          {
+            type: "text",
+            text: extractNextTask(await readText("AI_VENTURE_TASKS.md"))
+          }
+        ]
+      });
+      return;
+    }
+
+    if (name === "venture_record_progress") {
+      result(id, {
+        content: [
+          {
+            type: "text",
+            text: await recordProgress(args)
+          }
+        ]
+      });
+      return;
+    }
+
+    error(id, -32602, "Unknown AI Venture Lab tool.");
+    return;
+  }
+
+  if (method === "prompts/list") {
+    result(id, {
+      prompts: [
+        {
+          name: "venture_start",
+          description: "Start implementing from the AI Venture Lab production package."
+        }
+      ]
+    });
+    return;
+  }
+
+  if (method === "prompts/get") {
+    result(id, {
+      description: "Start implementing from the AI Venture Lab production package.",
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text: await readText("AI_VENTURE_CURSOR_START.md")
+          }
+        }
+      ]
+    });
+    return;
+  }
+
+  error(id, -32601, "Method not found.");
+}
+
+const rl = readline.createInterface({ input: process.stdin });
+rl.on("line", (line) => {
+  if (!line.trim()) {
+    return;
+  }
+
+  try {
+    void handle(JSON.parse(line));
+  } catch (reason) {
+    console.error("[ai-venture-lab-mcp] invalid message", reason);
+  }
+});
+`;
+}
+
+function escapePowerShellSingleQuoted(value: string) {
+  return value.replace(/'/g, "''");
+}
+
+function buildCursorSetupPowerShell({
+  idea,
+  projectKey,
+  files,
+}: {
+  idea: Idea;
+  projectKey: string;
+  files: Array<{ path: string; base64: string }>;
+}) {
+  const fileRows = files
+    .map((file) => `  @{ Path = '${escapePowerShellSingleQuoted(file.path)}'; Base64 = '${file.base64}' }`)
+    .join("\n");
+
+  return `# AI Venture Lab Cursor connection setup
+# Project: ${idea.name}
+# Key: ${projectKey}
+
+$ErrorActionPreference = 'Stop'
+$root = Get-Location
+$files = @(
+${fileRows}
+)
+
+foreach ($file in $files) {
+  $target = Join-Path $root $file.Path
+  $directory = Split-Path -Parent $target
+
+  if ($directory -and -not (Test-Path -LiteralPath $directory)) {
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+  }
+
+  $bytes = [Convert]::FromBase64String($file.Base64)
+  $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+  [System.IO.File]::WriteAllText($target, $text, [System.Text.UTF8Encoding]::new($false))
+  Write-Host "created $($file.Path)"
+}
+
+Write-Host ""
+Write-Host "AI Venture Lab Cursor connection files are ready."
+Write-Host "Next: reopen Cursor, check Settings > MCP for ai-venture-lab, then paste AI_VENTURE_CURSOR_START.md into Composer."
+`;
 }
 
 function normalizeMarketScanSource(value: unknown): MarketScanSource | null {
@@ -9710,11 +10196,36 @@ export function IdeaWorkbench({
       })
     : "";
   const finalExecutionProjectKey = selectedIdea ? selectedIdea.id.slice(0, 8).toUpperCase() : "PROJECT";
-  const finalExecutionCommandPreview = [
-    "npm i -g @ai-venture-lab/cli",
-    `ai-venture-lab init ${finalExecutionProjectKey} --tool ${activeExternalBuildTool.key}`,
-    `ai-venture-lab next ${finalExecutionProjectKey}`,
-  ];
+  const cursorTaskPackageDraft = selectedIdea
+    ? buildCursorTaskMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        tasks: selectedImplementationTasks,
+      })
+    : "";
+  const cursorStartPromptDraft = selectedIdea
+    ? buildCursorStartPromptMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+      })
+    : "";
+  const cursorRuleDraft = selectedIdea
+    ? buildCursorRulesMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+      })
+    : "";
+  const cursorGuideDraft = selectedIdea
+    ? buildCursorGuideMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+      })
+    : "";
+  const cursorMcpConfigDraft = buildCursorMcpConfigJson();
+  const cursorMcpServerDraft = buildCursorMcpServerScript();
+  const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "cursor";
   const finalExecutionTaskPreview = selectedImplementationTasks.slice(0, 6);
   const doneRunCount = selectedRuns.filter((run) => run.status === "done").length;
   const workbenchTasks: Array<{
@@ -11397,12 +11908,12 @@ export function IdeaWorkbench({
     setCopyMessage(`${label}을 클립보드에 복사했습니다.`);
   }
 
-  function downloadMarkdownFile(body: string, label: string, fileName: string) {
+  function downloadTextFile(body: string, label: string, fileName: string, mimeType: string) {
     if (!body) {
       return;
     }
 
-    const url = window.URL.createObjectURL(new Blob([body], { type: "text/markdown;charset=utf-8" }));
+    const url = window.URL.createObjectURL(new Blob([body], { type: mimeType }));
     const anchor = document.createElement("a");
     anchor.href = url;
     anchor.download = fileName;
@@ -11411,6 +11922,51 @@ export function IdeaWorkbench({
     anchor.remove();
     window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
     setCopyMessage(`${label} 파일을 준비했습니다.`);
+  }
+
+  function downloadMarkdownFile(body: string, label: string, fileName: string) {
+    downloadTextFile(body, label, fileName, "text/markdown;charset=utf-8");
+  }
+
+  function encodeUtf8Base64(body: string) {
+    const bytes = new TextEncoder().encode(body);
+    let binary = "";
+
+    for (let index = 0; index < bytes.length; index += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+    }
+
+    return window.btoa(binary);
+  }
+
+  function downloadCursorSetupScript() {
+    if (!selectedIdea || !finalAgentRunPackageDraft) {
+      return;
+    }
+
+    const files = [
+      { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
+      { path: "AI_VENTURE_TASKS.md", body: cursorTaskPackageDraft },
+      { path: "AI_VENTURE_CURSOR_START.md", body: cursorStartPromptDraft },
+      { path: "README_VENTURE_LAB_CURSOR.md", body: cursorGuideDraft },
+      { path: ".cursor/rules/ai-venture-lab.mdc", body: cursorRuleDraft },
+      { path: ".cursor/mcp.json", body: cursorMcpConfigDraft },
+      { path: ".cursor/venture-lab-mcp-server.mjs", body: cursorMcpServerDraft },
+      { path: ".cursor/venture-lab-progress.json", body: "[]\n" },
+    ].map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+
+    const script = buildCursorSetupPowerShell({
+      idea: selectedIdea,
+      projectKey: finalExecutionProjectKey,
+      files,
+    });
+
+    downloadTextFile(
+      script,
+      "Cursor 연결 스크립트",
+      toDownloadFileName(selectedIdea.name, "cursor-setup", "ps1"),
+      "text/plain;charset=utf-8",
+    );
   }
 
   async function copyLaunchChecklistDraft() {
@@ -13966,11 +14522,14 @@ export function IdeaWorkbench({
                     <div>
                       <div className="avl-kicker">external build tool</div>
                       <h3 className="mt-2 text-lg font-semibold text-slate-950">
-                        {activeExternalBuildTool.label}로 제작 패키지를 넘깁니다
+                        {isCursorExternalDelivery
+                          ? "Cursor 프로젝트에 연결 파일을 설치합니다"
+                          : `${activeExternalBuildTool.label}용 제작 패키지를 받습니다`}
                       </h3>
                       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                        지금 받을 수 있는 것은 외부 제작 도구가 읽을 최종 패키지와 첫 지시문입니다. MCP/CLI 자동 동기화는 같은
-                        패키지 구조를 기준으로 연결됩니다.
+                        {isCursorExternalDelivery
+                          ? "Cursor가 실제로 읽을 규칙, MCP 설정, 로컬 MCP 브리지, 제작 패키지, 작업 목록을 설치 파일 하나로 묶습니다."
+                          : "외부 제작 도구가 바로 읽을 수 있도록 최종 제작 패키지와 첫 지시문을 분리해 제공합니다."}
                       </p>
                     </div>
                     <span className="avl-pill avl-pill-info">{activeExternalBuildTool.label}</span>
@@ -13978,52 +14537,127 @@ export function IdeaWorkbench({
 
                   <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.56fr)_minmax(360px,0.44fr)]">
                     <div className="border border-slate-200 bg-white p-4">
-                      <div className="text-sm font-semibold text-slate-950">최종 패키지</div>
+                      <div className="text-sm font-semibold text-slate-950">
+                        {isCursorExternalDelivery ? "Cursor 연결 파일" : "최종 패키지"}
+                      </div>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        PRD, IA, 디자인 기준, 기술 경계, 작업 순서, 검증 기준, 완료 보고 형식을 한 문서로 묶었습니다.
+                        {isCursorExternalDelivery
+                          ? "프로젝트 루트에서 실행하면 Cursor 규칙, MCP 서버, 제작 문서, 작업 목록이 실제 파일로 생성됩니다."
+                          : "PRD, IA, 디자인 기준, 기술 경계, 작업 순서, 검증 기준, 완료 보고 형식을 한 문서로 묶었습니다."}
                       </p>
+                      {isCursorExternalDelivery ? (
+                        <div className="mt-3 grid gap-2 text-xs leading-5 text-slate-600 sm:grid-cols-2">
+                          <div className="border border-slate-200 bg-slate-50 p-3">.cursor/rules/ai-venture-lab.mdc</div>
+                          <div className="border border-slate-200 bg-slate-50 p-3">.cursor/mcp.json</div>
+                          <div className="border border-slate-200 bg-slate-50 p-3">AI_VENTURE_PACKAGE.md</div>
+                          <div className="border border-slate-200 bg-slate-50 p-3">AI_VENTURE_TASKS.md</div>
+                        </div>
+                      ) : null}
                       <div className="mt-4 flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={() => copyDraft(finalAgentRunPackageDraft, "최종 제작 패키지")}
+                          onClick={() =>
+                            copyDraft(
+                              isCursorExternalDelivery ? cursorStartPromptDraft : finalAgentRunPackageDraft,
+                              isCursorExternalDelivery ? "Cursor 시작 지시문" : "최종 제작 패키지",
+                            )
+                          }
                           disabled={!finalAgentRunPackageDraft}
                           className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                         >
                           <Clipboard size={16} />
-                          지시문 복사
+                          {isCursorExternalDelivery ? "시작 지시문 복사" : "지시문 복사"}
                         </button>
                         <button
                           type="button"
-                          onClick={() =>
+                          onClick={() => {
+                            if (isCursorExternalDelivery) {
+                              downloadCursorSetupScript();
+                              return;
+                            }
+
                             downloadMarkdownFile(
                               finalAgentRunPackageDraft,
                               "최종 제작 패키지",
                               toDownloadFileName(selectedIdea.name, "production-package"),
-                            )
-                          }
+                            );
+                          }}
                           disabled={!finalAgentRunPackageDraft}
                           className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                         >
                           <Download size={16} />
-                          패키지 파일 받기
+                          {isCursorExternalDelivery ? "Cursor 연결 파일 받기" : "패키지 파일 받기"}
                         </button>
+                        {isCursorExternalDelivery ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              downloadMarkdownFile(
+                                finalAgentRunPackageDraft,
+                                "최종 제작 패키지",
+                                toDownloadFileName(selectedIdea.name, "production-package"),
+                              )
+                            }
+                            disabled={!finalAgentRunPackageDraft}
+                            className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
+                          >
+                            <Download size={16} />
+                            문서만 받기
+                          </button>
+                        ) : null}
                       </div>
                     </div>
 
                     <div className="border border-slate-200 bg-white p-4">
-                      <div className="text-sm font-semibold text-slate-950">MCP/CLI 연결 형태</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">
-                        자동 연동이 켜지면 아래 순서로 프로젝트와 작업 상태를 연결합니다. 현재 화면에서는 패키지 파일과 지시문을
-                        먼저 제공합니다.
-                      </p>
-                      <div className="mt-3 grid gap-2">
-                        {finalExecutionCommandPreview.map((command) => (
-                          <div key={command} className="flex items-center justify-between gap-3 bg-slate-950 px-3 py-2 font-mono text-xs text-white">
-                            <span className="truncate">{command}</span>
-                            <span className="text-[10px] uppercase tracking-[0.14em] text-slate-400">preview</span>
-                          </div>
-                        ))}
+                      <div className="text-sm font-semibold text-slate-950">
+                        {isCursorExternalDelivery ? "Cursor에서 시작하는 순서" : "외부 도구 전달 방식"}
                       </div>
+                      {isCursorExternalDelivery ? (
+                        <>
+                          <ol className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
+                            <li className="border border-slate-200 bg-slate-50 p-3">
+                              1. 실제 개발할 프로젝트 루트에 받은 PowerShell 파일을 둡니다.
+                            </li>
+                            <li className="border border-slate-200 bg-slate-50 p-3">
+                              2. PowerShell에서 파일을 실행하면 Cursor 규칙과 MCP 설정이 만들어집니다.
+                            </li>
+                            <li className="border border-slate-200 bg-slate-50 p-3">
+                              3. Cursor를 다시 열고 시작 지시문을 Composer에 붙여 넣습니다.
+                            </li>
+                          </ol>
+                          <div className="mt-3 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white">
+                            {"powershell -ExecutionPolicy Bypass -File .\\"}
+                            {toDownloadFileName(selectedIdea.name, "cursor-setup", "ps1")}
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => copyDraft(cursorMcpConfigDraft, "Cursor MCP 설정")}
+                              disabled={!cursorMcpConfigDraft}
+                              className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
+                            >
+                              <Code2 size={16} />
+                              MCP 설정 복사
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => copyDraft(cursorGuideDraft, "Cursor 연결 가이드")}
+                              disabled={!cursorGuideDraft}
+                              className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
+                            >
+                              <ClipboardList size={16} />
+                              가이드 복사
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p className="mt-2 text-sm leading-6 text-slate-600">{activeExternalBuildTool.startMethod}</p>
+                          <div className="mt-3 border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600">
+                            {activeExternalBuildTool.packageFocus}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </section>
@@ -14074,10 +14708,12 @@ export function IdeaWorkbench({
               <section className="border border-slate-200 bg-white p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <div className="avl-kicker">task sync preview</div>
+                    <div className="avl-kicker">task packet</div>
                     <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 목록</h3>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
-                      외부 제작 도구 연동이 켜지면 이 작업들이 진행/완료 상태로 동기화되는 기준 목록입니다.
+                      {isCursorExternalDelivery
+                        ? "Cursor 연결 파일에는 이 작업 목록이 포함됩니다. 진행 결과는 프로젝트 안의 로컬 기록 파일에 남습니다."
+                        : "외부 제작 도구가 이 작업 순서를 기준으로 진행할 수 있도록 함께 전달합니다."}
                     </p>
                   </div>
                   <span className="avl-pill avl-pill-success">{finalExecutionTaskPreview.length}개 표시</span>
