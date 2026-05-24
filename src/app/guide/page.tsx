@@ -80,13 +80,14 @@ const quickAnswers = [
   ["처음에 무엇을 준비해야 하나요", "정리된 기획서가 없어도 됩니다. 회의 메모, GPT와 나눈 대화, 평소 적어둔 자동화 아이디어처럼 거친 내용을 그대로 넣으면 됩니다."],
   ["모든 항목을 직접 채워야 하나요", "아닙니다. 기본은 AI가 먼저 채우고, 사용자는 어색한 판단만 고치거나 그대로 저장합니다."],
   ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 제품 기획서, 검증 계획, 제작 범위, 기술 방향, 제작에 필요한 작업 순서와 확인 기준이 묶인 제작 패키지를 얻습니다."],
-  ["Cursor와 어떻게 연결하나요", "최종 실행 단계에서 Cursor 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트에서 PowerShell 파일을 실행합니다. 그러면 Cursor 규칙, MCP 설정, 제작 패키지, 작업 목록이 프로젝트 안에 생성됩니다."],
+  ["Cursor와 어떻게 연결하나요", "최종 실행 단계에서 Cursor 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트에서 PowerShell 파일을 실행합니다. 그러면 Cursor 규칙, MCP 설정, 제작 패키지, 작업 목록이 프로젝트 안에 생성됩니다. 작업 후에는 Cursor 완료 보고나 .cursor/venture-lab-progress.json을 최종 실행 화면에 붙여넣어 Venture Lab 작업 상태를 반영합니다."],
 ];
 
 const externalToolGuide = [
   ["1", "Cursor 연결 파일 받기", "최종 실행 단계에서 제작 방식이 외부 제작 도구이고 도구가 Cursor인지 확인한 뒤 연결 파일을 받습니다."],
   ["2", "프로젝트 루트에서 실행", "받은 PowerShell 파일을 실제 개발할 Cursor 프로젝트 루트에 두고 실행하면 .cursor/rules, .cursor/mcp.json, 제작 문서가 생성됩니다."],
   ["3", "Cursor에서 시작", "Cursor를 다시 열고 AI_VENTURE_CURSOR_START.md 내용을 Composer에 붙여 넣으면 첫 작업부터 진행할 수 있습니다."],
+  ["4", "진행 결과 반영", "작업을 마친 뒤 완료 보고 또는 .cursor/venture-lab-progress.json 내용을 Venture Lab 최종 실행 화면의 Cursor 진행 결과 가져오기에 붙여넣습니다."],
 ];
 
 export default function GuidePage() {

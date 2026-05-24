@@ -18,6 +18,7 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 
 8. Cursor를 다시 열고 MCP 설정에서 `ai-venture-lab` 서버가 보이는지 확인한다.
 9. `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣어 첫 작업을 시작한다.
+10. 작업을 마치면 Cursor 완료 보고 또는 `.cursor/venture-lab-progress.json` 내용을 Venture Lab 최종 실행 화면의 `Cursor 진행 결과 가져오기`에 붙여넣는다.
 
 ## 생성되는 파일
 
@@ -29,6 +30,8 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 - `.cursor/mcp.json`: 프로젝트 전용 MCP 서버 설정
 - `.cursor/venture-lab-mcp-server.mjs`: 로컬 MCP 브리지
 - `.cursor/venture-lab-progress.json`: Cursor 작업 진행 기록
+
+`AI_VENTURE_TASKS.md`는 Venture Lab에 저장된 작업이 아직 없어도 제작 패키지의 기본 작업 순서 9개를 포함한다. 작업 완료 후 진행 기록을 다시 가져오면 Venture Lab의 `implementation_tasks` 목록과 상태가 현재 로그인한 사용자 권한으로 저장 또는 갱신된다.
 
 ## MCP 연결 범위
 
@@ -43,11 +46,12 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 
 ## 아직 포함하지 않는 것
 
-Venture Lab 서버의 `implementation_tasks` 상태를 Cursor가 자동으로 수정하는 원격 쓰기 동기화는 아직 넣지 않는다. 이 기능은 사용자별 인증 토큰, 프로젝트 권한 확인, 쓰기 범위 제한, 실패 시 롤백 기준이 필요하다.
+Venture Lab 서버의 `implementation_tasks` 상태를 Cursor가 자동으로 수정하는 원격 쓰기 동기화는 아직 넣지 않는다. 이 기능은 사용자별 인증 토큰, 프로젝트 권한 확인, 쓰기 범위 제한, 실패 시 롤백 기준이 필요하다. 현재는 최종 실행 화면의 가져오기 버튼이 로그인된 사용자의 권한으로 안전하게 서버 상태를 갱신한다.
 
 ## 운영 원칙
 
 - 화면에는 “자동 동기화 완료”처럼 아직 없는 기능으로 보이는 표현을 쓰지 않는다.
 - 최종 실행 단계는 파일을 받는 문서함이 아니라 외부 제작 도구에 실제 연결 자료를 설치하는 단계로 설명한다.
 - Cursor 연결은 `.cursor/rules`와 `.cursor/mcp.json`을 중심으로 한다.
-- 진행 기록은 먼저 로컬 파일에 남기고, 서버 쓰기 동기화는 별도 보안 설계 후 추가한다.
+- 진행 기록은 먼저 로컬 파일에 남기고, Venture Lab 화면에서 사용자가 확인한 뒤 가져온다.
+- 서버 자동 쓰기 동기화는 별도 보안 설계 후 추가한다.
