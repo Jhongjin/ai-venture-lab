@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-24 | Updated public guide for Cursor automatic progress sync | Current commit | User-facing guide copy; production browser smoke now checks Cursor CLI and backup wording | `node --check scripts/smoke_browser.mjs`, `pnpm quality:full`, `pnpm smoke:browser` |
 | 2026-05-24 | Documented the safe write-back boundary for non-Cursor connectors | Current commit | Docs-only connector governance; no runtime deploy required | `pnpm release:check` |
 | 2026-05-24 | Locked non-Cursor external tools to package-only final execution guidance | Current commit | Script/docs/copy hardening; production smoke checks non-Cursor tools do not expose Cursor setup | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Extended Cursor sync smoke through STEP 7 final execution CLI guidance | Current commit | Script/docs only; disposable launch package verifies Cursor final execution guidance | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync` |

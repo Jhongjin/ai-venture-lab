@@ -102,6 +102,14 @@ async function main() {
       fail("unable to detect either login or extract stage");
     }
 
+    await page.goto(`${baseUrl}/guide`, { waitUntil: "networkidle", timeout });
+    await waitForVisible(page.getByRole("heading", { name: /AI Venture Lab 이용 가이드/ }), "guide heading");
+    await waitForVisible(
+      page.getByText("node .cursor/venture-lab-cli.mjs next-task", { exact: false }),
+      "guide Cursor CLI check",
+    );
+    await waitForVisible(page.getByText("붙여넣기는 실패 시 백업", { exact: false }), "guide Cursor backup wording");
+
     if (resolvedScreenshotPath) {
       await page.screenshot({ path: resolvedScreenshotPath, fullPage: true });
       console.log(`Browser smoke screenshot saved to ${resolvedScreenshotPath}`);
