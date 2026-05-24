@@ -64,7 +64,7 @@ After applying `20260524010000_add_build_sync_tokens.sql`, run the production ve
 pnpm smoke:build-sync
 ```
 
-The smoke creates a disposable idea when browser-accessible Supabase public config is available, issues a Cursor connection token, verifies that progress writes work before revoke, revokes the connection, confirms the old token is rejected, and deletes the disposable idea.
+The smoke creates a disposable idea when browser-accessible Supabase public config is available, issues a Cursor connection token, verifies that progress writes work before revoke, opens the STEP 8 learning view to confirm the synced task is visible in the task board, revokes the connection, confirms the old token is rejected, and deletes the disposable idea.
 
 This creates:
 

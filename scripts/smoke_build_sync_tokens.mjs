@@ -60,6 +60,30 @@ async function callAppApi(page, path, init = {}) {
   );
 }
 
+async function verifyLearningTaskBoard(page, ideaId) {
+  const learningUrl = new URL("/workspace", baseUrl);
+  learningUrl.searchParams.set("task", "learning");
+  learningUrl.searchParams.set("idea", ideaId);
+
+  await page.goto(learningUrl.toString(), { waitUntil: "networkidle", timeout });
+  await page.getByRole("heading", { name: "성과 확인" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("build sync smoke registry verification", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("완료", { exact: true }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+}
+
 async function resolveSupabasePublicConfigFromPage(page) {
   if (hasConfigValue(supabaseUrl) && hasConfigValue(supabaseAnonKey)) {
     return { url: supabaseUrl, anonKey: supabaseAnonKey };
@@ -294,6 +318,8 @@ async function main() {
       if (!usedConnection?.lastUsedAt) {
         fail("active token progress write did not update lastUsedAt.");
       }
+
+      await verifyLearningTaskBoard(page, ideaId);
     }
 
     const revokeResult = await callAppApi(page, `/api/build-sync/tokens/${encodeURIComponent(connectionId)}`, {
@@ -334,6 +360,11 @@ async function main() {
       usedDisposableIdea || allowProgressWrite
         ? "Progress write: accepted before revoke"
         : "Progress write: skipped before revoke to avoid mutating an existing idea",
+    );
+    console.log(
+      usedDisposableIdea || allowProgressWrite
+        ? "Task board UI: synced task visible in STEP 8"
+        : "Task board UI: skipped because progress write was skipped",
     );
     console.log("Connection revoke: accepted");
     console.log("Revoked token write: rejected");

@@ -76,7 +76,7 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 pnpm smoke:build-sync
 ```
 
-이 스모크는 로그인 세션으로 Cursor 연결을 발급하고, 연결 목록이 `ready`인지 확인하고, 가능한 경우 disposable 아이디어에 진행 결과를 한 번 반영한 뒤, 연결을 끊고 같은 토큰의 후속 반영이 401로 거부되는지 확인한다. 검증용 아이디어를 만들 수 있는 환경에서는 끝나면 자동 삭제한다.
+이 스모크는 로그인 세션으로 Cursor 연결을 발급하고, 연결 목록이 `ready`인지 확인하고, 가능한 경우 disposable 아이디어에 진행 결과를 한 번 반영한다. 그 다음 `/workspace?task=learning&idea=...`로 STEP 8 성과 확인 화면을 열어 동기화된 작업이 `제작 작업 진행표`에 실제로 보이는지 확인한다. 마지막으로 연결을 끊고 같은 토큰의 후속 반영이 401로 거부되는지 확인한다. 검증용 아이디어를 만들 수 있는 환경에서는 끝나면 자동 삭제한다.
 
 ## 운영 원칙
 

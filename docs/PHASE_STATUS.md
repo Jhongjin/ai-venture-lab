@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-24 | Extended Cursor sync smoke through STEP 8 task-board rendering | Current commit | Script/docs only; production UI and disposable sync path verified | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Added production smoke for revocable Cursor sync tokens | Current commit | Script/docs only; production registry verified after SQL | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Added stored hashed Cursor sync tokens and individual revoke controls | Current commit | Deploy-safe with legacy fallback; registry enforcement activates after production SQL | `pnpm quality:full` |
 | 2026-05-24 | Made STEP 7/8 task sync automatic-first and folded manual progress import into a backup path | `4f48767` | Pushed to `main`; production alias updated | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth` |
@@ -215,6 +216,5 @@ For Cursor handoff tests, use `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md`. The default 
 ## Next Jobs
 
 1. Package the Cursor connector as a cleaner CLI/MCP distribution after the project-root script path is stable.
-2. Add a task-board level regression smoke that checks the STEP 8 list view after automatic Cursor progress sync.
-3. Keep Codex, Claude Code, Antigravity, and generic MCP as package handoffs until each has a safe write-back boundary.
-4. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
+2. Keep Codex, Claude Code, Antigravity, and generic MCP as package handoffs until each has a safe write-back boundary.
+3. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
