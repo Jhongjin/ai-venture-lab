@@ -18,7 +18,9 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 
 8. Cursor를 다시 열고 MCP 설정에서 `ai-venture-lab` 서버가 보이는지 확인한다.
 9. `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣어 첫 작업을 시작한다.
-10. 작업을 마치면 Cursor 완료 보고 또는 `.cursor/venture-lab-progress.json` 내용을 Venture Lab 최종 실행 화면의 `Cursor 진행 결과 가져오기`에 붙여넣는다.
+10. 작업을 마치면 Cursor에게 `venture_record_progress` 도구로 완료 보고를 남기라고 지시한다.
+11. Venture Lab 최종 실행 화면을 새로고침해 작업 상태가 반영됐는지 확인한다.
+12. 자동 반영이 실패한 경우에만 `.cursor/venture-lab-progress.json` 내용을 Venture Lab 최종 실행 화면의 백업 가져오기에 붙여넣는다.
 
 ## 생성되는 파일
 
@@ -29,9 +31,10 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 - `.cursor/rules/ai-venture-lab.mdc`: Cursor가 항상 참고할 프로젝트 규칙
 - `.cursor/mcp.json`: 프로젝트 전용 MCP 서버 설정
 - `.cursor/venture-lab-mcp-server.mjs`: 로컬 MCP 브리지
+- `.cursor/venture-lab-sync.json`: Venture Lab 자동 반영 토큰과 서버 주소
 - `.cursor/venture-lab-progress.json`: Cursor 작업 진행 기록
 
-`AI_VENTURE_TASKS.md`는 Venture Lab에 저장된 작업이 아직 없어도 제작 패키지의 기본 작업 순서 9개를 포함한다. 작업 완료 후 진행 기록을 다시 가져오면 Venture Lab의 `implementation_tasks` 목록과 상태가 현재 로그인한 사용자 권한으로 저장 또는 갱신된다.
+`AI_VENTURE_TASKS.md`는 Venture Lab에 저장된 작업이 아직 없어도 제작 패키지의 기본 작업 순서 9개를 포함한다. 작업 완료 후 Cursor가 `venture_record_progress`를 호출하면 진행 기록이 로컬 파일에 남고, 같은 내용이 Venture Lab의 `implementation_tasks` 목록과 상태로 저장 또는 갱신된다.
 
 ## MCP 연결 범위
 
@@ -42,16 +45,24 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 - `venture://guide`: 연결 가이드
 - `venture://start`: 시작 지시문
 - `venture_next_task`: 다음 제작 작업 확인
-- `venture_record_progress`: 완료 요약을 `.cursor/venture-lab-progress.json`에 기록
+- `venture_record_progress`: 완료 요약을 `.cursor/venture-lab-progress.json`에 기록하고 Venture Lab 서버에 동기화
 
-## 아직 포함하지 않는 것
+## 자동 동기화 범위
 
-Venture Lab 서버의 `implementation_tasks` 상태를 Cursor가 자동으로 수정하는 원격 쓰기 동기화는 아직 넣지 않는다. 이 기능은 사용자별 인증 토큰, 프로젝트 권한 확인, 쓰기 범위 제한, 실패 시 롤백 기준이 필요하다. 현재는 최종 실행 화면의 가져오기 버튼이 로그인된 사용자의 권한으로 안전하게 서버 상태를 갱신한다.
+최종 실행 단계에서 `Cursor 연결 파일 받기`를 누르면 Venture Lab이 프로젝트 전용 토큰을 발급한다. 이 토큰은 `.cursor/venture-lab-sync.json`에 들어가며, Cursor 로컬 MCP 브리지가 `/api/build-sync/progress`로 완료 기록을 보낼 때 사용한다.
+
+서버는 이 토큰으로 다음 범위만 허용한다.
+
+- 토큰에 묶인 아이디어의 `implementation_tasks` 생성/갱신
+- 작업 상태, 완료 요약, 변경 파일, 검증 기록 저장
+- 아이디어 소유자 또는 워크스페이스 owner/admin 권한 재확인
+
+토큰은 서버 비밀값으로 서명되며, 만료 후에는 새 연결 파일을 받아야 한다. 자동 동기화가 실패하면 로컬 기록 파일을 최종 실행 화면의 백업 가져오기에 붙여넣어 같은 결과를 반영한다.
 
 ## 운영 원칙
 
-- 화면에는 “자동 동기화 완료”처럼 아직 없는 기능으로 보이는 표현을 쓰지 않는다.
+- 화면에는 자동 반영이 기본 흐름이고 백업 가져오기는 실패 시 보조 경로임을 분명히 쓴다.
 - 최종 실행 단계는 파일을 받는 문서함이 아니라 외부 제작 도구에 실제 연결 자료를 설치하는 단계로 설명한다.
 - Cursor 연결은 `.cursor/rules`와 `.cursor/mcp.json`을 중심으로 한다.
-- 진행 기록은 먼저 로컬 파일에 남기고, Venture Lab 화면에서 사용자가 확인한 뒤 가져온다.
-- 서버 자동 쓰기 동기화는 별도 보안 설계 후 추가한다.
+- 진행 기록은 먼저 로컬 파일에 남기고, 서버 자동 반영을 시도한다.
+- `.cursor/venture-lab-sync.json`과 `.cursor/venture-lab-progress.json`은 설치 스크립트가 프로젝트 `.gitignore`에 추가한다.

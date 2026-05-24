@@ -134,4 +134,24 @@ if (-not $telemetryApi.Content.Contains("Valid telemetry secret is required")) {
   Write-Error "Route smoke failed for /api/telemetry/ingest: missing telemetry secret validation message."
 }
 
+$buildSyncTokenApi = Invoke-RouteSmokeRequest -Path "/api/build-sync/token" -Method "POST" -Body "{}"
+
+if ($buildSyncTokenApi.StatusCode -ne 401) {
+  Write-Error "Route smoke failed for /api/build-sync/token: expected HTTP 401 without login but received $($buildSyncTokenApi.StatusCode)."
+}
+
+if (-not $buildSyncTokenApi.Content.Contains("Login is required")) {
+  Write-Error "Route smoke failed for /api/build-sync/token: missing login validation message."
+}
+
+$buildSyncProgressApi = Invoke-RouteSmokeRequest -Path "/api/build-sync/progress" -Method "POST" -Body "{}"
+
+if ($buildSyncProgressApi.StatusCode -ne 401) {
+  Write-Error "Route smoke failed for /api/build-sync/progress: expected HTTP 401 without build sync token but received $($buildSyncProgressApi.StatusCode)."
+}
+
+if (-not $buildSyncProgressApi.Content.Contains("Valid build sync token is required")) {
+  Write-Error "Route smoke failed for /api/build-sync/progress: missing token validation message."
+}
+
 Write-Host "Route smoke passed for $BaseUrl"
