@@ -6,7 +6,7 @@ Use this file as the lightweight phase ledger for the agent work loop.
 
 - Phase: Automation-first product OS hardening
 - Goal: Keep the idea-to-production-package flow aligned with the rule that AI prepares and the operator confirms only the important decisions.
-- Status: `ship` for controlled beta; active hardening queue is focused on result-type propagation, market automation, external production packages, and first-use clarity.
+- Status: `ship` for controlled beta; active hardening queue is focused on Cursor live handoff, external production package clarity, task-led execution monitoring, and first-use simplicity.
 
 ## Loop Rules
 
@@ -45,6 +45,12 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-24 | Simplified STEP 8 into a task-led learning review before telemetry details | `0ed9adc` | Pushed to `main`; production alias `https://ai-venture-lab.vercel.app` updated | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, direct `node ./scripts/smoke_browser_auth.mjs` after one transient `pnpm smoke:browser:auth` spawn EPERM |
+| 2026-05-24 | Clarified Cursor live sync versus Codex, Claude Code, Antigravity, and generic MCP package handoffs | `886c8a6` | Pushed to `main`; production alias updated | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth` |
+| 2026-05-24 | Refreshed synced Cursor tasks from the server before showing final execution status | `c54a208` | Pushed to `main`; production alias updated | `pnpm quality:full`, production smoke and browser/auth smoke passed |
+| 2026-05-24 | Documented the Cursor connector contract and scoped write-back boundary | `ff6495f` | Pushed to `main`; production alias updated | Connector docs/readback and standard release checks passed |
+| 2026-05-24 | Updated user-facing Cursor setup guidance for project-root install and Composer start prompt | `a6ff25e` | Pushed to `main`; production alias updated | Guide readback and standard release checks passed |
+| 2026-05-24 | Enabled scoped Cursor MCP write-back for implementation task progress | `44618ed` | Pushed to `main`; production alias updated | `pnpm quality:full`, production smoke and browser/auth smoke passed |
 | 2026-05-22 | Replaced stray English micro-labels in workbench screens | `b8a6e6d` | Pushed to `main`; production smoke passed after Git integration | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes` after one transient local `spawn EPERM`, `pnpm smoke:browser`, `pnpm smoke:browser:auth`, `pnpm smoke:market` (`openai_web`, 5 sources, 5 competitors); GitHub Actions run `26287652988` passed on Node 20 and Node 24 |
 | 2026-05-22 | Added first-build bridge cards to the STEP 5 package summary | `c3439e7` | Pushed to `main`; production smoke passed after Git integration | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth`, `pnpm smoke:market` (`openai_web`, 5 sources, 5 competitors); GitHub Actions run `26287357653` passed on Node 20 and Node 24 |
 | 2026-05-22 | Hardened market scan smoke timeout for web-search latency | `c517187` | Pushed to `main`; production smoke passed after Git integration | `node --check scripts/smoke_market_scan.mjs`, `pnpm release:check`, `pnpm smoke:prod`, `pnpm smoke:market` (`openai_web`, 5 sources, 5 competitors); GitHub Actions run `26287064155` passed on Node 20 and Node 24 |
@@ -172,6 +178,9 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 | Production RLS migration confirmation | Completed | Production posture was checked before denied smoke: required private-read migrations were present, old public-read policies were absent, and RLS was enabled on core tables | Rerun posture checks when migrations or policies change |
 | Telemetry production smoke execution | Completed | Post-rotation telemetry ingest and funnel smoke passed with a disposable idea id | Rerun when telemetry env, endpoint behavior, or telemetry RLS policies change |
 | Authenticated telemetry smoke execution | Completed | 2026-05-22 approved rerun passed after local telemetry secret alignment, using disposable idea data and summary-only evidence | Rerun only when telemetry env, endpoint behavior, or telemetry RLS policies change |
+| Codex, Claude Code, Antigravity live write-back | Deferred | Cursor is the first live connector with scoped token write-back; other tools receive start packages and completion-report import only so the UI does not imply unsupported automation | Add tool-specific connectors only after authentication, permission, token rotation, and rollback behavior are designed |
+| Cursor token rotation and revocation controls | Deferred | Current tokens are scoped and signed, but there is no operator-facing revoke/rotate control yet | Add after packaging the connector contract and deciding the token lifecycle UX |
+| Native internal builder | Deferred | Final execution can choose an internal build destination, but the actual native builder is not implemented yet | Keep the handoff boundary explicit until a first internal build runtime is scoped |
 
 ## Next User Actions
 
@@ -197,9 +206,12 @@ Use `docs/PUBLIC_BETA_LAUNCH_GATE.md` before changing the controlled beta decisi
 
 Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` as the controlled beta decision packet. Current evidence-packet keywords: `public_beta_launch_evidence_packet`, `final_operator_decision_ship`, `last_known_good_deployment_recorded`.
 
+For Cursor handoff tests, use `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md`. The default path is: download the Cursor setup script in STEP 7, move it to the real Cursor project root, run the shown PowerShell command, reopen Cursor, paste `AI_VENTURE_CURSOR_START.md` into Composer, then let `venture_record_progress` update Venture Lab. Manual JSON paste is only the backup path.
+
 ## Next Jobs
 
-1. Keep RLS allowed/denied evidence summary-only and rerun only when disposable fixtures or RLS policies change.
-2. Rerun telemetry smoke only when telemetry env, endpoint behavior, or telemetry RLS policies change.
-3. Run authenticated browser write smoke only after explicit per-run approval, using disposable workspace/idea data and a cleanup owner.
-4. Modify GitHub Actions only after a new approval records target branch, permission block, secret policy, failure owner, and rollback/disable path.
+1. Tighten the STEP 7 to STEP 8 execution loop so task progress, next task, and completion evidence feel automatic and readable without opening telemetry panels.
+2. Design Cursor token lifecycle controls: rotate, revoke, expiry display, and failed-sync recovery without exposing secrets.
+3. Package the Cursor connector as a cleaner CLI/MCP distribution after the project-root script path is stable.
+4. Keep Codex, Claude Code, Antigravity, and generic MCP as package handoffs until each has a safe write-back boundary.
+5. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
