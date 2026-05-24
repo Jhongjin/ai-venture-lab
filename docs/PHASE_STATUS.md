@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-24 | Packaged Cursor handoff as a local CLI/MCP connector | Current commit | User-facing final execution package change; production deploy required after commit | `pnpm lint`, `pnpm typecheck` |
 | 2026-05-24 | Extended Cursor sync smoke through STEP 8 task-board rendering | Current commit | Script/docs only; production UI and disposable sync path verified | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Added production smoke for revocable Cursor sync tokens | Current commit | Script/docs only; production registry verified after SQL | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Added stored hashed Cursor sync tokens and individual revoke controls | Current commit | Deploy-safe with legacy fallback; registry enforcement activates after production SQL | `pnpm quality:full` |
@@ -215,6 +216,6 @@ For Cursor handoff tests, use `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md`. The default 
 
 ## Next Jobs
 
-1. Package the Cursor connector as a cleaner CLI/MCP distribution after the project-root script path is stable.
+1. Add a browser regression that opens final execution for Cursor and verifies the generated setup guidance includes the local CLI check.
 2. Keep Codex, Claude Code, Antigravity, and generic MCP as package handoffs until each has a safe write-back boundary.
 3. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.

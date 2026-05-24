@@ -16,11 +16,12 @@ AI Venture Lab의 외부 제작 도구 흐름은 최종 실행 단계에서 Curs
 powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 ```
 
-8. Cursor를 다시 열고 MCP 설정에서 `ai-venture-lab` 서버가 보이는지 확인한다.
-9. `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣어 첫 작업을 시작한다.
-10. 작업을 마치면 Cursor에게 `venture_record_progress` 도구로 완료 보고를 남기라고 지시한다.
-11. Venture Lab 최종 실행 화면을 새로고침해 작업 상태가 반영됐는지 확인한다.
-12. 자동 반영이 실패한 경우에만 `.cursor/venture-lab-progress.json` 내용을 Venture Lab 최종 실행 화면의 백업 가져오기에 붙여넣는다.
+8. 같은 터미널에서 `node .cursor/venture-lab-cli.mjs next-task`를 실행해 첫 작업이 읽히는지 확인한다.
+9. Cursor를 다시 열고 MCP 설정에서 `ai-venture-lab` 서버가 보이는지 확인한다.
+10. `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣어 첫 작업을 시작한다.
+11. 작업을 마치면 Cursor에게 `venture_record_progress` 도구로 완료 보고를 남기라고 지시한다.
+12. Venture Lab 최종 실행 화면을 새로고침해 작업 상태가 반영됐는지 확인한다.
+13. 자동 반영이 실패한 경우에만 `.cursor/venture-lab-progress.json` 내용을 Venture Lab 최종 실행 화면의 백업 가져오기에 붙여넣는다.
 
 ## 생성되는 파일
 
@@ -30,7 +31,8 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 - `README_VENTURE_LAB_CURSOR.md`: 사용자용 연결 가이드
 - `.cursor/rules/ai-venture-lab.mdc`: Cursor가 항상 참고할 프로젝트 규칙
 - `.cursor/mcp.json`: 프로젝트 전용 MCP 서버 설정
-- `.cursor/venture-lab-mcp-server.mjs`: 로컬 MCP 브리지
+- `.cursor/venture-lab-cli.mjs`: `next-task`, `record-progress`, `status`, `read`, `mcp`를 제공하는 로컬 CLI 겸 MCP 브리지
+- `.cursor/venture-lab-mcp-server.mjs`: 기존 설정 호환용 MCP 실행 파일
 - `.cursor/venture-lab-sync.json`: Venture Lab 자동 반영 토큰과 서버 주소
 - `.cursor/venture-lab-progress.json`: Cursor 작업 진행 기록
 
@@ -46,6 +48,17 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 - `venture://start`: 시작 지시문
 - `venture_next_task`: 다음 제작 작업 확인
 - `venture_record_progress`: 완료 요약을 `.cursor/venture-lab-progress.json`에 기록하고 Venture Lab 서버에 동기화
+
+같은 파일은 터미널에서도 사용할 수 있다.
+
+```bash
+node .cursor/venture-lab-cli.mjs status
+node .cursor/venture-lab-cli.mjs next-task
+node .cursor/venture-lab-cli.mjs read start
+node .cursor/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "작업 완료" --verification "pnpm build passed"
+```
+
+CLI는 토큰 원문을 출력하지 않는다. 진행 결과는 로컬 기록에 먼저 남기고, 설정이 있으면 같은 내용을 Venture Lab 서버에 동기화한다.
 
 ## 자동 동기화 범위
 

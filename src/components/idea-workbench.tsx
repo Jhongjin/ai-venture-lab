@@ -2669,7 +2669,8 @@ function buildCursorGuideMarkdown({
 - \`AI_VENTURE_CURSOR_START.md\`: Cursor Composer에 붙여 넣을 시작 지시문
 - \`.cursor/rules/ai-venture-lab.mdc\`: Cursor가 항상 참고할 프로젝트 규칙
 - \`.cursor/mcp.json\`: 프로젝트 전용 MCP 서버 설정
-- \`.cursor/venture-lab-mcp-server.mjs\`: 로컬 MCP 브리지
+- \`.cursor/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
+- \`.cursor/venture-lab-mcp-server.mjs\`: 기존 설정 호환용 MCP 실행 파일
 - \`.cursor/venture-lab-sync.json\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`.cursor/venture-lab-progress.json\`: Cursor 작업 진행 기록
 
@@ -2683,11 +2684,12 @@ function buildCursorGuideMarkdown({
 powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cursor-setup", "ps1")}
 \`\`\`
 
-4. Cursor를 새로고침하거나 다시 열고, MCP 설정에서 \`ai-venture-lab\` 서버가 보이는지 확인합니다.
-5. Cursor Composer에 \`AI_VENTURE_CURSOR_START.md\` 내용을 붙여 넣고 첫 작업을 시작합니다.
-6. 작업을 마치면 Cursor에게 \`venture_record_progress\` 도구로 완료 보고를 남기라고 지시합니다.
-7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
-8. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
+4. 터미널에서 \`node .cursor/venture-lab-cli.mjs next-task\`를 실행해 첫 작업이 읽히는지 확인합니다.
+5. Cursor를 새로고침하거나 다시 열고, MCP 설정에서 \`ai-venture-lab\` 서버가 보이는지 확인합니다.
+6. Cursor Composer에 \`AI_VENTURE_CURSOR_START.md\` 내용을 붙여 넣고 첫 작업을 시작합니다.
+7. 작업을 마치면 Cursor에게 \`venture_record_progress\` 도구로 완료 보고를 남기라고 지시합니다.
+8. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
+9. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
 
 ## 프로젝트 정보
 
@@ -2717,7 +2719,7 @@ function buildCursorMcpConfigJson() {
       mcpServers: {
         "ai-venture-lab": {
           command: "node",
-          args: [".cursor/venture-lab-mcp-server.mjs"],
+          args: [".cursor/venture-lab-cli.mjs", "mcp"],
         },
       },
     },
@@ -2844,6 +2846,67 @@ async function recordProgress(args) {
   await mkdir(path.dirname(progressPath), { recursive: true });
   await writeFile(progressPath, JSON.stringify(records, null, 2) + "\\n", "utf8");
   return "진행 기록을 .cursor/venture-lab-progress.json에 저장했습니다. " + await syncProgress(record);
+}
+
+function parseFlagArgs(argv) {
+  const flags = {};
+  let current = null;
+
+  for (const item of argv) {
+    if (item.startsWith("--")) {
+      current = item.slice(2);
+      flags[current] = flags[current] || [];
+      continue;
+    }
+
+    if (current) {
+      flags[current].push(item);
+    }
+  }
+
+  return flags;
+}
+
+function firstFlag(flags, name, fallback = "") {
+  return String(flags[name]?.[0] || fallback);
+}
+
+function collectFileFlags(flags) {
+  return [...(flags.file || []), ...(flags.files || [])]
+    .flatMap((value) => String(value).split(","))
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+async function readProgressRecords() {
+  const progress = await readJson(".cursor/venture-lab-progress.json");
+  return Array.isArray(progress) ? progress : [];
+}
+
+async function printStatus() {
+  const config = await readJson(".cursor/venture-lab-sync.json");
+  const progress = await readProgressRecords();
+
+  console.log("AI Venture Lab connector");
+  console.log("Project: " + String(config?.ideaName || "unknown"));
+  console.log("Project key: " + String(config?.projectKey || "unknown"));
+  console.log("Server sync: " + (config?.endpoint && config?.token ? "configured" : "local only"));
+  console.log("Local progress records: " + String(progress.length));
+}
+
+function printHelp() {
+  console.log([
+    "AI Venture Lab local connector",
+    "",
+    "Commands:",
+    "  node .cursor/venture-lab-cli.mjs mcp",
+    "  node .cursor/venture-lab-cli.mjs status",
+    "  node .cursor/venture-lab-cli.mjs next-task",
+    "  node .cursor/venture-lab-cli.mjs read package|tasks|guide|start",
+    "  node .cursor/venture-lab-cli.mjs record-progress --task T-001 --status done --summary \\"...\" --file src/app/page.tsx --verification \\"pnpm build passed\\"",
+    "",
+    "The connector never prints the sync token. Progress is saved locally first, then synced to Venture Lab when configured."
+  ].join("\\n"));
 }
 
 async function handle(message) {
@@ -2997,17 +3060,76 @@ async function handle(message) {
   error(id, -32601, "Method not found.");
 }
 
-const rl = readline.createInterface({ input: process.stdin });
-rl.on("line", (line) => {
-  if (!line.trim()) {
+function startMcpServer() {
+  const rl = readline.createInterface({ input: process.stdin });
+  rl.on("line", (line) => {
+    if (!line.trim()) {
+      return;
+    }
+
+    try {
+      void handle(JSON.parse(line));
+    } catch (reason) {
+      console.error("[ai-venture-lab-mcp] invalid message", reason);
+    }
+  });
+}
+
+async function runCli() {
+  const command = process.argv[2] || "mcp";
+
+  if (command === "mcp") {
+    startMcpServer();
     return;
   }
 
-  try {
-    void handle(JSON.parse(line));
-  } catch (reason) {
-    console.error("[ai-venture-lab-mcp] invalid message", reason);
+  if (command === "status") {
+    await printStatus();
+    return;
   }
+
+  if (command === "next-task") {
+    console.log(extractNextTask(await readText("AI_VENTURE_TASKS.md")));
+    return;
+  }
+
+  if (command === "read") {
+    const key = process.argv[3] || "start";
+    const aliases = {
+      package: "venture://package",
+      tasks: "venture://tasks",
+      guide: "venture://guide",
+      start: "venture://start"
+    };
+    const relativePath = resourceFiles[aliases[key] || key] || resourceFiles[key];
+
+    if (!relativePath) {
+      throw new Error("Unknown resource. Use package, tasks, guide, or start.");
+    }
+
+    console.log(await readText(relativePath));
+    return;
+  }
+
+  if (command === "record-progress") {
+    const flags = parseFlagArgs(process.argv.slice(3));
+    const message = await recordProgress({
+      task: firstFlag(flags, "task", "manual task"),
+      status: firstFlag(flags, "status", "reported"),
+      summary: firstFlag(flags, "summary"),
+      files: collectFileFlags(flags),
+      verification: firstFlag(flags, "verification")
+    });
+    console.log(message);
+    return;
+  }
+
+  printHelp();
+}
+
+runCli().catch((reason) => {
+  console.error(reason instanceof Error ? reason.message : String(reason));
+  process.exitCode = 1;
 });
 `;
 }
@@ -3071,6 +3193,7 @@ foreach ($entry in $ignoreEntries) {
 
 Write-Host ""
 Write-Host "AI Venture Lab Cursor connection files are ready."
+Write-Host "Check: node .cursor/venture-lab-cli.mjs next-task"
 Write-Host "Next: reopen Cursor, check Settings > MCP for ai-venture-lab, then paste AI_VENTURE_CURSOR_START.md into Composer."
 Write-Host "When Cursor calls venture_record_progress, Venture Lab task status will be updated automatically."
 `;
@@ -13061,6 +13184,7 @@ export function IdeaWorkbench({
         { path: "README_VENTURE_LAB_CURSOR.md", body: downloadedCursorGuideDraft },
         { path: ".cursor/rules/ai-venture-lab.mdc", body: cursorRuleDraft },
         { path: ".cursor/mcp.json", body: cursorMcpConfigDraft },
+        { path: ".cursor/venture-lab-cli.mjs", body: cursorMcpServerDraft },
         { path: ".cursor/venture-lab-mcp-server.mjs", body: cursorMcpServerDraft },
         { path: ".cursor/venture-lab-sync.json", body: syncConfigDraft },
         { path: ".cursor/venture-lab-progress.json", body: "[]\n" },
@@ -15879,15 +16003,19 @@ export function IdeaWorkbench({
                               4. Cursor 터미널 또는 PowerShell에서 아래 명령을 실행합니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              5. Cursor를 다시 열고 MCP 설정에서 <span className="font-semibold text-slate-950">ai-venture-lab</span>
+                              5. 같은 터미널에서 <span className="font-mono text-xs">node .cursor/venture-lab-cli.mjs next-task</span>를
+                              실행해 첫 작업이 읽히는지 확인합니다.
+                            </li>
+                            <li className="border border-slate-200 bg-slate-50 p-3">
+                              6. Cursor를 다시 열고 MCP 설정에서 <span className="font-semibold text-slate-950">ai-venture-lab</span>
                               이 보이는지 확인합니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              6. <span className="font-mono text-xs">AI_VENTURE_CURSOR_START.md</span> 내용을 Composer에 붙여 넣고
+                              7. <span className="font-mono text-xs">AI_VENTURE_CURSOR_START.md</span> 내용을 Composer에 붙여 넣고
                               첫 작업을 시작합니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              7. 작업이 끝나면 Cursor에게 <span className="font-mono text-xs">venture_record_progress</span>로 완료
+                              8. 작업이 끝나면 Cursor에게 <span className="font-mono text-xs">venture_record_progress</span>로 완료
                               보고를 남기라고 지시합니다. Venture Lab 작업 상태가 자동으로 갱신됩니다.
                             </li>
                           </ol>
@@ -15898,7 +16026,8 @@ export function IdeaWorkbench({
                           <p className="mt-3 text-xs leading-5 text-slate-500">
                             실행 위치는 다운로드 폴더가 아니라 실제 개발할 프로젝트 루트입니다. 이 스크립트가 그 위치에
                             <span className="font-mono"> .cursor/rules</span>,
-                            <span className="font-mono"> .cursor/mcp.json</span>, 자동 반영 토큰, 제작 패키지와 작업 목록을 만듭니다.
+                            <span className="font-mono"> .cursor/mcp.json</span>,
+                            <span className="font-mono"> .cursor/venture-lab-cli.mjs</span>, 자동 반영 토큰, 제작 패키지와 작업 목록을 만듭니다.
                           </p>
                           <div className="mt-3 flex flex-wrap gap-2">
                             <button

@@ -44,14 +44,22 @@ The first live connector is Cursor. Final execution generates an install script 
 - `README_VENTURE_LAB_CURSOR.md`
 - `.cursor/rules/ai-venture-lab.mdc`
 - `.cursor/mcp.json`
+- `.cursor/venture-lab-cli.mjs`
 - `.cursor/venture-lab-mcp-server.mjs`
 - `.cursor/venture-lab-sync.json`
 - `.cursor/venture-lab-progress.json`
 
-Cursor's local MCP bridge exposes the package, task list, guide, and start prompt as local resources. It also exposes:
+Cursor's local CLI/MCP bridge exposes the package, task list, guide, and start prompt as local resources. It also exposes:
 
 - `venture_next_task`: reads the next unfinished implementation task
 - `venture_record_progress`: records task progress locally and writes the same progress back to Venture Lab through `/api/build-sync/progress`
+
+The generated `.cursor/venture-lab-cli.mjs` can also be run directly from the Cursor project root:
+
+- `node .cursor/venture-lab-cli.mjs status`
+- `node .cursor/venture-lab-cli.mjs next-task`
+- `node .cursor/venture-lab-cli.mjs read start`
+- `node .cursor/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..." --verification "..."`
 
 The write-back token is scoped to the selected idea, signed by a server-only secret, and can only create or update implementation tasks. The sync token and progress file are added to the external project's `.gitignore` by the setup script.
 
