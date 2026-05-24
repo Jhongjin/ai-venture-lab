@@ -74,11 +74,38 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  await page.getByText("build sync smoke registry verification", { exact: true }).waitFor({
+  const taskBoard = page.locator("section", {
+    has: page.getByRole("heading", { name: "제작 작업 진행표" }),
+  });
+  await taskBoard.locator("span", { hasText: "build sync smoke registry verification" }).first().waitFor({
     state: "visible",
     timeout,
   });
-  await page.getByText("완료", { exact: true }).first().waitFor({
+  await taskBoard.locator("span.avl-pill-success:visible", { hasText: "완료" }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+}
+
+async function verifyFinalExecutionCursorGuide(page, ideaId) {
+  const launchUrl = new URL("/workspace", baseUrl);
+  launchUrl.searchParams.set("task", "launch");
+  launchUrl.searchParams.set("idea", ideaId);
+
+  await page.goto(launchUrl.toString(), { waitUntil: "networkidle", timeout });
+  await page.getByRole("heading", { name: "최종 실행" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("heading", { name: "Cursor 프로젝트에 연결 파일을 설치합니다" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("Cursor에서 시작하는 순서", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("node .cursor/venture-lab-cli.mjs next-task", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
@@ -180,6 +207,79 @@ async function createDisposableIdea(page, config) {
   }
 
   return result.idea.id;
+}
+
+async function createDisposableLaunchPackage(page, config, ideaId) {
+  const result = await page.evaluate(
+    async ({ config: browserConfig, ideaId: browserIdeaId }) => {
+      function readAccessToken() {
+        const authCookie = document.cookie
+          .split("; ")
+          .find((cookie) => cookie.startsWith("sb-") && cookie.includes("-auth-token="));
+
+        if (!authCookie) {
+          return "";
+        }
+
+        const [, rawCookieValue = ""] = authCookie.split("=");
+        const decodedCookie = decodeURIComponent(rawCookieValue);
+        const jsonText = decodedCookie.startsWith("base64-") ? atob(decodedCookie.slice("base64-".length)) : decodedCookie;
+        const session = JSON.parse(jsonText);
+        return typeof session.access_token === "string" ? session.access_token : "";
+      }
+
+      const accessToken = readAccessToken();
+
+      if (!accessToken) {
+        return { ok: false, error: "Browser session access token was not available." };
+      }
+
+      const body = [
+        "# 제작 패키지",
+        "",
+        "Build sync smoke package for final execution guide verification.",
+        "",
+        "```yaml",
+        "build_delivery_mode: external_tool",
+        "external_tool: cursor",
+        "external_tool_label: Cursor",
+        "```",
+      ].join("\n");
+      const response = await fetch(`${browserConfig.url}/rest/v1/venture_artifacts?select=id`, {
+        method: "POST",
+        headers: {
+          apikey: browserConfig.anonKey,
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          Prefer: "return=representation",
+        },
+        body: JSON.stringify({
+          idea_id: browserIdeaId,
+          artifact_type: "dev_runbook",
+          title: "build sync smoke 제작 패키지",
+          body,
+          source: "agent_run_package",
+          status: "approved",
+          status_note: "Disposable smoke package for Cursor final execution guide verification.",
+        }),
+      });
+      const responseBody = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        return {
+          ok: false,
+          error: typeof responseBody.message === "string" ? responseBody.message : `HTTP ${response.status}`,
+        };
+      }
+
+      return { ok: true };
+    },
+    { config, ideaId },
+  );
+
+  if (!result.ok) {
+    fail(`could not create disposable launch package: ${result.error ?? "unknown error"}`);
+  }
 }
 
 async function cleanupDisposableIdea(page, config, ideaId) {
@@ -319,6 +419,11 @@ async function main() {
         fail("active token progress write did not update lastUsedAt.");
       }
 
+      if (usedDisposableIdea && resolvedSupabaseConfig) {
+        await createDisposableLaunchPackage(page, resolvedSupabaseConfig, ideaId);
+        await verifyFinalExecutionCursorGuide(page, ideaId);
+      }
+
       await verifyLearningTaskBoard(page, ideaId);
     }
 
@@ -365,6 +470,11 @@ async function main() {
       usedDisposableIdea || allowProgressWrite
         ? "Task board UI: synced task visible in STEP 8"
         : "Task board UI: skipped because progress write was skipped",
+    );
+    console.log(
+      usedDisposableIdea && resolvedSupabaseConfig
+        ? "Final execution UI: Cursor CLI check visible in STEP 7"
+        : "Final execution UI: skipped because disposable launch package was not available",
     );
     console.log("Connection revoke: accepted");
     console.log("Revoked token write: rejected");
