@@ -9108,6 +9108,36 @@ export function IdeaWorkbench({
       detail: learningDecisionDetail,
     },
   ];
+  const nextImplementationTaskId = nextImplementationTask?.id ?? null;
+  const learningTaskTimeline = [...selectedImplementationTasks]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((task, index) => {
+      const evidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
+      const checklist = getImplementationEvidenceChecklist(task, evidence);
+      const passedCount = checklist.filter((item) => item.passed).length;
+      const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+      const isNext = nextImplementationTaskId === task.id;
+      const statusDetail =
+        task.status === "done"
+          ? evidence
+            ? summarizeCursorProgressEvidence(evidence)
+            : "완료 상태입니다."
+          : task.status === "blocked"
+            ? getBlockedImplementationTaskHint(task).nextAction
+            : isNext
+              ? "다음으로 이어서 처리할 작업입니다."
+              : "앞선 작업이 끝나면 이어서 처리합니다.";
+
+      return {
+        task,
+        code: getCursorTaskCode(index),
+        statusDetail,
+        passedCount,
+        totalCount: checklist.length,
+        missingLabels,
+        isNext,
+      };
+    });
   const implementationDependencyPlanDraft = selectedIdea && editState
     ? buildImplementationDependencyPlanMarkdown({
         idea: selectedIdea,
@@ -15935,6 +15965,65 @@ export function IdeaWorkbench({
               </div>
             ))}
           </div>
+
+          <section className="mt-4 border border-slate-200 bg-white p-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="avl-kicker">execution signal</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 진행표</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  외부 제작 도구나 내부 작업에서 반영된 완료 보고를 작업별로 정리합니다. 여기서는 목록을 읽고 다음 행동만 판단하면 됩니다.
+                </p>
+              </div>
+              <span className="avl-pill avl-pill-success">
+                완료 {completedLearningImplementationTasks.length}/{totalLearningImplementationTasks || 0}
+              </span>
+            </div>
+            <div className="mt-4 grid gap-2">
+              {learningTaskTimeline.length > 0 ? (
+                learningTaskTimeline.map((item) => (
+                  <div
+                    key={item.task.id}
+                    className={`border p-3 ${
+                      item.isNext
+                        ? "border-blue-200 bg-blue-50"
+                        : item.task.status === "done"
+                          ? "border-emerald-200 bg-emerald-50"
+                          : "border-slate-200 bg-slate-50"
+                    }`}
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-mono text-xs font-semibold text-slate-500">{item.code}</span>
+                          <span className="text-sm font-semibold text-slate-950">{item.task.title}</span>
+                          {item.isNext ? <span className="avl-pill avl-pill-info">다음 작업</span> : null}
+                        </div>
+                        <p className="mt-1 text-sm leading-6 text-slate-600">{item.statusDetail}</p>
+                        {item.missingLabels.length > 0 && item.task.status !== "done" ? (
+                          <p className="mt-1 text-xs leading-5 text-slate-500">
+                            보완할 근거: {item.missingLabels.slice(0, 3).join(", ")}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+                        <span className={implementationTaskStatusTone[item.task.status]}>
+                          {implementationTaskStatusLabels[item.task.status]}
+                        </span>
+                        <span className="avl-pill avl-pill-neutral">
+                          근거 {item.passedCount}/{item.totalCount}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+                  아직 연결된 제작 작업이 없습니다. 최종 실행 단계에서 제작 패키지를 넘기고 첫 완료 보고를 반영하면 여기에 표시됩니다.
+                </div>
+              )}
+            </div>
+          </section>
 
           {experienceMode === "guided" ? (
             <div className="mt-4 border border-blue-200 bg-blue-50 p-4">
