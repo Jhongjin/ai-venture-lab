@@ -181,7 +181,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 | Telemetry production smoke execution | Completed | Post-rotation telemetry ingest and funnel smoke passed with a disposable idea id | Rerun when telemetry env, endpoint behavior, or telemetry RLS policies change |
 | Authenticated telemetry smoke execution | Completed | 2026-05-22 approved rerun passed after local telemetry secret alignment, using disposable idea data and summary-only evidence | Rerun only when telemetry env, endpoint behavior, or telemetry RLS policies change |
 | Codex, Claude Code, Antigravity live write-back | Deferred | Cursor is the first live connector with scoped token write-back; other tools receive start packages and completion-report import only so the UI does not imply unsupported automation | Add tool-specific connectors only after authentication, permission, token rotation, and rollback behavior are designed |
-| Cursor token rotation and revocation controls | Deferred | Current tokens are scoped and signed, but there is no operator-facing revoke/rotate control yet | Add after packaging the connector contract and deciding the token lifecycle UX |
+| Cursor token rotation and revocation controls | Deferred | Current tokens are scoped, signed, documented, and can be invalidated globally by signing-secret rotation, but per-token revoke/rotate needs stored token records | Add after approving a `build_sync_tokens` table or equivalent token registry |
 | Native internal builder | Deferred | Final execution can choose an internal build destination, but the actual native builder is not implemented yet | Keep the handoff boundary explicit until a first internal build runtime is scoped |
 
 ## Next User Actions
@@ -212,8 +212,7 @@ For Cursor handoff tests, use `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md`. The default 
 
 ## Next Jobs
 
-1. Tighten the STEP 7 to STEP 8 execution loop so task progress, next task, and completion evidence feel automatic and readable without opening telemetry panels.
-2. Design Cursor token lifecycle controls: rotate, revoke, expiry display, and failed-sync recovery without exposing secrets.
-3. Package the Cursor connector as a cleaner CLI/MCP distribution after the project-root script path is stable.
-4. Keep Codex, Claude Code, Antigravity, and generic MCP as package handoffs until each has a safe write-back boundary.
-5. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
+1. Decide whether to add stored Cursor sync tokens for per-connection revoke/rotate controls. This requires a database migration and production SQL application before the UI can safely manage individual tokens.
+2. Package the Cursor connector as a cleaner CLI/MCP distribution after the project-root script path is stable.
+3. Keep Codex, Claude Code, Antigravity, and generic MCP as package handoffs until each has a safe write-back boundary.
+4. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
