@@ -8670,6 +8670,9 @@ export function IdeaWorkbench({
   const [cursorProgressImportText, setCursorProgressImportText] = useState("");
   const [cursorProgressImportMessage, setCursorProgressImportMessage] = useState<string | null>(null);
   const [cursorProgressImportItems, setCursorProgressImportItems] = useState<CursorProgressDisplayItem[]>([]);
+  const [isTaskSyncRefreshing, setIsTaskSyncRefreshing] = useState(false);
+  const [taskSyncMessage, setTaskSyncMessage] = useState<string | null>(null);
+  const [taskSyncUpdatedAt, setTaskSyncUpdatedAt] = useState<string | null>(null);
   const developmentAutoRunIdRef = useRef(0);
   const experienceMode = "guided" as "guided" | "full";
   const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
@@ -10952,6 +10955,104 @@ export function IdeaWorkbench({
     }
   }
 
+  async function refreshSelectedIdeaImplementationTasks(options: { source?: "auto" | "manual" } = {}) {
+    const isAutoRefresh = options.source === "auto";
+
+    if (!supabase || !selectedIdea) {
+      if (!isAutoRefresh) {
+        setMessage("먼저 아이디어를 선택하세요.");
+      }
+      return;
+    }
+
+    if (!user) {
+      if (!isAutoRefresh) {
+        setMessage("작업 상태를 새로고침하려면 먼저 로그인하세요.");
+      }
+      return;
+    }
+
+    if (isAutoRefresh) {
+      setIsTaskSyncRefreshing(true);
+      setTaskSyncMessage("Venture Lab에 저장된 작업 상태를 자동 확인 중입니다...");
+    } else {
+      setIsBusy(true);
+      setCursorProgressImportMessage("Venture Lab에 저장된 작업 상태를 불러오는 중입니다...");
+    }
+
+    const { data, error } = await supabase
+      .from("implementation_tasks")
+      .select("*")
+      .eq("idea_id", selectedIdea.id)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (isAutoRefresh) {
+      setIsTaskSyncRefreshing(false);
+    } else {
+      setIsBusy(false);
+    }
+
+    if (error) {
+      const errorMessage =
+        error.code === "42P01"
+          ? "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요."
+          : error.message;
+      if (isAutoRefresh) {
+        setTaskSyncMessage(errorMessage);
+      } else {
+        setCursorProgressImportMessage(errorMessage);
+        setMessage(errorMessage);
+      }
+      return;
+    }
+
+    const refreshedTasks = (data ?? []) as ImplementationTask[];
+    setImplementationTasks((current) => [
+      ...current.filter((task) => task.idea_id !== selectedIdea.id),
+      ...refreshedTasks,
+    ]);
+    setCursorProgressImportItems([]);
+    const doneCount = refreshedTasks.filter((task) => task.status === "done").length;
+    const nextTask = sortImplementationTasksForAction(refreshedTasks).find((task) => task.status !== "done");
+    const nextTaskText = nextTask ? ` 다음 작업은 ${nextTask.title}입니다.` : refreshedTasks.length > 0 ? " 모든 작업이 완료 상태입니다." : "";
+    const refreshedAt = new Intl.DateTimeFormat("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }).format(new Date());
+    const refreshMessage = `작업 상태 ${refreshedTasks.length}개를 확인했습니다. 완료 ${doneCount}/${refreshedTasks.length}.${nextTaskText}`;
+
+    setTaskSyncUpdatedAt(refreshedAt);
+    setTaskSyncMessage(refreshMessage);
+
+    if (!isAutoRefresh) {
+      setCursorProgressImportMessage(refreshMessage);
+      setMessage(refreshMessage);
+      router.refresh();
+    }
+  }
+
+  useEffect(() => {
+    if (!selectedIdea || !user || !supabase || (activeTask !== "launch" && activeTask !== "learning")) {
+      return;
+    }
+
+    const initialRefresh = window.setTimeout(() => {
+      void refreshSelectedIdeaImplementationTasks({ source: "auto" });
+    }, 0);
+    const interval = window.setInterval(() => {
+      void refreshSelectedIdeaImplementationTasks({ source: "auto" });
+    }, 20000);
+
+    return () => {
+      window.clearTimeout(initialRefresh);
+      window.clearInterval(interval);
+    };
+    // Restart polling only when the selected record or viewer changes; object identity churn should not reset the timer.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTask, selectedIdea?.id, supabase, user?.id]);
+
   if (!selectedIdea || !editState) {
     const hasSelectableIdeas = visibleIdeas.length > 0;
 
@@ -12292,49 +12393,6 @@ export function IdeaWorkbench({
     setCursorProgressImportItems([]);
     setMessage(`${file.name} 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.`);
     event.currentTarget.value = "";
-  }
-
-  async function refreshSelectedIdeaImplementationTasks() {
-    if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
-      return;
-    }
-
-    if (!user) {
-      setMessage("작업 상태를 새로고침하려면 먼저 로그인하세요.");
-      return;
-    }
-
-    setIsBusy(true);
-    setCursorProgressImportMessage("Venture Lab에 저장된 Cursor 작업 상태를 불러오는 중입니다...");
-
-    const { data, error } = await supabase
-      .from("implementation_tasks")
-      .select("*")
-      .eq("idea_id", selectedIdea.id)
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
-
-    setIsBusy(false);
-
-    if (error) {
-      const errorMessage =
-        error.code === "42P01"
-          ? "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요."
-          : error.message;
-      setCursorProgressImportMessage(errorMessage);
-      setMessage(errorMessage);
-      return;
-    }
-
-    setImplementationTasks((current) => [
-      ...current.filter((task) => task.idea_id !== selectedIdea.id),
-      ...(data ?? []),
-    ]);
-    setCursorProgressImportItems([]);
-    setCursorProgressImportMessage(`서버에 저장된 작업 상태 ${data?.length ?? 0}개를 다시 불러왔습니다.`);
-    setMessage(`서버에 저장된 Cursor 진행 상태 ${data?.length ?? 0}개를 다시 불러왔습니다.`);
-    router.refresh();
   }
 
   async function importCursorProgressResult() {
@@ -15761,7 +15819,59 @@ export function IdeaWorkbench({
                   )}
                 </div>
                 {buildDeliveryMode === "external_tool" ? (
-                  <div className="mt-4 border border-slate-200 bg-slate-50 p-4">
+                  <>
+                    <div className="mt-4 border border-emerald-200 bg-emerald-50 p-4">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                          <div className="avl-kicker">auto sync</div>
+                          <h4 className="mt-2 text-base font-semibold text-emerald-950">
+                            {isCursorExternalDelivery ? "Cursor 작업 상태를 자동으로 확인합니다" : "완료 보고를 작업표에 연결합니다"}
+                          </h4>
+                          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700">
+                            {isCursorExternalDelivery
+                              ? "Cursor가 완료 보고를 남기면 이 화면이 주기적으로 서버 상태를 다시 읽어 작업 목록과 성과 확인 화면에 반영합니다."
+                              : `${activeExternalBuildTool.label}는 현재 시작 패키지와 완료 보고 반영으로 연결합니다. 작업이 끝나면 보고 내용을 아래 백업 영역에 넣어 상태를 맞춥니다.`}
+                          </p>
+                          <p className="mt-2 text-sm leading-6 text-emerald-950" role="status">
+                            {isTaskSyncRefreshing
+                              ? "작업 상태 확인 중입니다..."
+                              : taskSyncMessage ?? "최종 실행 화면을 열면 저장된 작업 상태를 자동으로 확인합니다."}
+                          </p>
+                          {taskSyncUpdatedAt ? (
+                            <p className="mt-1 text-xs leading-5 text-slate-500">마지막 확인 {taskSyncUpdatedAt}</p>
+                          ) : null}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => void refreshSelectedIdeaImplementationTasks({ source: "manual" })}
+                          disabled={isTaskSyncRefreshing || isBusy || !user}
+                          className="avl-btn avl-btn-secondary h-10 shrink-0 px-3 disabled:opacity-50"
+                        >
+                          <RefreshCw size={16} />
+                          {isTaskSyncRefreshing ? "확인 중" : "지금 확인"}
+                        </button>
+                      </div>
+                    </div>
+
+                    <details className="mt-4 border border-slate-200 bg-slate-50 p-4">
+                      <summary className="cursor-pointer list-none">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <div className="text-sm font-semibold text-slate-950">
+                              {isCursorExternalDelivery
+                                ? "자동 반영이 안 될 때만 백업으로 가져오기"
+                                : `${activeExternalBuildTool.label} 완료 보고 붙여넣기`}
+                            </div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">
+                              {isCursorExternalDelivery
+                                ? "일반 흐름에서는 열지 않아도 됩니다. Cursor 자동 반영이 실패했을 때만 사용하세요."
+                                : "자동 쓰기 연결 전까지는 완료 보고를 붙여넣어 작업 상태를 갱신합니다."}
+                            </p>
+                          </div>
+                          <span className="avl-pill avl-pill-neutral">보조 경로</span>
+                        </div>
+                      </summary>
+                      <div className="mt-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div>
                         <div className="text-sm font-semibold text-slate-950">
@@ -15835,12 +15945,12 @@ export function IdeaWorkbench({
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={() => void refreshSelectedIdeaImplementationTasks()}
-                          disabled={isBusy || !user}
+                          onClick={() => void refreshSelectedIdeaImplementationTasks({ source: "manual" })}
+                          disabled={isBusy || isTaskSyncRefreshing || !user}
                           className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                         >
                           <RefreshCw size={16} />
-                          {isBusy ? "불러오는 중" : "서버 상태 새로고침"}
+                          {isTaskSyncRefreshing || isBusy ? "확인 중" : "서버 상태 확인"}
                         </button>
                         <button
                           type="button"
@@ -15859,7 +15969,9 @@ export function IdeaWorkbench({
                         </button>
                       </div>
                     </div>
-                  </div>
+                      </div>
+                    </details>
+                  </>
                 ) : null}
               </section>
 

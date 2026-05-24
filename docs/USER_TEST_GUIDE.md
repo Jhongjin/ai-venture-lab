@@ -176,6 +176,7 @@ Cursor를 선택한 경우 기대 상태:
 | 설치 파일 | `.cursor/rules`, `.cursor/mcp.json`, `.cursor/venture-lab-sync.json`, 제작 패키지, 작업 목록이 생성된다고 안내됨 |
 | 시작 지시 | `AI_VENTURE_CURSOR_START.md`를 Cursor Composer에 붙여 넣으라고 안내됨 |
 | 작업 반영 | Cursor의 `venture_record_progress`가 로컬 기록과 Venture Lab 작업 상태를 함께 업데이트한다고 안내됨 |
+| 자동 확인 | 최종 실행 화면이 저장된 작업 상태를 주기적으로 다시 읽고, 작업 목록과 성과 확인 화면에 반영한다고 안내됨 |
 | 백업 경로 | 자동 반영 실패 시에만 `.cursor/venture-lab-progress.json`을 백업 가져오기에 붙여넣는다고 안내됨 |
 
 Codex, Claude Code, Google Antigravity를 선택한 경우 기대 상태:
@@ -201,7 +202,7 @@ Codex, Claude Code, Google Antigravity를 선택한 경우 기대 상태:
 8. 작업이 끝나면 Cursor에게 `venture_record_progress`로 완료 보고를 남기라고 지시합니다.
 9. Venture Lab 최종 실행 화면을 새로고침해 작업 상태가 반영됐는지 확인합니다.
 
-이 단계에서 사용자가 직접 JSON을 붙여넣는 흐름은 기본 흐름이 아닙니다. 백업 가져오기는 자동 반영이 실패했을 때만 사용합니다.
+이 단계에서 사용자가 직접 JSON을 붙여넣는 흐름은 기본 흐름이 아닙니다. 백업 가져오기는 접힌 보조 경로여야 하며, 자동 반영이 실패했을 때만 사용합니다.
 
 ## 8. 고급 운영자 검수
 
