@@ -78,6 +78,8 @@ For non-Cursor tools, the user receives a single downloadable start package that
 
 The production build-sync smoke verifies both sides of this boundary: Cursor final execution must expose the local CLI/MCP start check, while Codex, Claude Code, Google Antigravity, and generic MCP must stay on start-package guidance and must not show the Cursor setup button.
 
+Live write-back for another tool must satisfy `docs/EXTERNAL_CONNECTOR_WRITEBACK_BOUNDARY.md` before the UI can present it as automatic.
+
 ## Completion Report
 
 External tools should report:

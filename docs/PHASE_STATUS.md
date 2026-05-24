@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-24 | Documented the safe write-back boundary for non-Cursor connectors | Current commit | Docs-only connector governance; no runtime deploy required | `pnpm release:check` |
 | 2026-05-24 | Locked non-Cursor external tools to package-only final execution guidance | Current commit | Script/docs/copy hardening; production smoke checks non-Cursor tools do not expose Cursor setup | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Extended Cursor sync smoke through STEP 7 final execution CLI guidance | Current commit | Script/docs only; disposable launch package verifies Cursor final execution guidance | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Packaged Cursor handoff as a local CLI/MCP connector | Current commit | User-facing final execution package change; production deploy required after commit | `pnpm lint`, `pnpm typecheck` |
@@ -218,5 +219,5 @@ For Cursor handoff tests, use `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md`. The default 
 
 ## Next Jobs
 
-1. Define a safe write-back boundary before enabling live sync for Codex, Claude Code, Antigravity, or generic MCP.
+1. Choose the next live connector only after an operator selects the target tool and accepts the `external_connector_writeback_boundary` checklist.
 2. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
