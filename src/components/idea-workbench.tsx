@@ -2272,6 +2272,31 @@ function parseCursorProgressTextItems(sourceText: string): CursorProgressImportI
     .map((line) => line.trim())
     .filter(Boolean);
   const items: CursorProgressImportItem[] = [];
+  const looseJsonRecordPattern =
+    /"task"\s*:\s*"([^"]+)"[\s\S]{0,900}?"status"\s*:\s*"([^"]+)"(?:[\s\S]{0,900}?"summary"\s*:\s*"([^"]+)")?/gi;
+
+  for (const match of sourceText.matchAll(looseJsonRecordPattern)) {
+    const rawTask = match[1]?.trim() ?? "";
+    if (!rawTask) {
+      continue;
+    }
+
+    const reference = parseCursorTaskReference(rawTask, items.length);
+    const status = normalizeCursorProgressStatus(match[2], "done");
+    const summary = match[3]?.trim() ?? "";
+
+    items.push({
+      ...reference,
+      title: reference.title || rawTask,
+      status,
+      evidence: buildCursorProgressEvidence(
+        [`작업: ${rawTask}`, `상태: ${match[2]}`, summary ? `요약: ${summary}` : ""].filter(Boolean).join("\n"),
+        reference.taskCode,
+        reference.title || rawTask,
+        status,
+      ),
+    });
+  }
 
   for (const line of lines) {
     const lowerLine = line.toLowerCase();
@@ -8514,6 +8539,7 @@ export function IdeaWorkbench({
   const [developmentAutoStepIndex, setDevelopmentAutoStepIndex] = useState(0);
   const [developmentAutoNote, setDevelopmentAutoNote] = useState("");
   const [cursorProgressImportText, setCursorProgressImportText] = useState("");
+  const [cursorProgressImportMessage, setCursorProgressImportMessage] = useState<string | null>(null);
   const developmentAutoRunIdRef = useRef(0);
   const experienceMode = "guided" as "guided" | "full";
   const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
@@ -12003,27 +12029,34 @@ export function IdeaWorkbench({
 
     const text = await file.text();
     setCursorProgressImportText(text);
+    setCursorProgressImportMessage(`${file.name} 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.`);
     setMessage(`${file.name} 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.`);
     event.currentTarget.value = "";
   }
 
   async function importCursorProgressResult() {
+    setCursorProgressImportMessage("Cursor 진행 결과를 읽는 중입니다...");
+
     if (!supabase || !selectedIdea) {
+      setCursorProgressImportMessage("먼저 아이디어를 선택하세요.");
       setMessage("먼저 아이디어를 선택하세요.");
       return;
     }
 
     if (!user) {
+      setCursorProgressImportMessage("로그인 후 다시 시도하세요.");
       setMessage("Cursor 진행 결과를 반영하려면 먼저 로그인하세요.");
       return;
     }
 
     if (!cursorProgressImportText.trim()) {
+      setCursorProgressImportMessage("붙여넣은 내용이 없습니다.");
       setMessage("Cursor 완료 보고나 .cursor/venture-lab-progress.json 내용을 붙여넣으세요.");
       return;
     }
 
     if (cursorHandoffTaskDrafts.length === 0) {
+      setCursorProgressImportMessage("제작 패키지와 작업 순서 초안이 먼저 필요합니다.");
       setMessage("먼저 제작 패키지와 작업 순서 초안을 준비해야 Cursor 진행 결과를 반영할 수 있습니다.");
       return;
     }
@@ -12034,6 +12067,7 @@ export function IdeaWorkbench({
     });
 
     if (importPlan.parsedCount === 0) {
+      setCursorProgressImportMessage("T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
       setMessage("Cursor 결과에서 T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
       return;
     }
@@ -12060,6 +12094,7 @@ export function IdeaWorkbench({
       status: ImplementationTaskStatus;
       evidence: string;
     }> = [];
+    let skippedTaskCount = 0;
 
     importPlan.drafts.forEach((draft, index) => {
       const normalizedTitle = normalizeTaskLookupTitle(draft.title);
@@ -12070,6 +12105,7 @@ export function IdeaWorkbench({
 
       if (matchedTask) {
         if (!canManageRecord(matchedTask)) {
+          skippedTaskCount += 1;
           return;
         }
 
@@ -12106,12 +12142,20 @@ export function IdeaWorkbench({
     });
 
     if (rowsToInsert.length === 0 && updateRows.length === 0) {
-      setMessage("반영할 새 작업이나 변경된 상태가 없습니다.");
+      const noChangeMessage =
+        skippedTaskCount > 0
+          ? `반영할 수 있는 작업이 없습니다. 권한 때문에 ${skippedTaskCount}개 작업을 건너뛰었습니다.`
+          : "반영할 새 작업이나 변경된 상태가 없습니다.";
+      setCursorProgressImportMessage(noChangeMessage);
+      setMessage(noChangeMessage);
       return;
     }
 
     setIsBusy(true);
     setMessage(null);
+    setCursorProgressImportMessage(
+      `작업을 저장하는 중입니다. 새 작업 ${rowsToInsert.length}개, 상태 업데이트 ${updateRows.length}개를 준비했습니다.`,
+    );
 
     try {
       let insertedTasks: ImplementationTask[] = [];
@@ -12171,12 +12215,14 @@ export function IdeaWorkbench({
         },
       });
       setDevelopmentPanel("tasks");
-      setMessage(
-        `Cursor 진행 결과를 반영했습니다. 새 작업 ${insertedTasks.length}개, 상태 업데이트 ${updatedTasks.length}개, 완료 인식 ${importPlan.completedCount}개입니다.`,
-      );
+      const successMessage = `Cursor 진행 결과를 반영했습니다. 새 작업 ${insertedTasks.length}개, 상태 업데이트 ${updatedTasks.length}개, 완료 인식 ${importPlan.completedCount}개입니다.`;
+      setCursorProgressImportMessage(successMessage);
+      setMessage(successMessage);
       router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Cursor 진행 결과를 반영하지 못했습니다.");
+      const errorMessage = error instanceof Error ? error.message : "Cursor 진행 결과를 반영하지 못했습니다.";
+      setCursorProgressImportMessage(errorMessage);
+      setMessage(errorMessage);
     } finally {
       setIsBusy(false);
     }
@@ -15343,11 +15389,19 @@ export function IdeaWorkbench({
                     </div>
                     <textarea
                       value={cursorProgressImportText}
-                      onChange={(event) => setCursorProgressImportText(event.target.value)}
+                      onChange={(event) => {
+                        setCursorProgressImportText(event.target.value);
+                        setCursorProgressImportMessage(null);
+                      }}
                       rows={7}
                       className="mt-3 w-full border border-slate-300 bg-white p-3 text-sm leading-6 text-slate-900 outline-none focus:border-slate-950"
                       placeholder={`Cursor 완료 보고 또는 .cursor/venture-lab-progress.json 내용을 붙여넣으세요.\n예: 완료 작업: T-002 핵심 사용자 여정 와이어프레임\n다음 미완료 작업은 T-003 데이터 모델과 마이그레이션 입니다.`}
                     />
+                    {cursorProgressImportMessage ? (
+                      <div className="mt-3 border border-blue-200 bg-blue-50 p-3 text-sm leading-6 text-blue-950" role="status">
+                        {cursorProgressImportMessage}
+                      </div>
+                    ) : null}
                     <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-xs leading-5 text-slate-500">
                         자동 원격 쓰기는 아직 켜지지 않았습니다. 이 가져오기는 현재 로그인한 사용자 권한으로만 저장합니다.
@@ -15359,7 +15413,7 @@ export function IdeaWorkbench({
                         className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                       >
                         <Save size={16} />
-                        진행 결과 반영
+                        {isBusy ? "반영 중" : "진행 결과 반영"}
                       </button>
                     </div>
                   </div>
