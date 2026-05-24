@@ -55,6 +55,19 @@ Cursor's local MCP bridge exposes the package, task list, guide, and start promp
 
 The write-back token is scoped to the selected idea, signed by a server-only secret, and can only create or update implementation tasks. The sync token and progress file are added to the external project's `.gitignore` by the setup script.
 
+## Other External Tool Packages
+
+Codex, Claude Code, Google Antigravity, and generic MCP handoffs use tool-specific start packages until their write-back connectors exist. The final execution screen must not imply automatic task sync for these tools.
+
+| Tool | Start package | Current automation boundary |
+| --- | --- | --- |
+| Codex | `AI_VENTURE_CODEX_START.md`, `AGENTS.md`, `AI_VENTURE_PACKAGE.md`, `AI_VENTURE_TASKS.md` | Package handoff and completion report import |
+| Claude Code | `AI_VENTURE_CLAUDE_START.md`, `CLAUDE.md`, `AI_VENTURE_PACKAGE.md`, `AI_VENTURE_TASKS.md` | Package handoff and completion report import |
+| Google Antigravity | `AI_VENTURE_ANTIGRAVITY_START.md`, `AI_VENTURE_PACKAGE.md`, `AI_VENTURE_TASKS.md`, `AI_VENTURE_ACCEPTANCE.md` | Package handoff and completion report import |
+| Generic MCP | `AI_VENTURE_MCP_MANIFEST.md`, `AI_VENTURE_PACKAGE.md`, `AI_VENTURE_TASKS.md` | Read-only resource contract and completion report import |
+
+For non-Cursor tools, the user receives a single downloadable start package that includes the tool-specific first action, the package file list, the completion report format, and the full production package. Automatic Venture Lab status write-back is a Cursor-first capability.
+
 ## Completion Report
 
 External tools should report:

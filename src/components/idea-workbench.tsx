@@ -3300,6 +3300,8 @@ function buildExternalProductionPackageGuide(
   const startMethod = isExternalDelivery
     ? selectedTool.startMethod
     : "STEP 6 작업 순서 보드에서 필요한 단계 결과만 저장하고, STEP 7 최종 실행과 STEP 8 성과 확인으로 이어갑니다.";
+  const selectedToolSteps = selectedTool.handoffSteps.map((step, index) => `${index + 1}. ${step}`).join("\n");
+  const selectedToolFiles = selectedTool.packageFiles.map((file) => `- ${file}`).join("\n");
 
   return `## 제작 패키지 목차
 
@@ -3356,8 +3358,20 @@ completion_report:
 - 결과물 형태: ${profile.label}
 - 제작 방식: ${deliveryLabel}
 - 선택 도구: ${isExternalDelivery ? selectedTool.label : "Venture Lab 내부 진행"}
+- 도구 상태: ${isExternalDelivery ? selectedTool.automationLabel : "내부 개발 준비"}
 - 전달 초점: ${deliveryFocus}
 - 시작 방법: ${startMethod}
+- 시작 파일: ${isExternalDelivery ? selectedTool.startFileName : "Venture Lab 내부 실행 자료"}
+
+## 선택 도구 시작 순서
+
+${isExternalDelivery ? selectedToolSteps : "1. STEP 6에서 작업 순서를 확인합니다.\n2. 내부 개발 도구가 연결되면 같은 패키지로 구현 세션을 시작합니다.\n3. 완료 보고와 성과 확인은 Venture Lab 안에 남깁니다."}
+
+## 선택 도구에 맞춘 파일
+
+${isExternalDelivery ? selectedToolFiles : "- AI_VENTURE_PACKAGE.md\n- AI_VENTURE_TASKS.md\n- Venture Lab 내부 완료 보고"}
+
+${isExternalDelivery ? `> ${selectedTool.handoffNote}` : "> 내부 개발 자동화는 별도 개발 도구 연결 후 열립니다."}
 
 ## 외부 제작 도구 자료
 
@@ -10544,6 +10558,41 @@ export function IdeaWorkbench({
         agentRunPackageDraft,
       ].join("\n")
     : "";
+  const externalToolRunPackageDraft =
+    selectedIdea && buildDeliveryMode === "external_tool"
+      ? [
+          `# ${activeExternalBuildTool.label} 시작 패키지: ${selectedIdea.name}`,
+          "",
+          `${activeExternalBuildTool.label}에서 바로 첫 작업을 시작할 수 있도록 시작 순서, 전달 파일, 완료 보고 형식을 앞에 붙인 패키지입니다.`,
+          activeExternalBuildTool.key === "cursor"
+            ? "Cursor는 연결 파일을 받아 프로젝트 루트에서 실행하면 실제 규칙, MCP 설정, 제작 패키지, 작업 목록이 파일로 설치됩니다."
+            : `${activeExternalBuildTool.label}은 현재 패키지 전달 방식입니다. 자동 상태 반영은 Cursor 연결 파일부터 지원합니다.`,
+          "",
+          "## 먼저 할 일",
+          "",
+          activeExternalBuildTool.handoffSteps.map((step, index) => `${index + 1}. ${step}`).join("\n"),
+          "",
+          "## 이 패키지에 맞춘 파일",
+          "",
+          activeExternalBuildTool.packageFiles.map((file) => `- ${file}`).join("\n"),
+          "",
+          "## 완료 보고 형식",
+          "",
+          "- 완료한 작업 코드와 제목",
+          "- 변경 파일",
+          "- 실행한 검증 명령과 결과",
+          "- 배포 또는 미리보기 URL",
+          "- 남은 리스크와 다음 작업",
+          "",
+          "## 도구별 주의",
+          "",
+          activeExternalBuildTool.handoffNote,
+          "",
+          "---",
+          "",
+          finalAgentRunPackageDraft,
+        ].join("\n")
+      : finalAgentRunPackageDraft;
   const hasFinalExecutionPackage =
     canEnterOrchestrationFromDevelopmentDocs ||
     hasAgentRunPackageArtifact ||
@@ -15348,7 +15397,7 @@ export function IdeaWorkbench({
                   <div className="mt-2 text-base font-semibold text-slate-950">{activeBuildDeliveryLabel}</div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {buildDeliveryMode === "external_tool"
-                      ? `${activeExternalBuildTool.label} 기준으로 패키지와 지시문을 준비했습니다.`
+                      ? `${activeExternalBuildTool.label} 기준으로 패키지와 시작 순서를 준비했습니다. ${activeExternalBuildTool.automationLabel} 방식입니다.`
                       : "Venture Lab 내부 개발 도구로 이어질 준비 자료를 묶었습니다."}
                   </p>
                   {buildDeliveryMode === "external_tool" ? (
@@ -15398,7 +15447,7 @@ export function IdeaWorkbench({
                       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                         {isCursorExternalDelivery
                           ? "Cursor가 실제로 읽을 규칙, MCP 설정, 로컬 MCP 브리지, 제작 패키지, 작업 목록을 설치 파일 하나로 묶습니다."
-                          : "외부 제작 도구가 바로 읽을 수 있도록 최종 제작 패키지와 첫 지시문을 분리해 제공합니다."}
+                          : `${activeExternalBuildTool.label}가 바로 읽을 수 있도록 도구별 시작 지시문과 제작 패키지를 한 파일로 묶습니다.`}
                       </p>
                     </div>
                     <span className="avl-pill avl-pill-info">{activeExternalBuildTool.label}</span>
@@ -15407,7 +15456,7 @@ export function IdeaWorkbench({
                   {!isCursorExternalDelivery ? (
                     <div className="mt-4 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-sm leading-6 text-blue-950">
-                        Cursor 연결 파일이 필요하면 위의 개발 도구에서 Cursor를 선택하세요. 선택 즉시 아래 버튼이
+                        작업 상태까지 자동으로 Venture Lab에 반영하려면 위의 개발 도구에서 Cursor를 선택하세요. 선택 즉시 아래 버튼이
                         <span className="font-semibold"> Cursor 연결 파일 받기</span>로 바뀝니다.
                       </p>
                       <button
@@ -15425,20 +15474,20 @@ export function IdeaWorkbench({
                   <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.56fr)_minmax(360px,0.44fr)]">
                     <div className="border border-slate-200 bg-white p-4">
                       <div className="text-sm font-semibold text-slate-950">
-                        {isCursorExternalDelivery ? "Cursor 연결 파일" : "최종 패키지"}
+                        {isCursorExternalDelivery ? "Cursor 연결 파일" : `${activeExternalBuildTool.label} 시작 패키지`}
                       </div>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
                         {isCursorExternalDelivery
                           ? "프로젝트 루트에서 실행하면 Cursor 규칙, MCP 서버, 제작 문서, 작업 목록이 실제 파일로 생성됩니다."
-                          : "PRD, IA, 디자인 기준, 기술 경계, 작업 순서, 검증 기준, 완료 보고 형식을 한 문서로 묶었습니다."}
+                          : `${activeExternalBuildTool.startFileName} 기준의 시작 순서, PRD, IA, 디자인 기준, 기술 경계, 작업 순서, 완료 보고 형식을 묶었습니다.`}
                       </p>
                       {isCursorExternalDelivery ? (
                         <div className="mt-3 grid gap-2 text-xs leading-5 text-slate-600 sm:grid-cols-2">
-                          <div className="border border-slate-200 bg-slate-50 p-3">.cursor/rules/ai-venture-lab.mdc</div>
-                          <div className="border border-slate-200 bg-slate-50 p-3">.cursor/mcp.json</div>
-                          <div className="border border-slate-200 bg-slate-50 p-3">.cursor/venture-lab-sync.json</div>
-                          <div className="border border-slate-200 bg-slate-50 p-3">AI_VENTURE_PACKAGE.md</div>
-                          <div className="border border-slate-200 bg-slate-50 p-3">AI_VENTURE_TASKS.md</div>
+                          {activeExternalBuildTool.packageFiles.map((file) => (
+                            <div key={file} className="border border-slate-200 bg-slate-50 p-3">
+                              {file}
+                            </div>
+                          ))}
                         </div>
                       ) : null}
                       <div className="mt-4 flex flex-wrap gap-2">
@@ -15446,11 +15495,11 @@ export function IdeaWorkbench({
                           type="button"
                           onClick={() =>
                             copyDraft(
-                              isCursorExternalDelivery ? cursorStartPromptDraft : finalAgentRunPackageDraft,
-                              isCursorExternalDelivery ? "Cursor 시작 지시문" : "최종 제작 패키지",
+                              isCursorExternalDelivery ? cursorStartPromptDraft : externalToolRunPackageDraft,
+                              isCursorExternalDelivery ? "Cursor 시작 지시문" : `${activeExternalBuildTool.label} 시작 패키지`,
                             )
                           }
-                          disabled={!finalAgentRunPackageDraft}
+                          disabled={!externalToolRunPackageDraft}
                           className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                         >
                           <Clipboard size={16} />
@@ -15465,16 +15514,16 @@ export function IdeaWorkbench({
                             }
 
                             downloadMarkdownFile(
-                              finalAgentRunPackageDraft,
-                              "최종 제작 패키지",
-                              toDownloadFileName(selectedIdea.name, "production-package"),
+                              externalToolRunPackageDraft,
+                              `${activeExternalBuildTool.label} 시작 패키지`,
+                              toDownloadFileName(selectedIdea.name, activeExternalBuildTool.handoffFileSuffix),
                             );
                           }}
-                          disabled={isBusy || !finalAgentRunPackageDraft}
+                          disabled={isBusy || !externalToolRunPackageDraft}
                           className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                         >
                           <Download size={16} />
-                          {isCursorExternalDelivery ? (isBusy ? "연결 준비 중" : "Cursor 연결 파일 받기") : "패키지 파일 받기"}
+                          {isCursorExternalDelivery ? (isBusy ? "연결 준비 중" : "Cursor 연결 파일 받기") : "시작 패키지 받기"}
                         </button>
                         {isCursorExternalDelivery ? (
                           <button
@@ -15561,9 +15610,28 @@ export function IdeaWorkbench({
                         </>
                       ) : (
                         <>
-                          <p className="mt-2 text-sm leading-6 text-slate-600">{activeExternalBuildTool.startMethod}</p>
-                          <div className="mt-3 border border-slate-200 bg-slate-50 p-3 text-sm leading-6 text-slate-600">
-                            {activeExternalBuildTool.packageFocus}
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            {activeExternalBuildTool.startMethod}
+                          </p>
+                          <ol className="mt-3 grid gap-2 text-sm leading-6 text-slate-600">
+                            {activeExternalBuildTool.handoffSteps.map((step, index) => (
+                              <li key={step} className="border border-slate-200 bg-slate-50 p-3">
+                                {index + 1}. {step}
+                              </li>
+                            ))}
+                          </ol>
+                          <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                              함께 받는 파일 기준
+                            </div>
+                            <div className="mt-2 grid gap-2 text-xs leading-5 text-slate-600 sm:grid-cols-2">
+                              {activeExternalBuildTool.packageFiles.map((file) => (
+                                <div key={file} className="border border-slate-200 bg-white p-2">
+                                  {file}
+                                </div>
+                              ))}
+                            </div>
+                            <p className="mt-3 text-sm leading-6 text-slate-600">{activeExternalBuildTool.handoffNote}</p>
                           </div>
                         </>
                       )}
@@ -15621,7 +15689,9 @@ export function IdeaWorkbench({
                     <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 목록</h3>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
                       {isCursorExternalDelivery
-                        ? "Cursor 연결 파일에는 이 작업 목록이 포함됩니다. Cursor가 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다."
+                        ? isCursorExternalDelivery
+                          ? "Cursor 연결 파일에는 이 작업 목록이 포함됩니다. Cursor가 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다."
+                          : `${activeExternalBuildTool.label} 시작 패키지에 이 작업 목록이 포함됩니다. 완료 보고를 가져오면 Venture Lab 작업 상태를 맞출 수 있습니다.`
                         : "외부 제작 도구가 이 작업 순서를 기준으로 진행할 수 있도록 함께 전달합니다."}
                     </p>
                   </div>
@@ -15660,15 +15730,23 @@ export function IdeaWorkbench({
                     </div>
                   )}
                 </div>
-                {isCursorExternalDelivery ? (
+                {buildDeliveryMode === "external_tool" ? (
                   <div className="mt-4 border border-slate-200 bg-slate-50 p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div>
-                        <div className="text-sm font-semibold text-slate-950">Cursor 진행 결과 백업 가져오기</div>
+                        <div className="text-sm font-semibold text-slate-950">
+                          {isCursorExternalDelivery ? "Cursor 진행 결과 백업 가져오기" : `${activeExternalBuildTool.label} 완료 보고 반영`}
+                        </div>
                         <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                          자동 반영이 실패했거나 예전 완료 보고를 반영해야 할 때만 사용합니다.{" "}
-                          <span className="font-mono">.cursor/venture-lab-progress.json</span> 내용을 넣으면 작업별 상태를 읽어
-                          Venture Lab에 반영합니다.
+                          {isCursorExternalDelivery
+                            ? "자동 반영이 실패했거나 예전 완료 보고를 반영해야 할 때만 사용합니다."
+                            : `${activeExternalBuildTool.label}에서 받은 완료 보고를 붙여넣으면 작업별 상태를 읽어 Venture Lab에 반영합니다.`}{" "}
+                          {isCursorExternalDelivery ? (
+                            <>
+                              <span className="font-mono">.cursor/venture-lab-progress.json</span> 내용을 넣으면 작업별 상태를 읽어
+                              Venture Lab에 반영합니다.
+                            </>
+                          ) : null}
                         </p>
                       </div>
                       <label className="avl-btn avl-btn-secondary h-10 cursor-pointer px-3">
@@ -15690,7 +15768,7 @@ export function IdeaWorkbench({
                       }}
                       rows={7}
                       className="mt-3 w-full border border-slate-300 bg-white p-3 text-sm leading-6 text-slate-900 outline-none focus:border-slate-950"
-                      placeholder={`Cursor 완료 보고 또는 .cursor/venture-lab-progress.json 내용을 붙여넣으세요.\n예: 완료 작업: T-002 핵심 사용자 여정 와이어프레임\n다음 미완료 작업은 T-003 데이터 모델과 마이그레이션 입니다.`}
+                      placeholder={`${activeExternalBuildTool.label} 완료 보고${isCursorExternalDelivery ? " 또는 .cursor/venture-lab-progress.json" : ""} 내용을 붙여넣으세요.\n예: 완료 작업: T-002 핵심 사용자 여정 와이어프레임\n다음 미완료 작업은 T-003 데이터 모델과 마이그레이션 입니다.`}
                     />
                     {cursorProgressImportMessage ? (
                       <div className="mt-3 border border-blue-200 bg-blue-50 p-3 text-sm leading-6 text-blue-950" role="status">
@@ -15720,7 +15798,9 @@ export function IdeaWorkbench({
                     ) : null}
                     <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-xs leading-5 text-slate-500">
-                        Cursor 연결 파일에는 자동 반영 설정이 포함됩니다. 이 가져오기는 자동 반영이 실패했을 때 쓰는 백업 경로입니다.
+                        {isCursorExternalDelivery
+                          ? "Cursor 연결 파일에는 자동 반영 설정이 포함됩니다. 이 가져오기는 자동 반영이 실패했을 때 쓰는 백업 경로입니다."
+                          : "이 반영은 현재 로그인한 사용자 권한으로 저장됩니다. 외부 도구가 끝낸 작업만 붙여넣으세요."}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <button
@@ -15739,7 +15819,13 @@ export function IdeaWorkbench({
                           className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                         >
                           <Save size={16} />
-                          {isBusy ? "백업 반영 중" : "백업 반영 실행"}
+                          {isBusy
+                            ? isCursorExternalDelivery
+                              ? "백업 반영 중"
+                              : "완료 보고 반영 중"
+                            : isCursorExternalDelivery
+                              ? "백업 반영 실행"
+                              : "완료 보고 반영"}
                         </button>
                       </div>
                     </div>
