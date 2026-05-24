@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-24 | Added production smoke for revocable Cursor sync tokens | Current commit | Script/docs only; production registry verified after SQL | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Added stored hashed Cursor sync tokens and individual revoke controls | Current commit | Deploy-safe with legacy fallback; registry enforcement activates after production SQL | `pnpm quality:full` |
 | 2026-05-24 | Made STEP 7/8 task sync automatic-first and folded manual progress import into a backup path | `4f48767` | Pushed to `main`; production alias updated | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:browser:auth` |
 | 2026-05-24 | Documented Cursor build sync token lifecycle and current revocation boundary | Current commit | Docs-only; no runtime deploy required | `pnpm release:check` |
@@ -182,7 +183,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 | Telemetry production smoke execution | Completed | Post-rotation telemetry ingest and funnel smoke passed with a disposable idea id | Rerun when telemetry env, endpoint behavior, or telemetry RLS policies change |
 | Authenticated telemetry smoke execution | Completed | 2026-05-22 approved rerun passed after local telemetry secret alignment, using disposable idea data and summary-only evidence | Rerun only when telemetry env, endpoint behavior, or telemetry RLS policies change |
 | Codex, Claude Code, Antigravity live write-back | Deferred | Cursor is the first live connector with scoped token write-back; other tools receive start packages and completion-report import only so the UI does not imply unsupported automation | Add tool-specific connectors only after authentication, permission, token rotation, and rollback behavior are designed |
-| Cursor token rotation and revocation controls | Partially completed | Code now creates a `build_sync_tokens` hashed token registry and revoke UI, but production SQL must be applied before individual revoke is active | Apply `supabase/migrations/20260524010000_add_build_sync_tokens.sql`, then run Cursor handoff smoke |
+| Cursor token rotation and revocation controls | Completed | Production SQL was applied and `pnpm smoke:build-sync` verified registry ready, connection revoke, and revoked-token rejection | Keep `pnpm smoke:build-sync` as the regression check before changing token issuance, revoke, or progress sync |
 | Native internal builder | Deferred | Final execution can choose an internal build destination, but the actual native builder is not implemented yet | Keep the handoff boundary explicit until a first internal build runtime is scoped |
 
 ## Next User Actions
@@ -213,8 +214,7 @@ For Cursor handoff tests, use `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md`. The default 
 
 ## Next Jobs
 
-1. Apply `supabase/migrations/20260524010000_add_build_sync_tokens.sql` in production Supabase to activate individual Cursor connection revoke.
-2. Run Cursor handoff smoke: download a new Cursor connection file, confirm it appears in `Cursor 연결 관리`, revoke it, and verify old automatic progress writes are rejected.
-3. Package the Cursor connector as a cleaner CLI/MCP distribution after the project-root script path is stable.
-4. Keep Codex, Claude Code, Antigravity, and generic MCP as package handoffs until each has a safe write-back boundary.
-5. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
+1. Package the Cursor connector as a cleaner CLI/MCP distribution after the project-root script path is stable.
+2. Add a task-board level regression smoke that checks the STEP 8 list view after automatic Cursor progress sync.
+3. Keep Codex, Claude Code, Antigravity, and generic MCP as package handoffs until each has a safe write-back boundary.
+4. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.

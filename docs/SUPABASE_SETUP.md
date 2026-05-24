@@ -58,6 +58,14 @@ The workspace creation repair migration refreshes organization RLS, owner auto-m
 The idea product surface migration stores the selected result type so downstream PRD, design, stack, and handoff packages stay aligned.
 The build sync token migration stores hashed Cursor connection tokens so individual external-tool connections can be revoked without rotating every signing secret.
 
+After applying `20260524010000_add_build_sync_tokens.sql`, run the production verification:
+
+```bash
+pnpm smoke:build-sync
+```
+
+The smoke creates a disposable idea when browser-accessible Supabase public config is available, issues a Cursor connection token, verifies that progress writes work before revoke, revokes the connection, confirms the old token is rejected, and deletes the disposable idea.
+
 This creates:
 
 - `ideas`

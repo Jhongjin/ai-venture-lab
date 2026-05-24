@@ -68,6 +68,16 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 - 토큰이 외부에 노출됐다고 판단되면 해당 연결을 끊는다. 개별 회수 UI가 아직 열리지 않은 환경에서는 `BUILD_SYNC_TOKEN_SECRET`을 교체하고 프로덕션을 재배포해 기존 Cursor 연결 토큰을 모두 무효화한다.
 - `BUILD_SYNC_TOKEN_SECRET`이 없을 때는 `SUPABASE_SERVICE_ROLE_KEY` 또는 `TELEMETRY_INGEST_SECRET`이 서명 비밀값으로 사용될 수 있으므로, 운영 환경에서는 별도 `BUILD_SYNC_TOKEN_SECRET`을 설정하는 편이 좋다.
 
+## 운영 스모크
+
+`build_sync_tokens` SQL 적용 후 아래 명령으로 연결 장부를 검증한다.
+
+```bash
+pnpm smoke:build-sync
+```
+
+이 스모크는 로그인 세션으로 Cursor 연결을 발급하고, 연결 목록이 `ready`인지 확인하고, 가능한 경우 disposable 아이디어에 진행 결과를 한 번 반영한 뒤, 연결을 끊고 같은 토큰의 후속 반영이 401로 거부되는지 확인한다. 검증용 아이디어를 만들 수 있는 환경에서는 끝나면 자동 삭제한다.
+
 ## 운영 원칙
 
 - 화면에는 자동 반영이 기본 흐름이고 백업 가져오기는 실패 시 보조 경로임을 분명히 쓴다.
