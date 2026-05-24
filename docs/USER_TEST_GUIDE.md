@@ -188,7 +188,7 @@ Codex, Claude Code, Google Antigravity를 선택한 경우 기대 상태:
 | 시작 순서 | 해당 도구에서 프로젝트를 여는 방법, 첫 지시문 전달, T-001부터 진행, 완료 보고 방식이 순서대로 보임 |
 | 자동 반영 경계 | 자동 상태 반영은 Cursor부터 지원하며, 다른 도구는 완료 보고를 백업 반영한다고 안내됨 |
 
-운영 환경에는 `SUPABASE_SERVICE_ROLE_KEY`가 있어야 합니다. `BUILD_SYNC_TOKEN_SECRET`은 선택값이며, 설정하면 외부 제작 도구 연결 토큰 서명에 별도 비밀값을 사용할 수 있습니다.
+운영 환경에는 `SUPABASE_SERVICE_ROLE_KEY`가 있어야 합니다. `BUILD_SYNC_TOKEN_SECRET`은 선택값이며, 설정하면 외부 제작 도구 연결 토큰 서명에 별도 비밀값을 사용할 수 있습니다. `public.build_sync_tokens` 마이그레이션이 적용되어야 최종 실행 화면에서 Cursor 연결 목록, 최근 사용 시각, 개별 연결 끊기를 확인할 수 있습니다.
 
 사용자 테스트 흐름:
 

@@ -86,11 +86,13 @@ Validation keywords: `cleanup_ownership_required_for_write_smoke`, `no_primary_o
 - The token allows only `implementation_tasks` creation or update for the scoped idea. It does not grant idea edits, artifact edits, user reads, workspace management, telemetry ingest, or service-role access to the external project.
 - The progress endpoint rechecks that the actor is still the idea creator or a workspace owner/admin before writing.
 - Tokens are signed server-side and expire after the configured TTL. The current default is 30 days.
-- Re-downloading a Cursor connection file issues a new token, but individual old tokens are not yet stored for revocation.
-- If a token or `.cursor/venture-lab-sync.json` is exposed, rotate `BUILD_SYNC_TOKEN_SECRET` and redeploy. If that env var is absent, rotate the fallback signing secret that was in use.
+- When `public.build_sync_tokens` is applied, the raw token is not stored. The server stores only a SHA-256 token hash, status, expiry, and last-used metadata for individual revocation.
+- Re-downloading a Cursor connection file issues a new active connection. Old connections can be revoked individually from the final execution screen after the token registry migration is applied.
+- Before the token registry migration is applied, existing signed tokens continue in legacy mode so production handoffs do not abruptly break; individual revoke controls remain unavailable until SQL is applied.
+- If a token or `.cursor/venture-lab-sync.json` is exposed before individual revocation is available, rotate `BUILD_SYNC_TOKEN_SECRET` and redeploy. If that env var is absent, rotate the fallback signing secret that was in use.
 - `.cursor/venture-lab-sync.json` and `.cursor/venture-lab-progress.json` must stay out of Git, screenshots, chat, and exported artifacts.
 
-Validation keywords: `build_sync_token_scoped`, `build_sync_token_bearer_secret`, `build_sync_revocation_secret_rotation`, `cursor_sync_files_gitignored`.
+Validation keywords: `build_sync_token_scoped`, `build_sync_token_bearer_secret`, `build_sync_token_hash_registry`, `build_sync_individual_revocation`, `cursor_sync_files_gitignored`.
 
 ## Firebase Gate
 

@@ -14,6 +14,7 @@ export type DecisionStatus = "ship" | "pivot" | "kill" | "research_more" | "pend
 export type ProductSurfaceKey = "web_app" | "mobile_app" | "web_site" | "automation" | "operator_console" | "mcp_handoff";
 export type RiskSeverity = "low" | "medium" | "high" | "critical";
 export type OrganizationRole = "owner" | "admin" | "member" | "viewer";
+export type BuildSyncTokenStatus = "active" | "revoked" | "expired";
 export type OrchestrationPhase =
   | "strategy"
   | "research"
@@ -259,6 +260,47 @@ export type Database = {
             columns: ["source_artifact_id"];
             isOneToOne: false;
             referencedRelation: "venture_artifacts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      build_sync_tokens: {
+        Row: {
+          id: string;
+          idea_id: string;
+          organization_id: string | null;
+          actor_id: string;
+          tool: "cursor";
+          token_hash: string;
+          status: BuildSyncTokenStatus;
+          expires_at: string;
+          last_used_at: string | null;
+          revoked_at: string | null;
+          revoked_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["build_sync_tokens"]["Row"]> & {
+          idea_id: string;
+          actor_id: string;
+          tool: "cursor";
+          token_hash: string;
+          expires_at: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["build_sync_tokens"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "build_sync_tokens_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "build_sync_tokens_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
             referencedColumns: ["id"];
           },
         ];

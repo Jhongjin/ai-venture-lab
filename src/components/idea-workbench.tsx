@@ -2133,6 +2133,9 @@ type CursorBuildSyncTokenResponse = {
   token?: string;
   endpoint?: string;
   expiresAt?: string;
+  registryStatus?: CursorSyncRegistryStatus;
+  connection?: CursorSyncConnection;
+  message?: string;
   error?: string;
 };
 
@@ -2146,6 +2149,52 @@ type CursorSyncConfig = {
   expiresAt: string;
   createdAt: string;
 };
+
+type CursorSyncRegistryStatus = "ready" | "missing" | "unavailable";
+type CursorSyncConnectionStatus = "active" | "revoked" | "expired";
+
+type CursorSyncConnection = {
+  id: string;
+  tool: "cursor";
+  status: CursorSyncConnectionStatus;
+  expiresAt: string;
+  lastUsedAt: string | null;
+  createdAt: string;
+  revokedAt: string | null;
+};
+
+type CursorSyncConnectionsResponse = {
+  ok?: boolean;
+  registryStatus?: CursorSyncRegistryStatus;
+  tokens?: CursorSyncConnection[];
+  message?: string;
+  error?: string;
+};
+
+type CursorSyncConnectionRevokeResponse = {
+  ok?: boolean;
+  connection?: CursorSyncConnection;
+  error?: string;
+};
+
+const cursorSyncConnectionStatusLabels: Record<CursorSyncConnectionStatus, string> = {
+  active: "연결됨",
+  revoked: "끊김",
+  expired: "만료됨",
+};
+
+const cursorSyncConnectionStatusTone: Record<CursorSyncConnectionStatus, string> = {
+  active: "avl-pill avl-pill-success",
+  revoked: "avl-pill avl-pill-warning",
+  expired: "avl-pill avl-pill-neutral",
+};
+
+function upsertCursorSyncConnection(connections: CursorSyncConnection[], connection: CursorSyncConnection) {
+  const withoutCurrent = connections.filter((item) => item.id !== connection.id);
+  return [connection, ...withoutCurrent].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+}
 
 function getCursorTaskCode(index: number) {
   return `T-${String(index + 1).padStart(3, "0")}`;
@@ -8673,6 +8722,11 @@ export function IdeaWorkbench({
   const [isTaskSyncRefreshing, setIsTaskSyncRefreshing] = useState(false);
   const [taskSyncMessage, setTaskSyncMessage] = useState<string | null>(null);
   const [taskSyncUpdatedAt, setTaskSyncUpdatedAt] = useState<string | null>(null);
+  const [cursorSyncConnections, setCursorSyncConnections] = useState<CursorSyncConnection[]>([]);
+  const [cursorSyncRegistryStatus, setCursorSyncRegistryStatus] = useState<CursorSyncRegistryStatus | null>(null);
+  const [cursorSyncConnectionMessage, setCursorSyncConnectionMessage] = useState<string | null>(null);
+  const [isCursorSyncConnectionLoading, setIsCursorSyncConnectionLoading] = useState(false);
+  const [revokingCursorSyncConnectionId, setRevokingCursorSyncConnectionId] = useState<string | null>(null);
   const developmentAutoRunIdRef = useRef(0);
   const experienceMode = "guided" as "guided" | "full";
   const [implementationStatusFilter, setImplementationStatusFilter] = useState<ImplementationStatusFilter>("all");
@@ -10811,6 +10865,7 @@ export function IdeaWorkbench({
   const cursorMcpConfigDraft = buildCursorMcpConfigJson();
   const cursorMcpServerDraft = buildCursorMcpServerScript();
   const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "cursor";
+  const activeCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.status === "active");
   const cursorProgressPreviewItems =
     cursorProgressImportText.trim() && cursorHandoffTaskDrafts.length > 0
       ? buildCursorProgressImportDrafts({
@@ -11052,6 +11107,14 @@ export function IdeaWorkbench({
     // Restart polling only when the selected record or viewer changes; object identity churn should not reset the timer.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTask, selectedIdea?.id, supabase, user?.id]);
+
+  useEffect(() => {
+    if (selectedIdea && user && isCursorExternalDelivery && activeTask === "launch") {
+      void refreshCursorSyncConnections();
+    }
+    // This mirrors the task polling boundary: reload only when the selected project, viewer, or final tool changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTask, isCursorExternalDelivery, selectedIdea?.id, user?.id]);
 
   if (!selectedIdea || !editState) {
     const hasSelectableIdeas = visibleIdeas.length > 0;
@@ -12869,6 +12932,73 @@ export function IdeaWorkbench({
     return window.btoa(binary);
   }
 
+  async function refreshCursorSyncConnections({ quiet = false }: { quiet?: boolean } = {}) {
+    if (!selectedIdea || !user || !isCursorExternalDelivery) {
+      return;
+    }
+
+    setIsCursorSyncConnectionLoading(true);
+
+    if (!quiet) {
+      setCursorSyncConnectionMessage("Cursor 연결 상태를 확인하는 중입니다...");
+    }
+
+    try {
+      const response = await fetch(`/api/build-sync/tokens?ideaId=${encodeURIComponent(selectedIdea.id)}`);
+      const payload = (await response.json().catch(() => ({}))) as CursorSyncConnectionsResponse;
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Cursor 연결 상태를 확인하지 못했습니다.");
+      }
+
+      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
+      setCursorSyncConnections(payload.tokens ?? []);
+
+      if (!quiet || payload.registryStatus !== "ready") {
+        setCursorSyncConnectionMessage(
+          payload.message ??
+            (payload.registryStatus === "ready"
+              ? "Cursor 연결 상태를 확인했습니다."
+              : "Cursor 연결 파일은 만들 수 있지만, 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
+        );
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Cursor 연결 상태를 확인하지 못했습니다.";
+      setCursorSyncConnectionMessage(errorMessage);
+    } finally {
+      setIsCursorSyncConnectionLoading(false);
+    }
+  }
+
+  async function revokeCursorSyncConnection(connection: CursorSyncConnection) {
+    if (!user) {
+      setCursorSyncConnectionMessage("Cursor 연결을 끊으려면 먼저 로그인하세요.");
+      return;
+    }
+
+    setRevokingCursorSyncConnectionId(connection.id);
+    setCursorSyncConnectionMessage("Cursor 연결을 끊는 중입니다...");
+
+    try {
+      const response = await fetch(`/api/build-sync/tokens/${encodeURIComponent(connection.id)}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json().catch(() => ({}))) as CursorSyncConnectionRevokeResponse;
+
+      if (!response.ok || !payload.connection) {
+        throw new Error(payload.error || "Cursor 연결을 끊지 못했습니다.");
+      }
+
+      setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
+      setCursorSyncConnectionMessage("Cursor 연결을 끊었습니다. 해당 연결 파일의 자동 반영은 더 이상 저장되지 않습니다.");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Cursor 연결을 끊지 못했습니다.";
+      setCursorSyncConnectionMessage(errorMessage);
+    } finally {
+      setRevokingCursorSyncConnectionId(null);
+    }
+  }
+
   async function downloadCursorSetupScript() {
     if (!selectedIdea || !finalAgentRunPackageDraft) {
       return;
@@ -12893,6 +13023,19 @@ export function IdeaWorkbench({
       if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
         throw new Error(payload.error || "Cursor 자동 연결 토큰을 만들지 못했습니다.");
       }
+
+      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
+
+      if (payload.connection) {
+        setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
+      }
+
+      setCursorSyncConnectionMessage(
+        payload.message ??
+          (payload.registryStatus === "ready"
+            ? "새 Cursor 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
+            : "Cursor 연결 파일을 만들었습니다. 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
+      );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
         projectKey: finalExecutionProjectKey,
@@ -15631,6 +15774,88 @@ export function IdeaWorkbench({
                           </button>
                         ) : null}
                       </div>
+                      {isCursorExternalDelivery ? (
+                        <div className="mt-4 border border-slate-200 bg-slate-50 p-3">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                              <div className="text-sm font-semibold text-slate-950">Cursor 연결 관리</div>
+                              <p className="mt-1 text-xs leading-5 text-slate-600">
+                                연결 파일을 다시 받으면 새 연결이 추가됩니다. 더 쓰지 않는 연결은 여기서 끊습니다.
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => void refreshCursorSyncConnections()}
+                              disabled={isCursorSyncConnectionLoading || !user}
+                              className="avl-btn avl-btn-secondary h-9 px-3 text-xs disabled:opacity-50"
+                            >
+                              <RefreshCw size={14} />
+                              {isCursorSyncConnectionLoading ? "확인 중" : "연결 확인"}
+                            </button>
+                          </div>
+                          {cursorSyncConnectionMessage ? (
+                            <div className="mt-3 border border-blue-200 bg-blue-50 px-3 py-2 text-xs leading-5 text-blue-950">
+                              {cursorSyncConnectionMessage}
+                            </div>
+                          ) : null}
+                          {cursorSyncRegistryStatus === "missing" || cursorSyncRegistryStatus === "unavailable" ? (
+                            <div className="mt-3 border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-950">
+                              개별 연결 끊기는 DB 토큰 장부 SQL 적용 후 활성화됩니다. 적용 전에도 연결 파일은 기존 방식으로 동작합니다.
+                            </div>
+                          ) : null}
+                          {cursorSyncRegistryStatus === "ready" ? (
+                            <div className="mt-3 grid gap-2">
+                              {cursorSyncConnections.length > 0 ? (
+                                cursorSyncConnections.slice(0, 4).map((connection) => (
+                                  <div
+                                    key={connection.id}
+                                    className="flex flex-col gap-2 border border-slate-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between"
+                                  >
+                                    <div>
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        <span className={cursorSyncConnectionStatusTone[connection.status]}>
+                                          {cursorSyncConnectionStatusLabels[connection.status]}
+                                        </span>
+                                        <span className="font-mono text-xs font-semibold text-slate-500">
+                                          {connection.id.slice(0, 8).toUpperCase()}
+                                        </span>
+                                      </div>
+                                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                                        발급 {formatTelemetryTime(connection.createdAt)} · 만료{" "}
+                                        {formatTelemetryTime(connection.expiresAt)}
+                                        {connection.lastUsedAt ? ` · 최근 반영 ${formatTelemetryTime(connection.lastUsedAt)}` : ""}
+                                      </p>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => void revokeCursorSyncConnection(connection)}
+                                      disabled={
+                                        connection.status !== "active" ||
+                                        revokingCursorSyncConnectionId === connection.id ||
+                                        !user
+                                      }
+                                      className="avl-btn avl-btn-secondary h-9 px-3 text-xs disabled:opacity-50"
+                                    >
+                                      <Trash2 size={14} />
+                                      {revokingCursorSyncConnectionId === connection.id ? "끊는 중" : "연결 끊기"}
+                                    </button>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="border border-dashed border-slate-300 bg-white px-3 py-2 text-xs leading-5 text-slate-600">
+                                  아직 저장된 Cursor 연결이 없습니다. <span className="font-semibold">Cursor 연결 파일 받기</span>를 누르면
+                                  이곳에 연결이 표시됩니다.
+                                </div>
+                              )}
+                              {activeCursorSyncConnections.length > 0 ? (
+                                <p className="text-xs leading-5 text-slate-500">
+                                  현재 자동 반영 가능한 연결 {activeCursorSyncConnections.length}개
+                                </p>
+                              ) : null}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="border border-slate-200 bg-white p-4">

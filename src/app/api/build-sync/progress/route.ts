@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { verifyBuildSyncToken } from "@/lib/build-sync-token";
+import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
+import { markBuildSyncTokenUsed, validateRegisteredBuildSyncToken } from "@/lib/build-sync-registry";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
   Database,
@@ -30,8 +32,6 @@ type FallbackTask = {
   owner_role: string;
   acceptance_criteria: string;
 };
-
-const buildSyncAdminRoles = new Set(["owner", "admin"]);
 
 const fallbackTasks: FallbackTask[] = [
   {
@@ -304,43 +304,30 @@ export async function POST(request: Request) {
     return jsonError("This build sync token is not valid for Cursor.", 403);
   }
 
-  const { data: idea, error: ideaError } = await admin
-    .from("ideas")
-    .select("id, organization_id, created_by")
-    .eq("id", payload.ideaId)
-    .maybeSingle();
+  const registryValidation = await validateRegisteredBuildSyncToken({
+    admin,
+    token,
+    payload,
+  });
 
-  if (ideaError) {
-    return jsonError(`Could not read idea: ${ideaError.message}`, 500);
+  if (!registryValidation.ok) {
+    return jsonError(registryValidation.error, registryValidation.status);
   }
 
-  if (!idea) {
-    return jsonError("Idea was not found.", 404);
+  const access = await getBuildSyncIdeaAccess(admin, payload.ideaId, payload.actorId);
+
+  if (!access.ok) {
+    return jsonError(access.error, access.status);
   }
+
+  if (!access.canManage) {
+    return jsonError("Build sync token actor can no longer update this idea.", 403);
+  }
+
+  const idea = access.idea;
 
   if (idea.organization_id !== payload.organizationId) {
     return jsonError("Build sync token does not match this idea workspace.", 403);
-  }
-
-  let canWrite = idea.created_by === payload.actorId;
-
-  if (!canWrite && idea.organization_id) {
-    const { data: membership, error: membershipError } = await admin
-      .from("organization_members")
-      .select("role")
-      .eq("organization_id", idea.organization_id)
-      .eq("user_id", payload.actorId)
-      .maybeSingle();
-
-    if (membershipError) {
-      return jsonError(`Could not verify workspace permission: ${membershipError.message}`, 500);
-    }
-
-    canWrite = Boolean(membership && buildSyncAdminRoles.has(membership.role));
-  }
-
-  if (!canWrite) {
-    return jsonError("Build sync token actor can no longer update this idea.", 403);
   }
 
   const { data: existingTaskRows, error: taskError } = await admin
@@ -427,8 +414,11 @@ export async function POST(request: Request) {
     items.push({ taskCode, title: insertedTask.title, status: insertedTask.status, action: "inserted" });
   }
 
+  await markBuildSyncTokenUsed(admin, registryValidation.tokenId);
+
   return NextResponse.json({
     ok: true,
+    registryStatus: registryValidation.registryStatus,
     insertedTaskCount,
     updatedTaskCount,
     completedTaskCount: items.filter((item) => item.status === "done").length,

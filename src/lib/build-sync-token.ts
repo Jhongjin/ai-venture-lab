@@ -1,4 +1,4 @@
-import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
 export type BuildSyncTool = "cursor";
 
@@ -23,6 +23,10 @@ export function getBuildSyncTokenSecret() {
     process.env.TELEMETRY_INGEST_SECRET ||
     ""
   );
+}
+
+export function hashBuildSyncToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
 }
 
 function encodeBase64Url(value: string | Buffer) {
@@ -87,6 +91,7 @@ export function createBuildSyncToken({
   return {
     token: `${encodedPayload}.${signature}`,
     expiresAt: new Date(payload.exp).toISOString(),
+    payload,
   };
 }
 

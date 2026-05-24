@@ -38,6 +38,8 @@ supabase/migrations/20260505000000_expand_venture_artifact_types.sql
 supabase/migrations/20260505010000_add_implementation_tasks.sql
 supabase/migrations/20260506010000_add_learning_telemetry.sql
 supabase/migrations/20260512010000_repair_workspace_creation_policy.sql
+supabase/migrations/20260519010000_add_idea_product_surface.sql
+supabase/migrations/20260524010000_add_build_sync_tokens.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
@@ -53,6 +55,8 @@ The expanded artifact type migration adds backend decision, design brief, techni
 The implementation task migration adds a task board for implementation work, completion evidence, and launch readiness gating.
 The learning telemetry migration stores post-launch product events for Day 7/14/30 learning loops.
 The workspace creation repair migration refreshes organization RLS, owner auto-membership, and creator read access for the team-space step.
+The idea product surface migration stores the selected result type so downstream PRD, design, stack, and handoff packages stay aligned.
+The build sync token migration stores hashed Cursor connection tokens so individual external-tool connections can be revoked without rotating every signing secret.
 
 This creates:
 
@@ -63,6 +67,7 @@ This creates:
 - `orchestration_runs`
 - `venture_artifacts`
 - `implementation_tasks`
+- `build_sync_tokens`
 - `organizations`
 - `organization_members`
 - `audit_events`

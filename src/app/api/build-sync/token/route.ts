@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 
 import { createBuildSyncToken, type BuildSyncTool } from "@/lib/build-sync-token";
+import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
+import { recordBuildSyncToken, type BuildSyncRegistryStatus } from "@/lib/build-sync-registry";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-const buildSyncAdminRoles = new Set(["owner", "admin"]);
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
@@ -54,48 +55,43 @@ export async function POST(request: Request) {
     return jsonError("Only Cursor build sync is supported right now.", 400);
   }
 
-  const { data: idea, error: ideaError } = await supabase
-    .from("ideas")
-    .select("id, name, organization_id, created_by")
-    .eq("id", body.ideaId)
-    .maybeSingle();
+  const access = await getBuildSyncIdeaAccess(supabase, body.ideaId, user.id);
 
-  if (ideaError) {
-    return jsonError(`Could not read idea: ${ideaError.message}`, 500);
+  if (!access.ok) {
+    return jsonError(access.error, access.status);
   }
 
-  if (!idea) {
-    return jsonError("Idea was not found or you do not have access.", 404);
-  }
-
-  let canIssueToken = idea.created_by === user.id;
-
-  if (!canIssueToken && idea.organization_id) {
-    const { data: membership, error: membershipError } = await supabase
-      .from("organization_members")
-      .select("role")
-      .eq("organization_id", idea.organization_id)
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (membershipError) {
-      return jsonError(`Could not verify workspace permission: ${membershipError.message}`, 500);
-    }
-
-    canIssueToken = Boolean(membership && buildSyncAdminRoles.has(membership.role));
-  }
-
-  if (!canIssueToken) {
+  if (!access.canManage) {
     return jsonError("You do not have permission to connect this idea to an external build tool.", 403);
   }
 
   try {
+    const idea = access.idea;
     const syncToken = createBuildSyncToken({
       ideaId: idea.id,
       organizationId: idea.organization_id,
       actorId: user.id,
       tool,
     });
+    const admin = getSupabaseAdminClient();
+    let registryStatus: BuildSyncRegistryStatus = "unavailable";
+    let connection = null;
+
+    if (admin) {
+      const registryResult = await recordBuildSyncToken({
+        admin,
+        token: syncToken.token,
+        payload: syncToken.payload,
+        expiresAt: syncToken.expiresAt,
+      });
+
+      if (!registryResult.ok) {
+        return jsonError(registryResult.error, 503);
+      }
+
+      registryStatus = registryResult.registryStatus;
+      connection = registryResult.connection;
+    }
 
     return NextResponse.json({
       ok: true,
@@ -105,6 +101,12 @@ export async function POST(request: Request) {
       endpoint: new URL("/api/build-sync/progress", request.url).toString(),
       token: syncToken.token,
       expiresAt: syncToken.expiresAt,
+      registryStatus,
+      connection,
+      message:
+        registryStatus === "ready"
+          ? "Cursor connection token was recorded and can be revoked individually."
+          : "Cursor connection token was created. Apply the build_sync_tokens migration to enable individual revocation.",
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not create a build sync token.";

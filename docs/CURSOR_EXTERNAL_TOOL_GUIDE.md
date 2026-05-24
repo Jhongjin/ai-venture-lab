@@ -62,10 +62,11 @@ powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 ## 토큰 수명과 회수
 
 - 연결 파일을 다시 받으면 새 토큰이 발급된다.
-- 이전 토큰은 저장형 폐기 목록이 아직 없으므로 만료 전까지 유효할 수 있다.
-- 토큰이 외부에 노출됐다고 판단되면 `BUILD_SYNC_TOKEN_SECRET`을 교체하고 프로덕션을 재배포해 기존 Cursor 연결 토큰을 모두 무효화한다.
+- `public.build_sync_tokens` 마이그레이션이 적용된 환경에서는 토큰 원문을 저장하지 않고 SHA-256 해시, 상태, 만료 시각, 최근 사용 시각만 저장한다.
+- 최종 실행 화면의 `Cursor 연결 관리`에서 개별 연결을 끊으면 해당 연결 파일의 서버 자동 반영이 거부된다.
+- SQL이 아직 적용되지 않은 환경에서는 기존 서명 토큰이 legacy mode로 계속 동작하지만, 개별 연결 끊기는 비활성 상태로 보인다.
+- 토큰이 외부에 노출됐다고 판단되면 해당 연결을 끊는다. 개별 회수 UI가 아직 열리지 않은 환경에서는 `BUILD_SYNC_TOKEN_SECRET`을 교체하고 프로덕션을 재배포해 기존 Cursor 연결 토큰을 모두 무효화한다.
 - `BUILD_SYNC_TOKEN_SECRET`이 없을 때는 `SUPABASE_SERVICE_ROLE_KEY` 또는 `TELEMETRY_INGEST_SECRET`이 서명 비밀값으로 사용될 수 있으므로, 운영 환경에서는 별도 `BUILD_SYNC_TOKEN_SECRET`을 설정하는 편이 좋다.
-- 개별 연결만 회수하는 기능은 별도 저장소 기반 토큰 목록과 회수 UI가 생긴 뒤 추가한다.
 
 ## 운영 원칙
 
