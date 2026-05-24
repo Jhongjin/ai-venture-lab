@@ -12215,6 +12215,49 @@ export function IdeaWorkbench({
     event.currentTarget.value = "";
   }
 
+  async function refreshSelectedIdeaImplementationTasks() {
+    if (!supabase || !selectedIdea) {
+      setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("작업 상태를 새로고침하려면 먼저 로그인하세요.");
+      return;
+    }
+
+    setIsBusy(true);
+    setCursorProgressImportMessage("Venture Lab에 저장된 Cursor 작업 상태를 불러오는 중입니다...");
+
+    const { data, error } = await supabase
+      .from("implementation_tasks")
+      .select("*")
+      .eq("idea_id", selectedIdea.id)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    setIsBusy(false);
+
+    if (error) {
+      const errorMessage =
+        error.code === "42P01"
+          ? "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요."
+          : error.message;
+      setCursorProgressImportMessage(errorMessage);
+      setMessage(errorMessage);
+      return;
+    }
+
+    setImplementationTasks((current) => [
+      ...current.filter((task) => task.idea_id !== selectedIdea.id),
+      ...(data ?? []),
+    ]);
+    setCursorProgressImportItems([]);
+    setCursorProgressImportMessage(`서버에 저장된 작업 상태 ${data?.length ?? 0}개를 다시 불러왔습니다.`);
+    setMessage(`서버에 저장된 Cursor 진행 상태 ${data?.length ?? 0}개를 다시 불러왔습니다.`);
+    router.refresh();
+  }
+
   async function importCursorProgressResult() {
     setCursorProgressImportMessage("Cursor 진행 결과를 읽는 중입니다...");
 
@@ -15682,14 +15725,12 @@ export function IdeaWorkbench({
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={() => {
-                            router.refresh();
-                            setMessage("서버에 저장된 Cursor 진행 상태를 다시 불러왔습니다.");
-                          }}
-                          className="avl-btn avl-btn-secondary h-10 px-3"
+                          onClick={() => void refreshSelectedIdeaImplementationTasks()}
+                          disabled={isBusy || !user}
+                          className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                         >
                           <RefreshCw size={16} />
-                          서버 상태 새로고침
+                          {isBusy ? "불러오는 중" : "서버 상태 새로고침"}
                         </button>
                         <button
                           type="button"
