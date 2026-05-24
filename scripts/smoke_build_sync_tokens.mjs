@@ -111,6 +111,53 @@ async function verifyFinalExecutionCursorGuide(page, ideaId) {
   });
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function verifyPackageOnlyExternalToolHandoffs(page, ideaId) {
+  const launchUrl = new URL("/workspace", baseUrl);
+  launchUrl.searchParams.set("task", "launch");
+  launchUrl.searchParams.set("idea", ideaId);
+
+  const packageOnlyTools = ["Codex", "Claude Code", "Google Antigravity", "범용 MCP 전달"];
+
+  await page.goto(launchUrl.toString(), { waitUntil: "networkidle", timeout });
+  await page.getByRole("heading", { name: "최종 실행" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+
+  for (const toolLabel of packageOnlyTools) {
+    await page.getByRole("button", { name: new RegExp(`^${escapeRegExp(toolLabel)}$`) }).click({ timeout });
+    await page.getByRole("heading", { name: `${toolLabel}용 제작 패키지를 받습니다` }).waitFor({
+      state: "visible",
+      timeout,
+    });
+    await page.getByRole("button", { name: "시작 패키지 받기" }).waitFor({
+      state: "visible",
+      timeout,
+    });
+    await page.getByText(`${toolLabel}는 현재 시작 패키지와 완료 보고 반영으로 진행합니다.`, { exact: false }).waitFor({
+      state: "visible",
+      timeout,
+    });
+    await page.getByText("원격 자동 쓰기는 아직 제공하지 않습니다.", { exact: false }).waitFor({
+      state: "visible",
+      timeout,
+    });
+
+    const exposesCursorSetup = await page
+      .getByRole("button", { name: "Cursor 연결 파일 받기" })
+      .isVisible({ timeout: 1000 })
+      .catch(() => false);
+
+    if (exposesCursorSetup) {
+      fail(`${toolLabel} package-only handoff exposed the Cursor setup button.`);
+    }
+  }
+}
+
 async function resolveSupabasePublicConfigFromPage(page) {
   if (hasConfigValue(supabaseUrl) && hasConfigValue(supabaseAnonKey)) {
     return { url: supabaseUrl, anonKey: supabaseAnonKey };
@@ -422,6 +469,7 @@ async function main() {
       if (usedDisposableIdea && resolvedSupabaseConfig) {
         await createDisposableLaunchPackage(page, resolvedSupabaseConfig, ideaId);
         await verifyFinalExecutionCursorGuide(page, ideaId);
+        await verifyPackageOnlyExternalToolHandoffs(page, ideaId);
       }
 
       await verifyLearningTaskBoard(page, ideaId);
@@ -475,6 +523,11 @@ async function main() {
       usedDisposableIdea && resolvedSupabaseConfig
         ? "Final execution UI: Cursor CLI check visible in STEP 7"
         : "Final execution UI: skipped because disposable launch package was not available",
+    );
+    console.log(
+      usedDisposableIdea && resolvedSupabaseConfig
+        ? "Package-only handoff UI: non-Cursor tools stay on start-package guidance"
+        : "Package-only handoff UI: skipped because disposable launch package was not available",
     );
     console.log("Connection revoke: accepted");
     console.log("Revoked token write: rejected");

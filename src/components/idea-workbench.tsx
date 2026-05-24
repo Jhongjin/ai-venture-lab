@@ -15811,8 +15811,8 @@ export function IdeaWorkbench({
                   {!isCursorExternalDelivery ? (
                     <div className="mt-4 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-sm leading-6 text-blue-950">
-                        작업 상태까지 자동으로 Venture Lab에 반영하려면 위의 개발 도구에서 Cursor를 선택하세요. 선택 즉시 아래 버튼이
-                        <span className="font-semibold"> Cursor 연결 파일 받기</span>로 바뀝니다.
+                        {activeExternalBuildTool.label}는 현재 시작 패키지와 완료 보고 반영으로 진행합니다. 작업 상태까지 자동으로
+                        Venture Lab에 반영하려면 Cursor를 선택하세요.
                       </p>
                       <button
                         type="button"
@@ -16130,11 +16130,11 @@ export function IdeaWorkbench({
                     <div className="avl-kicker">task packet</div>
                     <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 목록</h3>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
-                      {isCursorExternalDelivery
+                      {buildDeliveryMode === "external_tool"
                         ? isCursorExternalDelivery
                           ? "Cursor 연결 파일에는 이 작업 목록이 포함됩니다. Cursor가 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다."
-                          : `${activeExternalBuildTool.label} 시작 패키지에 이 작업 목록이 포함됩니다. 완료 보고를 가져오면 Venture Lab 작업 상태를 맞출 수 있습니다.`
-                        : "외부 제작 도구가 이 작업 순서를 기준으로 진행할 수 있도록 함께 전달합니다."}
+                          : `${activeExternalBuildTool.label} 시작 패키지에 이 작업 목록이 포함됩니다. 작업이 끝나면 완료 보고를 반영해 Venture Lab 작업 상태를 맞춥니다.`
+                        : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다."}
                     </p>
                   </div>
                   <span className="avl-pill avl-pill-success">{finalExecutionVisibleTaskCount}개 표시</span>
@@ -16157,10 +16157,12 @@ export function IdeaWorkbench({
                   ) : finalExecutionFallbackTaskPreview.length > 0 ? (
                     finalExecutionFallbackTaskPreview.map((task, index) => (
                       <div key={`${task.title}-${index}`} className="border border-blue-200 bg-blue-50 p-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="text-sm font-semibold text-slate-950">{task.title}</div>
-                          <span className="avl-pill avl-pill-info">연결 파일에 포함</span>
-                        </div>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="text-sm font-semibold text-slate-950">{task.title}</div>
+                            <span className="avl-pill avl-pill-info">
+                              {isCursorExternalDelivery ? "연결 파일에 포함" : "패키지에 포함"}
+                            </span>
+                          </div>
                         <p className="mt-2 text-xs leading-5 text-slate-700">
                           {task.acceptance_criteria || "수용 기준은 제작 패키지의 작업 순서를 따릅니다."}
                         </p>
@@ -16177,14 +16179,14 @@ export function IdeaWorkbench({
                     <div className="mt-4 border border-emerald-200 bg-emerald-50 p-4">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
-                          <div className="avl-kicker">auto sync</div>
+                          <div className="avl-kicker">{isCursorExternalDelivery ? "auto sync" : "completion report"}</div>
                           <h4 className="mt-2 text-base font-semibold text-emerald-950">
-                            {isCursorExternalDelivery ? "Cursor 작업 상태를 자동으로 확인합니다" : "완료 보고를 작업표에 연결합니다"}
+                            {isCursorExternalDelivery ? "Cursor 작업 상태를 자동으로 확인합니다" : "완료 보고를 작업표에 반영합니다"}
                           </h4>
                           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700">
                             {isCursorExternalDelivery
                               ? "Cursor가 완료 보고를 남기면 이 화면이 주기적으로 서버 상태를 다시 읽어 작업 목록과 성과 확인 화면에 반영합니다."
-                              : `${activeExternalBuildTool.label}는 현재 시작 패키지와 완료 보고 반영으로 연결합니다. 작업이 끝나면 보고 내용을 아래 백업 영역에 넣어 상태를 맞춥니다.`}
+                              : `${activeExternalBuildTool.label}는 현재 시작 패키지와 완료 보고 반영으로 연결합니다. 작업이 끝나면 보고 내용을 아래 영역에 붙여 Venture Lab 작업표를 업데이트합니다. 원격 자동 쓰기는 아직 제공하지 않습니다.`}
                           </p>
                           <p className="mt-2 text-sm leading-6 text-emerald-950" role="status">
                             {isTaskSyncRefreshing
@@ -16222,7 +16224,9 @@ export function IdeaWorkbench({
                                 : "자동 쓰기 연결 전까지는 완료 보고를 붙여넣어 작업 상태를 갱신합니다."}
                             </p>
                           </div>
-                          <span className="avl-pill avl-pill-neutral">보조 경로</span>
+                          <span className="avl-pill avl-pill-neutral">
+                            {isCursorExternalDelivery ? "보조 경로" : "완료 보고"}
+                          </span>
                         </div>
                       </summary>
                       <div className="mt-4">

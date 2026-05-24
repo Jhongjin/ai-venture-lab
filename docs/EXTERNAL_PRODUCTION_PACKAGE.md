@@ -76,6 +76,8 @@ Codex, Claude Code, Google Antigravity, and generic MCP handoffs use tool-specif
 
 For non-Cursor tools, the user receives a single downloadable start package that includes the tool-specific first action, the package file list, the completion report format, and the full production package. Automatic Venture Lab status write-back is a Cursor-first capability.
 
+The production build-sync smoke verifies both sides of this boundary: Cursor final execution must expose the local CLI/MCP start check, while Codex, Claude Code, Google Antigravity, and generic MCP must stay on start-package guidance and must not show the Cursor setup button.
+
 ## Completion Report
 
 External tools should report:
