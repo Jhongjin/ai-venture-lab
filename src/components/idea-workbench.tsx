@@ -13670,6 +13670,9 @@ export function IdeaWorkbench({
 
   async function importCursorProgressResult() {
     const toolLabel = isLiveExternalDelivery ? activeExternalBuildTool.label : "외부 개발 도구";
+    const toolProgressPath = isLiveExternalDelivery
+      ? liveExternalToolProgressPath
+      : `${activeExternalBuildTool.label} 완료 보고`;
     setCursorProgressImportMessage(`${toolLabel} 진행 결과를 읽는 중입니다...`);
 
     if (!supabase || !selectedIdea) {
@@ -13686,7 +13689,7 @@ export function IdeaWorkbench({
 
     if (!cursorProgressImportText.trim()) {
       setCursorProgressImportMessage("붙여넣은 내용이 없습니다.");
-      setMessage("Cursor 완료 보고나 .cursor/venture-lab-progress.json 내용을 붙여넣으세요.");
+      setMessage(`${toolLabel} 완료 보고나 ${toolProgressPath} 내용을 붙여넣으세요.`);
       return;
     }
 
@@ -13709,11 +13712,11 @@ export function IdeaWorkbench({
         detail:
           summarizeCursorProgressEvidence(draft.evidence) ||
           (draft.status === "done"
-            ? "Cursor 완료 보고가 반영되었습니다."
+            ? `${toolLabel} 완료 보고가 반영되었습니다.`
             : draft.status === "doing"
-              ? "Cursor에서 진행 중인 작업으로 표시되었습니다."
+              ? `${toolLabel}에서 진행 중인 작업으로 표시되었습니다.`
               : draft.status === "blocked"
-                ? "Cursor 완료 보고에서 차단 상태로 표시되었습니다."
+                ? `${toolLabel} 완료 보고에서 차단 상태로 표시되었습니다.`
                 : "다음 미완료 작업으로 표시되었습니다."),
       }));
 
@@ -13861,6 +13864,7 @@ export function IdeaWorkbench({
         eventName: "cursor_progress_imported",
         eventCategory: "development",
         properties: {
+          external_tool: activeExternalBuildTool.key,
           inserted_task_count: insertedTasks.length,
           updated_task_count: updatedTasks.length,
           parsed_task_count: importPlan.parsedCount,
