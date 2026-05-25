@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-25 | Aligned the public guide page with STEP 6 before final execution | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; `/guide` now says the production package is saved first, STEP 6 confirms the generated work order, and STEP 7 installs the selected external tool connection file |
 | 2026-05-25 | Clarified STEP 6 work-order placement in the user test guide | `343c162` | Docs-only; pushed to `main` after verification | `pnpm release:check`; quick success path now says STEP 5 saves the production package, STEP 6 confirms the generated work order, and STEP 7 handles final external-tool connection files |
 | 2026-05-25 | Added expired build-sync token denial smoke | `99ca3b2` | Pushed to `main`; production smoke passed after deployment | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:build-sync`; build-sync smoke now verifies expired-token rejection in addition to allowed, cross-idea denied, revoked denied, and four named connector setup checks |
 | 2026-05-25 | Removed stale AdMate-as-canonical runtime wording | `8b79320` | Docs-only; pushed to `main` after verification | `pnpm release:check`; beta, CI, and RLS boundary docs now name `D:\Codex\venture-lab` as the canonical AI Venture Lab product source and keep AdMate paths read-only reference only |
