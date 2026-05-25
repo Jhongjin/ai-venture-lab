@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-25 | Aligned internal handoff docs with the four named external connectors | Current commit | Docs-only; pending production smoke | `pnpm release:check`; AI-first flow, user guide, and Cursor-specific guide now describe Cursor, Codex, Claude Code, and Google Antigravity as live named connector paths |
 | 2026-05-25 | Updated the public guide from Cursor-only wording to the four supported external tools | `1f840ba` | Pushed to `main`; production smoke passed | `node --check scripts/smoke_browser.mjs`, `pnpm lint`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`, local `pnpm smoke:browser`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`; guide now describes Cursor, Codex, Claude Code, and Google Antigravity as named connection choices |
 | 2026-05-25 | Updated the user test guide for current STEP 1 and list-management flows | `6c35d12` | Docs-only; pushed to `main`, production smoke passed | `pnpm release:check`, `pnpm smoke:prod`; guide now matches context-sensitive STEP 1 actions and checkbox bulk controls on active/deleted idea lists |
 | 2026-05-25 | Added bulk restore and permanent delete controls to the deleted ideas list | `1720d6c` | Pushed to `main`; production smoke passed | `pnpm lint`, `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`; deleted ideas now support checkbox selection, selected restore, and selected/all permanent delete with related records cleaned first |
@@ -231,7 +232,7 @@ Use `docs/PUBLIC_BETA_LAUNCH_GATE.md` before changing the controlled beta decisi
 
 Use `docs/PUBLIC_BETA_LAUNCH_EVIDENCE_PACKET.md` as the controlled beta decision packet. Current evidence-packet keywords: `public_beta_launch_evidence_packet`, `final_operator_decision_ship`, `last_known_good_deployment_recorded`.
 
-For Cursor handoff tests, use `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md`. The default path is: download the Cursor setup script in STEP 7, move it to the real Cursor project root, run the shown PowerShell command, reopen Cursor, paste `AI_VENTURE_CURSOR_START.md` into Composer, then let `venture_record_progress` update Venture Lab. Manual JSON paste is only the backup path.
+For named external handoff tests, use `docs/EXTERNAL_PRODUCTION_PACKAGE.md` for the common contract and `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md` for the Cursor-specific project-root install. The default path is: choose Cursor, Codex, Claude Code, or Google Antigravity in STEP 7, download that tool's setup or connection file, move it to the real external project root, run the generated command, open the selected tool, then start from the generated `AI_VENTURE_*_START.md` file. Manual JSON paste is only the backup path.
 
 ## Next Jobs
 

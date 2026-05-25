@@ -124,5 +124,5 @@ Before the user moves into actual build work, the platform should have one saved
 - first build scope and excluded scope
 - implementation prompt or handoff package
 
-External development tools should consume this same package instead of asking the user to reassemble documents. Cursor now receives the package through installable project files, a local MCP bridge, and scoped task progress write-back. Other external tools should follow the same package contract when their connectors are added.
+External development tools should consume this same package instead of asking the user to reassemble documents. Cursor, Codex, Claude Code, and Google Antigravity now receive the package through installable project files, local progress tooling, and scoped task progress write-back. Future connectors should follow the same package contract before becoming user-facing choices.
 The canonical external handoff and connector structure is defined in `docs/EXTERNAL_PRODUCTION_PACKAGE.md` and embedded in the STEP 5 package.

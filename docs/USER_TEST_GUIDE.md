@@ -329,6 +329,6 @@ pnpm smoke:browser:rls
 | 저장 전 다음 버튼 비활성 | 아직 현재 단계의 핵심 저장이 끝나지 않음 | 현재 단계의 저장 버튼 완료 상태 확인 |
 | 시장 점검 대기 | 검증 계획은 저장됐지만 시장·경쟁 점검이 아직 완료되지 않음 | 시장·경쟁 자동 점검 실행 또는 완료 상태 확인 |
 | 제작 패키지 미저장 | AI 요약은 만들었지만 패키지 저장이 끝나지 않음 | `제작 패키지 저장` 실행 |
-| Cursor/Codex 자동 반영 실패 | 외부 프로젝트 기록은 남았지만 서버 반영이 실패함 | `.cursor/venture-lab-progress.json` 또는 `.codex/venture-lab-progress.json`을 백업 가져오기에 붙여넣기 |
+| 외부 제작 도구 자동 반영 실패 | 외부 프로젝트 기록은 남았지만 서버 반영이 실패함 | `.cursor/venture-lab-progress.json`, `.codex/venture-lab-progress.json`, `.claude/venture-lab-progress.json`, `.antigravity/venture-lab-progress.json` 중 선택한 도구의 진행 파일을 백업 가져오기에 붙여넣기 |
 
 이 가이드는 기본 흐름을 짧게 유지하기 위한 문서입니다. 세부 운영 규칙은 `docs/PHASE_STATUS.md`, 외부 제작 패키지 계약은 `docs/EXTERNAL_PRODUCTION_PACKAGE.md`, 장기 제품 원칙은 `docs/PRODUCT_PRINCIPLES.md`를 기준으로 봅니다.
