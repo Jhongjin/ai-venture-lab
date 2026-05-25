@@ -1,4 +1,5 @@
 import { chromium } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 import { loadLocalEnvFiles } from "./load_local_env.mjs";
 
@@ -196,6 +197,82 @@ async function verifyFinalExecutionAntigravityGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+}
+
+async function verifyLiveConnectorDownload(page, ideaId, tool) {
+  const launchUrl = new URL("/workspace", baseUrl);
+  launchUrl.searchParams.set("task", "launch");
+  launchUrl.searchParams.set("idea", ideaId);
+
+  await page.goto(launchUrl.toString(), { waitUntil: "networkidle", timeout });
+  await page.getByRole("heading", { name: "최종 실행" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+
+  if (tool.buttonLabel !== "Cursor") {
+    await page.getByRole("button", { name: new RegExp(`^${tool.buttonLabel}$`) }).click({ timeout });
+  }
+
+  await page.getByRole("heading", { name: `${tool.buttonLabel} 프로젝트에 연결 파일을 설치합니다` }).waitFor({
+    state: "visible",
+    timeout,
+  });
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download", { timeout }),
+    page.getByRole("button", { name: `${tool.buttonLabel} 연결 파일 받기` }).click({ timeout }),
+  ]);
+
+  const suggestedFilename = download.suggestedFilename();
+  if (!suggestedFilename.endsWith(".ps1") || !suggestedFilename.includes(tool.filenamePart)) {
+    fail(`${tool.buttonLabel} setup download used unexpected filename: ${suggestedFilename}`);
+  }
+
+  const downloadPath = await download.path();
+  if (!downloadPath) {
+    fail(`${tool.buttonLabel} setup download did not produce a readable file path.`);
+  }
+
+  const scriptBody = await readFile(downloadPath, "utf8");
+  for (const expectedPath of tool.expectedPaths) {
+    if (!scriptBody.includes(expectedPath)) {
+      fail(`${tool.buttonLabel} setup download is missing ${expectedPath}.`);
+    }
+  }
+}
+
+async function verifyLiveConnectorDownloads(page, ideaId) {
+  const tools = [
+    {
+      buttonLabel: "Cursor",
+      filenamePart: "cursor-setup",
+      expectedPaths: [".cursor/venture-lab-cli.mjs", ".cursor/mcp.json", "AI_VENTURE_CURSOR_START.md"],
+    },
+    {
+      buttonLabel: "Codex",
+      filenamePart: "codex-setup",
+      expectedPaths: [".codex/venture-lab-cli.mjs", ".codex/venture-lab-sync.json", "AI_VENTURE_CODEX_START.md"],
+    },
+    {
+      buttonLabel: "Claude Code",
+      filenamePart: "claude-code-setup",
+      expectedPaths: [".claude/venture-lab-cli.mjs", ".mcp.json", "AI_VENTURE_CLAUDE_START.md"],
+    },
+    {
+      buttonLabel: "Google Antigravity",
+      filenamePart: "antigravity-setup",
+      expectedPaths: [
+        ".antigravity/venture-lab-cli.mjs",
+        ".antigravity/mcp_config.json",
+        "AI_VENTURE_ANTIGRAVITY_START.md",
+      ],
+    },
+  ];
+
+  for (const tool of tools) {
+    await verifyLiveConnectorDownload(page, ideaId, tool);
+  }
 }
 
 async function verifyNoDeferredGenericMcpTool(page, ideaId) {
@@ -443,6 +520,7 @@ async function main() {
 
   const browser = await chromium.launch({ headless });
   const context = await browser.newContext({
+    acceptDownloads: true,
     viewport: { width: 1440, height: 1000 },
   });
   const page = await context.newPage();
@@ -533,6 +611,7 @@ async function main() {
         await verifyFinalExecutionCodexGuide(page, ideaId);
         await verifyFinalExecutionClaudeGuide(page, ideaId);
         await verifyFinalExecutionAntigravityGuide(page, ideaId);
+        await verifyLiveConnectorDownloads(page, ideaId);
         await verifyNoDeferredGenericMcpTool(page, ideaId);
       }
 
@@ -861,6 +940,11 @@ async function main() {
       usedDisposableIdea && resolvedSupabaseConfig
         ? "Final execution UI: four named live connector checks visible in STEP 7"
         : "Final execution UI: skipped because disposable launch package was not available",
+    );
+    console.log(
+      usedDisposableIdea && resolvedSupabaseConfig
+        ? "Connector downloads: setup files verified for Cursor, Codex, Claude Code, and Google Antigravity"
+        : "Connector downloads: skipped because disposable launch package was not available",
     );
     console.log(
       usedDisposableIdea && resolvedSupabaseConfig
