@@ -17136,7 +17136,7 @@ export function IdeaWorkbench({
                     <div className="mt-4 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-sm leading-6 text-blue-950">
                         {activeExternalBuildTool.label}는 현재 시작 패키지와 완료 보고 반영으로 진행합니다. 작업 상태까지 자동으로
-                        Venture Lab에 반영하려면 Cursor를 선택하세요.
+                        Venture Lab에 반영하려면 위의 지원 도구 중 하나를 선택하세요.
                       </p>
                       <button
                         type="button"

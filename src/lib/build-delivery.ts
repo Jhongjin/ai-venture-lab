@@ -54,7 +54,7 @@ export const externalBuildToolProfiles: Record<ExternalBuildToolKey, ExternalBui
       "AI_VENTURE_CURSOR_START.md를 Composer에 붙여 넣고 첫 작업을 시작합니다.",
       "작업 완료 후 venture_record_progress로 완료 보고를 남기면 Venture Lab 상태가 갱신됩니다.",
     ],
-    handoffNote: "현재 실제 작업 상태 자동 반영은 Cursor 연결 파일에서 먼저 지원합니다.",
+    handoffNote: "Cursor는 프로젝트 규칙, MCP 설정, 로컬 진행 기록을 함께 설치해 작업 상태를 Venture Lab에 자동 반영합니다.",
   },
   codex: {
     key: "codex",
