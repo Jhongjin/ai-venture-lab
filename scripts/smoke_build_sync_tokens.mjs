@@ -71,6 +71,14 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.getByText("여기서는 리포트를 먼저 읽지 않습니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("지금 할 일", { exact: true }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
     state: "visible",
     timeout,
@@ -78,11 +86,19 @@ async function verifyLearningTaskBoard(page, ideaId) {
   const taskBoard = page.locator("section", {
     has: page.getByRole("heading", { name: "제작 작업 진행표" }),
   });
+  await taskBoard.getByText("목록을 읽고 다음 행동만 판단하면 됩니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await taskBoard.locator("span", { hasText: "build sync smoke registry verification" }).first().waitFor({
     state: "visible",
     timeout,
   });
   await taskBoard.locator("span.avl-pill-success:visible", { hasText: "완료" }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("필요할 때만 여는 운영자용 리포트", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
