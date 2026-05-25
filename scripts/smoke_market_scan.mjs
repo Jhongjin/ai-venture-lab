@@ -61,13 +61,19 @@ try {
     fail("response is not JSON object");
   }
 
-  if (requireWeb && payload.mode !== "openai_web") {
-    fail(`expected openai_web mode, got ${payload.mode || "unknown"}. Set MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1 to accept fallback estimates.`);
-  }
-
   const scan = payload.scan;
   if (!scan || typeof scan !== "object") {
     fail("missing scan");
+  }
+
+  if (requireWeb && payload.mode !== "openai_web") {
+    const fallbackReason =
+      typeof scan?.sources?.[0]?.reason === "string" && scan.sources[0].reason.trim()
+        ? ` Reason: ${scan.sources[0].reason.trim().slice(0, 240)}`
+        : "";
+    fail(
+      `expected openai_web mode, got ${payload.mode || "unknown"}.${fallbackReason} Set MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1 to accept fallback estimates.`,
+    );
   }
 
   assertText(scan.summary, "summary");

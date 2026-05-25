@@ -10725,6 +10725,7 @@ export function IdeaWorkbench({
       : null;
   const visibleMarketScanDraft =
     marketScanContextKey && marketScanDraftKey === marketScanContextKey ? marketScanDraft : null;
+  const isVisibleMarketScanEstimate = marketScanMode === "local_estimate" && Boolean(visibleMarketScanDraft);
   const marketScanStatus = isMarketScanLoading
     ? {
         label: "정리 중",
@@ -10738,11 +10739,17 @@ export function IdeaWorkbench({
           detail: "리서치 노트로 저장되어 다음 단계 판단과 제작 자료에 함께 반영됩니다.",
         }
       : visibleMarketScanDraft
-        ? {
-            label: "초안 준비",
-            tone: "avl-pill avl-pill-warning",
-            detail: "자동 점검 초안이 준비됐습니다. 필요한 부분만 보완하면 됩니다.",
-          }
+        ? isVisibleMarketScanEstimate
+          ? {
+              label: "추정 초안",
+              tone: "avl-pill avl-pill-warning",
+              detail: "웹 출처를 붙이지 못해 사용자 입력 기반 추정으로 준비됐습니다.",
+            }
+          : {
+              label: "웹 조사 준비",
+              tone: "avl-pill avl-pill-success",
+              detail: "출처가 포함된 자동 점검 초안이 준비됐습니다. 필요한 부분만 보완하면 됩니다.",
+            }
         : hasOutdatedMarketScanArtifact
           ? {
               label: "다시 정리 필요",
@@ -10759,8 +10766,10 @@ export function IdeaWorkbench({
     : hasOutdatedMarketScanArtifact
       ? "현재 제작 형태로 다시 정리"
       : hasMarketScanArtifact || visibleMarketScanDraft
-      ? "다시 정리"
-      : "자동 점검 다시 실행";
+      ? isVisibleMarketScanEstimate
+        ? "웹 조사 다시 시도"
+        : "다시 정리"
+      : "AI 자동 점검 실행";
   const hasResearchBriefArtifact = selectedArtifactRecords.some(
     (artifact) =>
       artifact.artifact_type === "research_note" &&
@@ -18709,9 +18718,16 @@ export function IdeaWorkbench({
 
             {visibleMarketScanDraft ? (
               <div className="mt-4 grid gap-4">
-                <div className="border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-slate-700">
-                  이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고,
-                  제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.
+                <div
+                  className={`border px-4 py-3 text-sm leading-6 ${
+                    isVisibleMarketScanEstimate
+                      ? "border-amber-200 bg-amber-50 text-amber-950"
+                      : "border-blue-100 bg-blue-50 text-slate-700"
+                  }`}
+                >
+                  {isVisibleMarketScanEstimate
+                    ? "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요."
+                    : "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다."}
                 </div>
                 {visibleMarketScanDraft.market_signals.length > 0 ? (
                   <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">

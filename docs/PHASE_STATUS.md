@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-25 | Clarified market-scan estimate fallback and quota diagnostics | Current commit | User-facing STEP 2 copy and smoke diagnostics; production deploy required after commit | `node --check scripts/smoke_market_scan.mjs`, `pnpm lint`, `pnpm typecheck`, `pnpm release:check`, `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1; pnpm smoke:market`, `pnpm quality:full`; strict `pnpm smoke:market` is blocked by OpenAI quota/billing until the production API project has quota again |
 | 2026-05-25 | Simplified STEP 8 and aligned first-use step labels | `1c89769` | Pushed to `main`; production smoke passed | `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-25 | Promoted Claude Code and Google Antigravity to named live connector paths | `bd1c429` | Pushed to `main`; production smoke passed after SQL `20260525020000_allow_named_build_sync_tools.sql` | `pnpm quality:full`, `pnpm smoke:build-sync`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-25 | Promoted Codex from package-only handoff to live external connector path | `a527c63` | Pushed to `main`; production smoke passed after SQL `20260525010000_allow_codex_build_sync_tokens.sql` | `pnpm quality:full`, `pnpm smoke:build-sync`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
@@ -197,6 +198,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 | Generic MCP user-facing selector | Deferred | The operator chose named tool integrations first; generic MCP is too vague for the current product promise and could imply unsupported automation | Keep legacy compatibility only; revisit after named connectors and a concrete resource contract exist |
 | Cursor token rotation and revocation controls | Completed | Production SQL was applied and `pnpm smoke:build-sync` verified registry ready, connection revoke, and revoked-token rejection | Keep `pnpm smoke:build-sync` as the regression check before changing token issuance, revoke, or progress sync |
 | Native internal builder | Deferred | Final execution can choose an internal build destination, but the actual native builder is not implemented yet | Keep the handoff boundary explicit until a first internal build runtime is scoped |
+| Strict web-sourced market scan smoke | Blocked external service | Production market scan currently returns `local_estimate` because the OpenAI API project used by Vercel reports quota/billing exhaustion; fallback estimate smoke still passes and the UI now labels it clearly | Restore quota or replace the Vercel Production `OPENAI_API_KEY` with a key that has available quota, redeploy, then rerun `pnpm smoke:market` without `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1` |
 
 ## Next User Actions
 
@@ -211,6 +213,8 @@ Authenticated visibility and explicit write smoke have passed against `https://a
 Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_REVIEW.md`, `docs/RLS_DISPOSABLE_FIXTURE_HANDOFF.md`, and `pnpm smoke:browser:rls:preflight` before rerunning any cross-workspace, second-account, or denied-case smoke. Current RLS allowed/denied evidence has passed with disposable account/workspace fixtures and summary-only evidence.
 
 Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Production to enable server-side AI extraction. Without it, the app automatically falls back to the local rules engine.
+
+Market/competition auto-research is configured, but strict web-sourced market smoke is currently blocked by OpenAI quota/billing exhaustion in the production API project. The fallback estimate path is working and labeled as `추정 초안`; to restore source-backed web research, fix quota/billing or rotate the Vercel Production `OPENAI_API_KEY`, redeploy, then rerun `pnpm smoke:market` without `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`.
 
 Learning telemetry writes passed again on 2026-05-22 after local telemetry secret alignment, using a disposable idea id and summary-only evidence. Reconfirm `telemetry_events` table posture and RLS policies only when telemetry migrations, endpoint behavior, or production environment settings change.
 
