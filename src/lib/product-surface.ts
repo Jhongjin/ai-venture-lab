@@ -267,6 +267,6 @@ export function productSurfaceMarkdown(profile: ProductSurfaceProfile) {
 - 첫 제작 형태: ${profile.firstBuild}
 - 기술 스택 기준: ${profile.stackHint}
 - 제작 기준: ${profile.harnessFocus}
-- 제작 도구 전달 기준: ${profile.promptFocus}
+- 제작 지시 기준: ${profile.promptFocus}
 - 전달 패키지 기준: ${profile.handoffHint}`;
 }

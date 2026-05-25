@@ -88,7 +88,7 @@ Use this loop for every implementation or harness phase:
 The app now supports the first live operating loop:
 
 1. Discover idea candidates from pasted conversations or notes.
-2. Classify the intended product surface before validation: web app, mobile app, web site, automation workflow, operator console, or MCP/IDE handoff.
+2. Classify the intended product surface before validation: web app, mobile app, web site, automation workflow, or operator console. Keep build delivery separate: Venture Lab internal build or a named external tool changes setup, sync, and completion instructions, not the PRD/IA/design baseline.
 3. Save a strong candidate as a validation package with an idea record, product surface, initial risk, planned 7-day experiment, idea brief, research brief, and validation sprint artifacts. AI creates the first draft; the user only confirms or corrects.
 4. Check similar existing ideas before saving a candidate so duplicate records do not fragment the evidence trail.
 5. Check validation-package readiness and source excerpts on extracted candidates so problem signal, user/buyer separation, measurable metric, risk, first MVP scope, duplicate risk, sensitive-source risk, origin text, and product surface are visible before saving. Saved source excerpts are automatically redacted for obvious contact and identifier patterns.

@@ -40,11 +40,12 @@ Every saved idea needs a visible result type before downstream artifacts are gen
 - website
 - automation workflow
 - operator console
-- development-tool handoff
+
+Development-tool delivery is a separate choice layered on top of the result type. Cursor, Codex, Claude Code, Google Antigravity, or a future MCP connector describe where the build package goes, not what is being built.
 
 The result type shapes the product requirements, design direction, stack choice, first build scope, and final production package. AI should classify it during idea discovery, then expose one correction point during business evaluation.
 
-Changing the result type should update all downstream drafts. For example, a mobile app should produce different design states, stack assumptions, launch risks, and handoff instructions than a web service, automation workflow, or development-tool handoff.
+Changing the result type should update all downstream drafts. For example, a mobile app should produce different design states, stack assumptions, launch risks, and handoff instructions than a web service, automation workflow, website, or operator console. Changing the development tool should only change setup files, start prompts, sync instructions, and completion-report format.
 
 ## Korean Operating Principle
 
@@ -53,7 +54,8 @@ Changing the result type should update all downstream drafts. For example, a mob
 사용자는 기본적으로 다음 세 가지 판단만 하면 된다.
 
 - AI가 고른 아이디어가 맞는지 확인한다.
-- 결과물 형태가 맞는지 확인한다. 예: 웹 서비스, 모바일 앱, 랜딩/웹사이트, 업무 자동화, 운영 콘솔, 개발 도구 연동.
+- 결과물 형태가 맞는지 확인한다. 예: 웹 서비스, 모바일 앱, 랜딩/웹사이트, 업무 자동화, 운영 콘솔.
+- 외부 제작 도구로 개발할지, Venture Lab 안에서 계속 진행할지는 제작 패키지 단계에서 따로 확인한다.
 - 최종 제작 패키지를 저장하거나 중단한다.
 
 수동 입력, 복사, 세부 문서 편집, 증거 직접 기록은 보조 경로다. 처음 쓰는 사용자가 이 보조 경로를 필수 절차로 오해하면 안 된다.
@@ -64,7 +66,7 @@ Changing the result type should update all downstream drafts. For example, a mob
 - STEP 2: 사업성 평가와 결과물 형태를 한 번 더 확인한다. 이 값은 이후 기획서, 디자인 기준, 기술 스택, 제작 패키지의 기준이 된다.
 - STEP 3: AI가 7일 검증 계획과 시장·경쟁 점검을 먼저 저장한다. 사용자는 필요한 부분만 고치고, 실제 확인 결과가 있을 때만 선택 기록을 남긴다.
 - STEP 4: 검증 자료와 실행 문서를 저장한다. 저장 상태가 맞아야 다음 단계가 열린다.
-- STEP 5: AI가 디자인 기준, 제작 실행 계획, 개발 도구 전달 자료를 순서대로 묶어 최종 제작 패키지를 만든다. 사용자는 자동으로 정리된 결과를 확인하고, 필요하면 보완한 뒤 최종 저장만 한다.
+- STEP 5: AI가 디자인 기준, 제작 실행 계획, 선택한 제작 방식에 맞는 전달 자료를 순서대로 묶어 최종 제작 패키지를 만든다. 사용자는 자동으로 정리된 결과를 확인하고, 필요하면 보완한 뒤 최종 저장만 한다.
 
 Any new UI should make this flow feel like "AI prepares, user confirms" rather than "user fills every form."
 
@@ -90,7 +92,8 @@ Use user-facing language in primary UI:
 - Use `실행 문서`, not approval-library language.
 - Use `결과물 형태`, not implementation surface.
 - Use `AI가 먼저 정리`, then `필요할 때만 수정`.
-- Use `웹 서비스`, `모바일 앱`, `웹사이트`, `업무 자동화`, `운영 콘솔`, and `개발 도구 연동` when classifying result type.
+- Use `웹 서비스`, `모바일 앱`, `웹사이트`, `업무 자동화`, and `운영 콘솔` when classifying result type.
+- Use `제작 방식` or `외부 제작 도구` for Cursor, Codex, Claude Code, Google Antigravity, and future MCP connectors.
 
 Technical terms can remain inside generated artifacts when they are useful for developers, but the main operating console should not make the user decode them.
 
@@ -110,6 +113,7 @@ Avoid these patterns unless the user explicitly opens an advanced mode:
 Before the user moves into actual build work, the platform should have one saved production package containing:
 
 - the selected idea and result type
+- the selected build delivery mode and external tool, when applicable
 - business evaluation and decision
 - market and competition scan
 - core risks and mitigation notes
