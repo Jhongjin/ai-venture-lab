@@ -21,6 +21,19 @@ function parseBuildSyncTool(value: unknown): BuildSyncTool | null {
   return value === "cursor" || value === "codex" || value === "claude_code" || value === "antigravity" ? value : null;
 }
 
+function parseRequestedTtlMs(value: unknown): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return Number.NaN;
+  }
+
+  const maxTtlSeconds = 60 * 60 * 24 * 30;
+  return Math.min(Math.floor(value), maxTtlSeconds) * 1000;
+}
+
 function getBuildSyncToolLabel(tool: BuildSyncTool) {
   if (tool === "codex") {
     return "Codex";
@@ -71,6 +84,12 @@ export async function POST(request: Request) {
     return jsonError("Only Cursor, Codex, Claude Code, and Google Antigravity build sync are supported right now.", 400);
   }
 
+  const ttlMs = parseRequestedTtlMs(body.expiresInSeconds);
+
+  if (Number.isNaN(ttlMs)) {
+    return jsonError("expiresInSeconds must be a non-negative number.", 400);
+  }
+
   const access = await getBuildSyncIdeaAccess(supabase, body.ideaId, user.id);
 
   if (!access.ok) {
@@ -88,6 +107,7 @@ export async function POST(request: Request) {
       organizationId: idea.organization_id,
       actorId: user.id,
       tool,
+      ttlMs,
     });
     const admin = getSupabaseAdminClient();
     let registryStatus: BuildSyncRegistryStatus = "unavailable";

@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-25 | Added expired build-sync token denial smoke | Current commit | API/script/docs change; push to `main`, then production smoke after deployment | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm typecheck`; pre-deploy `pnpm smoke:build-sync` hit the old production token API and is expected to pass only after this commit deploys |
 | 2026-05-25 | Removed stale AdMate-as-canonical runtime wording | Current commit | Docs-only; pushed to `main` after verification | `pnpm release:check`; beta, CI, and RLS boundary docs now name `D:\Codex\venture-lab` as the canonical AI Venture Lab product source and keep AdMate paths read-only reference only |
 | 2026-05-25 | Aligned Supabase setup guide with build-sync denied-case smoke | Current commit | Docs-only; pushed to `main` after verification | `pnpm release:check`; Supabase setup now mentions the tampered cross-idea token rejection covered by `pnpm smoke:build-sync` |
 | 2026-05-25 | Simplified STEP 6 guidance around generated work order review | `6c2d86a` | Pushed to `main`; production smoke passed | `pnpm lint`, `pnpm typecheck`, `pnpm release:check`, `pnpm smoke:browser`, `pnpm smoke:prod`, `pnpm smoke:routes`; STEP 6 side guidance now tells users to review the generated order and continue, with status changes framed as optional tracking only |

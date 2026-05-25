@@ -660,6 +660,63 @@ async function main() {
         fail(`tampered cross-idea token was not rejected. Expected HTTP 401, received ${wrongIdeaProgressResult.status}`);
       }
 
+      const expiredTokenResult = await callAppApi(page, "/api/build-sync/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ideaId, tool: "cursor", expiresInSeconds: 0 }),
+      });
+
+      if (!expiredTokenResult.ok) {
+        fail(`expired token issue returned HTTP ${expiredTokenResult.status}: ${expiredTokenResult.body.error ?? "unknown error"}`);
+      }
+
+      if (expiredTokenResult.body.registryStatus !== "ready") {
+        fail(
+          `expected expired token registryStatus=ready after SQL migration, received ${
+            expiredTokenResult.body.registryStatus ?? "missing"
+          }`,
+        );
+      }
+
+      if (!expiredTokenResult.body.token || !expiredTokenResult.body.connection?.id) {
+        fail("expired token issue response did not include a bearer token and connection id.");
+      }
+
+      const expiredProgressResult = await callAppApi(page, "/api/build-sync/progress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${expiredTokenResult.body.token}`,
+        },
+        body: JSON.stringify({
+          records: [
+            {
+              task: "T-998 expired token should fail",
+              status: "done",
+              summary: "This write must be rejected because the build sync token expired immediately.",
+              verification: "Expected HTTP 401.",
+              recordedAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      });
+
+      if (expiredProgressResult.status !== 401) {
+        fail(`expired token was not rejected. Expected HTTP 401, received ${expiredProgressResult.status}`);
+      }
+
+      const expiredRevokeResult = await callAppApi(
+        page,
+        `/api/build-sync/tokens/${encodeURIComponent(expiredTokenResult.body.connection.id)}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!expiredRevokeResult.ok || expiredRevokeResult.body.connection?.status !== "revoked") {
+        fail(`expired connection cleanup revoke failed: HTTP ${expiredRevokeResult.status}`);
+      }
+
       if (usedDisposableIdea && resolvedSupabaseConfig) {
         await createDisposableLaunchPackage(page, resolvedSupabaseConfig, ideaId);
         await verifyFinalExecutionCursorGuide(page, ideaId);
@@ -1008,6 +1065,7 @@ async function main() {
     );
     console.log("Connection revoke: accepted");
     console.log("Tampered cross-idea token write: rejected");
+    console.log("Expired token write: rejected");
     console.log("Revoked token write: rejected");
     console.log("Codex connection revoke: accepted");
     console.log("Codex revoked token write: rejected");
