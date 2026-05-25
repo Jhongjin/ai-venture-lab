@@ -580,6 +580,16 @@ async function main() {
       fail(`invalid token TTL was not rejected. Expected HTTP 400, received ${invalidTtlResult.status}`);
     }
 
+    const unsupportedToolResult = await callAppApi(page, "/api/build-sync/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ideaId, tool: "generic_mcp" }),
+    });
+
+    if (unsupportedToolResult.status !== 400) {
+      fail(`unsupported build sync tool was not rejected. Expected HTTP 400, received ${unsupportedToolResult.status}`);
+    }
+
     const tokenResult = await callAppApi(page, "/api/build-sync/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1075,6 +1085,7 @@ async function main() {
     );
     console.log("Connection revoke: accepted");
     console.log("Invalid token TTL request: rejected");
+    console.log("Unsupported build sync tool request: rejected");
     console.log("Tampered cross-idea token write: rejected");
     console.log("Expired token write: rejected");
     console.log("Revoked token write: rejected");
