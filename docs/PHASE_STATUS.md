@@ -45,7 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-25 | Limited first supported external build choices to Cursor, Codex, Claude Code, and Google Antigravity | Current commit | User-facing final execution selector and docs; production deploy required after commit | `pnpm quality:full`; production smoke pending after deploy |
+| 2026-05-25 | Limited first supported external build choices to Cursor, Codex, Claude Code, and Google Antigravity | `b6b939b` | Pushed to `main`; production alias updated | `pnpm quality:full`, `pnpm release:check`, `pnpm smoke:prod`, `pnpm smoke:routes`, `node .\scripts\smoke_browser.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Refreshed the user test guide for current STEP 1 and Cursor sync wording | Current commit | Docs-only; guide now matches current first-run buttons and final execution connector checks | `pnpm release:check` |
 | 2026-05-24 | Updated public guide for Cursor automatic progress sync | Current commit | User-facing guide copy; production browser smoke now checks Cursor CLI and backup wording | `node --check scripts/smoke_browser.mjs`, `pnpm quality:full`, `pnpm smoke:browser` |
 | 2026-05-24 | Documented the safe write-back boundary for non-Cursor connectors | Current commit | Docs-only connector governance; no runtime deploy required | `pnpm release:check` |
