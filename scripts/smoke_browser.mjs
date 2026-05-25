@@ -105,10 +105,17 @@ async function main() {
     await page.goto(`${baseUrl}/guide`, { waitUntil: "networkidle", timeout });
     await waitForVisible(page.getByRole("heading", { name: /AI Venture Lab 이용 가이드/ }), "guide heading");
     await waitForVisible(
-      page.getByText("node .cursor/venture-lab-cli.mjs next-task", { exact: false }),
-      "guide Cursor CLI check",
+      page.getByRole("heading", { name: /외부 제작 도구로 제작을 시작하는 법/ }),
+      "guide external tool heading",
     );
-    await waitForVisible(page.getByText("붙여넣기는 실패 시 백업", { exact: false }), "guide Cursor backup wording");
+    for (const toolName of ["Cursor", "Codex", "Claude Code", "Google Antigravity"]) {
+      await waitForVisible(page.getByText(toolName, { exact: true }).first(), `guide named tool ${toolName}`);
+    }
+    await waitForVisible(
+      page.getByText("node .*/venture-lab-cli.mjs next-task", { exact: false }),
+      "guide named tool CLI check",
+    );
+    await waitForVisible(page.getByText("붙여넣기는 실패 시 백업", { exact: false }), "guide backup wording");
 
     if (resolvedScreenshotPath) {
       await page.screenshot({ path: resolvedScreenshotPath, fullPage: true });
