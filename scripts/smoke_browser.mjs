@@ -98,6 +98,11 @@ async function main() {
       await waitForVisible(loginButton, "password sign-in button");
     } else if (stageVisible === "extract") {
       await waitForVisible(extractButton, "ai extraction button");
+      await waitForVisible(page.getByText("완료 0/8", { exact: true }), "first step zero-complete progress");
+      const staleInProgressCounter = await page.getByText("진행 1/8", { exact: true }).count();
+      if (staleInProgressCounter > 0) {
+        fail("first step progress still uses in-progress 1/8 instead of completed 0/8");
+      }
     } else {
       fail("unable to detect either login or extract stage");
     }
