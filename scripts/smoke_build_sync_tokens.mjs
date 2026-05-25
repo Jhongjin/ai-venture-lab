@@ -34,6 +34,19 @@ function hasConfigValue(value) {
   return Boolean(value && value.trim());
 }
 
+function tamperBuildSyncTokenPayload(token, overrides) {
+  const [encodedPayload, signature] = token.split(".");
+
+  if (!encodedPayload || !signature) {
+    fail("could not tamper malformed build sync token for denied-case smoke.");
+  }
+
+  const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8"));
+  const tamperedPayload = Buffer.from(JSON.stringify({ ...payload, ...overrides })).toString("base64url");
+
+  return `${tamperedPayload}.${signature}`;
+}
+
 async function loginInBrowser(page) {
   await page.goto(new URL("/login", baseUrl).toString(), { waitUntil: "networkidle", timeout });
   await page.getByLabel(/이메일/).fill(email, { timeout });
@@ -621,6 +634,32 @@ async function main() {
         fail("active token progress write did not update lastUsedAt.");
       }
 
+      const wrongIdeaToken = tamperBuildSyncTokenPayload(token, {
+        ideaId: "00000000-0000-4000-8000-000000000000",
+      });
+      const wrongIdeaProgressResult = await callAppApi(page, "/api/build-sync/progress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${wrongIdeaToken}`,
+        },
+        body: JSON.stringify({
+          records: [
+            {
+              task: "T-999 wrong idea token should fail",
+              status: "done",
+              summary: "This write must be rejected because the token payload was altered to another idea.",
+              verification: "Expected HTTP 401.",
+              recordedAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      });
+
+      if (wrongIdeaProgressResult.status !== 401) {
+        fail(`tampered cross-idea token was not rejected. Expected HTTP 401, received ${wrongIdeaProgressResult.status}`);
+      }
+
       if (usedDisposableIdea && resolvedSupabaseConfig) {
         await createDisposableLaunchPackage(page, resolvedSupabaseConfig, ideaId);
         await verifyFinalExecutionCursorGuide(page, ideaId);
@@ -968,6 +1007,7 @@ async function main() {
         : "Package-only handoff UI: skipped because disposable launch package was not available",
     );
     console.log("Connection revoke: accepted");
+    console.log("Tampered cross-idea token write: rejected");
     console.log("Revoked token write: rejected");
     console.log("Codex connection revoke: accepted");
     console.log("Codex revoked token write: rejected");
