@@ -13,12 +13,14 @@ Cursor is the only live write-back connector.
 - Operators can revoke individual Cursor connections.
 - `pnpm smoke:build-sync` verifies token issuance, allowed progress write, STEP 7 Cursor guidance, STEP 8 task rendering, token revoke, and revoked-token rejection.
 
-Codex, Claude Code, Google Antigravity, and generic MCP are package-only handoffs.
+Codex, Claude Code, and Google Antigravity are package-only handoffs.
 
 - They receive tool-specific start packages.
 - They do not receive a live sync token.
 - They update Venture Lab only through the completion-report import UI.
 - The final execution screen must not show Cursor setup controls for these tools.
+
+Generic MCP is deferred. It remains a compatibility profile for older artifacts and internal contract design, but it is not part of the supported final execution selector until a concrete tool, permission model, and smoke matrix are defined.
 
 ## Non-Negotiable Rules
 

@@ -3563,7 +3563,6 @@ ${isExternalDelivery ? `> ${selectedTool.handoffNote}` : "> 내부 개발 자동
 - Cursor: ${externalBuildToolProfiles.cursor.startMethod}
 - Claude Code: ${externalBuildToolProfiles.claude_code.startMethod}
 - Google Antigravity: ${externalBuildToolProfiles.antigravity.startMethod}
-- 범용 MCP 전달: ${externalBuildToolProfiles.generic_mcp.startMethod}
 
 ## 전달 전 확인
 

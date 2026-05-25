@@ -143,7 +143,6 @@ export const externalBuildToolOrder: ExternalBuildToolKey[] = [
   "antigravity",
   "claude_code",
   "codex",
-  "generic_mcp",
 ];
 
 export const defaultBuildDeliveryPreference: BuildDeliveryPreference = {

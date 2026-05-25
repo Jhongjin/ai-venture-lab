@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-25 | Limited first supported external build choices to Cursor, Codex, Claude Code, and Google Antigravity | Current commit | User-facing final execution selector and docs; production deploy required after commit | `pnpm quality:full`; production smoke pending after deploy |
 | 2026-05-24 | Refreshed the user test guide for current STEP 1 and Cursor sync wording | Current commit | Docs-only; guide now matches current first-run buttons and final execution connector checks | `pnpm release:check` |
 | 2026-05-24 | Updated public guide for Cursor automatic progress sync | Current commit | User-facing guide copy; production browser smoke now checks Cursor CLI and backup wording | `node --check scripts/smoke_browser.mjs`, `pnpm quality:full`, `pnpm smoke:browser` |
 | 2026-05-24 | Documented the safe write-back boundary for non-Cursor connectors | Current commit | Docs-only connector governance; no runtime deploy required | `pnpm release:check` |
@@ -189,7 +190,8 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 | Production RLS migration confirmation | Completed | Production posture was checked before denied smoke: required private-read migrations were present, old public-read policies were absent, and RLS was enabled on core tables | Rerun posture checks when migrations or policies change |
 | Telemetry production smoke execution | Completed | Post-rotation telemetry ingest and funnel smoke passed with a disposable idea id | Rerun when telemetry env, endpoint behavior, or telemetry RLS policies change |
 | Authenticated telemetry smoke execution | Completed | 2026-05-22 approved rerun passed after local telemetry secret alignment, using disposable idea data and summary-only evidence | Rerun only when telemetry env, endpoint behavior, or telemetry RLS policies change |
-| Codex, Claude Code, Antigravity live write-back | Deferred | Cursor is the first live connector with scoped token write-back; other tools receive start packages and completion-report import only so the UI does not imply unsupported automation | Add tool-specific connectors only after authentication, permission, token rotation, and rollback behavior are designed |
+| Codex, Claude Code, Antigravity live write-back | Deferred | Cursor is the first live connector with scoped token write-back; the other named tools receive start packages and completion-report import only so the UI does not imply unsupported automation | Add tool-specific connectors only after authentication, permission, token rotation, and rollback behavior are designed |
+| Generic MCP user-facing selector | Deferred | The operator chose named tool integrations first; generic MCP is too vague for the current product promise and could imply unsupported automation | Keep legacy compatibility only; revisit after named connectors and a concrete resource contract exist |
 | Cursor token rotation and revocation controls | Completed | Production SQL was applied and `pnpm smoke:build-sync` verified registry ready, connection revoke, and revoked-token rejection | Keep `pnpm smoke:build-sync` as the regression check before changing token issuance, revoke, or progress sync |
 | Native internal builder | Deferred | Final execution can choose an internal build destination, but the actual native builder is not implemented yet | Keep the handoff boundary explicit until a first internal build runtime is scoped |
 
@@ -221,5 +223,6 @@ For Cursor handoff tests, use `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md`. The default 
 
 ## Next Jobs
 
-1. Choose the next live connector only after an operator selects the target tool and accepts the `external_connector_writeback_boundary` checklist.
-2. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
+1. Choose the next live connector from Codex, Claude Code, or Google Antigravity only after the operator accepts the `external_connector_writeback_boundary` checklist for that tool.
+2. Keep generic MCP deferred until a concrete user-facing connector, permission model, denied-case smoke, and rollback path exist.
+3. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.

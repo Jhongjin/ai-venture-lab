@@ -120,13 +120,22 @@ async function verifyPackageOnlyExternalToolHandoffs(page, ideaId) {
   launchUrl.searchParams.set("task", "launch");
   launchUrl.searchParams.set("idea", ideaId);
 
-  const packageOnlyTools = ["Codex", "Claude Code", "Google Antigravity", "범용 MCP 전달"];
+  const packageOnlyTools = ["Codex", "Claude Code", "Google Antigravity"];
 
   await page.goto(launchUrl.toString(), { waitUntil: "networkidle", timeout });
   await page.getByRole("heading", { name: "최종 실행" }).waitFor({
     state: "visible",
     timeout,
   });
+
+  const exposesDeferredGenericMcp = await page
+    .getByRole("button", { name: /^범용 MCP 전달$/ })
+    .isVisible({ timeout: 1000 })
+    .catch(() => false);
+
+  if (exposesDeferredGenericMcp) {
+    fail("Deferred generic MCP handoff appeared in the supported external tool selector.");
+  }
 
   for (const toolLabel of packageOnlyTools) {
     await page.getByRole("button", { name: new RegExp(`^${escapeRegExp(toolLabel)}$`) }).click({ timeout });
