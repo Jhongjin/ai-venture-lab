@@ -16,13 +16,17 @@ export type BuildSyncRegistryStatus = "ready" | "missing" | "unavailable";
 
 export type PublicBuildSyncToken = {
   id: string;
-  tool: "cursor";
+  tool: "cursor" | "codex";
   status: BuildSyncTokenStatus;
   expiresAt: string;
   lastUsedAt: string | null;
   createdAt: string;
   revokedAt: string | null;
 };
+
+function getBuildSyncToolLabel(tool: BuildSyncTokenPayload["tool"]) {
+  return tool === "codex" ? "Codex" : "Cursor";
+}
 
 export function isBuildSyncTokenRegistryMissing(error: RegistryErrorLike | null | undefined) {
   if (!error) {
@@ -37,6 +41,16 @@ export function isBuildSyncTokenRegistryMissing(error: RegistryErrorLike | null 
     (message.includes("build_sync_tokens") &&
       (message.includes("does not exist") || message.includes("schema cache") || message.includes("could not find")))
   );
+}
+
+function isBuildSyncTokenToolConstraintError(error: RegistryErrorLike | null | undefined) {
+  if (!error) {
+    return false;
+  }
+
+  const message = `${error.message ?? ""} ${error.details ?? ""} ${error.hint ?? ""}`.toLowerCase();
+
+  return error.code === "23514" && message.includes("build_sync_tokens_tool_check");
 }
 
 export function toPublicBuildSyncToken(row: BuildSyncTokenRow): PublicBuildSyncToken {
@@ -94,7 +108,15 @@ export async function recordBuildSyncToken({
       return { ok: true, registryStatus: "missing", connection: null };
     }
 
-    return { ok: false, error: `Could not record Cursor connection token: ${error.message}` };
+    if (isBuildSyncTokenToolConstraintError(error) && payload.tool === "codex") {
+      return {
+        ok: false,
+        error:
+          "Codex connection tokens require the 20260525010000_allow_codex_build_sync_tokens.sql migration. Apply it in Supabase, then try again.",
+      };
+    }
+
+    return { ok: false, error: `Could not record ${getBuildSyncToolLabel(payload.tool)} connection token: ${error.message}` };
   }
 
   return { ok: true, registryStatus: "ready", connection: toPublicBuildSyncToken(data) };
@@ -131,27 +153,27 @@ export async function validateRegisteredBuildSyncToken({
       return { ok: true, registryStatus: "missing", tokenId: null };
     }
 
-    return { ok: false, status: 500, error: `Could not verify Cursor connection token: ${error.message}` };
+    return { ok: false, status: 500, error: `Could not verify ${getBuildSyncToolLabel(payload.tool)} connection token: ${error.message}` };
   }
 
   if (!data) {
     return {
       ok: false,
       status: 401,
-      error: "This Cursor connection file is not registered anymore. Download a new Cursor connection file from Venture Lab.",
+      error: `This ${getBuildSyncToolLabel(payload.tool)} connection file is not registered anymore. Download a new connection file from Venture Lab.`,
     };
   }
 
   if (data.idea_id !== payload.ideaId || data.actor_id !== payload.actorId || data.tool !== payload.tool) {
-    return { ok: false, status: 403, error: "This Cursor connection token does not match the requested project." };
+    return { ok: false, status: 403, error: `This ${getBuildSyncToolLabel(payload.tool)} connection token does not match the requested project.` };
   }
 
   if ((data.organization_id ?? null) !== payload.organizationId) {
-    return { ok: false, status: 403, error: "This Cursor connection token does not match this workspace." };
+    return { ok: false, status: 403, error: `This ${getBuildSyncToolLabel(payload.tool)} connection token does not match this workspace.` };
   }
 
   if (data.status !== "active") {
-    return { ok: false, status: 401, error: "This Cursor connection has been revoked or expired." };
+    return { ok: false, status: 401, error: `This ${getBuildSyncToolLabel(payload.tool)} connection has been revoked or expired.` };
   }
 
   const expiresAt = new Date(data.expires_at).getTime();
@@ -164,7 +186,7 @@ export async function validateRegisteredBuildSyncToken({
       })
       .eq("id", data.id);
 
-    return { ok: false, status: 401, error: "This Cursor connection token expired. Download a new connection file." };
+    return { ok: false, status: 401, error: `This ${getBuildSyncToolLabel(payload.tool)} connection token expired. Download a new connection file.` };
   }
 
   return { ok: true, registryStatus: "ready", tokenId: data.id };

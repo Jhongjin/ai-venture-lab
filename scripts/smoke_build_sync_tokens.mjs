@@ -111,6 +111,35 @@ async function verifyFinalExecutionCursorGuide(page, ideaId) {
   });
 }
 
+async function verifyFinalExecutionCodexGuide(page, ideaId) {
+  const launchUrl = new URL("/workspace", baseUrl);
+  launchUrl.searchParams.set("task", "launch");
+  launchUrl.searchParams.set("idea", ideaId);
+
+  await page.goto(launchUrl.toString(), { waitUntil: "networkidle", timeout });
+  await page.getByRole("heading", { name: "최종 실행" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: /^Codex$/ }).click({ timeout });
+  await page.getByRole("heading", { name: "Codex 프로젝트에 연결 파일을 설치합니다" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("Codex에서 시작하는 순서", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("node .codex/venture-lab-cli.mjs next-task", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "Codex 연결 파일 받기" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+}
+
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -120,7 +149,7 @@ async function verifyPackageOnlyExternalToolHandoffs(page, ideaId) {
   launchUrl.searchParams.set("task", "launch");
   launchUrl.searchParams.set("idea", ideaId);
 
-  const packageOnlyTools = ["Codex", "Claude Code", "Google Antigravity"];
+  const packageOnlyTools = ["Claude Code", "Google Antigravity"];
 
   await page.goto(launchUrl.toString(), { waitUntil: "networkidle", timeout });
   await page.getByRole("heading", { name: "최종 실행" }).waitFor({
@@ -156,13 +185,13 @@ async function verifyPackageOnlyExternalToolHandoffs(page, ideaId) {
       timeout,
     });
 
-    const exposesCursorSetup = await page
-      .getByRole("button", { name: "Cursor 연결 파일 받기" })
+    const exposesLiveSetup = await page
+      .getByRole("button", { name: /(?:Cursor|Codex) 연결 파일 받기/ })
       .isVisible({ timeout: 1000 })
       .catch(() => false);
 
-    if (exposesCursorSetup) {
-      fail(`${toolLabel} package-only handoff exposed the Cursor setup button.`);
+    if (exposesLiveSetup) {
+      fail(`${toolLabel} package-only handoff exposed a live setup button.`);
     }
   }
 }
@@ -478,6 +507,7 @@ async function main() {
       if (usedDisposableIdea && resolvedSupabaseConfig) {
         await createDisposableLaunchPackage(page, resolvedSupabaseConfig, ideaId);
         await verifyFinalExecutionCursorGuide(page, ideaId);
+        await verifyFinalExecutionCodexGuide(page, ideaId);
         await verifyPackageOnlyExternalToolHandoffs(page, ideaId);
       }
 
@@ -515,9 +545,101 @@ async function main() {
       fail(`revoked token was not rejected. Expected HTTP 401, received ${rejectedProgressResult.status}`);
     }
 
+    const codexTokenResult = await callAppApi(page, "/api/build-sync/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ideaId, tool: "codex" }),
+    });
+
+    if (!codexTokenResult.ok) {
+      fail(`Codex token issue returned HTTP ${codexTokenResult.status}: ${codexTokenResult.body.error ?? "unknown error"}`);
+    }
+
+    if (codexTokenResult.body.registryStatus !== "ready") {
+      fail(`expected Codex registryStatus=ready after SQL migration, received ${codexTokenResult.body.registryStatus ?? "missing"}`);
+    }
+
+    if (!codexTokenResult.body.token || !codexTokenResult.body.connection?.id) {
+      fail("Codex token issue response did not include a bearer token and connection id.");
+    }
+
+    const codexToken = codexTokenResult.body.token;
+    const codexConnectionId = codexTokenResult.body.connection.id;
+    const codexListResult = await callAppApi(page, `/api/build-sync/tokens?ideaId=${encodeURIComponent(ideaId)}`);
+    const activeCodexConnection = (codexListResult.body.tokens ?? []).find(
+      (connection) => connection.id === codexConnectionId && connection.status === "active" && connection.tool === "codex",
+    );
+
+    if (!activeCodexConnection) {
+      fail("issued Codex connection was not visible as active in the connection list.");
+    }
+
+    if (usedDisposableIdea || allowProgressWrite) {
+      const codexProgressResult = await callAppApi(page, "/api/build-sync/progress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${codexToken}`,
+        },
+        body: JSON.stringify({
+          records: [
+            {
+              task: "T-002 codex build sync smoke verification",
+              status: "done",
+              summary: "Verified that a registered Codex connection can write progress before revocation.",
+              files: ["scripts/smoke_build_sync_tokens.mjs"],
+              verification: "Codex token registry status was ready and progress API accepted the active token.",
+              recordedAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      });
+
+      if (!codexProgressResult.ok || codexProgressResult.body.registryStatus !== "ready") {
+        fail(`Codex active token progress write failed: HTTP ${codexProgressResult.status}`);
+      }
+
+      const usedCodexListResult = await callAppApi(page, `/api/build-sync/tokens?ideaId=${encodeURIComponent(ideaId)}`);
+      const usedCodexConnection = (usedCodexListResult.body.tokens ?? []).find((connection) => connection.id === codexConnectionId);
+      if (!usedCodexConnection?.lastUsedAt) {
+        fail("Codex active token progress write did not update lastUsedAt.");
+      }
+    }
+
+    const codexRevokeResult = await callAppApi(page, `/api/build-sync/tokens/${encodeURIComponent(codexConnectionId)}`, {
+      method: "DELETE",
+    });
+
+    if (!codexRevokeResult.ok || codexRevokeResult.body.connection?.status !== "revoked") {
+      fail(`Codex connection revoke failed: HTTP ${codexRevokeResult.status}`);
+    }
+
+    const codexRejectedProgressResult = await callAppApi(page, "/api/build-sync/progress", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${codexToken}`,
+      },
+      body: JSON.stringify({
+        records: [
+          {
+            task: "T-003 revoked Codex token should fail",
+            status: "done",
+            summary: "This write must be rejected because the Codex connection was revoked.",
+            verification: "Expected HTTP 401.",
+            recordedAt: new Date().toISOString(),
+          },
+        ],
+      }),
+    });
+
+    if (codexRejectedProgressResult.status !== 401) {
+      fail(`revoked Codex token was not rejected. Expected HTTP 401, received ${codexRejectedProgressResult.status}`);
+    }
+
     console.log("Build sync token smoke passed.");
     console.log("Registry status: ready");
-    console.log("Issued connection: active");
+    console.log("Issued connections: Cursor and Codex active");
     console.log(
       usedDisposableIdea || allowProgressWrite
         ? "Progress write: accepted before revoke"
@@ -530,16 +652,18 @@ async function main() {
     );
     console.log(
       usedDisposableIdea && resolvedSupabaseConfig
-        ? "Final execution UI: Cursor CLI check visible in STEP 7"
+        ? "Final execution UI: Cursor and Codex live connector checks visible in STEP 7"
         : "Final execution UI: skipped because disposable launch package was not available",
     );
     console.log(
       usedDisposableIdea && resolvedSupabaseConfig
-        ? "Package-only handoff UI: non-Cursor tools stay on start-package guidance"
+        ? "Package-only handoff UI: Claude Code and Google Antigravity stay on start-package guidance"
         : "Package-only handoff UI: skipped because disposable launch package was not available",
     );
     console.log("Connection revoke: accepted");
     console.log("Revoked token write: rejected");
+    console.log("Codex connection revoke: accepted");
+    console.log("Codex revoked token write: rejected");
   } finally {
     if (ideaId && usedDisposableIdea && resolvedSupabaseConfig && !keepData) {
       const cleanupResult = await cleanupDisposableIdea(page, resolvedSupabaseConfig, ideaId).catch((error) => ({

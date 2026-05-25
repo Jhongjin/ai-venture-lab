@@ -18,7 +18,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function parseBuildSyncTool(value: unknown): BuildSyncTool | null {
-  return value === "cursor" ? value : null;
+  return value === "cursor" || value === "codex" ? value : null;
+}
+
+function getBuildSyncToolLabel(tool: BuildSyncTool) {
+  return tool === "codex" ? "Codex" : "Cursor";
 }
 
 export async function POST(request: Request) {
@@ -52,7 +56,7 @@ export async function POST(request: Request) {
   const tool = parseBuildSyncTool(body.tool);
 
   if (!tool) {
-    return jsonError("Only Cursor build sync is supported right now.", 400);
+    return jsonError("Only Cursor and Codex build sync are supported right now.", 400);
   }
 
   const access = await getBuildSyncIdeaAccess(supabase, body.ideaId, user.id);
@@ -105,8 +109,8 @@ export async function POST(request: Request) {
       connection,
       message:
         registryStatus === "ready"
-          ? "Cursor connection token was recorded and can be revoked individually."
-          : "Cursor connection token was created. Apply the build_sync_tokens migration to enable individual revocation.",
+          ? `${getBuildSyncToolLabel(tool)} connection token was recorded and can be revoked individually.`
+          : `${getBuildSyncToolLabel(tool)} connection token was created. Apply the build_sync_tokens migration to enable individual revocation.`,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not create a build sync token.";

@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-25 | Promoted Codex from package-only handoff to live external connector path | Current commit | Pending; production Codex token issuance requires SQL migration `20260525010000_allow_codex_build_sync_tokens.sql` | Pending local checks; full `pnpm smoke:build-sync` after production SQL |
 | 2026-05-25 | Limited first supported external build choices to Cursor, Codex, Claude Code, and Google Antigravity | `b6b939b` | Pushed to `main`; production alias updated | `pnpm quality:full`, `pnpm release:check`, `pnpm smoke:prod`, `pnpm smoke:routes`, `node .\scripts\smoke_browser.mjs`, `pnpm smoke:build-sync` |
 | 2026-05-24 | Refreshed the user test guide for current STEP 1 and Cursor sync wording | Current commit | Docs-only; guide now matches current first-run buttons and final execution connector checks | `pnpm release:check` |
 | 2026-05-24 | Updated public guide for Cursor automatic progress sync | Current commit | User-facing guide copy; production browser smoke now checks Cursor CLI and backup wording | `node --check scripts/smoke_browser.mjs`, `pnpm quality:full`, `pnpm smoke:browser` |

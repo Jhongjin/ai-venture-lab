@@ -28,7 +28,7 @@ export async function DELETE(
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return jsonError("Login is required before revoking a Cursor connection.", 401);
+    return jsonError("Login is required before revoking an external build tool connection.", 401);
   }
 
   const { tokenId } = await params;
@@ -51,14 +51,14 @@ export async function DELETE(
 
   if (tokenError) {
     if (isBuildSyncTokenRegistryMissing(tokenError)) {
-      return jsonError("Apply the build_sync_tokens migration before revoking individual Cursor connections.", 503);
+      return jsonError("Apply the build_sync_tokens migration before revoking individual external build tool connections.", 503);
     }
 
-    return jsonError(`Could not read Cursor connection: ${tokenError.message}`, 500);
+    return jsonError(`Could not read external build tool connection: ${tokenError.message}`, 500);
   }
 
   if (!tokenRow) {
-    return jsonError("Cursor connection was not found.", 404);
+    return jsonError("External build tool connection was not found.", 404);
   }
 
   const access = await getBuildSyncIdeaAccess(supabase, tokenRow.idea_id, user.id);
@@ -68,7 +68,7 @@ export async function DELETE(
   }
 
   if (!access.canManage) {
-    return jsonError("You do not have permission to revoke this Cursor connection.", 403);
+    return jsonError("You do not have permission to revoke this external build tool connection.", 403);
   }
 
   const { data: revokedToken, error: revokeError } = await admin
@@ -83,7 +83,7 @@ export async function DELETE(
     .single();
 
   if (revokeError) {
-    return jsonError(`Could not revoke Cursor connection: ${revokeError.message}`, 500);
+    return jsonError(`Could not revoke external build tool connection: ${revokeError.message}`, 500);
   }
 
   return NextResponse.json({

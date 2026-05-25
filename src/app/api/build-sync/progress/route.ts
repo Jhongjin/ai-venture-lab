@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { verifyBuildSyncToken } from "@/lib/build-sync-token";
+import { verifyBuildSyncToken, type BuildSyncTool } from "@/lib/build-sync-token";
 import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
 import { markBuildSyncTokenUsed, validateRegisteredBuildSyncToken } from "@/lib/build-sync-registry";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -103,6 +103,10 @@ function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
 
+function getBuildSyncToolLabel(tool: BuildSyncTool) {
+  return tool === "codex" ? "Codex" : "Cursor";
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
@@ -189,9 +193,10 @@ function extractSyncRecords(body: unknown) {
   return candidates.map(toSyncRecord).filter((record): record is SyncRecord => Boolean(record)).slice(0, 20);
 }
 
-function buildEvidence(record: SyncRecord) {
+function buildEvidence(record: SyncRecord, tool: BuildSyncTool) {
+  const toolLabel = getBuildSyncToolLabel(tool);
   const lines = [
-    "# Cursor 자동 동기화",
+    `# ${toolLabel} 자동 동기화`,
     "",
     `- 작업: ${record.task}`,
     `- 상태: ${record.status}`,
@@ -229,7 +234,7 @@ function findTaskMatch(record: SyncRecord, tasks: ImplementationTaskRow[]) {
   return null;
 }
 
-function fallbackForRecord(record: SyncRecord) {
+function fallbackForRecord(record: SyncRecord, tool: BuildSyncTool) {
   const taskCode = parseTaskCode(record.task) ?? parseTaskCode(record.summary);
   const codeIndex = taskCode ? Number(taskCode.replace("T-", "")) - 1 : -1;
 
@@ -238,11 +243,11 @@ function fallbackForRecord(record: SyncRecord) {
   }
 
   return {
-    title: stripTaskCode(record.task) || "Cursor에서 추가한 제작 작업",
+    title: stripTaskCode(record.task) || `${getBuildSyncToolLabel(tool)}에서 추가한 제작 작업`,
     task_type: "planning" as ImplementationTaskType,
     priority: record.status === "blocked" ? ("high" as ImplementationTaskPriority) : ("medium" as ImplementationTaskPriority),
     owner_role: "prototype-builder",
-    acceptance_criteria: "Cursor 자동 동기화로 추가된 제작 작업입니다. 변경 파일, 검증, 남은 리스크가 기록되어야 합니다.",
+    acceptance_criteria: `${getBuildSyncToolLabel(tool)} 자동 동기화로 추가된 제작 작업입니다. 변경 파일, 검증, 남은 리스크가 기록되어야 합니다.`,
   };
 }
 
@@ -295,14 +300,16 @@ export async function POST(request: Request) {
   const records = extractSyncRecords(body);
 
   if (records.length === 0) {
-    return jsonError("No Cursor progress records were found.", 400);
+    return jsonError("No external build tool progress records were found.", 400);
   }
 
   const { payload } = verification;
 
-  if (payload.tool !== "cursor") {
-    return jsonError("This build sync token is not valid for Cursor.", 403);
+  if (payload.tool !== "cursor" && payload.tool !== "codex") {
+    return jsonError("This build sync token is not valid for an enabled external build tool.", 403);
   }
+
+  const toolLabel = getBuildSyncToolLabel(payload.tool);
 
   const registryValidation = await validateRegisteredBuildSyncToken({
     admin,
@@ -355,7 +362,7 @@ export async function POST(request: Request) {
   for (const record of records) {
     const matchedTask = findTaskMatch(record, mutableTasks);
     const taskCode = parseTaskCode(record.task) ?? parseTaskCode(record.summary);
-    const evidence = buildEvidence(record);
+    const evidence = buildEvidence(record, payload.tool);
 
     if (matchedTask) {
       const status = mergeStatus(matchedTask.status, record.status);
@@ -384,7 +391,7 @@ export async function POST(request: Request) {
       continue;
     }
 
-    const fallbackTask = fallbackForRecord(record);
+    const fallbackTask = fallbackForRecord(record, payload.tool);
     const title = stripTaskCode(record.task) || fallbackTask.title;
     const { data: insertedTask, error: insertError } = await admin
       .from("implementation_tasks")
@@ -405,7 +412,7 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError) {
-      return jsonError(`Could not insert Cursor task "${title}": ${insertError.message}`, 500);
+      return jsonError(`Could not insert ${toolLabel} task "${title}": ${insertError.message}`, 500);
     }
 
     nextSortOrder += 1;

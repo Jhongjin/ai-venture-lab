@@ -34,9 +34,11 @@ Canonical package resources:
 
 The package must never expose secret values. Environment variables should be represented as names, visibility boundaries, and verification expectations only.
 
-## Current Cursor Connector
+## Current Live Connectors
 
-The first live connector is Cursor. Final execution generates an install script that creates these project files in the external Cursor project:
+Cursor and Codex are live connectors. Final execution generates an install script for the selected tool and creates the project files that tool needs in the external development project.
+
+### Cursor
 
 - `AI_VENTURE_PACKAGE.md`
 - `AI_VENTURE_TASKS.md`
@@ -63,21 +65,42 @@ The generated `.cursor/venture-lab-cli.mjs` can also be run directly from the Cu
 
 The write-back token is scoped to the selected idea, signed by a server-only secret, and can only create or update implementation tasks. The sync token and progress file are added to the external project's `.gitignore` by the setup script.
 
+### Codex
+
+The Codex setup file creates these project files:
+
+- `AI_VENTURE_PACKAGE.md`
+- `AI_VENTURE_TASKS.md`
+- `AI_VENTURE_CODEX_START.md`
+- `AGENTS.ai-venture-lab.md`
+- `README_VENTURE_LAB_CODEX.md`
+- `.codex/venture-lab-cli.mjs`
+- `.codex/venture-lab-sync.json`
+- `.codex/venture-lab-progress.json`
+
+Codex starts from `AI_VENTURE_CODEX_START.md` and uses the local CLI directly:
+
+- `node .codex/venture-lab-cli.mjs status`
+- `node .codex/venture-lab-cli.mjs next-task`
+- `node .codex/venture-lab-cli.mjs read start`
+- `node .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..." --verification "..."`
+
+The Codex write-back token follows the same scope and storage rules as Cursor: one idea, one actor, one organization boundary, one tool, hashed server-side storage, short expiry, and individual revoke.
+
 ## Other External Tool Packages
 
-Codex, Claude Code, and Google Antigravity handoffs use tool-specific start packages until their write-back connectors exist. The final execution screen must not imply automatic task sync for these tools.
+Claude Code and Google Antigravity handoffs use tool-specific start packages until their write-back connectors exist. The final execution screen must not imply automatic task sync for these tools.
 
 | Tool | Start package | Current automation boundary |
 | --- | --- | --- |
-| Codex | `AI_VENTURE_CODEX_START.md`, `AGENTS.md`, `AI_VENTURE_PACKAGE.md`, `AI_VENTURE_TASKS.md` | Package handoff and completion report import |
 | Claude Code | `AI_VENTURE_CLAUDE_START.md`, `CLAUDE.md`, `AI_VENTURE_PACKAGE.md`, `AI_VENTURE_TASKS.md` | Package handoff and completion report import |
 | Google Antigravity | `AI_VENTURE_ANTIGRAVITY_START.md`, `AI_VENTURE_PACKAGE.md`, `AI_VENTURE_TASKS.md`, `AI_VENTURE_ACCEPTANCE.md` | Package handoff and completion report import |
 
-For non-Cursor tools, the user receives a single downloadable start package that includes the tool-specific first action, the package file list, the completion report format, and the full production package. Automatic Venture Lab status write-back is a Cursor-first capability.
+For package-only tools, the user receives a single downloadable start package that includes the tool-specific first action, the package file list, the completion report format, and the full production package. Automatic Venture Lab status write-back is available only for Cursor and Codex.
 
 Generic MCP is deferred for now. It can remain as an internal compatibility profile or future resource contract, but it should not appear as a supported user-facing final execution choice until a concrete connector, permission model, and denied-case smoke exist.
 
-The production build-sync smoke verifies both sides of this boundary: Cursor final execution must expose the local CLI/MCP start check, while Codex, Claude Code, and Google Antigravity must stay on start-package guidance and must not show the Cursor setup button. The same smoke also checks that deferred generic MCP is not shown in the supported tool selector.
+The production build-sync smoke verifies both sides of this boundary: Cursor final execution must expose the local CLI/MCP start check, Codex final execution must expose the local CLI start check, and Claude Code and Google Antigravity must stay on start-package guidance without live setup buttons. The same smoke also checks that deferred generic MCP is not shown in the supported tool selector.
 
 Live write-back for another tool must satisfy `docs/EXTERNAL_CONNECTOR_WRITEBACK_BOUNDARY.md` before the UI can present it as automatic.
 
@@ -91,4 +114,4 @@ External tools should report:
 - remaining risks or skipped checks
 - rollback notes
 
-This structure remains embedded in the STEP 5 production package. Cursor can now consume the same package through local project files and MCP resources, while Codex, Claude Code, and Antigravity still use the package as a copyable or downloadable handoff until their connectors get matching write-back behavior.
+This structure remains embedded in the STEP 5 production package. Cursor consumes the same package through local project files and MCP resources. Codex consumes it through local project files and the `.codex/venture-lab-cli.mjs` progress command. Claude Code and Antigravity still use the package as a copyable or downloadable handoff until their connectors get matching write-back behavior.

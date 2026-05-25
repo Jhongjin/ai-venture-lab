@@ -1,6 +1,6 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
-export type BuildSyncTool = "cursor";
+export type BuildSyncTool = "cursor" | "codex";
 
 export type BuildSyncTokenPayload = {
   v: 1;
@@ -47,7 +47,7 @@ function isBuildSyncTokenPayload(value: unknown): value is BuildSyncTokenPayload
     payload.v === BUILD_SYNC_TOKEN_VERSION &&
     typeof payload.ideaId === "string" &&
     typeof payload.actorId === "string" &&
-    payload.tool === "cursor" &&
+    (payload.tool === "cursor" || payload.tool === "codex") &&
     typeof payload.iat === "number" &&
     typeof payload.exp === "number" &&
     typeof payload.nonce === "string" &&

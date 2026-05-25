@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return jsonError("Login is required before reading Cursor connections.", 401);
+    return jsonError("Login is required before reading external build tool connections.", 401);
   }
 
   const ideaId = new URL(request.url).searchParams.get("ideaId")?.trim();
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
   }
 
   if (!access.canManage) {
-    return jsonError("You do not have permission to manage Cursor connections for this idea.", 403);
+    return jsonError("You do not have permission to manage external build tool connections for this idea.", 403);
   }
 
   const admin = getSupabaseAdminClient();
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       ok: true,
       registryStatus: "unavailable" satisfies BuildSyncRegistryStatus,
       tokens: [],
-      message: "Supabase service role is not configured, so individual Cursor connection management is unavailable.",
+      message: "Supabase service role is not configured, so individual external build tool connection management is unavailable.",
     });
   }
 
@@ -71,11 +71,11 @@ export async function GET(request: Request) {
         ok: true,
         registryStatus: "missing" satisfies BuildSyncRegistryStatus,
         tokens: [],
-        message: "Apply the build_sync_tokens migration to enable individual Cursor connection management.",
+        message: "Apply the build_sync_tokens migration to enable individual external build tool connection management.",
       });
     }
 
-    return jsonError(`Could not read Cursor connections: ${error.message}`, 500);
+    return jsonError(`Could not read external build tool connections: ${error.message}`, 500);
   }
 
   return NextResponse.json({

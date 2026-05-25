@@ -1,19 +1,21 @@
 # External Connector Write-Back Boundary
 
-This boundary defines what must exist before AI Venture Lab enables live write-back for external development tools beyond Cursor.
+This boundary defines what must exist before AI Venture Lab enables live write-back for additional external development tools beyond the currently supported live connectors.
 
 ## Current State
 
-Cursor is the only live write-back connector.
+Cursor and Codex are the current live write-back connectors.
 
 - The final execution screen creates a Cursor project setup file.
 - The setup file installs local Cursor rules, MCP config, a local CLI/MCP bridge, package files, task files, and a scoped sync token.
+- The final execution screen also creates a Codex project setup file.
+- The Codex setup file installs package files, task files, Codex start instructions, a local progress CLI, and a scoped sync token.
 - `/api/build-sync/progress` accepts only scoped task progress for the selected idea.
 - `public.build_sync_tokens` stores token hashes, status, expiry, and recent use metadata.
-- Operators can revoke individual Cursor connections.
-- `pnpm smoke:build-sync` verifies token issuance, allowed progress write, STEP 7 Cursor guidance, STEP 8 task rendering, token revoke, and revoked-token rejection.
+- Operators can revoke individual Cursor and Codex connections.
+- `pnpm smoke:build-sync` verifies token issuance, allowed progress write, STEP 7 Cursor/Codex guidance, STEP 8 task rendering, token revoke, and revoked-token rejection.
 
-Codex, Claude Code, and Google Antigravity are package-only handoffs.
+Claude Code and Google Antigravity are package-only handoffs.
 
 - They receive tool-specific start packages.
 - They do not receive a live sync token.
@@ -89,7 +91,7 @@ Every connector promotion needs a production smoke with disposable data.
 
 For a live connector:
 
-- Primary action names the actual setup artifact, for example `Cursor 연결 파일 받기`.
+- Primary action names the actual setup artifact, for example `Cursor 연결 파일 받기` or `Codex 연결 파일 받기`.
 - The screen shows exactly where the file should be placed and which command to run.
 - The screen explains how the external tool reports progress back to Venture Lab.
 - Manual import is collapsed as a backup path.

@@ -167,40 +167,40 @@
 
 최종 실행 단계는 문서를 내려받는 곳이 아니라, 검증된 제작 패키지를 실제 제작 환경으로 넘기는 마지막 연결 단계입니다.
 
-Cursor를 선택한 경우 기대 상태:
+Cursor 또는 Codex를 선택한 경우 기대 상태:
 
 | 확인 항목 | 기대 결과 |
 | --- | --- |
-| 제작 방식 | `외부 제작 도구로 개발`과 `Cursor`가 표시됨 |
-| 연결 파일 | `Cursor 연결 파일 받기`가 보이고, 프로젝트 루트에서 실행할 PowerShell 명령이 표시됨 |
-| 설치 파일 | `.cursor/rules`, `.cursor/mcp.json`, `.cursor/venture-lab-sync.json`, 제작 패키지, 작업 목록이 생성된다고 안내됨 |
-| 시작 지시 | `AI_VENTURE_CURSOR_START.md`를 Cursor Composer에 붙여 넣으라고 안내됨 |
-| 작업 반영 | Cursor의 `venture_record_progress`가 로컬 기록과 Venture Lab 작업 상태를 함께 업데이트한다고 안내됨 |
+| 제작 방식 | `외부 제작 도구로 개발`과 선택한 도구 이름이 표시됨 |
+| 연결 파일 | `Cursor 연결 파일 받기` 또는 `Codex 연결 파일 받기`가 보이고, 프로젝트 루트에서 실행할 PowerShell 명령이 표시됨 |
+| 설치 파일 | Cursor는 `.cursor/rules`, `.cursor/mcp.json`, `.cursor/venture-lab-sync.json`을 만들고, Codex는 `.codex/venture-lab-cli.mjs`, `.codex/venture-lab-sync.json`을 만든다고 안내됨 |
+| 시작 지시 | Cursor는 `AI_VENTURE_CURSOR_START.md`를 Composer에, Codex는 `AI_VENTURE_CODEX_START.md`를 첫 메시지로 넣으라고 안내됨 |
+| 작업 반영 | Cursor는 `venture_record_progress`, Codex는 `.codex/venture-lab-cli.mjs record-progress`로 로컬 기록과 Venture Lab 작업 상태를 함께 업데이트한다고 안내됨 |
 | 자동 확인 | 최종 실행 화면이 저장된 작업 상태를 주기적으로 다시 읽고, 작업 목록과 성과 확인 화면에 반영한다고 안내됨 |
-| 백업 경로 | 자동 반영 실패 시에만 `.cursor/venture-lab-progress.json`을 백업 가져오기에 붙여넣는다고 안내됨 |
+| 백업 경로 | 자동 반영 실패 시에만 `.cursor/venture-lab-progress.json` 또는 `.codex/venture-lab-progress.json`을 백업 가져오기에 붙여넣는다고 안내됨 |
 
-Codex, Claude Code, Google Antigravity를 선택한 경우 기대 상태:
+Claude Code 또는 Google Antigravity를 선택한 경우 기대 상태:
 
 | 확인 항목 | 기대 결과 |
 | --- | --- |
 | 제작 방식 | 선택한 외부 제작 도구 이름과 `패키지 전달` 상태가 표시됨 |
 | 시작 패키지 | `시작 패키지 받기` 버튼이 보이고, 선택한 도구에 맞는 시작 파일명이 안내됨 |
 | 시작 순서 | 해당 도구에서 프로젝트를 여는 방법, 첫 지시문 전달, T-001부터 진행, 완료 보고 방식이 순서대로 보임 |
-| 자동 반영 경계 | 자동 상태 반영은 Cursor부터 지원하며, 다른 도구는 완료 보고 반영으로 상태를 맞춘다고 안내됨 |
+| 자동 반영 경계 | 자동 상태 반영은 Cursor와 Codex가 지원하며, 패키지 전용 도구는 완료 보고 반영으로 상태를 맞춘다고 안내됨 |
 
-운영 환경에는 `SUPABASE_SERVICE_ROLE_KEY`가 있어야 합니다. `BUILD_SYNC_TOKEN_SECRET`은 선택값이며, 설정하면 외부 제작 도구 연결 토큰 서명에 별도 비밀값을 사용할 수 있습니다. `public.build_sync_tokens` 마이그레이션이 적용되어야 최종 실행 화면에서 Cursor 연결 목록, 최근 사용 시각, 개별 연결 끊기를 확인할 수 있습니다.
+운영 환경에는 `SUPABASE_SERVICE_ROLE_KEY`가 있어야 합니다. `BUILD_SYNC_TOKEN_SECRET`은 선택값이며, 설정하면 외부 제작 도구 연결 토큰 서명에 별도 비밀값을 사용할 수 있습니다. `public.build_sync_tokens` 마이그레이션과 `20260525010000_allow_codex_build_sync_tokens.sql`이 적용되어야 최종 실행 화면에서 Cursor/Codex 연결 목록, 최근 사용 시각, 개별 연결 끊기를 확인할 수 있습니다.
 
 사용자 테스트 흐름:
 
-1. 최종 실행 단계에서 개발 도구가 Cursor인지 확인합니다.
-2. `Cursor 연결 파일 받기`를 눌러 PowerShell 파일을 받습니다.
-3. 받은 파일을 실제 개발할 Cursor 프로젝트 루트로 옮깁니다.
-4. Cursor에서 그 프로젝트 폴더를 엽니다.
-5. Cursor 터미널 또는 PowerShell에서 화면에 표시된 명령을 실행합니다.
-6. 같은 터미널에서 `node .cursor/venture-lab-cli.mjs next-task`를 실행해 첫 작업이 읽히는지 확인합니다.
-7. Cursor를 다시 열고 MCP 설정에서 `ai-venture-lab` 서버가 보이는지 확인합니다.
-8. `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣고 첫 작업을 시작합니다.
-9. 작업이 끝나면 Cursor에게 `venture_record_progress`로 완료 보고를 남기라고 지시합니다.
+1. 최종 실행 단계에서 개발 도구가 Cursor 또는 Codex인지 확인합니다.
+2. 선택한 도구의 `연결 파일 받기`를 눌러 PowerShell 파일을 받습니다.
+3. 받은 파일을 실제 개발할 프로젝트 루트로 옮깁니다.
+4. Cursor 또는 Codex에서 그 프로젝트 폴더를 엽니다.
+5. 터미널 또는 PowerShell에서 화면에 표시된 명령을 실행합니다.
+6. Cursor는 `node .cursor/venture-lab-cli.mjs next-task`, Codex는 `node .codex/venture-lab-cli.mjs next-task`를 실행해 첫 작업이 읽히는지 확인합니다.
+7. Cursor는 MCP 설정에서 `ai-venture-lab` 서버가 보이는지 확인합니다. Codex는 `.codex/venture-lab-cli.mjs`가 정상 실행되는지만 확인합니다.
+8. Cursor는 `AI_VENTURE_CURSOR_START.md` 내용을 Composer에, Codex는 `AI_VENTURE_CODEX_START.md` 내용을 첫 메시지로 붙여 넣고 첫 작업을 시작합니다.
+9. 작업이 끝나면 Cursor는 `venture_record_progress`, Codex는 `node .codex/venture-lab-cli.mjs record-progress ...`로 완료 보고를 남기게 합니다.
 10. Venture Lab 최종 실행 화면을 새로고침해 작업 상태가 반영됐는지 확인합니다.
 
 이 단계에서 사용자가 직접 JSON을 붙여넣는 흐름은 기본 흐름이 아닙니다. 백업 가져오기는 접힌 보조 경로여야 하며, 자동 반영이 실패했을 때만 사용합니다.
@@ -288,7 +288,7 @@ pnpm smoke:browser:rls
 6. 제작 패키지가 한 번의 AI 실행과 한 번의 저장으로 만들어진다.
 7. 제작 패키지에 PRD, IA, 디자인 방향, 기술 스택, 작업 순서, 검증 근거, 외부 개발 도구 전달 자료가 포함된다.
 8. 저장 완료 후 다음 단계와 파일 다운로드가 열린다.
-9. Cursor 연결 파일을 받으면 외부 프로젝트에서 MCP 연결과 작업 상태 자동 반영을 시작할 수 있다.
+9. Cursor 또는 Codex 연결 파일을 받으면 외부 프로젝트에서 작업 상태 자동 반영을 시작할 수 있다.
 
 운영자 기준 완료:
 
@@ -308,6 +308,6 @@ pnpm smoke:browser:rls
 | 저장 전 다음 버튼 비활성 | 아직 현재 단계의 핵심 저장이 끝나지 않음 | 현재 단계의 저장 버튼 완료 상태 확인 |
 | 시장 점검 대기 | 검증 계획은 저장됐지만 시장·경쟁 점검이 아직 완료되지 않음 | 시장·경쟁 자동 점검 실행 또는 완료 상태 확인 |
 | 제작 패키지 미저장 | AI 요약은 만들었지만 패키지 저장이 끝나지 않음 | `제작 패키지 저장` 실행 |
-| Cursor 자동 반영 실패 | 외부 프로젝트 기록은 남았지만 서버 반영이 실패함 | `.cursor/venture-lab-progress.json`을 백업 가져오기에 붙여넣기 |
+| Cursor/Codex 자동 반영 실패 | 외부 프로젝트 기록은 남았지만 서버 반영이 실패함 | `.cursor/venture-lab-progress.json` 또는 `.codex/venture-lab-progress.json`을 백업 가져오기에 붙여넣기 |
 
 이 가이드는 기본 흐름을 짧게 유지하기 위한 문서입니다. 세부 운영 규칙은 `docs/PHASE_STATUS.md`, 외부 제작 패키지 계약은 `docs/EXTERNAL_PRODUCTION_PACKAGE.md`, 장기 제품 원칙은 `docs/PRODUCT_PRINCIPLES.md`를 기준으로 봅니다.

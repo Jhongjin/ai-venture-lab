@@ -2143,7 +2143,7 @@ type CursorSyncConfig = {
   projectKey: string;
   ideaId: string;
   ideaName: string;
-  tool: "cursor";
+  tool: "cursor" | "codex";
   endpoint: string;
   token: string;
   expiresAt: string;
@@ -2155,7 +2155,7 @@ type CursorSyncConnectionStatus = "active" | "revoked" | "expired";
 
 type CursorSyncConnection = {
   id: string;
-  tool: "cursor";
+  tool: "cursor" | "codex";
   status: CursorSyncConnectionStatus;
   expiresAt: string;
   lastUsedAt: string | null;
@@ -2271,7 +2271,7 @@ function buildCursorProgressEvidence(sourceText: string, taskCode: string, title
     .slice(0, 8);
 
   return [
-    "# Cursor 진행 결과 가져오기",
+    "# 외부 개발 도구 진행 결과 가져오기",
     "",
     `- 작업: ${taskCode} ${title || "제작 작업"}`,
     `- 반영 상태: ${implementationTaskStatusLabels[status]}`,
@@ -2473,7 +2473,7 @@ function buildCursorProgressImportDrafts({
       task_type: "planning" as ImplementationTaskType,
       priority: item.status === "blocked" ? ("high" as ImplementationTaskPriority) : ("medium" as ImplementationTaskPriority),
       owner_role: "prototype-builder",
-      acceptance_criteria: "Cursor 진행 결과에서 가져온 추가 제작 작업입니다.",
+      acceptance_criteria: "외부 개발 도구 진행 결과에서 가져온 추가 제작 작업입니다.",
       status: item.status,
       evidence: item.evidence,
     }));
@@ -2711,6 +2711,173 @@ ${syncExpiryText}
 - 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
 - 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.
 `;
+}
+
+function buildCodexTaskMarkdown({
+  idea,
+  productSurface,
+  tasks,
+  fallbackTasks = [],
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  tasks: ImplementationTask[];
+  fallbackTasks?: ImplementationTaskDraft[];
+}) {
+  return buildCursorTaskMarkdown({ idea, productSurface, tasks, fallbackTasks })
+    .replace(/^# Cursor 작업 목록/, "# Codex 작업 목록")
+    .replaceAll("Cursor의 `venture_record_progress` 도구", "Codex의 `.codex/venture-lab-cli.mjs record-progress` 명령")
+    .replaceAll("Cursor MCP의 `venture_record_progress` 도구", "Codex CLI의 `record-progress` 명령")
+    .replaceAll("Cursor 진행 결과", "Codex 진행 결과")
+    .replaceAll("Cursor", "Codex");
+}
+
+function buildCodexStartPromptMarkdown({
+  idea,
+  productSurface,
+  projectKey,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+}) {
+  return `# Codex 시작 지시문
+
+당신은 AI Venture Lab에서 검증과 제작 준비가 끝난 프로젝트를 이어받는 Codex 개발 에이전트입니다.
+
+먼저 아래 파일을 읽고, 첫 번째 미완료 작업부터 순서대로 진행하세요.
+
+1. \`AI_VENTURE_PACKAGE.md\`
+2. \`AI_VENTURE_TASKS.md\`
+3. \`AGENTS.ai-venture-lab.md\`
+
+## 프로젝트 맥락
+
+- 프로젝트 키: ${projectKey}
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 진행 방식
+
+1. 제작 패키지에서 포함 범위와 제외 범위를 확인합니다.
+2. \`node .codex/venture-lab-cli.mjs next-task\`로 첫 번째 미완료 작업을 확인합니다.
+3. 구현 전 변경할 파일과 검증 명령을 짧게 계획합니다.
+4. 한 번에 하나의 작업만 구현하고 테스트 또는 품질 명령을 실행합니다.
+5. 작업 완료 후 아래 형식으로 Venture Lab에 진행 결과를 기록합니다.
+
+\`\`\`powershell
+node .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"
+\`\`\`
+
+6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
+7. 자동 반영이 실패한 경우에만 \`.codex/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
+
+Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.
+`;
+}
+
+function buildCodexAgentInstructionsMarkdown({
+  idea,
+  productSurface,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+}) {
+  return `# AI Venture Lab Codex Instructions
+
+이 프로젝트는 AI Venture Lab에서 검증된 제작 패키지를 기준으로 구현합니다.
+
+## 반드시 먼저 읽을 파일
+
+- \`AI_VENTURE_PACKAGE.md\`
+- \`AI_VENTURE_TASKS.md\`
+- \`AI_VENTURE_CODEX_START.md\`
+
+## 프로젝트 기준
+
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 실행 원칙
+
+- 한 번에 하나의 작업만 구현합니다.
+- 패키지에 없는 큰 기능은 임의로 추가하지 않습니다.
+- 변경 전 포함 범위, 제외 범위, 수용 기준을 확인합니다.
+- 작업이 끝나면 변경 파일, 검증 명령, 남은 리스크를 보고합니다.
+- 다음 작업은 \`node .codex/venture-lab-cli.mjs next-task\`로 확인합니다.
+- 완료 보고는 \`node .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..." --verification "..."\` 형식으로 남깁니다.
+- \`record-progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`.codex/venture-lab-progress.json\`을 백업으로 사용합니다.
+`;
+}
+
+function buildCodexGuideMarkdown({
+  idea,
+  productSurface,
+  projectKey,
+  syncExpiresAt,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+  syncExpiresAt?: string;
+}) {
+  const syncExpiryText = syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
+
+  return `# Codex 연결 가이드
+
+이 폴더는 AI Venture Lab에서 만든 제작 패키지를 Codex 작업 세션에 연결하기 위한 자료입니다.
+
+## 이 패키지가 만드는 것
+
+- \`AI_VENTURE_PACKAGE.md\`: 최종 제작 패키지
+- \`AI_VENTURE_TASKS.md\`: Codex가 순서대로 처리할 제작 작업
+- \`AI_VENTURE_CODEX_START.md\`: Codex 첫 메시지로 넣을 시작 지시문
+- \`AGENTS.ai-venture-lab.md\`: Codex가 참고할 프로젝트 작업 규칙
+- \`README_VENTURE_LAB_CODEX.md\`: 이 연결 가이드
+- \`.codex/venture-lab-cli.mjs\`: 로컬 CLI 연결 파일
+- \`.codex/venture-lab-sync.json\`: Venture Lab 자동 반영 토큰과 서버 주소
+- \`.codex/venture-lab-progress.json\`: Codex 작업 진행 기록
+
+## 실행 순서
+
+1. 실제 개발할 프로젝트 폴더에 Venture Lab에서 받은 \`*-codex-setup.ps1\` 파일을 둡니다.
+2. 프로젝트 루트에서 아래 명령을 실행합니다.
+
+\`\`\`powershell
+powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "codex-setup", "ps1")}
+\`\`\`
+
+3. 터미널에서 \`node .codex/venture-lab-cli.mjs next-task\`를 실행해 첫 작업이 읽히는지 확인합니다.
+4. Codex에서 같은 프로젝트 폴더를 열고 \`AI_VENTURE_CODEX_START.md\` 내용을 첫 메시지로 넣습니다.
+5. Codex에게 T-001부터 한 번에 하나씩 구현하라고 지시합니다.
+6. 작업을 마치면 Codex가 \`.codex/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남기게 합니다.
+7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
+8. 자동 반영이 실패한 경우에만 \`.codex/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
+
+## 프로젝트 정보
+
+- 프로젝트 키: ${projectKey}
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+${syncExpiryText}
+
+## 보안 주의
+
+- \`.codex/venture-lab-sync.json\`에는 프로젝트 전용 토큰이 들어 있습니다.
+- 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
+- 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.
+`;
+}
+
+function buildCodexCliScript() {
+  return buildCursorMcpServerScript()
+    .replaceAll(".cursor", ".codex")
+    .replaceAll("Cursor", "Codex")
+    .replaceAll("AI_VENTURE_CURSOR_START.md", "AI_VENTURE_CODEX_START.md")
+    .replaceAll("README_VENTURE_LAB_CURSOR.md", "README_VENTURE_LAB_CODEX.md");
 }
 
 function buildCursorMcpConfigJson() {
@@ -3196,6 +3363,67 @@ Write-Host "AI Venture Lab Cursor connection files are ready."
 Write-Host "Check: node .cursor/venture-lab-cli.mjs next-task"
 Write-Host "Next: reopen Cursor, check Settings > MCP for ai-venture-lab, then paste AI_VENTURE_CURSOR_START.md into Composer."
 Write-Host "When Cursor calls venture_record_progress, Venture Lab task status will be updated automatically."
+`;
+}
+
+function buildCodexSetupPowerShell({
+  idea,
+  projectKey,
+  files,
+}: {
+  idea: Idea;
+  projectKey: string;
+  files: Array<{ path: string; base64: string }>;
+}) {
+  const fileRows = files
+    .map((file) => `  @{ Path = '${escapePowerShellSingleQuoted(file.path)}'; Base64 = '${file.base64}' }`)
+    .join("\n");
+
+  return `# AI Venture Lab Codex connection setup
+# Project: ${idea.name}
+# Key: ${projectKey}
+
+$ErrorActionPreference = 'Stop'
+$root = Get-Location
+$files = @(
+${fileRows}
+)
+
+foreach ($file in $files) {
+  $target = Join-Path $root $file.Path
+  $directory = Split-Path -Parent $target
+
+  if ($directory -and -not (Test-Path -LiteralPath $directory)) {
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+  }
+
+  $bytes = [Convert]::FromBase64String($file.Base64)
+  $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+  [System.IO.File]::WriteAllText($target, $text, [System.Text.UTF8Encoding]::new($false))
+  Write-Host "created $($file.Path)"
+}
+
+$gitignorePath = Join-Path $root ".gitignore"
+$ignoreEntries = @(".codex/venture-lab-sync.json", ".codex/venture-lab-progress.json")
+
+if (-not (Test-Path -LiteralPath $gitignorePath)) {
+  New-Item -ItemType File -Path $gitignorePath -Force | Out-Null
+}
+
+$existingIgnore = Get-Content -LiteralPath $gitignorePath -Raw -ErrorAction SilentlyContinue
+
+foreach ($entry in $ignoreEntries) {
+  if (-not $existingIgnore -or $existingIgnore -notmatch [regex]::Escape($entry)) {
+    Add-Content -LiteralPath $gitignorePath -Value $entry
+    Write-Host "gitignored $entry"
+  }
+}
+
+Write-Host ""
+Write-Host "AI Venture Lab Codex connection files are ready."
+Write-Host "Check: node .codex/venture-lab-cli.mjs next-task"
+Write-Host "Next: open this project in Codex and paste AI_VENTURE_CODEX_START.md as the first message."
+Write-Host "When Codex runs record-progress, Venture Lab task status will be updated automatically."
 `;
 }
 
@@ -10775,7 +11003,9 @@ export function IdeaWorkbench({
           `${activeExternalBuildTool.label}에서 바로 첫 작업을 시작할 수 있도록 시작 순서, 전달 파일, 완료 보고 형식을 앞에 붙인 패키지입니다.`,
           activeExternalBuildTool.key === "cursor"
             ? "Cursor는 연결 파일을 받아 프로젝트 루트에서 실행하면 실제 규칙, MCP 설정, 제작 패키지, 작업 목록이 파일로 설치됩니다."
-            : `${activeExternalBuildTool.label}은 현재 패키지 전달 방식입니다. 자동 상태 반영은 Cursor 연결 파일부터 지원합니다.`,
+            : activeExternalBuildTool.key === "codex"
+              ? "Codex는 연결 파일을 받아 프로젝트 루트에서 실행하면 제작 패키지, 작업 목록, 시작 지시문, 진행 기록 CLI가 파일로 설치됩니다."
+              : `${activeExternalBuildTool.label}은 현재 패키지 전달 방식입니다. 자동 상태 반영은 Cursor와 Codex 연결 파일부터 지원합니다.`,
           "",
           "## 먼저 할 일",
           "",
@@ -10986,8 +11216,49 @@ export function IdeaWorkbench({
     : "";
   const cursorMcpConfigDraft = buildCursorMcpConfigJson();
   const cursorMcpServerDraft = buildCursorMcpServerScript();
+  const codexTaskPackageDraft = selectedIdea
+    ? buildCodexTaskMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        tasks: selectedImplementationTasks,
+        fallbackTasks: cursorHandoffTaskDrafts,
+      })
+    : "";
+  const codexStartPromptDraft = selectedIdea
+    ? buildCodexStartPromptMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+      })
+    : "";
+  const codexAgentInstructionsDraft = selectedIdea
+    ? buildCodexAgentInstructionsMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+      })
+    : "";
+  const codexGuideDraft = selectedIdea
+    ? buildCodexGuideMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+      })
+    : "";
+  const codexCliScriptDraft = buildCodexCliScript();
   const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "cursor";
-  const activeCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.status === "active");
+  const isCodexExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "codex";
+  const isLiveExternalDelivery = isCursorExternalDelivery || isCodexExternalDelivery;
+  const liveExternalToolFolder = isCodexExternalDelivery ? ".codex" : ".cursor";
+  const liveExternalToolProgressPath = `${liveExternalToolFolder}/venture-lab-progress.json`;
+  const liveExternalToolSetupSuffix = isCodexExternalDelivery ? "codex-setup" : "cursor-setup";
+  const liveExternalToolStartPromptDraft = isCodexExternalDelivery ? codexStartPromptDraft : cursorStartPromptDraft;
+  const liveExternalToolGuideDraft = isCodexExternalDelivery ? codexGuideDraft : cursorGuideDraft;
+  const liveExternalToolNextTaskCommand = isCodexExternalDelivery
+    ? "node .codex/venture-lab-cli.mjs next-task"
+    : "node .cursor/venture-lab-cli.mjs next-task";
+  const activeCursorSyncConnections = cursorSyncConnections.filter(
+    (connection) => connection.status === "active" && connection.tool === activeExternalBuildTool.key,
+  );
   const cursorProgressPreviewItems =
     cursorProgressImportText.trim() && cursorHandoffTaskDrafts.length > 0
       ? buildCursorProgressImportDrafts({
@@ -11230,13 +11501,57 @@ export function IdeaWorkbench({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTask, selectedIdea?.id, supabase, user?.id]);
 
-  useEffect(() => {
-    if (selectedIdea && user && isCursorExternalDelivery && activeTask === "launch") {
-      void refreshCursorSyncConnections();
+  async function refreshCursorSyncConnections({ quiet = false }: { quiet?: boolean } = {}) {
+    if (!selectedIdea || !user || !isLiveExternalDelivery) {
+      return;
     }
+
+    setIsCursorSyncConnectionLoading(true);
+
+    if (!quiet) {
+      setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결 상태를 확인하는 중입니다...`);
+    }
+
+    try {
+      const response = await fetch(`/api/build-sync/tokens?ideaId=${encodeURIComponent(selectedIdea.id)}`);
+      const payload = (await response.json().catch(() => ({}))) as CursorSyncConnectionsResponse;
+
+      if (!response.ok) {
+        throw new Error(payload.error || `${activeExternalBuildTool.label} 연결 상태를 확인하지 못했습니다.`);
+      }
+
+      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
+      setCursorSyncConnections((payload.tokens ?? []).filter((connection) => connection.tool === activeExternalBuildTool.key));
+
+      if (!quiet || payload.registryStatus !== "ready") {
+        setCursorSyncConnectionMessage(
+          payload.message ??
+            (payload.registryStatus === "ready"
+              ? `${activeExternalBuildTool.label} 연결 상태를 확인했습니다.`
+              : `${activeExternalBuildTool.label} 연결 파일은 만들 수 있지만, 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다.`),
+        );
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : `${activeExternalBuildTool.label} 연결 상태를 확인하지 못했습니다.`;
+      setCursorSyncConnectionMessage(errorMessage);
+    } finally {
+      setIsCursorSyncConnectionLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!selectedIdea || !user || !isLiveExternalDelivery || activeTask !== "launch") {
+      return;
+    }
+
+    const refreshTimer = window.setTimeout(() => {
+      void refreshCursorSyncConnections();
+    }, 0);
+
+    return () => window.clearTimeout(refreshTimer);
     // This mirrors the task polling boundary: reload only when the selected project, viewer, or final tool changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTask, isCursorExternalDelivery, selectedIdea?.id, user?.id]);
+  }, [activeTask, isLiveExternalDelivery, selectedIdea?.id, user?.id, activeExternalBuildTool.key]);
 
   if (!selectedIdea || !editState) {
     const hasSelectableIdeas = visibleIdeas.length > 0;
@@ -12581,7 +12896,8 @@ export function IdeaWorkbench({
   }
 
   async function importCursorProgressResult() {
-    setCursorProgressImportMessage("Cursor 진행 결과를 읽는 중입니다...");
+    const toolLabel = isLiveExternalDelivery ? activeExternalBuildTool.label : "외부 개발 도구";
+    setCursorProgressImportMessage(`${toolLabel} 진행 결과를 읽는 중입니다...`);
 
     if (!supabase || !selectedIdea) {
       setCursorProgressImportMessage("먼저 아이디어를 선택하세요.");
@@ -12591,7 +12907,7 @@ export function IdeaWorkbench({
 
     if (!user) {
       setCursorProgressImportMessage("로그인 후 다시 시도하세요.");
-      setMessage("Cursor 진행 결과를 반영하려면 먼저 로그인하세요.");
+      setMessage(`${toolLabel} 진행 결과를 반영하려면 먼저 로그인하세요.`);
       return;
     }
 
@@ -12603,7 +12919,7 @@ export function IdeaWorkbench({
 
     if (cursorHandoffTaskDrafts.length === 0) {
       setCursorProgressImportMessage("제작 패키지와 작업 순서 초안이 먼저 필요합니다.");
-      setMessage("먼저 제작 패키지와 작업 순서 초안을 준비해야 Cursor 진행 결과를 반영할 수 있습니다.");
+      setMessage(`먼저 제작 패키지와 작업 순서 초안을 준비해야 ${toolLabel} 진행 결과를 반영할 수 있습니다.`);
       return;
     }
 
@@ -12779,13 +13095,13 @@ export function IdeaWorkbench({
         },
       });
       setDevelopmentPanel("tasks");
-      const successMessage = `Cursor 진행 결과를 반영했습니다. 새 작업 ${insertedTasks.length}개, 상태 업데이트 ${updatedTasks.length}개, 완료 인식 ${importPlan.completedCount}개입니다.`;
+      const successMessage = `${toolLabel} 진행 결과를 반영했습니다. 새 작업 ${insertedTasks.length}개, 상태 업데이트 ${updatedTasks.length}개, 완료 인식 ${importPlan.completedCount}개입니다.`;
       setCursorProgressImportMessage(successMessage);
       setCursorProgressImportItems(displayItems);
       setMessage(successMessage);
       router.refresh();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Cursor 진행 결과를 반영하지 못했습니다.";
+      const errorMessage = error instanceof Error ? error.message : `${toolLabel} 진행 결과를 반영하지 못했습니다.`;
       setCursorProgressImportMessage(errorMessage);
       setMessage(errorMessage);
     } finally {
@@ -13054,52 +13370,14 @@ export function IdeaWorkbench({
     return window.btoa(binary);
   }
 
-  async function refreshCursorSyncConnections({ quiet = false }: { quiet?: boolean } = {}) {
-    if (!selectedIdea || !user || !isCursorExternalDelivery) {
-      return;
-    }
-
-    setIsCursorSyncConnectionLoading(true);
-
-    if (!quiet) {
-      setCursorSyncConnectionMessage("Cursor 연결 상태를 확인하는 중입니다...");
-    }
-
-    try {
-      const response = await fetch(`/api/build-sync/tokens?ideaId=${encodeURIComponent(selectedIdea.id)}`);
-      const payload = (await response.json().catch(() => ({}))) as CursorSyncConnectionsResponse;
-
-      if (!response.ok) {
-        throw new Error(payload.error || "Cursor 연결 상태를 확인하지 못했습니다.");
-      }
-
-      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
-      setCursorSyncConnections(payload.tokens ?? []);
-
-      if (!quiet || payload.registryStatus !== "ready") {
-        setCursorSyncConnectionMessage(
-          payload.message ??
-            (payload.registryStatus === "ready"
-              ? "Cursor 연결 상태를 확인했습니다."
-              : "Cursor 연결 파일은 만들 수 있지만, 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
-        );
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Cursor 연결 상태를 확인하지 못했습니다.";
-      setCursorSyncConnectionMessage(errorMessage);
-    } finally {
-      setIsCursorSyncConnectionLoading(false);
-    }
-  }
-
   async function revokeCursorSyncConnection(connection: CursorSyncConnection) {
     if (!user) {
-      setCursorSyncConnectionMessage("Cursor 연결을 끊으려면 먼저 로그인하세요.");
+      setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결을 끊으려면 먼저 로그인하세요.`);
       return;
     }
 
     setRevokingCursorSyncConnectionId(connection.id);
-    setCursorSyncConnectionMessage("Cursor 연결을 끊는 중입니다...");
+    setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결을 끊는 중입니다...`);
 
     try {
       const response = await fetch(`/api/build-sync/tokens/${encodeURIComponent(connection.id)}`, {
@@ -13108,13 +13386,13 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorSyncConnectionRevokeResponse;
 
       if (!response.ok || !payload.connection) {
-        throw new Error(payload.error || "Cursor 연결을 끊지 못했습니다.");
+        throw new Error(payload.error || `${activeExternalBuildTool.label} 연결을 끊지 못했습니다.`);
       }
 
       setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
-      setCursorSyncConnectionMessage("Cursor 연결을 끊었습니다. 해당 연결 파일의 자동 반영은 더 이상 저장되지 않습니다.");
+      setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결을 끊었습니다. 해당 연결 파일의 자동 반영은 더 이상 저장되지 않습니다.`);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Cursor 연결을 끊지 못했습니다.";
+      const errorMessage = error instanceof Error ? error.message : `${activeExternalBuildTool.label} 연결을 끊지 못했습니다.`;
       setCursorSyncConnectionMessage(errorMessage);
     } finally {
       setRevokingCursorSyncConnectionId(null);
@@ -13204,6 +13482,93 @@ export function IdeaWorkbench({
       setMessage("Cursor 연결 파일을 준비했습니다. venture_record_progress가 로컬 기록과 서버 반영을 함께 처리합니다.");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Cursor 연결 파일을 만들지 못했습니다.";
+      setMessage(errorMessage);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function downloadCodexSetupScript() {
+    if (!selectedIdea || !finalAgentRunPackageDraft) {
+      return;
+    }
+
+    if (!user) {
+      setMessage("Codex 자동 연결 파일을 받으려면 먼저 로그인하세요.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage("Codex 자동 연결 토큰을 준비하는 중입니다...");
+
+    try {
+      const response = await fetch("/api/build-sync/token", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ideaId: selectedIdea.id, tool: "codex" }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
+
+      if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
+        throw new Error(payload.error || "Codex 자동 연결 토큰을 만들지 못했습니다.");
+      }
+
+      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
+
+      if (payload.connection) {
+        setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
+      }
+
+      setCursorSyncConnectionMessage(
+        payload.message ??
+          (payload.registryStatus === "ready"
+            ? "새 Codex 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
+            : "Codex 연결 파일을 만들었습니다. 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
+      );
+
+      const syncConfigDraft = buildCursorSyncConfigJson({
+        projectKey: finalExecutionProjectKey,
+        ideaId: selectedIdea.id,
+        ideaName: selectedIdea.name,
+        tool: "codex",
+        endpoint: payload.endpoint,
+        token: payload.token,
+        expiresAt: payload.expiresAt,
+        createdAt: new Date().toISOString(),
+      });
+      const downloadedCodexGuideDraft = buildCodexGuideMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+        syncExpiresAt: payload.expiresAt,
+      });
+
+      const files = [
+        { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
+        { path: "AI_VENTURE_TASKS.md", body: codexTaskPackageDraft },
+        { path: "AI_VENTURE_CODEX_START.md", body: codexStartPromptDraft },
+        { path: "AGENTS.ai-venture-lab.md", body: codexAgentInstructionsDraft },
+        { path: "README_VENTURE_LAB_CODEX.md", body: downloadedCodexGuideDraft },
+        { path: ".codex/venture-lab-cli.mjs", body: codexCliScriptDraft },
+        { path: ".codex/venture-lab-sync.json", body: syncConfigDraft },
+        { path: ".codex/venture-lab-progress.json", body: "[]\n" },
+      ].map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+
+      const script = buildCodexSetupPowerShell({
+        idea: selectedIdea,
+        projectKey: finalExecutionProjectKey,
+        files,
+      });
+
+      downloadTextFile(
+        script,
+        "Codex 연결 스크립트",
+        toDownloadFileName(selectedIdea.name, "codex-setup", "ps1"),
+        "text/plain;charset=utf-8",
+      );
+      setMessage("Codex 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Codex 연결 파일을 만들지 못했습니다.";
       setMessage(errorMessage);
     } finally {
       setIsBusy(false);
@@ -15794,20 +16159,20 @@ export function IdeaWorkbench({
                     <div>
                       <div className="avl-kicker">external build tool</div>
                       <h3 className="mt-2 text-lg font-semibold text-slate-950">
-                        {isCursorExternalDelivery
-                          ? "Cursor 프로젝트에 연결 파일을 설치합니다"
+                        {isLiveExternalDelivery
+                          ? `${activeExternalBuildTool.label} 프로젝트에 연결 파일을 설치합니다`
                           : `${activeExternalBuildTool.label}용 제작 패키지를 받습니다`}
                       </h3>
                       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                        {isCursorExternalDelivery
-                          ? "Cursor가 실제로 읽을 규칙, MCP 설정, 로컬 MCP 브리지, 제작 패키지, 작업 목록을 설치 파일 하나로 묶습니다."
+                        {isLiveExternalDelivery
+                          ? `${activeExternalBuildTool.label}가 실제로 읽을 제작 패키지, 시작 지시문, 작업 목록, 자동 진행 기록 설정을 설치 파일 하나로 묶습니다.`
                           : `${activeExternalBuildTool.label}가 바로 읽을 수 있도록 도구별 시작 지시문과 제작 패키지를 한 파일로 묶습니다.`}
                       </p>
                     </div>
                     <span className="avl-pill avl-pill-info">{activeExternalBuildTool.label}</span>
                   </div>
 
-                  {!isCursorExternalDelivery ? (
+                  {!isLiveExternalDelivery ? (
                     <div className="mt-4 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-sm leading-6 text-blue-950">
                         {activeExternalBuildTool.label}는 현재 시작 패키지와 완료 보고 반영으로 진행합니다. 작업 상태까지 자동으로
@@ -15828,14 +16193,14 @@ export function IdeaWorkbench({
                   <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.56fr)_minmax(360px,0.44fr)]">
                     <div className="border border-slate-200 bg-white p-4">
                       <div className="text-sm font-semibold text-slate-950">
-                        {isCursorExternalDelivery ? "Cursor 연결 파일" : `${activeExternalBuildTool.label} 시작 패키지`}
+                        {isLiveExternalDelivery ? `${activeExternalBuildTool.label} 연결 파일` : `${activeExternalBuildTool.label} 시작 패키지`}
                       </div>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        {isCursorExternalDelivery
-                          ? "프로젝트 루트에서 실행하면 Cursor 규칙, MCP 서버, 제작 문서, 작업 목록이 실제 파일로 생성됩니다."
+                        {isLiveExternalDelivery
+                          ? `프로젝트 루트에서 실행하면 ${activeExternalBuildTool.label}용 제작 문서, 작업 목록, 진행 기록 파일이 실제 파일로 생성됩니다.`
                           : `${activeExternalBuildTool.startFileName} 기준의 시작 순서, PRD, IA, 디자인 기준, 기술 경계, 작업 순서, 완료 보고 형식을 묶었습니다.`}
                       </p>
-                      {isCursorExternalDelivery ? (
+                      {isLiveExternalDelivery ? (
                         <div className="mt-3 grid gap-2 text-xs leading-5 text-slate-600 sm:grid-cols-2">
                           {activeExternalBuildTool.packageFiles.map((file) => (
                             <div key={file} className="border border-slate-200 bg-slate-50 p-3">
@@ -15849,21 +16214,26 @@ export function IdeaWorkbench({
                           type="button"
                           onClick={() =>
                             copyDraft(
-                              isCursorExternalDelivery ? cursorStartPromptDraft : externalToolRunPackageDraft,
-                              isCursorExternalDelivery ? "Cursor 시작 지시문" : `${activeExternalBuildTool.label} 시작 패키지`,
+                              isLiveExternalDelivery ? liveExternalToolStartPromptDraft : externalToolRunPackageDraft,
+                              isLiveExternalDelivery ? `${activeExternalBuildTool.label} 시작 지시문` : `${activeExternalBuildTool.label} 시작 패키지`,
                             )
                           }
-                          disabled={!externalToolRunPackageDraft}
+                          disabled={isLiveExternalDelivery ? !liveExternalToolStartPromptDraft : !externalToolRunPackageDraft}
                           className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                         >
                           <Clipboard size={16} />
-                          {isCursorExternalDelivery ? "시작 지시문 복사" : "지시문 복사"}
+                          {isLiveExternalDelivery ? "시작 지시문 복사" : "지시문 복사"}
                         </button>
                         <button
                           type="button"
                           onClick={() => {
                             if (isCursorExternalDelivery) {
                               void downloadCursorSetupScript();
+                              return;
+                            }
+
+                            if (isCodexExternalDelivery) {
+                              void downloadCodexSetupScript();
                               return;
                             }
 
@@ -15877,9 +16247,13 @@ export function IdeaWorkbench({
                           className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                         >
                           <Download size={16} />
-                          {isCursorExternalDelivery ? (isBusy ? "연결 준비 중" : "Cursor 연결 파일 받기") : "시작 패키지 받기"}
+                          {isLiveExternalDelivery
+                            ? isBusy
+                              ? "연결 준비 중"
+                              : `${activeExternalBuildTool.label} 연결 파일 받기`
+                            : "시작 패키지 받기"}
                         </button>
-                        {isCursorExternalDelivery ? (
+                        {isLiveExternalDelivery ? (
                           <button
                             type="button"
                             onClick={() =>
@@ -15897,11 +16271,11 @@ export function IdeaWorkbench({
                           </button>
                         ) : null}
                       </div>
-                      {isCursorExternalDelivery ? (
+                      {isLiveExternalDelivery ? (
                         <div className="mt-4 border border-slate-200 bg-slate-50 p-3">
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                             <div>
-                              <div className="text-sm font-semibold text-slate-950">Cursor 연결 관리</div>
+                              <div className="text-sm font-semibold text-slate-950">{activeExternalBuildTool.label} 연결 관리</div>
                               <p className="mt-1 text-xs leading-5 text-slate-600">
                                 연결 파일을 다시 받으면 새 연결이 추가됩니다. 더 쓰지 않는 연결은 여기서 끊습니다.
                               </p>
@@ -15966,7 +16340,8 @@ export function IdeaWorkbench({
                                 ))
                               ) : (
                                 <div className="border border-dashed border-slate-300 bg-white px-3 py-2 text-xs leading-5 text-slate-600">
-                                  아직 저장된 Cursor 연결이 없습니다. <span className="font-semibold">Cursor 연결 파일 받기</span>를 누르면
+                                  아직 저장된 {activeExternalBuildTool.label} 연결이 없습니다.{" "}
+                                  <span className="font-semibold">{activeExternalBuildTool.label} 연결 파일 받기</span>를 누르면
                                   이곳에 연결이 표시됩니다.
                                 </div>
                               )}
@@ -15983,65 +16358,87 @@ export function IdeaWorkbench({
 
                     <div className="border border-slate-200 bg-white p-4">
                       <div className="text-sm font-semibold text-slate-950">
-                        {isCursorExternalDelivery ? "Cursor에서 시작하는 순서" : "외부 도구 전달 방식"}
+                        {isLiveExternalDelivery ? `${activeExternalBuildTool.label}에서 시작하는 순서` : "외부 도구 전달 방식"}
                       </div>
-                      {isCursorExternalDelivery ? (
+                      {isLiveExternalDelivery ? (
                         <>
                           <ol className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              1. <span className="font-semibold text-slate-950">Cursor 연결 파일 받기</span>를 눌러
+                              1. <span className="font-semibold text-slate-950">{activeExternalBuildTool.label} 연결 파일 받기</span>를 눌러
                               PowerShell 파일을 받습니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
                               2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              3. Cursor에서 그 프로젝트 폴더를 엽니다.
+                              3. {activeExternalBuildTool.label}에서 그 프로젝트 폴더를 엽니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              4. Cursor 터미널 또는 PowerShell에서 아래 명령을 실행합니다.
+                              4. 터미널 또는 PowerShell에서 아래 명령을 실행합니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              5. 같은 터미널에서 <span className="font-mono text-xs">node .cursor/venture-lab-cli.mjs next-task</span>를
+                              5. 같은 터미널에서 <span className="font-mono text-xs">{liveExternalToolNextTaskCommand}</span>를
                               실행해 첫 작업이 읽히는지 확인합니다.
                             </li>
+                            {isCursorExternalDelivery ? (
+                              <li className="border border-slate-200 bg-slate-50 p-3">
+                                6. Cursor를 다시 열고 MCP 설정에서{" "}
+                                <span className="font-semibold text-slate-950">ai-venture-lab</span>이 보이는지 확인합니다.
+                              </li>
+                            ) : null}
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              6. Cursor를 다시 열고 MCP 설정에서 <span className="font-semibold text-slate-950">ai-venture-lab</span>
-                              이 보이는지 확인합니다.
+                              {isCursorExternalDelivery ? "7" : "6"}.{" "}
+                              <span className="font-mono text-xs">
+                                {isCodexExternalDelivery ? "AI_VENTURE_CODEX_START.md" : "AI_VENTURE_CURSOR_START.md"}
+                              </span>{" "}
+                              내용을 {isCodexExternalDelivery ? "Codex 첫 메시지" : "Composer"}에 붙여 넣고 첫 작업을 시작합니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              7. <span className="font-mono text-xs">AI_VENTURE_CURSOR_START.md</span> 내용을 Composer에 붙여 넣고
-                              첫 작업을 시작합니다.
-                            </li>
-                            <li className="border border-slate-200 bg-slate-50 p-3">
-                              8. 작업이 끝나면 Cursor에게 <span className="font-mono text-xs">venture_record_progress</span>로 완료
-                              보고를 남기라고 지시합니다. Venture Lab 작업 상태가 자동으로 갱신됩니다.
+                              {isCursorExternalDelivery ? "8" : "7"}. 작업이 끝나면{" "}
+                              {isCodexExternalDelivery ? (
+                                <span className="font-mono text-xs">.codex/venture-lab-cli.mjs record-progress</span>
+                              ) : (
+                                <span className="font-mono text-xs">venture_record_progress</span>
+                              )}{" "}
+                              로 완료 보고를 남기게 합니다. Venture Lab 작업 상태가 자동으로 갱신됩니다.
                             </li>
                           </ol>
                           <div className="mt-3 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white">
                             {"powershell -ExecutionPolicy Bypass -File .\\"}
-                            {toDownloadFileName(selectedIdea.name, "cursor-setup", "ps1")}
+                            {toDownloadFileName(selectedIdea.name, liveExternalToolSetupSuffix, "ps1")}
                           </div>
                           <p className="mt-3 text-xs leading-5 text-slate-500">
                             실행 위치는 다운로드 폴더가 아니라 실제 개발할 프로젝트 루트입니다. 이 스크립트가 그 위치에
-                            <span className="font-mono"> .cursor/rules</span>,
-                            <span className="font-mono"> .cursor/mcp.json</span>,
-                            <span className="font-mono"> .cursor/venture-lab-cli.mjs</span>, 자동 반영 토큰, 제작 패키지와 작업 목록을 만듭니다.
+                            {isCursorExternalDelivery ? (
+                              <>
+                                <span className="font-mono"> .cursor/rules</span>,
+                                <span className="font-mono"> .cursor/mcp.json</span>,
+                                <span className="font-mono"> .cursor/venture-lab-cli.mjs</span>, 자동 반영 토큰, 제작 패키지와 작업 목록을 만듭니다.
+                              </>
+                            ) : (
+                              <>
+                                <span className="font-mono"> .codex/venture-lab-cli.mjs</span>,
+                                <span className="font-mono"> .codex/venture-lab-sync.json</span>, 자동 반영 토큰, 제작 패키지와 작업 목록을
+                                만듭니다.
+                              </>
+                            )}
                           </p>
                           <div className="mt-3 flex flex-wrap gap-2">
+                            {isCursorExternalDelivery ? (
+                              <button
+                                type="button"
+                                onClick={() => copyDraft(cursorMcpConfigDraft, "Cursor MCP 설정")}
+                                disabled={!cursorMcpConfigDraft}
+                                className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
+                              >
+                                <Code2 size={16} />
+                                MCP 설정 복사
+                              </button>
+                            ) : null}
                             <button
                               type="button"
-                              onClick={() => copyDraft(cursorMcpConfigDraft, "Cursor MCP 설정")}
-                              disabled={!cursorMcpConfigDraft}
-                              className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
-                            >
-                              <Code2 size={16} />
-                              MCP 설정 복사
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => copyDraft(cursorGuideDraft, "Cursor 연결 가이드")}
-                              disabled={!cursorGuideDraft}
+                              onClick={() => copyDraft(liveExternalToolGuideDraft, `${activeExternalBuildTool.label} 연결 가이드`)}
+                              disabled={!liveExternalToolGuideDraft}
                               className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                             >
                               <ClipboardList size={16} />
@@ -16130,8 +16527,8 @@ export function IdeaWorkbench({
                     <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 목록</h3>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
                       {buildDeliveryMode === "external_tool"
-                        ? isCursorExternalDelivery
-                          ? "Cursor 연결 파일에는 이 작업 목록이 포함됩니다. Cursor가 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다."
+                        ? isLiveExternalDelivery
+                          ? `${activeExternalBuildTool.label} 연결 파일에는 이 작업 목록이 포함됩니다. 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다.`
                           : `${activeExternalBuildTool.label} 시작 패키지에 이 작업 목록이 포함됩니다. 작업이 끝나면 완료 보고를 반영해 Venture Lab 작업 상태를 맞춥니다.`
                         : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다."}
                     </p>
@@ -16159,7 +16556,7 @@ export function IdeaWorkbench({
                           <div className="flex items-start justify-between gap-2">
                             <div className="text-sm font-semibold text-slate-950">{task.title}</div>
                             <span className="avl-pill avl-pill-info">
-                              {isCursorExternalDelivery ? "연결 파일에 포함" : "패키지에 포함"}
+                              {isLiveExternalDelivery ? "연결 파일에 포함" : "패키지에 포함"}
                             </span>
                           </div>
                         <p className="mt-2 text-xs leading-5 text-slate-700">
@@ -16178,13 +16575,15 @@ export function IdeaWorkbench({
                     <div className="mt-4 border border-emerald-200 bg-emerald-50 p-4">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
-                          <div className="avl-kicker">{isCursorExternalDelivery ? "auto sync" : "completion report"}</div>
+                          <div className="avl-kicker">{isLiveExternalDelivery ? "auto sync" : "completion report"}</div>
                           <h4 className="mt-2 text-base font-semibold text-emerald-950">
-                            {isCursorExternalDelivery ? "Cursor 작업 상태를 자동으로 확인합니다" : "완료 보고를 작업표에 반영합니다"}
+                            {isLiveExternalDelivery
+                              ? `${activeExternalBuildTool.label} 작업 상태를 자동으로 확인합니다`
+                              : "완료 보고를 작업표에 반영합니다"}
                           </h4>
                           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700">
-                            {isCursorExternalDelivery
-                              ? "Cursor가 완료 보고를 남기면 이 화면이 주기적으로 서버 상태를 다시 읽어 작업 목록과 성과 확인 화면에 반영합니다."
+                            {isLiveExternalDelivery
+                              ? `${activeExternalBuildTool.label}가 완료 보고를 남기면 이 화면이 서버 상태를 다시 읽어 작업 목록과 성과 확인 화면에 반영합니다.`
                               : `${activeExternalBuildTool.label}는 현재 시작 패키지와 완료 보고 반영으로 연결합니다. 작업이 끝나면 보고 내용을 아래 영역에 붙여 Venture Lab 작업표를 업데이트합니다. 원격 자동 쓰기는 아직 제공하지 않습니다.`}
                           </p>
                           <p className="mt-2 text-sm leading-6 text-emerald-950" role="status">
@@ -16213,18 +16612,18 @@ export function IdeaWorkbench({
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                           <div>
                             <div className="text-sm font-semibold text-slate-950">
-                              {isCursorExternalDelivery
+                              {isLiveExternalDelivery
                                 ? "자동 반영이 안 될 때만 백업으로 가져오기"
                                 : `${activeExternalBuildTool.label} 완료 보고 붙여넣기`}
                             </div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
-                              {isCursorExternalDelivery
-                                ? "일반 흐름에서는 열지 않아도 됩니다. Cursor 자동 반영이 실패했을 때만 사용하세요."
+                              {isLiveExternalDelivery
+                                ? `일반 흐름에서는 열지 않아도 됩니다. ${activeExternalBuildTool.label} 자동 반영이 실패했을 때만 사용하세요.`
                                 : "자동 쓰기 연결 전까지는 완료 보고를 붙여넣어 작업 상태를 갱신합니다."}
                             </p>
                           </div>
                           <span className="avl-pill avl-pill-neutral">
-                            {isCursorExternalDelivery ? "보조 경로" : "완료 보고"}
+                            {isLiveExternalDelivery ? "보조 경로" : "완료 보고"}
                           </span>
                         </div>
                       </summary>
@@ -16232,15 +16631,17 @@ export function IdeaWorkbench({
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div>
                         <div className="text-sm font-semibold text-slate-950">
-                          {isCursorExternalDelivery ? "Cursor 진행 결과 백업 가져오기" : `${activeExternalBuildTool.label} 완료 보고 반영`}
+                          {isLiveExternalDelivery
+                            ? `${activeExternalBuildTool.label} 진행 결과 백업 가져오기`
+                            : `${activeExternalBuildTool.label} 완료 보고 반영`}
                         </div>
                         <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                          {isCursorExternalDelivery
+                          {isLiveExternalDelivery
                             ? "자동 반영이 실패했거나 예전 완료 보고를 반영해야 할 때만 사용합니다."
                             : `${activeExternalBuildTool.label}에서 받은 완료 보고를 붙여넣으면 작업별 상태를 읽어 Venture Lab에 반영합니다.`}{" "}
-                          {isCursorExternalDelivery ? (
+                          {isLiveExternalDelivery ? (
                             <>
-                              <span className="font-mono">.cursor/venture-lab-progress.json</span> 내용을 넣으면 작업별 상태를 읽어
+                              <span className="font-mono">{liveExternalToolProgressPath}</span> 내용을 넣으면 작업별 상태를 읽어
                               Venture Lab에 반영합니다.
                             </>
                           ) : null}
@@ -16265,7 +16666,7 @@ export function IdeaWorkbench({
                       }}
                       rows={7}
                       className="mt-3 w-full border border-slate-300 bg-white p-3 text-sm leading-6 text-slate-900 outline-none focus:border-slate-950"
-                      placeholder={`${activeExternalBuildTool.label} 완료 보고${isCursorExternalDelivery ? " 또는 .cursor/venture-lab-progress.json" : ""} 내용을 붙여넣으세요.\n예: 완료 작업: T-002 핵심 사용자 여정 와이어프레임\n다음 미완료 작업은 T-003 데이터 모델과 마이그레이션 입니다.`}
+                      placeholder={`${activeExternalBuildTool.label} 완료 보고${isLiveExternalDelivery ? ` 또는 ${liveExternalToolProgressPath}` : ""} 내용을 붙여넣으세요.\n예: 완료 작업: T-002 핵심 사용자 여정 와이어프레임\n다음 미완료 작업은 T-003 데이터 모델과 마이그레이션 입니다.`}
                     />
                     {cursorProgressImportMessage ? (
                       <div className="mt-3 border border-blue-200 bg-blue-50 p-3 text-sm leading-6 text-blue-950" role="status">
@@ -16295,8 +16696,8 @@ export function IdeaWorkbench({
                     ) : null}
                     <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-xs leading-5 text-slate-500">
-                        {isCursorExternalDelivery
-                          ? "Cursor 연결 파일에는 자동 반영 설정이 포함됩니다. 이 가져오기는 자동 반영이 실패했을 때 쓰는 백업 경로입니다."
+                        {isLiveExternalDelivery
+                          ? `${activeExternalBuildTool.label} 연결 파일에는 자동 반영 설정이 포함됩니다. 이 가져오기는 자동 반영이 실패했을 때 쓰는 백업 경로입니다.`
                           : "이 반영은 현재 로그인한 사용자 권한으로 저장됩니다. 외부 도구가 끝낸 작업만 붙여넣으세요."}
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -16317,10 +16718,10 @@ export function IdeaWorkbench({
                         >
                           <Save size={16} />
                           {isBusy
-                            ? isCursorExternalDelivery
+                            ? isLiveExternalDelivery
                               ? "백업 반영 중"
                               : "완료 보고 반영 중"
-                            : isCursorExternalDelivery
+                            : isLiveExternalDelivery
                               ? "백업 반영 실행"
                               : "완료 보고 반영"}
                         </button>
