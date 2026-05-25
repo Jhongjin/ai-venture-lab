@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, ty
 import {
   Activity,
   ArrowDownToLine,
+  ArrowRight,
   Beaker,
   CheckCircle2,
   Clipboard,
@@ -9936,20 +9937,39 @@ export function IdeaWorkbench({
   const recentSignalCount = eventCountForWindow(selectedTelemetryEvents, 14);
   const learningDecisionLabel =
     totalLearningImplementationTasks > 0 && completedLearningImplementationTasks.length < totalLearningImplementationTasks
-      ? "제작 계속"
+      ? "다음 작업 완료"
       : productSignalCount === 0
-        ? "출시 전"
+        ? "첫 버전 배포"
         : openSelectedIdeaRisks.length > 0
-          ? "보완 판단"
-          : "관찰 계속";
+          ? "리스크 보완"
+          : "다음 빌드 범위 결정";
   const learningDecisionDetail =
-    learningDecisionLabel === "제작 계속"
-      ? "아직 완료되지 않은 제작 작업이 있습니다. Cursor나 내부 제작 도구에서 다음 작업을 끝내고 결과를 다시 반영하세요."
-      : learningDecisionLabel === "출시 전"
+    learningDecisionLabel === "다음 작업 완료"
+      ? "아직 완료되지 않은 제작 작업이 있습니다. 선택한 외부 개발 도구나 내부 제작 흐름에서 다음 작업을 끝내고 결과를 다시 반영하세요."
+      : learningDecisionLabel === "첫 버전 배포"
         ? "아직 실제 제품 이벤트가 없습니다. 먼저 첫 사용자에게 보여줄 버전을 만들고 핵심 행동 신호를 연결하세요."
-        : learningDecisionLabel === "보완 판단"
+        : learningDecisionLabel === "리스크 보완"
           ? "사용 신호와 열린 리스크를 같이 보고 다음 빌드에서 제거할 차단 요인을 정하세요."
           : "최근 사용 신호를 보며 다음 빌드 범위를 작게 승인할지 판단하세요.";
+  const learningPrimaryActionLabel = nextImplementationTask
+    ? "다음 제작 작업"
+    : productSignalCount === 0
+      ? "출시 전 확인"
+      : "다음 빌드 판단";
+  const learningPrimaryActionText = nextImplementationTask
+    ? `${nextImplementationTask.title} 작업을 이어서 진행하고, 완료 보고를 Venture Lab에 자동 반영하세요.`
+    : productSignalCount === 0
+      ? "첫 버전을 배포하거나 내부 제작 흐름으로 넘긴 뒤, 방문과 핵심 행동 이벤트가 들어오는지 확인하세요."
+      : `최근 14일 신호 ${recentSignalCount}개를 기준으로 다음 빌드 범위를 작게 정하세요.`;
+  const learningPrimaryActionDetail = nextImplementationTask
+    ? buildDeliveryMode === "external_tool"
+      ? `${activeExternalBuildTool.label}에서 완료 보고가 들어오면 이 화면의 작업 목록이 자동으로 갱신됩니다.`
+      : "내부 제작 흐름에서 완료 증거가 저장되면 이 화면의 작업 목록이 자동으로 갱신됩니다."
+    : productSignalCount === 0
+      ? "실제 사용 신호가 없을 때는 리포트보다 제작 완료와 이벤트 연결 여부를 먼저 봅니다."
+      : "이제 상세 이벤트는 필요할 때만 열고, 다음 개선 또는 보류 판단을 남기면 됩니다.";
+  const learningPrimaryCtaLabel =
+    nextImplementationTask || productSignalCount === 0 ? "최종 실행으로 가기" : "리포트 복사";
   const learningDecisionCards = [
     {
       label: "제작 진행",
@@ -11843,8 +11863,8 @@ export function IdeaWorkbench({
   }> = [
     {
       id: "select",
-      label: "검토 아이디어",
-      description: "진행 중인 아이디어를 고릅니다.",
+      label: "아이디어 도출",
+      description: "후보와 제작 형태를 고릅니다.",
       status: `${getActiveIdeas(ideas).filter((idea) => getRecordAccessState(idea) !== "hidden").length}개`,
     },
     {
@@ -11885,14 +11905,14 @@ export function IdeaWorkbench({
     },
     {
       id: "artifacts",
-      label: "기획서 만들기",
-      description: "다음 사람이 볼 제작 자료를 만듭니다.",
+      label: "검증 자료 저장",
+      description: "검증 자료를 한 번에 저장합니다.",
       status: selectedArtifactRecords.length > 0 ? `${selectedArtifactRecords.length}개` : "대기",
     },
     {
       id: "development",
-      label: "제작 준비",
-      description: "제작 전 조건과 막힌 항목을 봅니다.",
+      label: "제작 패키지",
+      description: "제작 자료를 자동 정리합니다.",
       status:
         selectedImplementationTasks.length > 0
           ? `${selectedImplementationTasks.filter((task) => task.status === "done").length}/${selectedImplementationTasks.length}`
@@ -11913,6 +11933,18 @@ export function IdeaWorkbench({
       status: selectedTelemetryEvents.length > 0 ? `${selectedTelemetryEvents.length}개` : "대기",
     },
   ];
+  const guidedWorkbenchTaskIds = new Set<WorkbenchTask>([
+    "select",
+    "score",
+    "experiment",
+    "artifacts",
+    "development",
+    "orchestration",
+    "launch",
+    "learning",
+  ]);
+  const visibleWorkbenchTasks =
+    experienceMode === "guided" ? workbenchTasks.filter((task) => guidedWorkbenchTaskIds.has(task.id)) : workbenchTasks;
   const visibleIdeas = useMemo(() => {
     const activeRecords = getActiveIdeas(ideas);
 
@@ -11942,10 +11974,10 @@ export function IdeaWorkbench({
 
     switch (idea.stage) {
       case "prd":
-        return { label: "STEP 4 AI 제작 자료 저장", task: "artifacts" as WorkbenchTask };
+        return { label: "STEP 4 검증 자료 저장", task: "artifacts" as WorkbenchTask };
       case "prototype":
       case "qa":
-        return { label: "STEP 5 제작 준비", task: "development" as WorkbenchTask };
+        return { label: "STEP 5 제작 패키지", task: "development" as WorkbenchTask };
       case "launch":
         return { label: "STEP 7 최종 실행", task: "launch" as WorkbenchTask };
       case "intake":
@@ -12126,9 +12158,9 @@ export function IdeaWorkbench({
               검토 아이디어 보기
             </button>
           ) : (
-            <a className="avl-btn avl-btn-primary px-4" href="/workspace">
-              아이디어 도출로 가기
-            </a>
+            <button type="button" className="avl-btn avl-btn-primary px-4" onClick={() => router.push("/workspace")}>
+              메모 붙여넣기 화면 열기
+            </button>
           )}
         </div>
       </section>
@@ -12209,8 +12241,8 @@ export function IdeaWorkbench({
         };
       case "learning":
         return {
-          title: "출시 후에는 실제 사용 신호로 다음 결정을 정리하세요.",
-          detail: "방문, 가입, 핵심 행동, 활성화, 결제 신호를 보고 다음 개선 또는 중단 판단을 남깁니다.",
+          title: "제작 작업 상태를 보고 다음 행동만 정하세요.",
+          detail: "작업별 완료/진행/차단 상태를 먼저 확인하고, 실제 사용 신호와 리포트는 출시 후 필요할 때만 펼쳐 봅니다.",
         };
       case "archive":
       default:
@@ -12934,8 +12966,8 @@ export function IdeaWorkbench({
     setIsSavingValidationBundle(false);
     setMessage(
       savedCount > 0
-        ? "검증 자료를 한 번에 저장했습니다. 하단 다음 단계 버튼으로 제작 준비에 들어갈 수 있습니다."
-        : "이미 필요한 검증 자료가 모두 저장되어 있습니다. 하단 다음 단계 버튼으로 제작 준비에 들어갈 수 있습니다.",
+        ? "검증 자료를 한 번에 저장했습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다."
+        : "이미 필요한 검증 자료가 모두 저장되어 있습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다.",
     );
   }
 
@@ -14610,7 +14642,7 @@ export function IdeaWorkbench({
             <p className="mt-1 text-sm leading-6 text-slate-500">단계를 고르면 오른쪽 작업 화면만 바뀝니다.</p>
           </div>
           <div className="grid gap-2">
-            {workbenchTasks.map((task, index) => {
+            {visibleWorkbenchTasks.map((task, index) => {
               const isTaskLocked = task.id === "launch" && !canEnterLaunch && activeTask !== "launch";
 
               return (
@@ -15280,7 +15312,7 @@ export function IdeaWorkbench({
               <section className="border border-slate-200 bg-white p-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
-                    <div className="avl-kicker">자동 제작 준비</div>
+                    <div className="avl-kicker">자동 제작 패키지</div>
                     <h3 className="mt-2 text-xl font-semibold text-slate-950">AI가 제작 패키지를 한 번에 만듭니다</h3>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                       검증 결과와 제작 형태를 바탕으로 기획서, 디자인 기준, 기술 방향, 첫 제작 범위를 하나로 묶습니다.
@@ -15820,7 +15852,7 @@ export function IdeaWorkbench({
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="avl-kicker">
-                    제작 준비
+                    제작 패키지
                   </div>
                   <h3 className="mt-2 text-base font-semibold text-slate-950">제작 시작 요약</h3>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
@@ -16808,7 +16840,7 @@ export function IdeaWorkbench({
               <div className="avl-kicker">final execution</div>
               <h2 className="mt-2 text-lg font-semibold text-slate-950">최종 실행</h2>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">
-                모든 검증과 제작 준비가 끝난 뒤, 선택한 방식으로 실제 제작 환경에 넘깁니다.
+                모든 검증과 제작 패키지가 끝난 뒤, 선택한 방식으로 실제 제작 환경에 넘깁니다.
               </p>
             </div>
             <div className="border border-slate-200 bg-white px-4 py-3 text-right text-slate-950">
@@ -17544,38 +17576,40 @@ export function IdeaWorkbench({
         <div className={`avl-card p-4 ${activeTask === "learning" ? "" : "hidden"}`}>
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-            <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+              <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                 <Activity size={16} />
-                실제 사용 신호
+                실행 상태
               </div>
               <h2 className="text-lg font-semibold text-slate-950">성과 확인</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-500">여기서는 리포트를 읽는 것이 아니라, 지금 계속 만들지 보완할지 판단합니다.</p>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                여기서는 리포트를 먼저 읽지 않습니다. 작업 완료 상태를 보고 지금 이어서 만들지, 출시 신호를 볼지 정합니다.
+              </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+          </div>
+
+          <div className="mb-4 border border-blue-200 bg-blue-50 p-4">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div>
+                <div className="text-sm font-semibold text-blue-950">지금 할 일</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">{learningPrimaryActionLabel}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-700">{learningPrimaryActionText}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
+              </div>
               <button
                 type="button"
-                onClick={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
-                disabled={!learningTelemetryReportDraft}
-                className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
+                onClick={() => {
+                  if (nextImplementationTask || productSignalCount === 0) {
+                    updateActiveTask("launch");
+                    return;
+                  }
+
+                  void copyDraft(learningTelemetryReportDraft, "학습 리포트");
+                }}
+                disabled={productSignalCount > 0 && !learningTelemetryReportDraft}
+                className="avl-btn avl-btn-primary h-10 px-4 disabled:opacity-50"
               >
-                <Clipboard size={16} />
-                리포트 복사
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  saveArtifactDraft(
-                    "research_note",
-                    `${selectedIdea.name} 학습 리포트`,
-                    learningTelemetryReportDraft,
-                    "post_launch_learning",
-                  )
-                }
-                disabled={isBusy || !user || !learningTelemetryReportDraft}
-                className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
-              >
-                <Save size={16} />
-                리포트 저장
+                {productSignalCount > 0 && !nextImplementationTask ? <Clipboard size={16} /> : <ArrowRight size={16} />}
+                {learningPrimaryCtaLabel}
               </button>
             </div>
           </div>
@@ -17643,24 +17677,22 @@ export function IdeaWorkbench({
                 ))
               ) : (
                 <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-                  아직 연결된 제작 작업이 없습니다. 최종 실행 단계에서 제작 패키지를 넘기고 첫 완료 보고를 반영하면 여기에 표시됩니다.
+                  <div className="font-semibold text-slate-950">성과 확인은 아직 볼 게 없습니다.</div>
+                  <p className="mt-1">최종 실행 단계에서 제작 패키지를 넘기고 첫 완료 보고를 반영하면 여기에 표시됩니다.</p>
+                  <button
+                    type="button"
+                    onClick={() => updateActiveTask("launch")}
+                    className="avl-btn avl-btn-secondary mt-3 h-9 px-3"
+                  >
+                    <ArrowRight size={14} />
+                    최종 실행 열기
+                  </button>
                 </div>
               )}
             </div>
           </section>
 
-          {experienceMode === "guided" ? (
-            <div className="mt-4 border border-blue-200 bg-blue-50 p-4">
-              <div className="text-sm font-semibold text-blue-950">지금 할 일</div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                {nextImplementationTask
-                  ? `${nextImplementationTask.title} 작업을 외부 개발 도구에서 이어서 진행하고, 완료 보고를 최종 실행 화면에 다시 반영하세요.`
-                  : productSignalCount === 0
-                    ? "첫 버전을 배포하거나 내부 개발로 넘긴 뒤, 방문과 핵심 행동 이벤트가 들어오는지 확인하세요."
-                    : `최근 14일 신호 ${recentSignalCount}개를 기준으로 다음 빌드 범위를 작게 정하세요.`}
-              </p>
-            </div>
-          ) : (
+          {experienceMode === "guided" ? null : (
           <div className="mt-4 avl-card p-4 text-slate-900">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
@@ -17782,8 +17814,40 @@ export function IdeaWorkbench({
 
           <details className="mt-4 border border-slate-200 bg-white p-4">
             <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
-              상세 사용 신호와 리포트 보기
+              필요할 때만 여는 운영자용 리포트
             </summary>
+            <div className="mt-4 flex flex-col gap-3 border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm leading-6 text-slate-600">
+                실제 이벤트 수치와 리포트 저장은 출시 후 판단이 필요할 때만 확인합니다.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
+                  disabled={!learningTelemetryReportDraft}
+                  className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
+                >
+                  <Clipboard size={16} />
+                  리포트 복사
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    saveArtifactDraft(
+                      "research_note",
+                      `${selectedIdea.name} 학습 리포트`,
+                      learningTelemetryReportDraft,
+                      "post_launch_learning",
+                    )
+                  }
+                  disabled={isBusy || !user || !learningTelemetryReportDraft}
+                  className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
+                >
+                  <Save size={16} />
+                  리포트 저장
+                </button>
+              </div>
+            </div>
             <div className="mt-4 grid gap-3 md:grid-cols-5">
               {learningSignalCards.map((card) => (
                 <div key={card.label} className="avl-surface-muted p-4">
@@ -18911,7 +18975,7 @@ export function IdeaWorkbench({
         <div className={activeTask === "artifacts" ? "avl-card p-4" : "hidden"}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">AI 제작 자료 저장</h2>
+              <h2 className="text-lg font-semibold text-slate-950">검증 자료 저장</h2>
               <p className="mt-1 text-sm text-slate-500">
                 {experienceMode === "guided"
                   ? "AI가 아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 한 번에 저장합니다."
@@ -19128,11 +19192,11 @@ export function IdeaWorkbench({
               "validation_summary",
             )
           }
-          saveLabel={hasValidationSummaryArtifact ? "저장 완료" : "제작 자료 저장"}
+          saveLabel={hasValidationSummaryArtifact ? "저장 완료" : "검증 자료 저장"}
           saveDisabled={isBusy || !user || !canSaveValidationSummary || hasValidationSummaryArtifact}
           disabledNote={
             hasValidationSummaryArtifact
-              ? "검증 완료 요약이 저장되었습니다. 하단 다음 단계 버튼으로 제작 준비에 들어갈 수 있습니다."
+              ? "검증 완료 요약이 저장되었습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다."
               : canSaveValidationSummary
               ? undefined
               : `검증 완료 요약은 ${validationSummaryRequirements

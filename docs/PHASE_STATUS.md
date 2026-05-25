@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-25 | Simplified STEP 8 and aligned first-use step labels | Current commit | Production deploy pending after push | `pnpm quality:full` |
 | 2026-05-25 | Promoted Claude Code and Google Antigravity to named live connector paths | `bd1c429` | Pushed to `main`; production smoke passed after SQL `20260525020000_allow_named_build_sync_tools.sql` | `pnpm quality:full`, `pnpm smoke:build-sync`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-25 | Promoted Codex from package-only handoff to live external connector path | `a527c63` | Pushed to `main`; production smoke passed after SQL `20260525010000_allow_codex_build_sync_tokens.sql` | `pnpm quality:full`, `pnpm smoke:build-sync`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` |
 | 2026-05-25 | Limited first supported external build choices to Cursor, Codex, Claude Code, and Google Antigravity | `b6b939b` | Pushed to `main`; production alias updated | `pnpm quality:full`, `pnpm release:check`, `pnpm smoke:prod`, `pnpm smoke:routes`, `node .\scripts\smoke_browser.mjs`, `pnpm smoke:build-sync` |

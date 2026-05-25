@@ -128,14 +128,14 @@ const shellTasks: Array<{
   },
   {
     id: "workbench:artifacts",
-    label: "AI 제작 자료 저장",
-    description: "제작 자료",
+    label: "검증 자료 저장",
+    description: "검증 자료",
     group: "제작",
     icon: ClipboardText,
   },
   {
     id: "workbench:development",
-    label: "제작 준비",
+    label: "제작 패키지",
     description: "제작 패키지",
     group: "제작",
     icon: Code,
@@ -252,7 +252,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["AI 제작 패키지 만들기", "최종 요약 확인", "제작 패키지 저장"],
   },
   "workbench:launch": {
-    summary: "검증과 제작 준비가 모두 끝난 뒤 외부 제작 도구 연결 또는 내부 개발 이동을 실행합니다.",
+    summary: "검증과 제작 패키지가 모두 끝난 뒤 외부 제작 도구 연결 또는 내부 개발 이동을 실행합니다.",
     checklist: ["준비 완료 상태 확인", "제작 패키지 받기", "선택한 제작 방식으로 실행"],
   },
   "workbench:learning": {
@@ -443,7 +443,7 @@ function getNextTaskOptions({
       return [
         createTransition(
           "workbench:artifacts",
-          "다음: AI 제작 자료 저장",
+          "다음: 검증 자료 저장",
           canEnterArtifacts
             ? "검증 계획과 시장·경쟁 점검이 저장됐습니다. 이제 아이디어 요약과 제작 범위를 문서로 남깁니다."
             : "검증 계획과 시장·경쟁 점검이 모두 저장되면 활성화됩니다.",
@@ -453,13 +453,13 @@ function getNextTaskOptions({
       ];
     case "workbench:decision":
       return [
-        createTransition("workbench:artifacts", "다음: AI 제작 자료 저장", "아이디어 요약, 기획서, 첫 제작 범위를 제작 자료로 남깁니다."),
+        createTransition("workbench:artifacts", "다음: 검증 자료 저장", "아이디어 요약, 기획서, 첫 제작 범위를 제작 자료로 남깁니다."),
       ];
     case "workbench:artifacts":
       return [
         createTransition(
           "workbench:development",
-          "다음: 제작 준비",
+          "다음: 제작 패키지",
           canEnterDevelopment
             ? "검증 완료 요약까지 저장했습니다. 이제 디자인, 제작, 배포 준비를 구체화합니다."
             : "아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 모두 저장하면 활성화됩니다.",
@@ -627,7 +627,7 @@ function getExecutiveFocus({
   if (artifactCount === 0) {
     return {
       eyebrow: "지금 할 일",
-      title: "이제 AI 제작 자료를 저장할 차례입니다.",
+      title: "이제 검증 자료를 저장할 차례입니다.",
       detail: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장하면 제작 패키지로 이어갈 수 있습니다.",
       evidence: `${dataNote} · 판단 ${decisionCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
@@ -943,6 +943,10 @@ export function VentureConsoleShell({
 
     if (activeTask === "console:auth") {
       return ideaCount > 0 ? "workbench:score" : "console:extract";
+    }
+
+    if (ideaCount === 0 && activeTask.startsWith("workbench:")) {
+      return "console:extract";
     }
 
     return activeTask;
