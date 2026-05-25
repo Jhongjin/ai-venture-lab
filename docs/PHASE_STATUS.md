@@ -192,7 +192,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 | Production RLS migration confirmation | Completed | Production posture was checked before denied smoke: required private-read migrations were present, old public-read policies were absent, and RLS was enabled on core tables | Rerun posture checks when migrations or policies change |
 | Telemetry production smoke execution | Completed | Post-rotation telemetry ingest and funnel smoke passed with a disposable idea id | Rerun when telemetry env, endpoint behavior, or telemetry RLS policies change |
 | Authenticated telemetry smoke execution | Completed | 2026-05-22 approved rerun passed after local telemetry secret alignment, using disposable idea data and summary-only evidence | Rerun only when telemetry env, endpoint behavior, or telemetry RLS policies change |
-| Codex, Claude Code, Antigravity live write-back | Deferred | Cursor is the first live connector with scoped token write-back; the other named tools receive start packages and completion-report import only so the UI does not imply unsupported automation | Add tool-specific connectors only after authentication, permission, token rotation, and rollback behavior are designed |
+| Codex, Claude Code, Antigravity live write-back | Completed | Cursor, Codex, Claude Code, and Google Antigravity now receive tool-specific setup files, scoped build-sync tokens, local progress commands, revoke controls, and denied-case smoke coverage | Keep `pnpm smoke:build-sync` as the regression check before changing token issuance, revoke, setup files, or progress sync |
 | Generic MCP user-facing selector | Deferred | The operator chose named tool integrations first; generic MCP is too vague for the current product promise and could imply unsupported automation | Keep legacy compatibility only; revisit after named connectors and a concrete resource contract exist |
 | Cursor token rotation and revocation controls | Completed | Production SQL was applied and `pnpm smoke:build-sync` verified registry ready, connection revoke, and revoked-token rejection | Keep `pnpm smoke:build-sync` as the regression check before changing token issuance, revoke, or progress sync |
 | Native internal builder | Deferred | Final execution can choose an internal build destination, but the actual native builder is not implemented yet | Keep the handoff boundary explicit until a first internal build runtime is scoped |
@@ -225,6 +225,7 @@ For Cursor handoff tests, use `docs/CURSOR_EXTERNAL_TOOL_GUIDE.md`. The default 
 
 ## Next Jobs
 
-1. Choose the next live connector from Codex, Claude Code, or Google Antigravity only after the operator accepts the `external_connector_writeback_boundary` checklist for that tool.
+1. Keep named external build tools focused on Cursor, Codex, Claude Code, and Google Antigravity; run `pnpm smoke:build-sync` before changing token issuance, revoke, setup files, or progress sync.
 2. Keep generic MCP deferred until a concrete user-facing connector, permission model, denied-case smoke, and rollback path exist.
-3. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
+3. Continue the active product hardening queue with first-use simplicity and task-led execution monitoring before broad new feature scope.
+4. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
