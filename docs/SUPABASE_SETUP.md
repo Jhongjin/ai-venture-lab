@@ -64,7 +64,7 @@ After applying `20260524010000_add_build_sync_tokens.sql` and the latest tool-ch
 pnpm smoke:build-sync
 ```
 
-The smoke creates a disposable idea when browser-accessible Supabase public config is available, issues named-tool connection tokens for Cursor, Codex, Claude Code, and Google Antigravity, verifies that progress writes work before revoke, creates a disposable launch package, opens the STEP 7 final execution view to confirm each live connector guide is visible, opens the STEP 8 learning view to confirm the synced task is visible in the task board, revokes each connection, confirms old tokens are rejected, and deletes the disposable idea.
+The smoke creates a disposable idea when browser-accessible Supabase public config is available, issues named-tool connection tokens for Cursor, Codex, Claude Code, and Google Antigravity, verifies that progress writes work before revoke, confirms a tampered cross-idea token is rejected, creates a disposable launch package, opens the STEP 7 final execution view to confirm each live connector guide is visible, opens the STEP 8 learning view to confirm the synced task is visible in the task board, revokes each connection, confirms old tokens are rejected, and deletes the disposable idea.
 
 This creates:
 

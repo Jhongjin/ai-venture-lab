@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-25 | Aligned Supabase setup guide with build-sync denied-case smoke | Current commit | Docs-only; pushed to `main` after verification | `pnpm release:check`; Supabase setup now mentions the tampered cross-idea token rejection covered by `pnpm smoke:build-sync` |
 | 2026-05-25 | Simplified STEP 6 guidance around generated work order review | `6c2d86a` | Pushed to `main`; production smoke passed | `pnpm lint`, `pnpm typecheck`, `pnpm release:check`, `pnpm smoke:browser`, `pnpm smoke:prod`, `pnpm smoke:routes`; STEP 6 side guidance now tells users to review the generated order and continue, with status changes framed as optional tracking only |
 | 2026-05-25 | Added cross-idea build-sync token denial smoke | Current commit | Script/docs only; pushed to `main` after verification | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync`; smoke now tampers a live token to another idea id and expects HTTP 401 before revoke checks |
 | 2026-05-25 | Added first-step progress regression smoke | Current commit | Script-only; pushed to `main` after verification | `node --check scripts/smoke_browser.mjs`, `pnpm smoke:browser`; browser smoke now fails if STEP 1 returns to the old `진행 1/8` counter instead of showing `완료 0/8` before any saved step |
