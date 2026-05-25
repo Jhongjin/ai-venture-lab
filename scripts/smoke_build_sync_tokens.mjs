@@ -570,6 +570,16 @@ async function main() {
       fail("missing BUILD_SYNC_SMOKE_IDEA_ID or TELEMETRY_SMOKE_IDEA_ID. Supabase public config could not be resolved from the app bundle.");
     }
 
+    const invalidTtlResult = await callAppApi(page, "/api/build-sync/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ideaId, tool: "cursor", expiresInSeconds: -1 }),
+    });
+
+    if (invalidTtlResult.status !== 400) {
+      fail(`invalid token TTL was not rejected. Expected HTTP 400, received ${invalidTtlResult.status}`);
+    }
+
     const tokenResult = await callAppApi(page, "/api/build-sync/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1064,6 +1074,7 @@ async function main() {
         : "Package-only handoff UI: skipped because disposable launch package was not available",
     );
     console.log("Connection revoke: accepted");
+    console.log("Invalid token TTL request: rejected");
     console.log("Tampered cross-idea token write: rejected");
     console.log("Expired token write: rejected");
     console.log("Revoked token write: rejected");

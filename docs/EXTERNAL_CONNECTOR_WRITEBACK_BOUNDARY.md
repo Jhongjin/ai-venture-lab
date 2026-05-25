@@ -13,7 +13,7 @@ Cursor, Codex, Claude Code, and Google Antigravity are the current named live wr
 - `/api/build-sync/progress` accepts only scoped task progress for the selected idea.
 - `public.build_sync_tokens` stores token hashes, status, expiry, and recent use metadata.
 - Operators can revoke individual named-tool connections.
-- `pnpm smoke:build-sync` verifies token issuance, allowed progress write, tampered cross-idea token rejection, expired-token rejection, STEP 7 guidance for all four named tools, STEP 8 task rendering, token revoke, and revoked-token rejection.
+- `pnpm smoke:build-sync` verifies token issuance, invalid TTL rejection, allowed progress write, tampered cross-idea token rejection, expired-token rejection, STEP 7 guidance for all four named tools, STEP 8 task rendering, token revoke, and revoked-token rejection.
 
 Generic MCP is deferred. It remains a compatibility profile for older artifacts and internal contract design, but it is not part of the supported final execution selector until a concrete tool, permission model, and smoke matrix are defined.
 
