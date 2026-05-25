@@ -240,8 +240,8 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["AI 추천 검증 계획 확인", "검증 계획 저장", "시장·경쟁 자동 점검 확인"],
   },
   "workbench:orchestration": {
-    summary: "제작자가 바로 움직일 수 있도록 작업 순서와 진행 상태만 간단히 확인합니다.",
-    checklist: ["작업 순서 확인", "역할별 결과 확인", "완료된 작업 상태 변경"],
+    summary: "AI가 만든 작업 순서를 확인하고 필요한 결과만 보완합니다.",
+    checklist: ["작업 순서 자동 만들기", "필요한 단계 결과 확인", "다음 단계로 이동"],
   },
   "workbench:artifacts": {
     summary: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장합니다.",
@@ -343,10 +343,10 @@ const taskCanvasDetails: Record<
     checkpoint: "사용자는 최종 요약만 확인하고, 필요한 메모만 더하면 됩니다.",
   },
   "workbench:orchestration": {
-    question: "누가 무엇을 언제 처리할지 명확한가요?",
-    aiLead: "전략, 디자인, 제작, 품질 점검, 보안의 순서를 정리하고 막히는 요인을 표시합니다.",
-    deliverable: "작업 순서와 진행 상태",
-    checkpoint: "1인 작업에서도 다음 작업 순서가 분명히 보여야 합니다.",
+    question: "작업 순서가 충분히 명확한가요?",
+    aiLead: "전략, 디자인, 제작, 품질 점검, 보안의 순서를 먼저 만들고 막히는 요인을 표시합니다.",
+    deliverable: "작업 순서와 다음 행동",
+    checkpoint: "상태 변경은 실제 실행 추적이 필요할 때만 쓰면 됩니다.",
   },
   "workbench:launch": {
     question: "이제 어떤 제작 환경으로 넘길까요?",
