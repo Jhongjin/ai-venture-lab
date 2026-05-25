@@ -3718,7 +3718,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                             className="avl-btn avl-btn-secondary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             {isReplayingExtraction ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
-                            {isReplayingExtraction ? "점검하는 중" : "누락된 후보 점검"}
+                            {isReplayingExtraction ? "점검하는 중" : "빠진 후보 다시 확인"}
                           </button>
                         </div>
                       </details>
