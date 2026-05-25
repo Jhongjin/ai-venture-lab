@@ -113,6 +113,14 @@ async function main() {
       page.getByRole("heading", { name: /외부 제작 도구로 제작을 시작하는 법/ }),
       "guide external tool heading",
     );
+    await waitForVisible(
+      page.getByText("작업 순서 확인 후 최종 실행", { exact: true }),
+      "guide work-order before final execution step",
+    );
+    await waitForVisible(
+      page.getByText("STEP 7에서 선택한 외부 개발 도구의 연결 파일", { exact: false }),
+      "guide final execution connection file sequence",
+    );
     for (const toolName of ["Cursor", "Codex", "Claude Code", "Google Antigravity"]) {
       await waitForVisible(page.getByText(toolName, { exact: true }).first(), `guide named tool ${toolName}`);
     }
