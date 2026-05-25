@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-25 | Clarified the STEP 1 candidate replay button copy | `02c865d` | Pushed to `main` pending | `pnpm lint`, `pnpm typecheck`; secondary AI review action now says `빠진 후보 다시 확인` instead of the more operator-like `누락된 후보 점검` |
 | 2026-05-25 | Clarified the user test path for external connector setup downloads | `d398f39` | Docs-only; pushed to `main` | `pnpm release:check`; user test guide now checks that the selected tool downloads the matching `*-setup.ps1` file before project-root install |
 | 2026-05-25 | Added setup-file download assertions to the external connector smoke | `c3df5df` | Script-only; pushed to `main` | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm smoke:build-sync`, `pnpm release:check`; smoke now verifies the downloaded `.ps1` setup files for Cursor, Codex, Claude Code, and Google Antigravity include the expected project-root files |
 | 2026-05-25 | Removed stale Cursor-only handoff copy from external tool messaging | `886fc0b` | Pushed to `main`; production smoke passed | `pnpm lint`, `pnpm typecheck`, `pnpm smoke:build-sync`, `pnpm release:check`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`; Cursor, Codex, Claude Code, and Google Antigravity now stay framed as the supported automatic sync paths |
