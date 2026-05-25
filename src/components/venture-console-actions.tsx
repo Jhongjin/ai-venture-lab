@@ -1754,7 +1754,6 @@ export function VentureConsoleActions({
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [workspaceMessage, setWorkspaceMessage] = useState<string | null>(null);
   const [rawIdeaSource, setRawIdeaSource] = useState("");
-  const [isAiGeneratedIdeaSource, setIsAiGeneratedIdeaSource] = useState(false);
   const [generatedIdeaSlots, setGeneratedIdeaSlots] = useState<GeneratedIdeaSlot[]>([]);
   const [extractedIdeas, setExtractedIdeas] = useState<ExtractedIdea[]>([]);
   const [buildDeliveryPreference, setBuildDeliveryPreference] =
@@ -2606,7 +2605,6 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
 
     if (!preserveKept) {
       setGeneratedIdeaSlots([]);
-      setIsAiGeneratedIdeaSource(false);
     }
 
     try {
@@ -2641,7 +2639,6 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
 
       setGeneratedIdeaSlots(nextSlots);
       setRawIdeaSource(nextSource);
-      setIsAiGeneratedIdeaSource(true);
       setExtractMessage(
         preserveKept && hasGeneratedIdeaSlots
           ? `킵한 후보 ${keptIdeas.length}개를 유지하고 ${replaceCount}개 후보를 새로 채웠습니다. 마음에 드는 후보는 계속 킵하세요.`
@@ -3605,7 +3602,6 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                       onChange={(event) => {
                         setRawIdeaSource(event.target.value);
                         setGeneratedIdeaSlots([]);
-                        setIsAiGeneratedIdeaSource(false);
                       }}
                       rows={12}
                       placeholder="예) 고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요. 반복 입력을 줄이고 누락을 확인하는 도구가 필요합니다."
@@ -3630,59 +3626,68 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         <p className="mt-1 text-sm leading-6 text-slate-600">
                           {hasGeneratedIdeaSlots
                             ? "킵한 후보는 유지하고, 마음에 들지 않은 후보만 새로 확인한 뒤 한 건으로 정리합니다."
-                            : "아이디어가 없으면 후보를 먼저 만들고, 입력칸 내용을 한 건의 검토 아이디어로 정리합니다."}
+                            : hasIdeaSourceInput
+                              ? "입력칸 내용을 한 건의 검토 아이디어와 제작 형태로 정리합니다."
+                              : "아이디어가 없으면 AI가 검토할 후보 3개를 먼저 도출합니다."}
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            void handleGenerateSampleIdeas();
-                          }}
-                          disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
-                          className="avl-btn avl-btn-secondary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                          {isGeneratingSample ? "도출하는 중" : "AI가 아이디어 도출하기"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            void handleAiExtractIdeas();
-                          }}
-                          disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction || !hasIdeaSourceInput}
-                          className="avl-btn avl-btn-primary px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                          {isAiGeneratedIdeaSource ? "이 후보들 중 하나로 정리하기" : hasIdeaSourceInput ? "이 내용으로 아이디어 정리하기" : "먼저 내용을 입력하세요"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (hasGeneratedIdeaSlots) {
-                              void handleGenerateSampleIdeas({ preserveKept: true });
-                              return;
-                            }
-
-                            void handleReplayExtractionComparison();
-                          }}
-                          disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction || !hasIdeaSourceInput}
-                          className="avl-btn avl-btn-secondary px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {(isGeneratingSample && hasGeneratedIdeaSlots) || isReplayingExtraction ? (
-                            <ArrowsClockwise className="animate-spin" size={15} />
-                          ) : (
-                            <ArrowsClockwise size={15} />
-                          )}
-                          다른 후보 더 확인하기
-                        </button>
+                        {hasGeneratedIdeaSlots ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                void handleAiExtractIdeas();
+                              }}
+                              disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction || !hasIdeaSourceInput}
+                              className="avl-btn avl-btn-primary px-4 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
+                              {isAiExtracting ? "정리하는 중" : "킵한 후보로 아이디어 정리하기"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                void handleGenerateSampleIdeas({ preserveKept: true });
+                              }}
+                              disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
+                              className="avl-btn avl-btn-secondary px-4 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
+                              다른 후보 더 확인하기
+                            </button>
+                          </>
+                        ) : hasIdeaSourceInput ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void handleAiExtractIdeas();
+                            }}
+                            disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
+                            className="avl-btn avl-btn-primary px-4 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
+                            {isAiExtracting ? "정리하는 중" : "이 내용으로 아이디어 정리하기"}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void handleGenerateSampleIdeas();
+                            }}
+                            disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
+                            className="avl-btn avl-btn-primary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
+                            {isGeneratingSample ? "도출하는 중" : "AI가 아이디어 도출하기"}
+                          </button>
+                        )}
                         {hasIdeaSourceInput ? (
                           <button
                             type="button"
                             onClick={() => {
                               setRawIdeaSource("");
                               setGeneratedIdeaSlots([]);
-                              setIsAiGeneratedIdeaSource(false);
                               setExtractedIdeas([]);
                               setExtractionRunMeta(null);
                               setExtractionReplay(null);
@@ -3695,6 +3700,29 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         ) : null}
                       </div>
                     </div>
+                    {hasIdeaSourceInput && !hasGeneratedIdeaSlots ? (
+                      <details className="mt-3 border-t border-slate-200 pt-3">
+                        <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
+                          필요할 때만 AI 정리 다시 보기
+                        </summary>
+                        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="text-sm leading-6 text-slate-600">
+                            결과가 어색하거나 빠진 후보가 있어 보일 때만 같은 입력을 한 번 더 점검합니다.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void handleReplayExtractionComparison();
+                            }}
+                            disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
+                            className="avl-btn avl-btn-secondary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {isReplayingExtraction ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
+                            {isReplayingExtraction ? "점검하는 중" : "누락된 후보 점검"}
+                          </button>
+                        </div>
+                      </details>
+                    ) : null}
                   </div>
                   {extractMessage ? (
                     <div aria-live="polite" role="status" className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-700">
