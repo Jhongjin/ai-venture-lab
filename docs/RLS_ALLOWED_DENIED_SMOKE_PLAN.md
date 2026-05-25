@@ -19,12 +19,12 @@ Validation keywords: `rls_allowed_denied_smoke_plan`, `authenticated_visibility_
 ## Runtime Boundary
 
 - Current deployed runtime source: `D:\Codex\venture-lab`.
-- Canonical planning/product target: `D:\Codex\admate-venture-os`.
-- Existing `D:\Projects\AdMate` materials are read-only reference only and must not be mutated.
+- Canonical product source: `D:\Codex\venture-lab`.
+- Existing `D:\Codex\admate-venture-os` and `D:\Projects\AdMate` materials are read-only reference only and must not be mutated.
 
 This plan does not create Supabase Auth users, create workspaces, insert ideas, run SQL, change RLS policies, trigger deploys, run telemetry smoke, or grant Build Relay broader permissions.
 
-Validation keywords: `current_runtime_source_venture_lab`, `canonical_planning_source_admate_venture_os`, `no_admate_projects_mutation`, `D:\Projects\AdMate`.
+Validation keywords: `current_runtime_source_venture_lab`, `venture_lab_independent_source`, `no_admate_projects_mutation`, `D:\Projects\AdMate`.
 
 ## Required Test Shape
 

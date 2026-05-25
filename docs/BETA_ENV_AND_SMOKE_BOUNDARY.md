@@ -15,10 +15,10 @@ Validation keywords: `beta_env_smoke_boundary_docs_only`, `names_only_no_values`
 ## Runtime Source Boundary
 
 - `D:\Codex\venture-lab` is the current deployed runtime source for `https://ai-venture-lab.vercel.app`.
-- `D:\Codex\admate-venture-os` remains the canonical planning/product target until a deliberate cutover.
-- `D:\Projects\AdMate` remains read-only reference material. No beta smoke, relay handoff, or setup step may mutate it.
+- `D:\Codex\venture-lab` is also the canonical product source for AI Venture Lab. Do not treat any AdMate workspace as the source of truth for this repo.
+- `D:\Codex\admate-venture-os` and `D:\Projects\AdMate` are read-only reference material. No beta smoke, relay handoff, or setup step may mutate them.
 
-Validation keywords: `current_runtime_source_venture_lab`, `canonical_planning_source_admate_venture_os`, `no_admate_projects_mutation`, `D:\Projects\AdMate`.
+Validation keywords: `current_runtime_source_venture_lab`, `venture_lab_independent_source`, `no_admate_projects_mutation`, `D:\Projects\AdMate`.
 
 ## Environment Variable Classes
 

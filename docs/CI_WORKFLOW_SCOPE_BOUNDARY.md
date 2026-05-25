@@ -33,10 +33,10 @@ Validation keywords: `ci_workflow_scope_active`, `workflow_scope_approved`, `qua
 ## Current Runtime Boundary
 
 - `D:\Codex\venture-lab` is the current deployed Git runtime for `https://ai-venture-lab.vercel.app`.
-- `D:\Codex\admate-venture-os` remains the canonical planning/product target until a deliberate cutover.
-- `D:\Projects\AdMate` remains read-only reference material and must not be mutated by local gates, future CI, Build Relay, or GitHub Actions.
+- `D:\Codex\venture-lab` is also the canonical product source for AI Venture Lab. Do not treat any AdMate workspace as the source of truth for this repo.
+- `D:\Codex\admate-venture-os` and `D:\Projects\AdMate` are read-only reference material and must not be mutated by local gates, future CI, Build Relay, or GitHub Actions.
 
-Validation keywords: `current_runtime_source_venture_lab`, `canonical_planning_target_admate_venture_os`, `no_admate_projects_mutation`, `D:\Projects\AdMate`.
+Validation keywords: `current_runtime_source_venture_lab`, `venture_lab_independent_source`, `no_admate_projects_mutation`, `D:\Projects\AdMate`.
 
 ## Local Gates First
 
