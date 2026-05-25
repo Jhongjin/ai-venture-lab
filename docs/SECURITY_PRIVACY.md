@@ -82,17 +82,17 @@ Validation keywords: `cleanup_ownership_required_for_write_smoke`, `no_primary_o
 
 ## External Build Sync Tokens
 
-- Cursor build sync tokens are bearer tokens scoped to one idea, one actor, one organization boundary, and the `cursor` tool.
+- External build sync tokens are bearer tokens scoped to one idea, one actor, one organization boundary, and one named tool: `cursor`, `codex`, `claude_code`, or `antigravity`.
 - The token allows only `implementation_tasks` creation or update for the scoped idea. It does not grant idea edits, artifact edits, user reads, workspace management, telemetry ingest, or service-role access to the external project.
 - The progress endpoint rechecks that the actor is still the idea creator or a workspace owner/admin before writing.
 - Tokens are signed server-side and expire after the configured TTL. The current default is 30 days.
 - When `public.build_sync_tokens` is applied, the raw token is not stored. The server stores only a SHA-256 token hash, status, expiry, and last-used metadata for individual revocation.
-- Re-downloading a Cursor connection file issues a new active connection. Old connections can be revoked individually from the final execution screen after the token registry migration is applied.
+- Re-downloading a connection file issues a new active connection for that tool. Old connections can be revoked individually from the final execution screen after the token registry migration is applied.
 - Before the token registry migration is applied, existing signed tokens continue in legacy mode so production handoffs do not abruptly break; individual revoke controls remain unavailable until SQL is applied.
-- If a token or `.cursor/venture-lab-sync.json` is exposed before individual revocation is available, rotate `BUILD_SYNC_TOKEN_SECRET` and redeploy. If that env var is absent, rotate the fallback signing secret that was in use.
-- `.cursor/venture-lab-sync.json` and `.cursor/venture-lab-progress.json` must stay out of Git, screenshots, chat, and exported artifacts.
+- If a token or any `venture-lab-sync.json` file is exposed before individual revocation is available, rotate `BUILD_SYNC_TOKEN_SECRET` and redeploy. If that env var is absent, rotate the fallback signing secret that was in use.
+- `.cursor`, `.codex`, `.claude`, and `.antigravity` sync/progress files must stay out of Git, screenshots, chat, and exported artifacts.
 
-Validation keywords: `build_sync_token_scoped`, `build_sync_token_bearer_secret`, `build_sync_token_hash_registry`, `build_sync_individual_revocation`, `cursor_sync_files_gitignored`.
+Validation keywords: `build_sync_token_scoped`, `build_sync_token_bearer_secret`, `build_sync_token_hash_registry`, `build_sync_individual_revocation`, `named_tool_sync_files_gitignored`.
 
 ## Firebase Gate
 

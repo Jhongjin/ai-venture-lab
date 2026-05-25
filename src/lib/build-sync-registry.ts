@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { hashBuildSyncToken, type BuildSyncTokenPayload } from "@/lib/build-sync-token";
+import { hashBuildSyncToken, type BuildSyncTokenPayload, type BuildSyncTool } from "@/lib/build-sync-token";
 import type { BuildSyncTokenStatus, Database } from "@/lib/supabase/types";
 
 type BuildSyncTokenRow = Database["public"]["Tables"]["build_sync_tokens"]["Row"];
@@ -16,7 +16,7 @@ export type BuildSyncRegistryStatus = "ready" | "missing" | "unavailable";
 
 export type PublicBuildSyncToken = {
   id: string;
-  tool: "cursor" | "codex";
+  tool: BuildSyncTool;
   status: BuildSyncTokenStatus;
   expiresAt: string;
   lastUsedAt: string | null;
@@ -25,7 +25,19 @@ export type PublicBuildSyncToken = {
 };
 
 function getBuildSyncToolLabel(tool: BuildSyncTokenPayload["tool"]) {
-  return tool === "codex" ? "Codex" : "Cursor";
+  if (tool === "codex") {
+    return "Codex";
+  }
+
+  if (tool === "claude_code") {
+    return "Claude Code";
+  }
+
+  if (tool === "antigravity") {
+    return "Google Antigravity";
+  }
+
+  return "Cursor";
 }
 
 export function isBuildSyncTokenRegistryMissing(error: RegistryErrorLike | null | undefined) {
@@ -108,11 +120,11 @@ export async function recordBuildSyncToken({
       return { ok: true, registryStatus: "missing", connection: null };
     }
 
-    if (isBuildSyncTokenToolConstraintError(error) && payload.tool === "codex") {
+    if (isBuildSyncTokenToolConstraintError(error) && payload.tool !== "cursor") {
       return {
         ok: false,
         error:
-          "Codex connection tokens require the 20260525010000_allow_codex_build_sync_tokens.sql migration. Apply it in Supabase, then try again.",
+          `${getBuildSyncToolLabel(payload.tool)} connection tokens require the latest build_sync_tokens tool-check migration. Apply it in Supabase, then try again.`,
       };
     }
 

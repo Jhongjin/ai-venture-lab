@@ -18,11 +18,23 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function parseBuildSyncTool(value: unknown): BuildSyncTool | null {
-  return value === "cursor" || value === "codex" ? value : null;
+  return value === "cursor" || value === "codex" || value === "claude_code" || value === "antigravity" ? value : null;
 }
 
 function getBuildSyncToolLabel(tool: BuildSyncTool) {
-  return tool === "codex" ? "Codex" : "Cursor";
+  if (tool === "codex") {
+    return "Codex";
+  }
+
+  if (tool === "claude_code") {
+    return "Claude Code";
+  }
+
+  if (tool === "antigravity") {
+    return "Google Antigravity";
+  }
+
+  return "Cursor";
 }
 
 export async function POST(request: Request) {
@@ -56,7 +68,7 @@ export async function POST(request: Request) {
   const tool = parseBuildSyncTool(body.tool);
 
   if (!tool) {
-    return jsonError("Only Cursor and Codex build sync are supported right now.", 400);
+    return jsonError("Only Cursor, Codex, Claude Code, and Google Antigravity build sync are supported right now.", 400);
   }
 
   const access = await getBuildSyncIdeaAccess(supabase, body.ideaId, user.id);

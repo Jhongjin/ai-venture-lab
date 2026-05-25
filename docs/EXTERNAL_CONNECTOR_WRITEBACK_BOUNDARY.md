@@ -4,23 +4,16 @@ This boundary defines what must exist before AI Venture Lab enables live write-b
 
 ## Current State
 
-Cursor and Codex are the current live write-back connectors.
+Cursor, Codex, Claude Code, and Google Antigravity are the current named live write-back connectors.
 
-- The final execution screen creates a Cursor project setup file.
-- The setup file installs local Cursor rules, MCP config, a local CLI/MCP bridge, package files, task files, and a scoped sync token.
-- The final execution screen also creates a Codex project setup file.
-- The Codex setup file installs package files, task files, Codex start instructions, a local progress CLI, and a scoped sync token.
+- The final execution screen creates a project setup file for the selected named tool.
+- Cursor and Claude Code receive project MCP configuration plus a local CLI/MCP bridge.
+- Codex receives a local CLI progress bridge.
+- Google Antigravity receives project instructions, an MCP config candidate, and a local CLI progress bridge.
 - `/api/build-sync/progress` accepts only scoped task progress for the selected idea.
 - `public.build_sync_tokens` stores token hashes, status, expiry, and recent use metadata.
-- Operators can revoke individual Cursor and Codex connections.
-- `pnpm smoke:build-sync` verifies token issuance, allowed progress write, STEP 7 Cursor/Codex guidance, STEP 8 task rendering, token revoke, and revoked-token rejection.
-
-Claude Code and Google Antigravity are package-only handoffs.
-
-- They receive tool-specific start packages.
-- They do not receive a live sync token.
-- They update Venture Lab only through the completion-report import UI.
-- The final execution screen must not show Cursor setup controls for these tools.
+- Operators can revoke individual named-tool connections.
+- `pnpm smoke:build-sync` verifies token issuance, allowed progress write, STEP 7 guidance for all four named tools, STEP 8 task rendering, token revoke, and revoked-token rejection.
 
 Generic MCP is deferred. It remains a compatibility profile for older artifacts and internal contract design, but it is not part of the supported final execution selector until a concrete tool, permission model, and smoke matrix are defined.
 
@@ -91,7 +84,7 @@ Every connector promotion needs a production smoke with disposable data.
 
 For a live connector:
 
-- Primary action names the actual setup artifact, for example `Cursor 연결 파일 받기` or `Codex 연결 파일 받기`.
+- Primary action names the actual setup artifact, for example `Cursor 연결 파일 받기`, `Codex 연결 파일 받기`, `Claude Code 연결 파일 받기`, or `Google Antigravity 연결 파일 받기`.
 - The screen shows exactly where the file should be placed and which command to run.
 - The screen explains how the external tool reports progress back to Venture Lab.
 - Manual import is collapsed as a backup path.
@@ -105,7 +98,7 @@ For a package-only handoff:
 
 ## Promotion Checklist
 
-Before moving any non-Cursor tool from package-only to live sync, record:
+Before moving any future tool from package-only to live sync, record:
 
 - connector owner
 - supported operating systems or runtime assumptions

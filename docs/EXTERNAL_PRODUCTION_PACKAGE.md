@@ -36,7 +36,7 @@ The package must never expose secret values. Environment variables should be rep
 
 ## Current Live Connectors
 
-Cursor and Codex are live connectors. Final execution generates an install script for the selected tool and creates the project files that tool needs in the external development project.
+Cursor, Codex, Claude Code, and Google Antigravity are live connectors. Final execution generates an install script for the selected tool and creates the project files that tool needs in the external development project.
 
 ### Cursor
 
@@ -87,20 +87,56 @@ Codex starts from `AI_VENTURE_CODEX_START.md` and uses the local CLI directly:
 
 The Codex write-back token follows the same scope and storage rules as Cursor: one idea, one actor, one organization boundary, one tool, hashed server-side storage, short expiry, and individual revoke.
 
-## Other External Tool Packages
+### Claude Code
 
-Claude Code and Google Antigravity handoffs use tool-specific start packages until their write-back connectors exist. The final execution screen must not imply automatic task sync for these tools.
+The Claude Code setup file creates these project files:
 
-| Tool | Start package | Current automation boundary |
-| --- | --- | --- |
-| Claude Code | `AI_VENTURE_CLAUDE_START.md`, `CLAUDE.md`, `AI_VENTURE_PACKAGE.md`, `AI_VENTURE_TASKS.md` | Package handoff and completion report import |
-| Google Antigravity | `AI_VENTURE_ANTIGRAVITY_START.md`, `AI_VENTURE_PACKAGE.md`, `AI_VENTURE_TASKS.md`, `AI_VENTURE_ACCEPTANCE.md` | Package handoff and completion report import |
+- `AI_VENTURE_PACKAGE.md`
+- `AI_VENTURE_TASKS.md`
+- `AI_VENTURE_CLAUDE_START.md`
+- `CLAUDE.md`
+- `README_VENTURE_LAB_CLAUDE.md`
+- `.mcp.json`
+- `.claude/venture-lab-cli.mjs`
+- `.claude/venture-lab-sync.json`
+- `.claude/venture-lab-progress.json`
 
-For package-only tools, the user receives a single downloadable start package that includes the tool-specific first action, the package file list, the completion report format, and the full production package. Automatic Venture Lab status write-back is available only for Cursor and Codex.
+Claude Code starts from `AI_VENTURE_CLAUDE_START.md`, can read the local MCP server from `.mcp.json`, and can also use the local CLI directly:
+
+- `node .claude/venture-lab-cli.mjs status`
+- `node .claude/venture-lab-cli.mjs next-task`
+- `node .claude/venture-lab-cli.mjs read start`
+- `node .claude/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..." --verification "..."`
+
+The Claude Code write-back token follows the same scope and storage rules as Cursor and Codex.
+
+### Google Antigravity
+
+The Google Antigravity setup file creates these project files:
+
+- `AI_VENTURE_PACKAGE.md`
+- `AI_VENTURE_TASKS.md`
+- `AI_VENTURE_ANTIGRAVITY_START.md`
+- `AI_VENTURE_ACCEPTANCE.md`
+- `AGENTS.ai-venture-lab.md`
+- `README_VENTURE_LAB_ANTIGRAVITY.md`
+- `.antigravity/mcp_config.json`
+- `.antigravity/venture-lab-cli.mjs`
+- `.antigravity/venture-lab-sync.json`
+- `.antigravity/venture-lab-progress.json`
+
+Google Antigravity starts from `AI_VENTURE_ANTIGRAVITY_START.md` and uses the local CLI directly:
+
+- `node .antigravity/venture-lab-cli.mjs status`
+- `node .antigravity/venture-lab-cli.mjs next-task`
+- `node .antigravity/venture-lab-cli.mjs read start`
+- `node .antigravity/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..." --verification "..."`
+
+The Google Antigravity write-back token follows the same scope and storage rules as the other named live connectors.
 
 Generic MCP is deferred for now. It can remain as an internal compatibility profile or future resource contract, but it should not appear as a supported user-facing final execution choice until a concrete connector, permission model, and denied-case smoke exist.
 
-The production build-sync smoke verifies both sides of this boundary: Cursor final execution must expose the local CLI/MCP start check, Codex final execution must expose the local CLI start check, and Claude Code and Google Antigravity must stay on start-package guidance without live setup buttons. The same smoke also checks that deferred generic MCP is not shown in the supported tool selector.
+The production build-sync smoke verifies the named live connector boundary: Cursor, Codex, Claude Code, and Google Antigravity final execution must expose the correct setup guidance and token lifecycle; deferred generic MCP must not appear in the supported tool selector.
 
 Live write-back for another tool must satisfy `docs/EXTERNAL_CONNECTOR_WRITEBACK_BOUNDARY.md` before the UI can present it as automatic.
 
@@ -114,4 +150,4 @@ External tools should report:
 - remaining risks or skipped checks
 - rollback notes
 
-This structure remains embedded in the STEP 5 production package. Cursor consumes the same package through local project files and MCP resources. Codex consumes it through local project files and the `.codex/venture-lab-cli.mjs` progress command. Claude Code and Antigravity still use the package as a copyable or downloadable handoff until their connectors get matching write-back behavior.
+This structure remains embedded in the STEP 5 production package. Cursor consumes the same package through local project files and MCP resources. Codex consumes it through local project files and the `.codex/venture-lab-cli.mjs` progress command. Claude Code consumes it through `.mcp.json`, `CLAUDE.md`, and `.claude/venture-lab-cli.mjs`. Google Antigravity consumes it through project instructions, `.antigravity/mcp_config.json`, and `.antigravity/venture-lab-cli.mjs`.

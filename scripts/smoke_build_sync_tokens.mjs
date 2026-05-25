@@ -140,16 +140,68 @@ async function verifyFinalExecutionCodexGuide(page, ideaId) {
   });
 }
 
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-async function verifyPackageOnlyExternalToolHandoffs(page, ideaId) {
+async function verifyFinalExecutionClaudeGuide(page, ideaId) {
   const launchUrl = new URL("/workspace", baseUrl);
   launchUrl.searchParams.set("task", "launch");
   launchUrl.searchParams.set("idea", ideaId);
 
-  const packageOnlyTools = ["Claude Code", "Google Antigravity"];
+  await page.goto(launchUrl.toString(), { waitUntil: "networkidle", timeout });
+  await page.getByRole("heading", { name: "최종 실행" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: /^Claude Code$/ }).click({ timeout });
+  await page.getByRole("heading", { name: "Claude Code 프로젝트에 연결 파일을 설치합니다" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("Claude Code에서 시작하는 순서", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("node .claude/venture-lab-cli.mjs next-task", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "Claude Code 연결 파일 받기" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+}
+
+async function verifyFinalExecutionAntigravityGuide(page, ideaId) {
+  const launchUrl = new URL("/workspace", baseUrl);
+  launchUrl.searchParams.set("task", "launch");
+  launchUrl.searchParams.set("idea", ideaId);
+
+  await page.goto(launchUrl.toString(), { waitUntil: "networkidle", timeout });
+  await page.getByRole("heading", { name: "최종 실행" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: /^Google Antigravity$/ }).click({ timeout });
+  await page.getByRole("heading", { name: "Google Antigravity 프로젝트에 연결 파일을 설치합니다" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("Google Antigravity에서 시작하는 순서", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("node .antigravity/venture-lab-cli.mjs next-task", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "Google Antigravity 연결 파일 받기" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+}
+
+async function verifyNoDeferredGenericMcpTool(page, ideaId) {
+  const launchUrl = new URL("/workspace", baseUrl);
+  launchUrl.searchParams.set("task", "launch");
+  launchUrl.searchParams.set("idea", ideaId);
 
   await page.goto(launchUrl.toString(), { waitUntil: "networkidle", timeout });
   await page.getByRole("heading", { name: "최종 실행" }).waitFor({
@@ -164,35 +216,6 @@ async function verifyPackageOnlyExternalToolHandoffs(page, ideaId) {
 
   if (exposesDeferredGenericMcp) {
     fail("Deferred generic MCP handoff appeared in the supported external tool selector.");
-  }
-
-  for (const toolLabel of packageOnlyTools) {
-    await page.getByRole("button", { name: new RegExp(`^${escapeRegExp(toolLabel)}$`) }).click({ timeout });
-    await page.getByRole("heading", { name: `${toolLabel}용 제작 패키지를 받습니다` }).waitFor({
-      state: "visible",
-      timeout,
-    });
-    await page.getByRole("button", { name: "시작 패키지 받기" }).waitFor({
-      state: "visible",
-      timeout,
-    });
-    await page.getByText(`${toolLabel}는 현재 시작 패키지와 완료 보고 반영으로 진행합니다.`, { exact: false }).waitFor({
-      state: "visible",
-      timeout,
-    });
-    await page.getByText("원격 자동 쓰기는 아직 제공하지 않습니다.", { exact: false }).waitFor({
-      state: "visible",
-      timeout,
-    });
-
-    const exposesLiveSetup = await page
-      .getByRole("button", { name: /(?:Cursor|Codex) 연결 파일 받기/ })
-      .isVisible({ timeout: 1000 })
-      .catch(() => false);
-
-    if (exposesLiveSetup) {
-      fail(`${toolLabel} package-only handoff exposed a live setup button.`);
-    }
   }
 }
 
@@ -508,7 +531,9 @@ async function main() {
         await createDisposableLaunchPackage(page, resolvedSupabaseConfig, ideaId);
         await verifyFinalExecutionCursorGuide(page, ideaId);
         await verifyFinalExecutionCodexGuide(page, ideaId);
-        await verifyPackageOnlyExternalToolHandoffs(page, ideaId);
+        await verifyFinalExecutionClaudeGuide(page, ideaId);
+        await verifyFinalExecutionAntigravityGuide(page, ideaId);
+        await verifyNoDeferredGenericMcpTool(page, ideaId);
       }
 
       await verifyLearningTaskBoard(page, ideaId);
@@ -637,9 +662,191 @@ async function main() {
       fail(`revoked Codex token was not rejected. Expected HTTP 401, received ${codexRejectedProgressResult.status}`);
     }
 
+    const claudeTokenResult = await callAppApi(page, "/api/build-sync/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ideaId, tool: "claude_code" }),
+    });
+
+    if (!claudeTokenResult.ok) {
+      fail(`Claude Code token issue returned HTTP ${claudeTokenResult.status}: ${claudeTokenResult.body.error ?? "unknown error"}`);
+    }
+
+    if (claudeTokenResult.body.registryStatus !== "ready") {
+      fail(`expected Claude Code registryStatus=ready after SQL migration, received ${claudeTokenResult.body.registryStatus ?? "missing"}`);
+    }
+
+    if (!claudeTokenResult.body.token || !claudeTokenResult.body.connection?.id) {
+      fail("Claude Code token issue response did not include a bearer token and connection id.");
+    }
+
+    const claudeToken = claudeTokenResult.body.token;
+    const claudeConnectionId = claudeTokenResult.body.connection.id;
+    const claudeListResult = await callAppApi(page, `/api/build-sync/tokens?ideaId=${encodeURIComponent(ideaId)}`);
+    const activeClaudeConnection = (claudeListResult.body.tokens ?? []).find(
+      (connection) => connection.id === claudeConnectionId && connection.status === "active" && connection.tool === "claude_code",
+    );
+
+    if (!activeClaudeConnection) {
+      fail("issued Claude Code connection was not visible as active in the connection list.");
+    }
+
+    if (usedDisposableIdea || allowProgressWrite) {
+      const claudeProgressResult = await callAppApi(page, "/api/build-sync/progress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${claudeToken}`,
+        },
+        body: JSON.stringify({
+          records: [
+            {
+              task: "T-003 claude build sync smoke verification",
+              status: "done",
+              summary: "Verified that a registered Claude Code connection can write progress before revocation.",
+              files: ["scripts/smoke_build_sync_tokens.mjs"],
+              verification: "Claude Code token registry status was ready and progress API accepted the active token.",
+              recordedAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      });
+
+      if (!claudeProgressResult.ok || claudeProgressResult.body.registryStatus !== "ready") {
+        fail(`Claude Code active token progress write failed: HTTP ${claudeProgressResult.status}`);
+      }
+    }
+
+    const claudeRevokeResult = await callAppApi(page, `/api/build-sync/tokens/${encodeURIComponent(claudeConnectionId)}`, {
+      method: "DELETE",
+    });
+
+    if (!claudeRevokeResult.ok || claudeRevokeResult.body.connection?.status !== "revoked") {
+      fail(`Claude Code connection revoke failed: HTTP ${claudeRevokeResult.status}`);
+    }
+
+    const claudeRejectedProgressResult = await callAppApi(page, "/api/build-sync/progress", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${claudeToken}`,
+      },
+      body: JSON.stringify({
+        records: [
+          {
+            task: "T-004 revoked Claude Code token should fail",
+            status: "done",
+            summary: "This write must be rejected because the Claude Code connection was revoked.",
+            verification: "Expected HTTP 401.",
+            recordedAt: new Date().toISOString(),
+          },
+        ],
+      }),
+    });
+
+    if (claudeRejectedProgressResult.status !== 401) {
+      fail(`revoked Claude Code token was not rejected. Expected HTTP 401, received ${claudeRejectedProgressResult.status}`);
+    }
+
+    const antigravityTokenResult = await callAppApi(page, "/api/build-sync/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ideaId, tool: "antigravity" }),
+    });
+
+    if (!antigravityTokenResult.ok) {
+      fail(
+        `Google Antigravity token issue returned HTTP ${antigravityTokenResult.status}: ${
+          antigravityTokenResult.body.error ?? "unknown error"
+        }`,
+      );
+    }
+
+    if (antigravityTokenResult.body.registryStatus !== "ready") {
+      fail(
+        `expected Google Antigravity registryStatus=ready after SQL migration, received ${
+          antigravityTokenResult.body.registryStatus ?? "missing"
+        }`,
+      );
+    }
+
+    if (!antigravityTokenResult.body.token || !antigravityTokenResult.body.connection?.id) {
+      fail("Google Antigravity token issue response did not include a bearer token and connection id.");
+    }
+
+    const antigravityToken = antigravityTokenResult.body.token;
+    const antigravityConnectionId = antigravityTokenResult.body.connection.id;
+    const antigravityListResult = await callAppApi(page, `/api/build-sync/tokens?ideaId=${encodeURIComponent(ideaId)}`);
+    const activeAntigravityConnection = (antigravityListResult.body.tokens ?? []).find(
+      (connection) => connection.id === antigravityConnectionId && connection.status === "active" && connection.tool === "antigravity",
+    );
+
+    if (!activeAntigravityConnection) {
+      fail("issued Google Antigravity connection was not visible as active in the connection list.");
+    }
+
+    if (usedDisposableIdea || allowProgressWrite) {
+      const antigravityProgressResult = await callAppApi(page, "/api/build-sync/progress", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${antigravityToken}`,
+        },
+        body: JSON.stringify({
+          records: [
+            {
+              task: "T-004 antigravity build sync smoke verification",
+              status: "done",
+              summary: "Verified that a registered Google Antigravity connection can write progress before revocation.",
+              files: ["scripts/smoke_build_sync_tokens.mjs"],
+              verification: "Google Antigravity token registry status was ready and progress API accepted the active token.",
+              recordedAt: new Date().toISOString(),
+            },
+          ],
+        }),
+      });
+
+      if (!antigravityProgressResult.ok || antigravityProgressResult.body.registryStatus !== "ready") {
+        fail(`Google Antigravity active token progress write failed: HTTP ${antigravityProgressResult.status}`);
+      }
+    }
+
+    const antigravityRevokeResult = await callAppApi(page, `/api/build-sync/tokens/${encodeURIComponent(antigravityConnectionId)}`, {
+      method: "DELETE",
+    });
+
+    if (!antigravityRevokeResult.ok || antigravityRevokeResult.body.connection?.status !== "revoked") {
+      fail(`Google Antigravity connection revoke failed: HTTP ${antigravityRevokeResult.status}`);
+    }
+
+    const antigravityRejectedProgressResult = await callAppApi(page, "/api/build-sync/progress", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${antigravityToken}`,
+      },
+      body: JSON.stringify({
+        records: [
+          {
+            task: "T-005 revoked Google Antigravity token should fail",
+            status: "done",
+            summary: "This write must be rejected because the Google Antigravity connection was revoked.",
+            verification: "Expected HTTP 401.",
+            recordedAt: new Date().toISOString(),
+          },
+        ],
+      }),
+    });
+
+    if (antigravityRejectedProgressResult.status !== 401) {
+      fail(
+        `revoked Google Antigravity token was not rejected. Expected HTTP 401, received ${antigravityRejectedProgressResult.status}`,
+      );
+    }
+
     console.log("Build sync token smoke passed.");
     console.log("Registry status: ready");
-    console.log("Issued connections: Cursor and Codex active");
+    console.log("Issued connections: Cursor, Codex, Claude Code, and Google Antigravity active");
     console.log(
       usedDisposableIdea || allowProgressWrite
         ? "Progress write: accepted before revoke"
@@ -652,18 +859,22 @@ async function main() {
     );
     console.log(
       usedDisposableIdea && resolvedSupabaseConfig
-        ? "Final execution UI: Cursor and Codex live connector checks visible in STEP 7"
+        ? "Final execution UI: four named live connector checks visible in STEP 7"
         : "Final execution UI: skipped because disposable launch package was not available",
     );
     console.log(
       usedDisposableIdea && resolvedSupabaseConfig
-        ? "Package-only handoff UI: Claude Code and Google Antigravity stay on start-package guidance"
+        ? "Deferred generic MCP UI: hidden from supported tool selector"
         : "Package-only handoff UI: skipped because disposable launch package was not available",
     );
     console.log("Connection revoke: accepted");
     console.log("Revoked token write: rejected");
     console.log("Codex connection revoke: accepted");
     console.log("Codex revoked token write: rejected");
+    console.log("Claude Code connection revoke: accepted");
+    console.log("Claude Code revoked token write: rejected");
+    console.log("Google Antigravity connection revoke: accepted");
+    console.log("Google Antigravity revoked token write: rejected");
   } finally {
     if (ideaId && usedDisposableIdea && resolvedSupabaseConfig && !keepData) {
       const cleanupResult = await cleanupDisposableIdea(page, resolvedSupabaseConfig, ideaId).catch((error) => ({

@@ -270,7 +270,7 @@ export type Database = {
           idea_id: string;
           organization_id: string | null;
           actor_id: string;
-          tool: "cursor" | "codex";
+          tool: "cursor" | "codex" | "claude_code" | "antigravity";
           token_hash: string;
           status: BuildSyncTokenStatus;
           expires_at: string;
@@ -283,7 +283,7 @@ export type Database = {
         Insert: Partial<Database["public"]["Tables"]["build_sync_tokens"]["Row"]> & {
           idea_id: string;
           actor_id: string;
-          tool: "cursor" | "codex";
+          tool: "cursor" | "codex" | "claude_code" | "antigravity";
           token_hash: string;
           expires_at: string;
         };

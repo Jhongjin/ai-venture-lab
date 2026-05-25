@@ -56,15 +56,15 @@ The implementation task migration adds a task board for implementation work, com
 The learning telemetry migration stores post-launch product events for Day 7/14/30 learning loops.
 The workspace creation repair migration refreshes organization RLS, owner auto-membership, and creator read access for the team-space step.
 The idea product surface migration stores the selected result type so downstream PRD, design, stack, and handoff packages stay aligned.
-The build sync token migration stores hashed Cursor connection tokens so individual external-tool connections can be revoked without rotating every signing secret.
+The build sync token migration stores hashed named-tool connection tokens so individual external-tool connections can be revoked without rotating every signing secret.
 
-After applying `20260524010000_add_build_sync_tokens.sql`, run the production verification:
+After applying `20260524010000_add_build_sync_tokens.sql` and the latest tool-check migration such as `20260525020000_allow_named_build_sync_tools.sql`, run the production verification:
 
 ```bash
 pnpm smoke:build-sync
 ```
 
-The smoke creates a disposable idea when browser-accessible Supabase public config is available, issues a Cursor connection token, verifies that progress writes work before revoke, creates a disposable launch package, opens the STEP 7 final execution view to confirm the Cursor local CLI check is visible, opens the STEP 8 learning view to confirm the synced task is visible in the task board, revokes the connection, confirms the old token is rejected, and deletes the disposable idea.
+The smoke creates a disposable idea when browser-accessible Supabase public config is available, issues named-tool connection tokens for Cursor, Codex, Claude Code, and Google Antigravity, verifies that progress writes work before revoke, creates a disposable launch package, opens the STEP 7 final execution view to confirm each live connector guide is visible, opens the STEP 8 learning view to confirm the synced task is visible in the task board, revokes each connection, confirms old tokens are rejected, and deletes the disposable idea.
 
 This creates:
 

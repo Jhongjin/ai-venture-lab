@@ -2143,7 +2143,7 @@ type CursorSyncConfig = {
   projectKey: string;
   ideaId: string;
   ideaName: string;
-  tool: "cursor" | "codex";
+  tool: "cursor" | "codex" | "claude_code" | "antigravity";
   endpoint: string;
   token: string;
   expiresAt: string;
@@ -2155,7 +2155,7 @@ type CursorSyncConnectionStatus = "active" | "revoked" | "expired";
 
 type CursorSyncConnection = {
   id: string;
-  tool: "cursor" | "codex";
+  tool: "cursor" | "codex" | "claude_code" | "antigravity";
   status: CursorSyncConnectionStatus;
   expiresAt: string;
   lastUsedAt: string | null;
@@ -2880,6 +2880,402 @@ function buildCodexCliScript() {
     .replaceAll("README_VENTURE_LAB_CURSOR.md", "README_VENTURE_LAB_CODEX.md");
 }
 
+function buildClaudeTaskMarkdown({
+  idea,
+  productSurface,
+  tasks,
+  fallbackTasks = [],
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  tasks: ImplementationTask[];
+  fallbackTasks?: ImplementationTaskDraft[];
+}) {
+  return buildCursorTaskMarkdown({ idea, productSurface, tasks, fallbackTasks })
+    .replaceAll("# Cursor 작업 목록", "# Claude Code 작업 목록")
+    .replaceAll("Cursor", "Claude Code")
+    .replaceAll(".cursor", ".claude")
+    .replaceAll("AI_VENTURE_CURSOR_START.md", "AI_VENTURE_CLAUDE_START.md")
+    .replaceAll("README_VENTURE_LAB_CURSOR.md", "README_VENTURE_LAB_CLAUDE.md");
+}
+
+function buildClaudeStartPromptMarkdown({
+  idea,
+  productSurface,
+  projectKey,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+}) {
+  return `# Claude Code 시작 지시문
+
+당신은 AI Venture Lab에서 검증과 제작 준비가 끝난 프로젝트를 이어받는 Claude Code 개발 에이전트입니다.
+
+먼저 아래 파일을 읽고, 첫 번째 작업부터 순서대로 진행하세요.
+
+1. \`AI_VENTURE_PACKAGE.md\`
+2. \`AI_VENTURE_TASKS.md\`
+3. \`CLAUDE.md\`
+
+## 프로젝트 맥락
+
+- 프로젝트 키: ${projectKey}
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 진행 방식
+
+1. 제작 패키지에서 포함 범위와 제외 범위를 확인합니다.
+2. Claude Code에서 \`/mcp\`를 열어 \`ai-venture-lab\` 연결을 확인합니다.
+3. \`node .claude/venture-lab-cli.mjs next-task\`로 첫 번째 미완료 작업을 확인합니다.
+4. 구현 전 변경할 파일과 검증 명령을 짧게 계획합니다.
+5. 한 번에 하나의 작업만 구현하고 테스트 또는 품질 명령을 실행합니다.
+6. 작업 완료 후 \`venture_record_progress\` 도구 또는 아래 명령으로 Venture Lab에 진행 결과를 기록합니다.
+
+\`\`\`powershell
+node .claude/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"
+\`\`\`
+
+7. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
+8. 자동 반영이 실패한 경우에만 \`.claude/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
+
+Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.
+`;
+}
+
+function buildClaudeInstructionsMarkdown({
+  idea,
+  productSurface,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+}) {
+  return `# AI Venture Lab Claude Code Instructions
+
+이 프로젝트는 AI Venture Lab에서 검증된 제작 패키지를 기준으로 구현합니다.
+
+## 반드시 먼저 읽을 파일
+
+- \`AI_VENTURE_PACKAGE.md\`
+- \`AI_VENTURE_TASKS.md\`
+- \`AI_VENTURE_CLAUDE_START.md\`
+
+## 프로젝트 기준
+
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 실행 원칙
+
+- 한 번에 하나의 작업만 구현합니다.
+- 패키지에 없는 큰 기능은 임의로 추가하지 않습니다.
+- 변경 전 포함 범위, 제외 범위, 수용 기준을 확인합니다.
+- 작업이 끝나면 변경 파일, 검증 명령, 남은 리스크를 보고합니다.
+- Claude Code의 \`/mcp\`에서 \`ai-venture-lab\` 서버가 보이면 \`venture_next_task\`와 \`venture_record_progress\`를 사용합니다.
+- CLI로 진행할 때는 \`node .claude/venture-lab-cli.mjs next-task\`와 \`node .claude/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..."\`를 사용합니다.
+- \`record-progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`.claude/venture-lab-progress.json\`을 백업으로 사용합니다.
+`;
+}
+
+function buildClaudeGuideMarkdown({
+  idea,
+  productSurface,
+  projectKey,
+  syncExpiresAt,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+  syncExpiresAt?: string;
+}) {
+  const syncExpiryText = syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
+
+  return `# Claude Code 연결 가이드
+
+이 폴더는 AI Venture Lab에서 만든 제작 패키지를 Claude Code 프로젝트에 연결하기 위한 자료입니다.
+
+## 이 패키지가 만드는 것
+
+- \`AI_VENTURE_PACKAGE.md\`: 최종 제작 패키지
+- \`AI_VENTURE_TASKS.md\`: Claude Code가 순서대로 처리할 제작 작업
+- \`AI_VENTURE_CLAUDE_START.md\`: Claude Code 첫 메시지로 넣을 시작 지시문
+- \`CLAUDE.md\`: Claude Code가 참고할 프로젝트 작업 규칙
+- \`README_VENTURE_LAB_CLAUDE.md\`: 이 연결 가이드
+- \`.mcp.json\`: 프로젝트 전용 MCP 서버 설정
+- \`.claude/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
+- \`.claude/venture-lab-sync.json\`: Venture Lab 자동 반영 토큰과 서버 주소
+- \`.claude/venture-lab-progress.json\`: Claude Code 작업 진행 기록
+
+## 실행 순서
+
+1. 실제 개발할 프로젝트 폴더에 Venture Lab에서 받은 \`*-claude-code-setup.ps1\` 파일을 둡니다.
+2. 프로젝트 루트에서 아래 명령을 실행합니다.
+
+\`\`\`powershell
+powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "claude-code-setup", "ps1")}
+\`\`\`
+
+3. 터미널에서 \`node .claude/venture-lab-cli.mjs next-task\`를 실행해 첫 작업이 읽히는지 확인합니다.
+4. Claude Code를 같은 프로젝트 루트에서 열고 \`/mcp\`에서 \`ai-venture-lab\` 연결을 확인합니다.
+5. \`AI_VENTURE_CLAUDE_START.md\` 내용을 첫 메시지로 넣습니다.
+6. 작업을 마치면 \`venture_record_progress\` 도구 또는 \`.claude/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남깁니다.
+7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
+8. 자동 반영이 실패한 경우에만 \`.claude/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
+
+## 프로젝트 정보
+
+- 프로젝트 키: ${projectKey}
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+${syncExpiryText}
+
+## 보안 주의
+
+- \`.claude/venture-lab-sync.json\`에는 프로젝트 전용 토큰이 들어 있습니다.
+- 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
+- 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.
+`;
+}
+
+function buildAntigravityTaskMarkdown({
+  idea,
+  productSurface,
+  tasks,
+  fallbackTasks = [],
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  tasks: ImplementationTask[];
+  fallbackTasks?: ImplementationTaskDraft[];
+}) {
+  return buildCursorTaskMarkdown({ idea, productSurface, tasks, fallbackTasks })
+    .replaceAll("# Cursor 작업 목록", "# Google Antigravity 작업 목록")
+    .replaceAll("Cursor", "Google Antigravity")
+    .replaceAll(".cursor", ".antigravity")
+    .replaceAll("AI_VENTURE_CURSOR_START.md", "AI_VENTURE_ANTIGRAVITY_START.md")
+    .replaceAll("README_VENTURE_LAB_CURSOR.md", "README_VENTURE_LAB_ANTIGRAVITY.md");
+}
+
+function buildAntigravityStartPromptMarkdown({
+  idea,
+  productSurface,
+  projectKey,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+}) {
+  return `# Google Antigravity 시작 지시문
+
+당신은 AI Venture Lab에서 검증과 제작 준비가 끝난 프로젝트를 이어받는 Antigravity 개발 에이전트입니다.
+
+먼저 아래 파일을 읽고, 첫 번째 작업부터 순서대로 진행하세요.
+
+1. \`AI_VENTURE_PACKAGE.md\`
+2. \`AI_VENTURE_TASKS.md\`
+3. \`AGENTS.ai-venture-lab.md\`
+4. \`AI_VENTURE_ACCEPTANCE.md\`
+
+## 프로젝트 맥락
+
+- 프로젝트 키: ${projectKey}
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 진행 방식
+
+1. 제작 패키지에서 포함 범위와 제외 범위를 확인합니다.
+2. \`node .antigravity/venture-lab-cli.mjs next-task\`로 첫 번째 미완료 작업을 확인합니다.
+3. 구현 전 변경할 파일과 검증 명령을 짧게 계획합니다.
+4. 한 번에 하나의 작업만 구현하고 테스트 또는 품질 명령을 실행합니다.
+5. 작업 완료 후 아래 명령으로 Venture Lab에 진행 결과를 기록합니다.
+
+\`\`\`powershell
+node .antigravity/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"
+\`\`\`
+
+6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
+7. 자동 반영이 실패한 경우에만 \`.antigravity/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
+
+Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.
+`;
+}
+
+function buildAntigravityGuideMarkdown({
+  idea,
+  productSurface,
+  projectKey,
+  syncExpiresAt,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+  syncExpiresAt?: string;
+}) {
+  const syncExpiryText = syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
+
+  return `# Google Antigravity 연결 가이드
+
+이 폴더는 AI Venture Lab에서 만든 제작 패키지를 Google Antigravity 프로젝트에 연결하기 위한 자료입니다.
+
+## 이 패키지가 만드는 것
+
+- \`AI_VENTURE_PACKAGE.md\`: 최종 제작 패키지
+- \`AI_VENTURE_TASKS.md\`: Antigravity가 순서대로 처리할 제작 작업
+- \`AI_VENTURE_ANTIGRAVITY_START.md\`: Antigravity Agent 첫 메시지로 넣을 시작 지시문
+- \`AI_VENTURE_ACCEPTANCE.md\`: 검증과 완료 기준
+- \`AGENTS.ai-venture-lab.md\`: 프로젝트 작업 규칙
+- \`README_VENTURE_LAB_ANTIGRAVITY.md\`: 이 연결 가이드
+- \`.antigravity/mcp_config.json\`: Antigravity MCP 설정 후보
+- \`.antigravity/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
+- \`.antigravity/venture-lab-sync.json\`: Venture Lab 자동 반영 토큰과 서버 주소
+- \`.antigravity/venture-lab-progress.json\`: Antigravity 작업 진행 기록
+
+## 실행 순서
+
+1. 실제 개발할 프로젝트 폴더에 Venture Lab에서 받은 \`*-antigravity-setup.ps1\` 파일을 둡니다.
+2. 프로젝트 루트에서 아래 명령을 실행합니다.
+
+\`\`\`powershell
+powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "antigravity-setup", "ps1")}
+\`\`\`
+
+3. 터미널에서 \`node .antigravity/venture-lab-cli.mjs next-task\`를 실행해 첫 작업이 읽히는지 확인합니다.
+4. Antigravity에서 같은 프로젝트 폴더를 열고 \`.antigravity/mcp_config.json\`과 \`AGENTS.ai-venture-lab.md\`를 프로젝트 지침으로 확인합니다.
+5. \`AI_VENTURE_ANTIGRAVITY_START.md\` 내용을 Agent 첫 메시지로 넣습니다.
+6. 작업을 마치면 \`.antigravity/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남깁니다.
+7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
+8. 자동 반영이 실패한 경우에만 \`.antigravity/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
+
+## 프로젝트 정보
+
+- 프로젝트 키: ${projectKey}
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+${syncExpiryText}
+
+## 보안 주의
+
+- \`.antigravity/venture-lab-sync.json\`에는 프로젝트 전용 토큰이 들어 있습니다.
+- 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
+- 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.
+`;
+}
+
+function buildAntigravityAgentInstructionsMarkdown({
+  idea,
+  productSurface,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+}) {
+  return buildCodexAgentInstructionsMarkdown({ idea, productSurface })
+    .replaceAll("Codex", "Google Antigravity")
+    .replaceAll(".codex", ".antigravity")
+    .replaceAll("AI_VENTURE_CODEX_START.md", "AI_VENTURE_ANTIGRAVITY_START.md");
+}
+
+function buildAntigravityAcceptanceMarkdown({
+  idea,
+  productSurface,
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+}) {
+  return `# AI Venture Lab Acceptance Criteria
+
+## 프로젝트
+
+- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}
+
+## 완료 기준
+
+- 핵심 사용자 여정이 첫 화면부터 저장/완료까지 끊기지 않아야 합니다.
+- 빈 상태, 로딩, 성공, 실패, 권한 없음, 모바일 상태가 확인되어야 합니다.
+- 패키지의 제외 범위는 구현하지 않고 보류 메모로 남겨야 합니다.
+- 변경 파일, 검증 명령, 남은 리스크를 작업마다 기록해야 합니다.
+- 완료 후 \`.antigravity/venture-lab-cli.mjs record-progress\`로 Venture Lab에 결과를 반영해야 합니다.
+`;
+}
+
+function buildToolCliScript({
+  folder,
+  label,
+  startFileName,
+  guideFileName,
+}: {
+  folder: string;
+  label: string;
+  startFileName: string;
+  guideFileName: string;
+}) {
+  return buildCursorMcpServerScript()
+    .replaceAll(".cursor", folder)
+    .replaceAll("Cursor", label)
+    .replaceAll("AI_VENTURE_CURSOR_START.md", startFileName)
+    .replaceAll("README_VENTURE_LAB_CURSOR.md", guideFileName);
+}
+
+function buildClaudeCliScript() {
+  return buildToolCliScript({
+    folder: ".claude",
+    label: "Claude Code",
+    startFileName: "AI_VENTURE_CLAUDE_START.md",
+    guideFileName: "README_VENTURE_LAB_CLAUDE.md",
+  });
+}
+
+function buildAntigravityCliScript() {
+  return buildToolCliScript({
+    folder: ".antigravity",
+    label: "Google Antigravity",
+    startFileName: "AI_VENTURE_ANTIGRAVITY_START.md",
+    guideFileName: "README_VENTURE_LAB_ANTIGRAVITY.md",
+  });
+}
+
+function buildClaudeMcpConfigJson() {
+  return `${JSON.stringify(
+    {
+      mcpServers: {
+        "ai-venture-lab": {
+          type: "stdio",
+          command: "node",
+          args: [".claude/venture-lab-cli.mjs", "mcp"],
+        },
+      },
+    },
+    null,
+    2,
+  )}
+`;
+}
+
+function buildAntigravityMcpConfigJson() {
+  return `${JSON.stringify(
+    {
+      mcpServers: {
+        "ai-venture-lab": {
+          type: "stdio",
+          command: "node",
+          args: [".antigravity/venture-lab-cli.mjs", "mcp"],
+        },
+      },
+    },
+    null,
+    2,
+  )}
+`;
+}
+
 function buildCursorMcpConfigJson() {
   return `${JSON.stringify(
     {
@@ -3424,6 +3820,73 @@ Write-Host "AI Venture Lab Codex connection files are ready."
 Write-Host "Check: node .codex/venture-lab-cli.mjs next-task"
 Write-Host "Next: open this project in Codex and paste AI_VENTURE_CODEX_START.md as the first message."
 Write-Host "When Codex runs record-progress, Venture Lab task status will be updated automatically."
+`;
+}
+
+function buildLiveToolSetupPowerShell({
+  idea,
+  projectKey,
+  files,
+  toolLabel,
+  folder,
+  startFileName,
+}: {
+  idea: Idea;
+  projectKey: string;
+  files: Array<{ path: string; base64: string }>;
+  toolLabel: string;
+  folder: string;
+  startFileName: string;
+}) {
+  const fileRows = files
+    .map((file) => `  @{ Path = '${escapePowerShellSingleQuoted(file.path)}'; Base64 = '${file.base64}' }`)
+    .join("\n");
+
+  return `# AI Venture Lab ${toolLabel} connection setup
+# Project: ${idea.name}
+# Key: ${projectKey}
+
+$ErrorActionPreference = 'Stop'
+$root = Get-Location
+$files = @(
+${fileRows}
+)
+
+foreach ($file in $files) {
+  $target = Join-Path $root $file.Path
+  $directory = Split-Path -Parent $target
+
+  if ($directory -and -not (Test-Path -LiteralPath $directory)) {
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+  }
+
+  $bytes = [Convert]::FromBase64String($file.Base64)
+  $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+  [System.IO.File]::WriteAllText($target, $text, [System.Text.UTF8Encoding]::new($false))
+  Write-Host "created $($file.Path)"
+}
+
+$gitignorePath = Join-Path $root ".gitignore"
+$ignoreEntries = @("${folder}/venture-lab-sync.json", "${folder}/venture-lab-progress.json")
+
+if (-not (Test-Path -LiteralPath $gitignorePath)) {
+  New-Item -ItemType File -Path $gitignorePath -Force | Out-Null
+}
+
+$existingIgnore = Get-Content -LiteralPath $gitignorePath -Raw -ErrorAction SilentlyContinue
+
+foreach ($entry in $ignoreEntries) {
+  if (-not $existingIgnore -or $existingIgnore -notmatch [regex]::Escape($entry)) {
+    Add-Content -LiteralPath $gitignorePath -Value $entry
+    Write-Host "gitignored $entry"
+  }
+}
+
+Write-Host ""
+Write-Host "AI Venture Lab ${toolLabel} connection files are ready."
+Write-Host "Check: node ${folder}/venture-lab-cli.mjs next-task"
+Write-Host "Next: open this project in ${toolLabel} and paste ${startFileName} as the first message."
+Write-Host "When ${toolLabel} records progress, Venture Lab task status will be updated automatically."
 `;
 }
 
@@ -11005,7 +11468,7 @@ export function IdeaWorkbench({
             ? "Cursor는 연결 파일을 받아 프로젝트 루트에서 실행하면 실제 규칙, MCP 설정, 제작 패키지, 작업 목록이 파일로 설치됩니다."
             : activeExternalBuildTool.key === "codex"
               ? "Codex는 연결 파일을 받아 프로젝트 루트에서 실행하면 제작 패키지, 작업 목록, 시작 지시문, 진행 기록 CLI가 파일로 설치됩니다."
-              : `${activeExternalBuildTool.label}은 현재 패키지 전달 방식입니다. 자동 상태 반영은 Cursor와 Codex 연결 파일부터 지원합니다.`,
+              : `${activeExternalBuildTool.label}는 연결 파일을 받아 프로젝트 루트에서 실행하면 도구별 지침, 제작 패키지, 작업 목록, 진행 기록 CLI가 파일로 설치됩니다.`,
           "",
           "## 먼저 할 일",
           "",
@@ -11245,20 +11708,111 @@ export function IdeaWorkbench({
       })
     : "";
   const codexCliScriptDraft = buildCodexCliScript();
+  const claudeTaskPackageDraft = selectedIdea
+    ? buildClaudeTaskMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        tasks: selectedImplementationTasks,
+        fallbackTasks: cursorHandoffTaskDrafts,
+      })
+    : "";
+  const claudeStartPromptDraft = selectedIdea
+    ? buildClaudeStartPromptMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+      })
+    : "";
+  const claudeInstructionsDraft = selectedIdea
+    ? buildClaudeInstructionsMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+      })
+    : "";
+  const claudeGuideDraft = selectedIdea
+    ? buildClaudeGuideMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+      })
+    : "";
+  const claudeMcpConfigDraft = buildClaudeMcpConfigJson();
+  const claudeCliScriptDraft = buildClaudeCliScript();
+  const antigravityTaskPackageDraft = selectedIdea
+    ? buildAntigravityTaskMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        tasks: selectedImplementationTasks,
+        fallbackTasks: cursorHandoffTaskDrafts,
+      })
+    : "";
+  const antigravityStartPromptDraft = selectedIdea
+    ? buildAntigravityStartPromptMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+      })
+    : "";
+  const antigravityAgentInstructionsDraft = selectedIdea
+    ? buildAntigravityAgentInstructionsMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+      })
+    : "";
+  const antigravityAcceptanceDraft = selectedIdea
+    ? buildAntigravityAcceptanceMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+      })
+    : "";
+  const antigravityGuideDraft = selectedIdea
+    ? buildAntigravityGuideMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+      })
+    : "";
+  const antigravityMcpConfigDraft = buildAntigravityMcpConfigJson();
+  const antigravityCliScriptDraft = buildAntigravityCliScript();
   const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "cursor";
   const isCodexExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "codex";
-  const isLiveExternalDelivery = isCursorExternalDelivery || isCodexExternalDelivery;
-  const liveExternalToolFolder = isCodexExternalDelivery ? ".codex" : ".cursor";
+  const isClaudeCodeExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "claude_code";
+  const isAntigravityExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "antigravity";
+  const isLiveExternalDelivery =
+    isCursorExternalDelivery || isCodexExternalDelivery || isClaudeCodeExternalDelivery || isAntigravityExternalDelivery;
+  const liveExternalToolFolder = isAntigravityExternalDelivery
+    ? ".antigravity"
+    : isClaudeCodeExternalDelivery
+      ? ".claude"
+      : isCodexExternalDelivery
+        ? ".codex"
+        : ".cursor";
   const liveExternalToolProgressPath = `${liveExternalToolFolder}/venture-lab-progress.json`;
-  const liveExternalToolSetupSuffix = isCodexExternalDelivery ? "codex-setup" : "cursor-setup";
-  const liveExternalToolStartPromptDraft = isCodexExternalDelivery ? codexStartPromptDraft : cursorStartPromptDraft;
-  const liveExternalToolGuideDraft = isCodexExternalDelivery ? codexGuideDraft : cursorGuideDraft;
-  const liveExternalToolNextTaskCommand = isCodexExternalDelivery
-    ? "node .codex/venture-lab-cli.mjs next-task"
-    : "node .cursor/venture-lab-cli.mjs next-task";
-  const activeCursorSyncConnections = cursorSyncConnections.filter(
-    (connection) => connection.status === "active" && connection.tool === activeExternalBuildTool.key,
-  );
+  const liveExternalToolSetupSuffix = activeExternalBuildTool.handoffFileSuffix;
+  const liveExternalToolStartPromptDraft = isAntigravityExternalDelivery
+    ? antigravityStartPromptDraft
+    : isClaudeCodeExternalDelivery
+      ? claudeStartPromptDraft
+      : isCodexExternalDelivery
+        ? codexStartPromptDraft
+        : cursorStartPromptDraft;
+  const liveExternalToolGuideDraft = isAntigravityExternalDelivery
+    ? antigravityGuideDraft
+    : isClaudeCodeExternalDelivery
+      ? claudeGuideDraft
+      : isCodexExternalDelivery
+        ? codexGuideDraft
+        : cursorGuideDraft;
+  const liveExternalToolMcpConfigDraft = isAntigravityExternalDelivery
+    ? antigravityMcpConfigDraft
+    : isClaudeCodeExternalDelivery
+      ? claudeMcpConfigDraft
+      : isCursorExternalDelivery
+        ? cursorMcpConfigDraft
+        : "";
+  const liveExternalToolNextTaskCommand = `node ${liveExternalToolFolder}/venture-lab-cli.mjs next-task`;
+  const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
+  const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
   const cursorProgressPreviewItems =
     cursorProgressImportText.trim() && cursorHandoffTaskDrafts.length > 0
       ? buildCursorProgressImportDrafts({
@@ -13569,6 +14123,189 @@ export function IdeaWorkbench({
       setMessage("Codex 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Codex 연결 파일을 만들지 못했습니다.";
+      setMessage(errorMessage);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function downloadClaudeSetupScript() {
+    if (!selectedIdea || !finalAgentRunPackageDraft) {
+      return;
+    }
+
+    if (!user) {
+      setMessage("Claude Code 자동 연결 파일을 받으려면 먼저 로그인하세요.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage("Claude Code 자동 연결 토큰을 준비하는 중입니다...");
+
+    try {
+      const response = await fetch("/api/build-sync/token", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ideaId: selectedIdea.id, tool: "claude_code" }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
+
+      if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
+        throw new Error(payload.error || "Claude Code 자동 연결 토큰을 만들지 못했습니다.");
+      }
+
+      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
+
+      if (payload.connection) {
+        setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
+      }
+
+      setCursorSyncConnectionMessage(
+        payload.message ??
+          (payload.registryStatus === "ready"
+            ? "새 Claude Code 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
+            : "Claude Code 연결 파일을 만들었습니다. 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
+      );
+
+      const syncConfigDraft = buildCursorSyncConfigJson({
+        projectKey: finalExecutionProjectKey,
+        ideaId: selectedIdea.id,
+        ideaName: selectedIdea.name,
+        tool: "claude_code",
+        endpoint: payload.endpoint,
+        token: payload.token,
+        expiresAt: payload.expiresAt,
+        createdAt: new Date().toISOString(),
+      });
+      const downloadedClaudeGuideDraft = buildClaudeGuideMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+        syncExpiresAt: payload.expiresAt,
+      });
+
+      const files = [
+        { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
+        { path: "AI_VENTURE_TASKS.md", body: claudeTaskPackageDraft },
+        { path: "AI_VENTURE_CLAUDE_START.md", body: claudeStartPromptDraft },
+        { path: "CLAUDE.md", body: claudeInstructionsDraft },
+        { path: "README_VENTURE_LAB_CLAUDE.md", body: downloadedClaudeGuideDraft },
+        { path: ".mcp.json", body: claudeMcpConfigDraft },
+        { path: ".claude/venture-lab-cli.mjs", body: claudeCliScriptDraft },
+        { path: ".claude/venture-lab-sync.json", body: syncConfigDraft },
+        { path: ".claude/venture-lab-progress.json", body: "[]\n" },
+      ].map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+
+      const script = buildLiveToolSetupPowerShell({
+        idea: selectedIdea,
+        projectKey: finalExecutionProjectKey,
+        files,
+        toolLabel: "Claude Code",
+        folder: ".claude",
+        startFileName: "AI_VENTURE_CLAUDE_START.md",
+      });
+
+      downloadTextFile(
+        script,
+        "Claude Code 연결 스크립트",
+        toDownloadFileName(selectedIdea.name, "claude-code-setup", "ps1"),
+        "text/plain;charset=utf-8",
+      );
+      setMessage("Claude Code 연결 파일을 준비했습니다. MCP 도구 또는 record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Claude Code 연결 파일을 만들지 못했습니다.";
+      setMessage(errorMessage);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function downloadAntigravitySetupScript() {
+    if (!selectedIdea || !finalAgentRunPackageDraft) {
+      return;
+    }
+
+    if (!user) {
+      setMessage("Google Antigravity 자동 연결 파일을 받으려면 먼저 로그인하세요.");
+      return;
+    }
+
+    setIsBusy(true);
+    setMessage("Google Antigravity 자동 연결 토큰을 준비하는 중입니다...");
+
+    try {
+      const response = await fetch("/api/build-sync/token", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ideaId: selectedIdea.id, tool: "antigravity" }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
+
+      if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
+        throw new Error(payload.error || "Google Antigravity 자동 연결 토큰을 만들지 못했습니다.");
+      }
+
+      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
+
+      if (payload.connection) {
+        setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
+      }
+
+      setCursorSyncConnectionMessage(
+        payload.message ??
+          (payload.registryStatus === "ready"
+            ? "새 Google Antigravity 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
+            : "Google Antigravity 연결 파일을 만들었습니다. 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
+      );
+
+      const syncConfigDraft = buildCursorSyncConfigJson({
+        projectKey: finalExecutionProjectKey,
+        ideaId: selectedIdea.id,
+        ideaName: selectedIdea.name,
+        tool: "antigravity",
+        endpoint: payload.endpoint,
+        token: payload.token,
+        expiresAt: payload.expiresAt,
+        createdAt: new Date().toISOString(),
+      });
+      const downloadedAntigravityGuideDraft = buildAntigravityGuideMarkdown({
+        idea: selectedIdea,
+        productSurface: activeProductSurface,
+        projectKey: finalExecutionProjectKey,
+        syncExpiresAt: payload.expiresAt,
+      });
+
+      const files = [
+        { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
+        { path: "AI_VENTURE_TASKS.md", body: antigravityTaskPackageDraft },
+        { path: "AI_VENTURE_ANTIGRAVITY_START.md", body: antigravityStartPromptDraft },
+        { path: "AI_VENTURE_ACCEPTANCE.md", body: antigravityAcceptanceDraft },
+        { path: "AGENTS.ai-venture-lab.md", body: antigravityAgentInstructionsDraft },
+        { path: "README_VENTURE_LAB_ANTIGRAVITY.md", body: downloadedAntigravityGuideDraft },
+        { path: ".antigravity/mcp_config.json", body: antigravityMcpConfigDraft },
+        { path: ".antigravity/venture-lab-cli.mjs", body: antigravityCliScriptDraft },
+        { path: ".antigravity/venture-lab-sync.json", body: syncConfigDraft },
+        { path: ".antigravity/venture-lab-progress.json", body: "[]\n" },
+      ].map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+
+      const script = buildLiveToolSetupPowerShell({
+        idea: selectedIdea,
+        projectKey: finalExecutionProjectKey,
+        files,
+        toolLabel: "Google Antigravity",
+        folder: ".antigravity",
+        startFileName: "AI_VENTURE_ANTIGRAVITY_START.md",
+      });
+
+      downloadTextFile(
+        script,
+        "Google Antigravity 연결 스크립트",
+        toDownloadFileName(selectedIdea.name, "antigravity-setup", "ps1"),
+        "text/plain;charset=utf-8",
+      );
+      setMessage("Google Antigravity 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Google Antigravity 연결 파일을 만들지 못했습니다.";
       setMessage(errorMessage);
     } finally {
       setIsBusy(false);
@@ -16237,6 +16974,16 @@ export function IdeaWorkbench({
                               return;
                             }
 
+                            if (isClaudeCodeExternalDelivery) {
+                              void downloadClaudeSetupScript();
+                              return;
+                            }
+
+                            if (isAntigravityExternalDelivery) {
+                              void downloadAntigravitySetupScript();
+                              return;
+                            }
+
                             downloadMarkdownFile(
                               externalToolRunPackageDraft,
                               `${activeExternalBuildTool.label} 시작 패키지`,
@@ -16302,8 +17049,8 @@ export function IdeaWorkbench({
                           ) : null}
                           {cursorSyncRegistryStatus === "ready" ? (
                             <div className="mt-3 grid gap-2">
-                              {cursorSyncConnections.length > 0 ? (
-                                cursorSyncConnections.slice(0, 4).map((connection) => (
+                              {visibleCursorSyncConnections.length > 0 ? (
+                                visibleCursorSyncConnections.slice(0, 4).map((connection) => (
                                   <div
                                     key={connection.id}
                                     className="flex flex-col gap-2 border border-slate-200 bg-white p-3 sm:flex-row sm:items-center sm:justify-between"
@@ -16386,19 +17133,37 @@ export function IdeaWorkbench({
                                 <span className="font-semibold text-slate-950">ai-venture-lab</span>이 보이는지 확인합니다.
                               </li>
                             ) : null}
+                            {isClaudeCodeExternalDelivery ? (
+                              <li className="border border-slate-200 bg-slate-50 p-3">
+                                6. Claude Code에서 <span className="font-mono text-xs">/mcp</span>를 열고{" "}
+                                <span className="font-semibold text-slate-950">ai-venture-lab</span> 연결을 확인합니다.
+                              </li>
+                            ) : null}
+                            {isAntigravityExternalDelivery ? (
+                              <li className="border border-slate-200 bg-slate-50 p-3">
+                                6. Antigravity 프로젝트에서{" "}
+                                <span className="font-mono text-xs">.antigravity/mcp_config.json</span>과 프로젝트 지침 파일을
+                                확인합니다.
+                              </li>
+                            ) : null}
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              {isCursorExternalDelivery ? "7" : "6"}.{" "}
-                              <span className="font-mono text-xs">
-                                {isCodexExternalDelivery ? "AI_VENTURE_CODEX_START.md" : "AI_VENTURE_CURSOR_START.md"}
-                              </span>{" "}
-                              내용을 {isCodexExternalDelivery ? "Codex 첫 메시지" : "Composer"}에 붙여 넣고 첫 작업을 시작합니다.
+                              {isCursorExternalDelivery || isClaudeCodeExternalDelivery || isAntigravityExternalDelivery ? "7" : "6"}.{" "}
+                              <span className="font-mono text-xs">{activeExternalBuildTool.startFileName}</span> 내용을{" "}
+                              {isCursorExternalDelivery
+                                ? "Composer"
+                                : isAntigravityExternalDelivery
+                                  ? "Antigravity Agent 첫 메시지"
+                                  : isClaudeCodeExternalDelivery
+                                    ? "Claude Code 첫 메시지"
+                                    : "Codex 첫 메시지"}에 붙여 넣고 첫 작업을 시작합니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              {isCursorExternalDelivery ? "8" : "7"}. 작업이 끝나면{" "}
-                              {isCodexExternalDelivery ? (
-                                <span className="font-mono text-xs">.codex/venture-lab-cli.mjs record-progress</span>
-                              ) : (
+                              {isCursorExternalDelivery || isClaudeCodeExternalDelivery || isAntigravityExternalDelivery ? "8" : "7"}.
+                              작업이 끝나면{" "}
+                              {isCursorExternalDelivery ? (
                                 <span className="font-mono text-xs">venture_record_progress</span>
+                              ) : (
+                                <span className="font-mono text-xs">{liveExternalToolFolder}/venture-lab-cli.mjs record-progress</span>
                               )}{" "}
                               로 완료 보고를 남기게 합니다. Venture Lab 작업 상태가 자동으로 갱신됩니다.
                             </li>
@@ -16408,27 +17173,16 @@ export function IdeaWorkbench({
                             {toDownloadFileName(selectedIdea.name, liveExternalToolSetupSuffix, "ps1")}
                           </div>
                           <p className="mt-3 text-xs leading-5 text-slate-500">
-                            실행 위치는 다운로드 폴더가 아니라 실제 개발할 프로젝트 루트입니다. 이 스크립트가 그 위치에
-                            {isCursorExternalDelivery ? (
-                              <>
-                                <span className="font-mono"> .cursor/rules</span>,
-                                <span className="font-mono"> .cursor/mcp.json</span>,
-                                <span className="font-mono"> .cursor/venture-lab-cli.mjs</span>, 자동 반영 토큰, 제작 패키지와 작업 목록을 만듭니다.
-                              </>
-                            ) : (
-                              <>
-                                <span className="font-mono"> .codex/venture-lab-cli.mjs</span>,
-                                <span className="font-mono"> .codex/venture-lab-sync.json</span>, 자동 반영 토큰, 제작 패키지와 작업 목록을
-                                만듭니다.
-                              </>
-                            )}
+                            실행 위치는 다운로드 폴더가 아니라 실제 개발할 프로젝트 루트입니다. 이 스크립트가 그 위치에{" "}
+                            <span className="font-mono">{liveExternalToolFolder}/venture-lab-cli.mjs</span>, 자동 반영 토큰,
+                            제작 패키지와 작업 목록을 만듭니다.
                           </p>
                           <div className="mt-3 flex flex-wrap gap-2">
-                            {isCursorExternalDelivery ? (
+                            {liveExternalToolMcpConfigDraft ? (
                               <button
                                 type="button"
-                                onClick={() => copyDraft(cursorMcpConfigDraft, "Cursor MCP 설정")}
-                                disabled={!cursorMcpConfigDraft}
+                                onClick={() => copyDraft(liveExternalToolMcpConfigDraft, `${activeExternalBuildTool.label} MCP 설정`)}
+                                disabled={!liveExternalToolMcpConfigDraft}
                                 className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                               >
                                 <Code2 size={16} />

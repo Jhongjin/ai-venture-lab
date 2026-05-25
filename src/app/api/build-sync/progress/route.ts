@@ -104,7 +104,19 @@ function jsonError(message: string, status: number) {
 }
 
 function getBuildSyncToolLabel(tool: BuildSyncTool) {
-  return tool === "codex" ? "Codex" : "Cursor";
+  if (tool === "codex") {
+    return "Codex";
+  }
+
+  if (tool === "claude_code") {
+    return "Claude Code";
+  }
+
+  if (tool === "antigravity") {
+    return "Google Antigravity";
+  }
+
+  return "Cursor";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -305,7 +317,12 @@ export async function POST(request: Request) {
 
   const { payload } = verification;
 
-  if (payload.tool !== "cursor" && payload.tool !== "codex") {
+  if (
+    payload.tool !== "cursor" &&
+    payload.tool !== "codex" &&
+    payload.tool !== "claude_code" &&
+    payload.tool !== "antigravity"
+  ) {
     return jsonError("This build sync token is not valid for an enabled external build tool.", 403);
   }
 
