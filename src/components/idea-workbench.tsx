@@ -10108,6 +10108,34 @@ export function IdeaWorkbench({
     () => buildImplementationDependencyStatuses(selectedImplementationTasks),
     [selectedImplementationTasks],
   );
+  const implementationTaskProgressStats = useMemo(() => {
+    const byType = Object.fromEntries(
+      implementationTaskTypes.map((taskType) => [taskType, { done: 0, total: 0 }]),
+    ) as Record<ImplementationTaskType, { done: number; total: number }>;
+    const completedTasks: ImplementationTask[] = [];
+    let blockedCount = 0;
+
+    for (const task of selectedImplementationTasks) {
+      byType[task.task_type].total += 1;
+
+      if (task.status === "done") {
+        byType[task.task_type].done += 1;
+        completedTasks.push(task);
+      }
+
+      if (task.status === "blocked") {
+        blockedCount += 1;
+      }
+    }
+
+    return {
+      blockedCount,
+      completedCount: completedTasks.length,
+      completedTasks,
+      totalCount: selectedImplementationTasks.length,
+      byType,
+    };
+  }, [selectedImplementationTasks]);
   const readyImplementationDependencyStatuses = implementationDependencyStatuses.filter((status) => status.ready);
   const waitingImplementationDependencyStatuses = implementationDependencyStatuses.filter(
     (status) => status.task.status !== "done" && !status.ready,
@@ -10119,8 +10147,8 @@ export function IdeaWorkbench({
     ? selectedImplementationTasks.findIndex((task) => task.id === nextImplementationTask.id)
     : -1;
   const nextImplementationTaskCode = nextImplementationTaskIndex >= 0 ? getCursorTaskCode(nextImplementationTaskIndex) : null;
-  const completedLearningImplementationTasks = selectedImplementationTasks.filter((task) => task.status === "done");
-  const totalLearningImplementationTasks = selectedImplementationTasks.length;
+  const completedLearningImplementationTasks = implementationTaskProgressStats.completedTasks;
+  const totalLearningImplementationTasks = implementationTaskProgressStats.totalCount;
   const productSignalCount = selectedProductTelemetryEvents.length;
   const recentSignalCount = eventCountForWindow(selectedTelemetryEvents, 14);
   const learningDecisionLabel =
@@ -11112,9 +11140,9 @@ export function IdeaWorkbench({
       artifact.artifact_type === "design_brief" &&
       ["빈 상태", "로딩", "오류", "권한", "모바일", "접근성"].every((term) => artifact.body.includes(term)),
   );
-  const completedImplementationTasks = selectedImplementationTasks.filter((task) => task.status === "done");
+  const completedImplementationTasks = implementationTaskProgressStats.completedTasks;
   const implementationTasksWithEvidence = completedImplementationTasks.filter((task) => task.evidence.trim());
-  const hasBlockedImplementationTasks = selectedImplementationTasks.some((task) => task.status === "blocked");
+  const hasBlockedImplementationTasks = implementationTaskProgressStats.blockedCount > 0;
   const hasCompletedExperiment = selectedExperiments.some((experiment) => experiment.status === "done");
   const highRiskCount = selectedIdeaRisks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
   const unresolvedHighRiskCount = selectedIdeaRisks.filter(
@@ -11394,7 +11422,7 @@ export function IdeaWorkbench({
           label: "차단된 할 일 없음",
           passed: !hasBlockedImplementationTasks,
           detail: hasBlockedImplementationTasks
-            ? `${selectedImplementationTasks.filter((task) => task.status === "blocked").length}개 할 일이 차단 상태입니다.`
+            ? `${implementationTaskProgressStats.blockedCount}개 할 일이 차단 상태입니다.`
             : "현재 차단 상태의 할 일이 없습니다.",
         },
         {
@@ -12149,8 +12177,8 @@ export function IdeaWorkbench({
       label: "제작 패키지",
       description: "제작 자료를 자동 정리합니다.",
       status:
-        selectedImplementationTasks.length > 0
-          ? `${selectedImplementationTasks.filter((task) => task.status === "done").length}/${selectedImplementationTasks.length}`
+        implementationTaskProgressStats.totalCount > 0
+          ? `${implementationTaskProgressStats.completedCount}/${implementationTaskProgressStats.totalCount}`
           : selectedArtifactRecords.some((artifact) => artifact.source === "development_process")
             ? "계획됨"
             : "대기",
@@ -16386,10 +16414,7 @@ export function IdeaWorkbench({
 
                 <div className="mt-4 grid gap-3 lg:grid-cols-8">
                   {implementationTaskExecutionOrder.map((taskType, index) => {
-                    const doneCount = selectedImplementationTasks.filter(
-                      (task) => task.task_type === taskType && task.status === "done",
-                    ).length;
-                    const totalCount = selectedImplementationTasks.filter((task) => task.task_type === taskType).length;
+                    const taskTypeStats = implementationTaskProgressStats.byType[taskType];
 
                     return (
                       <div key={taskType} className="border border-slate-200 bg-white p-3">
@@ -16400,7 +16425,7 @@ export function IdeaWorkbench({
                           {implementationTaskTypeLabels[taskType]}
                         </div>
                         <div className="mt-2 text-xs font-semibold text-slate-500">
-                          {doneCount}/{totalCount} 완료
+                          {taskTypeStats.done}/{taskTypeStats.total} 완료
                         </div>
                       </div>
                     );
