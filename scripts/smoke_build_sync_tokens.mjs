@@ -80,6 +80,13 @@ async function callAppApi(page, path, init = {}) {
   );
 }
 
+async function waitForVisibleDecisionSentence(page) {
+  await page.locator("p:visible", { hasText: "결정:" }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+}
+
 async function verifyLearningTaskBoard(page, ideaId) {
   const learningUrl = new URL("/workspace", baseUrl);
   learningUrl.searchParams.set("task", "learning");
@@ -98,10 +105,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  await page.getByText("결정:", { exact: false }).first().waitFor({
-    state: "visible",
-    timeout,
-  });
+  await waitForVisibleDecisionSentence(page);
   await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
     state: "visible",
     timeout,
@@ -132,10 +136,7 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
-  await page.getByText("결정:", { exact: false }).first().waitFor({
-    state: "visible",
-    timeout,
-  });
+  await waitForVisibleDecisionSentence(page);
 }
 
 async function verifyFinalExecutionCursorGuide(page, ideaId) {
