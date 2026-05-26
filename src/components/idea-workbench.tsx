@@ -2691,11 +2691,12 @@ powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cur
 node .cursor/venture-lab-cli.mjs next-task
 \`\`\`
 
-5. Cursor를 새로고침하거나 다시 열고, MCP 설정에서 \`ai-venture-lab\` 서버가 보이는지 확인합니다.
-6. Cursor Composer에 \`AI_VENTURE_CURSOR_START.md\` 내용을 붙여 넣고 첫 작업을 시작합니다.
-7. 작업을 마치면 Cursor에게 \`venture_record_progress\` 도구로 완료 보고를 남기라고 지시합니다.
-8. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
-9. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
+5. Cursor를 새로고침하거나 다시 열고, Settings > MCP의 \`Workspace MCP Servers\`에서 \`ai-venture-lab\`을 켭니다. 처음 1회는 Cursor 보안 확인 때문에 수동 활성화가 필요할 수 있습니다.
+6. \`ai-venture-lab\`이 Enabled 상태이고 도구가 활성화됐는지 확인합니다.
+7. Cursor Composer에 \`AI_VENTURE_CURSOR_START.md\` 내용을 붙여 넣고 첫 작업을 시작합니다.
+8. 작업을 마치면 Cursor에게 \`venture_record_progress\` 도구로 완료 보고를 남기라고 지시합니다.
+9. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
+10. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
 
 ## 프로젝트 정보
 
@@ -3763,7 +3764,8 @@ foreach ($entry in $ignoreEntries) {
 Write-Host ""
 Write-Host "AI Venture Lab Cursor connection files are ready."
 Write-Host "Next check command: node .cursor/venture-lab-cli.mjs next-task"
-Write-Host "Then reopen Cursor, check Settings > MCP for ai-venture-lab, then paste AI_VENTURE_CURSOR_START.md into Composer."
+Write-Host "Then reopen Cursor and enable ai-venture-lab in Settings > MCP > Workspace MCP Servers."
+Write-Host "After it shows Enabled, paste AI_VENTURE_CURSOR_START.md into Composer."
 Write-Host "When Cursor calls venture_record_progress, Venture Lab task status will be updated automatically."
 `;
 }
@@ -17357,10 +17359,17 @@ export function IdeaWorkbench({
                               <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지 봅니다.
                             </li>
                             {isCursorExternalDelivery ? (
-                              <li className="border border-slate-200 bg-slate-50 p-3">
-                                6. Cursor를 다시 열고 MCP 설정에서{" "}
-                                <span className="font-semibold text-slate-950">ai-venture-lab</span>이 보이는지 확인합니다.
-                              </li>
+                              <>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  6. Cursor를 다시 열고 Settings &gt; MCP의 Workspace MCP Servers에서{" "}
+                                  <span className="font-semibold text-slate-950">ai-venture-lab</span>이 보이는지 확인합니다.
+                                  처음 1회는 토글을 직접 켜야 할 수 있습니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  7. <span className="font-semibold text-slate-950">ai-venture-lab</span>이 Enabled 상태이고
+                                  도구가 활성화됐는지 확인합니다.
+                                </li>
+                              </>
                             ) : null}
                             {isClaudeCodeExternalDelivery ? (
                               <li className="border border-slate-200 bg-slate-50 p-3">
@@ -17376,7 +17385,12 @@ export function IdeaWorkbench({
                               </li>
                             ) : null}
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              {isCursorExternalDelivery || isClaudeCodeExternalDelivery || isAntigravityExternalDelivery ? "7" : "6"}.{" "}
+                              {isCursorExternalDelivery
+                                ? "8"
+                                : isClaudeCodeExternalDelivery || isAntigravityExternalDelivery
+                                  ? "7"
+                                  : "6"}
+                              .{" "}
                               <span className="font-mono text-xs">{activeExternalBuildTool.startFileName}</span> 내용을{" "}
                               {isCursorExternalDelivery
                                 ? "Composer"
@@ -17387,7 +17401,12 @@ export function IdeaWorkbench({
                                     : "Codex 첫 메시지"}에 붙여 넣고 첫 작업을 시작합니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              {isCursorExternalDelivery || isClaudeCodeExternalDelivery || isAntigravityExternalDelivery ? "8" : "7"}.
+                              {isCursorExternalDelivery
+                                ? "9"
+                                : isClaudeCodeExternalDelivery || isAntigravityExternalDelivery
+                                  ? "8"
+                                  : "7"}
+                              .
                               작업이 끝나면{" "}
                               {isCursorExternalDelivery ? (
                                 <span className="font-mono text-xs">venture_record_progress</span>

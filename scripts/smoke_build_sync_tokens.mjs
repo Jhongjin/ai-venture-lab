@@ -149,6 +149,14 @@ async function verifyFinalExecutionCursorGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.getByText(/Workspace MCP Servers/).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText(/처음 1회는 토글을 직접 켜야 할 수 있습니다/).first().waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByText("node .cursor/venture-lab-cli.mjs next-task", { exact: true }).waitFor({
     state: "visible",
     timeout,
