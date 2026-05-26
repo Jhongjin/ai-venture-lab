@@ -12024,6 +12024,10 @@ export function IdeaWorkbench({
       : isCursorExternalDelivery
         ? cursorMcpConfigDraft
         : "";
+  const liveExternalToolSetupFileName = selectedIdea
+    ? toDownloadFileName(selectedIdea.name, liveExternalToolSetupSuffix, "ps1")
+    : `${liveExternalToolSetupSuffix}.ps1`;
+  const liveExternalToolSetupCommand = `powershell -ExecutionPolicy Bypass -File .\\${liveExternalToolSetupFileName}`;
   const liveExternalToolNextTaskCommand = `node ${liveExternalToolFolder}/venture-lab-cli.mjs next-task`;
   const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
   const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
@@ -17340,26 +17344,26 @@ export function IdeaWorkbench({
                       {isLiveExternalDelivery ? (
                         <>
                           <ol className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
-                            <li className="border border-slate-200 bg-slate-50 p-3">
-                              1. <span className="font-semibold text-slate-950">{activeExternalBuildTool.label} 연결 파일 받기</span>를 눌러
-                              PowerShell 파일을 받습니다.
-                            </li>
-                            <li className="border border-slate-200 bg-slate-50 p-3">
-                              2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.
-                            </li>
-                            <li className="border border-slate-200 bg-slate-50 p-3">
-                              3. {activeExternalBuildTool.label}에서 그 프로젝트 폴더를 엽니다.
-                            </li>
-                            <li className="border border-slate-200 bg-slate-50 p-3">
-                              4. 먼저 터미널 또는 PowerShell에서{" "}
-                              <span className="font-semibold text-slate-950">설치 명령</span>을 실행합니다.
-                            </li>
-                            <li className="border border-slate-200 bg-slate-50 p-3">
-                              5. 설치가 끝난 뒤 같은 터미널에서{" "}
-                              <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지 봅니다.
-                            </li>
                             {isCursorExternalDelivery ? (
                               <>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  1. <span className="font-semibold text-slate-950">Cursor 연결 파일 받기</span>를 눌러
+                                  PowerShell 파일을 받습니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  3. Cursor에서 그 프로젝트 폴더를 엽니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  4. Cursor 터미널 또는 PowerShell에서{" "}
+                                  <span className="font-semibold text-slate-950">설치 명령</span>을 먼저 실행합니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  5. 같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해
+                                  첫 작업이 읽히는지 확인합니다.
+                                </li>
                                 <li className="border border-slate-200 bg-slate-50 p-3">
                                   6. Cursor를 다시 열고 Settings &gt; MCP의 Workspace MCP Servers에서{" "}
                                   <span className="font-semibold text-slate-950">ai-venture-lab</span>이 보이는지 확인합니다.
@@ -17371,23 +17375,90 @@ export function IdeaWorkbench({
                                 </li>
                               </>
                             ) : null}
-                            {isClaudeCodeExternalDelivery ? (
-                              <li className="border border-slate-200 bg-slate-50 p-3">
-                                6. Claude Code에서 <span className="font-mono text-xs">/mcp</span>를 열고{" "}
-                                <span className="font-semibold text-slate-950">ai-venture-lab</span> 연결을 확인합니다.
-                              </li>
-                            ) : null}
                             {isAntigravityExternalDelivery ? (
-                              <li className="border border-slate-200 bg-slate-50 p-3">
-                                6. Antigravity 프로젝트에서{" "}
-                                <span className="font-mono text-xs">.antigravity/mcp_config.json</span>과 프로젝트 지침 파일을
-                                확인합니다.
-                              </li>
+                              <>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  1. <span className="font-semibold text-slate-950">Google Antigravity 연결 파일 받기</span>를
+                                  눌러 PowerShell 파일을 받습니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  3. Antigravity에서 그 프로젝트 폴더를 엽니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  4. Antigravity 터미널 또는 PowerShell에서{" "}
+                                  <span className="font-semibold text-slate-950">설치 명령</span>을 먼저 실행합니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  5. 같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해
+                                  첫 작업이 읽히는지 확인합니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  6. 프로젝트 안의 <span className="font-mono text-xs">.antigravity/mcp_config.json</span>과
+                                  지침 파일이 생성됐는지 확인합니다.
+                                </li>
+                              </>
+                            ) : null}
+                            {isClaudeCodeExternalDelivery ? (
+                              <>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  1. <span className="font-semibold text-slate-950">Claude Code 연결 파일 받기</span>를 눌러
+                                  PowerShell 파일을 받습니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  3. Windows Terminal 또는 PowerShell에서 그 프로젝트 루트를 엽니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  4. 프로젝트 루트에서 <span className="font-semibold text-slate-950">설치 명령</span>을
+                                  실행합니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  5. 같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해
+                                  첫 작업이 읽히는지 확인합니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  6. 같은 프로젝트 루트에서 Claude Code를 실행하고{" "}
+                                  <span className="font-mono text-xs">/mcp</span>로{" "}
+                                  <span className="font-semibold text-slate-950">ai-venture-lab</span> 연결을 확인합니다.
+                                </li>
+                              </>
+                            ) : null}
+                            {isCodexExternalDelivery ? (
+                              <>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  1. <span className="font-semibold text-slate-950">Codex 연결 파일 받기</span>를 눌러
+                                  PowerShell 파일을 받습니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  3. Codex를 그 프로젝트 루트에서 엽니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  4. 프로젝트 루트 터미널 또는 PowerShell에서{" "}
+                                  <span className="font-semibold text-slate-950">설치 명령</span>을 실행합니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  5. 같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해
+                                  첫 작업이 읽히는지 확인합니다.
+                                </li>
+                                <li className="border border-slate-200 bg-slate-50 p-3">
+                                  6. <span className="font-mono text-xs">AGENTS.ai-venture-lab.md</span>와{" "}
+                                  <span className="font-mono text-xs">{activeExternalBuildTool.startFileName}</span>이 생성됐는지
+                                  확인합니다.
+                                </li>
+                              </>
                             ) : null}
                             <li className="border border-slate-200 bg-slate-50 p-3">
                               {isCursorExternalDelivery
                                 ? "8"
-                                : isClaudeCodeExternalDelivery || isAntigravityExternalDelivery
+                                : isClaudeCodeExternalDelivery || isAntigravityExternalDelivery || isCodexExternalDelivery
                                   ? "7"
                                   : "6"}
                               .{" "}
@@ -17403,12 +17474,12 @@ export function IdeaWorkbench({
                             <li className="border border-slate-200 bg-slate-50 p-3">
                               {isCursorExternalDelivery
                                 ? "9"
-                                : isClaudeCodeExternalDelivery || isAntigravityExternalDelivery
+                                : isClaudeCodeExternalDelivery || isAntigravityExternalDelivery || isCodexExternalDelivery
                                   ? "8"
                                   : "7"}
                               .
                               작업이 끝나면{" "}
-                              {isCursorExternalDelivery ? (
+                              {isCursorExternalDelivery || isClaudeCodeExternalDelivery ? (
                                 <span className="font-mono text-xs">venture_record_progress</span>
                               ) : (
                                 <span className="font-mono text-xs">{liveExternalToolFolder}/venture-lab-cli.mjs record-progress</span>
@@ -17417,15 +17488,34 @@ export function IdeaWorkbench({
                             </li>
                           </ol>
                           <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
-                            <div className="text-xs font-semibold text-slate-950">먼저 실행할 설치 명령</div>
-                            <div className="mt-2 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white">
-                              {"powershell -ExecutionPolicy Bypass -File .\\"}
-                              {toDownloadFileName(selectedIdea.name, liveExternalToolSetupSuffix, "ps1")}
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="text-xs font-semibold text-slate-950">먼저 실행할 설치 명령</div>
+                              <button
+                                type="button"
+                                onClick={() => copyDraft(liveExternalToolSetupCommand, "설치 명령")}
+                                className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs"
+                              >
+                                <Clipboard size={14} />
+                                설치 명령 복사
+                              </button>
+                            </div>
+                            <div className="mt-2 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white break-all">
+                              {liveExternalToolSetupCommand}
                             </div>
                           </div>
                           <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
-                            <div className="text-xs font-semibold text-slate-950">설치 후 확인 명령</div>
-                            <div className="mt-2 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="text-xs font-semibold text-slate-950">설치 후 확인 명령</div>
+                              <button
+                                type="button"
+                                onClick={() => copyDraft(liveExternalToolNextTaskCommand, "확인 명령")}
+                                className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs"
+                              >
+                                <Clipboard size={14} />
+                                확인 명령 복사
+                              </button>
+                            </div>
+                            <div className="mt-2 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white break-all">
                               {liveExternalToolNextTaskCommand}
                             </div>
                           </div>
@@ -17548,10 +17638,13 @@ export function IdeaWorkbench({
                 </div>
                 <div className="mt-4 grid gap-3 md:grid-cols-3">
                   {finalExecutionTaskPreview.length > 0 ? (
-                    finalExecutionTaskPreview.map((task) => (
+                    finalExecutionTaskPreview.map((task, index) => (
                       <div key={task.id} className="border border-slate-200 bg-slate-50 p-3">
                         <div className="flex items-start justify-between gap-2">
-                          <div className="text-sm font-semibold text-slate-950">{task.title}</div>
+                          <div className="text-sm font-semibold text-slate-950">
+                            <span className="font-mono text-xs font-semibold text-slate-500">{getCursorTaskCode(index)}</span>{" "}
+                            {task.title}
+                          </div>
                           <span className={implementationTaskStatusTone[task.status]}>
                             {implementationTaskStatusLabels[task.status]}
                           </span>
@@ -17565,7 +17658,10 @@ export function IdeaWorkbench({
                     finalExecutionFallbackTaskPreview.map((task, index) => (
                       <div key={`${task.title}-${index}`} className="border border-blue-200 bg-blue-50 p-3">
                           <div className="flex items-start justify-between gap-2">
-                            <div className="text-sm font-semibold text-slate-950">{task.title}</div>
+                            <div className="text-sm font-semibold text-slate-950">
+                              <span className="font-mono text-xs font-semibold text-slate-500">{getCursorTaskCode(index)}</span>{" "}
+                              {task.title}
+                            </div>
                             <span className="avl-pill avl-pill-info">
                               {isLiveExternalDelivery ? "연결 파일에 포함" : "패키지에 포함"}
                             </span>

@@ -128,6 +128,8 @@ async function main() {
       page.getByText("node .*/venture-lab-cli.mjs next-task", { exact: false }),
       "guide named tool CLI check",
     );
+    await waitForVisible(page.getByText("터미널 에이전트형", { exact: true }).first(), "guide terminal agent mode");
+    await waitForVisible(page.getByText("설치 명령과 확인 명령은 각각 복사할 수 있습니다", { exact: false }), "guide command copy wording");
     await waitForVisible(page.getByText("붙여넣기는 실패 시 백업", { exact: false }), "guide backup wording");
 
     if (resolvedScreenshotPath) {

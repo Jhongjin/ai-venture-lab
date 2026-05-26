@@ -85,14 +85,21 @@ const quickAnswers = [
   ["처음에 무엇을 준비해야 하나요", "정리된 기획서가 없어도 됩니다. 회의 메모, GPT와 나눈 대화, 평소 적어둔 자동화 아이디어처럼 거친 내용을 그대로 넣으면 됩니다."],
   ["모든 항목을 직접 채워야 하나요", "아닙니다. 기본은 AI가 먼저 채우고, 사용자는 어색한 판단만 고치거나 그대로 저장합니다."],
   ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 제품 기획서, 검증 계획, 제작 범위, 기술 방향, 제작에 필요한 작업 순서와 확인 기준이 묶인 제작 패키지를 얻습니다."],
-  ["외부 제작 도구와 어떻게 연결하나요", "최종 실행 단계에서 Cursor, Codex, Claude Code, Google Antigravity 중 사용할 도구를 고르고 연결 파일을 받습니다. 실제 개발할 프로젝트 루트에서 PowerShell 파일을 실행하면 도구별 지침, 로컬 CLI, 제작 패키지, 작업 목록이 생성됩니다. 완료 보고가 들어오면 Venture Lab 작업 상태가 자동 반영됩니다."],
+  ["외부 제작 도구와 어떻게 연결하나요", "최종 실행 단계에서 Cursor, Codex, Claude Code, Google Antigravity 중 사용할 도구를 고르고 연결 파일을 받습니다. Cursor와 Antigravity는 IDE 안에서 프로젝트를 연 뒤 진행하고, Codex와 Claude Code는 실제 프로젝트 루트의 터미널 에이전트 흐름으로 시작합니다. 완료 보고가 들어오면 Venture Lab 작업 상태가 자동 반영됩니다."],
 ];
 
 const externalToolGuide = [
   ["1", "개발 도구 선택", "최종 실행 단계에서 Cursor, Codex, Claude Code, Google Antigravity 중 실제로 사용할 제작 도구를 고릅니다."],
-  ["2", "연결 파일 받기", "선택한 도구의 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트에 둡니다. 다운로드 폴더에서 실행하지 않습니다."],
-  ["3", "프로젝트 루트에서 실행", "PowerShell 명령을 실행하면 도구별 폴더, 시작 지시문, 로컬 CLI, 제작 패키지, 작업 목록이 프로젝트 안에 생성됩니다."],
+  ["2", "연결 파일 받기", "선택한 도구의 PowerShell 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트에 둡니다. 다운로드 폴더에서 실행하지 않습니다."],
+  ["3", "도구별 시작", "Cursor와 Antigravity는 IDE에서 프로젝트를 열고, Codex와 Claude Code는 프로젝트 루트 터미널에서 시작합니다. 화면의 설치 명령과 확인 명령은 각각 복사할 수 있습니다."],
   ["4", "첫 작업 시작", "next-task로 첫 작업을 확인하고, 도구별 START 파일을 첫 메시지로 넣습니다. 완료 보고는 자동 반영되며 붙여넣기는 실패 시 백업입니다."],
+];
+
+const externalToolStartModes = [
+  ["Cursor", "IDE형", "Cursor에서 프로젝트 폴더를 열고 설치 명령을 실행한 뒤 Settings > MCP > Workspace MCP Servers에서 ai-venture-lab을 켭니다."],
+  ["Google Antigravity", "IDE형", "Antigravity에서 프로젝트 폴더를 열고 설치 명령을 실행한 뒤 생성된 mcp_config와 프로젝트 지침 파일을 확인합니다."],
+  ["Claude Code", "터미널 에이전트형", "Windows Terminal 또는 PowerShell에서 프로젝트 루트를 열고 설치 명령, 확인 명령, claude 실행, /mcp 확인 순서로 시작합니다."],
+  ["Codex", "터미널 에이전트형", "Codex를 프로젝트 루트에서 열고 설치 명령과 확인 명령을 실행한 뒤 AGENTS 지침과 START 파일 기준으로 첫 작업을 시작합니다."],
 ];
 
 const externalToolFiles = [
@@ -225,6 +232,17 @@ export default function GuidePage() {
                     </article>
                   ))}
                 </div>
+                <div className="mt-6 grid gap-px bg-slate-200 lg:grid-cols-4">
+                  {externalToolStartModes.map(([tool, mode, body]) => (
+                    <article key={tool} className="bg-white px-5 py-5">
+                      <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        {mode}
+                      </div>
+                      <h3 className="mt-4 text-[18px] font-semibold tracking-tight text-slate-950">{tool}</h3>
+                      <p className="mt-3 break-keep text-sm leading-6 text-slate-600">{body}</p>
+                    </article>
+                  ))}
+                </div>
                 <div className="mt-6 grid gap-px bg-slate-200 lg:grid-cols-[0.48fr_0.52fr]">
                   <div className="bg-white px-5 py-5">
                     <div className="text-sm font-semibold text-slate-950">도구별로 생성되는 파일</div>
@@ -244,7 +262,7 @@ export default function GuidePage() {
                   <div className="bg-white px-5 py-5">
                     <div className="text-sm font-semibold text-slate-950">현재 연결 범위</div>
                     <p className="mt-3 break-keep text-sm leading-6 text-slate-600">
-                      네 도구 모두 패키지와 작업 목록을 프로젝트 안에 설치하고, `node .*/venture-lab-cli.mjs next-task`로 첫 작업을 확인합니다. Cursor와 Claude Code는 MCP 연결 확인까지 지원하고, Codex와 Antigravity는 로컬 CLI 기록을 통해 완료 보고를 서버에 반영합니다.
+                      네 도구 모두 패키지와 작업 목록을 프로젝트 안에 설치하고, `node .*/venture-lab-cli.mjs next-task`로 첫 작업을 확인합니다. Cursor와 Antigravity는 IDE 안에서 MCP 또는 지침 파일을 확인하고, Claude Code와 Codex는 터미널 에이전트 흐름에서 START 파일을 첫 메시지로 넣어 진행합니다.
                     </p>
                     <p className="mt-3 break-keep text-sm leading-6 text-slate-600">
                       작업 완료 후 진행 기록은 도구별 `venture-lab-progress.json`에 남고 Venture Lab 서버에도 전송됩니다. 자동 반영이 실패한 경우에만 이 파일 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.

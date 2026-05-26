@@ -149,6 +149,14 @@ async function verifyFinalExecutionCursorGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.getByRole("button", { name: "설치 명령 복사" }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "확인 명령 복사" }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByText(/Workspace MCP Servers/).first().waitFor({
     state: "visible",
     timeout,
@@ -182,7 +190,19 @@ async function verifyFinalExecutionCodexGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.getByText("Codex를 그 프로젝트 루트에서 엽니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByText("node .codex/venture-lab-cli.mjs next-task", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "설치 명령 복사" }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "확인 명령 복사" }).first().waitFor({
     state: "visible",
     timeout,
   });
@@ -211,7 +231,19 @@ async function verifyFinalExecutionClaudeGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.getByText("Windows Terminal 또는 PowerShell에서 그 프로젝트 루트를 엽니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByText("node .claude/venture-lab-cli.mjs next-task", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "설치 명령 복사" }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "확인 명령 복사" }).first().waitFor({
     state: "visible",
     timeout,
   });
@@ -240,7 +272,19 @@ async function verifyFinalExecutionAntigravityGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.getByText("Antigravity에서 그 프로젝트 폴더를 엽니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByText("node .antigravity/venture-lab-cli.mjs next-task", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "설치 명령 복사" }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "확인 명령 복사" }).first().waitFor({
     state: "visible",
     timeout,
   });
