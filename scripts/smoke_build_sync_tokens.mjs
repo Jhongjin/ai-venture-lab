@@ -105,6 +105,12 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  for (const label of ["완료된 것", "남은 것", "지금 판단할 것"]) {
+    await page.getByText(label, { exact: true }).first().waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   await waitForVisibleDecisionSentence(page);
   await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
     state: "visible",
@@ -113,7 +119,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
   const taskBoard = page.locator("section", {
     has: page.getByRole("heading", { name: "제작 작업 진행표" }),
   });
-  await taskBoard.getByText("목록을 읽고 다음 행동만 판단하면 됩니다.", { exact: false }).waitFor({
+  await taskBoard.getByText("필요한 경우 다음 작업의 근거만 확인하세요.", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });

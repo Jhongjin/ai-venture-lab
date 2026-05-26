@@ -10158,30 +10158,49 @@ export function IdeaWorkbench({
       : "이제 상세 이벤트는 필요할 때만 열고, 다음 개선 또는 보류 판단을 남기면 됩니다.";
   const learningPrimaryCtaLabel =
     nextImplementationTask || productSignalCount === 0 ? "최종 실행으로 가기" : "리포트 복사";
+  const learningCompletedValue =
+    totalLearningImplementationTasks > 0
+      ? `${completedLearningImplementationTasks.length}/${totalLearningImplementationTasks} 작업`
+      : productSignalCount > 0
+        ? `${productSignalCount}개 신호`
+        : "없음";
+  const learningCompletedDetail =
+    totalLearningImplementationTasks > 0
+      ? completedLearningImplementationTasks.length > 0
+        ? "완료 보고가 저장된 제작 작업입니다."
+        : "아직 완료 보고가 들어온 제작 작업은 없습니다."
+      : productSignalCount > 0
+        ? "첫 버전에서 들어온 실제 사용 신호입니다."
+        : "아직 완료 보고나 제품 신호가 없습니다.";
+  const learningRemainingValue = nextImplementationTask
+    ? nextImplementationTaskCode
+      ? `${nextImplementationTaskCode} 남음`
+      : "작업 남음"
+    : productSignalCount === 0
+      ? "신호 연결"
+      : openSelectedIdeaRisks.length > 0
+        ? `${openSelectedIdeaRisks.length}개 리스크`
+        : "없음";
+  const learningRemainingDetail = nextImplementationTask
+    ? `${nextImplementationTask.title}만 이어서 처리하면 됩니다.`
+    : productSignalCount === 0
+      ? "첫 버전을 배포한 뒤 방문과 핵심 행동 이벤트를 연결하세요."
+      : openSelectedIdeaRisks.length > 0
+        ? "열린 리스크 중 다음 빌드에서 줄일 항목을 하나 고르세요."
+        : "남은 차단 항목이 없으면 다음 빌드 범위를 작게 정하면 됩니다.";
   const learningDecisionCards = [
     {
-      label: "제작 진행",
-      value:
-        totalLearningImplementationTasks > 0
-          ? `${completedLearningImplementationTasks.length}/${totalLearningImplementationTasks}`
-          : "대기",
-      detail:
-        nextImplementationTask
-          ? `다음 작업: ${nextImplementationTask.title}`
-          : totalLearningImplementationTasks > 0
-            ? "모든 제작 작업이 완료 상태입니다."
-            : "최종 실행에서 제작 작업을 먼저 연결하세요.",
+      label: "완료된 것",
+      value: learningCompletedValue,
+      detail: learningCompletedDetail,
     },
     {
-      label: "실제 사용 신호",
-      value: `${productSignalCount}개`,
-      detail:
-        productSignalCount > 0
-          ? "외부 제품 또는 첫 버전에서 들어온 핵심 행동 신호입니다."
-          : "아직 실제 제품 이벤트가 없어 출시 후 판단은 대기 상태입니다.",
+      label: "남은 것",
+      value: learningRemainingValue,
+      detail: learningRemainingDetail,
     },
     {
-      label: "다음 판단",
+      label: "지금 판단할 것",
       value: learningDecisionLabel,
       detail: learningDecisionDetail,
     },
@@ -17927,7 +17946,7 @@ export function IdeaWorkbench({
               </div>
               <h2 className="text-lg font-semibold text-slate-950">성과 확인</h2>
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                여기서는 리포트를 먼저 읽지 않습니다. 작업 완료 상태를 보고 지금 이어서 만들지, 출시 신호를 볼지 정합니다.
+                여기서는 리포트를 먼저 읽지 않습니다. 완료된 것, 남은 것, 지금 판단할 것만 먼저 봅니다.
               </p>
             </div>
           </div>
@@ -17976,7 +17995,7 @@ export function IdeaWorkbench({
                 <div className="avl-kicker">execution signal</div>
                 <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 진행표</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  외부 제작 도구나 내부 작업에서 반영된 완료 보고를 작업별로 정리합니다. 여기서는 목록을 읽고 다음 행동만 판단하면 됩니다.
+                  외부 제작 도구나 내부 작업에서 반영된 완료 보고입니다. 필요한 경우 다음 작업의 근거만 확인하세요.
                 </p>
               </div>
               <span className="avl-pill avl-pill-success">
@@ -18024,7 +18043,7 @@ export function IdeaWorkbench({
               ) : (
                 <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
                   <div className="font-semibold text-slate-950">성과 확인은 아직 볼 게 없습니다.</div>
-                  <p className="mt-1">최종 실행 단계에서 제작 패키지를 넘기고 첫 완료 보고를 반영하면 여기에 표시됩니다.</p>
+                  <p className="mt-1">최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.</p>
                   <button
                     type="button"
                     onClick={() => updateActiveTask("launch")}
