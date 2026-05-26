@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-26 | Clarified first-use result type, development method, and STEP 7/8 action copy | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_browser.mjs`, `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm typecheck`, `pnpm quality:full`, local `BROWSER_SMOKE_URL=http://localhost:3007` with extended timeout `pnpm smoke:browser` after one dev-server `networkidle` timeout |
 | 2026-05-26 | Fixed build-sync endpoint generation to avoid protected Vercel branch URLs | `7f7e18b` | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`; local Cursor test folder endpoint patched to production URL |
 | 2026-05-26 | Clarified Cursor Workspace MCP manual activation step | `30d471d` | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full` |
 | 2026-05-26 | Clarified first Cursor terminal command and guarded downloaded connector CLI syntax | `71cc3d6` | Pushed to `main`; production updated and smoke passed | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:build-sync`, `pnpm smoke:browser` |

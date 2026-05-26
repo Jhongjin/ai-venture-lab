@@ -27,6 +27,7 @@ import {
   getProductSurfaceProfile,
   productSurfaceMarkdown,
   productSurfaceProfiles,
+  withKoreanInstrumental,
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
@@ -10114,6 +10115,10 @@ export function IdeaWorkbench({
   const nextImplementationTask = readyImplementationDependencyStatuses[0]?.task ?? selectedOpenImplementationTasks[0] ?? null;
   const nextImplementationDependencyStatus =
     implementationDependencyStatuses.find((status) => status.task.id === nextImplementationTask?.id) ?? null;
+  const nextImplementationTaskIndex = nextImplementationTask
+    ? selectedImplementationTasks.findIndex((task) => task.id === nextImplementationTask.id)
+    : -1;
+  const nextImplementationTaskCode = nextImplementationTaskIndex >= 0 ? getCursorTaskCode(nextImplementationTaskIndex) : null;
   const completedLearningImplementationTasks = selectedImplementationTasks.filter((task) => task.status === "done");
   const totalLearningImplementationTasks = selectedImplementationTasks.length;
   const productSignalCount = selectedProductTelemetryEvents.length;
@@ -10140,7 +10145,7 @@ export function IdeaWorkbench({
       ? "출시 전 확인"
       : "다음 빌드 판단";
   const learningPrimaryActionText = nextImplementationTask
-    ? `${nextImplementationTask.title} 작업을 이어서 진행하고, 완료 보고를 Venture Lab에 자동 반영하세요.`
+    ? `${nextImplementationTaskCode ? `${nextImplementationTaskCode} ` : ""}${nextImplementationTask.title}만 이어서 끝내고, 완료 보고를 Venture Lab에 반영하세요.`
     : productSignalCount === 0
       ? "첫 버전을 배포하거나 내부 제작 흐름으로 넘긴 뒤, 방문과 핵심 행동 이벤트가 들어오는지 확인하세요."
       : `최근 14일 신호 ${recentSignalCount}개를 기준으로 다음 빌드 범위를 작게 정하세요.`;
@@ -10592,6 +10597,10 @@ export function IdeaWorkbench({
   const savedEditState = selectedIdea ? toEditState(selectedIdea) : null;
   const selectedProductSurface = selectedIdea && editState ? inferIdeaProductSurface(selectedIdea, editState) : null;
   const activeProductSurface = selectedProductSurface ?? productSurfaceProfiles.web_app;
+  const activeBuildDeliveryPhrase =
+    buildDeliveryMode === "external_tool"
+      ? `${activeExternalBuildTool.label}로 개발합니다`
+      : "Venture Lab에서 계속 진행합니다";
   const hasReachedScoreStage = selectedIdea
     ? (stageRank.get(selectedIdea.stage) ?? 0) >= (stageRank.get("score") ?? 0)
     : false;
@@ -10937,7 +10946,7 @@ export function IdeaWorkbench({
           ? {
               label: "다시 정리 필요",
               tone: "avl-pill avl-pill-warning",
-              detail: "제작 형태가 바뀌어서 현재 기준의 시장·경쟁 점검을 다시 저장해야 합니다.",
+              detail: "결과물 형태가 바뀌어서 현재 기준의 시장·경쟁 점검을 다시 저장해야 합니다.",
             }
         : {
             label: "자동 대기",
@@ -10947,7 +10956,7 @@ export function IdeaWorkbench({
   const marketScanActionLabel = isMarketScanLoading
     ? "정리 중"
     : hasOutdatedMarketScanArtifact
-      ? "현재 제작 형태로 다시 정리"
+      ? "현재 결과물 형태로 다시 정리"
       : hasMarketScanArtifact || visibleMarketScanDraft
       ? isVisibleMarketScanEstimate
         ? "웹 조사 다시 시도"
@@ -11523,7 +11532,7 @@ export function IdeaWorkbench({
       detail: "아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 제작 입력으로 묶습니다.",
     },
     {
-      label: "제작 형태",
+      label: "결과물 형태",
       value: activeProductSurface.label,
       detail: `${activeProductSurface.firstBuild} 기준으로 ${activeProductSurface.harnessFocus}`,
     },
@@ -11540,7 +11549,7 @@ export function IdeaWorkbench({
         "인증, 저장, 권한 경계를 빠르게 붙이고 첫 제작 범위를 작게 시작하는 방향입니다.",
     },
     {
-      label: "제작 방식",
+      label: "개발 방식",
       value: activeBuildDeliveryLabel,
       detail: activeBuildDeliveryDetail,
     },
@@ -11621,8 +11630,8 @@ export function IdeaWorkbench({
         activeProductSurface.stackHint,
         activeProductSurface.handoffHint,
         "",
-        "## 제작 방식",
-        `- 제작 방식: ${activeBuildDeliveryLabel}`,
+        "## 개발 방식",
+        `- 개발 방식: ${activeBuildDeliveryLabel}`,
         `- 선택 도구: ${buildDeliveryMode === "external_tool" ? activeExternalBuildTool.label : "Venture Lab 내부 진행"}`,
         `- 반영 기준: ${activeBuildDeliveryDetail}`,
         "",
@@ -11733,7 +11742,7 @@ export function IdeaWorkbench({
             : "작업 순서 자동 만들기를 눌러 제작자가 볼 순서를 준비하세요.",
         },
         {
-          label: "제작 방식 확정",
+          label: "개발 방식 확정",
           passed: Boolean(buildDeliveryMode && activeBuildDeliveryLabel),
           detail:
             buildDeliveryMode === "external_tool"
@@ -12029,6 +12038,15 @@ export function IdeaWorkbench({
     : `${liveExternalToolSetupSuffix}.ps1`;
   const liveExternalToolSetupCommand = `powershell -ExecutionPolicy Bypass -File .\\${liveExternalToolSetupFileName}`;
   const liveExternalToolNextTaskCommand = `node ${liveExternalToolFolder}/venture-lab-cli.mjs next-task`;
+  const finalExecutionDecisionSentence = `${withKoreanInstrumental(activeProductSurface.label)} 만들고, ${activeBuildDeliveryPhrase}.`;
+  const finalExecutionPrimaryActionTitle =
+    buildDeliveryMode === "external_tool"
+      ? `${activeExternalBuildTool.label} 연결 파일을 실제 프로젝트 루트에서 실행하세요.`
+      : "제작 패키지를 내려받아 내부 개발 시작점으로 넘기세요.";
+  const finalExecutionPrimaryActionDetail =
+    buildDeliveryMode === "external_tool"
+      ? "파일을 받은 뒤 다운로드 폴더에 두지 말고 실제 개발할 프로젝트 루트로 옮긴 다음 설치 명령과 확인 명령을 차례로 실행합니다."
+      : "내부 개발 도구가 열릴 때까지 같은 제작 패키지와 작업 순서를 기준 자료로 보관합니다.";
   const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
   const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
   const cursorProgressPreviewItems =
@@ -12062,7 +12080,7 @@ export function IdeaWorkbench({
     {
       id: "select",
       label: "아이디어 도출",
-      description: "후보와 제작 형태를 고릅니다.",
+      description: "후보와 결과물 형태를 고릅니다.",
       status: `${getActiveIdeas(ideas).filter((idea) => getRecordAccessState(idea) !== "hidden").length}개`,
     },
     {
@@ -12348,7 +12366,7 @@ export function IdeaWorkbench({
         <p className="mt-2 text-sm leading-6 text-slate-600">
           {hasSelectableIdeas
             ? "저장된 아이디어가 있습니다. 검토 목록에서 한 건을 고르면 저장된 단계부터 이어집니다."
-            : "메모나 대화 내용을 넣으면 AI가 후보 아이디어와 제작 형태를 먼저 정리합니다."}
+            : "메모나 대화 내용을 넣으면 AI가 후보 아이디어와 결과물 형태를 먼저 정리합니다."}
         </p>
         <div className="mt-5">
           {hasSelectableIdeas ? (
@@ -12385,7 +12403,7 @@ export function IdeaWorkbench({
         return {
           title: isScoreEvaluationSaved
             ? "사업성 평가가 저장됐습니다. 하단 다음 단계 버튼으로 검증 계획을 이어가세요."
-            : "AI가 채운 사업성 평가와 제작 형태만 확인한 뒤 저장하세요.",
+            : "AI가 채운 사업성 평가와 결과물 형태만 확인한 뒤 저장하세요.",
           detail: "점수는 참고값입니다. 사용자는 맞는지 확인하고 저장하면 다음 단계가 열립니다.",
         };
       case "risk":
@@ -12403,7 +12421,7 @@ export function IdeaWorkbench({
           title: hasMarketScanArtifact
             ? "검증 계획과 시장·경쟁 점검이 저장됐습니다. 하단 다음 단계 버튼으로 이어가세요."
             : hasOutdatedMarketScanArtifact
-              ? "제작 형태가 바뀌었습니다. AI가 현재 기준으로 시장·경쟁 점검을 다시 정리합니다."
+              ? "결과물 형태가 바뀌었습니다. AI가 현재 기준으로 시장·경쟁 점검을 다시 정리합니다."
             : "AI가 시장·경쟁 점검을 먼저 정리합니다. 사용자는 결과만 확인하세요.",
           detail: "다음 단계는 검증 계획과 AI 조사 노트가 저장된 뒤에만 열립니다. 수동 결과 기록은 실제 인터뷰나 테스트 결과가 있을 때만 열면 됩니다.",
         };
@@ -12429,7 +12447,7 @@ export function IdeaWorkbench({
       case "launch":
         return {
           title: canEnterLaunch
-            ? "모든 준비가 끝났습니다. 이제 선택한 제작 방식으로 실행하면 됩니다."
+            ? "모든 준비가 끝났습니다. 이제 선택한 개발 방식으로 실행하면 됩니다."
             : "최종 실행 전 준비가 남아 있습니다. 이 단계는 준비가 끝나야 열립니다.",
           detail: canEnterLaunch
             ? "외부 제작 도구를 선택했다면 패키지와 지시문을 받고, 내부 진행을 선택했다면 내부 개발 도구로 이어갑니다."
@@ -12515,7 +12533,7 @@ export function IdeaWorkbench({
     });
     setMessage(
       usedProductSurfaceFallback
-        ? "사업성 평가는 저장했습니다. 제작 형태는 DB 마이그레이션 적용 후 저장됩니다."
+        ? "사업성 평가는 저장했습니다. 결과물 형태는 DB 마이그레이션 적용 후 저장됩니다."
         : "사업성 평가를 저장했습니다.",
     );
     router.refresh();
@@ -14697,7 +14715,7 @@ export function IdeaWorkbench({
 
       setMessage(
         savedMarketScan
-          ? "시장·경쟁 자동 점검을 리서치 노트로 저장했습니다. 제작 형태까지 반영했으니 필요한 부분만 보완하고 하단 다음 단계로 넘어가세요."
+          ? "시장·경쟁 자동 점검을 리서치 노트로 저장했습니다. 결과물 형태까지 반영했으니 필요한 부분만 보완하고 하단 다음 단계로 넘어가세요."
           : "시장·경쟁 자동 점검 초안을 채웠습니다. 로그인 상태가 아니거나 저장 권한이 없으면 리서치 노트 자동 저장은 건너뜁니다.",
       );
     } catch (error) {
@@ -15018,7 +15036,7 @@ export function IdeaWorkbench({
                             <p className="mt-1 text-sm leading-6 text-slate-600">저장된 맥락을 유지한 채 다음 화면을 엽니다.</p>
                           </div>
                           <div>
-                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">제작 형태</div>
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">결과물 형태</div>
                             <div className="mt-2 text-base font-semibold text-slate-950">{selectedSurface.label}</div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">{selectedSurface.firstBuild}</p>
                           </div>
@@ -15280,14 +15298,14 @@ export function IdeaWorkbench({
                   </div>
 
                   <div className="mt-4 border border-slate-200 bg-white p-4">
-                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">제작 형태</div>
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">결과물 형태</div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
                       AI가 이 아이디어를 웹 서비스, 모바일 앱, 랜딩/웹사이트, 업무 자동화, 운영 콘솔 중 어떤 결과물로
-                      만들지 먼저 정합니다. Cursor, Codex 같은 제작 도구는 다음 제작 패키지 단계에서 따로 고릅니다.
+                      만들지 먼저 정합니다. Cursor, Codex 같은 개발 도구는 개발 방식으로 따로 저장됩니다.
                     </p>
                     <div className="mt-4 grid gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
                       <label className="grid gap-2 text-sm font-semibold text-slate-900">
-                        AI가 추천한 제작 형태
+                        AI가 추천한 결과물 형태
                         <select
                           value={activeProductSurface.key}
                           disabled={!canEdit}
@@ -15517,7 +15535,7 @@ export function IdeaWorkbench({
                     <div className="avl-kicker">자동 제작 패키지</div>
                     <h3 className="mt-2 text-xl font-semibold text-slate-950">AI가 제작 패키지를 한 번에 만듭니다</h3>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                      검증 결과와 제작 형태를 바탕으로 기획서, 디자인 기준, 기술 방향, 첫 제작 범위를 하나로 묶습니다.
+                      검증 결과와 결과물 형태를 바탕으로 기획서, 디자인 기준, 기술 방향, 첫 제작 범위를 하나로 묶습니다.
                       사용자는 요약을 확인하고 필요한 메모만 더한 뒤 저장하면 됩니다.
                     </p>
                   </div>
@@ -15532,12 +15550,12 @@ export function IdeaWorkbench({
                 <div className="mt-5 border border-slate-200 bg-white p-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                      <div className="avl-kicker">STEP 1에서 정한 제작 방향</div>
+                      <div className="avl-kicker">STEP 1에서 정한 방향</div>
                       <h4 className="mt-2 text-base font-semibold text-slate-950">
-                        {activeProductSurface.label} · {activeBuildDeliveryLabel}
+                        {withKoreanInstrumental(activeProductSurface.label)} 만들고, {activeBuildDeliveryPhrase}.
                       </h4>
                       <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                        이 단계에서는 제작 방향을 바꾸지 않습니다. AI가 저장된 방향을 기준으로 기획서, 디자인, 기술 방향,
+                        결과물 형태와 개발 방식은 분리해 저장됩니다. AI가 이 기준으로 기획서, 디자인, 기술 방향,
                         작업 순서를 묶고, 실제 파일 받기와 외부 도구 연동은 마지막 단계에서 열립니다.
                       </p>
                     </div>
@@ -17071,11 +17089,17 @@ export function IdeaWorkbench({
             </div>
           ) : (
             <div className="grid gap-5">
+              <div className="border border-blue-200 bg-blue-50 p-4">
+                <div className="text-sm font-semibold text-blue-950">지금 할 일</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">{finalExecutionPrimaryActionTitle}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-700">{finalExecutionPrimaryActionDetail}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-600">결정: {finalExecutionDecisionSentence}</p>
+              </div>
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="border border-emerald-200 bg-emerald-50 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">준비 상태</div>
                   <div className="mt-2 text-base font-semibold text-slate-950">실행 준비 완료</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-700">제작 패키지와 작업 순서가 준비되어 선택한 제작 방식으로 넘길 수 있습니다.</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-700">제작 패키지와 작업 순서가 준비되어 선택한 개발 방식으로 넘길 수 있습니다.</p>
                 </div>
                 <div className="border border-slate-200 bg-white p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">결과물 형태</div>
@@ -17083,7 +17107,7 @@ export function IdeaWorkbench({
                   <p className="mt-2 text-sm leading-6 text-slate-600">{activeProductSurface.firstBuild}</p>
                 </div>
                 <div className="border border-slate-200 bg-white p-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">제작 방식</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">개발 방식</div>
                   <div className="mt-2 text-base font-semibold text-slate-950">{activeBuildDeliveryLabel}</div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {buildDeliveryMode === "external_tool"
@@ -17915,6 +17939,7 @@ export function IdeaWorkbench({
                 <h3 className="mt-2 text-base font-semibold text-slate-950">{learningPrimaryActionLabel}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-700">{learningPrimaryActionText}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">결정: {finalExecutionDecisionSentence}</p>
               </div>
               <button
                 type="button"
@@ -19023,7 +19048,7 @@ export function IdeaWorkbench({
 
             {hasOutdatedMarketScanArtifact && !visibleMarketScanDraft && !isMarketScanLoading ? (
               <div className="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-                이전 제작 형태로 저장된 시장·경쟁 점검이 있습니다. 현재 제작 형태인 {activeProductSurface.label} 기준으로
+                이전 결과물 형태로 저장된 시장·경쟁 점검이 있습니다. 현재 결과물 형태인 {activeProductSurface.label} 기준으로
                 다시 정리한 뒤 다음 단계가 열립니다.
               </div>
             ) : null}

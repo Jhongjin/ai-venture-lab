@@ -12,6 +12,7 @@ import {
   inferProductSurface,
   productSurfaceMarkdown,
   productSurfaceProfiles,
+  withKoreanInstrumental,
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
@@ -422,7 +423,7 @@ function formatGeneratedIdeaSource(idea: AiGeneratedSampleIdea, index: number) {
 대상: ${idea.targetUser}
 구매자: ${idea.buyer}
 예상 결과물: ${productSurface?.label ?? "웹 서비스"}
-첫 제작 형태: ${idea.firstBuild || productSurface?.firstBuild || "로그인, 입력, 결과 확인, 저장까지 이어지는 첫 제작 흐름"}
+첫 결과물 범위: ${idea.firstBuild || productSurface?.firstBuild || "로그인, 입력, 결과 확인, 저장까지 이어지는 첫 제작 흐름"}
 먼저 확인할 것: ${idea.firstValidation}`;
 }
 
@@ -1627,7 +1628,7 @@ function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
 
 ## 비교 결과
 
-| 순서 | 아이디어 | 제작 형태 | 판정 | 매칭 아이디어 | 유사도 | 검증 점수 | 다음 행동 |
+| 순서 | 아이디어 | 결과물 형태 | 판정 | 매칭 아이디어 | 유사도 | 검증 점수 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows || "| - | 아이디어 없음 | - | - | - | - | - | - |"}
 `;
@@ -1661,7 +1662,7 @@ ${gateSummary}
 
 ## 실행 순서
 
-| 순서 | 아이디어 | 제작 형태 | 추천 판단 | 검증 기준 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
+| 순서 | 아이디어 | 결과물 형태 | 추천 판단 | 검증 기준 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows || "| - | 아이디어 없음 | - | - | - | - | - | - | - |"}
 
@@ -1777,6 +1778,10 @@ export function VentureConsoleActions({
   const refreshableGeneratedIdeaCount = Math.max(0, filledGeneratedIdeaSlots.length - keptGeneratedIdeaCount);
   const normalizedBuildDeliveryPreference = normalizeBuildDeliveryPreference(buildDeliveryPreference);
   const selectedExternalBuildTool = externalBuildToolProfiles[normalizedBuildDeliveryPreference.externalTool];
+  const selectedBuildDeliveryPhrase =
+    normalizedBuildDeliveryPreference.mode === "external_tool"
+      ? `${selectedExternalBuildTool.label}로 개발합니다`
+      : "Venture Lab에서 계속 진행합니다";
   const updateActiveTask = useCallback(
     (task: ConsoleActionTask) => {
       setLocalActiveTask(task);
@@ -2528,7 +2533,7 @@ export function VentureConsoleActions({
           version: 1,
           title: `${data.name} 초기 제작 방향`,
           source: "manual",
-          status_note: "직접 입력한 아이디어의 결과물 형태와 제작 방식을 저장함",
+          status_note: "직접 입력한 아이디어의 결과물 형태와 개발 방식을 저장함",
           body: `# 초기 제작 방향: ${data.name}
 
 ## 아이디어
@@ -2721,7 +2726,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
         }),
       );
       setExtractMessage(
-        `${aiIdeas.length}개 아이디어를 정리했습니다. 추천 아이디어의 제작 형태, 검증 판단, 중복 가능성을 확인하세요.`,
+        `${aiIdeas.length}개 아이디어를 정리했습니다. 추천 아이디어의 결과물 형태, 검증 판단, 중복 가능성을 확인하세요.`,
       );
     } catch (error) {
       const fallbackIdeas = extractIdeasFromText(source);
@@ -2931,7 +2936,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
       buyer: candidate.buyer,
       signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
       risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-      next_evidence: `제작 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+      next_evidence: `결과물 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n검증 질문\n- ${candidate.validationQuestions.join(
         "\n- ",
       )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}`,
     });
@@ -2956,7 +2961,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
       buyer: candidate.buyer.trim(),
       signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
       risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-      next_evidence: `제작 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+      next_evidence: `결과물 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
         "\n- ",
       )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n추천 판단\n${extractionGate.label}: ${extractionGate.nextAction}`,
       product_surface: candidate.productSurface.key,
@@ -3491,7 +3496,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                 <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">아이디어 도출</div>
                 <h2 className="mt-2 text-xl font-semibold text-slate-950">아이디어를 붙이면 AI가 사업 후보를 정리합니다</h2>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                  메모를 넣으면 AI가 지금 먼저 검토할 아이디어 한 건과 웹/앱/자동화 같은 제작 형태를 함께 정리합니다.
+                  메모를 넣으면 AI가 후보 아이디어, 결과물 형태, 개발 방식을 먼저 정리합니다.
                 </p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 lg:mt-0">
@@ -3615,7 +3620,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                     </span>
                     <span>
                       <strong className="text-slate-950">2.</strong>{" "}
-                      {hasGeneratedIdeaSlots ? "나머지 후보만 새로 확인합니다." : "AI가 아이디어와 제작 형태를 정리합니다."}
+                      {hasGeneratedIdeaSlots ? "나머지 후보만 새로 확인합니다." : "AI가 아이디어와 결과물 형태를 정리합니다."}
                     </span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 사업성 평가로 이어집니다.</span>
                   </div>
@@ -3627,7 +3632,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           {hasGeneratedIdeaSlots
                             ? "킵한 후보는 유지하고, 마음에 들지 않은 후보만 새로 확인한 뒤 한 건으로 정리합니다."
                             : hasIdeaSourceInput
-                              ? "입력칸 내용을 한 건의 검토 아이디어와 제작 형태로 정리합니다."
+                              ? "입력칸 내용을 한 건의 검토 아이디어와 결과물 형태로 정리합니다."
                               : "아이디어가 없으면 AI가 검토할 후보 3개를 먼저 도출합니다."}
                         </p>
                       </div>
@@ -3745,7 +3750,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI 추천 아이디어</div>
                           <h3 className="mt-2 text-lg font-semibold text-slate-950">{recommendedExtractedIdea.name}</h3>
                           <p className="mt-1 text-sm leading-5 text-slate-600">
-                            먼저 볼 아이디어와 만들 형태를 함께 정리했습니다.
+                            먼저 볼 아이디어와 만들 방식까지 함께 정리했습니다.
                           </p>
                         </div>
                         {recommendedExtractionGate && recommendedGateStyle ? (
@@ -3774,9 +3779,20 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                             : "내부 개발"}
                         </span>
                       </div>
+                      <div className="mt-4 border border-emerald-200 bg-emerald-50 px-4 py-3">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                          결정 문장
+                        </div>
+                        <p className="mt-2 text-base font-semibold leading-6 text-slate-950">
+                          이 아이디어는 {withKoreanInstrumental(recommendedExtractedIdea.productSurface.label)} 만들고, {selectedBuildDeliveryPhrase}.
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-slate-700">
+                          결과물 형태와 개발 방식은 따로 저장됩니다. 실제 연결 파일은 STEP 7 최종 실행에서 받습니다.
+                        </p>
+                      </div>
                       <div className="mt-4 border border-blue-200 bg-blue-50 px-4 py-3">
                         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
-                          먼저 만들 형태
+                          결과물 형태
                         </div>
                         <div className="mt-2 text-base font-semibold text-slate-950">
                           {recommendedExtractedIdea.productSurface.label}
@@ -3785,7 +3801,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           {recommendedExtractedIdea.productSurface.firstBuild}
                         </p>
                         <label className="mt-3 grid gap-2 text-sm font-semibold text-slate-900">
-                          제작 형태 확인
+                          결과물 형태 확인
                           <select
                             value={recommendedExtractedIdea.productSurface.key}
                             onChange={(event) =>
@@ -3811,7 +3827,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         <div className="grid gap-3">
                           <div className="min-w-0">
                             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                              제작 방식
+                              개발 방식
                             </div>
                             <h4 className="mt-2 text-base font-semibold text-slate-950">
                               어디서 개발할지도 처음에 정합니다
@@ -3856,7 +3872,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                             ))}
                           </div>
                           <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-900">
-                            외부 제작 도구
+                            사용할 개발 도구
                             <select
                               value={normalizedBuildDeliveryPreference.externalTool}
                               disabled={normalizedBuildDeliveryPreference.mode !== "external_tool"}
@@ -3905,7 +3921,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           <p className="mt-1 text-xs leading-5 text-slate-700">아이디어, 리스크, 사업성 평가 초안이 한 묶음으로 만들어집니다.</p>
                         </div>
                         <div className="bg-slate-50 px-3 py-3">
-                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">제작 형태</div>
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">결과물 형태</div>
                           <p className="mt-1 text-xs leading-5 text-slate-700">
                             {recommendedExtractedIdea.productSurface.label} 기준으로 이후 문서를 맞춥니다.
                           </p>
@@ -3940,7 +3956,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                       <h3 className="mt-2 text-base font-semibold text-slate-950">아직 추천 아이디어가 없습니다</h3>
                       <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                         <li>1. 왼쪽 입력칸에 아이디어를 붙여넣습니다.</li>
-                        <li>2. AI가 아이디어 한 건과 제작 형태를 정리합니다.</li>
+                        <li>2. AI가 아이디어 한 건과 결과물 형태를 정리합니다.</li>
                         <li>3. 마음에 들면 저장하고 사업성 평가로 넘어갑니다.</li>
                       </ul>
                     </section>
@@ -4056,7 +4072,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                               </span>
                             </div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
-                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · 제작 형태 {item.candidate.productSurface.label} · {item.nextGap}
+                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · 결과물 형태 {item.candidate.productSurface.label} · {item.nextGap}
                             </p>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
                               {item.gate.nextAction}
@@ -4176,7 +4192,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                               사업/제작 {strategyScore}%
                             </span>
                             <span className="avl-pill avl-pill-brand">
-                              제작 형태 {candidate.productSurface.shortLabel}
+                              결과물 형태 {candidate.productSurface.shortLabel}
                             </span>
                             <span className={`${gateStyle.badge}`}>
                               {extractionGate.label}
@@ -4504,7 +4520,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                       </p>
                     </div>
                     <div className="border border-blue-200 bg-blue-50 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">제작 형태</div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">결과물 형태</div>
                       {manualFormProductSurface ? (
                         <>
                           <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">
@@ -4512,6 +4528,9 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           </p>
                           <p className="mt-1 text-sm leading-6 text-slate-700">
                             {manualFormProductSurface.firstBuild}
+                          </p>
+                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
+                            {withKoreanInstrumental(manualFormProductSurface.label)} 만들고, {selectedBuildDeliveryPhrase}.
                           </p>
                           <p className="mt-1 text-xs leading-5 text-slate-600">
                             이 기준이 STEP 2와 제작 패키지까지 이어집니다. 다르게 보이면 다음 단계에서 바꿀 수 있습니다.
@@ -4526,7 +4545,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                     <div className="border border-slate-200 bg-slate-50 p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 액션</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">
-                        저장하면 이 초안이 바로 선택되고, 사업성 평가와 첫 검증 계획으로 이어집니다.
+                        저장하면 이 초안이 바로 선택되고, 사업성 평가와 첫 검증 계획으로 이어집니다. 결과물 형태와 개발 방식은 다음 단계에서도 분리해 보여줍니다.
                       </p>
                     </div>
                   </div>

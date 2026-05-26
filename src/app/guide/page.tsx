@@ -55,7 +55,7 @@ const menuGuide = [
 const boardSteps = [
   {
     title: "아이디어와 결과물 형태 정리",
-    body: "회의 메모, 대화 기록, 떠오른 아이디어를 붙여넣으면 AI가 먼저 볼 아이디어 한 건과 웹 서비스, 모바일 앱, 랜딩/웹사이트, 자동화 같은 결과물 형태를 함께 잡습니다.",
+    body: "회의 메모, 대화 기록, 떠오른 아이디어를 붙여넣으면 AI가 먼저 볼 아이디어 한 건과 웹 서비스, 모바일 앱, 랜딩/웹사이트, 자동화 같은 결과물 형태를 함께 잡습니다. 개발 방식은 별도로 저장합니다.",
     icon: Sparkle,
   },
   {
@@ -85,11 +85,11 @@ const quickAnswers = [
   ["처음에 무엇을 준비해야 하나요", "정리된 기획서가 없어도 됩니다. 회의 메모, GPT와 나눈 대화, 평소 적어둔 자동화 아이디어처럼 거친 내용을 그대로 넣으면 됩니다."],
   ["모든 항목을 직접 채워야 하나요", "아닙니다. 기본은 AI가 먼저 채우고, 사용자는 어색한 판단만 고치거나 그대로 저장합니다."],
   ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 제품 기획서, 검증 계획, 제작 범위, 기술 방향, 제작에 필요한 작업 순서와 확인 기준이 묶인 제작 패키지를 얻습니다."],
-  ["외부 제작 도구와 어떻게 연결하나요", "최종 실행 단계에서 Cursor, Codex, Claude Code, Google Antigravity 중 사용할 도구를 고르고 연결 파일을 받습니다. Cursor와 Antigravity는 IDE 안에서 프로젝트를 연 뒤 진행하고, Codex와 Claude Code는 실제 프로젝트 루트의 터미널 에이전트 흐름으로 시작합니다. 완료 보고가 들어오면 Venture Lab 작업 상태가 자동 반영됩니다."],
+  ["외부 제작 도구와 어떻게 연결하나요", "최종 실행 단계에서 Cursor, Codex, Claude Code, Google Antigravity 중 사용할 도구를 고르고 연결 파일을 받습니다. 예를 들어 모바일 앱으로 만들고 Cursor로 개발합니다처럼 결과물 형태와 개발 방식을 분리합니다. Cursor와 Antigravity는 IDE 안에서 프로젝트를 연 뒤 진행하고, Codex와 Claude Code는 실제 프로젝트 루트의 터미널 에이전트 흐름으로 시작합니다. 완료 보고가 들어오면 Venture Lab 작업 상태가 자동 반영됩니다."],
 ];
 
 const externalToolGuide = [
-  ["1", "개발 도구 선택", "최종 실행 단계에서 Cursor, Codex, Claude Code, Google Antigravity 중 실제로 사용할 제작 도구를 고릅니다."],
+  ["1", "개발 도구 선택", "최종 실행 단계에서 Cursor, Codex, Claude Code, Google Antigravity 중 실제로 사용할 개발 도구를 고릅니다."],
   ["2", "연결 파일 받기", "선택한 도구의 PowerShell 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트에 둡니다. 다운로드 폴더에서 실행하지 않습니다."],
   ["3", "도구별 시작", "Cursor와 Antigravity는 IDE에서 프로젝트를 열고, Codex와 Claude Code는 프로젝트 루트 터미널에서 시작합니다. 화면의 설치 명령과 확인 명령은 각각 복사할 수 있습니다."],
   ["4", "첫 작업 시작", "next-task로 첫 작업을 확인하고, 도구별 START 파일을 첫 메시지로 넣습니다. 완료 보고는 자동 반영되며 붙여넣기는 실패 시 백업입니다."],
@@ -221,7 +221,7 @@ export default function GuidePage() {
                 <div className="avl-kicker">external tool</div>
                 <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">외부 제작 도구로 제작을 시작하는 법</h2>
                 <p className="mt-4 max-w-[72ch] break-keep text-sm leading-6 text-slate-600">
-                  최종 패키지는 단순 확인용 문서가 아닙니다. Cursor, Codex, Claude Code, Google Antigravity 중 하나를 선택하면 프로젝트 안에 제작 패키지, 작업 목록, 시작 지시문, 진행 상태 자동 반영 파일을 설치하는 연결 파일을 받을 수 있습니다.
+                  최종 패키지는 단순 확인용 문서가 아닙니다. 결과물 형태는 웹 서비스, 모바일 앱, 랜딩/웹사이트처럼 정하고 개발 방식은 Cursor, Codex, Claude Code, Google Antigravity 중 하나로 따로 고릅니다. 선택한 개발 도구에 맞춰 프로젝트 안에 제작 패키지, 작업 목록, 시작 지시문, 진행 상태 자동 반영 파일을 설치하는 연결 파일을 받을 수 있습니다.
                 </p>
                 <div className="mt-6 grid gap-px bg-slate-200 lg:grid-cols-4">
                   {externalToolGuide.map(([number, title, body]) => (

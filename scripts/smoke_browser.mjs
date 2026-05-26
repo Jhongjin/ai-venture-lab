@@ -121,6 +121,10 @@ async function main() {
       page.getByText("STEP 7에서 선택한 외부 개발 도구의 연결 파일", { exact: false }),
       "guide final execution connection file sequence",
     );
+    await waitForVisible(
+      page.getByText("결과물 형태는 웹 서비스, 모바일 앱, 랜딩/웹사이트처럼 정하고 개발 방식은", { exact: false }),
+      "guide result type and development method separation",
+    );
     for (const toolName of ["Cursor", "Codex", "Claude Code", "Google Antigravity"]) {
       await waitForVisible(page.getByText(toolName, { exact: true }).first(), `guide named tool ${toolName}`);
     }

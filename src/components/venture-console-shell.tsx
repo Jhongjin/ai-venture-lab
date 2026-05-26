@@ -185,7 +185,7 @@ const firstRunGuideSteps = [
   {
     label: "2",
     title: "AI 정리 확인",
-    detail: "후보 아이디어와 제작 형태가 맞는지만 봅니다.",
+    detail: "후보 아이디어, 결과물 형태, 개발 방식이 맞는지만 봅니다.",
   },
   {
     label: "3",
@@ -221,7 +221,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   },
   "workbench:score": {
     summary: "AI가 수요, 구매 의향, 제작 난이도, 위험도를 먼저 정리합니다.",
-    checklist: ["제작 형태 확인", "평가값이 맞는지 확인", "사업성 평가 저장"],
+    checklist: ["결과물 형태 확인", "평가값이 맞는지 확인", "사업성 평가 저장"],
   },
   "workbench:risk": {
     summary: "출시를 막을 수 있는 위험만 먼저 꺼냅니다.",
@@ -248,12 +248,12 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
     checklist: ["AI 초안 확인", "필요할 때만 메모 보완", "검증 자료 한 번에 저장"],
   },
   "workbench:development": {
-    summary: "검증 결과와 제작 형태를 바탕으로 제작에 넘길 패키지를 만듭니다.",
+    summary: "검증 결과와 결과물 형태를 바탕으로 제작에 넘길 패키지를 만듭니다.",
     checklist: ["AI 제작 패키지 만들기", "최종 요약 확인", "제작 패키지 저장"],
   },
   "workbench:launch": {
     summary: "검증과 제작 패키지가 모두 끝난 뒤 외부 제작 도구 연결 또는 내부 개발 이동을 실행합니다.",
-    checklist: ["준비 완료 상태 확인", "제작 패키지 받기", "선택한 제작 방식으로 실행"],
+    checklist: ["준비 완료 상태 확인", "제작 패키지 받기", "선택한 개발 방식으로 실행"],
   },
   "workbench:learning": {
     summary: "외부 제작 도구가 반영한 작업 상태와 실제 행동 신호를 보고 다음 결정을 정합니다.",
@@ -284,9 +284,9 @@ const taskCanvasDetails: Record<
   },
   "console:extract": {
     question: "회의 내용, 아이디어, 자동화하고 싶은 업무 내용을 입력칸에 붙여넣으세요.",
-    aiLead: "AI가 원문에서 먼저 검토할 아이디어, 제작 형태, 검증 질문을 함께 정리합니다.",
-    deliverable: "먼저 볼 아이디어와 이후 제작 패키지에 쓰일 제작 형태",
-    checkpoint: "처음에는 입력칸 하나만 쓰면 됩니다. 제작 형태는 저장 전에 웹/앱/자동화 기준으로 확인하고 STEP 2에서도 다시 바꿀 수 있습니다.",
+    aiLead: "AI가 원문에서 먼저 검토할 아이디어, 결과물 형태, 검증 질문을 함께 정리합니다.",
+    deliverable: "먼저 볼 아이디어와 이후 제작 패키지에 쓰일 결과물 형태",
+    checkpoint: "처음에는 입력칸 하나만 쓰면 됩니다. 결과물 형태는 저장 전에 웹/앱/자동화 기준으로 확인하고 STEP 2에서도 다시 바꿀 수 있습니다.",
   },
   "console:idea": {
     question: "이 아이디어를 실제 검증 대상으로 올릴 준비가 되었나요?",
@@ -350,7 +350,7 @@ const taskCanvasDetails: Record<
   },
   "workbench:launch": {
     question: "이제 어떤 제작 환경으로 넘길까요?",
-    aiLead: "저장된 제작 방식에 맞춰 외부 제작 도구 패키지 또는 내부 개발 이동 자료를 보여줍니다.",
+    aiLead: "저장된 개발 방식에 맞춰 외부 제작 도구 패키지 또는 내부 개발 이동 자료를 보여줍니다.",
     deliverable: "최종 제작 패키지와 실행 시작점",
     checkpoint: "준비가 부족하면 이 단계는 열리지 않습니다.",
   },
@@ -485,7 +485,7 @@ function getNextTaskOptions({
           "workbench:launch",
           "다음: 최종 실행",
           canEnterLaunch
-            ? "작업 순서와 제작 패키지가 준비되었습니다. 이제 선택한 제작 방식으로 넘깁니다."
+            ? "작업 순서와 제작 패키지가 준비되었습니다. 이제 선택한 개발 방식으로 넘깁니다."
             : "제작 패키지를 저장하고 작업 순서를 만들면 활성화됩니다.",
           "primary",
           !canEnterLaunch,
@@ -641,7 +641,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "이제 제작 패키지를 저장하세요.",
-      detail: "검증 결과와 제작 형태를 묶어 제작 단계로 바로 넘길 패키지를 만듭니다.",
+      detail: "검증 결과와 결과물 형태를 묶어 제작 단계로 바로 넘길 패키지를 만듭니다.",
       evidence: `${dataNote} · 제작 자료 ${artifactCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",
@@ -679,7 +679,7 @@ function getExecutiveFocus({
   if (activeTask === "workbench:launch") {
     return {
       eyebrow: "지금 할 일",
-      title: "선택한 제작 방식으로 넘길 차례입니다.",
+      title: "선택한 개발 방식으로 넘길 차례입니다.",
       detail: "외부 제작 도구를 선택했다면 패키지와 지시문을 받고, 내부 진행을 선택했다면 내부 개발 시작점으로 넘깁니다.",
       evidence: `${dataNote} · 실행 기록 ${runCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",

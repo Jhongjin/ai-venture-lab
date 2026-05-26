@@ -270,3 +270,19 @@ export function productSurfaceMarkdown(profile: ProductSurfaceProfile) {
 - 제작 지시 기준: ${profile.promptFocus}
 - 전달 패키지 기준: ${profile.handoffHint}`;
 }
+
+export function withKoreanInstrumental(value: string) {
+  const trimmed = value.trim();
+  const lastCode = trimmed.charCodeAt(trimmed.length - 1);
+  const isHangulSyllable = lastCode >= 0xac00 && lastCode <= 0xd7a3;
+
+  if (!isHangulSyllable) {
+    return `${trimmed}로`;
+  }
+
+  const finalConsonantIndex = (lastCode - 0xac00) % 28;
+  const hasFinalConsonant = finalConsonantIndex !== 0;
+  const endsWithRieul = finalConsonantIndex === 8;
+
+  return `${trimmed}${hasFinalConsonant && !endsWithRieul ? "으로" : "로"}`;
+}

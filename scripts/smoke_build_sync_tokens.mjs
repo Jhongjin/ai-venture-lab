@@ -98,6 +98,10 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.getByText("결정:", { exact: false }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
     state: "visible",
     timeout,
@@ -123,6 +127,17 @@ async function verifyLearningTaskBoard(page, ideaId) {
   });
 }
 
+async function verifyFinalExecutionActionBanner(page, toolLabel) {
+  await page.getByText(`${toolLabel} 연결 파일을 실제 프로젝트 루트에서 실행하세요.`, { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("결정:", { exact: false }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+}
+
 async function verifyFinalExecutionCursorGuide(page, ideaId) {
   const launchUrl = new URL("/workspace", baseUrl);
   launchUrl.searchParams.set("task", "launch");
@@ -137,6 +152,7 @@ async function verifyFinalExecutionCursorGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await verifyFinalExecutionActionBanner(page, "Cursor");
   await page.getByText("Cursor에서 시작하는 순서", { exact: true }).waitFor({
     state: "visible",
     timeout,
@@ -186,6 +202,7 @@ async function verifyFinalExecutionCodexGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await verifyFinalExecutionActionBanner(page, "Codex");
   await page.getByText("Codex에서 시작하는 순서", { exact: true }).waitFor({
     state: "visible",
     timeout,
@@ -227,6 +244,7 @@ async function verifyFinalExecutionClaudeGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await verifyFinalExecutionActionBanner(page, "Claude Code");
   await page.getByText("Claude Code에서 시작하는 순서", { exact: true }).waitFor({
     state: "visible",
     timeout,
@@ -268,6 +286,7 @@ async function verifyFinalExecutionAntigravityGuide(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await verifyFinalExecutionActionBanner(page, "Google Antigravity");
   await page.getByText("Google Antigravity에서 시작하는 순서", { exact: true }).waitFor({
     state: "visible",
     timeout,
