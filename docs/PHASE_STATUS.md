@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-26 | Clarified STEP 5 production package purpose | Current commit | Push to `main`, then production smoke after deployment | `pnpm lint`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`; STEP 5 now names execution package, scope lock, and next-step connection before detailed generated documents |
 | 2026-05-26 | Added first-use STEP 1 input/output/role hints | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_browser.mjs`, `pnpm lint`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`; STEP 1 now shows what to paste, what AI creates, and what the operator does before the textarea |
 | 2026-05-26 | Added STEP 7 external project-root execution path cards | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm lint`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`; final execution now shows receive, external project root, and verify-command steps before connector details |
 | 2026-05-26 | Reduced repeated implementation task progress scans | Current commit | Push to `main`, then production smoke after deployment | `pnpm lint`, `pnpm typecheck`, `pnpm quality:full`; shared task progress stats now feed STEP 6/8 counts, launch readiness, and left-rail development status |
