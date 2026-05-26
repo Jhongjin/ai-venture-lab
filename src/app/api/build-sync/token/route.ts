@@ -50,6 +50,43 @@ function getBuildSyncToolLabel(tool: BuildSyncTool) {
   return "Cursor";
 }
 
+function normalizeOrigin(value: string) {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return "";
+  }
+
+  try {
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    return new URL(withProtocol).origin;
+  } catch {
+    return "";
+  }
+}
+
+function getBuildSyncProgressEndpoint(request: Request) {
+  const requestUrl = new URL(request.url);
+  const configuredOrigin = normalizeOrigin(
+    process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.APP_URL ||
+      process.env.SITE_URL ||
+      process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+      "",
+  );
+
+  if (configuredOrigin) {
+    return new URL("/api/build-sync/progress", configuredOrigin).toString();
+  }
+
+  if (requestUrl.hostname === "localhost" || requestUrl.hostname === "127.0.0.1") {
+    return new URL("/api/build-sync/progress", requestUrl.origin).toString();
+  }
+
+  return new URL("/api/build-sync/progress", "https://ai-venture-lab.vercel.app").toString();
+}
+
 export async function POST(request: Request) {
   const supabase = await getSupabaseServerClient();
 
@@ -134,7 +171,7 @@ export async function POST(request: Request) {
       tool,
       ideaId: idea.id,
       projectName: idea.name,
-      endpoint: new URL("/api/build-sync/progress", request.url).toString(),
+      endpoint: getBuildSyncProgressEndpoint(request),
       token: syncToken.token,
       expiresAt: syncToken.expiresAt,
       registryStatus,

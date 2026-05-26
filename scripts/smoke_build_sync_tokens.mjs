@@ -295,6 +295,10 @@ async function verifyLiveConnectorDownload(page, ideaId, tool) {
   for (const syntaxPath of tool.syntaxPaths ?? []) {
     await verifyEmbeddedJavaScriptSyntax(scriptBody, syntaxPath, tool.buttonLabel);
   }
+
+  if (tool.syncConfigPath) {
+    verifyEmbeddedSyncEndpoint(scriptBody, tool.syncConfigPath, tool.buttonLabel);
+  }
 }
 
 function findEmbeddedPowerShellFile(scriptBody, filePath) {
@@ -329,6 +333,28 @@ async function verifyEmbeddedJavaScriptSyntax(scriptBody, filePath, toolLabel) {
   }
 }
 
+function verifyEmbeddedSyncEndpoint(scriptBody, filePath, toolLabel) {
+  const encodedBody = findEmbeddedPowerShellFile(scriptBody, filePath);
+
+  if (!encodedBody) {
+    fail(`${toolLabel} setup download is missing embedded body for ${filePath}.`);
+  }
+
+  let syncConfig;
+
+  try {
+    syncConfig = JSON.parse(Buffer.from(encodedBody, "base64").toString("utf8"));
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    fail(`${toolLabel} setup download embedded ${filePath} is not valid JSON. ${detail}`);
+  }
+
+  const endpoint = typeof syncConfig.endpoint === "string" ? syncConfig.endpoint : "";
+  if (!endpoint.startsWith("https://ai-venture-lab.vercel.app/api/build-sync/progress")) {
+    fail(`${toolLabel} setup download uses a non-production sync endpoint: ${endpoint || "(empty)"}`);
+  }
+}
+
 async function verifyLiveConnectorDownloads(page, ideaId) {
   const tools = [
     {
@@ -336,18 +362,21 @@ async function verifyLiveConnectorDownloads(page, ideaId) {
       filenamePart: "cursor-setup",
       expectedPaths: [".cursor/venture-lab-cli.mjs", ".cursor/mcp.json", "AI_VENTURE_CURSOR_START.md"],
       syntaxPaths: [".cursor/venture-lab-cli.mjs", ".cursor/venture-lab-mcp-server.mjs"],
+      syncConfigPath: ".cursor/venture-lab-sync.json",
     },
     {
       buttonLabel: "Codex",
       filenamePart: "codex-setup",
       expectedPaths: [".codex/venture-lab-cli.mjs", ".codex/venture-lab-sync.json", "AI_VENTURE_CODEX_START.md"],
       syntaxPaths: [".codex/venture-lab-cli.mjs"],
+      syncConfigPath: ".codex/venture-lab-sync.json",
     },
     {
       buttonLabel: "Claude Code",
       filenamePart: "claude-code-setup",
       expectedPaths: [".claude/venture-lab-cli.mjs", ".mcp.json", "AI_VENTURE_CLAUDE_START.md"],
       syntaxPaths: [".claude/venture-lab-cli.mjs"],
+      syncConfigPath: ".claude/venture-lab-sync.json",
     },
     {
       buttonLabel: "Google Antigravity",
@@ -358,6 +387,7 @@ async function verifyLiveConnectorDownloads(page, ideaId) {
         "AI_VENTURE_ANTIGRAVITY_START.md",
       ],
       syntaxPaths: [".antigravity/venture-lab-cli.mjs"],
+      syncConfigPath: ".antigravity/venture-lab-sync.json",
     },
   ];
 

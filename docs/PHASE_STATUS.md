@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-26 | Fixed build-sync endpoint generation to avoid protected Vercel branch URLs | `bc35796` | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`; local Cursor test folder endpoint patched to production URL |
 | 2026-05-26 | Clarified Cursor Workspace MCP manual activation step | `30d471d` | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full` |
 | 2026-05-26 | Clarified first Cursor terminal command and guarded downloaded connector CLI syntax | `71cc3d6` | Pushed to `main`; production updated and smoke passed | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:build-sync`, `pnpm smoke:browser` |
 | 2026-05-25 | Added unsupported build-sync tool denial smoke | `e0f9193` | Script/docs only; pushed to `main` after verification | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm release:check`, `pnpm smoke:build-sync`; smoke now confirms `generic_mcp` token requests return HTTP 400 while generic MCP remains deferred |
