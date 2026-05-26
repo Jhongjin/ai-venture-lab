@@ -12,13 +12,18 @@ AI Venture Lab의 Cursor 외부 제작 흐름은 최종 실행 단계에서 Curs
 4. `Cursor 연결 파일 받기`를 눌러 `*-cursor-setup.ps1` 파일을 받는다.
 5. 브라우저 다운로드 폴더에 있는 파일을 실제 개발할 Cursor 프로젝트 루트로 옮긴다.
 6. Cursor에서 해당 프로젝트 폴더를 연다.
-7. Cursor 터미널 또는 PowerShell에서 실행한다.
+7. Cursor 터미널 또는 PowerShell에서 먼저 설치 명령을 실행한다.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 ```
 
-8. 같은 터미널에서 `node .cursor/venture-lab-cli.mjs next-task`를 실행해 첫 작업이 읽히는지 확인한다.
+8. 설치가 끝난 뒤 같은 터미널에서 확인 명령을 실행해 첫 작업이 읽히는지 확인한다.
+
+```bash
+node .cursor/venture-lab-cli.mjs next-task
+```
+
 9. Cursor를 다시 열고 MCP 설정에서 `ai-venture-lab` 서버가 보이는지 확인한다.
 10. `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣어 첫 작업을 시작한다.
 11. 작업을 마치면 Cursor에게 `venture_record_progress` 도구로 완료 보고를 남기라고 지시한다.

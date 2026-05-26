@@ -1,9 +1,15 @@
 import { chromium } from "@playwright/test";
-import { readFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { promisify } from "node:util";
 
 import { loadLocalEnvFiles } from "./load_local_env.mjs";
 
 loadLocalEnvFiles();
+
+const execFileAsync = promisify(execFile);
 
 const baseUrl = process.env.BUILD_SYNC_SMOKE_URL || process.env.BROWSER_SMOKE_URL || process.env.SMOKE_URL || "https://ai-venture-lab.vercel.app";
 const email = process.env.BUILD_SYNC_SMOKE_EMAIL || process.env.BROWSER_SMOKE_EMAIL;
@@ -132,6 +138,14 @@ async function verifyFinalExecutionCursorGuide(page, ideaId) {
     timeout,
   });
   await page.getByText("Cursor에서 시작하는 순서", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("먼저 실행할 설치 명령", { exact: true }).first().waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("설치 후 확인 명령", { exact: true }).first().waitFor({
     state: "visible",
     timeout,
   });
@@ -269,6 +283,42 @@ async function verifyLiveConnectorDownload(page, ideaId, tool) {
       fail(`${tool.buttonLabel} setup download is missing ${expectedPath}.`);
     }
   }
+
+  for (const syntaxPath of tool.syntaxPaths ?? []) {
+    await verifyEmbeddedJavaScriptSyntax(scriptBody, syntaxPath, tool.buttonLabel);
+  }
+}
+
+function findEmbeddedPowerShellFile(scriptBody, filePath) {
+  const escapedPath = filePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = scriptBody.match(new RegExp(`@\\{ Path = '${escapedPath}'; Base64 = '([^']+)' \\}`));
+  return match?.[1] ?? "";
+}
+
+async function verifyEmbeddedJavaScriptSyntax(scriptBody, filePath, toolLabel) {
+  const encodedBody = findEmbeddedPowerShellFile(scriptBody, filePath);
+
+  if (!encodedBody) {
+    fail(`${toolLabel} setup download is missing embedded body for ${filePath}.`);
+  }
+
+  const tempDir = await mkdtemp(path.join(tmpdir(), "venture-build-sync-"));
+  const tempFile = path.join(tempDir, path.basename(filePath));
+
+  try {
+    await writeFile(tempFile, Buffer.from(encodedBody, "base64").toString("utf8"), "utf8");
+    await execFileAsync(process.execPath, ["--check", tempFile], { timeout: 15000 });
+  } catch (error) {
+    const detail =
+      error && typeof error === "object" && "stderr" in error && typeof error.stderr === "string"
+        ? error.stderr
+        : error instanceof Error
+          ? error.message
+          : String(error);
+    fail(`${toolLabel} setup download embedded ${filePath} is not valid JavaScript. ${detail}`);
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
 }
 
 async function verifyLiveConnectorDownloads(page, ideaId) {
@@ -277,16 +327,19 @@ async function verifyLiveConnectorDownloads(page, ideaId) {
       buttonLabel: "Cursor",
       filenamePart: "cursor-setup",
       expectedPaths: [".cursor/venture-lab-cli.mjs", ".cursor/mcp.json", "AI_VENTURE_CURSOR_START.md"],
+      syntaxPaths: [".cursor/venture-lab-cli.mjs", ".cursor/venture-lab-mcp-server.mjs"],
     },
     {
       buttonLabel: "Codex",
       filenamePart: "codex-setup",
       expectedPaths: [".codex/venture-lab-cli.mjs", ".codex/venture-lab-sync.json", "AI_VENTURE_CODEX_START.md"],
+      syntaxPaths: [".codex/venture-lab-cli.mjs"],
     },
     {
       buttonLabel: "Claude Code",
       filenamePart: "claude-code-setup",
       expectedPaths: [".claude/venture-lab-cli.mjs", ".mcp.json", "AI_VENTURE_CLAUDE_START.md"],
+      syntaxPaths: [".claude/venture-lab-cli.mjs"],
     },
     {
       buttonLabel: "Google Antigravity",
@@ -296,6 +349,7 @@ async function verifyLiveConnectorDownloads(page, ideaId) {
         ".antigravity/mcp_config.json",
         "AI_VENTURE_ANTIGRAVITY_START.md",
       ],
+      syntaxPaths: [".antigravity/venture-lab-cli.mjs"],
     },
   ];
 

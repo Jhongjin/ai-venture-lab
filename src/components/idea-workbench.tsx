@@ -2679,13 +2679,18 @@ function buildCursorGuideMarkdown({
 
 1. Cursor에서 실제 개발할 프로젝트 폴더를 엽니다.
 2. Venture Lab에서 받은 \`*-cursor-setup.ps1\` 파일을 프로젝트 루트에 둡니다.
-3. PowerShell에서 아래 명령을 실행합니다.
+3. PowerShell에서 먼저 아래 설치 명령을 실행합니다.
 
 \`\`\`powershell
 powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cursor-setup", "ps1")}
 \`\`\`
 
-4. 터미널에서 \`node .cursor/venture-lab-cli.mjs next-task\`를 실행해 첫 작업이 읽히는지 확인합니다.
+4. 설치가 끝난 뒤 같은 터미널에서 아래 확인 명령을 실행해 첫 작업이 읽히는지 확인합니다.
+
+\`\`\`bash
+node .cursor/venture-lab-cli.mjs next-task
+\`\`\`
+
 5. Cursor를 새로고침하거나 다시 열고, MCP 설정에서 \`ai-venture-lab\` 서버가 보이는지 확인합니다.
 6. Cursor Composer에 \`AI_VENTURE_CURSOR_START.md\` 내용을 붙여 넣고 첫 작업을 시작합니다.
 7. 작업을 마치면 Cursor에게 \`venture_record_progress\` 도구로 완료 보고를 남기라고 지시합니다.
@@ -3467,7 +3472,7 @@ function printHelp() {
     "  node .cursor/venture-lab-cli.mjs status",
     "  node .cursor/venture-lab-cli.mjs next-task",
     "  node .cursor/venture-lab-cli.mjs read package|tasks|guide|start",
-    "  node .cursor/venture-lab-cli.mjs record-progress --task T-001 --status done --summary \\"...\" --file src/app/page.tsx --verification \\"pnpm build passed\\"",
+    "  node .cursor/venture-lab-cli.mjs record-progress --task T-001 --status done --summary completed --file src/app/page.tsx --verification pnpm-build-passed",
     "",
     "The connector never prints the sync token. Progress is saved locally first, then synced to Venture Lab when configured."
   ].join("\\n"));
@@ -3757,8 +3762,8 @@ foreach ($entry in $ignoreEntries) {
 
 Write-Host ""
 Write-Host "AI Venture Lab Cursor connection files are ready."
-Write-Host "Check: node .cursor/venture-lab-cli.mjs next-task"
-Write-Host "Next: reopen Cursor, check Settings > MCP for ai-venture-lab, then paste AI_VENTURE_CURSOR_START.md into Composer."
+Write-Host "Next check command: node .cursor/venture-lab-cli.mjs next-task"
+Write-Host "Then reopen Cursor, check Settings > MCP for ai-venture-lab, then paste AI_VENTURE_CURSOR_START.md into Composer."
 Write-Host "When Cursor calls venture_record_progress, Venture Lab task status will be updated automatically."
 `;
 }
@@ -17344,11 +17349,12 @@ export function IdeaWorkbench({
                               3. {activeExternalBuildTool.label}에서 그 프로젝트 폴더를 엽니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              4. 터미널 또는 PowerShell에서 아래 명령을 실행합니다.
+                              4. 먼저 터미널 또는 PowerShell에서{" "}
+                              <span className="font-semibold text-slate-950">설치 명령</span>을 실행합니다.
                             </li>
                             <li className="border border-slate-200 bg-slate-50 p-3">
-                              5. 같은 터미널에서 <span className="font-mono text-xs">{liveExternalToolNextTaskCommand}</span>를
-                              실행해 첫 작업이 읽히는지 확인합니다.
+                              5. 설치가 끝난 뒤 같은 터미널에서{" "}
+                              <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지 봅니다.
                             </li>
                             {isCursorExternalDelivery ? (
                               <li className="border border-slate-200 bg-slate-50 p-3">
@@ -17391,9 +17397,18 @@ export function IdeaWorkbench({
                               로 완료 보고를 남기게 합니다. Venture Lab 작업 상태가 자동으로 갱신됩니다.
                             </li>
                           </ol>
-                          <div className="mt-3 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white">
-                            {"powershell -ExecutionPolicy Bypass -File .\\"}
-                            {toDownloadFileName(selectedIdea.name, liveExternalToolSetupSuffix, "ps1")}
+                          <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
+                            <div className="text-xs font-semibold text-slate-950">먼저 실행할 설치 명령</div>
+                            <div className="mt-2 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white">
+                              {"powershell -ExecutionPolicy Bypass -File .\\"}
+                              {toDownloadFileName(selectedIdea.name, liveExternalToolSetupSuffix, "ps1")}
+                            </div>
+                          </div>
+                          <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
+                            <div className="text-xs font-semibold text-slate-950">설치 후 확인 명령</div>
+                            <div className="mt-2 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white">
+                              {liveExternalToolNextTaskCommand}
+                            </div>
                           </div>
                           <p className="mt-3 text-xs leading-5 text-slate-500">
                             실행 위치는 다운로드 폴더가 아니라 실제 개발할 프로젝트 루트입니다. 이 스크립트가 그 위치에{" "}
