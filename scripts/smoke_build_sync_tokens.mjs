@@ -142,6 +142,18 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await page.getByText("2. 실행 위치", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("외부 프로젝트 루트", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("다운로드 폴더가 아닙니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await waitForVisibleDecisionSentence(page);
 }
 

@@ -12,6 +12,7 @@ import {
   Code2,
   Download,
   Flag,
+  FolderOpen,
   Layers3,
   RefreshCw,
   Save,
@@ -17139,6 +17140,41 @@ export function IdeaWorkbench({
                 <p className="mt-2 text-sm leading-6 text-slate-700">{finalExecutionPrimaryActionDetail}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-600">결정: {finalExecutionDecisionSentence}</p>
               </div>
+              {buildDeliveryMode === "external_tool" ? (
+                <div className="grid gap-px bg-slate-200 md:grid-cols-3">
+                  {[
+                    {
+                      icon: <Download size={16} />,
+                      label: "1. 연결 파일 받기",
+                      title: `${activeExternalBuildTool.label} setup 파일`,
+                      detail: "Venture Lab STEP 7에서 선택한 도구의 연결 파일을 받습니다.",
+                    },
+                    {
+                      icon: <FolderOpen size={16} />,
+                      label: "2. 실행 위치",
+                      title: "외부 프로젝트 루트",
+                      detail: "새로 만들 앱이나 사이트 폴더의 최상단에서 실행합니다. 다운로드 폴더가 아닙니다.",
+                    },
+                    {
+                      icon: <Code2 size={16} />,
+                      label: "3. 설치 후 확인",
+                      title: "확인 명령 실행",
+                      detail: `${liveExternalToolNextTaskCommand}로 첫 작업이 보이는지 확인합니다.`,
+                    },
+                  ].map((step) => (
+                    <div key={step.label} className="bg-white p-4">
+                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                        <span className="inline-flex h-7 w-7 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700">
+                          {step.icon}
+                        </span>
+                        {step.label}
+                      </div>
+                      <div className="mt-3 text-base font-semibold text-slate-950">{step.title}</div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">{step.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="border border-emerald-200 bg-emerald-50 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">준비 상태</div>
