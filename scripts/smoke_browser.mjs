@@ -98,6 +98,9 @@ async function main() {
       await waitForVisible(loginButton, "password sign-in button");
     } else if (stageVisible === "extract") {
       await waitForVisible(extractButton, "ai extraction button");
+      await waitForVisible(page.getByText("넣을 수 있는 것", { exact: true }), "first-use input examples");
+      await waitForVisible(page.getByText("AI가 만드는 것", { exact: true }), "first-use ai output summary");
+      await waitForVisible(page.getByText("내가 하는 것", { exact: true }), "first-use operator role summary");
       await waitForVisible(page.getByText("완료 0/8", { exact: true }), "first step zero-complete progress");
       const staleInProgressCounter = await page.getByText("진행 1/8", { exact: true }).count();
       if (staleInProgressCounter > 0) {

@@ -3602,16 +3602,30 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                       })}
                     </div>
                   ) : (
-                    <textarea
-                      value={rawIdeaSource}
-                      onChange={(event) => {
-                        setRawIdeaSource(event.target.value);
-                        setGeneratedIdeaSlots([]);
-                      }}
-                      rows={12}
-                      placeholder="예) 고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요. 반복 입력을 줄이고 누락을 확인하는 도구가 필요합니다."
-                      className="avl-textarea min-h-[280px] leading-7"
-                    />
+                    <div className="grid gap-3">
+                      <div className="grid gap-px bg-slate-200 md:grid-cols-3">
+                        {[
+                          ["넣을 수 있는 것", "회의 메모, GPT 대화, 떠오른 아이디어, 자동화하고 싶은 업무"],
+                          ["AI가 만드는 것", "후보 아이디어 3개, 결과물 형태, 개발 방식"],
+                          ["내가 하는 것", "좋은 후보만 킵하고 저장한 뒤 다음 단계로 이동"],
+                        ].map(([label, body]) => (
+                          <div key={label} className="bg-slate-50 px-4 py-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
+                            <p className="mt-2 text-sm leading-6 text-slate-700">{body}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <textarea
+                        value={rawIdeaSource}
+                        onChange={(event) => {
+                          setRawIdeaSource(event.target.value);
+                          setGeneratedIdeaSlots([]);
+                        }}
+                        rows={12}
+                        placeholder="예) 고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요. 반복 입력을 줄이고 누락을 확인하는 도구가 필요합니다."
+                        className="avl-textarea min-h-[280px] leading-7"
+                      />
+                    </div>
                   )}
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
                     <span>
