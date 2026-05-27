@@ -17444,14 +17444,22 @@ export function IdeaWorkbench({
             </div>
           ) : (
             <div className="grid gap-5">
-              <div className="border border-blue-200 bg-blue-50 p-4">
+              <div data-smoke="final-execution-action-banner" className="border border-blue-200 bg-blue-50 p-4">
                 <div className="text-sm font-semibold text-blue-950">지금 할 일</div>
                 <h3 className="mt-2 text-base font-semibold text-slate-950">{finalExecutionPrimaryActionTitle}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-700">{finalExecutionPrimaryActionDetail}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-600">결정: {finalExecutionDecisionSentence}</p>
+                {buildDeliveryMode === "external_tool" ? (
+                  <div
+                    data-smoke="final-execution-simple-mode-note"
+                    className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
+                  >
+                    실행만 하기: 연결 파일 받기, 실제 프로젝트 루트로 옮기기, 설치 명령과 확인 명령 실행.
+                  </div>
+                ) : null}
               </div>
               {buildDeliveryMode === "external_tool" ? (
-                <div className="grid gap-px bg-slate-200 md:grid-cols-3">
+                <div data-smoke="final-execution-simple-path" className="grid gap-px bg-slate-200 md:grid-cols-3">
                   {[
                     {
                       icon: <Download size={16} />,
@@ -17753,11 +17761,44 @@ export function IdeaWorkbench({
 
                     <div className="border border-slate-200 bg-white p-4">
                       <div className="text-sm font-semibold text-slate-950">
-                        {isLiveExternalDelivery ? `${activeExternalBuildTool.label}에서 시작하는 순서` : "외부 도구 전달 방식"}
+                        {isLiveExternalDelivery ? "실행만 하기" : "외부 도구 전달 방식"}
                       </div>
                       {isLiveExternalDelivery ? (
                         <>
-                          <ol className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            아래 세 줄만 끝내면 {activeExternalBuildTool.label}가 제작 패키지, 작업 목록, 진행 기록 파일을 읽을 수
+                            있습니다. 도구별 세부 설정은 필요할 때만 펼쳐 확인하세요.
+                          </p>
+                          <div
+                            data-smoke="final-execution-command-path"
+                            className="mt-3 grid gap-px bg-slate-200 text-sm leading-6 text-slate-700"
+                          >
+                            {([
+                              ["1. 파일 받기", `${activeExternalBuildTool.label} 연결 파일 받기 버튼으로 PowerShell 파일을 받습니다.`],
+                              ["2. 위치 옮기기", "받은 파일을 실제 개발할 프로젝트 루트로 옮깁니다. 다운로드 폴더에서는 실행하지 않습니다."],
+                              ["3. 설치와 확인", "아래 설치 명령을 먼저 실행하고, 확인 명령으로 첫 작업이 읽히는지 봅니다."],
+                            ] as const).map(([title, detail]) => (
+                              <div key={title} className="bg-slate-50 p-3">
+                                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{title}</div>
+                                <p className="mt-1 text-sm leading-6 text-slate-700">{detail}</p>
+                              </div>
+                            ))}
+                          </div>
+                          <details data-smoke="final-execution-detail-guide" className="mt-3 border border-slate-200 bg-slate-50 p-3">
+                            <summary className="cursor-pointer list-none">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                  <div className="text-sm font-semibold text-slate-950">
+                                    {activeExternalBuildTool.label}에서 시작하는 순서 자세히 보기
+                                  </div>
+                                  <p className="mt-1 text-xs leading-5 text-slate-600">
+                                    IDE 설정, 터미널 에이전트 시작, 자동 반영 확인이 필요할 때만 엽니다.
+                                  </p>
+                                </div>
+                                <span className="avl-pill avl-pill-neutral">상세 안내</span>
+                              </div>
+                            </summary>
+                            <ol className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
                             {isCursorExternalDelivery ? (
                               <>
                                 <li className="border border-slate-200 bg-slate-50 p-3">
@@ -17900,7 +17941,8 @@ export function IdeaWorkbench({
                               )}{" "}
                               로 완료 보고를 남기게 합니다. Venture Lab 작업 상태가 자동으로 갱신됩니다.
                             </li>
-                          </ol>
+                            </ol>
+                          </details>
                           <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                               <div className="text-xs font-semibold text-slate-950">먼저 실행할 설치 명령</div>

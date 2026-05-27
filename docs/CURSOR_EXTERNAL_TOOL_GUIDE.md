@@ -2,7 +2,7 @@
 
 이 문서는 Cursor를 선택했을 때의 프로젝트 연결 절차만 다룬다. Cursor, Codex, Claude Code, Google Antigravity의 공통 패키지 계약은 `docs/EXTERNAL_PRODUCTION_PACKAGE.md`를 기준으로 본다.
 
-AI Venture Lab의 Cursor 외부 제작 흐름은 최종 실행 단계에서 Cursor가 바로 읽을 수 있는 연결 파일을 만드는 방식으로 시작한다.
+AI Venture Lab의 Cursor 외부 제작 흐름은 최종 실행 단계에서 Cursor가 바로 읽을 수 있는 연결 파일을 만드는 방식으로 시작한다. 화면의 기본 흐름은 `실행만 하기`로, 연결 파일 받기, 실제 프로젝트 루트 이동, 설치/확인 명령 실행만 먼저 보여준다.
 
 ## 사용자가 하는 일
 

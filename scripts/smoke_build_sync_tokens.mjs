@@ -143,27 +143,55 @@ async function verifyLearningTaskBoard(page, ideaId) {
 }
 
 async function verifyFinalExecutionActionBanner(page, toolLabel) {
-  await page.getByText(`${toolLabel} 연결 파일을 실제 프로젝트 루트에서 실행하세요.`, { exact: true }).waitFor({
+  const actionBanner = page.locator('[data-smoke="final-execution-action-banner"]');
+  await actionBanner.getByText(`${toolLabel} 연결 파일을 실제 프로젝트 루트에서 실행하세요.`, { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
-  await page.getByText("설치 명령과 확인 명령만 차례로 실행하면 됩니다", { exact: false }).waitFor({
+  await actionBanner.getByText("설치 명령과 확인 명령만 차례로 실행하면 됩니다", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
-  await page.getByText("2. 실행 위치", { exact: true }).waitFor({
+  await page.locator('[data-smoke="final-execution-simple-mode-note"]').getByText("실행만 하기", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
-  await page.getByText("외부 프로젝트 루트", { exact: true }).waitFor({
+  const simplePath = page.locator('[data-smoke="final-execution-simple-path"]');
+  await simplePath.getByText("1. 연결 파일 받기", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
-  await page.getByText("다운로드 폴더가 아닙니다.", { exact: false }).waitFor({
+  await simplePath.getByText("2. 실행 위치", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await simplePath.getByText("외부 프로젝트 루트", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await simplePath.getByText("다운로드 폴더가 아닙니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  const commandPath = page.locator('[data-smoke="final-execution-command-path"]');
+  await commandPath.getByText("1. 파일 받기", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await commandPath.getByText("3. 설치와 확인", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
   await waitForVisibleDecisionSentence(page);
+}
+
+async function openFinalExecutionDetailGuide(page, toolLabel) {
+  const detailGuide = page.locator('[data-smoke="final-execution-detail-guide"]');
+  await detailGuide.getByText(`${toolLabel}에서 시작하는 순서 자세히 보기`, { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await detailGuide.locator("summary").click({ timeout });
 }
 
 async function verifyFinalExecutionCursorGuide(page, ideaId) {
@@ -181,10 +209,7 @@ async function verifyFinalExecutionCursorGuide(page, ideaId) {
     timeout,
   });
   await verifyFinalExecutionActionBanner(page, "Cursor");
-  await page.getByText("Cursor에서 시작하는 순서", { exact: true }).waitFor({
-    state: "visible",
-    timeout,
-  });
+  await openFinalExecutionDetailGuide(page, "Cursor");
   await page.getByText("먼저 실행할 설치 명령", { exact: true }).first().waitFor({
     state: "visible",
     timeout,
@@ -231,10 +256,7 @@ async function verifyFinalExecutionCodexGuide(page, ideaId) {
     timeout,
   });
   await verifyFinalExecutionActionBanner(page, "Codex");
-  await page.getByText("Codex에서 시작하는 순서", { exact: true }).waitFor({
-    state: "visible",
-    timeout,
-  });
+  await openFinalExecutionDetailGuide(page, "Codex");
   await page.getByText("Codex를 그 프로젝트 루트에서 엽니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
@@ -273,10 +295,7 @@ async function verifyFinalExecutionClaudeGuide(page, ideaId) {
     timeout,
   });
   await verifyFinalExecutionActionBanner(page, "Claude Code");
-  await page.getByText("Claude Code에서 시작하는 순서", { exact: true }).waitFor({
-    state: "visible",
-    timeout,
-  });
+  await openFinalExecutionDetailGuide(page, "Claude Code");
   await page.getByText("Windows Terminal 또는 PowerShell에서 그 프로젝트 루트를 엽니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
@@ -315,10 +334,7 @@ async function verifyFinalExecutionAntigravityGuide(page, ideaId) {
     timeout,
   });
   await verifyFinalExecutionActionBanner(page, "Google Antigravity");
-  await page.getByText("Google Antigravity에서 시작하는 순서", { exact: true }).waitFor({
-    state: "visible",
-    timeout,
-  });
+  await openFinalExecutionDetailGuide(page, "Google Antigravity");
   await page.getByText("Antigravity에서 그 프로젝트 폴더를 엽니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
