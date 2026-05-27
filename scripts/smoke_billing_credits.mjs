@@ -132,6 +132,10 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-upgrade-signals"]').waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
 
     return summary;
   } finally {

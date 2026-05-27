@@ -6,6 +6,11 @@ type ProfileCreditSummaryProps = {
 };
 
 const numberFormatter = new Intl.NumberFormat("ko-KR");
+const proUpgradeSignals = [
+  "한 달에 여러 아이디어를 제작 패키지까지 밀어붙일 때",
+  "Cursor, Codex, Claude Code, Antigravity 연결 파일과 자동 반영이 반복해서 필요할 때",
+  "출처 기반 시장 점검과 팀 공유 기록을 계속 남겨야 할 때",
+];
 
 function formatCredits(value: number | null) {
   if (value === null) {
@@ -119,6 +124,28 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         <a href="/workspace" className="avl-btn avl-btn-secondary mt-3 h-9 px-3 text-xs">
           실행 보드에서 아이디어 이어가기
         </a>
+      </div>
+
+      <div className="mt-4 border border-slate-200 bg-white p-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="text-xs font-semibold text-slate-500">업그레이드가 필요한 순간</div>
+            <h4 className="mt-2 text-base font-semibold text-slate-950">Free로 검증하고, Pro는 반복 제작에 씁니다</h4>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              첫 아이디어를 이해하는 데는 Free가 충분해야 합니다. 결제 가치는 더 많은 제작 패키지, 더 깊은 시장 근거,
+              외부 개발 도구 자동 반영이 필요해질 때 생깁니다.
+            </p>
+          </div>
+          <span className="avl-pill avl-pill-info shrink-0">현재 Free</span>
+        </div>
+        <div data-smoke="profile-upgrade-signals" className="mt-3 grid gap-2">
+          {proUpgradeSignals.map((signal) => (
+            <div key={signal} className="flex gap-2 text-sm leading-6 text-slate-700">
+              <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-slate-950" />
+              <span>{signal}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {latestPass ? (
