@@ -3634,7 +3634,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                     </span>
                     <span>
                       <strong className="text-slate-950">2.</strong>{" "}
-                      {hasGeneratedIdeaSlots ? "나머지 후보만 새로 확인합니다." : "AI가 아이디어와 결과물 형태를 정리합니다."}
+                      {hasGeneratedIdeaSlots ? "나머지 후보만 새로 확인합니다." : "AI가 아이디어, 결과물 형태, 개발 방식을 정리합니다."}
                     </span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 사업성 평가로 이어집니다.</span>
                   </div>
@@ -3646,7 +3646,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           {hasGeneratedIdeaSlots
                             ? "킵한 후보는 유지하고, 마음에 들지 않은 후보만 새로 확인한 뒤 한 건으로 정리합니다."
                             : hasIdeaSourceInput
-                              ? "입력칸 내용을 한 건의 검토 아이디어와 결과물 형태로 정리합니다."
+                              ? "입력칸 내용을 한 건의 검토 아이디어, 결과물 형태, 개발 방식으로 정리합니다."
                               : "아이디어가 없으면 AI가 검토할 후보 3개를 먼저 도출합니다."}
                         </p>
                       </div>
@@ -4543,11 +4543,8 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           <p className="mt-1 text-sm leading-6 text-slate-700">
                             {manualFormProductSurface.firstBuild}
                           </p>
-                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
-                            {withKoreanInstrumental(manualFormProductSurface.label)} 만들고, {selectedBuildDeliveryPhrase}.
-                          </p>
                           <p className="mt-1 text-xs leading-5 text-slate-600">
-                            이 기준이 STEP 2와 제작 패키지까지 이어집니다. 다르게 보이면 다음 단계에서 바꿀 수 있습니다.
+                            이 기준이 STEP 2와 제작 패키지까지 이어집니다. 무엇을 만들지 정하는 값입니다.
                           </p>
                         </>
                       ) : (
@@ -4555,6 +4552,20 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           이름과 한 줄 설명을 입력하면 AI가 웹 서비스, 모바일 앱, 업무 자동화 중 어떤 형태로 만들지 먼저 추정합니다.
                         </p>
                       )}
+                    </div>
+                    <div className="border border-slate-200 bg-slate-50 p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">개발 방식</div>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">
+                        {selectedBuildDeliveryPhrase}
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-slate-700">
+                        실제 연결 파일은 STEP 7에서 받습니다. 여기서는 어디로 넘길지 방향만 저장합니다.
+                      </p>
+                      {manualFormProductSurface ? (
+                        <p className="mt-1 text-xs leading-5 text-slate-600">
+                          결정 문장: {withKoreanInstrumental(manualFormProductSurface.label)} 만들고, {selectedBuildDeliveryPhrase}.
+                        </p>
+                      ) : null}
                     </div>
                     <div className="border border-slate-200 bg-slate-50 p-3">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 액션</div>
