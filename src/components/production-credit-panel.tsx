@@ -32,6 +32,55 @@ type ProductionCreditPanelProps = {
   onUnlockBuildPass: () => void;
 };
 
+function getNextCreditAction({
+  creditStatus,
+  hasEnoughCreditsForBuildPass,
+  hasSelectedIdeaBuildPass,
+  isCreditSummaryLoading,
+  isCreditSystemMissing,
+  isCreditSystemReady,
+  needsSelectedIdeaBuildPass,
+}: Pick<
+  ProductionCreditPanelProps,
+  | "creditStatus"
+  | "hasEnoughCreditsForBuildPass"
+  | "hasSelectedIdeaBuildPass"
+  | "isCreditSummaryLoading"
+  | "isCreditSystemMissing"
+  | "isCreditSystemReady"
+  | "needsSelectedIdeaBuildPass"
+>) {
+  if (isCreditSummaryLoading) {
+    return "크레딧 상태를 확인하는 중입니다.";
+  }
+
+  if (hasSelectedIdeaBuildPass) {
+    return "제작 패스가 열렸습니다. 아래 AI 제작 패키지 만들기를 누르세요.";
+  }
+
+  if (needsSelectedIdeaBuildPass && hasEnoughCreditsForBuildPass) {
+    return "먼저 제작 패스를 여세요. 그다음 AI 제작 패키지 만들기가 열립니다.";
+  }
+
+  if (needsSelectedIdeaBuildPass) {
+    return "잔여 크레딧이 부족해 제작 패스를 열 수 없습니다.";
+  }
+
+  if (isCreditSystemMissing) {
+    return "크레딧 DB 준비 전이라 아래 제작 흐름을 그대로 진행하세요.";
+  }
+
+  if (creditStatus === "unavailable") {
+    return "크레딧 확인 실패 상태라 이번 세션은 아래 제작 흐름을 그대로 진행하세요.";
+  }
+
+  if (isCreditSystemReady) {
+    return "아이디어를 선택하면 제작 패스를 열 수 있습니다.";
+  }
+
+  return "아래 제작 흐름을 진행하세요.";
+}
+
 export function ProductionCreditPanel({
   buildPassCost,
   creditBalanceLabel,
@@ -49,8 +98,18 @@ export function ProductionCreditPanel({
   needsSelectedIdeaBuildPass,
   onUnlockBuildPass,
 }: ProductionCreditPanelProps) {
+  const nextCreditAction = getNextCreditAction({
+    creditStatus,
+    hasEnoughCreditsForBuildPass,
+    hasSelectedIdeaBuildPass,
+    isCreditSummaryLoading,
+    isCreditSystemMissing,
+    isCreditSystemReady,
+    needsSelectedIdeaBuildPass,
+  });
+
   return (
-    <section className="mb-5 border border-slate-200 bg-white p-4">
+    <section data-smoke="production-credit-panel" className="mb-5 border border-slate-200 bg-white p-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700">
@@ -67,7 +126,7 @@ export function ProductionCreditPanel({
             </p>
             <div className="mt-3 grid gap-2 md:grid-cols-2">
               <div className="border border-slate-200 bg-slate-50 p-3">
-                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">Free에서 이미 받은 것</div>
+                <div className="text-xs font-semibold text-slate-500">Free에서 이미 받은 것</div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {freeProductionPackageItems.map((item) => (
                     <span key={item} className="avl-pill avl-pill-success">
@@ -78,7 +137,7 @@ export function ProductionCreditPanel({
                 </div>
               </div>
               <div className="border border-slate-200 bg-white p-3">
-                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">제작 패스 후 열리는 것</div>
+                <div className="text-xs font-semibold text-slate-500">제작 패스 후 열리는 것</div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {unlockedProductionPackageItems.map((item) => (
                     <span key={item} className="avl-pill avl-pill-neutral">
@@ -104,9 +163,15 @@ export function ProductionCreditPanel({
         </div>
 
         <div className="min-w-56 border border-slate-200 bg-slate-50 p-3">
-          <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">현재 잔여</div>
+          <div className="text-xs font-semibold text-slate-500">현재 잔여</div>
           <div className="mt-2 text-2xl font-semibold text-slate-950">
             {isCreditSummaryLoading ? "확인 중" : creditBalanceLabel}
+          </div>
+          <div className="mt-3 border-t border-slate-200 pt-3">
+            <div className="text-xs font-semibold text-slate-500">지금 할 일</div>
+            <p data-smoke="production-credit-next-action" className="mt-1 text-sm font-semibold leading-6 text-slate-950">
+              {nextCreditAction}
+            </p>
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {hasSelectedIdeaBuildPass ? (
@@ -130,7 +195,7 @@ export function ProductionCreditPanel({
               className="avl-btn avl-btn-primary mt-3 h-10 w-full justify-center px-3 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <LockKeyhole size={16} />
-              {isBuildPassUnlocking ? "여는 중" : `${buildPassCost}크레딧으로 열기`}
+              {isBuildPassUnlocking ? "여는 중" : `${buildPassCost}크레딧으로 제작 패스 열기`}
             </button>
           ) : null}
           {needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass ? (

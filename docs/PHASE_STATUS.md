@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-27 | Simplified STEP 5 credit next action copy | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; STEP 5 credit panel now shows a single `지금 할 일` sentence that mirrors the current build-pass/button state |
 | 2026-05-27 | Added profile Venture Credits summary | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_billing_credits.mjs`, `pnpm typecheck`, `pnpm quality:full`; `/profile` now reads the shared server credit summary and shows monthly credits, 30-credit build pass cost, Free 4/10 package boundary, and opened pass count before the operator reaches STEP 5 |
 | 2026-05-27 | Added Venture Credits build-pass pilot | Current commit | Push to `main`, then production smoke after deployment; credit migration remains a user-applied Supabase SQL action | `pnpm typecheck`; STEP 5 now shows Free 100 monthly credits, 30-credit production-package unlock, Free 4/10 package boundary, deploy-safe missing-migration fallback, and billing negative-path smoke |
 | 2026-05-27 | Added source-backed market scan summary cards | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; STEP 3 market scan results now show investigation mode, source count, and competitor/substitute count before detailed evidence lists |
