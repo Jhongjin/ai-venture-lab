@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Coins, LockKeyhole } from "lucide-react";
 
+import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
 import type { CreditSystemStatus } from "@/lib/billing";
 
 const freeProductionPackageItems = ["아이디어 요약", "조사 요약", "7일 검증 계획", "검증 완료 요약"];
@@ -219,7 +220,18 @@ export function ProductionCreditPanel({
             </button>
           ) : null}
           {needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass ? (
-            <p className="mt-2 text-xs font-semibold text-amber-700">잔여 크레딧이 부족합니다.</p>
+            <div data-smoke="step5-upgrade-interest" className="mt-3 border border-amber-200 bg-amber-50 p-3">
+              <p className="text-xs font-semibold text-amber-800">잔여 크레딧이 부족합니다.</p>
+              <p className="mt-1 text-xs leading-5 text-amber-950">
+                다음 제작 패키지가 필요하면 Pro 관심만 남겨 주세요. 결제는 아직 시작하지 않습니다.
+              </p>
+              <UpgradeInterestButton
+                idleMessage="부족한 크레딧 수요 신호로 기록됩니다."
+                intent="insufficient_credits_for_build_pass"
+                source="step5_credit_panel"
+                wrapperClassName="mt-3 flex flex-col gap-2"
+              />
+            </div>
           ) : null}
         </div>
       </div>

@@ -8,8 +8,27 @@ type UpgradeInterestResult = {
   message: string;
 };
 
-export async function recordProfileUpgradeInterest(): Promise<UpgradeInterestResult> {
+type UpgradeInterestInput = {
+  intent?: string;
+  source?: string;
+};
+
+const allowedUpgradeInterestSources = new Set(["profile_credit_summary", "step5_credit_panel"]);
+
+function normalizeUpgradeInterestInput(input: UpgradeInterestInput | undefined) {
+  const source =
+    input?.source && allowedUpgradeInterestSources.has(input.source) ? input.source : "profile_credit_summary";
+  const intent =
+    typeof input?.intent === "string" && input.intent.trim().length > 0
+      ? input.intent.trim().slice(0, 80)
+      : "repeated_production_packages";
+
+  return { intent, source };
+}
+
+export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput): Promise<UpgradeInterestResult> {
   const supabase = await getSupabaseServerClient();
+  const { intent, source } = normalizeUpgradeInterestInput(input);
 
   if (!supabase) {
     return {
@@ -35,9 +54,9 @@ export async function recordProfileUpgradeInterest(): Promise<UpgradeInterestRes
     event_name: "upgrade_interest_clicked",
     event_category: "billing",
     properties: {
-      source: "profile_credit_summary",
+      source,
       plan: "pro",
-      intent: "repeated_production_packages",
+      intent,
       credit_model: {
         free_monthly_credits: FREE_MONTHLY_CREDITS,
         build_pass_cost: IDEA_BUILD_PASS_CREDITS,

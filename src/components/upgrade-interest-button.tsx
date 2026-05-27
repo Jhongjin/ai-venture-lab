@@ -6,6 +6,13 @@ import { recordProfileUpgradeInterest } from "@/app/profile/actions";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
+type UpgradeInterestButtonProps = {
+  idleMessage?: string;
+  intent?: string;
+  source?: "profile_credit_summary" | "step5_credit_panel";
+  wrapperClassName?: string;
+};
+
 function getButtonLabel(saveState: SaveState) {
   if (saveState === "saving") {
     return "등록 중";
@@ -18,9 +25,14 @@ function getButtonLabel(saveState: SaveState) {
   return "Pro 관심 등록";
 }
 
-export function UpgradeInterestButton() {
+export function UpgradeInterestButton({
+  idleMessage = "지금은 결제 없이 관심만 남깁니다.",
+  intent = "repeated_production_packages",
+  source = "profile_credit_summary",
+  wrapperClassName = "mt-4 flex flex-col gap-2 sm:flex-row sm:items-center",
+}: UpgradeInterestButtonProps) {
   const [saveState, setSaveState] = useState<SaveState>("idle");
-  const [message, setMessage] = useState("지금은 결제 없이 관심만 남깁니다.");
+  const [message, setMessage] = useState(idleMessage);
 
   async function handleClick() {
     if (saveState === "saving" || saveState === "saved") {
@@ -31,7 +43,7 @@ export function UpgradeInterestButton() {
     setMessage("관심 신호를 저장하고 있습니다.");
 
     try {
-      const result = await recordProfileUpgradeInterest();
+      const result = await recordProfileUpgradeInterest({ intent, source });
       setSaveState(result.ok ? "saved" : "error");
       setMessage(result.message);
     } catch {
@@ -41,7 +53,7 @@ export function UpgradeInterestButton() {
   }
 
   return (
-    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div className={wrapperClassName}>
       <button
         type="button"
         data-smoke="upgrade-interest-button"
