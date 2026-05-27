@@ -38,7 +38,7 @@ Current implementation direction:
 - The free path exposes the first 4 production inputs: idea brief, research brief, 7-day validation sprint, and validation summary.
 - The full package target is 10 production materials, including PRD, IA/product structure, design direction, technical direction, first build scope, work order, external tool handoff, verification notes, launch checklist, and learning loop.
 - STEP 5 shows the credit balance and unlock state. Before unlock, the full package save path is disabled when the credit schema is active.
-- STEP 7 build-sync token enforcement is guarded by `ENFORCE_CREDIT_BUILD_PASS=1` so production smoke does not accidentally spend monthly credits before the operator turns on the server-side entitlement gate.
+- STEP 7 build-sync token enforcement is enabled in Vercel Production with `ENFORCE_CREDIT_BUILD_PASS=1`; production smoke verifies this only through disposable build-pass spend with `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`.
 
 ## Upgrade Moments
 
