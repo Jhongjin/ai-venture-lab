@@ -40,6 +40,7 @@ Current implementation direction:
 - STEP 5 shows the credit balance and unlock state. Before unlock, the full package save path is disabled when the credit schema is active.
 - The profile and STEP 5 credit panels show the remaining build-pass capacity for the current month and explain that one build pass opens PRD, IA/screen structure, design direction, technical direction, work order, and external tool handoff files.
 - The profile page explains the upgrade trigger in user language: Free is for understanding and validating the first idea; Pro is for repeated production packages, external tool write-back, and source-backed market evidence.
+- The profile page includes a low-friction Pro interest button that records `upgrade_interest_clicked` in `telemetry_events` without starting a payment flow. This is the pre-Stripe demand signal for repeated production-package usage.
 - The public homepage shows the beta Venture Credits boundary before signup: Free 100 credits, 30-credit build pass, and 4/10 free production materials.
 - STEP 7 build-sync token enforcement is enabled in Vercel Production with `ENFORCE_CREDIT_BUILD_PASS=1`; production smoke verifies this only through disposable build-pass spend with `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`.
 

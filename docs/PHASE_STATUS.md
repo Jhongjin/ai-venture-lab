@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-27 | Added pre-payment Pro interest signal | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_billing_credits.mjs`, `pnpm quality:full`; `/profile` now lets logged-in users register Pro interest without starting payment, storing an `upgrade_interest_clicked` billing telemetry event while billing smoke only checks button visibility |
 | 2026-05-27 | Aligned guide credit FAQ with homepage pricing boundary | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_browser.mjs`, `pnpm quality:full`; `/guide` now explains when the 30-credit build pass is used, and browser smoke protects the credit FAQ wording |
 | 2026-05-27 | Added homepage Venture Credits boundary | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_browser.mjs`, `pnpm quality:full`; public home now shows the beta credit model before signup: Free 100 credits, a 30-credit build pass, and the Free 4/10 production-material boundary |
 | 2026-05-27 | Added next-action guidance to saved idea lists | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; `/workspace/ideas` cards now show the next action for each saved idea and the primary button says `다음 행동 열기`, reducing recall work when users return to continue an idea |

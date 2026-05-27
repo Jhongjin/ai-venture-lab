@@ -1,4 +1,5 @@
 import { getBalanceAfterBuildPass, getBuildPassCapacity, type CreditSummary } from "@/lib/billing";
+import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
 
 type ProfileCreditSummaryProps = {
   error: string | null;
@@ -146,6 +147,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
             </div>
           ))}
         </div>
+        <UpgradeInterestButton />
       </div>
 
       {latestPass ? (
