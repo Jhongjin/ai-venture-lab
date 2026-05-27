@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -628,6 +630,16 @@ function createFallbackScan({
 }
 
 export async function POST(request: Request) {
+  const rateLimitResponse = enforceAiRouteRateLimit(request, {
+    limit: 20,
+    route: "ideas-market-scan",
+    windowMs: 10 * 60_000,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   let body: RequestBody;
 
   try {

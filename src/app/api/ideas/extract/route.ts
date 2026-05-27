@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
+
 const MAX_SOURCE_LENGTH = 24000;
 const MAX_EXISTING_IDEAS = 20;
 
@@ -146,6 +148,16 @@ const ideaExtractionSchema = {
 } as const;
 
 export async function POST(request: Request) {
+  const rateLimitResponse = enforceAiRouteRateLimit(request, {
+    limit: 20,
+    route: "ideas-extract",
+    windowMs: 60_000,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   let body: RequestBody;
 
   try {

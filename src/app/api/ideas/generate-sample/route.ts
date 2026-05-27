@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
+import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
@@ -377,6 +379,16 @@ function getRawIdeaItems(parsed: unknown) {
 }
 
 export async function POST(request: Request) {
+  const rateLimitResponse = enforceAiRouteRateLimit(request, {
+    limit: 10,
+    route: "ideas-generate-sample",
+    windowMs: 60_000,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   let body: RequestBody = {};
 
   try {
