@@ -19530,6 +19530,27 @@ export function IdeaWorkbench({
                     </div>
                   ))}
                 </div>
+                <div data-smoke="market-scan-decision-strip" className="grid gap-px bg-slate-200 lg:grid-cols-3">
+                  {[
+                    [
+                      "지금 판단",
+                      decisionLabels[visibleMarketScanDraft.recommendation],
+                      `신뢰도 ${getMarketScanLevelLabel(visibleMarketScanDraft.confidence)}`,
+                    ],
+                    ["다음 행동", visibleMarketScanDraft.next_action, "이 행동만 확인하면 다음 단계 판단이 쉬워집니다"],
+                    [
+                      "주의",
+                      visibleMarketScanDraft.caveat || "출처와 추정이 섞일 수 있으니 중요한 수치는 다시 확인하세요.",
+                      isVisibleMarketScanEstimate ? "추정 초안" : "웹 출처 포함",
+                    ],
+                  ].map(([label, value, helper]) => (
+                    <div key={label} className="bg-white px-4 py-3">
+                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">{value}</p>
+                      <p className="mt-1 text-xs leading-5 text-slate-500">{helper}</p>
+                    </div>
+                  ))}
+                </div>
                 {visibleMarketScanDraft.market_signals.length > 0 ? (
                   <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
                     {visibleMarketScanDraft.market_signals.map((signal) => (

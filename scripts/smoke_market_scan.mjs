@@ -146,6 +146,7 @@ try {
   assertText(scan.entry_barriers, "entry_barriers");
   assertText(scan.alternatives, "alternatives");
   assertText(scan.next_action, "next_action");
+  assertText(scan.caveat, "caveat");
   assertArray(scan.market_signals, "market_signals", 3);
   assertArray(scan.competitor_map, "competitor_map", 3);
   assertArray(scan.entry_barrier_checks, "entry_barrier_checks", 2);
