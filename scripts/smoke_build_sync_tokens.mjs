@@ -106,6 +106,10 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.locator('[data-smoke="step8-one-sentence-outcome"]').getByText("한 줄 결론", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
   for (const label of ["완료된 것", "남은 것", "지금 판단할 것"]) {
     await page.getByText(label, { exact: true }).first().waitFor({
       state: "visible",

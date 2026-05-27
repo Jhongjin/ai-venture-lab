@@ -10348,6 +10348,13 @@ export function IdeaWorkbench({
     : productSignalCount === 0
       ? "실제 사용 신호가 없을 때는 리포트보다 제작 완료와 이벤트 연결 여부를 먼저 봅니다."
       : "이제 상세 이벤트는 필요할 때만 열고, 다음 개선 또는 보류 판단을 남기면 됩니다.";
+  const learningOneSentenceOutcome = nextImplementationTask
+    ? `${nextImplementationTaskCode ? `${nextImplementationTaskCode} ` : ""}${nextImplementationTask.title}만 끝내면 다음 판단으로 넘어갈 수 있습니다.`
+    : productSignalCount === 0
+      ? "지금은 성과 분석보다 첫 버전 배포와 이벤트 연결이 먼저입니다."
+      : openSelectedIdeaRisks.length > 0
+        ? "사용 신호는 들어왔고, 다음 결정은 열린 리스크를 하나 줄이는 것입니다."
+        : "사용 신호가 들어왔으니 다음 빌드 범위를 작게 승인할 차례입니다.";
   const learningPrimaryCtaLabel =
     nextImplementationTask || productSignalCount === 0 ? "최종 실행으로 가기" : "리포트 복사";
   const learningDecisionOptions = nextImplementationTask
@@ -18405,6 +18412,10 @@ export function IdeaWorkbench({
               <div>
                 <div className="text-sm font-semibold text-blue-950">지금 할 일</div>
                 <h3 className="mt-2 text-base font-semibold text-slate-950">{learningPrimaryActionLabel}</h3>
+                <div data-smoke="step8-one-sentence-outcome" className="mt-3 border border-blue-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">한 줄 결론</div>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningOneSentenceOutcome}</p>
+                </div>
                 <p className="mt-2 text-sm leading-6 text-slate-700">{learningPrimaryActionText}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">결정: {finalExecutionDecisionSentence}</p>
