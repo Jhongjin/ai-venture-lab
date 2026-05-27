@@ -113,7 +113,18 @@ async function verifyLearningTaskBoard(page, ideaId) {
     });
   }
   await waitForVisibleDecisionSentence(page);
+  const simpleReview = page.locator('[data-smoke="step8-simple-review"]');
+  for (const label of ["완료", "다음", "판단"]) {
+    await simpleReview.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.locator('[data-smoke="step8-outcome-summary"]').waitFor({
     state: "visible",
     timeout,
   });

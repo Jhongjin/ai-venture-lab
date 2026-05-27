@@ -18379,6 +18379,18 @@ export function IdeaWorkbench({
                     </span>
                   ))}
                 </div>
+                <div data-smoke="step8-simple-review" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
+                  {([
+                    ["완료", learningCompletedValue],
+                    ["다음", learningRemainingValue],
+                    ["판단", learningDecisionLabel],
+                  ] as const).map(([label, value]) => (
+                    <div key={label} className="bg-white px-3 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
+                      <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
               <button
                 type="button"
@@ -18399,7 +18411,7 @@ export function IdeaWorkbench({
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
+          <div data-smoke="step8-outcome-summary" className="grid gap-3 md:grid-cols-3">
             {learningDecisionCards.map((card) => (
               <div key={card.label} className="avl-surface-muted p-4">
                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{card.label}</div>
