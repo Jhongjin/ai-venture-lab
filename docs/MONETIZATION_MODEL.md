@@ -39,6 +39,7 @@ Current implementation direction:
 - The full package target is 10 production materials, including PRD, IA/product structure, design direction, technical direction, first build scope, work order, external tool handoff, verification notes, launch checklist, and learning loop.
 - STEP 5 shows the credit balance and unlock state. Before unlock, the full package save path is disabled when the credit schema is active.
 - The profile and STEP 5 credit panels show the remaining build-pass capacity for the current month and explain that one build pass opens PRD, IA/screen structure, design direction, technical direction, work order, and external tool handoff files.
+- The profile page shows the current-period credit grant, current-period spend, and recent credit ledger entries so users can see how monthly credits and build-pass spends changed their balance.
 - The profile page explains the upgrade trigger in user language: Free is for understanding and validating the first idea; Pro is for repeated production packages, external tool write-back, and source-backed market evidence.
 - The profile page includes a low-friction Pro interest button that records `upgrade_interest_clicked` in `telemetry_events` without starting a payment flow. This is the pre-Stripe demand signal for repeated production-package usage.
 - STEP 5 also exposes the same Pro interest path when a user lacks enough credits for the next build pass, with `source=step5_credit_panel` and `intent=insufficient_credits_for_build_pass`.

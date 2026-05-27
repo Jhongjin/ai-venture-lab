@@ -11,6 +11,18 @@ export type IdeaBuildPassSummary = {
   createdAt: string;
 };
 
+export type CreditLedgerEntryType = "monthly_grant" | "build_pass_spend" | "refund" | "adjustment";
+
+export type CreditLedgerEntry = {
+  id: string;
+  amount: number;
+  createdAt: string;
+  entryType: CreditLedgerEntryType;
+  ideaId: string | null;
+  note: string;
+  periodKey: string;
+};
+
 export type CreditSummary = {
   status: CreditSystemStatus;
   plan: "free";
@@ -21,6 +33,7 @@ export type CreditSummary = {
   fullArtifactCount: number;
   balance: number | null;
   buildPasses: IdeaBuildPassSummary[];
+  ledgerEntries: CreditLedgerEntry[];
   message: string | null;
 };
 
@@ -85,6 +98,7 @@ export function emptyCreditSummary(status: CreditSystemStatus, periodKey = getCr
     fullArtifactCount: FULL_PACKAGE_ARTIFACT_COUNT,
     balance: null,
     buildPasses: [],
+    ledgerEntries: [],
     message,
   };
 }

@@ -2116,7 +2116,8 @@ function isCreditSummary(value: unknown): value is CreditSummary {
     typeof value.freeArtifactLimit === "number" &&
     typeof value.fullArtifactCount === "number" &&
     (typeof value.balance === "number" || value.balance === null) &&
-    Array.isArray(value.buildPasses)
+    Array.isArray(value.buildPasses) &&
+    Array.isArray(value.ledgerEntries)
   );
 }
 

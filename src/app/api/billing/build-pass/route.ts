@@ -121,6 +121,7 @@ export async function POST(request: Request) {
     alreadyUnlocked: getBooleanFromRpcResult(spendResult.data, "alreadyUnlocked"),
     ideaId: getStringFromRpcResult(spendResult.data, "ideaId") ?? body.ideaId,
     buildPasses: mapBuildPassSummaries(passResult.data),
+    ledgerEntries: [],
     message: null,
   });
 }

@@ -7,6 +7,13 @@ type ProfileCreditSummaryProps = {
 };
 
 const numberFormatter = new Intl.NumberFormat("ko-KR");
+const ledgerTypeLabels: Record<string, string> = {
+  adjustment: "조정",
+  build_pass_spend: "제작 패스 사용",
+  monthly_grant: "월 Free 지급",
+  refund: "환불",
+};
+
 const proUpgradeSignals = [
   "한 달에 여러 아이디어를 제작 패키지까지 밀어붙일 때",
   "Cursor, Codex, Claude Code, Antigravity 연결 파일과 자동 반영이 반복해서 필요할 때",
@@ -19,6 +26,12 @@ function formatCredits(value: number | null) {
   }
 
   return `${numberFormatter.format(value)} 크레딧`;
+}
+
+function formatSignedCredits(value: number) {
+  const prefix = value > 0 ? "+" : "";
+
+  return `${prefix}${numberFormatter.format(value)} 크레딧`;
 }
 
 function getStatusLabel(summary: CreditSummary | null) {
@@ -53,6 +66,14 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
   const balanceLabel = summary ? formatCredits(summary.balance) : "로그인 후 확인";
   const openedPassCount = summary?.buildPasses.length ?? 0;
   const latestPass = summary?.buildPasses[0] ?? null;
+  const ledgerEntries = summary?.ledgerEntries ?? [];
+  const currentPeriodLedgerEntries = ledgerEntries.filter((entry) => entry.periodKey === summary?.periodKey);
+  const currentPeriodGranted = currentPeriodLedgerEntries
+    .filter((entry) => entry.amount > 0)
+    .reduce((sum, entry) => sum + entry.amount, 0);
+  const currentPeriodSpent = Math.abs(
+    currentPeriodLedgerEntries.filter((entry) => entry.amount < 0).reduce((sum, entry) => sum + entry.amount, 0),
+  );
   const remainingBuildPassCount = summary ? getBuildPassCapacity(summary.balance, summary.buildPassCost) : null;
   const balanceAfterNextPass = summary ? getBalanceAfterBuildPass(summary.balance, summary.buildPassCost) : null;
   const remainingPassLabel = remainingBuildPassCount === null ? "확인 필요" : `${numberFormatter.format(remainingBuildPassCount)}개`;
@@ -93,12 +114,59 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         <div className="border border-slate-200 bg-white p-3">
+          <div className="text-xs font-semibold text-slate-500">이번 달 지급</div>
+          <div className="mt-2 text-sm font-semibold text-slate-950">{formatCredits(summary ? currentPeriodGranted : null)}</div>
+          <p className="mt-1 text-xs leading-5 text-slate-500">Free 월 지급과 조정 내역 기준입니다.</p>
+        </div>
+        <div className="border border-slate-200 bg-white p-3">
+          <div className="text-xs font-semibold text-slate-500">이번 달 사용</div>
+          <div className="mt-2 text-sm font-semibold text-slate-950">{formatCredits(summary ? currentPeriodSpent : null)}</div>
+          <p className="mt-1 text-xs leading-5 text-slate-500">제작 패스 사용분이 여기에 쌓입니다.</p>
+        </div>
+        <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">이번 달 가능</div>
           <div data-smoke="profile-credit-build-pass-capacity" className="mt-2 text-sm font-semibold text-slate-950">
             제작 패스 {remainingPassLabel}
           </div>
           <p className="mt-1 text-xs leading-5 text-slate-500">{nextPassDetail}</p>
         </div>
+      </div>
+
+      <div data-smoke="profile-credit-ledger" className="mt-4 border border-slate-200 bg-white p-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="text-xs font-semibold text-slate-500">최근 크레딧 내역</div>
+            <h4 className="mt-2 text-base font-semibold text-slate-950">지급과 사용을 바로 확인합니다</h4>
+          </div>
+          <span className="avl-pill avl-pill-neutral shrink-0">{summary?.periodKey ?? "로그인 후 표시"}</span>
+        </div>
+        <div className="mt-3 grid gap-2">
+          {ledgerEntries.length > 0 ? (
+            ledgerEntries.slice(0, 6).map((entry) => (
+              <div key={entry.id} className="grid gap-2 border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[1fr_auto]">
+                <div>
+                  <div className="text-sm font-semibold text-slate-950">
+                    {ledgerTypeLabels[entry.entryType] ?? "크레딧 변경"}
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    {entry.createdAt.slice(0, 10)}
+                    {entry.ideaId ? ` · 아이디어 ${entry.ideaId.slice(0, 8)}` : ""}
+                  </p>
+                </div>
+                <div className={`text-sm font-semibold ${entry.amount < 0 ? "text-amber-700" : "text-emerald-700"}`}>
+                  {formatSignedCredits(entry.amount)}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="border border-dashed border-slate-300 bg-slate-50 p-3 text-sm leading-6 text-slate-600">
+              로그인 후 월 지급이나 제작 패스 사용 내역이 여기에 표시됩니다.
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">제작 패스</div>
           <div className="mt-2 text-sm font-semibold text-slate-950">
