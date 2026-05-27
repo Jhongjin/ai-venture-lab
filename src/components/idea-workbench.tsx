@@ -10347,6 +10347,13 @@ export function IdeaWorkbench({
       : "이제 상세 이벤트는 필요할 때만 열고, 다음 개선 또는 보류 판단을 남기면 됩니다.";
   const learningPrimaryCtaLabel =
     nextImplementationTask || productSignalCount === 0 ? "최종 실행으로 가기" : "리포트 복사";
+  const learningDecisionOptions = nextImplementationTask
+    ? ["작업 계속", "막힘 해결", "완료 보고 반영"]
+    : productSignalCount === 0
+      ? ["첫 버전 배포", "성과 신호 연결", "최종 실행 확인"]
+      : openSelectedIdeaRisks.length > 0
+        ? ["리스크 보완", "범위 축소", "보류"]
+        : ["다음 빌드 승인", "작게 개선", "보류"];
   const learningCompletedValue =
     totalLearningImplementationTasks > 0
       ? `${completedLearningImplementationTasks.length}/${totalLearningImplementationTasks} 작업`
@@ -18322,6 +18329,13 @@ export function IdeaWorkbench({
                 <p className="mt-2 text-sm leading-6 text-slate-700">{learningPrimaryActionText}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">결정: {finalExecutionDecisionSentence}</p>
+                <div data-smoke="step8-decision-options" className="mt-3 flex flex-wrap gap-2">
+                  {learningDecisionOptions.map((option) => (
+                    <span key={option} className="avl-pill avl-pill-info">
+                      {option}
+                    </span>
+                  ))}
+                </div>
               </div>
               <button
                 type="button"
