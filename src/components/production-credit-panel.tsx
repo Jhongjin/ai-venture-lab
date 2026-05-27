@@ -19,6 +19,7 @@ type ProductionCreditPanelProps = {
   creditBalanceLabel: string;
   creditMessage: string | null;
   creditStatus: CreditSystemStatus | null | undefined;
+  remainingBuildPassCount: number | null;
   freeArtifactLimit: number;
   fullArtifactCount: number;
   hasEnoughCreditsForBuildPass: boolean;
@@ -86,6 +87,7 @@ export function ProductionCreditPanel({
   creditBalanceLabel,
   creditMessage,
   creditStatus,
+  remainingBuildPassCount,
   freeArtifactLimit,
   fullArtifactCount,
   hasEnoughCreditsForBuildPass,
@@ -107,6 +109,11 @@ export function ProductionCreditPanel({
     isCreditSystemReady,
     needsSelectedIdeaBuildPass,
   });
+  const remainingBuildPassLabel = isCreditSummaryLoading
+    ? "확인 중"
+    : remainingBuildPassCount === null
+      ? "확인 필요"
+      : `${remainingBuildPassCount.toLocaleString("ko-KR")}개`;
 
   return (
     <section data-smoke="production-credit-panel" className="mb-5 border border-slate-200 bg-white p-4">
@@ -124,6 +131,13 @@ export function ProductionCreditPanel({
             <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
               월 {monthlyCreditGrant}크레딧이 자동 지급되고, 한 아이디어를 제작 패키지와 외부 개발 도구 연결까지 이어갈 때 제작 패스 1개를 씁니다.
             </p>
+            <div className="mt-3 border border-blue-200 bg-blue-50 p-3">
+              <div className="text-xs font-semibold text-blue-800">왜 제작 패스를 쓰나요?</div>
+              <p className="mt-2 text-sm leading-6 text-blue-950">
+                {buildPassCost}크레딧으로 PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 연결 자료까지 열어
+                바로 제작을 시작할 수 있게 합니다.
+              </p>
+            </div>
             <div className="mt-3 grid gap-2 md:grid-cols-2">
               <div className="border border-slate-200 bg-slate-50 p-3">
                 <div className="text-xs font-semibold text-slate-500">Free에서 이미 받은 것</div>
@@ -166,6 +180,12 @@ export function ProductionCreditPanel({
           <div className="text-xs font-semibold text-slate-500">현재 잔여</div>
           <div className="mt-2 text-2xl font-semibold text-slate-950">
             {isCreditSummaryLoading ? "확인 중" : creditBalanceLabel}
+          </div>
+          <div className="mt-3 border-t border-slate-200 pt-3">
+            <div className="text-xs font-semibold text-slate-500">이번 달 남은 패스</div>
+            <div data-smoke="production-credit-pass-capacity" className="mt-1 text-sm font-semibold leading-6 text-slate-950">
+              {remainingBuildPassLabel}
+            </div>
           </div>
           <div className="mt-3 border-t border-slate-200 pt-3">
             <div className="text-xs font-semibold text-slate-500">지금 할 일</div>

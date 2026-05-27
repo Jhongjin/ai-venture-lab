@@ -31,6 +31,22 @@ export type BillingErrorLike = {
   hint?: string | null;
 };
 
+export function getBuildPassCapacity(balance: number | null, buildPassCost = IDEA_BUILD_PASS_CREDITS) {
+  if (balance === null || buildPassCost <= 0) {
+    return null;
+  }
+
+  return Math.floor(balance / buildPassCost);
+}
+
+export function getBalanceAfterBuildPass(balance: number | null, buildPassCost = IDEA_BUILD_PASS_CREDITS) {
+  if (balance === null || buildPassCost <= 0 || balance < buildPassCost) {
+    return null;
+  }
+
+  return balance - buildPassCost;
+}
+
 export function getCreditPeriodKey(date = new Date()) {
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");

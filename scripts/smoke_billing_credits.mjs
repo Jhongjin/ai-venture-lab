@@ -124,6 +124,14 @@ async function verifyAuthenticatedCreditSummary() {
     await page.locator('[data-smoke="profile-credit-summary"]').waitFor({ state: "visible", timeout: timeoutMs });
     await page.getByText(/Venture Credits/).first().waitFor({ state: "visible", timeout: timeoutMs });
     await page.getByText(/잔여 크레딧/).first().waitFor({ state: "visible", timeout: timeoutMs });
+    await page.locator('[data-smoke="profile-credit-build-pass-capacity"]').waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
+    await page.getByText("제작 패스를 쓰면 열리는 가치", { exact: true }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
 
     return summary;
   } finally {

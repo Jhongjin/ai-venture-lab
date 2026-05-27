@@ -47,6 +47,7 @@ import {
   FREE_PACKAGE_ARTIFACT_LIMIT,
   FULL_PACKAGE_ARTIFACT_COUNT,
   IDEA_BUILD_PASS_CREDITS,
+  getBuildPassCapacity,
   type CreditSummary,
 } from "@/lib/billing";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
@@ -10045,6 +10046,7 @@ export function IdeaWorkbench({
   const fullArtifactCount = creditSummary?.fullArtifactCount ?? FULL_PACKAGE_ARTIFACT_COUNT;
   const monthlyCreditGrant = creditSummary?.monthlyGrant ?? FREE_MONTHLY_CREDITS;
   const creditBalance = creditSummary?.balance ?? null;
+  const remainingBuildPassCount = getBuildPassCapacity(creditBalance, buildPassCost);
   const hasEnoughCreditsForBuildPass = !isCreditSystemReady || (creditBalance ?? 0) >= buildPassCost;
   const creditBalanceLabel = creditBalance === null ? "확인 중" : `${creditBalance} 크레딧`;
   const buildDeliveryPreference = useMemo(
@@ -15832,6 +15834,7 @@ export function IdeaWorkbench({
             creditBalanceLabel={creditBalanceLabel}
             creditMessage={creditMessage}
             creditStatus={creditSummary?.status}
+            remainingBuildPassCount={remainingBuildPassCount}
             freeArtifactLimit={freeArtifactLimit}
             fullArtifactCount={fullArtifactCount}
             hasEnoughCreditsForBuildPass={hasEnoughCreditsForBuildPass}
