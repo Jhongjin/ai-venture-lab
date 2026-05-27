@@ -100,6 +100,27 @@ const packageRows = [
   ["개발 전달", "기술 스택, 작업 순서, 검증 근거", "외부 도구가 바로 읽는 자료"],
 ];
 
+const planBoundaryRows = [
+  {
+    name: "Free",
+    headline: "첫 아이디어를 이해하고 검증",
+    detail: "월 100크레딧, 기본 4/10 제작 자료, 첫 검증 계획까지 확인합니다.",
+    signal: "처음 시작",
+  },
+  {
+    name: "Pro",
+    headline: "반복 제작과 외부 개발 실행",
+    detail: "여러 제작 패키지, 외부 개발 도구 자동 반영, 출처 기반 시장 점검을 반복합니다.",
+    signal: "관심 등록",
+  },
+  {
+    name: "Team",
+    headline: "공유 작업 공간과 승인 기록",
+    detail: "팀 워크스페이스, 작업 이력, 연결 관리, 재사용 가능한 제작 템플릿을 준비합니다.",
+    signal: "준비 중",
+  },
+];
+
 export default function HomePage() {
   return (
     <main id="main-content" data-smoke="landing-command-deck" className="min-h-screen bg-[#F7F7F7] text-[#0D0D0D]">
@@ -192,6 +213,39 @@ export default function HomePage() {
             <p className="mt-2 break-keep text-sm leading-6 text-[#5E5E5E]">
               PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 전달 파일을 엽니다.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section data-smoke="landing-plan-boundary" className="border-b border-[#E5E5E5] bg-[#F7F7F7]">
+        <div className="mx-auto grid w-full max-w-[1240px] gap-6 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.38fr_0.62fr] lg:items-start">
+          <div>
+            <p className="text-xs font-semibold text-[#5E5E5E]">Free / Pro 기준</p>
+            <h2 className="mt-3 max-w-[18ch] break-keep text-3xl font-semibold leading-tight text-[#0D0D0D]">
+              결제는 더 많이 만들기 시작할 때 자연스럽게 필요해집니다.
+            </h2>
+            <p className="mt-4 max-w-[44ch] break-keep text-sm leading-6 text-[#5E5E5E]">
+              첫 아이디어 검증은 Free로 충분히 보여주고, Pro 가치는 반복 제작과 외부 개발 도구 연결에서 생기게 설계합니다.
+            </p>
+            <AuthAwareCta
+              className="avl-btn mt-7 h-11 border border-[#0D0D0D] bg-[#0D0D0D] px-5 text-sm text-white hover:bg-[#262626]"
+              signedInLabel="실행 보드 열기"
+              signedOutLabel="Free로 시작하기"
+            />
+          </div>
+          <div className="grid gap-px bg-[#DADADA] md:grid-cols-3">
+            {planBoundaryRows.map((plan) => (
+              <article key={plan.name} className="bg-white p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-xl font-semibold text-[#0D0D0D]">{plan.name}</h3>
+                  <span className="border border-[#E5E5E5] bg-[#F7F7F7] px-2 py-1 text-xs font-semibold text-[#5E5E5E]">
+                    {plan.signal}
+                  </span>
+                </div>
+                <p className="mt-5 min-h-12 break-keep text-base font-semibold leading-6 text-[#101820]">{plan.headline}</p>
+                <p className="mt-3 break-keep text-sm leading-6 text-[#5E5E5E]">{plan.detail}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>

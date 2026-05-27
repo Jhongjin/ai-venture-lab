@@ -73,6 +73,9 @@ async function main() {
     await waitForVisible(page.getByRole("link", { name: /가이드|guide/i }).first(), "guide link");
     await waitForVisible(page.locator('[data-smoke="landing-credit-model"]'), "homepage credit model");
     await waitForVisible(page.getByText("30크레딧 / 아이디어", { exact: true }), "homepage build pass cost");
+    await waitForVisible(page.locator('[data-smoke="landing-plan-boundary"]'), "homepage plan boundary");
+    await waitForVisible(page.getByText("Free로 시작하기", { exact: true }), "homepage free start CTA");
+    await waitForVisible(page.getByText("반복 제작과 외부 개발 실행", { exact: true }), "homepage pro boundary");
 
     await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });
 
