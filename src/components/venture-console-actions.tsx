@@ -3761,10 +3761,10 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                     <section className="border border-slate-200 bg-white p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI 추천 아이디어</div>
+                          <div className="text-xs font-semibold text-slate-500">AI가 먼저 고른 아이디어</div>
                           <h3 className="mt-2 text-lg font-semibold text-slate-950">{recommendedExtractedIdea.name}</h3>
                           <p className="mt-1 text-sm leading-5 text-slate-600">
-                            먼저 볼 아이디어와 만들 방식까지 함께 정리했습니다.
+                            이 한 건만 확인하고 저장하면 다음 단계가 열립니다.
                           </p>
                         </div>
                         {recommendedExtractionGate && recommendedGateStyle ? (
@@ -3951,7 +3951,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           onClick={() => loadExtractedIdea(recommendedExtractedIdea)}
                           className="avl-btn avl-btn-secondary px-4"
                         >
-                          내용 수정하기
+                          필요할 때만 수정
                         </button>
                         <button
                           type="button"
