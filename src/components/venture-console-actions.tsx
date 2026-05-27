@@ -3601,8 +3601,15 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         );
                       })}
                     </div>
-                  ) : (
+                    ) : (
                     <div className="grid gap-3">
+                      <div
+                        data-smoke="first-use-one-sentence"
+                        className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950"
+                      >
+                        <span className="font-semibold text-slate-950">처음이라면 메모를 그대로 붙이고 AI 정리만 누르세요.</span>{" "}
+                        AI가 후보, 결과물 형태, 개발 방식을 먼저 채우고 사용자는 저장할 한 건만 확인합니다.
+                      </div>
                       <div className="grid gap-px bg-slate-200 md:grid-cols-3">
                         {[
                           ["넣을 수 있는 것", "회의 메모, GPT 대화, 떠오른 아이디어, 자동화하고 싶은 업무"],
