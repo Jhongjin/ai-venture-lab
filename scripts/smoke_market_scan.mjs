@@ -16,9 +16,72 @@ function assertText(value, label) {
   }
 }
 
+function assertShortText(value, label, minLength = 2) {
+  if (typeof value !== "string" || value.trim().length < minLength) {
+    fail(`missing or too-short ${label}`);
+  }
+}
+
 function assertArray(value, label, minLength = 1) {
   if (!Array.isArray(value) || value.length < minLength) {
     fail(`missing ${label}`);
+  }
+}
+
+function assertPublicSource(source, index) {
+  if (!source || typeof source !== "object") {
+    fail(`source ${index + 1} is not an object`);
+  }
+
+  assertShortText(source.title, `source ${index + 1} title`, 4);
+  assertText(source.reason, `source ${index + 1} reason`);
+
+  if (typeof source.url !== "string" || !/^https?:\/\//i.test(source.url.trim())) {
+    fail(`source ${index + 1} is missing a public URL`);
+  }
+
+  if (source.source_type === "user_input") {
+    fail(`source ${index + 1} is a fallback user_input source`);
+  }
+
+  if (!["low", "medium", "high"].includes(source.strength)) {
+    fail(`source ${index + 1} has invalid strength`);
+  }
+}
+
+function assertCompetitor(competitor, index) {
+  if (!competitor || typeof competitor !== "object") {
+    fail(`competitor ${index + 1} is not an object`);
+  }
+
+  assertShortText(competitor.name, `competitor ${index + 1} name`);
+  assertShortText(competitor.category, `competitor ${index + 1} category`);
+  assertText(competitor.note, `competitor ${index + 1} note`);
+
+  if (!["low", "medium", "high"].includes(competitor.threat)) {
+    fail(`competitor ${index + 1} has invalid threat`);
+  }
+}
+
+function assertSignal(signal, index) {
+  if (!signal || typeof signal !== "object") {
+    fail(`market signal ${index + 1} is not an object`);
+  }
+
+  assertShortText(signal.label, `market signal ${index + 1} label`);
+  assertText(signal.finding, `market signal ${index + 1} finding`);
+}
+
+function assertBarrier(barrier, index) {
+  if (!barrier || typeof barrier !== "object") {
+    fail(`entry barrier ${index + 1} is not an object`);
+  }
+
+  assertShortText(barrier.label, `entry barrier ${index + 1} label`);
+  assertText(barrier.note, `entry barrier ${index + 1} note`);
+
+  if (!["low", "medium", "high"].includes(barrier.severity)) {
+    fail(`entry barrier ${index + 1} has invalid severity`);
   }
 }
 
@@ -81,14 +144,26 @@ try {
   assertText(scan.competition, "competition");
   assertText(scan.saturation, "saturation");
   assertText(scan.entry_barriers, "entry_barriers");
+  assertText(scan.alternatives, "alternatives");
   assertText(scan.next_action, "next_action");
-  assertArray(scan.market_signals, "market_signals");
-  assertArray(scan.competitor_map, "competitor_map");
-  assertArray(scan.entry_barrier_checks, "entry_barrier_checks");
-  assertArray(scan.research_queries, "research_queries");
+  assertArray(scan.market_signals, "market_signals", 3);
+  assertArray(scan.competitor_map, "competitor_map", 3);
+  assertArray(scan.entry_barrier_checks, "entry_barrier_checks", 2);
+  assertArray(scan.research_queries, "research_queries", 3);
+
+  scan.market_signals.forEach(assertSignal);
+  scan.competitor_map.forEach(assertCompetitor);
+  scan.entry_barrier_checks.forEach(assertBarrier);
+  scan.research_queries.forEach((query, index) => assertText(query, `research query ${index + 1}`));
 
   if (payload.mode === "openai_web") {
-    assertArray(scan.sources, "sources");
+    assertShortText(payload.model, "model", 4);
+    assertArray(scan.sources, "sources", 3);
+    scan.sources.forEach(assertPublicSource);
+
+    if (!scan.sources.some((source) => source.strength === "medium" || source.strength === "high")) {
+      fail("sources do not include a medium or high strength reference");
+    }
   }
 
   console.log(
