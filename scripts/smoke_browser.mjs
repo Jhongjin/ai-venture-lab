@@ -149,6 +149,7 @@ async function main() {
     await waitForVisible(page.getByText("붙여넣기는 실패 시 백업", { exact: false }), "guide backup wording");
     await waitForVisible(page.getByText("언제 크레딧을 쓰나요", { exact: true }), "guide credit FAQ");
     await waitForVisible(page.getByText("30크레딧 제작 패스", { exact: false }), "guide build pass FAQ");
+    await waitForVisible(page.getByText("Pro 관심 등록은 어디서 하나요", { exact: true }), "guide upgrade interest FAQ");
 
     if (resolvedScreenshotPath) {
       await page.screenshot({ path: resolvedScreenshotPath, fullPage: true });
