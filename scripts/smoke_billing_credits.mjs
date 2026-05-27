@@ -148,6 +148,10 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-upgrade-interest-summary"]').waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
 
     return summary;
   } finally {
