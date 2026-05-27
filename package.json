@@ -14,6 +14,7 @@
     "release:check": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/check_release_readiness.ps1",
     "smoke:prod": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_production.ps1",
     "smoke:routes": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_routes.ps1",
+    "smoke:billing": "node ./scripts/smoke_billing_credits.mjs",
     "smoke:market": "node ./scripts/smoke_market_scan.mjs",
     "smoke:telemetry": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_telemetry_ingest.ps1",
     "smoke:telemetry:funnel": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_telemetry_ingest.ps1 -Funnel",

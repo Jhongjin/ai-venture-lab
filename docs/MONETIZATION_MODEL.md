@@ -29,6 +29,17 @@ AI Venture Lab should monetize execution depth, not confusion. The free path mus
 | STEP 7 external tools | Preview of supported tools | Cursor, Codex, Claude Code, and Antigravity setup files with write-back | Connector admin, revoke history, and workspace policy |
 | STEP 8 outcome review | Basic task/outcome view | Outcome signal connection guide and saved learning reports | Team learning reports and cross-idea comparison |
 
+## Credit Pilot
+
+Current implementation direction:
+
+- Free users receive 100 Venture Credits per month.
+- Opening one full production package for one idea costs 30 credits.
+- The free path exposes the first 4 production inputs: idea brief, research brief, 7-day validation sprint, and validation summary.
+- The full package target is 10 production materials, including PRD, IA/product structure, design direction, technical direction, first build scope, work order, external tool handoff, verification notes, launch checklist, and learning loop.
+- STEP 5 shows the credit balance and unlock state. Before unlock, the full package save path is disabled when the credit schema is active.
+- STEP 7 build-sync token enforcement is guarded by `ENFORCE_CREDIT_BUILD_PASS=1` so production smoke does not accidentally spend monthly credits before the operator turns on the server-side entitlement gate.
+
 ## Upgrade Moments
 
 - The user tries to save more active ideas than the free limit.
@@ -58,7 +69,7 @@ Avoid developer-first language:
 ## Not Yet Decided
 
 - Exact price points.
-- Final free usage limits.
-- Whether external tool setup files are Pro-only or available as a one-time trial.
+- Whether the 100 monthly credits and 30-credit build pass become final Free limits.
+- Whether external tool setup files are Pro-only, credit-gated, or available as a one-time trial.
 - Whether source-backed market scans use a monthly quota, credit bundle, or fair-use limit.
 - Whether Team includes white-label package templates.

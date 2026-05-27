@@ -15,6 +15,7 @@ export type ProductSurfaceKey = "web_app" | "mobile_app" | "web_site" | "automat
 export type RiskSeverity = "low" | "medium" | "high" | "critical";
 export type OrganizationRole = "owner" | "admin" | "member" | "viewer";
 export type BuildSyncTokenStatus = "active" | "revoked" | "expired";
+export type CreditLedgerEntryType = "monthly_grant" | "build_pass_spend" | "refund" | "adjustment";
 export type OrchestrationPhase =
   | "strategy"
   | "research"
@@ -305,6 +306,76 @@ export type Database = {
           },
         ];
       };
+      credit_ledger: {
+        Row: {
+          id: string;
+          user_id: string;
+          organization_id: string | null;
+          idea_id: string | null;
+          entry_type: CreditLedgerEntryType;
+          amount: number;
+          period_key: string;
+          idempotency_key: string;
+          note: string;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["credit_ledger"]["Row"]> & {
+          user_id: string;
+          entry_type: CreditLedgerEntryType;
+          amount: number;
+          idempotency_key: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["credit_ledger"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "credit_ledger_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: false;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "credit_ledger_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      idea_build_passes: {
+        Row: {
+          id: string;
+          idea_id: string;
+          organization_id: string | null;
+          purchased_by: string;
+          credit_ledger_id: string | null;
+          cost_credits: number;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["idea_build_passes"]["Row"]> & {
+          idea_id: string;
+          purchased_by: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["idea_build_passes"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "idea_build_passes_idea_id_fkey";
+            columns: ["idea_id"];
+            isOneToOne: true;
+            referencedRelation: "ideas";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "idea_build_passes_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       telemetry_events: {
         Row: {
           id: string;
@@ -440,6 +511,14 @@ export type Database = {
       is_organization_member: {
         Args: { target_organization_id: string };
         Returns: boolean;
+      };
+      grant_monthly_free_credits: {
+        Args: { target_period: string; grant_amount?: number };
+        Returns: Json;
+      };
+      spend_credits_for_idea_build_pass: {
+        Args: { target_idea_id: string; spend_amount?: number };
+        Returns: Json;
       };
     };
     Enums: {

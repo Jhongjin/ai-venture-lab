@@ -10,10 +10,12 @@ import {
   Clipboard,
   ClipboardList,
   Code2,
+  Coins,
   Download,
   Flag,
   FolderOpen,
   Layers3,
+  LockKeyhole,
   RefreshCw,
   Save,
   ShieldAlert,
@@ -42,6 +44,13 @@ import {
   type ExternalBuildToolKey,
   type ExternalBuildToolProfile,
 } from "@/lib/build-delivery";
+import {
+  FREE_MONTHLY_CREDITS,
+  FREE_PACKAGE_ARTIFACT_LIMIT,
+  FULL_PACKAGE_ARTIFACT_COUNT,
+  IDEA_BUILD_PASS_CREDITS,
+  type CreditSummary,
+} from "@/lib/billing";
 import type {
   Decision,
   Experiment,
@@ -2094,6 +2103,35 @@ ${draft.next_action || state.next_evidence || "다음 검증, 제품 기획서 �
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isCreditSummary(value: unknown): value is CreditSummary {
+  return (
+    isPlainRecord(value) &&
+    (value.status === "ready" || value.status === "missing" || value.status === "unavailable") &&
+    value.plan === "free" &&
+    typeof value.periodKey === "string" &&
+    typeof value.monthlyGrant === "number" &&
+    typeof value.buildPassCost === "number" &&
+    typeof value.freeArtifactLimit === "number" &&
+    typeof value.fullArtifactCount === "number" &&
+    (typeof value.balance === "number" || value.balance === null) &&
+    Array.isArray(value.buildPasses)
+  );
+}
+
+function getApiMessage(value: unknown, fallback: string) {
+  if (!isPlainRecord(value)) {
+    return fallback;
+  }
+
+  const error = value.error;
+  if (typeof error === "string" && error.trim()) {
+    return error;
+  }
+
+  const message = value.message;
+  return typeof message === "string" && message.trim() ? message : fallback;
 }
 
 function cleanInlineText(value: unknown, maxLength = 900) {
@@ -9702,6 +9740,10 @@ export function IdeaWorkbench({
   const [memberships, setMemberships] = useState<OrganizationMember[]>(initialViewerMemberships);
   const [message, setMessage] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
+  const [creditSummary, setCreditSummary] = useState<CreditSummary | null>(null);
+  const [isCreditSummaryLoading, setIsCreditSummaryLoading] = useState(false);
+  const [isBuildPassUnlocking, setIsBuildPassUnlocking] = useState(false);
+  const [creditMessage, setCreditMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
   const [filterMode, setFilterMode] = useState<"all" | "mine" | "read_only">("all");
   const [artifactTypeFilter, setArtifactTypeFilter] = useState<VentureArtifactType | "all">("all");
@@ -9736,6 +9778,50 @@ export function IdeaWorkbench({
     setLocalActiveTask(task);
     onActiveTaskChange?.(task);
   }, [onActiveTaskChange]);
+
+  const refreshCreditSummary = useCallback(async () => {
+    if (!user) {
+      setCreditSummary(null);
+      setCreditMessage(null);
+      setIsCreditSummaryLoading(false);
+      return null;
+    }
+
+    setIsCreditSummaryLoading(true);
+
+    try {
+      const response = await fetch("/api/billing/credits", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      const payload: unknown = await response.json().catch(() => null);
+
+      if (!response.ok || !isCreditSummary(payload)) {
+        const fallback = response.ok
+          ? "크레딧 상태를 읽지 못했습니다."
+          : "크레딧 상태를 불러오지 못했습니다.";
+        setCreditMessage(getApiMessage(payload, fallback));
+        return null;
+      }
+
+      setCreditSummary(payload);
+      setCreditMessage(payload.message);
+      return payload;
+    } catch {
+      setCreditMessage("크레딧 상태를 불러오지 못했습니다. 잠시 후 다시 시도하세요.");
+      return null;
+    } finally {
+      setIsCreditSummaryLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void refreshCreditSummary();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [refreshCreditSummary]);
 
   async function recordTelemetryEvent({
     eventName,
@@ -9945,6 +10031,23 @@ export function IdeaWorkbench({
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     [artifacts, selectedIdea?.id],
   );
+  const buildPassIdeaIds = useMemo(
+    () => new Set((creditSummary?.buildPasses ?? []).map((pass) => pass.ideaId)),
+    [creditSummary?.buildPasses],
+  );
+  const isCreditSystemReady = creditSummary?.status === "ready";
+  const isCreditSystemMissing = creditSummary?.status === "missing";
+  const hasSelectedIdeaBuildPass = Boolean(selectedIdea && buildPassIdeaIds.has(selectedIdea.id));
+  const isCreditSystemChecking = Boolean(user) && isCreditSummaryLoading && !creditSummary;
+  const needsSelectedIdeaBuildPass = Boolean(selectedIdea && isCreditSystemReady && !hasSelectedIdeaBuildPass);
+  const canUseFullProductionPackage = (!isCreditSystemReady && !isCreditSystemChecking) || hasSelectedIdeaBuildPass;
+  const buildPassCost = creditSummary?.buildPassCost ?? IDEA_BUILD_PASS_CREDITS;
+  const freeArtifactLimit = creditSummary?.freeArtifactLimit ?? FREE_PACKAGE_ARTIFACT_LIMIT;
+  const fullArtifactCount = creditSummary?.fullArtifactCount ?? FULL_PACKAGE_ARTIFACT_COUNT;
+  const monthlyCreditGrant = creditSummary?.monthlyGrant ?? FREE_MONTHLY_CREDITS;
+  const creditBalance = creditSummary?.balance ?? null;
+  const hasEnoughCreditsForBuildPass = !isCreditSystemReady || (creditBalance ?? 0) >= buildPassCost;
+  const creditBalanceLabel = creditBalance === null ? "확인 중" : `${creditBalance} 크레딧`;
   const buildDeliveryPreference = useMemo(
     () => getBuildDeliveryPreferenceFromArtifacts(selectedArtifactRecords),
     [selectedArtifactRecords],
@@ -13240,6 +13343,15 @@ export function IdeaWorkbench({
       return;
     }
 
+    if (!canUseFullProductionPackage) {
+      setMessage(
+        isCreditSystemChecking
+          ? "크레딧 상태를 확인한 뒤 AI 제작 패키지를 만들 수 있습니다."
+          : `${buildPassCost}크레딧 제작 패스를 열면 AI 제작 패키지와 외부 개발 도구 연결을 이어갈 수 있습니다.`,
+      );
+      return;
+    }
+
     const runId = developmentAutoRunIdRef.current + 1;
     developmentAutoRunIdRef.current = runId;
     setMessage(null);
@@ -13265,9 +13377,85 @@ export function IdeaWorkbench({
     setDevelopmentAutoFlowState("review");
   }
 
+  async function unlockSelectedIdeaBuildPass() {
+    if (!selectedIdea) {
+      setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    if (!user) {
+      setMessage("제작 패스를 열려면 먼저 로그인하세요.");
+      return;
+    }
+
+    if (!needsSelectedIdeaBuildPass) {
+      setCreditMessage("이 아이디어는 이미 전체 제작 패키지가 열려 있습니다.");
+      return;
+    }
+
+    setIsBuildPassUnlocking(true);
+    setCreditMessage(null);
+
+    try {
+      const response = await fetch("/api/billing/build-pass", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ ideaId: selectedIdea.id }),
+      });
+      const payload: unknown = await response.json().catch(() => null);
+
+      if (isCreditSummary(payload)) {
+        setCreditSummary(payload);
+      }
+
+      if (!response.ok || !isCreditSummary(payload)) {
+        setCreditMessage(getApiMessage(payload, "제작 패스를 열지 못했습니다."));
+        return;
+      }
+
+      const buildPassPayload = payload as CreditSummary & {
+        alreadyUnlocked?: unknown;
+        chargedCredits?: unknown;
+      };
+      const chargedCredits = typeof buildPassPayload.chargedCredits === "number"
+        ? buildPassPayload.chargedCredits
+        : buildPassCost;
+      const alreadyUnlocked = buildPassPayload.alreadyUnlocked === true;
+
+      setCreditMessage(
+        alreadyUnlocked
+          ? "이 아이디어의 전체 제작 패키지는 이미 열려 있습니다."
+          : `${chargedCredits}크레딧을 사용해 전체 제작 패키지를 열었습니다.`,
+      );
+      setMessage("전체 제작 패키지가 열렸습니다. 이제 AI 제작 패키지를 만들고 저장할 수 있습니다.");
+      await recordTelemetryEvent({
+        eventName: "production_package_build_pass_unlocked",
+        eventCategory: "development",
+        properties: {
+          idea_id: selectedIdea.id,
+          charged_credits: chargedCredits,
+        },
+      });
+    } catch {
+      setCreditMessage("제작 패스를 열지 못했습니다. 잠시 후 다시 시도하세요.");
+    } finally {
+      setIsBuildPassUnlocking(false);
+    }
+  }
+
   async function saveDevelopmentAutoPackage() {
     if (!selectedIdea) {
       setMessage("먼저 아이디어를 선택하세요.");
+      return;
+    }
+
+    if (!canUseFullProductionPackage) {
+      setMessage(
+        isCreditSystemChecking
+          ? "크레딧 상태를 확인한 뒤 제작 패키지를 저장할 수 있습니다."
+          : `${buildPassCost}크레딧 제작 패스를 열면 제작 패키지를 저장할 수 있습니다.`,
+      );
       return;
     }
 
@@ -13344,6 +13532,15 @@ export function IdeaWorkbench({
 
     if (!user) {
       setMessage("제작 전달 묶음을 만들려면 먼저 로그인하세요.");
+      return;
+    }
+
+    if (!canUseFullProductionPackage) {
+      setMessage(
+        isCreditSystemChecking
+          ? "크레딧 상태를 확인한 뒤 제작 전달 묶음을 만들 수 있습니다."
+          : `${buildPassCost}크레딧 제작 패스를 열면 제작 전달 묶음을 만들 수 있습니다.`,
+      );
       return;
     }
 
@@ -15575,6 +15772,71 @@ export function IdeaWorkbench({
             <p className="mb-4 text-sm leading-5 text-slate-600">{developmentPanelDescriptions[visibleDevelopmentPanel]}</p>
           ) : null}
 
+          <section className="mb-5 border border-slate-200 bg-white p-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700">
+                  <Coins size={20} />
+                </div>
+                <div>
+                  <div className="avl-kicker">Free 제작 크레딧</div>
+                  <h3 className="mt-2 text-base font-semibold text-slate-950">
+                    기본 {freeArtifactLimit}단계는 Free, 전체 {fullArtifactCount}단계 제작 패키지는 {buildPassCost}크레딧으로 엽니다
+                  </h3>
+                  <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
+                    월 {monthlyCreditGrant}크레딧이 자동 지급되고, 한 아이디어를 제작 패키지와 외부 개발 도구 연결까지 이어갈 때 제작 패스 1개를 씁니다.
+                  </p>
+                  {isCreditSystemMissing ? (
+                    <p className="mt-2 text-sm font-semibold text-amber-700">
+                      크레딧 DB 준비 전이라 지금 배포에서는 기존 제작 흐름을 그대로 유지합니다.
+                    </p>
+                  ) : creditSummary?.status === "unavailable" ? (
+                    <p className="mt-2 text-sm font-semibold text-amber-700">
+                      크레딧 상태를 확인하지 못해 이번 세션에서는 제작 흐름을 막지 않습니다.
+                    </p>
+                  ) : creditMessage ? (
+                    <p className="mt-2 text-sm font-semibold text-slate-700">{creditMessage}</p>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="min-w-56 border border-slate-200 bg-slate-50 p-3">
+                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">현재 잔여</div>
+                <div className="mt-2 text-2xl font-semibold text-slate-950">
+                  {isCreditSummaryLoading && !creditSummary ? "확인 중" : creditBalanceLabel}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {hasSelectedIdeaBuildPass ? (
+                    <span className="avl-pill avl-pill-success">
+                      <CheckCircle2 size={14} />
+                      제작 패스 열림
+                    </span>
+                  ) : isCreditSystemReady ? (
+                    <span className="avl-pill avl-pill-neutral">
+                      Free {freeArtifactLimit}/{fullArtifactCount}
+                    </span>
+                  ) : (
+                    <span className="avl-pill avl-pill-warning">준비 중</span>
+                  )}
+                </div>
+                {needsSelectedIdeaBuildPass ? (
+                  <button
+                    type="button"
+                    onClick={unlockSelectedIdeaBuildPass}
+                    disabled={isBuildPassUnlocking || isCreditSummaryLoading || !hasEnoughCreditsForBuildPass}
+                    className="avl-btn avl-btn-primary mt-3 h-10 w-full justify-center px-3 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <LockKeyhole size={16} />
+                    {isBuildPassUnlocking ? "여는 중" : `${buildPassCost}크레딧으로 열기`}
+                  </button>
+                ) : null}
+                {needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass ? (
+                  <p className="mt-2 text-xs font-semibold text-amber-700">잔여 크레딧이 부족합니다.</p>
+                ) : null}
+              </div>
+            </div>
+          </section>
+
           {experienceMode === "guided" ? (
             <div className={visibleDevelopmentPanel === "setup" ? "" : "hidden"}>
               <section className="border border-slate-200 bg-white p-5">
@@ -15655,14 +15917,23 @@ export function IdeaWorkbench({
                 </div>
 
                 {effectiveDevelopmentAutoFlowState === "idle" ? (
-                  <div className="mt-5 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm leading-6 text-blue-950">
-                      시작하면 AI가 필요한 내용을 순서대로 묶고, 저장 전 확인할 최종 제작 요약을 바로 보여줍니다.
+                  <div
+                    className={`mt-5 flex flex-col gap-3 border p-4 sm:flex-row sm:items-center sm:justify-between ${
+                      canUseFullProductionPackage ? "border-blue-200 bg-blue-50" : "border-amber-200 bg-amber-50"
+                    }`}
+                  >
+                    <p className={`text-sm leading-6 ${canUseFullProductionPackage ? "text-blue-950" : "text-amber-950"}`}>
+                      {canUseFullProductionPackage
+                        ? "시작하면 AI가 필요한 내용을 순서대로 묶고, 저장 전 확인할 최종 제작 요약을 바로 보여줍니다."
+                        : isCreditSystemChecking
+                          ? "크레딧 상태를 확인한 뒤 AI 제작 패키지를 만들 수 있습니다."
+                          : `${buildPassCost}크레딧 제작 패스를 열면 AI가 전체 제작 패키지를 만들고 외부 개발 도구 연결까지 이어갑니다.`}
                     </p>
                     <button
                       type="button"
                       onClick={startDevelopmentAutoPackage}
-                      className="avl-btn avl-btn-primary h-11 px-4"
+                      disabled={!canUseFullProductionPackage}
+                      className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Layers3 size={18} />
                       AI 제작 패키지 만들기
@@ -15759,6 +16030,7 @@ export function IdeaWorkbench({
                           isBusy ||
                           !user ||
                           hasSavedDevelopmentAutoPackage ||
+                          !canUseFullProductionPackage ||
                           !designGenerationPromptDraft ||
                           !developmentPlanDraft ||
                           !agentRunPackageDraft
@@ -15782,6 +16054,12 @@ export function IdeaWorkbench({
                     {hasSavedDevelopmentAutoPackage ? (
                       <p className="mt-3 text-sm font-semibold text-emerald-700">
                         제작 패키지가 저장되었습니다. 실제 파일 받기와 외부 제작 도구 연동은 최종 실행 단계에서 열립니다.
+                      </p>
+                    ) : !canUseFullProductionPackage ? (
+                      <p className="mt-3 text-sm font-semibold text-amber-700">
+                        {isCreditSystemChecking
+                          ? "크레딧 상태를 확인한 뒤 제작 패키지를 저장할 수 있습니다."
+                          : "제작 패스를 열어야 전체 제작 패키지를 저장하고 다음 작업 순서로 넘어갈 수 있습니다."}
                       </p>
                     ) : null}
                   </div>
@@ -15820,7 +16098,7 @@ export function IdeaWorkbench({
             <button
               type="button"
               onClick={runAiExecutionAutopilot}
-              disabled={isBusy || !user}
+              disabled={isBusy || !user || !canUseFullProductionPackage}
               className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />

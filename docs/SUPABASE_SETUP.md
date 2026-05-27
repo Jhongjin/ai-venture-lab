@@ -40,6 +40,9 @@ supabase/migrations/20260506010000_add_learning_telemetry.sql
 supabase/migrations/20260512010000_repair_workspace_creation_policy.sql
 supabase/migrations/20260519010000_add_idea_product_surface.sql
 supabase/migrations/20260524010000_add_build_sync_tokens.sql
+supabase/migrations/20260525010000_allow_codex_build_sync_tokens.sql
+supabase/migrations/20260525020000_allow_named_build_sync_tools.sql
+supabase/migrations/20260527010000_add_credit_build_passes.sql
 ```
 
 The ownership migration is safe to re-run. It drops and recreates its policies so a partially applied SQL Editor run can be corrected without manual cleanup.
@@ -57,6 +60,8 @@ The learning telemetry migration stores post-launch product events for Day 7/14/
 The workspace creation repair migration refreshes organization RLS, owner auto-membership, and creator read access for the team-space step.
 The idea product surface migration stores the selected result type so downstream PRD, design, stack, and handoff packages stay aligned.
 The build sync token migration stores hashed named-tool connection tokens so individual external-tool connections can be revoked without rotating every signing secret.
+The named build sync tool migrations allow Codex, Claude Code, and Google Antigravity to use the same scoped connection-token lifecycle as Cursor.
+The credit build-pass migration adds monthly Free credits, per-idea production-package unlocks, and the RPCs used by the STEP 5 credit panel.
 
 After applying `20260524010000_add_build_sync_tokens.sql` and the latest tool-check migration such as `20260525020000_allow_named_build_sync_tools.sql`, run the production verification:
 
@@ -65,6 +70,14 @@ pnpm smoke:build-sync
 ```
 
 The smoke creates a disposable idea when browser-accessible Supabase public config is available, issues named-tool connection tokens for Cursor, Codex, Claude Code, and Google Antigravity, verifies that progress writes work before revoke, confirms a tampered cross-idea token is rejected, creates a disposable launch package, opens the STEP 7 final execution view to confirm each live connector guide is visible, opens the STEP 8 learning view to confirm the synced task is visible in the task board, revokes each connection, confirms old tokens are rejected, and deletes the disposable idea.
+
+After applying `20260527010000_add_credit_build_passes.sql`, run:
+
+```bash
+pnpm smoke:billing
+```
+
+The billing smoke confirms anonymous credit reads and build-pass unlocks are rejected. Authenticated credit spend is intentionally not part of the default production smoke because the Free monthly grant is finite. Enable build-sync token entitlement enforcement with `ENFORCE_CREDIT_BUILD_PASS=1` only after deciding how the smoke account should hold or replenish a build pass.
 
 This creates:
 
@@ -76,6 +89,8 @@ This creates:
 - `venture_artifacts`
 - `implementation_tasks`
 - `build_sync_tokens`
+- `credit_ledger`
+- `idea_build_passes`
 - `organizations`
 - `organization_members`
 - `audit_events`

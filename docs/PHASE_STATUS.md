@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-27 | Added Venture Credits build-pass pilot | Current commit | Push to `main`, then production smoke after deployment; credit migration remains a user-applied Supabase SQL action | `pnpm typecheck`; STEP 5 now shows Free 100 monthly credits, 30-credit production-package unlock, Free 4/10 package boundary, deploy-safe missing-migration fallback, and billing negative-path smoke |
 | 2026-05-27 | Added source-backed market scan summary cards | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; STEP 3 market scan results now show investigation mode, source count, and competitor/substitute count before detailed evidence lists |
 | 2026-05-27 | Drafted Free/Pro/Team monetization model | Current commit | Docs-only; push to `main` after verification | `pnpm release:check`; monetization model frames paid value around source-backed market scans, production package export, external tool sync, and team workflows while keeping first idea understanding and safety guidance useful |
 | 2026-05-27 | Renamed STEP 8 telemetry adapter copy to outcome-signal language | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; STEP 8 advanced connection controls now say `성과 신호 연결 가이드` and keep API details behind the existing collapsed panel |

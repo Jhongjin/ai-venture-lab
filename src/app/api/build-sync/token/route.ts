@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getIdeaBuildPassAccess } from "@/lib/billing-access";
 import { createBuildSyncToken, type BuildSyncTool } from "@/lib/build-sync-token";
 import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
 import { recordBuildSyncToken, type BuildSyncRegistryStatus } from "@/lib/build-sync-registry";
@@ -48,6 +49,10 @@ function getBuildSyncToolLabel(tool: BuildSyncTool) {
   }
 
   return "Cursor";
+}
+
+function shouldEnforceCreditBuildPass() {
+  return process.env.ENFORCE_CREDIT_BUILD_PASS === "1";
 }
 
 function normalizeOrigin(value: string) {
@@ -135,6 +140,18 @@ export async function POST(request: Request) {
 
   if (!access.canManage) {
     return jsonError("You do not have permission to connect this idea to an external build tool.", 403);
+  }
+
+  if (shouldEnforceCreditBuildPass()) {
+    const buildPass = await getIdeaBuildPassAccess(supabase, body.ideaId);
+
+    if (buildPass.status === "unavailable") {
+      return jsonError(buildPass.message, 503);
+    }
+
+    if (buildPass.required && !buildPass.hasPass) {
+      return jsonError("제작 패키지와 외부 개발 도구 연결을 열려면 30크레딧 제작 패스가 필요합니다.", 402);
+    }
   }
 
   try {
