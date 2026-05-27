@@ -71,6 +71,8 @@ async function main() {
     }
     await waitForVisible(page.locator("#flow"), "homepage flow content");
     await waitForVisible(page.getByRole("link", { name: /가이드|guide/i }).first(), "guide link");
+    await waitForVisible(page.locator('[data-smoke="landing-credit-model"]'), "homepage credit model");
+    await waitForVisible(page.getByText("30크레딧 / 아이디어", { exact: true }), "homepage build pass cost");
 
     await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });
 

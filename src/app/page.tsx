@@ -168,6 +168,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section data-smoke="landing-credit-model" className="border-b border-[#E5E5E5] bg-white">
+        <div className="mx-auto grid w-full max-w-[1240px] gap-px bg-[#E5E5E5] px-4 py-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr_0.9fr]">
+          <div className="bg-[#101820] p-5 text-white">
+            <p className="text-xs font-semibold text-[#9FE5C1]">Venture Credits</p>
+            <h2 className="mt-3 max-w-[18ch] text-2xl font-semibold leading-tight">
+              Free로 검증하고, 제작 패스는 실행이 필요할 때 씁니다.
+            </h2>
+            <p className="mt-3 break-keep text-sm leading-6 text-slate-300">
+              베타 기준 Free는 매월 100크레딧을 받고, 한 아이디어를 전체 제작 패키지와 외부 개발 도구 연결까지 열 때 30크레딧을 씁니다.
+            </p>
+          </div>
+          <div className="bg-[#F7F7F7] p-5">
+            <p className="text-xs font-semibold text-[#5E5E5E]">Free에서 확인</p>
+            <div className="mt-3 text-xl font-semibold text-[#0D0D0D]">4/10 제작 자료</div>
+            <p className="mt-2 break-keep text-sm leading-6 text-[#5E5E5E]">
+              아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약까지 먼저 확인합니다.
+            </p>
+          </div>
+          <div className="bg-[#F7F7F7] p-5">
+            <p className="text-xs font-semibold text-[#5E5E5E]">제작 패스 후</p>
+            <div className="mt-3 text-xl font-semibold text-[#0D0D0D]">30크레딧 / 아이디어</div>
+            <p className="mt-2 break-keep text-sm leading-6 text-[#5E5E5E]">
+              PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 전달 파일을 엽니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section id="command-deck" className="border-b border-[#E5E5E5] bg-[#F7F7F7]">
         <div className="mx-auto grid w-full max-w-[1240px] gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <div>
