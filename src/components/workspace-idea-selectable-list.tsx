@@ -13,6 +13,7 @@ type IdeaListMode = "active" | "deleted";
 
 type WorkspaceIdeaListItem = {
   idea: Idea;
+  nextAction: string;
   progressLabel: string;
   href: string;
   canManage: boolean;
@@ -276,7 +277,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
           {message ? <p className="text-xs leading-5 text-red-700 sm:basis-full">{message}</p> : null}
       </div>
 
-      {items.map(({ idea, progressLabel, href, canManage, sourceLabel }) => {
+      {items.map(({ idea, nextAction, progressLabel, href, canManage, sourceLabel }) => {
         const isSelected = selectedIds.has(idea.id);
 
         return (
@@ -303,6 +304,9 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
               </div>
               <h2 className="mt-3 text-lg font-semibold tracking-tight text-slate-950">{idea.name}</h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
+              <div className="mt-3 border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-6 text-slate-700">
+                <span className="font-semibold text-slate-950">다음 행동</span> {nextAction}
+              </div>
             </div>
             <div className="grid justify-items-start gap-3 lg:justify-items-end">
               {mode === "deleted" ? (
@@ -312,7 +316,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
                 </div>
               ) : (
                 <Link href={href} className="avl-btn avl-btn-secondary h-10 px-3 text-sm">
-                  이어서 보기
+                  다음 행동 열기
                   <ArrowRight size={16} />
                 </Link>
               )}

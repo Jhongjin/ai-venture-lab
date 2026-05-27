@@ -8,6 +8,7 @@ import type { Idea } from "@/lib/venture-data";
 type IdeaListMode = "active" | "deleted";
 type IdeaProgress = {
   label: string;
+  nextAction: string;
   task: "score" | "risk" | "experiment" | "artifacts" | "development" | "launch" | "learning";
 };
 const adminRoles = new Set(["owner", "admin"]);
@@ -15,19 +16,19 @@ const adminRoles = new Set(["owner", "admin"]);
 function getIdeaProgress(idea: Idea): IdeaProgress {
   switch (idea.stage) {
     case "prd":
-      return { label: "STEP 4 AI 제작 자료 저장", task: "artifacts" };
+      return { label: "STEP 4 AI 제작 자료 저장", nextAction: "검증 자료를 저장하고 제작 패키지로 넘기기", task: "artifacts" };
     case "prototype":
     case "qa":
-      return { label: "STEP 5 제작 준비", task: "development" };
+      return { label: "STEP 5 제작 준비", nextAction: "제작 패스와 AI 제작 패키지 확인", task: "development" };
     case "launch":
-      return { label: "STEP 7 최종 실행", task: "launch" };
+      return { label: "STEP 7 최종 실행", nextAction: "외부 개발 도구 연결 파일 받기", task: "launch" };
     case "paused":
-      return { label: "STEP 2 사업성 평가", task: "score" };
+      return { label: "STEP 2 사업성 평가", nextAction: "사업성 평가를 확인하고 저장하기", task: "score" };
     case "intake":
     case "research":
     case "score":
     default:
-      return { label: "STEP 2 사업성 평가", task: "score" };
+      return { label: "STEP 2 사업성 평가", nextAction: "사업성 평가를 확인하고 저장하기", task: "score" };
   }
 }
 
@@ -82,6 +83,7 @@ export async function WorkspaceIdeaListPage({ mode }: { mode: IdeaListMode }) {
 
     return {
       idea,
+      nextAction: mode === "deleted" ? "필요하면 되살리고, 아니면 완전히 삭제" : progress.nextAction,
       progressLabel: progress.label,
       href,
       canManage,
