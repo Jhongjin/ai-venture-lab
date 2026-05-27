@@ -138,6 +138,18 @@ export function ProductionCreditPanel({
                 {buildPassCost}크레딧으로 PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 연결 자료까지 열어
                 바로 제작을 시작할 수 있게 합니다.
               </p>
+              <div data-smoke="production-credit-value-path" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
+                {[
+                  ["1. 전체 자료 열기", `Free ${freeArtifactLimit}/${fullArtifactCount}에서 전체 ${fullArtifactCount}단계로 확장`],
+                  ["2. AI 패키지 저장", "기획서, 화면 구조, 기술 방향을 한 번에 묶어 저장"],
+                  ["3. 최종 실행 연결", "Cursor, Codex, Claude Code, Antigravity 전달 파일 받기"],
+                ].map(([title, detail]) => (
+                  <div key={title} className="bg-white p-3">
+                    <div className="text-xs font-semibold text-blue-800">{title}</div>
+                    <p className="mt-1 break-keep text-xs leading-5 text-slate-600">{detail}</p>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="mt-3 grid gap-2 md:grid-cols-2">
               <div className="border border-slate-200 bg-slate-50 p-3">

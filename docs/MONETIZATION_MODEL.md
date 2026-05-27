@@ -38,6 +38,7 @@ Current implementation direction:
 - The free path exposes the first 4 production inputs: idea brief, research brief, 7-day validation sprint, and validation summary.
 - The full package target is 10 production materials, including PRD, IA/product structure, design direction, technical direction, first build scope, work order, external tool handoff, verification notes, launch checklist, and learning loop.
 - STEP 5 shows the credit balance and unlock state. Before unlock, the full package save path is disabled when the credit schema is active.
+- STEP 5 explains the 30-credit value path as three connected outcomes: open all 10 production materials, save the AI production package, then receive final external-tool connection files.
 - The profile and STEP 5 credit panels show the remaining build-pass capacity for the current month and explain that one build pass opens PRD, IA/screen structure, design direction, technical direction, work order, and external tool handoff files.
 - The profile page shows the current-period credit grant, current-period spend, and recent credit ledger entries so users can see how monthly credits and build-pass spends changed their balance.
 - The profile page explains the upgrade trigger in user language: Free is for understanding and validating the first idea; Pro is for repeated production packages, external tool write-back, and source-backed market evidence.
