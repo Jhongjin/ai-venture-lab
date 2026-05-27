@@ -120,6 +120,11 @@ async function verifyAuthenticatedCreditSummary() {
       fail("authenticated credit summary did not include buildPasses array.");
     }
 
+    await page.goto(new URL("/profile", baseUrl).toString(), { waitUntil: "networkidle", timeout: timeoutMs });
+    await page.locator('[data-smoke="profile-credit-summary"]').waitFor({ state: "visible", timeout: timeoutMs });
+    await page.getByText(/Venture Credits/).first().waitFor({ state: "visible", timeout: timeoutMs });
+    await page.getByText(/잔여 크레딧/).first().waitFor({ state: "visible", timeout: timeoutMs });
+
     return summary;
   } finally {
     await browser.close();
@@ -152,7 +157,7 @@ async function main() {
   console.log("Anonymous build-pass unlock: rejected");
   console.log(
     authenticatedSummary
-      ? `Authenticated credit summary: ready with ${authenticatedSummary.balance} credits`
+      ? `Authenticated credit summary/profile panel: ready with ${authenticatedSummary.balance} credits`
       : "Authenticated credit summary: skipped; set BILLING_SMOKE_ALLOW_AUTH_GRANT=1 to verify without spending credits",
   );
 }

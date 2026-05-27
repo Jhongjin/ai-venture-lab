@@ -9,6 +9,13 @@ import {
   IDEA_BUILD_PASS_CREDITS,
   isCreditSchemaMissing,
 } from "@/lib/billing";
+import {
+  getBooleanFromRpcResult,
+  getNumberFromRpcResult,
+  getStringFromRpcResult,
+  isRecord,
+  mapBuildPassSummaries,
+} from "@/lib/billing-server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -16,32 +23,6 @@ export const runtime = "nodejs";
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
-
-function getNumberFromRpcResult(value: unknown, key: string) {
-  if (!isRecord(value)) {
-    return null;
-  }
-
-  const candidate = value[key];
-  return typeof candidate === "number" && Number.isFinite(candidate) ? candidate : null;
-}
-
-function getBooleanFromRpcResult(value: unknown, key: string) {
-  return isRecord(value) && value[key] === true;
-}
-
-function getStringFromRpcResult(value: unknown, key: string) {
-  if (!isRecord(value)) {
-    return null;
-  }
-
-  const candidate = value[key];
-  return typeof candidate === "string" && candidate.trim() ? candidate : null;
 }
 
 export async function POST(request: Request) {
@@ -139,11 +120,7 @@ export async function POST(request: Request) {
     chargedCredits: getNumberFromRpcResult(spendResult.data, "chargedCredits") ?? 0,
     alreadyUnlocked: getBooleanFromRpcResult(spendResult.data, "alreadyUnlocked"),
     ideaId: getStringFromRpcResult(spendResult.data, "ideaId") ?? body.ideaId,
-    buildPasses: (passResult.data ?? []).map((pass) => ({
-      ideaId: pass.idea_id,
-      costCredits: pass.cost_credits,
-      createdAt: pass.created_at,
-    })),
+    buildPasses: mapBuildPassSummaries(passResult.data),
     message: null,
   });
 }

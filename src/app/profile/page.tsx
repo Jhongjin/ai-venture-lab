@@ -3,6 +3,8 @@ import { Newsreader } from "next/font/google";
 import { UserCircle } from "@phosphor-icons/react/dist/ssr";
 
 import { ProfileForm } from "@/components/auth-forms";
+import { ProfileCreditSummary } from "@/components/profile-credit-summary";
+import { readAuthenticatedCreditSummary } from "@/lib/billing-server";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -15,7 +17,12 @@ export const metadata: Metadata = {
   description: "AI Venture Lab 프로필을 확인하고 수정합니다.",
 };
 
-export default function ProfilePage() {
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+export default async function ProfilePage() {
+  const creditResult = await readAuthenticatedCreditSummary();
+
   return (
     <main id="main-content" data-smoke="my-page" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
       <div className="mx-auto grid w-full max-w-[1320px] gap-px bg-slate-300 px-4 py-6 sm:px-6 lg:grid-cols-[0.75fr_1.25fr]">
@@ -52,6 +59,8 @@ export default function ProfilePage() {
             <p className="mt-3 text-sm leading-7 text-slate-600">
               이메일은 계정 식별용으로 표시하고, 프로필 정보와 비밀번호는 이곳에서 수정합니다.
             </p>
+
+            <ProfileCreditSummary error={creditResult.error} summary={creditResult.summary} />
 
             <div className="mt-8">
               <ProfileForm />
