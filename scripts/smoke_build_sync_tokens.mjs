@@ -117,6 +117,10 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.getByText("진행 신호", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const taskBoard = page.locator("section", {
     has: page.getByRole("heading", { name: "제작 작업 진행표" }),
   });

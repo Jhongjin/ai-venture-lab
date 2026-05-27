@@ -10133,76 +10133,132 @@ export function IdeaWorkbench({
         .sort((a, b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime()),
     [selectedIdea?.id, telemetryEvents],
   );
-  const openSelectedIdeaRisks = selectedIdeaRisks.filter((risk) => risk.status !== "closed");
-  const learningTelemetryReportDraft = selectedIdea
-    ? buildLearningTelemetryReportMarkdown({
-        idea: selectedIdea,
-        events: selectedTelemetryEvents,
-        openRisks: openSelectedIdeaRisks,
-        experiments: selectedExperiments,
-        implementationTasks: selectedImplementationTasks,
-      })
-    : "";
-  const telemetryAdapterGuideDraft = selectedIdea ? buildTelemetryAdapterGuideMarkdown(selectedIdea) : "";
-  const telemetryEnvSnippet = selectedIdea ? buildTelemetryEnvSnippet() : "";
-  const telemetryNextRouteSnippet = selectedIdea ? buildTelemetryNextRouteSnippet(selectedIdea) : "";
-  const telemetryClientHelperSnippet = selectedIdea ? buildTelemetryClientHelperSnippet() : "";
-  const telemetrySmokeCommandSnippet = selectedIdea ? buildTelemetrySmokeCommandSnippet(selectedIdea) : "";
-  const selectedProductTelemetryEvents = selectedTelemetryEvents.filter(
-    (event) => event.event_category === "product" || event.event_name.startsWith("product_"),
+  const openSelectedIdeaRisks = useMemo(
+    () => selectedIdeaRisks.filter((risk) => risk.status !== "closed"),
+    [selectedIdeaRisks],
   );
-  const productTelemetryFunnelDraft = selectedIdea
-    ? buildProductTelemetryFunnelMarkdown({
-        idea: selectedIdea,
-        events: selectedProductTelemetryEvents,
-      })
-    : "";
-  const productTelemetryFunnelRows = productTelemetryFunnelSteps.map((step, index) => {
-    const count = selectedProductTelemetryEvents.filter((event) => event.event_name === step.eventName).length;
-    const previousStep = productTelemetryFunnelSteps[index - 1];
-    const previousCount = previousStep
-      ? selectedProductTelemetryEvents.filter((event) => event.event_name === previousStep.eventName).length
-      : count;
-    const conversion = index === 0 || previousCount === 0 ? null : Math.round((count / previousCount) * 100);
+  const learningTelemetryReportDraft = useMemo(
+    () =>
+      selectedIdea
+        ? buildLearningTelemetryReportMarkdown({
+            idea: selectedIdea,
+            events: selectedTelemetryEvents,
+            openRisks: openSelectedIdeaRisks,
+            experiments: selectedExperiments,
+            implementationTasks: selectedImplementationTasks,
+          })
+        : "",
+    [openSelectedIdeaRisks, selectedExperiments, selectedIdea, selectedImplementationTasks, selectedTelemetryEvents],
+  );
+  const telemetryAdapterGuideDraft = useMemo(
+    () => (selectedIdea ? buildTelemetryAdapterGuideMarkdown(selectedIdea) : ""),
+    [selectedIdea],
+  );
+  const telemetryEnvSnippet = useMemo(() => (selectedIdea ? buildTelemetryEnvSnippet() : ""), [selectedIdea]);
+  const telemetryNextRouteSnippet = useMemo(
+    () => (selectedIdea ? buildTelemetryNextRouteSnippet(selectedIdea) : ""),
+    [selectedIdea],
+  );
+  const telemetryClientHelperSnippet = useMemo(
+    () => (selectedIdea ? buildTelemetryClientHelperSnippet() : ""),
+    [selectedIdea],
+  );
+  const telemetrySmokeCommandSnippet = useMemo(
+    () => (selectedIdea ? buildTelemetrySmokeCommandSnippet(selectedIdea) : ""),
+    [selectedIdea],
+  );
+  const selectedProductTelemetryEvents = useMemo(
+    () =>
+      selectedTelemetryEvents.filter(
+        (event) => event.event_category === "product" || event.event_name.startsWith("product_"),
+      ),
+    [selectedTelemetryEvents],
+  );
+  const productTelemetryFunnelDraft = useMemo(
+    () =>
+      selectedIdea
+        ? buildProductTelemetryFunnelMarkdown({
+            idea: selectedIdea,
+            events: selectedProductTelemetryEvents,
+          })
+        : "",
+    [selectedIdea, selectedProductTelemetryEvents],
+  );
+  const productTelemetryEventCounts = useMemo(() => {
+    const counts = new Map<string, number>();
 
-    return {
-      ...step,
-      count,
-      conversion,
-    };
-  });
-  const productTelemetryMaxCount = Math.max(1, ...productTelemetryFunnelRows.map((row) => row.count));
-  const productTelemetryTaxonomyRows = productTelemetryTaxonomy.map((item) => ({
-    ...item,
-    count: selectedProductTelemetryEvents.filter((event) => event.event_name === item.eventName).length,
-  }));
-  const learningSignalCards = [
-    {
-      label: "제품 이벤트",
-      value: `${selectedProductTelemetryEvents.length}개`,
-      detail: "실제 제품/외부 앱에서 수집된 사용자 행동 신호",
-    },
-    {
-      label: "최근 7일",
-      value: `${eventCountForWindow(selectedTelemetryEvents, 7)}개`,
-      detail: "첫 가치 도달, 저장, 상태 변경 같은 초기 행동 신호",
-    },
-    {
-      label: "최근 14일",
-      value: `${eventCountForWindow(selectedTelemetryEvents, 14)}개`,
-      detail: "반복 사용, 실험 결과, 리스크 해소 신호",
-    },
-    {
-      label: "최근 30일",
-      value: `${eventCountForWindow(selectedTelemetryEvents, 30)}개`,
-      detail: "유지, 전환, 다음 빌드 판단에 필요한 누적 신호",
-    },
-    {
-      label: "열린 리스크",
-      value: `${openSelectedIdeaRisks.length}개`,
-      detail: "성과 확인에서 계속 감시해야 하는 차단 요인",
-    },
-  ];
+    for (const event of selectedProductTelemetryEvents) {
+      counts.set(event.event_name, (counts.get(event.event_name) ?? 0) + 1);
+    }
+
+    return counts;
+  }, [selectedProductTelemetryEvents]);
+  const productTelemetryFunnelRows = useMemo(
+    () =>
+      productTelemetryFunnelSteps.map((step, index) => {
+        const count = productTelemetryEventCounts.get(step.eventName) ?? 0;
+        const previousStep = productTelemetryFunnelSteps[index - 1];
+        const previousCount = previousStep ? productTelemetryEventCounts.get(previousStep.eventName) ?? 0 : count;
+        const conversion = index === 0 || previousCount === 0 ? null : Math.round((count / previousCount) * 100);
+
+        return {
+          ...step,
+          count,
+          conversion,
+        };
+      }),
+    [productTelemetryEventCounts],
+  );
+  const productTelemetryMaxCount = useMemo(
+    () => Math.max(1, ...productTelemetryFunnelRows.map((row) => row.count)),
+    [productTelemetryFunnelRows],
+  );
+  const productTelemetryTaxonomyRows = useMemo(
+    () =>
+      productTelemetryTaxonomy.map((item) => ({
+        ...item,
+        count: productTelemetryEventCounts.get(item.eventName) ?? 0,
+      })),
+    [productTelemetryEventCounts],
+  );
+  const telemetryWindowCounts = useMemo(
+    () => ({
+      sevenDays: eventCountForWindow(selectedTelemetryEvents, 7),
+      fourteenDays: eventCountForWindow(selectedTelemetryEvents, 14),
+      thirtyDays: eventCountForWindow(selectedTelemetryEvents, 30),
+    }),
+    [selectedTelemetryEvents],
+  );
+  const learningSignalCards = useMemo(
+    () => [
+      {
+        label: "제품 이벤트",
+        value: `${selectedProductTelemetryEvents.length}개`,
+        detail: "실제 제품/외부 앱에서 수집된 사용자 행동 신호",
+      },
+      {
+        label: "최근 7일",
+        value: `${telemetryWindowCounts.sevenDays}개`,
+        detail: "첫 가치 도달, 저장, 상태 변경 같은 초기 행동 신호",
+      },
+      {
+        label: "최근 14일",
+        value: `${telemetryWindowCounts.fourteenDays}개`,
+        detail: "반복 사용, 실험 결과, 리스크 해소 신호",
+      },
+      {
+        label: "최근 30일",
+        value: `${telemetryWindowCounts.thirtyDays}개`,
+        detail: "유지, 전환, 다음 빌드 판단에 필요한 누적 신호",
+      },
+      {
+        label: "열린 리스크",
+        value: `${openSelectedIdeaRisks.length}개`,
+        detail: "성과 확인에서 계속 감시해야 하는 차단 요인",
+      },
+    ],
+    [openSelectedIdeaRisks.length, selectedProductTelemetryEvents.length, telemetryWindowCounts],
+  );
   const selectedOpenImplementationTasks = useMemo(
     () => sortImplementationTasksForAction(selectedImplementationTasks.filter((task) => task.status !== "done")),
     [selectedImplementationTasks],
@@ -10253,7 +10309,7 @@ export function IdeaWorkbench({
   const completedLearningImplementationTasks = implementationTaskProgressStats.completedTasks;
   const totalLearningImplementationTasks = implementationTaskProgressStats.totalCount;
   const productSignalCount = selectedProductTelemetryEvents.length;
-  const recentSignalCount = eventCountForWindow(selectedTelemetryEvents, 14);
+  const recentSignalCount = telemetryWindowCounts.fourteenDays;
   const learningDecisionLabel =
     totalLearningImplementationTasks > 0 && completedLearningImplementationTasks.length < totalLearningImplementationTasks
       ? "다음 작업 완료"
@@ -15173,7 +15229,7 @@ export function IdeaWorkbench({
         >
           <div className="grid gap-5 xl:grid-cols-[200px_minmax(0,1fr)]">
             <aside className="border border-slate-200 bg-slate-50 p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">idea list</div>
+              <div className="text-[11px] font-semibold text-slate-500">아이디어 목록</div>
               <h3 className="mt-2 text-base font-semibold text-slate-950">검토 아이디어</h3>
 
               <div className="mt-4 avl-segmented grid grid-cols-3 gap-2 p-1">
@@ -15203,7 +15259,7 @@ export function IdeaWorkbench({
             <section className="avl-card p-5 text-slate-900">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">idea progress</div>
+                  <div className="text-[11px] font-semibold text-slate-500">진행 상태</div>
                   <h2 className="mt-2 text-xl font-semibold text-slate-950">진행 중인 아이디어</h2>
                   <p className="mt-2 max-w-2xl text-sm leading-5 text-slate-600">
                     다시 이어갈 아이디어를 고르세요. 각 아이디어의 진행 단계가 함께 표시됩니다.
@@ -15316,7 +15372,7 @@ export function IdeaWorkbench({
                     <div className="border border-slate-200 bg-slate-50 p-5">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">other ideas</div>
+                          <div className="text-xs font-semibold text-slate-500">다른 아이디어</div>
                           <h4 className="mt-1 text-lg font-semibold text-slate-950">다른 진행 중인 아이디어</h4>
                         </div>
                       </div>
@@ -18190,7 +18246,7 @@ export function IdeaWorkbench({
               <section className="border border-slate-200 bg-white p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <div className="avl-kicker">performance review</div>
+                    <div className="avl-kicker">성과 기준</div>
                     <h3 className="mt-2 text-base font-semibold text-slate-950">출시 후 성과 확인 기준</h3>
                     <p className="mt-1 text-sm leading-6 text-slate-600">Day 7, 14, 30에 무엇을 보고 판단할지 정리합니다.</p>
                   </div>
@@ -18296,7 +18352,7 @@ export function IdeaWorkbench({
           <section className="mt-4 border border-slate-200 bg-white p-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="avl-kicker">execution signal</div>
+                <div className="avl-kicker">진행 신호</div>
                 <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 진행표</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
                   외부 제작 도구나 내부 작업에서 반영된 완료 보고입니다. 필요한 경우 다음 작업의 근거만 확인하세요.
