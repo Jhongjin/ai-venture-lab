@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-27 | Renamed STEP 8 telemetry adapter copy to outcome-signal language | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; STEP 8 advanced connection controls now say `성과 신호 연결 가이드` and keep API details behind the existing collapsed panel |
 | 2026-05-27 | Separated STEP 1 result type and development method in direct intake | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; direct-intake copy now says AI is sorting idea, result type, and development method, and the manual preview shows `결과물 형태` and `개발 방식` as separate cards before saving |
 | 2026-05-27 | Restored and tightened source-backed market smoke | Current commit | Script/docs only; push to `main` after verification | `pnpm smoke:market` passed after OpenAI quota/billing key rotation with `mode=openai_web`, `model=gpt-5-mini`, 5 sources, and 5 competitors; smoke now requires public source URLs, non-fallback source types, source reasons, stronger competitor fields, market signals, barriers, and research queries |
 | 2026-05-26 | Clarified STEP 5 production package purpose | Current commit | Push to `main`, then production smoke after deployment | `pnpm lint`, `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`; STEP 5 now names execution package, scope lock, and next-step connection before detailed generated documents |

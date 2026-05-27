@@ -509,7 +509,7 @@ const artifactSourceLabels: Record<string, string> = {
   mvp_build_command: "제작 시작 명령",
   qa_acceptance_matrix: "품질 점검표",
   post_launch_learning: "출시 후 성과 확인",
-  telemetry_adapter: "제품 이벤트 어댑터",
+  telemetry_adapter: "성과 신호 연결 자료",
   product_telemetry_funnel: "제품 사용 퍼널",
 };
 const evidenceConfidenceOptions = ["low", "medium", "high"] as const;
@@ -18142,19 +18142,19 @@ export function IdeaWorkbench({
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => copyDraft(telemetryAdapterGuideDraft, "제품 이벤트 어댑터 가이드")}
+                  onClick={() => copyDraft(telemetryAdapterGuideDraft, "성과 신호 연결 가이드")}
                   disabled={!telemetryAdapterGuideDraft}
                   className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
-                  전달 가이드 복사
+                  연결 가이드 복사
                 </button>
                 <button
                   type="button"
                   onClick={() =>
                     saveArtifactDraft(
                       "tech_spec",
-                      `${selectedIdea.name} 제품 이벤트 어댑터 가이드`,
+                      `${selectedIdea.name} 성과 신호 연결 가이드`,
                       telemetryAdapterGuideDraft,
                       "telemetry_adapter",
                     )
@@ -18163,7 +18163,7 @@ export function IdeaWorkbench({
                   className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
-                  전달 가이드 저장
+                  연결 가이드 저장
                 </button>
               </div>
             </div>
