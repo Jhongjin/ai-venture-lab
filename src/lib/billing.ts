@@ -60,6 +60,14 @@ export function getBalanceAfterBuildPass(balance: number | null, buildPassCost =
   return balance - buildPassCost;
 }
 
+export function getBuildPassShortfall(balance: number | null, buildPassCost = IDEA_BUILD_PASS_CREDITS) {
+  if (balance === null || buildPassCost <= 0 || balance >= buildPassCost) {
+    return null;
+  }
+
+  return buildPassCost - balance;
+}
+
 export function getCreditPeriodKey(date = new Date()) {
   const year = date.getUTCFullYear();
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");

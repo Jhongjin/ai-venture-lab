@@ -3,7 +3,7 @@
 import { CheckCircle2, Coins, LockKeyhole } from "lucide-react";
 
 import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
-import type { CreditSystemStatus } from "@/lib/billing";
+import { getBuildPassShortfall, type CreditSystemStatus } from "@/lib/billing";
 
 const freeProductionPackageItems = ["아이디어 요약", "조사 요약", "7일 검증 계획", "검증 완료 요약"];
 const unlockedProductionPackageItems = [
@@ -17,6 +17,7 @@ const unlockedProductionPackageItems = [
 
 type ProductionCreditPanelProps = {
   buildPassCost: number;
+  creditBalance: number | null;
   creditBalanceLabel: string;
   creditMessage: string | null;
   creditStatus: CreditSystemStatus | null | undefined;
@@ -85,6 +86,7 @@ function getNextCreditAction({
 
 export function ProductionCreditPanel({
   buildPassCost,
+  creditBalance,
   creditBalanceLabel,
   creditMessage,
   creditStatus,
@@ -115,6 +117,7 @@ export function ProductionCreditPanel({
     : remainingBuildPassCount === null
       ? "확인 필요"
       : `${remainingBuildPassCount.toLocaleString("ko-KR")}개`;
+  const buildPassShortfall = getBuildPassShortfall(creditBalance, buildPassCost);
 
   return (
     <section data-smoke="production-credit-panel" className="mb-5 border border-slate-200 bg-white p-4">
@@ -234,11 +237,20 @@ export function ProductionCreditPanel({
           {needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass ? (
             <div data-smoke="step5-upgrade-interest" className="mt-3 border border-amber-200 bg-amber-50 p-3">
               <p className="text-xs font-semibold text-amber-800">잔여 크레딧이 부족합니다.</p>
+              {buildPassShortfall !== null ? (
+                <p data-smoke="step5-credit-shortfall" className="mt-1 text-sm font-semibold leading-6 text-amber-950">
+                  다음 제작 패스까지 {buildPassShortfall.toLocaleString("ko-KR")}크레딧 부족합니다.
+                </p>
+              ) : null}
               <p className="mt-1 text-xs leading-5 text-amber-950">
-                다음 제작 패키지가 필요하면 Pro 관심만 남겨 주세요. 결제는 아직 시작하지 않습니다.
+                Pro가 필요한 이유는 전체 제작 패키지와 외부 개발 도구 연결을 반복해서 여는 것입니다. 결제는 아직 시작하지 않습니다.
               </p>
               <UpgradeInterestButton
-                idleMessage="부족한 크레딧 수요 신호로 기록됩니다."
+                idleMessage={
+                  buildPassShortfall !== null
+                    ? `${buildPassShortfall.toLocaleString("ko-KR")}크레딧 부족한 상태를 수요 신호로 기록합니다.`
+                    : "부족한 크레딧 수요 신호로 기록됩니다."
+                }
                 intent="insufficient_credits_for_build_pass"
                 source="step5_credit_panel"
                 wrapperClassName="mt-3 flex flex-col gap-2"

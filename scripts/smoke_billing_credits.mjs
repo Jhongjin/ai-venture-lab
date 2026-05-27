@@ -132,6 +132,12 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    if (typeof summary.balance === "number" && summary.balance < summary.buildPassCost) {
+      await page.locator('[data-smoke="profile-credit-shortfall"]').waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+    }
     await page.locator('[data-smoke="profile-credit-ledger"]').waitFor({
       state: "visible",
       timeout: timeoutMs,

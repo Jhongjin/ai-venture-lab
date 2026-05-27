@@ -15839,6 +15839,7 @@ export function IdeaWorkbench({
 
           <ProductionCreditPanel
             buildPassCost={buildPassCost}
+            creditBalance={creditBalance}
             creditBalanceLabel={creditBalanceLabel}
             creditMessage={creditMessage}
             creditStatus={creditSummary?.status}

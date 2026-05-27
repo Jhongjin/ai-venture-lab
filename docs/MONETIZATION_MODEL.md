@@ -46,6 +46,7 @@ Current implementation direction:
 - The profile page summarizes visible Pro interest signals by count, source, intent, and latest event. This uses the existing telemetry RLS boundary and is not a global admin revenue dashboard yet.
 - The profile page now shows a Free/Pro conversion boundary before the interest button: what Free covers, where Pro value starts, and that actual checkout is not opened until payment setup is ready.
 - STEP 5 also exposes the same Pro interest path when a user lacks enough credits for the next build pass, with `source=step5_credit_panel` and `intent=insufficient_credits_for_build_pass`.
+- Profile and STEP 5 show the exact shortfall when the user has some credits but cannot afford the next 30-credit production build pass, so the upgrade moment is tied to a visible next action rather than a generic paywall.
 - The public homepage shows the beta Venture Credits boundary before signup: Free 100 credits, 30-credit build pass, and 4/10 free production materials.
 - The public homepage now also frames the Free, Pro, and Team boundary around the natural upgrade moment: Free for first validation, Pro for repeated production and external tool execution, Team for shared workflows.
 - STEP 7 build-sync token enforcement is enabled in Vercel Production with `ENFORCE_CREDIT_BUILD_PASS=1`; production smoke verifies this only through disposable build-pass spend with `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`.

@@ -1,4 +1,4 @@
-import { getBalanceAfterBuildPass, getBuildPassCapacity, type CreditSummary } from "@/lib/billing";
+import { getBalanceAfterBuildPass, getBuildPassCapacity, getBuildPassShortfall, type CreditSummary } from "@/lib/billing";
 import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
 
 type ProfileCreditSummaryProps = {
@@ -76,15 +76,18 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
   );
   const remainingBuildPassCount = summary ? getBuildPassCapacity(summary.balance, summary.buildPassCost) : null;
   const balanceAfterNextPass = summary ? getBalanceAfterBuildPass(summary.balance, summary.buildPassCost) : null;
+  const nextBuildPassShortfall = summary ? getBuildPassShortfall(summary.balance, summary.buildPassCost) : null;
   const remainingPassLabel = remainingBuildPassCount === null ? "확인 필요" : `${numberFormatter.format(remainingBuildPassCount)}개`;
   const remainingPassHeadline =
     remainingBuildPassCount === null
       ? "로그인 후 이번 달 열 수 있는 제작 패스 수가 표시됩니다."
       : `지금 잔여 크레딧으로 제작 패스 ${remainingPassLabel}를 열 수 있습니다.`;
-  const nextPassDetail =
-    balanceAfterNextPass === null
-      ? "잔여 크레딧을 확인한 뒤 STEP 5에서 제작 패스를 열 수 있습니다."
-      : `다음 패스를 열면 ${numberFormatter.format(balanceAfterNextPass)}크레딧이 남습니다.`;
+  let nextPassDetail = "잔여 크레딧을 확인한 뒤 STEP 5에서 제작 패스를 열 수 있습니다.";
+  if (nextBuildPassShortfall !== null) {
+    nextPassDetail = `다음 제작 패스까지 ${formatCredits(nextBuildPassShortfall)} 부족합니다.`;
+  } else if (balanceAfterNextPass !== null) {
+    nextPassDetail = `다음 패스를 열면 ${numberFormatter.format(balanceAfterNextPass)}크레딧이 남습니다.`;
+  }
   const visibleMessage =
     summary?.message ??
     (error && !summary ? "로그인 후 이번 달 제작 크레딧과 열린 제작 패스를 확인할 수 있습니다." : null);
@@ -129,6 +132,11 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
             제작 패스 {remainingPassLabel}
           </div>
           <p className="mt-1 text-xs leading-5 text-slate-500">{nextPassDetail}</p>
+          {nextBuildPassShortfall !== null ? (
+            <p data-smoke="profile-credit-shortfall" className="mt-2 text-xs font-semibold leading-5 text-amber-700">
+              {formatCredits(nextBuildPassShortfall)}만 더 있으면 다음 제작 패스를 열 수 있습니다.
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -219,7 +227,12 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
           {([
             ["현재 Free", "첫 아이디어 검증, 월 100크레딧, 제작 패키지 미리보기"],
             ["Pro 가치", "반복 제작 패키지, 외부 개발 도구 자동 반영, 출처 기반 시장 점검"],
-            ["지금 행동", "결제 전에는 Pro 관심만 남기고 실제 checkout은 열지 않습니다"],
+            [
+              "지금 행동",
+              nextBuildPassShortfall !== null
+                ? `${formatCredits(nextBuildPassShortfall)} 부족합니다. Pro 관심을 남기면 반복 제작 수요로 기록됩니다`
+                : "결제 전에는 Pro 관심만 남기고 실제 checkout은 열지 않습니다",
+            ],
           ] as const).map(([label, detail]) => (
             <div key={label} className="bg-slate-50 p-3">
               <div className="text-xs font-semibold text-slate-500">{label}</div>
@@ -227,7 +240,14 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
             </div>
           ))}
         </div>
-        <UpgradeInterestButton />
+        <UpgradeInterestButton
+          idleMessage={
+            nextBuildPassShortfall !== null
+              ? `${formatCredits(nextBuildPassShortfall)} 부족한 상태를 Pro 관심 신호로 남깁니다.`
+              : "지금은 결제 없이 관심만 남깁니다."
+          }
+          intent={nextBuildPassShortfall !== null ? "insufficient_credits_for_build_pass" : "repeated_production_packages"}
+        />
       </div>
 
       {latestPass ? (
