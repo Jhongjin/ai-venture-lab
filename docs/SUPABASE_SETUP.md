@@ -77,7 +77,7 @@ After applying `20260527010000_add_credit_build_passes.sql`, run:
 pnpm smoke:billing
 ```
 
-The billing smoke confirms anonymous credit reads and build-pass unlocks are rejected. Authenticated credit spend is intentionally not part of the default production smoke because the Free monthly grant is finite. Enable build-sync token entitlement enforcement with `ENFORCE_CREDIT_BUILD_PASS=1` only after deciding how the smoke account should hold or replenish a build pass.
+The default billing smoke confirms anonymous credit reads and build-pass unlocks are rejected. To verify the authenticated credit summary without spending a build pass, run it with `BILLING_SMOKE_ALLOW_AUTH_GRANT=1` and a disposable beta login configured through `BILLING_SMOKE_EMAIL/PASSWORD` or `BROWSER_SMOKE_EMAIL/PASSWORD`. This may create the idempotent monthly Free grant for that smoke user, but it does not call the 30-credit build-pass spend route. Authenticated credit spend is intentionally not part of the default production smoke because the Free monthly grant is finite. Enable build-sync token entitlement enforcement with `ENFORCE_CREDIT_BUILD_PASS=1` only after deciding how the smoke account should hold or replenish a build pass.
 
 This creates:
 

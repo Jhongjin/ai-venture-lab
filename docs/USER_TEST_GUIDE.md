@@ -323,6 +323,8 @@ pnpm smoke:browser:auth
 pnpm smoke:build-sync
 ```
 
+`pnpm smoke:billing`은 기본적으로 익명 차단만 확인합니다. SQL 적용 후 로그인 사용자의 크레딧 상태까지 확인하려면 베타 전용 계정으로 `BILLING_SMOKE_ALLOW_AUTH_GRANT=1`을 켜고 실행합니다. 이 확인은 월 Free 크레딧 지급 여부만 확인하며 30크레딧 제작 패스는 쓰지 않습니다.
+
 `pnpm smoke:market`은 프로덕션 시장·경쟁 자동 점검 API가 웹 검색 포함 모드로 응답하는지 확인합니다. 기본 제한 시간은 웹 검색 지연을 감안해 180초입니다. OpenAI 또는 웹 검색이 일시적으로 불안정한 상황에서 로컬 추정 응답까지 허용하려면 현재 터미널에 `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`을 설정한 뒤 실행합니다.
 
 인증된 쓰기 스모크가 필요할 때만 아래처럼 실행합니다. 이 명령은 실제 테스트 아이디어를 만들 수 있으므로 베타 전용 계정에서만 사용합니다.
