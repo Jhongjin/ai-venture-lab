@@ -348,7 +348,7 @@ pnpm smoke:build-sync
 
 `pnpm smoke:billing`은 기본적으로 익명 차단만 확인합니다. SQL 적용 후 로그인 사용자의 크레딧 상태까지 확인하려면 베타 전용 계정으로 `BILLING_SMOKE_ALLOW_AUTH_GRANT=1`을 켜고 실행합니다. 이 확인은 월 Free 크레딧 지급 여부, 최근 크레딧 내역 패널, 마이페이지 Pro 관심 등록 버튼과 Pro 관심 집계 패널 노출만 확인하며 30크레딧 제작 패스나 관심 등록 쓰기는 실행하지 않습니다.
 
-`ENFORCE_CREDIT_BUILD_PASS=1`로 외부 개발 도구 연결까지 서버에서 제작 패스를 강제한 뒤에는 `pnpm smoke:build-sync`가 제작 패스가 열린 아이디어를 필요로 합니다. disposable 아이디어 스모크에서 30크레딧 제작 패스 1개를 쓰도록 허용할 때만 `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`을 켭니다.
+`ENFORCE_CREDIT_BUILD_PASS=1`로 외부 개발 도구 연결까지 서버에서 제작 패스를 강제한 뒤에는 `pnpm smoke:build-sync`가 제작 패스가 열린 아이디어를 필요로 합니다. disposable 아이디어 스모크에서 30크레딧 제작 패스 1개를 쓰도록 허용할 때만 `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`을 켭니다. 스모크 계정 잔액이 부족하면 제작 패스 차감 전에 현재 잔액, 필요 크레딧, 부족분을 먼저 보고하고 멈춥니다.
 
 `pnpm smoke:market`은 프로덕션 시장·경쟁 자동 점검 API가 웹 검색 포함 모드로 응답하는지 확인합니다. 기본 제한 시간은 웹 검색 지연을 감안해 180초입니다. OpenAI 또는 웹 검색이 일시적으로 불안정한 상황에서 로컬 추정 응답까지 허용하려면 현재 터미널에 `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`을 설정한 뒤 실행합니다.
 

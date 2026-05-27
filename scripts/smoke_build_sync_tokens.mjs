@@ -771,6 +771,51 @@ async function unlockDisposableBuildPass(page, ideaId) {
   return result.body;
 }
 
+async function readCreditSummary(page) {
+  const result = await callAppApi(page, "/api/billing/credits");
+
+  if (!result.ok || result.body?.status !== "ready") {
+    return null;
+  }
+
+  return result.body;
+}
+
+function getBuildPassCost(summary) {
+  return typeof summary?.buildPassCost === "number" ? summary.buildPassCost : 30;
+}
+
+function getCreditBalance(summary) {
+  return typeof summary?.balance === "number" ? summary.balance : null;
+}
+
+function hasBuildPassForIdea(summary, ideaId) {
+  return Array.isArray(summary?.buildPasses) && summary.buildPasses.some((pass) => pass?.ideaId === ideaId);
+}
+
+function formatCreditGateHint(summary, ideaId) {
+  if (!summary) {
+    return "Credit summary was not available; run `BILLING_SMOKE_ALLOW_AUTH_GRANT=1 pnpm smoke:billing` to inspect the smoke account without spending credits.";
+  }
+
+  const cost = getBuildPassCost(summary);
+  const balance = getCreditBalance(summary);
+  const hasPass = hasBuildPassForIdea(summary, ideaId);
+
+  if (hasPass) {
+    return "The credit summary says this smoke idea already has a production build pass; retry build-sync smoke or verify the configured idea id.";
+  }
+
+  if (balance !== null) {
+    const shortfall = Math.max(cost - balance, 0);
+    return shortfall > 0
+      ? `Smoke account has ${balance} credits, but a production build pass costs ${cost}; add at least ${shortfall} credits or use a pre-unlocked disposable smoke idea.`
+      : `Smoke account has ${balance} credits and the production build pass costs ${cost}; the unlock route should be able to spend a disposable build pass.`;
+  }
+
+  return `Production build pass cost is ${cost}, but the smoke account balance was not returned.`;
+}
+
 async function issueBuildSyncToken(page, ideaId, tool, init = {}) {
   return callAppApi(page, "/api/build-sync/token", {
     method: "POST",
@@ -787,6 +832,7 @@ async function main() {
   let resolvedSupabaseConfig = null;
   let spentDisposableBuildPass = false;
   let usedDisposableIdea = false;
+  let creditSummary = null;
 
   const browser = await chromium.launch({ headless });
   const context = await browser.newContext({
@@ -809,6 +855,22 @@ async function main() {
 
     if (!ideaId) {
       fail("missing BUILD_SYNC_SMOKE_IDEA_ID or TELEMETRY_SMOKE_IDEA_ID. Supabase public config could not be resolved from the app bundle.");
+    }
+
+    creditSummary = await readCreditSummary(page);
+
+    if (usedDisposableIdea && allowBuildPassSpend && creditSummary && !hasBuildPassForIdea(creditSummary, ideaId)) {
+      const balance = getCreditBalance(creditSummary);
+      const cost = getBuildPassCost(creditSummary);
+
+      if (balance !== null && balance < cost) {
+        fail(
+          `disposable build-pass spend was allowed, but the smoke account cannot afford it. ${formatCreditGateHint(
+            creditSummary,
+            ideaId,
+          )}`,
+        );
+      }
     }
 
     const invalidTtlResult = await callAppApi(page, "/api/build-sync/token", {
@@ -839,7 +901,10 @@ async function main() {
       tokenResult = await issueBuildSyncToken(page, ideaId, "cursor");
     } else if (tokenResult.status === 402) {
       fail(
-        `token issue returned HTTP 402 because this idea has no production build pass. For ENFORCE_CREDIT_BUILD_PASS=1, either unlock the configured smoke idea first or run disposable smoke with BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1.`,
+        `token issue returned HTTP 402 because this idea has no production build pass. ${formatCreditGateHint(
+          creditSummary,
+          ideaId,
+        )} For ENFORCE_CREDIT_BUILD_PASS=1, either unlock the configured smoke idea first or run disposable smoke with BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1.`,
       );
     }
 
@@ -1294,6 +1359,7 @@ async function main() {
         ? "Credit build pass: unlocked for disposable smoke idea"
         : "Credit build pass: not spent by this smoke run",
     );
+    console.log(creditSummary ? `Credit preflight: ${formatCreditGateHint(creditSummary, ideaId)}` : "Credit preflight: unavailable");
     console.log(
       usedDisposableIdea || allowProgressWrite
         ? "Progress write: accepted before revoke"

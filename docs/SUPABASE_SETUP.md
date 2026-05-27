@@ -79,7 +79,7 @@ pnpm smoke:billing
 
 The default billing smoke confirms anonymous credit reads and build-pass unlocks are rejected. To verify the authenticated credit summary without spending a build pass, run it with `BILLING_SMOKE_ALLOW_AUTH_GRANT=1` and a disposable beta login configured through `BILLING_SMOKE_EMAIL/PASSWORD` or `BROWSER_SMOKE_EMAIL/PASSWORD`. This may create the idempotent monthly Free grant for that smoke user, but it does not call the 30-credit build-pass spend route. Authenticated credit spend is intentionally not part of the default production smoke because the Free monthly grant is finite.
 
-Enable build-sync token entitlement enforcement with `ENFORCE_CREDIT_BUILD_PASS=1` only after deciding how the smoke account should hold or replenish a build pass. Once enforcement is enabled, `pnpm smoke:build-sync` needs either a pre-unlocked configured smoke idea or a disposable run with `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`; that opt-in spends one 30-credit build pass on the disposable smoke idea before issuing external-tool connection tokens.
+Enable build-sync token entitlement enforcement with `ENFORCE_CREDIT_BUILD_PASS=1` only after deciding how the smoke account should hold or replenish a build pass. Once enforcement is enabled, `pnpm smoke:build-sync` needs either a pre-unlocked configured smoke idea or a disposable run with `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`; that opt-in spends one 30-credit build pass on the disposable smoke idea before issuing external-tool connection tokens. The runner preflights `/api/billing/credits` first, so an underfunded smoke account fails before spend with the current balance, build-pass cost, and shortfall.
 
 This creates:
 
