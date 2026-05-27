@@ -49,6 +49,7 @@ Current implementation direction:
 - The public homepage shows the beta Venture Credits boundary before signup: Free 100 credits, 30-credit build pass, and 4/10 free production materials.
 - The public homepage now also frames the Free, Pro, and Team boundary around the natural upgrade moment: Free for first validation, Pro for repeated production and external tool execution, Team for shared workflows.
 - STEP 7 build-sync token enforcement is enabled in Vercel Production with `ENFORCE_CREDIT_BUILD_PASS=1`; production smoke verifies this only through disposable build-pass spend with `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`.
+- Stripe checkout remains off until the setup boundary in `docs/STRIPE_PAYMENT_SETUP.md` is satisfied and webhook-backed entitlements are implemented.
 
 ## Upgrade Moments
 

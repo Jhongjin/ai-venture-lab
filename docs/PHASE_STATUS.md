@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-27 | Documented Stripe payment setup boundary | Current commit | Docs/env example only; no deployment required beyond push | `pnpm release:check`; added Stripe env placeholders and setup boundary so checkout stays off until server-side sessions, verified webhooks, and entitlement writes are implemented |
 | 2026-05-27 | Added profile Free/Pro conversion boundary | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_billing_credits.mjs`, `pnpm quality:full`; `/profile` now shows the current Free value, Pro value, and current action before the Pro interest button so payment demand stays clear without opening checkout |
 | 2026-05-27 | Added first-use intake one-sentence guide | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_browser.mjs`, `pnpm quality:full`; STEP 1 now tells new users to paste the memo and press AI organize, while smoke protects the first-use instruction before the input examples |
 | 2026-05-27 | Added STEP 8 simple review strip | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_build_sync_tokens.mjs`, `pnpm quality:full`; STEP 8 now repeats the essential `완료`, `다음`, `판단` summary inside the primary action band so users can understand the outcome before opening task evidence or operator reports |
