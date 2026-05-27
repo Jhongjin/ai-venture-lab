@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-27 | Added source-backed market scan summary cards | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; STEP 3 market scan results now show investigation mode, source count, and competitor/substitute count before detailed evidence lists |
 | 2026-05-27 | Drafted Free/Pro/Team monetization model | Current commit | Docs-only; push to `main` after verification | `pnpm release:check`; monetization model frames paid value around source-backed market scans, production package export, external tool sync, and team workflows while keeping first idea understanding and safety guidance useful |
 | 2026-05-27 | Renamed STEP 8 telemetry adapter copy to outcome-signal language | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; STEP 8 advanced connection controls now say `성과 신호 연결 가이드` and keep API details behind the existing collapsed panel |
 | 2026-05-27 | Separated STEP 1 result type and development method in direct intake | Current commit | Push to `main`, then production smoke after deployment | `pnpm quality:full`; direct-intake copy now says AI is sorting idea, result type, and development method, and the manual preview shows `결과물 형태` and `개발 방식` as separate cards before saving |

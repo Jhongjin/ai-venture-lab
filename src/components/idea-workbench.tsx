@@ -19159,6 +19159,18 @@ export function IdeaWorkbench({
                     ? "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요."
                     : "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다."}
                 </div>
+                <div className="grid gap-px bg-slate-200 md:grid-cols-3">
+                  {[
+                    ["조사 방식", isVisibleMarketScanEstimate ? "추정 초안" : "웹 출처 포함"],
+                    ["참고 출처", `${visibleMarketScanDraft.sources.length}개`],
+                    ["경쟁/대체재", `${visibleMarketScanDraft.competitor_map.length}개`],
+                  ].map(([label, value]) => (
+                    <div key={label} className="bg-white px-4 py-3">
+                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
+                      <div className="mt-2 text-base font-semibold text-slate-950">{value}</div>
+                    </div>
+                  ))}
+                </div>
                 {visibleMarketScanDraft.market_signals.length > 0 ? (
                   <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
                     {visibleMarketScanDraft.market_signals.map((signal) => (
