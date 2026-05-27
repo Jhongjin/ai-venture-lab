@@ -3613,12 +3613,28 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                       <div className="grid gap-px bg-slate-200 md:grid-cols-3">
                         {[
                           ["넣을 수 있는 것", "회의 메모, GPT 대화, 떠오른 아이디어, 자동화하고 싶은 업무"],
-                          ["AI가 만드는 것", "후보 아이디어 3개, 결과물 형태, 개발 방식"],
+                          ["AI가 만드는 것", "후보 아이디어 3개, 결과물 형태(무엇을 만들지), 개발 방식(어디서 개발할지)"],
                           ["내가 하는 것", "좋은 후보만 킵하고 저장한 뒤 다음 단계로 이동"],
                         ].map(([label, body]) => (
                           <div key={label} className="bg-slate-50 px-4 py-3">
                             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
                             <p className="mt-2 text-sm leading-6 text-slate-700">{body}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div
+                        data-smoke="first-use-build-contract"
+                        className="grid gap-px bg-slate-200 text-sm leading-6 md:grid-cols-[1fr_1fr_1.2fr]"
+                      >
+                        {[
+                          ["결과물 형태", "무엇을 만들지", "예: 모바일 앱"],
+                          ["개발 방식", "어디서 개발할지", "예: Cursor"],
+                          ["저장되는 문장", "둘을 분리해 저장", "모바일 앱으로 만들고, Cursor로 개발합니다."],
+                        ].map(([label, title, detail]) => (
+                          <div key={label} className="bg-white px-4 py-3">
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
+                            <div className="mt-1 font-semibold text-slate-950">{title}</div>
+                            <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
                           </div>
                         ))}
                       </div>

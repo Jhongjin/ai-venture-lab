@@ -115,6 +115,11 @@ async function main() {
       await waitForVisible(page.getByText("넣을 수 있는 것", { exact: true }), "first-use input examples");
       await waitForVisible(page.getByText("AI가 만드는 것", { exact: true }), "first-use ai output summary");
       await waitForVisible(page.getByText("내가 하는 것", { exact: true }), "first-use operator role summary");
+      await waitForVisible(page.locator('[data-smoke="first-use-build-contract"]'), "first-use build contract");
+      await waitForVisible(
+        page.getByText("모바일 앱으로 만들고, Cursor로 개발합니다.", { exact: true }),
+        "first-use result type and development method example",
+      );
       await waitForVisible(page.locator('[data-smoke="first-use-output-path"]'), "first-use downstream output path");
       await waitForVisible(
         page.getByText("사업성 평가, 리스크, 검증 계획, 제작 패키지, 외부 개발 도구 전달 자료", { exact: false }),
