@@ -10,12 +10,10 @@ import {
   Clipboard,
   ClipboardList,
   Code2,
-  Coins,
   Download,
   Flag,
   FolderOpen,
   Layers3,
-  LockKeyhole,
   RefreshCw,
   Save,
   ShieldAlert,
@@ -51,6 +49,7 @@ import {
   IDEA_BUILD_PASS_CREDITS,
   type CreditSummary,
 } from "@/lib/billing";
+import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import type {
   Decision,
   Experiment,
@@ -96,15 +95,6 @@ const implementationTaskTypes: ImplementationTaskType[] = [
   "deploy",
 ];
 const implementationTaskPriorities: ImplementationTaskPriority[] = ["low", "medium", "high"];
-const freeProductionPackageItems = ["아이디어 요약", "조사 요약", "7일 검증 계획", "검증 완료 요약"];
-const unlockedProductionPackageItems = [
-  "제품 기획서",
-  "화면 구조",
-  "디자인 기준",
-  "기술 방향",
-  "작업 순서",
-  "외부 개발 도구 전달 자료",
-];
 const artifactLabels: Record<VentureArtifactType, string> = {
   idea_brief: "아이디어 요약",
   research_note: "리서치 노트",
@@ -15781,94 +15771,23 @@ export function IdeaWorkbench({
             <p className="mb-4 text-sm leading-5 text-slate-600">{developmentPanelDescriptions[visibleDevelopmentPanel]}</p>
           ) : null}
 
-          <section className="mb-5 border border-slate-200 bg-white p-4">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div className="flex gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700">
-                  <Coins size={20} />
-                </div>
-                <div>
-                  <div className="avl-kicker">Free 제작 크레딧</div>
-                  <h3 className="mt-2 text-base font-semibold text-slate-950">
-                    기본 {freeArtifactLimit}단계는 Free, 전체 {fullArtifactCount}단계 제작 패키지는 {buildPassCost}크레딧으로 엽니다
-                  </h3>
-                  <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                    월 {monthlyCreditGrant}크레딧이 자동 지급되고, 한 아이디어를 제작 패키지와 외부 개발 도구 연결까지 이어갈 때 제작 패스 1개를 씁니다.
-                  </p>
-                  <div className="mt-3 grid gap-2 md:grid-cols-2">
-                    <div className="border border-slate-200 bg-slate-50 p-3">
-                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">Free에서 이미 받은 것</div>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {freeProductionPackageItems.map((item) => (
-                          <span key={item} className="avl-pill avl-pill-success">
-                            <CheckCircle2 size={13} />
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="border border-slate-200 bg-white p-3">
-                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">제작 패스 후 열리는 것</div>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {unlockedProductionPackageItems.map((item) => (
-                          <span key={item} className="avl-pill avl-pill-neutral">
-                            <LockKeyhole size={13} />
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  {isCreditSystemMissing ? (
-                    <p className="mt-2 text-sm font-semibold text-amber-700">
-                      크레딧 DB 준비 전이라 지금 배포에서는 기존 제작 흐름을 그대로 유지합니다.
-                    </p>
-                  ) : creditSummary?.status === "unavailable" ? (
-                    <p className="mt-2 text-sm font-semibold text-amber-700">
-                      크레딧 상태를 확인하지 못해 이번 세션에서는 제작 흐름을 막지 않습니다.
-                    </p>
-                  ) : creditMessage ? (
-                    <p className="mt-2 text-sm font-semibold text-slate-700">{creditMessage}</p>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="min-w-56 border border-slate-200 bg-slate-50 p-3">
-                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">현재 잔여</div>
-                <div className="mt-2 text-2xl font-semibold text-slate-950">
-                  {isCreditSummaryLoading && !creditSummary ? "확인 중" : creditBalanceLabel}
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {hasSelectedIdeaBuildPass ? (
-                    <span className="avl-pill avl-pill-success">
-                      <CheckCircle2 size={14} />
-                      제작 패스 열림
-                    </span>
-                  ) : isCreditSystemReady ? (
-                    <span className="avl-pill avl-pill-neutral">
-                      Free {freeArtifactLimit}/{fullArtifactCount}
-                    </span>
-                  ) : (
-                    <span className="avl-pill avl-pill-warning">준비 중</span>
-                  )}
-                </div>
-                {needsSelectedIdeaBuildPass ? (
-                  <button
-                    type="button"
-                    onClick={unlockSelectedIdeaBuildPass}
-                    disabled={isBuildPassUnlocking || isCreditSummaryLoading || !hasEnoughCreditsForBuildPass}
-                    className="avl-btn avl-btn-primary mt-3 h-10 w-full justify-center px-3 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <LockKeyhole size={16} />
-                    {isBuildPassUnlocking ? "여는 중" : `${buildPassCost}크레딧으로 열기`}
-                  </button>
-                ) : null}
-                {needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass ? (
-                  <p className="mt-2 text-xs font-semibold text-amber-700">잔여 크레딧이 부족합니다.</p>
-                ) : null}
-              </div>
-            </div>
-          </section>
+          <ProductionCreditPanel
+            buildPassCost={buildPassCost}
+            creditBalanceLabel={creditBalanceLabel}
+            creditMessage={creditMessage}
+            creditStatus={creditSummary?.status}
+            freeArtifactLimit={freeArtifactLimit}
+            fullArtifactCount={fullArtifactCount}
+            hasEnoughCreditsForBuildPass={hasEnoughCreditsForBuildPass}
+            hasSelectedIdeaBuildPass={hasSelectedIdeaBuildPass}
+            isBuildPassUnlocking={isBuildPassUnlocking}
+            isCreditSummaryLoading={isCreditSummaryLoading && !creditSummary}
+            isCreditSystemMissing={isCreditSystemMissing}
+            isCreditSystemReady={isCreditSystemReady}
+            monthlyCreditGrant={monthlyCreditGrant}
+            needsSelectedIdeaBuildPass={needsSelectedIdeaBuildPass}
+            onUnlockBuildPass={unlockSelectedIdeaBuildPass}
+          />
 
           {experienceMode === "guided" ? (
             <div className={visibleDevelopmentPanel === "setup" ? "" : "hidden"}>
