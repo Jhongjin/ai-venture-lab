@@ -96,6 +96,15 @@ const implementationTaskTypes: ImplementationTaskType[] = [
   "deploy",
 ];
 const implementationTaskPriorities: ImplementationTaskPriority[] = ["low", "medium", "high"];
+const freeProductionPackageItems = ["아이디어 요약", "조사 요약", "7일 검증 계획", "검증 완료 요약"];
+const unlockedProductionPackageItems = [
+  "제품 기획서",
+  "화면 구조",
+  "디자인 기준",
+  "기술 방향",
+  "작업 순서",
+  "외부 개발 도구 전달 자료",
+];
 const artifactLabels: Record<VentureArtifactType, string> = {
   idea_brief: "아이디어 요약",
   research_note: "리서치 노트",
@@ -15786,6 +15795,30 @@ export function IdeaWorkbench({
                   <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
                     월 {monthlyCreditGrant}크레딧이 자동 지급되고, 한 아이디어를 제작 패키지와 외부 개발 도구 연결까지 이어갈 때 제작 패스 1개를 씁니다.
                   </p>
+                  <div className="mt-3 grid gap-2 md:grid-cols-2">
+                    <div className="border border-slate-200 bg-slate-50 p-3">
+                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">Free에서 이미 받은 것</div>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {freeProductionPackageItems.map((item) => (
+                          <span key={item} className="avl-pill avl-pill-success">
+                            <CheckCircle2 size={13} />
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="border border-slate-200 bg-white p-3">
+                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">제작 패스 후 열리는 것</div>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {unlockedProductionPackageItems.map((item) => (
+                          <span key={item} className="avl-pill avl-pill-neutral">
+                            <LockKeyhole size={13} />
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                   {isCreditSystemMissing ? (
                     <p className="mt-2 text-sm font-semibold text-amber-700">
                       크레딧 DB 준비 전이라 지금 배포에서는 기존 제작 흐름을 그대로 유지합니다.
