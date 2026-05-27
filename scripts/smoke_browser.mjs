@@ -77,6 +77,10 @@ async function main() {
     await waitForVisible(page.getByRole("heading", { name: /실행 보드/ }), "workspace heading");
     await waitForVisible(page.getByText(/지금 할 일|검토할 아이디어를 먼저 저장|회의 내용, 아이디어/).first(), "stage guidance");
     await waitForVisible(page.getByText(/진행 순서|로그인/).first(), "workflow rail");
+    const staleIntakeRedirectButton = await page.getByRole("button", { name: "메모 붙여넣기 화면 열기" }).count();
+    if (staleIntakeRedirectButton > 0) {
+      fail("workspace empty-state still shows a no-op paste-screen redirect button");
+    }
 
     const loginHeading = page.getByRole("heading", { name: /^로그인$/ }).first();
     const extractHeading = page.getByRole("heading", { name: /^메모에서 검토할 아이디어 정리$/ }).first();
