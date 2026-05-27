@@ -115,6 +115,11 @@ async function main() {
       await waitForVisible(page.getByText("넣을 수 있는 것", { exact: true }), "first-use input examples");
       await waitForVisible(page.getByText("AI가 만드는 것", { exact: true }), "first-use ai output summary");
       await waitForVisible(page.getByText("내가 하는 것", { exact: true }), "first-use operator role summary");
+      await waitForVisible(page.locator('[data-smoke="first-use-output-path"]'), "first-use downstream output path");
+      await waitForVisible(
+        page.getByText("사업성 평가, 리스크, 검증 계획, 제작 패키지, 외부 개발 도구 전달 자료", { exact: false }),
+        "first-use downstream artifacts",
+      );
       await waitForVisible(page.getByText("완료 0/8", { exact: true }), "first step zero-complete progress");
       const staleInProgressCounter = await page.getByText("진행 1/8", { exact: true }).count();
       if (staleInProgressCounter > 0) {

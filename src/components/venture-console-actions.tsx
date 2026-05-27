@@ -3622,6 +3622,13 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           </div>
                         ))}
                       </div>
+                      <div
+                        data-smoke="first-use-output-path"
+                        className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-950"
+                      >
+                        <span className="font-semibold text-slate-950">저장 후 받는 결과:</span> 사업성 평가, 리스크,
+                        검증 계획, 제작 패키지, 외부 개발 도구 전달 자료까지 순서대로 열립니다.
+                      </div>
                       <textarea
                         value={rawIdeaSource}
                         onChange={(event) => {
