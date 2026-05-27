@@ -20,6 +20,7 @@ const configuredIdeaId = process.env.BUILD_SYNC_SMOKE_IDEA_ID || process.env.TEL
 const headless = (process.env.BUILD_SYNC_SMOKE_HEADLESS || process.env.BROWSER_SMOKE_HEADLESS) !== "0";
 const keepData = process.env.BUILD_SYNC_SMOKE_KEEP_DATA === "1";
 const allowProgressWrite = process.env.BUILD_SYNC_SMOKE_ALLOW_PROGRESS_WRITE === "1";
+const allowBuildPassSpend = process.env.BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND === "1";
 const timeout = Number.parseInt(process.env.BUILD_SYNC_SMOKE_TIMEOUT_MS || process.env.BROWSER_SMOKE_TIMEOUT_MS || "45000", 10);
 
 function fail(message) {
@@ -713,12 +714,43 @@ async function cleanupDisposableIdea(page, config, ideaId) {
   );
 }
 
+async function unlockDisposableBuildPass(page, ideaId) {
+  const result = await callAppApi(page, "/api/billing/build-pass", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ideaId }),
+  });
+
+  if (!result.ok) {
+    fail(
+      `could not unlock disposable build pass before build-sync token smoke: HTTP ${result.status}: ${
+        result.body.error ?? "unknown error"
+      }`,
+    );
+  }
+
+  if (result.body.status !== "ready" || result.body.ideaId !== ideaId) {
+    fail("build-pass unlock response did not confirm the disposable smoke idea.");
+  }
+
+  return result.body;
+}
+
+async function issueBuildSyncToken(page, ideaId, tool, init = {}) {
+  return callAppApi(page, "/api/build-sync/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ideaId, tool, ...init }),
+  });
+}
+
 async function main() {
   requireEnv("BUILD_SYNC_SMOKE_EMAIL", email);
   requireEnv("BUILD_SYNC_SMOKE_PASSWORD", password);
 
   let ideaId = null;
   let resolvedSupabaseConfig = null;
+  let spentDisposableBuildPass = false;
   let usedDisposableIdea = false;
 
   const browser = await chromium.launch({ headless });
@@ -764,11 +796,17 @@ async function main() {
       fail(`unsupported build sync tool was not rejected. Expected HTTP 400, received ${unsupportedToolResult.status}`);
     }
 
-    const tokenResult = await callAppApi(page, "/api/build-sync/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ideaId, tool: "cursor" }),
-    });
+    let tokenResult = await issueBuildSyncToken(page, ideaId, "cursor");
+
+    if (tokenResult.status === 402 && usedDisposableIdea && allowBuildPassSpend) {
+      await unlockDisposableBuildPass(page, ideaId);
+      spentDisposableBuildPass = true;
+      tokenResult = await issueBuildSyncToken(page, ideaId, "cursor");
+    } else if (tokenResult.status === 402) {
+      fail(
+        `token issue returned HTTP 402 because this idea has no production build pass. For ENFORCE_CREDIT_BUILD_PASS=1, either unlock the configured smoke idea first or run disposable smoke with BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1.`,
+      );
+    }
 
     if (!tokenResult.ok) {
       fail(`token issue returned HTTP ${tokenResult.status}: ${tokenResult.body.error ?? "unknown error"}`);
@@ -854,11 +892,7 @@ async function main() {
         fail(`tampered cross-idea token was not rejected. Expected HTTP 401, received ${wrongIdeaProgressResult.status}`);
       }
 
-      const expiredTokenResult = await callAppApi(page, "/api/build-sync/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ideaId, tool: "cursor", expiresInSeconds: 0 }),
-      });
+      const expiredTokenResult = await issueBuildSyncToken(page, ideaId, "cursor", { expiresInSeconds: 0 });
 
       if (!expiredTokenResult.ok) {
         fail(`expired token issue returned HTTP ${expiredTokenResult.status}: ${expiredTokenResult.body.error ?? "unknown error"}`);
@@ -955,11 +989,7 @@ async function main() {
       fail(`revoked token was not rejected. Expected HTTP 401, received ${rejectedProgressResult.status}`);
     }
 
-    const codexTokenResult = await callAppApi(page, "/api/build-sync/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ideaId, tool: "codex" }),
-    });
+    const codexTokenResult = await issueBuildSyncToken(page, ideaId, "codex");
 
     if (!codexTokenResult.ok) {
       fail(`Codex token issue returned HTTP ${codexTokenResult.status}: ${codexTokenResult.body.error ?? "unknown error"}`);
@@ -1047,11 +1077,7 @@ async function main() {
       fail(`revoked Codex token was not rejected. Expected HTTP 401, received ${codexRejectedProgressResult.status}`);
     }
 
-    const claudeTokenResult = await callAppApi(page, "/api/build-sync/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ideaId, tool: "claude_code" }),
-    });
+    const claudeTokenResult = await issueBuildSyncToken(page, ideaId, "claude_code");
 
     if (!claudeTokenResult.ok) {
       fail(`Claude Code token issue returned HTTP ${claudeTokenResult.status}: ${claudeTokenResult.body.error ?? "unknown error"}`);
@@ -1133,11 +1159,7 @@ async function main() {
       fail(`revoked Claude Code token was not rejected. Expected HTTP 401, received ${claudeRejectedProgressResult.status}`);
     }
 
-    const antigravityTokenResult = await callAppApi(page, "/api/build-sync/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ideaId, tool: "antigravity" }),
-    });
+    const antigravityTokenResult = await issueBuildSyncToken(page, ideaId, "antigravity");
 
     if (!antigravityTokenResult.ok) {
       fail(
@@ -1232,6 +1254,11 @@ async function main() {
     console.log("Build sync token smoke passed.");
     console.log("Registry status: ready");
     console.log("Issued connections: Cursor, Codex, Claude Code, and Google Antigravity active");
+    console.log(
+      spentDisposableBuildPass
+        ? "Credit build pass: unlocked for disposable smoke idea"
+        : "Credit build pass: not spent by this smoke run",
+    );
     console.log(
       usedDisposableIdea || allowProgressWrite
         ? "Progress write: accepted before revoke"
