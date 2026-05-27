@@ -44,6 +44,7 @@ Current implementation direction:
 - The profile page explains the upgrade trigger in user language: Free is for understanding and validating the first idea; Pro is for repeated production packages, external tool write-back, and source-backed market evidence.
 - The profile page includes a low-friction Pro interest button that records `upgrade_interest_clicked` in `telemetry_events` without starting a payment flow. This is the pre-Stripe demand signal for repeated production-package usage.
 - The profile page summarizes visible Pro interest signals by count, source, intent, and latest event. This uses the existing telemetry RLS boundary and is not a global admin revenue dashboard yet.
+- The profile page now shows a Free/Pro conversion boundary before the interest button: what Free covers, where Pro value starts, and that actual checkout is not opened until payment setup is ready.
 - STEP 5 also exposes the same Pro interest path when a user lacks enough credits for the next build pass, with `source=step5_credit_panel` and `intent=insufficient_credits_for_build_pass`.
 - The public homepage shows the beta Venture Credits boundary before signup: Free 100 credits, 30-credit build pass, and 4/10 free production materials.
 - The public homepage now also frames the Free, Pro, and Team boundary around the natural upgrade moment: Free for first validation, Pro for repeated production and external tool execution, Team for shared workflows.

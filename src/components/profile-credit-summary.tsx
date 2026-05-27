@@ -215,6 +215,18 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
             </div>
           ))}
         </div>
+        <div data-smoke="profile-pro-conversion-boundary" className="mt-4 grid gap-px bg-slate-200 sm:grid-cols-3">
+          {([
+            ["현재 Free", "첫 아이디어 검증, 월 100크레딧, 제작 패키지 미리보기"],
+            ["Pro 가치", "반복 제작 패키지, 외부 개발 도구 자동 반영, 출처 기반 시장 점검"],
+            ["지금 행동", "결제 전에는 Pro 관심만 남기고 실제 checkout은 열지 않습니다"],
+          ] as const).map(([label, detail]) => (
+            <div key={label} className="bg-slate-50 p-3">
+              <div className="text-xs font-semibold text-slate-500">{label}</div>
+              <p className="mt-2 text-sm leading-6 text-slate-700">{detail}</p>
+            </div>
+          ))}
+        </div>
         <UpgradeInterestButton />
       </div>
 

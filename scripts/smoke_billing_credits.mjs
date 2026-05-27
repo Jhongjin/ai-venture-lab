@@ -144,6 +144,10 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-pro-conversion-boundary"]').waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
     await page.locator('[data-smoke="upgrade-interest-button"]').waitFor({
       state: "visible",
       timeout: timeoutMs,
