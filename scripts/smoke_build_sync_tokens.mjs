@@ -193,6 +193,15 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const connectionHealth = page.locator('[data-smoke="final-execution-connection-health"]');
+  await connectionHealth.getByText("자동 반영 상태", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await connectionHealth.getByText("확인 명령을 먼저 실행하세요", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await waitForVisibleDecisionSentence(page);
 }
 

@@ -12265,6 +12265,21 @@ export function IdeaWorkbench({
       : "내부 개발 도구가 열릴 때까지 같은 제작 패키지와 작업 순서를 기준 자료로 보관합니다.";
   const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
   const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
+  const latestCursorSyncUseAt =
+    activeCursorSyncConnections
+      .map((connection) => connection.lastUsedAt)
+      .filter((value): value is string => Boolean(value))
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
+  const finalExecutionConnectionHealthTitle =
+    activeCursorSyncConnections.length === 0
+      ? "연결 파일을 받으면 자동 반영이 준비됩니다"
+      : latestCursorSyncUseAt
+        ? `최근 자동 반영 ${formatTelemetryTime(latestCursorSyncUseAt)}`
+        : "연결됨, 아직 자동 반영 전";
+  const finalExecutionConnectionHealthDetail =
+    activeCursorSyncConnections.length === 0
+      ? `${activeExternalBuildTool.label} 연결 파일을 받은 뒤 설치 명령과 확인 명령을 실행하세요.`
+      : "외부 도구가 진행 기록 명령을 실행하면 Venture Lab 작업표와 STEP 8에 자동 반영됩니다.";
   const cursorProgressPreviewItems =
     cursorProgressImportText.trim() && cursorHandoffTaskDrafts.length > 0
       ? buildCursorProgressImportDrafts({
@@ -17702,6 +17717,24 @@ export function IdeaWorkbench({
                           {cursorSyncRegistryStatus === "missing" || cursorSyncRegistryStatus === "unavailable" ? (
                             <div className="mt-3 border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-950">
                               개별 연결 끊기는 DB 토큰 장부 SQL 적용 후 활성화됩니다. 적용 전에도 연결 파일은 기존 방식으로 동작합니다.
+                            </div>
+                          ) : null}
+                          {cursorSyncRegistryStatus === "ready" ? (
+                            <div data-smoke="final-execution-connection-health" className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-2">
+                              <div className="bg-white px-3 py-3">
+                                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">자동 반영 상태</div>
+                                <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">
+                                  {finalExecutionConnectionHealthTitle}
+                                </p>
+                                <p className="mt-1 text-xs leading-5 text-slate-500">{finalExecutionConnectionHealthDetail}</p>
+                              </div>
+                              <div className="bg-white px-3 py-3">
+                                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">안 보이면</div>
+                                <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">확인 명령을 먼저 실행하세요</p>
+                                <p className="mt-1 text-xs leading-5 text-slate-500">
+                                  자동 반영이 실패할 때만 STEP 8의 진행 JSON 붙여넣기를 백업으로 사용합니다.
+                                </p>
+                              </div>
                             </div>
                           ) : null}
                           {cursorSyncRegistryStatus === "ready" ? (
