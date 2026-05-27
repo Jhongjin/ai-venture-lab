@@ -147,6 +147,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await page.getByText("설치 명령과 확인 명령만 차례로 실행하면 됩니다", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByText("2. 실행 위치", { exact: true }).waitFor({
     state: "visible",
     timeout,

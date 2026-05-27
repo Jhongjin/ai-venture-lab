@@ -12251,7 +12251,7 @@ export function IdeaWorkbench({
       : "제작 패키지를 내려받아 내부 개발 시작점으로 넘기세요.";
   const finalExecutionPrimaryActionDetail =
     buildDeliveryMode === "external_tool"
-      ? "파일을 받은 뒤 다운로드 폴더에 두지 말고 실제 개발할 프로젝트 루트로 옮긴 다음 설치 명령과 확인 명령을 차례로 실행합니다."
+      ? "이 화면에서는 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트에서 설치 명령과 확인 명령만 차례로 실행하면 됩니다. 다운로드 폴더에서는 실행하지 않습니다."
       : "내부 개발 도구가 열릴 때까지 같은 제작 패키지와 작업 순서를 기준 자료로 보관합니다.";
   const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
   const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
@@ -17401,7 +17401,7 @@ export function IdeaWorkbench({
         <div className={`avl-card p-4 ${activeTask === "launch" ? "" : "hidden"}`}>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <div className="avl-kicker">final execution</div>
+              <div className="avl-kicker">최종 전달</div>
               <h2 className="mt-2 text-lg font-semibold text-slate-950">최종 실행</h2>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">
                 모든 검증과 제작 패키지가 끝난 뒤, 선택한 방식으로 실제 제작 환경에 넘깁니다.
@@ -17445,20 +17445,20 @@ export function IdeaWorkbench({
                     {
                       icon: <Download size={16} />,
                       label: "1. 연결 파일 받기",
-                      title: `${activeExternalBuildTool.label} setup 파일`,
-                      detail: "Venture Lab STEP 7에서 선택한 도구의 연결 파일을 받습니다.",
+                      title: `${activeExternalBuildTool.label} 연결 파일`,
+                      detail: "아래 버튼으로 PowerShell 파일을 받습니다. 받은 직후에는 아직 실행하지 않습니다.",
                     },
                     {
                       icon: <FolderOpen size={16} />,
                       label: "2. 실행 위치",
                       title: "외부 프로젝트 루트",
-                      detail: "새로 만들 앱이나 사이트 폴더의 최상단에서 실행합니다. 다운로드 폴더가 아닙니다.",
+                      detail: "받은 파일을 새로 만들 앱이나 사이트 폴더의 최상단으로 옮깁니다. 다운로드 폴더가 아닙니다.",
                     },
                     {
                       icon: <Code2 size={16} />,
                       label: "3. 설치 후 확인",
-                      title: "확인 명령 실행",
-                      detail: `${liveExternalToolNextTaskCommand}로 첫 작업이 보이는지 확인합니다.`,
+                      title: "설치 명령 후 확인 명령",
+                      detail: `설치 명령을 먼저 실행하고 ${liveExternalToolNextTaskCommand}로 첫 작업이 보이는지 확인합니다.`,
                     },
                   ].map((step) => (
                     <div key={step.label} className="bg-white p-4">
@@ -17531,7 +17531,7 @@ export function IdeaWorkbench({
                 <section className="border border-slate-200 bg-slate-50 p-5">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                      <div className="avl-kicker">external build tool</div>
+                      <div className="avl-kicker">외부 개발 도구</div>
                       <h3 className="mt-2 text-lg font-semibold text-slate-950">
                         {isLiveExternalDelivery
                           ? `${activeExternalBuildTool.label} 프로젝트에 연결 파일을 설치합니다`
@@ -17984,7 +17984,7 @@ export function IdeaWorkbench({
                 <section className="border border-slate-200 bg-slate-50 p-5">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                      <div className="avl-kicker">internal builder</div>
+                      <div className="avl-kicker">내부 제작 방식</div>
                       <h3 className="mt-2 text-lg font-semibold text-slate-950">Venture Lab 내부 개발로 이어갑니다</h3>
                       <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                         내부 개발 도구가 연결되면 이 패키지를 기준으로 작업 보드와 구현 세션이 이어집니다. 현재는 같은 기준 자료를
@@ -18027,7 +18027,7 @@ export function IdeaWorkbench({
               <section className="border border-slate-200 bg-white p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <div className="avl-kicker">task packet</div>
+                    <div className="avl-kicker">작업 목록</div>
                     <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 목록</h3>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
                       {buildDeliveryMode === "external_tool"
@@ -18085,7 +18085,7 @@ export function IdeaWorkbench({
                     <div className="mt-4 border border-emerald-200 bg-emerald-50 p-4">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
-                          <div className="avl-kicker">{isLiveExternalDelivery ? "auto sync" : "completion report"}</div>
+                          <div className="avl-kicker">{isLiveExternalDelivery ? "자동 반영" : "완료 보고"}</div>
                           <h4 className="mt-2 text-base font-semibold text-emerald-950">
                             {isLiveExternalDelivery
                               ? `${activeExternalBuildTool.label} 작업 상태를 자동으로 확인합니다`
