@@ -10129,6 +10129,8 @@ export function IdeaWorkbench({
         ),
     [implementationTasks, selectedIdea?.id],
   );
+  const firstImplementationTask = selectedImplementationTasks[0] ?? null;
+  const hasGeneratedWorkOrder = selectedRuns.length > 0 || selectedImplementationTasks.length > 0;
   const selectedTelemetryEvents = useMemo(
     () =>
       telemetryEvents
@@ -18880,6 +18882,34 @@ export function IdeaWorkbench({
           <div className="border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
             기본 흐름은 작업 순서 자동 만들기, 필요한 단계 결과 확인/저장, 다음 단계입니다. 상태 버튼은 실제 실행 추적이 필요할 때만
             바꾸면 됩니다.
+          </div>
+
+          <div data-smoke="step6-current-action" className="mt-4 grid gap-px bg-slate-200 lg:grid-cols-3">
+            {[
+              [
+                "지금 할 일",
+                hasGeneratedWorkOrder ? "생성된 작업 순서를 확인하세요" : "작업 순서 자동 만들기를 누르세요",
+                hasGeneratedWorkOrder ? "필요한 보완만 하고 하단 다음 단계로 이동합니다." : "AI가 제작자가 볼 순서와 첫 작업을 만듭니다.",
+              ],
+              [
+                "첫 작업",
+                firstImplementationTask ? firstImplementationTask.title : "T-001 기획서와 첫 제작 범위 잠금",
+                firstImplementationTask
+                  ? implementationTaskTypeLabels[firstImplementationTask.task_type]
+                  : "작업 순서를 만들면 첫 제작 기준이 여기에 표시됩니다.",
+              ],
+              [
+                "다음 단계",
+                hasGeneratedWorkOrder ? "최종 실행으로 넘길 준비" : "작업 순서가 있어야 최종 실행이 열립니다",
+                "외부 개발 도구 연결은 STEP 7에서 진행합니다.",
+              ],
+            ].map(([label, title, detail]) => (
+              <div key={label} className="bg-white px-4 py-3">
+                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
+                <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">{title}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p>
+              </div>
+            ))}
           </div>
 
           <details className="mt-4 border border-slate-200 bg-white p-4">

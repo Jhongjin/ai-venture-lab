@@ -153,6 +153,30 @@ async function verifyLearningTaskBoard(page, ideaId) {
   });
 }
 
+async function verifyWorkOrderCurrentAction(page, ideaId) {
+  const workOrderUrl = new URL("/workspace", baseUrl);
+  workOrderUrl.searchParams.set("task", "orchestration");
+  workOrderUrl.searchParams.set("idea", ideaId);
+
+  await page.goto(workOrderUrl.toString(), { waitUntil: "networkidle", timeout });
+  await page.getByRole("heading", { name: "작업 순서 보드" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+
+  const currentAction = page.locator('[data-smoke="step6-current-action"]');
+  for (const label of ["지금 할 일", "첫 작업", "다음 단계"]) {
+    await currentAction.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
+  await currentAction.getByText("T-001", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+}
+
 async function verifyFinalExecutionActionBanner(page, toolLabel) {
   const actionBanner = page.locator('[data-smoke="final-execution-action-banner"]');
   await actionBanner.getByText(`${toolLabel} 연결 파일을 실제 프로젝트 루트에서 실행하세요.`, { exact: true }).waitFor({
@@ -1056,6 +1080,7 @@ async function main() {
 
       if (usedDisposableIdea && resolvedSupabaseConfig) {
         await createDisposableLaunchPackage(page, resolvedSupabaseConfig, ideaId);
+        await verifyWorkOrderCurrentAction(page, ideaId);
         await verifyFinalExecutionCursorGuide(page, ideaId);
         await verifyFinalExecutionCodexGuide(page, ideaId);
         await verifyFinalExecutionClaudeGuide(page, ideaId);
