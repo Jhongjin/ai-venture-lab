@@ -1,0 +1,64 @@
+# Monetization Model
+
+AI Venture Lab should monetize execution depth, not confusion. The free path must still let a new user understand the product promise: paste a messy idea, receive an AI-prepared business review, and see the next validation or build action.
+
+## Pricing Principle
+
+- Keep idea intake and basic evaluation useful without payment.
+- Gate expensive automation, repeated usage, external-tool execution, and durable team workflows.
+- Do not sell vague AI output volume as the product. Sell validated execution packages and connected build progress.
+- Keep upgrade moments tied to a clear user job: more market evidence, more saved ideas, production package export, external tool sync, or team collaboration.
+- Never block safety basics. Risk summaries, privacy warnings, and kill/pivot guidance stay available even on the free path.
+
+## Proposed Tiers
+
+| Tier | Intended user | Included value | Natural limit |
+| --- | --- | --- | --- |
+| Free | First-time founder/operator testing one idea | Idea intake, AI candidate draft, basic business/risk review, one validation plan, lightweight saved artifacts | Limited active ideas, limited source-backed market scans, package preview only |
+| Pro | Solo builder or small team preparing real builds | More saved ideas, source-backed market scans, production package download, named external tool setup files, progress write-back, STEP 8 outcome review | Personal workspace and fair-use automation limits |
+| Team | Small venture studio or product team | Shared workspaces, role handoffs, audit history, connector management, reusable package templates, higher scan/export limits | Workspace-level billing and admin controls |
+
+## Feature Boundaries
+
+| Product area | Free | Pro | Team |
+| --- | --- | --- | --- |
+| STEP 1 idea discovery | AI prepares candidates and one saved idea | Higher monthly candidate runs and more saved ideas | Shared idea intake queue |
+| STEP 2 business review | Basic score and risks | Deeper score history and comparison across ideas | Workspace portfolio view |
+| Market and competition scan | Limited source-backed scans, fallback estimate still visible | More source-backed scans and saved research notes | Shared research library and usage controls |
+| STEP 5 production package | In-app preview and summary | Downloadable production package and tool-specific files | Reusable package templates and approval trails |
+| STEP 7 external tools | Preview of supported tools | Cursor, Codex, Claude Code, and Antigravity setup files with write-back | Connector admin, revoke history, and workspace policy |
+| STEP 8 outcome review | Basic task/outcome view | Outcome signal connection guide and saved learning reports | Team learning reports and cross-idea comparison |
+
+## Upgrade Moments
+
+- The user tries to save more active ideas than the free limit.
+- The user asks for another source-backed market scan after the free allowance.
+- The user wants to download the production package instead of only previewing it.
+- The user selects an external development tool and wants installable setup files.
+- The user wants automatic progress write-back from the external tool.
+- The user wants shared workspace features or audit history.
+
+## Product Copy Direction
+
+Use value-based language:
+
+- "제작 패키지 다운로드"
+- "외부 개발 도구 자동 반영"
+- "출처 기반 시장 점검 추가 실행"
+- "팀 작업 공간과 승인 기록"
+
+Avoid developer-first language:
+
+- "토큰 발급"
+- "레지스트리"
+- "MCP 권한"
+- "JSON 가져오기"
+- "하네스 실행"
+
+## Not Yet Decided
+
+- Exact price points.
+- Final free usage limits.
+- Whether external tool setup files are Pro-only or available as a one-time trial.
+- Whether source-backed market scans use a monthly quota, credit bundle, or fair-use limit.
+- Whether Team includes white-label package templates.
