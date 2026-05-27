@@ -91,6 +91,8 @@ type OpenAIResponse = {
   output_text?: unknown;
   output?: unknown;
   error?: unknown;
+  status?: unknown;
+  incomplete_details?: unknown;
 };
 
 const marketScanSchema = {
@@ -266,6 +268,18 @@ function getOpenAIErrorMessage(payload: OpenAIResponse) {
   }
 
   return toText(payload.error.message, 500) || "OpenAI request failed.";
+}
+
+function getOpenAIParseFailureReason(payload: OpenAIResponse, outputText: string) {
+  const details = isRecord(payload.incomplete_details) ? toText(payload.incomplete_details.reason, 160) : "";
+  const status = toText(payload.status, 80);
+  const statusHint =
+    status || details
+      ? ` 응답 상태: ${[status, details ? `incomplete=${details}` : ""].filter(Boolean).join(", ")}.`
+      : "";
+  const outputHint = outputText.trim() ? " 구조화된 JSON으로 해석하지 못했습니다." : " 최종 텍스트가 비어 있습니다.";
+
+  return `OpenAI 응답을 시장성 점검 형식으로 읽지 못했습니다.${statusHint}${outputHint}`;
 }
 
 function normalizeDecision(value: unknown): DecisionStatus {
@@ -453,6 +467,31 @@ function collectSourcesFromPayload(payload: unknown): MarketScanSource[] {
   }
 
   visit(payload);
+  return found.slice(0, 5);
+}
+
+function isPublicSource(source: MarketScanSource) {
+  return /^https?:\/\//i.test(source.url.trim()) && source.source_type !== "user_input";
+}
+
+function mergePublicSources(...sourceGroups: MarketScanSource[][]) {
+  const found: MarketScanSource[] = [];
+  const seen = new Set<string>();
+
+  sourceGroups.flat().forEach((source) => {
+    if (!isPublicSource(source)) {
+      return;
+    }
+
+    const key = `${source.url.trim().toLowerCase()}::${source.title.trim().toLowerCase()}`;
+    if (seen.has(key)) {
+      return;
+    }
+
+    seen.add(key);
+    found.push(source);
+  });
+
   return found.slice(0, 5);
 }
 
@@ -651,6 +690,9 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
     body: JSON.stringify({
       model,
       max_output_tokens: 6000,
+      reasoning: {
+        effort: "low",
+      },
       text: {
         format: {
           type: "json_schema",
@@ -661,7 +703,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
       },
       tools: [
         {
-          type: "web_search_preview",
+          type: "web_search",
           search_context_size: "medium",
           user_location: {
             type: "approximate",
@@ -670,7 +712,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
           },
         },
       ],
-      tool_choice: "auto",
+      tool_choice: "required",
       include: ["web_search_call.action.sources"],
       input: [
         {
@@ -679,7 +721,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
             {
               type: "input_text",
               text:
-                "You are a market research assistant for an app venture validation console. Use web search when useful. Write natural Korean. Do not invent precise market share, market size, or saturation numbers. If public sources are weak, say it is an estimate. Compare competitors, substitutes, saturation, and entry barriers according to the requested production surface: web app, mobile app, automation workflow, operator console, or development-tool/MCP handoff. Cover demand forecast, competition, saturation, entry barriers, alternatives, market signals, competitor map, entry-barrier checks, follow-up research queries, recommendation, confidence, next action, caveat, and sources. For each source, classify source_type as primary, secondary, directory, news, user_input, or unknown, and strength as low, medium, or high based on how directly it supports the finding. Keep findings specific enough to become a saved research note for a build-ready product package.",
+                "You are a market research assistant for an app venture validation console. Use web search before answering. Write natural Korean. Do not invent precise market share, market size, or saturation numbers. If public sources are weak, say it is an estimate. Compare competitors, substitutes, saturation, and entry barriers according to the requested production surface: web app, mobile app, automation workflow, operator console, or development-tool/MCP handoff. Cover demand forecast, competition, saturation, entry barriers, alternatives, market signals, competitor map, entry-barrier checks, follow-up research queries, recommendation, confidence, next action, caveat, and sources. Return only public HTTP(S) references in sources when web search ran; do not put user input, internal assumptions, or empty URLs in sources. Mention input-derived assumptions in caveat or market signals instead. For each source, classify source_type as primary, secondary, directory, news, or unknown, and strength as low, medium, or high based on how directly it supports the finding. Keep findings specific enough to become a saved research note for a build-ready product package.",
             },
           ],
         },
@@ -723,15 +765,13 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
         idea,
         state,
         score,
-        reason: "OpenAI 응답을 시장성 점검 형식으로 읽지 못해 로컬 기준으로 작성했습니다.",
+        reason: getOpenAIParseFailureReason(payload, outputText),
       }),
     });
   }
 
   const payloadSources = collectSourcesFromPayload(payload);
-  const mergedSources = [...scan.sources, ...payloadSources]
-    .filter((source, index, allSources) => allSources.findIndex((item) => item.url === source.url && item.title === source.title) === index)
-    .slice(0, 5);
+  const mergedSources = mergePublicSources(scan.sources, payloadSources);
 
   return NextResponse.json({
     mode: "openai_web",

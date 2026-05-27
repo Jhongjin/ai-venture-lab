@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-27 | Hardened source-backed market scan request and source filtering | Current commit | Push to `main`, then production smoke after deployment | `pnpm typecheck`, `pnpm release:check`, `pnpm quality:full`; market scan API now uses the hosted web search tool as a required path, records clearer parse fallback reasons, and filters `openai_web` source lists down to public HTTP(S) references instead of user-input placeholders |
 | 2026-05-27 | Documented Stripe payment setup boundary | Current commit | Docs/env example only; no deployment required beyond push | `pnpm release:check`; added Stripe env placeholders and setup boundary so checkout stays off until server-side sessions, verified webhooks, and entitlement writes are implemented |
 | 2026-05-27 | Added profile Free/Pro conversion boundary | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_billing_credits.mjs`, `pnpm quality:full`; `/profile` now shows the current Free value, Pro value, and current action before the Pro interest button so payment demand stays clear without opening checkout |
 | 2026-05-27 | Added first-use intake one-sentence guide | Current commit | Push to `main`, then production smoke after deployment | `node --check scripts/smoke_browser.mjs`, `pnpm quality:full`; STEP 1 now tells new users to paste the memo and press AI organize, while smoke protects the first-use instruction before the input examples |
@@ -262,7 +263,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 | Generic MCP user-facing selector | Deferred | The operator chose named tool integrations first; generic MCP is too vague for the current product promise and could imply unsupported automation | Keep legacy compatibility only; revisit after named connectors and a concrete resource contract exist |
 | Cursor token rotation and revocation controls | Completed | Production SQL was applied and `pnpm smoke:build-sync` verified registry ready, connection revoke, and revoked-token rejection | Keep `pnpm smoke:build-sync` as the regression check before changing token issuance, revoke, or progress sync |
 | Native internal builder | Deferred | Final execution can choose an internal build destination, but the actual native builder is not implemented yet | Keep the handoff boundary explicit until a first internal build runtime is scoped |
-| Strict web-sourced market scan smoke | Blocked external service | Production market scan currently returns `local_estimate` because the OpenAI API project used by Vercel reports quota/billing exhaustion; fallback estimate smoke still passes and the UI now labels it clearly | Restore quota or replace the Vercel Production `OPENAI_API_KEY` with a key that has available quota, redeploy, then rerun `pnpm smoke:market` without `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1` |
+| Strict web-sourced market scan smoke | In verification | After the OpenAI key rotation, strict smoke reached the web path once but exposed a user-input placeholder source, then fell back because the OpenAI response was not parsed as the market-scan schema; the route now forces hosted web search, filters public sources, and records clearer fallback diagnostics | Deploy the hardened route, rerun `pnpm smoke:market` without `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`, and keep fallback estimate smoke as the safe degraded path |
 
 ## Next User Actions
 
@@ -278,7 +279,7 @@ Use `docs/RLS_ALLOWED_DENIED_SMOKE_PLAN.md`, `docs/SUPABASE_RLS_POLICY_POSTURE_R
 
 Optional: add `OPENAI_API_KEY` and, if desired, `OPENAI_IDEA_MODEL` to Vercel Production to enable server-side AI extraction. Without it, the app automatically falls back to the local rules engine.
 
-Market/competition auto-research is configured, but strict web-sourced market smoke is currently blocked by OpenAI quota/billing exhaustion in the production API project. The fallback estimate path is working and labeled as `추정 초안`; to restore source-backed web research, fix quota/billing or rotate the Vercel Production `OPENAI_API_KEY`, redeploy, then rerun `pnpm smoke:market` without `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`.
+Market/competition auto-research is configured. After the 2026-05-27 OpenAI key rotation, strict web-sourced smoke moved from quota/billing failure to response/source verification; deploy the hardened market-scan route, then rerun `pnpm smoke:market` without `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`. The fallback estimate path remains working and labeled as `추정 초안`.
 
 Learning telemetry writes passed again on 2026-05-22 after local telemetry secret alignment, using a disposable idea id and summary-only evidence. Reconfirm `telemetry_events` table posture and RLS policies only when telemetry migrations, endpoint behavior, or production environment settings change.
 
