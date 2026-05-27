@@ -135,11 +135,11 @@ export function ProductionCreditPanel({
             <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
               월 {monthlyCreditGrant}크레딧이 자동 지급되고, 한 아이디어를 제작 패키지와 외부 개발 도구 연결까지 이어갈 때 제작 패스 1개를 씁니다.
             </p>
-            <div className="mt-3 border border-blue-200 bg-blue-50 p-3">
+            <div data-smoke="production-credit-execution-package-value" className="mt-3 border border-blue-200 bg-blue-50 p-3">
               <div className="text-xs font-semibold text-blue-800">왜 제작 패스를 쓰나요?</div>
               <p className="mt-2 text-sm leading-6 text-blue-950">
-                {buildPassCost}크레딧으로 PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 연결 자료까지 열어
-                바로 제작을 시작할 수 있게 합니다.
+                {buildPassCost}크레딧은 문서 묶음 값이 아니라 실행 패키지를 여는 비용입니다. PRD, 화면 구조, 디자인 기준,
+                기술 방향, 작업 순서, 외부 개발 도구 연결 자료까지 이어져 바로 제작을 시작할 수 있게 합니다.
               </p>
               <div data-smoke="production-credit-value-path" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
                 {[

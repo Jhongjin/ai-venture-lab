@@ -193,10 +193,11 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         </div>
       </div>
 
-      <div className="mt-4 border border-blue-200 bg-blue-50 p-3">
+      <div data-smoke="profile-credit-execution-package-value" className="mt-4 border border-blue-200 bg-blue-50 p-3">
         <div className="text-xs font-semibold text-blue-800">제작 패스를 쓰면 열리는 가치</div>
         <p className="mt-2 text-sm leading-6 text-blue-950">
-          PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 전달 파일까지 한 번에 이어집니다.
+          제작 패스는 문서 묶음이 아니라 실행 패키지를 여는 비용입니다. PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서,
+          외부 개발 도구 전달 파일까지 한 번에 이어집니다.
         </p>
         <a href="/workspace" className="avl-btn avl-btn-secondary mt-3 h-9 px-3 text-xs">
           실행 보드에서 아이디어 이어가기

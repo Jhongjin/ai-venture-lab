@@ -146,6 +146,12 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-credit-execution-package-value"]').getByText("실행 패키지를 여는 비용", {
+      exact: false,
+    }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
     await page.locator('[data-smoke="profile-upgrade-signals"]').waitFor({
       state: "visible",
       timeout: timeoutMs,
