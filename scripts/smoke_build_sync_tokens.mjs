@@ -267,6 +267,21 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const toolStartMode = page.locator('[data-smoke="final-execution-tool-start-mode"]');
+  const expectedStartMode =
+    toolLabel === "Cursor" || toolLabel === "Google Antigravity" ? "IDE에서 시작" : "터미널 에이전트에서 시작";
+  await toolStartMode.getByText("도구 시작 방식", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await toolStartMode.getByText(expectedStartMode, { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await toolStartMode.getByText("START 파일을 첫 메시지로 넣습니다", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const commandPath = page.locator('[data-smoke="final-execution-command-path"]');
   await commandPath.getByText("1. 파일 받기", { exact: true }).waitFor({
     state: "visible",
