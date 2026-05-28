@@ -334,6 +334,39 @@ async function openAuthEntry(page) {
   );
 }
 
+async function verifyDirectWorkbenchTaskRoute(page) {
+  const directUrl = new URL("/workspace", baseUrl);
+  directUrl.searchParams.set("task", "orchestration");
+
+  await page.goto(directUrl.toString(), { waitUntil: "networkidle", timeout });
+  const routeState = await waitForAnyVisible(
+    [
+      { name: "orchestration", locator: page.getByRole("heading", { name: "작업 순서 보드" }) },
+      { name: "empty-intake", locator: page.getByRole("heading", { name: /메모에서 검토할 아이디어 정리|아이디어 찾기/ }) },
+      { name: "score-fallback", locator: page.getByRole("heading", { name: /사업성 평가|후보 선택/ }) },
+      { name: "login-required", locator: page.getByRole("heading", { name: "먼저 로그인해 주세요." }) },
+    ],
+    "direct workbench task route",
+    25000,
+  );
+
+  if (routeState === "login-required") {
+    fail("direct workbench task route lost the authenticated session.");
+  }
+
+  if (routeState === "score-fallback") {
+    fail("direct workbench task route ignored task=orchestration and fell back to the scoring step.");
+  }
+
+  if (routeState === "empty-intake") {
+    console.log("Direct orchestration route skipped because the authenticated smoke account has no active ideas.");
+    return;
+  }
+
+  await waitForVisible(page.locator('[data-smoke="step6-current-action"]'), "direct orchestration current action", 15000);
+  console.log("Direct orchestration route smoke passed.");
+}
+
 async function main() {
   requireEnv("BROWSER_SMOKE_EMAIL", email);
   requireEnv("BROWSER_SMOKE_PASSWORD", password);
@@ -416,6 +449,9 @@ async function main() {
     if (postLoginState === "signed-in state" || postLoginState === "login success message") {
       await waitForVisible(page.getByText(new RegExp(escapeRegExp(email))), "signed-in email", 10000);
     }
+
+    await page.waitForFunction(() => document.cookie.includes("-auth-token"), undefined, { timeout });
+    await verifyDirectWorkbenchTaskRoute(page);
 
     const workspacePanelOpened = allowWrite || allowWorkspaceCreate ? await openWorkspaceTask(page) : false;
 
