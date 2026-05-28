@@ -120,6 +120,9 @@ async function main() {
       await waitForVisible(page.locator('[data-smoke="first-use-ai-output-preview"]'), "first-use AI output preview");
       await waitForVisible(page.getByText("AI 정리 결과:", { exact: false }), "first-use AI output preview label");
       await waitForVisible(page.getByText("아이디어 후보 3개", { exact: false }), "first-use AI output preview candidates");
+      await waitForVisible(page.locator('[data-smoke="first-use-build-choice-split"]'), "first-use build choice split");
+      await waitForVisible(page.getByText("무엇을 만들지", { exact: true }), "first-use result type split label");
+      await waitForVisible(page.getByText("어떻게 만들지", { exact: true }), "first-use development method split label");
       await waitForVisible(page.getByText("회의 메모", { exact: true }), "first-use meeting memo example");
       await waitForVisible(page.getByText("GPT 대화", { exact: true }), "first-use GPT conversation example");
       await waitForVisible(page.getByText("자동화 업무", { exact: true }), "first-use automation task example");
