@@ -162,7 +162,17 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  await page.locator('[data-smoke="step8-outcome-summary"]').waitFor({
+  const outcomeDetails = page.locator('[data-smoke="step8-outcome-details"]');
+  await outcomeDetails.getByText("판단 근거 자세히 보기", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await outcomeDetails.locator("summary").click();
+  await outcomeDetails.getByText("처음에는 위의 한눈 요약만 보면 됩니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await outcomeDetails.locator('[data-smoke="step8-outcome-summary"]').waitFor({
     state: "visible",
     timeout,
   });
