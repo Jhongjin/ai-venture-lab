@@ -213,6 +213,22 @@ async function verifyWorkOrderCurrentAction(page, ideaId) {
     state: "visible",
     timeout,
   });
+
+  const executionBridge = page.locator('[data-smoke="step6-execution-bridge"]');
+  await executionBridge.getByText("제작 패키지 연결", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  for (const label of ["1. 제작 패키지", "2. 작업 순서", "3. 최종 실행"]) {
+    await executionBridge.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
+  await executionBridge.getByText("연결 파일", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
 }
 
 async function verifyFinalExecutionActionBanner(page, toolLabel) {

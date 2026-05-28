@@ -19041,6 +19041,37 @@ export function IdeaWorkbench({
             바꾸면 됩니다.
           </div>
 
+          <div data-smoke="step6-execution-bridge" className="mt-4 border border-slate-200 bg-white p-4">
+            <div className="text-sm font-semibold text-slate-950">제작 패키지 연결</div>
+            <p className="mt-1 text-sm leading-6 text-slate-600">
+              저장한 제작 패키지를 작업 순서로 풀고, 첫 작업이 준비되면 하단 다음 버튼으로 최종 실행에서 연결 파일을 받습니다.
+            </p>
+            <div className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-3">
+              {[
+                {
+                  label: "1. 제작 패키지",
+                  detail: "PRD, 화면 구조, 디자인 기준, 기술 방향",
+                },
+                {
+                  label: "2. 작업 순서",
+                  detail: "T-001부터 개발자가 처리할 순서",
+                },
+                {
+                  label: "3. 최종 실행",
+                  detail:
+                    buildDeliveryMode === "external_tool"
+                      ? `${activeExternalBuildTool.label} 연결 파일과 START 파일`
+                      : "내부 개발 시작 자료와 완료 기준",
+                },
+              ].map(({ label, detail }) => (
+                <div key={label} className="bg-slate-50 px-4 py-3">
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-700">{detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div data-smoke="step6-current-action" className="mt-4 grid gap-px bg-slate-200 lg:grid-cols-3">
             {[
               {
