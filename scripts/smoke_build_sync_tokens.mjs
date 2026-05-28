@@ -121,6 +121,15 @@ async function verifyLearningTaskBoard(page, ideaId) {
     });
   }
   await waitForVisibleDecisionSentence(page);
+  const singleDecisionRule = page.locator('[data-smoke="step8-single-decision-rule"]');
+  await singleDecisionRule.getByText("판단 후보 중 하나만", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await singleDecisionRule.getByText("상세 리포트는 필요할 때만", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const simpleReview = page.locator('[data-smoke="step8-simple-review"]');
   for (const label of ["완료", "다음", "판단"]) {
     await simpleReview.getByText(label, { exact: true }).waitFor({

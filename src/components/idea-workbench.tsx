@@ -18587,6 +18587,9 @@ export function IdeaWorkbench({
                 <p className="mt-2 text-sm leading-6 text-slate-700">{learningPrimaryActionText}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">결정: {finalExecutionDecisionSentence}</p>
+                <div data-smoke="step8-single-decision-rule" className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950">
+                  오늘은 아래 판단 후보 중 하나만 고르면 됩니다. 상세 리포트는 필요할 때만 엽니다.
+                </div>
                 <div data-smoke="step8-decision-options" className="mt-3 flex flex-wrap gap-2">
                   {learningDecisionOptions.map((option) => (
                     <span key={option} className="avl-pill avl-pill-info">
