@@ -179,6 +179,10 @@ async function verifyAuthenticatedCreditSummary() {
       .catch(() => false);
 
     if (hasProductionCreditPanel) {
+      await productionCreditPanel.locator('[data-smoke="production-credit-package-clarity"]').waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
       await productionCreditPanel.locator('[data-smoke="production-credit-spend-confidence"]').waitFor({
         state: "visible",
         timeout: timeoutMs,

@@ -134,6 +134,11 @@ export function ProductionCreditPanel({
     ],
     ["다시 이어가기", "저장 후 작업 순서와 최종 실행에서 같은 패키지를 계속 씁니다."],
   ] as const;
+  const packageClarityItems = [
+    ["Free", `기본 ${freeArtifactLimit}/${fullArtifactCount}단계로 판단 자료 확보`],
+    ["제작 패스", `${buildPassCost}크레딧으로 전체 ${fullArtifactCount}단계 실행 패키지 저장`],
+    ["최종 실행", "작업 순서와 외부 개발 도구 연결 파일로 이어짐"],
+  ] as const;
 
   return (
     <section data-smoke="production-credit-panel" className="mb-5 border border-slate-200 bg-white p-4">
@@ -151,6 +156,14 @@ export function ProductionCreditPanel({
             <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
               월 {monthlyCreditGrant}크레딧이 자동 지급되고, 한 아이디어를 제작 패키지와 외부 개발 도구 연결까지 이어갈 때 제작 패스 1개를 씁니다.
             </p>
+            <div data-smoke="production-credit-package-clarity" className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-3">
+              {packageClarityItems.map(([label, detail]) => (
+                <div key={label} className="bg-slate-50 px-3 py-3">
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+                </div>
+              ))}
+            </div>
             <div data-smoke="production-credit-execution-package-value" className="mt-3 border border-blue-200 bg-blue-50 p-3">
               <div className="text-xs font-semibold text-blue-800">왜 제작 패스를 쓰나요?</div>
               <p className="mt-2 text-sm leading-6 text-blue-950">
