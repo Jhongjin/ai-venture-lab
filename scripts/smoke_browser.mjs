@@ -64,6 +64,16 @@ async function main() {
     await page.goto(baseUrl, { waitUntil: "networkidle", timeout });
 
     await waitForVisible(page.getByRole("heading", { name: /^AI Venture Lab$/ }), "homepage hero heading");
+    await waitForVisible(page.getByText("AI 우선 제품 OS", { exact: true }).first(), "homepage Korean hero product OS label");
+    await waitForVisible(page.getByText("제작 패키지 OS", { exact: true }), "homepage Korean package OS label");
+    await waitForVisible(page.getByText("메모에서 패키지", { exact: true }), "homepage Korean source-to-package label");
+    await waitForVisible(page.getByText("전달 완성도", { exact: true }), "homepage Korean handoff label");
+    const staleHeroEnglishLabels = await page
+      .getByText(/automation-first product OS|Package OS|Raw memo|source to package|handoff integrity/)
+      .count();
+    if (staleHeroEnglishLabels > 0) {
+      fail("homepage hero still exposes stale English micro-labels");
+    }
     await waitForVisible(page.getByRole("link", { name: /로그인(?: \/ |·)회원가입/ }), "anonymous account cta");
     const anonymousWorkspaceLinks = await page.getByRole("link", { name: /실행 보드 열기/ }).count();
     if (anonymousWorkspaceLinks > 0) {
