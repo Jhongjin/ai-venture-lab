@@ -10,7 +10,7 @@
 - Ask the user for judgment, not busywork. Manual editing is a correction path, not the main workflow.
 - Classify the intended product surface early: web app, mobile app, web site, automation, or operator console.
 - Treat external development tools as delivery choices layered on top of the product surface. Cursor, Codex, Claude Code, Google Antigravity, and future MCP connectors should change setup files and sync instructions, not the underlying result type.
-- Make every downstream artifact serve the final production package: PRD, design direction, stack choice, build scope, and prompts should be ready for native build or selected external development-tool execution.
+- Make every downstream artifact serve the final production package: product planning document, design direction, technical direction, first build scope, and tool start instructions should be ready for native build or selected external development-tool execution.
 - Keep the visible console simple enough for a first-time operator: one main action, AI-prepared drafts, optional manual corrections, and bottom-only step advancement.
 - Monetize execution depth, not confusion: basic idea understanding and safety guidance stay useful, while deeper market scans, production package export, external tool sync, and team workflows become paid upgrade moments.
 - Do not expose internal implementation vocabulary in primary UI copy. Use product-facing terms such as result type, production package, execution document, market check, risk check, and first build scope.
