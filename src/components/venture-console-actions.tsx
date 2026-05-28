@@ -1816,6 +1816,8 @@ export function VentureConsoleActions({
     normalizedBuildDeliveryPreference.mode === "external_tool"
       ? `${selectedExternalBuildTool.label}로 개발합니다`
       : "Venture Lab에서 계속 진행합니다";
+  const selectedBuildDeliveryShortLabel =
+    normalizedBuildDeliveryPreference.mode === "external_tool" ? selectedExternalBuildTool.label : "Venture Lab 내부";
   const updateActiveTask = useCallback(
     (task: ConsoleActionTask) => {
       setLocalActiveTask(task);
@@ -3871,9 +3873,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           형태 {recommendedExtractedIdea.productSurface.shortLabel}
                         </span>
                         <span className="avl-pill avl-pill-info">
-                          {normalizedBuildDeliveryPreference.mode === "external_tool"
-                            ? selectedExternalBuildTool.label
-                            : "내부 개발"}
+                          개발 방식 {selectedBuildDeliveryShortLabel}
                         </span>
                       </div>
                       <div className="mt-4 border border-emerald-200 bg-emerald-50 px-4 py-3">
@@ -4169,7 +4169,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                               </span>
                             </div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
-                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · 결과물 형태 {item.candidate.productSurface.label} · {item.nextGap}
+                              검증 {item.candidate.validationScore}/100 · 준비 {item.readinessScore}% · 결과물 형태 {item.candidate.productSurface.label} · 개발 방식 {selectedBuildDeliveryShortLabel} · {item.nextGap}
                             </p>
                             <p className="mt-1 text-sm leading-6 text-slate-600">
                               {item.gate.nextAction}
@@ -4290,6 +4290,9 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                             </span>
                             <span className="avl-pill avl-pill-brand">
                               결과물 형태 {candidate.productSurface.shortLabel}
+                            </span>
+                            <span className="avl-pill avl-pill-info">
+                              개발 방식 {selectedBuildDeliveryShortLabel}
                             </span>
                             <span className={`${gateStyle.badge}`}>
                               {extractionGate.label}
