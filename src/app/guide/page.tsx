@@ -111,6 +111,12 @@ const externalToolFiles = [
   ["Google Antigravity", ".antigravity/venture-lab-cli.mjs", ".antigravity/mcp_config.json", "AI_VENTURE_ANTIGRAVITY_START.md"],
 ];
 
+const creditPlanLadder = [
+  ["Free", "처음 검증", "월 100크레딧으로 기본 4/10 제작 자료와 첫 검증 판단을 확인합니다."],
+  ["제작 패스", "한 아이디어 실행", "30크레딧으로 전체 10단계 제작 패키지와 외부 개발 도구 연결 파일을 엽니다."],
+  ["Pro 관심", "반복 제작", "여러 제작 패키지, 자동 반영, 출처 기반 시장 점검이 계속 필요할 때 결제 전 수요 신호를 남깁니다."],
+];
+
 export default function GuidePage() {
   return (
     <main id="main-content" data-smoke="operator-guide" className={`min-h-screen bg-[#f2f0eb] text-slate-950 ${newsreader.variable}`}>
@@ -278,6 +284,17 @@ export default function GuidePage() {
               <div className="bg-white px-6 py-7 sm:px-8">
                 <div className="avl-kicker">common questions</div>
                 <h2 className="mt-4 text-[30px] font-semibold tracking-tight text-slate-950">자주 묻는 질문</h2>
+                <div data-smoke="guide-credit-plan-ladder" className="mt-6 grid gap-px bg-slate-200 lg:grid-cols-3">
+                  {creditPlanLadder.map(([label, title, body]) => (
+                    <article key={label} className="bg-[#f7f6f2] px-5 py-5">
+                      <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        {label}
+                      </div>
+                      <h3 className="mt-4 text-[18px] font-semibold tracking-tight text-slate-950">{title}</h3>
+                      <p className="mt-3 break-keep text-sm leading-6 text-slate-600">{body}</p>
+                    </article>
+                  ))}
+                </div>
                 <div className="mt-6 divide-y divide-slate-200 border-y border-slate-200">
                   {quickAnswers.map(([question, answer]) => (
                     <div key={question} className="grid gap-3 py-5 md:grid-cols-[0.35fr_0.65fr]">
