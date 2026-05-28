@@ -69,6 +69,21 @@ export type ConsoleWorkflowStatus = {
   hasIdeaSource: boolean;
 };
 
+const firstUseInputExamples = [
+  {
+    label: "회의 메모",
+    body: "고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요.",
+  },
+  {
+    label: "GPT 대화",
+    body: "반복 결제 목록을 정리하는 앱 아이디어를 이야기했는데, 어떤 범위부터 만들지 모르겠습니다.",
+  },
+  {
+    label: "자동화 업무",
+    body: "카카오톡, 이메일, 엑셀에 흩어진 요청을 모아 누락 없이 처리하고 싶습니다.",
+  },
+] as const;
+
 type InitialIdeaScores = Pick<
   Idea,
   | "problem_intensity"
@@ -3619,6 +3634,20 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           <div key={label} className="bg-slate-50 px-4 py-3">
                             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
                             <p className="mt-2 text-sm leading-6 text-slate-700">{body}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div
+                        data-smoke="first-use-input-examples"
+                        className="grid gap-px bg-slate-200 md:grid-cols-3"
+                      >
+                        {firstUseInputExamples.map((example) => (
+                          <div key={example.label} className="bg-white px-4 py-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                              붙여넣어도 되는 것
+                            </div>
+                            <div className="mt-2 text-sm font-semibold text-slate-950">{example.label}</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">{example.body}</p>
                           </div>
                         ))}
                       </div>

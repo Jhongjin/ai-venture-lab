@@ -116,6 +116,10 @@ async function main() {
       await waitForVisible(page.getByText("1. 붙여넣기", { exact: true }), "first-use paste step");
       await waitForVisible(page.getByText("2. AI 정리", { exact: true }), "first-use ai organize step");
       await waitForVisible(page.getByText("3. 저장 후 열림", { exact: true }), "first-use saved output step");
+      await waitForVisible(page.locator('[data-smoke="first-use-input-examples"]'), "first-use input examples");
+      await waitForVisible(page.getByText("회의 메모", { exact: true }), "first-use meeting memo example");
+      await waitForVisible(page.getByText("GPT 대화", { exact: true }), "first-use GPT conversation example");
+      await waitForVisible(page.getByText("자동화 업무", { exact: true }), "first-use automation task example");
       await waitForVisible(page.locator('[data-smoke="first-use-build-contract"]'), "first-use build contract");
       await waitForVisible(
         page.getByText("모바일 앱으로 만들고, Cursor로 개발합니다.", { exact: true }),
