@@ -15958,6 +15958,12 @@ export function IdeaWorkbench({
                 </div>
               ))}
             </div>
+            <div data-smoke="step5-save-to-execution-path" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">저장 후 열림</div>
+              <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
+                STEP 6 작업 순서 확인 후, STEP 7에서 연결 파일을 받습니다.
+              </p>
+            </div>
           </section>
 
           {experienceMode === "full" ? (

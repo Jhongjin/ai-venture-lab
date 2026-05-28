@@ -216,6 +216,12 @@ async function verifyAuthenticatedCreditSummary() {
         state: "visible",
         timeout: timeoutMs,
       });
+      await page.locator('[data-smoke="step5-save-to-execution-path"]').getByText("STEP 6 작업 순서 확인 후, STEP 7에서 연결 파일", {
+        exact: false,
+      }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
       await productionCreditPanel.locator('[data-smoke="production-credit-package-clarity"]').waitFor({
         state: "visible",
         timeout: timeoutMs,
