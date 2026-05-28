@@ -117,6 +117,16 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
     ],
     ["Pro 전환", "반복 제작, 외부 개발 도구 자동 반영, 출처 기반 시장 점검이 계속 필요할 때"],
   ] as const;
+  const proConversionBoundaryItems = [
+    ["현재 Free", `첫 아이디어 검증, 월 ${FREE_MONTHLY_CREDITS}크레딧, 제작 패키지 미리보기`],
+    ["Pro 가치", PRO_UPGRADE_VALUE_TEXT],
+    [
+      "지금 행동",
+      nextBuildPassShortfall !== null
+        ? `${formatCredits(nextBuildPassShortfall)} 부족합니다. Pro 관심을 남기면 반복 제작 수요로 기록됩니다`
+        : "결제 전에는 Pro 관심만 남기고 실제 checkout은 열지 않습니다",
+    ],
+  ] as const;
   const creditNextActionTitle = !summary
     ? "로그인 후 크레딧을 확인하세요"
     : nextBuildPassShortfall !== null
@@ -269,16 +279,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
           ))}
         </div>
         <div data-smoke="profile-pro-conversion-boundary" className="mt-4 grid gap-px bg-slate-200 sm:grid-cols-3">
-          {([
-            ["현재 Free", `첫 아이디어 검증, 월 ${FREE_MONTHLY_CREDITS}크레딧, 제작 패키지 미리보기`],
-            ["Pro 가치", PRO_UPGRADE_VALUE_TEXT],
-            [
-              "지금 행동",
-              nextBuildPassShortfall !== null
-                ? `${formatCredits(nextBuildPassShortfall)} 부족합니다. Pro 관심을 남기면 반복 제작 수요로 기록됩니다`
-                : "결제 전에는 Pro 관심만 남기고 실제 checkout은 열지 않습니다",
-            ],
-          ] as const).map(([label, detail]) => (
+          {proConversionBoundaryItems.map(([label, detail]) => (
             <div key={label} className="bg-slate-50 p-3">
               <div className="text-xs font-semibold text-slate-500">{label}</div>
               <p className="mt-2 text-sm leading-6 text-slate-700">{detail}</p>
