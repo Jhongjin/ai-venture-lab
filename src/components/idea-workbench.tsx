@@ -17634,6 +17634,21 @@ export function IdeaWorkbench({
                       </div>
                     ))}
                   </div>
+                  <div data-smoke="final-execution-install-result" className="border border-emerald-200 bg-emerald-50 p-4">
+                    <div className="text-sm font-semibold text-emerald-950">설치가 끝나면 프로젝트 안에 생기는 것</div>
+                    <div className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
+                      {[
+                        ["START 파일", `${activeExternalBuildTool.startFileName} 첫 메시지`],
+                        ["작업 목록", "T-001부터 볼 수 있는 제작 순서"],
+                        ["진행 기록", `${liveExternalToolProgressPath} 자동 반영 백업`],
+                      ].map(([label, detail]) => (
+                        <div key={label} className="bg-white px-3 py-2">
+                          <div className="text-xs font-semibold tracking-[0.14em] text-emerald-700">{label}</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-700">{detail}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                   <div
                     data-smoke="final-execution-root-check"
                     className="border border-slate-200 bg-slate-50 p-4"

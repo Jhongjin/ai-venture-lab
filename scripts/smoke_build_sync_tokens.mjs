@@ -285,6 +285,17 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const installResult = page.locator('[data-smoke="final-execution-install-result"]');
+  await installResult.getByText("설치가 끝나면 프로젝트 안에 생기는 것", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  for (const label of ["START 파일", "작업 목록", "진행 기록"]) {
+    await installResult.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   const rootCheck = page.locator('[data-smoke="final-execution-root-check"]');
   await rootCheck.getByText("실행 위치 확인", { exact: true }).waitFor({
     state: "visible",
