@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { WorkspaceBoardPage, type WorkspaceInitialTask, type WorkspaceInitialView } from "@/components/workspace-board-page";
+import { isWorkbenchTask } from "@/lib/workbench-tasks";
 
 export const metadata: Metadata = {
   title: "아이디어 실행 보드 | AI Venture Lab",
@@ -19,19 +20,7 @@ export default async function WorkspacePage({
   const task = Array.isArray(params?.task) ? params?.task[0] : params?.task;
   const idea = Array.isArray(params?.idea) ? params?.idea[0] : params?.idea;
   const initialView: WorkspaceInitialView = view === "ideas" || view === "deleted" ? view : undefined;
-  const initialTask: WorkspaceInitialTask =
-    task === "select" ||
-    task === "archive" ||
-    task === "score" ||
-    task === "risk" ||
-    task === "experiment" ||
-    task === "artifacts" ||
-    task === "development" ||
-    task === "orchestration" ||
-    task === "launch" ||
-    task === "learning"
-      ? task
-      : undefined;
+  const initialTask: WorkspaceInitialTask = isWorkbenchTask(task) ? task : undefined;
 
   return <WorkspaceBoardPage initialView={initialView} initialTask={initialTask} initialIdeaId={idea} />;
 }

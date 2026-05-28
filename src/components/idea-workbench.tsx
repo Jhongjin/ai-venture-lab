@@ -50,6 +50,7 @@ import {
   getBuildPassCapacity,
   type CreditSummary,
 } from "@/lib/billing";
+import type { WorkbenchTask } from "@/lib/workbench-tasks";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import type {
   Decision,
@@ -78,6 +79,8 @@ import type {
 
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
 type ViewerUser = Pick<User, "id">;
+
+export type { WorkbenchTask } from "@/lib/workbench-tasks";
 
 const stages: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const stageRank = new Map(stages.map((stage, index) => [stage, index]));
@@ -864,19 +867,6 @@ type FirstBuildBridge = {
   excludeNow: string[];
   decisionAnchor: string;
 };
-
-export type WorkbenchTask =
-  | "select"
-  | "archive"
-  | "score"
-  | "risk"
-  | "decision"
-  | "experiment"
-  | "orchestration"
-  | "artifacts"
-  | "development"
-  | "launch"
-  | "learning";
 
 export type WorkbenchStepReadiness = {
   selectedIdeaId: string | null;
