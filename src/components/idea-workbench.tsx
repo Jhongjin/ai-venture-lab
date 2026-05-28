@@ -18887,27 +18887,33 @@ export function IdeaWorkbench({
 
           <div data-smoke="step6-current-action" className="mt-4 grid gap-px bg-slate-200 lg:grid-cols-3">
             {[
-              [
-                "지금 할 일",
-                hasGeneratedWorkOrder ? "생성된 작업 순서를 확인하세요" : "작업 순서 자동 만들기를 누르세요",
-                hasGeneratedWorkOrder ? "필요한 보완만 하고 하단 다음 단계로 이동합니다." : "AI가 제작자가 볼 순서와 첫 작업을 만듭니다.",
-              ],
-              [
-                "첫 작업",
-                firstImplementationTask ? firstImplementationTask.title : "T-001 기획서와 첫 제작 범위 잠금",
-                firstImplementationTask
+              {
+                label: "지금 할 일",
+                title: hasGeneratedWorkOrder ? "생성된 작업 순서를 확인하세요" : "작업 순서 자동 만들기를 누르세요",
+                detail: hasGeneratedWorkOrder
+                  ? "필요한 보완만 하고 하단 다음 단계로 이동합니다."
+                  : "AI가 제작자가 볼 순서와 첫 작업을 만듭니다.",
+              },
+              {
+                label: "첫 작업",
+                code: getCursorTaskCode(0),
+                title: firstImplementationTask ? firstImplementationTask.title : "기획서와 첫 제작 범위 잠금",
+                detail: firstImplementationTask
                   ? implementationTaskTypeLabels[firstImplementationTask.task_type]
                   : "작업 순서를 만들면 첫 제작 기준이 여기에 표시됩니다.",
-              ],
-              [
-                "다음 단계",
-                hasGeneratedWorkOrder ? "최종 실행으로 넘길 준비" : "작업 순서가 있어야 최종 실행이 열립니다",
-                "외부 개발 도구 연결은 STEP 7에서 진행합니다.",
-              ],
-            ].map(([label, title, detail]) => (
+              },
+              {
+                label: "다음 단계",
+                title: hasGeneratedWorkOrder ? "최종 실행으로 넘길 준비" : "작업 순서가 있어야 최종 실행이 열립니다",
+                detail: "외부 개발 도구 연결은 STEP 7에서 진행합니다.",
+              },
+            ].map(({ label, code, title, detail }) => (
               <div key={label} className="bg-white px-4 py-3">
                 <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
-                <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">{title}</p>
+                <p className="mt-2 flex flex-wrap items-center gap-2 text-sm font-semibold leading-6 text-slate-950">
+                  {code ? <span className="font-mono text-xs font-semibold text-slate-500">{code}</span> : null}
+                  <span>{title}</span>
+                </p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p>
               </div>
             ))}
