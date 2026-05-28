@@ -10346,7 +10346,11 @@ export function IdeaWorkbench({
         ? "사용 신호는 들어왔고, 다음 결정은 열린 리스크를 하나 줄이는 것입니다."
         : "사용 신호가 들어왔으니 다음 빌드 범위를 작게 승인할 차례입니다.";
   const learningPrimaryCtaLabel =
-    nextImplementationTask || productSignalCount === 0 ? "최종 실행으로 가기" : "리포트 복사";
+    nextImplementationTask
+      ? "다음 작업 보러가기"
+      : productSignalCount === 0
+        ? "최종 실행 확인"
+        : "리포트 복사";
   const learningDecisionOptions = nextImplementationTask
     ? ["작업 계속", "막힘 해결", "완료 보고 반영"]
     : productSignalCount === 0
@@ -18524,6 +18528,7 @@ export function IdeaWorkbench({
                   void copyDraft(learningTelemetryReportDraft, "학습 리포트");
                 }}
                 disabled={productSignalCount > 0 && !learningTelemetryReportDraft}
+                data-smoke="step8-primary-cta"
                 className="avl-btn avl-btn-primary h-10 px-4 disabled:opacity-50"
               >
                 {productSignalCount > 0 && !nextImplementationTask ? <Clipboard size={16} /> : <ArrowRight size={16} />}

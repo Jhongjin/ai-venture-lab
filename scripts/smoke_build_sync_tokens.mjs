@@ -106,6 +106,10 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.locator('[data-smoke="step8-primary-cta"]').getByText(/다음 작업 보러가기|최종 실행 확인|리포트 복사/).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.locator('[data-smoke="step8-one-sentence-outcome"]').getByText("한 줄 결론", { exact: true }).waitFor({
     state: "visible",
     timeout,
