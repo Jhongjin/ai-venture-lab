@@ -5,7 +5,7 @@ AI Venture Lab does not open checkout yet. The current product collects Pro inte
 ## Current Product State
 
 - `/profile` shows the Free/Pro boundary and records Pro interest without payment.
-- `/profile` also shows a payment readiness panel. It only displays required environment variable names and readiness counts, never secret values.
+- `/profile` does not show payment readiness while checkout is paused and provider choice is deferred. If the Stripe path is resumed, any readiness panel may display required environment variable names and readiness counts only, never secret values.
 - STEP 5 and STEP 7 are gated by Venture Credits and build passes, not Stripe subscriptions.
 - No checkout session route or webhook route is live yet.
 
