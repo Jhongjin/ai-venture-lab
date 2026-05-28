@@ -3606,6 +3606,9 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                                   <span className="avl-pill avl-pill-brand">
                                     {productSurface?.shortLabel ?? "웹 서비스"}
                                   </span>
+                                  <span className="avl-pill avl-pill-info">
+                                    개발 방식 {selectedBuildDeliveryShortLabel}
+                                  </span>
                                   {slot?.kept ? <span className="avl-pill avl-pill-success">유지됨</span> : null}
                                 </div>
                                 <div className="mt-4 grid gap-3 text-sm leading-6 text-slate-700">
