@@ -12678,7 +12678,7 @@ export function IdeaWorkbench({
           payload.message ??
             (payload.registryStatus === "ready"
               ? `${activeExternalBuildTool.label} 연결 상태를 확인했습니다.`
-              : `${activeExternalBuildTool.label} 연결 파일은 만들 수 있지만, 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다.`),
+              : `${activeExternalBuildTool.label} 연결 파일은 만들 수 있지만, 개별 연결 끊기는 연결 기록 설정 후 열립니다.`),
         );
       }
     } catch (error) {
@@ -14658,7 +14658,7 @@ export function IdeaWorkbench({
     }
 
     setIsBusy(true);
-    setMessage("Cursor 자동 연결 토큰을 준비하는 중입니다...");
+    setMessage("Cursor 자동 반영 연결을 준비하는 중입니다...");
 
     try {
       const response = await fetch("/api/build-sync/token", {
@@ -14669,7 +14669,7 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
 
       if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || "Cursor 자동 연결 토큰을 만들지 못했습니다.");
+        throw new Error(payload.error || "Cursor 자동 반영 연결을 준비하지 못했습니다.");
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
@@ -14682,7 +14682,7 @@ export function IdeaWorkbench({
         payload.message ??
           (payload.registryStatus === "ready"
             ? "새 Cursor 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
-            : "Cursor 연결 파일을 만들었습니다. 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
+            : "Cursor 연결 파일을 만들었습니다. 개별 연결 끊기는 연결 기록 설정 후 열립니다."),
       );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
@@ -14747,7 +14747,7 @@ export function IdeaWorkbench({
     }
 
     setIsBusy(true);
-    setMessage("Codex 자동 연결 토큰을 준비하는 중입니다...");
+    setMessage("Codex 자동 반영 연결을 준비하는 중입니다...");
 
     try {
       const response = await fetch("/api/build-sync/token", {
@@ -14758,7 +14758,7 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
 
       if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || "Codex 자동 연결 토큰을 만들지 못했습니다.");
+        throw new Error(payload.error || "Codex 자동 반영 연결을 준비하지 못했습니다.");
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
@@ -14771,7 +14771,7 @@ export function IdeaWorkbench({
         payload.message ??
           (payload.registryStatus === "ready"
             ? "새 Codex 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
-            : "Codex 연결 파일을 만들었습니다. 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
+            : "Codex 연결 파일을 만들었습니다. 개별 연결 끊기는 연결 기록 설정 후 열립니다."),
       );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
@@ -14834,7 +14834,7 @@ export function IdeaWorkbench({
     }
 
     setIsBusy(true);
-    setMessage("Claude Code 자동 연결 토큰을 준비하는 중입니다...");
+    setMessage("Claude Code 자동 반영 연결을 준비하는 중입니다...");
 
     try {
       const response = await fetch("/api/build-sync/token", {
@@ -14845,7 +14845,7 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
 
       if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || "Claude Code 자동 연결 토큰을 만들지 못했습니다.");
+        throw new Error(payload.error || "Claude Code 자동 반영 연결을 준비하지 못했습니다.");
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
@@ -14858,7 +14858,7 @@ export function IdeaWorkbench({
         payload.message ??
           (payload.registryStatus === "ready"
             ? "새 Claude Code 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
-            : "Claude Code 연결 파일을 만들었습니다. 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
+            : "Claude Code 연결 파일을 만들었습니다. 개별 연결 끊기는 연결 기록 설정 후 열립니다."),
       );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
@@ -14925,7 +14925,7 @@ export function IdeaWorkbench({
     }
 
     setIsBusy(true);
-    setMessage("Google Antigravity 자동 연결 토큰을 준비하는 중입니다...");
+    setMessage("Google Antigravity 자동 반영 연결을 준비하는 중입니다...");
 
     try {
       const response = await fetch("/api/build-sync/token", {
@@ -14936,7 +14936,7 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
 
       if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || "Google Antigravity 자동 연결 토큰을 만들지 못했습니다.");
+        throw new Error(payload.error || "Google Antigravity 자동 반영 연결을 준비하지 못했습니다.");
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
@@ -14949,7 +14949,7 @@ export function IdeaWorkbench({
         payload.message ??
           (payload.registryStatus === "ready"
             ? "새 Google Antigravity 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
-            : "Google Antigravity 연결 파일을 만들었습니다. 개별 연결 끊기는 DB 토큰 장부 적용 후 열립니다."),
+            : "Google Antigravity 연결 파일을 만들었습니다. 개별 연결 끊기는 연결 기록 설정 후 열립니다."),
       );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
@@ -17920,7 +17920,7 @@ export function IdeaWorkbench({
                           ) : null}
                           {cursorSyncRegistryStatus === "missing" || cursorSyncRegistryStatus === "unavailable" ? (
                             <div className="mt-3 border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-950">
-                              개별 연결 끊기는 DB 토큰 장부 SQL 적용 후 활성화됩니다. 적용 전에도 연결 파일은 기존 방식으로 동작합니다.
+                              개별 연결 끊기는 연결 기록 설정 후 활성화됩니다. 설정 전에도 연결 파일은 기존 방식으로 동작합니다.
                             </div>
                           ) : null}
                           {cursorSyncRegistryStatus === "ready" ? (
@@ -18211,7 +18211,7 @@ export function IdeaWorkbench({
                           </div>
                           <p className="mt-3 text-xs leading-5 text-slate-500">
                             실행 위치는 다운로드 폴더가 아니라 실제 개발할 프로젝트 루트입니다. 이 스크립트가 그 위치에{" "}
-                            <span className="font-mono">{liveExternalToolFolder}/venture-lab-cli.mjs</span>, 자동 반영 토큰,
+                            <span className="font-mono">{liveExternalToolFolder}/venture-lab-cli.mjs</span>, 자동 반영 연결 정보,
                             제작 패키지와 작업 목록을 만듭니다.
                           </p>
                           <div className="mt-3 flex flex-wrap gap-2">
