@@ -169,6 +169,33 @@ async function verifyAuthenticatedCreditSummary() {
       timeout: timeoutMs,
     });
 
+    const developmentUrl = new URL("/workspace", baseUrl);
+    developmentUrl.searchParams.set("task", "development");
+    await page.goto(developmentUrl.toString(), { waitUntil: "networkidle", timeout: timeoutMs });
+    const productionCreditPanel = page.locator('[data-smoke="production-credit-panel"]');
+    const hasProductionCreditPanel = await productionCreditPanel
+      .first()
+      .isVisible({ timeout: 15000 })
+      .catch(() => false);
+
+    if (hasProductionCreditPanel) {
+      await productionCreditPanel.locator('[data-smoke="production-credit-spend-confidence"]').waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+    } else if (
+      await page
+        .getByRole("heading", { name: /메모에서 검토할 아이디어 정리|아이디어 찾기/ })
+        .first()
+        .isVisible({ timeout: 1000 })
+        .catch(() => false)
+    ) {
+      console.log("STEP 5 credit panel check skipped because the authenticated smoke account has no active ideas.");
+    } else {
+      const visibleText = (await page.locator("body").innerText({ timeout: timeoutMs })).replace(/\s+/g, " ").slice(0, 240);
+      fail(`STEP 5 credit panel was not visible from direct development route. Visible text: ${visibleText}`);
+    }
+
     return summary;
   } finally {
     await browser.close();

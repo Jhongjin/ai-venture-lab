@@ -3,7 +3,7 @@
 import { CheckCircle2, Coins, LockKeyhole } from "lucide-react";
 
 import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
-import { getBuildPassShortfall, type CreditSystemStatus } from "@/lib/billing";
+import { getBalanceAfterBuildPass, getBuildPassShortfall, type CreditSystemStatus } from "@/lib/billing";
 
 const freeProductionPackageItems = ["아이디어 요약", "조사 요약", "7일 검증 계획", "검증 완료 요약"];
 const unlockedProductionPackageItems = [
@@ -118,6 +118,22 @@ export function ProductionCreditPanel({
       ? "확인 필요"
       : `${remainingBuildPassCount.toLocaleString("ko-KR")}개`;
   const buildPassShortfall = getBuildPassShortfall(creditBalance, buildPassCost);
+  const balanceAfterBuildPass = getBalanceAfterBuildPass(creditBalance, buildPassCost);
+  const spendConfidenceItems = [
+    [
+      "사용 범위",
+      hasSelectedIdeaBuildPass ? "이미 이 아이디어에 제작 패스가 열렸습니다." : "현재 선택한 아이디어에만 제작 패스를 기록합니다.",
+    ],
+    [
+      "쓴 뒤 잔여",
+      hasSelectedIdeaBuildPass
+        ? "추가 차감 없음"
+        : balanceAfterBuildPass !== null
+          ? `${balanceAfterBuildPass.toLocaleString("ko-KR")}크레딧 남음`
+          : "잔여 크레딧 보충 필요",
+    ],
+    ["다시 이어가기", "저장 후 작업 순서와 최종 실행에서 같은 패키지를 계속 씁니다."],
+  ] as const;
 
   return (
     <section data-smoke="production-credit-panel" className="mb-5 border border-slate-200 bg-white p-4">
@@ -153,6 +169,14 @@ export function ProductionCreditPanel({
                   </div>
                 ))}
               </div>
+            </div>
+            <div data-smoke="production-credit-spend-confidence" className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-3">
+              {spendConfidenceItems.map(([label, detail]) => (
+                <div key={label} className="bg-slate-50 p-3">
+                  <div className="text-xs font-semibold text-slate-500">{label}</div>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+                </div>
+              ))}
             </div>
             <div className="mt-3 grid gap-2 md:grid-cols-2">
               <div className="border border-slate-200 bg-slate-50 p-3">
