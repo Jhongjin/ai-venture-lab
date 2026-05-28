@@ -10413,6 +10413,25 @@ export function IdeaWorkbench({
       : openSelectedIdeaRisks.length > 0
         ? "다음 빌드에서 줄일 리스크 하나만 고르면 됩니다. 상세 리포트는 필요할 때만 엽니다."
         : "다음 빌드 범위를 승인할지 보류할지만 정하면 됩니다. 상세 리포트는 필요할 때만 엽니다.";
+  const externalSyncCompletedText =
+    totalLearningImplementationTasks > 0
+      ? `${completedLearningImplementationTasks.length}/${totalLearningImplementationTasks} 작업`
+      : "작업 생성 전";
+  const externalSyncNextTaskText = nextImplementationTask
+    ? `${nextImplementationTaskCode ? `${nextImplementationTaskCode} ` : ""}${nextImplementationTask.title}`
+    : totalLearningImplementationTasks > 0
+      ? "모든 작업 완료"
+      : "STEP 6 작업 순서 생성";
+  const externalSyncCheckedText = taskSyncUpdatedAt ?? "화면을 열면 자동 확인";
+  const externalSyncOutcomeSentence =
+    totalLearningImplementationTasks > 0
+      ? `자동 반영 기준으로 완료 ${externalSyncCompletedText}, 다음은 ${externalSyncNextTaskText}입니다.`
+      : "아직 반영할 제작 작업이 없습니다. STEP 6에서 작업 순서를 만든 뒤 최종 실행으로 넘기세요.";
+  const externalSyncReviewRows = [
+    ["반영 결과", externalSyncCompletedText, "외부 도구 완료 보고가 반영된 작업 수입니다."],
+    ["다음 작업", externalSyncNextTaskText, "이 작업만 이어서 처리하면 됩니다."],
+    ["최근 확인", externalSyncCheckedText, "최종 실행과 성과 확인 화면에서 자동으로 다시 읽습니다."],
+  ] as const;
   const nextImplementationTaskId = nextImplementationTask?.id ?? null;
   const learningTaskTimeline = [...selectedImplementationTasks]
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -18231,6 +18250,15 @@ export function IdeaWorkbench({
                           {taskSyncUpdatedAt ? (
                             <p className="mt-1 text-xs leading-5 text-slate-500">마지막 확인 {taskSyncUpdatedAt}</p>
                           ) : null}
+                          <div data-smoke="final-execution-sync-result" className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
+                            {externalSyncReviewRows.map(([label, value, detail]) => (
+                              <div key={label} className="bg-white px-3 py-3">
+                                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
+                                <div className="mt-2 text-sm font-semibold leading-6 text-slate-950">{value}</div>
+                                <p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                         <button
                           type="button"
@@ -18469,6 +18497,13 @@ export function IdeaWorkbench({
                 <div data-smoke="step8-next-judgment-brief" className="mt-3 border border-blue-200 bg-white px-3 py-2">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">다음 판단</div>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningNextJudgmentBrief}</p>
+                </div>
+                <div data-smoke="step8-sync-brief" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                    자동 반영 요약
+                  </div>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{externalSyncOutcomeSentence}</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">최근 확인: {externalSyncCheckedText}</p>
                 </div>
               </div>
               <button

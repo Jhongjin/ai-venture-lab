@@ -137,6 +137,19 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  const syncBrief = page.locator('[data-smoke="step8-sync-brief"]');
+  await syncBrief.getByText("자동 반영 요약", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await syncBrief.getByText("완료", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await syncBrief.getByText("다음", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
     state: "visible",
     timeout,
@@ -264,6 +277,13 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const syncResult = page.locator('[data-smoke="final-execution-sync-result"]');
+  for (const label of ["반영 결과", "다음 작업", "최근 확인"]) {
+    await syncResult.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   await waitForVisibleDecisionSentence(page);
 }
 
