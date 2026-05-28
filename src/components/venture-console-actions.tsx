@@ -3638,6 +3638,13 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         ))}
                       </div>
                       <div
+                        data-smoke="first-use-ai-output-preview"
+                        className="border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700"
+                      >
+                        <span className="font-semibold text-slate-950">AI 정리 결과:</span> 아이디어 후보 3개, 결과물 형태,
+                        개발 방식, 첫 검증 질문이 먼저 나옵니다. 사용자는 한 건만 확인하고 저장하면 됩니다.
+                      </div>
+                      <div
                         data-smoke="first-use-input-examples"
                         className="grid gap-px bg-slate-200 md:grid-cols-3"
                       >
