@@ -132,6 +132,15 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    const creditNextAction = page.locator('[data-smoke="profile-credit-next-action"]');
+    await creditNextAction.getByText("지금 할 일", { exact: true }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
+    const creditNextActionText = await creditNextAction.innerText({ timeout: timeoutMs });
+    if (!/STEP 5|Pro 관심|로그인 후/.test(creditNextActionText)) {
+      fail(`profile credit next action did not explain the next step: ${creditNextActionText}`);
+    }
     if (typeof summary.balance === "number" && summary.balance < summary.buildPassCost) {
       await page.locator('[data-smoke="profile-credit-shortfall"]').waitFor({
         state: "visible",

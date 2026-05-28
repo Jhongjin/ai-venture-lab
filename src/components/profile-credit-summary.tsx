@@ -117,6 +117,18 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
     ],
     ["Pro 전환", "반복 제작, 외부 개발 도구 자동 반영, 출처 기반 시장 점검이 계속 필요할 때"],
   ] as const;
+  const creditNextActionTitle = !summary
+    ? "로그인 후 크레딧을 확인하세요"
+    : nextBuildPassShortfall !== null
+      ? `다음 제작 패스까지 ${formatCredits(nextBuildPassShortfall)} 부족합니다`
+      : remainingBuildPassCount !== null && remainingBuildPassCount > 0
+        ? "지금은 STEP 5에서 제작 패스를 열 수 있습니다"
+        : "제작 패스 용량을 확인하세요";
+  const creditNextActionDetail = !summary
+    ? "잔여 크레딧과 이번 달 제작 가능 횟수를 먼저 확인합니다."
+    : nextBuildPassShortfall !== null
+      ? "결제는 아직 열지 않고 Pro 관심 신호만 남깁니다."
+      : "전체 제작 패키지와 외부 개발 도구 연결이 필요할 때만 30크레딧을 씁니다.";
 
   return (
     <section data-smoke="profile-credit-summary" className="mt-8 border border-slate-200 bg-slate-50 p-4">
@@ -139,6 +151,12 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
           <div className="mt-2 text-2xl font-semibold text-slate-950">{balanceLabel}</div>
           <div className="mt-2 text-xs leading-5 text-slate-500">기간 {summary?.periodKey ?? "로그인 후 표시"}</div>
         </div>
+      </div>
+
+      <div data-smoke="profile-credit-next-action" className="mt-4 border border-blue-200 bg-blue-50 p-3">
+        <div className="text-xs font-semibold text-blue-800">지금 할 일</div>
+        <p className="mt-1 text-sm font-semibold leading-6 text-blue-950">{creditNextActionTitle}</p>
+        <p className="mt-1 text-xs leading-5 text-slate-600">{creditNextActionDetail}</p>
       </div>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
