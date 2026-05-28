@@ -112,9 +112,10 @@ async function main() {
         page.getByText("처음이라면 메모를 그대로 붙이고 AI 정리만 누르세요.", { exact: true }),
         "first-use primary instruction",
       );
-      await waitForVisible(page.getByText("넣을 수 있는 것", { exact: true }), "first-use input examples");
-      await waitForVisible(page.getByText("AI가 만드는 것", { exact: true }), "first-use ai output summary");
-      await waitForVisible(page.getByText("내가 하는 것", { exact: true }), "first-use operator role summary");
+      await waitForVisible(page.locator('[data-smoke="first-use-fast-path"]'), "first-use fast path");
+      await waitForVisible(page.getByText("1. 붙여넣기", { exact: true }), "first-use paste step");
+      await waitForVisible(page.getByText("2. AI 정리", { exact: true }), "first-use ai organize step");
+      await waitForVisible(page.getByText("3. 저장 후 열림", { exact: true }), "first-use saved output step");
       await waitForVisible(page.locator('[data-smoke="first-use-build-contract"]'), "first-use build contract");
       await waitForVisible(
         page.getByText("모바일 앱으로 만들고, Cursor로 개발합니다.", { exact: true }),

@@ -3608,42 +3608,19 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950"
                       >
                         <span className="font-semibold text-slate-950">처음이라면 메모를 그대로 붙이고 AI 정리만 누르세요.</span>{" "}
-                        AI가 후보, 결과물 형태, 개발 방식을 먼저 채우고 사용자는 저장할 한 건만 확인합니다.
+                        저장하면 사업성 평가부터 제작 패키지와 외부 개발 도구 전달 자료까지 순서대로 열립니다.
                       </div>
-                      <div className="grid gap-px bg-slate-200 md:grid-cols-3">
+                      <div data-smoke="first-use-fast-path" className="grid gap-px bg-slate-200 md:grid-cols-3">
                         {[
-                          ["넣을 수 있는 것", "회의 메모, GPT 대화, 떠오른 아이디어, 자동화하고 싶은 업무"],
-                          ["AI가 만드는 것", "후보 아이디어 3개, 결과물 형태(무엇을 만들지), 개발 방식(어디서 개발할지)"],
-                          ["내가 하는 것", "좋은 후보만 킵하고 저장한 뒤 다음 단계로 이동"],
+                          ["1. 붙여넣기", "회의 메모, GPT 대화, 자동화할 업무를 그대로 넣기"],
+                          ["2. AI 정리", "후보 3개와 결과물 형태·개발 방식 정리"],
+                          ["3. 저장 후 열림", "사업성 평가, 검증 계획, 제작 패키지, 외부 개발 자료"],
                         ].map(([label, body]) => (
                           <div key={label} className="bg-slate-50 px-4 py-3">
                             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
                             <p className="mt-2 text-sm leading-6 text-slate-700">{body}</p>
                           </div>
                         ))}
-                      </div>
-                      <div
-                        data-smoke="first-use-build-contract"
-                        className="grid gap-px bg-slate-200 text-sm leading-6 md:grid-cols-[1fr_1fr_1.2fr]"
-                      >
-                        {[
-                          ["결과물 형태", "무엇을 만들지", "예: 모바일 앱"],
-                          ["개발 방식", "어디서 개발할지", "예: Cursor"],
-                          ["저장되는 문장", "둘을 분리해 저장", "모바일 앱으로 만들고, Cursor로 개발합니다."],
-                        ].map(([label, title, detail]) => (
-                          <div key={label} className="bg-white px-4 py-3">
-                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
-                            <div className="mt-1 font-semibold text-slate-950">{title}</div>
-                            <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
-                          </div>
-                        ))}
-                      </div>
-                      <div
-                        data-smoke="first-use-output-path"
-                        className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-950"
-                      >
-                        <span className="font-semibold text-slate-950">저장 후 받는 결과:</span> 사업성 평가, 리스크,
-                        검증 계획, 제작 패키지, 외부 개발 도구 전달 자료까지 순서대로 열립니다.
                       </div>
                       <textarea
                         value={rawIdeaSource}
@@ -3655,6 +3632,22 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         placeholder="예) 고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요. 반복 입력을 줄이고 누락을 확인하는 도구가 필요합니다."
                         className="avl-textarea min-h-[280px] leading-7"
                       />
+                      <div
+                        data-smoke="first-use-build-contract"
+                        className="border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-700"
+                      >
+                        <span className="font-semibold text-slate-950">예시:</span> 모바일 앱으로 만들고, Cursor로 개발합니다.
+                        <span className="mt-1 block text-xs leading-5 text-slate-500">
+                          결과물 형태와 개발 방식은 따로 저장되고, 실제 연결 파일은 STEP 7에서 받습니다.
+                        </span>
+                      </div>
+                      <div
+                        data-smoke="first-use-output-path"
+                        className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-950"
+                      >
+                        <span className="font-semibold text-slate-950">저장 후 받는 결과:</span> 사업성 평가, 리스크,
+                        검증 계획, 제작 패키지, 외부 개발 도구 전달 자료
+                      </div>
                     </div>
                   )}
                   <div className="grid gap-2 border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700 md:grid-cols-3">
