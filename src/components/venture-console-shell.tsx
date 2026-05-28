@@ -197,7 +197,7 @@ const firstRunGuideSteps = [
 const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> = {
   "console:auth": {
     summary: "관리자 계정으로 바로 로그인합니다. 별도 인증키나 메일 링크는 다루지 않아도 됩니다.",
-    checklist: ["이메일과 비밀번호 입력", "로그인 상태 확인", "다음 단계로 이동"],
+    checklist: ["이메일과 비밀번호 입력", "로그인 상태 확인", "하단 다음 단계 버튼 확인"],
   },
   "console:workspace": {
     summary: "기본은 1인 작업 기준으로 진행하고, 팀과 함께 봐야 할 때만 협업 공간을 연결합니다.",
@@ -241,7 +241,7 @@ const taskGuidance: Record<ShellTask, { summary: string; checklist: string[] }> 
   },
   "workbench:orchestration": {
     summary: "AI가 만든 작업 순서를 확인하고 필요한 결과만 보완합니다.",
-    checklist: ["작업 순서 자동 만들기", "필요한 단계 결과 확인", "다음 단계로 이동"],
+    checklist: ["작업 순서 자동 만들기", "필요한 단계 결과 확인", "하단 다음 단계 버튼 확인"],
   },
   "workbench:artifacts": {
     summary: "AI가 만든 아이디어 요약, 기획서, 첫 제작 범위를 확인하고 저장합니다.",
@@ -517,19 +517,19 @@ function getCurrentStepBlocker({
 }) {
   switch (activeTask) {
     case "console:auth":
-      return "로그인 후 바로 아이디어 도출 단계로 이동합니다. 협업 설정은 나중에 선택할 수 있습니다.";
+      return "로그인하면 아이디어 도출을 시작할 준비가 됩니다. 협업 설정은 나중에 선택할 수 있습니다.";
     case "console:workspace":
       return consoleStatus.hasWorkspace
         ? "협업 공간을 연결했습니다. 다시 아이디어 도출로 돌아가 계속 진행하면 됩니다."
         : "이 단계는 선택 기능입니다. 팀으로 같이 볼 때만 워크스페이스를 만들거나 선택하세요.";
     case "console:extract":
       return consoleStatus.hasExtractedIdeas
-        ? "추천 아이디어를 저장 양식으로 보내면 아이디어 저장 단계로 자동 이동합니다."
-        : "아이디어가 선정되면 STEP 2 단계로 이동됩니다.";
+        ? "추천 아이디어를 저장 양식에 불러온 뒤 저장하면, 하단 다음 단계 버튼이 열립니다."
+        : "아이디어를 고른 뒤 저장하면, 하단 다음 단계 버튼으로 STEP 2에 갈 수 있습니다.";
     case "console:idea":
       return ideaCount > 0
-        ? "아이디어를 저장하면 검증 단계로 이동합니다."
-        : "아이디어를 최소 한 건 저장해야 검증 단계로 넘어갈 수 있습니다.";
+        ? "아이디어를 저장하면 하단 다음 단계 버튼으로 검증 단계에 갈 수 있습니다."
+        : "아이디어를 최소 한 건 저장해야 하단 다음 단계 버튼이 열립니다.";
     default:
       return null;
   }
@@ -582,7 +582,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "메모를 넣으면 AI가 검토할 아이디어를 정리합니다.",
-      detail: "회의 내용, GPT 대화, 자동화하고 싶은 업무를 그대로 붙여넣으세요. 마음에 드는 한 건을 저장하면 사업성 평가로 이어집니다.",
+      detail: "회의 내용, GPT 대화, 자동화하고 싶은 업무를 그대로 붙여넣으세요. 마음에 드는 한 건을 저장하면 하단 다음 단계 버튼으로 사업성 평가를 시작할 수 있습니다.",
       evidence: `${dataNote} · 아이디어 없음`,
       risk: "리스크는 저장 뒤 확인",
       metrics,
@@ -604,7 +604,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "이 아이디어를 검증할지 먼저 판단합니다.",
-      detail: "사업성 평가를 저장하면 바로 검증 계획으로 넘어갈 수 있습니다.",
+      detail: "사업성 평가를 저장하면 하단 다음 단계 버튼으로 검증 계획을 열 수 있습니다.",
       evidence: `${dataNote} · 아이디어 ${ideaCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       metrics,
@@ -641,7 +641,7 @@ function getExecutiveFocus({
     return {
       eyebrow: "지금 할 일",
       title: "이제 제작 패키지를 저장하세요.",
-      detail: "검증 결과와 결과물 형태를 묶어 제작 단계로 바로 넘길 패키지를 만듭니다.",
+      detail: "검증 결과와 결과물 형태를 묶어 제작 단계에서 쓸 패키지를 만듭니다.",
       evidence: `${dataNote} · 제작 자료 ${artifactCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:development",
@@ -666,8 +666,8 @@ function getExecutiveFocus({
   if (activeTask === "workbench:orchestration") {
     return {
       eyebrow: "지금 할 일",
-      title: "작업 순서를 확인하고 최종 실행으로 넘기세요.",
-      detail: "작업 순서와 제작 패키지가 준비되어 있으면 외부 제작 도구 연결 또는 내부 개발 시작 화면으로 넘어갈 수 있습니다.",
+      title: "작업 순서를 확인하고 최종 실행 준비를 마치세요.",
+      detail: "작업 순서와 제작 패키지가 준비되어 있으면 하단 다음 단계 버튼으로 외부 제작 도구 연결 또는 내부 개발 시작 화면을 열 수 있습니다.",
       evidence: `${dataNote} · 실행 기록 ${runCount}건`,
       risk: openRisks > 0 ? `열려 있는 리스크 ${openRisks}건` : "막히는 리스크 없음",
       targetTask: "workbench:launch",
