@@ -32,10 +32,10 @@ const intakeItems = [
 ];
 
 const packageItems = [
-  { label: "PRD", icon: FileText, value: "ready" },
-  { label: "IA", icon: Network, value: "mapped" },
-  { label: "Stack", icon: Stack, value: "chosen" },
-  { label: "Tasks", icon: ListChecks, value: "queued" },
+  { label: "기획서", icon: FileText, value: "준비" },
+  { label: "화면", icon: Network, value: "구성" },
+  { label: "기술", icon: Stack, value: "선택" },
+  { label: "작업", icon: ListChecks, value: "대기" },
 ];
 
 const signalBars = [38, 58, 31, 72, 44, 64, 26, 52, 84, 46, 68, 34];
@@ -485,7 +485,7 @@ export function VentureHeroMotion() {
                 <span className="font-mono text-[11px] text-cyan-100">92%</span>
               </div>
               <div className="mt-4 grid grid-cols-4 gap-2">
-                {["PRD", "IA", "Stack", "Tasks"].map((label, index) => (
+                {["기획서", "화면", "기술", "작업"].map((label, index) => (
                   <div className="min-w-0 border-t border-white/10 pt-2" key={label}>
                     <div className="h-1.5 rounded-[2px] bg-white/10">
                       <span

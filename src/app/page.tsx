@@ -72,7 +72,7 @@ const packageItems = [
   },
   {
     title: "제작 패키지",
-    body: "PRD, IA, 디자인 방향, 기술 스택, 작업 순서를 넘길 수 있게 정리합니다.",
+    body: "제품 기획서, 화면 구조, 디자인 방향, 기술 스택, 작업 순서를 넘길 수 있게 정리합니다.",
     icon: FileDoc,
   },
 ];
@@ -101,7 +101,7 @@ const deckRows = [
 ];
 
 const packageRows = [
-  ["결과물 형태", "웹 서비스", "PRD와 화면 구조에 반영"],
+  ["결과물 형태", "웹 서비스", "제품 기획서와 화면 구조에 반영"],
   ["개발 방식", "Cursor, Codex, Claude Code, Antigravity", "최종 실행 연결 기준"],
   ["핵심 범위", "로그인, 아이디어 입력, AI 정리, 저장", "첫 제작 기준"],
   ["디자인 방향", "운영 콘솔, 짧은 문장, 저장 후 다음 단계", "사용자 판단 최소화"],
@@ -221,7 +221,7 @@ export default function HomePage() {
             <p className="text-xs font-semibold text-[#5E5E5E]">제작 패스 후</p>
             <div className="mt-3 text-xl font-semibold text-[#0D0D0D]">{IDEA_BUILD_PASS_CREDITS}크레딧 / 아이디어</div>
             <p className="mt-2 break-keep text-sm leading-6 text-[#5E5E5E]">
-              PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 전달 파일을 엽니다.
+              제품 기획서, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 전달 파일을 엽니다.
             </p>
           </div>
         </div>

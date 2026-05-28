@@ -94,7 +94,7 @@ const quickAnswers = [
   ["마지막에 무엇을 얻나요", "아이디어 설명서가 아니라 제품 기획서, 검증 계획, 제작 범위, 기술 방향, 제작에 필요한 작업 순서와 확인 기준이 묶인 제작 패키지를 얻습니다."],
   [
     "언제 크레딧을 쓰나요",
-    `Free는 매월 ${FREE_MONTHLY_CREDITS}크레딧으로 시작합니다. 기본 ${FREE_PACKAGE_ARTIFACT_LIMIT}/${FULL_PACKAGE_ARTIFACT_COUNT} 제작 자료는 먼저 확인하고, PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 전달 파일까지 열 때 ${IDEA_BUILD_PASS_CREDITS}크레딧 제작 패스를 씁니다.`,
+    `Free는 매월 ${FREE_MONTHLY_CREDITS}크레딧으로 시작합니다. 기본 ${FREE_PACKAGE_ARTIFACT_LIMIT}/${FULL_PACKAGE_ARTIFACT_COUNT} 제작 자료는 먼저 확인하고, 제품 기획서, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 전달 파일까지 열 때 ${IDEA_BUILD_PASS_CREDITS}크레딧 제작 패스를 씁니다.`,
   ],
   ["Pro 관심 등록은 어디서 하나요", "마이페이지의 Venture Credits 요약에서 등록할 수 있습니다. STEP 5에서 잔여 크레딧이 부족할 때도 결제 없이 Pro 관심만 남길 수 있습니다."],
   ["외부 제작 도구와 어떻게 연결하나요", "최종 실행 단계에서 Cursor, Codex, Claude Code, Google Antigravity 중 사용할 도구를 고르고 연결 파일을 받습니다. 예를 들어 모바일 앱으로 만들고 Cursor로 개발합니다처럼 결과물 형태와 개발 방식을 분리합니다. Cursor와 Antigravity는 IDE 안에서 프로젝트를 연 뒤 진행하고, Codex와 Claude Code는 실제 프로젝트 루트의 터미널 에이전트 흐름으로 시작합니다. 완료 보고가 들어오면 Venture Lab 작업 상태가 자동 반영됩니다."],

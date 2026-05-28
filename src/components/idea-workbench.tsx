@@ -17811,7 +17811,7 @@ export function IdeaWorkbench({
                       <p className="mt-2 text-sm leading-6 text-slate-600">
                         {isLiveExternalDelivery
                           ? `프로젝트 루트에서 실행하면 ${activeExternalBuildTool.label}용 제작 문서, 작업 목록, 진행 기록 파일이 실제 파일로 생성됩니다.`
-                          : `${activeExternalBuildTool.startFileName} 기준의 시작 순서, PRD, IA, 디자인 기준, 기술 경계, 작업 순서, 완료 보고 형식을 묶었습니다.`}
+                          : `${activeExternalBuildTool.startFileName} 기준의 시작 순서, 제품 기획서, 화면 구조, 디자인 기준, 기술 경계, 작업 순서, 완료 보고 형식을 묶었습니다.`}
                       </p>
                       {isLiveExternalDelivery ? (
                         <div className="mt-3 grid gap-2 text-xs leading-5 text-slate-600 sm:grid-cols-2">
@@ -19131,7 +19131,7 @@ export function IdeaWorkbench({
               {[
                 {
                   label: "1. 제작 패키지",
-                  detail: "PRD, 화면 구조, 디자인 기준, 기술 방향",
+                  detail: "제품 기획서, 화면 구조, 디자인 기준, 기술 방향",
                 },
                 {
                   label: "2. 작업 순서",
