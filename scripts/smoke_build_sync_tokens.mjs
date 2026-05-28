@@ -130,6 +130,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  const actionLadder = page.locator('[data-smoke="step8-action-ladder"]');
+  for (const label of ["1. 완료 확인", "2. 다음 하나", "3. 판단 하나"]) {
+    await actionLadder.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   const simpleReview = page.locator('[data-smoke="step8-simple-review"]');
   for (const label of ["완료", "다음", "판단"]) {
     await simpleReview.getByText(label, { exact: true }).waitFor({
