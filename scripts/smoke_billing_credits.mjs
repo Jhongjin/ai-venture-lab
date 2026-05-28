@@ -161,6 +161,19 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-credit-execution-package-value"]').getByText("제품 기획서, 화면 구조", {
+      exact: false,
+    }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
+    const staleProfilePrdCopy = await page
+      .locator('[data-smoke="profile-credit-execution-package-value"]')
+      .getByText("PRD, 화면 구조", { exact: false })
+      .count();
+    if (staleProfilePrdCopy > 0) {
+      fail("profile credit value copy still uses PRD abbreviation");
+    }
     await page.locator('[data-smoke="profile-upgrade-signals"]').waitFor({
       state: "visible",
       timeout: timeoutMs,
@@ -232,6 +245,19 @@ async function verifyAuthenticatedCreditSummary() {
         state: "visible",
         timeout: timeoutMs,
       });
+      await productionCreditPanel.locator('[data-smoke="production-credit-execution-package-value"]').getByText("제품 기획서, 화면 구조", {
+        exact: false,
+      }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+      const staleStep5PrdCopy = await productionCreditPanel
+        .locator('[data-smoke="production-credit-execution-package-value"]')
+        .getByText("PRD, 화면 구조", { exact: false })
+        .count();
+      if (staleStep5PrdCopy > 0) {
+        fail("STEP 5 credit value copy still uses PRD abbreviation");
+      }
       await productionCreditPanel.locator('[data-smoke="production-credit-spend-confidence"]').waitFor({
         state: "visible",
         timeout: timeoutMs,

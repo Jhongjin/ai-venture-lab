@@ -73,6 +73,17 @@ async function main() {
     await waitForVisible(page.getByRole("link", { name: /가이드|guide/i }).first(), "guide link");
     await waitForVisible(page.locator('[data-smoke="landing-credit-model"]'), "homepage credit model");
     await waitForVisible(page.getByText("30크레딧 / 아이디어", { exact: true }), "homepage build pass cost");
+    await waitForVisible(
+      page.locator('[data-smoke="landing-credit-model"]').getByText("제품 기획서, 화면 구조", { exact: false }),
+      "homepage product-term package value copy",
+    );
+    const staleHomepagePrdCopy = await page
+      .locator('[data-smoke="landing-credit-model"]')
+      .getByText("PRD, 화면 구조", { exact: false })
+      .count();
+    if (staleHomepagePrdCopy > 0) {
+      fail("homepage credit model still uses PRD abbreviation in user-facing value copy");
+    }
     await waitForVisible(page.locator('[data-smoke="landing-plan-boundary"]'), "homepage plan boundary");
     await waitForVisible(page.getByText("Free로 시작하기", { exact: true }), "homepage free start CTA");
     await waitForVisible(page.getByText("반복 제작과 외부 개발 실행", { exact: true }), "homepage pro boundary");
@@ -180,6 +191,14 @@ async function main() {
     await waitForVisible(page.getByText("붙여넣기는 실패 시 백업", { exact: false }), "guide backup wording");
     await waitForVisible(page.getByText("언제 크레딧을 쓰나요", { exact: true }), "guide credit FAQ");
     await waitForVisible(page.getByText("30크레딧 제작 패스", { exact: false }), "guide build pass FAQ");
+    await waitForVisible(
+      page.getByText("제품 기획서, 화면 구조, 디자인 기준", { exact: false }),
+      "guide product-term package value copy",
+    );
+    const staleGuidePrdCopy = await page.getByText("PRD, 화면 구조", { exact: false }).count();
+    if (staleGuidePrdCopy > 0) {
+      fail("guide still uses PRD abbreviation in user-facing value copy");
+    }
     await waitForVisible(page.locator('[data-smoke="guide-credit-plan-ladder"]'), "guide credit plan ladder");
     await waitForVisible(page.getByText("결제 전 수요 신호", { exact: false }), "guide pro interest demand signal");
     await waitForVisible(page.getByText("Pro 관심 등록은 어디서 하나요", { exact: true }), "guide upgrade interest FAQ");
