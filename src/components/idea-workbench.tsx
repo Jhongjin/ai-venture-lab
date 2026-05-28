@@ -17657,6 +17657,10 @@ export function IdeaWorkbench({
                         </div>
                       </div>
                     </div>
+                    <div data-smoke="final-execution-folder-check-question" className="mt-3 border border-emerald-200 bg-white px-3 py-2 text-sm leading-6 text-emerald-950">
+                      실행 전 5초 확인: 지금 터미널 폴더에 package.json, app 또는 src가 보이면 설치 명령을 실행합니다.
+                      안 보이면 먼저 실제 프로젝트 루트로 이동하세요.
+                    </div>
                   </div>
                   <div data-smoke="final-execution-tool-start-mode" className="border border-slate-200 bg-white p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

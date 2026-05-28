@@ -297,6 +297,15 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const folderCheckQuestion = page.locator('[data-smoke="final-execution-folder-check-question"]');
+  await folderCheckQuestion.getByText("실행 전 5초 확인", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await folderCheckQuestion.getByText("package.json, app 또는 src", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const toolStartMode = page.locator('[data-smoke="final-execution-tool-start-mode"]');
   const expectedStartMode =
     toolLabel === "Cursor" || toolLabel === "Google Antigravity" ? "IDE에서 시작" : "터미널 에이전트에서 시작";
