@@ -94,6 +94,16 @@ Validation keywords: `cleanup_ownership_required_for_write_smoke`, `no_primary_o
 
 Validation keywords: `build_sync_token_scoped`, `build_sync_token_bearer_secret`, `build_sync_token_hash_registry`, `build_sync_individual_revocation`, `named_tool_sync_files_gitignored`.
 
+## Payment Gate
+
+- Stripe readiness panels may show required environment variable names and configured counts, but must never show secret values, price ID values, webhook secrets, or checkout session URLs in docs, screenshots, telemetry, or chat.
+- Checkout remains disabled until server-side session creation, raw-body webhook signature verification, and server-side entitlement writes exist.
+- A successful checkout redirect, client-side state, or user-controlled request body must not unlock Pro or Team access.
+- Failed, canceled, expired, or incomplete checkout must leave the account on Free and keep the Pro interest path available.
+- Test-mode checkout and webhook verification must run against a disposable account before any broader paid beta.
+
+Validation keywords: `payment_secret_values_hidden`, `stripe_webhook_signature_required`, `client_side_entitlement_denied`, `checkout_incomplete_keeps_free`.
+
 ## Firebase Gate
 
 - Firestore or Storage writes require Security Rules before launch.
