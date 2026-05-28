@@ -12343,6 +12343,43 @@ export function IdeaWorkbench({
             title: "제작 패키지를 내부 개발 시작 자료로 보관합니다.",
             detail: "외부 도구 연결이 아니면 패키지와 작업 순서를 내부 개발 기준 자료로 넘깁니다.",
           };
+  const finalExecutionSimplePathItems = [
+    {
+      icon: <Download size={16} />,
+      label: "1. 연결 파일 받기",
+      title: `${activeExternalBuildTool.label} 연결 파일`,
+      detail: "아래 버튼으로 PowerShell 파일을 받습니다. 받은 직후에는 아직 실행하지 않습니다.",
+    },
+    {
+      icon: <FolderOpen size={16} />,
+      label: "2. 실행 위치",
+      title: "외부 프로젝트 루트",
+      detail: "받은 파일을 새로 만들 앱이나 사이트 폴더의 최상단으로 옮깁니다. 다운로드 폴더가 아닙니다.",
+    },
+    {
+      icon: <Code2 size={16} />,
+      label: "3. 설치 후 확인",
+      title: "설치 명령 후 확인 명령",
+      detail: `설치 명령을 먼저 실행하고 ${liveExternalToolNextTaskCommand}로 첫 작업이 보이는지 확인합니다.`,
+    },
+    {
+      icon: <ArrowRight size={16} />,
+      label: "4. 첫 작업 시작",
+      title: `${activeExternalBuildTool.startFileName}`,
+      detail: "START 파일 내용을 개발 도구의 첫 메시지로 넣고 T-001부터 처리합니다.",
+    },
+  ];
+  const finalExecutionInstallResultItems = [
+    ["START 파일", `${activeExternalBuildTool.startFileName} 첫 메시지`],
+    ["작업 목록", "T-001부터 볼 수 있는 제작 순서"],
+    ["진행 기록", `${liveExternalToolProgressPath} 자동 반영 백업`],
+  ] as const;
+  const finalExecutionCommandPathItems = [
+    ["1. 파일 받기", `${activeExternalBuildTool.label} 연결 파일 받기 버튼으로 PowerShell 파일을 받습니다.`],
+    ["2. 위치 옮기기", "받은 파일을 실제 개발할 프로젝트 루트로 옮깁니다. 다운로드 폴더에서는 실행하지 않습니다."],
+    ["3. 설치와 확인", "아래 설치 명령을 먼저 실행하고, 확인 명령으로 첫 작업이 읽히는지 봅니다."],
+    ["4. 첫 작업 시작", `${activeExternalBuildTool.startFileName} 내용을 첫 메시지로 넣고 T-001부터 처리합니다.`],
+  ] as const;
   const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
   const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
   const latestCursorSyncUseAt =
@@ -17601,32 +17638,7 @@ export function IdeaWorkbench({
               {buildDeliveryMode === "external_tool" ? (
                 <div className="grid gap-3">
                   <div data-smoke="final-execution-simple-path" className="grid gap-px bg-slate-200 sm:grid-cols-2 xl:grid-cols-4">
-                    {[
-                      {
-                        icon: <Download size={16} />,
-                        label: "1. 연결 파일 받기",
-                        title: `${activeExternalBuildTool.label} 연결 파일`,
-                        detail: "아래 버튼으로 PowerShell 파일을 받습니다. 받은 직후에는 아직 실행하지 않습니다.",
-                      },
-                      {
-                        icon: <FolderOpen size={16} />,
-                        label: "2. 실행 위치",
-                        title: "외부 프로젝트 루트",
-                        detail: "받은 파일을 새로 만들 앱이나 사이트 폴더의 최상단으로 옮깁니다. 다운로드 폴더가 아닙니다.",
-                      },
-                      {
-                        icon: <Code2 size={16} />,
-                        label: "3. 설치 후 확인",
-                        title: "설치 명령 후 확인 명령",
-                        detail: `설치 명령을 먼저 실행하고 ${liveExternalToolNextTaskCommand}로 첫 작업이 보이는지 확인합니다.`,
-                      },
-                      {
-                        icon: <ArrowRight size={16} />,
-                        label: "4. 첫 작업 시작",
-                        title: `${activeExternalBuildTool.startFileName}`,
-                        detail: "START 파일 내용을 개발 도구의 첫 메시지로 넣고 T-001부터 처리합니다.",
-                      },
-                    ].map((step) => (
+                    {finalExecutionSimplePathItems.map((step) => (
                       <div key={step.label} className="bg-white p-4">
                         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                           <span className="inline-flex h-7 w-7 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700">
@@ -17642,11 +17654,7 @@ export function IdeaWorkbench({
                   <div data-smoke="final-execution-install-result" className="border border-emerald-200 bg-emerald-50 p-4">
                     <div className="text-sm font-semibold text-emerald-950">설치가 끝나면 프로젝트 안에 생기는 것</div>
                     <div className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
-                      {[
-                        ["START 파일", `${activeExternalBuildTool.startFileName} 첫 메시지`],
-                        ["작업 목록", "T-001부터 볼 수 있는 제작 순서"],
-                        ["진행 기록", `${liveExternalToolProgressPath} 자동 반영 백업`],
-                      ].map(([label, detail]) => (
+                      {finalExecutionInstallResultItems.map(([label, detail]) => (
                         <div key={label} className="bg-white px-3 py-2">
                           <div className="text-xs font-semibold tracking-[0.14em] text-emerald-700">{label}</div>
                           <p className="mt-1 text-sm leading-6 text-slate-700">{detail}</p>
@@ -17997,12 +18005,7 @@ export function IdeaWorkbench({
                             data-smoke="final-execution-command-path"
                             className="mt-3 grid gap-px bg-slate-200 text-sm leading-6 text-slate-700"
                           >
-                            {([
-                              ["1. 파일 받기", `${activeExternalBuildTool.label} 연결 파일 받기 버튼으로 PowerShell 파일을 받습니다.`],
-                              ["2. 위치 옮기기", "받은 파일을 실제 개발할 프로젝트 루트로 옮깁니다. 다운로드 폴더에서는 실행하지 않습니다."],
-                              ["3. 설치와 확인", "아래 설치 명령을 먼저 실행하고, 확인 명령으로 첫 작업이 읽히는지 봅니다."],
-                              ["4. 첫 작업 시작", `${activeExternalBuildTool.startFileName} 내용을 첫 메시지로 넣고 T-001부터 처리합니다.`],
-                            ] as const).map(([title, detail]) => (
+                            {finalExecutionCommandPathItems.map(([title, detail]) => (
                               <div key={title} className="bg-slate-50 p-3">
                                 <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{title}</div>
                                 <p className="mt-1 text-sm leading-6 text-slate-700">{detail}</p>
