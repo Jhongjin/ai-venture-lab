@@ -63,6 +63,9 @@ function getStatusClassName(summary: CreditSummary | null) {
 }
 
 export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryProps) {
+  const baselineMonthlyGrant = summary?.monthlyGrant ?? 100;
+  const baselineBuildPassCost = summary?.buildPassCost ?? 30;
+  const freeMonthlyPassCapacity = getBuildPassCapacity(baselineMonthlyGrant, baselineBuildPassCost) ?? 0;
   const balanceLabel = summary ? formatCredits(summary.balance) : "로그인 후 확인";
   const openedPassCount = summary?.buildPasses.length ?? 0;
   const latestPass = summary?.buildPasses[0] ?? null;
@@ -91,6 +94,24 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
   const visibleMessage =
     summary?.message ??
     (error && !summary ? "로그인 후 이번 달 제작 크레딧과 열린 제작 패스를 확인할 수 있습니다." : null);
+  const planFitLabel =
+    nextBuildPassShortfall !== null
+      ? "Pro 관심을 남길 시점"
+      : remainingBuildPassCount !== null && remainingBuildPassCount > 0
+        ? "Free로 이어갈 수 있음"
+        : "제작 패스 용량 확인";
+  const planFitItems = [
+    ["현재 Free", `월 ${baselineMonthlyGrant}크레딧, 제작 패스 최대 ${freeMonthlyPassCapacity}개 기준`],
+    [
+      "지금 상태",
+      remainingBuildPassCount === null
+        ? "로그인 후 남은 제작 패스 수를 확인합니다"
+        : remainingBuildPassCount > 0
+          ? `이번 달 제작 패스 ${remainingPassLabel} 가능`
+          : "이번 달 제작 패스를 더 열려면 크레딧 보충이 필요",
+    ],
+    ["Pro 전환", "반복 제작, 외부 개발 도구 자동 반영, 출처 기반 시장 점검이 계속 필요할 때"],
+  ] as const;
 
   return (
     <section data-smoke="profile-credit-summary" className="mt-8 border border-slate-200 bg-slate-50 p-4">
@@ -240,6 +261,23 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
               <p className="mt-2 text-sm leading-6 text-slate-700">{detail}</p>
             </div>
           ))}
+        </div>
+        <div data-smoke="profile-pro-plan-fit" className="mt-4 border border-blue-200 bg-blue-50 p-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="text-xs font-semibold text-blue-800">내 플랜 판단</div>
+              <h5 className="mt-1 text-sm font-semibold text-blue-950">{planFitLabel}</h5>
+            </div>
+            <span className="avl-pill avl-pill-info shrink-0">결제 전 수요 확인</span>
+          </div>
+          <div className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
+            {planFitItems.map(([label, detail]) => (
+              <div key={label} className="bg-white p-3">
+                <div className="text-xs font-semibold text-blue-800">{label}</div>
+                <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+              </div>
+            ))}
+          </div>
         </div>
         <UpgradeInterestButton
           idleMessage={

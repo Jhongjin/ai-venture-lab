@@ -160,6 +160,14 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-pro-plan-fit"]').getByText("내 플랜 판단", { exact: true }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
+    await page.locator('[data-smoke="profile-pro-plan-fit"]').getByText("제작 패스 최대", { exact: false }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
     await page.locator('[data-smoke="upgrade-interest-button"]').waitFor({
       state: "visible",
       timeout: timeoutMs,
@@ -180,6 +188,12 @@ async function verifyAuthenticatedCreditSummary() {
 
     if (hasProductionCreditPanel) {
       await productionCreditPanel.locator('[data-smoke="production-credit-package-clarity"]').waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+      await productionCreditPanel.locator('[data-smoke="production-credit-pro-path"]').getByText("Pro가 필요한 순간", {
+        exact: true,
+      }).waitFor({
         state: "visible",
         timeout: timeoutMs,
       });

@@ -139,6 +139,17 @@ export function ProductionCreditPanel({
     ["제작 패스", `${buildPassCost}크레딧으로 전체 ${fullArtifactCount}단계 실행 패키지 저장`],
     ["최종 실행", "작업 순서와 외부 개발 도구 연결 파일로 이어짐"],
   ] as const;
+  const freeMonthlyPassCapacity = buildPassCost > 0 ? Math.floor(monthlyCreditGrant / buildPassCost) : 0;
+  const proPathItems = [
+    ["Free 기준", `월 ${monthlyCreditGrant}크레딧으로 제작 패스 최대 ${freeMonthlyPassCapacity}개`],
+    ["Pro가 필요한 순간", "여러 아이디어를 반복 제작하거나 외부 개발 도구 자동 반영을 계속 쓸 때"],
+    [
+      "지금 행동",
+      needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass
+        ? "부족하면 Pro 관심을 남겨 반복 제작 수요로 기록"
+        : "충분하면 제작 패스를 열고 실행 패키지로 이동",
+    ],
+  ] as const;
 
   return (
     <section data-smoke="production-credit-panel" className="mb-5 border border-slate-200 bg-white p-4">
@@ -161,6 +172,14 @@ export function ProductionCreditPanel({
                 <div key={label} className="bg-slate-50 px-3 py-3">
                   <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+                </div>
+              ))}
+            </div>
+            <div data-smoke="production-credit-pro-path" className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-3">
+              {proPathItems.map(([label, detail]) => (
+                <div key={label} className="bg-white px-3 py-3">
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
+                  <p className="mt-1 text-sm leading-6 text-slate-700">{detail}</p>
                 </div>
               ))}
             </div>
