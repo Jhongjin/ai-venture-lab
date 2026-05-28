@@ -124,6 +124,19 @@ async function verifyLearningTaskBoard(page, ideaId) {
       timeout,
     });
   }
+  await simpleReview.getByText("완료 보고가 저장된 제작 작업입니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  const nextJudgmentBrief = page.locator('[data-smoke="step8-next-judgment-brief"]');
+  await nextJudgmentBrief.getByText("다음 판단", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await nextJudgmentBrief.getByText("상세 리포트", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
     state: "visible",
     timeout,

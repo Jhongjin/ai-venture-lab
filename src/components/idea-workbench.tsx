@@ -10401,6 +10401,18 @@ export function IdeaWorkbench({
       detail: learningDecisionDetail,
     },
   ];
+  const learningSimpleReviewRows = [
+    ["완료", learningCompletedValue, learningCompletedDetail],
+    ["다음", learningRemainingValue, learningRemainingDetail],
+    ["판단", learningDecisionLabel, learningDecisionDetail],
+  ] as const;
+  const learningNextJudgmentBrief = nextImplementationTask
+    ? "다음 제작 작업의 완료 여부만 확인하면 됩니다. 상세 리포트는 아직 열지 않아도 됩니다."
+    : productSignalCount === 0
+      ? "첫 버전 배포와 성과 신호 연결만 확인하면 됩니다. 숫자 리포트는 아직 이릅니다."
+      : openSelectedIdeaRisks.length > 0
+        ? "다음 빌드에서 줄일 리스크 하나만 고르면 됩니다. 상세 리포트는 필요할 때만 엽니다."
+        : "다음 빌드 범위를 승인할지 보류할지만 정하면 됩니다. 상세 리포트는 필요할 때만 엽니다.";
   const nextImplementationTaskId = nextImplementationTask?.id ?? null;
   const learningTaskTimeline = [...selectedImplementationTasks]
     .sort((a, b) => a.sort_order - b.sort_order)
@@ -18446,16 +18458,17 @@ export function IdeaWorkbench({
                   ))}
                 </div>
                 <div data-smoke="step8-simple-review" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
-                  {([
-                    ["완료", learningCompletedValue],
-                    ["다음", learningRemainingValue],
-                    ["판단", learningDecisionLabel],
-                  ] as const).map(([label, value]) => (
+                  {learningSimpleReviewRows.map(([label, value, detail]) => (
                     <div key={label} className="bg-white px-3 py-2">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
                       <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
+                      <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
                     </div>
                   ))}
+                </div>
+                <div data-smoke="step8-next-judgment-brief" className="mt-3 border border-blue-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">다음 판단</div>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningNextJudgmentBrief}</p>
                 </div>
               </div>
               <button
