@@ -4,8 +4,10 @@ import { UserCircle } from "@phosphor-icons/react/dist/ssr";
 
 import { ProfileForm } from "@/components/auth-forms";
 import { ProfileCreditSummary } from "@/components/profile-credit-summary";
+import { ProfilePaymentReadiness } from "@/components/profile-payment-readiness";
 import { ProfileUpgradeInterestSummary } from "@/components/profile-upgrade-interest-summary";
 import { readAuthenticatedCreditSummary } from "@/lib/billing-server";
+import { readStripeCheckoutReadiness } from "@/lib/payment-readiness";
 import { readUpgradeInterestSummary } from "@/lib/upgrade-interest-server";
 
 const newsreader = Newsreader({
@@ -23,6 +25,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export default async function ProfilePage() {
+  const paymentReadiness = readStripeCheckoutReadiness();
   const [creditResult, upgradeInterestSummary] = await Promise.all([
     readAuthenticatedCreditSummary(),
     readUpgradeInterestSummary(),
@@ -67,6 +70,7 @@ export default async function ProfilePage() {
 
             <ProfileCreditSummary error={creditResult.error} summary={creditResult.summary} />
             <ProfileUpgradeInterestSummary summary={upgradeInterestSummary} />
+            <ProfilePaymentReadiness readiness={paymentReadiness} />
 
             <div className="mt-8">
               <ProfileForm />

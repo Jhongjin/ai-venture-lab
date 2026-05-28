@@ -5,6 +5,7 @@ AI Venture Lab does not open checkout yet. The current product collects Pro inte
 ## Current Product State
 
 - `/profile` shows the Free/Pro boundary and records Pro interest without payment.
+- `/profile` also shows a payment readiness panel. It only displays required environment variable names and readiness counts, never secret values.
 - STEP 5 and STEP 7 are gated by Venture Credits and build passes, not Stripe subscriptions.
 - No checkout session route or webhook route is live yet.
 
@@ -23,6 +24,8 @@ Use Stripe test mode first.
 3. Keep `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` server-only. Do not paste their values into chat, docs, screenshots, or client code.
 4. After checkout code exists, configure the Stripe webhook endpoint in test mode first.
 5. Redeploy Vercel after env changes, then run production smoke before exposing checkout buttons.
+
+The readiness panel is a setup checklist, not a payment switch. Even when all env names are present, checkout stays off until the server-side checkout route, verified webhook handler, and server-side entitlement writes are implemented and tested.
 
 ## App Implementation Boundary
 
