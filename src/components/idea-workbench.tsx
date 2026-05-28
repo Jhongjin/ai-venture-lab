@@ -12260,7 +12260,7 @@ export function IdeaWorkbench({
       : "제작 패키지를 내려받아 내부 개발 시작점으로 넘기세요.";
   const finalExecutionPrimaryActionDetail =
     buildDeliveryMode === "external_tool"
-      ? "이 화면에서는 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트에서 설치 명령과 확인 명령만 차례로 실행하면 됩니다. 다운로드 폴더에서는 실행하지 않습니다."
+      ? "이 화면에서는 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트로 옮기고, 설치 명령과 확인 명령만 차례로 실행하면 됩니다. 다운로드 폴더에서는 실행하지 않습니다."
       : "내부 개발 도구가 열릴 때까지 같은 제작 패키지와 작업 순서를 기준 자료로 보관합니다.";
   const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
   const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
@@ -17469,43 +17469,72 @@ export function IdeaWorkbench({
                     data-smoke="final-execution-simple-mode-note"
                     className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
                   >
-                    실행만 하기: 연결 파일 받기, 실제 프로젝트 루트로 옮기기, 설치 명령과 확인 명령 실행.
+                    실행만 하기: 연결 파일 받기, 실제 앱 폴더 최상단으로 옮기기, 설치 명령과 확인 명령 실행.
                   </div>
                 ) : null}
               </div>
               {buildDeliveryMode === "external_tool" ? (
-                <div data-smoke="final-execution-simple-path" className="grid gap-px bg-slate-200 md:grid-cols-3">
-                  {[
-                    {
-                      icon: <Download size={16} />,
-                      label: "1. 연결 파일 받기",
-                      title: `${activeExternalBuildTool.label} 연결 파일`,
-                      detail: "아래 버튼으로 PowerShell 파일을 받습니다. 받은 직후에는 아직 실행하지 않습니다.",
-                    },
-                    {
-                      icon: <FolderOpen size={16} />,
-                      label: "2. 실행 위치",
-                      title: "외부 프로젝트 루트",
-                      detail: "받은 파일을 새로 만들 앱이나 사이트 폴더의 최상단으로 옮깁니다. 다운로드 폴더가 아닙니다.",
-                    },
-                    {
-                      icon: <Code2 size={16} />,
-                      label: "3. 설치 후 확인",
-                      title: "설치 명령 후 확인 명령",
-                      detail: `설치 명령을 먼저 실행하고 ${liveExternalToolNextTaskCommand}로 첫 작업이 보이는지 확인합니다.`,
-                    },
-                  ].map((step) => (
-                    <div key={step.label} className="bg-white p-4">
-                      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        <span className="inline-flex h-7 w-7 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700">
-                          {step.icon}
-                        </span>
-                        {step.label}
+                <div className="grid gap-3">
+                  <div data-smoke="final-execution-simple-path" className="grid gap-px bg-slate-200 md:grid-cols-3">
+                    {[
+                      {
+                        icon: <Download size={16} />,
+                        label: "1. 연결 파일 받기",
+                        title: `${activeExternalBuildTool.label} 연결 파일`,
+                        detail: "아래 버튼으로 PowerShell 파일을 받습니다. 받은 직후에는 아직 실행하지 않습니다.",
+                      },
+                      {
+                        icon: <FolderOpen size={16} />,
+                        label: "2. 실행 위치",
+                        title: "외부 프로젝트 루트",
+                        detail: "받은 파일을 새로 만들 앱이나 사이트 폴더의 최상단으로 옮깁니다. 다운로드 폴더가 아닙니다.",
+                      },
+                      {
+                        icon: <Code2 size={16} />,
+                        label: "3. 설치 후 확인",
+                        title: "설치 명령 후 확인 명령",
+                        detail: `설치 명령을 먼저 실행하고 ${liveExternalToolNextTaskCommand}로 첫 작업이 보이는지 확인합니다.`,
+                      },
+                    ].map((step) => (
+                      <div key={step.label} className="bg-white p-4">
+                        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                          <span className="inline-flex h-7 w-7 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700">
+                            {step.icon}
+                          </span>
+                          {step.label}
+                        </div>
+                        <div className="mt-3 text-base font-semibold text-slate-950">{step.title}</div>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">{step.detail}</p>
                       </div>
-                      <div className="mt-3 text-base font-semibold text-slate-950">{step.title}</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">{step.detail}</p>
+                    ))}
+                  </div>
+                  <div
+                    data-smoke="final-execution-root-check"
+                    className="border border-slate-200 bg-slate-50 p-4"
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <div className="text-sm font-semibold text-slate-950">실행 위치 확인</div>
+                        <p className="mt-1 text-sm leading-6 text-slate-600">
+                          연결 파일은 실제 앱 파일이 있는 외부 프로젝트 루트에서만 실행합니다.
+                        </p>
+                      </div>
+                      <div className="grid gap-2 text-sm leading-6 text-slate-700 sm:min-w-[420px] sm:grid-cols-3">
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">실행할 곳</div>
+                          <div className="mt-1 font-semibold text-slate-950">외부 프로젝트 루트</div>
+                        </div>
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">아닌 곳</div>
+                          <div className="mt-1 font-semibold text-rose-700">다운로드 폴더</div>
+                        </div>
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">확인 방법</div>
+                          <div className="mt-1 font-semibold text-slate-950">package.json, app, src가 보이는 곳</div>
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
               ) : null}
               <div className="grid gap-3 md:grid-cols-3">

@@ -212,6 +212,27 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const rootCheck = page.locator('[data-smoke="final-execution-root-check"]');
+  await rootCheck.getByText("실행 위치 확인", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await rootCheck.getByText("실행할 곳", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await rootCheck.getByText("아닌 곳", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await rootCheck.getByText("실제 앱 파일", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await rootCheck.getByText("package.json, app, src가 보이는 곳", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const commandPath = page.locator('[data-smoke="final-execution-command-path"]');
   await commandPath.getByText("1. 파일 받기", { exact: true }).waitFor({
     state: "visible",
