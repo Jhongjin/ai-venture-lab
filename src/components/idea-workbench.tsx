@@ -10410,6 +10410,13 @@ export function IdeaWorkbench({
     ["다음", learningRemainingValue, learningRemainingDetail],
     ["판단", learningDecisionLabel, learningDecisionDetail],
   ] as const;
+  const learningJudgmentQuestion = nextImplementationTask
+    ? "이 작업을 완료로 볼 근거가 있나요?"
+    : productSignalCount === 0
+      ? "첫 버전 배포와 성과 신호 연결이 끝났나요?"
+      : openSelectedIdeaRisks.length > 0
+        ? "다음 빌드에서 어떤 리스크 하나를 먼저 줄일까요?"
+        : "다음 빌드를 작게 승인할까요, 아니면 보류할까요?";
   const learningNextJudgmentBrief = nextImplementationTask
     ? "다음 제작 작업의 완료 여부만 확인하면 됩니다. 상세 리포트는 아직 열지 않아도 됩니다."
     : productSignalCount === 0
@@ -18566,7 +18573,8 @@ export function IdeaWorkbench({
                 </div>
                 <div data-smoke="step8-next-judgment-brief" className="mt-3 border border-blue-200 bg-white px-3 py-2">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">다음 판단</div>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningNextJudgmentBrief}</p>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningJudgmentQuestion}</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-600">{learningNextJudgmentBrief}</p>
                 </div>
                 <div data-smoke="step8-sync-brief" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">

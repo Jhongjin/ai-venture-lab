@@ -137,6 +137,10 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await nextJudgmentBrief.getByText("?", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await nextJudgmentBrief.getByText("상세 리포트", { exact: false }).waitFor({
     state: "visible",
     timeout,
