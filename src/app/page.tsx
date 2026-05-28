@@ -35,7 +35,7 @@ const operatingLoop = [
   {
     id: "02",
     title: "AI 정리",
-    body: "사업성, 리스크, 시장 질문, 결과물 형태를 먼저 정리합니다.",
+    body: "사업성, 리스크, 시장 질문, 결과물 형태와 개발 방식을 먼저 정리합니다.",
   },
   {
     id: "03",
@@ -102,6 +102,7 @@ const deckRows = [
 
 const packageRows = [
   ["결과물 형태", "웹 서비스", "PRD와 화면 구조에 반영"],
+  ["개발 방식", "Cursor, Codex, Claude Code, Antigravity", "최종 실행 연결 기준"],
   ["핵심 범위", "로그인, 아이디어 입력, AI 정리, 저장", "첫 제작 기준"],
   ["디자인 방향", "운영 콘솔, 짧은 문장, 저장 후 다음 단계", "사용자 판단 최소화"],
   ["개발 전달", "기술 스택, 작업 순서, 검증 근거", "외부 도구가 바로 읽는 자료"],
@@ -169,7 +170,7 @@ export default function HomePage() {
                 아이디어는 메모로 들어오고, 제작 패키지로 나갑니다.
               </p>
               <p className="mt-6 max-w-[58ch] break-keep text-base leading-7 text-white/72 sm:text-lg">
-                AI가 사업성, 시장성, 리스크, 검증 계획, 제작 범위를 먼저 정리합니다. 사용자는 중요한 판단만 확인합니다.
+                AI가 사업성, 시장성, 리스크, 검증 계획, 제작 범위와 개발 방식을 먼저 정리합니다. 사용자는 중요한 판단만 확인합니다.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -182,7 +183,7 @@ export default function HomePage() {
               <dl className="mt-10 hidden max-w-[720px] grid-cols-1 gap-px bg-white/12 text-sm sm:grid sm:grid-cols-3">
                 {[
                   ["입력", "메모, 회의록, 대화"],
-                  ["정리", "시장성, 리스크, 범위"],
+                  ["정리", "시장성, 범위, 개발 방식"],
                   ["출력", "제작 패키지"],
                 ].map(([label, value]) => (
                   <div key={label} className="bg-[#05070C]/58 p-4 backdrop-blur">
@@ -272,7 +273,7 @@ export default function HomePage() {
               아이디어를 제작 가능한 패키지로 정리하는 AI 실행 보드
             </p>
             <p className="mt-5 max-w-[54ch] break-keep text-base leading-7 text-[#5E5E5E]">
-              메모만 넣으면 AI가 사업성, 리스크, 시장성, 검증 계획, 제작 자료를 먼저 정리합니다. 사용자는 중요한 판단만 확인하고 저장합니다.
+              메모만 넣으면 AI가 사업성, 리스크, 시장성, 검증 계획, 제작 자료와 개발 방식을 먼저 정리합니다. 사용자는 중요한 판단만 확인하고 저장합니다.
             </p>
 
             <dl className="mt-9 grid max-w-[520px] grid-cols-3 border-y border-[#E5E5E5] text-sm">

@@ -76,6 +76,7 @@ async function main() {
     await waitForVisible(page.locator('[data-smoke="landing-plan-boundary"]'), "homepage plan boundary");
     await waitForVisible(page.getByText("Free로 시작하기", { exact: true }), "homepage free start CTA");
     await waitForVisible(page.getByText("반복 제작과 외부 개발 실행", { exact: true }), "homepage pro boundary");
+    await waitForVisible(page.getByText("결과물 형태와 개발 방식", { exact: false }).first(), "homepage result type and development method wording");
 
     await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });
 
@@ -162,6 +163,10 @@ async function main() {
     await waitForVisible(
       page.getByText("결과물 형태는 웹 서비스, 모바일 앱, 랜딩/웹사이트처럼 정하고 개발 방식은", { exact: false }),
       "guide result type and development method separation",
+    );
+    await waitForVisible(
+      page.getByText("모바일 앱으로 만들고 Cursor로 개발합니다", { exact: false }),
+      "guide concrete development method example",
     );
     for (const toolName of ["Cursor", "Codex", "Claude Code", "Google Antigravity"]) {
       await waitForVisible(page.getByText(toolName, { exact: true }).first(), `guide named tool ${toolName}`);
