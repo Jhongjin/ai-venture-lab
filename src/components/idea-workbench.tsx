@@ -960,6 +960,21 @@ const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   tasks: "실행할 일을 상태별로 나누고 막힌 항목과 완료 근거를 봅니다.",
   handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
 };
+const step5PackageCurrentActionItems = [
+  ["1. 만들기", "AI 제작 패키지 만들기"],
+  ["2. 확인", "요약만 보고 필요한 메모 추가"],
+  ["3. 저장", "하단 다음 버튼으로 STEP 6 이동"],
+] as const;
+const step5ExecutionPackageBriefItems = [
+  ["첫 메시지", "도구가 읽을 시작 지시문과 제작 기준"],
+  ["첫 작업", "T-001부터 처리할 작업 순서와 수용 기준"],
+  ["연결 파일", "최종 실행에서 받을 도구별 설치 파일"],
+] as const;
+const step5ExecutionPackageValueItems = [
+  ["실행 패키지", "기획서, 디자인 기준, 기술 방향, 검증 근거를 한 기준으로 묶습니다."],
+  ["제작 범위 잠금", "첫 버전에 만들 것과 제외할 것을 분리해 다음 작업이 커지지 않게 합니다."],
+  ["다음 단계 연결", "저장 후 작업 순서를 만들고, 최종 실행에서 외부 개발 도구 파일로 넘깁니다."],
+] as const;
 
 const artifactReviewBlueprint: Array<
   Omit<ArtifactReviewItem, "status" | "artifact" | "detail"> & {
@@ -15894,11 +15909,7 @@ export function IdeaWorkbench({
               <span className="avl-pill avl-pill-success w-fit">다음: 작업 순서</span>
             </div>
             <div className="mt-3 grid gap-px bg-emerald-200 md:grid-cols-3">
-              {[
-                ["1. 만들기", "AI 제작 패키지 만들기"],
-                ["2. 확인", "요약만 보고 필요한 메모 추가"],
-                ["3. 저장", "하단 다음 버튼으로 STEP 6 이동"],
-              ].map(([label, detail]) => (
+              {step5PackageCurrentActionItems.map(([label, detail]) => (
                 <div key={label} className="bg-white px-3 py-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
@@ -16013,11 +16024,7 @@ export function IdeaWorkbench({
                     <span className="avl-pill avl-pill-info">STEP 7 연결 준비</span>
                   </div>
                   <div className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
-                    {[
-                      ["첫 메시지", "도구가 읽을 시작 지시문과 제작 기준"],
-                      ["첫 작업", "T-001부터 처리할 작업 순서와 수용 기준"],
-                      ["연결 파일", "최종 실행에서 받을 도구별 설치 파일"],
-                    ].map(([label, detail]) => (
+                    {step5ExecutionPackageBriefItems.map(([label, detail]) => (
                       <div key={label} className="bg-white px-3 py-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
                         <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
@@ -16027,11 +16034,7 @@ export function IdeaWorkbench({
                 </div>
 
                 <div className="mt-5 grid gap-px bg-slate-200 lg:grid-cols-3">
-                  {[
-                    ["실행 패키지", "기획서, 디자인 기준, 기술 방향, 검증 근거를 한 기준으로 묶습니다."],
-                    ["제작 범위 잠금", "첫 버전에 만들 것과 제외할 것을 분리해 다음 작업이 커지지 않게 합니다."],
-                    ["다음 단계 연결", "저장 후 작업 순서를 만들고, 최종 실행에서 외부 개발 도구 파일로 넘깁니다."],
-                  ].map(([label, detail]) => (
+                  {step5ExecutionPackageValueItems.map(([label, detail]) => (
                     <div key={label} className="bg-slate-50 p-4">
                       <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
                       <p className="mt-2 text-sm leading-6 text-slate-700">{detail}</p>
