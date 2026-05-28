@@ -27,6 +27,7 @@ export default async function WorkspacePage({
     task === "experiment" ||
     task === "artifacts" ||
     task === "development" ||
+    task === "orchestration" ||
     task === "launch" ||
     task === "learning"
       ? task
