@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { IDEA_BUILD_PASS_CREDITS } from "@/lib/billing";
 import { getIdeaBuildPassAccess } from "@/lib/billing-access";
 import { createBuildSyncToken, type BuildSyncTool } from "@/lib/build-sync-token";
 import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
@@ -150,7 +151,10 @@ export async function POST(request: Request) {
     }
 
     if (buildPass.required && !buildPass.hasPass) {
-      return jsonError("제작 패키지와 외부 개발 도구 연결을 열려면 30크레딧 제작 패스가 필요합니다.", 402);
+      return jsonError(
+        `제작 패키지와 외부 개발 도구 연결을 열려면 ${IDEA_BUILD_PASS_CREDITS}크레딧 제작 패스가 필요합니다.`,
+        402,
+      );
     }
   }
 

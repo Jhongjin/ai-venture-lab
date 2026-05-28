@@ -13,6 +13,13 @@ import {
 
 import { AuthAwareCta } from "@/components/auth-aware-cta";
 import { VentureHeroMotion } from "@/components/venture-hero-motion";
+import {
+  FREE_MONTHLY_CREDITS,
+  FREE_PACKAGE_ARTIFACT_LIMIT,
+  FULL_PACKAGE_ARTIFACT_COUNT,
+  IDEA_BUILD_PASS_CREDITS,
+  PRO_UPGRADE_VALUE_TEXT,
+} from "@/lib/billing";
 
 export const metadata: Metadata = {
   title: "AI Venture Lab",
@@ -104,13 +111,13 @@ const planBoundaryRows = [
   {
     name: "Free",
     headline: "첫 아이디어를 이해하고 검증",
-    detail: "월 100크레딧, 기본 4/10 제작 자료, 첫 검증 계획까지 확인합니다.",
+    detail: `월 ${FREE_MONTHLY_CREDITS}크레딧, 기본 ${FREE_PACKAGE_ARTIFACT_LIMIT}/${FULL_PACKAGE_ARTIFACT_COUNT} 제작 자료, 첫 검증 계획까지 확인합니다.`,
     signal: "처음 시작",
   },
   {
     name: "Pro",
     headline: "반복 제작과 외부 개발 실행",
-    detail: "여러 제작 패키지, 외부 개발 도구 자동 반영, 출처 기반 시장 점검을 반복합니다.",
+    detail: `${PRO_UPGRADE_VALUE_TEXT}을 계속 씁니다.`,
     signal: "관심 등록",
   },
   {
@@ -197,19 +204,21 @@ export default function HomePage() {
               Free로 검증하고, 제작 패스는 실행이 필요할 때 씁니다.
             </h2>
             <p className="mt-3 break-keep text-sm leading-6 text-slate-300">
-              베타 기준 Free는 매월 100크레딧을 받고, 한 아이디어를 전체 제작 패키지와 외부 개발 도구 연결까지 열 때 30크레딧을 씁니다.
+              베타 기준 Free는 매월 {FREE_MONTHLY_CREDITS}크레딧을 받고, 한 아이디어를 전체 제작 패키지와 외부 개발 도구 연결까지 열 때 {IDEA_BUILD_PASS_CREDITS}크레딧을 씁니다.
             </p>
           </div>
           <div className="bg-[#F7F7F7] p-5">
             <p className="text-xs font-semibold text-[#5E5E5E]">Free에서 확인</p>
-            <div className="mt-3 text-xl font-semibold text-[#0D0D0D]">4/10 제작 자료</div>
+            <div className="mt-3 text-xl font-semibold text-[#0D0D0D]">
+              {FREE_PACKAGE_ARTIFACT_LIMIT}/{FULL_PACKAGE_ARTIFACT_COUNT} 제작 자료
+            </div>
             <p className="mt-2 break-keep text-sm leading-6 text-[#5E5E5E]">
               아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약까지 먼저 확인합니다.
             </p>
           </div>
           <div className="bg-[#F7F7F7] p-5">
             <p className="text-xs font-semibold text-[#5E5E5E]">제작 패스 후</p>
-            <div className="mt-3 text-xl font-semibold text-[#0D0D0D]">30크레딧 / 아이디어</div>
+            <div className="mt-3 text-xl font-semibold text-[#0D0D0D]">{IDEA_BUILD_PASS_CREDITS}크레딧 / 아이디어</div>
             <p className="mt-2 break-keep text-sm leading-6 text-[#5E5E5E]">
               PRD, 화면 구조, 디자인 기준, 기술 방향, 작업 순서, 외부 개발 도구 전달 파일을 엽니다.
             </p>

@@ -1,4 +1,15 @@
-import { getBalanceAfterBuildPass, getBuildPassCapacity, getBuildPassShortfall, type CreditSummary } from "@/lib/billing";
+import {
+  FREE_MONTHLY_CREDITS,
+  FREE_PACKAGE_ARTIFACT_LIMIT,
+  FULL_PACKAGE_ARTIFACT_COUNT,
+  IDEA_BUILD_PASS_CREDITS,
+  PRO_UPGRADE_SIGNAL_TEXTS,
+  PRO_UPGRADE_VALUE_TEXT,
+  getBalanceAfterBuildPass,
+  getBuildPassCapacity,
+  getBuildPassShortfall,
+  type CreditSummary,
+} from "@/lib/billing";
 import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
 
 type ProfileCreditSummaryProps = {
@@ -13,12 +24,6 @@ const ledgerTypeLabels: Record<string, string> = {
   monthly_grant: "월 Free 지급",
   refund: "환불",
 };
-
-const proUpgradeSignals = [
-  "한 달에 여러 아이디어를 제작 패키지까지 밀어붙일 때",
-  "Cursor, Codex, Claude Code, Antigravity 연결 파일과 자동 반영이 반복해서 필요할 때",
-  "출처 기반 시장 점검과 팀 공유 기록을 계속 남겨야 할 때",
-];
 
 function formatCredits(value: number | null) {
   if (value === null) {
@@ -63,8 +68,8 @@ function getStatusClassName(summary: CreditSummary | null) {
 }
 
 export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryProps) {
-  const baselineMonthlyGrant = summary?.monthlyGrant ?? 100;
-  const baselineBuildPassCost = summary?.buildPassCost ?? 30;
+  const baselineMonthlyGrant = summary?.monthlyGrant ?? FREE_MONTHLY_CREDITS;
+  const baselineBuildPassCost = summary?.buildPassCost ?? IDEA_BUILD_PASS_CREDITS;
   const freeMonthlyPassCapacity = getBuildPassCapacity(baselineMonthlyGrant, baselineBuildPassCost) ?? 0;
   const balanceLabel = summary ? formatCredits(summary.balance) : "로그인 후 확인";
   const openedPassCount = summary?.buildPasses.length ?? 0;
@@ -123,8 +128,8 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
           </div>
           <h3 className="mt-3 text-xl font-semibold text-slate-950">이번 달 제작 여력</h3>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-            Free는 매월 {summary?.monthlyGrant ?? 100}크레딧을 받고, 한 아이디어를 전체 제작 패키지와 외부 개발 도구 연결까지 열 때{" "}
-            {summary?.buildPassCost ?? 30}크레딧을 씁니다.
+            Free는 매월 {summary?.monthlyGrant ?? FREE_MONTHLY_CREDITS}크레딧을 받고, 한 아이디어를 전체 제작 패키지와 외부 개발 도구 연결까지 열 때{" "}
+            {summary?.buildPassCost ?? IDEA_BUILD_PASS_CREDITS}크레딧을 씁니다.
           </p>
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">{remainingPassHeadline}</p>
         </div>
@@ -199,13 +204,13 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">제작 패스</div>
           <div className="mt-2 text-sm font-semibold text-slate-950">
-            {numberFormatter.format(summary?.buildPassCost ?? 30)} 크레딧 / 아이디어
+            {numberFormatter.format(summary?.buildPassCost ?? IDEA_BUILD_PASS_CREDITS)} 크레딧 / 아이디어
           </div>
         </div>
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">Free 자료</div>
           <div className="mt-2 text-sm font-semibold text-slate-950">
-            {summary?.freeArtifactLimit ?? 4}/{summary?.fullArtifactCount ?? 10} 단계
+            {summary?.freeArtifactLimit ?? FREE_PACKAGE_ARTIFACT_LIMIT}/{summary?.fullArtifactCount ?? FULL_PACKAGE_ARTIFACT_COUNT} 단계
           </div>
         </div>
         <div className="border border-slate-200 bg-white p-3">
@@ -238,7 +243,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
           <span className="avl-pill avl-pill-info shrink-0">현재 Free</span>
         </div>
         <div data-smoke="profile-upgrade-signals" className="mt-3 grid gap-2">
-          {proUpgradeSignals.map((signal) => (
+          {PRO_UPGRADE_SIGNAL_TEXTS.map((signal) => (
             <div key={signal} className="flex gap-2 text-sm leading-6 text-slate-700">
               <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-slate-950" />
               <span>{signal}</span>
@@ -247,8 +252,8 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         </div>
         <div data-smoke="profile-pro-conversion-boundary" className="mt-4 grid gap-px bg-slate-200 sm:grid-cols-3">
           {([
-            ["현재 Free", "첫 아이디어 검증, 월 100크레딧, 제작 패키지 미리보기"],
-            ["Pro 가치", "반복 제작 패키지, 외부 개발 도구 자동 반영, 출처 기반 시장 점검"],
+            ["현재 Free", `첫 아이디어 검증, 월 ${FREE_MONTHLY_CREDITS}크레딧, 제작 패키지 미리보기`],
+            ["Pro 가치", PRO_UPGRADE_VALUE_TEXT],
             [
               "지금 행동",
               nextBuildPassShortfall !== null

@@ -3,7 +3,7 @@
 import { CheckCircle2, Coins, LockKeyhole } from "lucide-react";
 
 import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
-import { getBalanceAfterBuildPass, getBuildPassShortfall, type CreditSystemStatus } from "@/lib/billing";
+import { PRO_UPGRADE_VALUE_TEXT, getBalanceAfterBuildPass, getBuildPassShortfall, type CreditSystemStatus } from "@/lib/billing";
 
 const freeProductionPackageItems = ["아이디어 요약", "조사 요약", "7일 검증 계획", "검증 완료 요약"];
 const unlockedProductionPackageItems = [
@@ -142,7 +142,7 @@ export function ProductionCreditPanel({
   const freeMonthlyPassCapacity = buildPassCost > 0 ? Math.floor(monthlyCreditGrant / buildPassCost) : 0;
   const proPathItems = [
     ["Free 기준", `월 ${monthlyCreditGrant}크레딧으로 제작 패스 최대 ${freeMonthlyPassCapacity}개`],
-    ["Pro가 필요한 순간", "여러 아이디어를 반복 제작하거나 외부 개발 도구 자동 반영을 계속 쓸 때"],
+    ["Pro가 필요한 순간", `${PRO_UPGRADE_VALUE_TEXT}이 계속 필요할 때`],
     [
       "지금 행동",
       needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass
@@ -299,7 +299,7 @@ export function ProductionCreditPanel({
                 </p>
               ) : null}
               <p className="mt-1 text-xs leading-5 text-amber-950">
-                Pro가 필요한 이유는 전체 제작 패키지와 외부 개발 도구 연결을 반복해서 여는 것입니다. 결제는 아직 시작하지 않습니다.
+                Pro가 필요한 이유는 {PRO_UPGRADE_VALUE_TEXT}을 반복해서 쓰는 것입니다. 결제는 아직 시작하지 않습니다.
               </p>
               <UpgradeInterestButton
                 idleMessage={
