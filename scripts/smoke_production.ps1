@@ -15,7 +15,7 @@ $requiredText = @(
   "<!DOCTYPE html>",
   "_next/static",
   "AI Venture Lab",
-  "automation-first product OS",
+  "data-smoke=`"landing-credit-model`"",
   "data-smoke=`"landing-command-deck`"",
   "data-smoke=`"landing-package-preview`"",
   "data-smoke=`"landing-package-table`""
