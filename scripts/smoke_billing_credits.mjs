@@ -213,6 +213,18 @@ async function verifyAuthenticatedCreditSummary() {
         state: "visible",
         timeout: timeoutMs,
       });
+      await page.locator('[data-smoke="step5-execution-package-brief"]').getByText("제작 시작 패키지", { exact: true }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+      await page.locator('[data-smoke="step5-execution-package-brief"]').getByText("첫 메시지", { exact: true }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+      await page.locator('[data-smoke="step5-execution-package-brief"]').getByText("첫 작업", { exact: true }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
     } else if (
       await page
         .getByRole("heading", { name: /메모에서 검토할 아이디어 정리|아이디어 찾기/ })

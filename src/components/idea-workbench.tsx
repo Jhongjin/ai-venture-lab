@@ -15944,6 +15944,35 @@ export function IdeaWorkbench({
                   </div>
                 </div>
 
+                <div data-smoke="step5-execution-package-brief" className="mt-5 border border-blue-200 bg-blue-50 p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+                        제작 시작 패키지
+                      </div>
+                      <h4 className="mt-2 text-base font-semibold text-slate-950">
+                        저장하면 개발자가 바로 읽을 실행 기준이 됩니다.
+                      </h4>
+                      <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-700">
+                        이 단계의 결과는 보기 좋은 문서가 아니라, 첫 메시지, 첫 작업, 완료 기준을 외부/내부 개발 도구에 넘기는 시작점입니다.
+                      </p>
+                    </div>
+                    <span className="avl-pill avl-pill-info">STEP 7 연결 준비</span>
+                  </div>
+                  <div className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
+                    {[
+                      ["첫 메시지", "도구가 읽을 시작 지시문과 제작 기준"],
+                      ["첫 작업", "T-001부터 처리할 작업 순서와 수용 기준"],
+                      ["연결 파일", "최종 실행에서 받을 도구별 설치 파일"],
+                    ].map(([label, detail]) => (
+                      <div key={label} className="bg-white px-3 py-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
+                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="mt-5 grid gap-px bg-slate-200 lg:grid-cols-3">
                   {[
                     ["실행 패키지", "기획서, 디자인 기준, 기술 방향, 검증 근거를 한 기준으로 묶습니다."],
