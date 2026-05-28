@@ -84,6 +84,25 @@ const firstUseInputExamples = [
   },
 ] as const;
 
+const firstUseFastPathSteps = [
+  ["1. 붙여넣기", "회의 메모, GPT 대화, 자동화할 업무를 그대로 넣기"],
+  ["2. AI 정리", "후보 3개와 결과물 형태·개발 방식 정리"],
+  ["3. 저장 후 열림", "사업성 평가, 검증 계획, 제작 패키지, 외부 개발 자료"],
+] as const;
+
+const firstUseBuildChoiceSplitItems = [
+  {
+    label: "무엇을 만들지",
+    title: "결과물 형태",
+    body: "웹 서비스, 모바일 앱, 랜딩/웹사이트, 업무 자동화, 운영 콘솔 중 하나로 정리됩니다.",
+  },
+  {
+    label: "어떻게 만들지",
+    title: "개발 방식",
+    body: "Cursor, Codex, Claude Code, Antigravity 같은 외부 개발 도구 또는 내부 진행으로 나뉩니다.",
+  },
+] as const;
+
 type InitialIdeaScores = Pick<
   Idea,
   | "problem_intensity"
@@ -3626,11 +3645,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         저장하면 사업성 평가부터 제작 패키지와 외부 개발 도구 전달 자료까지 순서대로 열립니다.
                       </div>
                       <div data-smoke="first-use-fast-path" className="grid gap-px bg-slate-200 md:grid-cols-3">
-                        {[
-                          ["1. 붙여넣기", "회의 메모, GPT 대화, 자동화할 업무를 그대로 넣기"],
-                          ["2. AI 정리", "후보 3개와 결과물 형태·개발 방식 정리"],
-                          ["3. 저장 후 열림", "사업성 평가, 검증 계획, 제작 패키지, 외부 개발 자료"],
-                        ].map(([label, body]) => (
+                        {firstUseFastPathSteps.map(([label, body]) => (
                           <div key={label} className="bg-slate-50 px-4 py-3">
                             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
                             <p className="mt-2 text-sm leading-6 text-slate-700">{body}</p>
@@ -3645,18 +3660,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         개발 방식, 첫 검증 질문이 먼저 나옵니다. 사용자는 한 건만 확인하고 저장하면 됩니다.
                       </div>
                       <div data-smoke="first-use-build-choice-split" className="grid gap-px bg-slate-200 md:grid-cols-2">
-                        {[
-                          {
-                            label: "무엇을 만들지",
-                            title: "결과물 형태",
-                            body: "웹 서비스, 모바일 앱, 랜딩/웹사이트, 업무 자동화, 운영 콘솔 중 하나로 정리됩니다.",
-                          },
-                          {
-                            label: "어떻게 만들지",
-                            title: "개발 방식",
-                            body: "Cursor, Codex, Claude Code, Antigravity 같은 외부 개발 도구 또는 내부 진행으로 나뉩니다.",
-                          },
-                        ].map((item) => (
+                        {firstUseBuildChoiceSplitItems.map((item) => (
                           <div key={item.label} className="bg-white px-4 py-3">
                             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{item.label}</div>
                             <div className="mt-2 text-sm font-semibold text-slate-950">{item.title}</div>
