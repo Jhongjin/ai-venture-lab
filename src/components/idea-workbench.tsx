@@ -15874,11 +15874,38 @@ export function IdeaWorkbench({
             <div>
               <h2 className="text-lg font-semibold text-slate-950">제작 패키지 정리</h2>
               <p className="mt-1 text-sm text-slate-500">
-                검증된 아이디어를 실제 제작이나 외부 제작 도구로 넘기기 전에 필요한 자료를 한 묶음으로 정리합니다.
+                검증된 아이디어를 실제 제작이나 외부 제작 도구가 바로 읽을 실행 기준과 첫 작업으로 정리합니다.
               </p>
             </div>
             <Code2 className="text-blue-600" size={22} />
           </div>
+
+          <section data-smoke="step5-package-current-action" className="mb-5 border border-emerald-200 bg-emerald-50 p-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">지금 할 일</div>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">
+                  AI가 실행 기준을 만들면 요약만 확인하고 저장합니다.
+                </h3>
+                <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-700">
+                  저장된 패키지는 STEP 6 작업 순서와 STEP 7 연결 파일의 기준이 됩니다. 파일 받기와 도구 연결은 최종 실행에서만 열립니다.
+                </p>
+              </div>
+              <span className="avl-pill avl-pill-success w-fit">다음: 작업 순서</span>
+            </div>
+            <div className="mt-3 grid gap-px bg-emerald-200 md:grid-cols-3">
+              {[
+                ["1. 만들기", "AI 제작 패키지 만들기"],
+                ["2. 확인", "요약만 보고 필요한 메모 추가"],
+                ["3. 저장", "하단 다음 버튼으로 STEP 6 이동"],
+              ].map(([label, detail]) => (
+                <div key={label} className="bg-white px-3 py-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+                </div>
+              ))}
+            </div>
+          </section>
 
           {experienceMode === "full" ? (
             <div className="mb-5 avl-segmented p-1">

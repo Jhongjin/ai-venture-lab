@@ -199,6 +199,14 @@ async function verifyAuthenticatedCreditSummary() {
       .catch(() => false);
 
     if (hasProductionCreditPanel) {
+      await page.locator('[data-smoke="step5-package-current-action"]').getByText("지금 할 일", { exact: true }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+      await page.locator('[data-smoke="step5-package-current-action"]').getByText("요약만 확인하고 저장합니다.", { exact: false }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
       await productionCreditPanel.locator('[data-smoke="production-credit-package-clarity"]').waitFor({
         state: "visible",
         timeout: timeoutMs,
