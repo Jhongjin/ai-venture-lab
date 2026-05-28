@@ -28,7 +28,31 @@ function assertArray(value, label, minLength = 1) {
   }
 }
 
-function assertPublicSource(source, index) {
+function normalizePublicSourceUrl(value, label) {
+  let parsed;
+
+  try {
+    parsed = new URL(String(value).trim());
+  } catch {
+    fail(`${label} is not a valid URL`);
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+
+  if (
+    (parsed.protocol !== "http:" && parsed.protocol !== "https:") ||
+    hostname === "localhost" ||
+    hostname.endsWith(".local") ||
+    /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname)
+  ) {
+    fail(`${label} is not a public HTTP(S) URL`);
+  }
+
+  parsed.hash = "";
+  return parsed.toString().toLowerCase();
+}
+
+function assertPublicSource(source, index, seenUrls) {
   if (!source || typeof source !== "object") {
     fail(`source ${index + 1} is not an object`);
   }
@@ -39,6 +63,12 @@ function assertPublicSource(source, index) {
   if (typeof source.url !== "string" || !/^https?:\/\//i.test(source.url.trim())) {
     fail(`source ${index + 1} is missing a public URL`);
   }
+
+  const normalizedUrl = normalizePublicSourceUrl(source.url, `source ${index + 1} URL`);
+  if (seenUrls.has(normalizedUrl)) {
+    fail(`source ${index + 1} duplicates an earlier source URL`);
+  }
+  seenUrls.add(normalizedUrl);
 
   if (source.source_type === "user_input") {
     fail(`source ${index + 1} is a fallback user_input source`);
@@ -160,7 +190,8 @@ try {
   if (payload.mode === "openai_web") {
     assertShortText(payload.model, "model", 4);
     assertArray(scan.sources, "sources", 3);
-    scan.sources.forEach(assertPublicSource);
+    const seenSourceUrls = new Set();
+    scan.sources.forEach((source, index) => assertPublicSource(source, index, seenSourceUrls));
 
     if (!scan.sources.some((source) => source.strength === "medium" || source.strength === "high")) {
       fail("sources do not include a medium or high strength reference");

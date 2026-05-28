@@ -472,29 +472,73 @@ function collectSourcesFromPayload(payload: unknown): MarketScanSource[] {
   return found.slice(0, 5);
 }
 
+function normalizePublicSourceUrl(value: string) {
+  try {
+    const parsed = new URL(value.trim());
+    const hostname = parsed.hostname.toLowerCase();
+
+    if (
+      (parsed.protocol !== "http:" && parsed.protocol !== "https:") ||
+      hostname === "localhost" ||
+      hostname.endsWith(".local") ||
+      /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(hostname)
+    ) {
+      return null;
+    }
+
+    parsed.hash = "";
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
 function isPublicSource(source: MarketScanSource) {
-  return /^https?:\/\//i.test(source.url.trim()) && source.source_type !== "user_input";
+  return Boolean(normalizePublicSourceUrl(source.url)) && source.source_type !== "user_input";
+}
+
+function getSourceQualityScore(source: MarketScanSource) {
+  const strengthScore = source.strength === "high" ? 30 : source.strength === "medium" ? 20 : 10;
+  const typeScore =
+    source.source_type === "primary"
+      ? 5
+      : source.source_type === "news"
+        ? 4
+        : source.source_type === "directory"
+          ? 3
+          : source.source_type === "secondary"
+            ? 2
+            : 1;
+
+  return strengthScore + typeScore;
 }
 
 function mergePublicSources(...sourceGroups: MarketScanSource[][]) {
-  const found: MarketScanSource[] = [];
-  const seen = new Set<string>();
+  const byUrl = new Map<string, MarketScanSource>();
 
   sourceGroups.flat().forEach((source) => {
-    if (!isPublicSource(source)) {
+    const normalizedUrl = normalizePublicSourceUrl(source.url);
+
+    if (!normalizedUrl || !isPublicSource(source)) {
       return;
     }
 
-    const key = `${source.url.trim().toLowerCase()}::${source.title.trim().toLowerCase()}`;
-    if (seen.has(key)) {
+    const current = {
+      ...source,
+      url: normalizedUrl,
+    };
+    const previous = byUrl.get(normalizedUrl);
+
+    if (previous && getSourceQualityScore(previous) >= getSourceQualityScore(current)) {
       return;
     }
 
-    seen.add(key);
-    found.push(source);
+    byUrl.set(normalizedUrl, current);
   });
 
-  return found.slice(0, 5);
+  return Array.from(byUrl.values())
+    .sort((sourceA, sourceB) => getSourceQualityScore(sourceB) - getSourceQualityScore(sourceA))
+    .slice(0, 5);
 }
 
 function createFallbackScan({
@@ -790,7 +834,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
     model,
     scan: {
       ...scan,
-      sources: mergedSources.length > 0 ? mergedSources : scan.sources,
+      sources: mergedSources,
     },
   });
 }
