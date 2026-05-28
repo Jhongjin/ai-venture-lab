@@ -12,20 +12,20 @@ import {
 
 const intakeItems = [
   {
-    label: "Raw memo",
-    meta: "source",
+    label: "메모",
+    meta: "입력",
     icon: FileText,
     tone: "text-slate-100",
   },
   {
-    label: "Market signal",
-    meta: "demand",
+    label: "시장 신호",
+    meta: "수요",
     icon: ChartLineUp,
     tone: "text-cyan-100",
   },
   {
-    label: "Risk",
-    meta: "blocker",
+    label: "리스크",
+    meta: "막힘",
     icon: WarningDiamond,
     tone: "text-amber-100",
   },
@@ -340,10 +340,10 @@ export function VentureHeroMotion() {
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase text-slate-300">
                   <FileText size={16} weight="bold" className="text-slate-100" />
-                  Raw memo
+                  메모
                 </div>
                 <span className="rounded-[4px] border border-white/10 px-2 py-1 font-mono text-[10px] uppercase text-slate-500">
-                  intake
+                  입력
                 </span>
               </div>
 
@@ -436,10 +436,10 @@ export function VentureHeroMotion() {
             </div>
 
             <div className="absolute left-4 top-4 rounded-[5px] border border-white/10 bg-black/30 px-3 py-2 font-mono text-[10px] uppercase text-slate-400">
-              source to package
+              메모에서 패키지
             </div>
             <div className="absolute bottom-4 right-4 rounded-[5px] border border-emerald-200/18 bg-emerald-300/8 px-3 py-2 font-mono text-[10px] uppercase text-emerald-100">
-              operator approved
+              확인 완료
             </div>
           </div>
 
@@ -448,7 +448,7 @@ export function VentureHeroMotion() {
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 font-mono text-[11px] font-semibold uppercase text-slate-300">
                   <Package size={16} weight="bold" className="text-emerald-100" />
-                  Build package
+                  제작 패키지
                 </div>
                 <span className="rounded-[4px] border border-emerald-200/18 bg-emerald-300/8 px-2 py-1 font-mono text-[10px] uppercase text-emerald-100">
                   shipped
@@ -481,7 +481,7 @@ export function VentureHeroMotion() {
 
             <div className="rounded-[6px] border border-white/10 bg-black/28 p-4">
               <div className="flex items-center justify-between gap-3">
-                <span className="font-mono text-[11px] font-semibold uppercase text-slate-400">handoff integrity</span>
+                <span className="font-mono text-[11px] font-semibold uppercase text-slate-400">전달 완성도</span>
                 <span className="font-mono text-[11px] text-cyan-100">92%</span>
               </div>
               <div className="mt-4 grid grid-cols-4 gap-2">

@@ -155,13 +155,13 @@ export default function HomePage() {
         <div className="relative z-10 mx-auto flex min-h-[calc(100svh-12rem)] w-full max-w-[1240px] flex-col px-4 py-6 sm:min-h-[calc(100svh-11rem)] sm:px-6 sm:py-8">
           <div className="flex items-center justify-between gap-4 text-xs font-semibold uppercase tracking-[0.16em] text-white/62">
             <span>AI Venture Lab</span>
-            <span>Package OS</span>
+            <span>제작 패키지 OS</span>
           </div>
 
           <div className="flex flex-1 items-end py-12 sm:py-14 lg:py-16">
             <div className="max-w-[860px]">
               <p className="inline-flex border border-white/16 bg-white/8 px-2.5 py-1 text-xs font-semibold text-[#9FE5C1] backdrop-blur">
-                automation-first product OS
+                AI 우선 제품 OS
               </p>
               <h1 className="mt-7 max-w-[10ch] text-6xl font-semibold leading-none text-white sm:text-7xl lg:text-8xl">
                 AI Venture Lab
@@ -264,7 +264,7 @@ export default function HomePage() {
         <div className="mx-auto grid w-full max-w-[1240px] gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <div>
             <p className="inline-flex border border-[#E5E5E5] bg-white px-2.5 py-1 text-xs font-semibold text-[#5E5E5E]">
-              automation-first product OS
+              AI 우선 제품 OS
             </p>
             <h1 className="mt-8 max-w-[10ch] text-5xl font-semibold leading-none text-[#0D0D0D] sm:text-6xl lg:text-7xl">
               AI Venture Lab
