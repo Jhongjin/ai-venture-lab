@@ -230,6 +230,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await simplePath.getByText("4. 첫 작업 시작", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await simplePath.getByText("외부 프로젝트 루트", { exact: true }).waitFor({
     state: "visible",
     timeout,
@@ -265,6 +269,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     timeout,
   });
   await commandPath.getByText("3. 설치와 확인", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await commandPath.getByText("4. 첫 작업 시작", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
