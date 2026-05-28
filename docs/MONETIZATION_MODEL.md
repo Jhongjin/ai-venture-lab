@@ -44,6 +44,7 @@ Current implementation direction:
 - The profile page explains the upgrade trigger in user language: Free is for understanding and validating the first idea; Pro is for repeated production packages, external tool write-back, and source-backed market evidence.
 - The profile page includes a low-friction Pro interest button that records `upgrade_interest_clicked` in `telemetry_events` without starting a payment flow. This is the pre-Stripe demand signal for repeated production-package usage.
 - The profile page summarizes visible Pro interest signals by count, source, intent, and latest event. This uses the existing telemetry RLS boundary and is not a global admin revenue dashboard yet.
+- The profile page also labels Pro interest signal quality so the operator can distinguish no-signal, needs-more-signal, and price-test-ready states before opening checkout.
 - The profile page now shows a Free/Pro conversion boundary before the interest button: what Free covers, where Pro value starts, and that actual checkout is not opened until payment setup is ready.
 - The profile page now also shows a personal plan-fit strip: Free monthly credits, the maximum build-pass capacity implied by those credits, current remaining pass capacity, and the point where Pro interest should be recorded.
 - STEP 5 also exposes the same Pro interest path when a user lacks enough credits for the next build pass, with `source=step5_credit_panel` and `intent=insufficient_credits_for_build_pass`.

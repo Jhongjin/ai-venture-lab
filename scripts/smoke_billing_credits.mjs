@@ -176,6 +176,14 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-upgrade-interest-quality"]').getByText("신호 품질", { exact: true }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
+    await page.locator('[data-smoke="profile-upgrade-interest-quality"]').getByText("기준:", { exact: false }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
 
     const developmentUrl = new URL("/workspace", baseUrl);
     developmentUrl.searchParams.set("task", "development");

@@ -35,6 +35,18 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
   const latestEvent = summary.latestEvents[0] ?? null;
   const topSourceLabel = getTopCountLabel(summary.sourceCounts, sourceLabels, "아직 없음");
   const topIntentLabel = getTopCountLabel(summary.intentCounts, intentLabels, "아직 없음");
+  const demandQualityLabel =
+    summary.totalCount === 0
+      ? "아직 결제 실험 전"
+      : summary.uniqueActorCount >= 3
+        ? "가격 제안 테스트 가능"
+        : "더 많은 관심 신호 필요";
+  const nextDemandAction =
+    summary.totalCount === 0
+      ? "STEP 5와 마이페이지에서 관심 등록 위치가 잘 보이는지 먼저 확인합니다."
+      : summary.uniqueActorCount >= 3
+        ? "반복 제작 사용자에게 Pro 가격과 포함 범위를 안내하는 실험을 준비합니다."
+        : "크레딧 부족이나 반복 제작 상황에서 관심 등록이 더 쌓이는지 봅니다.";
 
   return (
     <section data-smoke="profile-upgrade-interest-summary" className="mt-8 border border-slate-200 bg-white p-4">
@@ -65,6 +77,20 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
           <div className="mt-2 text-sm font-semibold text-slate-950">{topIntentLabel}</div>
           <p className="mt-1 text-xs leading-5 text-slate-500">왜 업그레이드가 필요해졌는지 봅니다.</p>
         </div>
+      </div>
+
+      <div data-smoke="profile-upgrade-interest-quality" className="mt-4 border border-blue-200 bg-blue-50 p-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="text-xs font-semibold text-blue-800">신호 품질</div>
+            <h4 className="mt-1 text-sm font-semibold text-blue-950">{demandQualityLabel}</h4>
+          </div>
+          <span className="avl-pill avl-pill-info shrink-0">전환 전 점검</span>
+        </div>
+        <p className="mt-2 text-sm leading-6 text-blue-950">{nextDemandAction}</p>
+        <p className="mt-1 text-xs leading-5 text-slate-600">
+          기준: 관심 등록 {formatCount(summary.totalCount)}회, 계정 {formatCount(summary.uniqueActorCount)}개, 주요 이유 {topIntentLabel}.
+        </p>
       </div>
 
       <div className="mt-4 border border-slate-200 bg-slate-50 p-3">
