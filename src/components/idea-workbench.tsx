@@ -2241,6 +2241,29 @@ const cursorSyncConnectionStatusTone: Record<CursorSyncConnectionStatus, string>
   expired: "avl-pill avl-pill-neutral",
 };
 
+const cursorSyncRegistryFallbackMessage = "개별 연결 끊기는 연결 기록 설정 후 열립니다.";
+const cursorSyncRegistrySetupNotice = "개별 연결 끊기는 연결 기록 설정 후 활성화됩니다. 설정 전에도 연결 파일은 기존 방식으로 동작합니다.";
+
+function getExternalToolSyncPreparingMessage(toolLabel: string) {
+  return `${toolLabel} 자동 반영 연결을 준비하는 중입니다...`;
+}
+
+function getExternalToolSyncSetupErrorMessage(toolLabel: string) {
+  return `${toolLabel} 자동 반영 연결을 준비하지 못했습니다.`;
+}
+
+function getExternalToolConnectionCreatedMessage(toolLabel: string) {
+  return `새 ${toolLabel} 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다.`;
+}
+
+function getExternalToolConnectionFallbackMessage(toolLabel: string) {
+  return `${toolLabel} 연결 파일을 만들었습니다. ${cursorSyncRegistryFallbackMessage}`;
+}
+
+function getExternalToolConnectionStatusFallbackMessage(toolLabel: string) {
+  return `${toolLabel} 연결 파일은 만들 수 있지만, ${cursorSyncRegistryFallbackMessage}`;
+}
+
 function upsertCursorSyncConnection(connections: CursorSyncConnection[], connection: CursorSyncConnection) {
   const withoutCurrent = connections.filter((item) => item.id !== connection.id);
   return [connection, ...withoutCurrent].sort(
@@ -12678,7 +12701,7 @@ export function IdeaWorkbench({
           payload.message ??
             (payload.registryStatus === "ready"
               ? `${activeExternalBuildTool.label} 연결 상태를 확인했습니다.`
-              : `${activeExternalBuildTool.label} 연결 파일은 만들 수 있지만, 개별 연결 끊기는 연결 기록 설정 후 열립니다.`),
+              : getExternalToolConnectionStatusFallbackMessage(activeExternalBuildTool.label)),
         );
       }
     } catch (error) {
@@ -14658,7 +14681,7 @@ export function IdeaWorkbench({
     }
 
     setIsBusy(true);
-    setMessage("Cursor 자동 반영 연결을 준비하는 중입니다...");
+    setMessage(getExternalToolSyncPreparingMessage("Cursor"));
 
     try {
       const response = await fetch("/api/build-sync/token", {
@@ -14669,7 +14692,7 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
 
       if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || "Cursor 자동 반영 연결을 준비하지 못했습니다.");
+        throw new Error(payload.error || getExternalToolSyncSetupErrorMessage("Cursor"));
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
@@ -14681,8 +14704,8 @@ export function IdeaWorkbench({
       setCursorSyncConnectionMessage(
         payload.message ??
           (payload.registryStatus === "ready"
-            ? "새 Cursor 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
-            : "Cursor 연결 파일을 만들었습니다. 개별 연결 끊기는 연결 기록 설정 후 열립니다."),
+            ? getExternalToolConnectionCreatedMessage("Cursor")
+            : getExternalToolConnectionFallbackMessage("Cursor")),
       );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
@@ -14747,7 +14770,7 @@ export function IdeaWorkbench({
     }
 
     setIsBusy(true);
-    setMessage("Codex 자동 반영 연결을 준비하는 중입니다...");
+    setMessage(getExternalToolSyncPreparingMessage("Codex"));
 
     try {
       const response = await fetch("/api/build-sync/token", {
@@ -14758,7 +14781,7 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
 
       if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || "Codex 자동 반영 연결을 준비하지 못했습니다.");
+        throw new Error(payload.error || getExternalToolSyncSetupErrorMessage("Codex"));
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
@@ -14770,8 +14793,8 @@ export function IdeaWorkbench({
       setCursorSyncConnectionMessage(
         payload.message ??
           (payload.registryStatus === "ready"
-            ? "새 Codex 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
-            : "Codex 연결 파일을 만들었습니다. 개별 연결 끊기는 연결 기록 설정 후 열립니다."),
+            ? getExternalToolConnectionCreatedMessage("Codex")
+            : getExternalToolConnectionFallbackMessage("Codex")),
       );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
@@ -14834,7 +14857,7 @@ export function IdeaWorkbench({
     }
 
     setIsBusy(true);
-    setMessage("Claude Code 자동 반영 연결을 준비하는 중입니다...");
+    setMessage(getExternalToolSyncPreparingMessage("Claude Code"));
 
     try {
       const response = await fetch("/api/build-sync/token", {
@@ -14845,7 +14868,7 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
 
       if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || "Claude Code 자동 반영 연결을 준비하지 못했습니다.");
+        throw new Error(payload.error || getExternalToolSyncSetupErrorMessage("Claude Code"));
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
@@ -14857,8 +14880,8 @@ export function IdeaWorkbench({
       setCursorSyncConnectionMessage(
         payload.message ??
           (payload.registryStatus === "ready"
-            ? "새 Claude Code 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
-            : "Claude Code 연결 파일을 만들었습니다. 개별 연결 끊기는 연결 기록 설정 후 열립니다."),
+            ? getExternalToolConnectionCreatedMessage("Claude Code")
+            : getExternalToolConnectionFallbackMessage("Claude Code")),
       );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
@@ -14925,7 +14948,7 @@ export function IdeaWorkbench({
     }
 
     setIsBusy(true);
-    setMessage("Google Antigravity 자동 반영 연결을 준비하는 중입니다...");
+    setMessage(getExternalToolSyncPreparingMessage("Google Antigravity"));
 
     try {
       const response = await fetch("/api/build-sync/token", {
@@ -14936,7 +14959,7 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
 
       if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || "Google Antigravity 자동 반영 연결을 준비하지 못했습니다.");
+        throw new Error(payload.error || getExternalToolSyncSetupErrorMessage("Google Antigravity"));
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
@@ -14948,8 +14971,8 @@ export function IdeaWorkbench({
       setCursorSyncConnectionMessage(
         payload.message ??
           (payload.registryStatus === "ready"
-            ? "새 Google Antigravity 연결을 만들었습니다. 필요하면 이 화면에서 개별 연결을 끊을 수 있습니다."
-            : "Google Antigravity 연결 파일을 만들었습니다. 개별 연결 끊기는 연결 기록 설정 후 열립니다."),
+            ? getExternalToolConnectionCreatedMessage("Google Antigravity")
+            : getExternalToolConnectionFallbackMessage("Google Antigravity")),
       );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
@@ -17920,7 +17943,7 @@ export function IdeaWorkbench({
                           ) : null}
                           {cursorSyncRegistryStatus === "missing" || cursorSyncRegistryStatus === "unavailable" ? (
                             <div className="mt-3 border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-950">
-                              개별 연결 끊기는 연결 기록 설정 후 활성화됩니다. 설정 전에도 연결 파일은 기존 방식으로 동작합니다.
+                              {cursorSyncRegistrySetupNotice}
                             </div>
                           ) : null}
                           {cursorSyncRegistryStatus === "ready" ? (
