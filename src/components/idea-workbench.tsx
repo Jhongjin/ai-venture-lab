@@ -975,6 +975,11 @@ const step5ExecutionPackageValueItems = [
   ["제작 범위 잠금", "첫 버전에 만들 것과 제외할 것을 분리해 다음 작업이 커지지 않게 합니다."],
   ["다음 단계 연결", "저장 후 작업 순서를 만들고, 최종 실행에서 외부 개발 도구 파일로 넘깁니다."],
 ] as const;
+const step8ActionLadderItems = [
+  ["1. 완료 확인", "끝난 작업만 확인"],
+  ["2. 다음 하나", "이어 할 작업 하나만 선택"],
+  ["3. 판단 하나", "진행, 보류, 전환 중 선택"],
+] as const;
 
 const artifactReviewBlueprint: Array<
   Omit<ArtifactReviewItem, "status" | "artifact" | "detail"> & {
@@ -18609,11 +18614,7 @@ export function IdeaWorkbench({
                   오늘은 아래 판단 후보 중 하나만 고르면 됩니다. 상세 리포트는 필요할 때만 엽니다.
                 </div>
                 <div data-smoke="step8-action-ladder" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
-                  {[
-                    ["1. 완료 확인", "끝난 작업만 확인"],
-                    ["2. 다음 하나", "이어 할 작업 하나만 선택"],
-                    ["3. 판단 하나", "진행, 보류, 전환 중 선택"],
-                  ].map(([label, detail]) => (
+                  {step8ActionLadderItems.map(([label, detail]) => (
                     <div key={label} className="bg-white px-3 py-2">
                       <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
                       <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>

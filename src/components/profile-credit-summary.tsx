@@ -159,7 +159,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         <p className="mt-1 text-xs leading-5 text-slate-600">{creditNextActionDetail}</p>
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-4 grid gap-2 sm:grid-cols-3">
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">이번 달 지급</div>
           <div className="mt-2 text-sm font-semibold text-slate-950">{formatCredits(summary ? currentPeriodGranted : null)}</div>
@@ -218,7 +218,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         </div>
       </div>
 
-      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-4 grid gap-2 sm:grid-cols-3">
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">제작 패스</div>
           <div className="mt-2 text-sm font-semibold text-slate-950">
