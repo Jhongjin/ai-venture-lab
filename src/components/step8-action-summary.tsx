@@ -43,6 +43,10 @@ export function Step8ActionSummary({
         <div>
           <div className="text-sm font-semibold text-blue-950">지금 할 일</div>
           <h3 className="mt-2 text-base font-semibold text-slate-950">{learningPrimaryActionLabel}</h3>
+          <div data-smoke="step8-primary-action-now" className="mt-3 border border-blue-200 bg-white px-3 py-2">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 실제로 할 일</div>
+            <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningPrimaryActionText}</p>
+          </div>
           <div data-smoke="step8-one-sentence-outcome" className="mt-3 border border-blue-200 bg-white px-3 py-2">
             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">한 줄 결론</div>
             <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningOneSentenceOutcome}</p>
@@ -60,7 +64,6 @@ export function Step8ActionSummary({
             <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningJudgmentQuestion}</p>
             <p className="mt-1 text-xs leading-5 text-slate-600">{learningNextJudgmentBrief}</p>
           </div>
-          <p className="mt-2 text-sm leading-6 text-slate-700">{learningPrimaryActionText}</p>
           <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
           <p className="mt-1 text-xs leading-5 text-slate-500">결정: {finalExecutionDecisionSentence}</p>
           <div
