@@ -9681,6 +9681,7 @@ export function IdeaWorkbench({
   initialTelemetryEvents,
   initialViewerUserId,
   initialViewerMemberships,
+  initialCreditSummary = null,
   initialSelectedIdeaId,
   activeTask: controlledActiveTask,
   onActiveTaskChange,
@@ -9697,6 +9698,7 @@ export function IdeaWorkbench({
   initialTelemetryEvents: TelemetryEvent[];
   initialViewerUserId: string | null;
   initialViewerMemberships: OrganizationMember[];
+  initialCreditSummary?: CreditSummary | null;
   initialSelectedIdeaId?: string;
   activeTask?: WorkbenchTask;
   onActiveTaskChange?: (task: WorkbenchTask) => void;
@@ -9779,7 +9781,8 @@ export function IdeaWorkbench({
   const [memberships, setMemberships] = useState<OrganizationMember[]>(initialViewerMemberships);
   const [message, setMessage] = useState<string | null>(null);
   const [copyMessage, setCopyMessage] = useState<string | null>(null);
-  const [creditSummary, setCreditSummary] = useState<CreditSummary | null>(null);
+  const [creditSummary, setCreditSummary] = useState<CreditSummary | null>(initialCreditSummary);
+  const skipInitialCreditRefreshRef = useRef(Boolean(initialCreditSummary));
   const [isCreditSummaryLoading, setIsCreditSummaryLoading] = useState(false);
   const [isBuildPassUnlocking, setIsBuildPassUnlocking] = useState(false);
   const [creditMessage, setCreditMessage] = useState<string | null>(null);
@@ -9855,6 +9858,11 @@ export function IdeaWorkbench({
   }, [user]);
 
   useEffect(() => {
+    if (skipInitialCreditRefreshRef.current) {
+      skipInitialCreditRefreshRef.current = false;
+      return;
+    }
+
     const timeoutId = window.setTimeout(() => {
       void refreshCreditSummary();
     }, 0);

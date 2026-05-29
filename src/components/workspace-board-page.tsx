@@ -110,6 +110,7 @@ export async function WorkspaceBoardPage({
           initialTelemetryEvents={telemetryEvents}
           initialViewerUserId={viewerUserId}
           initialViewerMemberships={viewerMemberships}
+          initialCreditSummary={creditSummary}
           source={source}
           initialView={initialView}
           initialTask={initialTask}

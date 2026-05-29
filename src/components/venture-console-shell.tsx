@@ -25,6 +25,7 @@ import {
   type ConsoleActionTask,
   type ConsoleWorkflowStatus,
 } from "@/components/venture-console-actions";
+import type { CreditSummary } from "@/lib/billing";
 import type { Database } from "@/lib/supabase/types";
 import type {
   Decision,
@@ -740,6 +741,7 @@ export function VentureConsoleShell({
   initialTelemetryEvents,
   initialViewerUserId,
   initialViewerMemberships,
+  initialCreditSummary,
   source,
   initialView,
   initialTask,
@@ -755,6 +757,7 @@ export function VentureConsoleShell({
   initialTelemetryEvents: TelemetryEvent[];
   initialViewerUserId: string | null;
   initialViewerMemberships: Database["public"]["Tables"]["organization_members"]["Row"][];
+  initialCreditSummary?: CreditSummary | null;
   source: "supabase" | "seed";
   initialView?: "ideas" | "deleted";
   initialTask?: WorkbenchTask;
@@ -1280,6 +1283,7 @@ export function VentureConsoleShell({
               initialTelemetryEvents={telemetryEvents}
               initialViewerUserId={initialViewerUserId}
               initialViewerMemberships={initialViewerMemberships}
+              initialCreditSummary={initialCreditSummary}
               initialSelectedIdeaId={initialIdeaId}
               activeTask={activeWorkbenchTask}
               onActiveTaskChange={handleWorkbenchTaskChange}
