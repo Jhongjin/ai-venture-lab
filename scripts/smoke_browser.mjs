@@ -141,6 +141,8 @@ async function main() {
       await waitForVisible(page.getByText("2. AI 정리", { exact: true }), "first-use ai organize step");
       await waitForVisible(page.getByText("3. 저장 후 열림", { exact: true }), "first-use saved output step");
       await waitForVisible(page.locator('[data-smoke="first-use-input-examples"]'), "first-use input examples");
+      await waitForVisible(page.locator('[data-smoke="first-use-more-context"]'), "first-use folded context");
+      await page.getByText("AI가 만들 결과와 저장 후 흐름 보기", { exact: true }).click({ timeout: 10000 });
       await waitForVisible(page.locator('[data-smoke="first-use-ai-output-preview"]'), "first-use AI output preview");
       await waitForVisible(page.getByText("AI 정리 결과:", { exact: false }), "first-use AI output preview label");
       await waitForVisible(page.getByText("아이디어 후보 3개", { exact: false }), "first-use AI output preview candidates");
