@@ -52,6 +52,7 @@ import {
 } from "@/lib/billing";
 import type { WorkbenchTask } from "@/lib/workbench-tasks";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
+import { WorkbenchReviewGrid } from "@/components/workbench-review-grid";
 import type {
   Decision,
   Experiment,
@@ -17720,18 +17721,12 @@ export function IdeaWorkbench({
                   </div>
                 ) : null}
                 {buildDeliveryMode === "external_tool" ? (
-                  <div
-                    data-smoke="final-execution-run-location-summary"
-                    className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3"
-                  >
-                    {finalExecutionRunLocationItems.map(([label, value]) => (
-                      <div key={label} className="bg-white px-3 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
-                          {label}
-                        </div>
-                        <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
-                      </div>
-                    ))}
+                  <div className="mt-3">
+                    <WorkbenchReviewGrid
+                      dataSmoke="final-execution-run-location-summary"
+                      rows={finalExecutionRunLocationItems}
+                      variant="blue"
+                    />
                   </div>
                 ) : null}
               </div>
@@ -18490,14 +18485,13 @@ export function IdeaWorkbench({
                           {taskSyncUpdatedAt ? (
                             <p className="mt-1 text-xs leading-5 text-slate-500">마지막 확인 {taskSyncUpdatedAt}</p>
                           ) : null}
-                          <div data-smoke="final-execution-sync-result" className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
-                            {externalSyncReviewRows.map(([label, value, detail]) => (
-                              <div key={label} className="bg-white px-3 py-3">
-                                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
-                                <div className="mt-2 text-sm font-semibold leading-6 text-slate-950">{value}</div>
-                                <p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p>
-                              </div>
-                            ))}
+                          <div className="mt-3">
+                            <WorkbenchReviewGrid
+                              dataSmoke="final-execution-sync-result"
+                              density="roomy"
+                              rows={externalSyncReviewRows}
+                              variant="emerald"
+                            />
                           </div>
                         </div>
                         <button
@@ -18715,14 +18709,13 @@ export function IdeaWorkbench({
                   <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">한 줄 결론</div>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningOneSentenceOutcome}</p>
                 </div>
-                <div data-smoke="step8-simple-review" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
-                  {learningSimpleReviewRows.map(([label, value, detail]) => (
-                    <div key={label} className="bg-white px-3 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
-                      <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
-                      <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
-                    </div>
-                  ))}
+                <div className="mt-3">
+                  <WorkbenchReviewGrid
+                    dataSmoke="step8-simple-review"
+                    detailTone="soft"
+                    rows={learningSimpleReviewRows}
+                    variant="blue"
+                  />
                 </div>
                 <p className="mt-2 text-sm leading-6 text-slate-700">{learningPrimaryActionText}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
@@ -18774,14 +18767,12 @@ export function IdeaWorkbench({
                     <summary className="cursor-pointer list-none text-sm font-semibold text-emerald-950">
                       자동 반영 세부 보기
                     </summary>
-                    <div data-smoke="step8-sync-review" className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
-                      {externalSyncReviewRows.map(([label, value, detail]) => (
-                        <div key={label} className="bg-white px-3 py-2">
-                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
-                          <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
-                          <p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p>
-                        </div>
-                      ))}
+                    <div className="mt-3">
+                      <WorkbenchReviewGrid
+                        dataSmoke="step8-sync-review"
+                        rows={externalSyncReviewRows}
+                        variant="emerald"
+                      />
                     </div>
                   </details>
                 </div>
