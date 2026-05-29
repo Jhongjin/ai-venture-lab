@@ -365,7 +365,12 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     timeout,
   });
   const installResult = page.locator('[data-smoke="final-execution-install-result"]');
-  await installResult.getByText("설치가 끝나면 프로젝트 안에 생기는 것", { exact: true }).waitFor({
+  await installResult.getByText("설치 후 생기는 파일 보기", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await installResult.locator("summary").click();
+  await installResult.getByText("처음에는 설치 명령과 확인 명령만 실행하면 됩니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });

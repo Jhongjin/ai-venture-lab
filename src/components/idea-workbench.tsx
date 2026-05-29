@@ -17751,9 +17751,14 @@ export function IdeaWorkbench({
                       </div>
                     ))}
                   </div>
-                  <div data-smoke="final-execution-install-result" className="border border-emerald-200 bg-emerald-50 p-4">
-                    <div className="text-sm font-semibold text-emerald-950">설치가 끝나면 프로젝트 안에 생기는 것</div>
-                    <div className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
+                  <details data-smoke="final-execution-install-result" className="border border-emerald-200 bg-emerald-50 p-4">
+                    <summary className="cursor-pointer list-none text-sm font-semibold text-emerald-950">
+                      설치 후 생기는 파일 보기
+                    </summary>
+                    <p className="mt-2 text-sm leading-6 text-emerald-950">
+                      처음에는 설치 명령과 확인 명령만 실행하면 됩니다. 파일 구성은 확인이 필요할 때만 봅니다.
+                    </p>
+                    <div data-smoke="final-execution-install-result-files" className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
                       {finalExecutionInstallResultItems.map(([label, detail]) => (
                         <div key={label} className="bg-white px-3 py-2">
                           <div className="text-xs font-semibold tracking-[0.14em] text-emerald-700">{label}</div>
@@ -17761,7 +17766,7 @@ export function IdeaWorkbench({
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </details>
                   <div
                     data-smoke="final-execution-root-check"
                     className="border border-slate-200 bg-slate-50 p-4"
