@@ -10555,6 +10555,16 @@ export function IdeaWorkbench({
         isNext,
       };
     });
+  const learningProgressTitle = nextImplementationTask
+    ? "다음 작업 하나만 확인"
+    : learningTaskTimeline.length > 0
+      ? "완료된 것만 훑어보기"
+      : "진행표 대기";
+  const learningProgressDetail = nextImplementationTask
+    ? "오늘은 표시된 다음 작업 하나만 끝내면 됩니다. 전체 목록은 진행 순서 확인용으로만 봅니다."
+    : learningTaskTimeline.length > 0
+      ? "완료된 작업과 남은 작업을 빠르게 확인하고, 다음 판단은 위의 한눈 요약에서 정합니다."
+      : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.";
   const implementationDependencyPlanDraft = selectedIdea && editState
     ? buildImplementationDependencyPlanMarkdown({
         idea: selectedIdea,
@@ -18245,10 +18255,8 @@ export function IdeaWorkbench({
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="avl-kicker">진행 신호</div>
-                <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 진행표</h3>
-                <p className="mt-1 text-sm leading-6 text-slate-600">
-                  외부 제작 도구나 내부 작업에서 반영된 완료 보고입니다. 필요한 경우 다음 작업의 근거만 확인하세요.
-                </p>
+                <h3 className="mt-2 text-base font-semibold text-slate-950">{learningProgressTitle}</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{learningProgressDetail}</p>
               </div>
               <span className="avl-pill avl-pill-success">
                 완료 {completedLearningImplementationTasks.length}/{totalLearningImplementationTasks || 0}
