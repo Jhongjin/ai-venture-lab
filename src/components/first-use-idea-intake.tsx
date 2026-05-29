@@ -60,6 +60,9 @@ type FirstUseIdeaIntakeProps = {
 };
 
 export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: FirstUseIdeaIntakeProps) {
+  const selectedInputExample = firstUseInputExamples.find((example) => example.body === rawIdeaSource.trim());
+  const hasRawIdeaSource = rawIdeaSource.trim().length > 0;
+
   function handleSourceChange(event: ChangeEvent<HTMLTextAreaElement>) {
     onRawIdeaSourceChange(event.target.value);
   }
@@ -111,6 +114,18 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
           </button>
         ))}
       </div>
+      {hasRawIdeaSource ? (
+        <div
+          data-smoke="first-use-input-ready"
+          className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950"
+        >
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">입력 준비 완료</div>
+          <p className="mt-1 font-semibold text-slate-950">
+            {selectedInputExample ? `${selectedInputExample.label} 예시가 입력됐습니다.` : "입력칸에 메모가 들어왔습니다."} 이제
+            아래 이 내용으로 아이디어 정리하기 버튼을 누르면 AI가 후보 3개를 정리합니다.
+          </p>
+        </div>
+      ) : null}
       <textarea
         data-smoke="first-use-raw-source"
         value={rawIdeaSource}

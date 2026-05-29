@@ -159,6 +159,11 @@ async function main() {
       if (!firstUseRawSourceValue.includes("고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요.")) {
         fail("first-use example action did not fill the raw source textarea");
       }
+      await waitForVisible(page.locator('[data-smoke="first-use-input-ready"]'), "first-use input ready cue");
+      await waitForVisible(
+        page.getByText("회의 메모 예시가 입력됐습니다.", { exact: false }),
+        "first-use selected example cue",
+      );
       await waitForVisible(page.locator('[data-smoke="first-use-more-context"]'), "first-use folded context");
       await page.getByText("AI가 만들 결과와 저장 후 흐름 보기", { exact: true }).click({ timeout: 10000 });
       await waitForVisible(page.locator('[data-smoke="first-use-ai-output-preview"]'), "first-use AI output preview");
