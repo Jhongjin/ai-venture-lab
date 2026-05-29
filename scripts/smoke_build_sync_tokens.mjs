@@ -490,6 +490,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await commandSequence.getByText("현재 터미널이 다운로드 폴더라면", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const primaryDownloadCue = page.locator('[data-smoke="final-execution-primary-download-cue"]');
   await primaryDownloadCue.getByText(`${toolLabel} 연결 파일 받기`, { exact: false }).waitFor({
     state: "visible",

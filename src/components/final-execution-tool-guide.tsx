@@ -212,6 +212,9 @@ export function FinalExecutionToolGuide({
             className="mt-3 border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
           >
             같은 프로젝트 루트 터미널에서 1. 설치 명령, 2. 확인 명령 순서로 실행합니다.
+            <span className="mt-1 block text-xs leading-5 text-blue-800">
+              현재 터미널이 다운로드 폴더라면 먼저 파일을 옮기고, 실제 프로젝트 루트로 이동한 뒤 실행하세요.
+            </span>
           </div>
           <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
