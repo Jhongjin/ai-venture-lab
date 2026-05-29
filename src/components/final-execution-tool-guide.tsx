@@ -56,8 +56,95 @@ export function FinalExecutionToolGuide({
       : isClaudeCodeExternalDelivery
         ? "Claude Code 첫 메시지"
         : "Codex 첫 메시지";
-  const startPromptStepNumber = isCursorExternalDelivery ? "8" : usesNumberedLiveGuide ? "7" : "6";
-  const progressStepNumber = isCursorExternalDelivery ? "9" : usesNumberedLiveGuide ? "8" : "7";
+  const toolSpecificGuideSteps: ReactNode[] = isCursorExternalDelivery
+    ? [
+        <>
+          <span className="font-semibold text-slate-950">Cursor 연결 파일 받기</span>를 눌러 PowerShell 파일을 받습니다.
+        </>,
+        "받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.",
+        "Cursor에서 그 프로젝트 폴더를 엽니다.",
+        <>
+          Cursor 터미널 또는 PowerShell에서 <span className="font-semibold text-slate-950">설치 명령</span>을 먼저
+          실행합니다.
+        </>,
+        <>
+          같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지
+          확인합니다.
+        </>,
+        <>
+          Cursor를 다시 열고 Settings &gt; MCP의 Workspace MCP Servers에서{" "}
+          <span className="font-semibold text-slate-950">ai-venture-lab</span>이 보이는지 확인합니다. 처음 1회는 토글을 직접
+          켜야 할 수 있습니다.
+        </>,
+        <>
+          <span className="font-semibold text-slate-950">ai-venture-lab</span>이 Enabled 상태이고 도구가 활성화됐는지
+          확인합니다.
+        </>,
+      ]
+    : isAntigravityExternalDelivery
+      ? [
+          <>
+            <span className="font-semibold text-slate-950">Google Antigravity 연결 파일 받기</span>를 눌러 PowerShell 파일을
+            받습니다.
+          </>,
+          "받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.",
+          "Antigravity에서 그 프로젝트 폴더를 엽니다.",
+          <>
+            Antigravity 터미널 또는 PowerShell에서 <span className="font-semibold text-slate-950">설치 명령</span>을 먼저
+            실행합니다.
+          </>,
+          <>
+            같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지
+            확인합니다.
+          </>,
+          <>
+            프로젝트 안의 <span className="font-mono text-xs">.antigravity/mcp_config.json</span>과 지침 파일이 생성됐는지
+            확인합니다.
+          </>,
+        ]
+      : isClaudeCodeExternalDelivery
+        ? [
+            <>
+              <span className="font-semibold text-slate-950">Claude Code 연결 파일 받기</span>를 눌러 PowerShell 파일을
+              받습니다.
+            </>,
+            "받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.",
+            "Windows Terminal 또는 PowerShell에서 그 프로젝트 루트를 엽니다.",
+            <>
+              프로젝트 루트에서 <span className="font-semibold text-slate-950">설치 명령</span>을 실행합니다.
+            </>,
+            <>
+              같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지
+              확인합니다.
+            </>,
+            <>
+              같은 프로젝트 루트에서 Claude Code를 실행하고 <span className="font-mono text-xs">/mcp</span>로{" "}
+              <span className="font-semibold text-slate-950">ai-venture-lab</span> 연결을 확인합니다.
+            </>,
+          ]
+        : isCodexExternalDelivery
+          ? [
+              <>
+                <span className="font-semibold text-slate-950">Codex 연결 파일 받기</span>를 눌러 PowerShell 파일을 받습니다.
+              </>,
+              "받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.",
+              "Codex를 그 프로젝트 루트에서 엽니다.",
+              <>
+                프로젝트 루트 터미널 또는 PowerShell에서 <span className="font-semibold text-slate-950">설치 명령</span>을
+                실행합니다.
+              </>,
+              <>
+                같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지
+                확인합니다.
+              </>,
+              <>
+                <span className="font-mono text-xs">AGENTS.ai-venture-lab.md</span>와{" "}
+                <span className="font-mono text-xs">{activeExternalBuildTool.startFileName}</span>이 생성됐는지 확인합니다.
+              </>,
+            ]
+          : [];
+  const startPromptStepNumber = usesNumberedLiveGuide ? String(toolSpecificGuideSteps.length + 1) : "6";
+  const progressStepNumber = usesNumberedLiveGuide ? String(toolSpecificGuideSteps.length + 2) : "7";
 
   return (
     <div className="border border-slate-200 bg-white p-4">
@@ -100,98 +187,11 @@ export function FinalExecutionToolGuide({
               </div>
             </summary>
             <ol className="mt-3 grid gap-3 text-sm leading-6 text-slate-600">
-              {isCursorExternalDelivery ? (
-                <>
-                  <GuideStep>
-                    1. <span className="font-semibold text-slate-950">Cursor 연결 파일 받기</span>를 눌러 PowerShell 파일을
-                    받습니다.
-                  </GuideStep>
-                  <GuideStep>2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.</GuideStep>
-                  <GuideStep>3. Cursor에서 그 프로젝트 폴더를 엽니다.</GuideStep>
-                  <GuideStep>
-                    4. Cursor 터미널 또는 PowerShell에서{" "}
-                    <span className="font-semibold text-slate-950">설치 명령</span>을 먼저 실행합니다.
-                  </GuideStep>
-                  <GuideStep>
-                    5. 같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이
-                    읽히는지 확인합니다.
-                  </GuideStep>
-                  <GuideStep>
-                    6. Cursor를 다시 열고 Settings &gt; MCP의 Workspace MCP Servers에서{" "}
-                    <span className="font-semibold text-slate-950">ai-venture-lab</span>이 보이는지 확인합니다. 처음 1회는
-                    토글을 직접 켜야 할 수 있습니다.
-                  </GuideStep>
-                  <GuideStep>
-                    7. <span className="font-semibold text-slate-950">ai-venture-lab</span>이 Enabled 상태이고 도구가
-                    활성화됐는지 확인합니다.
-                  </GuideStep>
-                </>
-              ) : null}
-              {isAntigravityExternalDelivery ? (
-                <>
-                  <GuideStep>
-                    1. <span className="font-semibold text-slate-950">Google Antigravity 연결 파일 받기</span>를 눌러
-                    PowerShell 파일을 받습니다.
-                  </GuideStep>
-                  <GuideStep>2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.</GuideStep>
-                  <GuideStep>3. Antigravity에서 그 프로젝트 폴더를 엽니다.</GuideStep>
-                  <GuideStep>
-                    4. Antigravity 터미널 또는 PowerShell에서{" "}
-                    <span className="font-semibold text-slate-950">설치 명령</span>을 먼저 실행합니다.
-                  </GuideStep>
-                  <GuideStep>
-                    5. 같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이
-                    읽히는지 확인합니다.
-                  </GuideStep>
-                  <GuideStep>
-                    6. 프로젝트 안의 <span className="font-mono text-xs">.antigravity/mcp_config.json</span>과 지침 파일이
-                    생성됐는지 확인합니다.
-                  </GuideStep>
-                </>
-              ) : null}
-              {isClaudeCodeExternalDelivery ? (
-                <>
-                  <GuideStep>
-                    1. <span className="font-semibold text-slate-950">Claude Code 연결 파일 받기</span>를 눌러 PowerShell
-                    파일을 받습니다.
-                  </GuideStep>
-                  <GuideStep>2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.</GuideStep>
-                  <GuideStep>3. Windows Terminal 또는 PowerShell에서 그 프로젝트 루트를 엽니다.</GuideStep>
-                  <GuideStep>
-                    4. 프로젝트 루트에서 <span className="font-semibold text-slate-950">설치 명령</span>을 실행합니다.
-                  </GuideStep>
-                  <GuideStep>
-                    5. 같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이
-                    읽히는지 확인합니다.
-                  </GuideStep>
-                  <GuideStep>
-                    6. 같은 프로젝트 루트에서 Claude Code를 실행하고 <span className="font-mono text-xs">/mcp</span>로{" "}
-                    <span className="font-semibold text-slate-950">ai-venture-lab</span> 연결을 확인합니다.
-                  </GuideStep>
-                </>
-              ) : null}
-              {isCodexExternalDelivery ? (
-                <>
-                  <GuideStep>
-                    1. <span className="font-semibold text-slate-950">Codex 연결 파일 받기</span>를 눌러 PowerShell 파일을
-                    받습니다.
-                  </GuideStep>
-                  <GuideStep>2. 받은 파일을 실제 개발할 프로젝트 폴더의 루트로 옮깁니다.</GuideStep>
-                  <GuideStep>3. Codex를 그 프로젝트 루트에서 엽니다.</GuideStep>
-                  <GuideStep>
-                    4. 프로젝트 루트 터미널 또는 PowerShell에서{" "}
-                    <span className="font-semibold text-slate-950">설치 명령</span>을 실행합니다.
-                  </GuideStep>
-                  <GuideStep>
-                    5. 같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이
-                    읽히는지 확인합니다.
-                  </GuideStep>
-                  <GuideStep>
-                    6. <span className="font-mono text-xs">AGENTS.ai-venture-lab.md</span>와{" "}
-                    <span className="font-mono text-xs">{activeExternalBuildTool.startFileName}</span>이 생성됐는지 확인합니다.
-                  </GuideStep>
-                </>
-              ) : null}
+              {toolSpecificGuideSteps.map((step, index) => (
+                <GuideStep key={index}>
+                  {index + 1}. {step}
+                </GuideStep>
+              ))}
               <GuideStep>
                 {startPromptStepNumber}. <span className="font-mono text-xs">{activeExternalBuildTool.startFileName}</span>{" "}
                 내용을 {startPromptTarget}에 붙여 넣고 첫 작업을 시작합니다.
