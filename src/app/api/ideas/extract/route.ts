@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
-
 import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
+import { aiRouteJson, aiRouteJsonError } from "@/lib/ai-route-http";
 
 const MAX_SOURCE_LENGTH = 24000;
 const MAX_EXISTING_IDEAS = 20;
@@ -84,7 +83,7 @@ function getOpenAIErrorMessage(payload: OpenAIResponse) {
 }
 
 function createFallbackResponse(error: string, fallbackStatus?: number) {
-  return NextResponse.json({
+  return aiRouteJson({
     error,
     mode: "local_fallback",
     fallbackStatus: fallbackStatus ?? null,
@@ -163,13 +162,13 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as RequestBody;
   } catch {
-    return NextResponse.json({ error: "JSON body is required." }, { status: 400 });
+    return aiRouteJsonError("JSON body is required.", 400);
   }
 
   const source = typeof body.source === "string" ? body.source.trim().slice(0, MAX_SOURCE_LENGTH) : "";
 
   if (!source) {
-    return NextResponse.json({ error: "source is required." }, { status: 400 });
+    return aiRouteJsonError("source is required.", 400);
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -256,7 +255,7 @@ export async function POST(request: Request) {
       return createFallbackResponse("OpenAI structured output did not contain candidates.", 502);
     }
 
-    return NextResponse.json({
+    return aiRouteJson({
       mode: "openai",
       model,
       candidates: parsed.candidates,

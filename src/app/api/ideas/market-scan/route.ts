@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
-
 import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
+import { aiRouteJson, aiRouteJsonError } from "@/lib/ai-route-http";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -689,13 +688,13 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as RequestBody;
   } catch {
-    return NextResponse.json({ error: "JSON body is required." }, { status: 400 });
+    return aiRouteJsonError("JSON body is required.", 400);
   }
 
   const idea = toIdea(body.idea);
 
   if (!idea) {
-    return NextResponse.json({ error: "idea is required." }, { status: 400 });
+    return aiRouteJsonError("idea is required.", 400);
   }
 
   const state = toState(body.state);
@@ -705,7 +704,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    return NextResponse.json({
+    return aiRouteJson({
       mode: "local_estimate",
       model: null,
       scan: createFallbackScan({
@@ -797,7 +796,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
   const payload = (await openaiResponse.json().catch(() => ({}))) as OpenAIResponse;
 
   if (!openaiResponse.ok) {
-    return NextResponse.json({
+    return aiRouteJson({
       mode: "local_estimate",
       model,
       scan: createFallbackScan({
@@ -814,7 +813,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
   const scan = toMarketScan(parsed);
 
   if (!scan) {
-    return NextResponse.json({
+    return aiRouteJson({
       mode: "local_estimate",
       model,
       scan: createFallbackScan({
@@ -829,7 +828,7 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
   const payloadSources = collectSourcesFromPayload(payload);
   const mergedSources = mergePublicSources(scan.sources, payloadSources);
 
-  return NextResponse.json({
+  return aiRouteJson({
     mode: "openai_web",
     model,
     scan: {

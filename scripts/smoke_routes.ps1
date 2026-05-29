@@ -125,6 +125,10 @@ if (-not $extractApi.Content.Contains("source is required")) {
   Write-Error "Route smoke failed for /api/ideas/extract: missing source validation message."
 }
 
+if (-not $extractApi.CacheControl.Contains("no-store")) {
+  Write-Error "Route smoke failed for /api/ideas/extract: expected Cache-Control no-store."
+}
+
 $telemetryApi = Invoke-RouteSmokeRequest -Path "/api/telemetry/ingest" -Method "POST" -Body "{}"
 
 if ($telemetryApi.StatusCode -ne 401) {

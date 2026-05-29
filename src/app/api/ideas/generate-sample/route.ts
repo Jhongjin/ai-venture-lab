@@ -1,8 +1,7 @@
 import { randomUUID } from "node:crypto";
 
-import { NextResponse } from "next/server";
-
 import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
+import { aiRouteJson, aiRouteJsonError } from "@/lib/ai-route-http";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -400,7 +399,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    return NextResponse.json({ error: "OPENAI_API_KEY is not configured." }, { status: 503 });
+    return aiRouteJsonError("OPENAI_API_KEY is not configured.", 503);
   }
 
   const existingIdeas = toExistingIdeaContext(body.existingIdeas);
@@ -466,16 +465,13 @@ ${existingIdeaContext}
   const payload = (await openaiResponse.json().catch(() => ({}))) as OpenAIResponse;
 
   if (!openaiResponse.ok) {
-    return NextResponse.json(
-      { error: getOpenAIErrorMessage(payload) ?? `OpenAI request failed with HTTP ${openaiResponse.status}.` },
-      { status: 502 },
-    );
+    return aiRouteJsonError(getOpenAIErrorMessage(payload) ?? `OpenAI request failed with HTTP ${openaiResponse.status}.`, 502);
   }
 
   const outputText = extractOutputText(payload);
 
   if (!outputText) {
-    return NextResponse.json({ error: "OpenAI response did not include structured text output." }, { status: 502 });
+    return aiRouteJsonError("OpenAI response did not include structured text output.", 502);
   }
 
   try {
@@ -490,10 +486,10 @@ ${existingIdeaContext}
       .slice(0, 3);
 
     if (mergedIdeas.length !== 3) {
-      return NextResponse.json({ error: "OpenAI structured output did not contain exactly 3 usable ideas." }, { status: 502 });
+      return aiRouteJsonError("OpenAI structured output did not contain exactly 3 usable ideas.", 502);
     }
 
-    return NextResponse.json({
+    return aiRouteJson({
       mode: "openai",
       model,
       seed,
@@ -502,6 +498,6 @@ ${existingIdeaContext}
       source: buildSampleIdeaSource(mergedIdeas),
     });
   } catch {
-    return NextResponse.json({ error: "OpenAI structured output could not be processed." }, { status: 502 });
+    return aiRouteJsonError("OpenAI structured output could not be processed.", 502);
   }
 }

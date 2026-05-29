@@ -64,6 +64,7 @@ export function enforceAiRouteRateLimit(request: Request, { limit, route, window
     },
     {
       headers: {
+        "Cache-Control": "no-store",
         "Retry-After": String(retryAfterSeconds),
       },
       status: 429,

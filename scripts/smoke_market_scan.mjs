@@ -150,6 +150,10 @@ try {
     fail(`HTTP ${response.status}`);
   }
 
+  if (!/\bno-store\b/i.test(response.headers.get("cache-control") || "")) {
+    fail("market scan response did not return Cache-Control: no-store");
+  }
+
   if (!payload || typeof payload !== "object") {
     fail("response is not JSON object");
   }
