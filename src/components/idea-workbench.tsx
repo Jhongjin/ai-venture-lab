@@ -975,6 +975,11 @@ const step5ExecutionPackageValueItems = [
   ["제작 범위 잠금", "첫 버전에 만들 것과 제외할 것을 분리해 다음 작업이 커지지 않게 합니다."],
   ["다음 단계 연결", "저장 후 작업 순서를 만들고, 최종 실행에서 외부 개발 도구 파일로 넘깁니다."],
 ] as const;
+const step5SavedPackageUsageItems = [
+  ["STEP 6", "작업 순서로 풀림"],
+  ["STEP 7", "도구별 연결 파일 생성"],
+  ["STEP 8", "진행 결과와 성과 확인 기준"],
+] as const;
 const step8ActionLadderItems = [
   ["1. 완료 확인", "끝난 작업만 확인"],
   ["2. 다음 하나", "이어 할 작업 하나만 선택"],
@@ -16101,6 +16106,14 @@ export function IdeaWorkbench({
                   </div>
                   <div className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
                     {step5ExecutionPackageBriefItems.map(([label, detail]) => (
+                      <div key={label} className="bg-white px-3 py-3">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
+                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div data-smoke="step5-saved-package-usage" className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
+                    {step5SavedPackageUsageItems.map(([label, detail]) => (
                       <div key={label} className="bg-white px-3 py-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
                         <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>

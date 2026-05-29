@@ -274,6 +274,17 @@ async function verifyAuthenticatedCreditSummary() {
         state: "visible",
         timeout: timeoutMs,
       });
+      const savedPackageUsage = page.locator('[data-smoke="step5-saved-package-usage"]');
+      for (const label of ["STEP 6", "STEP 7", "STEP 8"]) {
+        await savedPackageUsage.getByText(label, { exact: true }).waitFor({
+          state: "visible",
+          timeout: timeoutMs,
+        });
+      }
+      await savedPackageUsage.getByText("성과 확인 기준", { exact: false }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
     } else if (
       await page
         .getByRole("heading", { name: /메모에서 검토할 아이디어 정리|아이디어 찾기/ })
