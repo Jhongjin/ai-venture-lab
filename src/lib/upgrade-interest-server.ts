@@ -26,6 +26,8 @@ type UpgradeInterestRow = {
   properties: Json;
 };
 
+const UPGRADE_INTEREST_RECENT_LIMIT = 100;
+
 function isJsonObject(value: Json): value is { [key: string]: Json | undefined } {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
@@ -74,17 +76,24 @@ export async function readUpgradeInterestSummary(): Promise<UpgradeInterestSumma
     };
   }
 
-  const { data, error } = await supabase
-    .from("telemetry_events")
-    .select("id, actor_id, properties, occurred_at")
-    .eq("event_name", UPGRADE_INTEREST_EVENT_NAME)
-    .eq("event_category", UPGRADE_INTEREST_EVENT_CATEGORY)
-    .order("occurred_at", { ascending: false })
-    .limit(40);
+  const [countResult, recentEventsResult] = await Promise.all([
+    supabase
+      .from("telemetry_events")
+      .select("id", { count: "exact", head: true })
+      .eq("event_name", UPGRADE_INTEREST_EVENT_NAME)
+      .eq("event_category", UPGRADE_INTEREST_EVENT_CATEGORY),
+    supabase
+      .from("telemetry_events")
+      .select("id, actor_id, properties, occurred_at")
+      .eq("event_name", UPGRADE_INTEREST_EVENT_NAME)
+      .eq("event_category", UPGRADE_INTEREST_EVENT_CATEGORY)
+      .order("occurred_at", { ascending: false })
+      .limit(UPGRADE_INTEREST_RECENT_LIMIT),
+  ]);
 
-  if (error) {
+  if (recentEventsResult.error) {
     return {
-      error: `Could not read Pro interest signals: ${error.message}`,
+      error: `Could not read Pro interest signals: ${recentEventsResult.error.message}`,
       intentCounts: {},
       latestEvents: [],
       sourceCounts: {},
@@ -93,7 +102,7 @@ export async function readUpgradeInterestSummary(): Promise<UpgradeInterestSumma
     };
   }
 
-  const rows = (data ?? []) as UpgradeInterestRow[];
+  const rows = (recentEventsResult.data ?? []) as UpgradeInterestRow[];
   const sourceCounts: Record<string, number> = {};
   const intentCounts: Record<string, number> = {};
   const actorIds = new Set<string>();
@@ -119,11 +128,11 @@ export async function readUpgradeInterestSummary(): Promise<UpgradeInterestSumma
   });
 
   return {
-    error: null,
+    error: countResult.error ? `Could not count Pro interest signals: ${countResult.error.message}` : null,
     intentCounts,
     latestEvents,
     sourceCounts,
-    totalCount: latestEvents.length,
+    totalCount: countResult.count ?? latestEvents.length,
     uniqueActorCount: actorIds.size,
   };
 }
