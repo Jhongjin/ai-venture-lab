@@ -503,6 +503,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await page.getByRole("button", { name: "설치 후 시작 지시문 복사" }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const connectionHealth = page.locator('[data-smoke="final-execution-connection-health"]');
   await connectionHealth.getByText("자동 반영 상태", { exact: true }).waitFor({
     state: "visible",

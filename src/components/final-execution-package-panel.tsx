@@ -89,7 +89,7 @@ export function FinalExecutionPackagePanel({
           className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
         >
           <Clipboard size={16} />
-          {isLiveExternalDelivery ? "시작 지시문 복사" : "지시문 복사"}
+          {isLiveExternalDelivery ? "설치 후 시작 지시문 복사" : "지시문 복사"}
         </button>
         {isLiveExternalDelivery ? (
           <button
