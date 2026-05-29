@@ -1113,6 +1113,21 @@ async function main() {
       await unlockDisposableBuildPass(page, ideaId);
       spentDisposableBuildPass = true;
       tokenResult = await issueBuildSyncToken(page, ideaId, "cursor");
+    } else if (tokenResult.status === 402 && !allowBuildPassSpend) {
+      if (creditSummary && hasBuildPassForIdea(creditSummary, ideaId)) {
+        fail("token issue returned HTTP 402 even though the credit summary says this idea already has a production build pass.");
+      }
+
+      console.log("Build sync credit gate smoke passed.");
+      console.log("Registry/token issue: blocked by production build-pass requirement as expected.");
+      console.log(creditSummary ? `Credit preflight: ${formatCreditGateHint(creditSummary, ideaId)}` : "Credit preflight: unavailable");
+      console.log("Credit build pass: not spent by this smoke run");
+      console.log("Invalid token TTL request: rejected");
+      console.log("Unsupported build sync tool request: rejected");
+      console.log(
+        "Full connector lifecycle: skipped; use a pre-unlocked smoke idea or BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1 for STEP 7/8 write-back coverage.",
+      );
+      return;
     } else if (tokenResult.status === 402) {
       fail(
         `token issue returned HTTP 402 because this idea has no production build pass. ${formatCreditGateHint(
