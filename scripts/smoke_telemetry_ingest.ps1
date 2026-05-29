@@ -123,6 +123,11 @@ function Send-TelemetrySmokeEvent {
     Write-Error "Telemetry smoke failed for $EventName`: expected HTTP 200 but received $($response.StatusCode)."
   }
 
+  $cacheControl = [string]$response.Headers["Cache-Control"]
+  if (-not $cacheControl.Contains("no-store")) {
+    Write-Error "Telemetry smoke failed for $EventName`: expected Cache-Control no-store."
+  }
+
   $json = $response.Content | ConvertFrom-Json
 
   if ($json.ok -ne $true) {

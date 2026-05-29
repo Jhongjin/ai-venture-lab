@@ -1,9 +1,10 @@
 import { createHmac, timingSafeEqual } from "crypto";
-import { NextResponse } from "next/server";
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
+import { telemetryJson, telemetryJsonError } from "@/lib/telemetry-http";
 import type { Json } from "@/lib/supabase/types";
 
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const MAX_PROPERTY_KEYS = 24;
@@ -117,13 +118,13 @@ export async function POST(request: Request) {
   const providedSecret = getProvidedSecret(request);
 
   if (!hasValidSecret(providedSecret, configuredSecret)) {
-    return NextResponse.json({ error: "Valid telemetry secret is required." }, { status: 401 });
+    return telemetryJsonError("Valid telemetry secret is required.", 401);
   }
 
   const supabase = getSupabaseAdminClient();
 
   if (!supabase) {
-    return NextResponse.json({ error: "Supabase service role is not configured." }, { status: 503 });
+    return telemetryJsonError("Supabase service role is not configured.", 503);
   }
 
   let body: IngestBody;
@@ -131,13 +132,13 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as IngestBody;
   } catch {
-    return NextResponse.json({ error: "JSON body is required." }, { status: 400 });
+    return telemetryJsonError("JSON body is required.", 400);
   }
 
   const ideaId = toText(body.ideaId, 80);
 
   if (!ideaId) {
-    return NextResponse.json({ error: "ideaId is required." }, { status: 400 });
+    return telemetryJsonError("ideaId is required.", 400);
   }
 
   const eventName = toEventToken(body.eventName, "product_event", MAX_EVENT_NAME_LENGTH);
@@ -155,7 +156,7 @@ export async function POST(request: Request) {
     .single();
 
   if (ideaError || !idea) {
-    return NextResponse.json({ error: "Linked idea was not found." }, { status: 404 });
+    return telemetryJsonError("Linked idea was not found.", 404);
   }
 
   const { data, error } = await supabase
@@ -180,10 +181,10 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: "Telemetry event could not be saved." }, { status: 500 });
+    return telemetryJsonError("Telemetry event could not be saved.", 500);
   }
 
-  return NextResponse.json({
+  return telemetryJson({
     ok: true,
     eventId: data.id,
     occurredAt: data.occurred_at,

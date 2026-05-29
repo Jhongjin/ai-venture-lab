@@ -34,6 +34,7 @@ function Invoke-RouteSmokeRequest {
       Url = $uri.ToString()
       StatusCode = [int]$response.StatusCode
       Location = $response.Headers.Location
+      CacheControl = [string]$response.Headers.CacheControl
       Content = $content
     }
   } finally {
@@ -132,6 +133,10 @@ if ($telemetryApi.StatusCode -ne 401) {
 
 if (-not $telemetryApi.Content.Contains("Valid telemetry secret is required")) {
   Write-Error "Route smoke failed for /api/telemetry/ingest: missing telemetry secret validation message."
+}
+
+if (-not $telemetryApi.CacheControl.Contains("no-store")) {
+  Write-Error "Route smoke failed for /api/telemetry/ingest: expected Cache-Control no-store."
 }
 
 $buildSyncTokenApi = Invoke-RouteSmokeRequest -Path "/api/build-sync/token" -Method "POST" -Body "{}"
