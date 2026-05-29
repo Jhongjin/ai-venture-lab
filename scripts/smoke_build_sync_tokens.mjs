@@ -481,6 +481,15 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const primaryDownloadCue = page.locator('[data-smoke="final-execution-primary-download-cue"]');
+  await primaryDownloadCue.getByText(`${toolLabel} 연결 파일 받기`, { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await primaryDownloadCue.getByText("시작 지시문 복사는 설치 확인 뒤", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const connectionHealth = page.locator('[data-smoke="final-execution-connection-health"]');
   await connectionHealth.getByText("자동 반영 상태", { exact: true }).waitFor({
     state: "visible",

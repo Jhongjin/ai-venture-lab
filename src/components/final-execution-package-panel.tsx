@@ -54,16 +54,16 @@ export function FinalExecutionPackagePanel({
           ))}
         </div>
       ) : null}
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => onCopyDraft(copyBody, copyLabel)}
-          disabled={!copyBody}
-          className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
+      {isLiveExternalDelivery ? (
+        <div
+          data-smoke="final-execution-primary-download-cue"
+          className="mt-3 border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
         >
-          <Clipboard size={16} />
-          {isLiveExternalDelivery ? "시작 지시문 복사" : "지시문 복사"}
-        </button>
+          먼저 누를 버튼은 {activeExternalBuildTool.label} 연결 파일 받기입니다. 시작 지시문 복사는 설치 확인 뒤에
+          사용합니다.
+        </div>
+      ) : null}
+      <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => void onDownloadPrimaryPackage()}
@@ -76,6 +76,15 @@ export function FinalExecutionPackagePanel({
               ? "연결 준비 중"
               : `${activeExternalBuildTool.label} 연결 파일 받기`
             : "시작 패키지 받기"}
+        </button>
+        <button
+          type="button"
+          onClick={() => onCopyDraft(copyBody, copyLabel)}
+          disabled={!copyBody}
+          className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
+        >
+          <Clipboard size={16} />
+          {isLiveExternalDelivery ? "시작 지시문 복사" : "지시문 복사"}
         </button>
         {isLiveExternalDelivery ? (
           <button
