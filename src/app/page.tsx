@@ -118,8 +118,8 @@ const planBoundaryRows = [
   {
     name: "Pro",
     headline: "반복 제작과 외부 개발 실행",
-    detail: `${PRO_UPGRADE_VALUE_TEXT}을 계속 씁니다.`,
-    signal: "관심 등록",
+    detail: `${PRO_UPGRADE_VALUE_TEXT}이 필요해지는 순간을 Pro 관심 기록으로 남깁니다.`,
+    signal: "결제 없이 기록",
   },
   {
     name: "Team",
