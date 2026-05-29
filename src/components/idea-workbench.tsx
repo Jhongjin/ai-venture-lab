@@ -56,6 +56,7 @@ import { FinalExecutionQuickStart } from "@/components/final-execution-quick-sta
 import { FinalExecutionReadinessSummary } from "@/components/final-execution-readiness-summary";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
+import { Step5ExecutionPackageBrief } from "@/components/step5-execution-package-brief";
 import { Step5PackageCurrentAction } from "@/components/step5-package-current-action";
 import { Step8ActionSummary } from "@/components/step8-action-summary";
 import { Step8ProgressSection } from "@/components/step8-progress-section";
@@ -968,21 +969,10 @@ const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   tasks: "실행할 일을 상태별로 나누고 막힌 항목과 완료 근거를 봅니다.",
   handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
 };
-const step5ExecutionPackageBriefItems = [
-  ["첫 메시지", "도구가 읽을 시작 지시문과 제작 기준"],
-  ["첫 작업", "T-001부터 처리할 작업 순서와 수용 기준"],
-  ["완료 기준", "작업이 끝났는지 확인할 검수 조건"],
-  ["연결 파일", "최종 실행에서 받을 도구별 설치 파일"],
-] as const;
 const step5ExecutionPackageValueItems = [
   ["실행 패키지", "기획서, 디자인 기준, 기술 방향, 검증 근거를 한 기준으로 묶습니다."],
   ["제작 범위 잠금", "첫 버전에 만들 것과 제외할 것을 분리해 다음 작업이 커지지 않게 합니다."],
   ["다음 단계 연결", "저장 후 작업 순서를 만들고, 최종 실행에서 외부 개발 도구 파일로 넘깁니다."],
-] as const;
-const step5SavedPackageUsageItems = [
-  ["STEP 6", "작업 순서로 풀림"],
-  ["STEP 7", "도구별 연결 파일 생성"],
-  ["STEP 8", "진행 결과와 성과 확인 기준"],
 ] as const;
 const step8ActionLadderItems = [
   ["1. 완료 확인", "끝난 작업만 확인"],
@@ -16127,38 +16117,7 @@ export function IdeaWorkbench({
                   </div>
                 </div>
 
-                <div data-smoke="step5-execution-package-brief" className="mt-5 border border-blue-200 bg-blue-50 p-4">
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
-                        제작 시작 패키지
-                      </div>
-                      <h4 className="mt-2 text-base font-semibold text-slate-950">
-                        저장하면 개발자가 바로 읽을 실행 기준이 됩니다.
-                      </h4>
-                      <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-700">
-                        이 단계의 결과는 보기 좋은 문서가 아니라, 첫 메시지, 첫 작업, 완료 기준을 외부/내부 개발 도구에 넘기는 시작점입니다.
-                      </p>
-                    </div>
-                    <span className="avl-pill avl-pill-info">STEP 7 연결 준비</span>
-                  </div>
-                  <div className="mt-3 grid gap-px bg-blue-200 md:grid-cols-2 xl:grid-cols-4">
-                    {step5ExecutionPackageBriefItems.map(([label, detail]) => (
-                      <div key={label} className="bg-white px-3 py-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
-                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div data-smoke="step5-saved-package-usage" className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
-                    {step5SavedPackageUsageItems.map(([label, detail]) => (
-                      <div key={label} className="bg-white px-3 py-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
-                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <Step5ExecutionPackageBrief />
 
                 <div className="mt-5 grid gap-px bg-slate-200 lg:grid-cols-3">
                   {step5ExecutionPackageValueItems.map(([label, detail]) => (
