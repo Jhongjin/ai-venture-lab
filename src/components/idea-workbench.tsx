@@ -16057,6 +16057,16 @@ export function IdeaWorkbench({
                 </div>
               ))}
             </div>
+            <div data-smoke="step5-first-click-cue" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">먼저 할 일</div>
+              <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
+                {canUseFullProductionPackage
+                  ? "아래 AI 제작 패키지 만들기만 누르면 AI가 요약까지 자동으로 정리합니다."
+                  : isCreditSystemChecking
+                    ? "크레딧 상태를 확인한 뒤 AI 제작 패키지 만들기 버튼이 열립니다."
+                    : "먼저 제작 패스를 열면 아래 AI 제작 패키지 만들기 버튼이 활성화됩니다."}
+              </p>
+            </div>
             <div data-smoke="step5-save-to-execution-path" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">저장 후 열림</div>
               <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
