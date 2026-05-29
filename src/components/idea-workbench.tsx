@@ -18754,6 +18754,15 @@ export function IdeaWorkbench({
                   </div>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{externalSyncOutcomeSentence}</p>
                   <p className="mt-1 text-xs leading-5 text-slate-500">최근 확인: {externalSyncCheckedText}</p>
+                  <div data-smoke="step8-sync-review" className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
+                    {externalSyncReviewRows.map(([label, value, detail]) => (
+                      <div key={label} className="bg-white px-3 py-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
+                        <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
+                        <p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               {productSignalCount > 0 && !nextImplementationTask ? (

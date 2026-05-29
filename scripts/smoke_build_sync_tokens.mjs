@@ -186,6 +186,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  const syncReview = syncBrief.locator('[data-smoke="step8-sync-review"]');
+  for (const label of ["반영 결과", "다음 작업", "최근 확인"]) {
+    await syncReview.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
     state: "visible",
     timeout,
