@@ -65,11 +65,32 @@ if ([string]::IsNullOrWhiteSpace($Secret)) {
   Write-Error "Telemetry smoke requires TELEMETRY_INGEST_SECRET. Set it in the current terminal before running pnpm smoke:telemetry."
 }
 
+function New-DisposableTelemetrySmokeIdea {
+  $scriptPath = Join-Path $PSScriptRoot "create_telemetry_smoke_idea.mjs"
+  $createdIdeaId = (& node $scriptPath 2>&1)
+
+  if ($LASTEXITCODE -ne 0) {
+    Write-Error "Telemetry smoke could not create a disposable idea automatically. $createdIdeaId"
+  }
+
+  $id = ([string]($createdIdeaId | Select-Object -Last 1)).Trim()
+
+  if ([string]::IsNullOrWhiteSpace($id)) {
+    Write-Error "Telemetry smoke could not create a disposable idea automatically."
+  }
+
+  $script:IdeaId = $id
+  $env:TELEMETRY_SMOKE_IDEA_ID = $id
+  Write-Host "Created disposable telemetry smoke idea for this run."
+  return $id
+}
+
 if ([string]::IsNullOrWhiteSpace($IdeaId)) {
-  Write-Error "Telemetry smoke requires TELEMETRY_SMOKE_IDEA_ID. Use an existing idea id from Supabase or the Learning Loop adapter guide."
+  $IdeaId = New-DisposableTelemetrySmokeIdea
 }
 
 $uri = [System.Uri]::new([System.Uri]::new($BaseUrl), "/api/telemetry/ingest")
+$script:RetriedWithDisposableTelemetryIdea = $false
 
 function Send-TelemetrySmokeEvent {
   param(
@@ -114,6 +135,12 @@ function Send-TelemetrySmokeEvent {
         $body = $reader.ReadToEnd()
         $reader.Dispose()
       }
+    }
+
+    if ($statusCode -eq 404 -and -not $script:RetriedWithDisposableTelemetryIdea) {
+      $script:RetriedWithDisposableTelemetryIdea = $true
+      $IdeaId = New-DisposableTelemetrySmokeIdea
+      return Send-TelemetrySmokeEvent -EventName $EventName -Step $Step
     }
 
     Write-Error "Telemetry smoke failed for $uri with HTTP $statusCode. Event: $EventName. Response: $body"
