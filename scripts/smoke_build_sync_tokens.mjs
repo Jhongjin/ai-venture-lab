@@ -222,10 +222,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
       timeout,
     });
   }
-  await page.getByRole("heading", { name: "제작 작업 진행표" }).waitFor({
-    state: "visible",
-    timeout,
-  });
+  const progressSection = page.locator('[data-smoke="step8-progress-section"]');
+  await progressSection
+    .getByRole("heading", { name: /다음 작업 하나만 확인|완료된 것만 훑어보기|진행표 대기/ })
+    .waitFor({
+      state: "visible",
+      timeout,
+    });
   const outcomeDetails = page.locator('[data-smoke="step8-outcome-details"]');
   await outcomeDetails.getByText("판단 근거 자세히 보기", { exact: true }).waitFor({
     state: "visible",
@@ -247,22 +250,27 @@ async function verifyLearningTaskBoard(page, ideaId) {
       timeout,
     });
   }
-  await page.getByText("진행 신호", { exact: true }).waitFor({
+  await progressSection.getByText("진행 신호", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
-  const taskBoard = page.locator("section", {
-    has: page.getByRole("heading", { name: "제작 작업 진행표" }),
-  });
-  await taskBoard.getByText("필요한 경우 다음 작업의 근거만 확인하세요.", { exact: false }).waitFor({
+  await progressSection
+    .getByText(/전체 목록은 진행 순서 확인용|한눈 요약에서 정합니다|최종 실행에서 첫 제작 작업/)
+    .waitFor({
+      state: "visible",
+      timeout,
+    });
+  const progressDetails = progressSection.locator('[data-smoke="step8-progress-details"]');
+  await progressDetails.getByText("전체 진행표 보기", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
-  await taskBoard.locator("span", { hasText: "build sync smoke registry verification" }).first().waitFor({
+  await progressDetails.locator("summary").click();
+  await progressDetails.locator("span", { hasText: "build sync smoke registry verification" }).first().waitFor({
     state: "visible",
     timeout,
   });
-  await taskBoard.locator("span.avl-pill-success:visible", { hasText: "완료" }).first().waitFor({
+  await progressDetails.locator("span.avl-pill-success:visible", { hasText: "완료" }).first().waitFor({
     state: "visible",
     timeout,
   });
