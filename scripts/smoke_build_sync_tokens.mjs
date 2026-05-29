@@ -277,7 +277,7 @@ async function verifyWorkOrderCurrentAction(page, ideaId) {
       timeout,
     });
   }
-  await executionBridge.getByText("연결 파일", { exact: false }).waitFor({
+  await executionBridge.getByText("연결 파일과 START 파일", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
