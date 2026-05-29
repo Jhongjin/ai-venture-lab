@@ -57,6 +57,7 @@ import { FinalExecutionReadinessSummary } from "@/components/final-execution-rea
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { Step8ActionSummary } from "@/components/step8-action-summary";
+import { Step8ProgressSection } from "@/components/step8-progress-section";
 import { WorkbenchReviewGrid } from "@/components/workbench-review-grid";
 import type {
   Decision,
@@ -10565,6 +10566,20 @@ export function IdeaWorkbench({
     : learningTaskTimeline.length > 0
       ? "완료된 작업과 남은 작업을 빠르게 확인하고, 다음 판단은 위의 한눈 요약에서 정합니다."
       : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.";
+  const step8ProgressItems = learningTaskTimeline.map((item) => ({
+    id: item.task.id,
+    code: item.code,
+    title: item.task.title,
+    statusDetail: item.statusDetail,
+    statusLabel: implementationTaskStatusLabels[item.task.status],
+    statusTone: implementationTaskStatusTone[item.task.status],
+    passedCount: item.passedCount,
+    totalCount: item.totalCount,
+    missingLabels: item.missingLabels,
+    isNext: item.isNext,
+    isDone: item.task.status === "done",
+    showMissingEvidence: item.missingLabels.length > 0 && item.task.status !== "done",
+  }));
   const implementationDependencyPlanDraft = selectedIdea && editState
     ? buildImplementationDependencyPlanMarkdown({
         idea: selectedIdea,
@@ -18251,85 +18266,15 @@ export function IdeaWorkbench({
             </div>
           </details>
 
-          <section data-smoke="step8-progress-section" className="mt-4 border border-slate-200 bg-white p-4">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div className="avl-kicker">진행 신호</div>
-                <h3 className="mt-2 text-base font-semibold text-slate-950">{learningProgressTitle}</h3>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{learningProgressDetail}</p>
-              </div>
-              <span className="avl-pill avl-pill-success">
-                완료 {completedLearningImplementationTasks.length}/{totalLearningImplementationTasks || 0}
-              </span>
-            </div>
-            {nextImplementationTask ? (
-              <div data-smoke="step8-next-task-focus" className="mt-4 border border-blue-200 bg-blue-50 p-3">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 끝낼 작업</div>
-                <div className="mt-2 text-sm font-semibold text-slate-950">
-                  {nextImplementationTaskCode ? `${nextImplementationTaskCode} ` : ""}
-                  {nextImplementationTask.title}
-                </div>
-                <p className="mt-1 text-xs leading-5 text-slate-600">
-                  전체 진행표는 확인용입니다. 이 작업의 완료 보고만 반영하면 다음 판단으로 넘어갑니다.
-                </p>
-              </div>
-            ) : null}
-            <details data-smoke="step8-progress-details" className="mt-4 border border-slate-200 bg-slate-50 p-3">
-              <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
-                {learningTaskTimeline.length > 0 ? "전체 진행표 보기" : "빈 상태 보기"}
-              </summary>
-              <div className="mt-3 grid gap-2">
-                {learningTaskTimeline.length > 0 ? (
-                  learningTaskTimeline.map((item) => (
-                    <div
-                      key={item.task.id}
-                      className={`border p-3 ${
-                        item.isNext
-                          ? "border-blue-200 bg-blue-50"
-                          : item.task.status === "done"
-                            ? "border-emerald-200 bg-emerald-50"
-                            : "border-slate-200 bg-slate-50"
-                      }`}
-                    >
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-mono text-xs font-semibold text-slate-500">{item.code}</span>
-                            <span className="text-sm font-semibold text-slate-950">{item.task.title}</span>
-                            {item.isNext ? <span className="avl-pill avl-pill-info">다음 작업</span> : null}
-                          </div>
-                          <p className="mt-1 text-sm leading-6 text-slate-600">{item.statusDetail}</p>
-                          {item.missingLabels.length > 0 && item.task.status !== "done" ? (
-                            <p className="mt-1 text-xs leading-5 text-slate-500">
-                              보완할 근거: {item.missingLabels.slice(0, 3).join(", ")}
-                            </p>
-                          ) : null}
-                        </div>
-                        <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
-                          <span className={implementationTaskStatusTone[item.task.status]}>
-                            {implementationTaskStatusLabels[item.task.status]}
-                          </span>
-                          <span className="avl-pill avl-pill-neutral">
-                            근거 {item.passedCount}/{item.totalCount}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-                    <div className="font-semibold text-slate-950">성과 확인은 아직 볼 게 없습니다.</div>
-                    <p className="mt-1">
-                      최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.
-                    </p>
-                    <p className="mt-2 text-xs leading-5 text-slate-500">
-                      최종 실행 확인은 STEP 7에서 진행하세요. 이 빈 상태는 단계를 자동으로 이동시키지 않습니다.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </details>
-          </section>
+          <Step8ProgressSection
+            completedCount={completedLearningImplementationTasks.length}
+            items={step8ProgressItems}
+            nextTaskCode={nextImplementationTaskCode}
+            nextTaskTitle={nextImplementationTask?.title ?? null}
+            progressDetail={learningProgressDetail}
+            progressTitle={learningProgressTitle}
+            totalCount={totalLearningImplementationTasks}
+          />
 
           {experienceMode === "guided" ? null : (
           <div className="mt-4 avl-card p-4 text-slate-900">
