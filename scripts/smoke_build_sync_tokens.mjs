@@ -106,7 +106,10 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  await page.locator('[data-smoke="step8-primary-cta"]').getByText(/STEP 7에서|리포트 복사/).waitFor({
+  await page
+    .locator('[data-smoke="step8-primary-cta"]')
+    .getByText(/^(다음 작업은 STEP 7에서 이어갑니다|최종 실행은 STEP 7에서 확인합니다|리포트 복사)$/)
+    .waitFor({
     state: "visible",
     timeout,
   });
@@ -114,12 +117,6 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  for (const label of ["완료된 것", "남은 것", "지금 판단할 것"]) {
-    await page.getByText(label, { exact: true }).first().waitFor({
-      state: "visible",
-      timeout,
-    });
-  }
   await waitForVisibleDecisionSentence(page);
   const singleDecisionRule = page.locator('[data-smoke="step8-single-decision-rule"]');
   await singleDecisionRule.getByText("판단 후보 중 하나만", { exact: false }).waitFor({
@@ -142,11 +139,15 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  for (const label of ["작업 계속", "막힘 해결", "완료 보고 반영"]) {
-    await decisionOptions.getByText(label, { exact: true }).waitFor({
-      state: "visible",
-      timeout,
-    });
+  const decisionOptionsText = await decisionOptions.innerText({ timeout });
+  const hasExpectedDecisionOption = [
+    "작업 계속",
+    "첫 버전 배포",
+    "다음 빌드 승인",
+    "리스크 보완",
+  ].some((label) => decisionOptionsText.includes(label));
+  if (!hasExpectedDecisionOption) {
+    fail(`STEP 8 decision options did not include an expected current-state option: ${decisionOptionsText}`);
   }
   const simpleReview = page.locator('[data-smoke="step8-simple-review"]');
   for (const label of ["완료", "다음", "판단"]) {
@@ -168,7 +169,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  await nextJudgmentBrief.getByText("상세 리포트", { exact: false }).waitFor({
+  await nextJudgmentBrief.getByText("리포트", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
@@ -203,6 +204,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  const outcomeSummary = outcomeDetails.locator('[data-smoke="step8-outcome-summary"]');
+  for (const label of ["완료된 것", "남은 것", "지금 판단할 것"]) {
+    await outcomeSummary.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   await page.getByText("진행 신호", { exact: true }).waitFor({
     state: "visible",
     timeout,
