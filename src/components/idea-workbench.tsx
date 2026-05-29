@@ -56,6 +56,7 @@ import { FinalExecutionQuickStart } from "@/components/final-execution-quick-sta
 import { FinalExecutionReadinessSummary } from "@/components/final-execution-readiness-summary";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
+import { Step5PackageCurrentAction } from "@/components/step5-package-current-action";
 import { Step8ActionSummary } from "@/components/step8-action-summary";
 import { Step8ProgressSection } from "@/components/step8-progress-section";
 import { WorkbenchReviewGrid } from "@/components/workbench-review-grid";
@@ -967,11 +968,6 @@ const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   tasks: "실행할 일을 상태별로 나누고 막힌 항목과 완료 근거를 봅니다.",
   handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
 };
-const step5PackageCurrentActionItems = [
-  ["1. 만들기", "AI 제작 패키지 만들기"],
-  ["2. 확인", "요약만 보고 필요한 메모 추가"],
-  ["3. 저장", "하단 다음 버튼으로 STEP 6 이동"],
-] as const;
 const step5ExecutionPackageBriefItems = [
   ["첫 메시지", "도구가 읽을 시작 지시문과 제작 기준"],
   ["첫 작업", "T-001부터 처리할 작업 순서와 수용 기준"],
@@ -16036,44 +16032,10 @@ export function IdeaWorkbench({
             <Code2 className="text-blue-600" size={22} />
           </div>
 
-          <section data-smoke="step5-package-current-action" className="mb-5 border border-emerald-200 bg-emerald-50 p-4">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">지금 할 일</div>
-                <h3 className="mt-2 text-base font-semibold text-slate-950">
-                  AI가 실행 기준을 만들면 요약만 확인하고 저장합니다.
-                </h3>
-                <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-700">
-                  저장된 패키지는 STEP 6 작업 순서와 STEP 7 연결 파일의 기준이 됩니다. 파일 받기와 도구 연결은 최종 실행에서만 열립니다.
-                </p>
-              </div>
-              <span className="avl-pill avl-pill-success w-fit">다음: 작업 순서</span>
-            </div>
-            <div className="mt-3 grid gap-px bg-emerald-200 md:grid-cols-3">
-              {step5PackageCurrentActionItems.map(([label, detail]) => (
-                <div key={label} className="bg-white px-3 py-3">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
-                </div>
-              ))}
-            </div>
-            <div data-smoke="step5-first-click-cue" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">먼저 할 일</div>
-              <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
-                {canUseFullProductionPackage
-                  ? "아래 AI 제작 패키지 만들기만 누르면 AI가 요약까지 자동으로 정리합니다."
-                  : isCreditSystemChecking
-                    ? "크레딧 상태를 확인한 뒤 AI 제작 패키지 만들기 버튼이 열립니다."
-                    : "먼저 제작 패스를 열면 아래 AI 제작 패키지 만들기 버튼이 활성화됩니다."}
-              </p>
-            </div>
-            <div data-smoke="step5-save-to-execution-path" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">저장 후 열림</div>
-              <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
-                STEP 6 작업 순서 확인 후, STEP 7에서 연결 파일을 받습니다.
-              </p>
-            </div>
-          </section>
+          <Step5PackageCurrentAction
+            canUseFullProductionPackage={canUseFullProductionPackage}
+            isCreditSystemChecking={isCreditSystemChecking}
+          />
 
           {experienceMode === "full" ? (
             <div className="mb-5 avl-segmented p-1">
