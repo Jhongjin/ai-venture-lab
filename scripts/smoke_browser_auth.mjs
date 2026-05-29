@@ -334,6 +334,17 @@ async function openAuthEntry(page) {
   );
 }
 
+async function verifyWorkspaceCreditSummary(page) {
+  const creditSummary = page.locator('[data-smoke="workspace-credit-summary"]');
+
+  await waitForVisible(creditSummary, "workspace credit summary", 15000);
+  await waitForVisible(
+    creditSummary.getByText("제작 크레딧", { exact: true }),
+    "workspace credit summary label",
+    15000,
+  );
+}
+
 async function verifyDirectWorkbenchTaskRoute(page) {
   const directUrl = new URL("/workspace", baseUrl);
   directUrl.searchParams.set("task", "orchestration");
@@ -357,6 +368,8 @@ async function verifyDirectWorkbenchTaskRoute(page) {
   if (routeState === "score-fallback") {
     fail("direct workbench task route ignored task=orchestration and fell back to the scoring step.");
   }
+
+  await verifyWorkspaceCreditSummary(page);
 
   if (routeState === "empty-intake") {
     console.log("Direct orchestration route skipped because the authenticated smoke account has no active ideas.");
