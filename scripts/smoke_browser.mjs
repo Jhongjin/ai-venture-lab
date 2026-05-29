@@ -149,6 +149,8 @@ async function main() {
         page.getByText("하단 다음 단계 버튼이 열리고 사업성 평가부터 이어짐", { exact: true }),
         "first-use saved next-step button cue",
       );
+      await waitForVisible(page.locator('[data-smoke="first-use-current-action"]'), "first-use current action");
+      await waitForVisible(page.getByText("아래 입력칸에 생각나는 말을 그대로 붙입니다.", { exact: false }), "first-use paste current action");
       await waitForVisible(page.locator('[data-smoke="first-use-input-examples"]'), "first-use input examples");
       await waitForVisible(page.locator('[data-smoke="first-use-more-context"]'), "first-use folded context");
       await page.getByText("AI가 만들 결과와 저장 후 흐름 보기", { exact: true }).click({ timeout: 10000 });
