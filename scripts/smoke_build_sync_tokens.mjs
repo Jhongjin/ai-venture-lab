@@ -951,9 +951,16 @@ async function readBrowserAccessToken(page) {
       return "";
     }
 
-    const [, rawCookieValue = ""] = authCookie.split("=");
+    const separatorIndex = authCookie.indexOf("=");
+    const rawCookieValue = separatorIndex === -1 ? "" : authCookie.slice(separatorIndex + 1);
     const decodedCookie = decodeURIComponent(rawCookieValue);
-    const jsonText = decodedCookie.startsWith("base64-") ? atob(decodedCookie.slice("base64-".length)) : decodedCookie;
+    const jsonText = decodedCookie.startsWith("base64-")
+      ? (() => {
+          const encoded = decodedCookie.slice("base64-".length).replace(/-/g, "+").replace(/_/g, "/");
+          const padded = encoded.padEnd(Math.ceil(encoded.length / 4) * 4, "=");
+          return atob(padded);
+        })()
+      : decodedCookie;
     const session = JSON.parse(jsonText);
     return typeof session.access_token === "string" ? session.access_token : "";
   });
