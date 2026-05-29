@@ -87,7 +87,7 @@ const firstUseInputExamples = [
 const firstUseFastPathSteps = [
   ["1. 붙여넣기", "회의 메모, GPT 대화, 자동화할 업무를 그대로 넣기"],
   ["2. AI 정리", "후보 3개와 결과물 형태·개발 방식 정리"],
-  ["3. 저장 후 열림", "사업성 평가, 검증 계획, 제작 패키지, 외부 개발 자료"],
+  ["3. 저장 후 열림", "하단 다음 단계 버튼이 열리고 사업성 평가부터 이어짐"],
 ] as const;
 
 const firstUseBuildChoiceSplitItems = [
