@@ -56,6 +56,7 @@ import { FinalExecutionQuickStart } from "@/components/final-execution-quick-sta
 import { FinalExecutionReadinessSummary } from "@/components/final-execution-readiness-summary";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
+import { Step5AutoProgressTimeline } from "@/components/step5-auto-progress-timeline";
 import { Step5BuildDirectionSummary } from "@/components/step5-build-direction-summary";
 import { Step5ExecutionPackageBrief } from "@/components/step5-execution-package-brief";
 import { Step5PackageCurrentAction } from "@/components/step5-package-current-action";
@@ -16116,33 +16117,11 @@ export function IdeaWorkbench({
                   ))}
                 </div>
 
-                <div className="mt-5 grid gap-3 lg:grid-cols-5">
-                  {developmentAutoProgressSteps.map((step, index) => {
-                    const isDone =
-                      effectiveDevelopmentAutoFlowState === "saved" ||
-                      effectiveDevelopmentAutoFlowState === "summary" ||
-                      effectiveDevelopmentAutoFlowState === "review" ||
-                      (effectiveDevelopmentAutoFlowState === "running" && index < developmentAutoStepIndex);
-                    const isRunning =
-                      effectiveDevelopmentAutoFlowState === "running" && index === developmentAutoStepIndex;
-                    const isActive = isDone || isRunning;
-
-                    return (
-                      <div
-                        key={step.label}
-                        className={`border p-4 ${
-                          isActive ? "border-slate-950 bg-slate-950 text-white" : "border-slate-200 bg-slate-50 text-slate-900"
-                        }`}
-                      >
-                        <div className={`text-xs font-semibold tracking-[0.14em] ${isActive ? "text-blue-100" : "text-slate-500"}`}>
-                          {isDone ? "완료" : isRunning ? "진행 중" : `0${index + 1}`}
-                        </div>
-                        <div className="mt-2 text-sm font-semibold">{step.label}</div>
-                        <p className={`mt-2 text-sm leading-5 ${isActive ? "text-slate-200" : "text-slate-600"}`}>{step.detail}</p>
-                      </div>
-                    );
-                  })}
-                </div>
+                <Step5AutoProgressTimeline
+                  activeStepIndex={developmentAutoStepIndex}
+                  flowState={effectiveDevelopmentAutoFlowState}
+                  steps={developmentAutoProgressSteps}
+                />
 
                 {effectiveDevelopmentAutoFlowState === "idle" ? (
                   <div
