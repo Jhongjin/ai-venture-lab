@@ -43,6 +43,7 @@ Current implementation direction:
 - The profile page shows the current-period credit grant, current-period spend, and recent credit ledger entries so users can see how monthly credits and build-pass spends changed their balance.
 - The profile page explains the upgrade trigger in user language: Free is for understanding and validating the first idea; Pro is for repeated production packages, external tool write-back, and source-backed market evidence.
 - The profile page includes a low-friction Pro interest button that records `upgrade_interest_clicked` in `telemetry_events` without starting a payment flow. This is the pre-Stripe demand signal for repeated production-package usage.
+- The Pro interest action deduplicates the same actor/source/intent for 24 hours so repeated clicks do not inflate pre-payment demand signals.
 - The profile page summarizes visible Pro interest signals by count, source, intent, and latest event. This uses the existing telemetry RLS boundary and is not a global admin revenue dashboard yet.
 - The profile page also labels Pro interest signal quality so the operator can distinguish no-signal, needs-more-signal, and price-test-ready states before opening checkout.
 - Stripe checkout readiness is paused from user-facing profile UI while provider choice is deferred; secret values are still never displayed, and checkout remains off until server checkout, webhooks, and entitlement writes exist.

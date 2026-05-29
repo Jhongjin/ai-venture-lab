@@ -14,6 +14,7 @@ type UpgradeInterestInput = {
 };
 
 const allowedUpgradeInterestSources = new Set(["profile_credit_summary", "step5_credit_panel"]);
+const upgradeInterestDedupeWindowMs = 24 * 60 * 60 * 1000;
 
 function normalizeUpgradeInterestInput(input: UpgradeInterestInput | undefined) {
   const source =
@@ -46,6 +47,24 @@ export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput)
     return {
       ok: false,
       message: "로그인 후 다시 시도해 주세요.",
+    };
+  }
+
+  const dedupeSince = new Date(Date.now() - upgradeInterestDedupeWindowMs).toISOString();
+  const { data: recentEvents, error: recentEventError } = await supabase
+    .from("telemetry_events")
+    .select("id")
+    .eq("actor_id", user.id)
+    .eq("event_name", "upgrade_interest_clicked")
+    .eq("event_category", "billing")
+    .gte("occurred_at", dedupeSince)
+    .contains("properties", { source, intent, plan: "pro" })
+    .limit(1);
+
+  if (!recentEventError && recentEvents && recentEvents.length > 0) {
+    return {
+      ok: true,
+      message: "이미 관심 신호가 기록됐습니다. 중복 저장 없이 수요 신호로 유지합니다.",
     };
   }
 
