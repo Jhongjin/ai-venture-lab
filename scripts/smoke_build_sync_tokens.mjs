@@ -479,6 +479,27 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const afterFirstTask = page.locator('[data-smoke="final-execution-after-first-task"]');
+  await afterFirstTask.getByText("첫 작업 뒤에는 STEP 8만 확인", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await afterFirstTask.getByText("완료된 것", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await afterFirstTask.getByText("다음 작업", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await afterFirstTask.getByText("오늘 판단", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await afterFirstTask.getByText("자동 반영이 안 될 때만", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const commandPath = page.locator('[data-smoke="final-execution-command-path"]');
   await commandPath.getByText("1. 파일 받기", { exact: true }).waitFor({
     state: "visible",
