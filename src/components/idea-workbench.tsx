@@ -54,6 +54,7 @@ import { FinalExecutionConnectionManager } from "@/components/final-execution-co
 import { FinalExecutionPackagePanel } from "@/components/final-execution-package-panel";
 import { FinalExecutionQuickStart } from "@/components/final-execution-quick-start";
 import { FinalExecutionReadinessSummary } from "@/components/final-execution-readiness-summary";
+import { FinalExecutionTaskList } from "@/components/final-execution-task-list";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { Step5AutoProgressTimeline } from "@/components/step5-auto-progress-timeline";
@@ -12506,6 +12507,12 @@ export function IdeaWorkbench({
     selectedImplementationTasks.length === 0 ? cursorHandoffTaskDrafts.slice(0, 6) : [];
   const finalExecutionVisibleTaskCount =
     selectedImplementationTasks.length > 0 ? finalExecutionTaskPreview.length : finalExecutionFallbackTaskPreview.length;
+  const finalExecutionTaskListDescription =
+    buildDeliveryMode === "external_tool"
+      ? isLiveExternalDelivery
+        ? `${activeExternalBuildTool.label} 연결 파일에는 이 작업 목록이 포함됩니다. 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다.`
+        : `${activeExternalBuildTool.label} 시작 패키지에 이 작업 목록이 포함됩니다. 작업이 끝나면 완료 보고를 반영해 Venture Lab 작업 상태를 맞춥니다.`
+      : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다.";
   const doneRunCount = selectedRuns.filter((run) => run.status === "done").length;
   const workbenchTasks: Array<{
     id: WorkbenchTask;
@@ -17771,65 +17778,19 @@ export function IdeaWorkbench({
                 </section>
               )}
 
-              <section className="border border-slate-200 bg-white p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <div className="avl-kicker">작업 목록</div>
-                    <h3 className="mt-2 text-base font-semibold text-slate-950">제작 작업 목록</h3>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
-                      {buildDeliveryMode === "external_tool"
-                        ? isLiveExternalDelivery
-                          ? `${activeExternalBuildTool.label} 연결 파일에는 이 작업 목록이 포함됩니다. 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다.`
-                          : `${activeExternalBuildTool.label} 시작 패키지에 이 작업 목록이 포함됩니다. 작업이 끝나면 완료 보고를 반영해 Venture Lab 작업 상태를 맞춥니다.`
-                        : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다."}
-                    </p>
-                  </div>
-                  <span className="avl-pill avl-pill-success">{finalExecutionVisibleTaskCount}개 표시</span>
-                </div>
-                <div className="mt-4 grid gap-3 md:grid-cols-3">
-                  {finalExecutionTaskPreview.length > 0 ? (
-                    finalExecutionTaskPreview.map((task, index) => (
-                      <div key={task.id} className="border border-slate-200 bg-slate-50 p-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="text-sm font-semibold text-slate-950">
-                            <span className="font-mono text-xs font-semibold text-slate-500">{getCursorTaskCode(index)}</span>{" "}
-                            {task.title}
-                          </div>
-                          <span className={implementationTaskStatusTone[task.status]}>
-                            {implementationTaskStatusLabels[task.status]}
-                          </span>
-                        </div>
-                        <p className="mt-2 text-xs leading-5 text-slate-600">
-                          {task.acceptance_criteria || "수용 기준은 제작 패키지의 작업 순서를 따릅니다."}
-                        </p>
-                      </div>
-                    ))
-                  ) : finalExecutionFallbackTaskPreview.length > 0 ? (
-                    finalExecutionFallbackTaskPreview.map((task, index) => (
-                      <div key={`${task.title}-${index}`} className="border border-blue-200 bg-blue-50 p-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="text-sm font-semibold text-slate-950">
-                              <span className="font-mono text-xs font-semibold text-slate-500">{getCursorTaskCode(index)}</span>{" "}
-                              {task.title}
-                            </div>
-                            <span className="avl-pill avl-pill-info">
-                              {isLiveExternalDelivery ? "연결 파일에 포함" : "패키지에 포함"}
-                            </span>
-                          </div>
-                        <p className="mt-2 text-xs leading-5 text-slate-700">
-                          {task.acceptance_criteria || "수용 기준은 제작 패키지의 작업 순서를 따릅니다."}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600 md:col-span-3">
-                      저장된 제작 작업이 없습니다. STEP 6에서 작업 순서를 먼저 생성해야 최종 실행이 열립니다.
-                    </div>
-                  )}
-                </div>
-                {buildDeliveryMode === "external_tool" ? (
-                  <>
-                    <div className="mt-4 border border-emerald-200 bg-emerald-50 p-4">
+              <FinalExecutionTaskList
+                description={finalExecutionTaskListDescription}
+                fallbackTaskPreview={finalExecutionFallbackTaskPreview}
+                isLiveExternalDelivery={isLiveExternalDelivery}
+                statusLabels={implementationTaskStatusLabels}
+                statusTone={implementationTaskStatusTone}
+                taskPreview={finalExecutionTaskPreview}
+                visibleTaskCount={finalExecutionVisibleTaskCount}
+              />
+
+              {buildDeliveryMode === "external_tool" ? (
+                <section className="border border-slate-200 bg-white p-4">
+                    <div className="border border-emerald-200 bg-emerald-50 p-4">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
                           <div className="avl-kicker">{isLiveExternalDelivery ? "자동 반영" : "완료 보고"}</div>
@@ -17994,9 +17955,8 @@ export function IdeaWorkbench({
                     </div>
                       </div>
                     </details>
-                  </>
-                ) : null}
-              </section>
+                </section>
+              ) : null}
 
               <section className="border border-slate-200 bg-white p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
