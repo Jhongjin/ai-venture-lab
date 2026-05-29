@@ -207,6 +207,12 @@ export function FinalExecutionToolGuide({
               </GuideStep>
             </ol>
           </details>
+          <div
+            data-smoke="final-execution-command-sequence"
+            className="mt-3 border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
+          >
+            같은 프로젝트 루트 터미널에서 1. 설치 명령, 2. 확인 명령 순서로 실행합니다.
+          </div>
           <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-xs font-semibold text-slate-950">먼저 실행할 설치 명령</div>
@@ -226,15 +232,15 @@ export function FinalExecutionToolGuide({
           <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-xs font-semibold text-slate-950">설치 후 확인 명령</div>
-                <button
-                  type="button"
-                  onClick={() => copyDraft(nextTaskCommand, "확인 명령")}
-                  className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs"
-                >
-                  <Clipboard size={14} />
-                  확인 명령 복사
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => copyDraft(nextTaskCommand, "확인 명령")}
+                className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs"
+              >
+                <Clipboard size={14} />
+                확인 명령 복사
+              </button>
+            </div>
             <div className="mt-2 rounded-none bg-slate-950 px-3 py-2 font-mono text-xs text-white break-all">
               {nextTaskCommand}
             </div>

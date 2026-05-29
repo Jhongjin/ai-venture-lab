@@ -481,6 +481,15 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const commandSequence = page.locator('[data-smoke="final-execution-command-sequence"]');
+  await commandSequence.getByText("같은 프로젝트 루트 터미널", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await commandSequence.getByText("1. 설치 명령, 2. 확인 명령", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const primaryDownloadCue = page.locator('[data-smoke="final-execution-primary-download-cue"]');
   await primaryDownloadCue.getByText(`${toolLabel} 연결 파일 받기`, { exact: false }).waitFor({
     state: "visible",
