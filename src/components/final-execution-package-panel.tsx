@@ -69,6 +69,9 @@ export function FinalExecutionPackagePanel({
           <span className="mt-1 block text-xs leading-5 text-blue-800">
             받은 파일은 실제 앱 폴더 최상단으로 옮긴 뒤 실행합니다.
           </span>
+          <span className="mt-1 block text-xs leading-5 text-blue-800">
+            보관용 문서는 연결 없이 자료만 남길 때 사용합니다.
+          </span>
         </div>
       ) : null}
       <div className="mt-4 flex flex-wrap gap-2">
@@ -102,7 +105,7 @@ export function FinalExecutionPackagePanel({
             className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
           >
             <Download size={16} />
-            문서만 받기
+            보관용 문서 받기
           </button>
         ) : null}
       </div>

@@ -552,7 +552,15 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await primaryDownloadCue.getByText("보관용 문서는 연결 없이 자료만", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByRole("button", { name: "설치 후 시작 지시문 복사" }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByRole("button", { name: "보관용 문서 받기" }).waitFor({
     state: "visible",
     timeout,
   });
