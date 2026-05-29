@@ -250,6 +250,21 @@ async function verifyWorkOrderCurrentAction(page, ideaId) {
     state: "visible",
     timeout,
   });
+  const firstTaskLock = page.locator('[data-smoke="step6-first-task-lock"]');
+  await firstTaskLock.getByText("첫 제작 범위 잠금", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  for (const label of ["작업 번호", "작업 이름", "완료 기준"]) {
+    await firstTaskLock.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
+  await firstTaskLock.getByText("T-001", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
 
   const executionBridge = page.locator('[data-smoke="step6-execution-bridge"]');
   await executionBridge.getByText("제작 패키지 연결", { exact: true }).waitFor({

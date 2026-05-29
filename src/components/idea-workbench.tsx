@@ -19254,6 +19254,25 @@ export function IdeaWorkbench({
             ))}
           </div>
 
+          <div data-smoke="step6-first-task-lock" className="mt-4 border border-blue-200 bg-blue-50 p-4">
+            <div className="text-sm font-semibold text-blue-950">첫 제작 범위 잠금</div>
+            <p className="mt-1 text-sm leading-6 text-slate-700">
+              작업 순서를 만들면 먼저 T-001 하나만 확인합니다. 이름과 완료 기준이 맞으면 하단 다음 단계로 최종 실행에 넘깁니다.
+            </p>
+            <div className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
+              {[
+                ["작업 번호", firstImplementationTask ? getCursorTaskCode(0) : "T-001"],
+                ["작업 이름", firstImplementationTask ? firstImplementationTask.title : "기획서와 첫 제작 범위 잠금"],
+                ["완료 기준", firstImplementationTask?.acceptance_criteria || "작업 순서 생성 후 표시"],
+              ].map(([label, detail]) => (
+                <div key={label} className="min-w-0 bg-white px-3 py-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
+                  <p className="mt-1 break-words text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <details className="mt-4 border border-slate-200 bg-white p-4">
             <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
               필요할 때만 직접 단계 추가
