@@ -206,6 +206,10 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-upgrade-interest-dedupe-rule"]').getByText("24시간", { exact: false }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
     const pausedPaymentReadinessCount = await page.locator('[data-smoke="profile-payment-readiness"]').count();
     if (pausedPaymentReadinessCount > 0) {
       fail("profile still exposes payment readiness while checkout is paused");

@@ -91,6 +91,9 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
         <p className="mt-1 text-xs leading-5 text-slate-600">
           기준: 관심 등록 {formatCount(summary.totalCount)}회, 계정 {formatCount(summary.uniqueActorCount)}개, 주요 이유 {topIntentLabel}.
         </p>
+        <p data-smoke="profile-upgrade-interest-dedupe-rule" className="mt-1 text-xs leading-5 text-slate-600">
+          중복 기준: 같은 계정, 같은 위치, 같은 이유는 24시간 안에 한 번만 늘어납니다.
+        </p>
       </div>
 
       <div className="mt-4 border border-slate-200 bg-slate-50 p-3">
