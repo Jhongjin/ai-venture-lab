@@ -18710,19 +18710,20 @@ export function IdeaWorkbench({
                   <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">한 줄 결론</div>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningOneSentenceOutcome}</p>
                 </div>
+                <div data-smoke="step8-simple-review" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
+                  {learningSimpleReviewRows.map(([label, value, detail]) => (
+                    <div key={label} className="bg-white px-3 py-2">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
+                      <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
+                      <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+                    </div>
+                  ))}
+                </div>
                 <p className="mt-2 text-sm leading-6 text-slate-700">{learningPrimaryActionText}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">결정: {finalExecutionDecisionSentence}</p>
                 <div data-smoke="step8-single-decision-rule" className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950">
                   오늘은 아래 판단 후보 중 하나만 고르면 됩니다. 상세 리포트는 필요할 때만 엽니다.
-                </div>
-                <div data-smoke="step8-action-ladder" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
-                  {step8ActionLadderItems.map(([label, detail]) => (
-                    <div key={label} className="bg-white px-3 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
-                      <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
-                    </div>
-                  ))}
                 </div>
                 <div data-smoke="step8-decision-options" className="mt-3 border border-blue-200 bg-white px-3 py-2">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
@@ -18742,35 +18743,42 @@ export function IdeaWorkbench({
                     ))}
                   </div>
                 </div>
-                <div data-smoke="step8-simple-review" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
-                  {learningSimpleReviewRows.map(([label, value, detail]) => (
-                    <div key={label} className="bg-white px-3 py-2">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
-                      <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
-                      <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
-                    </div>
-                  ))}
-                </div>
                 <div data-smoke="step8-next-judgment-brief" className="mt-3 border border-blue-200 bg-white px-3 py-2">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">다음 판단</div>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningJudgmentQuestion}</p>
                   <p className="mt-1 text-xs leading-5 text-slate-600">{learningNextJudgmentBrief}</p>
                 </div>
+                <details data-smoke="step8-action-ladder-details" className="mt-3 border border-blue-200 bg-white px-3 py-2">
+                  <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">확인 순서 보기</summary>
+                  <div data-smoke="step8-action-ladder" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
+                    {step8ActionLadderItems.map(([label, detail]) => (
+                      <div key={label} className="bg-white px-3 py-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
+                        <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </details>
                 <div data-smoke="step8-sync-brief" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
                     자동 반영 요약
                   </div>
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{externalSyncOutcomeSentence}</p>
                   <p className="mt-1 text-xs leading-5 text-slate-500">최근 확인: {externalSyncCheckedText}</p>
-                  <div data-smoke="step8-sync-review" className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
-                    {externalSyncReviewRows.map(([label, value, detail]) => (
-                      <div key={label} className="bg-white px-3 py-2">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
-                        <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
-                        <p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p>
-                      </div>
-                    ))}
-                  </div>
+                  <details data-smoke="step8-sync-review-details" className="mt-3 border border-emerald-200 bg-emerald-50 px-3 py-2">
+                    <summary className="cursor-pointer list-none text-sm font-semibold text-emerald-950">
+                      자동 반영 세부 보기
+                    </summary>
+                    <div data-smoke="step8-sync-review" className="mt-3 grid gap-px bg-emerald-200 sm:grid-cols-3">
+                      {externalSyncReviewRows.map(([label, value, detail]) => (
+                        <div key={label} className="bg-white px-3 py-2">
+                          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">{label}</div>
+                          <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
+                          <p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
                 </div>
               </div>
               {productSignalCount > 0 && !nextImplementationTask ? (

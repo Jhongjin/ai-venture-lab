@@ -127,7 +127,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  const actionLadder = page.locator('[data-smoke="step8-action-ladder"]');
+  const actionLadderDetails = page.locator('[data-smoke="step8-action-ladder-details"]');
+  await actionLadderDetails.getByText("확인 순서 보기", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await actionLadderDetails.locator("summary").click();
+  const actionLadder = actionLadderDetails.locator('[data-smoke="step8-action-ladder"]');
   for (const label of ["1. 완료 확인", "2. 다음 하나", "3. 판단 하나"]) {
     await actionLadder.getByText(label, { exact: true }).waitFor({
       state: "visible",
@@ -190,7 +196,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  const syncReview = syncBrief.locator('[data-smoke="step8-sync-review"]');
+  const syncReviewDetails = syncBrief.locator('[data-smoke="step8-sync-review-details"]');
+  await syncReviewDetails.getByText("자동 반영 세부 보기", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await syncReviewDetails.locator("summary").click();
+  const syncReview = syncReviewDetails.locator('[data-smoke="step8-sync-review"]');
   for (const label of ["반영 결과", "다음 작업", "최근 확인"]) {
     await syncReview.getByText(label, { exact: true }).waitFor({
       state: "visible",
