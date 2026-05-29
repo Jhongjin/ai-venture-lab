@@ -14,14 +14,15 @@ type UpgradeInterestInput = {
 };
 
 const allowedUpgradeInterestSources = new Set(["profile_credit_summary", "step5_credit_panel"]);
+const allowedUpgradeInterestIntents = new Set(["insufficient_credits_for_build_pass", "repeated_production_packages"]);
 const upgradeInterestDedupeWindowMs = 24 * 60 * 60 * 1000;
 
 function normalizeUpgradeInterestInput(input: UpgradeInterestInput | undefined) {
   const source =
     input?.source && allowedUpgradeInterestSources.has(input.source) ? input.source : "profile_credit_summary";
   const intent =
-    typeof input?.intent === "string" && input.intent.trim().length > 0
-      ? input.intent.trim().slice(0, 80)
+    input?.intent && allowedUpgradeInterestIntents.has(input.intent)
+      ? input.intent
       : "repeated_production_packages";
 
   return { intent, source };
