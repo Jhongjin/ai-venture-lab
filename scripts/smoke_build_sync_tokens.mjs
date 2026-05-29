@@ -178,11 +178,15 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  await syncBrief.getByText("완료", { exact: false }).waitFor({
-    state: "visible",
-    timeout,
-  });
-  await syncBrief.getByText("다음", { exact: false }).waitFor({
+  await syncBrief
+    .locator("p")
+    .filter({ hasText: /자동 반영 기준으로 완료|아직 반영할 제작 작업/ })
+    .first()
+    .waitFor({
+      state: "visible",
+      timeout,
+    });
+  await syncBrief.getByText("다음은", { exact: false }).first().waitFor({
     state: "visible",
     timeout,
   });
