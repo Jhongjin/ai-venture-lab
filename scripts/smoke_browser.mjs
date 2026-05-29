@@ -136,6 +136,10 @@ async function main() {
         page.getByText("처음이라면 메모를 그대로 붙이고 AI 정리만 누르세요.", { exact: true }),
         "first-use primary instruction",
       );
+      await waitForVisible(
+        page.getByText("받는 것: 후보 3개, 결과물 형태, 개발 방식.", { exact: false }),
+        "first-use immediate output promise",
+      );
       await waitForVisible(page.locator('[data-smoke="first-use-fast-path"]'), "first-use fast path");
       await waitForVisible(page.getByText("1. 붙여넣기", { exact: true }), "first-use paste step");
       await waitForVisible(page.getByText("2. AI 정리", { exact: true }), "first-use ai organize step");

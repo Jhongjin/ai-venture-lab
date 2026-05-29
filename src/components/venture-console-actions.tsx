@@ -3664,7 +3664,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950"
                       >
                         <span className="font-semibold text-slate-950">처음이라면 메모를 그대로 붙이고 AI 정리만 누르세요.</span>{" "}
-                        저장하면 사업성 평가부터 제작 패키지와 외부 개발 도구 전달 자료까지 순서대로 열립니다.
+                        넣는 것: 메모, 대화, 자동화할 업무. 받는 것: 후보 3개, 결과물 형태, 개발 방식.
                       </div>
                       <div data-smoke="first-use-fast-path" className="grid gap-px bg-slate-200 md:grid-cols-3">
                         {firstUseFastPathSteps.map(([label, body]) => (
@@ -3757,7 +3757,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                     </span>
                     <span>
                       <strong className="text-slate-950">2.</strong>{" "}
-                      {hasGeneratedIdeaSlots ? "나머지 후보만 새로 확인합니다." : "AI가 아이디어, 결과물 형태, 개발 방식을 정리합니다."}
+                      {hasGeneratedIdeaSlots ? "나머지 후보만 새로 확인합니다." : "AI가 후보 3개와 만들 방식까지 정리합니다."}
                     </span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 사업성 평가로 이어집니다.</span>
                   </div>
