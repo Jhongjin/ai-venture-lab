@@ -102,6 +102,8 @@ async function main() {
     await page.goto(`${baseUrl}/workspace`, { waitUntil: "networkidle", timeout });
 
     await waitForVisible(page.getByRole("heading", { name: /실행 보드/ }), "workspace heading");
+    await waitForVisible(page.locator('[data-smoke="workspace-credit-summary"]'), "workspace credit summary");
+    await waitForVisible(page.getByText("제작 크레딧", { exact: true }), "workspace credit summary label");
     await waitForVisible(page.getByText(/지금 할 일|검토할 아이디어를 먼저 저장|회의 내용, 아이디어/).first(), "stage guidance");
     await waitForVisible(page.getByText(/진행 순서|로그인/).first(), "workflow rail");
     const staleIntakeRedirectButton = await page.getByRole("button", { name: "메모 붙여넣기 화면 열기" }).count();
