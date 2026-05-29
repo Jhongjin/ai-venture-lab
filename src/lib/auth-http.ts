@@ -1,14 +1,7 @@
-import { NextResponse } from "next/server";
-
-const authNoStoreHeaders = {
-  "Cache-Control": "no-store",
-} as const;
+import { noStoreJson } from "@/lib/no-store-json";
 
 export function authJson<T>(body: T, status = 200) {
-  return NextResponse.json(body, {
-    headers: authNoStoreHeaders,
-    status,
-  });
+  return noStoreJson(body, status);
 }
 
 export function authJsonError(error: string, status: number) {

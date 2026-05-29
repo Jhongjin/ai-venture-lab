@@ -1,16 +1,9 @@
-import { NextResponse } from "next/server";
-
-const aiRouteNoStoreHeaders = {
-  "Cache-Control": "no-store",
-} as const;
+import { noStoreJson, noStoreJsonError } from "@/lib/no-store-json";
 
 export function aiRouteJson<T>(body: T, status = 200) {
-  return NextResponse.json(body, {
-    headers: aiRouteNoStoreHeaders,
-    status,
-  });
+  return noStoreJson(body, status);
 }
 
 export function aiRouteJsonError(message: string, status: number) {
-  return aiRouteJson({ error: message }, status);
+  return noStoreJsonError(message, status);
 }

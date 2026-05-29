@@ -1,16 +1,9 @@
-import { NextResponse } from "next/server";
-
-const billingNoStoreHeaders = {
-  "Cache-Control": "no-store",
-} as const;
+import { noStoreJson, noStoreJsonError } from "@/lib/no-store-json";
 
 export function billingJson<T>(body: T, status = 200) {
-  return NextResponse.json(body, {
-    headers: billingNoStoreHeaders,
-    status,
-  });
+  return noStoreJson(body, status);
 }
 
 export function billingJsonError(message: string, status: number) {
-  return billingJson({ error: message }, status);
+  return noStoreJsonError(message, status);
 }
