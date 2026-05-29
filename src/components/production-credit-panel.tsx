@@ -3,7 +3,16 @@
 import { CheckCircle2, Coins, LockKeyhole } from "lucide-react";
 
 import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
-import { PRO_UPGRADE_VALUE_TEXT, getBalanceAfterBuildPass, getBuildPassShortfall, type CreditSystemStatus } from "@/lib/billing";
+import {
+  PRO_UPGRADE_VALUE_TEXT,
+  formatBuildPassCount,
+  formatCompactCreditAmount,
+  formatKoreanNumber,
+  getBalanceAfterBuildPass,
+  getBuildPassShortfall,
+  getMonthlyBuildPassCapacity,
+  type CreditSystemStatus,
+} from "@/lib/billing";
 
 const freeProductionPackageItems = ["아이디어 요약", "조사 요약", "7일 검증 계획", "검증 완료 요약"];
 const unlockedProductionPackageItems = [
@@ -114,9 +123,7 @@ export function ProductionCreditPanel({
   });
   const remainingBuildPassLabel = isCreditSummaryLoading
     ? "확인 중"
-    : remainingBuildPassCount === null
-      ? "확인 필요"
-      : `${remainingBuildPassCount.toLocaleString("ko-KR")}개`;
+    : formatBuildPassCount(remainingBuildPassCount);
   const buildPassShortfall = getBuildPassShortfall(creditBalance, buildPassCost);
   const balanceAfterBuildPass = getBalanceAfterBuildPass(creditBalance, buildPassCost);
   const spendConfidenceItems = [
@@ -129,7 +136,7 @@ export function ProductionCreditPanel({
       hasSelectedIdeaBuildPass
         ? "추가 차감 없음"
         : balanceAfterBuildPass !== null
-          ? `${balanceAfterBuildPass.toLocaleString("ko-KR")}크레딧 남음`
+          ? `${formatCompactCreditAmount(balanceAfterBuildPass)} 남음`
           : "잔여 크레딧 보충 필요",
     ],
     ["다시 이어가기", "저장 후 작업 순서와 최종 실행에서 같은 패키지를 계속 씁니다."],
@@ -139,7 +146,7 @@ export function ProductionCreditPanel({
     ["제작 패스", `${buildPassCost}크레딧으로 전체 ${fullArtifactCount}단계 실행 패키지 저장`],
     ["최종 실행", "작업 순서와 외부 개발 도구 연결 파일로 이어짐"],
   ] as const;
-  const freeMonthlyPassCapacity = buildPassCost > 0 ? Math.floor(monthlyCreditGrant / buildPassCost) : 0;
+  const freeMonthlyPassCapacity = getMonthlyBuildPassCapacity(monthlyCreditGrant, buildPassCost);
   const proPathItems = [
     ["Free 기준", `월 ${monthlyCreditGrant}크레딧으로 제작 패스 최대 ${freeMonthlyPassCapacity}개`],
     ["Pro가 필요한 순간", `${PRO_UPGRADE_VALUE_TEXT}이 계속 필요할 때`],
@@ -300,7 +307,7 @@ export function ProductionCreditPanel({
               <p className="text-xs font-semibold text-amber-800">잔여 크레딧이 부족합니다.</p>
               {buildPassShortfall !== null ? (
                 <p data-smoke="step5-credit-shortfall" className="mt-1 text-sm font-semibold leading-6 text-amber-950">
-                  다음 제작 패스까지 {buildPassShortfall.toLocaleString("ko-KR")}크레딧 부족합니다.
+                  다음 제작 패스까지 {formatCompactCreditAmount(buildPassShortfall)} 부족합니다.
                 </p>
               ) : null}
               <p className="mt-1 text-xs leading-5 text-amber-950">
@@ -317,7 +324,7 @@ export function ProductionCreditPanel({
               <UpgradeInterestButton
                 idleMessage={
                   buildPassShortfall !== null
-                    ? `${buildPassShortfall.toLocaleString("ko-KR")}크레딧 부족한 상태를 수요 신호로 기록합니다.`
+                    ? `${formatKoreanNumber(buildPassShortfall)}크레딧 부족한 상태를 수요 신호로 기록합니다.`
                     : "부족한 크레딧 수요 신호로 기록됩니다."
                 }
                 intent="insufficient_credits_for_build_pass"

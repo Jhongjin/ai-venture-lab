@@ -55,6 +55,42 @@ export type BillingErrorLike = {
   hint?: string | null;
 };
 
+const koreanNumberFormatter = new Intl.NumberFormat("ko-KR");
+
+export function formatKoreanNumber(value: number) {
+  return koreanNumberFormatter.format(value);
+}
+
+export function formatCreditAmount(value: number | null, fallback = "확인 필요") {
+  if (value === null) {
+    return fallback;
+  }
+
+  return `${formatKoreanNumber(value)} 크레딧`;
+}
+
+export function formatCompactCreditAmount(value: number | null, fallback = "확인 필요") {
+  if (value === null) {
+    return fallback;
+  }
+
+  return `${formatKoreanNumber(value)}크레딧`;
+}
+
+export function formatSignedCreditAmount(value: number) {
+  const prefix = value > 0 ? "+" : "";
+
+  return `${prefix}${formatCreditAmount(value)}`;
+}
+
+export function formatBuildPassCount(value: number | null, fallback = "확인 필요") {
+  if (value === null) {
+    return fallback;
+  }
+
+  return `${formatKoreanNumber(value)}개`;
+}
+
 export function getBuildPassCapacity(balance: number | null, buildPassCost = IDEA_BUILD_PASS_CREDITS) {
   if (balance === null || buildPassCost <= 0) {
     return null;
@@ -77,6 +113,10 @@ export function getBuildPassShortfall(balance: number | null, buildPassCost = ID
   }
 
   return buildPassCost - balance;
+}
+
+export function getMonthlyBuildPassCapacity(monthlyCreditGrant: number, buildPassCost = IDEA_BUILD_PASS_CREDITS) {
+  return getBuildPassCapacity(monthlyCreditGrant, buildPassCost) ?? 0;
 }
 
 export function getCreditPeriodKey(date = new Date()) {

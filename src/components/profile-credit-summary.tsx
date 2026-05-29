@@ -5,9 +5,15 @@ import {
   IDEA_BUILD_PASS_CREDITS,
   PRO_UPGRADE_SIGNAL_TEXTS,
   PRO_UPGRADE_VALUE_TEXT,
+  formatBuildPassCount,
+  formatCompactCreditAmount,
+  formatCreditAmount,
+  formatKoreanNumber,
+  formatSignedCreditAmount,
   getBalanceAfterBuildPass,
   getBuildPassCapacity,
   getBuildPassShortfall,
+  getMonthlyBuildPassCapacity,
   type CreditSummary,
 } from "@/lib/billing";
 import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
@@ -17,27 +23,12 @@ type ProfileCreditSummaryProps = {
   summary: CreditSummary | null;
 };
 
-const numberFormatter = new Intl.NumberFormat("ko-KR");
 const ledgerTypeLabels: Record<string, string> = {
   adjustment: "조정",
   build_pass_spend: "제작 패스 사용",
   monthly_grant: "월 Free 지급",
   refund: "환불",
 };
-
-function formatCredits(value: number | null) {
-  if (value === null) {
-    return "확인 필요";
-  }
-
-  return `${numberFormatter.format(value)} 크레딧`;
-}
-
-function formatSignedCredits(value: number) {
-  const prefix = value > 0 ? "+" : "";
-
-  return `${prefix}${numberFormatter.format(value)} 크레딧`;
-}
 
 function getStatusLabel(summary: CreditSummary | null) {
   if (!summary) {
@@ -70,8 +61,8 @@ function getStatusClassName(summary: CreditSummary | null) {
 export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryProps) {
   const baselineMonthlyGrant = summary?.monthlyGrant ?? FREE_MONTHLY_CREDITS;
   const baselineBuildPassCost = summary?.buildPassCost ?? IDEA_BUILD_PASS_CREDITS;
-  const freeMonthlyPassCapacity = getBuildPassCapacity(baselineMonthlyGrant, baselineBuildPassCost) ?? 0;
-  const balanceLabel = summary ? formatCredits(summary.balance) : "로그인 후 확인";
+  const freeMonthlyPassCapacity = getMonthlyBuildPassCapacity(baselineMonthlyGrant, baselineBuildPassCost);
+  const balanceLabel = summary ? formatCreditAmount(summary.balance) : "로그인 후 확인";
   const openedPassCount = summary?.buildPasses.length ?? 0;
   const latestPass = summary?.buildPasses[0] ?? null;
   const ledgerEntries = summary?.ledgerEntries ?? [];
@@ -85,16 +76,16 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
   const remainingBuildPassCount = summary ? getBuildPassCapacity(summary.balance, summary.buildPassCost) : null;
   const balanceAfterNextPass = summary ? getBalanceAfterBuildPass(summary.balance, summary.buildPassCost) : null;
   const nextBuildPassShortfall = summary ? getBuildPassShortfall(summary.balance, summary.buildPassCost) : null;
-  const remainingPassLabel = remainingBuildPassCount === null ? "확인 필요" : `${numberFormatter.format(remainingBuildPassCount)}개`;
+  const remainingPassLabel = formatBuildPassCount(remainingBuildPassCount);
   const remainingPassHeadline =
     remainingBuildPassCount === null
       ? "로그인 후 이번 달 열 수 있는 제작 패스 수가 표시됩니다."
       : `지금 잔여 크레딧으로 제작 패스 ${remainingPassLabel}를 열 수 있습니다.`;
   let nextPassDetail = "잔여 크레딧을 확인한 뒤 STEP 5에서 제작 패스를 열 수 있습니다.";
   if (nextBuildPassShortfall !== null) {
-    nextPassDetail = `다음 제작 패스까지 ${formatCredits(nextBuildPassShortfall)} 부족합니다.`;
+    nextPassDetail = `다음 제작 패스까지 ${formatCreditAmount(nextBuildPassShortfall)} 부족합니다.`;
   } else if (balanceAfterNextPass !== null) {
-    nextPassDetail = `다음 패스를 열면 ${numberFormatter.format(balanceAfterNextPass)}크레딧이 남습니다.`;
+    nextPassDetail = `다음 패스를 열면 ${formatCompactCreditAmount(balanceAfterNextPass)}이 남습니다.`;
   }
   const visibleMessage =
     summary?.message ??
@@ -123,14 +114,14 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
     [
       "지금 행동",
       nextBuildPassShortfall !== null
-        ? `${formatCredits(nextBuildPassShortfall)} 부족합니다. Pro 관심을 남기면 반복 제작 수요로 기록됩니다`
+        ? `${formatCreditAmount(nextBuildPassShortfall)} 부족합니다. Pro 관심을 남기면 반복 제작 수요로 기록됩니다`
         : "결제 전에는 Pro 관심만 남기고 실제 checkout은 열지 않습니다",
     ],
   ] as const;
   const creditNextActionTitle = !summary
     ? "로그인 후 크레딧을 확인하세요"
     : nextBuildPassShortfall !== null
-      ? `다음 제작 패스까지 ${formatCredits(nextBuildPassShortfall)} 부족합니다`
+      ? `다음 제작 패스까지 ${formatCreditAmount(nextBuildPassShortfall)} 부족합니다`
       : remainingBuildPassCount !== null && remainingBuildPassCount > 0
         ? "지금은 STEP 5에서 제작 패스를 열 수 있습니다"
         : "제작 패스 용량을 확인하세요";
@@ -172,12 +163,12 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">이번 달 지급</div>
-          <div className="mt-2 text-sm font-semibold text-slate-950">{formatCredits(summary ? currentPeriodGranted : null)}</div>
+          <div className="mt-2 text-sm font-semibold text-slate-950">{formatCreditAmount(summary ? currentPeriodGranted : null)}</div>
           <p className="mt-1 text-xs leading-5 text-slate-500">Free 월 지급과 조정 내역 기준입니다.</p>
         </div>
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">이번 달 사용</div>
-          <div className="mt-2 text-sm font-semibold text-slate-950">{formatCredits(summary ? currentPeriodSpent : null)}</div>
+          <div className="mt-2 text-sm font-semibold text-slate-950">{formatCreditAmount(summary ? currentPeriodSpent : null)}</div>
           <p className="mt-1 text-xs leading-5 text-slate-500">제작 패스 사용분이 여기에 쌓입니다.</p>
         </div>
         <div className="border border-slate-200 bg-white p-3">
@@ -188,7 +179,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
           <p className="mt-1 text-xs leading-5 text-slate-500">{nextPassDetail}</p>
           {nextBuildPassShortfall !== null ? (
             <p data-smoke="profile-credit-shortfall" className="mt-2 text-xs font-semibold leading-5 text-amber-700">
-              {formatCredits(nextBuildPassShortfall)}만 더 있으면 다음 제작 패스를 열 수 있습니다.
+              {formatCreditAmount(nextBuildPassShortfall)}만 더 있으면 다음 제작 패스를 열 수 있습니다.
             </p>
           ) : null}
         </div>
@@ -216,7 +207,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
                   </p>
                 </div>
                 <div className={`text-sm font-semibold ${entry.amount < 0 ? "text-amber-700" : "text-emerald-700"}`}>
-                  {formatSignedCredits(entry.amount)}
+                  {formatSignedCreditAmount(entry.amount)}
                 </div>
               </div>
             ))
@@ -232,7 +223,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">제작 패스</div>
           <div className="mt-2 text-sm font-semibold text-slate-950">
-            {numberFormatter.format(summary?.buildPassCost ?? IDEA_BUILD_PASS_CREDITS)} 크레딧 / 아이디어
+            {formatKoreanNumber(summary?.buildPassCost ?? IDEA_BUILD_PASS_CREDITS)} 크레딧 / 아이디어
           </div>
         </div>
         <div className="border border-slate-200 bg-white p-3">
@@ -243,7 +234,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         </div>
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">열린 패스</div>
-          <div className="mt-2 text-sm font-semibold text-slate-950">{numberFormatter.format(openedPassCount)}개</div>
+          <div className="mt-2 text-sm font-semibold text-slate-950">{formatKoreanNumber(openedPassCount)}개</div>
         </div>
       </div>
 
@@ -306,7 +297,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         <UpgradeInterestButton
           idleMessage={
             nextBuildPassShortfall !== null
-              ? `${formatCredits(nextBuildPassShortfall)} 부족한 상태를 Pro 관심 신호로 남깁니다.`
+              ? `${formatCreditAmount(nextBuildPassShortfall)} 부족한 상태를 Pro 관심 신호로 남깁니다.`
               : "지금은 결제 없이 관심만 남깁니다."
           }
           intent={nextBuildPassShortfall !== null ? "insufficient_credits_for_build_pass" : "repeated_production_packages"}
