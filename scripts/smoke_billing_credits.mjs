@@ -222,6 +222,14 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-upgrade-interest-summary"]').getByText("내 Pro 관심 기록", { exact: true }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
+    await page.locator('[data-smoke="profile-upgrade-interest-summary"]').getByText("결제 없이", { exact: false }).first().waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
     await page.locator('[data-smoke="profile-upgrade-interest-quality"]').getByText("신호 품질", { exact: true }).waitFor({
       state: "visible",
       timeout: timeoutMs,
