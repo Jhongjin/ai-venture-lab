@@ -48,6 +48,15 @@ export function FinalExecutionQuickStart({
         <p className="mt-1 text-xs leading-5 text-slate-600">결정: {decisionSentence}</p>
         {isExternalTool ? (
           <div
+            data-smoke="final-execution-run-place-one-liner"
+            className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
+          >
+            이 화면에서는 연결 파일을 받기만 합니다. 실행은 실제 앱 프로젝트 루트 터미널에서 하고, 다운로드 폴더에서는
+            실행하지 않습니다.
+          </div>
+        ) : null}
+        {isExternalTool ? (
+          <div
             data-smoke="final-execution-simple-mode-note"
             className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
           >

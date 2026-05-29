@@ -349,6 +349,15 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const runPlaceOneLiner = actionBanner.locator('[data-smoke="final-execution-run-place-one-liner"]');
+  await runPlaceOneLiner.getByText("이 화면에서는 연결 파일을 받기만 합니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await runPlaceOneLiner.getByText("다운로드 폴더에서는 실행하지 않습니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.locator('[data-smoke="final-execution-simple-mode-note"]').getByText("실행만 하기", { exact: false }).waitFor({
     state: "visible",
     timeout,
