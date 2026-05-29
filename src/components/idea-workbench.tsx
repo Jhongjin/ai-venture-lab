@@ -10169,6 +10169,36 @@ export function IdeaWorkbench({
   );
   const firstImplementationTask = selectedImplementationTasks[0] ?? null;
   const hasGeneratedWorkOrder = selectedRuns.length > 0 || selectedImplementationTasks.length > 0;
+  const firstImplementationTaskCode = getCursorTaskCode(0);
+  const step6CurrentActionItems = [
+    {
+      label: "지금 할 일",
+      code: null,
+      title: hasGeneratedWorkOrder ? "생성된 작업 순서를 확인하세요" : "작업 순서 자동 만들기를 누르세요",
+      detail: hasGeneratedWorkOrder
+        ? "필요한 보완만 하고 하단 다음 단계로 이동합니다."
+        : "AI가 제작자가 볼 순서와 첫 작업을 만듭니다.",
+    },
+    {
+      label: "첫 작업",
+      code: firstImplementationTaskCode,
+      title: firstImplementationTask ? firstImplementationTask.title : "기획서와 첫 제작 범위 잠금",
+      detail: firstImplementationTask
+        ? implementationTaskTypeLabels[firstImplementationTask.task_type]
+        : "작업 순서를 만들면 첫 제작 기준이 여기에 표시됩니다.",
+    },
+    {
+      label: "다음 단계",
+      code: null,
+      title: hasGeneratedWorkOrder ? "최종 실행으로 넘길 준비" : "작업 순서가 있어야 최종 실행이 열립니다",
+      detail: "외부 개발 도구 연결은 STEP 7에서 진행합니다.",
+    },
+  ];
+  const step6FirstTaskLockItems = [
+    ["작업 번호", firstImplementationTask ? firstImplementationTaskCode : "T-001"],
+    ["작업 이름", firstImplementationTask ? firstImplementationTask.title : "기획서와 첫 제작 범위 잠금"],
+    ["완료 기준", firstImplementationTask?.acceptance_criteria || "작업 순서 생성 후 표시"],
+  ] as const;
   const selectedTelemetryEvents = useMemo(
     () =>
       telemetryEvents
@@ -19221,28 +19251,7 @@ export function IdeaWorkbench({
           </div>
 
           <div data-smoke="step6-current-action" className="mt-4 grid gap-px bg-slate-200 lg:grid-cols-3">
-            {[
-              {
-                label: "지금 할 일",
-                title: hasGeneratedWorkOrder ? "생성된 작업 순서를 확인하세요" : "작업 순서 자동 만들기를 누르세요",
-                detail: hasGeneratedWorkOrder
-                  ? "필요한 보완만 하고 하단 다음 단계로 이동합니다."
-                  : "AI가 제작자가 볼 순서와 첫 작업을 만듭니다.",
-              },
-              {
-                label: "첫 작업",
-                code: getCursorTaskCode(0),
-                title: firstImplementationTask ? firstImplementationTask.title : "기획서와 첫 제작 범위 잠금",
-                detail: firstImplementationTask
-                  ? implementationTaskTypeLabels[firstImplementationTask.task_type]
-                  : "작업 순서를 만들면 첫 제작 기준이 여기에 표시됩니다.",
-              },
-              {
-                label: "다음 단계",
-                title: hasGeneratedWorkOrder ? "최종 실행으로 넘길 준비" : "작업 순서가 있어야 최종 실행이 열립니다",
-                detail: "외부 개발 도구 연결은 STEP 7에서 진행합니다.",
-              },
-            ].map(({ label, code, title, detail }) => (
+            {step6CurrentActionItems.map(({ label, code, title, detail }) => (
               <div key={label} className="bg-white px-4 py-3">
                 <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
                 <p className="mt-2 flex flex-wrap items-center gap-2 text-sm font-semibold leading-6 text-slate-950">
@@ -19260,11 +19269,7 @@ export function IdeaWorkbench({
               작업 순서를 만들면 먼저 T-001 하나만 확인합니다. 이름과 완료 기준이 맞으면 하단 다음 단계로 최종 실행에 넘깁니다.
             </p>
             <div className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
-              {[
-                ["작업 번호", firstImplementationTask ? getCursorTaskCode(0) : "T-001"],
-                ["작업 이름", firstImplementationTask ? firstImplementationTask.title : "기획서와 첫 제작 범위 잠금"],
-                ["완료 기준", firstImplementationTask?.acceptance_criteria || "작업 순서 생성 후 표시"],
-              ].map(([label, detail]) => (
+              {step6FirstTaskLockItems.map(([label, detail]) => (
                 <div key={label} className="min-w-0 bg-white px-3 py-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
                   <p className="mt-1 break-words text-sm font-semibold leading-6 text-slate-950">{detail}</p>
