@@ -183,6 +183,21 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  const completionBridge = page.locator('[data-smoke="step8-external-completion-bridge"]');
+  await completionBridge.getByText("외부 도구 완료 보고 후", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  for (const label of ["완료된 것", "다음 작업", "오늘 판단"]) {
+    await completionBridge.getByText(label, { exact: false }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
+  await completionBridge.getByText("자세한 진행표는 필요할 때만", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const nextJudgmentBrief = page.locator('[data-smoke="step8-next-judgment-brief"]');
   await nextJudgmentBrief.getByText("오늘 답할 질문", { exact: true }).waitFor({
     state: "visible",
