@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 import {
   emptyCreditSummary,
   FREE_PACKAGE_ARTIFACT_LIMIT,
@@ -9,6 +7,7 @@ import {
   IDEA_BUILD_PASS_CREDITS,
   isCreditSchemaMissing,
 } from "@/lib/billing";
+import { billingJson, billingJsonError } from "@/lib/billing-http";
 import {
   getBooleanFromRpcResult,
   getNumberFromRpcResult,
@@ -21,16 +20,12 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-function jsonError(message: string, status: number) {
-  return NextResponse.json({ error: message }, { status });
-}
-
 export async function POST(request: Request) {
   const supabase = await getSupabaseServerClient();
   const periodKey = getCreditPeriodKey();
 
   if (!supabase) {
-    return NextResponse.json(emptyCreditSummary("unavailable", periodKey, "Supabase is not configured."), { status: 503 });
+    return billingJson(emptyCreditSummary("unavailable", periodKey, "Supabase is not configured."), 503);
   }
 
   const {
@@ -39,7 +34,7 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return jsonError("Login is required before unlocking the production package.", 401);
+    return billingJsonError("Login is required before unlocking the production package.", 401);
   }
 
   let body: unknown;
@@ -47,11 +42,11 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return jsonError("Invalid JSON body.", 400);
+    return billingJsonError("Invalid JSON body.", 400);
   }
 
   if (!isRecord(body) || typeof body.ideaId !== "string" || !body.ideaId.trim()) {
-    return jsonError("ideaId is required.", 400);
+    return billingJsonError("ideaId is required.", 400);
   }
 
   const grantResult = await supabase.rpc("grant_monthly_free_credits", {
@@ -61,13 +56,13 @@ export async function POST(request: Request) {
 
   if (grantResult.error) {
     if (isCreditSchemaMissing(grantResult.error)) {
-      return NextResponse.json(
+      return billingJson(
         emptyCreditSummary("missing", periodKey, "Apply the credit ledger migration to enable Venture Credits."),
-        { status: 503 },
+        503,
       );
     }
 
-    return jsonError(`Could not prepare Venture Credits: ${grantResult.error.message}`, 503);
+    return billingJsonError(`Could not prepare Venture Credits: ${grantResult.error.message}`, 503);
   }
 
   const spendResult = await supabase.rpc("spend_credits_for_idea_build_pass", {
@@ -77,25 +72,25 @@ export async function POST(request: Request) {
 
   if (spendResult.error) {
     if (isCreditSchemaMissing(spendResult.error)) {
-      return NextResponse.json(
+      return billingJson(
         emptyCreditSummary("missing", periodKey, "Apply the credit ledger migration to enable Venture Credits."),
-        { status: 503 },
+        503,
       );
     }
 
     if (spendResult.error.message.includes("INSUFFICIENT_CREDITS")) {
-      return jsonError("크레딧이 부족합니다. Pro 결제 또는 추가 크레딧 충전이 필요합니다.", 402);
+      return billingJsonError("크레딧이 부족합니다. Pro 결제 또는 추가 크레딧 충전이 필요합니다.", 402);
     }
 
     if (spendResult.error.message.includes("BUILD_PASS_PERMISSION_DENIED")) {
-      return jsonError("이 아이디어의 제작 패키지를 열 권한이 없습니다.", 403);
+      return billingJsonError("이 아이디어의 제작 패키지를 열 권한이 없습니다.", 403);
     }
 
     if (spendResult.error.message.includes("IDEA_NOT_FOUND")) {
-      return jsonError("아이디어를 찾을 수 없습니다.", 404);
+      return billingJsonError("아이디어를 찾을 수 없습니다.", 404);
     }
 
-    return jsonError(`Could not unlock the production package: ${spendResult.error.message}`, 503);
+    return billingJsonError(`Could not unlock the production package: ${spendResult.error.message}`, 503);
   }
 
   const passResult = await supabase
@@ -104,10 +99,10 @@ export async function POST(request: Request) {
     .order("created_at", { ascending: false });
 
   if (passResult.error) {
-    return jsonError(`Production package was unlocked, but build passes could not be refreshed: ${passResult.error.message}`, 503);
+    return billingJsonError(`Production package was unlocked, but build passes could not be refreshed: ${passResult.error.message}`, 503);
   }
 
-  return NextResponse.json({
+  return billingJson({
     ok: true,
     status: "ready",
     plan: "free",

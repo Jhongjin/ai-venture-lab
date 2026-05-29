@@ -32,12 +32,19 @@ async function fetchWithTimeout(path, init = {}) {
 async function expectStatus(path, init, expectedStatus) {
   const response = await fetchWithTimeout(path, init);
   const body = await response.json().catch(() => ({}));
+  const result = {
+    status: response.status,
+    headers: {
+      cacheControl: response.headers.get("cache-control") || "",
+    },
+    body,
+  };
 
   if (response.status !== expectedStatus) {
     fail(`${path} returned HTTP ${response.status}; expected ${expectedStatus}. ${body.error ?? ""}`.trim());
   }
 
-  return body;
+  return result;
 }
 
 function requireEnv(name, value) {
@@ -66,11 +73,20 @@ async function callAppApi(page, path, init = {}) {
       return {
         status: response.status,
         ok: response.ok,
+        headers: {
+          cacheControl: response.headers.get("cache-control") || "",
+        },
         body,
       };
     },
     { path, init },
   );
+}
+
+function assertNoStore(result, label) {
+  if (!/\bno-store\b/i.test(result.headers?.cacheControl || "")) {
+    fail(`${label} did not return Cache-Control: no-store.`);
+  }
 }
 
 async function isVisible(locator, waitMs = 1000) {
@@ -114,6 +130,7 @@ async function verifyAuthenticatedCreditSummary() {
     if (!result.ok) {
       fail(`/api/billing/credits returned HTTP ${result.status}: ${result.body.error ?? result.body.message ?? "unknown error"}`);
     }
+    assertNoStore(result, "authenticated credit summary response");
 
     const summary = result.body;
     if (summary.status !== "ready") {
@@ -360,12 +377,13 @@ async function verifyAuthenticatedCreditSummary() {
 }
 
 async function main() {
-  const creditsBody = await expectStatus("/api/billing/credits", {}, 401);
-  if (typeof creditsBody.error !== "string" || !creditsBody.error.includes("Login")) {
+  const creditsResult = await expectStatus("/api/billing/credits", {}, 401);
+  assertNoStore(creditsResult, "anonymous credit summary response");
+  if (typeof creditsResult.body.error !== "string" || !creditsResult.body.error.includes("Login")) {
     fail("/api/billing/credits did not return the expected login-required error.");
   }
 
-  const passBody = await expectStatus(
+  const passResult = await expectStatus(
     "/api/billing/build-pass",
     {
       method: "POST",
@@ -374,7 +392,8 @@ async function main() {
     },
     401,
   );
-  if (typeof passBody.error !== "string" || !passBody.error.includes("Login")) {
+  assertNoStore(passResult, "anonymous build-pass response");
+  if (typeof passResult.body.error !== "string" || !passResult.body.error.includes("Login")) {
     fail("/api/billing/build-pass did not return the expected login-required error.");
   }
 
