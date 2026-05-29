@@ -438,6 +438,15 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const successCriterion = page.locator('[data-smoke="final-execution-success-criterion"]');
+  await successCriterion.getByText("성공 기준", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await successCriterion.getByText("확인 명령 결과에 T-001이 보이면 설치 완료입니다", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const connectionHealth = page.locator('[data-smoke="final-execution-connection-health"]');
   await connectionHealth.getByText("자동 반영 상태", { exact: true }).waitFor({
     state: "visible",

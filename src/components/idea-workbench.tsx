@@ -12452,6 +12452,7 @@ export function IdeaWorkbench({
     ["3. 설치와 확인", "아래 설치 명령을 먼저 실행하고, 확인 명령으로 첫 작업이 읽히는지 봅니다."],
     ["4. 첫 작업 시작", `${activeExternalBuildTool.startFileName} 내용을 첫 메시지로 넣고 T-001부터 처리합니다.`],
   ] as const;
+  const finalExecutionSuccessCriterion = `확인 명령 결과에 T-001이 보이면 설치 완료입니다. 그 다음 ${activeExternalBuildTool.startFileName}을 첫 메시지로 넣고 시작하세요.`;
   const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
   const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
   const latestCursorSyncUseAt =
@@ -18111,6 +18112,17 @@ export function IdeaWorkbench({
                                 <p className="mt-1 text-sm leading-6 text-slate-700">{detail}</p>
                               </div>
                             ))}
+                          </div>
+                          <div
+                            data-smoke="final-execution-success-criterion"
+                            className="mt-3 border border-emerald-200 bg-emerald-50 px-3 py-2"
+                          >
+                            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                              성공 기준
+                            </div>
+                            <p className="mt-1 text-sm font-semibold leading-6 text-emerald-950">
+                              {finalExecutionSuccessCriterion}
+                            </p>
                           </div>
                           <details data-smoke="final-execution-detail-guide" className="mt-3 border border-slate-200 bg-slate-50 p-3">
                             <summary className="cursor-pointer list-none">
