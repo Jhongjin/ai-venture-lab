@@ -99,7 +99,8 @@ export function FinalExecutionConnectionManager({
             <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">안 보이면</div>
             <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">확인 명령을 먼저 실행하세요</p>
             <p className="mt-1 text-xs leading-5 text-slate-500">
-              자동 반영이 실패할 때만 STEP 8의 진행 JSON 붙여넣기를 백업으로 사용합니다.
+              연결 파일 받기와 설치/확인 명령이 같은 프로젝트 루트에서 끝났는지 먼저 봅니다. 자동 반영이 실패할 때만
+              STEP 8의 진행 JSON 붙여넣기를 백업으로 사용합니다.
             </p>
           </div>
         </div>

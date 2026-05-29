@@ -520,6 +520,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await connectionHealth.getByText("연결 파일 받기와 설치/확인 명령", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const syncResult = page.locator('[data-smoke="final-execution-sync-result"]');
   for (const label of ["반영 결과", "다음 작업", "최근 확인"]) {
     await syncResult.getByText(label, { exact: true }).waitFor({
