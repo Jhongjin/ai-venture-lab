@@ -129,6 +129,20 @@ if (-not $extractApi.CacheControl.Contains("no-store")) {
   Write-Error "Route smoke failed for /api/ideas/extract: expected Cache-Control no-store."
 }
 
+$signupApi = Invoke-RouteSmokeRequest -Path "/api/auth/signup" -Method "POST" -Body "{}"
+
+if ($signupApi.StatusCode -ne 400) {
+  Write-Error "Route smoke failed for /api/auth/signup: expected HTTP 400 for invalid signup but received $($signupApi.StatusCode)."
+}
+
+if (-not $signupApi.Content.Contains("이메일")) {
+  Write-Error "Route smoke failed for /api/auth/signup: missing email validation message."
+}
+
+if (-not $signupApi.CacheControl.Contains("no-store")) {
+  Write-Error "Route smoke failed for /api/auth/signup: expected Cache-Control no-store."
+}
+
 $telemetryApi = Invoke-RouteSmokeRequest -Path "/api/telemetry/ingest" -Method "POST" -Body "{}"
 
 if ($telemetryApi.StatusCode -ne 401) {
