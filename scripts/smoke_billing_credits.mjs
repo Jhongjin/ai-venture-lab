@@ -346,6 +346,10 @@ async function verifyAuthenticatedCreditSummary() {
         state: "visible",
         timeout: timeoutMs,
       });
+      await page.locator('[data-smoke="step5-execution-package-brief"]').getByText("완료 기준", { exact: true }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
       const savedPackageUsage = page.locator('[data-smoke="step5-saved-package-usage"]');
       for (const label of ["STEP 6", "STEP 7", "STEP 8"]) {
         await savedPackageUsage.getByText(label, { exact: true }).waitFor({

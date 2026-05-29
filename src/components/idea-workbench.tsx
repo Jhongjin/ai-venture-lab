@@ -971,6 +971,7 @@ const step5PackageCurrentActionItems = [
 const step5ExecutionPackageBriefItems = [
   ["첫 메시지", "도구가 읽을 시작 지시문과 제작 기준"],
   ["첫 작업", "T-001부터 처리할 작업 순서와 수용 기준"],
+  ["완료 기준", "작업이 끝났는지 확인할 검수 조건"],
   ["연결 파일", "최종 실행에서 받을 도구별 설치 파일"],
 ] as const;
 const step5ExecutionPackageValueItems = [
@@ -16153,7 +16154,7 @@ export function IdeaWorkbench({
                     </div>
                     <span className="avl-pill avl-pill-info">STEP 7 연결 준비</span>
                   </div>
-                  <div className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
+                  <div className="mt-3 grid gap-px bg-blue-200 md:grid-cols-2 xl:grid-cols-4">
                     {step5ExecutionPackageBriefItems.map(([label, detail]) => (
                       <div key={label} className="bg-white px-3 py-3">
                         <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
