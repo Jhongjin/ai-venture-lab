@@ -499,6 +499,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await primaryDownloadCue.getByText("받을 파일명:", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const connectionHealth = page.locator('[data-smoke="final-execution-connection-health"]');
   await connectionHealth.getByText("자동 반영 상태", { exact: true }).waitFor({
     state: "visible",

@@ -17710,6 +17710,7 @@ export function IdeaWorkbench({
                           toDownloadFileName(selectedIdea.name, "production-package"),
                         )
                       }
+                      setupFileName={liveExternalToolSetupFileName}
                     />
 
                     <FinalExecutionToolGuide
