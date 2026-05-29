@@ -41,7 +41,7 @@ export function UpgradeInterestButton({
     }
 
     setSaveState("saving");
-    setMessage("관심 신호를 저장하고 있습니다.");
+    setMessage("Pro 관심 기록을 저장하고 있습니다.");
 
     try {
       const result = await recordProfileUpgradeInterest({ intent, source });

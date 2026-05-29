@@ -128,7 +128,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
   const creditNextActionDetail = !summary
     ? "잔여 크레딧과 이번 달 제작 가능 횟수를 먼저 확인합니다."
     : nextBuildPassShortfall !== null
-      ? "결제는 아직 열지 않고 Pro 관심 신호만 남깁니다."
+      ? "결제는 아직 열지 않고 Pro 관심 기록만 남깁니다."
       : "전체 제작 패키지와 외부 개발 도구 연결이 필요할 때만 30크레딧을 씁니다.";
 
   return (
@@ -297,7 +297,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         <UpgradeInterestButton
           idleMessage={
             nextBuildPassShortfall !== null
-              ? `${formatCreditAmount(nextBuildPassShortfall)} 부족한 상태를 Pro 관심 신호로 남깁니다.`
+              ? `${formatCreditAmount(nextBuildPassShortfall)} 부족한 상태를 Pro 관심 기록으로 남깁니다.`
               : "지금은 결제 없이 관심만 남깁니다."
           }
           intent={nextBuildPassShortfall !== null ? "insufficient_credits_for_build_pass" : "repeated_production_packages"}

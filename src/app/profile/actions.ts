@@ -65,7 +65,7 @@ export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput)
   if (!recentEventError && recentEvents && recentEvents.length > 0) {
     return {
       ok: true,
-      message: "이미 관심 신호가 기록됐습니다. 중복 저장 없이 수요 신호로 유지합니다.",
+      message: "이미 Pro 관심이 기록됐습니다. 중복 저장 없이 유지합니다.",
     };
   }
 
@@ -93,6 +93,6 @@ export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput)
 
   return {
     ok: true,
-    message: "관심 등록됐습니다. 반복 제작 수요 신호로 기록됩니다.",
+    message: "Pro 관심이 기록됐습니다. 결제 없이 필요 시점을 남겼습니다.",
   };
 }
