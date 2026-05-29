@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
-
 import { verifyBuildSyncToken, type BuildSyncTool } from "@/lib/build-sync-token";
+import { buildSyncJson, buildSyncJsonError } from "@/lib/build-sync-http";
 import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
 import { markBuildSyncTokenUsed, validateRegisteredBuildSyncToken } from "@/lib/build-sync-registry";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -98,10 +97,6 @@ const fallbackTasks: FallbackTask[] = [
     acceptance_criteria: "배포 URL, 검증 결과, 롤백 기준, 남은 리스크가 한 번에 확인되어야 합니다.",
   },
 ];
-
-function jsonError(message: string, status: number) {
-  return NextResponse.json({ error: message }, { status });
-}
 
 function getBuildSyncToolLabel(tool: BuildSyncTool) {
   if (tool === "codex") {
@@ -286,7 +281,7 @@ export async function POST(request: Request) {
   const admin = getSupabaseAdminClient();
 
   if (!admin) {
-    return jsonError("Supabase admin client is not configured.", 503);
+    return buildSyncJsonError("Supabase admin client is not configured.", 503);
   }
 
   let body: unknown;
@@ -294,25 +289,25 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return jsonError("Invalid JSON body.", 400);
+    return buildSyncJsonError("Invalid JSON body.", 400);
   }
 
   const token = getBearerToken(request) || (isRecord(body) ? toBoundedText(body.token, 4000) : "");
 
   if (!token) {
-    return jsonError("Valid build sync token is required.", 401);
+    return buildSyncJsonError("Valid build sync token is required.", 401);
   }
 
   const verification = verifyBuildSyncToken(token);
 
   if (!verification.ok) {
-    return jsonError(verification.error, 401);
+    return buildSyncJsonError(verification.error, 401);
   }
 
   const records = extractSyncRecords(body);
 
   if (records.length === 0) {
-    return jsonError("No external build tool progress records were found.", 400);
+    return buildSyncJsonError("No external build tool progress records were found.", 400);
   }
 
   const { payload } = verification;
@@ -323,7 +318,7 @@ export async function POST(request: Request) {
     payload.tool !== "claude_code" &&
     payload.tool !== "antigravity"
   ) {
-    return jsonError("This build sync token is not valid for an enabled external build tool.", 403);
+    return buildSyncJsonError("This build sync token is not valid for an enabled external build tool.", 403);
   }
 
   const toolLabel = getBuildSyncToolLabel(payload.tool);
@@ -335,23 +330,23 @@ export async function POST(request: Request) {
   });
 
   if (!registryValidation.ok) {
-    return jsonError(registryValidation.error, registryValidation.status);
+    return buildSyncJsonError(registryValidation.error, registryValidation.status);
   }
 
   const access = await getBuildSyncIdeaAccess(admin, payload.ideaId, payload.actorId);
 
   if (!access.ok) {
-    return jsonError(access.error, access.status);
+    return buildSyncJsonError(access.error, access.status);
   }
 
   if (!access.canManage) {
-    return jsonError("Build sync token actor can no longer update this idea.", 403);
+    return buildSyncJsonError("Build sync token actor can no longer update this idea.", 403);
   }
 
   const idea = access.idea;
 
   if (idea.organization_id !== payload.organizationId) {
-    return jsonError("Build sync token does not match this idea workspace.", 403);
+    return buildSyncJsonError("Build sync token does not match this idea workspace.", 403);
   }
 
   const { data: existingTaskRows, error: taskError } = await admin
@@ -361,7 +356,7 @@ export async function POST(request: Request) {
     .order("sort_order", { ascending: true });
 
   if (taskError) {
-    return jsonError(`Could not read implementation tasks: ${taskError.message}`, 500);
+    return buildSyncJsonError(`Could not read implementation tasks: ${taskError.message}`, 500);
   }
 
   const mutableTasks = [...(existingTaskRows ?? [])];
@@ -394,7 +389,7 @@ export async function POST(request: Request) {
         .single();
 
       if (updateError) {
-        return jsonError(`Could not update task "${matchedTask.title}": ${updateError.message}`, 500);
+        return buildSyncJsonError(`Could not update task "${matchedTask.title}": ${updateError.message}`, 500);
       }
 
       const taskIndex = mutableTasks.findIndex((task) => task.id === matchedTask.id);
@@ -429,7 +424,7 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError) {
-      return jsonError(`Could not insert ${toolLabel} task "${title}": ${insertError.message}`, 500);
+      return buildSyncJsonError(`Could not insert ${toolLabel} task "${title}": ${insertError.message}`, 500);
     }
 
     nextSortOrder += 1;
@@ -440,7 +435,7 @@ export async function POST(request: Request) {
 
   await markBuildSyncTokenUsed(admin, registryValidation.tokenId);
 
-  return NextResponse.json({
+  return buildSyncJson({
     ok: true,
     registryStatus: registryValidation.registryStatus,
     insertedTaskCount,

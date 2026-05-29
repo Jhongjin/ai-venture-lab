@@ -1,7 +1,6 @@
-import { NextResponse } from "next/server";
-
 import { IDEA_BUILD_PASS_CREDITS } from "@/lib/billing";
 import { getIdeaBuildPassAccess } from "@/lib/billing-access";
+import { buildSyncJson, buildSyncJsonError } from "@/lib/build-sync-http";
 import { createBuildSyncToken, type BuildSyncTool } from "@/lib/build-sync-token";
 import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
 import { recordBuildSyncToken, type BuildSyncRegistryStatus } from "@/lib/build-sync-registry";
@@ -10,10 +9,6 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-function jsonError(message: string, status: number) {
-  return NextResponse.json({ error: message }, { status });
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -97,7 +92,7 @@ export async function POST(request: Request) {
   const supabase = await getSupabaseServerClient();
 
   if (!supabase) {
-    return jsonError("Supabase is not configured.", 503);
+    return buildSyncJsonError("Supabase is not configured.", 503);
   }
 
   const {
@@ -106,7 +101,7 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return jsonError("Login is required before creating a build sync token.", 401);
+    return buildSyncJsonError("Login is required before creating a build sync token.", 401);
   }
 
   let body: unknown;
@@ -114,44 +109,44 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return jsonError("Invalid JSON body.", 400);
+    return buildSyncJsonError("Invalid JSON body.", 400);
   }
 
   if (!isRecord(body) || typeof body.ideaId !== "string") {
-    return jsonError("ideaId is required.", 400);
+    return buildSyncJsonError("ideaId is required.", 400);
   }
 
   const tool = parseBuildSyncTool(body.tool);
 
   if (!tool) {
-    return jsonError("Only Cursor, Codex, Claude Code, and Google Antigravity build sync are supported right now.", 400);
+    return buildSyncJsonError("Only Cursor, Codex, Claude Code, and Google Antigravity build sync are supported right now.", 400);
   }
 
   const ttlMs = parseRequestedTtlMs(body.expiresInSeconds);
 
   if (Number.isNaN(ttlMs)) {
-    return jsonError("expiresInSeconds must be a non-negative number.", 400);
+    return buildSyncJsonError("expiresInSeconds must be a non-negative number.", 400);
   }
 
   const access = await getBuildSyncIdeaAccess(supabase, body.ideaId, user.id);
 
   if (!access.ok) {
-    return jsonError(access.error, access.status);
+    return buildSyncJsonError(access.error, access.status);
   }
 
   if (!access.canManage) {
-    return jsonError("You do not have permission to connect this idea to an external build tool.", 403);
+    return buildSyncJsonError("You do not have permission to connect this idea to an external build tool.", 403);
   }
 
   if (shouldEnforceCreditBuildPass()) {
     const buildPass = await getIdeaBuildPassAccess(supabase, body.ideaId);
 
     if (buildPass.status === "unavailable") {
-      return jsonError(buildPass.message, 503);
+      return buildSyncJsonError(buildPass.message, 503);
     }
 
     if (buildPass.required && !buildPass.hasPass) {
-      return jsonError(
+      return buildSyncJsonError(
         `제작 패키지와 외부 개발 도구 연결을 열려면 ${IDEA_BUILD_PASS_CREDITS}크레딧 제작 패스가 필요합니다.`,
         402,
       );
@@ -180,14 +175,14 @@ export async function POST(request: Request) {
       });
 
       if (!registryResult.ok) {
-        return jsonError(registryResult.error, 503);
+        return buildSyncJsonError(registryResult.error, 503);
       }
 
       registryStatus = registryResult.registryStatus;
       connection = registryResult.connection;
     }
 
-    return NextResponse.json({
+    return buildSyncJson({
       ok: true,
       tool,
       ideaId: idea.id,
@@ -204,6 +199,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not create a build sync token.";
-    return jsonError(message, 503);
+    return buildSyncJsonError(message, 503);
   }
 }

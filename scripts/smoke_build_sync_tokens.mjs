@@ -74,11 +74,20 @@ async function callAppApi(page, path, init = {}) {
       return {
         status: response.status,
         ok: response.ok,
+        headers: {
+          cacheControl: response.headers.get("cache-control") || "",
+        },
         body,
       };
     },
     { path, init },
   );
+}
+
+function assertNoStore(result, label) {
+  if (!/\bno-store\b/i.test(result.headers?.cacheControl || "")) {
+    fail(`${label} did not return Cache-Control: no-store.`);
+  }
 }
 
 async function waitForVisibleDecisionSentence(page) {
@@ -1122,6 +1131,7 @@ async function main() {
     if (invalidTtlResult.status !== 400) {
       fail(`invalid token TTL was not rejected. Expected HTTP 400, received ${invalidTtlResult.status}`);
     }
+    assertNoStore(invalidTtlResult, "invalid token TTL response");
 
     const unsupportedToolResult = await callAppApi(page, "/api/build-sync/token", {
       method: "POST",
@@ -1132,6 +1142,7 @@ async function main() {
     if (unsupportedToolResult.status !== 400) {
       fail(`unsupported build sync tool was not rejected. Expected HTTP 400, received ${unsupportedToolResult.status}`);
     }
+    assertNoStore(unsupportedToolResult, "unsupported tool response");
 
     let tokenResult = await issueBuildSyncToken(page, ideaId, "cursor");
 
@@ -1153,6 +1164,7 @@ async function main() {
       console.log(
         "Full connector lifecycle: skipped; use a pre-unlocked smoke idea or BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1 for STEP 7/8 write-back coverage.",
       );
+      assertNoStore(tokenResult, "credit-gated token response");
       return;
     } else if (tokenResult.status === 402) {
       fail(
@@ -1166,6 +1178,7 @@ async function main() {
     if (!tokenResult.ok) {
       fail(`token issue returned HTTP ${tokenResult.status}: ${tokenResult.body.error ?? "unknown error"}`);
     }
+    assertNoStore(tokenResult, "token issue response");
 
     if (tokenResult.body.registryStatus !== "ready") {
       fail(`expected registryStatus=ready after SQL migration, received ${tokenResult.body.registryStatus ?? "missing"}`);
@@ -1182,6 +1195,7 @@ async function main() {
     if (!listResult.ok || listResult.body.registryStatus !== "ready") {
       fail(`connection list was not ready: HTTP ${listResult.status}`);
     }
+    assertNoStore(listResult, "connection list response");
 
     const activeConnection = (listResult.body.tokens ?? []).find(
       (connection) => connection.id === connectionId && connection.status === "active",
@@ -1214,6 +1228,7 @@ async function main() {
       if (!progressResult.ok || progressResult.body.registryStatus !== "ready") {
         fail(`active token progress write failed: HTTP ${progressResult.status}`);
       }
+      assertNoStore(progressResult, "progress write response");
 
       const usedListResult = await callAppApi(page, `/api/build-sync/tokens?ideaId=${encodeURIComponent(ideaId)}`);
       const usedConnection = (usedListResult.body.tokens ?? []).find((connection) => connection.id === connectionId);

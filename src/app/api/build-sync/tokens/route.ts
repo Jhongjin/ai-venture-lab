@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
-
 import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
+import { buildSyncJson, buildSyncJsonError } from "@/lib/build-sync-http";
 import {
   isBuildSyncTokenRegistryMissing,
   toPublicBuildSyncToken,
@@ -12,15 +11,11 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-function jsonError(message: string, status: number) {
-  return NextResponse.json({ error: message }, { status });
-}
-
 export async function GET(request: Request) {
   const supabase = await getSupabaseServerClient();
 
   if (!supabase) {
-    return jsonError("Supabase is not configured.", 503);
+    return buildSyncJsonError("Supabase is not configured.", 503);
   }
 
   const {
@@ -29,29 +24,29 @@ export async function GET(request: Request) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return jsonError("Login is required before reading external build tool connections.", 401);
+    return buildSyncJsonError("Login is required before reading external build tool connections.", 401);
   }
 
   const ideaId = new URL(request.url).searchParams.get("ideaId")?.trim();
 
   if (!ideaId) {
-    return jsonError("ideaId is required.", 400);
+    return buildSyncJsonError("ideaId is required.", 400);
   }
 
   const access = await getBuildSyncIdeaAccess(supabase, ideaId, user.id);
 
   if (!access.ok) {
-    return jsonError(access.error, access.status);
+    return buildSyncJsonError(access.error, access.status);
   }
 
   if (!access.canManage) {
-    return jsonError("You do not have permission to manage external build tool connections for this idea.", 403);
+    return buildSyncJsonError("You do not have permission to manage external build tool connections for this idea.", 403);
   }
 
   const admin = getSupabaseAdminClient();
 
   if (!admin) {
-    return NextResponse.json({
+    return buildSyncJson({
       ok: true,
       registryStatus: "unavailable" satisfies BuildSyncRegistryStatus,
       tokens: [],
@@ -67,7 +62,7 @@ export async function GET(request: Request) {
 
   if (error) {
     if (isBuildSyncTokenRegistryMissing(error)) {
-      return NextResponse.json({
+      return buildSyncJson({
         ok: true,
         registryStatus: "missing" satisfies BuildSyncRegistryStatus,
         tokens: [],
@@ -75,10 +70,10 @@ export async function GET(request: Request) {
       });
     }
 
-    return jsonError(`Could not read external build tool connections: ${error.message}`, 500);
+    return buildSyncJsonError(`Could not read external build tool connections: ${error.message}`, 500);
   }
 
-  return NextResponse.json({
+  return buildSyncJson({
     ok: true,
     registryStatus: "ready" satisfies BuildSyncRegistryStatus,
     tokens: (data ?? []).map(toPublicBuildSyncToken),
