@@ -222,7 +222,7 @@ async function main() {
       fail("guide still uses PRD abbreviation in user-facing value copy");
     }
     await waitForVisible(page.locator('[data-smoke="guide-credit-plan-ladder"]'), "guide credit plan ladder");
-    await waitForVisible(page.getByText("결제 전 수요 신호", { exact: false }), "guide pro interest demand signal");
+    await waitForVisible(page.getByText("결제 없이 Pro 관심 기록", { exact: false }), "guide pro interest record wording");
     await waitForVisible(page.getByText("Pro 관심 등록은 어디서 하나요", { exact: true }), "guide upgrade interest FAQ");
 
     if (resolvedScreenshotPath) {

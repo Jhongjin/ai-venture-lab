@@ -150,7 +150,7 @@ export function getCreditPlanLadder({
     {
       label: "Pro 관심",
       title: "반복 제작",
-      body: `여러 제작 패키지, 자동 반영, 출처 기반 시장 점검이 계속 필요할 때 결제 전 수요 신호를 남깁니다.`,
+      body: `여러 제작 패키지, 자동 반영, 출처 기반 시장 점검이 계속 필요할 때 결제 없이 Pro 관심 기록만 남깁니다.`,
     },
   ];
 }

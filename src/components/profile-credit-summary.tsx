@@ -114,7 +114,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
     [
       "지금 행동",
       nextBuildPassShortfall !== null
-        ? `${formatCreditAmount(nextBuildPassShortfall)} 부족합니다. Pro 관심을 남기면 반복 제작 수요로 기록됩니다`
+        ? `${formatCreditAmount(nextBuildPassShortfall)} 부족합니다. Pro 관심 기록만 남깁니다`
         : "결제 전에는 Pro 관심만 남기고 실제 checkout은 열지 않습니다",
     ],
   ] as const;
