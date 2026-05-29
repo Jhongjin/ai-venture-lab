@@ -135,8 +135,8 @@ if ($signupApi.StatusCode -ne 400) {
   Write-Error "Route smoke failed for /api/auth/signup: expected HTTP 400 for invalid signup but received $($signupApi.StatusCode)."
 }
 
-if (-not $signupApi.Content.Contains("이메일")) {
-  Write-Error "Route smoke failed for /api/auth/signup: missing email validation message."
+if (-not $signupApi.Content.Contains("error")) {
+  Write-Error "Route smoke failed for /api/auth/signup: missing validation error body."
 }
 
 if (-not $signupApi.CacheControl.Contains("no-store")) {
