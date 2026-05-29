@@ -18729,6 +18729,11 @@ export function IdeaWorkbench({
                     variant="blue"
                   />
                 </div>
+                <div data-smoke="step8-next-judgment-brief" className="mt-3 border border-blue-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 답할 질문</div>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningJudgmentQuestion}</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-600">{learningNextJudgmentBrief}</p>
+                </div>
                 <p className="mt-2 text-sm leading-6 text-slate-700">{learningPrimaryActionText}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">결정: {finalExecutionDecisionSentence}</p>
@@ -18752,11 +18757,6 @@ export function IdeaWorkbench({
                       </div>
                     ))}
                   </div>
-                </div>
-                <div data-smoke="step8-next-judgment-brief" className="mt-3 border border-blue-200 bg-white px-3 py-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">다음 판단</div>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{learningJudgmentQuestion}</p>
-                  <p className="mt-1 text-xs leading-5 text-slate-600">{learningNextJudgmentBrief}</p>
                 </div>
                 <details data-smoke="step8-action-ladder-details" className="mt-3 border border-blue-200 bg-white px-3 py-2">
                   <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">확인 순서 보기</summary>

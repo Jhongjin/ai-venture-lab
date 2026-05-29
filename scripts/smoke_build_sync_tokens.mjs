@@ -167,7 +167,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
     timeout,
   });
   const nextJudgmentBrief = page.locator('[data-smoke="step8-next-judgment-brief"]');
-  await nextJudgmentBrief.getByText("다음 판단", { exact: true }).waitFor({
+  await nextJudgmentBrief.getByText("오늘 답할 질문", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
