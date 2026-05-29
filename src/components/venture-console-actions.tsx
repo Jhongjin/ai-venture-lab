@@ -3538,6 +3538,9 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         const slot = generatedIdeaSlots[slotIndex];
                         const idea = slot?.idea;
                         const productSurface = idea ? getGeneratedIdeaProductSurface(idea) : null;
+                        const productSurfaceLabel = productSurface?.label ?? "웹 서비스";
+                        const productSurfaceFirstBuild =
+                          productSurface?.firstBuild ?? "로그인, 입력, 결과 확인, 저장까지 이어지는 첫 제작 흐름";
 
                         return (
                           <article
@@ -3577,6 +3580,28 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                                     개발 방식 {selectedBuildDeliveryShortLabel}
                                   </span>
                                   {slot?.kept ? <span className="avl-pill avl-pill-success">유지됨</span> : null}
+                                </div>
+                                <div
+                                  data-smoke="generated-idea-build-choice"
+                                  className="mt-3 grid gap-2 border-t border-slate-200 pt-3 text-xs leading-5 text-slate-600"
+                                >
+                                  <p className="font-semibold text-slate-950">
+                                    이 후보는 {withKoreanInstrumental(productSurfaceLabel)} 만들고, {selectedBuildDeliveryPhrase}.
+                                  </p>
+                                  <div className="grid gap-2 sm:grid-cols-2">
+                                    <p>
+                                      <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                        결과물 형태
+                                      </span>
+                                      {productSurfaceLabel} · {productSurfaceFirstBuild}
+                                    </p>
+                                    <p>
+                                      <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                        개발 방식
+                                      </span>
+                                      {selectedBuildDeliveryShortLabel} · 실제 연결 파일은 STEP 7에서 받습니다.
+                                    </p>
+                                  </div>
                                 </div>
                                 <div className="mt-4 grid gap-3 text-sm leading-6 text-slate-700">
                                   <p>
