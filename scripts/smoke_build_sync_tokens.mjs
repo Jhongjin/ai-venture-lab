@@ -136,6 +136,10 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await singleDecisionRule.getByText("완료 근거가 없으면 다음 작업 하나만 유지", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const actionLadderDetails = page.locator('[data-smoke="step8-action-ladder-details"]');
   await actionLadderDetails.getByText("확인 순서 보기", { exact: true }).waitFor({
     state: "visible",
