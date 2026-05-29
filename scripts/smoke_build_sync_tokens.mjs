@@ -282,6 +282,21 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const runLocationSummary = page.locator('[data-smoke="final-execution-run-location-summary"]');
+  for (const label of ["실행할 곳", "아닌 곳", "5초 확인"]) {
+    await runLocationSummary.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
+  await runLocationSummary.getByText("실제 앱 폴더 최상단", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await runLocationSummary.getByText("다운로드 폴더", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const simplePath = page.locator('[data-smoke="final-execution-simple-path"]');
   await simplePath.getByText("1. 연결 파일 받기", { exact: true }).waitFor({
     state: "visible",

@@ -12392,6 +12392,11 @@ export function IdeaWorkbench({
       detail: "START 파일 내용을 개발 도구의 첫 메시지로 넣고 T-001부터 처리합니다.",
     },
   ];
+  const finalExecutionRunLocationItems = [
+    ["실행할 곳", "실제 앱 폴더 최상단"],
+    ["아닌 곳", "다운로드 폴더"],
+    ["5초 확인", "package.json, app, src 중 하나"],
+  ] as const;
   const finalExecutionInstallResultItems = [
     ["START 파일", `${activeExternalBuildTool.startFileName} 첫 메시지`],
     ["작업 목록", "T-001부터 볼 수 있는 제작 순서"],
@@ -17661,6 +17666,21 @@ export function IdeaWorkbench({
                     className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
                   >
                     실행만 하기: 연결 파일 받기, 실제 앱 폴더 최상단으로 옮기기, 설치 명령과 확인 명령 실행.
+                  </div>
+                ) : null}
+                {buildDeliveryMode === "external_tool" ? (
+                  <div
+                    data-smoke="final-execution-run-location-summary"
+                    className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3"
+                  >
+                    {finalExecutionRunLocationItems.map(([label, value]) => (
+                      <div key={label} className="bg-white px-3 py-2">
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
+                          {label}
+                        </div>
+                        <div className="mt-1 text-sm font-semibold leading-6 text-slate-950">{value}</div>
+                      </div>
+                    ))}
                   </div>
                 ) : null}
               </div>
