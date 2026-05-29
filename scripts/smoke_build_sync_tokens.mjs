@@ -137,6 +137,17 @@ async function verifyLearningTaskBoard(page, ideaId) {
       timeout,
     });
   }
+  const decisionOptions = page.locator('[data-smoke="step8-decision-options"]');
+  await decisionOptions.getByText("오늘 고를 판단 후보", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  for (const label of ["작업 계속", "막힘 해결", "완료 보고 반영"]) {
+    await decisionOptions.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   const simpleReview = page.locator('[data-smoke="step8-simple-review"]');
   for (const label of ["완료", "다음", "판단"]) {
     await simpleReview.getByText(label, { exact: true }).waitFor({

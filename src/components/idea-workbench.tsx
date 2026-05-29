@@ -18653,12 +18653,23 @@ export function IdeaWorkbench({
                     </div>
                   ))}
                 </div>
-                <div data-smoke="step8-decision-options" className="mt-3 flex flex-wrap gap-2">
-                  {learningDecisionOptions.map((option) => (
-                    <span key={option} className="avl-pill avl-pill-info">
-                      {option}
-                    </span>
-                  ))}
+                <div data-smoke="step8-decision-options" className="mt-3 border border-blue-200 bg-white px-3 py-2">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
+                    오늘 고를 판단 후보
+                  </div>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                    {learningDecisionOptions.map((option, index) => (
+                      <div
+                        key={option}
+                        className="flex min-h-11 items-center gap-2 border border-blue-100 bg-blue-50 px-2.5 py-2"
+                      >
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center border border-blue-200 bg-white text-xs font-semibold text-blue-700">
+                          {index + 1}
+                        </span>
+                        <span className="text-sm font-semibold leading-5 text-blue-950">{option}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div data-smoke="step8-simple-review" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
                   {learningSimpleReviewRows.map(([label, value, detail]) => (
