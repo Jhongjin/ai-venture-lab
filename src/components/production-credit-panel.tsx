@@ -187,14 +187,19 @@ export function ProductionCreditPanel({
                 </div>
               ))}
             </div>
-            <div data-smoke="production-credit-pro-path" className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-3">
-              {proPathItems.map(([label, detail]) => (
-                <div key={label} className="bg-white px-3 py-3">
-                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
-                  <p className="mt-1 text-sm leading-6 text-slate-700">{detail}</p>
-                </div>
-              ))}
-            </div>
+            <details data-smoke="production-credit-pro-path-details" className="mt-3 border border-slate-200 bg-white px-3 py-3">
+              <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
+                Free/Pro 기준 보기
+              </summary>
+              <div data-smoke="production-credit-pro-path" className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-3">
+                {proPathItems.map(([label, detail]) => (
+                  <div key={label} className="bg-white px-3 py-3">
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
+                    <p className="mt-1 text-sm leading-6 text-slate-700">{detail}</p>
+                  </div>
+                ))}
+              </div>
+            </details>
             <div data-smoke="production-credit-execution-package-value" className="mt-3 border border-blue-200 bg-blue-50 p-3">
               <div className="text-xs font-semibold text-blue-800">왜 제작 패스를 쓰나요?</div>
               <p className="mt-2 text-sm leading-6 text-blue-950">
@@ -214,14 +219,19 @@ export function ProductionCreditPanel({
                 ))}
               </div>
             </div>
-            <div data-smoke="production-credit-spend-confidence" className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-3">
-              {spendConfidenceItems.map(([label, detail]) => (
-                <div key={label} className="bg-slate-50 p-3">
-                  <div className="text-xs font-semibold text-slate-500">{label}</div>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
-                </div>
-              ))}
-            </div>
+            <details data-smoke="production-credit-spend-confidence-details" className="mt-3 border border-slate-200 bg-slate-50 px-3 py-3">
+              <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
+                차감 전 확인 보기
+              </summary>
+              <div data-smoke="production-credit-spend-confidence" className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-3">
+                {spendConfidenceItems.map(([label, detail]) => (
+                  <div key={label} className="bg-slate-50 p-3">
+                    <div className="text-xs font-semibold text-slate-500">{label}</div>
+                    <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+                  </div>
+                ))}
+              </div>
+            </details>
             <div className="mt-3 grid gap-2 md:grid-cols-2">
               <div className="border border-slate-200 bg-slate-50 p-3">
                 <div className="text-xs font-semibold text-slate-500">Free에서 이미 받은 것</div>
@@ -324,8 +334,8 @@ export function ProductionCreditPanel({
               <UpgradeInterestButton
                 idleMessage={
                   buildPassShortfall !== null
-                    ? `${formatKoreanNumber(buildPassShortfall)}크레딧 부족한 상태를 수요 신호로 기록합니다.`
-                    : "부족한 크레딧 수요 신호로 기록됩니다."
+                    ? `${formatKoreanNumber(buildPassShortfall)}크레딧 부족한 상태를 Pro 관심 기록으로 남깁니다.`
+                    : "부족한 크레딧 상태를 Pro 관심 기록으로 남깁니다."
                 }
                 intent="insufficient_credits_for_build_pass"
                 source="step5_credit_panel"

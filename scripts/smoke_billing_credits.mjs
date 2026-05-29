@@ -273,7 +273,13 @@ async function verifyAuthenticatedCreditSummary() {
         state: "visible",
         timeout: timeoutMs,
       });
-      await productionCreditPanel.locator('[data-smoke="production-credit-pro-path"]').getByText("Pro가 필요한 순간", {
+      const productionCreditProPathDetails = productionCreditPanel.locator('[data-smoke="production-credit-pro-path-details"]');
+      await productionCreditProPathDetails.getByText("Free/Pro 기준 보기", { exact: true }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+      await productionCreditProPathDetails.locator("summary").click();
+      await productionCreditProPathDetails.locator('[data-smoke="production-credit-pro-path"]').getByText("Pro가 필요한 순간", {
         exact: true,
       }).waitFor({
         state: "visible",
@@ -292,7 +298,13 @@ async function verifyAuthenticatedCreditSummary() {
       if (staleStep5PrdCopy > 0) {
         fail("STEP 5 credit value copy still uses PRD abbreviation");
       }
-      await productionCreditPanel.locator('[data-smoke="production-credit-spend-confidence"]').waitFor({
+      const productionCreditSpendConfidenceDetails = productionCreditPanel.locator('[data-smoke="production-credit-spend-confidence-details"]');
+      await productionCreditSpendConfidenceDetails.getByText("차감 전 확인 보기", { exact: true }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+      await productionCreditSpendConfidenceDetails.locator("summary").click();
+      await productionCreditSpendConfidenceDetails.locator('[data-smoke="production-credit-spend-confidence"]').waitFor({
         state: "visible",
         timeout: timeoutMs,
       });
