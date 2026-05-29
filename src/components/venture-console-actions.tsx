@@ -102,6 +102,23 @@ const firstUseBuildChoiceSplitItems = [
     body: "Cursor, Codex, Claude Code, Antigravity 같은 외부 개발 도구 또는 내부 진행으로 나뉩니다.",
   },
 ] as const;
+const firstUseOperatorRoleItems = [
+  {
+    label: "AI가 먼저",
+    title: "후보와 판단 자료 정리",
+    body: "사업성, 리스크, 검증 질문, 제작 패키지 기준을 초안으로 만듭니다.",
+  },
+  {
+    label: "사용자는",
+    title: "한 건 확인하고 저장",
+    body: "맞는 후보를 고르고 필요한 말만 고친 뒤 저장합니다.",
+  },
+  {
+    label: "다음에는",
+    title: "하단 다음 단계만 누르기",
+    body: "저장 완료 후 다음 단계 버튼이 열립니다.",
+  },
+] as const;
 
 type InitialIdeaScores = Pick<
   Idea,
@@ -3663,6 +3680,17 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                       >
                         <span className="font-semibold text-slate-950">AI 정리 결과:</span> 아이디어 후보 3개, 결과물 형태,
                         개발 방식, 첫 검증 질문이 먼저 나옵니다. 사용자는 한 건만 확인하고 저장하면 됩니다.
+                      </div>
+                      <div data-smoke="first-use-operator-role" className="grid gap-px bg-blue-200 md:grid-cols-3">
+                        {firstUseOperatorRoleItems.map((item) => (
+                          <div key={item.label} className="bg-white px-4 py-3">
+                            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+                              {item.label}
+                            </div>
+                            <div className="mt-2 text-sm font-semibold text-slate-950">{item.title}</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">{item.body}</p>
+                          </div>
+                        ))}
                       </div>
                       <div data-smoke="first-use-build-choice-split" className="grid gap-px bg-slate-200 md:grid-cols-2">
                         {firstUseBuildChoiceSplitItems.map((item) => (
