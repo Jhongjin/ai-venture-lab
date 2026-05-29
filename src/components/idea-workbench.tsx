@@ -56,6 +56,7 @@ import { FinalExecutionQuickStart } from "@/components/final-execution-quick-sta
 import { FinalExecutionReadinessSummary } from "@/components/final-execution-readiness-summary";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
+import { Step5BuildDirectionSummary } from "@/components/step5-build-direction-summary";
 import { Step5ExecutionPackageBrief } from "@/components/step5-execution-package-brief";
 import { Step5PackageCurrentAction } from "@/components/step5-package-current-action";
 import { Step8ActionSummary } from "@/components/step8-action-summary";
@@ -16099,23 +16100,10 @@ export function IdeaWorkbench({
                   </div>
                 </div>
 
-                <div className="mt-5 border border-slate-200 bg-white p-4">
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <div className="avl-kicker">STEP 1에서 정한 방향</div>
-                      <h4 className="mt-2 text-base font-semibold text-slate-950">
-                        {withKoreanInstrumental(activeProductSurface.label)} 만들고, {activeBuildDeliveryPhrase}.
-                      </h4>
-                      <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                        결과물 형태와 개발 방식은 분리해 저장됩니다. AI가 이 기준으로 기획서, 디자인, 기술 방향,
-                        작업 순서를 묶고, 실제 파일 받기와 외부 도구 연동은 마지막 단계에서 열립니다.
-                      </p>
-                    </div>
-                    <span className="avl-pill avl-pill-info">
-                      {buildDeliveryMode === "external_tool" ? activeExternalBuildTool.label : "내부 진행"}
-                    </span>
-                  </div>
-                </div>
+                <Step5BuildDirectionSummary
+                  decisionSentence={`${withKoreanInstrumental(activeProductSurface.label)} 만들고, ${activeBuildDeliveryPhrase}.`}
+                  deliveryLabel={buildDeliveryMode === "external_tool" ? activeExternalBuildTool.label : "내부 진행"}
+                />
 
                 <Step5ExecutionPackageBrief />
 
