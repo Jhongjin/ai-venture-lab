@@ -147,8 +147,13 @@ export function ProductionCreditPanel({
       "지금 행동",
       needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass
         ? "부족하면 Pro 관심을 남겨 반복 제작 수요로 기록"
-        : "충분하면 제작 패스를 열고 실행 패키지로 이동",
+      : "충분하면 제작 패스를 열고 실행 패키지로 이동",
     ],
+  ] as const;
+  const proInterestReasonItems = [
+    ["반복 제작", "이번 달 제작 패스를 더 열어야 할 때"],
+    ["외부 도구", "작업 상태 자동 반영을 계속 써야 할 때"],
+    ["시장 근거", "출처 기반 시장 점검을 반복해야 할 때"],
   ] as const;
 
   return (
@@ -301,6 +306,14 @@ export function ProductionCreditPanel({
               <p className="mt-1 text-xs leading-5 text-amber-950">
                 Pro가 필요한 이유는 {PRO_UPGRADE_VALUE_TEXT}을 반복해서 쓰는 것입니다. 결제는 아직 시작하지 않습니다.
               </p>
+              <div data-smoke="step5-pro-interest-reasons" className="mt-3 grid gap-px bg-amber-200">
+                {proInterestReasonItems.map(([label, detail]) => (
+                  <div key={label} className="bg-white px-3 py-2">
+                    <div className="text-xs font-semibold text-amber-800">{label}</div>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+                  </div>
+                ))}
+              </div>
               <UpgradeInterestButton
                 idleMessage={
                   buildPassShortfall !== null

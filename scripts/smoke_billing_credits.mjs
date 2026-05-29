@@ -262,6 +262,15 @@ async function verifyAuthenticatedCreditSummary() {
         state: "visible",
         timeout: timeoutMs,
       });
+      if (typeof summary.balance === "number" && summary.balance < summary.buildPassCost) {
+        const step5ProReasons = productionCreditPanel.locator('[data-smoke="step5-pro-interest-reasons"]');
+        for (const label of ["반복 제작", "외부 도구", "시장 근거"]) {
+          await step5ProReasons.getByText(label, { exact: true }).waitFor({
+            state: "visible",
+            timeout: timeoutMs,
+          });
+        }
+      }
       await page.locator('[data-smoke="step5-execution-package-brief"]').getByText("제작 시작 패키지", { exact: true }).waitFor({
         state: "visible",
         timeout: timeoutMs,
