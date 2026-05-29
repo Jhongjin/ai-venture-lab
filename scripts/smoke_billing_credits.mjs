@@ -73,6 +73,30 @@ async function callAppApi(page, path, init = {}) {
   );
 }
 
+async function isVisible(locator, waitMs = 1000) {
+  try {
+    return await locator.first().isVisible({ timeout: waitMs });
+  } catch {
+    return false;
+  }
+}
+
+async function openDevelopmentRoute(page) {
+  const developmentUrl = new URL("/workspace", baseUrl);
+  developmentUrl.searchParams.set("task", "development");
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    await page.goto(developmentUrl.toString(), { waitUntil: "networkidle", timeout: timeoutMs });
+
+    if (!(await isVisible(page.getByRole("heading", { name: "먼저 로그인해 주세요." }), 2500))) {
+      return;
+    }
+
+    await page.waitForFunction(() => document.cookie.includes("-auth-token"), undefined, { timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(1000);
+  }
+}
+
 async function verifyAuthenticatedCreditSummary() {
   requireEnv("BILLING_SMOKE_EMAIL", email);
   requireEnv("BILLING_SMOKE_PASSWORD", password);
@@ -215,9 +239,7 @@ async function verifyAuthenticatedCreditSummary() {
       fail("profile still exposes payment readiness while checkout is paused");
     }
 
-    const developmentUrl = new URL("/workspace", baseUrl);
-    developmentUrl.searchParams.set("task", "development");
-    await page.goto(developmentUrl.toString(), { waitUntil: "networkidle", timeout: timeoutMs });
+    await openDevelopmentRoute(page);
     const productionCreditPanel = page.locator('[data-smoke="production-credit-panel"]');
     const hasProductionCreditPanel = await productionCreditPanel
       .first()
