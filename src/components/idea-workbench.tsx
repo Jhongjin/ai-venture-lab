@@ -11263,6 +11263,13 @@ export function IdeaWorkbench({
   const visibleMarketScanDraft =
     marketScanContextKey && marketScanDraftKey === marketScanContextKey ? marketScanDraft : null;
   const isVisibleMarketScanEstimate = marketScanMode === "local_estimate" && Boolean(visibleMarketScanDraft);
+  const marketScanSourceBoundaryText = visibleMarketScanDraft
+    ? isVisibleMarketScanEstimate
+      ? "제작 패키지 근거로 쓰기 전, 웹 조사 다시 시도로 공개 출처를 붙이는 것이 안전합니다."
+      : visibleMarketScanDraft.sources.length > 0
+        ? `공개 출처 ${visibleMarketScanDraft.sources.length}개를 함께 저장합니다. 중요한 수치만 원문에서 한 번 더 확인하세요.`
+        : "웹 조사 모드지만 표시할 공개 출처가 부족합니다. 중요한 판단 전에는 출처를 한 번 더 확인하세요."
+    : "";
   const marketScanStatus = isMarketScanLoading
     ? {
         label: "정리 중",
@@ -19979,6 +19986,10 @@ export function IdeaWorkbench({
                   {isVisibleMarketScanEstimate
                     ? "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요."
                     : "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다."}
+                </div>
+                <div data-smoke="market-scan-source-boundary" className="border border-slate-200 bg-white px-4 py-3">
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">근거 기준</div>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">{marketScanSourceBoundaryText}</p>
                 </div>
                 <div className="grid gap-px bg-slate-200 md:grid-cols-3">
                   {[
