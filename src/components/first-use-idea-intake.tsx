@@ -64,6 +64,10 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
     onRawIdeaSourceChange(event.target.value);
   }
 
+  function handleExampleClick(source: string) {
+    onRawIdeaSourceChange(source);
+  }
+
   return (
     <div className="grid gap-3">
       <div
@@ -92,14 +96,23 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
       </div>
       <div data-smoke="first-use-input-examples" className="grid gap-px bg-slate-200 md:grid-cols-3">
         {firstUseInputExamples.map((example) => (
-          <div key={example.label} className="bg-white px-4 py-3">
+          <button
+            key={example.label}
+            type="button"
+            onClick={() => handleExampleClick(example.body)}
+            aria-label={`${example.label} 예시를 입력칸에 넣기`}
+            data-smoke="first-use-example-fill"
+            className="bg-white px-4 py-3 text-left transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          >
             <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">붙여넣어도 되는 것</div>
             <div className="mt-2 text-sm font-semibold text-slate-950">{example.label}</div>
             <p className="mt-1 text-sm leading-6 text-slate-600">{example.body}</p>
-          </div>
+            <span className="mt-3 block text-xs font-semibold text-blue-700">예시 넣기</span>
+          </button>
         ))}
       </div>
       <textarea
+        data-smoke="first-use-raw-source"
         value={rawIdeaSource}
         onChange={handleSourceChange}
         rows={12}
