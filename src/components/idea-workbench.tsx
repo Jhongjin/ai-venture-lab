@@ -51,7 +51,7 @@ import {
   type CreditSummary,
 } from "@/lib/billing";
 import type { WorkbenchTask } from "@/lib/workbench-tasks";
-import { FinalExecutionSetupChecks } from "@/components/final-execution-setup-checks";
+import { FinalExecutionQuickStart } from "@/components/final-execution-quick-start";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { Step8ActionSummary } from "@/components/step8-action-summary";
 import { WorkbenchReviewGrid } from "@/components/workbench-review-grid";
@@ -17718,60 +17718,16 @@ export function IdeaWorkbench({
             </div>
           ) : (
             <div className="grid gap-5">
-              <div data-smoke="final-execution-action-banner" className="border border-blue-200 bg-blue-50 p-4">
-                <div className="text-sm font-semibold text-blue-950">지금 할 일</div>
-                <h3 className="mt-2 text-base font-semibold text-slate-950">{finalExecutionPrimaryActionTitle}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-700">{finalExecutionPrimaryActionDetail}</p>
-                <p className="mt-1 text-xs leading-5 text-slate-600">결정: {finalExecutionDecisionSentence}</p>
-                {buildDeliveryMode === "external_tool" ? (
-                  <div
-                    data-smoke="final-execution-simple-mode-note"
-                    className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
-                  >
-                    실행만 하기: 연결 파일 받기, 실제 앱 폴더 최상단으로 옮기기, 설치 명령과 확인 명령 실행.
-                  </div>
-                ) : null}
-                {buildDeliveryMode === "external_tool" ? (
-                  <div className="mt-3">
-                    <WorkbenchReviewGrid
-                      dataSmoke="final-execution-run-location-summary"
-                      rows={finalExecutionRunLocationItems}
-                      variant="blue"
-                    />
-                  </div>
-                ) : null}
-              </div>
-              {buildDeliveryMode === "external_tool" ? (
-                <div className="grid gap-3">
-                  <div data-smoke="final-execution-simple-path" className="grid gap-px bg-slate-200 sm:grid-cols-2 xl:grid-cols-4">
-                    {finalExecutionSimplePathItems.map((step) => (
-                      <div key={step.label} className="bg-white p-4">
-                        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                          <span className="inline-flex h-7 w-7 items-center justify-center border border-slate-200 bg-slate-50 text-slate-700">
-                            {step.icon}
-                          </span>
-                          {step.label}
-                        </div>
-                        <div className="mt-3 text-base font-semibold text-slate-950">{step.title}</div>
-                        <p className="mt-2 text-sm leading-6 text-slate-600">{step.detail}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <FinalExecutionSetupChecks installResultItems={finalExecutionInstallResultItems} />
-                  <div data-smoke="final-execution-tool-start-mode" className="border border-slate-200 bg-white p-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <div className="text-sm font-semibold text-slate-950">도구 시작 방식</div>
-                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{finalExecutionToolStartMode.title}</p>
-                        <p className="mt-1 text-sm leading-6 text-slate-600">{finalExecutionToolStartMode.detail}</p>
-                      </div>
-                      <span className="inline-flex w-fit items-center border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
-                        {finalExecutionToolStartMode.label}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
+              <FinalExecutionQuickStart
+                decisionSentence={finalExecutionDecisionSentence}
+                installResultItems={finalExecutionInstallResultItems}
+                isExternalTool={buildDeliveryMode === "external_tool"}
+                primaryActionDetail={finalExecutionPrimaryActionDetail}
+                primaryActionTitle={finalExecutionPrimaryActionTitle}
+                runLocationItems={finalExecutionRunLocationItems}
+                simplePathItems={finalExecutionSimplePathItems}
+                toolStartMode={finalExecutionToolStartMode}
+              />
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="border border-emerald-200 bg-emerald-50 p-4">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">준비 상태</div>
