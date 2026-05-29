@@ -2,6 +2,14 @@
 
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { FREE_MONTHLY_CREDITS, IDEA_BUILD_PASS_CREDITS } from "@/lib/billing";
+import {
+  UPGRADE_INTEREST_DEDUPE_WINDOW_MS,
+  UPGRADE_INTEREST_EVENT_CATEGORY,
+  UPGRADE_INTEREST_EVENT_NAME,
+  UPGRADE_INTEREST_PLAN,
+  normalizeUpgradeInterestIntent,
+  normalizeUpgradeInterestSource,
+} from "@/lib/upgrade-interest";
 
 type UpgradeInterestResult = {
   ok: boolean;
@@ -13,17 +21,9 @@ type UpgradeInterestInput = {
   source?: string;
 };
 
-const allowedUpgradeInterestSources = new Set(["profile_credit_summary", "step5_credit_panel"]);
-const allowedUpgradeInterestIntents = new Set(["insufficient_credits_for_build_pass", "repeated_production_packages"]);
-const upgradeInterestDedupeWindowMs = 24 * 60 * 60 * 1000;
-
 function normalizeUpgradeInterestInput(input: UpgradeInterestInput | undefined) {
-  const source =
-    input?.source && allowedUpgradeInterestSources.has(input.source) ? input.source : "profile_credit_summary";
-  const intent =
-    input?.intent && allowedUpgradeInterestIntents.has(input.intent)
-      ? input.intent
-      : "repeated_production_packages";
+  const source = normalizeUpgradeInterestSource(input?.source);
+  const intent = normalizeUpgradeInterestIntent(input?.intent);
 
   return { intent, source };
 }
@@ -51,15 +51,15 @@ export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput)
     };
   }
 
-  const dedupeSince = new Date(Date.now() - upgradeInterestDedupeWindowMs).toISOString();
+  const dedupeSince = new Date(Date.now() - UPGRADE_INTEREST_DEDUPE_WINDOW_MS).toISOString();
   const { data: recentEvents, error: recentEventError } = await supabase
     .from("telemetry_events")
     .select("id")
     .eq("actor_id", user.id)
-    .eq("event_name", "upgrade_interest_clicked")
-    .eq("event_category", "billing")
+    .eq("event_name", UPGRADE_INTEREST_EVENT_NAME)
+    .eq("event_category", UPGRADE_INTEREST_EVENT_CATEGORY)
     .gte("occurred_at", dedupeSince)
-    .contains("properties", { source, intent, plan: "pro" })
+    .contains("properties", { source, intent, plan: UPGRADE_INTEREST_PLAN })
     .limit(1);
 
   if (!recentEventError && recentEvents && recentEvents.length > 0) {
@@ -71,11 +71,11 @@ export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput)
 
   const { error: insertError } = await supabase.from("telemetry_events").insert({
     actor_id: user.id,
-    event_name: "upgrade_interest_clicked",
-    event_category: "billing",
+    event_name: UPGRADE_INTEREST_EVENT_NAME,
+    event_category: UPGRADE_INTEREST_EVENT_CATEGORY,
     properties: {
       source,
-      plan: "pro",
+      plan: UPGRADE_INTEREST_PLAN,
       intent,
       credit_model: {
         free_monthly_credits: FREE_MONTHLY_CREDITS,

@@ -1,5 +1,6 @@
 import type { Json } from "@/lib/supabase/types";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { UPGRADE_INTEREST_EVENT_CATEGORY, UPGRADE_INTEREST_EVENT_NAME } from "@/lib/upgrade-interest";
 
 export type UpgradeInterestEvent = {
   actorId: string | null;
@@ -76,8 +77,8 @@ export async function readUpgradeInterestSummary(): Promise<UpgradeInterestSumma
   const { data, error } = await supabase
     .from("telemetry_events")
     .select("id, actor_id, properties, occurred_at")
-    .eq("event_name", "upgrade_interest_clicked")
-    .eq("event_category", "billing")
+    .eq("event_name", UPGRADE_INTEREST_EVENT_NAME)
+    .eq("event_category", UPGRADE_INTEREST_EVENT_CATEGORY)
     .order("occurred_at", { ascending: false })
     .limit(40);
 

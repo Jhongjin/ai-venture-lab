@@ -3,13 +3,14 @@
 import { useState } from "react";
 
 import { recordProfileUpgradeInterest } from "@/app/profile/actions";
+import type { UpgradeInterestIntent, UpgradeInterestSource } from "@/lib/upgrade-interest";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
 type UpgradeInterestButtonProps = {
   idleMessage?: string;
-  intent?: string;
-  source?: "profile_credit_summary" | "step5_credit_panel";
+  intent?: UpgradeInterestIntent;
+  source?: UpgradeInterestSource;
   wrapperClassName?: string;
 };
 

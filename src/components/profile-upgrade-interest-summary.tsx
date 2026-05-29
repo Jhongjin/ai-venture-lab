@@ -1,26 +1,15 @@
 import type { UpgradeInterestSummary } from "@/lib/upgrade-interest-server";
+import { getUpgradeInterestIntentLabel, getUpgradeInterestSourceLabel } from "@/lib/upgrade-interest";
 
 type ProfileUpgradeInterestSummaryProps = {
   summary: UpgradeInterestSummary;
-};
-
-const sourceLabels: Record<string, string> = {
-  profile_credit_summary: "마이페이지",
-  step5_credit_panel: "STEP 5 크레딧 부족",
-  unknown: "위치 미확인",
-};
-
-const intentLabels: Record<string, string> = {
-  insufficient_credits_for_build_pass: "크레딧 부족",
-  repeated_production_packages: "반복 제작",
-  unknown: "의도 미확인",
 };
 
 function formatCount(value: number) {
   return value.toLocaleString("ko-KR");
 }
 
-function getTopCountLabel(counts: Record<string, number>, labels: Record<string, string>, fallback: string) {
+function getTopCountLabel(counts: Record<string, number>, getLabel: (key: string) => string, fallback: string) {
   const [topKey, topValue] =
     Object.entries(counts).sort(([, countA], [, countB]) => countB - countA)[0] ?? [];
 
@@ -28,13 +17,13 @@ function getTopCountLabel(counts: Record<string, number>, labels: Record<string,
     return fallback;
   }
 
-  return `${labels[topKey] ?? topKey} ${formatCount(topValue)}회`;
+  return `${getLabel(topKey)} ${formatCount(topValue)}회`;
 }
 
 export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInterestSummaryProps) {
   const latestEvent = summary.latestEvents[0] ?? null;
-  const topSourceLabel = getTopCountLabel(summary.sourceCounts, sourceLabels, "아직 없음");
-  const topIntentLabel = getTopCountLabel(summary.intentCounts, intentLabels, "아직 없음");
+  const topSourceLabel = getTopCountLabel(summary.sourceCounts, getUpgradeInterestSourceLabel, "아직 없음");
+  const topIntentLabel = getTopCountLabel(summary.intentCounts, getUpgradeInterestIntentLabel, "아직 없음");
   const demandQualityLabel =
     summary.totalCount === 0
       ? "아직 결제 실험 전"
@@ -102,9 +91,9 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
             <div className="text-xs font-semibold text-slate-500">최근 신호</div>
             <p className="mt-1 text-sm leading-6 text-slate-700">
               {latestEvent
-                ? `${sourceLabels[latestEvent.source] ?? latestEvent.source} · ${
-                    intentLabels[latestEvent.intent] ?? latestEvent.intent
-                  } · ${latestEvent.occurredAt.slice(0, 10)}`
+                ? `${getUpgradeInterestSourceLabel(latestEvent.source)} · ${getUpgradeInterestIntentLabel(
+                    latestEvent.intent,
+                  )} · ${latestEvent.occurredAt.slice(0, 10)}`
                 : "아직 Pro 관심 등록이 없습니다."}
             </p>
           </div>
