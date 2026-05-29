@@ -213,7 +213,8 @@ export function FinalExecutionToolGuide({
           >
             같은 프로젝트 루트 터미널에서 1. 설치 명령, 2. 확인 명령 순서로 실행합니다.
             <span className="mt-1 block text-xs leading-5 text-blue-800">
-              현재 터미널이 다운로드 폴더라면 먼저 파일을 옮기고, 실제 프로젝트 루트로 이동한 뒤 실행하세요.
+              현재 터미널이 다운로드 폴더나 AI Venture Lab 폴더라면 먼저 파일을 옮기고, 실제 프로젝트 루트로 이동한 뒤
+              실행하세요.
             </span>
           </div>
           <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
@@ -249,7 +250,8 @@ export function FinalExecutionToolGuide({
             </div>
           </div>
           <p className="mt-3 text-xs leading-5 text-slate-500">
-            실행 위치는 다운로드 폴더가 아니라 실제 개발할 프로젝트 루트입니다. 이 스크립트가 그 위치에{" "}
+            실행 위치는 다운로드 폴더나 AI Venture Lab 폴더가 아니라 실제 개발할 프로젝트 루트입니다. 이 스크립트가 그
+            위치에{" "}
             <span className="font-mono">{toolFolder}/venture-lab-cli.mjs</span>, 자동 반영 연결 정보, 제작 패키지와 작업 목록을
             만듭니다.
           </p>

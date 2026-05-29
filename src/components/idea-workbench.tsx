@@ -12405,7 +12405,7 @@ export function IdeaWorkbench({
       : "제작 패키지를 내려받아 내부 개발 시작점으로 넘기세요.";
   const finalExecutionPrimaryActionDetail =
     buildDeliveryMode === "external_tool"
-      ? "이 화면에서는 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트로 옮기고, 설치 명령과 확인 명령만 차례로 실행하면 됩니다. 다운로드 폴더에서는 실행하지 않습니다."
+      ? "이 화면에서는 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트로 옮기고, 설치 명령과 확인 명령만 차례로 실행하면 됩니다. 다운로드 폴더나 AI Venture Lab 폴더에서는 실행하지 않습니다."
       : "내부 개발 도구가 열릴 때까지 같은 제작 패키지와 작업 순서를 기준 자료로 보관합니다.";
   const finalExecutionToolStartMode =
     buildDeliveryMode === "external_tool" && (isCursorExternalDelivery || isAntigravityExternalDelivery)
@@ -12436,7 +12436,7 @@ export function IdeaWorkbench({
       icon: <FolderOpen size={16} />,
       label: "2. 실행 위치",
       title: "외부 프로젝트 루트",
-      detail: "받은 파일을 새로 만들 앱이나 사이트 폴더의 최상단으로 옮깁니다. 다운로드 폴더가 아닙니다.",
+      detail: "받은 파일을 새로 만들 앱이나 사이트 폴더의 최상단으로 옮깁니다. 다운로드 폴더나 AI Venture Lab 폴더가 아닙니다.",
     },
     {
       icon: <Code2 size={16} />,
@@ -12453,7 +12453,7 @@ export function IdeaWorkbench({
   ];
   const finalExecutionRunLocationItems = [
     ["실행할 곳", "실제 앱 폴더 최상단"],
-    ["아닌 곳", "다운로드 폴더"],
+    ["아닌 곳", "다운로드 폴더 / AI Venture Lab 폴더"],
     ["5초 확인", "package.json, app, src 중 하나"],
   ] as const;
   const finalExecutionInstallResultItems = [
@@ -12463,7 +12463,7 @@ export function IdeaWorkbench({
   ] as const;
   const finalExecutionCommandPathItems = [
     ["1. 파일 받기", `${activeExternalBuildTool.label} 연결 파일 받기 버튼으로 PowerShell 파일을 받습니다.`],
-    ["2. 위치 옮기기", "받은 파일을 실제 개발할 프로젝트 루트로 옮깁니다. 다운로드 폴더에서는 실행하지 않습니다."],
+    ["2. 위치 옮기기", "받은 파일을 실제 개발할 프로젝트 루트로 옮깁니다. 다운로드 폴더나 AI Venture Lab 폴더에서는 실행하지 않습니다."],
     ["3. 설치와 확인", "아래 설치 명령을 먼저 실행하고, 확인 명령으로 첫 작업이 읽히는지 봅니다."],
     ["4. 첫 작업 시작", `${activeExternalBuildTool.startFileName} 내용을 첫 메시지로 넣고 T-001부터 처리합니다.`],
   ] as const;

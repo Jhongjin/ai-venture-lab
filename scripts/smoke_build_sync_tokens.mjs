@@ -358,6 +358,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await runPlaceOneLiner.getByText("AI Venture Lab 폴더에서도 실행하지 않습니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.locator('[data-smoke="final-execution-simple-mode-note"]').getByText("실행만 하기", { exact: false }).waitFor({
     state: "visible",
     timeout,
@@ -373,7 +377,11 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
-  await runLocationSummary.getByText("다운로드 폴더", { exact: true }).waitFor({
+  await runLocationSummary.getByText("다운로드 폴더", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await runLocationSummary.getByText("AI Venture Lab 폴더", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
@@ -395,6 +403,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     timeout,
   });
   await simplePath.getByText("다운로드 폴더가 아닙니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await simplePath.getByText("AI Venture Lab 폴더가 아닙니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
@@ -431,6 +443,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await rootCheck.getByText("AI Venture Lab 폴더", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await rootCheck.getByText("package.json, app, src가 보이는 곳", { exact: true }).waitFor({
     state: "visible",
     timeout,
@@ -441,6 +457,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     timeout,
   });
   await folderCheckQuestion.getByText("package.json, app 또는 src", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await folderCheckQuestion.getByText("현재 폴더가 AI Venture Lab 프로젝트라면", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
@@ -490,7 +510,7 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
-  await commandSequence.getByText("현재 터미널이 다운로드 폴더라면", { exact: false }).waitFor({
+  await commandSequence.getByText("현재 터미널이 다운로드 폴더나 AI Venture Lab 폴더라면", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
@@ -504,6 +524,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     timeout,
   });
   await primaryDownloadCue.getByText("받을 파일명:", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await primaryDownloadCue.getByText("실제 앱 폴더 최상단으로 옮긴 뒤", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });

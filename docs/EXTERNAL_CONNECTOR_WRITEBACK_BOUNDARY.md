@@ -87,7 +87,7 @@ For a live connector:
 - Primary action names the actual setup artifact, for example `Cursor 연결 파일 받기`, `Codex 연결 파일 받기`, `Claude Code 연결 파일 받기`, or `Google Antigravity 연결 파일 받기`.
 - The screen exposes the expected setup filename before or next to the primary download action.
 - The screen shows exactly where the file should be placed and which command to run.
-- Setup and confirmation commands run from the same real external project-root terminal. The screen must explicitly warn users not to run them from the Downloads folder.
+- Setup and confirmation commands run from the same real external project-root terminal. The screen must explicitly warn users not to run them from the Downloads folder or the AI Venture Lab project folder.
 - Start-prompt copy is a post-install helper, not the first action.
 - The screen explains how the external tool reports progress back to Venture Lab.
 - Manual import is collapsed as a backup path.

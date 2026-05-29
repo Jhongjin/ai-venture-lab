@@ -66,6 +66,9 @@ export function FinalExecutionPackagePanel({
           <span className="mt-1 block text-xs leading-5 text-blue-800">
             받을 파일명: <span className="font-mono">{setupFileName}</span>
           </span>
+          <span className="mt-1 block text-xs leading-5 text-blue-800">
+            받은 파일은 실제 앱 폴더 최상단으로 옮긴 뒤 실행합니다.
+          </span>
         </div>
       ) : null}
       <div className="mt-4 flex flex-wrap gap-2">

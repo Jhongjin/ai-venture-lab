@@ -28,7 +28,8 @@ export function FinalExecutionSetupChecks({ installResultItems }: FinalExecution
           <div>
             <div className="text-sm font-semibold text-slate-950">실행 위치 확인</div>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              연결 파일은 실제 앱 파일이 있는 외부 프로젝트 루트에서만 실행합니다.
+              연결 파일은 실제 앱 파일이 있는 외부 프로젝트 루트에서만 실행합니다. AI Venture Lab 폴더나 다운로드
+              폴더에서 실행하지 않습니다.
             </p>
           </div>
           <div className="grid gap-2 text-sm leading-6 text-slate-700 sm:min-w-[420px] sm:grid-cols-3">
@@ -38,7 +39,7 @@ export function FinalExecutionSetupChecks({ installResultItems }: FinalExecution
             </div>
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">아닌 곳</div>
-              <div className="mt-1 font-semibold text-rose-700">다운로드 폴더</div>
+              <div className="mt-1 font-semibold text-rose-700">다운로드 폴더, AI Venture Lab 폴더</div>
             </div>
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">확인 방법</div>
@@ -51,7 +52,7 @@ export function FinalExecutionSetupChecks({ installResultItems }: FinalExecution
           className="mt-3 border border-emerald-200 bg-white px-3 py-2 text-sm leading-6 text-emerald-950"
         >
           실행 전 5초 확인: 지금 터미널 폴더에 package.json, app 또는 src가 보이면 설치 명령을 실행합니다. 안 보이면 먼저
-          실제 프로젝트 루트로 이동하세요.
+          실제 프로젝트 루트로 이동하세요. 현재 폴더가 AI Venture Lab 프로젝트라면 새 앱 프로젝트로 이동한 뒤 실행하세요.
         </div>
       </div>
     </>
