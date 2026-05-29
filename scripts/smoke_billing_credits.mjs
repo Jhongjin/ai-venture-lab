@@ -202,7 +202,7 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
-    await page.locator('[data-smoke="profile-upgrade-interest-quality"]').getByText("기준:", { exact: false }).waitFor({
+    await page.locator('[data-smoke="profile-upgrade-interest-quality"]').getByText(/^기준:/).waitFor({
       state: "visible",
       timeout: timeoutMs,
     });
