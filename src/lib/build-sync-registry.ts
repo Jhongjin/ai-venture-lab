@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { hashBuildSyncToken, type BuildSyncTokenPayload, type BuildSyncTool } from "@/lib/build-sync-token";
+import { getBuildSyncToolLabel } from "@/lib/build-sync-tools";
 import type { BuildSyncTokenStatus, Database } from "@/lib/supabase/types";
 
 type BuildSyncTokenRow = Database["public"]["Tables"]["build_sync_tokens"]["Row"];
@@ -23,22 +24,6 @@ export type PublicBuildSyncToken = {
   createdAt: string;
   revokedAt: string | null;
 };
-
-function getBuildSyncToolLabel(tool: BuildSyncTokenPayload["tool"]) {
-  if (tool === "codex") {
-    return "Codex";
-  }
-
-  if (tool === "claude_code") {
-    return "Claude Code";
-  }
-
-  if (tool === "antigravity") {
-    return "Google Antigravity";
-  }
-
-  return "Cursor";
-}
 
 export function isBuildSyncTokenRegistryMissing(error: RegistryErrorLike | null | undefined) {
   if (!error) {

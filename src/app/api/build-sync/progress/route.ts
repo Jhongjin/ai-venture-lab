@@ -2,6 +2,7 @@ import { verifyBuildSyncToken, type BuildSyncTool } from "@/lib/build-sync-token
 import { buildSyncJson, buildSyncJsonError } from "@/lib/build-sync-http";
 import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
 import { markBuildSyncTokenUsed, validateRegisteredBuildSyncToken } from "@/lib/build-sync-registry";
+import { getBuildSyncToolLabel } from "@/lib/build-sync-tools";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
   Database,
@@ -97,22 +98,6 @@ const fallbackTasks: FallbackTask[] = [
     acceptance_criteria: "배포 URL, 검증 결과, 롤백 기준, 남은 리스크가 한 번에 확인되어야 합니다.",
   },
 ];
-
-function getBuildSyncToolLabel(tool: BuildSyncTool) {
-  if (tool === "codex") {
-    return "Codex";
-  }
-
-  if (tool === "claude_code") {
-    return "Claude Code";
-  }
-
-  if (tool === "antigravity") {
-    return "Google Antigravity";
-  }
-
-  return "Cursor";
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));

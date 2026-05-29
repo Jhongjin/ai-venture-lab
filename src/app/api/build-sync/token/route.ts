@@ -1,9 +1,10 @@
 import { IDEA_BUILD_PASS_CREDITS } from "@/lib/billing";
 import { getIdeaBuildPassAccess } from "@/lib/billing-access";
 import { buildSyncJson, buildSyncJsonError } from "@/lib/build-sync-http";
-import { createBuildSyncToken, type BuildSyncTool } from "@/lib/build-sync-token";
+import { createBuildSyncToken } from "@/lib/build-sync-token";
 import { getBuildSyncIdeaAccess } from "@/lib/build-sync-permissions";
 import { recordBuildSyncToken, type BuildSyncRegistryStatus } from "@/lib/build-sync-registry";
+import { getBuildSyncToolLabel, isBuildSyncTool } from "@/lib/build-sync-tools";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -12,10 +13,6 @@ export const runtime = "nodejs";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
-
-function parseBuildSyncTool(value: unknown): BuildSyncTool | null {
-  return value === "cursor" || value === "codex" || value === "claude_code" || value === "antigravity" ? value : null;
 }
 
 function parseRequestedTtlMs(value: unknown): number | undefined {
@@ -29,22 +26,6 @@ function parseRequestedTtlMs(value: unknown): number | undefined {
 
   const maxTtlSeconds = 60 * 60 * 24 * 30;
   return Math.min(Math.floor(value), maxTtlSeconds) * 1000;
-}
-
-function getBuildSyncToolLabel(tool: BuildSyncTool) {
-  if (tool === "codex") {
-    return "Codex";
-  }
-
-  if (tool === "claude_code") {
-    return "Claude Code";
-  }
-
-  if (tool === "antigravity") {
-    return "Google Antigravity";
-  }
-
-  return "Cursor";
 }
 
 function shouldEnforceCreditBuildPass() {
@@ -116,7 +97,7 @@ export async function POST(request: Request) {
     return buildSyncJsonError("ideaId is required.", 400);
   }
 
-  const tool = parseBuildSyncTool(body.tool);
+  const tool = isBuildSyncTool(body.tool) ? body.tool : null;
 
   if (!tool) {
     return buildSyncJsonError("Only Cursor, Codex, Claude Code, and Google Antigravity build sync are supported right now.", 400);
