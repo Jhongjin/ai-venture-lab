@@ -768,37 +768,44 @@ async function resolveSupabasePublicConfigFromPage(page) {
   });
 }
 
+async function readBrowserAccessToken(page) {
+  return page.evaluate(() => {
+    const authCookie = document.cookie
+      .split("; ")
+      .find((cookie) => cookie.startsWith("sb-") && cookie.includes("-auth-token="));
+
+    if (!authCookie) {
+      return "";
+    }
+
+    const [, rawCookieValue = ""] = authCookie.split("=");
+    const decodedCookie = decodeURIComponent(rawCookieValue);
+    const jsonText = decodedCookie.startsWith("base64-") ? atob(decodedCookie.slice("base64-".length)) : decodedCookie;
+    const session = JSON.parse(jsonText);
+    return typeof session.access_token === "string" ? session.access_token : "";
+  });
+}
+
+async function requireBrowserAccessToken(page) {
+  const accessToken = await readBrowserAccessToken(page);
+
+  if (!accessToken) {
+    fail("Browser session access token was not available.");
+  }
+
+  return accessToken;
+}
+
 async function createDisposableIdea(page, config) {
   const stamp = makeStamp();
+  const accessToken = await requireBrowserAccessToken(page);
   const result = await page.evaluate(
-    async ({ config: browserConfig, stamp: browserStamp }) => {
-      function readAccessToken() {
-        const authCookie = document.cookie
-          .split("; ")
-          .find((cookie) => cookie.startsWith("sb-") && cookie.includes("-auth-token="));
-
-        if (!authCookie) {
-          return "";
-        }
-
-        const [, rawCookieValue = ""] = authCookie.split("=");
-        const decodedCookie = decodeURIComponent(rawCookieValue);
-        const jsonText = decodedCookie.startsWith("base64-") ? atob(decodedCookie.slice("base64-".length)) : decodedCookie;
-        const session = JSON.parse(jsonText);
-        return typeof session.access_token === "string" ? session.access_token : "";
-      }
-
-      const accessToken = readAccessToken();
-
-      if (!accessToken) {
-        return { ok: false, error: "Browser session access token was not available." };
-      }
-
+    async ({ accessToken: browserAccessToken, config: browserConfig, stamp: browserStamp }) => {
       const response = await fetch(`${browserConfig.url}/rest/v1/ideas?select=id,name,organization_id`, {
         method: "POST",
         headers: {
           apikey: browserConfig.anonKey,
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${browserAccessToken}`,
           "Content-Type": "application/json",
           Prefer: "return=representation",
         },
@@ -833,7 +840,7 @@ async function createDisposableIdea(page, config) {
 
       return { ok: true, idea: Array.isArray(body) ? body[0] : null };
     },
-    { config, stamp },
+    { accessToken, config, stamp },
   );
 
   if (!result.ok || !result.idea?.id) {
@@ -844,30 +851,9 @@ async function createDisposableIdea(page, config) {
 }
 
 async function createDisposableLaunchPackage(page, config, ideaId) {
+  const accessToken = await requireBrowserAccessToken(page);
   const result = await page.evaluate(
-    async ({ config: browserConfig, ideaId: browserIdeaId }) => {
-      function readAccessToken() {
-        const authCookie = document.cookie
-          .split("; ")
-          .find((cookie) => cookie.startsWith("sb-") && cookie.includes("-auth-token="));
-
-        if (!authCookie) {
-          return "";
-        }
-
-        const [, rawCookieValue = ""] = authCookie.split("=");
-        const decodedCookie = decodeURIComponent(rawCookieValue);
-        const jsonText = decodedCookie.startsWith("base64-") ? atob(decodedCookie.slice("base64-".length)) : decodedCookie;
-        const session = JSON.parse(jsonText);
-        return typeof session.access_token === "string" ? session.access_token : "";
-      }
-
-      const accessToken = readAccessToken();
-
-      if (!accessToken) {
-        return { ok: false, error: "Browser session access token was not available." };
-      }
-
+    async ({ accessToken: browserAccessToken, config: browserConfig, ideaId: browserIdeaId }) => {
       const body = [
         "# 제작 패키지",
         "",
@@ -883,7 +869,7 @@ async function createDisposableLaunchPackage(page, config, ideaId) {
         method: "POST",
         headers: {
           apikey: browserConfig.anonKey,
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${browserAccessToken}`,
           "Content-Type": "application/json",
           Prefer: "return=representation",
         },
@@ -908,7 +894,7 @@ async function createDisposableLaunchPackage(page, config, ideaId) {
 
       return { ok: true };
     },
-    { config, ideaId },
+    { accessToken, config, ideaId },
   );
 
   if (!result.ok) {
@@ -917,35 +903,19 @@ async function createDisposableLaunchPackage(page, config, ideaId) {
 }
 
 async function cleanupDisposableIdea(page, config, ideaId) {
+  const accessToken = await readBrowserAccessToken(page);
+
+  if (!accessToken) {
+    return { ok: false, error: "Browser session access token was not available." };
+  }
+
   return page.evaluate(
-    async ({ config: browserConfig, ideaId: browserIdeaId }) => {
-      function readAccessToken() {
-        const authCookie = document.cookie
-          .split("; ")
-          .find((cookie) => cookie.startsWith("sb-") && cookie.includes("-auth-token="));
-
-        if (!authCookie) {
-          return "";
-        }
-
-        const [, rawCookieValue = ""] = authCookie.split("=");
-        const decodedCookie = decodeURIComponent(rawCookieValue);
-        const jsonText = decodedCookie.startsWith("base64-") ? atob(decodedCookie.slice("base64-".length)) : decodedCookie;
-        const session = JSON.parse(jsonText);
-        return typeof session.access_token === "string" ? session.access_token : "";
-      }
-
-      const accessToken = readAccessToken();
-
-      if (!accessToken) {
-        return { ok: false, error: "Browser session access token was not available." };
-      }
-
+    async ({ accessToken: browserAccessToken, config: browserConfig, ideaId: browserIdeaId }) => {
       const response = await fetch(`${browserConfig.url}/rest/v1/ideas?id=eq.${encodeURIComponent(browserIdeaId)}`, {
         method: "DELETE",
         headers: {
           apikey: browserConfig.anonKey,
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${browserAccessToken}`,
         },
       });
       const body = await response.text().catch(() => "");
@@ -955,7 +925,7 @@ async function cleanupDisposableIdea(page, config, ideaId) {
         error: response.ok ? "" : body || `HTTP ${response.status}`,
       };
     },
-    { config, ideaId },
+    { accessToken, config, ideaId },
   );
 }
 
