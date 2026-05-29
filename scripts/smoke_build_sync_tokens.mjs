@@ -261,7 +261,7 @@ async function verifyWorkOrderCurrentAction(page, ideaId) {
       timeout,
     });
   }
-  await firstTaskLock.getByText("T-001", { exact: false }).waitFor({
+  await firstTaskLock.getByText("T-001", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
