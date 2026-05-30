@@ -130,6 +130,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  const currentDecisionStrip = page.locator('[data-smoke="step8-current-decision-strip"]');
+  for (const label of ["완료 상태", "다음 행동", "오늘 판단"]) {
+    await currentDecisionStrip.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   await waitForVisibleDecisionSentence(page);
   const singleDecisionRule = page.locator('[data-smoke="step8-single-decision-rule"]');
   await singleDecisionRule.getByText("판단 후보 중 하나만", { exact: false }).waitFor({
