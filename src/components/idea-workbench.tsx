@@ -51,6 +51,7 @@ import {
 } from "@/lib/billing";
 import type { WorkbenchTask } from "@/lib/workbench-tasks";
 import { FinalExecutionConnectionManager } from "@/components/final-execution-connection-manager";
+import { FinalExecutionExternalToolSection } from "@/components/final-execution-external-tool-section";
 import { FinalExecutionHeader } from "@/components/final-execution-header";
 import { FinalExecutionInternalPanel } from "@/components/final-execution-internal-panel";
 import { FinalExecutionLearningCriteria } from "@/components/final-execution-learning-criteria";
@@ -17604,122 +17605,91 @@ export function IdeaWorkbench({
               />
 
               {buildDeliveryMode === "external_tool" ? (
-                <section className="border border-slate-200 bg-slate-50 p-5">
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
-                      <div className="avl-kicker">외부 개발 도구</div>
-                      <h3 className="mt-2 text-lg font-semibold text-slate-950">
-                        {isLiveExternalDelivery
-                          ? `${activeExternalBuildTool.label} 프로젝트에 연결 파일을 설치합니다`
-                          : `${activeExternalBuildTool.label}용 제작 패키지를 받습니다`}
-                      </h3>
-                      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                        {isLiveExternalDelivery
-                          ? `${activeExternalBuildTool.label}가 실제로 읽을 제작 패키지, 시작 지시문, 작업 목록, 자동 진행 기록 설정을 설치 파일 하나로 묶습니다.`
-                          : `${activeExternalBuildTool.label}가 바로 읽을 수 있도록 도구별 시작 지시문과 제작 패키지를 한 파일로 묶습니다.`}
-                      </p>
-                    </div>
-                    <span className="avl-pill avl-pill-info">{activeExternalBuildTool.label}</span>
-                  </div>
-
-                  {!isLiveExternalDelivery ? (
-                    <div className="mt-4 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="text-sm leading-6 text-blue-950">
-                        {activeExternalBuildTool.label}는 현재 시작 패키지와 완료 보고 반영으로 진행합니다. 작업 상태까지 자동으로
-                        Venture Lab에 반영하려면 위의 지원 도구 중 하나를 선택하세요.
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setFinalExternalToolOverride({ ideaId: selectedIdea?.id ?? null, key: "cursor" })
-                        }
-                        className="avl-btn avl-btn-primary h-10 px-3"
-                      >
-                        Cursor로 바꾸기
-                      </button>
-                    </div>
-                  ) : null}
-
-                  <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.56fr)_minmax(360px,0.44fr)]">
-                    <FinalExecutionPackagePanel
-                      activeExternalBuildTool={activeExternalBuildTool}
-                      connectionManager={
-                        isLiveExternalDelivery ? (
-                          <FinalExecutionConnectionManager
-                            activeConnectionCount={activeCursorSyncConnections.length}
-                            connectionHealthDetail={finalExecutionConnectionHealthDetail}
-                            connectionHealthTitle={finalExecutionConnectionHealthTitle}
-                            connectionMessage={cursorSyncConnectionMessage}
-                            connections={visibleCursorSyncConnections}
-                            formatTime={formatTelemetryTime}
-                            isConnectionLoading={isCursorSyncConnectionLoading}
-                            onRefreshConnections={refreshCursorSyncConnections}
-                            onRevokeConnection={revokeCursorSyncConnection}
-                            registrySetupNotice={cursorSyncRegistrySetupNotice}
-                            registryStatus={cursorSyncRegistryStatus}
-                            revokingConnectionId={revokingCursorSyncConnectionId}
-                            toolLabel={activeExternalBuildTool.label}
-                            userCanManage={Boolean(user)}
-                          />
-                        ) : null
+                <FinalExecutionExternalToolSection
+                  activeToolLabel={activeExternalBuildTool.label}
+                  isLiveExternalDelivery={isLiveExternalDelivery}
+                  onSwitchToCursor={() =>
+                    setFinalExternalToolOverride({ ideaId: selectedIdea?.id ?? null, key: "cursor" })
+                  }
+                >
+                  <FinalExecutionPackagePanel
+                    activeExternalBuildTool={activeExternalBuildTool}
+                    connectionManager={
+                      isLiveExternalDelivery ? (
+                        <FinalExecutionConnectionManager
+                          activeConnectionCount={activeCursorSyncConnections.length}
+                          connectionHealthDetail={finalExecutionConnectionHealthDetail}
+                          connectionHealthTitle={finalExecutionConnectionHealthTitle}
+                          connectionMessage={cursorSyncConnectionMessage}
+                          connections={visibleCursorSyncConnections}
+                          formatTime={formatTelemetryTime}
+                          isConnectionLoading={isCursorSyncConnectionLoading}
+                          onRefreshConnections={refreshCursorSyncConnections}
+                          onRevokeConnection={revokeCursorSyncConnection}
+                          registrySetupNotice={cursorSyncRegistrySetupNotice}
+                          registryStatus={cursorSyncRegistryStatus}
+                          revokingConnectionId={revokingCursorSyncConnectionId}
+                          toolLabel={activeExternalBuildTool.label}
+                          userCanManage={Boolean(user)}
+                        />
+                      ) : null
+                    }
+                    externalToolRunPackageDraft={externalToolRunPackageDraft}
+                    finalAgentRunPackageDraft={finalAgentRunPackageDraft}
+                    isBusy={isBusy}
+                    isLiveExternalDelivery={isLiveExternalDelivery}
+                    liveExternalToolStartPromptDraft={liveExternalToolStartPromptDraft}
+                    onCopyDraft={copyDraft}
+                    onDownloadPrimaryPackage={() => {
+                      if (isCursorExternalDelivery) {
+                        void downloadCursorSetupScript();
+                        return;
                       }
-                      externalToolRunPackageDraft={externalToolRunPackageDraft}
-                      finalAgentRunPackageDraft={finalAgentRunPackageDraft}
-                      isBusy={isBusy}
-                      isLiveExternalDelivery={isLiveExternalDelivery}
-                      liveExternalToolStartPromptDraft={liveExternalToolStartPromptDraft}
-                      onCopyDraft={copyDraft}
-                      onDownloadPrimaryPackage={() => {
-                        if (isCursorExternalDelivery) {
-                          void downloadCursorSetupScript();
-                          return;
-                        }
 
-                        if (isCodexExternalDelivery) {
-                          void downloadCodexSetupScript();
-                          return;
-                        }
-
-                        if (isClaudeCodeExternalDelivery) {
-                          void downloadClaudeSetupScript();
-                          return;
-                        }
-
-                        if (isAntigravityExternalDelivery) {
-                          void downloadAntigravitySetupScript();
-                          return;
-                        }
-
-                        downloadMarkdownFile(
-                          externalToolRunPackageDraft,
-                          `${activeExternalBuildTool.label} 시작 패키지`,
-                          toDownloadFileName(selectedIdea.name, activeExternalBuildTool.handoffFileSuffix),
-                        );
-                      }}
-                      onDownloadProductionPackage={() =>
-                        downloadMarkdownFile(
-                          finalAgentRunPackageDraft,
-                          "최종 제작 패키지",
-                          toDownloadFileName(selectedIdea.name, "production-package"),
-                        )
+                      if (isCodexExternalDelivery) {
+                        void downloadCodexSetupScript();
+                        return;
                       }
-                      setupFileName={liveExternalToolSetupFileName}
-                    />
 
-                    <FinalExecutionToolGuide
-                      activeExternalBuildTool={activeExternalBuildTool}
-                      commandPathItems={finalExecutionCommandPathItems}
-                      copyDraft={copyDraft}
-                      guideDraft={liveExternalToolGuideDraft}
-                      isLiveExternalDelivery={isLiveExternalDelivery}
-                      mcpConfigDraft={liveExternalToolMcpConfigDraft}
-                      nextTaskCommand={liveExternalToolNextTaskCommand}
-                      setupCommand={liveExternalToolSetupCommand}
-                      successCriterion={finalExecutionSuccessCriterion}
-                      toolFolder={liveExternalToolFolder}
-                    />
-                  </div>
-                </section>
+                      if (isClaudeCodeExternalDelivery) {
+                        void downloadClaudeSetupScript();
+                        return;
+                      }
+
+                      if (isAntigravityExternalDelivery) {
+                        void downloadAntigravitySetupScript();
+                        return;
+                      }
+
+                      downloadMarkdownFile(
+                        externalToolRunPackageDraft,
+                        `${activeExternalBuildTool.label} 시작 패키지`,
+                        toDownloadFileName(selectedIdea.name, activeExternalBuildTool.handoffFileSuffix),
+                      );
+                    }}
+                    onDownloadProductionPackage={() =>
+                      downloadMarkdownFile(
+                        finalAgentRunPackageDraft,
+                        "최종 제작 패키지",
+                        toDownloadFileName(selectedIdea.name, "production-package"),
+                      )
+                    }
+                    setupFileName={liveExternalToolSetupFileName}
+                  />
+
+                  <FinalExecutionToolGuide
+                    activeExternalBuildTool={activeExternalBuildTool}
+                    commandPathItems={finalExecutionCommandPathItems}
+                    copyDraft={copyDraft}
+                    guideDraft={liveExternalToolGuideDraft}
+                    isLiveExternalDelivery={isLiveExternalDelivery}
+                    mcpConfigDraft={liveExternalToolMcpConfigDraft}
+                    nextTaskCommand={liveExternalToolNextTaskCommand}
+                    setupCommand={liveExternalToolSetupCommand}
+                    successCriterion={finalExecutionSuccessCriterion}
+                    toolFolder={liveExternalToolFolder}
+                  />
+                </FinalExecutionExternalToolSection>
               ) : (
                 <FinalExecutionInternalPanel
                   finalAgentRunPackageDraft={finalAgentRunPackageDraft}
