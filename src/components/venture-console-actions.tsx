@@ -28,6 +28,7 @@ import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
 import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
 import { VentureConsoleWorkspaceAuditLog } from "@/components/venture-console-workspace-audit-log";
+import { VentureConsoleWorkspaceEmptyState } from "@/components/venture-console-workspace-empty-state";
 import { VentureConsoleWorkspaceMemberForm } from "@/components/venture-console-workspace-member-form";
 import { VentureConsoleWorkspaceMembers } from "@/components/venture-console-workspace-members";
 import { VentureConsoleWorkspaceSummary } from "@/components/venture-console-workspace-summary";
@@ -3182,9 +3183,12 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
           </div>
 
           {!user ? (
-                <div className="avl-surface-muted p-4 text-sm leading-6 text-slate-600">
-                  워크스페이스 멤버십을 불러오려면 로그인하세요.
-                </div>
+            <VentureConsoleWorkspaceEmptyState
+              isWorkspaceBusy={isWorkspaceBusy}
+              mode="login"
+              onCreateWorkspace={handleCreateWorkspace}
+              personalRecordCount={personalRecordCount}
+            />
           ) : activeOrganization ? (
             <div className="grid gap-4">
               <VentureConsoleWorkspaceSummary
@@ -3222,23 +3226,12 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
               <VentureConsoleWorkspaceAuditLog auditEvents={auditEvents} />
             </div>
           ) : (
-            <div className="grid gap-3">
-              <div className="avl-surface-muted border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-                아직 연결된 협업 공간이 없습니다.
-                {personalRecordCount > 0
-                  ? ` 필요하면 협업 공간을 만든 뒤 ${personalRecordCount}개의 개인 기록을 연결할 수 있습니다.`
-                  : ""}
-              </div>
-              <button
-                type="button"
-                onClick={handleCreateWorkspace}
-                disabled={isWorkspaceBusy}
-                className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-60"
-              >
-                {isWorkspaceBusy ? <ArrowsClockwise className="animate-spin" size={18} /> : <Buildings size={18} />}
-                협업 공간 만들기
-              </button>
-            </div>
+            <VentureConsoleWorkspaceEmptyState
+              isWorkspaceBusy={isWorkspaceBusy}
+              mode="create"
+              onCreateWorkspace={handleCreateWorkspace}
+              personalRecordCount={personalRecordCount}
+            />
           )}
 
           {workspaceMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{workspaceMessage}</p> : null}
