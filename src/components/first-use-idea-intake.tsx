@@ -3,7 +3,8 @@
 import type { ChangeEvent } from "react";
 
 import { FirstUseFastPath } from "@/components/first-use-fast-path";
-import { FirstUseInputExamples, firstUseInputExamples } from "@/components/first-use-input-examples";
+import { FirstUseInputExamples } from "@/components/first-use-input-examples";
+import { FirstUseInputStatus } from "@/components/first-use-input-status";
 import { FirstUseMoreContext } from "@/components/first-use-more-context";
 
 type FirstUseIdeaIntakeProps = {
@@ -12,9 +13,6 @@ type FirstUseIdeaIntakeProps = {
 };
 
 export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: FirstUseIdeaIntakeProps) {
-  const selectedInputExample = firstUseInputExamples.find((example) => example.body === rawIdeaSource.trim());
-  const hasRawIdeaSource = rawIdeaSource.trim().length > 0;
-
   function handleSourceChange(event: ChangeEvent<HTMLTextAreaElement>) {
     onRawIdeaSourceChange(event.target.value);
   }
@@ -33,28 +31,8 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
         넣는 것: 메모, 대화, 자동화할 업무. 받는 것: 후보 3개, 결과물 형태, 개발 방식.
       </div>
       <FirstUseFastPath />
-      <div
-        data-smoke="first-use-current-action"
-        className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-950"
-      >
-        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">지금 할 일</div>
-        <p className="mt-1 font-semibold text-slate-950">
-          아래 입력칸에 생각나는 말을 그대로 붙입니다. 비워두면 AI가 후보 3개를 먼저 만듭니다.
-        </p>
-      </div>
+      <FirstUseInputStatus rawIdeaSource={rawIdeaSource} />
       <FirstUseInputExamples onExampleClick={handleExampleClick} />
-      {hasRawIdeaSource ? (
-        <div
-          data-smoke="first-use-input-ready"
-          className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950"
-        >
-          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">입력 준비 완료</div>
-          <p className="mt-1 font-semibold text-slate-950">
-            {selectedInputExample ? `${selectedInputExample.label} 예시가 입력됐습니다.` : "입력칸에 메모가 들어왔습니다."} 이제
-            아래 이 내용으로 아이디어 정리하기 버튼을 누르면 AI가 후보 3개를 정리합니다.
-          </p>
-        </div>
-      ) : null}
       <textarea
         data-smoke="first-use-raw-source"
         value={rawIdeaSource}
