@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { Step8ActionHighlights } from "@/components/step8-action-highlights";
+import { Step8CurrentDecisionStrip } from "@/components/step8-current-decision-strip";
 import { Step8DecisionGuidance } from "@/components/step8-decision-guidance";
 import { Step8SyncBrief } from "@/components/step8-sync-brief";
 import type { WorkbenchReviewGridRow } from "@/components/workbench-review-grid";
@@ -46,6 +47,11 @@ export function Step8ActionSummary({
         <div>
           <div className="text-sm font-semibold text-blue-950">지금 할 일</div>
           <h3 className="mt-2 text-base font-semibold text-slate-950">{learningPrimaryActionLabel}</h3>
+          <Step8CurrentDecisionStrip
+            judgmentQuestion={learningJudgmentQuestion}
+            nextActionText={learningPrimaryActionText}
+            outcomeSentence={externalSyncOutcomeSentence}
+          />
           <Step8ActionHighlights
             decisionSentence={finalExecutionDecisionSentence}
             judgmentQuestion={learningJudgmentQuestion}
