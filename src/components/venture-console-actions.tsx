@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { ArrowsClockwise, Buildings, ClipboardText, Clock, PlusCircle, ShieldCheck, SignIn, SignOut, Sparkle, Trash, UsersThree } from "@phosphor-icons/react";
+import { ArrowsClockwise, Buildings, ClipboardText, Clock, PlusCircle, ShieldCheck, SignIn, SignOut, Trash, UsersThree } from "@phosphor-icons/react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -24,6 +24,7 @@ import {
 } from "@/lib/build-delivery";
 import { FirstUseIdeaIntake } from "@/components/first-use-idea-intake";
 import { GeneratedIdeaSlotCard } from "@/components/generated-idea-slot-card";
+import { IdeaExtractionActionPanel } from "@/components/idea-extraction-action-panel";
 import { RecommendedIdeaBuildDirection } from "@/components/recommended-idea-build-direction";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
@@ -3562,111 +3563,33 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                     </span>
                     <span><strong className="text-slate-950">3.</strong> 저장하면 사업성 평가로 이어집니다.</span>
                   </div>
-                  <div className="border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                      <div>
-                        <h4 className="text-sm font-semibold text-slate-950">AI 정리 작업</h4>
-                        <p className="mt-1 text-sm leading-6 text-slate-600">
-                          {hasGeneratedIdeaSlots
-                            ? "킵한 후보는 유지하고, 마음에 들지 않은 후보만 새로 확인한 뒤 한 건으로 정리합니다."
-                            : hasIdeaSourceInput
-                              ? "입력칸 내용을 한 건의 검토 아이디어, 결과물 형태, 개발 방식으로 정리합니다."
-                              : "아이디어가 없으면 AI가 검토할 후보 3개를 먼저 도출합니다."}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {hasGeneratedIdeaSlots ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                void handleAiExtractIdeas();
-                              }}
-                              disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction || !hasIdeaSourceInput}
-                              className="avl-btn avl-btn-primary px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                              {isAiExtracting ? "정리하는 중" : "킵한 후보로 아이디어 정리하기"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                void handleGenerateSampleIdeas({ preserveKept: true });
-                              }}
-                              disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
-                              className="avl-btn avl-btn-secondary px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
-                              다른 후보 더 확인하기
-                            </button>
-                          </>
-                        ) : hasIdeaSourceInput ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              void handleAiExtractIdeas();
-                            }}
-                            disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
-                            className="avl-btn avl-btn-primary px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {isAiExtracting ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                            {isAiExtracting ? "정리하는 중" : "이 내용으로 아이디어 정리하기"}
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              void handleGenerateSampleIdeas();
-                            }}
-                            disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
-                            className="avl-btn avl-btn-primary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {isGeneratingSample ? <ArrowsClockwise className="animate-spin" size={16} /> : <Sparkle size={16} />}
-                            {isGeneratingSample ? "도출하는 중" : "AI가 아이디어 도출하기"}
-                          </button>
-                        )}
-                        {hasIdeaSourceInput ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setRawIdeaSource("");
-                              setGeneratedIdeaSlots([]);
-                              setExtractedIdeas([]);
-                              setExtractionRunMeta(null);
-                              setExtractionReplay(null);
-                              setExtractMessage(null);
-                            }}
-                            className="avl-btn avl-btn-subtle px-4 text-slate-600 hover:text-slate-900"
-                          >
-                            비우기
-                          </button>
-                        ) : null}
-                      </div>
-                    </div>
-                    {hasIdeaSourceInput && !hasGeneratedIdeaSlots ? (
-                      <details className="mt-3 border-t border-slate-200 pt-3">
-                        <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
-                          필요할 때만 AI 정리 다시 보기
-                        </summary>
-                        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <p className="text-sm leading-6 text-slate-600">
-                            결과가 어색하거나 빠진 후보가 있어 보일 때만 같은 입력을 한 번 더 점검합니다.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              void handleReplayExtractionComparison();
-                            }}
-                            disabled={isGeneratingSample || isAiExtracting || isReplayingExtraction}
-                            className="avl-btn avl-btn-secondary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {isReplayingExtraction ? <ArrowsClockwise className="animate-spin" size={15} /> : <ArrowsClockwise size={15} />}
-                            {isReplayingExtraction ? "점검하는 중" : "빠진 후보 다시 확인"}
-                          </button>
-                        </div>
-                      </details>
-                    ) : null}
-                  </div>
+                  <IdeaExtractionActionPanel
+                    hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
+                    hasIdeaSourceInput={hasIdeaSourceInput}
+                    isAiExtracting={isAiExtracting}
+                    isGeneratingSample={isGeneratingSample}
+                    isReplayingExtraction={isReplayingExtraction}
+                    onClearInput={() => {
+                      setRawIdeaSource("");
+                      setGeneratedIdeaSlots([]);
+                      setExtractedIdeas([]);
+                      setExtractionRunMeta(null);
+                      setExtractionReplay(null);
+                      setExtractMessage(null);
+                    }}
+                    onExtractIdeas={() => {
+                      void handleAiExtractIdeas();
+                    }}
+                    onGenerateMoreIdeas={() => {
+                      void handleGenerateSampleIdeas({ preserveKept: true });
+                    }}
+                    onGenerateSampleIdeas={() => {
+                      void handleGenerateSampleIdeas();
+                    }}
+                    onReplayExtractionComparison={() => {
+                      void handleReplayExtractionComparison();
+                    }}
+                  />
                   {extractMessage ? (
                     <div aria-live="polite" role="status" className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-700">
                       {extractMessage}
