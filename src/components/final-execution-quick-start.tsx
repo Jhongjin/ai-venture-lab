@@ -2,6 +2,7 @@
 
 import { FinalExecutionSetupChecks } from "@/components/final-execution-setup-checks";
 import { FinalExecutionSimplePath } from "@/components/final-execution-simple-path";
+import { FinalExecutionToolStartModeCard } from "@/components/final-execution-tool-start-mode-card";
 import { WorkbenchReviewGrid, type WorkbenchReviewGridRow } from "@/components/workbench-review-grid";
 import type { ExternalBuildToolProfile } from "@/lib/build-delivery";
 
@@ -20,33 +21,12 @@ export function FinalExecutionQuickStart({
   nextTaskCommand,
   progressPath,
 }: FinalExecutionQuickStartProps) {
-  const isIdeExternalDelivery =
-    activeExternalBuildTool.key === "cursor" || activeExternalBuildTool.key === "antigravity";
-  const isTerminalAgentDelivery =
-    activeExternalBuildTool.key === "claude_code" || activeExternalBuildTool.key === "codex";
   const primaryActionTitle = isExternalTool
     ? `${activeExternalBuildTool.label} 연결 파일을 실제 프로젝트 루트에서 실행하세요.`
     : "제작 패키지를 내려받아 내부 개발 시작점으로 넘기세요.";
   const primaryActionDetail = isExternalTool
     ? "이 화면에서는 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트로 옮기고, 설치 명령과 확인 명령만 차례로 실행하면 됩니다. 다운로드 폴더나 AI Venture Lab 폴더에서는 실행하지 않습니다."
     : "내부 개발 도구가 열릴 때까지 같은 제작 패키지와 작업 순서를 기준 자료로 보관합니다.";
-  const toolStartMode = isExternalTool && isIdeExternalDelivery
-    ? {
-        label: "IDE에서 시작",
-        title: `${activeExternalBuildTool.label}에서 프로젝트 폴더를 열고 START 파일을 첫 메시지로 넣습니다.`,
-        detail: "설치/확인 명령은 프로젝트 루트 터미널에서 실행하고, 실제 작업은 IDE 안의 에이전트 흐름에서 시작합니다.",
-      }
-    : isExternalTool && isTerminalAgentDelivery
-      ? {
-          label: "터미널 에이전트에서 시작",
-          title: `${activeExternalBuildTool.label}를 프로젝트 루트에서 열고 START 파일을 첫 메시지로 넣습니다.`,
-          detail: "설치/확인 명령을 실행한 같은 프로젝트 루트에서 에이전트를 시작하면 됩니다.",
-        }
-      : {
-          label: "내부 개발 준비",
-          title: "제작 패키지를 내부 개발 시작 자료로 보관합니다.",
-          detail: "외부 도구 연결이 아니면 패키지와 작업 순서를 내부 개발 기준 자료로 넘깁니다.",
-        };
   const runLocationItems: ReadonlyArray<WorkbenchReviewGridRow> = [
     ["실행할 곳", "실제 앱 폴더 최상단"],
     ["아닌 곳", "다운로드 폴더 / AI Venture Lab 폴더"],
@@ -96,18 +76,10 @@ export function FinalExecutionQuickStart({
             startFileName={activeExternalBuildTool.startFileName}
           />
           <FinalExecutionSetupChecks installResultItems={installResultItems} />
-          <div data-smoke="final-execution-tool-start-mode" className="border border-slate-200 bg-white p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div className="text-sm font-semibold text-slate-950">도구 시작 방식</div>
-                <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{toolStartMode.title}</p>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{toolStartMode.detail}</p>
-              </div>
-              <span className="inline-flex w-fit items-center border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
-                {toolStartMode.label}
-              </span>
-            </div>
-          </div>
+          <FinalExecutionToolStartModeCard
+            activeExternalBuildTool={activeExternalBuildTool}
+            isExternalTool={isExternalTool}
+          />
           <div data-smoke="final-execution-after-first-task" className="border border-emerald-200 bg-emerald-50 p-4">
             <div className="text-sm font-semibold text-emerald-950">첫 작업 뒤에는 STEP 8만 확인</div>
             <p className="mt-1 text-sm leading-6 text-emerald-950">
