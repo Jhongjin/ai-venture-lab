@@ -107,6 +107,14 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page.getByText("먼저 세 가지만 확인합니다: 완료된 것, 이어 할 것, 지금 결정할 것.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await page.getByText("리포트는 필요할 때만 엽니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await page.getByText("여기서는 리포트를 먼저 읽지 않습니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
