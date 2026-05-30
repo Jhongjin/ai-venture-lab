@@ -30,14 +30,8 @@ import { IdeaExtractionReplaySummary } from "@/components/idea-extraction-replay
 import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-section-header";
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-area-header";
-import { RecommendedIdeaActions } from "@/components/recommended-idea-actions";
-import { RecommendedIdeaBuildDirection } from "@/components/recommended-idea-build-direction";
-import { RecommendedIdeaDecisionBanner } from "@/components/recommended-idea-decision-banner";
+import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
 import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
-import { RecommendedIdeaHeader } from "@/components/recommended-idea-header";
-import { RecommendedIdeaInsightGrid } from "@/components/recommended-idea-insight-grid";
-import { RecommendedIdeaMetrics } from "@/components/recommended-idea-metrics";
-import { RecommendedIdeaRationale } from "@/components/recommended-idea-rationale";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -3564,49 +3558,31 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
 
                 <div className="grid min-w-0 gap-3">
                   {extractedIdeas.length > 0 && recommendedExtractedIdea ? (
-                    <section className="border border-slate-200 bg-white p-4">
-                      <RecommendedIdeaHeader
-                        gateBadgeClassName={recommendedGateStyle?.badge}
-                        gateLabel={recommendedExtractionGate?.label}
-                        name={recommendedExtractedIdea.name}
-                        oneLiner={recommendedExtractedIdea.one_liner}
-                      />
-                      <RecommendedIdeaMetrics
-                        buildDeliveryLabel={selectedBuildDeliveryShortLabel}
-                        productSurfaceShortLabel={recommendedExtractedIdea.productSurface.shortLabel}
-                        readinessScore={recommendedPortfolioItem?.readinessScore ?? 0}
-                        strategyScore={
-                          recommendedPortfolioItem
-                            ? getCandidateStrategyScore(recommendedPortfolioItem.candidate)
-                            : getCandidateStrategyScore(recommendedExtractedIdea)
-                        }
-                        validationScore={recommendedExtractedIdea.validationScore}
-                      />
-                      <RecommendedIdeaDecisionBanner
-                        buildDeliveryPhrase={selectedBuildDeliveryPhrase}
-                        productSurfaceLabel={recommendedExtractedIdea.productSurface.label}
-                      />
-                      <RecommendedIdeaBuildDirection
-                        buildDeliveryPreference={normalizedBuildDeliveryPreference}
-                        onBuildDeliveryPreferenceChange={(preference) => setBuildDeliveryPreference(preference)}
-                        onProductSurfaceChange={(value) =>
-                          updateExtractedIdeaProductSurface(recommendedExtractedIdea.id, value)
-                        }
-                        productSurface={recommendedExtractedIdea.productSurface}
-                      />
-                      <RecommendedIdeaRationale
-                        nextAction={recommendedExtractionGate?.nextAction}
-                        summary={recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
-                      />
-                      <RecommendedIdeaInsightGrid productSurfaceLabel={recommendedExtractedIdea.productSurface.label} />
-                      <RecommendedIdeaActions
-                        canSave={Boolean(user)}
-                        isSaveLocked={Boolean(extractSaveKey)}
-                        isSaving={extractSaveKey === recommendedExtractedIdea.id}
-                        onEdit={() => loadExtractedIdea(recommendedExtractedIdea)}
-                        onSave={() => saveExtractedIdeaPackage(recommendedExtractedIdea)}
-                      />
-                    </section>
+                    <RecommendedIdeaCard
+                      buildDeliveryLabel={selectedBuildDeliveryShortLabel}
+                      buildDeliveryPhrase={selectedBuildDeliveryPhrase}
+                      buildDeliveryPreference={normalizedBuildDeliveryPreference}
+                      canSave={Boolean(user)}
+                      gateBadgeClassName={recommendedGateStyle?.badge}
+                      gateLabel={recommendedExtractionGate?.label}
+                      gateNextAction={recommendedExtractionGate?.nextAction}
+                      gateSummary={recommendedExtractionGate?.summary}
+                      idea={recommendedExtractedIdea}
+                      isSaveLocked={Boolean(extractSaveKey)}
+                      isSaving={extractSaveKey === recommendedExtractedIdea.id}
+                      onBuildDeliveryPreferenceChange={(preference) => setBuildDeliveryPreference(preference)}
+                      onEdit={() => loadExtractedIdea(recommendedExtractedIdea)}
+                      onProductSurfaceChange={(value) =>
+                        updateExtractedIdeaProductSurface(recommendedExtractedIdea.id, value)
+                      }
+                      onSave={() => saveExtractedIdeaPackage(recommendedExtractedIdea)}
+                      readinessScore={recommendedPortfolioItem?.readinessScore ?? 0}
+                      strategyScore={
+                        recommendedPortfolioItem
+                          ? getCandidateStrategyScore(recommendedPortfolioItem.candidate)
+                          : getCandidateStrategyScore(recommendedExtractedIdea)
+                      }
+                    />
                   ) : (
                     <RecommendedIdeaEmptyState />
                   )}
