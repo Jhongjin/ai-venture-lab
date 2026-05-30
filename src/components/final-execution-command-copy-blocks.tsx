@@ -32,6 +32,10 @@ export function FinalExecutionCommandCopyBlocks({
           현재 터미널이 다운로드 폴더나 AI Venture Lab 폴더라면 먼저 파일을 옮기고, 실제 프로젝트 루트로 이동한 뒤
           실행하세요.
         </span>
+        <span className="mt-1 block text-xs leading-5 text-blue-800">
+          복사 버튼은 명령을 클립보드에 넣는 역할만 합니다. 붙여넣기는 연결 파일을 옮긴 그 프로젝트 루트 터미널에서
+          합니다.
+        </span>
       </div>
       <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

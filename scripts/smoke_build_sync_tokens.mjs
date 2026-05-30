@@ -432,6 +432,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await simplePath.getByText("복사한 명령은 연결 파일을 옮긴 프로젝트 루트 터미널", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const expectedFirstTaskStart =
     toolLabel === "Cursor" || toolLabel === "Google Antigravity"
       ? `${toolLabel} 안의 첫 메시지`
@@ -574,6 +578,14 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     timeout,
   });
   await commandSequence.getByText("현재 터미널이 다운로드 폴더나 AI Venture Lab 폴더라면", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await commandSequence.getByText("복사 버튼은 명령을 클립보드에 넣는 역할만 합니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await commandSequence.getByText("붙여넣기는 연결 파일을 옮긴 그 프로젝트 루트 터미널", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });

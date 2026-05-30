@@ -38,7 +38,7 @@ export function FinalExecutionSimplePath({
       icon: <Code2 size={16} />,
       label: "3. 설치 후 확인",
       title: "설치 명령 후 확인 명령",
-      detail: `설치 명령을 먼저 실행하고 ${nextTaskCommand}로 T-001 첫 작업이 보이는지 확인합니다.`,
+      detail: `복사한 명령은 연결 파일을 옮긴 프로젝트 루트 터미널에 붙여넣습니다. 설치 명령을 먼저 실행하고 ${nextTaskCommand}로 T-001 첫 작업이 보이는지 확인합니다.`,
     },
     {
       icon: <ArrowRight size={16} />,
