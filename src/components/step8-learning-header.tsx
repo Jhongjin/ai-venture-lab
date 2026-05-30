@@ -12,7 +12,7 @@ export function Step8LearningHeader() {
         </div>
         <h2 className="text-lg font-semibold text-slate-950">성과 확인</h2>
         <p className="mt-1 text-sm leading-6 text-slate-500">
-          여기서는 리포트를 먼저 읽지 않습니다. 완료된 것, 남은 것, 지금 판단할 것만 먼저 봅니다.
+          먼저 세 가지만 확인합니다: 완료된 것, 이어 할 것, 지금 결정할 것. 리포트는 필요할 때만 엽니다.
         </p>
       </div>
     </div>
