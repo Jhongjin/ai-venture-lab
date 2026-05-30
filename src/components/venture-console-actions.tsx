@@ -28,6 +28,7 @@ import { IdeaExtractionActionPanel } from "@/components/idea-extraction-action-p
 import { IdeaExtractionFlowSteps } from "@/components/idea-extraction-flow-steps";
 import { IdeaExtractionNotices } from "@/components/idea-extraction-notices";
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
+import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-area-header";
 import { RecommendedIdeaActions } from "@/components/recommended-idea-actions";
 import { RecommendedIdeaBuildDirection } from "@/components/recommended-idea-build-direction";
 import { RecommendedIdeaDecisionBanner } from "@/components/recommended-idea-decision-banner";
@@ -3521,25 +3522,13 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
             <section className="avl-card p-4 text-slate-900">
               <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
                 <div className="grid gap-3">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-base font-semibold text-slate-950">
-                        {hasGeneratedIdeaSlots ? "AI가 도출한 후보 3칸" : "입력칸에 내용 붙여넣기"}
-                      </h3>
-                      <p className="mt-1 text-sm leading-5 text-slate-600">
-                        {hasGeneratedIdeaSlots
-                          ? "좋은 후보는 킵해두세요. 다른 후보를 더 확인하면 킵하지 않은 칸만 새로 채워집니다."
-                          : "여기만 채우면 됩니다. 회의 메모, 아이디어, GPT 대화, 자동화하고 싶은 업무를 그대로 넣으세요."}
-                      </p>
-                    </div>
-                    <div className="avl-pill avl-pill-neutral">
-                      {hasGeneratedIdeaSlots
-                        ? `킵 ${keptGeneratedIdeaCount}/${filledGeneratedIdeaSlots.length}`
-                        : hasIdeaSourceInput
-                          ? `${trimmedIdeaSource.length}자 입력됨`
-                          : "입력 대기"}
-                    </div>
-                  </div>
+                  <IdeaExtractionWorkAreaHeader
+                    filledGeneratedIdeaCount={filledGeneratedIdeaSlots.length}
+                    hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
+                    hasIdeaSourceInput={hasIdeaSourceInput}
+                    keptGeneratedIdeaCount={keptGeneratedIdeaCount}
+                    trimmedIdeaSourceLength={trimmedIdeaSource.length}
+                  />
                   {hasGeneratedIdeaSlots ? (
                     <div className="grid min-h-[280px] gap-3 lg:grid-cols-3">
                       {generatedIdeaSlotIndexes.map((slotIndex) => (
