@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { ArrowsClockwise, Buildings, ClipboardText, Clock, PlusCircle, Trash, UsersThree } from "@phosphor-icons/react";
+import { ArrowsClockwise, Buildings, ClipboardText, Clock, PlusCircle, UsersThree } from "@phosphor-icons/react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -27,6 +27,7 @@ import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-sectio
 import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
 import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
+import { VentureConsoleWorkspaceMembers } from "@/components/venture-console-workspace-members";
 import { VentureConsoleWorkspaceSummary } from "@/components/venture-console-workspace-summary";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
@@ -3194,69 +3195,17 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                 organizations={organizations}
                 personalRecordCount={personalRecordCount}
               />
-              <div>
-                <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
-                  <UsersThree size={16} />
-                  멤버
-                </div>
-                <div className="grid gap-2">
-                  {activeMembers.map((member) => (
-                    <div key={`${member.organization_id}-${member.user_id}`} className="avl-surface-muted p-3">
-                      <div className="flex flex-col gap-3">
-                        <div>
-                          <div className="break-all text-sm font-semibold text-slate-950">
-                            {member.email || member.user_id}
-                          </div>
-                          <div className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            {organizationRoleLabels[member.role]}
-                            {member.user_id === user.id ? " / 나" : ""}
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {memberRoles.map((role) => {
-                            const actionKey = `${member.user_id}:role:${role}`;
-                            const isLastOwner = member.role === "owner" && ownerCount <= 1;
-
-                            return (
-                              <button
-                                key={role}
-                                type="button"
-                                onClick={() => {
-                                  void handleUpdateMemberRole(member, role);
-                                }}
-                                disabled={
-                                  !canManageMembers ||
-                                  member.role === role ||
-                                  isLastOwner ||
-                                  memberActionKey === actionKey
-                                }
-                                className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
-                              >
-                                {memberActionKey === actionKey ? "..." : organizationRoleLabels[role]}
-                              </button>
-                            );
-                          })}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              void handleRemoveMember(member);
-                            }}
-                            disabled={
-                              !canManageMembers ||
-                              (member.role === "owner" && ownerCount <= 1) ||
-                              memberActionKey === `${member.user_id}:remove`
-                            }
-                            className="avl-btn avl-btn-danger h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
-                          >
-                            <Trash size={13} />
-                            {memberActionKey === `${member.user_id}:remove` ? "..." : "제거"}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <VentureConsoleWorkspaceMembers
+                activeMembers={activeMembers}
+                canManageMembers={canManageMembers}
+                currentUserId={user.id}
+                memberActionKey={memberActionKey}
+                memberRoles={memberRoles}
+                onRemoveMember={handleRemoveMember}
+                onUpdateMemberRole={handleUpdateMemberRole}
+                organizationRoleLabels={organizationRoleLabels}
+                ownerCount={ownerCount}
+              />
               <form onSubmit={handleAddMember} className="grid gap-3 avl-surface-muted p-4">
                 <div className="text-sm font-semibold text-slate-950">기존 계정 추가</div>
                 <div className="grid gap-3 sm:grid-cols-[1fr_132px]">
