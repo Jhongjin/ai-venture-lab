@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { Step8DecisionGuidance } from "@/components/step8-decision-guidance";
+import { Step8SyncBrief } from "@/components/step8-sync-brief";
 import { WorkbenchReviewGrid, type WorkbenchReviewGridRow } from "@/components/workbench-review-grid";
 
 type Step8ActionSummaryProps = {
@@ -79,22 +80,11 @@ export function Step8ActionSummary({
           <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryActionDetail}</p>
           <p className="mt-1 text-xs leading-5 text-slate-500">결정: {finalExecutionDecisionSentence}</p>
           <Step8DecisionGuidance decisionOptions={learningDecisionOptions} ladderItems={step8ActionLadderItems} />
-          <div data-smoke="step8-sync-brief" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">자동 반영 요약</div>
-            <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{externalSyncOutcomeSentence}</p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">최근 확인: {externalSyncCheckedText}</p>
-            <details
-              data-smoke="step8-sync-review-details"
-              className="mt-3 border border-emerald-200 bg-emerald-50 px-3 py-2"
-            >
-              <summary className="cursor-pointer list-none text-sm font-semibold text-emerald-950">
-                자동 반영 세부 보기
-              </summary>
-              <div className="mt-3">
-                <WorkbenchReviewGrid dataSmoke="step8-sync-review" rows={externalSyncReviewRows} variant="emerald" />
-              </div>
-            </details>
-          </div>
+          <Step8SyncBrief
+            checkedText={externalSyncCheckedText}
+            outcomeSentence={externalSyncOutcomeSentence}
+            reviewRows={externalSyncReviewRows}
+          />
         </div>
         {primaryCtaSlot}
       </div>
