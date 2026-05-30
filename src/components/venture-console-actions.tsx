@@ -27,6 +27,7 @@ import { GeneratedIdeaSlotCard } from "@/components/generated-idea-slot-card";
 import { IdeaExtractionActionPanel } from "@/components/idea-extraction-action-panel";
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { RecommendedIdeaBuildDirection } from "@/components/recommended-idea-build-direction";
+import { RecommendedIdeaDecisionBanner } from "@/components/recommended-idea-decision-banner";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -3639,17 +3640,10 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           개발 방식 {selectedBuildDeliveryShortLabel}
                         </span>
                       </div>
-                      <div className="mt-4 border border-emerald-200 bg-emerald-50 px-4 py-3">
-                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
-                          결정 문장
-                        </div>
-                        <p className="mt-2 text-base font-semibold leading-6 text-slate-950">
-                          이 아이디어는 {withKoreanInstrumental(recommendedExtractedIdea.productSurface.label)} 만들고, {selectedBuildDeliveryPhrase}.
-                        </p>
-                        <p className="mt-1 text-sm leading-6 text-slate-700">
-                          결과물 형태와 개발 방식은 따로 저장됩니다. 실제 연결 파일은 STEP 7 최종 실행에서 받습니다.
-                        </p>
-                      </div>
+                      <RecommendedIdeaDecisionBanner
+                        buildDeliveryPhrase={selectedBuildDeliveryPhrase}
+                        productSurfaceLabel={recommendedExtractedIdea.productSurface.label}
+                      />
                       <RecommendedIdeaBuildDirection
                         buildDeliveryPreference={normalizedBuildDeliveryPreference}
                         onBuildDeliveryPreferenceChange={(preference) => setBuildDeliveryPreference(preference)}
