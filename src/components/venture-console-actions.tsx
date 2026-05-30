@@ -25,6 +25,7 @@ import {
 import { FirstUseIdeaIntake } from "@/components/first-use-idea-intake";
 import { GeneratedIdeaSlotCard } from "@/components/generated-idea-slot-card";
 import { IdeaExtractionActionPanel } from "@/components/idea-extraction-action-panel";
+import { IdeaExtractionNotices } from "@/components/idea-extraction-notices";
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { RecommendedIdeaActions } from "@/components/recommended-idea-actions";
 import { RecommendedIdeaBuildDirection } from "@/components/recommended-idea-build-direction";
@@ -3598,17 +3599,10 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                       void handleReplayExtractionComparison();
                     }}
                   />
-                  {extractMessage ? (
-                    <div aria-live="polite" role="status" className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-700">
-                      {extractMessage}
-                    </div>
-                  ) : null}
-                  {duplicateCandidateCount > 0 ? (
-                    <div className="avl-surface-muted border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-                      {duplicateCandidateCount}개 아이디어가 기존 기록과 유사합니다. 새로 만들기보다 기존 기록 확장을 먼저
-                      확인하세요.
-                    </div>
-                  ) : null}
+                  <IdeaExtractionNotices
+                    duplicateCandidateCount={duplicateCandidateCount}
+                    extractMessage={extractMessage}
+                  />
                 </div>
 
                 <div className="grid min-w-0 gap-3">
