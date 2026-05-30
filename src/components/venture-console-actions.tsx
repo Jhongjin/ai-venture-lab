@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { ArrowsClockwise, Buildings, ClipboardText, PlusCircle } from "@phosphor-icons/react";
+import { ArrowsClockwise, ClipboardText, PlusCircle } from "@phosphor-icons/react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -27,11 +27,7 @@ import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-sectio
 import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
 import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
-import { VentureConsoleWorkspaceAuditLog } from "@/components/venture-console-workspace-audit-log";
-import { VentureConsoleWorkspaceEmptyState } from "@/components/venture-console-workspace-empty-state";
-import { VentureConsoleWorkspaceMemberForm } from "@/components/venture-console-workspace-member-form";
-import { VentureConsoleWorkspaceMembers } from "@/components/venture-console-workspace-members";
-import { VentureConsoleWorkspaceSummary } from "@/components/venture-console-workspace-summary";
+import { VentureConsoleWorkspaceCard } from "@/components/venture-console-workspace-card";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -3169,73 +3165,35 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
           user={user}
         />
 
-        <div
-          className={`avl-card p-6 ${
-            activeTask === "workspace" ? "" : "hidden"
-          }`}
-        >
-          <div className="mb-5 flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-950">협업 공간 상태</h2>
-              <p className="mt-1 text-sm text-slate-500">기본은 혼자 진행합니다. 팀으로 함께 볼 때만 협업 공간을 연결하세요.</p>
-            </div>
-            <Buildings className={activeOrganization ? "text-blue-600" : "text-slate-500"} size={24} />
-          </div>
-
-          {!user ? (
-            <VentureConsoleWorkspaceEmptyState
-              isWorkspaceBusy={isWorkspaceBusy}
-              mode="login"
-              onCreateWorkspace={handleCreateWorkspace}
-              personalRecordCount={personalRecordCount}
-            />
-          ) : activeOrganization ? (
-            <div className="grid gap-4">
-              <VentureConsoleWorkspaceSummary
-                activeMemberCount={activeMemberCount}
-                activeMembershipLabel={activeMembership ? organizationRoleLabels[activeMembership.role] : organizationRoleLabels.member}
-                activeOrganization={activeOrganization}
-                isWorkspaceBusy={isWorkspaceBusy}
-                onAttachPersonalRecords={handleAttachPersonalRecords}
-                onSelectWorkspace={handleSelectWorkspace}
-                organizations={organizations}
-                personalRecordCount={personalRecordCount}
-              />
-              <VentureConsoleWorkspaceMembers
-                activeMembers={activeMembers}
-                canManageMembers={canManageMembers}
-                currentUserId={user.id}
-                memberActionKey={memberActionKey}
-                memberRoles={memberRoles}
-                onRemoveMember={handleRemoveMember}
-                onUpdateMemberRole={handleUpdateMemberRole}
-                organizationRoleLabels={organizationRoleLabels}
-                ownerCount={ownerCount}
-              />
-              <VentureConsoleWorkspaceMemberForm
-                canManageMembers={canManageMembers}
-                isMemberBusy={isMemberBusy}
-                memberEmail={memberEmail}
-                memberRole={memberRole}
-                memberRoles={memberRoles}
-                onMemberEmailChange={setMemberEmail}
-                onMemberRoleChange={setMemberRole}
-                onSubmit={handleAddMember}
-                organizationRoleLabels={organizationRoleLabels}
-              />
-              <VentureConsoleWorkspaceAuditLog auditEvents={auditEvents} />
-            </div>
-          ) : (
-            <VentureConsoleWorkspaceEmptyState
-              isWorkspaceBusy={isWorkspaceBusy}
-              mode="create"
-              onCreateWorkspace={handleCreateWorkspace}
-              personalRecordCount={personalRecordCount}
-            />
-          )}
-
-          {workspaceMessage ? <p className="mt-4 text-sm leading-6 text-slate-600">{workspaceMessage}</p> : null}
-        </div>
+        <VentureConsoleWorkspaceCard
+          activeMemberCount={activeMemberCount}
+          activeMembers={activeMembers}
+          activeMembership={activeMembership}
+          activeOrganization={activeOrganization}
+          activeTask={activeTask}
+          auditEvents={auditEvents}
+          canManageMembers={canManageMembers}
+          isMemberBusy={isMemberBusy}
+          isWorkspaceBusy={isWorkspaceBusy}
+          memberActionKey={memberActionKey}
+          memberEmail={memberEmail}
+          memberRole={memberRole}
+          memberRoles={memberRoles}
+          onAddMember={handleAddMember}
+          onAttachPersonalRecords={handleAttachPersonalRecords}
+          onCreateWorkspace={handleCreateWorkspace}
+          onMemberEmailChange={setMemberEmail}
+          onMemberRoleChange={setMemberRole}
+          onRemoveMember={handleRemoveMember}
+          onSelectWorkspace={handleSelectWorkspace}
+          onUpdateMemberRole={handleUpdateMemberRole}
+          organizationRoleLabels={organizationRoleLabels}
+          organizations={organizations}
+          ownerCount={ownerCount}
+          personalRecordCount={personalRecordCount}
+          user={user}
+          workspaceMessage={workspaceMessage}
+        />
 
         <div className={`${activeTask === "extract" ? "" : "hidden"} ${embedded ? "space-y-5" : "space-y-5"}`}>
           {!embedded ? <IdeaExtractionSectionHeader /> : null}
