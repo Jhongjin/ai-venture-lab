@@ -61,6 +61,7 @@ import { FinalExecutionTaskList } from "@/components/final-execution-task-list";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { Step6ExecutionBridge } from "@/components/step6-execution-bridge";
+import { Step6ManualRunForm } from "@/components/step6-manual-run-form";
 import { Step6RunList } from "@/components/step6-run-list";
 import { Step6WorkOrderHeader } from "@/components/step6-work-order-header";
 import { Step5AutoProgressTimeline } from "@/components/step5-auto-progress-timeline";
@@ -17954,50 +17955,24 @@ export function IdeaWorkbench({
             firstTaskLockItems={step6FirstTaskLockItems}
           />
 
-          <details className="mt-4 border border-slate-200 bg-white p-4">
-            <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
-              필요할 때만 직접 단계 추가
-            </summary>
-            <form onSubmit={addOrchestrationRun} className="mt-4 grid gap-3">
-              <div className="grid gap-3 md:grid-cols-[0.75fr_1fr]">
-                <SelectField
-                  label="단계"
-                  value={runDraft.phase}
-                  options={orchestrationPhaseConfigs.map((config) => config.phase)}
-                  labels={phaseLabels}
-                  disabled={!user}
-                  onChange={(value) => {
-                    const nextPhase = value as OrchestrationPhase;
-                    const config = orchestrationPhaseConfigs.find((item) => item.phase === nextPhase);
-                    setRunDraft({
-                      phase: nextPhase,
-                      owner_role: config?.ownerRole ?? runDraft.owner_role,
-                      objective: config?.objective ?? runDraft.objective,
-                    });
-                  }}
-                />
-                <InputField
-                  label="담당 역할"
-                  value={runDraft.owner_role}
-                  onChange={(value) => setRunDraft({ ...runDraft, owner_role: value })}
-                />
-              </div>
-              <TextArea
-                label="목표"
-                value={runDraft.objective}
-                disabled={!user}
-                onChange={(value) => setRunDraft({ ...runDraft, objective: value })}
-              />
-              <button
-                type="submit"
-                disabled={isBusy || !user}
-                className="avl-btn avl-btn-secondary px-4 disabled:opacity-50"
-              >
-                <Layers3 size={18} />
-                단계 추가
-              </button>
-            </form>
-          </details>
+          <Step6ManualRunForm
+            canSubmit={Boolean(user)}
+            isBusy={isBusy}
+            onObjectiveChange={(value) => setRunDraft({ ...runDraft, objective: value })}
+            onOwnerRoleChange={(value) => setRunDraft({ ...runDraft, owner_role: value })}
+            onPhaseChange={(nextPhase) => {
+              const config = orchestrationPhaseConfigs.find((item) => item.phase === nextPhase);
+              setRunDraft({
+                phase: nextPhase,
+                owner_role: config?.ownerRole ?? runDraft.owner_role,
+                objective: config?.objective ?? runDraft.objective,
+              });
+            }}
+            onSubmit={addOrchestrationRun}
+            phaseLabels={phaseLabels}
+            phaseOptions={orchestrationPhaseConfigs.map((config) => config.phase)}
+            runDraft={runDraft}
+          />
 
           <Step6RunList
             canManageRun={canManageRecord}
