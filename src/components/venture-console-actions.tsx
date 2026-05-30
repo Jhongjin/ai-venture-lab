@@ -33,6 +33,7 @@ import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-s
 import { RecommendedIdeaHeader } from "@/components/recommended-idea-header";
 import { RecommendedIdeaInsightGrid } from "@/components/recommended-idea-insight-grid";
 import { RecommendedIdeaMetrics } from "@/components/recommended-idea-metrics";
+import { RecommendedIdeaRationale } from "@/components/recommended-idea-rationale";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -3642,17 +3643,10 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         }
                         productSurface={recommendedExtractedIdea.productSurface}
                       />
-                      <div className="mt-4 border-t border-slate-200 pt-4">
-                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선정 이유</div>
-                        <p className="mt-2 text-sm leading-6 text-slate-700">
-                          {recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
-                        </p>
-                        {recommendedExtractionGate ? (
-                          <p className="mt-2 text-sm leading-6 text-slate-600">
-                            <span className="font-semibold text-slate-900">다음:</span> {recommendedExtractionGate.nextAction}
-                          </p>
-                        ) : null}
-                      </div>
+                      <RecommendedIdeaRationale
+                        nextAction={recommendedExtractionGate?.nextAction}
+                        summary={recommendedExtractionGate?.summary ?? recommendedExtractedIdea.validationRationale}
+                      />
                       <RecommendedIdeaInsightGrid productSurfaceLabel={recommendedExtractedIdea.productSurface.label} />
                       <RecommendedIdeaActions
                         canSave={Boolean(user)}
