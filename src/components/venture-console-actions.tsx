@@ -23,7 +23,7 @@ import {
   type BuildDeliveryPreference,
 } from "@/lib/build-delivery";
 import { FirstUseIdeaIntake } from "@/components/first-use-idea-intake";
-import { GeneratedIdeaSlotCard } from "@/components/generated-idea-slot-card";
+import { GeneratedIdeaGrid } from "@/components/generated-idea-grid";
 import { IdeaExtractionActionPanel } from "@/components/idea-extraction-action-panel";
 import { IdeaExtractionFlowSteps } from "@/components/idea-extraction-flow-steps";
 import { IdeaExtractionNotices } from "@/components/idea-extraction-notices";
@@ -3518,18 +3518,12 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                     trimmedIdeaSourceLength={trimmedIdeaSource.length}
                   />
                   {hasGeneratedIdeaSlots ? (
-                    <div className="grid min-h-[280px] gap-3 lg:grid-cols-3">
-                      {generatedIdeaSlotIndexes.map((slotIndex) => (
-                        <GeneratedIdeaSlotCard
-                          key={generatedIdeaSlots[slotIndex]?.id ?? `generated-slot-${slotIndex}`}
-                          onToggleKeep={toggleGeneratedIdeaKeep}
-                          selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
-                          selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
-                          slot={generatedIdeaSlots[slotIndex]}
-                          slotIndex={slotIndex}
-                        />
-                      ))}
-                    </div>
+                    <GeneratedIdeaGrid
+                      onToggleKeep={toggleGeneratedIdeaKeep}
+                      selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
+                      selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
+                      slots={generatedIdeaSlots}
+                    />
                     ) : (
                     <FirstUseIdeaIntake
                       rawIdeaSource={rawIdeaSource}
