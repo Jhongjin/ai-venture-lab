@@ -71,6 +71,7 @@ import { Step5PackageReview } from "@/components/step5-package-review";
 import { Step8ActionSummary } from "@/components/step8-action-summary";
 import { Step8OperatorReport } from "@/components/step8-operator-report";
 import { Step8OutcomeDetails } from "@/components/step8-outcome-details";
+import { Step8PrimaryCta } from "@/components/step8-primary-cta";
 import { Step8ProgressSection } from "@/components/step8-progress-section";
 import { Step8TelemetryAdapterGuide } from "@/components/step8-telemetry-adapter-guide";
 import type {
@@ -17712,26 +17713,14 @@ export function IdeaWorkbench({
             learningPrimaryActionText={learningPrimaryActionText}
             learningSimpleReviewRows={learningSimpleReviewRows}
             primaryCtaSlot={
-              productSignalCount > 0 && !nextImplementationTask ? (
-                <button
-                  type="button"
-                  onClick={() => void copyDraft(learningTelemetryReportDraft, "학습 리포트")}
-                  disabled={!learningTelemetryReportDraft}
-                  data-smoke="step8-primary-cta"
-                  className="avl-btn avl-btn-primary h-10 px-4 disabled:opacity-50"
-                >
-                  <Clipboard size={16} />
-                  {learningPrimaryCtaLabel}
-                </button>
-              ) : (
-                <div
-                  data-smoke="step8-primary-cta"
-                  className="max-w-xs border border-blue-200 bg-white px-3 py-2 text-sm leading-6 text-slate-700"
-                >
-                  <div className="font-semibold text-slate-950">{learningPrimaryNavigationHintTitle}</div>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">{learningPrimaryNavigationHintDetail}</p>
-                </div>
-              )
+              <Step8PrimaryCta
+                canCopyReport={productSignalCount > 0 && !nextImplementationTask}
+                ctaLabel={learningPrimaryCtaLabel}
+                navigationHintDetail={learningPrimaryNavigationHintDetail}
+                navigationHintTitle={learningPrimaryNavigationHintTitle}
+                onCopyReport={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
+                reportDraft={learningTelemetryReportDraft}
+              />
             }
             step8ActionLadderItems={step8ActionLadderItems}
           />
