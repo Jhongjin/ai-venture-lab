@@ -12473,13 +12473,6 @@ export function IdeaWorkbench({
     ["작업 목록", "T-001부터 볼 수 있는 제작 순서"],
     ["진행 기록", `${liveExternalToolProgressPath} 자동 반영 백업`],
   ] as const;
-  const finalExecutionCommandPathItems = [
-    ["1. 파일 받기", `${activeExternalBuildTool.label} 연결 파일 받기 버튼으로 PowerShell 파일을 받습니다.`],
-    ["2. 위치 옮기기", "받은 파일을 실제 개발할 프로젝트 루트로 옮깁니다. 다운로드 폴더나 AI Venture Lab 폴더에서는 실행하지 않습니다."],
-    ["3. 설치와 확인", "아래 설치 명령을 먼저 실행하고, 확인 명령으로 첫 작업이 읽히는지 봅니다."],
-    ["4. 첫 작업 시작", `${activeExternalBuildTool.startFileName} 내용을 첫 메시지로 넣고 T-001부터 처리합니다.`],
-  ] as const;
-  const finalExecutionSuccessCriterion = `확인 명령 결과에 T-001이 보이면 설치 완료입니다. 그 다음 ${activeExternalBuildTool.startFileName}을 첫 메시지로 넣고 시작하세요.`;
   const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
   const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
   const latestCursorSyncUseAt =
@@ -17679,14 +17672,12 @@ export function IdeaWorkbench({
 
                   <FinalExecutionToolGuide
                     activeExternalBuildTool={activeExternalBuildTool}
-                    commandPathItems={finalExecutionCommandPathItems}
                     copyDraft={copyDraft}
                     guideDraft={liveExternalToolGuideDraft}
                     isLiveExternalDelivery={isLiveExternalDelivery}
                     mcpConfigDraft={liveExternalToolMcpConfigDraft}
                     nextTaskCommand={liveExternalToolNextTaskCommand}
                     setupCommand={liveExternalToolSetupCommand}
-                    successCriterion={finalExecutionSuccessCriterion}
                     toolFolder={liveExternalToolFolder}
                   />
                 </FinalExecutionExternalToolSection>
