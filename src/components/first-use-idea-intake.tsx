@@ -2,14 +2,9 @@
 
 import type { ChangeEvent } from "react";
 
+import { FirstUseFastPath } from "@/components/first-use-fast-path";
 import { FirstUseInputExamples, firstUseInputExamples } from "@/components/first-use-input-examples";
 import { FirstUseMoreContext } from "@/components/first-use-more-context";
-
-const firstUseFastPathSteps = [
-  ["1. 붙여넣기", "회의 메모, GPT 대화, 자동화할 업무를 그대로 넣기"],
-  ["2. AI 정리", "후보 3개와 결과물 형태·개발 방식 정리"],
-  ["3. 저장 후 열림", "하단 다음 단계 버튼이 열리고 사업성 평가부터 이어짐"],
-] as const;
 
 type FirstUseIdeaIntakeProps = {
   onRawIdeaSourceChange: (value: string) => void;
@@ -37,14 +32,7 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
         <span className="font-semibold text-slate-950">처음이라면 메모를 그대로 붙이고 AI 정리만 누르세요.</span>{" "}
         넣는 것: 메모, 대화, 자동화할 업무. 받는 것: 후보 3개, 결과물 형태, 개발 방식.
       </div>
-      <div data-smoke="first-use-fast-path" className="grid gap-px bg-slate-200 md:grid-cols-3">
-        {firstUseFastPathSteps.map(([label, body]) => (
-          <div key={label} className="bg-slate-50 px-4 py-3">
-            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
-            <p className="mt-2 text-sm leading-6 text-slate-700">{body}</p>
-          </div>
-        ))}
-      </div>
+      <FirstUseFastPath />
       <div
         data-smoke="first-use-current-action"
         className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-950"
