@@ -1,44 +1,90 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { ArrowRight, Code2, Download, FolderOpen } from "lucide-react";
 
 import { FinalExecutionSetupChecks } from "@/components/final-execution-setup-checks";
 import { WorkbenchReviewGrid, type WorkbenchReviewGridRow } from "@/components/workbench-review-grid";
-
-type FinalExecutionSimplePathItem = {
-  detail: string;
-  icon: ReactNode;
-  label: string;
-  title: string;
-};
-
-type FinalExecutionToolStartMode = {
-  detail: string;
-  label: string;
-  title: string;
-};
+import type { ExternalBuildToolProfile } from "@/lib/build-delivery";
 
 type FinalExecutionQuickStartProps = {
+  activeExternalBuildTool: Pick<ExternalBuildToolProfile, "key" | "label" | "startFileName">;
   decisionSentence: string;
-  installResultItems: ReadonlyArray<readonly [label: string, detail: string]>;
   isExternalTool: boolean;
-  primaryActionDetail: string;
-  primaryActionTitle: string;
-  runLocationItems: ReadonlyArray<WorkbenchReviewGridRow>;
-  simplePathItems: ReadonlyArray<FinalExecutionSimplePathItem>;
-  toolStartMode: FinalExecutionToolStartMode;
+  nextTaskCommand: string;
+  progressPath: string;
 };
 
 export function FinalExecutionQuickStart({
+  activeExternalBuildTool,
   decisionSentence,
-  installResultItems,
   isExternalTool,
-  primaryActionDetail,
-  primaryActionTitle,
-  runLocationItems,
-  simplePathItems,
-  toolStartMode,
+  nextTaskCommand,
+  progressPath,
 }: FinalExecutionQuickStartProps) {
+  const isIdeExternalDelivery =
+    activeExternalBuildTool.key === "cursor" || activeExternalBuildTool.key === "antigravity";
+  const isTerminalAgentDelivery =
+    activeExternalBuildTool.key === "claude_code" || activeExternalBuildTool.key === "codex";
+  const primaryActionTitle = isExternalTool
+    ? `${activeExternalBuildTool.label} 연결 파일을 실제 프로젝트 루트에서 실행하세요.`
+    : "제작 패키지를 내려받아 내부 개발 시작점으로 넘기세요.";
+  const primaryActionDetail = isExternalTool
+    ? "이 화면에서는 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트로 옮기고, 설치 명령과 확인 명령만 차례로 실행하면 됩니다. 다운로드 폴더나 AI Venture Lab 폴더에서는 실행하지 않습니다."
+    : "내부 개발 도구가 열릴 때까지 같은 제작 패키지와 작업 순서를 기준 자료로 보관합니다.";
+  const toolStartMode = isExternalTool && isIdeExternalDelivery
+    ? {
+        label: "IDE에서 시작",
+        title: `${activeExternalBuildTool.label}에서 프로젝트 폴더를 열고 START 파일을 첫 메시지로 넣습니다.`,
+        detail: "설치/확인 명령은 프로젝트 루트 터미널에서 실행하고, 실제 작업은 IDE 안의 에이전트 흐름에서 시작합니다.",
+      }
+    : isExternalTool && isTerminalAgentDelivery
+      ? {
+          label: "터미널 에이전트에서 시작",
+          title: `${activeExternalBuildTool.label}를 프로젝트 루트에서 열고 START 파일을 첫 메시지로 넣습니다.`,
+          detail: "설치/확인 명령을 실행한 같은 프로젝트 루트에서 에이전트를 시작하면 됩니다.",
+        }
+      : {
+          label: "내부 개발 준비",
+          title: "제작 패키지를 내부 개발 시작 자료로 보관합니다.",
+          detail: "외부 도구 연결이 아니면 패키지와 작업 순서를 내부 개발 기준 자료로 넘깁니다.",
+        };
+  const simplePathItems = [
+    {
+      icon: <Download size={16} />,
+      label: "1. 연결 파일 받기",
+      title: `${activeExternalBuildTool.label} 연결 파일`,
+      detail: "아래 버튼으로 PowerShell 파일을 받습니다. 받은 직후에는 아직 실행하지 않습니다.",
+    },
+    {
+      icon: <FolderOpen size={16} />,
+      label: "2. 실행 위치",
+      title: "외부 프로젝트 루트",
+      detail: "받은 파일을 새로 만들 앱이나 사이트 폴더의 최상단으로 옮깁니다. 다운로드 폴더나 AI Venture Lab 폴더가 아닙니다.",
+    },
+    {
+      icon: <Code2 size={16} />,
+      label: "3. 설치 후 확인",
+      title: "설치 명령 후 확인 명령",
+      detail: `설치 명령을 먼저 실행하고 ${nextTaskCommand}로 첫 작업이 보이는지 확인합니다.`,
+    },
+    {
+      icon: <ArrowRight size={16} />,
+      label: "4. 첫 작업 시작",
+      title: `${activeExternalBuildTool.startFileName}`,
+      detail: "START 파일 내용을 개발 도구의 첫 메시지로 넣고 T-001부터 처리합니다.",
+    },
+  ];
+  const runLocationItems: ReadonlyArray<WorkbenchReviewGridRow> = [
+    ["실행할 곳", "실제 앱 폴더 최상단"],
+    ["아닌 곳", "다운로드 폴더 / AI Venture Lab 폴더"],
+    ["5초 확인", "package.json, app, src 중 하나"],
+  ];
+  const installResultItems = [
+    ["START 파일", `${activeExternalBuildTool.startFileName} 첫 메시지`],
+    ["작업 목록", "T-001부터 볼 수 있는 제작 순서"],
+    ["진행 기록", `${progressPath} 자동 반영 백업`],
+  ] as const;
+
   return (
     <>
       <div data-smoke="final-execution-action-banner" className="border border-blue-200 bg-blue-50 p-4">
