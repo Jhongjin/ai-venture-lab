@@ -15040,6 +15040,34 @@ export function IdeaWorkbench({
     }
   }
 
+  function downloadFinalExecutionPrimaryPackage() {
+    if (isCursorExternalDelivery) {
+      void downloadCursorSetupScript();
+      return;
+    }
+
+    if (isCodexExternalDelivery) {
+      void downloadCodexSetupScript();
+      return;
+    }
+
+    if (isClaudeCodeExternalDelivery) {
+      void downloadClaudeSetupScript();
+      return;
+    }
+
+    if (isAntigravityExternalDelivery) {
+      void downloadAntigravitySetupScript();
+      return;
+    }
+
+    downloadMarkdownFile(
+      externalToolRunPackageDraft,
+      `${activeExternalBuildTool.label} 시작 패키지`,
+      toDownloadFileName(selectedIdea.name, activeExternalBuildTool.handoffFileSuffix),
+    );
+  }
+
   async function copyLaunchChecklistDraft() {
     if (!launchChecklistDraft) {
       return;
@@ -17565,33 +17593,7 @@ export function IdeaWorkbench({
                     isLiveExternalDelivery={isLiveExternalDelivery}
                     liveExternalToolStartPromptDraft={liveExternalToolStartPromptDraft}
                     onCopyDraft={copyDraft}
-                    onDownloadPrimaryPackage={() => {
-                      if (isCursorExternalDelivery) {
-                        void downloadCursorSetupScript();
-                        return;
-                      }
-
-                      if (isCodexExternalDelivery) {
-                        void downloadCodexSetupScript();
-                        return;
-                      }
-
-                      if (isClaudeCodeExternalDelivery) {
-                        void downloadClaudeSetupScript();
-                        return;
-                      }
-
-                      if (isAntigravityExternalDelivery) {
-                        void downloadAntigravitySetupScript();
-                        return;
-                      }
-
-                      downloadMarkdownFile(
-                        externalToolRunPackageDraft,
-                        `${activeExternalBuildTool.label} 시작 패키지`,
-                        toDownloadFileName(selectedIdea.name, activeExternalBuildTool.handoffFileSuffix),
-                      );
-                    }}
+                    onDownloadPrimaryPackage={downloadFinalExecutionPrimaryPackage}
                     onDownloadProductionPackage={() =>
                       downloadMarkdownFile(
                         finalAgentRunPackageDraft,
