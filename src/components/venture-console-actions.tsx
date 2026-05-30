@@ -30,6 +30,7 @@ import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-sectio
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-area-header";
 import { ManualIdeaAiSummary } from "@/components/manual-idea-ai-summary";
+import { ManualIdeaFormFields } from "@/components/manual-idea-form-fields";
 import { ManualIdeaReviewChecklist } from "@/components/manual-idea-review-checklist";
 import { ManualIdeaSaveReadiness } from "@/components/manual-idea-save-readiness";
 import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
@@ -4028,63 +4029,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
             )}
 
             <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-              <div className="grid gap-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Field
-                    label="이름"
-                    value={form.name}
-                    onChange={(value) => setForm({ ...form, name: value })}
-                    required
-                    hint="AI가 추천한 이름을 그대로 두거나, 본인이 이해하기 쉬운 이름으로 다듬어도 됩니다."
-                  />
-                  <Field
-                    label="한 줄 설명"
-                    value={form.one_liner}
-                    onChange={(value) => setForm({ ...form, one_liner: value })}
-                    required
-                    hint="사용자 문제와 해결 방식이 한 문장에 보이면 충분합니다."
-                  />
-                </div>
-
-                <details className="avl-surface-muted p-4">
-                  <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
-                    추가 입력 열기
-                  </summary>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    아래는 AI가 만든 초안을 사람이 다듬는 공간입니다. 필요가 없으면 그대로 저장해도 됩니다.
-                  </p>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <Field
-                      label="구매자"
-                      value={form.buyer}
-                      onChange={(value) => setForm({ ...form, buyer: value })}
-                    />
-                    <Field
-                      label="대상 사용자"
-                      value={form.target_user}
-                      onChange={(value) => setForm({ ...form, target_user: value })}
-                    />
-                  </div>
-
-                  <div className="mt-4 grid gap-4 md:grid-cols-3">
-                    <TextArea
-                      label="수요 신호"
-                      value={form.signal}
-                      onChange={(value) => setForm({ ...form, signal: value })}
-                    />
-                    <TextArea
-                      label="리스크 요약"
-                      value={form.risk_summary}
-                      onChange={(value) => setForm({ ...form, risk_summary: value })}
-                    />
-                    <TextArea
-                      label="추가로 확인할 내용"
-                      value={form.next_evidence}
-                      onChange={(value) => setForm({ ...form, next_evidence: value })}
-                    />
-                  </div>
-                </details>
-              </div>
+              <ManualIdeaFormFields form={form} onChange={(nextForm) => setForm(nextForm)} />
 
               <div className="grid gap-4">
                 <ManualIdeaAiSummary
@@ -4157,60 +4102,5 @@ function formatAuthCallbackMessage(error: string, description: string | null) {
   }
 
   return description ? `${error}: ${description}` : error;
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  required = false,
-  tone = "light",
-  hint,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  required?: boolean;
-  tone?: "light" | "dark";
-  hint?: string;
-}) {
-  return (
-    <label className={`grid gap-2 text-sm font-semibold ${tone === "dark" ? "text-slate-200" : "text-slate-700"}`}>
-      {label}
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        required={required}
-        className={`avl-input ${tone === "dark" ? "border-white/10 bg-white/[0.06] text-white placeholder:text-slate-400" : ""}`}
-      />
-      {hint ? (
-        <span className={`text-xs leading-5 ${tone === "dark" ? "text-slate-400" : "text-slate-500"}`}>{hint}</span>
-      ) : null}
-    </label>
-  );
-}
-
-function TextArea({
-  label,
-  value,
-  onChange,
-  tone = "light",
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  tone?: "light" | "dark";
-}) {
-  return (
-    <label className={`grid gap-2 text-sm font-semibold ${tone === "dark" ? "text-slate-200" : "text-slate-700"}`}>
-      {label}
-      <textarea
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        rows={4}
-        className={`avl-textarea min-h-28 ${tone === "dark" ? "border-white/10 bg-white/[0.06] text-white placeholder:text-slate-400" : ""}`}
-      />
-    </label>
-  );
 }
 
