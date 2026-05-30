@@ -420,6 +420,18 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await simplePath.getByText("T-001 첫 작업", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  const expectedFirstTaskStart =
+    toolLabel === "Cursor" || toolLabel === "Google Antigravity"
+      ? `${toolLabel} 안의 첫 메시지`
+      : `같은 프로젝트 루트에서 ${toolLabel}를 열고`;
+  await simplePath.getByText(expectedFirstTaskStart, { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await simplePath.getByText("외부 프로젝트 루트", { exact: true }).waitFor({
     state: "visible",
     timeout,
