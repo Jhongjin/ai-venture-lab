@@ -61,6 +61,7 @@ import { FinalExecutionTaskList } from "@/components/final-execution-task-list";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { Step6ExecutionBridge } from "@/components/step6-execution-bridge";
+import { Step6WorkOrderHeader } from "@/components/step6-work-order-header";
 import { Step5AutoProgressTimeline } from "@/components/step5-auto-progress-timeline";
 import { Step5BuildDirectionSummary } from "@/components/step5-build-direction-summary";
 import { Step5ExecutionPackageBrief } from "@/components/step5-execution-package-brief";
@@ -17936,26 +17937,11 @@ export function IdeaWorkbench({
             activeTask === "orchestration" ? "" : "hidden"
           }`}
         >
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">작업 순서 보드</h2>
-              <p className="mt-1 text-sm text-slate-500">AI가 만든 작업 순서를 확인하고 필요한 단계만 보완합니다.</p>
-            </div>
-            <button
-              type="button"
-              onClick={createRunbook}
-              disabled={isBusy || !user}
-              className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
-            >
-              <Layers3 size={18} />
-              작업 순서 자동 만들기
-            </button>
-          </div>
-
-          <div className="border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-            기본 흐름은 작업 순서 자동 만들기, 필요한 단계 결과 확인/저장, 다음 단계입니다. 상태 버튼은 실제 실행 추적이 필요할 때만
-            바꾸면 됩니다.
-          </div>
+          <Step6WorkOrderHeader
+            canCreateRunbook={Boolean(user)}
+            isBusy={isBusy}
+            onCreateRunbook={createRunbook}
+          />
 
           <Step6ExecutionBridge
             currentActionItems={step6CurrentActionItems}
