@@ -29,8 +29,7 @@ import { IdeaExtractionReplaySummary } from "@/components/idea-extraction-replay
 import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-section-header";
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-area-header";
-import { ManualIdeaSaveCard } from "@/components/manual-idea-save-card";
-import { ManualIdeaSaveReadiness } from "@/components/manual-idea-save-readiness";
+import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
 import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
@@ -3979,31 +3978,19 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
           </div>
         </div>
 
-      <form
+      <ManualIdeaIntakeForm
+        activeOrganizationName={activeOrganization?.name ?? null}
+        activeTask={activeTask}
+        canSave={Boolean(user)}
+        embedded={embedded}
+        form={form}
+        isSaving={isSaving}
+        onFormChange={(nextForm) => setForm(nextForm)}
         onSubmit={handleCreateIdea}
-        className={`grid gap-5 ${activeTask === "idea" ? "" : "hidden"}`}
-      >
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_340px]">
-          <ManualIdeaSaveCard
-            activeOrganizationName={activeOrganization?.name ?? null}
-            canSave={Boolean(user)}
-            embedded={embedded}
-            form={form}
-            isSaving={isSaving}
-            onFormChange={(nextForm) => setForm(nextForm)}
-            productSurface={manualFormProductSurface}
-            selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
-          />
-
-          <ManualIdeaSaveReadiness
-            hasAudienceDraft={Boolean(form.buyer && form.target_user)}
-            hasEvidenceNotes={Boolean(form.signal || form.risk_summary || form.next_evidence)}
-            hasRequiredFields={Boolean(form.name && form.one_liner)}
-          />
-        </div>
-
-        {saveMessage ? <p className="text-sm leading-6 text-slate-600">{saveMessage}</p> : null}
-      </form>
+        productSurface={manualFormProductSurface}
+        saveMessage={saveMessage}
+        selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
+      />
       </div>
     </section>
   );
