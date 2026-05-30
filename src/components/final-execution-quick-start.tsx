@@ -33,6 +33,7 @@ export function FinalExecutionQuickStart({
         <div className="grid gap-3">
           <FinalExecutionSimplePath
             activeToolLabel={activeExternalBuildTool.label}
+            activeToolKey={activeExternalBuildTool.key}
             nextTaskCommand={nextTaskCommand}
             startFileName={activeExternalBuildTool.startFileName}
           />

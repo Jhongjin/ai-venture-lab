@@ -2,17 +2,25 @@
 
 import { ArrowRight, Code2, Download, FolderOpen } from "lucide-react";
 
+import type { ExternalBuildToolProfile } from "@/lib/build-delivery";
+
 type FinalExecutionSimplePathProps = {
   activeToolLabel: string;
+  activeToolKey: ExternalBuildToolProfile["key"];
   nextTaskCommand: string;
   startFileName: string;
 };
 
 export function FinalExecutionSimplePath({
   activeToolLabel,
+  activeToolKey,
   nextTaskCommand,
   startFileName,
 }: FinalExecutionSimplePathProps) {
+  const startsInsideIde = activeToolKey === "cursor" || activeToolKey === "antigravity";
+  const firstTaskDetail = startsInsideIde
+    ? `START 파일 내용을 ${activeToolLabel} 안의 첫 메시지에 넣고 T-001부터 처리합니다.`
+    : `같은 프로젝트 루트에서 ${activeToolLabel}를 열고 START 파일 내용을 첫 메시지로 넣습니다.`;
   const simplePathItems = [
     {
       icon: <Download size={16} />,
@@ -30,13 +38,13 @@ export function FinalExecutionSimplePath({
       icon: <Code2 size={16} />,
       label: "3. 설치 후 확인",
       title: "설치 명령 후 확인 명령",
-      detail: `설치 명령을 먼저 실행하고 ${nextTaskCommand}로 첫 작업이 보이는지 확인합니다.`,
+      detail: `설치 명령을 먼저 실행하고 ${nextTaskCommand}로 T-001 첫 작업이 보이는지 확인합니다.`,
     },
     {
       icon: <ArrowRight size={16} />,
       label: "4. 첫 작업 시작",
       title: startFileName,
-      detail: "START 파일 내용을 개발 도구의 첫 메시지로 넣고 T-001부터 처리합니다.",
+      detail: firstTaskDetail,
     },
   ];
 
