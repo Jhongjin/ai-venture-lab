@@ -30,6 +30,7 @@ import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-sectio
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-area-header";
 import { ManualIdeaAiSummary } from "@/components/manual-idea-ai-summary";
+import { ManualIdeaReviewChecklist } from "@/components/manual-idea-review-checklist";
 import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
 import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
@@ -4092,14 +4093,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                   targetUser={form.target_user}
                 />
 
-                <div className="avl-band p-4 text-slate-900">
-                  <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">사람이 확인할 포인트</div>
-                  <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
-                    <li>- 이름이 회의 메모 제목처럼 길지 않은지</li>
-                    <li>- 한 줄 설명에 문제와 해결이 같이 들어있는지</li>
-                    <li>- 추가 입력은 꼭 보완할 내용이 있을 때만 수정</li>
-                  </ul>
-                </div>
+                <ManualIdeaReviewChecklist />
               </div>
             </div>
           </section>
