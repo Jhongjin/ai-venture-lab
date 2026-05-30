@@ -21,7 +21,7 @@ import {
   type BuildDeliveryPreference,
 } from "@/lib/build-delivery";
 import { IdeaExtractionAdvancedQueue } from "@/components/idea-extraction-advanced-queue";
-import { IdeaExtractionDetailCard } from "@/components/idea-extraction-detail-card";
+import { IdeaExtractionDetailList } from "@/components/idea-extraction-detail-list";
 import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
 import { IdeaExtractionRightPanel } from "@/components/idea-extraction-right-panel";
 import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-section-header";
@@ -1971,6 +1971,35 @@ export function VentureConsoleActions({
       ),
     [extractionPortfolioItems],
   );
+  const extractionDetailItems = useMemo(
+    () =>
+      extractedIdeas.map((candidate) => {
+        const similarIdea = similarIdeaMatches.get(candidate.id);
+        const readinessChecks = buildCandidateReadiness(candidate, similarIdea ?? null);
+        const passedReadinessCount = readinessChecks.filter((check) => check.passed).length;
+        const readinessScore = Math.round((passedReadinessCount / readinessChecks.length) * 100);
+        const nextReadinessGap = readinessChecks.find((check) => !check.passed);
+        const extractionGate = extractedIdeaGates.get(candidate.id) ?? buildExtractionGate(candidate, readinessChecks, similarIdea ?? null);
+        const gateStyle = extractionGateStyles[extractionGate.id];
+        const strategyLenses = buildCandidateStrategyLens(candidate);
+        const strategyScore = getCandidateStrategyScore(candidate);
+
+        return {
+          candidate,
+          extractionGate,
+          gateStyle,
+          nextReadinessGap,
+          passedReadinessCount,
+          readinessChecks,
+          readinessScore,
+          similarIdea,
+          sourceEvidence: compactText(redactSensitiveSource(candidate.sourceBlock), 360),
+          strategyLenses,
+          strategyScore,
+        };
+      }),
+    [extractedIdeaGates, extractedIdeas, similarIdeaMatches],
+  );
   const extractionPortfolioMarkdown = useMemo(
     () =>
       [extractionReplay ? buildExtractionReplayMarkdown(extractionReplay) : "", buildExtractionPortfolioMarkdown(extractionPortfolioItems)]
@@ -3325,49 +3354,24 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                   selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
                 />
 
-                <details className="avl-card p-4">
-                  <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">아이디어별 상세 보기</summary>
-                  <p className="mt-3 text-sm leading-5 text-slate-600">
-                    추천 아이디어만으로 부족할 때만 다른 아이디어의 가설과 검증 계획을 펼칩니다.
-                  </p>
-                  <div className="mt-4 grid gap-3">
-                  {extractedIdeas.map((candidate) => {
-                    const similarIdea = similarIdeaMatches.get(candidate.id);
-                    const readinessChecks = buildCandidateReadiness(candidate, similarIdea ?? null);
-                    const passedReadinessCount = readinessChecks.filter((check) => check.passed).length;
-                    const readinessScore = Math.round((passedReadinessCount / readinessChecks.length) * 100);
-                    const nextReadinessGap = readinessChecks.find((check) => !check.passed);
-                    const extractionGate =
-                      extractedIdeaGates.get(candidate.id) ?? buildExtractionGate(candidate, readinessChecks, similarIdea ?? null);
-                    const gateStyle = extractionGateStyles[extractionGate.id];
-                    const strategyLenses = buildCandidateStrategyLens(candidate);
-                    const strategyScore = getCandidateStrategyScore(candidate);
-
-                    return (
-                      <IdeaExtractionDetailCard
-                        key={candidate.id}
-                        canSave={Boolean(user)}
-                        candidate={candidate}
-                        extractionGate={extractionGate}
-                        gateStyle={gateStyle}
-                        isSaveLocked={Boolean(extractSaveKey)}
-                        isSaving={extractSaveKey === candidate.id}
-                        nextReadinessGap={nextReadinessGap}
-                        onLoad={() => loadExtractedIdea(candidate)}
-                        onSave={() => saveExtractedIdeaPackage(candidate)}
-                        passedReadinessCount={passedReadinessCount}
-                        readinessChecks={readinessChecks}
-                        readinessScore={readinessScore}
-                        selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
-                        similarIdea={similarIdea}
-                        sourceEvidence={compactText(redactSensitiveSource(candidate.sourceBlock), 360)}
-                        strategyLenses={strategyLenses}
-                        strategyScore={strategyScore}
-                      />
-                    );
-                  })}
-                    </div>
-                  </details>
+                <IdeaExtractionDetailList
+                  canSave={Boolean(user)}
+                  detailItems={extractionDetailItems}
+                  extractSaveKey={extractSaveKey}
+                  onLoadIdea={(candidateId) => {
+                    const item = extractionDetailItems.find((entry) => entry.candidate.id === candidateId);
+                    if (item) {
+                      loadExtractedIdea(item.candidate);
+                    }
+                  }}
+                  onSaveIdea={(candidateId) => {
+                    const item = extractionDetailItems.find((entry) => entry.candidate.id === candidateId);
+                    if (item) {
+                      saveExtractedIdeaPackage(item.candidate);
+                    }
+                  }}
+                  selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
+                />
                 </>
               ) : null}
           </div>
