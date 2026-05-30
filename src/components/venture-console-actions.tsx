@@ -32,6 +32,7 @@ import { RecommendedIdeaDecisionBanner } from "@/components/recommended-idea-dec
 import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
 import { RecommendedIdeaHeader } from "@/components/recommended-idea-header";
 import { RecommendedIdeaInsightGrid } from "@/components/recommended-idea-insight-grid";
+import { RecommendedIdeaMetrics } from "@/components/recommended-idea-metrics";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -3618,23 +3619,17 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                         name={recommendedExtractedIdea.name}
                         oneLiner={recommendedExtractedIdea.one_liner}
                       />
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <span className="avl-pill avl-pill-neutral">
-                          검증 {recommendedExtractedIdea.validationScore}/100
-                        </span>
-                        <span className="avl-pill avl-pill-neutral">
-                          사업/제작 {recommendedPortfolioItem ? getCandidateStrategyScore(recommendedPortfolioItem.candidate) : getCandidateStrategyScore(recommendedExtractedIdea)}%
-                        </span>
-                        <span className="avl-pill avl-pill-neutral">
-                          준비 {recommendedPortfolioItem?.readinessScore ?? 0}%
-                        </span>
-                        <span className="avl-pill avl-pill-brand">
-                          형태 {recommendedExtractedIdea.productSurface.shortLabel}
-                        </span>
-                        <span className="avl-pill avl-pill-info">
-                          개발 방식 {selectedBuildDeliveryShortLabel}
-                        </span>
-                      </div>
+                      <RecommendedIdeaMetrics
+                        buildDeliveryLabel={selectedBuildDeliveryShortLabel}
+                        productSurfaceShortLabel={recommendedExtractedIdea.productSurface.shortLabel}
+                        readinessScore={recommendedPortfolioItem?.readinessScore ?? 0}
+                        strategyScore={
+                          recommendedPortfolioItem
+                            ? getCandidateStrategyScore(recommendedPortfolioItem.candidate)
+                            : getCandidateStrategyScore(recommendedExtractedIdea)
+                        }
+                        validationScore={recommendedExtractedIdea.validationScore}
+                      />
                       <RecommendedIdeaDecisionBanner
                         buildDeliveryPhrase={selectedBuildDeliveryPhrase}
                         productSurfaceLabel={recommendedExtractedIdea.productSurface.label}
