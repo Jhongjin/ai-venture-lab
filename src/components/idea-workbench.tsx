@@ -61,6 +61,7 @@ import { FinalExecutionTaskList } from "@/components/final-execution-task-list";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { Step6ExecutionBridge } from "@/components/step6-execution-bridge";
+import { Step6RunList } from "@/components/step6-run-list";
 import { Step6WorkOrderHeader } from "@/components/step6-work-order-header";
 import { Step5AutoProgressTimeline } from "@/components/step5-auto-progress-timeline";
 import { Step5BuildDirectionSummary } from "@/components/step5-build-direction-summary";
@@ -17998,93 +17999,26 @@ export function IdeaWorkbench({
             </form>
           </details>
 
-          <div className="mt-4 grid gap-3">
-            {selectedRuns.length > 0 ? (
-              selectedRuns.map((run) => (
-                <div key={run.id} className="avl-surface-muted p-4">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-950">{phaseLabels[run.phase]}</span>
-                          <span className={`avl-pill ${runStatusTone[run.status]}`}>
-                            {runStatusLabels[run.status]}
-                          </span>
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">{run.objective || "목표 미정"}</p>
-                      <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        {run.owner_role || "담당 미정"}
-                      </div>
-                    </div>
-                    <div className="grid gap-2">
-                      <div className="text-xs font-semibold text-slate-500">상태는 필요할 때만 바꿉니다</div>
-                      <div className="flex flex-wrap gap-2">
-                        {orchestrationStatuses.map((status) => (
-                          <button
-                            key={status}
-                            type="button"
-                            onClick={() => updateRunStatus(run, status)}
-                            disabled={isBusy || !canManageRecord(run) || run.status === status}
-                            className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
-                          >
-                            {runStatusLabels[status]}
-                          </button>
-                        ))}
-                        <button
-                          type="button"
-                          onClick={() => deleteOrchestrationRun(run)}
-                          disabled={isBusy || !canManageRecord(run)}
-                          className="avl-btn avl-btn-danger h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
-                        >
-                          <Trash2 size={14} />
-                          삭제
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4 grid gap-3">
-                      <TextArea
-                        label="단계 결과"
-                      value={runOutputs[run.id] ?? run.output}
-                      disabled={!canManageRecord(run)}
-                      onChange={(value) => setRunOutputs((current) => ({ ...current, [run.id]: value }))}
-                    />
-                    <p className="text-xs leading-5 text-slate-500">
-                      초안 채우기는 입력칸만 채웁니다. 저장하려면 단계 결과 저장을 눌러야 합니다.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setRunOutputs((current) => ({
-                            ...current,
-                            [run.id]: buildRunOutputTemplate(run, selectedIdea, editState),
-                          }))
-                        }
-                        disabled={isBusy || !canManageRecord(run)}
-                          className="avl-btn avl-btn-secondary px-4 shadow-none disabled:opacity-45"
-                      >
-                        <ClipboardList size={16} />
-                        초안 채우기
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => saveRunOutput(run)}
-                        disabled={isBusy || !canManageRecord(run) || (runOutputs[run.id] ?? run.output) === run.output}
-                          className="avl-btn avl-btn-secondary px-4 shadow-none disabled:opacity-45"
-                      >
-                        <Save size={16} />
-                        단계 결과 저장
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="avl-surface-muted p-4 text-sm text-slate-600">
-                아직 연결된 실행 단계가 없습니다.
-              </div>
-            )}
-          </div>
+          <Step6RunList
+            canManageRun={canManageRecord}
+            isBusy={isBusy}
+            onDeleteRun={deleteOrchestrationRun}
+            onFillRunOutput={(run) =>
+              setRunOutputs((current) => ({
+                ...current,
+                [run.id]: buildRunOutputTemplate(run, selectedIdea, editState),
+              }))
+            }
+            onRunOutputChange={(runId, value) => setRunOutputs((current) => ({ ...current, [runId]: value }))}
+            onSaveRunOutput={saveRunOutput}
+            onUpdateRunStatus={updateRunStatus}
+            orchestrationStatuses={orchestrationStatuses}
+            phaseLabels={phaseLabels}
+            runOutputs={runOutputs}
+            runStatusLabels={runStatusLabels}
+            runStatusTone={runStatusTone}
+            selectedRuns={selectedRuns}
+          />
         </div>
 
         <div className={activeTask === "risk" || activeTask === "decision" ? "grid gap-5" : "hidden"}>
