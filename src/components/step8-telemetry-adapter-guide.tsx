@@ -1,8 +1,7 @@
 "use client";
 
-import { Clipboard, Save } from "lucide-react";
-
 import { Step8TelemetryConnectionDetails } from "@/components/step8-telemetry-connection-details";
+import { Step8TelemetryGuideActions } from "@/components/step8-telemetry-guide-actions";
 import { Step8TelemetrySnippetCards } from "@/components/step8-telemetry-snippet-cards";
 
 type Step8TelemetryAdapterGuideProps = {
@@ -38,26 +37,13 @@ export function Step8TelemetryAdapterGuide({
           <h3 className="mt-2 text-base font-semibold text-slate-950">첫 버전 사용 신호 연결</h3>
           <p className="mt-1 text-sm leading-6 text-slate-600">출시된 앱의 사용자 행동을 받아오는 전달용 정보입니다.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => onCopyDraft(telemetryAdapterGuideDraft, "성과 신호 연결 가이드")}
-            disabled={!telemetryAdapterGuideDraft}
-            className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
-          >
-            <Clipboard size={16} />
-            연결 가이드 복사
-          </button>
-          <button
-            type="button"
-            onClick={onSaveGuide}
-            disabled={isBusy || !canSave || !telemetryAdapterGuideDraft}
-            className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
-          >
-            <Save size={16} />
-            연결 가이드 저장
-          </button>
-        </div>
+        <Step8TelemetryGuideActions
+          canSave={canSave}
+          isBusy={isBusy}
+          onCopyDraft={onCopyDraft}
+          onSaveGuide={onSaveGuide}
+          telemetryAdapterGuideDraft={telemetryAdapterGuideDraft}
+        />
       </div>
       <details className="mt-4 border border-slate-200 bg-slate-50 p-3">
         <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">연결 정보 열기</summary>
