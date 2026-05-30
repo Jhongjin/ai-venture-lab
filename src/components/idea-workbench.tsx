@@ -66,13 +66,10 @@ import { Step5ExecutionPackageBrief } from "@/components/step5-execution-package
 import { Step5PackageCurrentAction } from "@/components/step5-package-current-action";
 import { Step5PackageReview } from "@/components/step5-package-review";
 import { Step8ActionSummary } from "@/components/step8-action-summary";
-import { Step8LearningReportOverview } from "@/components/step8-learning-report-overview";
+import { Step8OperatorReport } from "@/components/step8-operator-report";
 import { Step8OutcomeDetails } from "@/components/step8-outcome-details";
-import { Step8ProductTelemetryFunnel } from "@/components/step8-product-telemetry-funnel";
 import { Step8ProgressSection } from "@/components/step8-progress-section";
 import { Step8TelemetryAdapterGuide } from "@/components/step8-telemetry-adapter-guide";
-import { Step8TelemetryReportDraft } from "@/components/step8-telemetry-report-draft";
-import { Step8TelemetryTaxonomyChecklist } from "@/components/step8-telemetry-taxonomy-checklist";
 import type {
   Decision,
   Experiment,
@@ -17897,57 +17894,40 @@ export function IdeaWorkbench({
             />
           )}
 
-          <details className="mt-4 border border-slate-200 bg-white p-4">
-            <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
-              필요할 때만 여는 운영자용 리포트
-            </summary>
-            <Step8LearningReportOverview
-              canSave={Boolean(user)}
-              isBusy={isBusy}
-              learningSignalCards={learningSignalCards}
-              learningTelemetryReportDraft={learningTelemetryReportDraft}
-              onCopyReport={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
-              onSaveReport={() =>
-                saveArtifactDraft(
-                  "research_note",
-                  `${selectedIdea.name} 학습 리포트`,
-                  learningTelemetryReportDraft,
-                  "post_launch_learning",
-                )
-              }
-            />
-
-            <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(360px,0.65fr)]">
-              <Step8ProductTelemetryFunnel
-                canSave={Boolean(user)}
-                isBusy={isBusy}
-                onCopyFunnel={() => copyDraft(productTelemetryFunnelDraft, "제품 사용 퍼널 리포트")}
-                onSaveFunnel={() =>
-                  saveArtifactDraft(
-                    "research_note",
-                    `${selectedIdea.name} 제품 사용 퍼널`,
-                    productTelemetryFunnelDraft,
-                    "product_telemetry_funnel",
-                  )
-                }
-                productTelemetryFunnelDraft={productTelemetryFunnelDraft}
-                productTelemetryFunnelRows={productTelemetryFunnelRows}
-                productTelemetryMaxCount={productTelemetryMaxCount}
-              />
-
-              <Step8TelemetryTaxonomyChecklist items={productTelemetryTaxonomyRows} />
-            </div>
-
-            <Step8TelemetryReportDraft
-              categoryLabels={telemetryCategoryLabels}
-              categoryTone={telemetryCategoryTone}
-              eventLabels={telemetryEventLabels}
-              formatTelemetryProperties={formatTelemetryProperties}
-              formatTelemetryTime={formatTelemetryTime}
-              learningTelemetryReportDraft={learningTelemetryReportDraft}
-              selectedTelemetryEvents={selectedTelemetryEvents}
-            />
-          </details>
+          <Step8OperatorReport
+            canSave={Boolean(user)}
+            categoryLabels={telemetryCategoryLabels}
+            categoryTone={telemetryCategoryTone}
+            eventLabels={telemetryEventLabels}
+            formatTelemetryProperties={formatTelemetryProperties}
+            formatTelemetryTime={formatTelemetryTime}
+            isBusy={isBusy}
+            learningSignalCards={learningSignalCards}
+            learningTelemetryReportDraft={learningTelemetryReportDraft}
+            onCopyFunnel={() => copyDraft(productTelemetryFunnelDraft, "제품 사용 퍼널 리포트")}
+            onCopyReport={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
+            onSaveFunnel={() =>
+              saveArtifactDraft(
+                "research_note",
+                `${selectedIdea.name} 제품 사용 퍼널`,
+                productTelemetryFunnelDraft,
+                "product_telemetry_funnel",
+              )
+            }
+            onSaveReport={() =>
+              saveArtifactDraft(
+                "research_note",
+                `${selectedIdea.name} 학습 리포트`,
+                learningTelemetryReportDraft,
+                "post_launch_learning",
+              )
+            }
+            productTelemetryFunnelDraft={productTelemetryFunnelDraft}
+            productTelemetryFunnelRows={productTelemetryFunnelRows}
+            productTelemetryMaxCount={productTelemetryMaxCount}
+            productTelemetryTaxonomyRows={productTelemetryTaxonomyRows}
+            selectedTelemetryEvents={selectedTelemetryEvents}
+          />
         </div>
 
         <div
