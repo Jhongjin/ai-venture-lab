@@ -31,6 +31,7 @@ import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-gr
 import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-area-header";
 import { ManualIdeaAiSummary } from "@/components/manual-idea-ai-summary";
 import { ManualIdeaReviewChecklist } from "@/components/manual-idea-review-checklist";
+import { ManualIdeaSaveReadiness } from "@/components/manual-idea-save-readiness";
 import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
 import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
@@ -4098,39 +4099,11 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
             </div>
           </section>
 
-          <div className="grid gap-4">
-            <section className="avl-band p-5 text-slate-900">
-              <div className="avl-kicker">다음 단계</div>
-              <h3 className="mt-4 text-lg font-semibold text-slate-950">저장하면 바로 실행 보드에 반영됩니다</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                새 아이디어를 저장하면 실행 보드에 추가되고, 바로 선택된 상태로 사업성 평가 단계에서 이어서 검토할 수 있습니다.
-              </p>
-            </section>
-
-            <section className="avl-card p-5 text-slate-900">
-              <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI가 채운 초안 상태</div>
-              <div className="mt-3 grid gap-3">
-                {([
-                  ["필수 입력", Boolean(form.name && form.one_liner)],
-                  ["구매자/대상 보완", Boolean(form.buyer && form.target_user)],
-                  ["검증 메모 보완", Boolean(form.signal || form.risk_summary || form.next_evidence)],
-                ] as Array<[string, boolean]>).map(([label, passed]) => (
-                  <div key={label} className="avl-surface-muted p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-semibold text-slate-900">{label}</span>
-                      <span
-                        className={`avl-pill ${
-                          passed ? "avl-pill-success" : "avl-pill-neutral"
-                        }`}
-                      >
-                        {passed ? "준비됨" : "선택"}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
+          <ManualIdeaSaveReadiness
+            hasAudienceDraft={Boolean(form.buyer && form.target_user)}
+            hasEvidenceNotes={Boolean(form.signal || form.risk_summary || form.next_evidence)}
+            hasRequiredFields={Boolean(form.name && form.one_liner)}
+          />
         </div>
 
         {saveMessage ? <p className="text-sm leading-6 text-slate-600">{saveMessage}</p> : null}
