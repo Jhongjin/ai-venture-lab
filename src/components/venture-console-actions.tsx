@@ -32,6 +32,7 @@ import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-
 import { ManualIdeaAiSummary } from "@/components/manual-idea-ai-summary";
 import { ManualIdeaFormFields } from "@/components/manual-idea-form-fields";
 import { ManualIdeaReviewChecklist } from "@/components/manual-idea-review-checklist";
+import { ManualIdeaSaveHeader } from "@/components/manual-idea-save-header";
 import { ManualIdeaSaveReadiness } from "@/components/manual-idea-save-readiness";
 import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
 import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
@@ -3987,46 +3988,12 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
       >
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_340px]">
           <section className="avl-card p-6 text-slate-900">
-            {embedded ? (
-              <div className="mb-5 grid gap-3 border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-                <div>
-                  <div className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">초안 확인</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {activeOrganization
-                      ? `${activeOrganization.name}에 저장할 초안을 확인합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 이어갈 수 있습니다.`
-                      : "AI가 만든 초안을 검토하고, 꼭 필요한 의견만 보완한 뒤 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 충분합니다."}
-                  </p>
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSaving || !user}
-                className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
-                >
-                  {isSaving ? <ArrowsClockwise className="animate-spin" size={18} /> : <PlusCircle size={18} />}
-                  아이디어 저장
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <div className="mb-2 inline-flex avl-pill avl-pill-neutral px-2.5 py-1 text-[10px] tracking-[0.14em]">초안 확인</div>
-                  <h2 className="mt-3 text-3xl font-semibold text-slate-950">아이디어 저장</h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-                    {activeOrganization
-                      ? `${activeOrganization.name}에 저장할 초안을 확인합니다. 이름과 한 줄 설명만 확정하면 바로 다음 검증 단계로 이어갈 수 있습니다.`
-                      : "AI가 먼저 만든 초안을 검토하고, 꼭 필요한 의견만 더해 저장합니다. 여기서는 필수 두 줄만 먼저 확정하면 됩니다."}
-                  </p>
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSaving || !user}
-                className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
-                >
-                  {isSaving ? <ArrowsClockwise className="animate-spin" size={18} /> : <PlusCircle size={18} />}
-                  아이디어 저장
-                </button>
-              </div>
-            )}
+            <ManualIdeaSaveHeader
+              activeOrganizationName={activeOrganization?.name ?? null}
+              canSave={Boolean(user)}
+              embedded={embedded}
+              isSaving={isSaving}
+            />
 
             <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
               <ManualIdeaFormFields form={form} onChange={(nextForm) => setForm(nextForm)} />
