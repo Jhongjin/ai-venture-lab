@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { ArrowsClockwise, Buildings, ClipboardText, Clock, PlusCircle } from "@phosphor-icons/react";
+import { ArrowsClockwise, Buildings, ClipboardText, PlusCircle } from "@phosphor-icons/react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -27,6 +27,7 @@ import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-sectio
 import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
 import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
+import { VentureConsoleWorkspaceAuditLog } from "@/components/venture-console-workspace-audit-log";
 import { VentureConsoleWorkspaceMemberForm } from "@/components/venture-console-workspace-member-form";
 import { VentureConsoleWorkspaceMembers } from "@/components/venture-console-workspace-members";
 import { VentureConsoleWorkspaceSummary } from "@/components/venture-console-workspace-summary";
@@ -3218,25 +3219,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                 onSubmit={handleAddMember}
                 organizationRoleLabels={organizationRoleLabels}
               />
-              <div>
-                <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
-                  <Clock size={16} />
-                  최근 감사 로그
-                </div>
-                <div className="grid gap-2">
-                  {auditEvents.length > 0 ? (
-                    auditEvents.map((event) => (
-                      <div key={event.id} className="avl-surface-muted p-3 text-sm leading-6 text-slate-600">
-                        <span className="font-semibold text-slate-950">{event.action}</span> {event.summary}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="avl-surface-muted p-3 text-sm text-slate-500">
-                      아직 조직 감사 로그가 없습니다.
-                    </div>
-                  )}
-                </div>
-              </div>
+              <VentureConsoleWorkspaceAuditLog auditEvents={auditEvents} />
             </div>
           ) : (
             <div className="grid gap-3">
