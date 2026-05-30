@@ -3,8 +3,9 @@
 import type { ChangeEvent } from "react";
 import { RefreshCw, Save } from "lucide-react";
 
+import { FinalExecutionSyncStatusCard } from "@/components/final-execution-sync-status-card";
 import type { ImplementationTaskStatus } from "@/lib/supabase/types";
-import { WorkbenchReviewGrid, type WorkbenchReviewGridRow } from "@/components/workbench-review-grid";
+import type { WorkbenchReviewGridRow } from "@/components/workbench-review-grid";
 
 type FinalExecutionProgressImportItem = {
   detail: string;
@@ -60,44 +61,17 @@ export function FinalExecutionSyncPanel({
 
   return (
     <section className="border border-slate-200 bg-white p-4">
-      <div className="border border-emerald-200 bg-emerald-50 p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <div className="avl-kicker">{isLiveExternalDelivery ? "자동 반영" : "완료 보고"}</div>
-            <h4 className="mt-2 text-base font-semibold text-emerald-950">
-              {isLiveExternalDelivery ? `${activeToolLabel} 작업 상태를 자동으로 확인합니다` : "완료 보고를 작업표에 반영합니다"}
-            </h4>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700">
-              {isLiveExternalDelivery
-                ? `${activeToolLabel}가 완료 보고를 남기면 이 화면이 서버 상태를 다시 읽어 작업 목록과 성과 확인 화면에 반영합니다.`
-                : `${activeToolLabel}는 현재 시작 패키지와 완료 보고 반영으로 연결합니다. 작업이 끝나면 보고 내용을 아래 영역에 붙여 Venture Lab 작업표를 업데이트합니다. 원격 자동 쓰기는 아직 제공하지 않습니다.`}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-emerald-950" role="status">
-              {isTaskSyncRefreshing
-                ? "작업 상태 확인 중입니다..."
-                : taskSyncMessage ?? "최종 실행 화면을 열면 저장된 작업 상태를 자동으로 확인합니다."}
-            </p>
-            {taskSyncUpdatedAt ? <p className="mt-1 text-xs leading-5 text-slate-500">마지막 확인 {taskSyncUpdatedAt}</p> : null}
-            <div className="mt-3">
-              <WorkbenchReviewGrid
-                dataSmoke="final-execution-sync-result"
-                density="roomy"
-                rows={externalSyncReviewRows}
-                variant="emerald"
-              />
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onRefreshTaskSync}
-            disabled={isTaskSyncRefreshing || isBusy || !canUseActions}
-            className="avl-btn avl-btn-secondary h-10 shrink-0 px-3 disabled:opacity-50"
-          >
-            <RefreshCw size={16} />
-            {isTaskSyncRefreshing ? "확인 중" : "지금 확인"}
-          </button>
-        </div>
-      </div>
+      <FinalExecutionSyncStatusCard
+        activeToolLabel={activeToolLabel}
+        canUseActions={canUseActions}
+        isBusy={isBusy}
+        isLiveExternalDelivery={isLiveExternalDelivery}
+        isTaskSyncRefreshing={isTaskSyncRefreshing}
+        onRefreshTaskSync={onRefreshTaskSync}
+        reviewRows={externalSyncReviewRows}
+        taskSyncMessage={taskSyncMessage}
+        taskSyncUpdatedAt={taskSyncUpdatedAt}
+      />
 
       <details className="mt-4 border border-slate-200 bg-slate-50 p-4">
         <summary className="cursor-pointer list-none">
