@@ -1,11 +1,10 @@
 "use client";
 
-import type { ChangeEvent } from "react";
-
 import { FirstUseFastPath } from "@/components/first-use-fast-path";
 import { FirstUseInputExamples } from "@/components/first-use-input-examples";
 import { FirstUseInputStatus } from "@/components/first-use-input-status";
 import { FirstUseMoreContext } from "@/components/first-use-more-context";
+import { FirstUseSourceTextarea } from "@/components/first-use-source-textarea";
 
 type FirstUseIdeaIntakeProps = {
   onRawIdeaSourceChange: (value: string) => void;
@@ -13,10 +12,6 @@ type FirstUseIdeaIntakeProps = {
 };
 
 export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: FirstUseIdeaIntakeProps) {
-  function handleSourceChange(event: ChangeEvent<HTMLTextAreaElement>) {
-    onRawIdeaSourceChange(event.target.value);
-  }
-
   function handleExampleClick(source: string) {
     onRawIdeaSourceChange(source);
   }
@@ -33,13 +28,9 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
       <FirstUseFastPath />
       <FirstUseInputStatus rawIdeaSource={rawIdeaSource} />
       <FirstUseInputExamples onExampleClick={handleExampleClick} />
-      <textarea
-        data-smoke="first-use-raw-source"
-        value={rawIdeaSource}
-        onChange={handleSourceChange}
-        rows={12}
-        placeholder="예) 고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만들고 있어요. 반복 입력을 줄이고 누락을 확인하는 도구가 필요합니다."
-        className="avl-textarea min-h-[280px] leading-7"
+      <FirstUseSourceTextarea
+        onRawIdeaSourceChange={onRawIdeaSourceChange}
+        rawIdeaSource={rawIdeaSource}
       />
       <FirstUseMoreContext />
     </div>
