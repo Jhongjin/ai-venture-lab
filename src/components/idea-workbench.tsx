@@ -65,6 +65,7 @@ import { Step6WorkOrderHeader } from "@/components/step6-work-order-header";
 import { Step5AutoProgressTimeline } from "@/components/step5-auto-progress-timeline";
 import { Step5BuildDirectionSummary } from "@/components/step5-build-direction-summary";
 import { Step5ExecutionPackageBrief } from "@/components/step5-execution-package-brief";
+import { Step5ExecutionPackageValueGrid } from "@/components/step5-execution-package-value-grid";
 import { Step5PackageCurrentAction } from "@/components/step5-package-current-action";
 import { Step5PackageReview } from "@/components/step5-package-review";
 import { Step8ActionSummary } from "@/components/step8-action-summary";
@@ -982,11 +983,6 @@ const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   tasks: "실행할 일을 상태별로 나누고 막힌 항목과 완료 근거를 봅니다.",
   handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
 };
-const step5ExecutionPackageValueItems = [
-  ["실행 패키지", "기획서, 디자인 기준, 기술 방향, 검증 근거를 한 기준으로 묶습니다."],
-  ["제작 범위 잠금", "첫 버전에 만들 것과 제외할 것을 분리해 다음 작업이 커지지 않게 합니다."],
-  ["다음 단계 연결", "저장 후 작업 순서를 만들고, 최종 실행에서 외부 개발 도구 파일로 넘깁니다."],
-] as const;
 const step8ActionLadderItems = [
   ["1. 완료 확인", "끝난 작업만 확인"],
   ["2. 다음 하나", "이어 할 작업 하나만 선택"],
@@ -16057,14 +16053,7 @@ export function IdeaWorkbench({
 
                 <Step5ExecutionPackageBrief />
 
-                <div className="mt-5 grid gap-px bg-slate-200 lg:grid-cols-3">
-                  {step5ExecutionPackageValueItems.map(([label, detail]) => (
-                    <div key={label} className="bg-slate-50 p-4">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-700">{detail}</p>
-                    </div>
-                  ))}
-                </div>
+                <Step5ExecutionPackageValueGrid />
 
                 <Step5AutoProgressTimeline
                   activeStepIndex={developmentAutoStepIndex}
