@@ -2,10 +2,15 @@
 
 type Step8DecisionGuidanceProps = {
   decisionOptions: ReadonlyArray<string>;
-  ladderItems: ReadonlyArray<readonly [label: string, detail: string]>;
 };
 
-export function Step8DecisionGuidance({ decisionOptions, ladderItems }: Step8DecisionGuidanceProps) {
+const step8ActionLadderItems = [
+  ["1. 완료 확인", "끝난 작업만 확인"],
+  ["2. 다음 하나", "이어 할 작업 하나만 선택"],
+  ["3. 판단 하나", "진행, 보류, 전환 중 선택"],
+] as const;
+
+export function Step8DecisionGuidance({ decisionOptions }: Step8DecisionGuidanceProps) {
   return (
     <>
       <div
@@ -30,7 +35,7 @@ export function Step8DecisionGuidance({ decisionOptions, ladderItems }: Step8Dec
       <details data-smoke="step8-action-ladder-details" className="mt-3 border border-blue-200 bg-white px-3 py-2">
         <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">확인 순서 보기</summary>
         <div data-smoke="step8-action-ladder" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
-          {ladderItems.map(([label, detail]) => (
+          {step8ActionLadderItems.map(([label, detail]) => (
             <div key={label} className="bg-white px-3 py-2">
               <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
               <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>

@@ -22,7 +22,6 @@ type Step8ActionSummaryProps = {
   learningPrimaryActionText: string;
   learningSimpleReviewRows: ReadonlyArray<WorkbenchReviewGridRow>;
   primaryCtaSlot: ReactNode;
-  step8ActionLadderItems: ReadonlyArray<readonly [label: string, detail: string]>;
 };
 
 export function Step8ActionSummary({
@@ -39,7 +38,6 @@ export function Step8ActionSummary({
   learningPrimaryActionText,
   learningSimpleReviewRows,
   primaryCtaSlot,
-  step8ActionLadderItems,
 }: Step8ActionSummaryProps) {
   return (
     <div className="mb-4 border border-blue-200 bg-blue-50 p-4">
@@ -61,7 +59,7 @@ export function Step8ActionSummary({
             primaryActionText={learningPrimaryActionText}
             reviewRows={learningSimpleReviewRows}
           />
-          <Step8DecisionGuidance decisionOptions={learningDecisionOptions} ladderItems={step8ActionLadderItems} />
+          <Step8DecisionGuidance decisionOptions={learningDecisionOptions} />
           <Step8SyncBrief
             checkedText={externalSyncCheckedText}
             outcomeSentence={externalSyncOutcomeSentence}

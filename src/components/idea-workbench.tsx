@@ -983,12 +983,6 @@ const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   tasks: "실행할 일을 상태별로 나누고 막힌 항목과 완료 근거를 봅니다.",
   handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
 };
-const step8ActionLadderItems = [
-  ["1. 완료 확인", "끝난 작업만 확인"],
-  ["2. 다음 하나", "이어 할 작업 하나만 선택"],
-  ["3. 판단 하나", "진행, 보류, 전환 중 선택"],
-] as const;
-
 const artifactReviewBlueprint: Array<
   Omit<ArtifactReviewItem, "status" | "artifact" | "detail"> & {
     missingDetail: string;
@@ -17673,7 +17667,6 @@ export function IdeaWorkbench({
                 reportDraft={learningTelemetryReportDraft}
               />
             }
-            step8ActionLadderItems={step8ActionLadderItems}
           />
 
           <Step8OutcomeDetails learningDecisionCards={learningDecisionCards} />
