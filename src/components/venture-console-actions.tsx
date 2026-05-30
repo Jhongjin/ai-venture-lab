@@ -29,10 +29,7 @@ import { IdeaExtractionReplaySummary } from "@/components/idea-extraction-replay
 import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-section-header";
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-area-header";
-import { ManualIdeaAiSummary } from "@/components/manual-idea-ai-summary";
-import { ManualIdeaFormFields } from "@/components/manual-idea-form-fields";
-import { ManualIdeaReviewChecklist } from "@/components/manual-idea-review-checklist";
-import { ManualIdeaSaveHeader } from "@/components/manual-idea-save-header";
+import { ManualIdeaSaveCard } from "@/components/manual-idea-save-card";
 import { ManualIdeaSaveReadiness } from "@/components/manual-idea-save-readiness";
 import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
 import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
@@ -3987,29 +3984,16 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
         className={`grid gap-5 ${activeTask === "idea" ? "" : "hidden"}`}
       >
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_340px]">
-          <section className="avl-card p-6 text-slate-900">
-            <ManualIdeaSaveHeader
-              activeOrganizationName={activeOrganization?.name ?? null}
-              canSave={Boolean(user)}
-              embedded={embedded}
-              isSaving={isSaving}
-            />
-
-            <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px]">
-              <ManualIdeaFormFields form={form} onChange={(nextForm) => setForm(nextForm)} />
-
-              <div className="grid gap-4">
-                <ManualIdeaAiSummary
-                  buyer={form.buyer}
-                  productSurface={manualFormProductSurface}
-                  selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
-                  targetUser={form.target_user}
-                />
-
-                <ManualIdeaReviewChecklist />
-              </div>
-            </div>
-          </section>
+          <ManualIdeaSaveCard
+            activeOrganizationName={activeOrganization?.name ?? null}
+            canSave={Boolean(user)}
+            embedded={embedded}
+            form={form}
+            isSaving={isSaving}
+            onFormChange={(nextForm) => setForm(nextForm)}
+            productSurface={manualFormProductSurface}
+            selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
+          />
 
           <ManualIdeaSaveReadiness
             hasAudienceDraft={Boolean(form.buyer && form.target_user)}
