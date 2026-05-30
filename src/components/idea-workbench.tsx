@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import {
-  Activity,
   ArrowDownToLine,
   Beaker,
   CheckCircle2,
@@ -69,6 +68,7 @@ import { Step5ExecutionPackageBrief } from "@/components/step5-execution-package
 import { Step5PackageCurrentAction } from "@/components/step5-package-current-action";
 import { Step5PackageReview } from "@/components/step5-package-review";
 import { Step8ActionSummary } from "@/components/step8-action-summary";
+import { Step8LearningHeader } from "@/components/step8-learning-header";
 import { Step8OperatorReport } from "@/components/step8-operator-report";
 import { Step8OutcomeDetails } from "@/components/step8-outcome-details";
 import { Step8PrimaryCta } from "@/components/step8-primary-cta";
@@ -17659,18 +17659,7 @@ export function IdeaWorkbench({
         </div>
 
         <div className={`avl-card p-4 ${activeTask === "learning" ? "" : "hidden"}`}>
-          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <div className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                <Activity size={16} />
-                실행 상태
-              </div>
-              <h2 className="text-lg font-semibold text-slate-950">성과 확인</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-500">
-                여기서는 리포트를 먼저 읽지 않습니다. 완료된 것, 남은 것, 지금 판단할 것만 먼저 봅니다.
-              </p>
-            </div>
-          </div>
+          <Step8LearningHeader />
 
           <Step8ActionSummary
             externalSyncCheckedText={externalSyncCheckedText}
