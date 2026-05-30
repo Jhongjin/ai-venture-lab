@@ -152,6 +152,10 @@ async function main() {
       await waitForVisible(page.locator('[data-smoke="first-use-current-action"]'), "first-use current action");
       await waitForVisible(page.getByText("아래 입력칸에 생각나는 말을 그대로 붙입니다.", { exact: false }), "first-use paste current action");
       await waitForVisible(page.locator('[data-smoke="first-use-input-examples"]'), "first-use input examples");
+      await waitForVisible(
+        page.getByText("입력칸만 채우고 단계는 이동하지 않습니다.", { exact: true }).first(),
+        "first-use example no auto-step cue",
+      );
       const firstUseExampleFill = page.locator('[data-smoke="first-use-example-fill"]').first();
       await waitForVisible(firstUseExampleFill, "first-use example fill action");
       await firstUseExampleFill.click({ timeout: 10000 });

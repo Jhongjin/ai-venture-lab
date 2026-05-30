@@ -35,6 +35,9 @@ export function FirstUseInputExamples({ onExampleClick }: FirstUseInputExamplesP
           <div className="mt-2 text-sm font-semibold text-slate-950">{example.label}</div>
           <p className="mt-1 text-sm leading-6 text-slate-600">{example.body}</p>
           <span className="mt-3 block text-xs font-semibold text-blue-700">예시 넣기</span>
+          <span className="mt-1 block text-xs leading-5 text-slate-500">
+            입력칸만 채우고 단계는 이동하지 않습니다.
+          </span>
         </button>
       ))}
     </div>
