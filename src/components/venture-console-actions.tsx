@@ -25,6 +25,7 @@ import {
 import { FirstUseIdeaIntake } from "@/components/first-use-idea-intake";
 import { GeneratedIdeaSlotCard } from "@/components/generated-idea-slot-card";
 import { IdeaExtractionActionPanel } from "@/components/idea-extraction-action-panel";
+import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { RecommendedIdeaBuildDirection } from "@/components/recommended-idea-build-direction";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
@@ -3719,41 +3720,11 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                     </section>
                   )}
 
-                  <div className="grid gap-px border-t border-slate-200 bg-slate-200 pt-px md:grid-cols-3">
-                    <div className="flex min-h-[126px] flex-col bg-slate-50 px-4 py-3">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">실행 상태</div>
-                      <div className="mt-2 text-sm font-semibold text-slate-950">
-                        {extractionRunMeta
-                          ? extractionRunMeta.engine === "openai"
-                            ? "AI 정리 완료"
-                            : extractionRunMeta.engine === "fallback"
-                              ? "기본 방식으로 정리"
-                              : "기본 정리 완료"
-                          : "아직 실행 전"}
-                      </div>
-                      <p className="mt-2 text-xs leading-5 text-slate-600">
-                        {extractionRunMeta?.note ?? "아이디어를 입력하고 AI로 구체화를 실행하면 상태가 표시됩니다."}
-                      </p>
-                    </div>
-                    <div className="flex min-h-[126px] flex-col bg-slate-50 px-4 py-3">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">개인정보 보호</div>
-                      <div className="mt-2 text-sm font-semibold text-slate-950">저장 전 자동 가림</div>
-                      <p className="mt-2 text-xs leading-5 text-slate-600">
-                        연락처, 계좌, 카드번호처럼 보이는 내용은 저장 전에 자동으로 가립니다.
-                      </p>
-                    </div>
-                    <div className="flex min-h-[126px] flex-col bg-white px-4 py-3">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">후보 탐색</div>
-                      <div className="mt-2 text-sm font-semibold text-slate-950">
-                        {hasGeneratedIdeaSlots ? "킵한 후보는 유지" : "다른 후보 더 확인"}
-                      </div>
-                      <p className="mt-2 text-xs leading-5 text-slate-600">
-                        {hasGeneratedIdeaSlots
-                          ? "다른 후보를 더 확인하면 킵하지 않은 칸만 새 후보로 바뀝니다."
-                          : "결과가 어색하거나 빠진 후보가 있을 때 입력칸 아래 버튼으로 다시 점검합니다."}
-                      </p>
-                    </div>
-                  </div>
+                  <IdeaExtractionStatusGrid
+                    extractionRunEngine={extractionRunMeta?.engine}
+                    extractionRunNote={extractionRunMeta?.note}
+                    hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
+                  />
                   {extractionReplay ? (
                     <details className="border-t border-slate-200 pt-4">
                       <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">AI 정리 다시 보기 내역</summary>
