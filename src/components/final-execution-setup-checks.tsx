@@ -1,10 +1,17 @@
 "use client";
 
 type FinalExecutionSetupChecksProps = {
-  installResultItems: ReadonlyArray<readonly [label: string, detail: string]>;
+  progressPath: string;
+  startFileName: string;
 };
 
-export function FinalExecutionSetupChecks({ installResultItems }: FinalExecutionSetupChecksProps) {
+export function FinalExecutionSetupChecks({ progressPath, startFileName }: FinalExecutionSetupChecksProps) {
+  const installResultItems = [
+    ["START 파일", `${startFileName} 첫 메시지`],
+    ["작업 목록", "T-001부터 볼 수 있는 제작 순서"],
+    ["진행 기록", `${progressPath} 자동 반영 백업`],
+  ] as const;
+
   return (
     <>
       <details data-smoke="final-execution-install-result" className="border border-emerald-200 bg-emerald-50 p-4">

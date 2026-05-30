@@ -22,12 +22,6 @@ export function FinalExecutionQuickStart({
   nextTaskCommand,
   progressPath,
 }: FinalExecutionQuickStartProps) {
-  const installResultItems = [
-    ["START 파일", `${activeExternalBuildTool.startFileName} 첫 메시지`],
-    ["작업 목록", "T-001부터 볼 수 있는 제작 순서"],
-    ["진행 기록", `${progressPath} 자동 반영 백업`],
-  ] as const;
-
   return (
     <>
       <FinalExecutionActionBanner
@@ -42,7 +36,10 @@ export function FinalExecutionQuickStart({
             nextTaskCommand={nextTaskCommand}
             startFileName={activeExternalBuildTool.startFileName}
           />
-          <FinalExecutionSetupChecks installResultItems={installResultItems} />
+          <FinalExecutionSetupChecks
+            progressPath={progressPath}
+            startFileName={activeExternalBuildTool.startFileName}
+          />
           <FinalExecutionToolStartModeCard
             activeExternalBuildTool={activeExternalBuildTool}
             isExternalTool={isExternalTool}
