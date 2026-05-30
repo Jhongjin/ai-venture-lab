@@ -1,5 +1,7 @@
 "use client";
 
+import { Step8NextTaskFocus } from "@/components/step8-next-task-focus";
+
 export type Step8ProgressItem = {
   code: string;
   id: string;
@@ -46,18 +48,7 @@ export function Step8ProgressSection({
           완료 {completedCount}/{totalCount || 0}
         </span>
       </div>
-      {nextTaskTitle ? (
-        <div data-smoke="step8-next-task-focus" className="mt-4 border border-blue-200 bg-blue-50 p-3">
-          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 끝낼 작업</div>
-          <div className="mt-2 text-sm font-semibold text-slate-950">
-            {nextTaskCode ? `${nextTaskCode} ` : ""}
-            {nextTaskTitle}
-          </div>
-          <p className="mt-1 text-xs leading-5 text-slate-600">
-            전체 진행표는 확인용입니다. 이 작업의 완료 보고만 반영하면 다음 판단으로 넘어갑니다.
-          </p>
-        </div>
-      ) : null}
+      <Step8NextTaskFocus nextTaskCode={nextTaskCode} nextTaskTitle={nextTaskTitle} />
       <details data-smoke="step8-progress-details" className="mt-4 border border-slate-200 bg-slate-50 p-3">
         <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
           {items.length > 0 ? "전체 진행표 보기" : "빈 상태 보기"}
