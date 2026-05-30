@@ -22,12 +22,9 @@ import {
   type BuildDeliveryPreference,
 } from "@/lib/build-delivery";
 import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
-import { IdeaExtractionReplaySummary } from "@/components/idea-extraction-replay-summary";
+import { IdeaExtractionRightPanel } from "@/components/idea-extraction-right-panel";
 import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-section-header";
-import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
-import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
-import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -3540,50 +3537,50 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                   trimmedIdeaSourceLength={trimmedIdeaSource.length}
                 />
 
-                <div className="grid min-w-0 gap-3">
-                  {extractedIdeas.length > 0 && recommendedExtractedIdea ? (
-                    <RecommendedIdeaCard
-                      buildDeliveryLabel={selectedBuildDeliveryShortLabel}
-                      buildDeliveryPhrase={selectedBuildDeliveryPhrase}
-                      buildDeliveryPreference={normalizedBuildDeliveryPreference}
-                      canSave={Boolean(user)}
-                      gateBadgeClassName={recommendedGateStyle?.badge}
-                      gateLabel={recommendedExtractionGate?.label}
-                      gateNextAction={recommendedExtractionGate?.nextAction}
-                      gateSummary={recommendedExtractionGate?.summary}
-                      idea={recommendedExtractedIdea}
-                      isSaveLocked={Boolean(extractSaveKey)}
-                      isSaving={extractSaveKey === recommendedExtractedIdea.id}
-                      onBuildDeliveryPreferenceChange={(preference) => setBuildDeliveryPreference(preference)}
-                      onEdit={() => loadExtractedIdea(recommendedExtractedIdea)}
-                      onProductSurfaceChange={(value) =>
-                        updateExtractedIdeaProductSurface(recommendedExtractedIdea.id, value)
-                      }
-                      onSave={() => saveExtractedIdeaPackage(recommendedExtractedIdea)}
-                      readinessScore={recommendedPortfolioItem?.readinessScore ?? 0}
-                      strategyScore={
-                        recommendedPortfolioItem
-                          ? getCandidateStrategyScore(recommendedPortfolioItem.candidate)
-                          : getCandidateStrategyScore(recommendedExtractedIdea)
-                      }
-                    />
-                  ) : (
-                    <RecommendedIdeaEmptyState />
-                  )}
-
-                  <IdeaExtractionStatusGrid
-                    extractionRunEngine={extractionRunMeta?.engine}
-                    extractionRunNote={extractionRunMeta?.note}
-                    hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
-                  />
-                  {extractionReplay ? (
-                    <IdeaExtractionReplaySummary
-                      aiOnlyCount={extractionReplay.aiOnlyCount}
-                      consensusCount={extractionReplay.consensusCount}
-                      note={extractionReplay.note}
-                    />
-                  ) : null}
-                </div>
+                <IdeaExtractionRightPanel
+                  buildDeliveryLabel={selectedBuildDeliveryShortLabel}
+                  buildDeliveryPhrase={selectedBuildDeliveryPhrase}
+                  buildDeliveryPreference={normalizedBuildDeliveryPreference}
+                  canSave={Boolean(user)}
+                  extractionRunEngine={extractionRunMeta?.engine}
+                  extractionRunNote={extractionRunMeta?.note}
+                  gateBadgeClassName={recommendedGateStyle?.badge}
+                  gateLabel={recommendedExtractionGate?.label}
+                  gateNextAction={recommendedExtractionGate?.nextAction}
+                  gateSummary={recommendedExtractionGate?.summary}
+                  hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
+                  hasReplaySummary={Boolean(extractionReplay)}
+                  idea={extractedIdeas.length > 0 ? recommendedExtractedIdea : null}
+                  isSaveLocked={Boolean(extractSaveKey)}
+                  isSaving={Boolean(recommendedExtractedIdea && extractSaveKey === recommendedExtractedIdea.id)}
+                  onBuildDeliveryPreferenceChange={(preference) => setBuildDeliveryPreference(preference)}
+                  onEdit={() => {
+                    if (recommendedExtractedIdea) {
+                      loadExtractedIdea(recommendedExtractedIdea);
+                    }
+                  }}
+                  onProductSurfaceChange={(value) => {
+                    if (recommendedExtractedIdea) {
+                      updateExtractedIdeaProductSurface(recommendedExtractedIdea.id, value);
+                    }
+                  }}
+                  onSave={() => {
+                    if (recommendedExtractedIdea) {
+                      saveExtractedIdeaPackage(recommendedExtractedIdea);
+                    }
+                  }}
+                  readinessScore={recommendedPortfolioItem?.readinessScore ?? 0}
+                  replayAiOnlyCount={extractionReplay?.aiOnlyCount}
+                  replayConsensusCount={extractionReplay?.consensusCount}
+                  replayNote={extractionReplay?.note}
+                  strategyScore={
+                    recommendedExtractedIdea
+                      ? recommendedPortfolioItem
+                        ? getCandidateStrategyScore(recommendedPortfolioItem.candidate)
+                        : getCandidateStrategyScore(recommendedExtractedIdea)
+                      : 0
+                  }
+                />
               </div>
             </section>
 
