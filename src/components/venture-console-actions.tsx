@@ -26,6 +26,7 @@ import { FirstUseIdeaIntake } from "@/components/first-use-idea-intake";
 import { GeneratedIdeaSlotCard } from "@/components/generated-idea-slot-card";
 import { IdeaExtractionActionPanel } from "@/components/idea-extraction-action-panel";
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
+import { RecommendedIdeaActions } from "@/components/recommended-idea-actions";
 import { RecommendedIdeaBuildDirection } from "@/components/recommended-idea-build-direction";
 import { RecommendedIdeaDecisionBanner } from "@/components/recommended-idea-decision-banner";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
@@ -3683,24 +3684,13 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                           <p className="mt-1 text-xs leading-5 text-slate-700">저장 후에는 이 아이디어를 검증할 만한지 먼저 판단합니다.</p>
                         </div>
                       </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => loadExtractedIdea(recommendedExtractedIdea)}
-                          className="avl-btn avl-btn-secondary px-4"
-                        >
-                          필요할 때만 수정
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => saveExtractedIdeaPackage(recommendedExtractedIdea)}
-                          disabled={Boolean(extractSaveKey) || !user}
-                          className="avl-btn avl-btn-primary px-4"
-                        >
-                          {extractSaveKey === recommendedExtractedIdea.id ? <ArrowsClockwise className="animate-spin" size={16} /> : <PlusCircle size={16} />}
-                          이 아이디어 저장하고 검증 시작
-                        </button>
-                      </div>
+                      <RecommendedIdeaActions
+                        canSave={Boolean(user)}
+                        isSaveLocked={Boolean(extractSaveKey)}
+                        isSaving={extractSaveKey === recommendedExtractedIdea.id}
+                        onEdit={() => loadExtractedIdea(recommendedExtractedIdea)}
+                        onSave={() => saveExtractedIdeaPackage(recommendedExtractedIdea)}
+                      />
                     </section>
                   ) : (
                     <section className="border border-dashed border-slate-300 bg-slate-50 p-4">
