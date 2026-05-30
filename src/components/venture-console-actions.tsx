@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
-import { ArrowsClockwise, Buildings, ClipboardText, Clock, PlusCircle, UsersThree } from "@phosphor-icons/react";
+import { ArrowsClockwise, Buildings, ClipboardText, Clock, PlusCircle } from "@phosphor-icons/react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
@@ -27,6 +27,7 @@ import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-sectio
 import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
 import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
+import { VentureConsoleWorkspaceMemberForm } from "@/components/venture-console-workspace-member-form";
 import { VentureConsoleWorkspaceMembers } from "@/components/venture-console-workspace-members";
 import { VentureConsoleWorkspaceSummary } from "@/components/venture-console-workspace-summary";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
@@ -3206,39 +3207,17 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                 organizationRoleLabels={organizationRoleLabels}
                 ownerCount={ownerCount}
               />
-              <form onSubmit={handleAddMember} className="grid gap-3 avl-surface-muted p-4">
-                <div className="text-sm font-semibold text-slate-950">기존 계정 추가</div>
-                <div className="grid gap-3 sm:grid-cols-[1fr_132px]">
-                  <input
-                    value={memberEmail}
-                    onChange={(event) => setMemberEmail(event.target.value)}
-                    type="email"
-                    placeholder="member@example.com"
-                    disabled={!canManageMembers}
-                    className="avl-input"
-                  />
-                  <select
-                    value={memberRole}
-                    onChange={(event) => setMemberRole(event.target.value as AddableOrganizationRole)}
-                    disabled={!canManageMembers}
-                    className="avl-select"
-                  >
-                    {memberRoles.map((role) => (
-                      <option key={role} value={role}>
-                        {organizationRoleLabels[role]}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button
-                  type="submit"
-                  disabled={isMemberBusy || !canManageMembers}
-                  className="avl-btn avl-btn-primary h-10 px-4 disabled:opacity-60"
-                >
-                  {isMemberBusy ? <ArrowsClockwise className="animate-spin" size={18} /> : <UsersThree size={18} />}
-                  멤버 추가
-                </button>
-              </form>
+              <VentureConsoleWorkspaceMemberForm
+                canManageMembers={canManageMembers}
+                isMemberBusy={isMemberBusy}
+                memberEmail={memberEmail}
+                memberRole={memberRole}
+                memberRoles={memberRoles}
+                onMemberEmailChange={setMemberEmail}
+                onMemberRoleChange={setMemberRole}
+                onSubmit={handleAddMember}
+                organizationRoleLabels={organizationRoleLabels}
+              />
               <div>
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-950">
                   <Clock size={16} />
