@@ -22,10 +22,9 @@ import {
   normalizeBuildDeliveryPreference,
   type BuildDeliveryPreference,
 } from "@/lib/build-delivery";
-import { FirstUseIdeaIntake } from "@/components/first-use-idea-intake";
-import { GeneratedIdeaGrid } from "@/components/generated-idea-grid";
 import { IdeaExtractionActionPanel } from "@/components/idea-extraction-action-panel";
 import { IdeaExtractionFlowSteps } from "@/components/idea-extraction-flow-steps";
+import { IdeaExtractionInputSurface } from "@/components/idea-extraction-input-surface";
 import { IdeaExtractionNotices } from "@/components/idea-extraction-notices";
 import { IdeaExtractionReplaySummary } from "@/components/idea-extraction-replay-summary";
 import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-section-header";
@@ -3517,22 +3516,18 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                     keptGeneratedIdeaCount={keptGeneratedIdeaCount}
                     trimmedIdeaSourceLength={trimmedIdeaSource.length}
                   />
-                  {hasGeneratedIdeaSlots ? (
-                    <GeneratedIdeaGrid
-                      onToggleKeep={toggleGeneratedIdeaKeep}
-                      selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
-                      selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
-                      slots={generatedIdeaSlots}
-                    />
-                    ) : (
-                    <FirstUseIdeaIntake
-                      rawIdeaSource={rawIdeaSource}
-                      onRawIdeaSourceChange={(value) => {
-                        setRawIdeaSource(value);
-                        setGeneratedIdeaSlots([]);
-                      }}
-                    />
-                  )}
+                  <IdeaExtractionInputSurface
+                    generatedIdeaSlots={generatedIdeaSlots}
+                    hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
+                    onRawIdeaSourceChange={(value) => {
+                      setRawIdeaSource(value);
+                      setGeneratedIdeaSlots([]);
+                    }}
+                    onToggleGeneratedIdeaKeep={toggleGeneratedIdeaKeep}
+                    rawIdeaSource={rawIdeaSource}
+                    selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
+                    selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
+                  />
                   <IdeaExtractionFlowSteps hasGeneratedIdeaSlots={hasGeneratedIdeaSlots} />
                   <IdeaExtractionActionPanel
                     hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
