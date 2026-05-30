@@ -21,14 +21,10 @@ import {
   normalizeBuildDeliveryPreference,
   type BuildDeliveryPreference,
 } from "@/lib/build-delivery";
-import { IdeaExtractionActionPanel } from "@/components/idea-extraction-action-panel";
-import { IdeaExtractionFlowSteps } from "@/components/idea-extraction-flow-steps";
-import { IdeaExtractionInputSurface } from "@/components/idea-extraction-input-surface";
-import { IdeaExtractionNotices } from "@/components/idea-extraction-notices";
+import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
 import { IdeaExtractionReplaySummary } from "@/components/idea-extraction-replay-summary";
 import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-section-header";
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
-import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-area-header";
 import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
 import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
@@ -3502,59 +3498,47 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
           <div className="space-y-3">
             <section className="avl-card p-4 text-slate-900">
               <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,380px)]">
-                <div className="grid gap-3">
-                  <IdeaExtractionWorkAreaHeader
-                    filledGeneratedIdeaCount={filledGeneratedIdeaSlots.length}
-                    hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
-                    hasIdeaSourceInput={hasIdeaSourceInput}
-                    keptGeneratedIdeaCount={keptGeneratedIdeaCount}
-                    trimmedIdeaSourceLength={trimmedIdeaSource.length}
-                  />
-                  <IdeaExtractionInputSurface
-                    generatedIdeaSlots={generatedIdeaSlots}
-                    hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
-                    onRawIdeaSourceChange={(value) => {
-                      setRawIdeaSource(value);
-                      setGeneratedIdeaSlots([]);
-                    }}
-                    onToggleGeneratedIdeaKeep={toggleGeneratedIdeaKeep}
-                    rawIdeaSource={rawIdeaSource}
-                    selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
-                    selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
-                  />
-                  <IdeaExtractionFlowSteps hasGeneratedIdeaSlots={hasGeneratedIdeaSlots} />
-                  <IdeaExtractionActionPanel
-                    hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
-                    hasIdeaSourceInput={hasIdeaSourceInput}
-                    isAiExtracting={isAiExtracting}
-                    isGeneratingSample={isGeneratingSample}
-                    isReplayingExtraction={isReplayingExtraction}
-                    onClearInput={() => {
-                      setRawIdeaSource("");
-                      setGeneratedIdeaSlots([]);
-                      setExtractedIdeas([]);
-                      setExtractionRunMeta(null);
-                      setExtractionReplay(null);
-                      setExtractMessage(null);
-                    }}
-                    onExtractIdeas={() => {
-                      void handleAiExtractIdeas();
-                    }}
-                    onGenerateMoreIdeas={() => {
-                      void handleGenerateSampleIdeas({ preserveKept: true });
-                    }}
-                    onGenerateSampleIdeas={() => {
-                      void handleGenerateSampleIdeas();
-                    }}
-                    onReplayExtractionComparison={() => {
-                      void handleReplayExtractionComparison();
-                    }}
-                  />
-                  <IdeaExtractionNotices
-                    duplicateCandidateCount={duplicateCandidateCount}
-                    extractMessage={extractMessage}
-                  />
-                </div>
+                <IdeaExtractionLeftPanel
+                  duplicateCandidateCount={duplicateCandidateCount}
+                  extractMessage={extractMessage}
+                  filledGeneratedIdeaCount={filledGeneratedIdeaSlots.length}
+                  generatedIdeaSlots={generatedIdeaSlots}
+                  hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
+                  hasIdeaSourceInput={hasIdeaSourceInput}
+                  isAiExtracting={isAiExtracting}
+                  isGeneratingSample={isGeneratingSample}
+                  isReplayingExtraction={isReplayingExtraction}
+                  keptGeneratedIdeaCount={keptGeneratedIdeaCount}
+                  onClearInput={() => {
+                    setRawIdeaSource("");
+                    setGeneratedIdeaSlots([]);
+                    setExtractedIdeas([]);
+                    setExtractionRunMeta(null);
+                    setExtractionReplay(null);
+                    setExtractMessage(null);
+                  }}
+                  onExtractIdeas={() => {
+                    void handleAiExtractIdeas();
+                  }}
+                  onGenerateMoreIdeas={() => {
+                    void handleGenerateSampleIdeas({ preserveKept: true });
+                  }}
+                  onGenerateSampleIdeas={() => {
+                    void handleGenerateSampleIdeas();
+                  }}
+                  onRawIdeaSourceChange={(value) => {
+                    setRawIdeaSource(value);
+                    setGeneratedIdeaSlots([]);
+                  }}
+                  onReplayExtractionComparison={() => {
+                    void handleReplayExtractionComparison();
+                  }}
+                  onToggleGeneratedIdeaKeep={toggleGeneratedIdeaKeep}
+                  rawIdeaSource={rawIdeaSource}
+                  selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
+                  selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
+                  trimmedIdeaSourceLength={trimmedIdeaSource.length}
+                />
 
                 <div className="grid min-w-0 gap-3">
                   {extractedIdeas.length > 0 && recommendedExtractedIdea ? (
