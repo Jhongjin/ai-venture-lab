@@ -26,6 +26,7 @@ import { IdeaExtractionRightPanel } from "@/components/idea-extraction-right-pan
 import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-section-header";
 import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
+import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -1992,12 +1993,7 @@ export function VentureConsoleActions({
       next_evidence: form.next_evidence,
     });
   }, [form]);
-  const consoleTasks: Array<{
-    id: ConsoleActionTask;
-    label: string;
-    description: string;
-    status: string;
-  }> = [
+  const consoleTasks: VentureConsoleStartGuideTask[] = [
     {
       id: "auth",
       label: "로그인",
@@ -3149,49 +3145,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
   return (
     <section className={showSidebar ? "grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]" : embedded ? "grid gap-5" : "grid gap-6"}>
       {showSidebar ? (
-              <aside className="avl-card p-5 lg:sticky lg:top-6 lg:self-start">
-        <div className="mb-4">
-          <div className="avl-kicker mb-3">시작 안내</div>
-          <h2 className="text-lg font-semibold text-slate-950">시작 준비</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600">AI가 초안을 만들고, 필요한 순간에만 사용자가 보완합니다.</p>
-        </div>
-        <div className="grid gap-2">
-          {consoleTasks.map((task, index) => (
-            <button
-              key={task.id}
-              type="button"
-              onClick={() => updateActiveTask(task.id)}
-              aria-current={activeTask === task.id ? "step" : undefined}
-                className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition ${
-                  activeTask === task.id
-                    ? "border-slate-950 bg-slate-950 text-white shadow-none"
-                    : "border-slate-200/80 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
-                }`}
-              >
-                <span
-                  className={`avl-step-dot h-8 w-8 text-sm ${
-                    activeTask === task.id ? "bg-white text-slate-950" : ""
-                  }`}
-                >
-                  {index + 1}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold">{task.label}</span>
-                  <span className="mt-0.5 block text-xs leading-5 text-slate-500">
-                    {task.description}
-                  </span>
-                </span>
-                <span
-                  className={`avl-pill ${
-                    activeTask === task.id ? "bg-white/10 text-white" : "avl-pill-neutral"
-                  }`}
-                >
-                  {task.status}
-              </span>
-            </button>
-          ))}
-        </div>
-      </aside>
+        <VentureConsoleStartGuide activeTask={activeTask} onTaskSelect={updateActiveTask} tasks={consoleTasks} />
       ) : null}
 
       <div className="grid min-w-0 gap-6">
