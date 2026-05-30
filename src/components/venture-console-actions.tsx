@@ -11,7 +11,6 @@ import {
   inferProductSurface,
   productSurfaceMarkdown,
   productSurfaceProfiles,
-  withKoreanInstrumental,
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
@@ -30,6 +29,7 @@ import { IdeaExtractionReplaySummary } from "@/components/idea-extraction-replay
 import { IdeaExtractionSectionHeader } from "@/components/idea-extraction-section-header";
 import { IdeaExtractionStatusGrid } from "@/components/idea-extraction-status-grid";
 import { IdeaExtractionWorkAreaHeader } from "@/components/idea-extraction-work-area-header";
+import { ManualIdeaAiSummary } from "@/components/manual-idea-ai-summary";
 import { RecommendedIdeaCard } from "@/components/recommended-idea-card";
 import { RecommendedIdeaEmptyState } from "@/components/recommended-idea-empty-state";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
@@ -4085,65 +4085,12 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
               </div>
 
               <div className="grid gap-4">
-                <div className="border border-slate-200 bg-white p-4">
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">AI가 먼저 정리한 것</div>
-                  <div className="mt-3 grid gap-3">
-                    <div className="border border-slate-200 bg-slate-50 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">저장 기준</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-700">
-                        이름과 한 줄 설명만 비어 있지 않으면 이 단계는 완료됩니다.
-                      </p>
-                    </div>
-                    <div className="border border-slate-200 bg-slate-50 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">구매자/대상</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-700">
-                        {form.buyer || form.target_user
-                          ? `${form.buyer || "구매자 미정"} / ${form.target_user || "대상 사용자 미정"}`
-                          : "AI 초안이 아직 비어 있으면, 저장 뒤 다음 단계에서 다시 구체화해도 됩니다."}
-                      </p>
-                    </div>
-                    <div className="border border-blue-200 bg-blue-50 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">결과물 형태</div>
-                      {manualFormProductSurface ? (
-                        <>
-                          <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">
-                            {manualFormProductSurface.label}
-                          </p>
-                          <p className="mt-1 text-sm leading-6 text-slate-700">
-                            {manualFormProductSurface.firstBuild}
-                          </p>
-                          <p className="mt-1 text-xs leading-5 text-slate-600">
-                            이 기준이 STEP 2와 제작 패키지까지 이어집니다. 무엇을 만들지 정하는 값입니다.
-                          </p>
-                        </>
-                      ) : (
-                        <p className="mt-2 text-sm leading-6 text-slate-700">
-                          이름과 한 줄 설명을 입력하면 AI가 웹 서비스, 모바일 앱, 업무 자동화 중 어떤 형태로 만들지 먼저 추정합니다.
-                        </p>
-                      )}
-                    </div>
-                    <div className="border border-slate-200 bg-slate-50 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">개발 방식</div>
-                      <p className="mt-2 text-sm font-semibold leading-6 text-slate-950">
-                        {selectedBuildDeliveryPhrase}
-                      </p>
-                      <p className="mt-1 text-sm leading-6 text-slate-700">
-                        실제 연결 파일은 STEP 7에서 받습니다. 여기서는 어디로 넘길지 방향만 저장합니다.
-                      </p>
-                      {manualFormProductSurface ? (
-                        <p className="mt-1 text-xs leading-5 text-slate-600">
-                          결정 문장: {withKoreanInstrumental(manualFormProductSurface.label)} 만들고, {selectedBuildDeliveryPhrase}.
-                        </p>
-                      ) : null}
-                    </div>
-                    <div className="border border-slate-200 bg-slate-50 p-3">
-                      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">다음 액션</div>
-                      <p className="mt-2 text-sm leading-6 text-slate-700">
-                        저장하면 이 초안이 바로 선택되고, 사업성 평가와 첫 검증 계획으로 이어집니다. 결과물 형태와 개발 방식은 다음 단계에서도 분리해 보여줍니다.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <ManualIdeaAiSummary
+                  buyer={form.buyer}
+                  productSurface={manualFormProductSurface}
+                  selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
+                  targetUser={form.target_user}
+                />
 
                 <div className="avl-band p-4 text-slate-900">
                   <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">사람이 확인할 포인트</div>
