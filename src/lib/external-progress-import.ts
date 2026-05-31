@@ -3,6 +3,7 @@ import type {
   ImplementationTaskStatus,
   ImplementationTaskType,
 } from "@/lib/supabase/types";
+import { isPlainRecord } from "@/lib/record-utils";
 
 export type ImplementationTaskDraft = {
   title: string;
@@ -32,10 +33,6 @@ const externalProgressStatusLabels: Record<ImplementationTaskStatus, string> = {
   blocked: "막힘",
   done: "완료",
 };
-
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value));
-}
 
 export function getCursorTaskCode(index: number) {
   return `T-${String(index + 1).padStart(3, "0")}`;

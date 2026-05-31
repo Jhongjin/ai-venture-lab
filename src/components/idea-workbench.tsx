@@ -28,6 +28,7 @@ import {
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
+import { cleanInlineText, getApiMessage, isPlainRecord } from "@/lib/record-utils";
 import {
   buildDeliveryModeLabels,
   externalBuildToolProfiles,
@@ -2089,10 +2090,6 @@ ${draft.next_action || state.next_evidence || "다음 검증, 제품 기획서 �
 `;
 }
 
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
 function isCreditSummary(value: unknown): value is CreditSummary {
   return (
     isPlainRecord(value) &&
@@ -2107,24 +2104,6 @@ function isCreditSummary(value: unknown): value is CreditSummary {
     Array.isArray(value.buildPasses) &&
     Array.isArray(value.ledgerEntries)
   );
-}
-
-function getApiMessage(value: unknown, fallback: string) {
-  if (!isPlainRecord(value)) {
-    return fallback;
-  }
-
-  const error = value.error;
-  if (typeof error === "string" && error.trim()) {
-    return error;
-  }
-
-  const message = value.message;
-  return typeof message === "string" && message.trim() ? message : fallback;
-}
-
-function cleanInlineText(value: unknown, maxLength = 900) {
-  return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, maxLength) : "";
 }
 
 function toDownloadFileName(value: string, suffix: string, extension = "md") {
