@@ -94,6 +94,7 @@ import {
   productSurfaceProfiles,
   resolveProductSurfaceForIdea as inferIdeaProductSurface,
   withKoreanInstrumental,
+  type ProductSurfaceProfile,
 } from "@/lib/product-surface";
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
 import { cleanInlineText, getApiMessage, isPlainRecord } from "@/lib/record-utils";
@@ -464,6 +465,28 @@ type ExternalToolBuildSyncTokenPayload = CursorBuildSyncTokenResponse & {
 type ExternalToolSetupFileDraft = {
   body: string;
   path: string;
+};
+type ExternalToolEncodedSetupFile = {
+  base64: string;
+  path: string;
+};
+type ExternalToolSetupGuideArgs = {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+  syncExpiresAt: string;
+};
+type ExternalToolSetupDownloadConfig = {
+  tool: LiveExternalToolSetupKey;
+  toolLabel: string;
+  loginMessage: string;
+  fileLabel: string;
+  fileSuffix: string;
+  successMessage: string;
+  errorMessage: string;
+  buildGuideDraft: (args: ExternalToolSetupGuideArgs) => string;
+  buildFiles: (args: { guideDraft: string; syncConfigDraft: string }) => ExternalToolSetupFileDraft[];
+  buildSetupScript: (args: { idea: Idea; projectKey: string; files: ExternalToolEncodedSetupFile[] }) => string;
 };
 
 export function IdeaWorkbench({
@@ -5036,255 +5059,168 @@ export function IdeaWorkbench({
     return payload as ExternalToolBuildSyncTokenPayload;
   }
 
-  async function downloadCursorSetupScript() {
+  async function downloadLiveExternalToolSetupScript(config: ExternalToolSetupDownloadConfig) {
     if (!selectedIdea || !finalAgentRunPackageDraft) {
       return;
     }
 
     if (!user) {
-      setMessage("Cursor 자동 연결 파일을 받으려면 먼저 로그인하세요.");
+      setMessage(config.loginMessage);
       return;
     }
 
     setIsBusy(true);
-    setMessage(getExternalToolSyncPreparingMessage("Cursor"));
+    setMessage(getExternalToolSyncPreparingMessage(config.toolLabel));
 
     try {
       const payload = await requestExternalToolBuildSyncToken({
         ideaId: selectedIdea.id,
-        tool: "cursor",
-        toolLabel: "Cursor",
+        tool: config.tool,
+        toolLabel: config.toolLabel,
       });
 
-      const syncConfigDraft = buildExternalToolSyncConfigDraft("cursor", payload);
-      const downloadedCursorGuideDraft = buildCursorGuideMarkdown({
+      const syncConfigDraft = buildExternalToolSyncConfigDraft(config.tool, payload);
+      const guideDraft = config.buildGuideDraft({
         idea: selectedIdea,
         productSurface: activeProductSurface,
         projectKey: finalExecutionProjectKey,
         syncExpiresAt: payload.expiresAt,
       });
+      const files = encodeExternalToolSetupFiles(config.buildFiles({ guideDraft, syncConfigDraft }));
+      const script = config.buildSetupScript({
+        idea: selectedIdea,
+        projectKey: finalExecutionProjectKey,
+        files,
+      });
 
-      const files = encodeExternalToolSetupFiles([
+      downloadTextFile(
+        script,
+        config.fileLabel,
+        toDownloadFileName(selectedIdea.name, config.fileSuffix, "ps1"),
+        "text/plain;charset=utf-8",
+      );
+      setMessage(config.successMessage);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : config.errorMessage;
+      setMessage(errorMessage);
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function downloadCursorSetupScript() {
+    return downloadLiveExternalToolSetupScript({
+      tool: "cursor",
+      toolLabel: "Cursor",
+      loginMessage: "Cursor 자동 연결 파일을 받으려면 먼저 로그인하세요.",
+      fileLabel: "Cursor 연결 스크립트",
+      fileSuffix: "cursor-setup",
+      successMessage: "Cursor 연결 파일을 준비했습니다. venture_record_progress가 로컬 기록과 서버 반영을 함께 처리합니다.",
+      errorMessage: "Cursor 연결 파일을 만들지 못했습니다.",
+      buildGuideDraft: buildCursorGuideMarkdown,
+      buildFiles: ({ guideDraft, syncConfigDraft }) => [
         { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
         { path: "AI_VENTURE_TASKS.md", body: cursorTaskPackageDraft },
         { path: "AI_VENTURE_CURSOR_START.md", body: cursorStartPromptDraft },
-        { path: "README_VENTURE_LAB_CURSOR.md", body: downloadedCursorGuideDraft },
+        { path: "README_VENTURE_LAB_CURSOR.md", body: guideDraft },
         { path: ".cursor/rules/ai-venture-lab.mdc", body: cursorRuleDraft },
         { path: ".cursor/mcp.json", body: cursorMcpConfigDraft },
         { path: ".cursor/venture-lab-cli.mjs", body: cursorMcpServerDraft },
         { path: ".cursor/venture-lab-mcp-server.mjs", body: cursorMcpServerDraft },
         { path: ".cursor/venture-lab-sync.json", body: syncConfigDraft },
         { path: ".cursor/venture-lab-progress.json", body: "[]\n" },
-      ]);
-
-      const script = buildCursorSetupPowerShell({
-        idea: selectedIdea,
-        projectKey: finalExecutionProjectKey,
-        files,
-      });
-
-      downloadTextFile(
-        script,
-        "Cursor 연결 스크립트",
-        toDownloadFileName(selectedIdea.name, "cursor-setup", "ps1"),
-        "text/plain;charset=utf-8",
-      );
-      setMessage("Cursor 연결 파일을 준비했습니다. venture_record_progress가 로컬 기록과 서버 반영을 함께 처리합니다.");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Cursor 연결 파일을 만들지 못했습니다.";
-      setMessage(errorMessage);
-    } finally {
-      setIsBusy(false);
-    }
+      ],
+      buildSetupScript: buildCursorSetupPowerShell,
+    });
   }
 
   async function downloadCodexSetupScript() {
-    if (!selectedIdea || !finalAgentRunPackageDraft) {
-      return;
-    }
-
-    if (!user) {
-      setMessage("Codex 자동 연결 파일을 받으려면 먼저 로그인하세요.");
-      return;
-    }
-
-    setIsBusy(true);
-    setMessage(getExternalToolSyncPreparingMessage("Codex"));
-
-    try {
-      const payload = await requestExternalToolBuildSyncToken({
-        ideaId: selectedIdea.id,
-        tool: "codex",
-        toolLabel: "Codex",
-      });
-
-      const syncConfigDraft = buildExternalToolSyncConfigDraft("codex", payload);
-      const downloadedCodexGuideDraft = buildCodexGuideMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-        syncExpiresAt: payload.expiresAt,
-      });
-
-      const files = encodeExternalToolSetupFiles([
+    return downloadLiveExternalToolSetupScript({
+      tool: "codex",
+      toolLabel: "Codex",
+      loginMessage: "Codex 자동 연결 파일을 받으려면 먼저 로그인하세요.",
+      fileLabel: "Codex 연결 스크립트",
+      fileSuffix: "codex-setup",
+      successMessage: "Codex 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.",
+      errorMessage: "Codex 연결 파일을 만들지 못했습니다.",
+      buildGuideDraft: buildCodexGuideMarkdown,
+      buildFiles: ({ guideDraft, syncConfigDraft }) => [
         { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
         { path: "AI_VENTURE_TASKS.md", body: codexTaskPackageDraft },
         { path: "AI_VENTURE_CODEX_START.md", body: codexStartPromptDraft },
         { path: "AGENTS.ai-venture-lab.md", body: codexAgentInstructionsDraft },
-        { path: "README_VENTURE_LAB_CODEX.md", body: downloadedCodexGuideDraft },
+        { path: "README_VENTURE_LAB_CODEX.md", body: guideDraft },
         { path: ".codex/venture-lab-cli.mjs", body: codexCliScriptDraft },
         { path: ".codex/venture-lab-sync.json", body: syncConfigDraft },
         { path: ".codex/venture-lab-progress.json", body: "[]\n" },
-      ]);
-
-      const script = buildCodexSetupPowerShell({
-        idea: selectedIdea,
-        projectKey: finalExecutionProjectKey,
-        files,
-      });
-
-      downloadTextFile(
-        script,
-        "Codex 연결 스크립트",
-        toDownloadFileName(selectedIdea.name, "codex-setup", "ps1"),
-        "text/plain;charset=utf-8",
-      );
-      setMessage("Codex 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Codex 연결 파일을 만들지 못했습니다.";
-      setMessage(errorMessage);
-    } finally {
-      setIsBusy(false);
-    }
+      ],
+      buildSetupScript: buildCodexSetupPowerShell,
+    });
   }
 
   async function downloadClaudeSetupScript() {
-    if (!selectedIdea || !finalAgentRunPackageDraft) {
-      return;
-    }
-
-    if (!user) {
-      setMessage("Claude Code 자동 연결 파일을 받으려면 먼저 로그인하세요.");
-      return;
-    }
-
-    setIsBusy(true);
-    setMessage(getExternalToolSyncPreparingMessage("Claude Code"));
-
-    try {
-      const payload = await requestExternalToolBuildSyncToken({
-        ideaId: selectedIdea.id,
-        tool: "claude_code",
-        toolLabel: "Claude Code",
-      });
-
-      const syncConfigDraft = buildExternalToolSyncConfigDraft("claude_code", payload);
-      const downloadedClaudeGuideDraft = buildClaudeGuideMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-        syncExpiresAt: payload.expiresAt,
-      });
-
-      const files = encodeExternalToolSetupFiles([
+    return downloadLiveExternalToolSetupScript({
+      tool: "claude_code",
+      toolLabel: "Claude Code",
+      loginMessage: "Claude Code 자동 연결 파일을 받으려면 먼저 로그인하세요.",
+      fileLabel: "Claude Code 연결 스크립트",
+      fileSuffix: "claude-code-setup",
+      successMessage: "Claude Code 연결 파일을 준비했습니다. 연결 도구 또는 record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.",
+      errorMessage: "Claude Code 연결 파일을 만들지 못했습니다.",
+      buildGuideDraft: buildClaudeGuideMarkdown,
+      buildFiles: ({ guideDraft, syncConfigDraft }) => [
         { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
         { path: "AI_VENTURE_TASKS.md", body: claudeTaskPackageDraft },
         { path: "AI_VENTURE_CLAUDE_START.md", body: claudeStartPromptDraft },
         { path: "CLAUDE.md", body: claudeInstructionsDraft },
-        { path: "README_VENTURE_LAB_CLAUDE.md", body: downloadedClaudeGuideDraft },
+        { path: "README_VENTURE_LAB_CLAUDE.md", body: guideDraft },
         { path: ".mcp.json", body: claudeMcpConfigDraft },
         { path: ".claude/venture-lab-cli.mjs", body: claudeCliScriptDraft },
         { path: ".claude/venture-lab-sync.json", body: syncConfigDraft },
         { path: ".claude/venture-lab-progress.json", body: "[]\n" },
-      ]);
-
-      const script = buildLiveToolSetupPowerShell({
-        idea: selectedIdea,
-        projectKey: finalExecutionProjectKey,
+      ],
+      buildSetupScript: ({ idea, projectKey, files }) => buildLiveToolSetupPowerShell({
+        idea,
+        projectKey,
         files,
         toolLabel: "Claude Code",
         folder: ".claude",
         startFileName: "AI_VENTURE_CLAUDE_START.md",
-      });
-
-      downloadTextFile(
-        script,
-        "Claude Code 연결 스크립트",
-        toDownloadFileName(selectedIdea.name, "claude-code-setup", "ps1"),
-        "text/plain;charset=utf-8",
-      );
-      setMessage("Claude Code 연결 파일을 준비했습니다. 연결 도구 또는 record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Claude Code 연결 파일을 만들지 못했습니다.";
-      setMessage(errorMessage);
-    } finally {
-      setIsBusy(false);
-    }
+      }),
+    });
   }
 
   async function downloadAntigravitySetupScript() {
-    if (!selectedIdea || !finalAgentRunPackageDraft) {
-      return;
-    }
-
-    if (!user) {
-      setMessage("Google Antigravity 자동 연결 파일을 받으려면 먼저 로그인하세요.");
-      return;
-    }
-
-    setIsBusy(true);
-    setMessage(getExternalToolSyncPreparingMessage("Google Antigravity"));
-
-    try {
-      const payload = await requestExternalToolBuildSyncToken({
-        ideaId: selectedIdea.id,
-        tool: "antigravity",
-        toolLabel: "Google Antigravity",
-      });
-
-      const syncConfigDraft = buildExternalToolSyncConfigDraft("antigravity", payload);
-      const downloadedAntigravityGuideDraft = buildAntigravityGuideMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-        syncExpiresAt: payload.expiresAt,
-      });
-
-      const files = encodeExternalToolSetupFiles([
+    return downloadLiveExternalToolSetupScript({
+      tool: "antigravity",
+      toolLabel: "Google Antigravity",
+      loginMessage: "Google Antigravity 자동 연결 파일을 받으려면 먼저 로그인하세요.",
+      fileLabel: "Google Antigravity 연결 스크립트",
+      fileSuffix: "antigravity-setup",
+      successMessage: "Google Antigravity 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.",
+      errorMessage: "Google Antigravity 연결 파일을 만들지 못했습니다.",
+      buildGuideDraft: buildAntigravityGuideMarkdown,
+      buildFiles: ({ guideDraft, syncConfigDraft }) => [
         { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
         { path: "AI_VENTURE_TASKS.md", body: antigravityTaskPackageDraft },
         { path: "AI_VENTURE_ANTIGRAVITY_START.md", body: antigravityStartPromptDraft },
         { path: "AI_VENTURE_ACCEPTANCE.md", body: antigravityAcceptanceDraft },
         { path: "AGENTS.ai-venture-lab.md", body: antigravityAgentInstructionsDraft },
-        { path: "README_VENTURE_LAB_ANTIGRAVITY.md", body: downloadedAntigravityGuideDraft },
+        { path: "README_VENTURE_LAB_ANTIGRAVITY.md", body: guideDraft },
         { path: ".antigravity/mcp_config.json", body: antigravityMcpConfigDraft },
         { path: ".antigravity/venture-lab-cli.mjs", body: antigravityCliScriptDraft },
         { path: ".antigravity/venture-lab-sync.json", body: syncConfigDraft },
         { path: ".antigravity/venture-lab-progress.json", body: "[]\n" },
-      ]);
-
-      const script = buildLiveToolSetupPowerShell({
-        idea: selectedIdea,
-        projectKey: finalExecutionProjectKey,
+      ],
+      buildSetupScript: ({ idea, projectKey, files }) => buildLiveToolSetupPowerShell({
+        idea,
+        projectKey,
         files,
         toolLabel: "Google Antigravity",
         folder: ".antigravity",
         startFileName: "AI_VENTURE_ANTIGRAVITY_START.md",
-      });
-
-      downloadTextFile(
-        script,
-        "Google Antigravity 연결 스크립트",
-        toDownloadFileName(selectedIdea.name, "antigravity-setup", "ps1"),
-        "text/plain;charset=utf-8",
-      );
-      setMessage("Google Antigravity 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.");
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Google Antigravity 연결 파일을 만들지 못했습니다.";
-      setMessage(errorMessage);
-    } finally {
-      setIsBusy(false);
-    }
+      }),
+    });
   }
 
   function downloadFinalExecutionPrimaryPackage() {
