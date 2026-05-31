@@ -234,6 +234,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/lib/step8-learning-summary.ts",
+    tokens: [
+      "전체 목록은 진행 순서 확인용으로만 봅니다.",
+      "다음 판단은 위의 한눈 요약에서 정합니다.",
+      "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.",
+    ],
+  },
+  {
     file: "src/components/step8-primary-cta.tsx",
     tokens: [
       'data-smoke="step8-primary-cta-confirm-only"',
