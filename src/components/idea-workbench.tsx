@@ -4954,6 +4954,23 @@ export function IdeaWorkbench({
     return encodeBrowserSetupFiles(files);
   }
 
+  function buildExternalToolSyncConfigDraft(tool: LiveExternalToolSetupKey, payload: ExternalToolBuildSyncTokenPayload) {
+    if (!selectedIdea) {
+      return "";
+    }
+
+    return buildCursorSyncConfigJson({
+      projectKey: finalExecutionProjectKey,
+      ideaId: selectedIdea.id,
+      ideaName: selectedIdea.name,
+      tool,
+      endpoint: payload.endpoint,
+      token: payload.token,
+      expiresAt: payload.expiresAt,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
   async function revokeCursorSyncConnection(connection: CursorSyncConnection) {
     if (!user) {
       setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결을 끊으려면 먼저 로그인하세요.`);
@@ -5039,16 +5056,7 @@ export function IdeaWorkbench({
         toolLabel: "Cursor",
       });
 
-      const syncConfigDraft = buildCursorSyncConfigJson({
-        projectKey: finalExecutionProjectKey,
-        ideaId: selectedIdea.id,
-        ideaName: selectedIdea.name,
-        tool: "cursor",
-        endpoint: payload.endpoint,
-        token: payload.token,
-        expiresAt: payload.expiresAt,
-        createdAt: new Date().toISOString(),
-      });
+      const syncConfigDraft = buildExternalToolSyncConfigDraft("cursor", payload);
       const downloadedCursorGuideDraft = buildCursorGuideMarkdown({
         idea: selectedIdea,
         productSurface: activeProductSurface,
@@ -5110,16 +5118,7 @@ export function IdeaWorkbench({
         toolLabel: "Codex",
       });
 
-      const syncConfigDraft = buildCursorSyncConfigJson({
-        projectKey: finalExecutionProjectKey,
-        ideaId: selectedIdea.id,
-        ideaName: selectedIdea.name,
-        tool: "codex",
-        endpoint: payload.endpoint,
-        token: payload.token,
-        expiresAt: payload.expiresAt,
-        createdAt: new Date().toISOString(),
-      });
+      const syncConfigDraft = buildExternalToolSyncConfigDraft("codex", payload);
       const downloadedCodexGuideDraft = buildCodexGuideMarkdown({
         idea: selectedIdea,
         productSurface: activeProductSurface,
@@ -5179,16 +5178,7 @@ export function IdeaWorkbench({
         toolLabel: "Claude Code",
       });
 
-      const syncConfigDraft = buildCursorSyncConfigJson({
-        projectKey: finalExecutionProjectKey,
-        ideaId: selectedIdea.id,
-        ideaName: selectedIdea.name,
-        tool: "claude_code",
-        endpoint: payload.endpoint,
-        token: payload.token,
-        expiresAt: payload.expiresAt,
-        createdAt: new Date().toISOString(),
-      });
+      const syncConfigDraft = buildExternalToolSyncConfigDraft("claude_code", payload);
       const downloadedClaudeGuideDraft = buildClaudeGuideMarkdown({
         idea: selectedIdea,
         productSurface: activeProductSurface,
@@ -5252,16 +5242,7 @@ export function IdeaWorkbench({
         toolLabel: "Google Antigravity",
       });
 
-      const syncConfigDraft = buildCursorSyncConfigJson({
-        projectKey: finalExecutionProjectKey,
-        ideaId: selectedIdea.id,
-        ideaName: selectedIdea.name,
-        tool: "antigravity",
-        endpoint: payload.endpoint,
-        token: payload.token,
-        expiresAt: payload.expiresAt,
-        createdAt: new Date().toISOString(),
-      });
+      const syncConfigDraft = buildExternalToolSyncConfigDraft("antigravity", payload);
       const downloadedAntigravityGuideDraft = buildAntigravityGuideMarkdown({
         idea: selectedIdea,
         productSurface: activeProductSurface,
