@@ -49,6 +49,14 @@ export function FinalExecutionActionBanner({
         </div>
       ) : null}
       {isExternalTool ? (
+        <div
+          data-smoke="final-execution-button-order"
+          className="mt-2 border border-blue-200 bg-white px-3 py-2 text-sm leading-6 text-blue-950"
+        >
+          버튼 순서: {activeToolLabel} 연결 파일 받기 - 설치 명령 복사 - 확인 명령 복사 - START 파일 열기.
+        </div>
+      ) : null}
+      {isExternalTool ? (
         <div className="mt-3">
           <WorkbenchReviewGrid dataSmoke="final-execution-run-location-summary" rows={runLocationItems} variant="blue" />
         </div>

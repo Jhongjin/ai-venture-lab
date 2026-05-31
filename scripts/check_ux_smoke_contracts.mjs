@@ -162,6 +162,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/final-execution-action-banner.tsx",
+    tokens: [
+      'data-smoke="final-execution-button-order"',
+      "버튼 순서:",
+      "연결 파일 받기 - 설치 명령 복사 - 확인 명령 복사 - START 파일 열기",
+    ],
+  },
+  {
     file: "src/components/final-execution-simple-path.tsx",
     tokens: [
       'data-smoke="final-execution-simple-path"',
