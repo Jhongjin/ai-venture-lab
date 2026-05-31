@@ -105,6 +105,11 @@ import {
   type BuildDeliveryMode,
   type ExternalBuildToolKey,
 } from "@/lib/build-delivery";
+import {
+  encodeBrowserSetupFiles,
+  triggerBrowserMarkdownDownload,
+  triggerBrowserTextDownload,
+} from "@/lib/browser-file-download";
 import { buildFinalExecutionReadiness } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import {
@@ -4934,38 +4939,19 @@ export function IdeaWorkbench({
   }
 
   function downloadTextFile(body: string, label: string, fileName: string, mimeType: string) {
-    if (!body) {
-      return;
+    if (triggerBrowserTextDownload({ body, fileName, mimeType })) {
+      setCopyMessage(`${label} 파일을 준비했습니다.`);
     }
-
-    const url = window.URL.createObjectURL(new Blob([body], { type: mimeType }));
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = fileName;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    window.setTimeout(() => window.URL.revokeObjectURL(url), 0);
-    setCopyMessage(`${label} 파일을 준비했습니다.`);
   }
 
   function downloadMarkdownFile(body: string, label: string, fileName: string) {
-    downloadTextFile(body, label, fileName, "text/markdown;charset=utf-8");
-  }
-
-  function encodeUtf8Base64(body: string) {
-    const bytes = new TextEncoder().encode(body);
-    let binary = "";
-
-    for (let index = 0; index < bytes.length; index += 0x8000) {
-      binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+    if (triggerBrowserMarkdownDownload(body, fileName)) {
+      setCopyMessage(`${label} 파일을 준비했습니다.`);
     }
-
-    return window.btoa(binary);
   }
 
   function encodeExternalToolSetupFiles(files: ExternalToolSetupFileDraft[]) {
-    return files.map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+    return encodeBrowserSetupFiles(files);
   }
 
   async function revokeCursorSyncConnection(connection: CursorSyncConnection) {
