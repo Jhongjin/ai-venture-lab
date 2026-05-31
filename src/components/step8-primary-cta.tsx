@@ -41,6 +41,9 @@ export function Step8PrimaryCta({
     >
       <div className="font-semibold text-slate-950">{navigationHintTitle}</div>
       <p className="mt-1 text-xs leading-5 text-slate-500">{navigationHintDetail}</p>
+      <p data-smoke="step8-primary-cta-confirm-only" className="mt-2 text-xs font-semibold leading-5 text-blue-950">
+        지금은 이 화면에서 확인만 하고, 실제 실행은 STEP 7에서 계속합니다.
+      </p>
     </div>
   );
 }
