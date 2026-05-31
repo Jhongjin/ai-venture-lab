@@ -447,6 +447,13 @@ type CursorSyncConnectionRevokeResponse = {
   error?: string;
 };
 
+type LiveExternalToolSetupKey = Exclude<ExternalBuildToolKey, "generic_mcp">;
+type ExternalToolBuildSyncTokenPayload = CursorBuildSyncTokenResponse & {
+  endpoint: string;
+  expiresAt: string;
+  token: string;
+};
+
 export function IdeaWorkbench({
   initialIdeas,
   initialRisks,
@@ -4981,6 +4988,42 @@ export function IdeaWorkbench({
     }
   }
 
+  async function requestExternalToolBuildSyncToken({
+    ideaId,
+    tool,
+    toolLabel,
+  }: {
+    ideaId: string;
+    tool: LiveExternalToolSetupKey;
+    toolLabel: string;
+  }) {
+    const response = await fetch("/api/build-sync/token", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ideaId, tool }),
+    });
+    const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
+
+    if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
+      throw new Error(payload.error || getExternalToolSyncSetupErrorMessage(toolLabel));
+    }
+
+    setCursorSyncRegistryStatus(payload.registryStatus ?? null);
+
+    if (payload.connection) {
+      setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
+    }
+
+    setCursorSyncConnectionMessage(
+      payload.message ??
+        (payload.registryStatus === "ready"
+          ? getExternalToolConnectionCreatedMessage(toolLabel)
+          : getExternalToolConnectionFallbackMessage(toolLabel)),
+    );
+
+    return payload as ExternalToolBuildSyncTokenPayload;
+  }
+
   async function downloadCursorSetupScript() {
     if (!selectedIdea || !finalAgentRunPackageDraft) {
       return;
@@ -4995,29 +5038,11 @@ export function IdeaWorkbench({
     setMessage(getExternalToolSyncPreparingMessage("Cursor"));
 
     try {
-      const response = await fetch("/api/build-sync/token", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ideaId: selectedIdea.id, tool: "cursor" }),
+      const payload = await requestExternalToolBuildSyncToken({
+        ideaId: selectedIdea.id,
+        tool: "cursor",
+        toolLabel: "Cursor",
       });
-      const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
-
-      if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || getExternalToolSyncSetupErrorMessage("Cursor"));
-      }
-
-      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
-
-      if (payload.connection) {
-        setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
-      }
-
-      setCursorSyncConnectionMessage(
-        payload.message ??
-          (payload.registryStatus === "ready"
-            ? getExternalToolConnectionCreatedMessage("Cursor")
-            : getExternalToolConnectionFallbackMessage("Cursor")),
-      );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
         projectKey: finalExecutionProjectKey,
@@ -5084,29 +5109,11 @@ export function IdeaWorkbench({
     setMessage(getExternalToolSyncPreparingMessage("Codex"));
 
     try {
-      const response = await fetch("/api/build-sync/token", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ideaId: selectedIdea.id, tool: "codex" }),
+      const payload = await requestExternalToolBuildSyncToken({
+        ideaId: selectedIdea.id,
+        tool: "codex",
+        toolLabel: "Codex",
       });
-      const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
-
-      if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || getExternalToolSyncSetupErrorMessage("Codex"));
-      }
-
-      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
-
-      if (payload.connection) {
-        setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
-      }
-
-      setCursorSyncConnectionMessage(
-        payload.message ??
-          (payload.registryStatus === "ready"
-            ? getExternalToolConnectionCreatedMessage("Codex")
-            : getExternalToolConnectionFallbackMessage("Codex")),
-      );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
         projectKey: finalExecutionProjectKey,
@@ -5171,29 +5178,11 @@ export function IdeaWorkbench({
     setMessage(getExternalToolSyncPreparingMessage("Claude Code"));
 
     try {
-      const response = await fetch("/api/build-sync/token", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ideaId: selectedIdea.id, tool: "claude_code" }),
+      const payload = await requestExternalToolBuildSyncToken({
+        ideaId: selectedIdea.id,
+        tool: "claude_code",
+        toolLabel: "Claude Code",
       });
-      const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
-
-      if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || getExternalToolSyncSetupErrorMessage("Claude Code"));
-      }
-
-      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
-
-      if (payload.connection) {
-        setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
-      }
-
-      setCursorSyncConnectionMessage(
-        payload.message ??
-          (payload.registryStatus === "ready"
-            ? getExternalToolConnectionCreatedMessage("Claude Code")
-            : getExternalToolConnectionFallbackMessage("Claude Code")),
-      );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
         projectKey: finalExecutionProjectKey,
@@ -5262,29 +5251,11 @@ export function IdeaWorkbench({
     setMessage(getExternalToolSyncPreparingMessage("Google Antigravity"));
 
     try {
-      const response = await fetch("/api/build-sync/token", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ideaId: selectedIdea.id, tool: "antigravity" }),
+      const payload = await requestExternalToolBuildSyncToken({
+        ideaId: selectedIdea.id,
+        tool: "antigravity",
+        toolLabel: "Google Antigravity",
       });
-      const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
-
-      if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
-        throw new Error(payload.error || getExternalToolSyncSetupErrorMessage("Google Antigravity"));
-      }
-
-      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
-
-      if (payload.connection) {
-        setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
-      }
-
-      setCursorSyncConnectionMessage(
-        payload.message ??
-          (payload.registryStatus === "ready"
-            ? getExternalToolConnectionCreatedMessage("Google Antigravity")
-            : getExternalToolConnectionFallbackMessage("Google Antigravity")),
-      );
 
       const syncConfigDraft = buildCursorSyncConfigJson({
         projectKey: finalExecutionProjectKey,
