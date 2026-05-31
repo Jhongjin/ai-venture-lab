@@ -51,7 +51,6 @@ export type CreditSummary = {
 };
 
 export type CreditAccessState = {
-  buildPassIdeaIds: Set<string>;
   isCreditSystemReady: boolean;
   isCreditSystemMissing: boolean;
   hasSelectedIdeaBuildPass: boolean;
@@ -183,7 +182,6 @@ export function getCreditAccessState({
   const creditBalanceLabel = creditBalance === null ? "확인 중" : `${creditBalance} 크레딧`;
 
   return {
-    buildPassIdeaIds,
     isCreditSystemReady,
     isCreditSystemMissing,
     hasSelectedIdeaBuildPass,
