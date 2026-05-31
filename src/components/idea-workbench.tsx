@@ -20,7 +20,11 @@ import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
+  artifactPanelDescriptions,
+  artifactPanelLabels,
   buildArtifactReviewQueue,
+  developmentPanelDescriptions,
+  developmentPanelLabels,
   type ArtifactPanel,
   type ArtifactReviewItem,
   type DevelopmentPanel,
@@ -896,30 +900,6 @@ export type WorkbenchStepReadiness = {
 };
 
 type DevelopmentAutoFlowState = "idle" | "running" | "review" | "summary";
-
-const artifactPanelLabels: Record<ArtifactPanel, string> = {
-  validation: "검증 자료",
-  product: "기획서",
-  library: "자료 보관함",
-};
-
-const artifactPanelDescriptions: Record<ArtifactPanel, string> = {
-  validation: "아이디어 요약, 조사 요약, 7일 검증 계획을 먼저 저장합니다.",
-  product: "기획서, 첫 제작 범위, 출시 체크리스트를 생성합니다.",
-  library: "저장된 자료를 필터링하고 승인 상태를 관리합니다.",
-};
-
-const developmentPanelLabels: Record<DevelopmentPanel, string> = {
-  setup: "제작 준비",
-  tasks: "실행 할 일",
-  handoff: "완료 보고",
-};
-
-const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
-  setup: "실제 제작으로 넘기기 전에 결정, 화면, 데이터, 위험 조건이 준비됐는지 확인합니다.",
-  tasks: "실행할 일을 상태별로 나누고 막힌 항목과 완료 근거를 봅니다.",
-  handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
-};
 
 function emitVentureEvent<T>(eventName: string, detail: T) {
   window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
