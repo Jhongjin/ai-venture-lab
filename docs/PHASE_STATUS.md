@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Aligned market source wording in user guide | `c8396fb` | Not deployed; docs-only user test guide update | `git diff --check`; STEP 3 user-test expectations now say public sources instead of generic reference sources, matching the market-scan UI and saved artifact wording |
 | 2026-05-31 | Documented source redaction smoke | `d630433` | Not deployed; docs-only user test and security guide update | `git diff --check`; user test guide now includes first validation question in STEP 1 expectations and lists `pnpm smoke:source-redaction`, while security guidance calls for rerunning it after redaction or intake save-path changes |
 | 2026-05-31 | Added source redaction smoke | `9534ad2` | Not deployed separately; script/package maintenance only | `pnpm smoke:source-redaction`, `pnpm quality:full`, `git diff --check`; a focused smoke now verifies email, phone, resident-id, card, and account-like source excerpts are redacted before saved intake artifacts reuse them |
 | 2026-05-31 | Extracted source redaction helpers | `ae1ed86` | Auto-deployed from main; production smoke passed | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; source excerpt sensitive-pattern detection and redaction now live in `src/lib/source-redaction.ts` so intake save paths can reuse one privacy boundary |
