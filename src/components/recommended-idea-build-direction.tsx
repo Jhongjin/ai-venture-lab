@@ -14,6 +14,7 @@ import {
   productSurfaceProfiles,
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
+  withKoreanInstrumental,
 } from "@/lib/product-surface";
 
 type RecommendedIdeaBuildDirectionProps = {
@@ -30,9 +31,23 @@ export function RecommendedIdeaBuildDirection({
   productSurface,
 }: RecommendedIdeaBuildDirectionProps) {
   const selectedExternalBuildTool = externalBuildToolProfiles[buildDeliveryPreference.externalTool];
+  const buildDirectionSentence =
+    buildDeliveryPreference.mode === "external_tool"
+      ? `${withKoreanInstrumental(productSurface.label)} 만들고, ${withKoreanInstrumental(selectedExternalBuildTool.label)} 개발합니다.`
+      : `${withKoreanInstrumental(productSurface.label)} 만들고, Venture Lab 내부 제작으로 이어갑니다.`;
 
   return (
     <div data-smoke="recommended-build-direction" className="mt-4 grid gap-3">
+      <div
+        data-smoke="recommended-build-direction-sentence"
+        className="border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-950"
+      >
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">저장될 제작 방향</div>
+        <p className="mt-1 font-semibold text-slate-950">{buildDirectionSentence}</p>
+        <p className="mt-1 text-sm text-emerald-900">
+          결과물 형태는 무엇을 만들지, 개발 방식은 어디서 만들지를 정합니다. 실제 연결 파일은 STEP 7에서만 받습니다.
+        </p>
+      </div>
       <div data-smoke="recommended-product-surface" className="border border-blue-200 bg-blue-50 px-4 py-3">
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">결과물 형태</div>
         <div className="mt-2 text-base font-semibold text-slate-950">{productSurface.label}</div>
