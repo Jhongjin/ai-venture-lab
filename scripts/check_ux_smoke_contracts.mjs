@@ -327,6 +327,15 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/final-execution-external-tool-section.tsx",
+    tokens: [
+      'data-smoke="final-execution-live-three-actions"',
+      "받기",
+      "만들 앱 프로젝트 루트",
+      "설치 명령 후 확인 명령",
+    ],
+  },
+  {
     file: "src/components/final-execution-simple-path.tsx",
     tokens: [
       'data-smoke="final-execution-simple-path"',

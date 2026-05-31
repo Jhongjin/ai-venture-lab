@@ -15,6 +15,12 @@ export function FinalExecutionExternalToolSection({
   isLiveExternalDelivery,
   onSwitchToCursor,
 }: FinalExecutionExternalToolSectionProps) {
+  const liveActionItems = [
+    ["1", "받기", `${activeToolLabel} 연결 파일`],
+    ["2", "옮기기", "만들 앱 프로젝트 루트"],
+    ["3", "실행", "설치 명령 후 확인 명령"],
+  ] as const;
+
   return (
     <section className="border border-slate-200 bg-slate-50 p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -31,6 +37,18 @@ export function FinalExecutionExternalToolSection({
         </div>
         <span className="avl-pill avl-pill-info">{activeToolLabel}</span>
       </div>
+
+      {isLiveExternalDelivery ? (
+        <div data-smoke="final-execution-live-three-actions" className="mt-4 grid gap-px bg-blue-200 sm:grid-cols-3">
+          {liveActionItems.map(([step, title, detail]) => (
+            <div key={step} className="bg-white px-3 py-3">
+              <div className="text-xs font-semibold tracking-[0.14em] text-blue-800">STEP {step}</div>
+              <div className="mt-1 text-sm font-semibold text-slate-950">{title}</div>
+              <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {!isLiveExternalDelivery ? (
         <div className="mt-4 flex flex-col gap-3 border border-blue-200 bg-blue-50 p-4 sm:flex-row sm:items-center sm:justify-between">
