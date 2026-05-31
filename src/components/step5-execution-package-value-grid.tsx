@@ -6,7 +6,7 @@ const step5ExecutionPackageValueItems = [
 
 export function Step5ExecutionPackageValueGrid() {
   return (
-    <div className="mt-5 grid gap-px bg-slate-200 lg:grid-cols-3">
+    <div className="mt-5 grid gap-px bg-slate-200 lg:grid-cols-3" data-smoke="step5-execution-package-value-grid">
       {step5ExecutionPackageValueItems.map(([label, detail]) => (
         <div key={label} className="bg-slate-50 p-4">
           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</div>

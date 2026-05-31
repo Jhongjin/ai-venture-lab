@@ -157,6 +157,16 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/step5-execution-package-value-grid.tsx",
+    tokens: [
+      'data-smoke="step5-execution-package-value-grid"',
+      "실행 패키지",
+      "제작 범위 잠금",
+      "다음 단계 연결",
+      "최종 실행에서 외부 개발 도구 파일로 넘깁니다.",
+    ],
+  },
+  {
     file: "src/components/step8-action-highlights.tsx",
     tokens: [
       'data-smoke="step8-simple-review-details"',
