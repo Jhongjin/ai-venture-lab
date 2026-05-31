@@ -1,4 +1,11 @@
 import type { BuildDeliveryMode } from "@/lib/build-delivery";
+import { getCursorTaskCode, summarizeCursorProgressEvidence } from "@/lib/external-progress-import";
+import {
+  getBlockedImplementationTaskHint,
+  getImplementationEvidenceChecklist,
+  implementationTaskStatusLabels,
+  implementationTaskStatusTone,
+} from "@/lib/implementation-task-metadata";
 import type { ImplementationTask } from "@/lib/venture-data";
 
 export type Step8OutcomeCard = {
@@ -33,6 +40,27 @@ export type Step8LearningSummary = {
   externalSyncNextTaskText: string;
   externalSyncOutcomeSentence: string;
   externalSyncReviewRows: Step8ReviewRow[];
+};
+
+export type Step8ProgressDisplayItem = {
+  code: string;
+  id: string;
+  isDone: boolean;
+  isNext: boolean;
+  missingLabels: string[];
+  passedCount: number;
+  showMissingEvidence: boolean;
+  statusDetail: string;
+  statusLabel: string;
+  statusTone: string;
+  title: string;
+  totalCount: number;
+};
+
+export type Step8ProgressSummary = {
+  progressDetail: string;
+  progressItems: Step8ProgressDisplayItem[];
+  progressTitle: string;
 };
 
 export function buildStep8LearningSummary({
@@ -221,5 +249,67 @@ export function buildStep8LearningSummary({
     externalSyncNextTaskText,
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
+  };
+}
+
+export function buildStep8ProgressSummary({
+  evidenceByTaskId,
+  nextImplementationTaskId,
+  tasks,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  nextImplementationTaskId: string | null;
+  tasks: ReadonlyArray<ImplementationTask>;
+}): Step8ProgressSummary {
+  const progressItems = [...tasks]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((task, index) => {
+      const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
+      const checklist = getImplementationEvidenceChecklist(task, evidence);
+      const passedCount = checklist.filter((item) => item.passed).length;
+      const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+      const isNext = nextImplementationTaskId === task.id;
+      const statusDetail =
+        task.status === "done"
+          ? evidence
+            ? summarizeCursorProgressEvidence(evidence)
+            : "완료 상태입니다."
+          : task.status === "blocked"
+            ? getBlockedImplementationTaskHint(task).nextAction
+            : isNext
+              ? "다음으로 이어서 처리할 작업입니다."
+              : "앞선 작업이 끝나면 이어서 처리합니다.";
+
+      return {
+        id: task.id,
+        code: getCursorTaskCode(index),
+        title: task.title,
+        statusDetail,
+        statusLabel: implementationTaskStatusLabels[task.status],
+        statusTone: implementationTaskStatusTone[task.status],
+        passedCount,
+        totalCount: checklist.length,
+        missingLabels,
+        isNext,
+        isDone: task.status === "done",
+        showMissingEvidence: missingLabels.length > 0 && task.status !== "done",
+      };
+    });
+  const hasNextTask = Boolean(nextImplementationTaskId);
+  const progressTitle = hasNextTask
+    ? "다음 작업 하나만 확인"
+    : progressItems.length > 0
+      ? "완료된 것만 훑어보기"
+      : "진행표 대기";
+  const progressDetail = hasNextTask
+    ? "오늘은 표시된 다음 작업 하나만 끝내면 됩니다. 전체 목록은 진행 순서 확인용으로만 봅니다."
+    : progressItems.length > 0
+      ? "완료된 작업과 남은 작업을 빠르게 확인하고, 다음 판단은 위의 한눈 요약에서 정합니다."
+      : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.";
+
+  return {
+    progressDetail,
+    progressItems,
+    progressTitle,
   };
 }

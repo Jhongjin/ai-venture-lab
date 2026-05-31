@@ -78,7 +78,7 @@ import {
   buildTelemetryNextRouteSnippet,
   buildTelemetrySmokeCommandSnippet,
 } from "@/lib/telemetry-artifacts";
-import { buildStep8LearningSummary } from "@/lib/step8-learning-summary";
+import { buildStep8LearningSummary, buildStep8ProgressSummary } from "@/lib/step8-learning-summary";
 import { buildValidationEvidenceCoach, buildValidationPlan } from "@/lib/validation-planning";
 import { buildDesignBriefMarkdown } from "@/lib/design-brief-markdown";
 import { buildDesignGenerationPromptMarkdown } from "@/lib/design-generation-prompt-markdown";
@@ -1155,59 +1155,16 @@ export function IdeaWorkbench({
     learningSimpleReviewRows,
   } = step8LearningSummary;
   const nextImplementationTaskId = nextImplementationTask?.id ?? null;
-  const learningTaskTimeline = [...selectedImplementationTasks]
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map((task, index) => {
-      const evidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
-      const checklist = getImplementationEvidenceChecklist(task, evidence);
-      const passedCount = checklist.filter((item) => item.passed).length;
-      const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
-      const isNext = nextImplementationTaskId === task.id;
-      const statusDetail =
-        task.status === "done"
-          ? evidence
-            ? summarizeCursorProgressEvidence(evidence)
-            : "완료 상태입니다."
-          : task.status === "blocked"
-            ? getBlockedImplementationTaskHint(task).nextAction
-            : isNext
-              ? "다음으로 이어서 처리할 작업입니다."
-              : "앞선 작업이 끝나면 이어서 처리합니다.";
-
-      return {
-        task,
-        code: getCursorTaskCode(index),
-        statusDetail,
-        passedCount,
-        totalCount: checklist.length,
-        missingLabels,
-        isNext,
-      };
-    });
-  const learningProgressTitle = nextImplementationTask
-    ? "다음 작업 하나만 확인"
-    : learningTaskTimeline.length > 0
-      ? "완료된 것만 훑어보기"
-      : "진행표 대기";
-  const learningProgressDetail = nextImplementationTask
-    ? "오늘은 표시된 다음 작업 하나만 끝내면 됩니다. 전체 목록은 진행 순서 확인용으로만 봅니다."
-    : learningTaskTimeline.length > 0
-      ? "완료된 작업과 남은 작업을 빠르게 확인하고, 다음 판단은 위의 한눈 요약에서 정합니다."
-      : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.";
-  const step8ProgressItems = learningTaskTimeline.map((item) => ({
-    id: item.task.id,
-    code: item.code,
-    title: item.task.title,
-    statusDetail: item.statusDetail,
-    statusLabel: implementationTaskStatusLabels[item.task.status],
-    statusTone: implementationTaskStatusTone[item.task.status],
-    passedCount: item.passedCount,
-    totalCount: item.totalCount,
-    missingLabels: item.missingLabels,
-    isNext: item.isNext,
-    isDone: item.task.status === "done",
-    showMissingEvidence: item.missingLabels.length > 0 && item.task.status !== "done",
-  }));
+  const step8ProgressSummary = buildStep8ProgressSummary({
+    evidenceByTaskId: implementationTaskEvidence,
+    nextImplementationTaskId,
+    tasks: selectedImplementationTasks,
+  });
+  const {
+    progressDetail: learningProgressDetail,
+    progressItems: step8ProgressItems,
+    progressTitle: learningProgressTitle,
+  } = step8ProgressSummary;
   const implementationDependencyPlanDraft = selectedIdea && editState
     ? buildImplementationDependencyPlanMarkdown({
         idea: selectedIdea,
