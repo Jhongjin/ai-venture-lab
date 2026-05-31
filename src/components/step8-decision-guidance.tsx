@@ -19,6 +19,12 @@ export function Step8DecisionGuidance({ decisionOptions }: Step8DecisionGuidance
       >
         오늘은 아래 판단 후보 중 하나만 고르면 됩니다. 완료 근거가 없으면 다음 작업 하나만 유지하고, 상세 리포트는 필요할 때만 엽니다.
       </div>
+      <div
+        data-smoke="step8-visible-action-sequence"
+        className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-slate-950"
+      >
+        <span className="text-blue-700">확인 순서</span>: 완료 상태 → 다음 행동 → 오늘 판단
+      </div>
       <div data-smoke="step8-decision-options" className="mt-3 border border-blue-200 bg-white px-3 py-2">
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 고를 판단 후보</div>
         <div className="mt-2 grid gap-2 sm:grid-cols-3">

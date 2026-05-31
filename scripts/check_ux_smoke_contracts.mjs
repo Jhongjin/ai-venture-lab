@@ -99,6 +99,10 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/step8-decision-guidance.tsx",
+    tokens: ['data-smoke="step8-visible-action-sequence"', "확인 순서", "완료 상태 → 다음 행동 → 오늘 판단"],
+  },
+  {
     file: "src/components/final-execution-sync-status-card.tsx",
     tokens: [
       'data-smoke="final-execution-sync-meaning"',
