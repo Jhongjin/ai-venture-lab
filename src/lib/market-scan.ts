@@ -1,4 +1,5 @@
 import type { DecisionStatus } from "@/lib/supabase/types";
+import type { VentureArtifact } from "@/lib/venture-data";
 
 type MarketScanLevel = "low" | "medium" | "high";
 
@@ -47,6 +48,20 @@ export type MarketScanDraft = {
 };
 
 type MarketScanDecisionLabels = Record<DecisionStatus, string>;
+
+export function isMarketScanArtifactRecord(artifact: VentureArtifact) {
+  return artifact.source === "market_scan" || (artifact.title || "").includes("시장·경쟁 자동 조사");
+}
+
+export function isMarketScanArtifactForProductSurface(artifact: VentureArtifact, productSurfaceLabel: string) {
+  const body = artifact.body || "";
+
+  return (
+    body.includes(`## 제작 형태\n\n${productSurfaceLabel}`) ||
+    body.includes(`제작 형태: ${productSurfaceLabel}`) ||
+    body.includes(`권장 제작 형태: ${productSurfaceLabel}`)
+  );
+}
 
 function isMarketScanRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

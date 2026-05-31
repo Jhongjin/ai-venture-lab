@@ -99,6 +99,8 @@ import {
   buildMarketScanResultText,
   getMarketScanLevelLabel,
   getMarketScanSourceStrengthTone,
+  isMarketScanArtifactForProductSurface,
+  isMarketScanArtifactRecord,
   marketScanSourceTypeLabels,
   normalizeMarketScanDraft,
   type MarketScanDraft,
@@ -3327,20 +3329,6 @@ Write-Host "Check: node ${folder}/venture-lab-cli.mjs next-task"
 Write-Host "Next: open this project in ${toolLabel} and paste ${startFileName} as the first message."
 Write-Host "When ${toolLabel} records progress, Venture Lab task status will be updated automatically."
 `;
-}
-
-function isMarketScanArtifactRecord(artifact: VentureArtifact) {
-  return artifact.source === "market_scan" || (artifact.title || "").includes("시장·경쟁 자동 조사");
-}
-
-function isMarketScanArtifactForProductSurface(artifact: VentureArtifact, productSurfaceLabel: string) {
-  const body = artifact.body || "";
-
-  return (
-    body.includes(`## 제작 형태\n\n${productSurfaceLabel}`) ||
-    body.includes(`제작 형태: ${productSurfaceLabel}`) ||
-    body.includes(`권장 제작 형태: ${productSurfaceLabel}`)
-  );
 }
 
 function buildValidationSummaryMarkdown({
