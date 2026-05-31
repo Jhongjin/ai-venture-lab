@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Extracted extraction inference helpers | `481da92` | Auto-deployed from main; production smoke passed | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; fallback STEP 1 target/buyer/risk/experiment/pricing/success metric/initial score/recommendation inference now lives in `src/lib/extraction-inference.ts` |
 | 2026-05-31 | Added extraction risk smoke | `7beea26` | Not deployed separately; focused smoke/package script only | `pnpm smoke:extraction-risk`, `pnpm typecheck`, `pnpm quality:full`, `git diff --check`; focused smoke now covers low/medium/high severity mapping and all risk-area buckets |
 | 2026-05-31 | Extracted extraction risk helpers | `e080076` | Auto-deployed from main; production smoke passed | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; extracted-idea risk severity and risk-area inference now live in `src/lib/extraction-risk-utils.ts` |
 | 2026-05-31 | Added extraction strategy lens smoke | `364dd61` | Not deployed separately; focused smoke/package script only | `pnpm smoke:extraction-lens`, `pnpm typecheck`, `pnpm quality:full` after one command timeout rerun with a longer local limit, `git diff --check`; focused smoke now covers lens labels, market score/tone, aggregate score, markdown rows, and weak-risk tone |
