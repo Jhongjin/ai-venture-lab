@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Clarified external START after T-001 package steps | `b76fb3e` | Pending push/deploy; external tool profile and UX contract update | `pnpm smoke:ux-contracts`, `pnpm smoke:build-sync`, `pnpm typecheck`, `pnpm quality:full`, `git diff --check`; Cursor, Codex, Claude Code, and Antigravity handoff steps now say to open the START file only after the verification command shows T-001 |
 | 2026-05-31 | Aligned user test Pro value wording | `09d84c6` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now uses Pro value instead of payment value for the paused-checkout monetization boundary |
 | 2026-05-31 | Clarified Stripe env future setup boundary | `f8258af` | Not deployed; docs-only env boundary update | `pnpm release:check`, `git diff --check`; beta env boundary now states Stripe keys and price IDs are future setup only while checkout is paused |
 | 2026-05-31 | Clarified Stripe env pause boundary | `ad40978` | Not deployed; env example comment only | `pnpm release:check`, `git diff --check`; `.env.example` now states future Stripe variables are not needed while checkout is paused |
