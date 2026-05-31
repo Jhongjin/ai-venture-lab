@@ -100,6 +100,36 @@ export function getPublicMarketScanSources(sources: ReadonlyArray<MarketScanSour
   return sources.filter(isPublicMarketScanSource);
 }
 
+type MarketScanSourceUrlStyle = "parenthesized" | "colon";
+
+function formatMarketScanPublicSourceLine(
+  source: MarketScanSource,
+  { includeReason = false, urlStyle }: { includeReason?: boolean; urlStyle: MarketScanSourceUrlStyle },
+) {
+  const urlText = source.url && source.title ? (urlStyle === "colon" ? `: ${source.url}` : ` (${source.url})`) : "";
+  const reasonText = includeReason && source.reason ? ` - ${source.reason}` : "";
+
+  return `- ${source.title || source.url}${urlText} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}${reasonText}`;
+}
+
+function buildMarketScanPublicSourceLines({
+  fallback,
+  includeReason = false,
+  scan,
+  urlStyle,
+}: {
+  fallback: string;
+  includeReason?: boolean;
+  scan: MarketScanDraft;
+  urlStyle: MarketScanSourceUrlStyle;
+}) {
+  const publicSources = getPublicMarketScanSources(scan.sources);
+
+  return publicSources.length > 0
+    ? publicSources.map((source) => formatMarketScanPublicSourceLine(source, { includeReason, urlStyle })).join("\n")
+    : fallback;
+}
+
 function normalizeMarketScanSource(value: unknown): MarketScanSource | null {
   if (!isMarketScanRecord(value)) {
     return null;
@@ -222,16 +252,11 @@ export function normalizeMarketScanDraft(value: unknown): MarketScanDraft | null
 }
 
 export function buildMarketScanResultText(scan: MarketScanDraft) {
-  const publicSources = getPublicMarketScanSources(scan.sources);
-  const sourceLines =
-    publicSources.length > 0
-      ? publicSources
-          .map(
-            (source) =>
-              `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}`,
-          )
-          .join("\n")
-      : "- 공개 출처 없음 - 추정 초안으로만 참고";
+  const sourceLines = buildMarketScanPublicSourceLines({
+    fallback: "- 공개 출처 없음 - 추정 초안으로만 참고",
+    scan,
+    urlStyle: "parenthesized",
+  });
   const signalLines =
     scan.market_signals.length > 0
       ? scan.market_signals.map((signal) => `- ${signal.label}: ${signal.finding}`).join("\n")
@@ -285,16 +310,11 @@ export function buildMarketScanLearningText(scan: MarketScanDraft, decisionLabel
 }
 
 export function buildMarketScanEvidenceText(scan: MarketScanDraft) {
-  const publicSources = getPublicMarketScanSources(scan.sources);
-  const sourceLines =
-    publicSources.length > 0
-      ? publicSources
-          .map(
-            (source) =>
-              `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}`,
-          )
-          .join("\n")
-      : "- 공개 출처가 부족해 AI 추정 초안으로만 참고";
+  const sourceLines = buildMarketScanPublicSourceLines({
+    fallback: "- 공개 출처가 부족해 AI 추정 초안으로만 참고",
+    scan,
+    urlStyle: "parenthesized",
+  });
   const signalLines =
     scan.market_signals.length > 0
       ? scan.market_signals.map((signal) => `- ${signal.label}: ${signal.finding}`).join("\n")
@@ -367,16 +387,12 @@ export function buildMarketScanArtifactMarkdown({
   productSurfaceLabel: string;
   decisionLabels: MarketScanDecisionLabels;
 }) {
-  const publicSources = getPublicMarketScanSources(scan.sources);
-  const sourceLines =
-    publicSources.length > 0
-      ? publicSources
-          .map(
-            (source) =>
-              `- ${source.title || source.url}${source.url ? `: ${source.url}` : ""} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}${source.reason ? ` - ${source.reason}` : ""}`,
-          )
-          .join("\n")
-      : "- 공개 출처가 부족해 AI 추정 초안으로 저장";
+  const sourceLines = buildMarketScanPublicSourceLines({
+    fallback: "- 공개 출처가 부족해 AI 추정 초안으로 저장",
+    includeReason: true,
+    scan,
+    urlStyle: "colon",
+  });
   const competitorLines =
     scan.competitor_map.length > 0
       ? scan.competitor_map
