@@ -288,6 +288,8 @@ const contracts = [
   {
     file: "src/components/step8-progress-section.tsx",
     tokens: [
+      'data-smoke="step8-progress-one-line-summary"',
+      "완료 {completedCount}/{totalCount || 0} · 다음",
       'data-smoke="step8-empty-primary-action"',
       "먼저 STEP 7에서 연결 파일로 첫 제작 작업을 시작하세요.",
       "완료된 것, 다음 작업, 오늘 판단만 보여줍니다.",

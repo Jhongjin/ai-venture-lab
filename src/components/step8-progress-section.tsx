@@ -24,6 +24,13 @@ export function Step8ProgressSection({
   progressTitle,
   totalCount,
 }: Step8ProgressSectionProps) {
+  const nextTaskSummary =
+    nextTaskCode && nextTaskTitle
+      ? `${nextTaskCode} ${nextTaskTitle}`
+      : items.length > 0
+        ? "남은 제작 작업 없음"
+        : "STEP 7에서 첫 작업 시작";
+
   return (
     <section data-smoke="step8-progress-section" className="mt-4 border border-slate-200 bg-white p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -35,6 +42,12 @@ export function Step8ProgressSection({
         <span className="avl-pill avl-pill-success">
           완료 {completedCount}/{totalCount || 0}
         </span>
+      </div>
+      <div
+        data-smoke="step8-progress-one-line-summary"
+        className="mt-3 border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
+      >
+        완료 {completedCount}/{totalCount || 0} · 다음 {nextTaskSummary}
       </div>
       {items.length === 0 ? (
         <div data-smoke="step8-empty-primary-action" className="mt-4 border border-blue-200 bg-blue-50 px-4 py-3">
