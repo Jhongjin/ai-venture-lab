@@ -65,6 +65,10 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/step6-work-order-header.tsx",
+    tokens: ['data-smoke="step6-save-does-not-run"', "작업 순서를 저장해도 외부 도구가 바로 실행되지 않습니다"],
+  },
+  {
     file: "src/components/first-use-result-preview.tsx",
     tokens: [
       'data-smoke="first-use-result-preview"',
