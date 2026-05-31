@@ -33,7 +33,8 @@ import {
 } from "@/lib/build-delivery";
 import { formatAuthCallbackMessage, formatAuthError, formatWorkspaceError } from "@/lib/venture-console-errors";
 import { compactText, countKeywordHits, findLabeledValue, stripLabel } from "@/lib/extraction-text-utils";
-import { normalizeMatchText, tokenOverlapScore } from "@/lib/text-match-utils";
+import { findBestCandidateMatch, findSimilarIdea, type SimilarIdeaMatch } from "@/lib/extraction-candidate-match";
+import { normalizeMatchText } from "@/lib/text-match-utils";
 import { IdeaExtractionAdvancedQueue } from "@/components/idea-extraction-advanced-queue";
 import { IdeaExtractionDetailList } from "@/components/idea-extraction-detail-list";
 import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
@@ -163,12 +164,6 @@ type ExtractionReplaySummary = {
   model: string | null;
   note: string;
   items: ExtractionReplayItem[];
-};
-
-type SimilarIdeaMatch = {
-  idea: Idea;
-  score: number;
-  reason: string;
 };
 
 type CandidateReadinessCheck = {
@@ -693,41 +688,6 @@ function inferRecommendation(
   return "보류";
 }
 
-function findSimilarIdea(candidate: ExtractedIdea, existingIdeas: Idea[]): SimilarIdeaMatch | null {
-  const candidateName = normalizeMatchText(candidate.name);
-  const candidateText = `${candidate.name} ${candidate.one_liner} ${candidate.target_user} ${candidate.buyer} ${candidate.signal}`;
-
-  const matches = existingIdeas
-    .map((idea) => {
-      const ideaName = normalizeMatchText(idea.name);
-      const ideaText = `${idea.name} ${idea.one_liner} ${idea.target_user} ${idea.buyer} ${idea.signal}`;
-      const nameScore =
-        candidateName && ideaName && candidateName === ideaName
-          ? 100
-          : candidateName && ideaName && (candidateName.includes(ideaName) || ideaName.includes(candidateName))
-            ? 86
-            : tokenOverlapScore(candidate.name, idea.name);
-      const textScore = tokenOverlapScore(candidateText, ideaText);
-      const targetScore = tokenOverlapScore(candidate.target_user, idea.target_user);
-      const score = Math.max(nameScore, Math.round(textScore * 0.7 + targetScore * 0.3));
-
-      return {
-        idea,
-        score,
-        reason:
-          nameScore >= 86
-            ? "이름이 거의 같습니다."
-            : targetScore >= 55
-              ? "대상 사용자와 문제 단서가 겹칩니다."
-              : "문제 설명의 핵심 단어가 겹칩니다.",
-      };
-    })
-    .filter((match) => match.score >= 52)
-    .sort((a, b) => b.score - a.score);
-
-  return matches[0] ?? null;
-}
-
 function hasNumericSignal(value: string) {
   return /\d|명|일|%|퍼센트|건|회|만원|원/.test(value);
 }
@@ -1246,32 +1206,6 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
       };
     })
     .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
-}
-
-function candidateComparisonText(candidate: ExtractedIdea) {
-  return [
-    candidate.name,
-    candidate.one_liner,
-    candidate.target_user,
-    candidate.buyer,
-    candidate.signal,
-    candidate.firstPrototypeScope,
-  ].join(" ");
-}
-
-function candidateSimilarityScore(left: ExtractedIdea, right: ExtractedIdea) {
-  const nameScore = tokenOverlapScore(left.name, right.name);
-  const problemScore = tokenOverlapScore(candidateComparisonText(left), candidateComparisonText(right));
-  const userScore = tokenOverlapScore(`${left.target_user} ${left.buyer}`, `${right.target_user} ${right.buyer}`);
-
-  return Math.max(nameScore, Math.round(problemScore * 0.65 + userScore * 0.35));
-}
-
-function findBestCandidateMatch(candidate: ExtractedIdea, pool: ExtractedIdea[], usedIds = new Set<string>()) {
-  return pool
-    .filter((item) => !usedIds.has(item.id))
-    .map((item) => ({ item, score: candidateSimilarityScore(candidate, item) }))
-    .sort((a, b) => b.score - a.score)[0];
 }
 
 function buildExtractionReplaySummary({
