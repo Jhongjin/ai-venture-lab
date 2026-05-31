@@ -731,5 +731,6 @@ For named external handoff tests, use `docs/EXTERNAL_PRODUCTION_PACKAGE.md` for 
 
 1. Keep named external build tools focused on Cursor, Codex, Claude Code, and Google Antigravity; run `pnpm smoke:build-sync` before changing token issuance, revoke, setup files, or progress sync.
 2. Keep generic MCP deferred until a concrete user-facing connector, permission model, denied-case smoke, and rollback path exist.
-3. Continue product hardening with second-pass code thinning for `idea-workbench.tsx`/`venture-console-actions.tsx`, STEP 7/8 live-sync clarity, and first-use measurement before broad new feature scope.
-4. Keep RLS, telemetry, authenticated write smoke, and GitHub Actions changes behind their existing explicit-approval and disposable-data boundaries.
+3. Continue product hardening with smaller code-thinning passes for `idea-workbench.tsx` and `venture-console-actions.tsx`, keeping changes close to existing smoke coverage.
+4. Continue first-use and STEP 7/8 understanding improvements through copy, smoke coverage, and privacy-safe telemetry instead of broad new feature scope.
+5. Keep RLS, telemetry, authenticated write smoke, GitHub Actions, and paid/source-backed market smoke behind existing explicit-approval, disposable-data, and quota boundaries.
