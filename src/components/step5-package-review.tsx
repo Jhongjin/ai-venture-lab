@@ -18,6 +18,12 @@ type Step5PackageReviewProps = {
   summaryCards: ReadonlyArray<Step5SummaryCard>;
 };
 
+const step5ReviewFocusItems = [
+  ["1. 만들 결과", "결과물 형태와 개발 방식이 맞는지 확인"],
+  ["2. 첫 제작 범위", "첫 버전에 만들 것과 제외할 것 확인"],
+  ["3. 첫 작업", "STEP 6에서 T-001로 시작할 수 있는지 확인"],
+] as const;
+
 export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCards }: Step5PackageReviewProps) {
   function handleNoteChange(event: ChangeEvent<HTMLTextAreaElement>) {
     onNoteChange(event.target.value);
@@ -28,6 +34,14 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
       <div className="border border-slate-200 bg-slate-50 p-4">
         <div className="avl-kicker">정리된 내용 확인</div>
         <h4 className="mt-2 text-base font-semibold text-slate-950">저장 전 확인할 핵심 내용</h4>
+        <div data-smoke="step5-review-save-focus" className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
+          {step5ReviewFocusItems.map(([label, detail]) => (
+            <div key={label} className="bg-white px-3 py-3">
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{label}</div>
+              <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+            </div>
+          ))}
+        </div>
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           {summaryCards.map((card) => (
             <div key={card.label} className="border border-slate-200 bg-white p-3">
