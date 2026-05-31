@@ -183,6 +183,14 @@ const contracts = [
     tokens: ['data-smoke="step8-current-decision-strip"', "완료 상태", "다음 행동", "오늘 판단"],
   },
   {
+    file: "src/components/step8-learning-header.tsx",
+    tokens: [
+      'data-smoke="step8-confirm-not-run-header"',
+      "STEP 8은 새 실행을 시작하는 화면이 아닙니다.",
+      "완료 보고를 확인하고 다음 판단 하나만 고르는 화면입니다.",
+    ],
+  },
+  {
     file: "src/components/final-execution-sync-status-card.tsx",
     tokens: [
       'data-smoke="final-execution-sync-meaning"',

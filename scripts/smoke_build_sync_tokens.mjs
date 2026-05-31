@@ -115,6 +115,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page
+    .locator('[data-smoke="step8-confirm-not-run-header"]')
+    .getByText("STEP 8은 새 실행을 시작하는 화면이 아닙니다.", { exact: false })
+    .waitFor({
+      state: "visible",
+      timeout,
+    });
   await page.getByText("여기서는 리포트를 먼저 읽지 않습니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
