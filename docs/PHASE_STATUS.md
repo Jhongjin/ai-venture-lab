@@ -45,7 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-31 | Clarified profile Pro value copy | `8ecaaf2` | Auto-deployed from main; production and billing smoke pending in this loop | `pnpm typecheck`, `pnpm quality:full`, `git diff --check`; profile credit summary now says Pro value, not payment value, while checkout remains paused |
+| 2026-05-31 | Clarified profile Pro value copy | `8ecaaf2` | Auto-deployed from main; production and billing smoke passed | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:billing`, `git diff --check`; profile credit summary now says Pro value, not payment value, while checkout remains paused |
 | 2026-05-31 | Guarded homepage checkout pause wording | `f973018` | Not deployed separately; smoke harness guard only | `pnpm smoke:browser`, `pnpm quality:full`, `git diff --check`; browser smoke now fails if the homepage reintroduces the old checkout-implying Pro boundary heading |
 | 2026-05-31 | Clarified homepage Pro need boundary | `23de341` | Auto-deployed from main; production smoke passed | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; homepage Free/Pro boundary now describes Pro need instead of implying checkout is open while payments remain paused |
 | 2026-05-31 | Updated STEP 6 status test wording | `85ab991` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now checks that STEP 6 status buttons are progress records, not step navigation buttons |
