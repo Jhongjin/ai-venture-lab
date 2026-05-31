@@ -2525,6 +2525,15 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
     setExtractionReplay(null);
     setIsAiExtracting(true);
     setExtractMessage("AI가 메모를 살펴보고 아이디어를 정리하는 중입니다. 문제가 생기면 기본 방식으로 계속 진행합니다.");
+    void recordTelemetryEvent({
+      eventName: "idea_extraction_started",
+      eventCategory: "extraction",
+      organizationId: activeOrganization?.id ?? null,
+      properties: {
+        source_length: source.length,
+        existing_idea_count: existingIdeas.length,
+      },
+    });
 
     try {
       const response = await fetch("/api/ideas/extract", {
@@ -2563,6 +2572,18 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
                 payload.error ?? `HTTP ${response.status}`
               }`,
         );
+        void recordTelemetryEvent({
+          eventName: "idea_extraction_completed",
+          eventCategory: "extraction",
+          organizationId: activeOrganization?.id ?? null,
+          properties: {
+            engine: "fallback",
+            model: payload.model ?? "none",
+            candidate_count: fallbackIdeas.length,
+            source_length: source.length,
+            fallback_reason: payload.error ? "api_error" : `http_${response.status}`,
+          },
+        });
         return;
       }
 
@@ -2580,6 +2601,17 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
       setExtractMessage(
         `${aiIdeas.length}개 아이디어를 정리했습니다. 추천 아이디어의 결과물 형태, 검증 판단, 중복 가능성을 확인하세요.`,
       );
+      void recordTelemetryEvent({
+        eventName: "idea_extraction_completed",
+        eventCategory: "extraction",
+        organizationId: activeOrganization?.id ?? null,
+        properties: {
+          engine: "openai",
+          model: payload.model ?? "OpenAI",
+          candidate_count: aiIdeas.length,
+          source_length: source.length,
+        },
+      });
     } catch (error) {
       const fallbackIdeas = extractIdeasFromText(source);
       setExtractedIdeas(fallbackIdeas);
@@ -2603,6 +2635,19 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
               error instanceof Error ? error.message : ""
             }`,
       );
+      void recordTelemetryEvent({
+        eventName: "idea_extraction_completed",
+        eventCategory: "extraction",
+        organizationId: activeOrganization?.id ?? null,
+        properties: {
+          engine: "fallback",
+          model: "none",
+          candidate_count: fallbackIdeas.length,
+          source_length: source.length,
+          fallback_reason: "request_error",
+          error_type: error instanceof Error ? error.name : "unknown",
+        },
+      });
     } finally {
       setIsAiExtracting(false);
     }

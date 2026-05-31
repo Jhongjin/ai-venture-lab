@@ -2,6 +2,8 @@ import type { Json } from "@/lib/supabase/types";
 import type { TelemetryEvent } from "@/lib/venture-data";
 
 export const telemetryEventLabels: Record<string, string> = {
+  idea_extraction_started: "아이디어 정리 시작",
+  idea_extraction_completed: "아이디어 정리 완료",
   idea_created: "아이디어 생성",
   idea_package_created: "검증 자료 저장",
   idea_updated: "사업성 평가 저장",
