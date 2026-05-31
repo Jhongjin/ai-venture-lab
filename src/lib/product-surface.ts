@@ -33,6 +33,14 @@ export type ProductSurfaceInput = {
   sourceBlock?: string | null;
 };
 
+export type ProductSurfaceSource = ProductSurfaceInput & {
+  product_surface?: unknown;
+};
+
+export type ProductSurfaceStateInput = Partial<ProductSurfaceInput> & {
+  product_surface?: unknown;
+};
+
 export const buildableProductSurfaceOrder: BuildableProductSurfaceKey[] = [
   "web_app",
   "mobile_app",
@@ -257,6 +265,25 @@ export function getProductSurfaceProfile(key: unknown, fallbackInput: ProductSur
   }
 
   return inferProductSurface(fallbackInput);
+}
+
+export function buildProductSurfaceInput(source: ProductSurfaceInput, state?: Partial<ProductSurfaceInput>): ProductSurfaceInput {
+  return {
+    name: source.name,
+    one_liner: source.one_liner,
+    target_user: source.target_user,
+    buyer: source.buyer,
+    signal: state?.signal ?? source.signal,
+    risk_summary: state?.risk_summary ?? source.risk_summary,
+    next_evidence: state?.next_evidence ?? source.next_evidence,
+    firstPrototypeScope: state?.firstPrototypeScope ?? source.firstPrototypeScope,
+    pricingHypothesis: state?.pricingHypothesis ?? source.pricingHypothesis,
+    sourceBlock: state?.sourceBlock ?? source.sourceBlock,
+  };
+}
+
+export function resolveProductSurfaceForIdea(source: ProductSurfaceSource, state?: ProductSurfaceStateInput): ProductSurfaceProfile {
+  return getProductSurfaceProfile(state?.product_surface ?? source.product_surface, buildProductSurfaceInput(source, state));
 }
 
 export function productSurfaceMarkdown(profile: ProductSurfaceProfile) {

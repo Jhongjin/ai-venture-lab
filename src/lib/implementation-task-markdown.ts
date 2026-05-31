@@ -1,4 +1,4 @@
-import { getProductSurfaceProfile } from "@/lib/product-surface";
+import { resolveProductSurfaceForIdea } from "@/lib/product-surface";
 import {
   buildProductSurfaceContextSection,
   implementationSurfaceTaskGuidance,
@@ -22,18 +22,6 @@ export type ImplementationMarkdownState = Pick<
   "stage" | "decision" | "signal" | "risk_summary" | "next_evidence" | "product_surface"
 >;
 
-function getImplementationMarkdownProductSurface(idea: Idea, state: ImplementationMarkdownState) {
-  return getProductSurfaceProfile(state.product_surface ?? idea.product_surface, {
-    name: idea.name,
-    one_liner: idea.one_liner,
-    target_user: idea.target_user,
-    buyer: idea.buyer,
-    signal: state.signal ?? idea.signal,
-    risk_summary: state.risk_summary ?? idea.risk_summary,
-    next_evidence: state.next_evidence ?? idea.next_evidence,
-  });
-}
-
 export function buildImplementationTaskTicketMarkdown({
   idea,
   state,
@@ -43,7 +31,7 @@ export function buildImplementationTaskTicketMarkdown({
   state: ImplementationMarkdownState;
   task: ImplementationTask;
 }) {
-  const productSurface = getImplementationMarkdownProductSurface(idea, state);
+  const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
   const blockerHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
 
@@ -116,7 +104,7 @@ export function buildImplementationBacklogMarkdown({
   evidenceByTaskId?: Record<string, string>;
   emptyMessage?: string;
 }) {
-  const productSurface = getImplementationMarkdownProductSurface(idea, state);
+  const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
   const lines =
     tasks.length > 0
@@ -173,7 +161,7 @@ export function buildFilteredImplementationRunPromptMarkdown({
   filterSummary: string;
   evidenceByTaskId?: Record<string, string>;
 }) {
-  const productSurface = getImplementationMarkdownProductSurface(idea, state);
+  const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
   const sortedTasks = sortImplementationTasksForAction(tasks);
   const roleLines =

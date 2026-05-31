@@ -73,9 +73,9 @@ import {
   artifactStatusTone,
 } from "@/lib/artifact-labels";
 import {
-  getProductSurfaceProfile,
   productSurfaceMarkdown,
   productSurfaceProfiles,
+  resolveProductSurfaceForIdea as inferIdeaProductSurface,
   withKoreanInstrumental,
 } from "@/lib/product-surface";
 import {
@@ -454,18 +454,6 @@ function emitVentureEvent<T>(eventName: string, detail: T) {
   window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
 }
 
-function ideaProductSurfaceInput(idea: Idea, state?: Partial<EditState>) {
-  return {
-    name: idea.name,
-    one_liner: idea.one_liner,
-    target_user: idea.target_user,
-    buyer: idea.buyer,
-    signal: state?.signal ?? idea.signal,
-    risk_summary: state?.risk_summary ?? idea.risk_summary,
-    next_evidence: state?.next_evidence ?? idea.next_evidence,
-  };
-}
-
 function toEditState(idea: Idea): EditState {
   return {
     stage: idea.stage,
@@ -480,7 +468,7 @@ function toEditState(idea: Idea): EditState {
     signal: idea.signal,
     risk_summary: idea.risk_summary,
     next_evidence: idea.next_evidence,
-    product_surface: getProductSurfaceProfile(idea.product_surface, ideaProductSurfaceInput(idea)).key,
+    product_surface: inferIdeaProductSurface(idea).key,
   };
 }
 
@@ -570,10 +558,6 @@ function inferIdeaDomain(idea: Idea, state: EditState) {
   }
 
   return "generic";
-}
-
-function inferIdeaProductSurface(idea: Idea, state: EditState) {
-  return getProductSurfaceProfile(state.product_surface ?? idea.product_surface, ideaProductSurfaceInput(idea, state));
 }
 
 function includesAnyNormalized(text: string, terms: string[]) {
@@ -10809,10 +10793,7 @@ export function IdeaWorkbench({
     setMarketScanError(null);
 
     try {
-      const productSurface = getProductSurfaceProfile(
-        editState.product_surface ?? selectedIdea.product_surface,
-        ideaProductSurfaceInput(selectedIdea, editState),
-      );
+      const productSurface = inferIdeaProductSurface(selectedIdea, editState);
       const response = await fetch("/api/ideas/market-scan", {
         method: "POST",
         headers: {
@@ -10955,7 +10936,7 @@ export function IdeaWorkbench({
               const isOwned = accessState === "owned";
               const isOrgAdmin = accessState === "workspace_admin";
               const isManageable = isOwned || isOrgAdmin;
-              const productSurface = getProductSurfaceProfile(idea.product_surface, ideaProductSurfaceInput(idea));
+              const productSurface = inferIdeaProductSurface(idea);
 
               return (
                 <div
@@ -11152,10 +11133,7 @@ export function IdeaWorkbench({
 
               {visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {
                 const selectedProgress = getIdeaProgress(selectedIdea);
-                const selectedSurface = getProductSurfaceProfile(
-                  selectedIdea.product_surface,
-                  ideaProductSurfaceInput(selectedIdea),
-                );
+                const selectedSurface = inferIdeaProductSurface(selectedIdea);
                 const isOwned = Boolean(user && selectedIdea.created_by === user.id);
                 const isOrgAdmin = Boolean(
                   user &&
@@ -11260,7 +11238,7 @@ export function IdeaWorkbench({
                         {comparisonIdeas.length > 0 ? (
                           comparisonIdeas.map((idea, index) => {
                             const progress = getIdeaProgress(idea);
-                            const surface = getProductSurfaceProfile(idea.product_surface, ideaProductSurfaceInput(idea));
+                            const surface = inferIdeaProductSurface(idea);
                             const isOwnedComparison = Boolean(user && idea.created_by === user.id);
                             const isOrgAdminComparison = Boolean(
                               user &&
