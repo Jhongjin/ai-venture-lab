@@ -126,7 +126,9 @@ const contracts = [
     file: "src/components/step8-primary-cta.tsx",
     tokens: [
       'data-smoke="step8-primary-cta-confirm-only"',
+      'data-smoke="step8-report-copy-secondary"',
       "지금은 이 화면에서 확인만 하고, 실제 실행은 STEP 7에서 계속합니다.",
+      "리포트 복사는 보관이나 공유용입니다.",
     ],
   },
   {
