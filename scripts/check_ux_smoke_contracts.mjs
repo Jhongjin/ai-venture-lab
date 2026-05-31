@@ -39,6 +39,10 @@ const contracts = [
   },
   {
     file: "src/components/idea-workbench.tsx",
+    tokens: ["getWorkbenchOperatorFocusCopy", "getWorkbenchOperatorActionItems", "getWorkbenchOperatorGateNote"],
+  },
+  {
+    file: "src/lib/workbench-current-action-copy.ts",
     tokens: [
       "결과물 형태 확인",
       "검증 계획 확인",
