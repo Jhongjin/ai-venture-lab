@@ -52,7 +52,7 @@ export function FinalExecutionProgressImportPanel({
   } 내용을 붙여넣으세요.\n예: 완료 작업: T-002 핵심 사용자 여정 와이어프레임\n다음 미완료 작업은 T-003 데이터 모델과 마이그레이션 입니다.`;
 
   return (
-    <details className="mt-4 border border-slate-200 bg-slate-50 p-4">
+    <details data-smoke="final-execution-progress-import-backup" className="mt-4 border border-slate-200 bg-slate-50 p-4">
       <summary className="cursor-pointer list-none">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -61,7 +61,7 @@ export function FinalExecutionProgressImportPanel({
             </div>
             <p className="mt-1 text-sm leading-6 text-slate-600">
               {isLiveExternalDelivery
-                ? `일반 흐름에서는 열지 않아도 됩니다. ${activeToolLabel} 자동 반영이 실패했을 때만 사용하세요.`
+                ? `정상 흐름에서는 이 패널을 열지 않아도 됩니다. ${activeToolLabel} 자동 반영이 실패했을 때만 사용하세요.`
                 : "자동 쓰기 연결 전까지는 완료 보고를 붙여넣어 작업 상태를 갱신합니다."}
             </p>
           </div>

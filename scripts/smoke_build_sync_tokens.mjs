@@ -594,6 +594,15 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const progressImportBackup = page.locator('[data-smoke="final-execution-progress-import-backup"]');
+  await progressImportBackup.getByText("자동 반영이 안 될 때만 백업으로 가져오기", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await progressImportBackup.getByText("정상 흐름에서는 이 패널을 열지 않아도 됩니다", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const commandPath = page.locator('[data-smoke="final-execution-command-path"]');
   await commandPath.getByText("1. 파일 받기", { exact: true }).waitFor({
     state: "visible",
