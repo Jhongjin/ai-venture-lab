@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Guarded STEP 1 action ordering | `b382b92` | Not deployed separately; UX contract smoke update only | `pnpm smoke:ux-contracts`, `git diff --check`; UX contract smoke now checks ordered tokens so STEP 1 keeps the one-sentence guide, current action, input, examples, action panel, notices, and flow steps in the intended order |
 | 2026-05-31 | Documented STEP 1 action placement | `1401205` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now expects the AI organize/generate action to sit directly below the STEP 1 input or candidate area |
 | 2026-05-31 | Moved STEP 1 action closer to input | `de8ab45` | Auto-deployed from main; production smoke passed | `pnpm smoke:ux-contracts`, `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; STEP 1 now places the AI organize/generate action panel directly below the input or generated candidates, with explanatory flow steps after the action |
 | 2026-05-31 | Documented first-use input priority | `7e24413` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now expects the STEP 1 current action and input box to appear before deeper previews and examples |
