@@ -26,6 +26,16 @@ export type ImplementationDependencyRule = {
   nextAction: string;
 };
 
+export type ImplementationDependencyStatus = {
+  task: ImplementationTask;
+  ready: boolean;
+  blockers: string[];
+  completedPrerequisites: ImplementationTaskType[];
+  missingPrerequisites: ImplementationTaskType[];
+  gate: string;
+  nextAction: string;
+};
+
 export const implementationTaskStatuses: ImplementationTaskStatus[] = ["todo", "doing", "blocked", "done"];
 
 export const implementationTaskTypes: ImplementationTaskType[] = [
@@ -314,3 +324,42 @@ export const implementationDependencyRules: Record<ImplementationTaskType, Imple
     nextAction: "Preview/Production 배포, smoke, inspect URL, 롤백 기준을 기록합니다.",
   },
 };
+
+export function buildImplementationDependencyStatuses(tasks: ImplementationTask[]): ImplementationDependencyStatus[] {
+  const taskTypes = new Set(tasks.map((task) => task.task_type));
+  const completedTypes = new Set(tasks.filter((task) => task.status === "done").map((task) => task.task_type));
+
+  return sortImplementationTasksForExecution(tasks).map((task) => {
+    const rule = implementationDependencyRules[task.task_type];
+    const completedPrerequisites: ImplementationTaskType[] = [];
+    const missingPrerequisites: ImplementationTaskType[] = [];
+    const blockers = rule.prerequisites.flatMap((prerequisite) => {
+      if (completedTypes.has(prerequisite)) {
+        completedPrerequisites.push(prerequisite);
+        return [];
+      }
+
+      missingPrerequisites.push(prerequisite);
+
+      return [
+        taskTypes.has(prerequisite)
+          ? `${implementationTaskTypeLabels[prerequisite]} 태스크 완료 필요`
+          : `${implementationTaskTypeLabels[prerequisite]} 태스크 생성 필요`,
+      ];
+    });
+
+    if (task.status === "blocked") {
+      blockers.unshift("현재 차단 상태입니다. 차단 해소 큐의 다음 액션과 해소 증거를 먼저 남기세요.");
+    }
+
+    return {
+      task,
+      ready: task.status !== "done" && blockers.length === 0,
+      blockers,
+      completedPrerequisites,
+      missingPrerequisites,
+      gate: rule.gate,
+      nextAction: rule.nextAction,
+    };
+  });
+}
