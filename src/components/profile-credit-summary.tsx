@@ -13,6 +13,7 @@ import {
   getBalanceAfterBuildPass,
   getBuildPassCapacity,
   getBuildPassShortfall,
+  getCreditPeriodLedgerTotals,
   getMonthlyBuildPassCapacity,
   type CreditSummary,
 } from "@/lib/billing";
@@ -66,13 +67,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
   const openedPassCount = summary?.buildPasses.length ?? 0;
   const latestPass = summary?.buildPasses[0] ?? null;
   const ledgerEntries = summary?.ledgerEntries ?? [];
-  const currentPeriodLedgerEntries = ledgerEntries.filter((entry) => entry.periodKey === summary?.periodKey);
-  const currentPeriodGranted = currentPeriodLedgerEntries
-    .filter((entry) => entry.amount > 0)
-    .reduce((sum, entry) => sum + entry.amount, 0);
-  const currentPeriodSpent = Math.abs(
-    currentPeriodLedgerEntries.filter((entry) => entry.amount < 0).reduce((sum, entry) => sum + entry.amount, 0),
-  );
+  const currentPeriodLedgerTotals = getCreditPeriodLedgerTotals(ledgerEntries, summary?.periodKey);
   const remainingBuildPassCount = summary ? getBuildPassCapacity(summary.balance, summary.buildPassCost) : null;
   const balanceAfterNextPass = summary ? getBalanceAfterBuildPass(summary.balance, summary.buildPassCost) : null;
   const nextBuildPassShortfall = summary ? getBuildPassShortfall(summary.balance, summary.buildPassCost) : null;
@@ -163,12 +158,16 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">이번 달 지급</div>
-          <div className="mt-2 text-sm font-semibold text-slate-950">{formatCreditAmount(summary ? currentPeriodGranted : null)}</div>
+          <div className="mt-2 text-sm font-semibold text-slate-950">
+            {formatCreditAmount(summary ? currentPeriodLedgerTotals.granted : null)}
+          </div>
           <p className="mt-1 text-xs leading-5 text-slate-500">Free 월 지급과 조정 내역 기준입니다.</p>
         </div>
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">이번 달 사용</div>
-          <div className="mt-2 text-sm font-semibold text-slate-950">{formatCreditAmount(summary ? currentPeriodSpent : null)}</div>
+          <div className="mt-2 text-sm font-semibold text-slate-950">
+            {formatCreditAmount(summary ? currentPeriodLedgerTotals.spent : null)}
+          </div>
           <p className="mt-1 text-xs leading-5 text-slate-500">제작 패스 사용분이 여기에 쌓입니다.</p>
         </div>
         <div className="border border-slate-200 bg-white p-3">

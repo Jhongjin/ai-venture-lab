@@ -73,6 +73,11 @@ export type BuildPassUnlockResult = {
   creditMessage: string;
 };
 
+export type CreditPeriodLedgerTotals = {
+  granted: number;
+  spent: number;
+};
+
 export function isCreditSummary(value: unknown): value is CreditSummary {
   return (
     isPlainRecord(value) &&
@@ -150,6 +155,21 @@ export function formatBuildPassCount(value: number | null, fallback = "확인 �
   }
 
   return `${formatKoreanNumber(value)}개`;
+}
+
+export function getCreditPeriodLedgerTotals(
+  ledgerEntries: CreditLedgerEntry[],
+  periodKey: string | null | undefined,
+): CreditPeriodLedgerTotals {
+  const currentPeriodLedgerEntries = ledgerEntries.filter((entry) => entry.periodKey === periodKey);
+  const granted = currentPeriodLedgerEntries
+    .filter((entry) => entry.amount > 0)
+    .reduce((sum, entry) => sum + entry.amount, 0);
+  const spent = Math.abs(
+    currentPeriodLedgerEntries.filter((entry) => entry.amount < 0).reduce((sum, entry) => sum + entry.amount, 0),
+  );
+
+  return { granted, spent };
 }
 
 export function getBuildPassCapacity(balance: number | null, buildPassCost = IDEA_BUILD_PASS_CREDITS) {
