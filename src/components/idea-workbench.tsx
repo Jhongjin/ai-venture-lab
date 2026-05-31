@@ -44,6 +44,13 @@ import {
   getBuildPassCapacity,
   type CreditSummary,
 } from "@/lib/billing";
+import {
+  buildCursorProgressImportDrafts,
+  getCursorTaskCode,
+  normalizeTaskLookupTitle,
+  summarizeCursorProgressEvidence,
+  type ImplementationTaskDraft,
+} from "@/lib/external-progress-import";
 import type { WorkbenchTask } from "@/lib/workbench-tasks";
 import { FinalExecutionConnectionManager } from "@/components/final-execution-connection-manager";
 import { FinalExecutionExternalToolSection } from "@/components/final-execution-external-tool-section";
@@ -805,14 +812,6 @@ type MarketScanDraft = {
   next_action: string;
   caveat: string;
   sources: MarketScanSource[];
-};
-
-type ImplementationTaskDraft = {
-  title: string;
-  task_type: ImplementationTaskType;
-  priority: ImplementationTaskPriority;
-  owner_role: string;
-  acceptance_criteria: string;
 };
 
 type ImplementationSurfaceTaskGuidance = {
@@ -2162,20 +2161,6 @@ function toDownloadFileName(value: string, suffix: string, extension = "md") {
   return `${base || "venture-lab"}-${suffix}.${extension}`;
 }
 
-type CursorProgressImportItem = {
-  taskCode: string;
-  draftIndex: number;
-  title: string;
-  status: ImplementationTaskStatus;
-  evidence: string;
-};
-
-type CursorProgressImportDraft = ImplementationTaskDraft & {
-  taskCode: string;
-  status: ImplementationTaskStatus;
-  evidence: string;
-};
-
 type CursorProgressDisplayItem = {
   taskCode: string;
   title: string;
@@ -2260,295 +2245,6 @@ function upsertCursorSyncConnection(connections: CursorSyncConnection[], connect
   return [connection, ...withoutCurrent].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
-}
-
-function getCursorTaskCode(index: number) {
-  return `T-${String(index + 1).padStart(3, "0")}`;
-}
-
-function normalizeTaskLookupTitle(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/^[tT][-\s]?\d{1,3}\s*/g, "")
-    .replace(/[()[\]{}:：._-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function normalizeCursorProgressStatus(value: unknown, fallback: ImplementationTaskStatus = "todo"): ImplementationTaskStatus {
-  const text = String(value ?? "").toLowerCase();
-
-  if (/blocked|blocker|차단|막힘|보류/.test(text)) {
-    return "blocked";
-  }
-
-  if (/doing|running|progress|진행|작업\s*중/.test(text)) {
-    return "doing";
-  }
-
-  if (/done|complete|completed|finished|reported|recorded|완료|마침|통과|기록/.test(text)) {
-    return "done";
-  }
-
-  if (/todo|next|pending|대기|미완료|다음/.test(text)) {
-    return "todo";
-  }
-
-  return fallback;
-}
-
-function parseCursorTaskReference(value: string, fallbackIndex: number) {
-  const match = value.match(/T[-\s]?(\d{1,3})/i);
-  const parsedNumber = match ? Number.parseInt(match[1], 10) : Number.NaN;
-  const draftIndex = Number.isFinite(parsedNumber) && parsedNumber > 0 ? parsedNumber - 1 : fallbackIndex;
-  const taskCode = Number.isFinite(parsedNumber) && parsedNumber > 0 ? getCursorTaskCode(draftIndex) : getCursorTaskCode(fallbackIndex);
-  const titleFromParentheses = value.match(/T[-\s]?\d{1,3}\s*[\(:：]\s*([^)\n]+)\)?/i)?.[1]?.trim() ?? "";
-  const titleAfterCode = match
-    ? value
-        .slice((match.index ?? 0) + match[0].length)
-        .replace(/^[\s:：()[\].,_-]+/g, "")
-        .replace(/^(과|와|및|그리고|를|을|은|는)\s+/g, "")
-        .replace(/\s*(이번에|이번 작업|마쳤|완료|입니다|진행합니다|작성)\s*.*$/g, "")
-        .trim()
-    : value.trim();
-  const title = titleFromParentheses || titleAfterCode;
-
-  return {
-    taskCode,
-    draftIndex,
-    title,
-  };
-}
-
-function buildCursorProgressEvidence(sourceText: string, taskCode: string, title: string, status: ImplementationTaskStatus) {
-  const lines = sourceText
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const verificationLines = lines
-    .filter((line) => /pnpm|lint|typecheck|harness|build|smoke|검증|통과/i.test(line))
-    .slice(0, 12);
-  const fileLines = lines
-    .filter((line) => /AI_VENTURE_|docs\/|web\/|src\/|\.md|변경 파일|경로|포함 범위/i.test(line))
-    .slice(0, 12);
-  const nextLine = lines.find((line) => /다음|next|미완료|남은/i.test(line));
-  const summaryLines = lines
-    .filter((line) => !verificationLines.includes(line) && !fileLines.includes(line))
-    .slice(0, 8);
-
-  return [
-    "# 외부 개발 도구 진행 결과 가져오기",
-    "",
-    `- 작업: ${taskCode} ${title || "제작 작업"}`,
-    `- 반영 상태: ${implementationTaskStatusLabels[status]}`,
-    nextLine ? `- 다음 언급: ${nextLine}` : "",
-    verificationLines.length > 0 ? `\n## 검증\n${verificationLines.map((line) => `- ${line}`).join("\n")}` : "",
-    fileLines.length > 0 ? `\n## 변경 파일/범위\n${fileLines.map((line) => `- ${line}`).join("\n")}` : "",
-    summaryLines.length > 0 ? `\n## 완료 보고 요약\n${summaryLines.map((line) => `- ${line}`).join("\n")}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n")
-    .slice(0, 3600);
-}
-
-function summarizeCursorProgressEvidence(evidence: string) {
-  const preferredLine =
-    evidence
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .find((line) => /요약|검증|변경 파일|범위|다음 언급/.test(line) && !line.startsWith("##")) ??
-    evidence
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .find((line) => line.startsWith("- ")) ??
-    "";
-
-  return preferredLine.replace(/^-\s*/, "").replace(/^요약:\s*/, "").slice(0, 140);
-}
-
-function parseCursorProgressJsonItems(sourceText: string): CursorProgressImportItem[] {
-  let parsed: unknown;
-
-  try {
-    parsed = JSON.parse(sourceText);
-  } catch {
-    return [];
-  }
-
-  const records = Array.isArray(parsed)
-    ? parsed
-    : isPlainRecord(parsed) && Array.isArray(parsed.records)
-      ? parsed.records
-      : isPlainRecord(parsed) && Array.isArray(parsed.progress)
-        ? parsed.progress
-        : isPlainRecord(parsed) && Array.isArray(parsed.tasks)
-          ? parsed.tasks
-          : [];
-
-  return records.flatMap((record, index) => {
-    if (!isPlainRecord(record)) {
-      return [];
-    }
-
-    const rawTask = String(record.task ?? record.title ?? record.name ?? "").trim();
-    if (!rawTask) {
-      return [];
-    }
-
-    const reference = parseCursorTaskReference(rawTask, index);
-    const status = normalizeCursorProgressStatus(record.status ?? record.state ?? record.result, "done");
-    const files = Array.isArray(record.files) ? record.files.map(String).filter(Boolean) : [];
-    const verification = String(record.verification ?? "").trim();
-    const summary = String(record.summary ?? record.note ?? record.description ?? "").trim();
-    const evidenceSource = [
-      `작업: ${rawTask}`,
-      `상태: ${String(record.status ?? status)}`,
-      summary ? `요약: ${summary}` : "",
-      files.length > 0 ? `변경 파일: ${files.join(", ")}` : "",
-      verification ? `검증: ${verification}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    return [
-      {
-        ...reference,
-        title: reference.title || rawTask,
-        status,
-        evidence: buildCursorProgressEvidence(evidenceSource, reference.taskCode, reference.title || rawTask, status),
-      },
-    ];
-  });
-}
-
-function parseCursorProgressTextItems(sourceText: string): CursorProgressImportItem[] {
-  const taskPattern = /T[-\s]?(\d{1,3})(?:\s*[\(:：]\s*([^)\n]+)\)?)?/gi;
-  const lines = sourceText
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const items: CursorProgressImportItem[] = [];
-  const looseJsonRecordPattern =
-    /"task"\s*:\s*"([^"]+)"[\s\S]{0,900}?"status"\s*:\s*"([^"]+)"(?:[\s\S]{0,900}?"summary"\s*:\s*"([^"]+)")?/gi;
-
-  for (const match of sourceText.matchAll(looseJsonRecordPattern)) {
-    const rawTask = match[1]?.trim() ?? "";
-    if (!rawTask) {
-      continue;
-    }
-
-    const reference = parseCursorTaskReference(rawTask, items.length);
-    const status = normalizeCursorProgressStatus(match[2], "done");
-    const summary = match[3]?.trim() ?? "";
-
-    items.push({
-      ...reference,
-      title: reference.title || rawTask,
-      status,
-      evidence: buildCursorProgressEvidence(
-        [`작업: ${rawTask}`, `상태: ${match[2]}`, summary ? `요약: ${summary}` : ""].filter(Boolean).join("\n"),
-        reference.taskCode,
-        reference.title || rawTask,
-        status,
-      ),
-    });
-  }
-
-  for (const line of lines) {
-    const lowerLine = line.toLowerCase();
-    const isNextLine = /다음|next|미완료|pending|todo/.test(lowerLine);
-    const isDoneLine = !/미완료/.test(lowerLine) && /완료|마쳤|completed|done|finished|통과/.test(lowerLine);
-    const isProgressLine = /진행|작업\s*중|running|progress/.test(lowerLine);
-
-    if (!isNextLine && !isDoneLine && !isProgressLine) {
-      continue;
-    }
-
-    const matches = Array.from(line.matchAll(taskPattern));
-    for (const match of matches) {
-      const taskNumber = Number.parseInt(match[1], 10);
-      if (!Number.isFinite(taskNumber) || taskNumber <= 0) {
-        continue;
-      }
-
-      const draftIndex = taskNumber - 1;
-      const reference = parseCursorTaskReference(line, draftIndex);
-      const status = isDoneLine
-        ? "done"
-        : isProgressLine
-          ? "doing"
-          : "todo";
-      const title = (match[2] ?? reference.title).trim();
-
-      items.push({
-        taskCode: getCursorTaskCode(draftIndex),
-        draftIndex,
-        title,
-        status,
-        evidence: buildCursorProgressEvidence(sourceText, getCursorTaskCode(draftIndex), title, status),
-      });
-    }
-  }
-
-  const byCode = new Map<string, CursorProgressImportItem>();
-  for (const item of items) {
-    const previous = byCode.get(item.taskCode);
-    if (!previous || (previous.status !== "done" && item.status === "done")) {
-      byCode.set(item.taskCode, item);
-    }
-  }
-
-  return Array.from(byCode.values()).sort((a, b) => a.draftIndex - b.draftIndex);
-}
-
-function buildCursorProgressImportDrafts({
-  sourceText,
-  fallbackTasks,
-}: {
-  sourceText: string;
-  fallbackTasks: ImplementationTaskDraft[];
-}) {
-  const trimmedSource = sourceText.trim();
-  const parsedItems = parseCursorProgressJsonItems(trimmedSource);
-  const importItems = parsedItems.length > 0 ? parsedItems : parseCursorProgressTextItems(trimmedSource);
-  const itemByIndex = new Map<number, CursorProgressImportItem>();
-
-  for (const item of importItems) {
-    const previous = itemByIndex.get(item.draftIndex);
-    if (!previous || (previous.status !== "done" && item.status === "done")) {
-      itemByIndex.set(item.draftIndex, item);
-    }
-  }
-
-  const drafts: CursorProgressImportDraft[] = fallbackTasks.map((task, index) => {
-    const item = itemByIndex.get(index);
-
-    return {
-      ...task,
-      taskCode: getCursorTaskCode(index),
-      status: item?.status ?? "todo",
-      evidence: item?.evidence ?? "",
-    };
-  });
-
-  const extraDrafts = importItems
-    .filter((item) => item.draftIndex < 0 || item.draftIndex >= fallbackTasks.length)
-    .map((item) => ({
-      taskCode: item.taskCode,
-      title: item.title || item.taskCode,
-      task_type: "planning" as ImplementationTaskType,
-      priority: item.status === "blocked" ? ("high" as ImplementationTaskPriority) : ("medium" as ImplementationTaskPriority),
-      owner_role: "prototype-builder",
-      acceptance_criteria: "외부 개발 도구 진행 결과에서 가져온 추가 제작 작업입니다.",
-      status: item.status,
-      evidence: item.evidence,
-    }));
-
-  return {
-    drafts: [...drafts, ...extraDrafts],
-    parsedCount: importItems.length,
-    completedCount: importItems.filter((item) => item.status === "done").length,
-  };
 }
 
 function buildCursorTaskMarkdown({
