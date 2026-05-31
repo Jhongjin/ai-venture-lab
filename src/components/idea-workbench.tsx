@@ -82,6 +82,7 @@ import { Step8OutcomeDetails } from "@/components/step8-outcome-details";
 import { Step8PrimaryCta } from "@/components/step8-primary-cta";
 import { Step8ProgressSection } from "@/components/step8-progress-section";
 import { Step8TelemetryAdapterGuide } from "@/components/step8-telemetry-adapter-guide";
+import { WorkbenchCurrentAction } from "@/components/workbench-current-action";
 import { WorkbenchEmptyState } from "@/components/workbench-empty-state";
 import type {
   Decision,
@@ -12488,6 +12489,34 @@ export function IdeaWorkbench({
         };
     }
   })();
+  const operatorFocusActionItems = (() => {
+    switch (activeTask) {
+      case "select":
+        return ["아이디어 선택", "진행 단계 확인", "이어서 볼 단계 열기"];
+      case "score":
+        return ["결과물 형태 확인", "평가값 확인", "사업성 평가 저장"];
+      case "experiment":
+        return ["검증 계획 확인", "시장·경쟁 근거 확인", "검증 계획 저장"];
+      case "artifacts":
+        return ["자료 묶음 확인", "필요한 메모만 보완", "검증 자료 저장"];
+      case "development":
+        return ["AI 제작 패키지 만들기", "최종 요약 확인", "제작 패키지 저장"];
+      case "orchestration":
+        return ["작업 순서 자동 만들기", "T-001 확인", "하단 다음 단계"];
+      case "launch":
+        return ["준비 완료 확인", "연결 파일 받기", "선택한 개발 방식으로 실행"];
+      case "learning":
+        return ["완료 상태 확인", "다음 행동 확인", "오늘 판단 기록"];
+      case "risk":
+        return ["막는 위험 확인", "심각도 선택", "대응 방향 저장"];
+      case "decision":
+        return ["현재 판단 선택", "근거 한 문단 확인", "판단 기록 저장"];
+      case "archive":
+        return ["삭제 목록 확인", "복구 여부 결정", "필요할 때만 완전 삭제"];
+      default:
+        return ["현재 내용 확인", "필요한 부분만 수정", "하단 다음 단계"];
+    }
+  })();
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -15049,20 +15078,14 @@ export function IdeaWorkbench({
       ) : null}
 
       <div className="grid min-w-0 gap-6">
-        <div className="border border-blue-100 bg-blue-50 p-4 text-slate-950">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <div className="text-[11px] font-semibold tracking-[0.16em] text-blue-700">지금 할 일</div>
-              <h2 className="mt-2 text-base font-semibold text-slate-950">{operatorFocus.title}</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-700">{operatorFocus.detail}</p>
-            </div>
-            <div className="flex flex-wrap gap-2 lg:justify-end">
-              <span className="avl-pill avl-pill-info">{activeTaskMeta.label}</span>
-              <span className="avl-pill avl-pill-neutral">{selectedIdeaProgress.label}</span>
-              <span className="avl-pill avl-pill-neutral">{activeProductSurface.label}</span>
-            </div>
-          </div>
-        </div>
+        <WorkbenchCurrentAction
+          actionItems={operatorFocusActionItems}
+          activeTaskLabel={activeTaskMeta.label}
+          detail={operatorFocus.detail}
+          productSurfaceLabel={activeProductSurface.label}
+          progressLabel={selectedIdeaProgress.label}
+          title={operatorFocus.title}
+        />
 
         <div
           className={`grid gap-5 ${

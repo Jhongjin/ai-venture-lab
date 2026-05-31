@@ -5,6 +5,18 @@ const root = process.cwd();
 
 const contracts = [
   {
+    file: "src/components/workbench-current-action.tsx",
+    tokens: [
+      'data-smoke="workbench-current-action"',
+      'data-smoke="workbench-current-action-checklist"',
+      "지금 할 일",
+    ],
+  },
+  {
+    file: "src/components/idea-workbench.tsx",
+    tokens: ["결과물 형태 확인", "검증 계획 확인", "제작 패키지 저장", "T-001 확인"],
+  },
+  {
     file: "src/components/first-use-result-preview.tsx",
     tokens: [
       'data-smoke="first-use-result-preview"',
@@ -36,7 +48,7 @@ const contracts = [
   },
   {
     file: "scripts/smoke_build_sync_tokens.mjs",
-    tokens: ['[data-smoke="step8-simple-review-details"]'],
+    tokens: ['[data-smoke="step8-simple-review-details"]', '[data-smoke="workbench-current-action"]', "T-001 확인"],
   },
   {
     file: "scripts/smoke_billing_credits.mjs",

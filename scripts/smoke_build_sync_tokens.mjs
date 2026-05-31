@@ -331,6 +331,19 @@ async function verifyWorkOrderCurrentAction(page, ideaId) {
     timeout,
   });
 
+  const workbenchCurrentAction = page.locator('[data-smoke="workbench-current-action"]');
+  await workbenchCurrentAction.getByText("지금 할 일", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  const workbenchCurrentActionChecklist = page.locator('[data-smoke="workbench-current-action-checklist"]');
+  for (const label of ["작업 순서 자동 만들기", "T-001 확인", "하단 다음 단계"]) {
+    await workbenchCurrentActionChecklist.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
+
   const currentAction = page.locator('[data-smoke="step6-current-action"]');
   for (const label of ["지금 할 일", "첫 작업", "다음 단계"]) {
     await currentAction.getByText(label, { exact: true }).waitFor({
