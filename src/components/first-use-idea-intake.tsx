@@ -26,7 +26,7 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
         <span className="font-semibold text-slate-950">
           처음이라면 메모를 그대로 붙이고 이 내용으로 아이디어 정리하기만 누르세요.
         </span>{" "}
-        넣는 것: 메모, 대화, 자동화할 업무. 받는 것: 후보 3개, 결과물 형태, 개발 방식.
+        넣는 것: 메모, 대화, 자동화할 업무. 받는 것: 후보 3개, 결과물 형태, 개발 방식, 첫 검증 질문.
       </div>
       <FirstUseFastPath />
       <FirstUseResultPreview />
@@ -34,8 +34,8 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
         data-smoke="first-use-final-output"
         className="border border-slate-200 bg-white px-4 py-3 text-sm font-semibold leading-6 text-slate-950"
       >
-        최종 결과: 저장한 후보는 사업성 평가, 검증 계획, 제작 패키지, 작업 순서, STEP 7 연결 파일까지 이어집니다. 처음에는
-        후보 한 건만 저장하면 됩니다.
+        최종 결과: 저장한 후보는 사업성 평가, 검증 계획, 제작 패키지, 작업 순서, STEP 7 연결 파일까지 이어집니다.
+        처음에는 후보 한 건만 저장하면 됩니다.
       </div>
       <FirstUseInputStatus rawIdeaSource={rawIdeaSource} />
       <FirstUseInputExamples onExampleClick={handleExampleClick} />

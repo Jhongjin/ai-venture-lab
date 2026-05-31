@@ -4,7 +4,7 @@ const firstUseResultPreviewItems = [
   {
     label: "후보",
     title: "AI 아이디어 후보 3개",
-    body: "좋은 후보는 킵하고 나머지만 다시 볼 수 있습니다.",
+    body: "AI가 사업 후보로 나누고, 좋은 후보는 킵하고 나머지만 다시 볼 수 있습니다.",
   },
   {
     label: "제작 방향",
@@ -13,8 +13,8 @@ const firstUseResultPreviewItems = [
   },
   {
     label: "저장 후",
-    title: "사업성 평가부터 열림",
-    body: "저장 완료 전에는 다음 단계 버튼이 잠긴 상태로 유지됩니다.",
+    title: "저장 후 사업성 평가로 이어짐",
+    body: "후보 한 건을 저장하면 STEP 2가 열립니다. 저장 완료 전에는 다음 단계 버튼이 잠긴 상태로 유지됩니다.",
   },
 ] as const;
 
