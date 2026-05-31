@@ -42,6 +42,15 @@ const contracts = [
     tokens: ["getWorkbenchOperatorFocusCopy", "getWorkbenchOperatorActionItems", "getWorkbenchOperatorGateNote"],
   },
   {
+    file: "src/components/workbench-form-controls.tsx",
+    tokens: [
+      'data-smoke="draft-document-save-boundary"',
+      "isSaved ? <CheckCircle2",
+      "복사는 외부 문서나 메신저에 붙여 넣을 때 쓰는 보조 동작입니다.",
+      "이 문서는 저장되어 상단 진행 상태에 반영되었습니다.",
+    ],
+  },
+  {
     file: "src/lib/workbench-current-action-copy.ts",
     tokens: [
       "결과물 형태 확인",

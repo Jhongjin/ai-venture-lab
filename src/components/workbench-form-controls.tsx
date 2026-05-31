@@ -156,7 +156,7 @@ export function DraftDocumentCard({
                 disabled={saveDisabled}
                 className="avl-btn avl-btn-primary px-4 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <Save size={18} />
+                {isSaved ? <CheckCircle2 size={18} /> : <Save size={18} />}
                 {saveLabel}
               </button>
             ) : null}
@@ -164,7 +164,10 @@ export function DraftDocumentCard({
         ) : null}
       </div>
       {onSave && actionMode === "full" ? (
-        <div className="mt-4 border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-600">
+        <div
+          data-smoke="draft-document-save-boundary"
+          className="mt-4 border border-slate-200 bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-600"
+        >
           {isSaved ? (
             <span>이 문서는 저장되어 상단 진행 상태에 반영되었습니다.</span>
           ) : (
