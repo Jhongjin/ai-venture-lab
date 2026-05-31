@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Clarified market scan public source counts | `c90e5c0` | Auto-deployed from main; production smoke passed | `pnpm smoke:ux-contracts`, `pnpm typecheck`, `pnpm quality:full` after one transient Windows `EPERM` retry, `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1 pnpm smoke:market`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; market scan fallback can keep a user-input estimate source internally, but UI and saved market-scan text now count only public `https` sources as public evidence |
 | 2026-05-31 | Recorded market scan fallback decision | `e98083c` | Not deployed; docs-only decision log update | `git diff --check`; decision log now states that fallback market scans remain structured but estimate-labeled until source-backed market smoke passes again |
 | 2026-05-31 | Aligned user guide with first-use save gate | `465e3f2` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now expects the next-step button to open only after one candidate is saved |
 | 2026-05-31 | Clarified first-use save gate | `b9ccf35` | Auto-deployed from main; production smoke passed | `pnpm smoke:ux-contracts`, `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; first-use fast path now says the next-step button opens only after one candidate is saved |
