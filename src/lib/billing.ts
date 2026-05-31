@@ -1,3 +1,5 @@
+import { isPlainRecord } from "@/lib/record-utils";
+
 export const FREE_MONTHLY_CREDITS = 100;
 export const IDEA_BUILD_PASS_CREDITS = 30;
 export const FREE_PACKAGE_ARTIFACT_LIMIT = 4;
@@ -47,6 +49,22 @@ export type CreditSummary = {
   ledgerEntries: CreditLedgerEntry[];
   message: string | null;
 };
+
+export function isCreditSummary(value: unknown): value is CreditSummary {
+  return (
+    isPlainRecord(value) &&
+    (value.status === "ready" || value.status === "missing" || value.status === "unavailable") &&
+    value.plan === "free" &&
+    typeof value.periodKey === "string" &&
+    typeof value.monthlyGrant === "number" &&
+    typeof value.buildPassCost === "number" &&
+    typeof value.freeArtifactLimit === "number" &&
+    typeof value.fullArtifactCount === "number" &&
+    (typeof value.balance === "number" || value.balance === null) &&
+    Array.isArray(value.buildPasses) &&
+    Array.isArray(value.ledgerEntries)
+  );
+}
 
 export type BillingErrorLike = {
   code?: string;

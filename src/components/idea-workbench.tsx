@@ -159,6 +159,7 @@ import {
   FULL_PACKAGE_ARTIFACT_COUNT,
   IDEA_BUILD_PASS_CREDITS,
   getBuildPassCapacity,
+  isCreditSummary,
   type CreditSummary,
 } from "@/lib/billing";
 import {
@@ -402,22 +403,6 @@ type DevelopmentAutoFlowState = "idle" | "running" | "review" | "summary";
 
 function emitVentureEvent<T>(eventName: string, detail: T) {
   window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
-}
-
-function isCreditSummary(value: unknown): value is CreditSummary {
-  return (
-    isPlainRecord(value) &&
-    (value.status === "ready" || value.status === "missing" || value.status === "unavailable") &&
-    value.plan === "free" &&
-    typeof value.periodKey === "string" &&
-    typeof value.monthlyGrant === "number" &&
-    typeof value.buildPassCost === "number" &&
-    typeof value.freeArtifactLimit === "number" &&
-    typeof value.fullArtifactCount === "number" &&
-    (typeof value.balance === "number" || value.balance === null) &&
-    Array.isArray(value.buildPasses) &&
-    Array.isArray(value.ledgerEntries)
-  );
 }
 
 type CursorProgressDisplayItem = {
