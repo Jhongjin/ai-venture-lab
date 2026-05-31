@@ -4,6 +4,7 @@ import { FirstUseFastPath } from "@/components/first-use-fast-path";
 import { FirstUseInputExamples } from "@/components/first-use-input-examples";
 import { FirstUseInputStatus } from "@/components/first-use-input-status";
 import { FirstUseMoreContext } from "@/components/first-use-more-context";
+import { FirstUseResultPreview } from "@/components/first-use-result-preview";
 import { FirstUseSourceTextarea } from "@/components/first-use-source-textarea";
 
 type FirstUseIdeaIntakeProps = {
@@ -26,6 +27,7 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
         넣는 것: 메모, 대화, 자동화할 업무. 받는 것: 후보 3개, 결과물 형태, 개발 방식.
       </div>
       <FirstUseFastPath />
+      <FirstUseResultPreview />
       <FirstUseInputStatus rawIdeaSource={rawIdeaSource} />
       <FirstUseInputExamples onExampleClick={handleExampleClick} />
       <FirstUseSourceTextarea

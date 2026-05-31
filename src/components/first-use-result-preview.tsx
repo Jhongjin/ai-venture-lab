@@ -1,0 +1,33 @@
+"use client";
+
+const firstUseResultPreviewItems = [
+  {
+    label: "후보",
+    title: "AI 아이디어 후보 3개",
+    body: "좋은 후보는 킵하고 나머지만 다시 볼 수 있습니다.",
+  },
+  {
+    label: "제작 방향",
+    title: "결과물 형태와 개발 방식",
+    body: "예: 모바일 앱으로 만들고, Cursor로 개발합니다.",
+  },
+  {
+    label: "저장 후",
+    title: "사업성 평가부터 열림",
+    body: "저장 완료 전에는 다음 단계 버튼이 잠긴 상태로 유지됩니다.",
+  },
+] as const;
+
+export function FirstUseResultPreview() {
+  return (
+    <div data-smoke="first-use-result-preview" className="grid gap-px bg-blue-200 md:grid-cols-3">
+      {firstUseResultPreviewItems.map((item) => (
+        <div key={item.label} className="bg-white px-4 py-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">{item.label}</div>
+          <div className="mt-2 text-sm font-semibold text-slate-950">{item.title}</div>
+          <p className="mt-1 text-sm leading-6 text-slate-600">{item.body}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
