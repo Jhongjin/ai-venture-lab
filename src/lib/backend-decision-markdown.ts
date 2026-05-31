@@ -11,6 +11,20 @@ type BackendDecisionCandidate = {
   cautions: string[];
 };
 
+type BackendExecutionPlanMarkdown = {
+  backend: Pick<BackendDecisionCandidate, "label" | "score" | "summary">;
+  envVars: string[];
+  checks: Array<{
+    label: string;
+    detail: string;
+    evidence: string;
+    tone: "required" | "recommended";
+  }>;
+  localCommand: string;
+  productionGate: string;
+  rollback: string;
+};
+
 export function buildBackendDecisionMarkdown({
   idea,
   state,
@@ -76,5 +90,53 @@ ${candidateRows}
 - 배포 로그: Vercel inspect URL 또는 Preview/Production 빌드 로그
 - 배포/롤백:
 - 남은 리스크: ${state.risk_summary || "미정"}
+`;
+}
+
+export function buildBackendExecutionPlanMarkdown({
+  idea,
+  plan,
+}: {
+  idea: Idea;
+  plan: BackendExecutionPlanMarkdown;
+}) {
+  return `# 백엔드 실행 체크리스트: ${idea.name}
+
+## 선택
+
+- 권장 백엔드: ${plan.backend.label}
+- 점수: ${plan.backend.score}
+- 요약: ${plan.backend.summary}
+
+## 환경변수
+
+${plan.envVars.map((envVar) => `- ${envVar}`).join("\n")}
+
+## 권한/보안 체크
+
+${plan.checks
+  .map(
+    (check) => `### ${check.label}
+
+- 구분: ${check.tone === "required" ? "필수" : "권장"}
+- 확인: ${check.detail}
+- 증거: ${check.evidence}
+`,
+  )
+  .join("\n")}
+
+## 로컬 검증 명령
+
+\`\`\`bash
+${plan.localCommand}
+\`\`\`
+
+## Production 점검
+
+${plan.productionGate}
+
+## 롤백
+
+${plan.rollback}
 `;
 }
