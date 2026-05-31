@@ -9,7 +9,7 @@ const firstUseResultPreviewItems = [
   {
     label: "제작 방향",
     title: "결과물 형태와 개발 방식",
-    body: "예: 모바일 앱으로 만들고, Cursor로 개발합니다.",
+    body: "무엇을 만들지는 결과물 형태, 어디서 만들지는 개발 방식으로 따로 보여줍니다.",
   },
   {
     label: "저장 후",

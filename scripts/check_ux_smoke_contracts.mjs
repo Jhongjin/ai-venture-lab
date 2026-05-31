@@ -84,6 +84,7 @@ const contracts = [
       'data-smoke="first-use-result-preview"',
       "AI 아이디어 후보 3개",
       "결과물 형태와 개발 방식",
+      "무엇을 만들지는 결과물 형태, 어디서 만들지는 개발 방식",
       "저장 완료 전에는 다음 단계 버튼이 잠긴 상태",
     ],
   },
