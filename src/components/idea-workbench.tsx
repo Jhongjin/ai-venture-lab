@@ -37,7 +37,9 @@ import {
   type ArtifactReviewSummary,
 } from "@/lib/artifact-review-summary";
 import {
+  getActiveIdeas,
   isIdeaStageAtOrAfter,
+  isDiscardedIdea,
   sortWorkbenchIdeas,
   upsertRecordById,
   upsertRecordsById,
@@ -249,14 +251,6 @@ const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot"
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
 const adminRoles = new Set(["owner", "admin"]);
-function isDiscardedIdea(idea: Idea) {
-  return idea.decision === "kill";
-}
-
-function getActiveIdeas(nextIdeas: Idea[]) {
-  return nextIdeas.filter((idea) => !isDiscardedIdea(idea));
-}
-
 type EditState = Pick<
   Idea,
   | "stage"

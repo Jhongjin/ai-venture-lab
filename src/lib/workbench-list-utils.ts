@@ -12,6 +12,14 @@ export function isIdeaStageAtOrAfter(stage: IdeaStage, targetStage: IdeaStage) {
   return getIdeaStageRank(stage) >= getIdeaStageRank(targetStage);
 }
 
+export function isDiscardedIdea(idea: Idea) {
+  return idea.decision === "kill";
+}
+
+export function getActiveIdeas(nextIdeas: Idea[]) {
+  return nextIdeas.filter((idea) => !isDiscardedIdea(idea));
+}
+
 export function sortWorkbenchIdeas(nextIdeas: Idea[]) {
   return [...nextIdeas].sort(
     (a, b) =>
