@@ -32,6 +32,7 @@ import {
   type BuildDeliveryPreference,
 } from "@/lib/build-delivery";
 import { formatAuthCallbackMessage, formatAuthError, formatWorkspaceError } from "@/lib/venture-console-errors";
+import { compactText, countKeywordHits, findLabeledValue, stripLabel } from "@/lib/extraction-text-utils";
 import { IdeaExtractionAdvancedQueue } from "@/components/idea-extraction-advanced-queue";
 import { IdeaExtractionDetailList } from "@/components/idea-extraction-detail-list";
 import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
@@ -272,26 +273,6 @@ const workspaceRecordTables = [
   "implementation_tasks",
 ] as const;
 
-function compactText(value: string, maxLength = 180) {
-  return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
-}
-
-function stripLabel(value: string) {
-  return value
-    .replace(/^#{1,4}\s*/, "")
-    .replace(/^\d+[\.\)]\s*/, "")
-    .replace(/^아이디어\s*[:：]\s*/, "")
-    .replace(/^["“”']|["“”']$/g, "")
-    .trim();
-}
-
-function findLabeledValue(block: string, labels: string[]) {
-  const pattern = new RegExp(`(?:^|\\n)\\s*(?:${labels.join("|")})\\s*[:：]\\s*([^\\n]+)`, "i");
-  const match = block.match(pattern);
-
-  return match ? compactText(match[1]) : "";
-}
-
 function inferText(block: string, type: "target" | "buyer" | "risk" | "next") {
   if (type === "target") {
     if (/요양|간병|돌봄|시니어/.test(block)) {
@@ -355,10 +336,6 @@ function inferText(block: string, type: "target" | "buyer" | "risk" | "next") {
   }
 
   return "가장 고통이 큰 사용자 5명에게 문제 빈도, 현재 대안, 지불 의향을 확인합니다.";
-}
-
-function countKeywordHits(block: string, keywords: string[]) {
-  return keywords.reduce((count, keyword) => count + (block.includes(keyword) ? 1 : 0), 0);
 }
 
 function inferRiskLevel(block: string): ExtractedIdea["riskLevel"] {
