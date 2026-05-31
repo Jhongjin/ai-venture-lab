@@ -104,6 +104,7 @@ import {
   type BuildDeliveryMode,
   type ExternalBuildToolKey,
 } from "@/lib/build-delivery";
+import { buildFinalExecutionReadiness } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import {
   buildAntigravityMcpConfigJson,
@@ -2671,39 +2672,21 @@ export function IdeaWorkbench({
     hasManualDevelopmentPackageFallback;
   const hasFinalExecutionWorkOrder =
     selectedRuns.length > 0 || selectedImplementationTasks.length > 0 || hasDevelopmentPlanArtifact;
-  const launchReadiness = selectedIdea && editState
-    ? [
-        {
-          label: "제작 패키지 저장",
-          passed: hasFinalExecutionPackage,
-          detail: hasFinalExecutionPackage
-            ? "최종 실행에서 쓸 제작 패키지가 저장되어 있습니다."
-            : "STEP 5에서 제작 패키지를 저장하세요.",
-        },
-        {
-          label: "작업 순서 준비",
-          passed: hasFinalExecutionWorkOrder,
-          detail: hasFinalExecutionWorkOrder
-            ? `작업 순서 ${selectedRuns.length}개, 제작 할 일 ${selectedImplementationTasks.length}개가 준비되어 있습니다.`
-            : "작업 순서 자동 만들기를 눌러 제작자가 볼 순서를 준비하세요.",
-        },
-        {
-          label: "개발 방식 확정",
-          passed: Boolean(buildDeliveryMode && activeBuildDeliveryLabel),
-          detail:
-            buildDeliveryMode === "external_tool"
-              ? `${activeExternalBuildTool.label}로 넘길 준비 자료를 보여줍니다.`
-              : "Venture Lab 내부 개발로 이어질 준비 자료를 보여줍니다.",
-        },
-      ]
-    : [];
-  const passedLaunchReadinessCount = launchReadiness.filter((check) => check.passed).length;
-  const launchReadinessScore =
-    launchReadiness.length === 0
-      ? 0
-      : Math.round((passedLaunchReadinessCount / launchReadiness.length) * 100);
-  const nextLaunchBlocker = launchReadiness.find((check) => !check.passed) ?? null;
-  const canEnterLaunch = launchReadiness.length > 0 && !nextLaunchBlocker;
+  const finalExecutionReadiness = buildFinalExecutionReadiness({
+    activeBuildDeliveryLabel,
+    buildDeliveryMode,
+    externalToolLabel: activeExternalBuildTool.label,
+    hasFinalExecutionPackage,
+    hasFinalExecutionWorkOrder,
+    hasIdeaContext: Boolean(selectedIdea && editState),
+    implementationTaskCount: selectedImplementationTasks.length,
+    runCount: selectedRuns.length,
+  });
+  const launchReadiness = finalExecutionReadiness.checks;
+  const passedLaunchReadinessCount = finalExecutionReadiness.passedCount;
+  const launchReadinessScore = finalExecutionReadiness.score;
+  const nextLaunchBlocker = finalExecutionReadiness.nextBlocker;
+  const canEnterLaunch = finalExecutionReadiness.canEnterLaunch;
 
   useEffect(() => {
     onStepReadinessChange?.({
