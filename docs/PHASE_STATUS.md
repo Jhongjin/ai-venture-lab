@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Aligned user guide with first-use save gate | `465e3f2` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now expects the next-step button to open only after one candidate is saved |
 | 2026-05-31 | Clarified first-use save gate | `b9ccf35` | Auto-deployed from main; production smoke passed | `pnpm smoke:ux-contracts`, `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; first-use fast path now says the next-step button opens only after one candidate is saved |
 | 2026-05-31 | Guarded market scan fallback UX contract | `7bc2a93` | Not deployed; smoke contract only | `pnpm smoke:ux-contracts`, `git diff --check`; UX contract now protects the estimated market-scan label, source boundary, and retry-for-public-sources guidance |
 | 2026-05-31 | Strengthened market scan fallback shape | `5a00a9f` | Auto-deployed from main; production smoke and fallback market smoke passed | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1 pnpm smoke:market`, `git diff --check`; source-backed `pnpm smoke:market` still fails because OpenAI reports quota/billing exceeded, so the user action is to restore OpenAI quota and rerun source-backed market smoke |
