@@ -453,6 +453,10 @@ type ExternalToolBuildSyncTokenPayload = CursorBuildSyncTokenResponse & {
   expiresAt: string;
   token: string;
 };
+type ExternalToolSetupFileDraft = {
+  body: string;
+  path: string;
+};
 
 export function IdeaWorkbench({
   initialIdeas,
@@ -4959,6 +4963,10 @@ export function IdeaWorkbench({
     return window.btoa(binary);
   }
 
+  function encodeExternalToolSetupFiles(files: ExternalToolSetupFileDraft[]) {
+    return files.map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+  }
+
   async function revokeCursorSyncConnection(connection: CursorSyncConnection) {
     if (!user) {
       setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결을 끊으려면 먼저 로그인하세요.`);
@@ -5061,7 +5069,7 @@ export function IdeaWorkbench({
         syncExpiresAt: payload.expiresAt,
       });
 
-      const files = [
+      const files = encodeExternalToolSetupFiles([
         { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
         { path: "AI_VENTURE_TASKS.md", body: cursorTaskPackageDraft },
         { path: "AI_VENTURE_CURSOR_START.md", body: cursorStartPromptDraft },
@@ -5072,7 +5080,7 @@ export function IdeaWorkbench({
         { path: ".cursor/venture-lab-mcp-server.mjs", body: cursorMcpServerDraft },
         { path: ".cursor/venture-lab-sync.json", body: syncConfigDraft },
         { path: ".cursor/venture-lab-progress.json", body: "[]\n" },
-      ].map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+      ]);
 
       const script = buildCursorSetupPowerShell({
         idea: selectedIdea,
@@ -5132,7 +5140,7 @@ export function IdeaWorkbench({
         syncExpiresAt: payload.expiresAt,
       });
 
-      const files = [
+      const files = encodeExternalToolSetupFiles([
         { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
         { path: "AI_VENTURE_TASKS.md", body: codexTaskPackageDraft },
         { path: "AI_VENTURE_CODEX_START.md", body: codexStartPromptDraft },
@@ -5141,7 +5149,7 @@ export function IdeaWorkbench({
         { path: ".codex/venture-lab-cli.mjs", body: codexCliScriptDraft },
         { path: ".codex/venture-lab-sync.json", body: syncConfigDraft },
         { path: ".codex/venture-lab-progress.json", body: "[]\n" },
-      ].map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+      ]);
 
       const script = buildCodexSetupPowerShell({
         idea: selectedIdea,
@@ -5201,7 +5209,7 @@ export function IdeaWorkbench({
         syncExpiresAt: payload.expiresAt,
       });
 
-      const files = [
+      const files = encodeExternalToolSetupFiles([
         { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
         { path: "AI_VENTURE_TASKS.md", body: claudeTaskPackageDraft },
         { path: "AI_VENTURE_CLAUDE_START.md", body: claudeStartPromptDraft },
@@ -5211,7 +5219,7 @@ export function IdeaWorkbench({
         { path: ".claude/venture-lab-cli.mjs", body: claudeCliScriptDraft },
         { path: ".claude/venture-lab-sync.json", body: syncConfigDraft },
         { path: ".claude/venture-lab-progress.json", body: "[]\n" },
-      ].map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+      ]);
 
       const script = buildLiveToolSetupPowerShell({
         idea: selectedIdea,
@@ -5274,7 +5282,7 @@ export function IdeaWorkbench({
         syncExpiresAt: payload.expiresAt,
       });
 
-      const files = [
+      const files = encodeExternalToolSetupFiles([
         { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
         { path: "AI_VENTURE_TASKS.md", body: antigravityTaskPackageDraft },
         { path: "AI_VENTURE_ANTIGRAVITY_START.md", body: antigravityStartPromptDraft },
@@ -5285,7 +5293,7 @@ export function IdeaWorkbench({
         { path: ".antigravity/venture-lab-cli.mjs", body: antigravityCliScriptDraft },
         { path: ".antigravity/venture-lab-sync.json", body: syncConfigDraft },
         { path: ".antigravity/venture-lab-progress.json", body: "[]\n" },
-      ].map((file) => ({ path: file.path, base64: encodeUtf8Base64(file.body) }));
+      ]);
 
       const script = buildLiveToolSetupPowerShell({
         idea: selectedIdea,
