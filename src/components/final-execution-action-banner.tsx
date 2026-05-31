@@ -14,10 +14,10 @@ export function FinalExecutionActionBanner({
   isExternalTool,
 }: FinalExecutionActionBannerProps) {
   const primaryActionTitle = isExternalTool
-    ? `${activeToolLabel} 연결 파일을 실제 프로젝트 루트에서 실행하세요.`
+    ? `${activeToolLabel} 연결 파일을 실제 앱 폴더로 옮긴 뒤 설치 명령을 실행하세요.`
     : "제작 패키지를 내려받아 내부 개발 시작점으로 넘기세요.";
   const primaryActionDetail = isExternalTool
-    ? "이 화면에서는 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트로 옮기고, 설치 명령과 확인 명령만 차례로 실행하면 됩니다. 다운로드 폴더나 AI Venture Lab 폴더에서는 실행하지 않습니다."
+    ? "이 화면에서는 연결 파일을 받기만 합니다. 받은 파일을 실제 개발할 프로젝트 루트로 옮긴 뒤, 같은 터미널에서 설치 명령과 확인 명령만 차례로 실행하면 됩니다."
     : "내부 개발 도구가 열릴 때까지 같은 제작 패키지와 작업 순서를 기준 자료로 보관합니다.";
   const runLocationItems: ReadonlyArray<WorkbenchReviewGridRow> = [
     ["실행할 곳", "실제 앱 폴더 최상단"],
@@ -36,8 +36,8 @@ export function FinalExecutionActionBanner({
           data-smoke="final-execution-run-place-one-liner"
           className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
         >
-          이 화면에서는 연결 파일을 받기만 합니다. 실행은 실제 앱 프로젝트 루트 터미널에서 하고, 다운로드 폴더에서는
-          실행하지 않습니다. AI Venture Lab 폴더에서도 실행하지 않습니다.
+          이 화면에서는 연결 파일을 받기만 합니다. 연결 파일을 실제 앱 폴더 최상단으로 옮긴 뒤, 실행은 그 프로젝트 루트
+          터미널에서 합니다. 다운로드 폴더나 AI Venture Lab 폴더에서는 실행하지 않습니다.
         </div>
       ) : null}
       {isExternalTool ? (

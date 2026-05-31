@@ -419,24 +419,22 @@ async function verifyWorkOrderCurrentAction(page, ideaId) {
 
 async function verifyFinalExecutionActionBanner(page, toolLabel) {
   const actionBanner = page.locator('[data-smoke="final-execution-action-banner"]');
-  await actionBanner.getByText(`${toolLabel} 연결 파일을 실제 프로젝트 루트에서 실행하세요.`, { exact: true }).waitFor({
-    state: "visible",
-    timeout,
-  });
+  await actionBanner
+    .getByText(`${toolLabel} 연결 파일을 실제 앱 폴더로 옮긴 뒤 설치 명령을 실행하세요.`, { exact: true })
+    .waitFor({
+      state: "visible",
+      timeout,
+    });
   await actionBanner.getByText("설치 명령과 확인 명령만 차례로 실행하면 됩니다", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
   const runPlaceOneLiner = actionBanner.locator('[data-smoke="final-execution-run-place-one-liner"]');
-  await runPlaceOneLiner.getByText("이 화면에서는 연결 파일을 받기만 합니다.", { exact: false }).waitFor({
+  await runPlaceOneLiner.getByText("연결 파일을 실제 앱 폴더 최상단으로 옮긴 뒤", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
-  await runPlaceOneLiner.getByText("다운로드 폴더에서는 실행하지 않습니다.", { exact: false }).waitFor({
-    state: "visible",
-    timeout,
-  });
-  await runPlaceOneLiner.getByText("AI Venture Lab 폴더에서도 실행하지 않습니다.", { exact: false }).waitFor({
+  await runPlaceOneLiner.getByText("다운로드 폴더나 AI Venture Lab 폴더에서는 실행하지 않습니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });

@@ -217,9 +217,9 @@ const contracts = [
     file: "src/components/final-execution-action-banner.tsx",
     tokens: [
       'data-smoke="final-execution-run-place-one-liner"',
-      "실행은 실제 앱 프로젝트 루트 터미널에서 하고",
-      "다운로드 폴더에서는",
-      "AI Venture Lab 폴더에서도",
+      "연결 파일을 실제 앱 폴더 최상단으로 옮긴 뒤",
+      "그 프로젝트 루트",
+      "다운로드 폴더나 AI Venture Lab 폴더에서는",
       'data-smoke="final-execution-simple-mode-note"',
       "실행만 하기:",
       'data-smoke="final-execution-button-order"',
