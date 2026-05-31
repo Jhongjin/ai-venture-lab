@@ -59,7 +59,8 @@ export function FinalExecutionSetupChecks({ progressPath, startFileName }: Final
           className="mt-3 border border-emerald-200 bg-white px-3 py-2 text-sm leading-6 text-emerald-950"
         >
           실행 전 5초 확인: 지금 터미널 폴더에 package.json, app 또는 src가 보이면 설치 명령을 실행합니다. 안 보이면 먼저
-          실제 프로젝트 루트로 이동하세요. 현재 폴더가 AI Venture Lab 프로젝트라면 새 앱 프로젝트로 이동한 뒤 실행하세요.
+          실제 프로젝트 루트로 이동하세요. 아직 앱 프로젝트가 없다면 새 폴더를 만든 뒤 그 폴더에서 실행하세요. 현재 폴더가
+          AI Venture Lab 프로젝트라면 새 앱 프로젝트로 이동한 뒤 실행하세요.
         </div>
       </div>
     </>

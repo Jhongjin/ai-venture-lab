@@ -130,6 +130,21 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/final-execution-simple-path.tsx",
+    tokens: [
+      'data-smoke="final-execution-simple-path"',
+      "아직 앱 폴더가 없다면 먼저 새 폴더를 만들고",
+      "결과에 T-001 첫 작업이 보이면 성공입니다.",
+    ],
+  },
+  {
+    file: "src/components/final-execution-setup-checks.tsx",
+    tokens: [
+      'data-smoke="final-execution-folder-check-question"',
+      "아직 앱 프로젝트가 없다면 새 폴더를 만든 뒤 그 폴더에서 실행하세요.",
+    ],
+  },
+  {
     file: "scripts/smoke_browser_auth.mjs",
     tokens: ['[data-smoke="first-use-result-preview"]'],
   },
