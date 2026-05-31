@@ -45,7 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
-| 2026-05-31 | Clarified homepage Pro need boundary | `23de341` | Auto-deployed from main; production smoke pending in this loop | `pnpm typecheck`, `pnpm quality:full`, `git diff --check`; homepage Free/Pro boundary now describes Pro need instead of implying checkout is open while payments remain paused |
+| 2026-05-31 | Clarified homepage Pro need boundary | `23de341` | Auto-deployed from main; production smoke passed | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; homepage Free/Pro boundary now describes Pro need instead of implying checkout is open while payments remain paused |
 | 2026-05-31 | Updated STEP 6 status test wording | `85ab991` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now checks that STEP 6 status buttons are progress records, not step navigation buttons |
 | 2026-05-31 | Clarified guide START after T-001 | `b49f6e0` | Auto-deployed from main; production smoke passed | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` after one deploy catch-up retry, `git diff --check`; `/guide` now says to open the START file after `next-task` shows T-001, and browser smoke guards the wording |
 | 2026-05-31 | Aligned browser smoke with kept idea label | `5554233` | Not deployed separately; smoke harness maintenance only | `pnpm smoke:browser`, `pnpm smoke:browser:auth`, `pnpm quality:full`, `git diff --check`; browser smoke button matching now includes the current "킵한 후보로 아이디어 정리하기" label |
