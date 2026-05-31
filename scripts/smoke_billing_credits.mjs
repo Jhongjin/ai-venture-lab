@@ -235,6 +235,10 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="upgrade-interest-button"]').getByText("결제 없이 Pro 관심 등록", { exact: true }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
     await page.locator('[data-smoke="profile-upgrade-interest-summary"]').waitFor({
       state: "visible",
       timeout: timeoutMs,

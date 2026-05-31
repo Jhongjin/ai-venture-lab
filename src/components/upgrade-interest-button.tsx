@@ -23,7 +23,7 @@ function getButtonLabel(saveState: SaveState) {
     return "관심 등록 완료";
   }
 
-  return "Pro 관심 등록";
+  return "결제 없이 Pro 관심 등록";
 }
 
 export function UpgradeInterestButton({
