@@ -232,7 +232,7 @@ export default function HomePage() {
           <div>
             <p className="text-xs font-semibold text-[#5E5E5E]">Free / Pro 기준</p>
             <h2 className="mt-3 max-w-[18ch] break-keep text-3xl font-semibold leading-tight text-[#0D0D0D]">
-              결제는 더 많이 만들기 시작할 때 자연스럽게 필요해집니다.
+              Pro 필요는 반복 제작이 시작될 때 자연스럽게 드러납니다.
             </h2>
             <p className="mt-4 max-w-[44ch] break-keep text-sm leading-6 text-[#5E5E5E]">
               첫 아이디어 검증은 Free로 충분히 보여주고, Pro 가치는 반복 제작과 외부 개발 도구 연결에서 생기게 설계합니다.
