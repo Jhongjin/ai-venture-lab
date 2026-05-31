@@ -119,4 +119,5 @@ Validation keywords: `payment_secret_values_hidden`, `stripe_webhook_signature_r
 - User can edit, retry, discard, or override generated output.
 - Prompt input and output are treated as sensitive when they contain personal, care, finance, legal, family, or workplace data.
 - Source excerpts saved from automatic idea extraction are redacted for obvious email, phone, card, account, password, passport, and identity-number patterns before becoming durable artifacts.
+- Run `pnpm smoke:source-redaction` after changing source excerpt redaction patterns or moving intake artifact save paths.
 - Prompt injection and data poisoning paths are listed before enabling automation.
