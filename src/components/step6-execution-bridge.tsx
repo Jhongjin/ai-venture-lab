@@ -29,7 +29,7 @@ export function Step6ExecutionBridge({
       code: null,
       title: hasGeneratedWorkOrder ? "생성된 작업 순서를 확인하세요" : "작업 순서 자동 만들기를 누르세요",
       detail: hasGeneratedWorkOrder
-        ? "필요한 보완만 하고 하단 다음 단계로 이동합니다."
+        ? "T-001 이름과 완료 기준만 먼저 보고, 필요한 보완만 한 뒤 하단 다음 단계로 이동합니다."
         : "AI가 제작자가 볼 순서와 첫 작업을 만듭니다.",
     },
     {

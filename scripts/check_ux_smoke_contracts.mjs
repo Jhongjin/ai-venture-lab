@@ -69,6 +69,13 @@ const contracts = [
     tokens: ['data-smoke="step6-save-does-not-run"', "작업 순서를 저장해도 외부 도구가 바로 실행되지 않습니다"],
   },
   {
+    file: "src/components/step6-execution-bridge.tsx",
+    tokens: [
+      'data-smoke="step6-current-action"',
+      "T-001 이름과 완료 기준만 먼저 보고",
+    ],
+  },
+  {
     file: "src/components/first-use-result-preview.tsx",
     tokens: [
       'data-smoke="first-use-result-preview"',
