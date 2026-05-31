@@ -13,6 +13,81 @@ export type ImplementationSurfaceTaskGuidance = {
   expansionGuard: string;
 };
 
+export const implementationSurfaceTaskGuidance: Record<ProductSurfaceKey, ImplementationSurfaceTaskGuidance> = {
+  web_app: {
+    planningScope: "로그인 이후 핵심 입력, 결과 확인, 저장된 기록 조회까지를 한 번에 확인할 수 있어야 합니다.",
+    designFlow: "대시보드, 핵심 입력, 결과 검토, 기록 상세 흐름을 먼저 그립니다.",
+    dataBoundary: "사용자/조직 소유 데이터, 입력 기록, 결과 저장, 변경 이력을 분리합니다.",
+    backendBoundary: "인증 세션, Server Action 또는 API, RLS 정책 경계가 라우트별로 드러나야 합니다.",
+    frontendSlice: "로그인 이후 핵심 입력, 결과 확인, 저장된 기록 조회 흐름을 얇게 완성합니다.",
+    stateCoverage: "입력 없음, 저장 중, 결과 없음, 권한 없음, 읽기 전용 상태가 같은 흐름 안에서 확인됩니다.",
+    qaSmoke: "로그인 후 입력-저장-조회-새로고침 복구를 브라우저 스모크로 확인합니다.",
+    securityFocus: "조직 밖 기록 조회/수정 차단, 서버 전용 비밀값 노출, 로그 민감정보를 확인합니다.",
+    deployHandoff: "외부 제작 도구에는 라우트, 컴포넌트, Server Action/API, 데이터 모델, smoke 명령을 묶어 넘깁니다.",
+    expansionGuard: "결제, 복잡한 관리자, AI 자동 실행은 별도 승인 전까지 제외합니다.",
+  },
+  mobile_app: {
+    planningScope: "휴대폰에서 첫 행동을 끝내고 재방문 이유까지 확인할 수 있어야 합니다.",
+    designFlow: "온보딩, 홈, 핵심 행동, 알림/재방문, 권한/설정 흐름을 모바일 단일 여정으로 그립니다.",
+    dataBoundary: "기기 권한 상태, 알림 토큰, 오프라인/재방문 기록, 사용자 소유 데이터를 분리합니다.",
+    backendBoundary: "모바일 API, 권한 요청 상태, 푸시/분석 도구 경계가 명확해야 합니다.",
+    frontendSlice: "모바일 폭 핵심 화면 또는 반응형 웹앱으로 첫 행동을 완료할 수 있게 만듭니다.",
+    stateCoverage: "권한 거부, 네트워크 오류, 작은 화면, 재방문 상태가 모바일 화면에서 확인됩니다.",
+    qaSmoke: "모바일 뷰포트에서 온보딩-핵심 행동-저장/재방문 흐름을 확인합니다.",
+    securityFocus: "위치, 카메라, 알림 권한은 필요한 시점에만 요청하고 저장 정보는 최소화합니다.",
+    deployHandoff: "외부 제작 도구에는 모바일 화면 상태, 권한 요청, 푸시/분석 경계, 앱스토어 전 검증 명령을 넘깁니다.",
+    expansionGuard: "네이티브 전환, 푸시 자동화, 앱스토어 배포는 별도 승인 전까지 제외합니다.",
+  },
+  web_site: {
+    planningScope: "방문자가 제안을 이해하고 신청 또는 예약까지 끝낼 수 있어야 합니다.",
+    designFlow: "첫 화면, 문제/제안, 신뢰 근거, 신청/예약, FAQ, 완료 후 안내를 공개 페이지 구조로 그립니다.",
+    dataBoundary: "신청자 정보 최소 수집, 동의 문구, 신청 상태, 후속 연락 기록을 분리합니다.",
+    backendBoundary: "신청 폼 저장, 이메일/CRM 알림, 중복 제출과 스팸 방지 기준을 정합니다.",
+    frontendSlice: "공개 랜딩, 전환 버튼, 신청 폼, 제출 완료 화면을 먼저 완성합니다.",
+    stateCoverage: "폼 검증, 제출 중, 제출 성공/실패, 모바일 전환 버튼 상태가 확인됩니다.",
+    qaSmoke: "데스크톱과 모바일에서 전환 버튼, 신청 폼, 제출 완료, SEO 기본 태그를 확인합니다.",
+    securityFocus: "개인정보 동의, 스팸 제출, 폼 남용, 공개 페이지에 노출되는 민감정보를 확인합니다.",
+    deployHandoff: "외부 제작 도구에는 섹션 순서, 전환 문구, 폼 저장/알림, SEO, 신청 후 처리 기준을 넘깁니다.",
+    expansionGuard: "회원 계정, 결제, 복잡한 CMS, 다단계 CRM 자동화는 별도 승인 전까지 제외합니다.",
+  },
+  automation: {
+    planningScope: "입력 출처에서 처리 결과까지 수동 운영으로도 같은 가치를 낼 수 있어야 합니다.",
+    designFlow: "입력 출처, 처리 대기열, 자동 처리 결과, 사람 검토, 로그/실패 복구 흐름을 그립니다.",
+    dataBoundary: "원본 입력은 필요한 만큼만 보관하고, 처리 상태, 재시도, 승인 결과, 실패 사유를 분리합니다.",
+    backendBoundary: "webhook, queue, worker, 사람 승인, 재시도 경계가 한 흐름으로 이어져야 합니다.",
+    frontendSlice: "수동 운영 콘솔에서 처리 전후를 비교하고 승인/반려/재시도를 할 수 있게 만듭니다.",
+    stateCoverage: "대기, 처리 중, 승인 필요, 실패, 재시도, 수동 대체 상태가 화면에서 확인됩니다.",
+    qaSmoke: "샘플 입력을 넣고 처리 결과, 사람 검토, 실패 재시도, 로그 기록까지 확인합니다.",
+    securityFocus: "외부 토큰, 개인정보 마스킹, 자동 실행 전 사람 승인 경계, 실패 로그 노출을 확인합니다.",
+    deployHandoff: "외부 제작 도구에는 트리거, 처리 단계, 승인/재시도, 실패 로그, 수동 대체 경로를 넘깁니다.",
+    expansionGuard: "외부 계정 직접 조작, 완전 자동 실행, 대량 발송은 별도 승인 전까지 제외합니다.",
+  },
+  operator_console: {
+    planningScope: "운영자가 목록을 보고 판단, 배정, 상태 변경, 추적까지 끝낼 수 있어야 합니다.",
+    designFlow: "현황판, 리스트/필터, 상세, 상태 변경, 담당/권한, 감사 로그 흐름을 그립니다.",
+    dataBoundary: "상태 전환, 담당자, 조직 권한, 감사 로그, 필터 기준을 데이터 모델에 남깁니다.",
+    backendBoundary: "역할별 조회/수정 권한, 상태 전환 정책, 감사 로그 기록이 서버 경계에 있어야 합니다.",
+    frontendSlice: "리스트, 상세, 상태 변경, 담당자/권한 표시를 콘솔형 첫 제작 범위로 구현합니다.",
+    stateCoverage: "빈 리스트, 필터 결과 없음, 권한 없음, 읽기 전용, 동시 수정 충돌 상태가 확인됩니다.",
+    qaSmoke: "역할별 목록/상세 조회와 상태 변경의 허용/차단 케이스를 확인합니다.",
+    securityFocus: "권한 상승, 조직 밖 데이터 노출, 상태 변경 감사 로그 누락을 확인합니다.",
+    deployHandoff: "외부 제작 도구에는 테이블/상세 계약, 상태 전환, 권한 정책, 감사 로그, 운영 smoke를 넘깁니다.",
+    expansionGuard: "대량 작업, 고급 분석, 복잡한 자동 배정은 별도 승인 전까지 제외합니다.",
+  },
+  mcp_handoff: {
+    planningScope: "사용자가 제작 패키지를 만들고 외부 제작 도구에서 바로 시작할 수 있어야 합니다.",
+    designFlow: "패키지 생성, 도구 선택, 연결 지침, 실행 로그, 재생성/버전 관리 흐름을 그립니다.",
+    dataBoundary: "패키지 버전, 대상 도구, 생성된 자료 참조, 실행 이력, 재생성 사유를 분리합니다.",
+    backendBoundary: "제작 패키지 생성, 버전 관리, 다운로드/복사, 비밀값 제외 경계가 서버에서 보장되어야 합니다.",
+    frontendSlice: "패키지 만들기, 최종 요약 검토, 도구별 전달 자료 확인, 복사/다운로드 흐름을 완성합니다.",
+    stateCoverage: "생성 중, 패키지 없음, 오래된 패키지, 복사 성공, 재생성 필요 상태가 확인됩니다.",
+    qaSmoke: "패키지에 기획서, 정보 구조, 디자인 기준, 기술 스택, 작업 순서, 검증 명령이 모두 들어있는지 확인합니다.",
+    securityFocus: "비밀값 제거, 허용/금지 범위, 외부 도구에 넘기면 안 되는 사용자 원문을 확인합니다.",
+    deployHandoff: "외부 제작 도구에는 제작 지시서, 읽어야 할 문서, 허용/금지 범위, 검증 명령, 보고 형식을 넘깁니다.",
+    expansionGuard: "외부 제작 도구 직접 제어, 자동 repo 수정, credentials 전달은 별도 승인 전까지 제외합니다.",
+  },
+};
+
 export function getSurfaceVisualStandard(key: ProductSurfaceKey) {
   switch (key) {
     case "mobile_app":
