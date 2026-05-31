@@ -24,7 +24,7 @@ export function Step8ActionHighlights({
   return (
     <>
       <div data-smoke="step8-primary-action-now" className="mt-3 border border-blue-200 bg-white px-3 py-2">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 실제로 할 일</div>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 확인할 것</div>
         <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{primaryActionText}</p>
       </div>
       <div data-smoke="step8-one-sentence-outcome" className="mt-3 border border-blue-200 bg-white px-3 py-2">

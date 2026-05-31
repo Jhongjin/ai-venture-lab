@@ -198,8 +198,18 @@ const contracts = [
     file: "src/components/step8-action-highlights.tsx",
     tokens: [
       'data-smoke="step8-simple-review-details"',
+      'data-smoke="step8-primary-action-now"',
+      "오늘 확인할 것",
       "완료/다음/판단 설명 보기",
       'dataSmoke="step8-simple-review"',
+    ],
+  },
+  {
+    file: "src/components/step8-next-task-focus.tsx",
+    tokens: [
+      'data-smoke="step8-next-task-focus"',
+      "실제 실행은 STEP 7 또는 외부 도구에서 이어갑니다.",
+      "여기서는 완료 보고 반영 여부만 봅니다.",
     ],
   },
   {
@@ -246,6 +256,8 @@ const contracts = [
       "전체 목록은 진행 순서 확인용으로만 봅니다.",
       "다음 판단은 위의 한눈 요약에서 정합니다.",
       "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.",
+      "실제 실행은 STEP 7/외부 도구에서 이어가고, 여기서는 완료 보고 반영 여부만 확인하세요.",
+      "완료 보고가 반영되면 다음 판단으로 넘어갈 수 있습니다.",
     ],
   },
   {

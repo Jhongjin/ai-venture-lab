@@ -18,7 +18,7 @@ export function Step8NextTaskFocus({ nextTaskCode, nextTaskTitle }: Step8NextTas
         {nextTaskTitle}
       </div>
       <p className="mt-1 text-xs leading-5 text-slate-600">
-        전체 진행표는 확인용입니다. 이 작업의 완료 보고만 반영하면 다음 판단으로 넘어갑니다.
+        실제 실행은 STEP 7 또는 외부 도구에서 이어갑니다. 전체 진행표는 확인용이고, 여기서는 완료 보고 반영 여부만 봅니다.
       </p>
     </div>
   );
