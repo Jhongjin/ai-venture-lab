@@ -23,7 +23,9 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
         data-smoke="first-use-one-sentence"
         className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950"
       >
-        <span className="font-semibold text-slate-950">처음이라면 메모를 그대로 붙이고 AI 정리만 누르세요.</span>{" "}
+        <span className="font-semibold text-slate-950">
+          처음이라면 메모를 그대로 붙이고 이 내용으로 아이디어 정리하기만 누르세요.
+        </span>{" "}
         넣는 것: 메모, 대화, 자동화할 업무. 받는 것: 후보 3개, 결과물 형태, 개발 방식.
       </div>
       <FirstUseFastPath />

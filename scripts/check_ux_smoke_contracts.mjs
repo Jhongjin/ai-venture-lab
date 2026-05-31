@@ -78,6 +78,21 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/first-use-idea-intake.tsx",
+    tokens: [
+      'data-smoke="first-use-one-sentence"',
+      "처음이라면 메모를 그대로 붙이고 이 내용으로 아이디어 정리하기만 누르세요.",
+    ],
+  },
+  {
+    file: "src/components/first-use-fast-path.tsx",
+    tokens: [
+      'data-smoke="first-use-fast-path"',
+      "2. 버튼 누르기",
+      "이 내용으로 아이디어 정리하기로 후보 3개",
+    ],
+  },
+  {
     file: "src/components/first-use-input-status.tsx",
     tokens: [
       'data-smoke="first-use-current-action"',
