@@ -616,6 +616,14 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await primaryDownloadCue.getByText("처음에는 연결 파일 받기만 누르세요.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await primaryDownloadCue.getByText("설치 확인 뒤 쓰는 보조 버튼", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await primaryDownloadCue.getByText("받을 파일명:", { exact: false }).waitFor({
     state: "visible",
     timeout,

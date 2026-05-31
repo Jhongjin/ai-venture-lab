@@ -64,6 +64,9 @@ export function FinalExecutionPackagePanel({
           먼저 누를 버튼은 {activeExternalBuildTool.label} 연결 파일 받기입니다. 시작 지시문 복사는 설치 확인 뒤에
           사용합니다.
           <span className="mt-1 block text-xs leading-5 text-blue-800">
+            처음에는 연결 파일 받기만 누르세요. 시작 지시문 복사와 보관용 문서 받기는 설치 확인 뒤 쓰는 보조 버튼입니다.
+          </span>
+          <span className="mt-1 block text-xs leading-5 text-blue-800">
             받을 파일명: <span className="font-mono">{setupFileName}</span>
           </span>
           <span className="mt-1 block text-xs leading-5 text-blue-800">
