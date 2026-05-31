@@ -1,4 +1,4 @@
-import { normalizeMatchText, tokenOverlapScore } from "@/lib/text-match-utils";
+import { normalizeMatchText, tokenOverlapScore } from "./text-match-utils";
 import type { Database } from "@/lib/supabase/types";
 
 type Idea = Database["public"]["Tables"]["ideas"]["Row"];
