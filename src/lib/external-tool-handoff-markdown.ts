@@ -16,6 +16,9 @@ const implementationTaskCompletionReportTemplate = `### 완료 보고 형식
 - 남은 리스크:
 - 다음 작업:`;
 
+const externalStartPromptIntentSentence =
+  'Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.';
+
 export function buildCursorTaskMarkdown({
   idea,
   productSurface,
@@ -123,7 +126,7 @@ export function buildCursorStartPromptMarkdown({
 5. MCP 도구가 보이면 \`venture_record_progress\`에 작업 결과를 기록합니다.
 6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
 
-Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.
+${externalStartPromptIntentSentence}
 `;
 }
 
@@ -300,7 +303,7 @@ node .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --sum
 6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
 7. 자동 반영이 실패한 경우에만 \`.codex/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
 
-Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.
+${externalStartPromptIntentSentence}
 `;
 }
 
@@ -460,7 +463,7 @@ node .claude/venture-lab-cli.mjs record-progress --task T-001 --status done --su
 7. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
 8. 자동 반영이 실패한 경우에만 \`.claude/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
 
-Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.
+${externalStartPromptIntentSentence}
 `;
 }
 
@@ -621,7 +624,7 @@ node .antigravity/venture-lab-cli.mjs record-progress --task T-001 --status done
 6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
 7. 자동 반영이 실패한 경우에만 \`.antigravity/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
 
-Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.
+${externalStartPromptIntentSentence}
 `;
 }
 
