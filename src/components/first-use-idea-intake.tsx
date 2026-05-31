@@ -28,6 +28,12 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
         </span>{" "}
         넣는 것: 메모, 대화, 자동화할 업무. 받는 것: 후보 3개, 결과물 형태, 개발 방식, 첫 검증 질문.
       </div>
+      <FirstUseInputStatus rawIdeaSource={rawIdeaSource} />
+      <FirstUseSourceTextarea
+        onRawIdeaSourceChange={onRawIdeaSourceChange}
+        rawIdeaSource={rawIdeaSource}
+      />
+      <FirstUseInputExamples onExampleClick={handleExampleClick} />
       <FirstUseFastPath />
       <FirstUseResultPreview />
       <div
@@ -37,12 +43,6 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
         최종 결과: 저장한 후보는 사업성 평가, 검증 계획, 제작 패키지, 작업 순서, STEP 7 연결 파일까지 이어집니다.
         처음에는 후보 한 건만 저장하면 됩니다.
       </div>
-      <FirstUseInputStatus rawIdeaSource={rawIdeaSource} />
-      <FirstUseInputExamples onExampleClick={handleExampleClick} />
-      <FirstUseSourceTextarea
-        onRawIdeaSourceChange={onRawIdeaSourceChange}
-        rawIdeaSource={rawIdeaSource}
-      />
       <FirstUseMoreContext />
     </div>
   );
