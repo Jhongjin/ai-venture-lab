@@ -99,6 +99,20 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/final-execution-sync-status-card.tsx",
+    tokens: [
+      'data-smoke="final-execution-sync-meaning"',
+      "완료 보고 한 번이 작업 상태, 다음 작업, STEP 8 판단 카드까지 같이 바꿉니다.",
+    ],
+  },
+  {
+    file: "src/components/step8-sync-brief.tsx",
+    tokens: [
+      'data-smoke="step8-sync-meaning"',
+      "완료 보고가 들어오면 작업표 상태와 이 요약이 같이 바뀝니다.",
+    ],
+  },
+  {
     file: "scripts/smoke_browser_auth.mjs",
     tokens: ['[data-smoke="first-use-result-preview"]'],
   },

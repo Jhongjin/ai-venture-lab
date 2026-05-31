@@ -245,6 +245,10 @@ async function verifyLearningTaskBoard(page, ideaId) {
       state: "visible",
       timeout,
     });
+  await syncBrief.getByText("완료 보고가 들어오면 작업표 상태와 이 요약이 같이 바뀝니다.", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await syncBrief.getByText("다음은", { exact: false }).first().waitFor({
     state: "visible",
     timeout,
@@ -683,6 +687,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
       timeout,
     });
   }
+  await page.getByText("완료 보고 한 번이 작업 상태, 다음 작업, STEP 8 판단 카드까지 같이 바꿉니다.", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const syncResult = page.locator('[data-smoke="final-execution-sync-result"]');
   for (const label of ["반영 결과", "다음 작업", "최근 확인"]) {
     await syncResult.getByText(label, { exact: true }).waitFor({
