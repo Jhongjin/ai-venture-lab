@@ -179,7 +179,7 @@ export function getCreditAccessState({
   const creditBalance = creditSummary?.balance ?? null;
   const remainingBuildPassCount = getBuildPassCapacity(creditBalance, buildPassCost);
   const hasEnoughCreditsForBuildPass = !isCreditSystemReady || (creditBalance ?? 0) >= buildPassCost;
-  const creditBalanceLabel = creditBalance === null ? "확인 중" : `${creditBalance} 크레딧`;
+  const creditBalanceLabel = formatCreditAmount(creditBalance, "확인 중");
 
   return {
     isCreditSystemReady,
