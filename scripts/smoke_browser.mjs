@@ -97,6 +97,10 @@ async function main() {
     await waitForVisible(page.locator('[data-smoke="landing-plan-boundary"]'), "homepage plan boundary");
     await waitForVisible(page.getByText("Free로 시작하기", { exact: true }), "homepage free start CTA");
     await waitForVisible(page.getByText("Pro 필요는 반복 제작이 시작될 때", { exact: false }), "homepage pro need boundary");
+    const staleHomepagePaymentHeading = await page.getByText("결제는 더 많이 만들기 시작할 때", { exact: false }).count();
+    if (staleHomepagePaymentHeading > 0) {
+      fail("homepage still implies checkout is the current Pro boundary");
+    }
     await waitForVisible(page.getByText("반복 제작과 외부 개발 실행", { exact: true }), "homepage pro boundary");
     await waitForVisible(page.getByText("결제 없이 기록", { exact: true }), "homepage pro interest record label");
     await waitForVisible(page.getByText("결과물 형태와 개발 방식", { exact: false }).first(), "homepage result type and development method wording");
