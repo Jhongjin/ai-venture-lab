@@ -347,6 +347,17 @@ async function verifyWorkspaceCreditSummary(page) {
   );
 }
 
+async function verifyWorkbenchCurrentActionChecklist(page, expectedLabels, label) {
+  const currentAction = page.locator('[data-smoke="workbench-current-action"]');
+  const checklist = page.locator('[data-smoke="workbench-current-action-checklist"]');
+
+  await waitForVisible(currentAction, `${label} current action`, 15000);
+
+  for (const expectedLabel of expectedLabels) {
+    await waitForVisible(checklist.getByText(expectedLabel, { exact: true }), `${label} checklist ${expectedLabel}`, 15000);
+  }
+}
+
 async function verifyDirectWorkbenchTaskRoute(page) {
   const directUrl = new URL("/workspace", baseUrl);
   directUrl.searchParams.set("task", "orchestration");
@@ -379,6 +390,37 @@ async function verifyDirectWorkbenchTaskRoute(page) {
   }
 
   await waitForVisible(page.locator('[data-smoke="step6-current-action"]'), "direct orchestration current action", 15000);
+  await verifyWorkbenchCurrentActionChecklist(
+    page,
+    ["작업 순서 자동 만들기", "T-001 확인", "하단 다음 단계"],
+    "direct orchestration",
+  );
+
+  const scoreUrl = new URL("/workspace", baseUrl);
+  scoreUrl.searchParams.set("task", "score");
+  await page.goto(scoreUrl.toString(), { waitUntil: "networkidle", timeout });
+  const scoreRouteState = await waitForAnyVisible(
+    [
+      { name: "score", locator: page.getByRole("heading", { name: /사업성 평가|후보 선택/ }) },
+      { name: "empty-intake", locator: page.getByRole("heading", { name: /메모에서 검토할 아이디어 정리|아이디어 찾기/ }) },
+      { name: "login-required", locator: page.getByRole("heading", { name: "먼저 로그인해 주세요." }) },
+    ],
+    "direct score task route",
+    25000,
+  );
+
+  if (scoreRouteState === "login-required") {
+    fail("direct score task route lost the authenticated session.");
+  }
+
+  if (scoreRouteState === "score") {
+    await verifyWorkbenchCurrentActionChecklist(
+      page,
+      ["결과물 형태 확인", "평가값 확인", "사업성 평가 저장"],
+      "direct score",
+    );
+  }
+
   console.log("Direct orchestration route smoke passed.");
 }
 

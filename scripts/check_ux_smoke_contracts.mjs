@@ -17,6 +17,14 @@ const contracts = [
     tokens: ["결과물 형태 확인", "검증 계획 확인", "제작 패키지 저장", "T-001 확인"],
   },
   {
+    file: "scripts/smoke_browser_auth.mjs",
+    tokens: [
+      '[data-smoke="workbench-current-action"]',
+      "작업 순서 자동 만들기",
+      "사업성 평가 저장",
+    ],
+  },
+  {
     file: "src/components/first-use-result-preview.tsx",
     tokens: [
       'data-smoke="first-use-result-preview"',
