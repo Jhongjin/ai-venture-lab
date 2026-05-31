@@ -171,6 +171,29 @@ const contracts = [
       "첫 검증 질문",
       "제작 패키지, 작업 순서, STEP 7 연결 파일까지 이어집니다",
     ],
+    orderedTokens: [
+      'data-smoke="first-use-one-sentence"',
+      "<FirstUseInputStatus",
+      "<FirstUseSourceTextarea",
+      "<FirstUseInputExamples",
+      "<FirstUseFastPath",
+      "<FirstUseResultPreview",
+    ],
+  },
+  {
+    file: "src/components/idea-extraction-left-panel.tsx",
+    tokens: [
+      'data-smoke="idea-extraction-left-panel"',
+      "IdeaExtractionInputSurface",
+      "IdeaExtractionActionPanel",
+      "IdeaExtractionFlowSteps",
+    ],
+    orderedTokens: [
+      "<IdeaExtractionInputSurface",
+      "<IdeaExtractionActionPanel",
+      "<IdeaExtractionNotices",
+      "<IdeaExtractionFlowSteps",
+    ],
   },
   {
     file: "src/components/first-use-fast-path.tsx",
@@ -479,6 +502,24 @@ async function main() {
     for (const token of contract.tokens) {
       if (!body.includes(token)) {
         fail(`${contract.file} is missing ${JSON.stringify(token)}`);
+      }
+    }
+
+    if (contract.orderedTokens) {
+      let previousIndex = -1;
+
+      for (const token of contract.orderedTokens) {
+        const index = body.indexOf(token);
+
+        if (index === -1) {
+          fail(`${contract.file} is missing ordered token ${JSON.stringify(token)}`);
+        }
+
+        if (index <= previousIndex) {
+          fail(`${contract.file} has ordered token out of sequence: ${JSON.stringify(token)}`);
+        }
+
+        previousIndex = index;
       }
     }
   }
