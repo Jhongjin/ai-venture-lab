@@ -30,6 +30,13 @@ export function FirstUseIdeaIntake({ onRawIdeaSourceChange, rawIdeaSource }: Fir
       </div>
       <FirstUseFastPath />
       <FirstUseResultPreview />
+      <div
+        data-smoke="first-use-final-output"
+        className="border border-slate-200 bg-white px-4 py-3 text-sm font-semibold leading-6 text-slate-950"
+      >
+        최종 결과: 저장한 후보는 사업성 평가, 검증 계획, 제작 패키지, 작업 순서, STEP 7 연결 파일까지 이어집니다. 처음에는
+        후보 한 건만 저장하면 됩니다.
+      </div>
       <FirstUseInputStatus rawIdeaSource={rawIdeaSource} />
       <FirstUseInputExamples onExampleClick={handleExampleClick} />
       <FirstUseSourceTextarea
