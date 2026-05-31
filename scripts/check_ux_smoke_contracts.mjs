@@ -316,6 +316,23 @@ const contracts = [
     ],
   },
   {
+    file: "src/lib/external-tool-handoff-markdown.ts",
+    tokens: [
+      "확인 명령 결과에 T-001이 보이면 Cursor를 새로고침하거나 다시 열고",
+      "T-001이 보이면 Codex에서 같은 프로젝트 폴더를 열고",
+      "T-001이 보이면 Claude Code를 같은 프로젝트 루트에서 열고",
+      "T-001이 보이면 Antigravity에서 같은 프로젝트 폴더를 열고",
+    ],
+  },
+  {
+    file: "src/lib/external-tool-setup-scripts.ts",
+    tokens: [
+      "Only after that command shows T-001, reopen Cursor",
+      "After it shows T-001, open this project in Codex",
+      "After it shows T-001, open this project in ${toolLabel}",
+    ],
+  },
+  {
     file: "scripts/smoke_browser_auth.mjs",
     tokens: ['[data-smoke="first-use-result-preview"]', '[data-smoke="first-use-short-input-ok"]'],
   },

@@ -208,15 +208,15 @@ export function buildCursorGuideMarkdown({
 powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cursor-setup", "ps1")}
 \`\`\`
 
-4. 설치가 끝난 뒤 같은 터미널에서 아래 확인 명령을 실행해 첫 작업이 읽히는지 확인합니다.
+4. 설치가 끝난 뒤 같은 터미널에서 아래 확인 명령을 실행해 T-001 첫 작업이 읽히는지 확인합니다.
 
 \`\`\`bash
 node .cursor/venture-lab-cli.mjs next-task
 \`\`\`
 
-5. Cursor를 새로고침하거나 다시 열고, Settings > MCP의 \`Workspace MCP Servers\`에서 \`ai-venture-lab\`을 켭니다. 처음 1회는 Cursor 보안 확인 때문에 수동 활성화가 필요할 수 있습니다.
+5. 확인 명령 결과에 T-001이 보이면 Cursor를 새로고침하거나 다시 열고, Settings > MCP의 \`Workspace MCP Servers\`에서 \`ai-venture-lab\`을 켭니다. 처음 1회는 Cursor 보안 확인 때문에 수동 활성화가 필요할 수 있습니다.
 6. \`ai-venture-lab\`이 Enabled 상태이고 도구가 활성화됐는지 확인합니다.
-7. Cursor Composer에 \`AI_VENTURE_CURSOR_START.md\` 내용을 붙여 넣고 첫 작업을 시작합니다.
+7. \`AI_VENTURE_CURSOR_START.md\` 내용을 Cursor Composer 첫 메시지로 붙여 넣고 첫 작업을 시작합니다.
 8. 작업을 마치면 Cursor에게 \`venture_record_progress\` 도구로 완료 보고를 남기라고 지시합니다.
 9. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
 10. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
@@ -379,8 +379,8 @@ export function buildCodexGuideMarkdown({
 powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "codex-setup", "ps1")}
 \`\`\`
 
-3. 터미널에서 \`node .codex/venture-lab-cli.mjs next-task\`를 실행해 첫 작업이 읽히는지 확인합니다.
-4. Codex에서 같은 프로젝트 폴더를 열고 \`AI_VENTURE_CODEX_START.md\` 내용을 첫 메시지로 넣습니다.
+3. 터미널에서 \`node .codex/venture-lab-cli.mjs next-task\`를 실행해 결과에 T-001이 보이는지 확인합니다.
+4. T-001이 보이면 Codex에서 같은 프로젝트 폴더를 열고 \`AI_VENTURE_CODEX_START.md\` 내용을 첫 메시지로 넣습니다.
 5. Codex에게 T-001부터 한 번에 하나씩 구현하라고 지시합니다.
 6. 작업을 마치면 Codex가 \`.codex/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남기게 합니다.
 7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
@@ -540,8 +540,8 @@ export function buildClaudeGuideMarkdown({
 powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "claude-code-setup", "ps1")}
 \`\`\`
 
-3. 터미널에서 \`node .claude/venture-lab-cli.mjs next-task\`를 실행해 첫 작업이 읽히는지 확인합니다.
-4. Claude Code를 같은 프로젝트 루트에서 열고 \`/mcp\`에서 \`ai-venture-lab\` 연결을 확인합니다.
+3. 터미널에서 \`node .claude/venture-lab-cli.mjs next-task\`를 실행해 결과에 T-001이 보이는지 확인합니다.
+4. T-001이 보이면 Claude Code를 같은 프로젝트 루트에서 열고 \`/mcp\`에서 \`ai-venture-lab\` 연결을 확인합니다.
 5. \`AI_VENTURE_CLAUDE_START.md\` 내용을 첫 메시지로 넣습니다.
 6. 작업을 마치면 \`venture_record_progress\` 도구 또는 \`.claude/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남깁니다.
 7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
@@ -667,8 +667,8 @@ export function buildAntigravityGuideMarkdown({
 powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "antigravity-setup", "ps1")}
 \`\`\`
 
-3. 터미널에서 \`node .antigravity/venture-lab-cli.mjs next-task\`를 실행해 첫 작업이 읽히는지 확인합니다.
-4. Antigravity에서 같은 프로젝트 폴더를 열고 \`.antigravity/mcp_config.json\`과 \`AGENTS.ai-venture-lab.md\`를 프로젝트 지침으로 확인합니다.
+3. 터미널에서 \`node .antigravity/venture-lab-cli.mjs next-task\`를 실행해 결과에 T-001이 보이는지 확인합니다.
+4. T-001이 보이면 Antigravity에서 같은 프로젝트 폴더를 열고 \`.antigravity/mcp_config.json\`과 \`AGENTS.ai-venture-lab.md\`를 프로젝트 지침으로 확인합니다.
 5. \`AI_VENTURE_ANTIGRAVITY_START.md\` 내용을 Agent 첫 메시지로 넣습니다.
 6. 작업을 마치면 \`.antigravity/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남깁니다.
 7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.

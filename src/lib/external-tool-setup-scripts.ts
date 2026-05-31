@@ -64,8 +64,8 @@ foreach ($entry in $ignoreEntries) {
 Write-Host ""
 Write-Host "AI Venture Lab Cursor connection files are ready."
 Write-Host "Next check command: node .cursor/venture-lab-cli.mjs next-task"
-Write-Host "Then reopen Cursor and enable ai-venture-lab in Settings > MCP > Workspace MCP Servers."
-Write-Host "After it shows Enabled, paste AI_VENTURE_CURSOR_START.md into Composer."
+Write-Host "Only after that command shows T-001, reopen Cursor and enable ai-venture-lab in Settings > MCP > Workspace MCP Servers."
+Write-Host "After Cursor MCP shows Enabled, paste AI_VENTURE_CURSOR_START.md into Composer."
 Write-Host "When Cursor calls venture_record_progress, Venture Lab task status will be updated automatically."
 `;
 }
@@ -124,7 +124,7 @@ foreach ($entry in $ignoreEntries) {
 Write-Host ""
 Write-Host "AI Venture Lab Codex connection files are ready."
 Write-Host "Check: node .codex/venture-lab-cli.mjs next-task"
-Write-Host "Next: open this project in Codex and paste AI_VENTURE_CODEX_START.md as the first message."
+Write-Host "After it shows T-001, open this project in Codex and paste AI_VENTURE_CODEX_START.md as the first message."
 Write-Host "When Codex runs record-progress, Venture Lab task status will be updated automatically."
 `;
 }
@@ -189,7 +189,7 @@ foreach ($entry in $ignoreEntries) {
 Write-Host ""
 Write-Host "AI Venture Lab ${toolLabel} connection files are ready."
 Write-Host "Check: node ${folder}/venture-lab-cli.mjs next-task"
-Write-Host "Next: open this project in ${toolLabel} and paste ${startFileName} as the first message."
+Write-Host "After it shows T-001, open this project in ${toolLabel} and paste ${startFileName} as the first message."
 Write-Host "When ${toolLabel} records progress, Venture Lab task status will be updated automatically."
 `;
 }
