@@ -12092,6 +12092,34 @@ export function IdeaWorkbench({
         return ["현재 내용 확인", "필요한 부분만 수정", "하단 다음 단계"];
     }
   })();
+  const operatorFocusGateNote = (() => {
+    switch (activeTask) {
+      case "score":
+        return "사업성 평가를 저장하면 STEP 3 검증 계획으로 이어집니다.";
+      case "experiment":
+        return "검증 계획과 시장 근거가 저장되면 STEP 4 검증 자료가 열립니다.";
+      case "artifacts":
+        return "검증 자료를 저장하면 STEP 5 제작 패키지로 이어집니다.";
+      case "development":
+        return "제작 패키지를 저장하면 STEP 6 작업 순서 확인이 열립니다.";
+      case "orchestration":
+        return "작업 순서를 저장하면 STEP 7 최종 실행이 열립니다.";
+      case "select":
+        return "아이디어를 선택하면 저장된 단계부터 이어서 볼 수 있습니다.";
+      case "launch":
+        return "연결 파일을 받은 뒤 실제 외부 프로젝트에서 실행을 시작합니다.";
+      case "learning":
+        return "완료 상태와 다음 행동을 확인한 뒤 오늘 판단만 기록하면 됩니다.";
+      case "risk":
+        return "위험 대응을 저장하면 사업성 판단과 제작 범위에 반영됩니다.";
+      case "decision":
+        return "판단 기록을 저장하면 이후 검증 자료와 제작 패키지에 근거로 남습니다.";
+      case "archive":
+        return "복구하거나 완전 삭제할 때만 현재 목록이 바뀝니다.";
+      default:
+        return "저장 완료 후에는 하단 다음 단계 버튼으로만 이동합니다.";
+    }
+  })();
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -14658,6 +14686,7 @@ export function IdeaWorkbench({
           actionItems={operatorFocusActionItems}
           activeTaskLabel={activeTaskMeta.label}
           detail={operatorFocus.detail}
+          gateNote={operatorFocusGateNote}
           productSurfaceLabel={activeProductSurface.label}
           progressLabel={selectedIdeaProgress.label}
           title={operatorFocus.title}

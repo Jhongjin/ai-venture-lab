@@ -5,6 +5,7 @@ type WorkbenchCurrentActionProps = {
   progressLabel: string;
   productSurfaceLabel: string;
   actionItems: string[];
+  gateNote: string;
 };
 
 export function WorkbenchCurrentAction({
@@ -14,6 +15,7 @@ export function WorkbenchCurrentAction({
   progressLabel,
   productSurfaceLabel,
   actionItems,
+  gateNote,
 }: WorkbenchCurrentActionProps) {
   return (
     <div className="border border-blue-100 bg-blue-50 p-4 text-slate-950" data-smoke="workbench-current-action">
@@ -42,6 +44,13 @@ export function WorkbenchCurrentAction({
             <span className="min-w-0">{item}</span>
           </div>
         ))}
+      </div>
+
+      <div
+        className="mt-3 border-t border-blue-100 pt-3 text-xs font-semibold leading-5 text-blue-800"
+        data-smoke="workbench-save-gate-note"
+      >
+        {gateNote}
       </div>
     </div>
   );

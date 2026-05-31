@@ -33,17 +33,26 @@ const contracts = [
     tokens: [
       'data-smoke="workbench-current-action"',
       'data-smoke="workbench-current-action-checklist"',
+      'data-smoke="workbench-save-gate-note"',
       "지금 할 일",
     ],
   },
   {
     file: "src/components/idea-workbench.tsx",
-    tokens: ["결과물 형태 확인", "검증 계획 확인", "제작 패키지 저장", "T-001 확인"],
+    tokens: [
+      "결과물 형태 확인",
+      "검증 계획 확인",
+      "제작 패키지 저장",
+      "T-001 확인",
+      "사업성 평가를 저장하면 STEP 3 검증 계획으로 이어집니다.",
+      "작업 순서를 저장하면 STEP 7 최종 실행이 열립니다.",
+    ],
   },
   {
     file: "scripts/smoke_browser_auth.mjs",
     tokens: [
       '[data-smoke="workbench-current-action"]',
+      '[data-smoke="workbench-save-gate-note"]',
       '[data-smoke="step2-score-handoff-bridge"]',
       '[data-smoke="step3-validation-gate-bridge"]',
       '[data-smoke="step4-validation-bundle-bridge"]',

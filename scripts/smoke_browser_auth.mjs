@@ -347,14 +347,19 @@ async function verifyWorkspaceCreditSummary(page) {
   );
 }
 
-async function verifyWorkbenchCurrentActionChecklist(page, expectedLabels, label) {
+async function verifyWorkbenchCurrentActionChecklist(page, expectedLabels, label, expectedGateNote = "") {
   const currentAction = page.locator('[data-smoke="workbench-current-action"]');
   const checklist = page.locator('[data-smoke="workbench-current-action-checklist"]');
+  const gateNote = page.locator('[data-smoke="workbench-save-gate-note"]');
 
   await waitForVisible(currentAction, `${label} current action`, 15000);
 
   for (const expectedLabel of expectedLabels) {
     await waitForVisible(checklist.getByText(expectedLabel, { exact: true }), `${label} checklist ${expectedLabel}`, 15000);
+  }
+
+  if (expectedGateNote) {
+    await waitForVisible(gateNote.getByText(expectedGateNote, { exact: true }), `${label} gate note`, 15000);
   }
 }
 
@@ -394,6 +399,7 @@ async function verifyDirectWorkbenchTaskRoute(page) {
     page,
     ["작업 순서 자동 만들기", "T-001 확인", "하단 다음 단계"],
     "direct orchestration",
+    "작업 순서를 저장하면 STEP 7 최종 실행이 열립니다.",
   );
 
   const scoreUrl = new URL("/workspace", baseUrl);
@@ -418,6 +424,7 @@ async function verifyDirectWorkbenchTaskRoute(page) {
       page,
       ["결과물 형태 확인", "평가값 확인", "사업성 평가 저장"],
       "direct score",
+      "사업성 평가를 저장하면 STEP 3 검증 계획으로 이어집니다.",
     );
     const scoreBridge = page.locator('[data-smoke="step2-score-handoff-bridge"]');
     await waitForVisible(scoreBridge, "STEP 2 score handoff bridge", 15000);
