@@ -26,6 +26,13 @@ import {
   type DevelopmentPanel,
 } from "@/lib/artifact-review-queue";
 import {
+  isIdeaStageAtOrAfter,
+  sortWorkbenchIdeas,
+  upsertRecordById,
+  upsertRecordsById,
+  upsertWorkbenchIdea,
+} from "@/lib/workbench-list-utils";
+import {
   getProductSurfaceProfile,
   productSurfaceMarkdown,
   productSurfaceProfiles,
@@ -164,8 +171,6 @@ type ViewerUser = Pick<User, "id">;
 
 export type { WorkbenchTask } from "@/lib/workbench-tasks";
 
-const stages: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
-const stageRank = new Map(stages.map((stage, index) => [stage, index]));
 const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
@@ -974,36 +979,8 @@ const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
 };
 
-function sortWorkbenchIdeas(nextIdeas: Idea[]) {
-  return [...nextIdeas].sort(
-    (a, b) =>
-      (stageRank.get(a.stage) ?? 99) - (stageRank.get(b.stage) ?? 99) ||
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
-      a.name.localeCompare(b.name, "ko-KR"),
-  );
-}
-
-function upsertWorkbenchIdea(current: Idea[], nextIdea: Idea) {
-  const exists = current.some((idea) => idea.id === nextIdea.id);
-  const nextIdeas = exists
-    ? current.map((idea) => (idea.id === nextIdea.id ? nextIdea : idea))
-    : [nextIdea, ...current];
-
-  return sortWorkbenchIdeas(nextIdeas);
-}
-
 function emitVentureEvent<T>(eventName: string, detail: T) {
   window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
-}
-
-function upsertRecordById<T extends { id: string }>(records: T[], nextRecord: T) {
-  return records.some((record) => record.id === nextRecord.id)
-    ? records.map((record) => (record.id === nextRecord.id ? nextRecord : record))
-    : [nextRecord, ...records];
-}
-
-function upsertRecordsById<T extends { id: string }>(records: T[], nextRecords: T[]) {
-  return nextRecords.reduce((current, record) => upsertRecordById(current, record), records);
 }
 
 function ideaProductSurfaceInput(idea: Idea, state?: Partial<EditState>) {
@@ -9861,9 +9838,7 @@ export function IdeaWorkbench({
     buildDeliveryMode === "external_tool"
       ? `${activeExternalBuildTool.label}로 개발합니다`
       : "Venture Lab에서 계속 진행합니다";
-  const hasReachedScoreStage = selectedIdea
-    ? (stageRank.get(selectedIdea.stage) ?? 0) >= (stageRank.get("score") ?? 0)
-    : false;
+  const hasReachedScoreStage = selectedIdea ? isIdeaStageAtOrAfter(selectedIdea.stage, "score") : false;
   const isScoreEvaluationSaved = Boolean(
     selectedIdea &&
       editState &&
