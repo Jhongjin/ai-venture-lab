@@ -181,6 +181,12 @@ const contracts = [
   {
     file: "src/components/final-execution-action-banner.tsx",
     tokens: [
+      'data-smoke="final-execution-run-place-one-liner"',
+      "실행은 실제 앱 프로젝트 루트 터미널에서 하고",
+      "다운로드 폴더에서는",
+      "AI Venture Lab 폴더에서도",
+      'data-smoke="final-execution-simple-mode-note"',
+      "실행만 하기:",
       'data-smoke="final-execution-button-order"',
       "버튼 순서:",
       "연결 파일 받기 - 설치 명령 복사 - 확인 명령 복사 - START 파일 열기",
