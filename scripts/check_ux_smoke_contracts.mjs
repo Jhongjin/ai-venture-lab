@@ -72,7 +72,10 @@ const contracts = [
     file: "src/components/step6-execution-bridge.tsx",
     tokens: [
       'data-smoke="step6-current-action"',
+      'data-smoke="step6-step7-boundary"',
       "T-001 이름과 완료 기준만 먼저 보고",
+      "STEP 6에서 끝낼 일",
+      "연결 파일 받기, 설치 명령과 확인 명령 복사, START 파일로 첫 작업 시작",
     ],
   },
   {

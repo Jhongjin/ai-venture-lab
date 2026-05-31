@@ -64,6 +64,10 @@ export function Step6ExecutionBridge({
       detail: finalExecutionDetail,
     },
   ];
+  const stepBoundaryItems = [
+    ["STEP 6에서 끝낼 일", "T-001 이름과 완료 기준 확인, 작업 순서 저장"],
+    ["STEP 7에서 할 일", "연결 파일 받기, 설치 명령과 확인 명령 복사, START 파일로 첫 작업 시작"],
+  ] as const;
 
   return (
     <>
@@ -77,6 +81,14 @@ export function Step6ExecutionBridge({
             <div key={label} className="bg-slate-50 px-4 py-3">
               <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{label}</div>
               <p className="mt-2 text-sm leading-6 text-slate-700">{detail}</p>
+            </div>
+          ))}
+        </div>
+        <div data-smoke="step6-step7-boundary" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-2">
+          {stepBoundaryItems.map(([label, detail]) => (
+            <div key={label} className="bg-blue-50 px-4 py-3">
+              <div className="text-xs font-semibold tracking-[0.14em] text-blue-700">{label}</div>
+              <p className="mt-2 text-sm font-semibold leading-6 text-blue-950">{detail}</p>
             </div>
           ))}
         </div>
