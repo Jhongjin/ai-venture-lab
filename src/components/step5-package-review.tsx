@@ -42,6 +42,12 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
             </div>
           ))}
         </div>
+        <div
+          data-smoke="step5-save-does-not-move"
+          className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
+        >
+          저장은 STEP 6으로 자동 이동하지 않고, 작업 순서를 만들 기준만 확정합니다. 이동은 하단 다음 단계 버튼으로만 합니다.
+        </div>
         <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           {summaryCards.map((card) => (
             <div key={card.label} className="border border-slate-200 bg-white p-3">

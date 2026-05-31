@@ -85,9 +85,11 @@ const contracts = [
     file: "src/components/step5-package-review.tsx",
     tokens: [
       'data-smoke="step5-review-save-focus"',
+      'data-smoke="step5-save-does-not-move"',
       "1. 만들 결과",
       "2. 첫 제작 범위",
       "3. 첫 작업",
+      "저장은 STEP 6으로 자동 이동하지 않고",
     ],
   },
   {
