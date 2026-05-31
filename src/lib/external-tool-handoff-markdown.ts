@@ -9,6 +9,13 @@ import {
 import type { ProductSurfaceProfile } from "@/lib/product-surface";
 import type { Idea, ImplementationTask } from "@/lib/venture-data";
 
+const implementationTaskCompletionReportTemplate = `### 완료 보고 형식
+
+- 변경 파일:
+- 실행한 검증:
+- 남은 리스크:
+- 다음 작업:`;
+
 export function buildCursorTaskMarkdown({
   idea,
   productSurface,
@@ -25,7 +32,7 @@ export function buildCursorTaskMarkdown({
     sortedTasks.length > 0
       ? sortedTasks
           .map((task, index) => {
-            const taskCode = `T-${String(index + 1).padStart(3, "0")}`;
+            const taskCode = getCursorTaskCode(index);
             return `## ${taskCode} ${task.title}
 
 - 상태: ${implementationTaskStatusLabels[task.status]}
@@ -37,12 +44,7 @@ export function buildCursorTaskMarkdown({
 
 ${task.acceptance_criteria || "제작 패키지의 범위와 품질 기준을 따릅니다."}
 
-### 완료 보고 형식
-
-- 변경 파일:
-- 실행한 검증:
-- 남은 리스크:
-- 다음 작업:`;
+${implementationTaskCompletionReportTemplate}`;
           })
           .join("\n\n")
       : fallbackTasks.length > 0
@@ -61,12 +63,7 @@ ${task.acceptance_criteria || "제작 패키지의 범위와 품질 기준을 �
 
 ${task.acceptance_criteria || "제작 패키지의 범위와 품질 기준을 따릅니다."}
 
-### 완료 보고 형식
-
-- 변경 파일:
-- 실행한 검증:
-- 남은 리스크:
-- 다음 작업:`;
+${implementationTaskCompletionReportTemplate}`;
             })
             .join("\n\n")
         : "아직 저장된 제작 작업이 없습니다. Venture Lab STEP 6에서 작업 순서를 먼저 생성하세요.";
