@@ -654,6 +654,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await primaryDownloadCue.getByText("START 지시문은 확인 명령에서 T-001을 본 뒤", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   await primaryDownloadCue.getByText("받을 파일명:", { exact: false }).waitFor({
     state: "visible",
     timeout,
@@ -666,7 +670,7 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
-  await page.getByRole("button", { name: "설치 후 시작 지시문 복사" }).waitFor({
+  await page.getByRole("button", { name: "설치 확인 후 START 지시문 복사" }).waitFor({
     state: "visible",
     timeout,
   });
