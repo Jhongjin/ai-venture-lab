@@ -63,6 +63,7 @@ import { FinalExecutionReadinessSummary } from "@/components/final-execution-rea
 import { FinalExecutionSyncPanel } from "@/components/final-execution-sync-panel";
 import { FinalExecutionTaskList } from "@/components/final-execution-task-list";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
+import { MarketScanAutoRunner } from "@/components/market-scan-auto-runner";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { ProductSurfaceSelector } from "@/components/product-surface-selector";
 import { Step2ScoreHandoffBridge } from "@/components/step2-score-handoff-bridge";
@@ -4038,31 +4039,6 @@ ${isExternalDelivery ? `> ${selectedTool.handoffNote}` : "> 내부 개발 자동
 - 제작 기준: ${profile.harnessFocus}
 - 외부 전달 기준: ${profile.handoffHint}
 - 승인되지 않은 결제, 고급 자동화, 외부 계정 직접 조작, 대규모 관리자 기능은 만들지 않습니다.`;
-}
-
-function MarketScanAutoRunner({
-  active,
-  autoKey,
-  disabled,
-  onRun,
-}: {
-  active: boolean;
-  autoKey: string | null;
-  disabled: boolean;
-  onRun: () => Promise<void>;
-}) {
-  const lastRunKeyRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!active || disabled || !autoKey || lastRunKeyRef.current === autoKey) {
-      return;
-    }
-
-    lastRunKeyRef.current = autoKey;
-    void onRun();
-  }, [active, autoKey, disabled, onRun]);
-
-  return null;
 }
 
 function getMarketScanLevelLabel(value: "low" | "medium" | "high") {
