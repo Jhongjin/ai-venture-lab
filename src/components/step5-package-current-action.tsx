@@ -1,7 +1,7 @@
 const step5PackageCurrentActionItems = [
   ["1. 만들기", "AI 제작 패키지 만들기"],
   ["2. 확인", "요약만 보고 필요한 메모 추가"],
-  ["3. 저장", "하단 다음 버튼으로 STEP 6 이동"],
+  ["3. 저장 후 이동", "저장 완료 후 하단 다음 단계 버튼으로 STEP 6 이동"],
 ] as const;
 
 type Step5PackageCurrentActionProps = {

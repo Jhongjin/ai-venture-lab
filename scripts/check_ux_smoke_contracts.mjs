@@ -112,6 +112,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/step5-package-current-action.tsx",
+    tokens: [
+      'data-smoke="step5-package-current-action"',
+      "3. 저장 후 이동",
+      "저장 완료 후 하단 다음 단계 버튼으로 STEP 6 이동",
+    ],
+  },
+  {
     file: "src/components/step8-action-highlights.tsx",
     tokens: [
       'data-smoke="step8-simple-review-details"',
