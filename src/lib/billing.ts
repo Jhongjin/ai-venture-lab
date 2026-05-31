@@ -50,6 +50,24 @@ export type CreditSummary = {
   message: string | null;
 };
 
+export type CreditAccessState = {
+  buildPassIdeaIds: Set<string>;
+  isCreditSystemReady: boolean;
+  isCreditSystemMissing: boolean;
+  hasSelectedIdeaBuildPass: boolean;
+  isCreditSystemChecking: boolean;
+  needsSelectedIdeaBuildPass: boolean;
+  canUseFullProductionPackage: boolean;
+  buildPassCost: number;
+  freeArtifactLimit: number;
+  fullArtifactCount: number;
+  monthlyCreditGrant: number;
+  creditBalance: number | null;
+  remainingBuildPassCount: number | null;
+  hasEnoughCreditsForBuildPass: boolean;
+  creditBalanceLabel: string;
+};
+
 export function isCreditSummary(value: unknown): value is CreditSummary {
   return (
     isPlainRecord(value) &&
@@ -135,6 +153,52 @@ export function getBuildPassShortfall(balance: number | null, buildPassCost = ID
 
 export function getMonthlyBuildPassCapacity(monthlyCreditGrant: number, buildPassCost = IDEA_BUILD_PASS_CREDITS) {
   return getBuildPassCapacity(monthlyCreditGrant, buildPassCost) ?? 0;
+}
+
+export function getCreditAccessState({
+  creditSummary,
+  selectedIdeaId,
+  hasUser,
+  isCreditSummaryLoading,
+}: {
+  creditSummary: CreditSummary | null;
+  selectedIdeaId: string | null;
+  hasUser: boolean;
+  isCreditSummaryLoading: boolean;
+}): CreditAccessState {
+  const buildPassIdeaIds = new Set((creditSummary?.buildPasses ?? []).map((pass) => pass.ideaId));
+  const isCreditSystemReady = creditSummary?.status === "ready";
+  const isCreditSystemMissing = creditSummary?.status === "missing";
+  const hasSelectedIdeaBuildPass = Boolean(selectedIdeaId && buildPassIdeaIds.has(selectedIdeaId));
+  const isCreditSystemChecking = hasUser && isCreditSummaryLoading && !creditSummary;
+  const needsSelectedIdeaBuildPass = Boolean(selectedIdeaId && isCreditSystemReady && !hasSelectedIdeaBuildPass);
+  const canUseFullProductionPackage = (!isCreditSystemReady && !isCreditSystemChecking) || hasSelectedIdeaBuildPass;
+  const buildPassCost = creditSummary?.buildPassCost ?? IDEA_BUILD_PASS_CREDITS;
+  const freeArtifactLimit = creditSummary?.freeArtifactLimit ?? FREE_PACKAGE_ARTIFACT_LIMIT;
+  const fullArtifactCount = creditSummary?.fullArtifactCount ?? FULL_PACKAGE_ARTIFACT_COUNT;
+  const monthlyCreditGrant = creditSummary?.monthlyGrant ?? FREE_MONTHLY_CREDITS;
+  const creditBalance = creditSummary?.balance ?? null;
+  const remainingBuildPassCount = getBuildPassCapacity(creditBalance, buildPassCost);
+  const hasEnoughCreditsForBuildPass = !isCreditSystemReady || (creditBalance ?? 0) >= buildPassCost;
+  const creditBalanceLabel = creditBalance === null ? "확인 중" : `${creditBalance} 크레딧`;
+
+  return {
+    buildPassIdeaIds,
+    isCreditSystemReady,
+    isCreditSystemMissing,
+    hasSelectedIdeaBuildPass,
+    isCreditSystemChecking,
+    needsSelectedIdeaBuildPass,
+    canUseFullProductionPackage,
+    buildPassCost,
+    freeArtifactLimit,
+    fullArtifactCount,
+    monthlyCreditGrant,
+    creditBalance,
+    remainingBuildPassCount,
+    hasEnoughCreditsForBuildPass,
+    creditBalanceLabel,
+  };
 }
 
 export function getCreditPeriodKey(date = new Date()) {

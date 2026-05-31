@@ -154,11 +154,7 @@ import {
   type CursorSyncRegistryStatus,
 } from "@/lib/external-tool-sync-connection";
 import {
-  FREE_MONTHLY_CREDITS,
-  FREE_PACKAGE_ARTIFACT_LIMIT,
-  FULL_PACKAGE_ARTIFACT_COUNT,
-  IDEA_BUILD_PASS_CREDITS,
-  getBuildPassCapacity,
+  getCreditAccessState,
   isCreditSummary,
   type CreditSummary,
 } from "@/lib/billing";
@@ -845,24 +841,31 @@ export function IdeaWorkbench({
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     [artifacts, selectedIdea?.id],
   );
-  const buildPassIdeaIds = useMemo(
-    () => new Set((creditSummary?.buildPasses ?? []).map((pass) => pass.ideaId)),
-    [creditSummary?.buildPasses],
+  const {
+    isCreditSystemReady,
+    isCreditSystemMissing,
+    hasSelectedIdeaBuildPass,
+    isCreditSystemChecking,
+    needsSelectedIdeaBuildPass,
+    canUseFullProductionPackage,
+    buildPassCost,
+    freeArtifactLimit,
+    fullArtifactCount,
+    monthlyCreditGrant,
+    creditBalance,
+    remainingBuildPassCount,
+    hasEnoughCreditsForBuildPass,
+    creditBalanceLabel,
+  } = useMemo(
+    () =>
+      getCreditAccessState({
+        creditSummary,
+        selectedIdeaId: selectedIdea?.id ?? null,
+        hasUser: Boolean(user),
+        isCreditSummaryLoading,
+      }),
+    [creditSummary, isCreditSummaryLoading, selectedIdea?.id, user],
   );
-  const isCreditSystemReady = creditSummary?.status === "ready";
-  const isCreditSystemMissing = creditSummary?.status === "missing";
-  const hasSelectedIdeaBuildPass = Boolean(selectedIdea && buildPassIdeaIds.has(selectedIdea.id));
-  const isCreditSystemChecking = Boolean(user) && isCreditSummaryLoading && !creditSummary;
-  const needsSelectedIdeaBuildPass = Boolean(selectedIdea && isCreditSystemReady && !hasSelectedIdeaBuildPass);
-  const canUseFullProductionPackage = (!isCreditSystemReady && !isCreditSystemChecking) || hasSelectedIdeaBuildPass;
-  const buildPassCost = creditSummary?.buildPassCost ?? IDEA_BUILD_PASS_CREDITS;
-  const freeArtifactLimit = creditSummary?.freeArtifactLimit ?? FREE_PACKAGE_ARTIFACT_LIMIT;
-  const fullArtifactCount = creditSummary?.fullArtifactCount ?? FULL_PACKAGE_ARTIFACT_COUNT;
-  const monthlyCreditGrant = creditSummary?.monthlyGrant ?? FREE_MONTHLY_CREDITS;
-  const creditBalance = creditSummary?.balance ?? null;
-  const remainingBuildPassCount = getBuildPassCapacity(creditBalance, buildPassCost);
-  const hasEnoughCreditsForBuildPass = !isCreditSystemReady || (creditBalance ?? 0) >= buildPassCost;
-  const creditBalanceLabel = creditBalance === null ? "확인 중" : `${creditBalance} 크레딧`;
   const buildDeliveryPreference = useMemo(
     () => getBuildDeliveryPreferenceFromArtifacts(selectedArtifactRecords),
     [selectedArtifactRecords],
