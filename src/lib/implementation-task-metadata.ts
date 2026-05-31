@@ -3,6 +3,7 @@ import type {
   ImplementationTaskStatus,
   ImplementationTaskType,
 } from "@/lib/supabase/types";
+import type { ImplementationTask } from "@/lib/venture-data";
 
 export type EvidenceRequirement = {
   label: string;
@@ -108,6 +109,29 @@ export const implementationTaskExecutionOrder: ImplementationTaskType[] = [
 export const implementationTaskExecutionRank = new Map<ImplementationTaskType, number>(
   implementationTaskExecutionOrder.map((taskType, index) => [taskType, index]),
 );
+
+export function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
+  return [...tasks].sort(
+    (a, b) =>
+      implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
+      implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
+      a.sort_order - b.sort_order ||
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
+      a.title.localeCompare(b.title, "ko-KR"),
+  );
+}
+
+export function sortImplementationTasksForExecution(tasks: ImplementationTask[]) {
+  return [...tasks].sort(
+    (a, b) =>
+      (implementationTaskExecutionRank.get(a.task_type) ?? 99) - (implementationTaskExecutionRank.get(b.task_type) ?? 99) ||
+      implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
+      implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
+      a.sort_order - b.sort_order ||
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
+      a.title.localeCompare(b.title, "ko-KR"),
+  );
+}
 
 export const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {
   planning: "기획",

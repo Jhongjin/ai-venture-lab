@@ -186,7 +186,6 @@ import {
   sharedImplementationEvidenceRequirements,
   implementationTaskActionRank,
   implementationTaskExecutionOrder,
-  implementationTaskExecutionRank,
   implementationTaskPriorities,
   implementationTaskPriorityLabels,
   implementationTaskPriorityRank,
@@ -196,6 +195,8 @@ import {
   implementationTaskStatusTone,
   implementationTaskTypeLabels,
   implementationTaskTypes,
+  sortImplementationTasksForAction,
+  sortImplementationTasksForExecution,
   type ImplementationEvidenceFilter,
   type ImplementationStatusFilter,
 } from "@/lib/implementation-task-metadata";
@@ -5678,30 +5679,6 @@ function buildImplementationTaskDrafts({
       ].join("\n"),
     },
   ];
-}
-
-function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
-  return [...tasks].sort(
-    (a, b) =>
-      implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
-      implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
-      a.sort_order - b.sort_order ||
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
-      a.title.localeCompare(b.title, "ko-KR"),
-  );
-}
-
-function sortImplementationTasksForExecution(tasks: ImplementationTask[]) {
-  return [...tasks].sort(
-    (a, b) =>
-      (implementationTaskExecutionRank.get(a.task_type) ?? 99) -
-        (implementationTaskExecutionRank.get(b.task_type) ?? 99) ||
-      implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
-      implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
-      a.sort_order - b.sort_order ||
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
-      a.title.localeCompare(b.title, "ko-KR"),
-  );
 }
 
 function buildImplementationDependencyStatuses(tasks: ImplementationTask[]): ImplementationDependencyStatus[] {
