@@ -65,6 +65,7 @@ import { FinalExecutionTaskList } from "@/components/final-execution-task-list";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { ProductSurfaceSelector } from "@/components/product-surface-selector";
+import { Step3ValidationGateBridge } from "@/components/step3-validation-gate-bridge";
 import { Step4ValidationBundleBridge } from "@/components/step4-validation-bundle-bridge";
 import { Step6ExecutionBridge } from "@/components/step6-execution-bridge";
 import { Step6ManualRunForm } from "@/components/step6-manual-run-form";
@@ -17699,6 +17700,12 @@ export function IdeaWorkbench({
                   </div>
                   <Beaker className="text-sky-600" size={22} />
                 </div>
+                <Step3ValidationGateBridge
+                  hasMarketScanArtifact={hasMarketScanArtifact}
+                  hasSavedExperiment={selectedExperiments.length > 0}
+                  isMarketScanLoading={isMarketScanLoading}
+                  isMarketScanOutdated={hasOutdatedMarketScanArtifact}
+                />
                 <div className="mb-5 grid gap-px bg-slate-200 md:grid-cols-3">
                   {[
                     ["무엇을 확인할지", "가장 불확실한 한 가지를 고릅니다. 예: 실제로 자주 겪는 문제인지, 돈을 낼 만큼 불편한지."],

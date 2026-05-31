@@ -5,6 +5,14 @@ const root = process.cwd();
 
 const contracts = [
   {
+    file: "src/components/step3-validation-gate-bridge.tsx",
+    tokens: [
+      'data-smoke="step3-validation-gate-bridge"',
+      "검증 계획과 시장 근거가 저장되면 STEP 4가 열립니다",
+      "직접 인터뷰나 테스트 결과는 실제 결과가 있을 때만",
+    ],
+  },
+  {
     file: "src/components/step4-validation-bundle-bridge.tsx",
     tokens: [
       'data-smoke="step4-validation-bundle-bridge"',
@@ -28,6 +36,7 @@ const contracts = [
     file: "scripts/smoke_browser_auth.mjs",
     tokens: [
       '[data-smoke="workbench-current-action"]',
+      '[data-smoke="step3-validation-gate-bridge"]',
       '[data-smoke="step4-validation-bundle-bridge"]',
       "작업 순서 자동 만들기",
       "사업성 평가 저장",

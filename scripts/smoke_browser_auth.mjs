@@ -421,6 +421,38 @@ async function verifyDirectWorkbenchTaskRoute(page) {
     );
   }
 
+  const experimentUrl = new URL("/workspace", baseUrl);
+  experimentUrl.searchParams.set("task", "experiment");
+  await page.goto(experimentUrl.toString(), { waitUntil: "networkidle", timeout });
+  const experimentRouteState = await waitForAnyVisible(
+    [
+      { name: "experiment", locator: page.getByRole("heading", { name: "7일 검증 계획" }) },
+      { name: "empty-intake", locator: page.getByRole("heading", { name: /메모에서 검토할 아이디어 정리|아이디어 찾기/ }) },
+      { name: "login-required", locator: page.getByRole("heading", { name: "먼저 로그인해 주세요." }) },
+    ],
+    "direct experiment task route",
+    25000,
+  );
+
+  if (experimentRouteState === "login-required") {
+    fail("direct experiment task route lost the authenticated session.");
+  }
+
+  if (experimentRouteState === "experiment") {
+    await verifyWorkbenchCurrentActionChecklist(
+      page,
+      ["검증 계획 확인", "시장·경쟁 근거 확인", "검증 계획 저장"],
+      "direct experiment",
+    );
+    const validationGate = page.locator('[data-smoke="step3-validation-gate-bridge"]');
+    await waitForVisible(validationGate, "STEP 3 validation gate bridge", 15000);
+    await waitForVisible(
+      validationGate.getByText("검증 계획과 시장 근거가 저장되면 STEP 4가 열립니다", { exact: true }),
+      "STEP 3 validation gate title",
+      15000,
+    );
+  }
+
   const artifactsUrl = new URL("/workspace", baseUrl);
   artifactsUrl.searchParams.set("task", "artifacts");
   await page.goto(artifactsUrl.toString(), { waitUntil: "networkidle", timeout });
