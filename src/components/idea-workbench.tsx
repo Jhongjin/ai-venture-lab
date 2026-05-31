@@ -65,6 +65,7 @@ import { FinalExecutionTaskList } from "@/components/final-execution-task-list";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { ProductSurfaceSelector } from "@/components/product-surface-selector";
+import { Step2ScoreHandoffBridge } from "@/components/step2-score-handoff-bridge";
 import { Step3ValidationGateBridge } from "@/components/step3-validation-gate-bridge";
 import { Step4ValidationBundleBridge } from "@/components/step4-validation-bundle-bridge";
 import { Step6ExecutionBridge } from "@/components/step6-execution-bridge";
@@ -15440,6 +15441,13 @@ export function IdeaWorkbench({
                   </button>
                 </div>
               </div>
+
+              <Step2ScoreHandoffBridge
+                activeProductSurfaceLabel={activeProductSurface.label}
+                currentScore={currentScore}
+                isScoreEvaluationSaved={isScoreEvaluationSaved}
+                scoreDecisionLabel={decisionLabels[scoreSaveDecision]}
+              />
 
               <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
                 <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">

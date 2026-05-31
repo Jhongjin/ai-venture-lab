@@ -419,6 +419,13 @@ async function verifyDirectWorkbenchTaskRoute(page) {
       ["결과물 형태 확인", "평가값 확인", "사업성 평가 저장"],
       "direct score",
     );
+    const scoreBridge = page.locator('[data-smoke="step2-score-handoff-bridge"]');
+    await waitForVisible(scoreBridge, "STEP 2 score handoff bridge", 15000);
+    await waitForVisible(
+      scoreBridge.getByText("사업성 평가는 STEP 3 검증 계획의 기준입니다", { exact: true }),
+      "STEP 2 score handoff bridge title",
+      15000,
+    );
   }
 
   const experimentUrl = new URL("/workspace", baseUrl);

@@ -5,6 +5,14 @@ const root = process.cwd();
 
 const contracts = [
   {
+    file: "src/components/step2-score-handoff-bridge.tsx",
+    tokens: [
+      'data-smoke="step2-score-handoff-bridge"',
+      "사업성 평가는 STEP 3 검증 계획의 기준입니다",
+      "검증 계획과 시장 점검 기준",
+    ],
+  },
+  {
     file: "src/components/step3-validation-gate-bridge.tsx",
     tokens: [
       'data-smoke="step3-validation-gate-bridge"',
@@ -36,6 +44,7 @@ const contracts = [
     file: "scripts/smoke_browser_auth.mjs",
     tokens: [
       '[data-smoke="workbench-current-action"]',
+      '[data-smoke="step2-score-handoff-bridge"]',
       '[data-smoke="step3-validation-gate-bridge"]',
       '[data-smoke="step4-validation-bundle-bridge"]',
       "작업 순서 자동 만들기",
