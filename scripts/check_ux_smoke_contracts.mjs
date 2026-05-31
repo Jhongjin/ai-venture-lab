@@ -307,6 +307,15 @@ const contracts = [
     ],
   },
   {
+    file: "src/lib/build-delivery.ts",
+    tokens: [
+      "확인 명령에서 T-001이 보이면 Cursor를 다시 열어 ai-venture-lab MCP 서버를 확인합니다.",
+      "확인 명령에서 T-001이 보이면 Codex 작업 세션에서 같은 프로젝트를 엽니다.",
+      "확인 명령에서 T-001이 보이면 Claude Code를 같은 프로젝트 루트에서 엽니다.",
+      "확인 명령에서 T-001이 보이면 Antigravity에서 같은 프로젝트를 엽니다.",
+    ],
+  },
+  {
     file: "scripts/smoke_browser_auth.mjs",
     tokens: ['[data-smoke="first-use-result-preview"]', '[data-smoke="first-use-short-input-ok"]'],
   },
