@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Extracted build pass requirement copy | `e4263ea` | Not deployed separately; billing/workbench copy refactor only | `pnpm typecheck`, `pnpm smoke:billing`, `pnpm smoke:ux-contracts`, `pnpm quality:full`, `git diff --check`; repeated full-package gate messages now use `getBuildPassRequirementMessage` from `billing.ts` |
 | 2026-05-31 | Clarified STEP 8 confirmation boundary | `0e0ec00` | Auto-deployed from main; production and build-sync smoke passed | `pnpm smoke:ux-contracts`, `pnpm smoke:build-sync`, `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; STEP 8 header now states it is for checking completion and choosing one next judgment, not starting new execution |
 | 2026-05-31 | Extracted credit period ledger totals | `035165d` | Not deployed separately; billing summary refactor only | `pnpm typecheck`, `pnpm smoke:billing`, `pnpm quality:full`, `git diff --check`; profile credit summary now uses `getCreditPeriodLedgerTotals` for monthly granted/spent totals |
 | 2026-05-31 | Extracted build pass unlock result copy | `52b8789` | Not deployed separately; billing behavior refactor only | `pnpm typecheck`, `pnpm smoke:billing`, `pnpm quality:full`, `git diff --check`; build-pass unlock payload parsing and user message selection now live in `billing.ts` instead of the large workbench component |
