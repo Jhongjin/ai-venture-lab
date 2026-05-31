@@ -194,6 +194,15 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/final-execution-tool-start-mode-card.tsx",
+    tokens: [
+      'data-smoke="final-execution-start-prompt-target"',
+      "START 파일 붙여넣을 곳",
+      "에이전트 채팅 입력창",
+      "터미널 에이전트의 첫 입력창",
+    ],
+  },
+  {
     file: "scripts/smoke_browser_auth.mjs",
     tokens: ['[data-smoke="first-use-result-preview"]'],
   },
