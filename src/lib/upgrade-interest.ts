@@ -2,6 +2,12 @@ export const UPGRADE_INTEREST_EVENT_NAME = "upgrade_interest_clicked";
 export const UPGRADE_INTEREST_EVENT_CATEGORY = "billing";
 export const UPGRADE_INTEREST_PLAN = "pro";
 export const UPGRADE_INTEREST_DEDUPE_WINDOW_MS = 24 * 60 * 60 * 1000;
+export const PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE =
+  "결제 화면은 열지 않습니다. 이 버튼은 Pro가 필요해진 순간만 저장합니다.";
+export const PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE =
+  "결제는 아직 열지 않습니다. Pro 관심 등록은 어떤 순간에 유료 가치가 필요한지 확인하는 수요 신호입니다.";
+export const PRO_INTEREST_DEMAND_SIGNAL_MESSAGE =
+  "관심 등록은 결제 요청이 아니라, 어떤 순간에 Pro가 필요한지 남기는 수요 신호입니다.";
 
 export const upgradeInterestSources = ["profile_credit_summary", "step5_credit_panel"] as const;
 export const upgradeInterestIntents = ["insufficient_credits_for_build_pass", "repeated_production_packages"] as const;

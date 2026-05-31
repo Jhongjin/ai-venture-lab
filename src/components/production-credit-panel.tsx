@@ -4,6 +4,10 @@ import { CheckCircle2, Coins, LockKeyhole } from "lucide-react";
 
 import { UpgradeInterestButton } from "@/components/upgrade-interest-button";
 import {
+  PRO_INTEREST_DEMAND_SIGNAL_MESSAGE,
+  PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE,
+} from "@/lib/upgrade-interest";
+import {
   PRO_UPGRADE_VALUE_TEXT,
   formatBuildPassCount,
   formatCompactCreditAmount,
@@ -215,7 +219,7 @@ export function ProductionCreditPanel({
                 data-smoke="production-credit-pro-paused-boundary"
                 className="mt-3 text-xs font-semibold leading-5 text-slate-700"
               >
-                결제는 아직 열지 않습니다. Pro 관심 등록은 어떤 순간에 유료 가치가 필요한지 확인하는 수요 신호입니다.
+                {PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE}
               </p>
             </details>
             <div data-smoke="production-credit-execution-package-value" className="mt-3 border border-blue-200 bg-blue-50 p-3">
@@ -341,7 +345,7 @@ export function ProductionCreditPanel({
                 data-smoke="step5-pro-interest-boundary"
                 className="mt-1 text-xs font-semibold leading-5 text-amber-950"
               >
-                관심 등록은 결제 요청이 아니라, 어떤 순간에 Pro가 필요한지 남기는 수요 신호입니다.
+                {PRO_INTEREST_DEMAND_SIGNAL_MESSAGE}
               </p>
               <div data-smoke="step5-pro-interest-reasons" className="mt-3 grid gap-px bg-amber-200">
                 {proInterestReasonItems.map(([label, detail]) => (

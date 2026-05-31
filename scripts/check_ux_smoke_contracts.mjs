@@ -461,8 +461,7 @@ const contracts = [
     file: "src/components/upgrade-interest-button.tsx",
     tokens: [
       'data-smoke="upgrade-interest-no-checkout-boundary"',
-      "결제 화면은 열지 않습니다.",
-      "Pro가 필요해진 순간만 저장합니다.",
+      "PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE",
     ],
   },
   {
@@ -470,16 +469,28 @@ const contracts = [
     tokens: [
       'data-smoke="step5-pro-interest-boundary"',
       'data-smoke="production-credit-pro-paused-boundary"',
-      "결제는 아직 열지 않습니다.",
-      "결제 요청이 아니라",
-      "수요 신호",
+      "PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE",
+      "PRO_INTEREST_DEMAND_SIGNAL_MESSAGE",
     ],
   },
   {
     file: "src/components/profile-credit-summary.tsx",
     tokens: [
       'data-smoke="profile-pro-interest-boundary"',
+      "PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE",
+    ],
+  },
+  {
+    file: "src/lib/upgrade-interest.ts",
+    tokens: [
+      "PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE",
+      "결제 화면은 열지 않습니다.",
+      "Pro가 필요해진 순간만 저장합니다.",
+      "PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE",
+      "결제는 아직 열지 않습니다.",
       "어떤 순간에 유료 가치가 필요한지",
+      "PRO_INTEREST_DEMAND_SIGNAL_MESSAGE",
+      "결제 요청이 아니라",
       "수요 신호",
     ],
   },

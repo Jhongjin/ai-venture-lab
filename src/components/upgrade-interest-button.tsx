@@ -3,7 +3,11 @@
 import { useState } from "react";
 
 import { recordProfileUpgradeInterest } from "@/app/profile/actions";
-import type { UpgradeInterestIntent, UpgradeInterestSource } from "@/lib/upgrade-interest";
+import {
+  PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE,
+  type UpgradeInterestIntent,
+  type UpgradeInterestSource,
+} from "@/lib/upgrade-interest";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
@@ -13,8 +17,6 @@ type UpgradeInterestButtonProps = {
   source?: UpgradeInterestSource;
   wrapperClassName?: string;
 };
-
-const noCheckoutBoundaryMessage = "결제 화면은 열지 않습니다. 이 버튼은 Pro가 필요해진 순간만 저장합니다.";
 
 function getButtonLabel(saveState: SaveState) {
   if (saveState === "saving") {
@@ -61,7 +63,7 @@ export function UpgradeInterestButton({
         data-smoke="upgrade-interest-no-checkout-boundary"
         className="text-xs font-semibold leading-5 text-slate-700"
       >
-        {noCheckoutBoundaryMessage}
+        {PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE}
       </p>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <button
