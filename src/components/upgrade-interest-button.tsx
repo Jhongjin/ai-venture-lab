@@ -14,6 +14,8 @@ type UpgradeInterestButtonProps = {
   wrapperClassName?: string;
 };
 
+const noCheckoutBoundaryMessage = "결제 화면은 열지 않습니다. 이 버튼은 Pro가 필요해진 순간만 저장합니다.";
+
 function getButtonLabel(saveState: SaveState) {
   if (saveState === "saving") {
     return "등록 중";
@@ -30,7 +32,7 @@ export function UpgradeInterestButton({
   idleMessage = "지금은 결제 없이 관심만 남깁니다.",
   intent = "repeated_production_packages",
   source = "profile_credit_summary",
-  wrapperClassName = "mt-4 flex flex-col gap-2 sm:flex-row sm:items-center",
+  wrapperClassName = "mt-4 flex flex-col gap-2",
 }: UpgradeInterestButtonProps) {
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [message, setMessage] = useState(idleMessage);
@@ -55,18 +57,26 @@ export function UpgradeInterestButton({
 
   return (
     <div className={wrapperClassName}>
-      <button
-        type="button"
-        data-smoke="upgrade-interest-button"
-        className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:cursor-not-allowed disabled:opacity-70"
-        disabled={saveState === "saving" || saveState === "saved"}
-        onClick={handleClick}
+      <p
+        data-smoke="upgrade-interest-no-checkout-boundary"
+        className="text-xs font-semibold leading-5 text-slate-700"
       >
-        {getButtonLabel(saveState)}
-      </button>
-      <p data-smoke="upgrade-interest-status" aria-live="polite" className="text-xs leading-5 text-slate-500">
-        {message}
+        {noCheckoutBoundaryMessage}
       </p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          data-smoke="upgrade-interest-button"
+          className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:cursor-not-allowed disabled:opacity-70"
+          disabled={saveState === "saving" || saveState === "saved"}
+          onClick={handleClick}
+        >
+          {getButtonLabel(saveState)}
+        </button>
+        <p data-smoke="upgrade-interest-status" aria-live="polite" className="text-xs leading-5 text-slate-500">
+          {message}
+        </p>
+      </div>
     </div>
   );
 }

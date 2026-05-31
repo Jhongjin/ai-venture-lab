@@ -413,6 +413,30 @@ const contracts = [
     tokens: ['[data-smoke="step8-simple-review-details"]', '[data-smoke="workbench-current-action"]', "T-001 확인"],
   },
   {
+    file: "src/components/upgrade-interest-button.tsx",
+    tokens: [
+      'data-smoke="upgrade-interest-no-checkout-boundary"',
+      "결제 화면은 열지 않습니다.",
+      "Pro가 필요해진 순간만 저장합니다.",
+    ],
+  },
+  {
+    file: "src/components/production-credit-panel.tsx",
+    tokens: [
+      'data-smoke="step5-pro-interest-boundary"',
+      "결제 요청이 아니라",
+      "수요 신호",
+    ],
+  },
+  {
+    file: "src/components/profile-credit-summary.tsx",
+    tokens: [
+      'data-smoke="profile-pro-interest-boundary"',
+      "어떤 순간에 유료 가치가 필요한지",
+      "수요 신호",
+    ],
+  },
+  {
     file: "scripts/smoke_billing_credits.mjs",
     tokens: [
       '[data-smoke="step5-execution-package-focus"]',

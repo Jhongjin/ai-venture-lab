@@ -292,6 +292,12 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
               </div>
             ))}
           </div>
+          <p
+            data-smoke="profile-pro-interest-boundary"
+            className="mt-3 text-xs font-semibold leading-5 text-blue-950"
+          >
+            지금 남기는 Pro 관심은 결제 요청이 아니라, 어떤 순간에 유료 가치가 필요한지 확인하는 수요 신호입니다.
+          </p>
         </div>
         <UpgradeInterestButton
           idleMessage={

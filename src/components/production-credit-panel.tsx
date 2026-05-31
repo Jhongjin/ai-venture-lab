@@ -331,6 +331,12 @@ export function ProductionCreditPanel({
               <p className="mt-1 text-xs leading-5 text-amber-950">
                 Pro가 필요한 이유는 {PRO_UPGRADE_VALUE_TEXT}을 반복해서 쓰는 것입니다. 결제는 아직 시작하지 않습니다.
               </p>
+              <p
+                data-smoke="step5-pro-interest-boundary"
+                className="mt-1 text-xs font-semibold leading-5 text-amber-950"
+              >
+                관심 등록은 결제 요청이 아니라, 어떤 순간에 Pro가 필요한지 남기는 수요 신호입니다.
+              </p>
               <div data-smoke="step5-pro-interest-reasons" className="mt-3 grid gap-px bg-amber-200">
                 {proInterestReasonItems.map(([label, detail]) => (
                   <div key={label} className="bg-white px-3 py-2">
