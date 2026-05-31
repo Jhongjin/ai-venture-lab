@@ -18,7 +18,7 @@ export function FirstUseInputStatus({ rawIdeaSource }: FirstUseInputStatusProps)
       >
         <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">지금 할 일</div>
         <p className="mt-1 font-semibold text-slate-950">
-          아래 입력칸에 생각나는 말을 그대로 붙입니다. 비워두면 AI가 후보 3개를 먼저 만듭니다.
+          메모가 있으면 아래 입력칸에 그대로 붙입니다. 아직 없으면 AI가 아이디어 도출하기로 후보 3개를 먼저 받습니다.
         </p>
         <p className="mt-1 text-sm text-emerald-900">후보 한 건을 저장하면 실행 보드에서 STEP 2 사업성 평가가 열립니다.</p>
       </div>

@@ -186,6 +186,7 @@ const contracts = [
     file: "src/components/first-use-input-status.tsx",
     tokens: [
       'data-smoke="first-use-current-action"',
+      "아직 없으면 AI가 아이디어 도출하기",
       "후보 한 건을 저장하면 실행 보드에서 STEP 2 사업성 평가가 열립니다.",
       "마음에 드는 한 건만 저장하면 실행 보드에서 STEP 2가 이어집니다.",
     ],
