@@ -39,6 +39,12 @@ import {
   upsertWorkbenchIdea,
 } from "@/lib/workbench-list-utils";
 import {
+  eventCountForWindow,
+  formatStableKoreanDate,
+  formatTelemetryProperties,
+  formatTelemetryTime,
+} from "@/lib/telemetry-format";
+import {
   getProductSurfaceProfile,
   productSurfaceMarkdown,
   productSurfaceProfiles,
@@ -8102,49 +8108,6 @@ ${summary.checks.map((check) => `- ${check}`).join("\n")}
 
 ${summary.recommendation}
 `;
-}
-
-function formatTelemetryTime(value: string) {
-  return new Date(value).toLocaleString("ko-KR", {
-    timeZone: "Asia/Seoul",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatStableKoreanDate(value: string) {
-  return new Date(value).toLocaleDateString("ko-KR", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
-
-function formatTelemetryProperties(properties: Json) {
-  if (!properties || typeof properties !== "object" || Array.isArray(properties)) {
-    return "";
-  }
-
-  return Object.entries(properties)
-    .filter(([, value]) => value !== undefined && value !== null && typeof value !== "object")
-    .slice(0, 4)
-    .map(([key, value]) => `${key}: ${String(value)}`)
-    .join(" · ");
-}
-
-function eventCountForWindow(events: TelemetryEvent[], days: number) {
-  const referenceTime = Math.max(...events.map((event) => new Date(event.occurred_at).getTime()).filter(Number.isFinite));
-
-  if (!Number.isFinite(referenceTime)) {
-    return 0;
-  }
-
-  const threshold = referenceTime - days * 24 * 60 * 60 * 1000;
-
-  return events.filter((event) => new Date(event.occurred_at).getTime() >= threshold).length;
 }
 
 function buildLearningTelemetryReportMarkdown({
