@@ -12,7 +12,7 @@ export function Step8NextTaskFocus({ nextTaskCode, nextTaskTitle }: Step8NextTas
 
   return (
     <div data-smoke="step8-next-task-focus" className="mt-4 border border-blue-200 bg-blue-50 p-3">
-      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 끝낼 작업</div>
+      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 확인할 것</div>
       <div className="mt-2 text-sm font-semibold text-slate-950">
         {nextTaskCode ? `${nextTaskCode} ` : ""}
         {nextTaskTitle}

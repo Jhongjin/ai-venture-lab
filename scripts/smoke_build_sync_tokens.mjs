@@ -144,7 +144,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
       state: "visible",
       timeout,
     });
-  await page.locator('[data-smoke="step8-primary-action-now"]').getByText("오늘 실제로 할 일", { exact: true }).waitFor({
+  await page.locator('[data-smoke="step8-primary-action-now"]').getByText("오늘 확인할 것", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
