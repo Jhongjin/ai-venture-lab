@@ -336,6 +336,15 @@ async function verifyWorkOrderCurrentAction(page, ideaId) {
     state: "visible",
     timeout,
   });
+  const firstTaskFocus = page.locator('[data-smoke="step6-first-task-focus"]');
+  await firstTaskFocus.getByText("처음에는 전체 작업표를 다 읽지 않고", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await firstTaskFocus.getByText("T-001 이름과 완료 기준만 확인", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const firstTaskLock = page.locator('[data-smoke="step6-first-task-lock"]');
   await firstTaskLock.getByText("첫 제작 범위 잠금", { exact: true }).waitFor({
     state: "visible",
