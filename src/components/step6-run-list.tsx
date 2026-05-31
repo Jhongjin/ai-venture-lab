@@ -57,7 +57,9 @@ export function Step6RunList({
                   </div>
                 </div>
                 <div className="grid gap-2">
-                  <div className="text-xs font-semibold text-slate-500">상태는 필요할 때만 바꿉니다</div>
+                  <div data-smoke="step6-status-does-not-move" className="text-xs font-semibold text-slate-500">
+                    상태 변경은 실제 진행 기록용이며 단계 이동 버튼이 아닙니다.
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {orchestrationStatuses.map((status) => (
                       <button

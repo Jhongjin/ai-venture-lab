@@ -422,6 +422,14 @@ async function verifyWorkOrderCurrentAction(page, ideaId) {
     state: "visible",
     timeout,
   });
+  await page
+    .locator('[data-smoke="step6-status-does-not-move"]')
+    .first()
+    .getByText("상태 변경은 실제 진행 기록용이며 단계 이동 버튼이 아닙니다.", { exact: true })
+    .waitFor({
+      state: "visible",
+      timeout,
+    });
 }
 
 async function verifyFinalExecutionActionBanner(page, toolLabel) {

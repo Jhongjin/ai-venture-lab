@@ -79,6 +79,13 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/step6-run-list.tsx",
+    tokens: [
+      'data-smoke="step6-status-does-not-move"',
+      "상태 변경은 실제 진행 기록용이며 단계 이동 버튼이 아닙니다.",
+    ],
+  },
+  {
     file: "src/components/first-use-result-preview.tsx",
     tokens: [
       'data-smoke="first-use-result-preview"',
