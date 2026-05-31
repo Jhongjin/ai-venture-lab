@@ -67,6 +67,12 @@ export type CreditAccessState = {
   creditBalanceLabel: string;
 };
 
+export type BuildPassUnlockResult = {
+  alreadyUnlocked: boolean;
+  chargedCredits: number;
+  creditMessage: string;
+};
+
 export function isCreditSummary(value: unknown): value is CreditSummary {
   return (
     isPlainRecord(value) &&
@@ -81,6 +87,26 @@ export function isCreditSummary(value: unknown): value is CreditSummary {
     Array.isArray(value.buildPasses) &&
     Array.isArray(value.ledgerEntries)
   );
+}
+
+export function getBuildPassUnlockResult(
+  creditSummary: CreditSummary,
+  fallbackBuildPassCost = creditSummary.buildPassCost,
+): BuildPassUnlockResult {
+  const payload = creditSummary as CreditSummary & {
+    alreadyUnlocked?: unknown;
+    chargedCredits?: unknown;
+  };
+  const chargedCredits = typeof payload.chargedCredits === "number" ? payload.chargedCredits : fallbackBuildPassCost;
+  const alreadyUnlocked = payload.alreadyUnlocked === true;
+
+  return {
+    alreadyUnlocked,
+    chargedCredits,
+    creditMessage: alreadyUnlocked
+      ? "이 아이디어의 전체 제작 패키지는 이미 열려 있습니다."
+      : `${formatCompactCreditAmount(chargedCredits)}을 사용해 전체 제작 패키지를 열었습니다.`,
+  };
 }
 
 export type BillingErrorLike = {

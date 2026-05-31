@@ -155,6 +155,7 @@ import {
   type CursorSyncRegistryStatus,
 } from "@/lib/external-tool-sync-connection";
 import {
+  getBuildPassUnlockResult,
   getCreditAccessState,
   isCreditSummary,
   type CreditSummary,
@@ -3956,27 +3957,16 @@ export function IdeaWorkbench({
         return;
       }
 
-      const buildPassPayload = payload as CreditSummary & {
-        alreadyUnlocked?: unknown;
-        chargedCredits?: unknown;
-      };
-      const chargedCredits = typeof buildPassPayload.chargedCredits === "number"
-        ? buildPassPayload.chargedCredits
-        : buildPassCost;
-      const alreadyUnlocked = buildPassPayload.alreadyUnlocked === true;
+      const unlockResult = getBuildPassUnlockResult(payload, buildPassCost);
 
-      setCreditMessage(
-        alreadyUnlocked
-          ? "이 아이디어의 전체 제작 패키지는 이미 열려 있습니다."
-          : `${chargedCredits}크레딧을 사용해 전체 제작 패키지를 열었습니다.`,
-      );
+      setCreditMessage(unlockResult.creditMessage);
       setMessage("전체 제작 패키지가 열렸습니다. 이제 AI 제작 패키지를 만들고 저장할 수 있습니다.");
       await recordTelemetryEvent({
         eventName: "production_package_build_pass_unlocked",
         eventCategory: "development",
         properties: {
           idea_id: selectedIdea.id,
-          charged_credits: chargedCredits,
+          charged_credits: unlockResult.chargedCredits,
         },
       });
     } catch {
