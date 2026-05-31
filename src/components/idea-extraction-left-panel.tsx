@@ -86,7 +86,6 @@ export function IdeaExtractionLeftPanel({
         selectedBuildDeliveryPhrase={selectedBuildDeliveryPhrase}
         selectedBuildDeliveryShortLabel={selectedBuildDeliveryShortLabel}
       />
-      <IdeaExtractionFlowSteps hasGeneratedIdeaSlots={hasGeneratedIdeaSlots} />
       <IdeaExtractionActionPanel
         hasGeneratedIdeaSlots={hasGeneratedIdeaSlots}
         hasIdeaSourceInput={hasIdeaSourceInput}
@@ -100,6 +99,7 @@ export function IdeaExtractionLeftPanel({
         onReplayExtractionComparison={onReplayExtractionComparison}
       />
       <IdeaExtractionNotices duplicateCandidateCount={duplicateCandidateCount} extractMessage={extractMessage} />
+      <IdeaExtractionFlowSteps hasGeneratedIdeaSlots={hasGeneratedIdeaSlots} />
     </div>
   );
 }
