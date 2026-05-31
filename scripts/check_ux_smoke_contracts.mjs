@@ -106,6 +106,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/idea-extraction-action-panel.tsx",
+    tokens: [
+      'data-smoke="idea-regenerate-does-not-save"',
+      "다른 후보 더 확인하기는 저장이나 단계 이동 없이 후보만 바꿉니다",
+      "최종 저장은 킵한 후보로 아이디어 정리하기에서만 합니다",
+    ],
+  },
+  {
     file: "src/components/recommended-idea-actions.tsx",
     tokens: [
       'data-smoke="recommended-edit-does-not-save"',

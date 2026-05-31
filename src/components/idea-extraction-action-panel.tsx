@@ -41,6 +41,11 @@ export function IdeaExtractionActionPanel({
                 ? "입력칸 내용을 한 건의 검토 아이디어, 결과물 형태, 개발 방식으로 정리합니다."
                 : "아이디어가 없으면 AI가 검토할 후보 3개를 먼저 도출합니다."}
           </p>
+          {hasGeneratedIdeaSlots ? (
+            <p data-smoke="idea-regenerate-does-not-save" className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+              다른 후보 더 확인하기는 저장이나 단계 이동 없이 후보만 바꿉니다. 최종 저장은 킵한 후보로 아이디어 정리하기에서만 합니다.
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
           {hasGeneratedIdeaSlots ? (
