@@ -65,6 +65,7 @@ import { FinalExecutionTaskList } from "@/components/final-execution-task-list";
 import { FinalExecutionToolGuide } from "@/components/final-execution-tool-guide";
 import { ProductionCreditPanel } from "@/components/production-credit-panel";
 import { ProductSurfaceSelector } from "@/components/product-surface-selector";
+import { Step4ValidationBundleBridge } from "@/components/step4-validation-bundle-bridge";
 import { Step6ExecutionBridge } from "@/components/step6-execution-bridge";
 import { Step6ManualRunForm } from "@/components/step6-manual-run-form";
 import { Step6RunList } from "@/components/step6-run-list";
@@ -18361,6 +18362,7 @@ export function IdeaWorkbench({
               </div>
             </div>
           </div>
+          <Step4ValidationBundleBridge isValidationBundleSaved={isValidationBundleSaved} />
           <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-4">
             {[
               ["아이디어 요약", hasIdeaBriefArtifact],

@@ -5,6 +5,14 @@ const root = process.cwd();
 
 const contracts = [
   {
+    file: "src/components/step4-validation-bundle-bridge.tsx",
+    tokens: [
+      'data-smoke="step4-validation-bundle-bridge"',
+      "검증 자료는 STEP 5 제작 패키지의 입력 근거입니다",
+      "다음 사용처",
+    ],
+  },
+  {
     file: "src/components/workbench-current-action.tsx",
     tokens: [
       'data-smoke="workbench-current-action"',
@@ -20,6 +28,7 @@ const contracts = [
     file: "scripts/smoke_browser_auth.mjs",
     tokens: [
       '[data-smoke="workbench-current-action"]',
+      '[data-smoke="step4-validation-bundle-bridge"]',
       "작업 순서 자동 만들기",
       "사업성 평가 저장",
     ],

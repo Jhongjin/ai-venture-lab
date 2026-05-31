@@ -421,6 +421,38 @@ async function verifyDirectWorkbenchTaskRoute(page) {
     );
   }
 
+  const artifactsUrl = new URL("/workspace", baseUrl);
+  artifactsUrl.searchParams.set("task", "artifacts");
+  await page.goto(artifactsUrl.toString(), { waitUntil: "networkidle", timeout });
+  const artifactsRouteState = await waitForAnyVisible(
+    [
+      { name: "artifacts", locator: page.getByRole("heading", { name: "검증 자료 저장" }) },
+      { name: "empty-intake", locator: page.getByRole("heading", { name: /메모에서 검토할 아이디어 정리|아이디어 찾기/ }) },
+      { name: "login-required", locator: page.getByRole("heading", { name: "먼저 로그인해 주세요." }) },
+    ],
+    "direct artifacts task route",
+    25000,
+  );
+
+  if (artifactsRouteState === "login-required") {
+    fail("direct artifacts task route lost the authenticated session.");
+  }
+
+  if (artifactsRouteState === "artifacts") {
+    await verifyWorkbenchCurrentActionChecklist(
+      page,
+      ["자료 묶음 확인", "필요한 메모만 보완", "검증 자료 저장"],
+      "direct artifacts",
+    );
+    const validationBridge = page.locator('[data-smoke="step4-validation-bundle-bridge"]');
+    await waitForVisible(validationBridge, "STEP 4 validation bundle bridge", 15000);
+    await waitForVisible(
+      validationBridge.getByText("STEP 5 제작 패키지의 입력 근거", { exact: false }),
+      "STEP 4 validation bundle next usage",
+      15000,
+    );
+  }
+
   console.log("Direct orchestration route smoke passed.");
 }
 
