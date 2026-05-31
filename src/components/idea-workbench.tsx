@@ -92,6 +92,12 @@ import {
   type ExternalBuildToolProfile,
 } from "@/lib/build-delivery";
 import { toDownloadFileName } from "@/lib/download-file-name";
+import {
+  buildAntigravityMcpConfigJson,
+  buildClaudeMcpConfigJson,
+  buildCursorMcpConfigJson,
+  buildCursorSyncConfigJson,
+} from "@/lib/external-tool-connector-config";
 import { buildExternalProductionPackageGuide } from "@/lib/external-production-package-guide";
 import {
   buildCodexSetupPowerShell,
@@ -1403,17 +1409,6 @@ type CursorBuildSyncTokenResponse = {
   error?: string;
 };
 
-type CursorSyncConfig = {
-  projectKey: string;
-  ideaId: string;
-  ideaName: string;
-  tool: "cursor" | "codex" | "claude_code" | "antigravity";
-  endpoint: string;
-  token: string;
-  expiresAt: string;
-  createdAt: string;
-};
-
 type CursorSyncConnectionsResponse = {
   ok?: boolean;
   registryStatus?: CursorSyncRegistryStatus;
@@ -2189,61 +2184,6 @@ function buildAntigravityCliScript() {
     startFileName: "AI_VENTURE_ANTIGRAVITY_START.md",
     guideFileName: "README_VENTURE_LAB_ANTIGRAVITY.md",
   });
-}
-
-function buildClaudeMcpConfigJson() {
-  return `${JSON.stringify(
-    {
-      mcpServers: {
-        "ai-venture-lab": {
-          type: "stdio",
-          command: "node",
-          args: [".claude/venture-lab-cli.mjs", "mcp"],
-        },
-      },
-    },
-    null,
-    2,
-  )}
-`;
-}
-
-function buildAntigravityMcpConfigJson() {
-  return `${JSON.stringify(
-    {
-      mcpServers: {
-        "ai-venture-lab": {
-          type: "stdio",
-          command: "node",
-          args: [".antigravity/venture-lab-cli.mjs", "mcp"],
-        },
-      },
-    },
-    null,
-    2,
-  )}
-`;
-}
-
-function buildCursorMcpConfigJson() {
-  return `${JSON.stringify(
-    {
-      mcpServers: {
-        "ai-venture-lab": {
-          command: "node",
-          args: [".cursor/venture-lab-cli.mjs", "mcp"],
-        },
-      },
-    },
-    null,
-    2,
-  )}
-`;
-}
-
-function buildCursorSyncConfigJson(config: CursorSyncConfig) {
-  return `${JSON.stringify(config, null, 2)}
-`;
 }
 
 function buildCursorMcpServerScript() {
