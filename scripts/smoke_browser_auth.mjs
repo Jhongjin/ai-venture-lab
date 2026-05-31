@@ -291,6 +291,7 @@ async function openExtractTask(page) {
 
   if (await isFirstVisible(sourceInput)) {
     await waitForVisible(page.locator('[data-smoke="first-use-result-preview"]'), "first-use result preview", 10000);
+    await waitForVisible(page.locator('[data-smoke="first-use-short-input-ok"]'), "first-use short input reassurance", 10000);
     return;
   }
 
@@ -318,6 +319,7 @@ async function openExtractTask(page) {
 
   await waitForVisible(sourceInput, "idea source input", 15000);
   await waitForVisible(page.locator('[data-smoke="first-use-result-preview"]'), "first-use result preview", 10000);
+  await waitForVisible(page.locator('[data-smoke="first-use-short-input-ok"]'), "first-use short input reassurance", 10000);
 }
 
 async function openAuthEntry(page) {

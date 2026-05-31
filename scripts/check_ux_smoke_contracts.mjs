@@ -138,6 +138,15 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/first-use-source-textarea.tsx",
+    tokens: [
+      'data-smoke="first-use-short-input-ok"',
+      "짧아도 됩니다.",
+      "회의록 한 줄, GPT 대화 일부, 반복 업무 메모",
+      "AI가 후보와 검증 질문으로 정리합니다.",
+    ],
+  },
+  {
     file: "src/components/step5-package-review.tsx",
     tokens: [
       'data-smoke="step5-review-save-focus"',
@@ -264,7 +273,7 @@ const contracts = [
   },
   {
     file: "scripts/smoke_browser_auth.mjs",
-    tokens: ['[data-smoke="first-use-result-preview"]'],
+    tokens: ['[data-smoke="first-use-result-preview"]', '[data-smoke="first-use-short-input-ok"]'],
   },
   {
     file: "scripts/smoke_build_sync_tokens.mjs",
