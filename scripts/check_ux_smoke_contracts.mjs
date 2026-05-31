@@ -85,6 +85,15 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/recommended-idea-build-direction.tsx",
+    tokens: [
+      'data-smoke="recommended-build-direction-sentence"',
+      "저장될 제작 방향",
+      "결과물 형태는 무엇을 만들지, 개발 방식은 어디서 만들지를 정합니다.",
+      "실제 연결 파일은 STEP 7에서만 받습니다.",
+    ],
+  },
+  {
     file: "src/components/first-use-idea-intake.tsx",
     tokens: [
       'data-smoke="first-use-one-sentence"',
