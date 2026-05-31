@@ -46,11 +46,11 @@ export function FinalExecutionToolDetailGuide({
           실행합니다.
         </>,
         <>
-          같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지
+          같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 T-001 첫 작업이 읽히는지
           확인합니다.
         </>,
         <>
-          Cursor를 다시 열고 Settings &gt; MCP의 Workspace MCP Servers에서{" "}
+          T-001이 보이면 Cursor를 다시 열고 Settings &gt; MCP의 Workspace MCP Servers에서{" "}
           <span className="font-semibold text-slate-950">ai-venture-lab</span>이 보이는지 확인합니다. 처음 1회는 토글을 직접
           켜야 할 수 있습니다.
         </>,
@@ -72,7 +72,7 @@ export function FinalExecutionToolDetailGuide({
             실행합니다.
           </>,
           <>
-            같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지
+            같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 T-001 첫 작업이 읽히는지
             확인합니다.
           </>,
           <>
@@ -92,7 +92,7 @@ export function FinalExecutionToolDetailGuide({
               프로젝트 루트에서 <span className="font-semibold text-slate-950">설치 명령</span>을 실행합니다.
             </>,
             <>
-              같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지
+              같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 T-001 첫 작업이 읽히는지
               확인합니다.
             </>,
             <>
@@ -112,7 +112,7 @@ export function FinalExecutionToolDetailGuide({
                 실행합니다.
               </>,
               <>
-                같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 첫 작업이 읽히는지
+                같은 터미널에서 <span className="font-semibold text-slate-950">확인 명령</span>을 실행해 T-001 첫 작업이 읽히는지
                 확인합니다.
               </>,
               <>
@@ -147,7 +147,7 @@ export function FinalExecutionToolDetailGuide({
         ))}
         <GuideStep>
           {startPromptStepNumber}. <span className="font-mono text-xs">{activeExternalBuildTool.startFileName}</span>{" "}
-          내용을 {startPromptTarget}에 붙여 넣고 첫 작업을 시작합니다.
+          내용은 확인 명령에서 T-001을 본 뒤 {startPromptTarget}에 붙여 넣고 첫 작업을 시작합니다.
         </GuideStep>
         <GuideStep>
           {progressStepNumber}. 작업이 끝나면{" "}

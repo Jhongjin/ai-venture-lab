@@ -297,6 +297,15 @@ const contracts = [
       'data-smoke="final-execution-command-sequence"',
       "복사 버튼은 명령을 클립보드에 넣는 역할만 합니다",
       "확인 명령에서 T-001이 보인 뒤에만 START 파일을 열어 첫 작업을 시작하세요.",
+      "도구 설정 복사",
+    ],
+  },
+  {
+    file: "src/components/final-execution-tool-detail-guide.tsx",
+    tokens: [
+      'data-smoke="final-execution-detail-guide"',
+      "T-001 첫 작업이 읽히는지",
+      "내용은 확인 명령에서 T-001을 본 뒤",
     ],
   },
   {

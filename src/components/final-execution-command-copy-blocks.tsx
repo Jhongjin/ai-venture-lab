@@ -81,12 +81,12 @@ export function FinalExecutionCommandCopyBlocks({
         {mcpConfigDraft ? (
           <button
             type="button"
-            onClick={() => copyDraft(mcpConfigDraft, `${activeToolLabel} MCP 설정`)}
+            onClick={() => copyDraft(mcpConfigDraft, `${activeToolLabel} 도구 설정`)}
             disabled={!mcpConfigDraft}
             className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
           >
             <Code2 size={16} />
-            MCP 설정 복사
+            도구 설정 복사
           </button>
         ) : null}
         <button
