@@ -296,15 +296,20 @@ export function buildStep8ProgressSummary({
       };
     });
   const hasNextTask = Boolean(nextImplementationTaskId);
+  const allTasksDone = progressItems.length > 0 && progressItems.every((item) => item.isDone);
   const progressTitle = hasNextTask
     ? "다음 작업 하나만 확인"
-    : progressItems.length > 0
-      ? "완료된 것만 훑어보기"
+    : allTasksDone
+      ? "제작 작업 완료"
+      : progressItems.length > 0
+        ? "상태 확인만 하기"
       : "진행표 대기";
   const progressDetail = hasNextTask
     ? "오늘은 표시된 다음 작업 하나만 끝내면 됩니다. 전체 목록은 진행 순서 확인용으로만 봅니다."
-    : progressItems.length > 0
-      ? "완료된 작업과 남은 작업을 빠르게 확인하고, 다음 판단은 위의 한눈 요약에서 정합니다."
+    : allTasksDone
+      ? "남은 제작 작업은 없습니다. 완료 근거를 훑고 다음 판단은 위의 한눈 요약에서 정합니다."
+      : progressItems.length > 0
+        ? "다음 작업이 자동으로 잡히지 않았습니다. 막힘, 건너뜀, 상태 누락만 확인합니다."
       : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.";
 
   return {

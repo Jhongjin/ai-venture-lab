@@ -24,11 +24,15 @@ export function Step8ProgressSection({
   progressTitle,
   totalCount,
 }: Step8ProgressSectionProps) {
+  const hasProgressItems = items.length > 0;
+  const isAllTasksComplete = totalCount > 0 && completedCount >= totalCount;
   const nextTaskSummary =
     nextTaskCode && nextTaskTitle
       ? `${nextTaskCode} ${nextTaskTitle}`
-      : items.length > 0
-        ? "남은 제작 작업 없음"
+      : hasProgressItems
+        ? isAllTasksComplete
+          ? "남은 제작 작업 없음"
+          : "상태 확인 필요"
         : "STEP 7에서 첫 작업 시작";
 
   return (
@@ -61,7 +65,8 @@ export function Step8ProgressSection({
         </div>
       ) : null}
       <Step8NextTaskFocus
-        hasProgressItems={items.length > 0}
+        hasProgressItems={hasProgressItems}
+        isAllTasksComplete={isAllTasksComplete}
         nextTaskCode={nextTaskCode}
         nextTaskTitle={nextTaskTitle}
       />

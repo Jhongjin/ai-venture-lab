@@ -2,14 +2,33 @@
 
 type Step8NextTaskFocusProps = {
   hasProgressItems: boolean;
+  isAllTasksComplete: boolean;
   nextTaskCode: string | null;
   nextTaskTitle: string | null;
 };
 
-export function Step8NextTaskFocus({ hasProgressItems, nextTaskCode, nextTaskTitle }: Step8NextTaskFocusProps) {
+export function Step8NextTaskFocus({
+  hasProgressItems,
+  isAllTasksComplete,
+  nextTaskCode,
+  nextTaskTitle,
+}: Step8NextTaskFocusProps) {
   if (!nextTaskTitle) {
     if (!hasProgressItems) {
       return null;
+    }
+
+    if (!isAllTasksComplete) {
+      return (
+        <div data-smoke="step8-no-next-task-review-focus" className="mt-4 border border-amber-200 bg-amber-50 p-3">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">다음 제작 작업</div>
+          <div className="mt-2 text-sm font-semibold text-slate-950">상태 확인 필요</div>
+          <p className="mt-1 text-xs leading-5 text-slate-600">
+            다음 작업이 자동으로 잡히지 않았습니다. 막힘, 건너뜀, 상태 누락이 있는지만 확인하고 STEP 7 또는 외부 도구에서
+            이어가세요.
+          </p>
+        </div>
+      );
     }
 
     return (

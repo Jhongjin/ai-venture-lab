@@ -249,9 +249,12 @@ const contracts = [
     tokens: [
       'data-smoke="step8-next-task-focus"',
       'data-smoke="step8-all-tasks-complete-focus"',
+      'data-smoke="step8-no-next-task-review-focus"',
       "오늘 확인할 것",
       "남은 제작 작업 없음",
       "이제 새 작업을 시작하기보다 완료 근거와 오늘 판단만 확인합니다.",
+      "상태 확인 필요",
+      "막힘, 건너뜀, 상태 누락",
       "실제 실행은 STEP 7 또는 외부 도구에서 이어갑니다.",
       "여기서는 완료 보고 반영 여부만 봅니다.",
     ],
@@ -293,6 +296,7 @@ const contracts = [
     tokens: [
       'data-smoke="step8-progress-one-line-summary"',
       "완료 {completedCount}/{totalCount || 0} · 다음",
+      "상태 확인 필요",
       'data-smoke="step8-empty-primary-action"',
       "먼저 STEP 7에서 연결 파일로 첫 제작 작업을 시작하세요.",
       "완료된 것, 다음 작업, 오늘 판단만 보여줍니다.",
