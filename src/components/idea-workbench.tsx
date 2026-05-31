@@ -38,6 +38,7 @@ import {
   type ExternalBuildToolKey,
   type ExternalBuildToolProfile,
 } from "@/lib/build-delivery";
+import { toDownloadFileName } from "@/lib/download-file-name";
 import {
   FREE_MONTHLY_CREDITS,
   FREE_PACKAGE_ARTIFACT_LIMIT,
@@ -2104,16 +2105,6 @@ function isCreditSummary(value: unknown): value is CreditSummary {
     Array.isArray(value.buildPasses) &&
     Array.isArray(value.ledgerEntries)
   );
-}
-
-function toDownloadFileName(value: string, suffix: string, extension = "md") {
-  const base = value
-    .toLowerCase()
-    .replace(/[^a-z0-9가-힣]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
-
-  return `${base || "venture-lab"}-${suffix}.${extension}`;
 }
 
 type CursorProgressDisplayItem = {
