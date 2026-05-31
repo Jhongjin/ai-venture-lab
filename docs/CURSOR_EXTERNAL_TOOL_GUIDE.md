@@ -18,7 +18,7 @@ AI Venture Lab의 Cursor 외부 제작 흐름은 최종 실행 단계에서 Curs
 powershell -ExecutionPolicy Bypass -File .\your-project-cursor-setup.ps1
 ```
 
-8. 설치가 끝난 뒤 같은 프로젝트 루트 터미널에서 확인 명령을 실행해 첫 작업이 읽히는지 확인한다.
+8. 설치가 끝난 뒤 같은 프로젝트 루트 터미널에서 확인 명령을 실행해 `T-001` 첫 작업이 읽히는지 확인한다.
 
 ```bash
 node .cursor/venture-lab-cli.mjs next-task
@@ -27,7 +27,7 @@ node .cursor/venture-lab-cli.mjs next-task
 9. Cursor를 다시 열고 Settings > MCP의 `Workspace MCP Servers`에서 `ai-venture-lab` 서버가 보이는지 확인한다.
 10. `ai-venture-lab`이 `Disabled`로 표시되면 토글을 켠다. 처음 1회는 Cursor 보안 확인 때문에 사용자가 직접 활성화해야 할 수 있다.
 11. `ai-venture-lab`이 Enabled 상태이고 도구가 활성화됐는지 확인한다.
-12. 설치와 확인 명령이 끝난 뒤 `설치 후 시작 지시문 복사` 또는 `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣어 첫 작업을 시작한다.
+12. 확인 명령 결과에 `T-001`이 보인 뒤 `설치 후 시작 지시문 복사` 또는 `AI_VENTURE_CURSOR_START.md` 내용을 Composer에 붙여 넣어 첫 작업을 시작한다.
 13. 작업을 마치면 Cursor에게 `venture_record_progress` 도구로 완료 보고를 남기라고 지시한다.
 14. Venture Lab 최종 실행 화면을 새로고침해 작업 상태가 반영됐는지 확인한다.
 15. 자동 반영이 실패한 경우에만 `.cursor/venture-lab-progress.json` 내용을 Venture Lab 최종 실행 화면의 백업 가져오기에 붙여넣는다.

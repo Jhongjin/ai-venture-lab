@@ -362,6 +362,7 @@ const contracts = [
     file: "src/lib/external-tool-handoff-markdown.ts",
     tokens: [
       "확인 명령 결과에 T-001이 보이면 Cursor를 새로고침하거나 다시 열고",
+      "연결 도구가 보이면",
       "T-001이 보이면 Codex에서 같은 프로젝트 폴더를 열고",
       "T-001이 보이면 Claude Code를 같은 프로젝트 루트에서 열고",
       "T-001이 보이면 Antigravity에서 같은 프로젝트 폴더를 열고",

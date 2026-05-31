@@ -123,7 +123,7 @@ export function buildCursorStartPromptMarkdown({
 2. \`AI_VENTURE_TASKS.md\`의 첫 번째 미완료 작업을 선택합니다.
 3. 구현 전 변경할 파일과 검증 명령을 짧게 계획합니다.
 4. 작업 완료 후 테스트 또는 품질 명령을 실행합니다.
-5. MCP 도구가 보이면 \`venture_record_progress\`에 작업 결과를 기록합니다.
+5. 연결 도구가 보이면 \`venture_record_progress\`에 작업 결과를 기록합니다.
 6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
 
 ${externalStartPromptIntentSentence}
@@ -164,7 +164,7 @@ alwaysApply: true
 - 패키지에 없는 큰 기능은 임의로 추가하지 않습니다.
 - 변경 전 포함 범위, 제외 범위, 수용 기준을 확인합니다.
 - 작업이 끝나면 변경 파일, 검증 명령, 남은 리스크를 보고합니다.
-- MCP 도구가 연결되어 있으면 \`venture_next_task\`로 다음 작업을 확인하고 \`venture_record_progress\`로 진행 결과를 남깁니다.
+- 연결 도구가 보이면 \`venture_next_task\`로 다음 작업을 확인하고 \`venture_record_progress\`로 진행 결과를 남깁니다.
 - \`venture_record_progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`.cursor/venture-lab-progress.json\`을 백업으로 사용합니다.
 `;
 }
