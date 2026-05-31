@@ -97,6 +97,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/generated-idea-slot-card.tsx",
+    tokens: [
+      'data-smoke="generated-idea-keep-does-not-save"',
+      "킵은 비교 표시만 합니다",
+      "저장은 아래 킵한 후보로 아이디어 정리하기 버튼에서 합니다",
+    ],
+  },
+  {
     file: "src/components/first-use-idea-intake.tsx",
     tokens: [
       'data-smoke="first-use-one-sentence"',

@@ -73,6 +73,9 @@ export function GeneratedIdeaSlotCard({
             <span className="avl-pill avl-pill-info">개발 방식 {selectedBuildDeliveryShortLabel}</span>
             {slot?.kept ? <span className="avl-pill avl-pill-success">유지됨</span> : null}
           </div>
+          <p data-smoke="generated-idea-keep-does-not-save" className="mt-3 text-xs font-semibold leading-5 text-slate-600">
+            킵은 비교 표시만 합니다. 저장은 아래 킵한 후보로 아이디어 정리하기 버튼에서 합니다.
+          </p>
           <div
             data-smoke="generated-idea-build-choice"
             className="mt-3 grid gap-2 border-t border-slate-200 pt-3 text-xs leading-5 text-slate-600"
