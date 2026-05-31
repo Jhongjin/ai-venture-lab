@@ -5233,7 +5233,7 @@ export function IdeaWorkbench({
         toDownloadFileName(selectedIdea.name, "claude-code-setup", "ps1"),
         "text/plain;charset=utf-8",
       );
-      setMessage("Claude Code 연결 파일을 준비했습니다. MCP 도구 또는 record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.");
+      setMessage("Claude Code 연결 파일을 준비했습니다. 연결 도구 또는 record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.");
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Claude Code 연결 파일을 만들지 못했습니다.";
       setMessage(errorMessage);

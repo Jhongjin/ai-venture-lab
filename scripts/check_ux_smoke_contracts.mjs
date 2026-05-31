@@ -39,7 +39,12 @@ const contracts = [
   },
   {
     file: "src/components/idea-workbench.tsx",
-    tokens: ["getWorkbenchOperatorFocusCopy", "getWorkbenchOperatorActionItems", "getWorkbenchOperatorGateNote"],
+    tokens: [
+      "getWorkbenchOperatorFocusCopy",
+      "getWorkbenchOperatorActionItems",
+      "getWorkbenchOperatorGateNote",
+      "Claude Code 연결 파일을 준비했습니다. 연결 도구 또는 record-progress 명령",
+    ],
   },
   {
     file: "src/components/workbench-form-controls.tsx",
