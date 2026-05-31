@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Clarified Stripe env future setup boundary | `f8258af` | Not deployed; docs-only env boundary update | `pnpm release:check`, `git diff --check`; beta env boundary now states Stripe keys and price IDs are future setup only while checkout is paused |
 | 2026-05-31 | Clarified Stripe env pause boundary | `ad40978` | Not deployed; env example comment only | `pnpm release:check`, `git diff --check`; `.env.example` now states future Stripe variables are not needed while checkout is paused |
 | 2026-05-31 | Clarified profile Pro value copy | `8ecaaf2` | Auto-deployed from main; production and billing smoke passed | `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `pnpm smoke:billing`, `git diff --check`; profile credit summary now says Pro value, not payment value, while checkout remains paused |
 | 2026-05-31 | Guarded homepage checkout pause wording | `f973018` | Not deployed separately; smoke harness guard only | `pnpm smoke:browser`, `pnpm quality:full`, `git diff --check`; browser smoke now fails if the homepage reintroduces the old checkout-implying Pro boundary heading |
