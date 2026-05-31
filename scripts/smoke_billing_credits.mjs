@@ -294,6 +294,15 @@ async function verifyAuthenticatedCreditSummary() {
         state: "visible",
         timeout: timeoutMs,
       });
+      const productionCreditOnePassBoundary = productionCreditPanel.locator('[data-smoke="production-credit-one-pass-boundary"]');
+      await productionCreditOnePassBoundary.getByText("STEP 7 연결 파일까지", { exact: false }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
+      await productionCreditOnePassBoundary.getByText("제작 패스 1개", { exact: false }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
       const productionCreditProPathDetails = productionCreditPanel.locator('[data-smoke="production-credit-pro-path-details"]');
       await productionCreditProPathDetails.getByText("Free/Pro 기준 보기", { exact: true }).waitFor({
         state: "visible",

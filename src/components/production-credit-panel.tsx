@@ -184,6 +184,13 @@ export function ProductionCreditPanel({
             <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
               월 {monthlyCreditGrant}크레딧이 자동 지급되고, 한 아이디어를 제작 패키지와 외부 개발 도구 연결까지 이어갈 때 제작 패스 1개를 씁니다.
             </p>
+            <div
+              data-smoke="production-credit-one-pass-boundary"
+              className="mt-3 border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
+            >
+              아이디어 1개를 STEP 7 연결 파일까지 끝내는 단위가 제작 패스 1개입니다. 제작 패스 1개는 {buildPassCost}
+              크레딧이고, 전체 {fullArtifactCount}단계 실행 패키지를 엽니다.
+            </div>
             <div data-smoke="production-credit-package-clarity" className="mt-3 grid gap-px bg-slate-200 sm:grid-cols-3">
               {packageClarityItems.map(([label, detail]) => (
                 <div key={label} className="bg-slate-50 px-3 py-3">
