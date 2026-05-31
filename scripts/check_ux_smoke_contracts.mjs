@@ -105,6 +105,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/product-surface-selector.tsx",
+    tokens: [
+      'data-smoke="product-surface-selector"',
+      "예: 모바일 앱으로 만들고, Cursor로 개발합니다.",
+      "이 화면에서는 앞부분인 결과물 형태만 확인합니다.",
+    ],
+  },
+  {
     file: "src/components/generated-idea-slot-card.tsx",
     tokens: [
       'data-smoke="generated-idea-keep-does-not-save"',
