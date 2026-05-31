@@ -342,6 +342,7 @@ const contracts = [
     tokens: [
       'data-smoke="final-execution-simple-path"',
       "아직 앱 폴더가 없다면 먼저 새 폴더를 만들고",
+      "새 프로젝트는 방금 만든 빈 폴더여도 됩니다.",
       "결과에 T-001 첫 작업이 보이면 성공입니다.",
     ],
   },
@@ -374,7 +375,9 @@ const contracts = [
     tokens: [
       'data-smoke="final-execution-folder-check-question"',
       'data-smoke="final-execution-check-failure-recovery"',
-      "아직 앱 프로젝트가 없다면 새 폴더를 만든 뒤 그 폴더에서 실행하세요.",
+      "기존 앱 파일 또는 새 빈 폴더",
+      "새 앱이면",
+      "방금 만든 빈 폴더여도 됩니다.",
       "확인 명령 실패",
       "외부 프로젝트 루트로 이동한 뒤 확인 명령만 다시 실행",
     ],

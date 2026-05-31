@@ -33,7 +33,7 @@ export function FinalExecutionSimplePath({
       label: "2. 실행 위치",
       title: "외부 프로젝트 루트",
       detail:
-        "아직 앱 폴더가 없다면 먼저 새 폴더를 만들고, 받은 파일을 그 최상단으로 옮깁니다. 다운로드 폴더나 AI Venture Lab 폴더가 아닙니다.",
+        "아직 앱 폴더가 없다면 먼저 새 폴더를 만들고, 받은 파일을 그 최상단으로 옮깁니다. 새 프로젝트는 방금 만든 빈 폴더여도 됩니다. 다운로드 폴더나 AI Venture Lab 폴더가 아닙니다.",
     },
     {
       icon: <Code2 size={16} />,
