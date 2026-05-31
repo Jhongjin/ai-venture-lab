@@ -663,6 +663,13 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  const syncSequence = page.locator('[data-smoke="final-execution-sync-sequence"]');
+  for (const label of ["1. 완료 보고", "2. 자동 확인", "3. STEP 8 반영"]) {
+    await syncSequence.getByText(label, { exact: true }).waitFor({
+      state: "visible",
+      timeout,
+    });
+  }
   const syncResult = page.locator('[data-smoke="final-execution-sync-result"]');
   for (const label of ["반영 결과", "다음 작업", "최근 확인"]) {
     await syncResult.getByText(label, { exact: true }).waitFor({
