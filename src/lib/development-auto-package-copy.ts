@@ -1,5 +1,8 @@
 import type { BuildDeliveryMode, ExternalBuildToolProfile } from "@/lib/build-delivery";
+import type { ImplementationTaskDraft } from "@/lib/external-progress-import";
+import { buildExternalProductionPackageGuide } from "@/lib/external-production-package-guide";
 import type { FirstBuildBridge } from "@/lib/first-build-bridge";
+import { implementationTaskPriorityLabels, implementationTaskTypeLabels } from "@/lib/implementation-task-metadata";
 import type { ProductSurfaceProfile } from "@/lib/product-surface";
 
 export type DevelopmentAutoProgressStep = {
@@ -181,4 +184,196 @@ export function buildDevelopmentAutoOutputItems({
           : "Venture Lab 안에서 이어서 볼 작업 순서, 검증 기준, 최종 실행 기준을 저장합니다.",
     },
   ];
+}
+
+export function buildDevelopmentAutoTaskDraftLines(implementationTaskDrafts: ReadonlyArray<ImplementationTaskDraft>) {
+  if (implementationTaskDrafts.length === 0) {
+    return "1. 핵심 제작 범위, 디자인, 데이터/권한, QA, 배포 점검 순서로 작업을 나눕니다.";
+  }
+
+  return implementationTaskDrafts
+    .map(
+      (task, index) =>
+        `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${task.owner_role}
+   - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n     ") || "미정"}`,
+    )
+    .join("\n");
+}
+
+export function buildDevelopmentAutoSummaryDraft({
+  activeBuildDeliveryDetail,
+  activeBuildDeliveryLabel,
+  buildDeliveryMode,
+  developmentAutoNote,
+  externalBuildTool,
+  ideaName,
+  productSurface,
+  summaryCards,
+  taskDraftLines,
+}: {
+  activeBuildDeliveryDetail: string;
+  activeBuildDeliveryLabel: string;
+  buildDeliveryMode: BuildDeliveryMode;
+  developmentAutoNote: string;
+  externalBuildTool: ExternalBuildToolProfile;
+  ideaName: string | null;
+  productSurface: ProductSurfaceProfile;
+  summaryCards: ReadonlyArray<DevelopmentAutoSummaryCard>;
+  taskDraftLines: string;
+}) {
+  if (!ideaName) {
+    return "";
+  }
+
+  const summaryLines = summaryCards.flatMap((card) => [
+    `## ${card.label}`,
+    card.value,
+    card.detail,
+    "",
+  ]);
+
+  return [
+    `# 제작 실행 요약: ${ideaName}`,
+    "",
+    ...summaryLines,
+    "## 제작 기준",
+    productSurface.promptFocus,
+    productSurface.stackHint,
+    productSurface.handoffHint,
+    "",
+    "## 개발 방식",
+    `- 개발 방식: ${activeBuildDeliveryLabel}`,
+    `- 선택 도구: ${buildDeliveryMode === "external_tool" ? externalBuildTool.label : "Venture Lab 내부 진행"}`,
+    `- 반영 기준: ${activeBuildDeliveryDetail}`,
+    "",
+    buildExternalProductionPackageGuide(productSurface, buildDeliveryMode, externalBuildTool),
+    "",
+    "## 작업 순서 초안",
+    taskDraftLines,
+    "",
+    "## 제작 도구 전달 기준",
+    buildDeliveryMode === "external_tool"
+      ? `저장 후 생성되는 제작 패키지는 ${externalBuildTool.label}에 넘길 자료로 사용합니다.`
+      : "저장 후 생성되는 제작 패키지는 Venture Lab 안에서 작업 순서와 최종 실행을 이어가는 기준 자료로 사용합니다.",
+    "제품 기획서, 디자인 방향, 기술 스택, 첫 제작 범위, 제외 범위, 검증 기준을 같은 맥락으로 묶어 다음 제작 단계가 흔들리지 않게 합니다.",
+    "",
+    "## 사용자 보완 메모",
+    developmentAutoNote.trim() || "- 추가 메모 없음",
+  ].join("\n");
+}
+
+export function buildFinalDevelopmentPlanDraft({
+  developmentAutoSummaryDraft,
+  developmentPlanDraft,
+  ideaName,
+}: {
+  developmentAutoSummaryDraft: string;
+  developmentPlanDraft: string;
+  ideaName: string | null;
+}) {
+  if (!ideaName) {
+    return "";
+  }
+
+  return [
+    developmentAutoSummaryDraft,
+    "",
+    "---",
+    "",
+    "## 상세 실행 계획",
+    developmentPlanDraft,
+  ].join("\n");
+}
+
+export function buildFinalAgentRunPackageDraft({
+  agentRunPackageDraft,
+  buildDeliveryMode,
+  developmentAutoSummaryDraft,
+  externalBuildTool,
+  ideaName,
+  productSurface,
+  taskDraftLines,
+}: {
+  agentRunPackageDraft: string;
+  buildDeliveryMode: BuildDeliveryMode;
+  developmentAutoSummaryDraft: string;
+  externalBuildTool: ExternalBuildToolProfile;
+  ideaName: string | null;
+  productSurface: ProductSurfaceProfile;
+  taskDraftLines: string;
+}) {
+  if (!ideaName) {
+    return "";
+  }
+
+  return [
+    `# 제작 패키지: ${ideaName}`,
+    "",
+    "이 문서는 검증된 아이디어를 실제 제작 도구나 외부 제작 환경에 넘기기 위한 최종 자료입니다.",
+    "사용자는 별도 문서를 조합하지 않고, 아래 내용을 그대로 다음 제작 환경의 기준 자료로 사용할 수 있습니다.",
+    "",
+    buildExternalProductionPackageGuide(productSurface, buildDeliveryMode, externalBuildTool),
+    "",
+    "## 실행 요약",
+    developmentAutoSummaryDraft,
+    "",
+    "## 작업 순서 초안",
+    taskDraftLines,
+    "",
+    "---",
+    "",
+    "## 제작 도구 전달 자료",
+    agentRunPackageDraft,
+  ].join("\n");
+}
+
+export function buildExternalToolRunPackageDraft({
+  buildDeliveryMode,
+  externalBuildTool,
+  finalAgentRunPackageDraft,
+  ideaName,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  externalBuildTool: ExternalBuildToolProfile;
+  finalAgentRunPackageDraft: string;
+  ideaName: string | null;
+}) {
+  if (!ideaName || buildDeliveryMode !== "external_tool") {
+    return finalAgentRunPackageDraft;
+  }
+
+  return [
+    `# ${externalBuildTool.label} 시작 패키지: ${ideaName}`,
+    "",
+    `${externalBuildTool.label}에서 바로 첫 작업을 시작할 수 있도록 시작 순서, 전달 파일, 완료 보고 형식을 앞에 붙인 패키지입니다.`,
+    externalBuildTool.key === "cursor"
+      ? "Cursor는 연결 파일을 받아 프로젝트 루트에서 실행하면 실제 규칙, MCP 설정, 제작 패키지, 작업 목록이 파일로 설치됩니다."
+      : externalBuildTool.key === "codex"
+        ? "Codex는 연결 파일을 받아 프로젝트 루트에서 실행하면 제작 패키지, 작업 목록, 시작 지시문, 진행 기록 CLI가 파일로 설치됩니다."
+        : `${externalBuildTool.label}는 연결 파일을 받아 프로젝트 루트에서 실행하면 도구별 지침, 제작 패키지, 작업 목록, 진행 기록 CLI가 파일로 설치됩니다.`,
+    "",
+    "## 먼저 할 일",
+    "",
+    externalBuildTool.handoffSteps.map((step, index) => `${index + 1}. ${step}`).join("\n"),
+    "",
+    "## 이 패키지에 맞춘 파일",
+    "",
+    externalBuildTool.packageFiles.map((file) => `- ${file}`).join("\n"),
+    "",
+    "## 완료 보고 형식",
+    "",
+    "- 완료한 작업 코드와 제목",
+    "- 변경 파일",
+    "- 실행한 검증 명령과 결과",
+    "- 배포 또는 미리보기 URL",
+    "- 남은 리스크와 다음 작업",
+    "",
+    "## 도구별 주의",
+    "",
+    externalBuildTool.handoffNote,
+    "",
+    "---",
+    "",
+    finalAgentRunPackageDraft,
+  ].join("\n");
 }
