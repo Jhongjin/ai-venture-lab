@@ -13,6 +13,7 @@ import {
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
+import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
 import {
   buildGeneratedIdeaSourceFromSlots,
   createExtractionRunMeta,
@@ -50,17 +51,6 @@ type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["
 type TelemetryEvent = Database["public"]["Tables"]["telemetry_events"]["Row"];
 type AddableOrganizationRole = Extract<OrganizationRole, "admin" | "member" | "viewer">;
 type IdeaInsert = Database["public"]["Tables"]["ideas"]["Insert"];
-
-function isMissingProductSurfaceColumnError(error: { message?: string; code?: string } | null | undefined) {
-  return Boolean(error && (error.code === "PGRST204" || /product_surface/i.test(error.message ?? "")));
-}
-
-function omitProductSurface<T extends { product_surface?: unknown }>(payload: T): Omit<T, "product_surface"> {
-  const { product_surface: omittedProductSurface, ...rest } = payload;
-  void omittedProductSurface;
-
-  return rest;
-}
 
 type FormState = {
   name: string;

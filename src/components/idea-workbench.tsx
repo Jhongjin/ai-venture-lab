@@ -27,6 +27,7 @@ import {
   type ProductSurfaceKey,
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
+import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
 import {
   buildDeliveryModeLabels,
   externalBuildToolProfiles,
@@ -1162,17 +1163,6 @@ function ideaProductSurfaceInput(idea: Idea, state?: Partial<EditState>) {
     risk_summary: state?.risk_summary ?? idea.risk_summary,
     next_evidence: state?.next_evidence ?? idea.next_evidence,
   };
-}
-
-function isMissingProductSurfaceColumnError(error: { message?: string; code?: string } | null | undefined) {
-  return Boolean(error && (error.code === "PGRST204" || /product_surface/i.test(error.message ?? "")));
-}
-
-function omitProductSurface<T extends { product_surface?: unknown }>(payload: T): Omit<T, "product_surface"> {
-  const { product_surface: omittedProductSurface, ...rest } = payload;
-  void omittedProductSurface;
-
-  return rest;
 }
 
 function toEditState(idea: Idea): EditState {
