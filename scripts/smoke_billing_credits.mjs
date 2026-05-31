@@ -208,12 +208,25 @@ async function verifyAuthenticatedCreditSummary() {
       state: "visible",
       timeout: timeoutMs,
     });
+    await page.locator('[data-smoke="profile-credit-summary"]').getByText("Pro 가치는 더 많은 제작 패키지", {
+      exact: false,
+    }).waitFor({
+      state: "visible",
+      timeout: timeoutMs,
+    });
     const staleProfilePrdCopy = await page
       .locator('[data-smoke="profile-credit-execution-package-value"]')
       .getByText("PRD, 화면 구조", { exact: false })
       .count();
     if (staleProfilePrdCopy > 0) {
       fail("profile credit value copy still uses PRD abbreviation");
+    }
+    const stalePaymentValueCopy = await page
+      .locator('[data-smoke="profile-credit-summary"]')
+      .getByText("결제 가치는", { exact: false })
+      .count();
+    if (stalePaymentValueCopy > 0) {
+      fail("profile credit summary still describes checkout value while payments are paused");
     }
     await page.locator('[data-smoke="profile-upgrade-signals"]').waitFor({
       state: "visible",

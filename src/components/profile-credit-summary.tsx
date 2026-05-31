@@ -254,7 +254,7 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
             <div className="text-xs font-semibold text-slate-500">업그레이드가 필요한 순간</div>
             <h4 className="mt-2 text-base font-semibold text-slate-950">Free로 검증하고, Pro는 반복 제작에 씁니다</h4>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              첫 아이디어를 이해하는 데는 Free가 충분해야 합니다. 결제 가치는 더 많은 제작 패키지, 더 깊은 시장 근거,
+              첫 아이디어를 이해하는 데는 Free가 충분해야 합니다. Pro 가치는 더 많은 제작 패키지, 더 깊은 시장 근거,
               외부 개발 도구 자동 반영이 필요해질 때 생깁니다.
             </p>
           </div>
