@@ -376,6 +376,15 @@ async function verifyWorkOrderCurrentAction(page, ideaId) {
     state: "visible",
     timeout,
   });
+  const manualRunForm = page.locator('[data-smoke="step6-manual-run-form"]');
+  await manualRunForm.getByText("필요할 때만 직접 단계 추가", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await manualRunForm.getByText("보조 추가는 작업표에만 반영되고", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
 }
 
 async function verifyFinalExecutionActionBanner(page, toolLabel) {

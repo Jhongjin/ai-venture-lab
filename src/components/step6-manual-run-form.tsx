@@ -35,9 +35,12 @@ export function Step6ManualRunForm({
   runDraft,
 }: Step6ManualRunFormProps) {
   return (
-    <details className="mt-4 border border-slate-200 bg-white p-4">
+    <details data-smoke="step6-manual-run-form" className="mt-4 border border-slate-200 bg-white p-4">
       <summary className="cursor-pointer list-none text-sm font-semibold text-slate-950">
-        필요할 때만 직접 단계 추가
+        <span>필요할 때만 직접 단계 추가</span>
+        <span className="mt-1 block text-xs font-medium leading-5 text-slate-500">
+          보조 추가는 작업표에만 반영되고, 다음 단계는 하단 다음 버튼으로 이동합니다.
+        </span>
       </summary>
       <form onSubmit={onSubmit} className="mt-4 grid gap-3">
         <div className="grid gap-3 md:grid-cols-[0.75fr_1fr]">
