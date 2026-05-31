@@ -187,7 +187,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
   if (!hasExpectedDecisionOption) {
     fail(`STEP 8 decision options did not include an expected current-state option: ${decisionOptionsText}`);
   }
-  const simpleReview = page.locator('[data-smoke="step8-simple-review"]');
+  const simpleReviewDetails = page.locator('[data-smoke="step8-simple-review-details"]');
+  await simpleReviewDetails.getByText("완료/다음/판단 설명 보기", { exact: true }).waitFor({
+    state: "visible",
+    timeout,
+  });
+  await simpleReviewDetails.locator("summary").click();
+  const simpleReview = simpleReviewDetails.locator('[data-smoke="step8-simple-review"]');
   for (const label of ["완료", "다음", "판단"]) {
     await simpleReview.getByText(label, { exact: true }).waitFor({
       state: "visible",

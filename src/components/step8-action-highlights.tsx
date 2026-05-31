@@ -31,9 +31,14 @@ export function Step8ActionHighlights({
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">한 줄 결론</div>
         <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{oneSentenceOutcome}</p>
       </div>
-      <div className="mt-3">
-        <WorkbenchReviewGrid dataSmoke="step8-simple-review" detailTone="soft" rows={reviewRows} variant="blue" />
-      </div>
+      <details data-smoke="step8-simple-review-details" className="mt-3 border border-blue-200 bg-white px-3 py-2">
+        <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">
+          완료/다음/판단 설명 보기
+        </summary>
+        <div className="mt-3">
+          <WorkbenchReviewGrid dataSmoke="step8-simple-review" detailTone="soft" rows={reviewRows} variant="blue" />
+        </div>
+      </details>
       <div data-smoke="step8-external-completion-bridge" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
           외부 도구 완료 보고 후
