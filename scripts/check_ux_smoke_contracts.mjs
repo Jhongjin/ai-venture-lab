@@ -74,6 +74,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/first-use-input-status.tsx",
+    tokens: [
+      'data-smoke="first-use-current-action"',
+      "후보 한 건을 저장하면 실행 보드에서 STEP 2 사업성 평가가 열립니다.",
+      "마음에 드는 한 건만 저장하면 실행 보드에서 STEP 2가 이어집니다.",
+    ],
+  },
+  {
     file: "src/components/step5-package-review.tsx",
     tokens: [
       'data-smoke="step5-review-save-focus"',

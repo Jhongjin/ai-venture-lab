@@ -20,6 +20,7 @@ export function FirstUseInputStatus({ rawIdeaSource }: FirstUseInputStatusProps)
         <p className="mt-1 font-semibold text-slate-950">
           아래 입력칸에 생각나는 말을 그대로 붙입니다. 비워두면 AI가 후보 3개를 먼저 만듭니다.
         </p>
+        <p className="mt-1 text-sm text-emerald-900">후보 한 건을 저장하면 실행 보드에서 STEP 2 사업성 평가가 열립니다.</p>
       </div>
       {hasRawIdeaSource ? (
         <div
@@ -31,6 +32,7 @@ export function FirstUseInputStatus({ rawIdeaSource }: FirstUseInputStatusProps)
             {selectedInputExample ? `${selectedInputExample.label} 예시가 입력됐습니다.` : "입력칸에 메모가 들어왔습니다."} 이제
             아래 이 내용으로 아이디어 정리하기 버튼을 누르면 AI가 후보 3개를 정리합니다.
           </p>
+          <p className="mt-1 text-sm text-blue-900">마음에 드는 한 건만 저장하면 실행 보드에서 STEP 2가 이어집니다.</p>
         </div>
       ) : null}
     </>
