@@ -323,6 +323,13 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/final-execution-tool-guide.tsx",
+    tokens: [
+      "확인 명령으로 T-001 첫 작업이 읽히는지",
+      "확인 명령 결과에 T-001이 보이면 설치 완료입니다.",
+    ],
+  },
+  {
     file: "src/components/final-execution-tool-detail-guide.tsx",
     tokens: [
       'data-smoke="final-execution-detail-guide"',
