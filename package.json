@@ -23,6 +23,7 @@
     "smoke:browser:rls": "node ./scripts/smoke_browser_rls.mjs",
     "smoke:browser:rls:preflight": "node ./scripts/smoke_browser_rls.mjs --preflight",
     "smoke:build-sync": "node ./scripts/smoke_build_sync_tokens.mjs",
+    "smoke:ux-contracts": "node ./scripts/check_ux_smoke_contracts.mjs",
     "idea:score": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/score_idea.ps1"
   },
   "dependencies": {

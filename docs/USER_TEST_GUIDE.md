@@ -397,11 +397,14 @@ pnpm smoke:market
 pnpm smoke:browser
 pnpm smoke:browser:auth
 pnpm smoke:build-sync
+pnpm smoke:ux-contracts
 ```
 
 `pnpm smoke:billing`은 기본적으로 익명 차단만 확인합니다. SQL 적용 후 로그인 사용자의 크레딧 상태까지 확인하려면 베타 전용 계정으로 `BILLING_SMOKE_ALLOW_AUTH_GRANT=1`을 켜고 실행합니다. 이 확인은 월 Free 크레딧 지급 여부, 최근 크레딧 내역 패널, 마이페이지 Pro 관심 등록 버튼과 Pro 관심 기록 패널 노출만 확인하며 30크레딧 제작 패스나 관심 등록 쓰기는 실행하지 않습니다.
 
 `ENFORCE_CREDIT_BUILD_PASS=1`로 외부 개발 도구 연결까지 서버에서 제작 패스를 강제한 뒤에는 기본 `pnpm smoke:build-sync`가 크레딧을 쓰지 않고 토큰 발급이 HTTP 402로 막히는지 확인할 수 있습니다. STEP 7/8 연결 파일, 진행 반영, revoke까지 전체 라이프사이클을 보려면 제작 패스가 미리 열린 테스트 아이디어를 쓰거나, disposable 아이디어 스모크에서 30크레딧 제작 패스 1개를 쓰도록 `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`을 켭니다. 스모크 계정 잔액이 부족하면 제작 패스 차감 전에 현재 잔액, 필요 크레딧, 부족분을 먼저 보고하고 멈춥니다.
+
+`pnpm smoke:ux-contracts`는 브라우저 상태에 따라 보이지 않을 수 있는 STEP 5 리뷰 포커스, STEP 8 접힌 요약, STEP 1 첫 결과 미리보기 토큰이 코드와 smoke 스크립트에 같이 남아 있는지 파일 단위로 확인합니다.
 
 `pnpm smoke:market`은 프로덕션 시장·경쟁 자동 점검 API가 웹 검색 포함 모드로 응답하는지 확인합니다. 기본 제한 시간은 웹 검색 지연을 감안해 180초입니다. OpenAI 또는 웹 검색이 일시적으로 불안정한 상황에서 로컬 추정 응답까지 허용하려면 현재 터미널에 `MARKET_SCAN_SMOKE_ALLOW_ESTIMATE=1`을 설정한 뒤 실행합니다.
 
