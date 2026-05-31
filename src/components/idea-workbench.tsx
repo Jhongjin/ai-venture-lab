@@ -98,6 +98,11 @@ import {
   buildCursorMcpConfigJson,
   buildCursorSyncConfigJson,
 } from "@/lib/external-tool-connector-config";
+import {
+  buildAntigravityCliScript,
+  buildClaudeCliScript,
+  buildCodexCliScript,
+} from "@/lib/external-tool-cli-scripts";
 import { buildExternalProductionPackageGuide } from "@/lib/external-production-package-guide";
 import {
   buildCodexSetupPowerShell,
@@ -1816,14 +1821,6 @@ ${syncExpiryText}
 `;
 }
 
-function buildCodexCliScript() {
-  return buildCursorMcpServerScript()
-    .replaceAll(".cursor", ".codex")
-    .replaceAll("Cursor", "Codex")
-    .replaceAll("AI_VENTURE_CURSOR_START.md", "AI_VENTURE_CODEX_START.md")
-    .replaceAll("README_VENTURE_LAB_CURSOR.md", "README_VENTURE_LAB_CODEX.md");
-}
-
 function buildClaudeTaskMarkdown({
   idea,
   productSurface,
@@ -2148,42 +2145,6 @@ function buildAntigravityAcceptanceMarkdown({
 - 변경 파일, 검증 명령, 남은 리스크를 작업마다 기록해야 합니다.
 - 완료 후 \`.antigravity/venture-lab-cli.mjs record-progress\`로 Venture Lab에 결과를 반영해야 합니다.
 `;
-}
-
-function buildToolCliScript({
-  folder,
-  label,
-  startFileName,
-  guideFileName,
-}: {
-  folder: string;
-  label: string;
-  startFileName: string;
-  guideFileName: string;
-}) {
-  return buildCursorMcpServerScript()
-    .replaceAll(".cursor", folder)
-    .replaceAll("Cursor", label)
-    .replaceAll("AI_VENTURE_CURSOR_START.md", startFileName)
-    .replaceAll("README_VENTURE_LAB_CURSOR.md", guideFileName);
-}
-
-function buildClaudeCliScript() {
-  return buildToolCliScript({
-    folder: ".claude",
-    label: "Claude Code",
-    startFileName: "AI_VENTURE_CLAUDE_START.md",
-    guideFileName: "README_VENTURE_LAB_CLAUDE.md",
-  });
-}
-
-function buildAntigravityCliScript() {
-  return buildToolCliScript({
-    folder: ".antigravity",
-    label: "Google Antigravity",
-    startFileName: "AI_VENTURE_ANTIGRAVITY_START.md",
-    guideFileName: "README_VENTURE_LAB_ANTIGRAVITY.md",
-  });
 }
 
 function buildCursorMcpServerScript() {
@@ -9886,7 +9847,7 @@ export function IdeaWorkbench({
         projectKey: finalExecutionProjectKey,
       })
     : "";
-  const codexCliScriptDraft = buildCodexCliScript();
+  const codexCliScriptDraft = buildCodexCliScript(cursorMcpServerDraft);
   const claudeTaskPackageDraft = selectedIdea
     ? buildClaudeTaskMarkdown({
         idea: selectedIdea,
@@ -9916,7 +9877,7 @@ export function IdeaWorkbench({
       })
     : "";
   const claudeMcpConfigDraft = buildClaudeMcpConfigJson();
-  const claudeCliScriptDraft = buildClaudeCliScript();
+  const claudeCliScriptDraft = buildClaudeCliScript(cursorMcpServerDraft);
   const antigravityTaskPackageDraft = selectedIdea
     ? buildAntigravityTaskMarkdown({
         idea: selectedIdea,
@@ -9952,7 +9913,7 @@ export function IdeaWorkbench({
       })
     : "";
   const antigravityMcpConfigDraft = buildAntigravityMcpConfigJson();
-  const antigravityCliScriptDraft = buildAntigravityCliScript();
+  const antigravityCliScriptDraft = buildAntigravityCliScript(cursorMcpServerDraft);
   const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "cursor";
   const isCodexExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "codex";
   const isClaudeCodeExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "claude_code";
