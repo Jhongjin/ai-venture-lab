@@ -4,12 +4,20 @@ $checks = @(
   @{
     Path = "src/components/idea-workbench.tsx"
     Terms = @(
-      "Vercel inspect URL",
       "Security Rules",
       "Production",
       "hasEnvironmentChecklist",
       "hasBackendRulesChecklist",
       "hasReleaseOpsChecklist"
+    )
+  },
+  @{
+    Path = "src/lib/app-development-plan-markdown.ts"
+    Terms = @(
+      "Vercel inspect URL",
+      "Security Rules",
+      "Production",
+      "resolveProductSurfaceForIdea"
     )
   },
   @{
