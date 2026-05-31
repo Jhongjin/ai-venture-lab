@@ -1,5 +1,6 @@
 import type { VentureArtifact } from "@/lib/venture-data";
 import type { VentureArtifactType } from "@/lib/supabase/types";
+import { artifactLabels, artifactStatusLabels } from "@/lib/artifact-labels";
 
 export type ArtifactReviewIntensity = "new" | "minor" | "moderate" | "major";
 
@@ -115,4 +116,32 @@ export function summarizeArtifactReview(artifact: VentureArtifact, previous: Ven
     recommendation: recommendation[intensity],
     checks: artifactApprovalReviewChecks[artifact.artifact_type],
   };
+}
+
+export function buildArtifactReviewMemo(artifact: VentureArtifact, summary: ArtifactReviewSummary) {
+  return `# 제작 자료 리뷰 메모: ${artifact.title || artifactLabels[artifact.artifact_type]}
+
+## 기본 정보
+
+- 유형: ${artifactLabels[artifact.artifact_type]}
+- 상태: ${artifactStatusLabels[artifact.status ?? "draft"]}
+- 현재 버전: v${artifact.version ?? 1}
+- 이전 비교: ${summary.previous ? `v${summary.previous.version ?? 1}` : "최초 버전"}
+- 리뷰 강도: ${summary.intensityLabel}
+
+## 변경 요약
+
+- 추가 라인: ${summary.added}
+- 삭제 라인: ${summary.removed}
+- 추가 섹션: ${summary.addedSections.join(", ") || "없음"}
+- 삭제 섹션: ${summary.removedSections.join(", ") || "없음"}
+
+## 승인 전 체크
+
+${summary.checks.map((check) => `- ${check}`).join("\n")}
+
+## 권장 판단
+
+${summary.recommendation}
+`;
 }
