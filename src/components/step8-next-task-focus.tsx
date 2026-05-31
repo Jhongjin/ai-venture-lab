@@ -1,13 +1,26 @@
 "use client";
 
 type Step8NextTaskFocusProps = {
+  hasProgressItems: boolean;
   nextTaskCode: string | null;
   nextTaskTitle: string | null;
 };
 
-export function Step8NextTaskFocus({ nextTaskCode, nextTaskTitle }: Step8NextTaskFocusProps) {
+export function Step8NextTaskFocus({ hasProgressItems, nextTaskCode, nextTaskTitle }: Step8NextTaskFocusProps) {
   if (!nextTaskTitle) {
-    return null;
+    if (!hasProgressItems) {
+      return null;
+    }
+
+    return (
+      <div data-smoke="step8-all-tasks-complete-focus" className="mt-4 border border-emerald-200 bg-emerald-50 p-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">다음 제작 작업</div>
+        <div className="mt-2 text-sm font-semibold text-slate-950">남은 제작 작업 없음</div>
+        <p className="mt-1 text-xs leading-5 text-slate-600">
+          이제 새 작업을 시작하기보다 완료 근거와 오늘 판단만 확인합니다.
+        </p>
+      </div>
+    );
   }
 
   return (

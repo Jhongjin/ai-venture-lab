@@ -60,7 +60,11 @@ export function Step8ProgressSection({
           </p>
         </div>
       ) : null}
-      <Step8NextTaskFocus nextTaskCode={nextTaskCode} nextTaskTitle={nextTaskTitle} />
+      <Step8NextTaskFocus
+        hasProgressItems={items.length > 0}
+        nextTaskCode={nextTaskCode}
+        nextTaskTitle={nextTaskTitle}
+      />
       <Step8ProgressDetails items={items} />
     </section>
   );

@@ -248,7 +248,10 @@ const contracts = [
     file: "src/components/step8-next-task-focus.tsx",
     tokens: [
       'data-smoke="step8-next-task-focus"',
+      'data-smoke="step8-all-tasks-complete-focus"',
       "오늘 확인할 것",
+      "남은 제작 작업 없음",
+      "이제 새 작업을 시작하기보다 완료 근거와 오늘 판단만 확인합니다.",
       "실제 실행은 STEP 7 또는 외부 도구에서 이어갑니다.",
       "여기서는 완료 보고 반영 여부만 봅니다.",
     ],
