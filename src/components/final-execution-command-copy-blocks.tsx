@@ -36,6 +36,9 @@ export function FinalExecutionCommandCopyBlocks({
           복사 버튼은 명령을 클립보드에 넣는 역할만 합니다. 붙여넣기는 연결 파일을 옮긴 그 프로젝트 루트 터미널에서
           합니다.
         </span>
+        <span className="mt-1 block text-xs leading-5 text-blue-800">
+          확인 명령에서 T-001이 보인 뒤에만 START 파일을 열어 첫 작업을 시작하세요.
+        </span>
       </div>
       <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

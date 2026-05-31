@@ -265,6 +265,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/final-execution-command-copy-blocks.tsx",
+    tokens: [
+      'data-smoke="final-execution-command-sequence"',
+      "복사 버튼은 명령을 클립보드에 넣는 역할만 합니다",
+      "확인 명령에서 T-001이 보인 뒤에만 START 파일을 열어 첫 작업을 시작하세요.",
+    ],
+  },
+  {
     file: "src/components/final-execution-setup-checks.tsx",
     tokens: [
       'data-smoke="final-execution-folder-check-question"',

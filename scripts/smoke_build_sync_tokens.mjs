@@ -651,6 +651,10 @@ async function verifyFinalExecutionActionBanner(page, toolLabel) {
     state: "visible",
     timeout,
   });
+  await commandSequence.getByText("확인 명령에서 T-001이 보인 뒤에만 START 파일", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const primaryDownloadCue = page.locator('[data-smoke="final-execution-primary-download-cue"]');
   await primaryDownloadCue.getByText(`${toolLabel} 연결 파일 받기`, { exact: false }).waitFor({
     state: "visible",
