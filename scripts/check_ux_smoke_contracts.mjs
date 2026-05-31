@@ -80,7 +80,12 @@ const contracts = [
   },
   {
     file: "src/components/step6-work-order-header.tsx",
-    tokens: ['data-smoke="step6-save-does-not-run"', "작업 순서를 저장해도 외부 도구가 바로 실행되지 않습니다"],
+    tokens: [
+      'data-smoke="step6-save-does-not-run"',
+      "T-001 이름과 완료 기준 확인",
+      "단계 결과와 상태 버튼은 실제",
+      "작업 순서를 저장해도 외부 도구가 바로 실행되지 않습니다",
+    ],
   },
   {
     file: "src/components/step6-execution-bridge.tsx",

@@ -28,8 +28,8 @@ export function Step6WorkOrderHeader({ canCreateRunbook, isBusy, onCreateRunbook
       </div>
 
       <div className="border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-        기본 흐름은 작업 순서 자동 만들기, 필요한 단계 결과 확인/저장, 다음 단계입니다. 상태 버튼은 실제 실행 추적이 필요할 때만
-        바꾸면 됩니다.
+        기본 흐름은 작업 순서 자동 만들기, T-001 이름과 완료 기준 확인, 다음 단계입니다. 단계 결과와 상태 버튼은 실제
+        진행 추적이 필요할 때만 보완하면 됩니다.
       </div>
       <div
         data-smoke="step6-save-does-not-run"
