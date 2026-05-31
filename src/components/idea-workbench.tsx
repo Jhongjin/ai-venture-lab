@@ -155,6 +155,7 @@ import {
   type CursorSyncRegistryStatus,
 } from "@/lib/external-tool-sync-connection";
 import {
+  getBuildPassRequirementMessage,
   getBuildPassUnlockResult,
   getCreditAccessState,
   isCreditSummary,
@@ -3888,9 +3889,11 @@ export function IdeaWorkbench({
 
     if (!canUseFullProductionPackage) {
       setMessage(
-        isCreditSystemChecking
-          ? "크레딧 상태를 확인한 뒤 AI 제작 패키지를 만들 수 있습니다."
-          : `${buildPassCost}크레딧 제작 패스를 열면 AI 제작 패키지와 외부 개발 도구 연결을 이어갈 수 있습니다.`,
+        getBuildPassRequirementMessage({
+          buildPassCost,
+          isChecking: isCreditSystemChecking,
+          mode: "ai_package_start",
+        }),
       );
       return;
     }
@@ -3984,9 +3987,11 @@ export function IdeaWorkbench({
 
     if (!canUseFullProductionPackage) {
       setMessage(
-        isCreditSystemChecking
-          ? "크레딧 상태를 확인한 뒤 제작 패키지를 저장할 수 있습니다."
-          : `${buildPassCost}크레딧 제작 패스를 열면 제작 패키지를 저장할 수 있습니다.`,
+        getBuildPassRequirementMessage({
+          buildPassCost,
+          isChecking: isCreditSystemChecking,
+          mode: "save_package",
+        }),
       );
       return;
     }
@@ -4069,9 +4074,11 @@ export function IdeaWorkbench({
 
     if (!canUseFullProductionPackage) {
       setMessage(
-        isCreditSystemChecking
-          ? "크레딧 상태를 확인한 뒤 제작 전달 묶음을 만들 수 있습니다."
-          : `${buildPassCost}크레딧 제작 패스를 열면 제작 전달 묶음을 만들 수 있습니다.`,
+        getBuildPassRequirementMessage({
+          buildPassCost,
+          isChecking: isCreditSystemChecking,
+          mode: "delivery_bundle",
+        }),
       );
       return;
     }
@@ -6339,9 +6346,11 @@ export function IdeaWorkbench({
                     <p className={`text-sm leading-6 ${canUseFullProductionPackage ? "text-blue-950" : "text-amber-950"}`}>
                       {canUseFullProductionPackage
                         ? "시작하면 AI가 필요한 내용을 순서대로 묶고, 저장 전 확인할 최종 제작 요약을 바로 보여줍니다."
-                        : isCreditSystemChecking
-                          ? "크레딧 상태를 확인한 뒤 AI 제작 패키지를 만들 수 있습니다."
-                          : `${buildPassCost}크레딧 제작 패스를 열면 AI가 전체 제작 패키지를 만들고 외부 개발 도구 연결까지 이어갑니다.`}
+                        : getBuildPassRequirementMessage({
+                            buildPassCost,
+                            isChecking: isCreditSystemChecking,
+                            mode: "ai_package_panel",
+                          })}
                     </p>
                     <button
                       type="button"
@@ -6427,9 +6436,11 @@ export function IdeaWorkbench({
                       </p>
                     ) : !canUseFullProductionPackage ? (
                       <p className="mt-3 text-sm font-semibold text-amber-700">
-                        {isCreditSystemChecking
-                          ? "크레딧 상태를 확인한 뒤 제작 패키지를 저장할 수 있습니다."
-                          : "제작 패스를 열어야 전체 제작 패키지를 저장하고 다음 작업 순서로 넘어갈 수 있습니다."}
+                        {getBuildPassRequirementMessage({
+                          buildPassCost,
+                          isChecking: isCreditSystemChecking,
+                          mode: "save_package_gate",
+                        })}
                       </p>
                     ) : null}
                   </div>

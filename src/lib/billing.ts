@@ -78,6 +78,13 @@ export type CreditPeriodLedgerTotals = {
   spent: number;
 };
 
+export type BuildPassRequirementMessageMode =
+  | "ai_package_start"
+  | "ai_package_panel"
+  | "save_package"
+  | "save_package_gate"
+  | "delivery_bundle";
+
 export function isCreditSummary(value: unknown): value is CreditSummary {
   return (
     isPlainRecord(value) &&
@@ -112,6 +119,48 @@ export function getBuildPassUnlockResult(
       ? "이 아이디어의 전체 제작 패키지는 이미 열려 있습니다."
       : `${formatCompactCreditAmount(chargedCredits)}을 사용해 전체 제작 패키지를 열었습니다.`,
   };
+}
+
+export function getBuildPassRequirementMessage({
+  buildPassCost,
+  isChecking,
+  mode,
+}: {
+  buildPassCost: number;
+  isChecking: boolean;
+  mode: BuildPassRequirementMessageMode;
+}) {
+  if (isChecking) {
+    if (mode === "ai_package_start" || mode === "ai_package_panel") {
+      return "크레딧 상태를 확인한 뒤 AI 제작 패키지를 만들 수 있습니다.";
+    }
+
+    if (mode === "delivery_bundle") {
+      return "크레딧 상태를 확인한 뒤 제작 전달 묶음을 만들 수 있습니다.";
+    }
+
+    return "크레딧 상태를 확인한 뒤 제작 패키지를 저장할 수 있습니다.";
+  }
+
+  const costLabel = formatCompactCreditAmount(buildPassCost);
+
+  if (mode === "ai_package_start") {
+    return `${costLabel} 제작 패스를 열면 AI 제작 패키지와 외부 개발 도구 연결을 이어갈 수 있습니다.`;
+  }
+
+  if (mode === "ai_package_panel") {
+    return `${costLabel} 제작 패스를 열면 AI가 전체 제작 패키지를 만들고 외부 개발 도구 연결까지 이어갑니다.`;
+  }
+
+  if (mode === "delivery_bundle") {
+    return `${costLabel} 제작 패스를 열면 제작 전달 묶음을 만들 수 있습니다.`;
+  }
+
+  if (mode === "save_package_gate") {
+    return "제작 패스를 열어야 전체 제작 패키지를 저장하고 다음 작업 순서로 넘어갈 수 있습니다.";
+  }
+
+  return `${costLabel} 제작 패스를 열면 제작 패키지를 저장할 수 있습니다.`;
 }
 
 export type BillingErrorLike = {
