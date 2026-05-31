@@ -237,6 +237,7 @@ async function main() {
     );
     await waitForVisible(page.getByText("터미널 에이전트형", { exact: true }).first(), "guide terminal agent mode");
     await waitForVisible(page.getByText("설치 명령과 확인 명령은 각각 복사할 수 있습니다", { exact: false }), "guide command copy wording");
+    await waitForVisible(page.getByText("next-task에서 T-001이 보이면", { exact: false }), "guide T-001 before START wording");
     await waitForVisible(page.getByText("붙여넣기는 실패 시 백업", { exact: false }), "guide backup wording");
     await waitForVisible(page.getByText("언제 크레딧을 쓰나요", { exact: true }), "guide credit FAQ");
     await waitForVisible(page.getByText("30크레딧 제작 패스", { exact: false }), "guide build pass FAQ");

@@ -104,7 +104,7 @@ const externalToolGuide = [
   ["1", "개발 도구 선택", "최종 실행 단계에서 Cursor, Codex, Claude Code, Google Antigravity 중 실제로 사용할 개발 도구를 고릅니다."],
   ["2", "연결 파일 받기", "선택한 도구의 PowerShell 연결 파일을 받은 뒤 실제 개발할 프로젝트 루트에 둡니다. 다운로드 폴더에서 실행하지 않습니다."],
   ["3", "도구별 시작", "Cursor와 Antigravity는 IDE에서 프로젝트를 열고, Codex와 Claude Code는 프로젝트 루트 터미널에서 시작합니다. 화면의 설치 명령과 확인 명령은 각각 복사할 수 있습니다."],
-  ["4", "첫 작업 시작", "next-task로 첫 작업을 확인하고, 도구별 START 파일을 첫 메시지로 넣습니다. 완료 보고는 자동 반영되며 붙여넣기는 실패 시 백업입니다."],
+  ["4", "첫 작업 시작", "next-task에서 T-001이 보이면 도구별 START 파일을 첫 메시지로 넣습니다. 완료 보고는 자동 반영되며 붙여넣기는 실패 시 백업입니다."],
 ];
 
 const externalToolStartModes = [
