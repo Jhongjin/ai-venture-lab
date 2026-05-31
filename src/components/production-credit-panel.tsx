@@ -211,6 +211,12 @@ export function ProductionCreditPanel({
                   </div>
                 ))}
               </div>
+              <p
+                data-smoke="production-credit-pro-paused-boundary"
+                className="mt-3 text-xs font-semibold leading-5 text-slate-700"
+              >
+                결제는 아직 열지 않습니다. Pro 관심 등록은 어떤 순간에 유료 가치가 필요한지 확인하는 수요 신호입니다.
+              </p>
             </details>
             <div data-smoke="production-credit-execution-package-value" className="mt-3 border border-blue-200 bg-blue-50 p-3">
               <div className="text-xs font-semibold text-blue-800">왜 제작 패스를 쓰나요?</div>

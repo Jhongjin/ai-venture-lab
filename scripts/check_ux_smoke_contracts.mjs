@@ -469,6 +469,8 @@ const contracts = [
     file: "src/components/production-credit-panel.tsx",
     tokens: [
       'data-smoke="step5-pro-interest-boundary"',
+      'data-smoke="production-credit-pro-paused-boundary"',
+      "결제는 아직 열지 않습니다.",
       "결제 요청이 아니라",
       "수요 신호",
     ],
