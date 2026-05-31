@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Tightened credit access state API | `87a6d7d` | Not deployed; code-only billing API cleanup | `pnpm typecheck`, `pnpm quality:full`, `git diff --check`; `getCreditAccessState` still computes build-pass membership internally but no longer exposes its temporary `Set` in the public return shape |
 | 2026-05-31 | Guarded final execution run location copy | `0a8d4be` | Not deployed; QA contract only for existing STEP 7 UX | `pnpm smoke:ux-contracts`, `pnpm quality:full`, `git diff --check`; UX smoke now protects the STEP 7 warning that connection files are copied in Venture Lab but executed only in the external app project root, not Downloads or the Venture Lab repo |
 | 2026-05-31 | Extracted credit access state | `9f03165` | Not deployed; code-only billing gate refactor | `pnpm typecheck`, `pnpm quality:full`, `git diff --check`; credit balance, build pass, package access, and loading-state decisions now come from `getCreditAccessState` in `src/lib/billing.ts` so the workbench no longer owns those billing rules |
 | 2026-05-31 | Extracted credit summary guard | `471842e` | Not deployed; code-only billing response validation refactor | `pnpm typecheck`, `pnpm quality:full`, `git diff --check`; `CreditSummary` runtime validation now lives in `src/lib/billing.ts`, keeping billing response parsing beside the billing type and trimming `idea-workbench.tsx` to 9,445 lines |
