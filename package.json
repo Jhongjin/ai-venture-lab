@@ -18,6 +18,7 @@
     "smoke:extraction-gate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_gate.mjs",
     "smoke:extraction-lens": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_strategy_lens.mjs",
     "smoke:extraction-match": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_candidate_match.mjs",
+    "smoke:extraction-risk": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_risk_utils.mjs",
     "smoke:extraction-text": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_text_utils.mjs",
     "smoke:text-match": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_text_match_utils.mjs",
     "smoke:source-redaction": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_source_redaction.mjs",
