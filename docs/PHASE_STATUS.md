@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Extracted development package markdown builders | `9388ce9` | Not deployed; code-only STEP 5 package markdown refactor | `pnpm typecheck`, `pnpm quality:full`, staged `git diff --check`; STEP 5 execution summary, final development plan, production package, and external tool start package markdown builders now live in `src/lib/development-auto-package-copy.ts`, reducing `idea-workbench.tsx` to 9,281 lines |
 | 2026-05-31 | Extracted development auto package copy | `b1699dd` | Not deployed; code-only STEP 5 copy/refactor queue | `pnpm typecheck`, `pnpm quality:full`, staged `git diff --check`; STEP 5 auto package progress, summary, bridge, and output item builders now live in `src/lib/development-auto-package-copy.ts`, reducing `idea-workbench.tsx` to 9,359 lines |
 | 2026-05-31 | Guarded STEP 8 decision strip | `c1e2910` | Not deployed; QA contract only for existing STEP 8 UX | `pnpm smoke:ux-contracts`, `pnpm quality:full`, `git diff --check`; UX smoke now protects the three-part STEP 8 summary of completed state, next action, and today's decision |
 | 2026-05-31 | Tightened credit access state API | `87a6d7d` | Not deployed; code-only billing API cleanup | `pnpm typecheck`, `pnpm quality:full`, `git diff --check`; `getCreditAccessState` still computes build-pass membership internally but no longer exposes its temporary `Set` in the public return shape |
