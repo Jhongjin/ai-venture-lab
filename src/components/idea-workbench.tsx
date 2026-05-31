@@ -245,9 +245,11 @@ import { buildImplementationHandoffMarkdown } from "@/lib/implementation-handoff
 import { buildDevelopmentCompletionReportMarkdown } from "@/lib/development-completion-report";
 import {
   buildImplementationDependencyStatuses,
+  buildImplementationTaskProgressStats,
   getBlockedImplementationTaskHint,
   getImplementationEvidenceChecklist,
   getImplementationTaskOwnerRole,
+  getImplementationTaskReadinessQueues,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
   implementationStatusFilterLabels,
@@ -1100,41 +1102,22 @@ export function IdeaWorkbench({
     () => buildImplementationDependencyStatuses(selectedImplementationTasks),
     [selectedImplementationTasks],
   );
-  const implementationTaskProgressStats = useMemo(() => {
-    const byType = Object.fromEntries(
-      implementationTaskTypes.map((taskType) => [taskType, { done: 0, total: 0 }]),
-    ) as Record<ImplementationTaskType, { done: number; total: number }>;
-    const completedTasks: ImplementationTask[] = [];
-    let blockedCount = 0;
-
-    for (const task of selectedImplementationTasks) {
-      byType[task.task_type].total += 1;
-
-      if (task.status === "done") {
-        byType[task.task_type].done += 1;
-        completedTasks.push(task);
-      }
-
-      if (task.status === "blocked") {
-        blockedCount += 1;
-      }
-    }
-
-    return {
-      blockedCount,
-      completedCount: completedTasks.length,
-      completedTasks,
-      totalCount: selectedImplementationTasks.length,
-      byType,
-    };
-  }, [selectedImplementationTasks]);
-  const readyImplementationDependencyStatuses = implementationDependencyStatuses.filter((status) => status.ready);
-  const waitingImplementationDependencyStatuses = implementationDependencyStatuses.filter(
-    (status) => status.task.status !== "done" && !status.ready,
+  const implementationTaskProgressStats = useMemo(
+    () => buildImplementationTaskProgressStats(selectedImplementationTasks),
+    [selectedImplementationTasks],
   );
-  const nextImplementationTask = readyImplementationDependencyStatuses[0]?.task ?? selectedOpenImplementationTasks[0] ?? null;
-  const nextImplementationDependencyStatus =
-    implementationDependencyStatuses.find((status) => status.task.id === nextImplementationTask?.id) ?? null;
+  const implementationTaskReadinessQueues = useMemo(
+    () =>
+      getImplementationTaskReadinessQueues({
+        dependencyStatuses: implementationDependencyStatuses,
+        openTasks: selectedOpenImplementationTasks,
+      }),
+    [implementationDependencyStatuses, selectedOpenImplementationTasks],
+  );
+  const readyImplementationDependencyStatuses = implementationTaskReadinessQueues.readyStatuses;
+  const waitingImplementationDependencyStatuses = implementationTaskReadinessQueues.waitingStatuses;
+  const nextImplementationTask = implementationTaskReadinessQueues.nextTask;
+  const nextImplementationDependencyStatus = implementationTaskReadinessQueues.nextDependencyStatus;
   const nextImplementationTaskIndex = nextImplementationTask
     ? selectedImplementationTasks.findIndex((task) => task.id === nextImplementationTask.id)
     : -1;

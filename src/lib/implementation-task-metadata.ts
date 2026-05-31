@@ -36,6 +36,21 @@ export type ImplementationDependencyStatus = {
   nextAction: string;
 };
 
+export type ImplementationTaskProgressStats = {
+  blockedCount: number;
+  completedCount: number;
+  completedTasks: ImplementationTask[];
+  totalCount: number;
+  byType: Record<ImplementationTaskType, { done: number; total: number }>;
+};
+
+export type ImplementationTaskReadinessQueues = {
+  readyStatuses: ImplementationDependencyStatus[];
+  waitingStatuses: ImplementationDependencyStatus[];
+  nextTask: ImplementationTask | null;
+  nextDependencyStatus: ImplementationDependencyStatus | null;
+};
+
 export const implementationTaskStatuses: ImplementationTaskStatus[] = ["todo", "doing", "blocked", "done"];
 
 export const implementationTaskTypes: ImplementationTaskType[] = [
@@ -141,6 +156,55 @@ export function sortImplementationTasksForExecution(tasks: ImplementationTask[])
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
       a.title.localeCompare(b.title, "ko-KR"),
   );
+}
+
+export function buildImplementationTaskProgressStats(tasks: ImplementationTask[]): ImplementationTaskProgressStats {
+  const byType = Object.fromEntries(
+    implementationTaskTypes.map((taskType) => [taskType, { done: 0, total: 0 }]),
+  ) as ImplementationTaskProgressStats["byType"];
+  const completedTasks: ImplementationTask[] = [];
+  let blockedCount = 0;
+
+  for (const task of tasks) {
+    byType[task.task_type].total += 1;
+
+    if (task.status === "done") {
+      byType[task.task_type].done += 1;
+      completedTasks.push(task);
+    }
+
+    if (task.status === "blocked") {
+      blockedCount += 1;
+    }
+  }
+
+  return {
+    blockedCount,
+    completedCount: completedTasks.length,
+    completedTasks,
+    totalCount: tasks.length,
+    byType,
+  };
+}
+
+export function getImplementationTaskReadinessQueues({
+  dependencyStatuses,
+  openTasks,
+}: {
+  dependencyStatuses: ImplementationDependencyStatus[];
+  openTasks: ImplementationTask[];
+}): ImplementationTaskReadinessQueues {
+  const readyStatuses = dependencyStatuses.filter((status) => status.ready);
+  const waitingStatuses = dependencyStatuses.filter((status) => status.task.status !== "done" && !status.ready);
+  const nextTask = readyStatuses[0]?.task ?? openTasks[0] ?? null;
+  const nextDependencyStatus = dependencyStatuses.find((status) => status.task.id === nextTask?.id) ?? null;
+
+  return {
+    readyStatuses,
+    waitingStatuses,
+    nextTask,
+    nextDependencyStatus,
+  };
 }
 
 export function getImplementationEvidenceChecklist(task: ImplementationTask, evidence: string) {
