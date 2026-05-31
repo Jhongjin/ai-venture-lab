@@ -33,6 +33,7 @@ import {
 } from "@/lib/build-delivery";
 import { formatAuthCallbackMessage, formatAuthError, formatWorkspaceError } from "@/lib/venture-console-errors";
 import { compactText, countKeywordHits, findLabeledValue, stripLabel } from "@/lib/extraction-text-utils";
+import { normalizeMatchText, tokenOverlapScore } from "@/lib/text-match-utils";
 import { IdeaExtractionAdvancedQueue } from "@/components/idea-extraction-advanced-queue";
 import { IdeaExtractionDetailList } from "@/components/idea-extraction-detail-list";
 import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
@@ -690,41 +691,6 @@ function inferRecommendation(
   }
 
   return "보류";
-}
-
-function normalizeMatchText(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function getMatchTokens(value: string) {
-  return new Set(
-    normalizeMatchText(value)
-      .split(" ")
-      .map((token) => token.trim())
-      .filter((token) => token.length >= 2),
-  );
-}
-function tokenOverlapScore(left: string, right: string) {
-  const leftTokens = getMatchTokens(left);
-  const rightTokens = getMatchTokens(right);
-
-  if (leftTokens.size === 0 || rightTokens.size === 0) {
-    return 0;
-  }
-
-  let overlap = 0;
-
-  for (const token of leftTokens) {
-    if (rightTokens.has(token)) {
-      overlap += 1;
-    }
-  }
-
-  return Math.round((overlap / Math.max(leftTokens.size, rightTokens.size)) * 100);
 }
 
 function findSimilarIdea(candidate: ExtractedIdea, existingIdeas: Idea[]): SimilarIdeaMatch | null {
