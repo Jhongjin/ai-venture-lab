@@ -170,8 +170,11 @@ const contracts = [
     file: "src/components/step5-package-current-action.tsx",
     tokens: [
       'data-smoke="step5-package-current-action"',
+      'data-smoke="step5-ai-prepares-user-confirms"',
       "3. 저장 후 이동",
       "저장 완료 후 하단 다음 단계 버튼으로 STEP 6 이동",
+      "AI가 먼저 기획서, 제작 범위, 첫 작업을 정리합니다",
+      "사용자는 요약을 확인하고 저장만 하면 됩니다",
     ],
   },
   {

@@ -25,6 +25,9 @@ export function Step5PackageCurrentAction({
             저장된 패키지는 STEP 6 작업 순서와 STEP 7 연결 파일의 기준이 됩니다. 파일 받기와 도구 연결은 최종
             실행에서만 열립니다.
           </p>
+          <p data-smoke="step5-ai-prepares-user-confirms" className="mt-2 text-xs font-semibold leading-5 text-emerald-950">
+            AI가 먼저 기획서, 제작 범위, 첫 작업을 정리합니다. 사용자는 요약을 확인하고 저장만 하면 됩니다.
+          </p>
         </div>
         <span className="avl-pill avl-pill-success w-fit">다음: 작업 순서</span>
       </div>

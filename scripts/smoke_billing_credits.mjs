@@ -284,6 +284,12 @@ async function verifyAuthenticatedCreditSummary() {
         state: "visible",
         timeout: timeoutMs,
       });
+      await page.locator('[data-smoke="step5-ai-prepares-user-confirms"]').getByText("사용자는 요약을 확인하고 저장만 하면 됩니다", {
+        exact: false,
+      }).waitFor({
+        state: "visible",
+        timeout: timeoutMs,
+      });
       await page.locator('[data-smoke="step5-first-click-cue"]').getByText("AI 제작 패키지 만들기", { exact: false }).waitFor({
         state: "visible",
         timeout: timeoutMs,
