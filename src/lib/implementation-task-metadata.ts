@@ -133,6 +133,31 @@ export function sortImplementationTasksForExecution(tasks: ImplementationTask[])
   );
 }
 
+export function getImplementationEvidenceChecklist(task: ImplementationTask, evidence: string) {
+  const normalizedEvidence = evidence.toLowerCase();
+  const requirements = [...sharedImplementationEvidenceRequirements, ...implementationEvidenceRequirements[task.task_type]];
+
+  return requirements.map((requirement) => ({
+    ...requirement,
+    passed: requirement.terms.some((term) => normalizedEvidence.includes(term.toLowerCase())),
+  }));
+}
+
+export function getImplementationTaskOwnerRole(task: ImplementationTask) {
+  return task.owner_role.trim() || "owner 미정";
+}
+
+export function getBlockedImplementationTaskHint(task: ImplementationTask) {
+  const playbook = implementationBlockerPlaybooks[task.task_type];
+
+  return {
+    ownerRole: task.owner_role.trim() || playbook.fallbackOwner,
+    nextAction: playbook.nextAction,
+    unblockEvidence: playbook.unblockEvidence,
+    escalation: playbook.escalation,
+  };
+}
+
 export const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {
   planning: "기획",
   design: "디자인",

@@ -194,15 +194,15 @@ import {
   type ImplementationTaskDraft,
 } from "@/lib/external-progress-import";
 import {
-  implementationBlockerPlaybooks,
+  getBlockedImplementationTaskHint,
+  getImplementationEvidenceChecklist,
+  getImplementationTaskOwnerRole,
   implementationDependencyRules,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
-  implementationEvidenceRequirements,
   implementationRunFocus,
   implementationStatusFilterLabels,
   implementationStatusFilterOptions,
-  sharedImplementationEvidenceRequirements,
   implementationTaskActionRank,
   implementationTaskExecutionOrder,
   implementationTaskPriorities,
@@ -5089,31 +5089,6 @@ ${
 - 디자인과 백엔드 경계가 준비되기 전에는 프론트 수직 슬라이스를 완료 처리하지 않습니다.
 - QA와 보안이 완료되기 전에는 Production 배포 태스크를 완료 처리하지 않습니다.
 `;
-}
-
-function getImplementationEvidenceChecklist(task: ImplementationTask, evidence: string) {
-  const normalizedEvidence = evidence.toLowerCase();
-  const requirements = [...sharedImplementationEvidenceRequirements, ...implementationEvidenceRequirements[task.task_type]];
-
-  return requirements.map((requirement) => ({
-    ...requirement,
-    passed: requirement.terms.some((term) => normalizedEvidence.includes(term.toLowerCase())),
-  }));
-}
-
-function getImplementationTaskOwnerRole(task: ImplementationTask) {
-  return task.owner_role.trim() || "owner 미정";
-}
-
-function getBlockedImplementationTaskHint(task: ImplementationTask) {
-  const playbook = implementationBlockerPlaybooks[task.task_type];
-
-  return {
-    ownerRole: task.owner_role.trim() || playbook.fallbackOwner,
-    nextAction: playbook.nextAction,
-    unblockEvidence: playbook.unblockEvidence,
-    escalation: playbook.escalation,
-  };
 }
 
 function buildImplementationTaskTicketMarkdown({
