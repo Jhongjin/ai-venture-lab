@@ -169,6 +169,7 @@ import {
   buildMarketScanResultText,
   getMarketScanLevelLabel,
   getMarketScanSourceStrengthTone,
+  getPublicMarketScanSources,
   isMarketScanArtifactForProductSurface,
   isMarketScanArtifactRecord,
   marketScanSourceTypeLabels,
@@ -1878,11 +1879,14 @@ export function IdeaWorkbench({
   const visibleMarketScanDraft =
     marketScanContextKey && marketScanDraftKey === marketScanContextKey ? marketScanDraft : null;
   const isVisibleMarketScanEstimate = marketScanMode === "local_estimate" && Boolean(visibleMarketScanDraft);
+  const visibleMarketScanPublicSources = visibleMarketScanDraft
+    ? getPublicMarketScanSources(visibleMarketScanDraft.sources)
+    : [];
   const marketScanSourceBoundaryText = visibleMarketScanDraft
     ? isVisibleMarketScanEstimate
       ? "제작 패키지 근거로 쓰기 전, 웹 조사 다시 시도로 공개 출처를 붙이는 것이 안전합니다."
-      : visibleMarketScanDraft.sources.length > 0
-        ? `공개 출처 ${visibleMarketScanDraft.sources.length}개를 함께 저장합니다. 중요한 수치만 원문에서 한 번 더 확인하세요.`
+      : visibleMarketScanPublicSources.length > 0
+        ? `공개 출처 ${visibleMarketScanPublicSources.length}개를 함께 저장합니다. 중요한 수치만 원문에서 한 번 더 확인하세요.`
         : "웹 조사 모드지만 표시할 공개 출처가 부족합니다. 중요한 판단 전에는 출처를 한 번 더 확인하세요."
     : "";
   const marketScanStatus = isMarketScanLoading
@@ -5445,6 +5449,7 @@ export function IdeaWorkbench({
       }
 
       const scanMode = cleanInlineText(payload.mode, 80);
+      const publicSources = getPublicMarketScanSources(scan.sources);
       setMarketScanDraftKey(`${selectedIdea.id}:${editState.product_surface ?? selectedIdea.product_surface ?? "undecided"}`);
       setMarketScanDraft(scan);
       setMarketScanMode(scanMode);
@@ -5459,8 +5464,8 @@ export function IdeaWorkbench({
       setEvidenceDraft({
         title: `시장·경쟁 자동 점검 - ${selectedIdea.name}`,
         source:
-          scan.sources.length > 0
-            ? scan.sources.map((source) => source.url || source.title).filter(Boolean).join(", ")
+          publicSources.length > 0
+            ? publicSources.map((source) => source.url || source.title).filter(Boolean).join(", ")
             : scanMode === "local_estimate"
               ? "AI 추정 초안"
               : "AI 시장·경쟁 자동 점검",
@@ -8639,7 +8644,7 @@ export function IdeaWorkbench({
                 <div className="grid gap-px bg-slate-200 md:grid-cols-3">
                   {[
                     ["조사 방식", isVisibleMarketScanEstimate ? "추정 초안" : "웹 출처 포함"],
-                    ["참고 출처", `${visibleMarketScanDraft.sources.length}개`],
+                    ["공개 출처", `${visibleMarketScanPublicSources.length}개`],
                     ["경쟁/대체재", `${visibleMarketScanDraft.competitor_map.length}개`],
                   ].map(([label, value]) => (
                     <div key={label} className="bg-white px-4 py-3">
@@ -8768,16 +8773,16 @@ export function IdeaWorkbench({
                 ) : null}
                 <div className="grid gap-2">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">참고 출처</div>
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">공개 출처</div>
                     <div className="text-xs text-slate-500">
                       근거 강도 높음{" "}
-                      {visibleMarketScanDraft.sources.filter((source) => source.strength === "high").length}개 / 전체{" "}
-                      {visibleMarketScanDraft.sources.length}개
+                      {visibleMarketScanPublicSources.filter((source) => source.strength === "high").length}개 / 전체{" "}
+                      {visibleMarketScanPublicSources.length}개
                     </div>
                   </div>
-                  {visibleMarketScanDraft.sources.length > 0 ? (
+                  {visibleMarketScanPublicSources.length > 0 ? (
                     <div className="grid gap-2">
-                      {visibleMarketScanDraft.sources.map((source, index) => (
+                      {visibleMarketScanPublicSources.map((source, index) => (
                         <div key={`${source.url}-${index}`} className="border border-slate-200 bg-white px-3 py-2 text-xs leading-5">
                           <div className="mb-1 flex flex-wrap gap-2">
                             <span className={`avl-pill ${getMarketScanSourceStrengthTone(source.strength)} text-[11px]`}>
@@ -8799,7 +8804,9 @@ export function IdeaWorkbench({
                       ))}
                     </div>
                   ) : (
-                    <div className="text-sm text-slate-500">표시할 출처가 없습니다. 추정 초안으로만 참고하세요.</div>
+                    <div className="text-sm text-slate-500">
+                      공개 출처가 없습니다. 웹 조사 다시 시도로 출처를 붙인 뒤 제작 패키지 근거로 쓰세요.
+                    </div>
                   )}
                 </div>
               </div>

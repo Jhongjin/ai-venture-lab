@@ -92,6 +92,14 @@ export function getMarketScanSourceStrengthTone(strength: MarketScanSource["stre
   return strength === "high" ? "avl-pill-success" : strength === "medium" ? "avl-pill-warning" : "avl-pill-neutral";
 }
 
+export function isPublicMarketScanSource(source: MarketScanSource) {
+  return source.source_type !== "user_input" && /^https?:\/\//i.test(source.url.trim());
+}
+
+export function getPublicMarketScanSources(sources: ReadonlyArray<MarketScanSource>) {
+  return sources.filter(isPublicMarketScanSource);
+}
+
 function normalizeMarketScanSource(value: unknown): MarketScanSource | null {
   if (!isMarketScanRecord(value)) {
     return null;
@@ -214,15 +222,16 @@ export function normalizeMarketScanDraft(value: unknown): MarketScanDraft | null
 }
 
 export function buildMarketScanResultText(scan: MarketScanDraft) {
+  const publicSources = getPublicMarketScanSources(scan.sources);
   const sourceLines =
-    scan.sources.length > 0
-      ? scan.sources
+    publicSources.length > 0
+      ? publicSources
           .map(
             (source) =>
               `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}`,
           )
           .join("\n")
-      : "- 출처 없음";
+      : "- 공개 출처 없음 - 추정 초안으로만 참고";
   const signalLines =
     scan.market_signals.length > 0
       ? scan.market_signals.map((signal) => `- ${signal.label}: ${signal.finding}`).join("\n")
@@ -262,7 +271,7 @@ ${barrierLines}
 대체재
 ${scan.alternatives}
 
-참고 출처
+공개 출처
 ${sourceLines}`;
 }
 
@@ -276,9 +285,10 @@ export function buildMarketScanLearningText(scan: MarketScanDraft, decisionLabel
 }
 
 export function buildMarketScanEvidenceText(scan: MarketScanDraft) {
+  const publicSources = getPublicMarketScanSources(scan.sources);
   const sourceLines =
-    scan.sources.length > 0
-      ? scan.sources
+    publicSources.length > 0
+      ? publicSources
           .map(
             (source) =>
               `- ${source.title || source.url}${source.url ? ` (${source.url})` : ""} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}`,
@@ -329,7 +339,7 @@ ${scan.alternatives}
 추가 확인 질문
 ${queryLines}
 
-참고 출처
+공개 출처
 ${sourceLines}`;
 }
 
@@ -357,9 +367,10 @@ export function buildMarketScanArtifactMarkdown({
   productSurfaceLabel: string;
   decisionLabels: MarketScanDecisionLabels;
 }) {
+  const publicSources = getPublicMarketScanSources(scan.sources);
   const sourceLines =
-    scan.sources.length > 0
-      ? scan.sources
+    publicSources.length > 0
+      ? publicSources
           .map(
             (source) =>
               `- ${source.title || source.url}${source.url ? `: ${source.url}` : ""} / ${marketScanSourceTypeLabels[source.source_type]} / 근거 강도 ${getMarketScanLevelLabel(source.strength)}${source.reason ? ` - ${source.reason}` : ""}`,
@@ -439,7 +450,7 @@ ${scan.alternatives}
 
 ${queryLines}
 
-## 참고 출처
+## 공개 출처
 
 ${sourceLines}
 

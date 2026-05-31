@@ -43,11 +43,13 @@ const contracts = [
       "getWorkbenchOperatorFocusCopy",
       "getWorkbenchOperatorActionItems",
       "getWorkbenchOperatorGateNote",
+      "getPublicMarketScanSources",
       "Claude Code 연결 파일을 준비했습니다. 연결 도구 또는 record-progress 명령",
       'data-smoke="market-scan-source-boundary"',
       "추정 초안",
       "웹 출처를 붙이지 못해 사용자 입력 기반 추정으로 준비됐습니다.",
       "제작 패키지 근거로 쓰기 전, 웹 조사 다시 시도로 공개 출처를 붙이는 것이 안전합니다.",
+      "공개 출처가 없습니다. 웹 조사 다시 시도로 출처를 붙인 뒤 제작 패키지 근거로 쓰세요.",
     ],
   },
   {
