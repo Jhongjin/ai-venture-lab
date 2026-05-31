@@ -71,6 +71,9 @@ export function FinalExecutionSyncStatusCard({
           <p data-smoke="final-execution-sync-meaning" className="mt-2 text-xs font-semibold leading-5 text-emerald-950">
             완료 보고 한 번이 작업 상태, 다음 작업, STEP 8 판단 카드까지 같이 바꿉니다.
           </p>
+          <p data-smoke="final-execution-sync-user-action-boundary" className="mt-1 text-xs leading-5 text-emerald-900">
+            자동 반영이 정상이라면 여기서 누를 것은 지금 확인뿐입니다. 진행 JSON 붙여넣기는 실패했을 때만 엽니다.
+          </p>
           <div className="mt-3">
             <WorkbenchReviewGrid dataSmoke="final-execution-sync-result" density="roomy" rows={reviewRows} variant="emerald" />
           </div>
