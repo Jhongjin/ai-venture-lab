@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Documented STEP 1 action placement | `1401205` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now expects the AI organize/generate action to sit directly below the STEP 1 input or candidate area |
 | 2026-05-31 | Moved STEP 1 action closer to input | `de8ab45` | Auto-deployed from main; production smoke passed | `pnpm smoke:ux-contracts`, `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; STEP 1 now places the AI organize/generate action panel directly below the input or generated candidates, with explanatory flow steps after the action |
 | 2026-05-31 | Documented first-use input priority | `7e24413` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now expects the STEP 1 current action and input box to appear before deeper previews and examples |
 | 2026-05-31 | Moved first-use input higher | `cdc7f28` | Auto-deployed from main; production smoke passed | `pnpm smoke:ux-contracts`, `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser` after one transient Windows `EPERM` retry, `git diff --check`; STEP 1 now shows the current action and input box immediately after the one-sentence guide, before deeper result previews and examples |
