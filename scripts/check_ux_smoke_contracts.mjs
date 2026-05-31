@@ -211,7 +211,10 @@ const contracts = [
     file: "src/components/final-execution-setup-checks.tsx",
     tokens: [
       'data-smoke="final-execution-folder-check-question"',
+      'data-smoke="final-execution-check-failure-recovery"',
       "아직 앱 프로젝트가 없다면 새 폴더를 만든 뒤 그 폴더에서 실행하세요.",
+      "확인 명령 실패",
+      "외부 프로젝트 루트로 이동한 뒤 확인 명령만 다시 실행",
     ],
   },
   {

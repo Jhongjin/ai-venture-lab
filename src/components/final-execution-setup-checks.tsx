@@ -11,6 +11,11 @@ export function FinalExecutionSetupChecks({ progressPath, startFileName }: Final
     ["작업 목록", "T-001부터 볼 수 있는 제작 순서"],
     ["진행 기록", `${progressPath} 자동 반영 백업`],
   ] as const;
+  const recoveryItems = [
+    ["확인 명령 실패", "대부분 실행 위치가 다릅니다"],
+    ["먼저 볼 것", "package.json, app 또는 src가 보이는지 확인"],
+    ["다시 할 것", "외부 프로젝트 루트로 이동한 뒤 확인 명령만 다시 실행"],
+  ] as const;
 
   return (
     <>
@@ -61,6 +66,14 @@ export function FinalExecutionSetupChecks({ progressPath, startFileName }: Final
           실행 전 5초 확인: 지금 터미널 폴더에 package.json, app 또는 src가 보이면 설치 명령을 실행합니다. 안 보이면 먼저
           실제 프로젝트 루트로 이동하세요. 아직 앱 프로젝트가 없다면 새 폴더를 만든 뒤 그 폴더에서 실행하세요. 현재 폴더가
           AI Venture Lab 프로젝트라면 새 앱 프로젝트로 이동한 뒤 실행하세요.
+        </div>
+        <div data-smoke="final-execution-check-failure-recovery" className="mt-3 grid gap-px bg-rose-200 sm:grid-cols-3">
+          {recoveryItems.map(([label, detail]) => (
+            <div key={label} className="bg-white px-3 py-3">
+              <div className="text-xs font-semibold tracking-[0.14em] text-rose-700">{label}</div>
+              <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{detail}</p>
+            </div>
+          ))}
         </div>
       </div>
     </>
