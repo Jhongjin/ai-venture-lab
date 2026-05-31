@@ -51,6 +51,14 @@ import {
   upsertWorkbenchIdea,
 } from "@/lib/workbench-list-utils";
 import {
+  missingEvidence,
+  recommendationForScore,
+  saveDecisionForScore,
+  scoreWorkbenchState as scoreState,
+  toWorkbenchEditState as toEditState,
+  type WorkbenchEditState,
+} from "@/lib/workbench-scoring";
+import {
   eventCountForWindow,
   formatStableKoreanDate,
   formatTelemetryProperties,
@@ -329,22 +337,7 @@ const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot"
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
 const adminRoles = new Set(["owner", "admin"]);
-type EditState = Pick<
-  Idea,
-  | "stage"
-  | "decision"
-  | "problem_intensity"
-  | "frequency"
-  | "reachability"
-  | "willingness_to_pay"
-  | "mvp_speed"
-  | "differentiation"
-  | "regulatory_risk"
-  | "signal"
-  | "risk_summary"
-  | "next_evidence"
-  | "product_surface"
->;
+type EditState = WorkbenchEditState;
 
 type RiskDraft = {
   title: string;
@@ -409,86 +402,6 @@ type DevelopmentAutoFlowState = "idle" | "running" | "review" | "summary";
 
 function emitVentureEvent<T>(eventName: string, detail: T) {
   window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
-}
-
-function toEditState(idea: Idea): EditState {
-  return {
-    stage: idea.stage,
-    decision: idea.decision,
-    problem_intensity: idea.problem_intensity,
-    frequency: idea.frequency,
-    reachability: idea.reachability,
-    willingness_to_pay: idea.willingness_to_pay,
-    mvp_speed: idea.mvp_speed,
-    differentiation: idea.differentiation,
-    regulatory_risk: idea.regulatory_risk,
-    signal: idea.signal,
-    risk_summary: idea.risk_summary,
-    next_evidence: idea.next_evidence,
-    product_surface: inferIdeaProductSurface(idea).key,
-  };
-}
-
-function scoreState(state: EditState) {
-  return (
-    state.problem_intensity +
-    state.frequency +
-    state.reachability +
-    state.willingness_to_pay +
-    state.mvp_speed +
-    state.differentiation -
-    state.regulatory_risk
-  );
-}
-
-function recommendationForScore(score: number): DecisionStatus {
-  if (score >= 22) {
-    return "ship";
-  }
-
-  if (score >= 15) {
-    return "research_more";
-  }
-
-  if (score >= 9) {
-    return "pivot";
-  }
-
-  return "kill";
-}
-
-function saveDecisionForScore(recommendation: DecisionStatus): DecisionStatus {
-  return recommendation === "kill" ? "research_more" : recommendation;
-}
-
-function missingEvidence(idea: Idea, state: EditState, riskCount: number) {
-  const missing = [];
-
-  if (!idea.one_liner.trim()) {
-    missing.push("한 줄 설명");
-  }
-
-  if (!idea.target_user.trim()) {
-    missing.push("대상 사용자");
-  }
-
-  if (!idea.buyer.trim()) {
-    missing.push("구매자");
-  }
-
-  if (!state.signal.trim()) {
-    missing.push("수요 신호");
-  }
-
-  if (!state.next_evidence.trim()) {
-    missing.push("추가로 확인할 내용");
-  }
-
-  if (riskCount === 0) {
-    missing.push("연결된 리스크");
-  }
-
-  return missing;
 }
 
 function isCreditSummary(value: unknown): value is CreditSummary {
