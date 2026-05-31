@@ -122,6 +122,31 @@ import {
   summarizeCursorProgressEvidence,
   type ImplementationTaskDraft,
 } from "@/lib/external-progress-import";
+import {
+  implementationBlockerPlaybooks,
+  implementationDependencyRules,
+  implementationEvidenceFilterLabels,
+  implementationEvidenceFilterOptions,
+  implementationEvidenceRequirements,
+  implementationRunFocus,
+  implementationStatusFilterLabels,
+  implementationStatusFilterOptions,
+  sharedImplementationEvidenceRequirements,
+  implementationTaskActionRank,
+  implementationTaskExecutionOrder,
+  implementationTaskExecutionRank,
+  implementationTaskPriorities,
+  implementationTaskPriorityLabels,
+  implementationTaskPriorityRank,
+  implementationTaskPriorityTone,
+  implementationTaskStatusLabels,
+  implementationTaskStatuses,
+  implementationTaskStatusTone,
+  implementationTaskTypeLabels,
+  implementationTaskTypes,
+  type ImplementationEvidenceFilter,
+  type ImplementationStatusFilter,
+} from "@/lib/implementation-task-metadata";
 import type { WorkbenchTask } from "@/lib/workbench-tasks";
 import { FinalExecutionConnectionManager } from "@/components/final-execution-connection-manager";
 import { FinalExecutionExternalToolSection } from "@/components/final-execution-external-tool-section";
@@ -200,18 +225,6 @@ export type { WorkbenchTask } from "@/lib/workbench-tasks";
 const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
-const implementationTaskStatuses: ImplementationTaskStatus[] = ["todo", "doing", "blocked", "done"];
-const implementationTaskTypes: ImplementationTaskType[] = [
-  "planning",
-  "design",
-  "frontend",
-  "backend",
-  "data",
-  "qa",
-  "security",
-  "deploy",
-];
-const implementationTaskPriorities: ImplementationTaskPriority[] = ["low", "medium", "high"];
 const adminRoles = new Set(["owner", "admin"]);
 const riskSeverityLabels: Record<RiskSeverity, string> = {
   low: "낮음",
@@ -251,234 +264,6 @@ const runStatusLabels: Record<OrchestrationStatus, string> = {
   done: "완료",
   skipped: "건너뜀",
 };
-const implementationTaskStatusLabels: Record<ImplementationTaskStatus, string> = {
-  todo: "할 일",
-  doing: "진행 중",
-  blocked: "막힘",
-  done: "완료",
-};
-const implementationStatusFilterOptions: ImplementationStatusFilter[] = ["all", ...implementationTaskStatuses];
-const implementationStatusFilterLabels: Record<ImplementationStatusFilter, string> = {
-  all: "전체 상태",
-  ...implementationTaskStatusLabels,
-};
-const implementationEvidenceFilterOptions: ImplementationEvidenceFilter[] = ["all", "missing", "complete"];
-const implementationEvidenceFilterLabels: Record<ImplementationEvidenceFilter, string> = {
-  all: "전체 증거",
-  missing: "근거 비어 있음",
-  complete: "근거 채워짐",
-};
-const implementationTaskStatusTone: Record<ImplementationTaskStatus, string> = {
-  todo: "avl-pill avl-pill-neutral",
-  doing: "avl-pill avl-pill-info",
-  blocked: "avl-pill avl-pill-danger",
-  done: "avl-pill avl-pill-success",
-};
-const implementationTaskPriorityLabels: Record<ImplementationTaskPriority, string> = {
-  low: "낮음",
-  medium: "보통",
-  high: "높음",
-};
-const implementationTaskPriorityTone: Record<ImplementationTaskPriority, string> = {
-  low: "avl-pill avl-pill-neutral",
-  medium: "avl-pill avl-pill-warning",
-  high: "avl-pill avl-pill-danger",
-};
-const implementationTaskActionRank: Record<ImplementationTaskStatus, number> = {
-  blocked: 0,
-  doing: 1,
-  todo: 2,
-  done: 3,
-};
-const implementationTaskPriorityRank: Record<ImplementationTaskPriority, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-};
-const implementationTaskExecutionOrder: ImplementationTaskType[] = [
-  "planning",
-  "design",
-  "data",
-  "backend",
-  "frontend",
-  "qa",
-  "security",
-  "deploy",
-];
-const implementationTaskExecutionRank = new Map(
-  implementationTaskExecutionOrder.map((taskType, index) => [taskType, index]),
-);
-const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {
-  planning: "기획",
-  design: "디자인",
-  frontend: "프론트",
-  backend: "백엔드",
-  data: "데이터",
-  qa: "품질 점검",
-  security: "보안",
-  deploy: "배포",
-};
-type EvidenceRequirement = {
-  label: string;
-  terms: string[];
-};
-type ImplementationStatusFilter = ImplementationTaskStatus | "all";
-type ImplementationEvidenceFilter = "all" | "missing" | "complete";
-const sharedImplementationEvidenceRequirements: EvidenceRequirement[] = [
-  { label: "커밋/PR", terms: ["commit", "커밋", "PR", "pull request"] },
-  { label: "검증 결과", terms: ["pnpm", "lint", "typecheck", "build", "quality", "검증"] },
-];
-const implementationEvidenceRequirements: Record<ImplementationTaskType, EvidenceRequirement[]> = {
-  planning: [
-    { label: "기획/첫 제작 범위", terms: ["PRD", "MVP", "범위", "scope"] },
-    { label: "중단 기준", terms: ["중단", "kill", "no-go", "No-go"] },
-  ],
-  design: [
-    { label: "핵심 화면", terms: ["화면", "screen", "flow", "여정"] },
-    { label: "상태/모바일", terms: ["빈 상태", "오류", "모바일", "accessibility", "접근성"] },
-  ],
-  frontend: [
-    { label: "사용자 여정", terms: ["스모크", "smoke", "저장", "조회", "journey"] },
-    { label: "상태 UX", terms: ["로딩", "오류", "성공", "권한", "read-only"] },
-  ],
-  backend: [
-    { label: "허용/차단", terms: ["허용", "차단", "allowed", "denied"] },
-    { label: "RLS/Rules", terms: ["RLS", "Security Rules", "IAM", "with check"] },
-  ],
-  data: [
-    { label: "마이그레이션", terms: ["migration", "마이그레이션", "SQL", "schema"] },
-    { label: "되돌림/보정", terms: ["rollback", "롤백", "보정", "revert"] },
-  ],
-  qa: [
-    { label: "스모크 경로", terms: ["smoke", "스모크", "수동", "browser"] },
-    { label: "실패/회귀", terms: ["실패", "회귀", "regression", "재현"] },
-  ],
-  security: [
-    { label: "비밀값/PII", terms: ["secret", "비밀값", "PII", "개인정보", "NEXT_PUBLIC"] },
-    { label: "권한 차단", terms: ["권한", "차단", "RLS", "Security Rules", "abuse"] },
-  ],
-  deploy: [
-    { label: "Preview/Production", terms: ["Preview", "Production", "프로덕션"] },
-    { label: "Vercel 로그", terms: ["Vercel inspect", "deploy log", "배포 로그", "빌드 로그"] },
-    { label: "롤백 기준", terms: ["rollback", "롤백", "last known good", "직전"] },
-  ],
-};
-type BlockerPlaybook = {
-  fallbackOwner: string;
-  nextAction: string;
-  unblockEvidence: string;
-  escalation: string;
-};
-const implementationBlockerPlaybooks: Record<ImplementationTaskType, BlockerPlaybook> = {
-  planning: {
-    fallbackOwner: "prd-writer",
-    nextAction: "제품 기획 범위, 중단 기준, 의사결정권자를 먼저 확정하세요.",
-    unblockEvidence: "승인된 기획 범위와 no-go 기준을 근거에 남기면 해소로 봅니다.",
-    escalation: "범위 충돌이 남으면 최종 결정권자에게 판단을 올립니다.",
-  },
-  design: {
-    fallbackOwner: "design-reviewer",
-    nextAction: "핵심 화면, 빈 상태, 오류 상태, 모바일 흐름 중 빠진 화면을 지정하세요.",
-    unblockEvidence: "화면 목록, 주요 여정, 접근성/모바일 확인 결과를 증거에 남깁니다.",
-    escalation: "사용자 흐름이 갈리면 기획 담당자와 범위를 다시 정합니다.",
-  },
-  frontend: {
-    fallbackOwner: "prototype-builder",
-    nextAction: "막힌 사용자 여정과 재현 경로를 하나로 좁히고 상태 UX를 확인하세요.",
-    unblockEvidence: "수정 커밋, 스모크 경로, 성공/오류/권한 상태 확인 결과를 남깁니다.",
-    escalation: "API나 권한 문제라면 백엔드 담당자에게 넘깁니다.",
-  },
-  backend: {
-    fallbackOwner: "backend-builder",
-    nextAction: "RLS 또는 Security Rules의 허용/차단 조건을 먼저 재현하세요.",
-    unblockEvidence: "허용 케이스와 차단 케이스, SQL/Rules 변경, 검증 명령을 남깁니다.",
-    escalation: "운영 데이터 접근 범위가 불명확하면 보안/데이터 담당자와 함께 봅니다.",
-  },
-  data: {
-    fallbackOwner: "data-modeler",
-    nextAction: "스키마, 마이그레이션, 롤백/보정 계획 중 막힌 지점을 분리하세요.",
-    unblockEvidence: "SQL 또는 migration, 샘플 데이터 확인, 되돌림 계획을 남깁니다.",
-    escalation: "기존 데이터 손상 가능성이 있으면 수동 백업 확인 후 진행합니다.",
-  },
-  qa: {
-    fallbackOwner: "qa-runner",
-    nextAction: "실패한 경로를 재현 가능한 한 줄 시나리오로 줄이세요.",
-    unblockEvidence: "실패 재현, 수정 커밋, 재실행 결과, 남은 회귀 리스크를 남깁니다.",
-    escalation: "반복 실패면 해당 구현 담당자에게 재배정합니다.",
-  },
-  security: {
-    fallbackOwner: "security-reviewer",
-    nextAction: "비밀값, PII, 권한 우회, abuse case 중 차단 원인을 분류하세요.",
-    unblockEvidence: "노출 범위, 차단 규칙, allowed/denied 검증, 남은 리스크를 남깁니다.",
-    escalation: "개인정보나 비밀값 노출 가능성이 있으면 출시 판단을 중지합니다.",
-  },
-  deploy: {
-    fallbackOwner: "release-manager",
-    nextAction: "Preview/Production 배포 상태, 환경변수, Vercel 로그를 먼저 확인하세요.",
-    unblockEvidence: "배포 URL, Vercel inspect 또는 로그, production smoke, 롤백 기준을 남깁니다.",
-    escalation: "운영 장애 가능성이 있으면 직전 정상 배포로 되돌리는 기준을 우선 기록합니다.",
-  },
-};
-const implementationRunFocus: Record<ImplementationTaskType, string> = {
-  planning: "기획 범위, 첫 제작 범위, 제외 범위, 중단 기준, 승인 근거를 정합니다.",
-  design: "핵심 화면, 상태 UX, 모바일/접근성, 첫 가치 도달 흐름을 구체화합니다.",
-  frontend: "입력, 저장, 조회, 상태 메시지, 모바일 레이아웃을 실제 사용자 여정 기준으로 구현합니다.",
-  backend: "데이터 모델, API/Server Action 경계, RLS 또는 Security Rules 허용/차단을 검증합니다.",
-  data: "스키마, 마이그레이션, 샘플 데이터, 롤백/보정 계획을 안전하게 다룹니다.",
-  qa: "핵심 경로, 인증 전/후, 읽기 전용, 빈/오류/로딩 상태와 회귀를 검증합니다.",
-  security: "PII, 비밀값, 권한 우회, abuse, 보관/삭제 경로를 출시 차단 관점으로 봅니다.",
-  deploy: "Preview/Production, Vercel 로그, 환경변수, production smoke, 롤백 기준을 확인합니다.",
-};
-const implementationDependencyRules: Record<
-  ImplementationTaskType,
-  {
-    prerequisites: ImplementationTaskType[];
-    gate: string;
-    nextAction: string;
-  }
-> = {
-  planning: {
-    prerequisites: [],
-    gate: "제품 범위 잠금",
-    nextAction: "기획서, 첫 제작 범위, 제외 범위, 성공 지표, 중단 기준을 먼저 고정합니다.",
-  },
-  design: {
-    prerequisites: ["planning"],
-    gate: "기획 범위 승인",
-    nextAction: "첫 제작 범위의 사용자 여정, 빈 상태, 오류, 모바일, 접근성 상태를 확정합니다.",
-  },
-  data: {
-    prerequisites: ["planning"],
-    gate: "데이터 경계 확정",
-    nextAction: "엔티티, 소유권, 조직 경계, 마이그레이션, 샘플 데이터를 먼저 정의합니다.",
-  },
-  backend: {
-    prerequisites: ["data"],
-    gate: "데이터 모델 준비",
-    nextAction: "API/Server Action, RLS 또는 Security Rules 허용/차단 조건을 구현합니다.",
-  },
-  frontend: {
-    prerequisites: ["design", "backend"],
-    gate: "화면 흐름과 저장 경계 준비",
-    nextAction: "핵심 입력, 저장, 조회, 상태 메시지를 첫 수직 슬라이스로 구현합니다.",
-  },
-  qa: {
-    prerequisites: ["frontend", "backend"],
-    gate: "핵심 여정 구현",
-    nextAction: "핵심 여정, 오류 상태, 모바일, 회귀 스모크를 검증합니다.",
-  },
-  security: {
-    prerequisites: ["backend", "data"],
-    gate: "권한/데이터 경계 구현",
-    nextAction: "개인정보, 비밀값, 권한 우회, 로그 민감정보, 고위험 리스크를 검토합니다.",
-  },
-  deploy: {
-    prerequisites: ["qa", "security"],
-    gate: "품질 점검/보안 완료",
-    nextAction: "Preview/Production 배포, smoke, inspect URL, 롤백 기준을 기록합니다.",
-  },
-};
-
 const orchestrationPhaseConfigs: Array<{
   phase: OrchestrationPhase;
   label: string;
