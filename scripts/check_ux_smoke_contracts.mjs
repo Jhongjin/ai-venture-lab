@@ -105,6 +105,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/recommended-idea-actions.tsx",
+    tokens: [
+      'data-smoke="recommended-edit-does-not-save"',
+      "수정은 내용만 바꾸는 보조 행동입니다",
+      "저장과 다음 단계 시작은 이 아이디어 저장하고 검증 시작 버튼에서만 진행됩니다",
+    ],
+  },
+  {
     file: "src/components/first-use-idea-intake.tsx",
     tokens: [
       'data-smoke="first-use-one-sentence"',
