@@ -481,6 +481,14 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/profile-upgrade-interest-summary.tsx",
+    tokens: [
+      'data-smoke="profile-upgrade-interest-paused-boundary"',
+      "PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE",
+      "중복 기준",
+    ],
+  },
+  {
     file: "src/lib/upgrade-interest.ts",
     tokens: [
       "PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE",

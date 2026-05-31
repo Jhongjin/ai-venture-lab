@@ -1,5 +1,9 @@
 import type { UpgradeInterestSummary } from "@/lib/upgrade-interest-server";
-import { getUpgradeInterestIntentLabel, getUpgradeInterestSourceLabel } from "@/lib/upgrade-interest";
+import {
+  PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE,
+  getUpgradeInterestIntentLabel,
+  getUpgradeInterestSourceLabel,
+} from "@/lib/upgrade-interest";
 
 type ProfileUpgradeInterestSummaryProps = {
   summary: UpgradeInterestSummary;
@@ -77,6 +81,12 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
           <span className="avl-pill avl-pill-info shrink-0">결제 전 기록</span>
         </div>
         <p className="mt-2 text-sm leading-6 text-blue-950">{nextDemandAction}</p>
+        <p
+          data-smoke="profile-upgrade-interest-paused-boundary"
+          className="mt-1 text-xs font-semibold leading-5 text-blue-950"
+        >
+          {PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE}
+        </p>
         <p className="mt-1 text-xs leading-5 text-slate-600">
           기준: 관심 등록 {formatCount(summary.totalCount)}회, 계정 {formatCount(summary.uniqueActorCount)}개, 최근 주요 이유 {topIntentLabel}.
         </p>
