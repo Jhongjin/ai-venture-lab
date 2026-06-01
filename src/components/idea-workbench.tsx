@@ -80,6 +80,7 @@ import {
   buildLearningSignalCards,
   buildProductTelemetryFunnelRows,
   buildProductTelemetryTaxonomyRows,
+  buildTelemetryEventInsertRow,
   buildTelemetryWindowCounts,
   countTelemetryEventsByName,
   filterProductTelemetryEvents,
@@ -730,19 +731,9 @@ export function IdeaWorkbench({
       return;
     }
 
-    const sanitizedProperties = Object.fromEntries(
-      Object.entries(properties).filter(([, value]) => value !== undefined),
-    ) as Record<string, Json>;
     const { data, error } = await supabase
       .from("telemetry_events")
-      .insert({
-        organization_id: idea?.organization_id ?? null,
-        idea_id: idea?.id ?? null,
-        actor_id: user.id,
-        event_name: eventName,
-        event_category: eventCategory,
-        properties: sanitizedProperties,
-      })
+      .insert(buildTelemetryEventInsertRow({ eventCategory, eventName, idea, properties, userId: user.id }))
       .select()
       .single();
 

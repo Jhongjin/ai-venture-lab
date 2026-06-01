@@ -7,10 +7,12 @@ const {
   buildLearningSignalCards,
   buildProductTelemetryFunnelRows,
   buildProductTelemetryTaxonomyRows,
+  buildTelemetryEventInsertRow,
   buildTelemetryWindowCounts,
   countTelemetryEventsByName,
   filterProductTelemetryEvents,
   getProductTelemetryMaxCount,
+  sanitizeTelemetryProperties,
 } = await import(moduleUrl);
 
 function event({ category = "product", id, name, occurredAt }) {
@@ -32,6 +34,28 @@ const events = [
   event({ category: "artifact", id: "artifact", name: "artifact_saved", occurredAt: "2026-06-29T00:00:00.000Z" }),
   event({ category: "learning", id: "prefixed", name: "product_feedback", occurredAt: "2026-05-20T00:00:00.000Z" }),
 ];
+
+assert.deepEqual(sanitizeTelemetryProperties({ kept: "yes", missing: undefined, count: 2 }), {
+  count: 2,
+  kept: "yes",
+});
+assert.deepEqual(
+  buildTelemetryEventInsertRow({
+    eventCategory: "experiment",
+    eventName: "experiment_created",
+    idea: { id: "idea-1", organization_id: "org-1" },
+    properties: { count: 1, skipped: undefined },
+    userId: "user-1",
+  }),
+  {
+    actor_id: "user-1",
+    event_category: "experiment",
+    event_name: "experiment_created",
+    idea_id: "idea-1",
+    organization_id: "org-1",
+    properties: { count: 1 },
+  },
+);
 
 const productEvents = filterProductTelemetryEvents(events);
 assert.deepEqual(

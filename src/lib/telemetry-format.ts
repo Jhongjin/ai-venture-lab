@@ -7,6 +7,38 @@ export type TelemetryWindowCounts = {
   thirtyDays: number;
 };
 
+export type TelemetryIdeaSummary = {
+  id: string;
+  organization_id: string | null;
+};
+
+export function sanitizeTelemetryProperties(properties: Record<string, Json>) {
+  return Object.fromEntries(Object.entries(properties).filter(([, value]) => value !== undefined)) as Record<string, Json>;
+}
+
+export function buildTelemetryEventInsertRow({
+  eventCategory,
+  eventName,
+  idea,
+  properties = {},
+  userId,
+}: {
+  eventCategory: string;
+  eventName: string;
+  idea?: TelemetryIdeaSummary | null;
+  properties?: Record<string, Json>;
+  userId: string;
+}) {
+  return {
+    actor_id: userId,
+    event_category: eventCategory,
+    event_name: eventName,
+    idea_id: idea?.id ?? null,
+    organization_id: idea?.organization_id ?? null,
+    properties: sanitizeTelemetryProperties(properties),
+  };
+}
+
 export const telemetryEventLabels: Record<string, string> = {
   idea_extraction_started: "아이디어 정리 시작",
   idea_extraction_completed: "아이디어 정리 완료",
