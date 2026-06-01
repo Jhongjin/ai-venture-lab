@@ -60,6 +60,7 @@ import {
   selectRecommendedExtractionCandidate,
 } from "@/lib/extraction-portfolio-utils";
 import { buildExtractedIdeaArtifactBodies } from "@/lib/extracted-idea-artifact-markdown";
+import { buildExtractedIdeaArtifactRows } from "@/lib/extracted-idea-artifact-rows";
 import { inferRiskArea, inferRiskSeverity } from "@/lib/extraction-risk-utils";
 import { compactText } from "@/lib/extraction-text-utils";
 import { findBestCandidateMatch, findSimilarIdea, type SimilarIdeaMatch } from "@/lib/extraction-candidate-match";
@@ -85,7 +86,6 @@ type OrganizationMember = Database["public"]["Tables"]["organization_members"]["
 type AuditEvent = Database["public"]["Tables"]["audit_events"]["Row"];
 type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 type VentureArtifact = Database["public"]["Tables"]["venture_artifacts"]["Row"];
-type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["Insert"];
 type TelemetryEvent = Database["public"]["Tables"]["telemetry_events"]["Row"];
 type AddableOrganizationRole = Extract<OrganizationRole, "admin" | "member" | "viewer">;
 type IdeaInsert = Database["public"]["Tables"]["ideas"]["Insert"];
@@ -202,7 +202,7 @@ function buildExtractedIdeaArtifacts(
   organizationId: string | null,
   extractionGate?: ExtractionGate,
   buildDeliveryPreference: BuildDeliveryPreference = defaultBuildDeliveryPreference,
-): VentureArtifactInsert[] {
+) {
   const gate = extractionGate ?? buildExtractionGate(candidate, buildCandidateReadiness(candidate, null), null);
   const productSurface = candidate.productSurface;
   const buildDelivery = normalizeBuildDeliveryPreference(buildDeliveryPreference);
@@ -242,37 +242,12 @@ function buildExtractedIdeaArtifacts(
     validationRationale: candidate.validationRationale,
     validationScore: candidate.validationScore,
   });
-  const base = {
-    idea_id: idea.id,
-    organization_id: organizationId,
-    status: "draft" as const,
-    version: 1,
-    status_note: "메모에서 찾은 아이디어를 검증 자료로 정리함",
-  };
-
-  return [
-    {
-      ...base,
-      artifact_type: "idea_brief",
-      title: `${candidate.name} 아이디어 요약`,
-      source: "extracted_idea_package",
-      body: artifactBodies.ideaBriefBody,
-    },
-    {
-      ...base,
-      artifact_type: "research_note",
-      title: `${candidate.name} 조사 요약`,
-      source: "extracted_research_brief",
-      body: artifactBodies.researchBriefBody,
-    },
-    {
-      ...base,
-      artifact_type: "research_note",
-      title: `${candidate.name} 7일 검증 계획`,
-      source: "validation_sprint",
-      body: artifactBodies.validationSprintBody,
-    },
-  ];
+  return buildExtractedIdeaArtifactRows({
+    artifactBodies,
+    candidateName: candidate.name,
+    ideaId: idea.id,
+    organizationId,
+  });
 }
 
 export function VentureConsoleActions({
