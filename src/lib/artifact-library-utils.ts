@@ -99,6 +99,17 @@ export function getRecentDevelopmentHandoffArtifacts(artifacts: VentureArtifact[
     .slice(0, limit);
 }
 
+export function getNextArtifactVersion(artifacts: ReadonlyArray<VentureArtifact>, artifactType: VentureArtifactType) {
+  return (
+    Math.max(
+      0,
+      ...artifacts
+        .filter((artifact) => artifact.artifact_type === artifactType)
+        .map((artifact) => artifact.version ?? 1),
+    ) + 1
+  );
+}
+
 function isImplementationTaskSourceArtifact(artifact: VentureArtifact) {
   return ["tech_spec", "dev_runbook", "mvp_spec", "prd"].includes(artifact.artifact_type);
 }

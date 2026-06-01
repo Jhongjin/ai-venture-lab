@@ -41,6 +41,7 @@ import {
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
   filterArtifactLibrary,
+  getNextArtifactVersion,
   getRecentDevelopmentHandoffArtifacts,
   resolveArtifactSourceFilter,
 } from "@/lib/artifact-library-utils";
@@ -3148,17 +3149,6 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
-  function getNextArtifactVersion(artifactType: VentureArtifactType) {
-    return (
-      Math.max(
-        0,
-        ...selectedArtifactRecords
-          .filter((artifact) => artifact.artifact_type === artifactType)
-          .map((artifact) => artifact.version ?? 1),
-      ) + 1
-    );
-  }
-
   async function saveArtifactDraft(
     artifactType: VentureArtifactType,
     title: string,
@@ -3181,7 +3171,7 @@ export function IdeaWorkbench({
       return false;
     }
 
-    const nextVersion = options.version ?? getNextArtifactVersion(artifactType);
+    const nextVersion = options.version ?? getNextArtifactVersion(selectedArtifactRecords, artifactType);
 
     setIsBusy(true);
     setMessage(null);
@@ -3411,8 +3401,8 @@ export function IdeaWorkbench({
       return;
     }
 
-    const nextDesignBriefVersion = getNextArtifactVersion("design_brief");
-    const nextDevRunbookVersion = getNextArtifactVersion("dev_runbook");
+    const nextDesignBriefVersion = getNextArtifactVersion(selectedArtifactRecords, "design_brief");
+    const nextDevRunbookVersion = getNextArtifactVersion(selectedArtifactRecords, "dev_runbook");
     let plannedDevRunbookVersion = nextDevRunbookVersion;
 
     if (!hasDesignGenerationPromptArtifact) {

@@ -23,11 +23,12 @@ const {
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
   filterArtifactLibrary,
+  getNextArtifactVersion,
   getRecentDevelopmentHandoffArtifacts,
   resolveArtifactSourceFilter,
 } = await import(moduleUrl);
 
-function artifact({ body, createdAt, id, source = "manual", status = "draft", title, type = "prd" }) {
+function artifact({ body, createdAt, id, source = "manual", status = "draft", title, type = "prd", version = 1 }) {
   return {
     artifact_type: type,
     body: body ?? `# Artifact ${id}`,
@@ -41,7 +42,7 @@ function artifact({ body, createdAt, id, source = "manual", status = "draft", ti
     status_note: null,
     title: title ?? `Artifact ${id}`,
     updated_at: createdAt,
-    version: 1,
+    version,
   };
 }
 
@@ -191,6 +192,23 @@ assert.deepEqual(
   getRecentDevelopmentHandoffArtifacts(artifacts).map((item) => item.id),
   ["handoff-filtered", "handoff-process"],
 );
+assert.equal(getNextArtifactVersion(artifacts, "prd"), 2);
+assert.equal(
+  getNextArtifactVersion(
+    [
+      ...artifacts,
+      artifact({
+        createdAt: "2026-06-01T05:00:00.000Z",
+        id: "tech-spec-v3",
+        type: "tech_spec",
+        version: 3,
+      }),
+    ],
+    "tech_spec",
+  ),
+  4,
+);
+assert.equal(getNextArtifactVersion([], "mvp_spec"), 1);
 
 const flags = buildArtifactReadinessFlags(artifacts);
 assert.equal(flags.implementationTaskSourceArtifact.id, "approved-prd");
