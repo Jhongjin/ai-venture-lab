@@ -764,6 +764,6 @@ For named external handoff tests, use `docs/EXTERNAL_PRODUCTION_PACKAGE.md` for 
 
 1. Keep named external build tools focused on Cursor, Codex, Claude Code, and Google Antigravity; run `pnpm smoke:build-sync` before changing token issuance, revoke, setup files, or progress sync.
 2. Keep generic MCP deferred until a concrete user-facing connector, permission model, denied-case smoke, and rollback path exist.
-3. Continue product hardening with smaller code-thinning passes for `idea-workbench.tsx` and `venture-console-actions.tsx`, preferring pure helpers and smoke-backed UI boundaries over broad refactors.
+3. Continue product hardening with smaller code-thinning passes for `idea-workbench.tsx` and the remaining report/artifact builders in `venture-console-actions.tsx`; extraction text, matching, gate, lens, risk, and inference helpers are now covered by `pnpm smoke:extraction`.
 4. Treat first-use, STEP 7, and STEP 8 as regression-guarded; next no-decision UX pass should focus on STEP 5 package value, credit/pro-interest clarity, and profile plan comprehension while payments remain paused.
 5. Keep RLS, telemetry, authenticated write smoke, GitHub Actions, and paid/source-backed market smoke behind existing explicit-approval, disposable-data, and quota boundaries.
