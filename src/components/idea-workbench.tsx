@@ -265,6 +265,10 @@ import {
   buildImplementationTaskInsertRows,
   getMissingImplementationTaskDrafts,
 } from "@/lib/implementation-task-rows";
+import {
+  buildManualOrchestrationRunRow,
+  buildMissingOrchestrationRunRows,
+} from "@/lib/orchestration-run-rows";
 import { buildLaunchChecklistMarkdown } from "@/lib/launch-checklist-report";
 import { buildMvpSlicePlanMarkdown, buildMvpSpecMarkdown } from "@/lib/mvp-scope-markdown";
 import { buildMvpBuildCommandPacketMarkdown } from "@/lib/mvp-build-command-packet-markdown";
@@ -2653,12 +2657,11 @@ export function IdeaWorkbench({
     const { data, error } = await supabase
       .from("orchestration_runs")
       .insert({
-        idea_id: selectedIdea.id,
-        phase: runDraft.phase,
-        owner_role: runDraft.owner_role.trim(),
-        objective: runDraft.objective.trim(),
-        status: "planned",
-        organization_id: selectedIdea.organization_id,
+        ...buildManualOrchestrationRunRow({
+          ideaId: selectedIdea.id,
+          organizationId: selectedIdea.organization_id,
+          runDraft,
+        }),
       })
       .select()
       .single();
@@ -2696,17 +2699,12 @@ export function IdeaWorkbench({
       return;
     }
 
-    const existingPhases = new Set(selectedRuns.map((run) => run.phase));
-    const missingRuns = orchestrationPhaseConfigs
-      .filter((config) => !existingPhases.has(config.phase))
-      .map((config) => ({
-        idea_id: selectedIdea.id,
-        organization_id: selectedIdea.organization_id,
-        phase: config.phase,
-        owner_role: config.ownerRole,
-        objective: config.objective,
-        status: "planned" as OrchestrationStatus,
-      }));
+    const missingRuns = buildMissingOrchestrationRunRows({
+      existingRuns: selectedRuns,
+      ideaId: selectedIdea.id,
+      organizationId: selectedIdea.organization_id,
+      runConfigs: orchestrationPhaseConfigs,
+    });
 
     if (missingRuns.length === 0) {
       setMessage("이 아이디어에는 이미 전체 실행 순서 묶음이 있습니다.");
