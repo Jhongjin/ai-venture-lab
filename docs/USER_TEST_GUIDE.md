@@ -415,6 +415,7 @@ pnpm quality:full
 pnpm smoke:prod
 pnpm smoke:routes
 pnpm smoke:billing
+pnpm smoke:extraction
 pnpm smoke:source-redaction
 pnpm smoke:market
 pnpm smoke:browser
@@ -428,6 +429,8 @@ pnpm smoke:ux-contracts
 `ENFORCE_CREDIT_BUILD_PASS=1`로 외부 개발 도구 연결까지 서버에서 제작 패스를 강제한 뒤에는 기본 `pnpm smoke:build-sync`가 크레딧을 쓰지 않고 토큰 발급이 HTTP 402로 막히는지 확인할 수 있습니다. STEP 7/8 연결 파일, 진행 반영, revoke까지 전체 라이프사이클을 보려면 제작 패스가 미리 열린 테스트 아이디어를 쓰거나, disposable 아이디어 스모크에서 30크레딧 제작 패스 1개를 쓰도록 `BUILD_SYNC_SMOKE_ALLOW_BUILD_PASS_SPEND=1`을 켭니다. 스모크 계정 잔액이 부족하면 제작 패스 차감 전에 현재 잔액, 필요 크레딧, 부족분을 먼저 보고하고 멈춥니다.
 
 `pnpm smoke:ux-contracts`는 브라우저 상태에 따라 보이지 않을 수 있는 STEP 5 리뷰 포커스, STEP 8 접힌 요약, STEP 1 첫 결과 미리보기 토큰이 코드와 smoke 스크립트에 같이 남아 있는지 파일 단위로 확인합니다.
+
+`pnpm smoke:extraction`은 STEP 1 아이디어 추출 helper 전체를 한 번에 확인합니다. 텍스트 정리, 중복/후보 매칭, 저장 게이트, 사업/제작 렌즈, 리스크 매핑, fallback 추론을 바꾸면 먼저 실행합니다.
 
 `pnpm smoke:source-redaction`은 아이디어 도출 원문에 이메일, 전화번호, 주민번호형 숫자, 카드번호, 계좌처럼 보이는 패턴이 있을 때 저장 문서에 원문이 남지 않고 `[redacted-*]` 표식으로 바뀌는지 확인합니다.
 
