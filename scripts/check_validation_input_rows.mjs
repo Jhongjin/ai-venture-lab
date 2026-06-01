@@ -3,7 +3,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-input-rows.ts")).href;
-const { buildDecisionInsertRow, buildExperimentInsertRow, buildRiskInsertRow } = await import(moduleUrl);
+const { buildDecisionInsertRow, buildExperimentInsertRow, buildExperimentStatusUpdatePatch, buildRiskInsertRow } =
+  await import(moduleUrl);
 
 assert.deepEqual(
   buildRiskInsertRow({
@@ -57,6 +58,39 @@ assert.deepEqual(
     organization_id: "org-3",
     status: "planned",
     success_metric: "5명 이상 반복 문제 인정",
+  },
+);
+
+assert.deepEqual(
+  buildExperimentStatusUpdatePatch({
+    experiment: {
+      ended_at: null,
+      started_at: null,
+      status: "planned",
+    },
+    now: "2026-06-01T00:00:00.000Z",
+    status: "running",
+  }),
+  {
+    ended_at: null,
+    started_at: "2026-06-01T00:00:00.000Z",
+    status: "running",
+  },
+);
+assert.deepEqual(
+  buildExperimentStatusUpdatePatch({
+    experiment: {
+      ended_at: null,
+      started_at: "2026-05-31T00:00:00.000Z",
+      status: "running",
+    },
+    now: "2026-06-01T00:00:00.000Z",
+    status: "done",
+  }),
+  {
+    ended_at: "2026-06-01T00:00:00.000Z",
+    started_at: "2026-05-31T00:00:00.000Z",
+    status: "done",
   },
 );
 

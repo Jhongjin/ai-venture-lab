@@ -10,6 +10,12 @@ export type ExperimentDraftInput = {
   success_metric: string;
 };
 
+export type ExperimentStatusSource<Status extends string> = {
+  ended_at: string | null;
+  started_at: string | null;
+  status: Status;
+};
+
 export function buildRiskInsertRow<Severity extends string>({
   draft,
   ideaId,
@@ -64,5 +70,21 @@ export function buildExperimentInsertRow({
     organization_id: organizationId,
     status: "planned" as const,
     success_metric: draft.success_metric.trim(),
+  };
+}
+
+export function buildExperimentStatusUpdatePatch<Status extends string>({
+  experiment,
+  now,
+  status,
+}: {
+  experiment: ExperimentStatusSource<Status>;
+  now: string;
+  status: Status;
+}) {
+  return {
+    ended_at: status === "done" ? now : experiment.ended_at,
+    started_at: status === "running" ? now : experiment.started_at,
+    status,
   };
 }

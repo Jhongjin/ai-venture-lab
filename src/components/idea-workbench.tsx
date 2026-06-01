@@ -287,6 +287,7 @@ import { buildEvidenceNoteMarkdown, buildExperimentResultMarkdown } from "@/lib/
 import {
   buildDecisionInsertRow,
   buildExperimentInsertRow,
+  buildExperimentStatusUpdatePatch,
   buildRiskInsertRow,
 } from "@/lib/validation-input-rows";
 import { buildValidationPackageSaveJobs } from "@/lib/validation-package-save-jobs";
@@ -2765,11 +2766,7 @@ export function IdeaWorkbench({
     const now = new Date().toISOString();
     const { data, error } = await supabase
       .from("experiments")
-      .update({
-        status,
-        started_at: status === "running" ? now : experiment.started_at,
-        ended_at: status === "done" ? now : experiment.ended_at,
-      })
+      .update(buildExperimentStatusUpdatePatch({ experiment, now, status }))
       .eq("id", experiment.id)
       .select()
       .single();
