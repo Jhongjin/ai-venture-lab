@@ -1,10 +1,13 @@
 import type { BuildDeliveryMode } from "@/lib/build-delivery";
 import { getCursorTaskCode, summarizeCursorProgressEvidence } from "@/lib/external-progress-import";
 import {
+  getImplementationTaskReadinessQueues,
   getBlockedImplementationTaskHint,
   getImplementationEvidenceChecklist,
   implementationTaskStatusLabels,
   implementationTaskStatusTone,
+  type ImplementationDependencyStatus,
+  type ImplementationTaskProgressStats,
 } from "@/lib/implementation-task-metadata";
 import type { ImplementationTask } from "@/lib/venture-data";
 
@@ -62,6 +65,47 @@ export type Step8ProgressSummary = {
   progressItems: Step8ProgressDisplayItem[];
   progressTitle: string;
 };
+
+export type Step8ImplementationTaskContext = {
+  completedTasks: ImplementationTask[];
+  nextDependencyStatus: ImplementationDependencyStatus | null;
+  nextTask: ImplementationTask | null;
+  nextTaskCode: string | null;
+  nextTaskId: string | null;
+  readyStatuses: ImplementationDependencyStatus[];
+  totalCount: number;
+  waitingStatuses: ImplementationDependencyStatus[];
+};
+
+export function buildStep8ImplementationTaskContext({
+  dependencyStatuses,
+  openTasks,
+  progressStats,
+  tasks,
+}: {
+  dependencyStatuses: ImplementationDependencyStatus[];
+  openTasks: ImplementationTask[];
+  progressStats: Pick<ImplementationTaskProgressStats, "completedTasks" | "totalCount">;
+  tasks: ImplementationTask[];
+}): Step8ImplementationTaskContext {
+  const readinessQueues = getImplementationTaskReadinessQueues({
+    dependencyStatuses,
+    openTasks,
+  });
+  const nextTask = readinessQueues.nextTask;
+  const nextTaskIndex = nextTask ? tasks.findIndex((task) => task.id === nextTask.id) : -1;
+
+  return {
+    completedTasks: progressStats.completedTasks,
+    nextDependencyStatus: readinessQueues.nextDependencyStatus,
+    nextTask,
+    nextTaskCode: nextTaskIndex >= 0 ? getCursorTaskCode(nextTaskIndex) : null,
+    nextTaskId: nextTask?.id ?? null,
+    readyStatuses: readinessQueues.readyStatuses,
+    totalCount: progressStats.totalCount,
+    waitingStatuses: readinessQueues.waitingStatuses,
+  };
+}
 
 export function buildStep8LearningSummary({
   buildDeliveryMode,

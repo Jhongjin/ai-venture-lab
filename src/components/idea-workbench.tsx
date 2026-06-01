@@ -97,7 +97,7 @@ import {
   buildTelemetryNextRouteSnippet,
   buildTelemetrySmokeCommandSnippet,
 } from "@/lib/telemetry-artifacts";
-import { buildStep8LearningSummary, buildStep8ProgressSummary } from "@/lib/step8-learning-summary";
+import { buildStep8ImplementationTaskContext, buildStep8LearningSummary, buildStep8ProgressSummary } from "@/lib/step8-learning-summary";
 import { buildValidationEvidenceCoach, buildValidationPlan } from "@/lib/validation-planning";
 import { buildDesignBriefMarkdown } from "@/lib/design-brief-markdown";
 import { buildDesignGenerationPromptMarkdown } from "@/lib/design-generation-prompt-markdown";
@@ -255,7 +255,6 @@ import {
 import {
   buildCursorProgressImportDrafts,
   buildCursorProgressPreviewItems,
-  getCursorTaskCode,
   getVisibleCursorProgressImportItems,
   normalizeTaskLookupTitle,
   summarizeCursorProgressEvidence,
@@ -315,7 +314,6 @@ import {
   getCompletedImplementationTasksWithEvidence,
   getImplementationEvidenceIssues,
   getOpenImplementationTasksForAction,
-  getImplementationTaskReadinessQueues,
   getVisibleImplementationTaskStatuses,
   resolveImplementationOwnerFilter,
   implementationEvidenceFilterLabels,
@@ -1081,24 +1079,23 @@ export function IdeaWorkbench({
     () => buildImplementationTaskProgressStats(selectedImplementationTasks),
     [selectedImplementationTasks],
   );
-  const implementationTaskReadinessQueues = useMemo(
+  const step8ImplementationTaskContext = useMemo(
     () =>
-      getImplementationTaskReadinessQueues({
+      buildStep8ImplementationTaskContext({
         dependencyStatuses: implementationDependencyStatuses,
         openTasks: selectedOpenImplementationTasks,
+        progressStats: implementationTaskProgressStats,
+        tasks: selectedImplementationTasks,
       }),
-    [implementationDependencyStatuses, selectedOpenImplementationTasks],
+    [implementationDependencyStatuses, implementationTaskProgressStats, selectedImplementationTasks, selectedOpenImplementationTasks],
   );
-  const readyImplementationDependencyStatuses = implementationTaskReadinessQueues.readyStatuses;
-  const waitingImplementationDependencyStatuses = implementationTaskReadinessQueues.waitingStatuses;
-  const nextImplementationTask = implementationTaskReadinessQueues.nextTask;
-  const nextImplementationDependencyStatus = implementationTaskReadinessQueues.nextDependencyStatus;
-  const nextImplementationTaskIndex = nextImplementationTask
-    ? selectedImplementationTasks.findIndex((task) => task.id === nextImplementationTask.id)
-    : -1;
-  const nextImplementationTaskCode = nextImplementationTaskIndex >= 0 ? getCursorTaskCode(nextImplementationTaskIndex) : null;
-  const completedLearningImplementationTasks = implementationTaskProgressStats.completedTasks;
-  const totalLearningImplementationTasks = implementationTaskProgressStats.totalCount;
+  const readyImplementationDependencyStatuses = step8ImplementationTaskContext.readyStatuses;
+  const waitingImplementationDependencyStatuses = step8ImplementationTaskContext.waitingStatuses;
+  const nextImplementationTask = step8ImplementationTaskContext.nextTask;
+  const nextImplementationDependencyStatus = step8ImplementationTaskContext.nextDependencyStatus;
+  const nextImplementationTaskCode = step8ImplementationTaskContext.nextTaskCode;
+  const completedLearningImplementationTasks = step8ImplementationTaskContext.completedTasks;
+  const totalLearningImplementationTasks = step8ImplementationTaskContext.totalCount;
   const productSignalCount = selectedProductTelemetryEvents.length;
   const step8LearningSummary = buildStep8LearningSummary({
     buildDeliveryMode,
@@ -1129,10 +1126,9 @@ export function IdeaWorkbench({
     learningPrimaryNavigationHintTitle,
     learningSimpleReviewRows,
   } = step8LearningSummary;
-  const nextImplementationTaskId = nextImplementationTask?.id ?? null;
   const step8ProgressSummary = buildStep8ProgressSummary({
     evidenceByTaskId: implementationTaskEvidence,
-    nextImplementationTaskId,
+    nextImplementationTaskId: step8ImplementationTaskContext.nextTaskId,
     tasks: selectedImplementationTasks,
   });
   const {
