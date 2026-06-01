@@ -268,6 +268,7 @@ import {
   getMissingImplementationTaskDrafts,
 } from "@/lib/implementation-task-rows";
 import {
+  buildOrchestrationRunOutputMap,
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
@@ -601,7 +602,7 @@ export function IdeaWorkbench({
   const [isMarketScanLoading, setIsMarketScanLoading] = useState(false);
   const [isSavingValidationBundle, setIsSavingValidationBundle] = useState(false);
   const [runOutputs, setRunOutputs] = useState<Record<string, string>>(
-    Object.fromEntries(initialOrchestrationRuns.map((run) => [run.id, run.output])),
+    buildOrchestrationRunOutputMap(initialOrchestrationRuns),
   );
   const [artifactStatusNotes, setArtifactStatusNotes] = useState<Record<string, string>>({});
   const [implementationTaskEvidence, setImplementationTaskEvidence] = useState<Record<string, string>>({});
@@ -2659,13 +2660,13 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("orchestration_runs")
-      .insert({
-        ...buildManualOrchestrationRunRow({
+      .insert(
+        buildManualOrchestrationRunRow({
           ideaId: selectedIdea.id,
           organizationId: selectedIdea.organization_id,
           runDraft,
         }),
-      })
+      )
       .select()
       .single();
     setIsBusy(false);
@@ -2727,7 +2728,7 @@ export function IdeaWorkbench({
     setOrchestrationRuns((current) => [...(data ?? []), ...current]);
     setRunOutputs((current) => ({
       ...current,
-      ...Object.fromEntries((data ?? []).map((run) => [run.id, run.output])),
+      ...buildOrchestrationRunOutputMap(data ?? []),
     }));
     emitVentureEvent("venture:runs-created", data ?? []);
     void recordTelemetryEvent({
@@ -3342,7 +3343,7 @@ export function IdeaWorkbench({
         setOrchestrationRuns((current) => [...insertedRuns, ...current]);
         setRunOutputs((current) => ({
           ...current,
-          ...Object.fromEntries(insertedRuns.map((run) => [run.id, run.output])),
+          ...buildOrchestrationRunOutputMap(insertedRuns),
         }));
         emitVentureEvent("venture:runs-created", insertedRuns);
         void recordTelemetryEvent({

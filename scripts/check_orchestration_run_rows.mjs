@@ -3,7 +3,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/orchestration-run-rows.ts")).href;
-const { buildManualOrchestrationRunRow, buildMissingOrchestrationRunRows } = await import(moduleUrl);
+const { buildManualOrchestrationRunRow, buildMissingOrchestrationRunRows, buildOrchestrationRunOutputMap } =
+  await import(moduleUrl);
 
 const manualRow = buildManualOrchestrationRunRow({
   ideaId: "idea-1",
@@ -55,6 +56,17 @@ assert.deepEqual(
     ],
   }),
   [],
+);
+
+assert.deepEqual(
+  buildOrchestrationRunOutputMap([
+    { id: "run-1", output: "strategy memo" },
+    { id: "run-2", output: "" },
+  ]),
+  {
+    "run-1": "strategy memo",
+    "run-2": "",
+  },
 );
 
 console.log("Orchestration run rows smoke passed.");

@@ -14,6 +14,11 @@ export type ExistingOrchestrationRun<Phase extends string> = {
   phase: Phase;
 };
 
+export type OrchestrationRunOutputSummary = {
+  id: string;
+  output: string;
+};
+
 export type PlannedOrchestrationRunRow<Phase extends string> = {
   idea_id: string;
   objective: string;
@@ -65,4 +70,8 @@ export function buildMissingOrchestrationRunRows<Phase extends string>({
       phase: config.phase,
       status: "planned",
     }));
+}
+
+export function buildOrchestrationRunOutputMap(runs: OrchestrationRunOutputSummary[]) {
+  return Object.fromEntries(runs.map((run) => [run.id, run.output])) as Record<string, string>;
 }
