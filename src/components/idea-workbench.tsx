@@ -307,6 +307,7 @@ import {
   buildImplementationOwnerOptions,
   filterImplementationTasks,
   getImplementationEvidenceIssues,
+  getOpenImplementationTasksForAction,
   getImplementationTaskReadinessQueues,
   getVisibleImplementationTaskStatuses,
   resolveImplementationOwnerFilter,
@@ -323,7 +324,6 @@ import {
   implementationTaskStatusTone,
   implementationTaskTypeLabels,
   implementationTaskTypes,
-  sortImplementationTasksForAction,
   sortImplementationTasksForExecution,
   type ImplementationEvidenceFilter,
   type ImplementationStatusFilter,
@@ -1064,7 +1064,7 @@ export function IdeaWorkbench({
     [openSelectedIdeaRisks.length, selectedProductTelemetryEvents.length, telemetryWindowCounts],
   );
   const selectedOpenImplementationTasks = useMemo(
-    () => sortImplementationTasksForAction(selectedImplementationTasks.filter((task) => task.status !== "done")),
+    () => getOpenImplementationTasksForAction(selectedImplementationTasks),
     [selectedImplementationTasks],
   );
   const implementationDependencyStatuses = useMemo(

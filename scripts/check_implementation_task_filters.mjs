@@ -8,6 +8,7 @@ const {
   buildImplementationOwnerOptions,
   buildImplementationTaskRefreshSummary,
   filterImplementationTasks,
+  getOpenImplementationTasksForAction,
   resolveImplementationOwnerFilter,
 } = await import(moduleUrl);
 
@@ -114,6 +115,11 @@ assert.deepEqual(
     tasks,
   }).map((item) => item.id),
   ["task-frontend", "task-design"],
+);
+
+assert.deepEqual(
+  getOpenImplementationTasksForAction(tasks).map((item) => item.id),
+  ["task-qa", "task-backend", "task-frontend"],
 );
 
 const refreshSummary = buildImplementationTaskRefreshSummary(tasks);

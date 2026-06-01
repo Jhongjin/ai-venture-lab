@@ -180,6 +180,10 @@ export function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
   );
 }
 
+export function getOpenImplementationTasksForAction(tasks: ImplementationTask[]) {
+  return sortImplementationTasksForAction(tasks.filter((task) => task.status !== "done"));
+}
+
 export function sortImplementationTasksForExecution(tasks: ImplementationTask[]) {
   return [...tasks].sort(
     (a, b) =>
