@@ -19,6 +19,7 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildArtifactReadinessFlags,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
   filterArtifactLibrary,
@@ -26,10 +27,10 @@ const {
   resolveArtifactSourceFilter,
 } = await import(moduleUrl);
 
-function artifact({ createdAt, id, source = "manual", status = "draft", type = "prd" }) {
+function artifact({ body, createdAt, id, source = "manual", status = "draft", title, type = "prd" }) {
   return {
     artifact_type: type,
-    body: `# Artifact ${id}`,
+    body: body ?? `# Artifact ${id}`,
     created_at: createdAt,
     created_by: null,
     id,
@@ -38,7 +39,7 @@ function artifact({ createdAt, id, source = "manual", status = "draft", type = "
     source,
     status,
     status_note: null,
-    title: `Artifact ${id}`,
+    title: title ?? `Artifact ${id}`,
     updated_at: createdAt,
     version: 1,
   };
@@ -76,15 +77,84 @@ const artifacts = [
     source: "evidence_capture",
     type: "research_note",
   }),
+  artifact({
+    body: "# 리서치 브리프\n조사 요약",
+    createdAt: "2026-05-31T23:00:00.000Z",
+    id: "research-brief",
+    source: "extracted_research_brief",
+    type: "research_note",
+  }),
+  artifact({
+    createdAt: "2026-05-31T22:00:00.000Z",
+    id: "idea-brief",
+    source: "workbench",
+    title: "아이디어 브리프",
+    type: "idea_brief",
+  }),
+  artifact({
+    createdAt: "2026-05-31T21:00:00.000Z",
+    id: "validation-sprint",
+    source: "validation_sprint",
+    title: "7일 검증 계획",
+    type: "research_note",
+  }),
+  artifact({
+    createdAt: "2026-05-31T20:00:00.000Z",
+    id: "validation-summary",
+    source: "validation_summary",
+    title: "검증 완료 요약",
+    type: "research_note",
+  }),
+  artifact({
+    createdAt: "2026-05-31T19:00:00.000Z",
+    id: "experiment-result",
+    source: "experiment_result",
+    type: "research_note",
+  }),
+  artifact({
+    body: "환경변수 Vercel 서버 전용 비밀값 RLS 허용 차단 롤백 Production Vercel 로그",
+    createdAt: "2026-05-31T18:00:00.000Z",
+    id: "tech-spec",
+    status: "approved",
+    type: "tech_spec",
+  }),
+  artifact({
+    body: "빈 상태 로딩 오류 권한 모바일 접근성",
+    createdAt: "2026-05-31T17:00:00.000Z",
+    id: "design-brief",
+    source: "design_generation_prompt",
+    status: "approved",
+    title: "디자인 기준 자료",
+    type: "design_brief",
+  }),
+  artifact({
+    body: "# 제작 패키지\n제작 도구 전달 자료\n## 상세 실행 계획",
+    createdAt: "2026-05-31T16:00:00.000Z",
+    id: "agent-package",
+    source: "agent_run_package",
+    title: "제작 패키지",
+    type: "dev_runbook",
+  }),
+  artifact({
+    createdAt: "2026-05-31T15:00:00.000Z",
+    id: "backend-decision",
+    type: "backend_decision",
+  }),
 ];
 
 const sourceOptions = buildArtifactSourceOptions(artifacts);
 assert.equal(sourceOptions[0], "all");
 assert.deepEqual(sourceOptions.slice(1), [
+  "agent_run_package",
+  "design_generation_prompt",
   "development_process",
   "evidence_capture",
+  "experiment_result",
+  "extracted_research_brief",
   "filtered_implementation_run",
   "manual",
+  "validation_sprint",
+  "validation_summary",
   "workbench",
 ]);
 
@@ -121,5 +191,22 @@ assert.deepEqual(
   getRecentDevelopmentHandoffArtifacts(artifacts).map((item) => item.id),
   ["handoff-filtered", "handoff-process"],
 );
+
+const flags = buildArtifactReadinessFlags(artifacts);
+assert.equal(flags.implementationTaskSourceArtifact.id, "approved-prd");
+assert.equal(flags.hasIdeaBriefArtifact, true);
+assert.equal(flags.hasResearchBriefArtifact, true);
+assert.equal(flags.canSaveValidationSummary, true);
+assert.equal(flags.isValidationBundleSaved, true);
+assert.equal(flags.hasApprovedPrdArtifact, true);
+assert.equal(flags.hasApprovedTechSpecArtifact, true);
+assert.equal(flags.hasDesignStateCoverage, true);
+assert.equal(flags.hasEnvironmentChecklist, true);
+assert.equal(flags.hasBackendRulesChecklist, true);
+assert.equal(flags.hasReleaseOpsChecklist, true);
+assert.equal(flags.hasDevelopmentDesignPackageArtifact, true);
+assert.equal(flags.hasDevelopmentExecutionPackageArtifact, true);
+assert.equal(flags.hasDevelopmentHandoffPackageArtifact, true);
+assert.equal(flags.canEnterOrchestrationFromDevelopmentDocs, true);
 
 console.log("Artifact library utils smoke passed.");

@@ -36,6 +36,7 @@ import {
   buildArtifactVersionSummaries,
 } from "@/lib/artifact-review-summary";
 import {
+  buildArtifactReadinessFlags,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
   filterArtifactLibrary,
@@ -1739,20 +1740,43 @@ export function IdeaWorkbench({
       })
     : [];
   const cursorHandoffTaskDrafts = implementationTaskDrafts;
-  const implementationTaskSourceArtifact = selectedArtifactRecords.find(
-    (artifact) =>
-      artifact.status === "approved" &&
-      ["tech_spec", "dev_runbook", "mvp_spec", "prd"].includes(artifact.artifact_type),
-  ) ?? selectedArtifactRecords.find((artifact) =>
-    ["tech_spec", "dev_runbook", "mvp_spec", "prd"].includes(artifact.artifact_type),
-  );
-  const hasIdeaBriefArtifact = selectedArtifactRecords.some(
-    (artifact) =>
-      artifact.artifact_type === "idea_brief" ||
-      (artifact.title || "").includes("아이디어 브리프") ||
-      (artifact.title || "").includes("아이디어 요약"),
-  );
-  const hasResearchNoteArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "research_note");
+  const {
+    canEnterDevelopmentFromValidationDocs,
+    canEnterOrchestrationFromDevelopmentDocs,
+    canSaveValidationSummary,
+    hasAgentRunPackageArtifact,
+    hasApprovedDesignBriefArtifact,
+    hasApprovedMvpSpecArtifact,
+    hasApprovedPrdArtifact,
+    hasApprovedTechSpecArtifact,
+    hasBackendDecisionArtifact,
+    hasBackendRulesChecklist,
+    hasDesignBriefArtifact,
+    hasDesignGenerationPromptArtifact,
+    hasDesignStateCoverage,
+    hasDevRunbookArtifact,
+    hasDevelopmentHandoffPackageArtifact,
+    hasDevelopmentPlanArtifact,
+    hasEnvironmentChecklist,
+    hasEvidenceCaptureArtifact,
+    hasExperimentResultArtifact,
+    hasIdeaBriefArtifact,
+    hasLaunchChecklistArtifact,
+    hasManualDevelopmentPackageFallback,
+    hasMvpScopeArtifact,
+    hasMvpSlicePlanArtifact,
+    hasMvpSpecArtifact,
+    hasPrdArtifact,
+    hasReleaseOpsChecklist,
+    hasResearchBriefArtifact,
+    hasResearchNoteArtifact,
+    hasTechSpecArtifact,
+    hasValidationSprintArtifact,
+    hasValidationSummaryArtifact,
+    implementationTaskSourceArtifact,
+    isValidationBundleSaved,
+    validationSummaryRequirements,
+  } = buildArtifactReadinessFlags(selectedArtifactRecords);
   const marketScanArtifacts = selectedArtifactRecords.filter(isMarketScanArtifactRecord);
   const currentMarketScanArtifact = marketScanArtifacts.find((artifact) =>
     isMarketScanArtifactForProductSurface(artifact, activeProductSurface.label),
@@ -1820,137 +1844,6 @@ export function IdeaWorkbench({
         ? "웹 조사 다시 시도"
         : "다시 정리"
       : "AI 자동 점검 실행";
-  const hasResearchBriefArtifact = selectedArtifactRecords.some(
-    (artifact) =>
-      artifact.artifact_type === "research_note" &&
-      (artifact.source === "extracted_research_brief" ||
-        ((artifact.source || "workbench") === "workbench" && (artifact.title || "").includes("리서치 브리프")) ||
-        ((artifact.source || "workbench") === "workbench" && (artifact.title || "").includes("조사 요약")) ||
-        (artifact.body || "").startsWith("# 리서치 브리프")),
-  );
-  const hasValidationSprintArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.source === "validation_sprint" || (artifact.title || "").includes("7일 검증 계획"),
-  );
-  const hasValidationSummaryArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.source === "validation_summary" || (artifact.title || "").includes("검증 완료 요약"),
-  );
-  const hasEvidenceCaptureArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "evidence_capture");
-  const hasExperimentResultArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "experiment_result");
-  const validationSummaryRequirements = [
-    { label: "아이디어 요약", passed: hasIdeaBriefArtifact },
-    { label: "조사 요약", passed: hasResearchBriefArtifact },
-    { label: "7일 검증 계획", passed: hasValidationSprintArtifact },
-  ];
-  const canSaveValidationSummary = validationSummaryRequirements.every((requirement) => requirement.passed);
-  const isValidationBundleSaved = canSaveValidationSummary && hasValidationSummaryArtifact;
-  const canEnterDevelopmentFromValidationDocs =
-    canSaveValidationSummary && hasValidationSummaryArtifact;
-  const hasPrdArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "prd");
-  const hasApprovedPrdArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.artifact_type === "prd" && artifact.status === "approved",
-  );
-  const hasMvpSpecArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "mvp_spec");
-  const hasApprovedMvpSpecArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved",
-  );
-  const hasMvpSlicePlanArtifact = selectedArtifactRecords.some((artifact) => artifact.source === "mvp_slice_plan");
-  const hasMvpScopeArtifact = selectedArtifactRecords.some(
-    (artifact) =>
-      artifact.artifact_type === "mvp_spec" &&
-      (artifact.source || "workbench") === "workbench" &&
-      (artifact.title || "").includes("첫 제작 범위") &&
-      !(artifact.title || "").includes("플랜"),
-  );
-  const hasLaunchChecklistArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.artifact_type === "launch_checklist",
-  );
-  const hasBackendDecisionArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.artifact_type === "backend_decision",
-  );
-  const hasDesignBriefArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "design_brief");
-  const hasApprovedDesignBriefArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.artifact_type === "design_brief" && artifact.status === "approved",
-  );
-  const hasDesignGenerationPromptArtifact = selectedArtifactRecords.some(
-    (artifact) =>
-      artifact.artifact_type === "design_brief" &&
-      (artifact.source === "design_generation_prompt" ||
-        (artifact.title || "").includes("디자인 기준 자료") ||
-        (artifact.title || "").includes("디자인 생성 프롬프트")),
-  );
-  const hasTechSpecArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "tech_spec");
-  const hasApprovedTechSpecArtifact = selectedArtifactRecords.some(
-    (artifact) => artifact.artifact_type === "tech_spec" && artifact.status === "approved",
-  );
-  const hasDevRunbookArtifact = selectedArtifactRecords.some((artifact) => artifact.artifact_type === "dev_runbook");
-  const hasDevelopmentPlanArtifact = selectedArtifactRecords.some(
-    (artifact) =>
-      artifact.artifact_type === "dev_runbook" &&
-      artifact.source === "development_process" &&
-      (artifact.title || "").includes("제작 실행 계획"),
-  );
-  const hasAgentRunPackageArtifact = selectedArtifactRecords.some(
-    (artifact) =>
-      artifact.artifact_type === "dev_runbook" &&
-      (artifact.source === "agent_run_package" ||
-        (artifact.title || "").includes("제작 패키지") ||
-        (artifact.title || "").includes("하네스 패키지")),
-  );
-  const hasDevelopmentDesignPackageArtifact = hasDesignGenerationPromptArtifact || hasDesignBriefArtifact;
-  const hasDevelopmentExecutionPackageArtifact =
-    hasDevelopmentPlanArtifact ||
-    selectedArtifactRecords.some(
-      (artifact) =>
-        artifact.artifact_type === "dev_runbook" &&
-        (artifact.source === "development_process" ||
-          (artifact.title || "").includes("제작 실행 계획") ||
-          (artifact.body || "").includes("## 상세 실행 계획")),
-    );
-  const hasDevelopmentHandoffPackageArtifact =
-    hasAgentRunPackageArtifact ||
-    selectedArtifactRecords.some(
-      (artifact) =>
-        artifact.artifact_type === "dev_runbook" &&
-        ((artifact.body || "").includes("# 제작 패키지") ||
-          (artifact.body || "").includes("제작 도구 전달 자료") ||
-          (artifact.body || "").includes("외부 제작 패키지 구성")),
-    );
-  const manualDevelopmentDraftCount = [
-    hasBackendDecisionArtifact,
-    hasDevelopmentDesignPackageArtifact,
-    hasTechSpecArtifact,
-    hasDevRunbookArtifact,
-  ].filter(Boolean).length;
-  const hasManualDevelopmentPackageFallback = hasDevRunbookArtifact && manualDevelopmentDraftCount >= 3;
-  const canEnterOrchestrationFromDevelopmentDocs =
-    (hasDevelopmentDesignPackageArtifact &&
-      hasDevelopmentExecutionPackageArtifact &&
-      hasDevelopmentHandoffPackageArtifact) ||
-    hasManualDevelopmentPackageFallback;
-
-  const developmentOpsArtifacts = selectedArtifactRecords.filter((artifact) =>
-    ["backend_decision", "tech_spec", "dev_runbook"].includes(artifact.artifact_type),
-  );
-  const hasEnvironmentChecklist = developmentOpsArtifacts.some(
-    (artifact) =>
-      ["환경변수", "Vercel"].every((term) => artifact.body.includes(term)) &&
-      ["서버 전용", "클라이언트", "비밀값"].some((term) => artifact.body.includes(term)),
-  );
-  const hasBackendRulesChecklist = developmentOpsArtifacts.some(
-    (artifact) =>
-      (artifact.body.includes("RLS") || artifact.body.includes("Security Rules")) &&
-      ["허용", "차단"].every((term) => artifact.body.includes(term)),
-  );
-  const hasReleaseOpsChecklist = developmentOpsArtifacts.some(
-    (artifact) =>
-      ["롤백", "Production"].every((term) => artifact.body.includes(term)) &&
-      (artifact.body.includes("배포 로그") || artifact.body.includes("빌드 로그") || artifact.body.includes("Vercel 로그")),
-  );
-  const hasDesignStateCoverage = selectedArtifactRecords.some(
-    (artifact) =>
-      artifact.artifact_type === "design_brief" &&
-      ["빈 상태", "로딩", "오류", "권한", "모바일", "접근성"].every((term) => artifact.body.includes(term)),
-  );
   const completedImplementationTasks = implementationTaskProgressStats.completedTasks;
   const implementationTasksWithEvidence = completedImplementationTasks.filter((task) => task.evidence.trim());
   const hasCompletedExperiment = selectedExperiments.some((experiment) => experiment.status === "done");
@@ -6184,7 +6077,7 @@ export function IdeaWorkbench({
               {[
                 ["파일 트리", "app, components, lib, scripts, docs 기준 시작 구조"],
                 ["환경변수", "클라이언트 공개 키와 서버 전용 비밀값 경계"],
-                ["백엔드 규칙", "Supabase RLS 또는 Firebase Rules 시작점"],
+                ["백엔드 규칙", "Supabase RLS 또는 Firebase Security Rules 시작점"],
                 ["검증 명령", "lint, typecheck, build, Preview/Production smoke"],
               ].map(([label, detail]) => (
                 <div key={label} className="border border-slate-200 bg-slate-50 p-3">
