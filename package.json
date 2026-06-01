@@ -16,6 +16,7 @@
     "smoke:routes": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_routes.ps1",
     "smoke:billing": "node ./scripts/smoke_billing_credits.mjs",
     "smoke:artifact-review": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_artifact_review_summary.mjs",
+    "smoke:implementation-board": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_implementation_task_board_columns.mjs",
     "smoke:implementation-evidence": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_implementation_task_evidence_summary.mjs",
     "smoke:implementation-filters": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_implementation_task_filters.mjs",
     "smoke:workbench-list": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_workbench_list_utils.mjs",

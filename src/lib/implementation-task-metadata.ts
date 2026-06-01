@@ -64,6 +64,20 @@ export type BlockedImplementationSummary = {
   missing: string[];
 };
 
+export type ImplementationTaskCardSummary = {
+  task: ImplementationTask;
+  evidence: string;
+  evidenceChecklist: ReturnType<typeof getImplementationEvidenceChecklist>;
+  passedEvidenceCount: number;
+  missingEvidenceLabels: string[];
+  blockedHint: ReturnType<typeof getBlockedImplementationTaskHint> | null;
+};
+
+export type ImplementationTaskBoardColumn = {
+  status: ImplementationTaskStatus;
+  taskSummaries: ImplementationTaskCardSummary[];
+};
+
 export const implementationTaskStatuses: ImplementationTaskStatus[] = ["todo", "doing", "blocked", "done"];
 
 export const implementationTaskTypes: ImplementationTaskType[] = [
@@ -357,6 +371,45 @@ export function buildBlockedImplementationSummaries({
         b.missing.length - a.missing.length ||
         a.task.sort_order - b.task.sort_order,
     );
+}
+
+export function getVisibleImplementationTaskStatuses(statusFilter: ImplementationStatusFilter): ImplementationTaskStatus[] {
+  return statusFilter === "all" ? implementationTaskStatuses : [statusFilter];
+}
+
+export function buildImplementationTaskCardSummary(
+  task: ImplementationTask,
+  evidenceByTaskId: Record<string, string>,
+): ImplementationTaskCardSummary {
+  const evidence = getImplementationTaskEvidence(task, evidenceByTaskId);
+  const evidenceChecklist = getImplementationEvidenceChecklist(task, evidence);
+  const missingEvidenceLabels = evidenceChecklist.filter((item) => !item.passed).map((item) => item.label);
+
+  return {
+    task,
+    evidence,
+    evidenceChecklist,
+    passedEvidenceCount: evidenceChecklist.length - missingEvidenceLabels.length,
+    missingEvidenceLabels,
+    blockedHint: task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null,
+  };
+}
+
+export function buildImplementationTaskBoardColumns({
+  evidenceByTaskId,
+  statuses,
+  tasks,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  statuses: ImplementationTaskStatus[];
+  tasks: ImplementationTask[];
+}): ImplementationTaskBoardColumn[] {
+  return statuses.map((status) => ({
+    status,
+    taskSummaries: tasks
+      .filter((task) => task.status === status)
+      .map((task) => buildImplementationTaskCardSummary(task, evidenceByTaskId)),
+  }));
 }
 
 export const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {

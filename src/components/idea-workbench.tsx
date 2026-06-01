@@ -268,14 +268,14 @@ import {
   buildBlockedImplementationSummaries,
   buildImplementationEvidenceSummaries,
   buildImplementationDependencyStatuses,
+  buildImplementationTaskBoardColumns,
   buildImplementationTaskProgressStats,
   buildImplementationOwnerFilterLabels,
   buildImplementationOwnerOptions,
   filterImplementationTasks,
-  getBlockedImplementationTaskHint,
   getImplementationEvidenceIssues,
-  getImplementationEvidenceChecklist,
   getImplementationTaskReadinessQueues,
+  getVisibleImplementationTaskStatuses,
   resolveImplementationOwnerFilter,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
@@ -1261,8 +1261,19 @@ export function IdeaWorkbench({
       selectedImplementationTasks,
     ],
   );
-  const visibleImplementationStatuses =
-    implementationStatusFilter === "all" ? implementationTaskStatuses : [implementationStatusFilter];
+  const visibleImplementationStatuses = useMemo(
+    () => getVisibleImplementationTaskStatuses(implementationStatusFilter),
+    [implementationStatusFilter],
+  );
+  const implementationTaskBoardColumns = useMemo(
+    () =>
+      buildImplementationTaskBoardColumns({
+        evidenceByTaskId: implementationTaskEvidence,
+        statuses: visibleImplementationStatuses,
+        tasks: filteredImplementationTasks,
+      }),
+    [filteredImplementationTasks, implementationTaskEvidence, visibleImplementationStatuses],
+  );
 
   const artifactVersionSummaries = useMemo(
     () => buildArtifactVersionSummaries(selectedArtifactRecords),
@@ -6910,28 +6921,18 @@ export function IdeaWorkbench({
 
             {experienceMode === "full" && filteredImplementationTasks.length > 0 ? (
               <div className="mt-4 grid gap-3 xl:grid-cols-4">
-                {visibleImplementationStatuses.map((status) => {
-                  const tasksInStatus = filteredImplementationTasks.filter((task) => task.status === status);
-
-                return (
+                {implementationTaskBoardColumns.map(({ status, taskSummaries }) => (
                   <section key={status} className="border border-slate-200 bg-white min-h-44 p-3">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <span className={implementationTaskStatusTone[status]}>
                         {implementationTaskStatusLabels[status]}
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">{tasksInStatus.length}개</span>
+                      <span className="text-xs font-semibold text-slate-500">{taskSummaries.length}개</span>
                     </div>
 
                     <div className="grid gap-3">
-                      {tasksInStatus.length > 0 ? (
-                        tasksInStatus.map((task) => {
-                          const currentTaskEvidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
-                          const evidenceChecklist = getImplementationEvidenceChecklist(task, currentTaskEvidence);
-                          const passedEvidenceCount = evidenceChecklist.filter((item) => item.passed).length;
-                          const missingEvidenceLabels = evidenceChecklist
-                            .filter((item) => !item.passed)
-                            .map((item) => item.label);
-                          const blockedHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
+                      {taskSummaries.length > 0 ? (
+                        taskSummaries.map(({ blockedHint, evidence, evidenceChecklist, missingEvidenceLabels, passedEvidenceCount, task }) => {
 
                           return (
                           <div key={task.id} className="avl-surface-muted p-3">
@@ -6955,7 +6956,7 @@ export function IdeaWorkbench({
                             ) : null}
                             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{task.acceptance_criteria}</p>
                             <textarea
-                              value={currentTaskEvidence}
+                              value={evidence}
                               onChange={(event) =>
                                 setImplementationTaskEvidence((current) => ({
                                   ...current,
@@ -6990,7 +6991,7 @@ export function IdeaWorkbench({
                                 disabled={
                                   isBusy ||
                                   !canManageRecord(task) ||
-                                  (implementationTaskEvidence[task.id] ?? task.evidence ?? "") === (task.evidence ?? "")
+                                  evidence === (task.evidence ?? "")
                                 }
                                 className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                               >
@@ -7018,8 +7019,7 @@ export function IdeaWorkbench({
                       )}
                     </div>
                   </section>
-                );
-              })}
+                ))}
               </div>
             ) : null}
 
