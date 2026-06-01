@@ -70,12 +70,16 @@ import {
   type WorkbenchEditState,
 } from "@/lib/workbench-scoring";
 import {
-  eventCountForWindow,
+  buildLearningSignalCards,
+  buildProductTelemetryFunnelRows,
+  buildProductTelemetryTaxonomyRows,
+  buildTelemetryWindowCounts,
+  countTelemetryEventsByName,
+  filterProductTelemetryEvents,
   formatStableKoreanDate,
   formatTelemetryProperties,
   formatTelemetryTime,
-  productTelemetryFunnelSteps,
-  productTelemetryTaxonomy,
+  getProductTelemetryMaxCount,
   telemetryCategoryLabels,
   telemetryCategoryTone,
   telemetryEventLabels,
@@ -1034,10 +1038,7 @@ export function IdeaWorkbench({
     [selectedIdea],
   );
   const selectedProductTelemetryEvents = useMemo(
-    () =>
-      selectedTelemetryEvents.filter(
-        (event) => event.event_category === "product" || event.event_name.startsWith("product_"),
-      ),
+    () => filterProductTelemetryEvents(selectedTelemetryEvents),
     [selectedTelemetryEvents],
   );
   const productTelemetryFunnelDraft = useMemo(
@@ -1050,79 +1051,33 @@ export function IdeaWorkbench({
         : "",
     [selectedIdea, selectedProductTelemetryEvents],
   );
-  const productTelemetryEventCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-
-    for (const event of selectedProductTelemetryEvents) {
-      counts.set(event.event_name, (counts.get(event.event_name) ?? 0) + 1);
-    }
-
-    return counts;
-  }, [selectedProductTelemetryEvents]);
+  const productTelemetryEventCounts = useMemo(
+    () => countTelemetryEventsByName(selectedProductTelemetryEvents),
+    [selectedProductTelemetryEvents],
+  );
   const productTelemetryFunnelRows = useMemo(
-    () =>
-      productTelemetryFunnelSteps.map((step, index) => {
-        const count = productTelemetryEventCounts.get(step.eventName) ?? 0;
-        const previousStep = productTelemetryFunnelSteps[index - 1];
-        const previousCount = previousStep ? productTelemetryEventCounts.get(previousStep.eventName) ?? 0 : count;
-        const conversion = index === 0 || previousCount === 0 ? null : Math.round((count / previousCount) * 100);
-
-        return {
-          ...step,
-          count,
-          conversion,
-        };
-      }),
+    () => buildProductTelemetryFunnelRows(productTelemetryEventCounts),
     [productTelemetryEventCounts],
   );
   const productTelemetryMaxCount = useMemo(
-    () => Math.max(1, ...productTelemetryFunnelRows.map((row) => row.count)),
+    () => getProductTelemetryMaxCount(productTelemetryFunnelRows),
     [productTelemetryFunnelRows],
   );
   const productTelemetryTaxonomyRows = useMemo(
-    () =>
-      productTelemetryTaxonomy.map((item) => ({
-        ...item,
-        count: productTelemetryEventCounts.get(item.eventName) ?? 0,
-      })),
+    () => buildProductTelemetryTaxonomyRows(productTelemetryEventCounts),
     [productTelemetryEventCounts],
   );
   const telemetryWindowCounts = useMemo(
-    () => ({
-      sevenDays: eventCountForWindow(selectedTelemetryEvents, 7),
-      fourteenDays: eventCountForWindow(selectedTelemetryEvents, 14),
-      thirtyDays: eventCountForWindow(selectedTelemetryEvents, 30),
-    }),
+    () => buildTelemetryWindowCounts(selectedTelemetryEvents),
     [selectedTelemetryEvents],
   );
   const learningSignalCards = useMemo(
-    () => [
-      {
-        label: "제품 이벤트",
-        value: `${selectedProductTelemetryEvents.length}개`,
-        detail: "실제 제품/외부 앱에서 수집된 사용자 행동 신호",
-      },
-      {
-        label: "최근 7일",
-        value: `${telemetryWindowCounts.sevenDays}개`,
-        detail: "첫 가치 도달, 저장, 상태 변경 같은 초기 행동 신호",
-      },
-      {
-        label: "최근 14일",
-        value: `${telemetryWindowCounts.fourteenDays}개`,
-        detail: "반복 사용, 실험 결과, 리스크 해소 신호",
-      },
-      {
-        label: "최근 30일",
-        value: `${telemetryWindowCounts.thirtyDays}개`,
-        detail: "유지, 전환, 다음 빌드 판단에 필요한 누적 신호",
-      },
-      {
-        label: "열린 리스크",
-        value: `${openSelectedIdeaRisks.length}개`,
-        detail: "성과 확인에서 계속 감시해야 하는 차단 요인",
-      },
-    ],
+    () =>
+      buildLearningSignalCards({
+        openRiskCount: openSelectedIdeaRisks.length,
+        productEventCount: selectedProductTelemetryEvents.length,
+        telemetryWindowCounts,
+      }),
     [openSelectedIdeaRisks.length, selectedProductTelemetryEvents.length, telemetryWindowCounts],
   );
   const selectedOpenImplementationTasks = useMemo(

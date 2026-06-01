@@ -1,6 +1,12 @@
 import type { Json } from "@/lib/supabase/types";
 import type { TelemetryEvent } from "@/lib/venture-data";
 
+export type TelemetryWindowCounts = {
+  sevenDays: number;
+  fourteenDays: number;
+  thirtyDays: number;
+};
+
 export const telemetryEventLabels: Record<string, string> = {
   idea_extraction_started: "아이디어 정리 시작",
   idea_extraction_completed: "아이디어 정리 완료",
@@ -190,4 +196,90 @@ export function eventCountForWindow(events: TelemetryEvent[], days: number) {
   const threshold = referenceTime - days * 24 * 60 * 60 * 1000;
 
   return events.filter((event) => new Date(event.occurred_at).getTime() >= threshold).length;
+}
+
+export function filterProductTelemetryEvents(events: TelemetryEvent[]) {
+  return events.filter((event) => event.event_category === "product" || event.event_name.startsWith("product_"));
+}
+
+export function countTelemetryEventsByName(events: TelemetryEvent[]) {
+  const counts = new Map<string, number>();
+
+  for (const event of events) {
+    counts.set(event.event_name, (counts.get(event.event_name) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+export function buildProductTelemetryFunnelRows(eventCounts: Map<string, number>) {
+  return productTelemetryFunnelSteps.map((step, index) => {
+    const count = eventCounts.get(step.eventName) ?? 0;
+    const previousStep = productTelemetryFunnelSteps[index - 1];
+    const previousCount = previousStep ? eventCounts.get(previousStep.eventName) ?? 0 : count;
+    const conversion = index === 0 || previousCount === 0 ? null : Math.round((count / previousCount) * 100);
+
+    return {
+      ...step,
+      count,
+      conversion,
+    };
+  });
+}
+
+export function getProductTelemetryMaxCount(rows: Array<{ count: number }>) {
+  return Math.max(1, ...rows.map((row) => row.count));
+}
+
+export function buildProductTelemetryTaxonomyRows(eventCounts: Map<string, number>) {
+  return productTelemetryTaxonomy.map((item) => ({
+    ...item,
+    count: eventCounts.get(item.eventName) ?? 0,
+  }));
+}
+
+export function buildTelemetryWindowCounts(events: TelemetryEvent[]): TelemetryWindowCounts {
+  return {
+    sevenDays: eventCountForWindow(events, 7),
+    fourteenDays: eventCountForWindow(events, 14),
+    thirtyDays: eventCountForWindow(events, 30),
+  };
+}
+
+export function buildLearningSignalCards({
+  openRiskCount,
+  productEventCount,
+  telemetryWindowCounts,
+}: {
+  openRiskCount: number;
+  productEventCount: number;
+  telemetryWindowCounts: TelemetryWindowCounts;
+}) {
+  return [
+    {
+      label: "제품 이벤트",
+      value: `${productEventCount}개`,
+      detail: "실제 제품/외부 앱에서 수집된 사용자 행동 신호",
+    },
+    {
+      label: "최근 7일",
+      value: `${telemetryWindowCounts.sevenDays}개`,
+      detail: "첫 가치 도달, 저장, 상태 변경 같은 초기 행동 신호",
+    },
+    {
+      label: "최근 14일",
+      value: `${telemetryWindowCounts.fourteenDays}개`,
+      detail: "반복 사용, 실험 결과, 리스크 해소 신호",
+    },
+    {
+      label: "최근 30일",
+      value: `${telemetryWindowCounts.thirtyDays}개`,
+      detail: "유지, 전환, 다음 빌드 판단에 필요한 누적 신호",
+    },
+    {
+      label: "열린 리스크",
+      value: `${openRiskCount}개`,
+      detail: "성과 확인에서 계속 감시해야 하는 차단 요인",
+    },
+  ];
 }

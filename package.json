@@ -33,6 +33,7 @@
     "smoke:extraction-text": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_text_utils.mjs",
     "smoke:text-match": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_text_match_utils.mjs",
     "smoke:source-redaction": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_source_redaction.mjs",
+    "smoke:telemetry-format": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_telemetry_format_utils.mjs",
     "smoke:market": "node ./scripts/smoke_market_scan.mjs",
     "smoke:telemetry": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_telemetry_ingest.ps1",
     "smoke:telemetry:funnel": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_telemetry_ingest.ps1 -Funnel",
