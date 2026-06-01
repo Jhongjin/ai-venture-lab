@@ -804,6 +804,6 @@ For named external handoff tests, use `docs/EXTERNAL_PRODUCTION_PACKAGE.md` for 
 
 1. Keep named external build tools focused on Cursor, Codex, Claude Code, and Google Antigravity; run `pnpm smoke:build-sync` before changing token issuance, revoke, setup files, or progress sync.
 2. Keep generic MCP deferred until a concrete user-facing connector, permission model, denied-case smoke, and rollback path exist.
-3. Continue product hardening with only tightly scoped code-thinning passes: STEP 1 extraction helpers are covered by `pnpm smoke:extraction`, and workbench readiness, artifact review progress, implementation task metadata, build delivery copy, and final execution helpers are covered by `pnpm smoke:workbench-hardening`.
+3. Continue product hardening with only tightly scoped code-thinning passes: STEP 1 extraction helpers are covered by `pnpm smoke:extraction`, and workbench readiness, artifact review/progression, artifact versioning, implementation task metadata, development autopilot rows, build delivery copy, and final execution helpers are covered by `pnpm smoke:workbench-hardening`.
 4. Treat first-use, STEP 5, STEP 7, and STEP 8 as regression-guarded; recent no-decision UX passes tightened STEP 5 package focus, Pro/current plan clarity, and STEP 8 `완료된 것 / 이어 할 것 / 지금 판단` review copy while payments remain paused.
 5. Keep RLS, telemetry, authenticated write smoke, GitHub Actions, and paid/source-backed market smoke behind existing explicit-approval, disposable-data, and quota boundaries.
