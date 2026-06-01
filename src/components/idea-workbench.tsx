@@ -41,6 +41,7 @@ import {
   buildArtifactReadinessFlags,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
+  buildArtifactStatusUpdatePatch,
   filterArtifactLibrary,
   getNextArtifactVersion,
   getRecentDevelopmentHandoffArtifacts,
@@ -3521,12 +3522,14 @@ export function IdeaWorkbench({
     const statusNote = artifactStatusNotes[artifact.id] ?? artifact.status_note ?? "";
     const { data, error } = await supabase
       .from("venture_artifacts")
-      .update({
-        status,
-        status_note: statusNote.trim() || artifactStatusDefaultNotes[status],
-        approved_by: status === "approved" ? user?.id ?? null : null,
-        approved_at: status === "approved" ? new Date().toISOString() : null,
-      })
+      .update(
+        buildArtifactStatusUpdatePatch({
+          defaultStatusNotes: artifactStatusDefaultNotes,
+          status,
+          statusNote,
+          userId: user?.id ?? null,
+        }),
+      )
       .eq("id", artifact.id)
       .select()
       .single();

@@ -23,6 +23,7 @@ const {
   buildArtifactReadinessFlags,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
+  buildArtifactStatusUpdatePatch,
   filterArtifactLibrary,
   getNextArtifactVersion,
   getRecentDevelopmentHandoffArtifacts,
@@ -176,6 +177,47 @@ assert.equal(
     version: 1,
   }).status_note,
   "검증 자료 자동 저장에서 생성한 초안입니다.",
+);
+
+assert.deepEqual(
+  buildArtifactStatusUpdatePatch({
+    approvedAt: "2026-06-01T00:00:00.000Z",
+    defaultStatusNotes: {
+      approved: "승인됨",
+      archived: "보관됨",
+      draft: "초안",
+      superseded: "대체됨",
+    },
+    status: "approved",
+    statusNote: "  범위 확인 완료  ",
+    userId: "user-1",
+  }),
+  {
+    approved_at: "2026-06-01T00:00:00.000Z",
+    approved_by: "user-1",
+    status: "approved",
+    status_note: "범위 확인 완료",
+  },
+);
+assert.deepEqual(
+  buildArtifactStatusUpdatePatch({
+    approvedAt: "2026-06-01T00:00:00.000Z",
+    defaultStatusNotes: {
+      approved: "승인됨",
+      archived: "보관됨",
+      draft: "초안",
+      superseded: "대체됨",
+    },
+    status: "superseded",
+    statusNote: "",
+    userId: "user-1",
+  }),
+  {
+    approved_at: null,
+    approved_by: null,
+    status: "superseded",
+    status_note: "대체됨",
+  },
 );
 
 const sourceOptions = buildArtifactSourceOptions(artifacts);

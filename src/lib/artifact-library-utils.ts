@@ -40,6 +40,27 @@ export function buildArtifactDraftInsertRow({
   };
 }
 
+export function buildArtifactStatusUpdatePatch({
+  approvedAt = new Date().toISOString(),
+  defaultStatusNotes,
+  status,
+  statusNote,
+  userId,
+}: {
+  approvedAt?: string;
+  defaultStatusNotes: Record<VentureArtifactStatus, string>;
+  status: VentureArtifactStatus;
+  statusNote: string;
+  userId: string | null;
+}) {
+  return {
+    approved_at: status === "approved" ? approvedAt : null,
+    approved_by: status === "approved" ? userId : null,
+    status,
+    status_note: statusNote.trim() || defaultStatusNotes[status],
+  };
+}
+
 export type ArtifactReadinessFlags = {
   implementationTaskSourceArtifact: VentureArtifact | undefined;
   hasIdeaBriefArtifact: boolean;
