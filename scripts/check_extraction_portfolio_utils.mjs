@@ -14,7 +14,9 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildExtractionGateMap,
   buildExtractionPortfolioMarkdownItems,
+  buildExtractionSimilarIdeaMatches,
   countExtractionPortfolioGates,
   getBulkSavableExtractionItems,
   getSecondaryExtractionPortfolioItems,
@@ -50,6 +52,30 @@ const gatesById = new Map([
   ["b", { rank: 80 }],
   ["c", { rank: 60 }],
 ]);
+const matches = buildExtractionSimilarIdeaMatches(candidates, [{ id: "existing-b", name: "Existing B" }], (current) =>
+  current.id === "b" ? { idea: { name: "Existing B" }, reason: "name overlap", score: 64 } : null,
+);
+assert.equal(matches.size, 1);
+assert.equal(matches.get("b")?.reason, "name overlap");
+
+const gateMap = buildExtractionGateMap({
+  buildGate: (current, checks, match) => ({
+    id: match ? "pivot" : checks.every((check) => check.passed) ? "proceed" : "research",
+    label: current.name,
+    nextAction: "next",
+    rank: current.validationScore,
+  }),
+  buildReadiness: (current, match) => [
+    { label: "score", passed: current.validationScore >= 80 },
+    { label: "duplicate", passed: !match },
+  ],
+  candidates,
+  similarIdeaMatches: matches,
+});
+assert.equal(gateMap.get("a")?.id, "proceed");
+assert.equal(gateMap.get("b")?.id, "pivot");
+assert.equal(gateMap.get("c")?.id, "proceed");
+
 assert.equal(selectRecommendedExtractionCandidate(candidates, gatesById)?.id, "b");
 assert.equal(selectRecommendedExtractionCandidate([], gatesById), null);
 

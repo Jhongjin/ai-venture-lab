@@ -53,7 +53,9 @@ import {
   type ExtractionReplaySummary as ExtractionReplaySummaryBase,
 } from "@/lib/extraction-replay-summary";
 import {
+  buildExtractionGateMap,
   buildExtractionPortfolioMarkdownItems,
+  buildExtractionSimilarIdeaMatches,
   countExtractionPortfolioGates,
   getBulkSavableExtractionItems,
   getSecondaryExtractionPortfolioItems,
@@ -422,28 +424,16 @@ export function VentureConsoleActions({
     [activeMembers],
   );
   const similarIdeaMatches = useMemo(() => {
-    const matches = new Map<string, SimilarIdeaMatch>();
-
-    for (const candidate of extractedIdeas) {
-      const match = findSimilarIdea(candidate, existingIdeas);
-
-      if (match) {
-        matches.set(candidate.id, match);
-      }
-    }
-
-    return matches;
+    return buildExtractionSimilarIdeaMatches(extractedIdeas, existingIdeas, findSimilarIdea);
   }, [existingIdeas, extractedIdeas]);
   const duplicateCandidateCount = similarIdeaMatches.size;
   const extractedIdeaGates = useMemo(() => {
-    const gates = new Map<string, ExtractionGate>();
-
-    for (const candidate of extractedIdeas) {
-      const similarIdea = similarIdeaMatches.get(candidate.id) ?? null;
-      gates.set(candidate.id, buildExtractionGate(candidate, buildCandidateReadiness(candidate, similarIdea), similarIdea));
-    }
-
-    return gates;
+    return buildExtractionGateMap({
+      buildGate: buildExtractionGate,
+      buildReadiness: buildCandidateReadiness,
+      candidates: extractedIdeas,
+      similarIdeaMatches,
+    });
   }, [extractedIdeas, similarIdeaMatches]);
   const recommendedExtractedIdea = useMemo(
     () => selectRecommendedExtractionCandidate(extractedIdeas, extractedIdeaGates),

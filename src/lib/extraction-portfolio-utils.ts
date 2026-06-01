@@ -31,6 +31,45 @@ export type ExtractionPortfolioItemSummary<Candidate extends ExtractionPortfolio
   similarIdea: ExtractionPortfolioSimilarIdeaSummary | null;
 };
 
+export function buildExtractionSimilarIdeaMatches<Candidate extends { id: string }, ExistingIdea, Match>(
+  candidates: Candidate[],
+  existingIdeas: ExistingIdea[],
+  findSimilarIdea: (candidate: Candidate, existingIdeas: ExistingIdea[]) => Match | null,
+) {
+  const matches = new Map<string, Match>();
+
+  for (const candidate of candidates) {
+    const match = findSimilarIdea(candidate, existingIdeas);
+
+    if (match) {
+      matches.set(candidate.id, match);
+    }
+  }
+
+  return matches;
+}
+
+export function buildExtractionGateMap<Candidate extends { id: string }, Match, ReadinessCheck, Gate>({
+  buildGate,
+  buildReadiness,
+  candidates,
+  similarIdeaMatches,
+}: {
+  buildGate: (candidate: Candidate, readinessChecks: ReadinessCheck[], similarIdea: Match | null) => Gate;
+  buildReadiness: (candidate: Candidate, similarIdea: Match | null) => ReadinessCheck[];
+  candidates: Candidate[];
+  similarIdeaMatches: ReadonlyMap<string, Match>;
+}) {
+  const gates = new Map<string, Gate>();
+
+  for (const candidate of candidates) {
+    const similarIdea = similarIdeaMatches.get(candidate.id) ?? null;
+    gates.set(candidate.id, buildGate(candidate, buildReadiness(candidate, similarIdea), similarIdea));
+  }
+
+  return gates;
+}
+
 export function selectRecommendedExtractionCandidate<Candidate extends ExtractionPortfolioCandidateSummary>(
   candidates: Candidate[],
   gatesByCandidateId: ReadonlyMap<string, { rank: number }>,
