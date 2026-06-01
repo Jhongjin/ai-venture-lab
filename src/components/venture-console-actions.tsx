@@ -53,6 +53,7 @@ import {
   type ExtractionReplaySummary as ExtractionReplaySummaryBase,
 } from "@/lib/extraction-replay-summary";
 import {
+  buildExtractionDetailItems,
   buildExtractionGateMap,
   buildExtractionPortfolioItems,
   buildExtractionPortfolioMarkdownItems,
@@ -475,30 +476,16 @@ export function VentureConsoleActions({
   );
   const extractionDetailItems = useMemo(
     () =>
-      extractedIdeas.map((candidate) => {
-        const similarIdea = similarIdeaMatches.get(candidate.id);
-        const readinessChecks = buildCandidateReadiness(candidate, similarIdea ?? null);
-        const passedReadinessCount = readinessChecks.filter((check) => check.passed).length;
-        const readinessScore = Math.round((passedReadinessCount / readinessChecks.length) * 100);
-        const nextReadinessGap = readinessChecks.find((check) => !check.passed);
-        const extractionGate = extractedIdeaGates.get(candidate.id) ?? buildExtractionGate(candidate, readinessChecks, similarIdea ?? null);
-        const gateStyle = extractionGateStyles[extractionGate.id];
-        const strategyLenses = buildCandidateStrategyLens(candidate);
-        const strategyScore = getCandidateStrategyScore(candidate);
-
-        return {
-          candidate,
-          extractionGate,
-          gateStyle,
-          nextReadinessGap,
-          passedReadinessCount,
-          readinessChecks,
-          readinessScore,
-          similarIdea,
-          sourceEvidence: compactText(redactSensitiveSource(candidate.sourceBlock), 360),
-          strategyLenses,
-          strategyScore,
-        };
+      buildExtractionDetailItems({
+        buildGate: buildExtractionGate,
+        buildReadiness: buildCandidateReadiness,
+        buildStrategyLens: buildCandidateStrategyLens,
+        candidates: extractedIdeas,
+        gateStyles: extractionGateStyles,
+        gatesByCandidateId: extractedIdeaGates,
+        getSourceEvidence: (candidate) => compactText(redactSensitiveSource(candidate.sourceBlock), 360),
+        getStrategyScore: getCandidateStrategyScore,
+        similarIdeaMatches,
       }),
     [extractedIdeaGates, extractedIdeas, similarIdeaMatches],
   );

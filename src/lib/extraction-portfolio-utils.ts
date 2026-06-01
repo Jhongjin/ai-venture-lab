@@ -39,6 +39,20 @@ export type ExtractionPortfolioListItem<Candidate, Gate, SimilarIdea> = {
   similarIdea: SimilarIdea | null;
 };
 
+export type ExtractionDetailListItem<Candidate, Gate, GateStyle, SimilarIdea, ReadinessCheck, StrategyLens> = {
+  candidate: Candidate;
+  extractionGate: Gate;
+  gateStyle: GateStyle;
+  nextReadinessGap: ReadinessCheck | undefined;
+  passedReadinessCount: number;
+  readinessChecks: ReadinessCheck[];
+  readinessScore: number;
+  similarIdea: SimilarIdea | null;
+  sourceEvidence: string;
+  strategyLenses: StrategyLens[];
+  strategyScore: number;
+};
+
 export function buildExtractionSimilarIdeaMatches<Candidate extends { id: string }, ExistingIdea, Match>(
   candidates: Candidate[],
   existingIdeas: ExistingIdea[],
@@ -118,6 +132,61 @@ export function buildExtractionPortfolioItems<
         right.candidate.validationScore - left.candidate.validationScore ||
         right.candidate.confidence - left.candidate.confidence,
     );
+}
+
+export function buildExtractionDetailItems<
+  Candidate extends { id: string },
+  Match,
+  ReadinessCheck extends { passed: boolean },
+  GateId extends string,
+  Gate extends { id: GateId },
+  GateStyle,
+  StrategyLens,
+>({
+  buildGate,
+  buildReadiness,
+  buildStrategyLens,
+  candidates,
+  gateStyles,
+  gatesByCandidateId,
+  getSourceEvidence,
+  getStrategyScore,
+  similarIdeaMatches,
+}: {
+  buildGate: (candidate: Candidate, readinessChecks: ReadinessCheck[], similarIdea: Match | null) => Gate;
+  buildReadiness: (candidate: Candidate, similarIdea: Match | null) => ReadinessCheck[];
+  buildStrategyLens: (candidate: Candidate) => StrategyLens[];
+  candidates: Candidate[];
+  gateStyles: Record<GateId, GateStyle>;
+  gatesByCandidateId: ReadonlyMap<string, Gate>;
+  getSourceEvidence: (candidate: Candidate) => string;
+  getStrategyScore: (candidate: Candidate) => number;
+  similarIdeaMatches: ReadonlyMap<string, Match>;
+}) {
+  return candidates.map<ExtractionDetailListItem<Candidate, Gate, GateStyle, Match, ReadinessCheck, StrategyLens>>(
+    (candidate) => {
+      const similarIdea = similarIdeaMatches.get(candidate.id) ?? null;
+      const readinessChecks = buildReadiness(candidate, similarIdea);
+      const passedReadinessCount = readinessChecks.filter((check) => check.passed).length;
+      const readinessScore = Math.round((passedReadinessCount / readinessChecks.length) * 100);
+      const nextReadinessGap = readinessChecks.find((check) => !check.passed);
+      const extractionGate = gatesByCandidateId.get(candidate.id) ?? buildGate(candidate, readinessChecks, similarIdea);
+
+      return {
+        candidate,
+        extractionGate,
+        gateStyle: gateStyles[extractionGate.id],
+        nextReadinessGap,
+        passedReadinessCount,
+        readinessChecks,
+        readinessScore,
+        similarIdea,
+        sourceEvidence: getSourceEvidence(candidate),
+        strategyLenses: buildStrategyLens(candidate),
+        strategyScore: getStrategyScore(candidate),
+      };
+    },
+  );
 }
 
 export function selectRecommendedExtractionCandidate<Candidate extends ExtractionPortfolioCandidateSummary>(

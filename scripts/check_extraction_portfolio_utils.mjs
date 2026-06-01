@@ -14,6 +14,7 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildExtractionDetailItems,
   buildExtractionGateMap,
   buildExtractionPortfolioItems,
   buildExtractionPortfolioMarkdownItems,
@@ -102,6 +103,41 @@ assert.equal(builtPortfolioItems[0].gate.id, "proceed");
 assert.equal(builtPortfolioItems[1].nextGap, "저장 가능");
 assert.equal(builtPortfolioItems[2].nextGap, "score");
 assert.equal(builtPortfolioItems[2].readinessScore, 0);
+
+const detailItems = buildExtractionDetailItems({
+  buildGate: (current, checks, match) => ({
+    id: match ? "pivot" : checks.every((check) => check.passed) ? "proceed" : "research",
+    label: current.name,
+    nextAction: "next",
+    rank: current.validationScore,
+  }),
+  buildReadiness: (current, match) => [
+    { label: "score", passed: current.validationScore >= 80 },
+    { label: "duplicate", passed: !match },
+  ],
+  buildStrategyLens: (current) => [{ label: "market", score: current.validationScore, tone: "good" }],
+  candidates,
+  gateStyles: {
+    kill: { title: "보류" },
+    pivot: { title: "전환" },
+    proceed: { title: "진행" },
+    research: { title: "조사" },
+  },
+  gatesByCandidateId: partialGateMap,
+  getSourceEvidence: (current) => `source:${current.id}`,
+  getStrategyScore: (current) => current.validationScore - 5,
+  similarIdeaMatches: matches,
+});
+assert.deepEqual(
+  detailItems.map((item) => item.candidate.id),
+  ["a", "b", "c"],
+);
+assert.equal(detailItems[0].gateStyle.title, "진행");
+assert.equal(detailItems[1].similarIdea?.reason, "name overlap");
+assert.equal(detailItems[1].nextReadinessGap?.label, "score");
+assert.equal(detailItems[1].sourceEvidence, "source:b");
+assert.equal(detailItems[2].extractionGate.id, "proceed");
+assert.equal(detailItems[2].strategyScore, 85);
 
 assert.equal(selectRecommendedExtractionCandidate(candidates, gatesById)?.id, "b");
 assert.equal(selectRecommendedExtractionCandidate([], gatesById), null);
