@@ -10,6 +10,82 @@ export type GateCheckSummary = {
   score: number;
 };
 
+export type WorkbenchStepReadiness = {
+  selectedIdeaId: string | null;
+  canEnterExperiment: boolean;
+  canEnterArtifacts: boolean;
+  canEnterDevelopment: boolean;
+  canEnterOrchestration: boolean;
+  canEnterLaunch: boolean;
+  launchReadinessScore: number;
+  nextLaunchBlockerLabel: string | null;
+  nextLaunchBlockerDetail: string | null;
+  hasIdeaBriefArtifact: boolean;
+  hasResearchBriefArtifact: boolean;
+  hasValidationSprintArtifact: boolean;
+  hasValidationSummaryArtifact: boolean;
+  hasDesignGenerationPromptArtifact: boolean;
+  hasDevelopmentPlanArtifact: boolean;
+  hasAgentRunPackageArtifact: boolean;
+};
+
+export function buildWorkbenchStepReadinessSnapshot({
+  canEnterDevelopment,
+  canEnterLaunch,
+  canEnterOrchestration,
+  experimentCount,
+  hasAgentRunPackageArtifact,
+  hasDesignGenerationPromptArtifact,
+  hasDevelopmentPlanArtifact,
+  hasIdeaBriefArtifact,
+  hasMarketScanArtifact,
+  hasResearchBriefArtifact,
+  hasValidationSprintArtifact,
+  hasValidationSummaryArtifact,
+  isScoreEvaluationSaved,
+  launchReadinessScore,
+  nextLaunchBlockerDetail,
+  nextLaunchBlockerLabel,
+  selectedIdeaId,
+}: {
+  canEnterDevelopment: boolean;
+  canEnterLaunch: boolean;
+  canEnterOrchestration: boolean;
+  experimentCount: number;
+  hasAgentRunPackageArtifact: boolean;
+  hasDesignGenerationPromptArtifact: boolean;
+  hasDevelopmentPlanArtifact: boolean;
+  hasIdeaBriefArtifact: boolean;
+  hasMarketScanArtifact: boolean;
+  hasResearchBriefArtifact: boolean;
+  hasValidationSprintArtifact: boolean;
+  hasValidationSummaryArtifact: boolean;
+  isScoreEvaluationSaved: boolean;
+  launchReadinessScore: number;
+  nextLaunchBlockerDetail: string | null;
+  nextLaunchBlockerLabel: string | null;
+  selectedIdeaId: string | null;
+}): WorkbenchStepReadiness {
+  return {
+    selectedIdeaId,
+    canEnterExperiment: isScoreEvaluationSaved,
+    canEnterArtifacts: experimentCount > 0 && hasMarketScanArtifact,
+    canEnterDevelopment,
+    canEnterOrchestration,
+    canEnterLaunch,
+    launchReadinessScore,
+    nextLaunchBlockerLabel,
+    nextLaunchBlockerDetail,
+    hasIdeaBriefArtifact,
+    hasResearchBriefArtifact,
+    hasValidationSprintArtifact,
+    hasValidationSummaryArtifact,
+    hasDesignGenerationPromptArtifact,
+    hasDevelopmentPlanArtifact,
+    hasAgentRunPackageArtifact,
+  };
+}
+
 type WorkbenchDecisionStatus = "pending" | "research_more" | "ship" | "pivot" | "kill";
 
 export function summarizeGateChecks(checks: GateCheck[]): GateCheckSummary {

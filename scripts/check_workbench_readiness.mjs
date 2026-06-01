@@ -8,6 +8,7 @@ const {
   buildDesignReadinessChecks,
   buildImplementationGateChecks,
   buildPrdReadinessChecks,
+  buildWorkbenchStepReadinessSnapshot,
   summarizeGateChecks,
 } = await import(moduleUrl);
 
@@ -96,5 +97,46 @@ const implementationSummary = summarizeGateChecks(implementationChecks);
 assert.equal(implementationChecks.find((check) => check.label === "차단된 할 일 없음")?.detail, "1개 할 일이 차단 상태입니다.");
 assert.equal(implementationChecks.find((check) => check.label === "완료 증거 기록")?.passed, false);
 assert.equal(implementationSummary.score, 20);
+
+const stepReadiness = buildWorkbenchStepReadinessSnapshot({
+  canEnterDevelopment: true,
+  canEnterLaunch: false,
+  canEnterOrchestration: true,
+  experimentCount: 2,
+  hasAgentRunPackageArtifact: true,
+  hasDesignGenerationPromptArtifact: true,
+  hasDevelopmentPlanArtifact: true,
+  hasIdeaBriefArtifact: true,
+  hasMarketScanArtifact: true,
+  hasResearchBriefArtifact: true,
+  hasValidationSprintArtifact: true,
+  hasValidationSummaryArtifact: true,
+  isScoreEvaluationSaved: true,
+  launchReadinessScore: 67,
+  nextLaunchBlockerDetail: "완료 증거를 붙이세요.",
+  nextLaunchBlockerLabel: "완료 증거",
+  selectedIdeaId: "idea-1",
+});
+assert.equal(stepReadiness.canEnterExperiment, true);
+assert.equal(stepReadiness.canEnterArtifacts, true);
+assert.equal(stepReadiness.canEnterDevelopment, true);
+assert.equal(stepReadiness.canEnterOrchestration, true);
+assert.equal(stepReadiness.canEnterLaunch, false);
+assert.equal(stepReadiness.launchReadinessScore, 67);
+assert.equal(stepReadiness.nextLaunchBlockerLabel, "완료 증거");
+assert.equal(stepReadiness.hasAgentRunPackageArtifact, true);
+
+const lockedArtifactsReadiness = buildWorkbenchStepReadinessSnapshot({
+  ...stepReadiness,
+  canEnterDevelopment: false,
+  canEnterOrchestration: false,
+  experimentCount: 0,
+  hasMarketScanArtifact: true,
+  isScoreEvaluationSaved: false,
+});
+assert.equal(lockedArtifactsReadiness.canEnterExperiment, false);
+assert.equal(lockedArtifactsReadiness.canEnterArtifacts, false);
+assert.equal(lockedArtifactsReadiness.canEnterDevelopment, false);
+assert.equal(lockedArtifactsReadiness.canEnterOrchestration, false);
 
 console.log("Workbench readiness smoke passed.");

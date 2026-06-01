@@ -208,8 +208,10 @@ import {
   buildDesignReadinessChecks,
   buildImplementationGateChecks,
   buildPrdReadinessChecks,
+  buildWorkbenchStepReadinessSnapshot,
   summarizeGateChecks,
   type GateCheck,
+  type WorkbenchStepReadiness,
 } from "@/lib/workbench-readiness-checks";
 import {
   decisionLabels,
@@ -439,24 +441,7 @@ type ExperimentResultDraft = {
   next_action: string;
 };
 
-export type WorkbenchStepReadiness = {
-  selectedIdeaId: string | null;
-  canEnterExperiment: boolean;
-  canEnterArtifacts: boolean;
-  canEnterDevelopment: boolean;
-  canEnterOrchestration: boolean;
-  canEnterLaunch: boolean;
-  launchReadinessScore: number;
-  nextLaunchBlockerLabel: string | null;
-  nextLaunchBlockerDetail: string | null;
-  hasIdeaBriefArtifact: boolean;
-  hasResearchBriefArtifact: boolean;
-  hasValidationSprintArtifact: boolean;
-  hasValidationSummaryArtifact: boolean;
-  hasDesignGenerationPromptArtifact: boolean;
-  hasDevelopmentPlanArtifact: boolean;
-  hasAgentRunPackageArtifact: boolean;
-};
+export type { WorkbenchStepReadiness };
 
 type DevelopmentAutoFlowState = "idle" | "running" | "review" | "summary";
 
@@ -2074,24 +2059,27 @@ export function IdeaWorkbench({
   const canEnterLaunch = finalExecutionReadiness.canEnterLaunch;
 
   useEffect(() => {
-    onStepReadinessChange?.({
-      selectedIdeaId: selectedIdea?.id ?? null,
-      canEnterExperiment: isScoreEvaluationSaved,
-      canEnterArtifacts: selectedExperiments.length > 0 && hasMarketScanArtifact,
-      canEnterDevelopment: canEnterDevelopmentFromValidationDocs,
-      canEnterOrchestration: canEnterOrchestrationFromDevelopmentDocs,
-      canEnterLaunch,
-      launchReadinessScore,
-      nextLaunchBlockerLabel: nextLaunchBlocker?.label ?? null,
-      nextLaunchBlockerDetail: nextLaunchBlocker?.detail ?? null,
-      hasIdeaBriefArtifact,
-      hasResearchBriefArtifact,
-      hasValidationSprintArtifact,
-      hasValidationSummaryArtifact,
-      hasDesignGenerationPromptArtifact,
-      hasDevelopmentPlanArtifact,
-      hasAgentRunPackageArtifact,
-    });
+    onStepReadinessChange?.(
+      buildWorkbenchStepReadinessSnapshot({
+        canEnterDevelopment: canEnterDevelopmentFromValidationDocs,
+        canEnterLaunch,
+        canEnterOrchestration: canEnterOrchestrationFromDevelopmentDocs,
+        experimentCount: selectedExperiments.length,
+        hasAgentRunPackageArtifact,
+        hasDesignGenerationPromptArtifact,
+        hasDevelopmentPlanArtifact,
+        hasIdeaBriefArtifact,
+        hasMarketScanArtifact,
+        hasResearchBriefArtifact,
+        hasValidationSprintArtifact,
+        hasValidationSummaryArtifact,
+        isScoreEvaluationSaved,
+        launchReadinessScore,
+        nextLaunchBlockerDetail: nextLaunchBlocker?.detail ?? null,
+        nextLaunchBlockerLabel: nextLaunchBlocker?.label ?? null,
+        selectedIdeaId: selectedIdea?.id ?? null,
+      }),
+    );
   }, [
     canEnterDevelopmentFromValidationDocs,
     canEnterLaunch,
