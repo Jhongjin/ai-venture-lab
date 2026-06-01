@@ -49,6 +49,7 @@ import {
   buildExtractionReportBody,
   type ExtractionPortfolioMarkdownItem,
 } from "@/lib/extraction-report-markdown";
+import { buildExtractedIdeaArtifactBodies } from "@/lib/extracted-idea-artifact-markdown";
 import {
   inferAssumptions,
   inferFirstPrototypeScope,
@@ -275,6 +276,34 @@ function buildExtractedIdeaArtifacts(
       : `${redactedSourceBlock}
 
 > 자동 가림 처리: 메모 근거에서 연락처, 카드, 계좌, 신분 정보로 보이는 패턴을 치환했습니다.`;
+  const artifactBodies = buildExtractedIdeaArtifactBodies({
+    assumptions: candidate.assumptions,
+    buildDeliveryMarkdown,
+    buyer: candidate.buyer,
+    confidence: candidate.confidence,
+    evidence: candidate.evidence,
+    firstPrototypeScope: candidate.firstPrototypeScope,
+    gateLabel: gate.label,
+    gateNextAction: gate.nextAction,
+    killCriteria: candidate.killCriteria,
+    name: candidate.name,
+    nextEvidence: candidate.next_evidence,
+    oneLiner: candidate.one_liner,
+    pricingHypothesis: candidate.pricingHypothesis,
+    productSurfaceMarkdown: productSurfaceMarkdown(productSurface),
+    recommendation: candidate.recommendation,
+    riskLevel: candidate.riskLevel,
+    riskSummary: candidate.risk_summary,
+    sevenDayExperiment: candidate.sevenDayExperiment,
+    signal: candidate.signal,
+    sourceBlock,
+    strategyLensMarkdown: buildCandidateStrategyLensMarkdown(candidate),
+    successMetric: candidate.successMetric,
+    targetUser: candidate.target_user,
+    validationQuestions: candidate.validationQuestions,
+    validationRationale: candidate.validationRationale,
+    validationScore: candidate.validationScore,
+  });
   const base = {
     idea_id: idea.id,
     organization_id: organizationId,
@@ -289,140 +318,21 @@ function buildExtractedIdeaArtifacts(
       artifact_type: "idea_brief",
       title: `${candidate.name} 아이디어 요약`,
       source: "extracted_idea_package",
-      body: `# 아이디어 요약: ${candidate.name}
-
-## 한 줄 설명
-
-${candidate.one_liner}
-
-## 대상과 구매자
-
-- 대상 사용자: ${candidate.target_user}
-- 구매자: ${candidate.buyer}
-
-## 문제 신호
-
-${candidate.signal}
-
-## 메모 근거
-
-${sourceBlock}
-
-## 핵심 가설
-
-${candidate.assumptions.map((item) => `- ${item}`).join("\n")}
-
-## 초기 점수
-
-- 검증 점수: ${candidate.validationScore}/100
-- 신뢰도: ${candidate.confidence}%
-- 추천: ${candidate.recommendation}
-- 추천 판단: ${gate.label}
-- 다음 작업: ${gate.nextAction}
-- 리스크: ${candidate.riskLevel}
-
-${productSurfaceMarkdown(productSurface)}
-
-${buildDeliveryMarkdown}
-
-${buildCandidateStrategyLensMarkdown(candidate)}
-
-## 리스크 요약
-
-${candidate.risk_summary}
-
-## 추가로 확인할 내용
-
-${candidate.next_evidence}
-`,
+      body: artifactBodies.ideaBriefBody,
     },
     {
       ...base,
       artifact_type: "research_note",
       title: `${candidate.name} 조사 요약`,
       source: "extracted_research_brief",
-      body: `# 조사 요약: ${candidate.name}
-
-## 확인된 단서
-
-${candidate.evidence.map((item) => `- ${item}`).join("\n")}
-
-## 메모 근거
-
-${sourceBlock}
-
-## 검증 질문
-
-${candidate.validationQuestions.map((item) => `- ${item}`).join("\n")}
-
-## 가격/구매 가설
-
-${candidate.pricingHypothesis}
-
-${productSurfaceMarkdown(productSurface)}
-
-${buildDeliveryMarkdown}
-
-## 첫 제작 범위
-
-${candidate.firstPrototypeScope}
-
-## 중단 기준
-
-${candidate.killCriteria}
-
-## 판단 메모
-
-${candidate.validationRationale}
-`,
+      body: artifactBodies.researchBriefBody,
     },
     {
       ...base,
       artifact_type: "research_note",
       title: `${candidate.name} 7일 검증 계획`,
       source: "validation_sprint",
-      body: `# 7일 검증 계획: ${candidate.name}
-
-## 확인할 내용
-
-${candidate.sevenDayExperiment}
-
-${productSurfaceMarkdown(productSurface)}
-
-${buildDeliveryMarkdown}
-
-## 메모 근거
-
-${sourceBlock}
-
-## 성공 지표
-
-${candidate.successMetric}
-
-## Day 1-2 모집
-
-- 대상 사용자: ${candidate.target_user}
-- 질문: 최근 이 문제가 실제로 발생한 사례를 확인합니다.
-
-## Day 3-4 대안 조사
-
-- 현재 우회 방법, 경쟁 서비스, 수동 해결책을 확인합니다.
-
-## Day 5 가격/구매 검증
-
-${candidate.pricingHypothesis}
-
-## Day 6 첫 화면 반응
-
-${candidate.firstPrototypeScope}
-
-## Day 7 판단
-
-- 진행: 성공 지표를 충족하고 높은 리스크가 완화됩니다.
-- 추가 조사: 문제는 있으나 구매/도달/운영 근거가 부족합니다.
-- 전환: 사용자는 있으나 다른 구매자, 채널, 수동 서비스가 더 적합합니다.
-- 중단: ${candidate.killCriteria}
-`,
+      body: artifactBodies.validationSprintBody,
     },
   ];
 }
