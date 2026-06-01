@@ -178,19 +178,19 @@ export function buildStep8LearningSummary({
       detail: learningCompletedDetail,
     },
     {
-      label: "남은 것",
+      label: "이어 할 것",
       value: learningRemainingValue,
       detail: learningRemainingDetail,
     },
     {
-      label: "지금 판단할 것",
+      label: "지금 판단",
       value: learningDecisionLabel,
       detail: learningDecisionDetail,
     },
   ];
   const learningSimpleReviewRows: Step8ReviewRow[] = [
     ["완료", learningCompletedValue, learningCompletedDetail],
-    ["다음", learningRemainingValue, learningRemainingDetail],
+    ["이어 할 것", learningRemainingValue, learningRemainingDetail],
     ["판단", learningDecisionLabel, learningDecisionDetail],
   ];
   const learningJudgmentQuestion = nextImplementationTask
@@ -310,7 +310,7 @@ export function buildStep8ProgressSummary({
       ? "남은 제작 작업은 없습니다. 완료 근거를 훑고 다음 판단은 위의 한눈 요약에서 정합니다."
       : progressItems.length > 0
         ? "다음 작업이 자동으로 잡히지 않았습니다. 막힘, 건너뜀, 상태 누락만 확인합니다."
-      : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.";
+      : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 이어 할 것, 지금 판단이 여기에 표시됩니다.";
 
   return {
     progressDetail,

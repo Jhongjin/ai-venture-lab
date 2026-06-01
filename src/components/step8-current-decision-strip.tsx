@@ -12,9 +12,9 @@ export function Step8CurrentDecisionStrip({
   outcomeSentence,
 }: Step8CurrentDecisionStripProps) {
   const items = [
-    ["완료 상태", outcomeSentence],
-    ["다음 행동", nextActionText],
-    ["오늘 판단", judgmentQuestion],
+    ["완료된 것", outcomeSentence],
+    ["이어 할 것", nextActionText],
+    ["지금 판단", judgmentQuestion],
   ] as const;
 
   return (

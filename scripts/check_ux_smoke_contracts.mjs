@@ -298,11 +298,11 @@ const contracts = [
   },
   {
     file: "src/components/step8-decision-guidance.tsx",
-    tokens: ['data-smoke="step8-visible-action-sequence"', "확인 순서", "완료 상태 → 다음 행동 → 오늘 판단"],
+    tokens: ['data-smoke="step8-visible-action-sequence"', "확인 순서", "완료된 것 → 이어 할 것 → 지금 판단"],
   },
   {
     file: "src/components/step8-current-decision-strip.tsx",
-    tokens: ['data-smoke="step8-current-decision-strip"', "완료 상태", "다음 행동", "오늘 판단"],
+    tokens: ['data-smoke="step8-current-decision-strip"', "완료된 것", "이어 할 것", "지금 판단"],
   },
   {
     file: "src/components/step8-learning-header.tsx",
@@ -338,7 +338,7 @@ const contracts = [
       "상태 확인 필요",
       'data-smoke="step8-empty-primary-action"',
       "먼저 STEP 7에서 연결 파일로 첫 제작 작업을 시작하세요.",
-      "완료된 것, 다음 작업, 오늘 판단만 보여줍니다.",
+      "완료된 것, 이어 할 것, 지금 판단만 보여줍니다.",
     ],
   },
   {
@@ -346,7 +346,7 @@ const contracts = [
     tokens: [
       "전체 목록은 진행 순서 확인용으로만 봅니다.",
       "다음 판단은 위의 한눈 요약에서 정합니다.",
-      "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.",
+      "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 이어 할 것, 지금 판단이 여기에 표시됩니다.",
       "실제 실행은 STEP 7/외부 도구에서 이어가고, 여기서는 완료 보고 반영 여부만 확인하세요.",
       "완료 보고가 반영되면 다음 판단으로 넘어갈 수 있습니다.",
     ],

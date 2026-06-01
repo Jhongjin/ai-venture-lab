@@ -5,9 +5,9 @@ type Step8DecisionGuidanceProps = {
 };
 
 const step8ActionLadderItems = [
-  ["1. 완료 확인", "끝난 작업만 확인"],
-  ["2. 다음 하나", "이어 할 작업 하나만 선택"],
-  ["3. 판단 하나", "진행, 보류, 전환 중 선택"],
+  ["1. 완료된 것", "끝난 작업만 확인"],
+  ["2. 이어 할 것", "이어 할 작업 하나만 선택"],
+  ["3. 지금 판단", "진행, 보류, 전환 중 선택"],
 ] as const;
 
 export function Step8DecisionGuidance({ decisionOptions }: Step8DecisionGuidanceProps) {
@@ -23,7 +23,7 @@ export function Step8DecisionGuidance({ decisionOptions }: Step8DecisionGuidance
         data-smoke="step8-visible-action-sequence"
         className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-slate-950"
       >
-        <span className="text-blue-700">확인 순서</span>: 완료 상태 → 다음 행동 → 오늘 판단
+        <span className="text-blue-700">확인 순서</span>: 완료된 것 → 이어 할 것 → 지금 판단
       </div>
       <div data-smoke="step8-decision-options" className="mt-3 border border-blue-200 bg-white px-3 py-2">
         <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 고를 판단 후보</div>
