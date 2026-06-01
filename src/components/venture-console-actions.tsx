@@ -49,6 +49,11 @@ import {
   buildExtractionReportBody,
   type ExtractionPortfolioMarkdownItem,
 } from "@/lib/extraction-report-markdown";
+import {
+  buildExtractionReplaySummary,
+  type ExtractionReplayMode,
+  type ExtractionReplaySummary as ExtractionReplaySummaryBase,
+} from "@/lib/extraction-replay-summary";
 import { buildExtractedIdeaArtifactBodies } from "@/lib/extracted-idea-artifact-markdown";
 import {
   inferAssumptions,
@@ -162,31 +167,7 @@ type AiGenerateSampleIdeasResponse = {
   source?: string;
 };
 
-type ExtractionReplayMode = "openai" | "fallback" | "unavailable";
-
-type ExtractionReplayItem = {
-  id: string;
-  source: "both" | "rules" | "ai";
-  primaryCandidate: ExtractedIdea;
-  matchedName: string | null;
-  overlapScore: number;
-  verdict: string;
-  nextAction: string;
-};
-
-type ExtractionReplaySummary = {
-  generatedAt: string;
-  sourceLength: number;
-  rulesCount: number;
-  aiCount: number;
-  consensusCount: number;
-  rulesOnlyCount: number;
-  aiOnlyCount: number;
-  aiMode: ExtractionReplayMode;
-  model: string | null;
-  note: string;
-  items: ExtractionReplayItem[];
-};
+type ExtractionReplaySummary = ExtractionReplaySummaryBase<ExtractedIdea>;
 
 type ExtractionPortfolioItem = {
   candidate: ExtractedIdea;
@@ -552,101 +533,6 @@ function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCand
       };
     })
     .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
-}
-
-function buildExtractionReplaySummary({
-  sourceLength,
-  rulesIdeas,
-  aiIdeas,
-  aiMode,
-  model,
-  note,
-}: {
-  sourceLength: number;
-  rulesIdeas: ExtractedIdea[];
-  aiIdeas: ExtractedIdea[];
-  aiMode: ExtractionReplayMode;
-  model: string | null;
-  note: string;
-}): ExtractionReplaySummary {
-  const usedAiIds = new Set<string>();
-  const items: ExtractionReplayItem[] = [];
-
-  for (const rulesCandidate of rulesIdeas) {
-    const match = findBestCandidateMatch(rulesCandidate, aiIdeas, usedAiIds);
-
-    if (match && match.score >= 52) {
-      usedAiIds.add(match.item.id);
-      const primaryCandidate =
-        match.item.validationScore >= rulesCandidate.validationScore || match.item.confidence >= rulesCandidate.confidence
-          ? match.item
-          : rulesCandidate;
-
-      items.push({
-        id: `both-${rulesCandidate.id}-${match.item.id}`,
-        source: "both",
-        primaryCandidate,
-        matchedName: primaryCandidate.id === match.item.id ? rulesCandidate.name : match.item.name,
-        overlapScore: match.score,
-        verdict: "공통 아이디어",
-        nextAction: "두 방식이 모두 포착했습니다. 아이디어 패키지로 저장하거나 실행 보드에서 먼저 평가하세요.",
-      });
-      continue;
-    }
-
-    items.push({
-      id: `rules-${rulesCandidate.id}`,
-      source: "rules",
-      primaryCandidate: rulesCandidate,
-      matchedName: null,
-      overlapScore: 0,
-      verdict: "규칙 단독",
-      nextAction: "원문 라벨이나 키워드가 강한 아이디어입니다. AI가 놓쳤을 수 있으니 문제/구매자 증거를 보완합니다.",
-    });
-  }
-
-  for (const aiCandidate of aiIdeas) {
-    if (usedAiIds.has(aiCandidate.id)) {
-      continue;
-    }
-
-    items.push({
-      id: `ai-${aiCandidate.id}`,
-      source: "ai",
-      primaryCandidate: aiCandidate,
-      matchedName: null,
-      overlapScore: 0,
-      verdict: "AI 단독",
-      nextAction: "AI가 문맥에서 추론한 아이디어입니다. 메모 근거와 과잉 해석 여부를 먼저 확인합니다.",
-    });
-  }
-
-  const sortedItems = items.sort((a, b) => {
-    const sourceRank = { both: 3, ai: 2, rules: 1 };
-
-    return (
-      sourceRank[b.source] - sourceRank[a.source] ||
-      b.primaryCandidate.validationScore - a.primaryCandidate.validationScore ||
-      b.primaryCandidate.confidence - a.primaryCandidate.confidence
-    );
-  });
-  const consensusCount = sortedItems.filter((item) => item.source === "both").length;
-  const rulesOnlyCount = sortedItems.filter((item) => item.source === "rules").length;
-  const aiOnlyCount = sortedItems.filter((item) => item.source === "ai").length;
-
-  return {
-    generatedAt: new Date().toISOString(),
-    sourceLength,
-    rulesCount: rulesIdeas.length,
-    aiCount: aiIdeas.length,
-    consensusCount,
-    rulesOnlyCount,
-    aiOnlyCount,
-    aiMode,
-    model,
-    note,
-    items: sortedItems,
-  };
 }
 
 export function VentureConsoleActions({
@@ -1847,6 +1733,7 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
         rulesIdeas,
         aiIdeas,
         aiMode,
+        findBestCandidateMatch,
         model,
         note: replayNote,
       });
