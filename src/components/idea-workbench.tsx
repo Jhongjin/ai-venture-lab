@@ -31,10 +31,9 @@ import {
 } from "@/lib/artifact-review-queue";
 import {
   artifactReviewIntensityTone,
+  buildArtifactReviewSummaries,
   buildArtifactReviewMemo,
-  summarizeArtifactLineChanges,
-  summarizeArtifactReview,
-  type ArtifactReviewSummary,
+  buildArtifactVersionSummaries,
 } from "@/lib/artifact-review-summary";
 import { buildAgentRunPackageMarkdown } from "@/lib/agent-run-package-markdown";
 import { buildAppDevelopmentPlanMarkdown } from "@/lib/app-development-plan-markdown";
@@ -1306,56 +1305,14 @@ export function IdeaWorkbench({
   const visibleImplementationStatuses =
     implementationStatusFilter === "all" ? implementationTaskStatuses : [implementationStatusFilter];
 
-  const artifactVersionSummaries = useMemo(() => {
-    const summaries = new Map<string, { previous: VentureArtifact; added: number; removed: number }>();
-
-    for (const artifact of selectedArtifactRecords) {
-      const previous = selectedArtifactRecords
-        .filter(
-          (candidate) =>
-            candidate.id !== artifact.id &&
-            candidate.artifact_type === artifact.artifact_type &&
-            (candidate.version ?? 1) < (artifact.version ?? 1),
-        )
-        .sort(
-          (a, b) =>
-            (b.version ?? 1) - (a.version ?? 1) ||
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        )[0];
-
-      if (previous) {
-        summaries.set(artifact.id, {
-          previous,
-          ...summarizeArtifactLineChanges(artifact.body, previous.body),
-        });
-      }
-    }
-
-    return summaries;
-  }, [selectedArtifactRecords]);
-  const artifactReviewSummaries = useMemo(() => {
-    const summaries = new Map<string, ArtifactReviewSummary>();
-
-    for (const artifact of selectedArtifactRecords) {
-      const previous =
-        selectedArtifactRecords
-          .filter(
-            (candidate) =>
-              candidate.id !== artifact.id &&
-              candidate.artifact_type === artifact.artifact_type &&
-              (candidate.version ?? 1) < (artifact.version ?? 1),
-          )
-          .sort(
-            (a, b) =>
-              (b.version ?? 1) - (a.version ?? 1) ||
-              new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-          )[0] ?? null;
-
-      summaries.set(artifact.id, summarizeArtifactReview(artifact, previous));
-    }
-
-    return summaries;
-  }, [selectedArtifactRecords]);
+  const artifactVersionSummaries = useMemo(
+    () => buildArtifactVersionSummaries(selectedArtifactRecords),
+    [selectedArtifactRecords],
+  );
+  const artifactReviewSummaries = useMemo(
+    () => buildArtifactReviewSummaries(selectedArtifactRecords),
+    [selectedArtifactRecords],
+  );
 
   const canAdminSelectedOrganization = Boolean(
     user &&

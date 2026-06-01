@@ -16,6 +16,12 @@ export type ArtifactReviewSummary = {
   checks: string[];
 };
 
+export type ArtifactVersionSummary = {
+  previous: VentureArtifact;
+  added: number;
+  removed: number;
+};
+
 export const artifactReviewIntensityTone: Record<ArtifactReviewIntensity, string> = {
   new: "avl-pill avl-pill-info",
   minor: "avl-pill avl-pill-success",
@@ -71,6 +77,40 @@ export function summarizeArtifactLineChanges(currentBody: string, previousBody: 
   return { added, removed };
 }
 
+function findPreviousArtifactVersion(artifact: VentureArtifact, artifacts: VentureArtifact[]) {
+  return (
+    artifacts
+      .filter(
+        (candidate) =>
+          candidate.id !== artifact.id &&
+          candidate.artifact_type === artifact.artifact_type &&
+          (candidate.version ?? 1) < (artifact.version ?? 1),
+      )
+      .sort(
+        (a, b) =>
+          (b.version ?? 1) - (a.version ?? 1) ||
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )[0] ?? null
+  );
+}
+
+export function buildArtifactVersionSummaries(artifacts: VentureArtifact[]) {
+  const summaries = new Map<string, ArtifactVersionSummary>();
+
+  for (const artifact of artifacts) {
+    const previous = findPreviousArtifactVersion(artifact, artifacts);
+
+    if (previous) {
+      summaries.set(artifact.id, {
+        previous,
+        ...summarizeArtifactLineChanges(artifact.body, previous.body),
+      });
+    }
+  }
+
+  return summaries;
+}
+
 function extractMarkdownSectionTitles(body: string) {
   return body
     .split(/\r?\n/)
@@ -116,6 +156,16 @@ export function summarizeArtifactReview(artifact: VentureArtifact, previous: Ven
     recommendation: recommendation[intensity],
     checks: artifactApprovalReviewChecks[artifact.artifact_type],
   };
+}
+
+export function buildArtifactReviewSummaries(artifacts: VentureArtifact[]) {
+  const summaries = new Map<string, ArtifactReviewSummary>();
+
+  for (const artifact of artifacts) {
+    summaries.set(artifact.id, summarizeArtifactReview(artifact, findPreviousArtifactVersion(artifact, artifacts)));
+  }
+
+  return summaries;
 }
 
 export function buildArtifactReviewMemo(artifact: VentureArtifact, summary: ArtifactReviewSummary) {
