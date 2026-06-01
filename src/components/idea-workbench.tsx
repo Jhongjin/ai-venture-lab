@@ -22,6 +22,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   artifactPanelDescriptions,
   artifactPanelLabels,
+  buildArtifactReviewProgressState,
   buildArtifactReviewQueue,
   developmentPanelDescriptions,
   developmentPanelLabels,
@@ -948,9 +949,10 @@ export function IdeaWorkbench({
     selectedIdeaId: selectedIdea?.id ?? null,
   });
   const artifactReviewQueue = useMemo(() => buildArtifactReviewQueue(selectedArtifactRecords), [selectedArtifactRecords]);
-  const approvedArtifactReviewCount = artifactReviewQueue.filter((item) => item.status === "approved").length;
-  const nextArtifactReviewItem = artifactReviewQueue.find((item) => item.status !== "approved") ?? null;
-  const artifactReviewProgress = Math.round((approvedArtifactReviewCount / artifactReviewQueue.length) * 100);
+  const artifactReviewProgressState = buildArtifactReviewProgressState(artifactReviewQueue);
+  const approvedArtifactReviewCount = artifactReviewProgressState.approvedCount;
+  const nextArtifactReviewItem = artifactReviewProgressState.nextItem;
+  const artifactReviewProgress = artifactReviewProgressState.progress;
   const artifactSourceOptions = useMemo(
     () => buildArtifactSourceOptions(selectedArtifactRecords),
     [selectedArtifactRecords],

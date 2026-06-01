@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import ts from "typescript";
 
 const modulePath = path.join(process.cwd(), "src/lib/artifact-review-summary.ts");
+const queueModuleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/artifact-review-queue.ts")).href;
 const artifactLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/artifact-labels.ts")).href;
 const source = readFileSync(modulePath, "utf8").replace(
   'from "@/lib/artifact-labels";',
@@ -24,8 +25,9 @@ const {
   buildArtifactVersionSummaries,
   summarizeArtifactLineChanges,
 } = await import(moduleUrl);
+const { buildArtifactReviewProgressState, buildArtifactReviewQueue } = await import(queueModuleUrl);
 
-function artifact({ body, createdAt, id, type = "prd", version }) {
+function artifact({ body, createdAt, id, status = "draft", type = "prd", version }) {
   return {
     artifact_type: type,
     body,
@@ -35,7 +37,7 @@ function artifact({ body, createdAt, id, type = "prd", version }) {
     idea_id: "idea-1",
     organization_id: null,
     source: "workbench",
-    status: "draft",
+    status,
     status_note: null,
     title: `Artifact ${id}`,
     updated_at: createdAt,
@@ -93,5 +95,70 @@ assert.ok(reviewSummaries.get("prd-v3").removedSections.includes("Scope"));
 const memo = buildArtifactReviewMemo(artifacts[2], reviewSummaries.get("prd-v3"));
 assert.match(memo, /이전 비교: v2/);
 assert.match(memo, /리뷰 강도: 높음/);
+
+const reviewQueue = buildArtifactReviewQueue([
+  artifact({
+    body: "# Idea",
+    createdAt: "2026-05-05T00:00:00.000Z",
+    id: "idea-approved",
+    status: "approved",
+    type: "idea_brief",
+    version: 1,
+  }),
+  artifact({
+    body: "# Research",
+    createdAt: "2026-05-06T00:00:00.000Z",
+    id: "research-approved",
+    status: "approved",
+    type: "research_note",
+    version: 1,
+  }),
+  artifact({
+    body: "# PRD",
+    createdAt: "2026-05-07T00:00:00.000Z",
+    id: "prd-draft",
+    type: "prd",
+    version: 1,
+  }),
+]);
+const progressState = buildArtifactReviewProgressState(reviewQueue);
+assert.equal(progressState.totalCount, 9);
+assert.equal(progressState.approvedCount, 2);
+assert.equal(progressState.nextItem?.id, "prd");
+assert.equal(progressState.nextItem?.status, "draft");
+assert.equal(progressState.progress, 22);
+
+const allApprovedProgressState = buildArtifactReviewProgressState(
+  buildArtifactReviewQueue(
+    [
+      "idea_brief",
+      "research_note",
+      "prd",
+      "mvp_spec",
+      "backend_decision",
+      "design_brief",
+      "tech_spec",
+      "dev_runbook",
+      "launch_checklist",
+    ].map((type, index) =>
+      artifact({
+        body: `# ${type}`,
+        createdAt: `2026-05-${String(index + 8).padStart(2, "0")}T00:00:00.000Z`,
+        id: `approved-${type}`,
+        status: "approved",
+        type,
+        version: 1,
+      }),
+    ),
+  ),
+);
+assert.equal(allApprovedProgressState.approvedCount, 9);
+assert.equal(allApprovedProgressState.nextItem, null);
+assert.equal(allApprovedProgressState.progress, 100);
+
+const emptyProgressState = buildArtifactReviewProgressState([]);
+assert.equal(emptyProgressState.approvedCount, 0);
+assert.equal(emptyProgressState.nextItem, null);
+assert.equal(emptyProgressState.progress, 0);
 
 console.log("Artifact review summary smoke passed.");

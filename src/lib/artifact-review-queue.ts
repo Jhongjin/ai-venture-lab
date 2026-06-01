@@ -20,6 +20,13 @@ export type ArtifactReviewItem = {
   developmentPanel?: DevelopmentPanel;
 };
 
+export type ArtifactReviewProgressState = {
+  approvedCount: number;
+  nextItem: ArtifactReviewItem | null;
+  progress: number;
+  totalCount: number;
+};
+
 export const artifactPanelLabels: Record<ArtifactPanel, string> = {
   validation: "검증 자료",
   product: "기획서",
@@ -193,4 +200,16 @@ export function buildArtifactReviewQueue(artifacts: VentureArtifact[]): Artifact
       developmentPanel: item.developmentPanel,
     };
   });
+}
+
+export function buildArtifactReviewProgressState(queue: ArtifactReviewItem[]): ArtifactReviewProgressState {
+  const totalCount = queue.length;
+  const approvedCount = queue.filter((item) => item.status === "approved").length;
+
+  return {
+    approvedCount,
+    nextItem: queue.find((item) => item.status !== "approved") ?? null,
+    progress: totalCount > 0 ? Math.round((approvedCount / totalCount) * 100) : 0,
+    totalCount,
+  };
 }
