@@ -1,0 +1,107 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import ts from "typescript";
+
+const modulePath = path.join(process.cwd(), "src/lib/extraction-portfolio-utils.ts");
+const source = readFileSync(modulePath, "utf8");
+const { outputText } = ts.transpileModule(source, {
+  compilerOptions: {
+    module: ts.ModuleKind.ESNext,
+    target: ts.ScriptTarget.ES2022,
+  },
+  fileName: modulePath,
+});
+const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
+const {
+  buildExtractionPortfolioMarkdownItems,
+  countExtractionPortfolioGates,
+  getBulkSavableExtractionItems,
+  getSecondaryExtractionPortfolioItems,
+  selectRecommendedExtractionCandidate,
+} = await import(moduleUrl);
+
+function candidate({ confidence, id, name, score }) {
+  return {
+    confidence,
+    id,
+    name,
+    productSurface: { label: "웹앱" },
+    validationScore: score,
+  };
+}
+
+function gate({ id, label, rank }) {
+  return {
+    id,
+    label,
+    nextAction: `${label} 다음 행동`,
+    rank,
+  };
+}
+
+const candidates = [
+  candidate({ confidence: 80, id: "a", name: "A", score: 85 }),
+  candidate({ confidence: 95, id: "b", name: "B", score: 70 }),
+  candidate({ confidence: 70, id: "c", name: "C", score: 90 }),
+];
+const gatesById = new Map([
+  ["a", { rank: 80 }],
+  ["b", { rank: 80 }],
+  ["c", { rank: 60 }],
+]);
+assert.equal(selectRecommendedExtractionCandidate(candidates, gatesById)?.id, "b");
+assert.equal(selectRecommendedExtractionCandidate([], gatesById), null);
+
+const portfolioItems = [
+  {
+    candidate: candidates[0],
+    gate: gate({ id: "proceed", label: "진행 가능", rank: 100 }),
+    readinessScore: 90,
+    similarIdea: null,
+  },
+  {
+    candidate: candidates[1],
+    gate: gate({ id: "research", label: "추가 조사", rank: 70 }),
+    readinessScore: 72,
+    similarIdea: { idea: { name: "Existing B" }, score: 64 },
+  },
+  {
+    candidate: candidates[2],
+    gate: gate({ id: "pivot", label: "전환 검토", rank: 40 }),
+    readinessScore: 76,
+    similarIdea: null,
+  },
+  {
+    candidate: candidate({ confidence: 60, id: "d", name: "D", score: 60 }),
+    gate: gate({ id: "kill", label: "보류", rank: 10 }),
+    readinessScore: 30,
+    similarIdea: null,
+  },
+];
+
+assert.deepEqual(
+  getSecondaryExtractionPortfolioItems(portfolioItems, "a").map((item) => item.candidate.id),
+  ["b", "c", "d"],
+);
+assert.deepEqual(
+  getBulkSavableExtractionItems(portfolioItems).map((item) => item.candidate.id),
+  ["a"],
+);
+assert.deepEqual(countExtractionPortfolioGates(portfolioItems), {
+  proceed: 1,
+  research: 1,
+  pivot: 1,
+  kill: 1,
+});
+
+const markdownItems = buildExtractionPortfolioMarkdownItems(portfolioItems.slice(0, 2), (item) =>
+  item.id === "a" ? 77 : 61,
+);
+assert.equal(markdownItems[0].candidateName, "A");
+assert.equal(markdownItems[0].strategyScore, 77);
+assert.equal(markdownItems[0].similarIdeaLabel, null);
+assert.equal(markdownItems[1].similarIdeaLabel, "Existing B 64%");
+assert.equal(markdownItems[1].gateLabel, "추가 조사");
+
+console.log("Extraction portfolio utils smoke passed.");

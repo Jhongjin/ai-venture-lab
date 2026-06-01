@@ -54,6 +54,13 @@ import {
   type ExtractionReplayMode,
   type ExtractionReplaySummary as ExtractionReplaySummaryBase,
 } from "@/lib/extraction-replay-summary";
+import {
+  buildExtractionPortfolioMarkdownItems,
+  countExtractionPortfolioGates,
+  getBulkSavableExtractionItems,
+  getSecondaryExtractionPortfolioItems,
+  selectRecommendedExtractionCandidate,
+} from "@/lib/extraction-portfolio-utils";
 import { buildExtractedIdeaArtifactBodies } from "@/lib/extracted-idea-artifact-markdown";
 import {
   inferAssumptions,
@@ -730,23 +737,7 @@ export function VentureConsoleActions({
     return gates;
   }, [extractedIdeas, similarIdeaMatches]);
   const recommendedExtractedIdea = useMemo(
-    () =>
-      extractedIdeas.reduce<ExtractedIdea | null>((best, idea) => {
-        if (!best) {
-          return idea;
-        }
-
-        const ideaGate = extractedIdeaGates.get(idea.id);
-        const bestGate = extractedIdeaGates.get(best.id);
-        const ideaRank = ideaGate?.rank ?? idea.validationScore;
-        const bestRank = bestGate?.rank ?? best.validationScore;
-
-        if (ideaRank !== bestRank) {
-          return ideaRank > bestRank ? idea : best;
-        }
-
-        return idea.confidence > best.confidence ? idea : best;
-      }, null),
+    () => selectRecommendedExtractionCandidate(extractedIdeas, extractedIdeaGates),
     [extractedIdeaGates, extractedIdeas],
   );
   const recommendedExtractionGate = recommendedExtractedIdea
@@ -787,40 +778,19 @@ export function VentureConsoleActions({
     [extractionPortfolioItems, recommendedExtractedIdea],
   );
   const secondaryPortfolioItems = useMemo(
-    () =>
-      extractionPortfolioItems
-        .filter((item) => item.candidate.id !== recommendedExtractedIdea?.id)
-        .slice(0, 3),
+    () => getSecondaryExtractionPortfolioItems(extractionPortfolioItems, recommendedExtractedIdea?.id ?? null),
     [extractionPortfolioItems, recommendedExtractedIdea],
   );
   const bulkSavableExtractionItems = useMemo(
-    () =>
-      extractionPortfolioItems
-        .filter((item) => ["proceed", "research"].includes(item.gate.id) && !item.similarIdea && item.readinessScore >= 70)
-        .slice(0, 3),
+    () => getBulkSavableExtractionItems(extractionPortfolioItems),
     [extractionPortfolioItems],
   );
   const extractionGateCounts = useMemo(
-    () =>
-      extractionPortfolioItems.reduce<Record<ExtractionGateId, number>>(
-        (counts, item) => ({ ...counts, [item.gate.id]: counts[item.gate.id] + 1 }),
-        { proceed: 0, research: 0, pivot: 0, kill: 0 },
-      ),
+    () => countExtractionPortfolioGates(extractionPortfolioItems),
     [extractionPortfolioItems],
   );
   const extractionPortfolioMarkdownItems = useMemo<ExtractionPortfolioMarkdownItem[]>(
-    () =>
-      extractionPortfolioItems.map((item) => ({
-        candidateName: item.candidate.name,
-        gateId: item.gate.id,
-        gateLabel: item.gate.label,
-        nextAction: item.gate.nextAction,
-        productSurfaceLabel: item.candidate.productSurface.label,
-        readinessScore: item.readinessScore,
-        similarIdeaLabel: item.similarIdea ? `${item.similarIdea.idea.name} ${item.similarIdea.score}%` : null,
-        strategyScore: getCandidateStrategyScore(item.candidate),
-        validationScore: item.candidate.validationScore,
-      })),
+    () => buildExtractionPortfolioMarkdownItems(extractionPortfolioItems, getCandidateStrategyScore),
     [extractionPortfolioItems],
   );
   const extractionDetailItems = useMemo(
