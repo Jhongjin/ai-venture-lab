@@ -1,8 +1,11 @@
-import type { BuildDeliveryMode } from "@/lib/build-delivery";
+import type { BuildDeliveryMode, ExternalBuildToolKey } from "@/lib/build-delivery";
+import { toDownloadFileName } from "@/lib/download-file-name";
 import type { ImplementationTaskDraft } from "@/lib/external-progress-import";
 import type { CursorSyncConnection } from "@/lib/external-tool-sync-connection";
 import { formatTelemetryTime } from "@/lib/telemetry-format";
 import type { ImplementationTask } from "@/lib/venture-data";
+
+export type LiveExternalToolKey = Exclude<ExternalBuildToolKey, "generic_mcp">;
 
 export type FinalExecutionReadinessCheck = {
   label: string;
@@ -31,6 +34,29 @@ export type FinalExecutionTaskPreview = {
   fallbackTaskPreview: ImplementationTaskDraft[];
   visibleTaskCount: number;
   taskListDescription: string;
+};
+
+export type FinalExecutionLiveToolContext = {
+  folder: string;
+  guideDraft: string;
+  isAntigravityExternalDelivery: boolean;
+  isClaudeCodeExternalDelivery: boolean;
+  isCodexExternalDelivery: boolean;
+  isCursorExternalDelivery: boolean;
+  isLiveExternalDelivery: boolean;
+  mcpConfigDraft: string;
+  nextTaskCommand: string;
+  progressPath: string;
+  setupCommand: string;
+  setupFileName: string;
+  startPromptDraft: string;
+};
+
+const liveExternalToolFolders: Record<LiveExternalToolKey, string> = {
+  antigravity: ".antigravity",
+  claude_code: ".claude",
+  codex: ".codex",
+  cursor: ".cursor",
 };
 
 export function buildFinalExecutionReadiness({
@@ -89,6 +115,64 @@ export function buildFinalExecutionReadiness({
     score,
     nextBlocker,
     canEnterLaunch,
+  };
+}
+
+export function buildFinalExecutionLiveToolContext({
+  buildDeliveryMode,
+  externalToolKey,
+  guideDrafts,
+  handoffFileSuffix,
+  ideaName,
+  mcpConfigDrafts,
+  startPromptDrafts,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  externalToolKey: ExternalBuildToolKey;
+  guideDrafts: Record<LiveExternalToolKey, string>;
+  handoffFileSuffix: string;
+  ideaName: string | null;
+  mcpConfigDrafts: Record<LiveExternalToolKey, string>;
+  startPromptDrafts: Record<LiveExternalToolKey, string>;
+}): FinalExecutionLiveToolContext {
+  const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "cursor";
+  const isCodexExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "codex";
+  const isClaudeCodeExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "claude_code";
+  const isAntigravityExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "antigravity";
+  const isLiveExternalDelivery =
+    isCursorExternalDelivery || isCodexExternalDelivery || isClaudeCodeExternalDelivery || isAntigravityExternalDelivery;
+  const selectedLiveToolKey: LiveExternalToolKey = isAntigravityExternalDelivery
+    ? "antigravity"
+    : isClaudeCodeExternalDelivery
+      ? "claude_code"
+      : isCodexExternalDelivery
+        ? "codex"
+        : "cursor";
+  const folder = liveExternalToolFolders[selectedLiveToolKey];
+  const setupFileName = ideaName
+    ? toDownloadFileName(ideaName, handoffFileSuffix, "ps1")
+    : `${handoffFileSuffix}.ps1`;
+
+  return {
+    folder,
+    guideDraft: guideDrafts[selectedLiveToolKey],
+    isAntigravityExternalDelivery,
+    isClaudeCodeExternalDelivery,
+    isCodexExternalDelivery,
+    isCursorExternalDelivery,
+    isLiveExternalDelivery,
+    mcpConfigDraft: isAntigravityExternalDelivery
+      ? mcpConfigDrafts.antigravity
+      : isClaudeCodeExternalDelivery
+        ? mcpConfigDrafts.claude_code
+        : isCursorExternalDelivery
+          ? mcpConfigDrafts.cursor
+          : "",
+    nextTaskCommand: `node ${folder}/venture-lab-cli.mjs next-task`,
+    progressPath: `${folder}/venture-lab-progress.json`,
+    setupCommand: `powershell -ExecutionPolicy Bypass -File .\\${setupFileName}`,
+    setupFileName,
+    startPromptDraft: startPromptDrafts[selectedLiveToolKey],
   };
 }
 

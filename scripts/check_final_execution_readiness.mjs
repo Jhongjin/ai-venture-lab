@@ -5,11 +5,11 @@ import { pathToFileURL } from "node:url";
 import ts from "typescript";
 
 const modulePath = path.join(process.cwd(), "src/lib/final-execution-readiness.ts");
+const downloadFileNameUrl = pathToFileURL(path.join(process.cwd(), "src/lib/download-file-name.ts")).href;
 const telemetryFormatUrl = pathToFileURL(path.join(process.cwd(), "src/lib/telemetry-format.ts")).href;
-const source = readFileSync(modulePath, "utf8").replace(
-  'from "@/lib/telemetry-format";',
-  `from ${JSON.stringify(telemetryFormatUrl)};`,
-);
+const source = readFileSync(modulePath, "utf8")
+  .replace('from "@/lib/download-file-name";', `from ${JSON.stringify(downloadFileNameUrl)};`)
+  .replace('from "@/lib/telemetry-format";', `from ${JSON.stringify(telemetryFormatUrl)};`);
 const { outputText } = ts.transpileModule(source, {
   compilerOptions: {
     module: ts.ModuleKind.ESNext,
@@ -20,6 +20,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildFinalExecutionConnectionHealth,
+  buildFinalExecutionLiveToolContext,
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
 } = await import(moduleUrl);
@@ -113,5 +114,102 @@ assert.equal(fallbackPreview.taskPreview.length, 0);
 assert.equal(fallbackPreview.fallbackTaskPreview.length, 6);
 assert.equal(fallbackPreview.visibleTaskCount, 6);
 assert.match(fallbackPreview.taskListDescription, /내부 개발 패키지/);
+
+const cursorLiveContext = buildFinalExecutionLiveToolContext({
+  buildDeliveryMode: "external_tool",
+  externalToolKey: "cursor",
+  guideDrafts: {
+    antigravity: "antigravity guide",
+    claude_code: "claude guide",
+    codex: "codex guide",
+    cursor: "cursor guide",
+  },
+  handoffFileSuffix: "cursor-setup",
+  ideaName: "Great App",
+  mcpConfigDrafts: {
+    antigravity: "antigravity mcp",
+    claude_code: "claude mcp",
+    codex: "",
+    cursor: "cursor mcp",
+  },
+  startPromptDrafts: {
+    antigravity: "antigravity start",
+    claude_code: "claude start",
+    codex: "codex start",
+    cursor: "cursor start",
+  },
+});
+assert.equal(cursorLiveContext.isLiveExternalDelivery, true);
+assert.equal(cursorLiveContext.isCursorExternalDelivery, true);
+assert.equal(cursorLiveContext.folder, ".cursor");
+assert.equal(cursorLiveContext.progressPath, ".cursor/venture-lab-progress.json");
+assert.equal(cursorLiveContext.setupFileName, "great-app-cursor-setup.ps1");
+assert.equal(cursorLiveContext.setupCommand, "powershell -ExecutionPolicy Bypass -File .\\great-app-cursor-setup.ps1");
+assert.equal(cursorLiveContext.nextTaskCommand, "node .cursor/venture-lab-cli.mjs next-task");
+assert.equal(cursorLiveContext.startPromptDraft, "cursor start");
+assert.equal(cursorLiveContext.guideDraft, "cursor guide");
+assert.equal(cursorLiveContext.mcpConfigDraft, "cursor mcp");
+
+const codexLiveContext = buildFinalExecutionLiveToolContext({
+  ...cursorLiveContext,
+  buildDeliveryMode: "external_tool",
+  externalToolKey: "codex",
+  guideDrafts: {
+    antigravity: "antigravity guide",
+    claude_code: "claude guide",
+    codex: "codex guide",
+    cursor: "cursor guide",
+  },
+  handoffFileSuffix: "codex-setup",
+  ideaName: null,
+  mcpConfigDrafts: {
+    antigravity: "antigravity mcp",
+    claude_code: "claude mcp",
+    codex: "",
+    cursor: "cursor mcp",
+  },
+  startPromptDrafts: {
+    antigravity: "antigravity start",
+    claude_code: "claude start",
+    codex: "codex start",
+    cursor: "cursor start",
+  },
+});
+assert.equal(codexLiveContext.isLiveExternalDelivery, true);
+assert.equal(codexLiveContext.isCodexExternalDelivery, true);
+assert.equal(codexLiveContext.folder, ".codex");
+assert.equal(codexLiveContext.setupFileName, "codex-setup.ps1");
+assert.equal(codexLiveContext.startPromptDraft, "codex start");
+assert.equal(codexLiveContext.mcpConfigDraft, "");
+
+const genericContext = buildFinalExecutionLiveToolContext({
+  ...codexLiveContext,
+  buildDeliveryMode: "external_tool",
+  externalToolKey: "generic_mcp",
+  guideDrafts: {
+    antigravity: "antigravity guide",
+    claude_code: "claude guide",
+    codex: "codex guide",
+    cursor: "cursor guide",
+  },
+  handoffFileSuffix: "mcp-package",
+  ideaName: "Generic",
+  mcpConfigDrafts: {
+    antigravity: "antigravity mcp",
+    claude_code: "claude mcp",
+    codex: "",
+    cursor: "cursor mcp",
+  },
+  startPromptDrafts: {
+    antigravity: "antigravity start",
+    claude_code: "claude start",
+    codex: "codex start",
+    cursor: "cursor start",
+  },
+});
+assert.equal(genericContext.isLiveExternalDelivery, false);
+assert.equal(genericContext.folder, ".cursor");
+assert.equal(genericContext.startPromptDraft, "cursor start");
+assert.equal(genericContext.mcpConfigDraft, "");
 
 console.log("Final execution readiness smoke passed.");

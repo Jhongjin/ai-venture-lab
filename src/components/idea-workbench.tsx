@@ -127,6 +127,7 @@ import {
 } from "@/lib/browser-file-download";
 import {
   buildFinalExecutionConnectionHealth,
+  buildFinalExecutionLiveToolContext,
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
 } from "@/lib/final-execution-readiness";
@@ -2303,47 +2304,44 @@ export function IdeaWorkbench({
     : "";
   const antigravityMcpConfigDraft = buildAntigravityMcpConfigJson();
   const antigravityCliScriptDraft = buildAntigravityCliScript(cursorMcpServerDraft);
-  const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "cursor";
-  const isCodexExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "codex";
-  const isClaudeCodeExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "claude_code";
-  const isAntigravityExternalDelivery = buildDeliveryMode === "external_tool" && activeExternalBuildTool.key === "antigravity";
-  const isLiveExternalDelivery =
-    isCursorExternalDelivery || isCodexExternalDelivery || isClaudeCodeExternalDelivery || isAntigravityExternalDelivery;
-  const liveExternalToolFolder = isAntigravityExternalDelivery
-    ? ".antigravity"
-    : isClaudeCodeExternalDelivery
-      ? ".claude"
-      : isCodexExternalDelivery
-        ? ".codex"
-        : ".cursor";
-  const liveExternalToolProgressPath = `${liveExternalToolFolder}/venture-lab-progress.json`;
-  const liveExternalToolSetupSuffix = activeExternalBuildTool.handoffFileSuffix;
-  const liveExternalToolStartPromptDraft = isAntigravityExternalDelivery
-    ? antigravityStartPromptDraft
-    : isClaudeCodeExternalDelivery
-      ? claudeStartPromptDraft
-      : isCodexExternalDelivery
-        ? codexStartPromptDraft
-        : cursorStartPromptDraft;
-  const liveExternalToolGuideDraft = isAntigravityExternalDelivery
-    ? antigravityGuideDraft
-    : isClaudeCodeExternalDelivery
-      ? claudeGuideDraft
-      : isCodexExternalDelivery
-        ? codexGuideDraft
-        : cursorGuideDraft;
-  const liveExternalToolMcpConfigDraft = isAntigravityExternalDelivery
-    ? antigravityMcpConfigDraft
-    : isClaudeCodeExternalDelivery
-      ? claudeMcpConfigDraft
-      : isCursorExternalDelivery
-        ? cursorMcpConfigDraft
-        : "";
-  const liveExternalToolSetupFileName = selectedIdea
-    ? toDownloadFileName(selectedIdea.name, liveExternalToolSetupSuffix, "ps1")
-    : `${liveExternalToolSetupSuffix}.ps1`;
-  const liveExternalToolSetupCommand = `powershell -ExecutionPolicy Bypass -File .\\${liveExternalToolSetupFileName}`;
-  const liveExternalToolNextTaskCommand = `node ${liveExternalToolFolder}/venture-lab-cli.mjs next-task`;
+  const {
+    folder: liveExternalToolFolder,
+    guideDraft: liveExternalToolGuideDraft,
+    isAntigravityExternalDelivery,
+    isClaudeCodeExternalDelivery,
+    isCodexExternalDelivery,
+    isCursorExternalDelivery,
+    isLiveExternalDelivery,
+    mcpConfigDraft: liveExternalToolMcpConfigDraft,
+    nextTaskCommand: liveExternalToolNextTaskCommand,
+    progressPath: liveExternalToolProgressPath,
+    setupCommand: liveExternalToolSetupCommand,
+    setupFileName: liveExternalToolSetupFileName,
+    startPromptDraft: liveExternalToolStartPromptDraft,
+  } = buildFinalExecutionLiveToolContext({
+    buildDeliveryMode,
+    externalToolKey: activeExternalBuildTool.key,
+    guideDrafts: {
+      antigravity: antigravityGuideDraft,
+      claude_code: claudeGuideDraft,
+      codex: codexGuideDraft,
+      cursor: cursorGuideDraft,
+    },
+    handoffFileSuffix: activeExternalBuildTool.handoffFileSuffix,
+    ideaName: selectedIdea?.name ?? null,
+    mcpConfigDrafts: {
+      antigravity: antigravityMcpConfigDraft,
+      claude_code: claudeMcpConfigDraft,
+      codex: "",
+      cursor: cursorMcpConfigDraft,
+    },
+    startPromptDrafts: {
+      antigravity: antigravityStartPromptDraft,
+      claude_code: claudeStartPromptDraft,
+      codex: codexStartPromptDraft,
+      cursor: cursorStartPromptDraft,
+    },
+  });
   const finalExecutionDecisionSentence = `${withKoreanInstrumental(activeProductSurface.label)} 만들고, ${activeBuildDeliveryPhrase}.`;
   const finalExecutionConnectionHealth = buildFinalExecutionConnectionHealth({
     connections: cursorSyncConnections,
