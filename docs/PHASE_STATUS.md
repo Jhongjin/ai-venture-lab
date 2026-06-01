@@ -45,6 +45,7 @@ Validation keywords: `launch_gate_decision_ship`, `launch_gate_snapshot_recorded
 
 | Date | Job | Commit | Deploy | Validation |
 | --- | --- | --- | --- | --- |
+| 2026-05-31 | Documented STEP 5 tool handoff value | `1cabf46` | Not deployed; docs-only user test guide update | `git diff --check`; user test guide now expects STEP 5 to show 도구 전달 자료 and the Cursor, Codex, Claude Code, Antigravity first-prompt/task-list handoff |
 | 2026-05-31 | Clarified STEP 5 tool handoff value | `68a9aac` | Auto-deployed from main; production smoke passed | `pnpm smoke:ux-contracts`, `pnpm typecheck`, `pnpm quality:full`, `pnpm smoke:prod`, `pnpm smoke:routes`, `pnpm smoke:browser`, `git diff --check`; STEP 5 value grid now says the package becomes first prompts and task lists for Cursor, Codex, Claude Code, and Antigravity |
 | 2026-05-31 | Refreshed hardening next jobs | `2578f8b` | Not deployed; docs-only queue focus update | `git diff --check`; next jobs now point remaining code-thinning toward `idea-workbench.tsx` and report/artifact builders, while noting extraction helpers are covered by `pnpm smoke:extraction` |
 | 2026-05-31 | Added aggregate extraction smoke | `d2f6e94` | Not deployed separately; package script only | `pnpm smoke:extraction` after one transient Windows `EPERM` retry, `pnpm typecheck`, `pnpm quality:full`, `git diff --check`; one command now runs extraction text, text match, candidate match, gate, lens, risk, and inference focused smokes |
