@@ -221,6 +221,12 @@ export function ProductionCreditPanel({
               >
                 {PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE}
               </p>
+              <p
+                data-smoke="production-credit-no-checkout-summary"
+                className="mt-1 text-xs font-semibold leading-5 text-slate-700"
+              >
+                Pro 관심 등록은 결제가 아니라 수요 신호입니다. 카드 정보나 결제창은 요청하지 않습니다.
+              </p>
             </details>
             <div data-smoke="production-credit-execution-package-value" className="mt-3 border border-blue-200 bg-blue-50 p-3">
               <div className="text-xs font-semibold text-blue-800">왜 제작 패스를 쓰나요?</div>
@@ -346,6 +352,12 @@ export function ProductionCreditPanel({
                 className="mt-1 text-xs font-semibold leading-5 text-amber-950"
               >
                 {PRO_INTEREST_DEMAND_SIGNAL_MESSAGE}
+              </p>
+              <p
+                data-smoke="step5-pro-interest-not-payment"
+                className="mt-1 text-xs font-semibold leading-5 text-amber-950"
+              >
+                지금 남기는 것은 결제 예약이 아니라 어떤 상황에서 Pro가 필요한지 알려주는 표시입니다.
               </p>
               <div data-smoke="step5-pro-interest-reasons" className="mt-3 grid gap-px bg-amber-200">
                 {proInterestReasonItems.map(([label, detail]) => (

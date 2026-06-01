@@ -87,6 +87,12 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
         >
           {PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE}
         </p>
+        <p
+          data-smoke="profile-upgrade-interest-not-payment"
+          className="mt-1 text-xs font-semibold leading-5 text-blue-950"
+        >
+          이 기록은 결제 예약이나 구독 신청이 아니라 Pro가 필요한 순간을 모아 보는 신호입니다.
+        </p>
         <p className="mt-1 text-xs leading-5 text-slate-600">
           기준: 관심 등록 {formatCount(summary.totalCount)}회, 계정 {formatCount(summary.uniqueActorCount)}개, 최근 주요 이유 {topIntentLabel}.
         </p>

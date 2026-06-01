@@ -47,9 +47,15 @@ const contracts = [
       "Claude Code 연결 파일을 준비했습니다. 연결 도구 또는 record-progress 명령",
       'data-smoke="market-scan-source-boundary"',
       "추정 초안",
+      "공개 출처가 없습니다. 웹 조사 다시 시도로 출처를 붙인 뒤 제작 패키지 근거로 쓰세요.",
+    ],
+  },
+  {
+    file: "src/lib/market-scan.ts",
+    tokens: [
+      "buildMarketScanReviewState",
       "웹 출처를 붙이지 못해 사용자 입력 기반 추정으로 준비됐습니다.",
       "제작 패키지 근거로 쓰기 전, 웹 조사 다시 시도로 공개 출처를 붙이는 것이 안전합니다.",
-      "공개 출처가 없습니다. 웹 조사 다시 시도로 출처를 붙인 뒤 제작 패키지 근거로 쓰세요.",
     ],
   },
   {
@@ -477,23 +483,32 @@ const contracts = [
     file: "src/components/production-credit-panel.tsx",
     tokens: [
       'data-smoke="step5-pro-interest-boundary"',
+      'data-smoke="step5-pro-interest-not-payment"',
       'data-smoke="production-credit-pro-paused-boundary"',
+      'data-smoke="production-credit-no-checkout-summary"',
       "PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE",
       "PRO_INTEREST_DEMAND_SIGNAL_MESSAGE",
+      "결제가 아니라 수요 신호",
     ],
   },
   {
     file: "src/components/profile-credit-summary.tsx",
     tokens: [
+      'data-smoke="profile-current-plan-summary"',
       'data-smoke="profile-pro-interest-boundary"',
+      'data-smoke="profile-pro-interest-not-payment"',
       "PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE",
+      "현재는 Free입니다.",
+      "결제 예약이나 구독 신청이 아니라",
     ],
   },
   {
     file: "src/components/profile-upgrade-interest-summary.tsx",
     tokens: [
       'data-smoke="profile-upgrade-interest-paused-boundary"',
+      'data-smoke="profile-upgrade-interest-not-payment"',
       "PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE",
+      "결제 예약이나 구독 신청이 아니라",
       "중복 기준",
     ],
   },

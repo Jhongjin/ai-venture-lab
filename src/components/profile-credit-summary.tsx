@@ -156,6 +156,13 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
         <p className="mt-1 text-xs leading-5 text-slate-600">{creditNextActionDetail}</p>
       </div>
 
+      <div data-smoke="profile-current-plan-summary" className="mt-3 border border-slate-200 bg-white p-3">
+        <div className="text-xs font-semibold text-slate-500">현재 플랜</div>
+        <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
+          현재는 Free입니다. 제작 패스는 보유 크레딧으로 열고, Pro 버튼은 결제 없이 관심만 기록합니다.
+        </p>
+      </div>
+
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
         <div className="border border-slate-200 bg-white p-3">
           <div className="text-xs font-semibold text-slate-500">이번 달 지급</div>
@@ -298,6 +305,12 @@ export function ProfileCreditSummary({ error, summary }: ProfileCreditSummaryPro
             className="mt-3 text-xs font-semibold leading-5 text-blue-950"
           >
             {PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE}
+          </p>
+          <p
+            data-smoke="profile-pro-interest-not-payment"
+            className="mt-1 text-xs font-semibold leading-5 text-blue-950"
+          >
+            Pro 관심 등록은 결제 예약이나 구독 신청이 아니라 반복 제작 수요를 남기는 기록입니다.
           </p>
         </div>
         <UpgradeInterestButton
