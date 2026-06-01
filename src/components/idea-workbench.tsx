@@ -42,13 +42,18 @@ import { buildAppBlueprintMarkdown } from "@/lib/app-blueprint-markdown";
 import { buildBackendDecisionMarkdown, buildBackendExecutionPlanMarkdown } from "@/lib/backend-decision-markdown";
 import { buildBackendCandidateScores, buildBackendExecutionPlan } from "@/lib/backend-planning";
 import {
+  filterVisibleWorkbenchIdeas,
   getActiveIdeas,
+  getVisibleActiveIdeaCount,
+  getVisibleDiscardedIdeas,
   isIdeaStageAtOrAfter,
   isDiscardedIdea,
   sortWorkbenchIdeas,
   upsertRecordById,
   upsertRecordsById,
   upsertWorkbenchIdea,
+  type WorkbenchIdeaFilterMode,
+  type WorkbenchRecordAccessState,
 } from "@/lib/workbench-list-utils";
 import {
   missingEvidence,
@@ -613,7 +618,7 @@ export function IdeaWorkbench({
   const [isBuildPassUnlocking, setIsBuildPassUnlocking] = useState(false);
   const [creditMessage, setCreditMessage] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
-  const [filterMode, setFilterMode] = useState<"all" | "mine" | "read_only">("all");
+  const [filterMode, setFilterMode] = useState<WorkbenchIdeaFilterMode>("all");
   const [artifactTypeFilter, setArtifactTypeFilter] = useState<VentureArtifactType | "all">("all");
   const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
   const [artifactSourceFilter, setArtifactSourceFilter] = useState("all");
@@ -1388,7 +1393,7 @@ export function IdeaWorkbench({
       return "hidden" as const;
     },
     [memberships, user],
-  );
+  ) as (record: { created_by: string | null; organization_id: string | null }) => WorkbenchRecordAccessState;
 
   function canManageRecord(record: { created_by: string | null; organization_id: string | null }) {
     const accessState = getRecordAccessState(record);
@@ -2690,12 +2695,12 @@ export function IdeaWorkbench({
       : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다.";
   const doneRunCount = selectedRuns.filter((run) => run.status === "done").length;
   const workbenchTasks = buildWorkbenchTaskSummaries({
-    activeVisibleIdeaCount: getActiveIdeas(ideas).filter((idea) => getRecordAccessState(idea) !== "hidden").length,
+    activeVisibleIdeaCount: getVisibleActiveIdeaCount(ideas, getRecordAccessState),
     artifactCount: selectedArtifactRecords.length,
     canEnterLaunch,
     currentScore,
     decisionCount: selectedDecisions.length,
-    discardedVisibleIdeaCount: ideas.filter((idea) => isDiscardedIdea(idea) && getRecordAccessState(idea) !== "hidden").length,
+    discardedVisibleIdeaCount: getVisibleDiscardedIdeas(ideas, getRecordAccessState).length,
     doneRunCount,
     experimentCount: selectedExperiments.length,
     hasDevelopmentProcessArtifact: selectedArtifactRecords.some((artifact) => artifact.source === "development_process"),
@@ -2707,26 +2712,12 @@ export function IdeaWorkbench({
     telemetryEventCount: selectedTelemetryEvents.length,
   });
   const visibleWorkbenchTasks = getVisibleWorkbenchTaskSummaries(workbenchTasks, experienceMode);
-  const visibleIdeas = useMemo(() => {
-    const activeRecords = getActiveIdeas(ideas);
-
-    if (filterMode === "mine") {
-      return sortWorkbenchIdeas(activeRecords.filter((idea) => getRecordAccessState(idea) === "owned"));
-    }
-
-    if (filterMode === "read_only") {
-      return sortWorkbenchIdeas(
-        activeRecords.filter((idea) => {
-          const accessState = getRecordAccessState(idea);
-          return accessState === "workspace_admin" || accessState === "workspace_member";
-        }),
-      );
-    }
-
-    return sortWorkbenchIdeas(activeRecords.filter((idea) => getRecordAccessState(idea) !== "hidden"));
-  }, [filterMode, getRecordAccessState, ideas]);
+  const visibleIdeas = useMemo(
+    () => filterVisibleWorkbenchIdeas(ideas, filterMode, getRecordAccessState),
+    [filterMode, getRecordAccessState, ideas],
+  );
   const discardedIdeas = useMemo(
-    () => sortWorkbenchIdeas(ideas.filter((idea) => isDiscardedIdea(idea) && getRecordAccessState(idea) !== "hidden")),
+    () => getVisibleDiscardedIdeas(ideas, getRecordAccessState),
     [getRecordAccessState, ideas],
   );
   async function refreshSelectedIdeaImplementationTasks(options: { source?: "auto" | "manual" } = {}) {
