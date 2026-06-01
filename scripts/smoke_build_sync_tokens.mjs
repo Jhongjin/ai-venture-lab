@@ -259,7 +259,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
       state: "visible",
       timeout,
     });
-  await syncBrief.getByText("완료 보고가 들어오면 작업표 상태와 이 요약이 같이 바뀝니다.", { exact: true }).waitFor({
+  await syncBrief.getByText("완료 보고가 들어오면 작업표와 요약이 같이 바뀝니다.", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
@@ -273,6 +273,10 @@ async function verifyLearningTaskBoard(page, ideaId) {
     timeout,
   });
   await syncReviewDetails.locator("summary").click();
+  await syncReviewDetails.getByText("사용자는 새 실행을 시작하지 않습니다.", { exact: false }).waitFor({
+    state: "visible",
+    timeout,
+  });
   const syncReview = syncReviewDetails.locator('[data-smoke="step8-sync-review"]');
   for (const label of ["반영 결과", "다음 작업", "최근 확인"]) {
     await syncReview.getByText(label, { exact: true }).waitFor({

@@ -317,8 +317,10 @@ const contracts = [
   {
     file: "src/components/step8-sync-brief.tsx",
     tokens: [
+      'data-smoke="step8-sync-one-line"',
       'data-smoke="step8-sync-meaning"',
-      "완료 보고가 들어오면 작업표 상태와 이 요약이 같이 바뀝니다.",
+      "최근 확인",
+      "완료 보고가 들어오면 작업표와 요약이 같이 바뀝니다.",
       "사용자는 새 실행을 시작하지 않습니다.",
     ],
   },
