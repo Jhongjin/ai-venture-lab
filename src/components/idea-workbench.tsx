@@ -242,9 +242,12 @@ import {
 } from "@/lib/workbench-selection-utils";
 import {
   buildCursorProgressImportDrafts,
+  buildCursorProgressPreviewItems,
   getCursorTaskCode,
+  getVisibleCursorProgressImportItems,
   normalizeTaskLookupTitle,
   summarizeCursorProgressEvidence,
+  type CursorProgressDisplayItem,
   type ImplementationTaskDraft,
 } from "@/lib/external-progress-import";
 import {
@@ -460,13 +463,6 @@ type DevelopmentAutoFlowState = "idle" | "running" | "review" | "summary";
 function emitVentureEvent<T>(eventName: string, detail: T) {
   window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
 }
-
-type CursorProgressDisplayItem = {
-  taskCode: string;
-  title: string;
-  status: ImplementationTaskStatus;
-  detail: string;
-};
 
 type CursorBuildSyncTokenResponse = {
   ok?: boolean;
@@ -2520,22 +2516,14 @@ export function IdeaWorkbench({
   const activeCursorSyncConnections = finalExecutionConnectionHealth.activeConnections;
   const finalExecutionConnectionHealthTitle = finalExecutionConnectionHealth.title;
   const finalExecutionConnectionHealthDetail = finalExecutionConnectionHealth.detail;
-  const cursorProgressPreviewItems =
-    cursorProgressImportText.trim() && cursorHandoffTaskDrafts.length > 0
-      ? buildCursorProgressImportDrafts({
-          sourceText: cursorProgressImportText,
-          fallbackTasks: cursorHandoffTaskDrafts,
-        }).drafts
-          .filter((draft) => draft.status !== "todo" || draft.evidence.trim())
-          .map((draft) => ({
-            taskCode: draft.taskCode,
-            title: draft.title,
-            status: draft.status,
-            detail: summarizeCursorProgressEvidence(draft.evidence) || "붙여넣은 진행 결과에서 자동으로 읽은 작업입니다.",
-          }))
-      : [];
-  const visibleCursorProgressImportItems =
-    cursorProgressImportItems.length > 0 ? cursorProgressImportItems : cursorProgressPreviewItems;
+  const cursorProgressPreviewItems = buildCursorProgressPreviewItems({
+    fallbackTasks: cursorHandoffTaskDrafts,
+    sourceText: cursorProgressImportText,
+  });
+  const visibleCursorProgressImportItems = getVisibleCursorProgressImportItems({
+    importedItems: cursorProgressImportItems,
+    previewItems: cursorProgressPreviewItems,
+  });
   const finalExecutionTaskPreviewSummary = buildFinalExecutionTaskPreview({
     buildDeliveryMode,
     externalToolLabel: activeExternalBuildTool.label,

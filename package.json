@@ -32,6 +32,7 @@
     "smoke:extraction-match": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_candidate_match.mjs",
     "smoke:extraction-risk": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_risk_utils.mjs",
     "smoke:extraction-text": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_text_utils.mjs",
+    "smoke:external-progress": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_external_progress_import.mjs",
     "smoke:final-execution": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_final_execution_readiness.mjs",
     "smoke:text-match": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_text_match_utils.mjs",
     "smoke:source-redaction": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_source_redaction.mjs",

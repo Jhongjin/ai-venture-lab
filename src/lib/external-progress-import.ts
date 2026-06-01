@@ -27,6 +27,13 @@ type CursorProgressImportDraft = ImplementationTaskDraft & {
   evidence: string;
 };
 
+export type CursorProgressDisplayItem = {
+  taskCode: string;
+  title: string;
+  status: ImplementationTaskStatus;
+  detail: string;
+};
+
 const externalProgressStatusLabels: Record<ImplementationTaskStatus, string> = {
   todo: "할 일",
   doing: "진행 중",
@@ -325,4 +332,38 @@ export function buildCursorProgressImportDrafts({
     parsedCount: importItems.length,
     completedCount: importItems.filter((item) => item.status === "done").length,
   };
+}
+
+export function buildCursorProgressPreviewItems({
+  fallbackTasks,
+  sourceText,
+}: {
+  fallbackTasks: ImplementationTaskDraft[];
+  sourceText: string;
+}): CursorProgressDisplayItem[] {
+  if (!sourceText.trim() || fallbackTasks.length === 0) {
+    return [];
+  }
+
+  return buildCursorProgressImportDrafts({
+    sourceText,
+    fallbackTasks,
+  }).drafts
+    .filter((draft) => draft.status !== "todo" || draft.evidence.trim())
+    .map((draft) => ({
+      taskCode: draft.taskCode,
+      title: draft.title,
+      status: draft.status,
+      detail: summarizeCursorProgressEvidence(draft.evidence) || "붙여넣은 진행 결과에서 자동으로 읽은 작업입니다.",
+    }));
+}
+
+export function getVisibleCursorProgressImportItems({
+  importedItems,
+  previewItems,
+}: {
+  importedItems: CursorProgressDisplayItem[];
+  previewItems: CursorProgressDisplayItem[];
+}) {
+  return importedItems.length > 0 ? importedItems : previewItems;
 }
