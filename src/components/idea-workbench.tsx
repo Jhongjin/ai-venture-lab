@@ -282,6 +282,7 @@ import { buildReleaseDecisionPacket } from "@/lib/release-decision-packet";
 import { buildRolePromptPackMarkdown } from "@/lib/role-prompt-pack-markdown";
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import { buildEvidenceNoteMarkdown, buildExperimentResultMarkdown } from "@/lib/validation-evidence-markdown";
+import { buildValidationPackageSaveJobs } from "@/lib/validation-package-save-jobs";
 import {
   buildIdeaBriefMarkdown,
   buildResearchBriefMarkdown,
@@ -3038,36 +3039,17 @@ export function IdeaWorkbench({
     }
 
     setIsSavingValidationBundle(true);
-    const jobs = [
-      {
-        done: hasIdeaBriefArtifact,
-        artifactType: "idea_brief" as VentureArtifactType,
-        title: `${selectedIdea.name} 아이디어 요약`,
-        body: ideaBrief,
-        source: "workbench",
-      },
-      {
-        done: hasResearchBriefArtifact,
-        artifactType: "research_note" as VentureArtifactType,
-        title: `${selectedIdea.name} 조사 요약`,
-        body: researchBriefDraft,
-        source: "workbench",
-      },
-      {
-        done: hasValidationSprintArtifact,
-        artifactType: "research_note" as VentureArtifactType,
-        title: `${selectedIdea.name} 7일 검증 계획`,
-        body: validationSprintDraft,
-        source: "validation_sprint",
-      },
-      {
-        done: hasValidationSummaryArtifact,
-        artifactType: "research_note" as VentureArtifactType,
-        title: `${selectedIdea.name} 검증 완료 요약`,
-        body: validationSummaryDraft,
-        source: "validation_summary",
-      },
-    ];
+    const jobs = buildValidationPackageSaveJobs({
+      hasIdeaBriefArtifact,
+      hasResearchBriefArtifact,
+      hasValidationSprintArtifact,
+      hasValidationSummaryArtifact,
+      ideaBrief,
+      ideaName: selectedIdea.name,
+      researchBriefDraft,
+      validationSprintDraft,
+      validationSummaryDraft,
+    });
 
     let savedCount = 0;
     for (const job of jobs) {
