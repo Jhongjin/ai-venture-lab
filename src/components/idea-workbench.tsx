@@ -209,6 +209,10 @@ import {
   buildImplementationGateChecks,
   buildPrdReadinessChecks,
   buildWorkbenchStepReadinessSnapshot,
+  countDoneWorkbenchRuns,
+  countWorkbenchHighRiskItems,
+  hasDevelopmentProcessArtifact,
+  hasDoneWorkbenchRunForPhase,
   summarizeGateChecks,
   type GateCheck,
   type WorkbenchStepReadiness,
@@ -1785,10 +1789,7 @@ export function IdeaWorkbench({
   const completedImplementationTasks = implementationTaskProgressStats.completedTasks;
   const implementationTasksWithEvidence = completedImplementationTasks.filter((task) => task.evidence.trim());
   const hasCompletedExperiment = selectedExperiments.some((experiment) => experiment.status === "done");
-  const highRiskCount = selectedIdeaRisks.filter((risk) => ["high", "critical"].includes(risk.severity)).length;
-  const unresolvedHighRiskCount = selectedIdeaRisks.filter(
-    (risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed",
-  ).length;
+  const { highRiskCount, unresolvedHighRiskCount } = countWorkbenchHighRiskItems(selectedIdeaRisks);
   const prdReadinessChecks: GateCheck[] = selectedIdea && editState
     ? buildPrdReadinessChecks({
         decision: editState.decision,
@@ -1830,7 +1831,7 @@ export function IdeaWorkbench({
         hasBackendDecisionArtifact,
         hasDesignBriefArtifact,
         hasDesignStateCoverage,
-        hasDoneDesignRun: selectedRuns.some((run) => run.phase === "design" && run.status === "done"),
+        hasDoneDesignRun: hasDoneWorkbenchRunForPhase(selectedRuns, "design"),
         hasMvpSpecArtifact,
         hasPrdArtifact,
         nextEvidence: editState.next_evidence,
@@ -1898,8 +1899,8 @@ export function IdeaWorkbench({
         blockedTaskCount: implementationTaskProgressStats.blockedCount,
         completedTaskCount: completedImplementationTasks.length,
         completedTaskWithEvidenceCount: implementationTasksWithEvidence.length,
-        hasDoneQaRun: selectedRuns.some((run) => run.phase === "qa" && run.status === "done"),
-        hasDoneSecurityRun: selectedRuns.some((run) => run.phase === "security" && run.status === "done"),
+        hasDoneQaRun: hasDoneWorkbenchRunForPhase(selectedRuns, "qa"),
+        hasDoneSecurityRun: hasDoneWorkbenchRunForPhase(selectedRuns, "security"),
         implementationTaskCount: selectedImplementationTasks.length,
       })
     : [];
@@ -2369,7 +2370,7 @@ export function IdeaWorkbench({
   const finalExecutionFallbackTaskPreview = finalExecutionTaskPreviewSummary.fallbackTaskPreview;
   const finalExecutionVisibleTaskCount = finalExecutionTaskPreviewSummary.visibleTaskCount;
   const finalExecutionTaskListDescription = finalExecutionTaskPreviewSummary.taskListDescription;
-  const doneRunCount = selectedRuns.filter((run) => run.status === "done").length;
+  const doneRunCount = countDoneWorkbenchRuns(selectedRuns);
   const workbenchTasks = buildWorkbenchTaskSummaries({
     activeVisibleIdeaCount: getVisibleActiveIdeaCount(ideas, getRecordAccessState),
     artifactCount: selectedArtifactRecords.length,
@@ -2379,7 +2380,7 @@ export function IdeaWorkbench({
     discardedVisibleIdeaCount: getVisibleDiscardedIdeas(ideas, getRecordAccessState).length,
     doneRunCount,
     experimentCount: selectedExperiments.length,
-    hasDevelopmentProcessArtifact: selectedArtifactRecords.some((artifact) => artifact.source === "development_process"),
+    hasDevelopmentProcessArtifact: hasDevelopmentProcessArtifact(selectedArtifactRecords),
     implementationCompletedCount: implementationTaskProgressStats.completedCount,
     implementationTotalCount: implementationTaskProgressStats.totalCount,
     launchReadinessScore,

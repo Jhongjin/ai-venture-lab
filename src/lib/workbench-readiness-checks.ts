@@ -10,6 +10,48 @@ export type GateCheckSummary = {
   score: number;
 };
 
+export type WorkbenchRiskLike = {
+  severity: string;
+  status: string;
+};
+
+export type WorkbenchRunLike = {
+  phase: string;
+  status: string;
+};
+
+export type WorkbenchArtifactLike = {
+  source: string | null;
+};
+
+export type WorkbenchRiskCounts = {
+  highRiskCount: number;
+  unresolvedHighRiskCount: number;
+};
+
+const highRiskSeverities = new Set(["high", "critical"]);
+
+export function countWorkbenchHighRiskItems(risks: ReadonlyArray<WorkbenchRiskLike>): WorkbenchRiskCounts {
+  const highRiskItems = risks.filter((risk) => highRiskSeverities.has(risk.severity));
+
+  return {
+    highRiskCount: highRiskItems.length,
+    unresolvedHighRiskCount: highRiskItems.filter((risk) => risk.status !== "closed").length,
+  };
+}
+
+export function hasDoneWorkbenchRunForPhase(runs: ReadonlyArray<WorkbenchRunLike>, phase: string) {
+  return runs.some((run) => run.phase === phase && run.status === "done");
+}
+
+export function countDoneWorkbenchRuns(runs: ReadonlyArray<WorkbenchRunLike>) {
+  return runs.filter((run) => run.status === "done").length;
+}
+
+export function hasDevelopmentProcessArtifact(artifacts: ReadonlyArray<WorkbenchArtifactLike>) {
+  return artifacts.some((artifact) => artifact.source === "development_process");
+}
+
 export type WorkbenchStepReadiness = {
   selectedIdeaId: string | null;
   canEnterExperiment: boolean;

@@ -9,6 +9,10 @@ const {
   buildImplementationGateChecks,
   buildPrdReadinessChecks,
   buildWorkbenchStepReadinessSnapshot,
+  countDoneWorkbenchRuns,
+  countWorkbenchHighRiskItems,
+  hasDevelopmentProcessArtifact,
+  hasDoneWorkbenchRunForPhase,
   summarizeGateChecks,
 } = await import(moduleUrl);
 
@@ -138,5 +142,24 @@ assert.equal(lockedArtifactsReadiness.canEnterExperiment, false);
 assert.equal(lockedArtifactsReadiness.canEnterArtifacts, false);
 assert.equal(lockedArtifactsReadiness.canEnterDevelopment, false);
 assert.equal(lockedArtifactsReadiness.canEnterOrchestration, false);
+
+const riskCounts = countWorkbenchHighRiskItems([
+  { severity: "low", status: "open" },
+  { severity: "high", status: "closed" },
+  { severity: "critical", status: "open" },
+  { severity: "medium", status: "open" },
+]);
+assert.deepEqual(riskCounts, { highRiskCount: 2, unresolvedHighRiskCount: 1 });
+
+const runs = [
+  { phase: "design", status: "done" },
+  { phase: "qa", status: "running" },
+  { phase: "security", status: "done" },
+];
+assert.equal(hasDoneWorkbenchRunForPhase(runs, "design"), true);
+assert.equal(hasDoneWorkbenchRunForPhase(runs, "qa"), false);
+assert.equal(countDoneWorkbenchRuns(runs), 2);
+assert.equal(hasDevelopmentProcessArtifact([{ source: "manual" }, { source: "development_process" }]), true);
+assert.equal(hasDevelopmentProcessArtifact([{ source: null }]), false);
 
 console.log("Workbench readiness smoke passed.");
