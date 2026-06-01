@@ -221,6 +221,53 @@ export function getImplementationTaskOwnerRole(task: ImplementationTask) {
   return task.owner_role.trim() || "owner 미정";
 }
 
+export function buildImplementationOwnerOptions(tasks: ImplementationTask[]) {
+  return [
+    "all",
+    ...Array.from(new Set(tasks.map((task) => getImplementationTaskOwnerRole(task)))).sort((a, b) =>
+      a.localeCompare(b, "ko-KR"),
+    ),
+  ];
+}
+
+export function buildImplementationOwnerFilterLabels(ownerOptions: string[]) {
+  return Object.fromEntries(ownerOptions.map((option) => [option, option === "all" ? "전체 담당" : option])) as Record<
+    string,
+    string
+  >;
+}
+
+export function resolveImplementationOwnerFilter(ownerOptions: string[], ownerFilter: string) {
+  return ownerOptions.includes(ownerFilter) ? ownerFilter : "all";
+}
+
+export function filterImplementationTasks({
+  evidenceByTaskId,
+  evidenceFilter,
+  ownerFilter,
+  statusFilter,
+  tasks,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  evidenceFilter: ImplementationEvidenceFilter;
+  ownerFilter: string;
+  statusFilter: ImplementationStatusFilter;
+  tasks: ImplementationTask[];
+}) {
+  return tasks.filter((task) => {
+    const currentEvidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
+    const hasEvidenceGap = getImplementationEvidenceChecklist(task, currentEvidence).some((item) => !item.passed);
+    const matchesStatus = statusFilter === "all" || task.status === statusFilter;
+    const matchesOwner = ownerFilter === "all" || getImplementationTaskOwnerRole(task) === ownerFilter;
+    const matchesEvidence =
+      evidenceFilter === "all" ||
+      (evidenceFilter === "missing" && hasEvidenceGap) ||
+      (evidenceFilter === "complete" && !hasEvidenceGap);
+
+    return matchesStatus && matchesOwner && matchesEvidence;
+  });
+}
+
 export function getBlockedImplementationTaskHint(task: ImplementationTask) {
   const playbook = implementationBlockerPlaybooks[task.task_type];
 

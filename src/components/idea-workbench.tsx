@@ -267,10 +267,13 @@ import { buildDevelopmentCompletionReportMarkdown } from "@/lib/development-comp
 import {
   buildImplementationDependencyStatuses,
   buildImplementationTaskProgressStats,
+  buildImplementationOwnerFilterLabels,
+  buildImplementationOwnerOptions,
+  filterImplementationTasks,
   getBlockedImplementationTaskHint,
   getImplementationEvidenceChecklist,
-  getImplementationTaskOwnerRole,
   getImplementationTaskReadinessQueues,
+  resolveImplementationOwnerFilter,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
   implementationStatusFilterLabels,
@@ -1263,36 +1266,22 @@ export function IdeaWorkbench({
     [implementationTaskEvidence, selectedImplementationTasks],
   );
   const implementationOwnerOptions = useMemo(
-    () =>
-      ["all", ...Array.from(new Set(selectedImplementationTasks.map((task) => getImplementationTaskOwnerRole(task)))).sort((a, b) =>
-        a.localeCompare(b, "ko-KR"),
-      )],
+    () => buildImplementationOwnerOptions(selectedImplementationTasks),
     [selectedImplementationTasks],
   );
   const implementationOwnerFilterLabels = useMemo(
-    () =>
-      Object.fromEntries(
-        implementationOwnerOptions.map((option) => [option, option === "all" ? "전체 담당" : option]),
-      ) as Record<string, string>,
+    () => buildImplementationOwnerFilterLabels(implementationOwnerOptions),
     [implementationOwnerOptions],
   );
-  const activeImplementationOwnerFilter = implementationOwnerOptions.includes(implementationOwnerFilter)
-    ? implementationOwnerFilter
-    : "all";
+  const activeImplementationOwnerFilter = resolveImplementationOwnerFilter(implementationOwnerOptions, implementationOwnerFilter);
   const filteredImplementationTasks = useMemo(
     () =>
-      selectedImplementationTasks.filter((task) => {
-        const currentEvidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
-        const hasEvidenceGap = getImplementationEvidenceChecklist(task, currentEvidence).some((item) => !item.passed);
-        const matchesStatus = implementationStatusFilter === "all" || task.status === implementationStatusFilter;
-        const matchesOwner =
-          activeImplementationOwnerFilter === "all" || getImplementationTaskOwnerRole(task) === activeImplementationOwnerFilter;
-        const matchesEvidence =
-          implementationEvidenceFilter === "all" ||
-          (implementationEvidenceFilter === "missing" && hasEvidenceGap) ||
-          (implementationEvidenceFilter === "complete" && !hasEvidenceGap);
-
-        return matchesStatus && matchesOwner && matchesEvidence;
+      filterImplementationTasks({
+        evidenceByTaskId: implementationTaskEvidence,
+        evidenceFilter: implementationEvidenceFilter,
+        ownerFilter: activeImplementationOwnerFilter,
+        statusFilter: implementationStatusFilter,
+        tasks: selectedImplementationTasks,
       }),
     [
       activeImplementationOwnerFilter,
