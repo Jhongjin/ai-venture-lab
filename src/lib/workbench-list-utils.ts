@@ -1,11 +1,19 @@
 import type { Idea } from "@/lib/venture-data";
-import type { IdeaStage } from "@/lib/supabase/types";
+import type { IdeaStage, OrganizationRole } from "@/lib/supabase/types";
 
 export type WorkbenchIdeaFilterMode = "all" | "mine" | "read_only";
 export type WorkbenchRecordAccessState = "owned" | "workspace_admin" | "workspace_member" | "hidden";
+export type WorkbenchAccessRecord = { created_by: string | null; organization_id: string | null };
+export type WorkbenchAccessMembership = {
+  organization_id: string;
+  role: OrganizationRole;
+  user_id: string;
+};
+export type WorkbenchAccessViewer = { id: string } | null;
 
 const ideaStageOrder: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const ideaStageRank = new Map(ideaStageOrder.map((stage, index) => [stage, index]));
+export const workbenchAdminRoles = new Set<OrganizationRole>(["owner", "admin"]);
 
 export function getIdeaStageRank(stage: IdeaStage) {
   return ideaStageRank.get(stage) ?? 99;
@@ -17,6 +25,51 @@ export function isIdeaStageAtOrAfter(stage: IdeaStage, targetStage: IdeaStage) {
 
 export function isDiscardedIdea(idea: Idea) {
   return idea.decision === "kill";
+}
+
+export function isWorkbenchAdminRole(role: OrganizationRole) {
+  return workbenchAdminRoles.has(role);
+}
+
+export function getWorkbenchRecordAccessState({
+  memberships,
+  record,
+  user,
+}: {
+  memberships: WorkbenchAccessMembership[];
+  record: WorkbenchAccessRecord;
+  user: WorkbenchAccessViewer;
+}): WorkbenchRecordAccessState {
+  if (!user) {
+    return "hidden";
+  }
+
+  if (record.created_by === user.id) {
+    return "owned";
+  }
+
+  if (!record.organization_id) {
+    return "hidden";
+  }
+
+  const membership = memberships.find(
+    (entry) => entry.user_id === user.id && entry.organization_id === record.organization_id,
+  );
+
+  if (!membership) {
+    return "hidden";
+  }
+
+  return isWorkbenchAdminRole(membership.role) ? "workspace_admin" : "workspace_member";
+}
+
+export function canManageWorkbenchRecord(args: {
+  memberships: WorkbenchAccessMembership[];
+  record: WorkbenchAccessRecord;
+  user: WorkbenchAccessViewer;
+}) {
+  const accessState = getWorkbenchRecordAccessState(args);
+  return accessState === "owned" || accessState === "workspace_admin";
 }
 
 export function getActiveIdeas(nextIdeas: Idea[]) {

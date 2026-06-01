@@ -52,7 +52,9 @@ import { buildBackendDecisionMarkdown, buildBackendExecutionPlanMarkdown } from 
 import { buildBackendCandidateScores, buildBackendExecutionPlan } from "@/lib/backend-planning";
 import {
   filterVisibleWorkbenchIdeas,
+  canManageWorkbenchRecord,
   getActiveIdeas,
+  getWorkbenchRecordAccessState,
   getVisibleActiveIdeaCount,
   getVisibleDiscardedIdeas,
   isIdeaStageAtOrAfter,
@@ -62,7 +64,6 @@ import {
   upsertRecordsById,
   upsertWorkbenchIdea,
   type WorkbenchIdeaFilterMode,
-  type WorkbenchRecordAccessState,
 } from "@/lib/workbench-list-utils";
 import {
   missingEvidence,
@@ -416,7 +417,6 @@ export type { WorkbenchTask } from "@/lib/workbench-tasks";
 const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
 const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
 const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
-const adminRoles = new Set(["owner", "admin"]);
 type EditState = WorkbenchEditState;
 
 type RiskDraft = {
@@ -1213,47 +1213,22 @@ export function IdeaWorkbench({
     [selectedArtifactRecords],
   );
 
-  const canAdminSelectedOrganization = Boolean(
-    user &&
-      selectedIdea?.organization_id &&
-      memberships.some(
-        (membership) =>
-          membership.user_id === user.id &&
-          membership.organization_id === selectedIdea.organization_id &&
-          adminRoles.has(membership.role),
-      ),
+  const canEdit = Boolean(
+    selectedIdea &&
+      canManageWorkbenchRecord({
+        memberships,
+        record: selectedIdea,
+        user,
+      }),
   );
-  const canEdit = Boolean(user && (selectedIdea?.created_by === user.id || canAdminSelectedOrganization));
   const getRecordAccessState = useCallback(
-    (record: { created_by: string | null; organization_id: string | null }) => {
-      if (!user) {
-        return "hidden" as const;
-      }
-
-      if (record.created_by === user.id) {
-        return "owned" as const;
-      }
-
-      if (record.organization_id) {
-        const membership = memberships.find(
-          (entry) => entry.user_id === user.id && entry.organization_id === record.organization_id,
-        );
-
-        if (!membership) {
-          return "hidden" as const;
-        }
-
-        return adminRoles.has(membership.role) ? ("workspace_admin" as const) : ("workspace_member" as const);
-      }
-
-      return "hidden" as const;
-    },
+    (record: { created_by: string | null; organization_id: string | null }) =>
+      getWorkbenchRecordAccessState({ memberships, record, user }),
     [memberships, user],
-  ) as (record: { created_by: string | null; organization_id: string | null }) => WorkbenchRecordAccessState;
+  );
 
   function canManageRecord(record: { created_by: string | null; organization_id: string | null }) {
-    const accessState = getRecordAccessState(record);
-    return accessState === "owned" || accessState === "workspace_admin";
+    return canManageWorkbenchRecord({ memberships, record, user });
   }
 
   async function discardIdeaRecord(idea: Idea) {
@@ -4980,17 +4955,9 @@ export function IdeaWorkbench({
               {visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {
                 const selectedProgress = getWorkbenchIdeaProgress(selectedIdea);
                 const selectedSurface = inferIdeaProductSurface(selectedIdea);
-                const isOwned = Boolean(user && selectedIdea.created_by === user.id);
-                const isOrgAdmin = Boolean(
-                  user &&
-                    selectedIdea.organization_id &&
-                    memberships.some(
-                      (membership) =>
-                        membership.user_id === user.id &&
-                        membership.organization_id === selectedIdea.organization_id &&
-                        adminRoles.has(membership.role),
-                    ),
-                );
+                const selectedAccessState = getRecordAccessState(selectedIdea);
+                const isOwned = selectedAccessState === "owned";
+                const isOrgAdmin = selectedAccessState === "workspace_admin";
                 const isManageable = isOwned || isOrgAdmin;
                 const comparisonIdeas = visibleIdeas.filter((idea) => idea.id !== selectedIdea.id).slice(0, 4);
 
@@ -5085,17 +5052,9 @@ export function IdeaWorkbench({
                           comparisonIdeas.map((idea, index) => {
                             const progress = getWorkbenchIdeaProgress(idea);
                             const surface = inferIdeaProductSurface(idea);
-                            const isOwnedComparison = Boolean(user && idea.created_by === user.id);
-                            const isOrgAdminComparison = Boolean(
-                              user &&
-                                idea.organization_id &&
-                                memberships.some(
-                                  (membership) =>
-                                    membership.user_id === user.id &&
-                                    membership.organization_id === idea.organization_id &&
-                                    adminRoles.has(membership.role),
-                                ),
-                            );
+                            const comparisonAccessState = getRecordAccessState(idea);
+                            const isOwnedComparison = comparisonAccessState === "owned";
+                            const isOrgAdminComparison = comparisonAccessState === "workspace_admin";
 
                             return (
                               <div

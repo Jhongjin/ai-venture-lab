@@ -5,10 +5,13 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-list-utils.ts")).href;
 const {
   filterVisibleWorkbenchIdeas,
+  canManageWorkbenchRecord,
   getActiveIdeas,
   getIdeaStageRank,
+  getWorkbenchRecordAccessState,
   getVisibleActiveIdeaCount,
   getVisibleDiscardedIdeas,
+  isWorkbenchAdminRole,
   isDiscardedIdea,
   isIdeaStageAtOrAfter,
   sortWorkbenchIdeas,
@@ -65,6 +68,9 @@ assert.equal(getIdeaStageRank("intake") < getIdeaStageRank("launch"), true);
 assert.equal(isIdeaStageAtOrAfter("prototype", "prd"), true);
 assert.equal(isIdeaStageAtOrAfter("score", "launch"), false);
 assert.equal(isDiscardedIdea(ideas[4]), true);
+assert.equal(isWorkbenchAdminRole("owner"), true);
+assert.equal(isWorkbenchAdminRole("admin"), true);
+assert.equal(isWorkbenchAdminRole("member"), false);
 assert.deepEqual(getActiveIdeas(ideas).map((record) => record.id), ["shared-old", "owned-new", "hidden", "admin"]);
 
 assert.deepEqual(
@@ -86,6 +92,25 @@ assert.deepEqual(
 );
 assert.equal(getVisibleActiveIdeaCount(ideas, getAccess), 3);
 assert.deepEqual(getVisibleDiscardedIdeas(ideas, getAccess).map((record) => record.id), ["deleted"]);
+
+const memberships = [
+  { organization_id: "org-admin", role: "admin", user_id: "viewer-1" },
+  { organization_id: "org-member", role: "member", user_id: "viewer-1" },
+  { organization_id: "org-other", role: "owner", user_id: "other-user" },
+];
+const viewer = { id: "viewer-1" };
+const ownedRecord = { created_by: "viewer-1", organization_id: null };
+const adminRecord = { created_by: "other-user", organization_id: "org-admin" };
+const memberRecord = { created_by: "other-user", organization_id: "org-member" };
+const hiddenRecord = { created_by: "other-user", organization_id: "org-other" };
+assert.equal(getWorkbenchRecordAccessState({ memberships, record: ownedRecord, user: viewer }), "owned");
+assert.equal(getWorkbenchRecordAccessState({ memberships, record: adminRecord, user: viewer }), "workspace_admin");
+assert.equal(getWorkbenchRecordAccessState({ memberships, record: memberRecord, user: viewer }), "workspace_member");
+assert.equal(getWorkbenchRecordAccessState({ memberships, record: hiddenRecord, user: viewer }), "hidden");
+assert.equal(getWorkbenchRecordAccessState({ memberships, record: ownedRecord, user: null }), "hidden");
+assert.equal(canManageWorkbenchRecord({ memberships, record: ownedRecord, user: viewer }), true);
+assert.equal(canManageWorkbenchRecord({ memberships, record: adminRecord, user: viewer }), true);
+assert.equal(canManageWorkbenchRecord({ memberships, record: memberRecord, user: viewer }), false);
 
 assert.deepEqual(upsertRecordById([{ id: "a", value: 1 }], { id: "a", value: 2 }), [{ id: "a", value: 2 }]);
 assert.deepEqual(upsertRecordsById([{ id: "a", value: 1 }], [{ id: "b", value: 2 }]), [
