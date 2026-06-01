@@ -44,6 +44,12 @@ import {
   getCandidateStrategyScore,
 } from "@/lib/extraction-strategy-lens";
 import {
+  buildExtractionPortfolioMarkdown,
+  buildExtractionReplayMarkdown,
+  buildExtractionReportBody,
+  type ExtractionPortfolioMarkdownItem,
+} from "@/lib/extraction-report-markdown";
+import {
   inferAssumptions,
   inferFirstPrototypeScope,
   inferInitialScores,
@@ -733,122 +739,6 @@ function buildExtractionReplaySummary({
   };
 }
 
-function buildExtractionReplayMarkdown(summary: ExtractionReplaySummary) {
-  const generatedAt = new Date(summary.generatedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-  const rows = summary.items
-    .map(
-      (item, index) =>
-        `| ${index + 1} | ${item.primaryCandidate.name} | ${item.primaryCandidate.productSurface.label} | ${item.verdict} | ${
-          item.matchedName ?? "-"
-        } | ${item.overlapScore || "-"} | ${item.primaryCandidate.validationScore}/100 | ${item.nextAction} |`,
-    )
-    .join("\n");
-
-  return `# AI 정리 다시 보기
-
-## 실행 메타
-
-- 실행 시각: ${generatedAt}
-- 입력 길이: ${summary.sourceLength}자
-- 기준 추출 아이디어: ${summary.rulesCount}개
-- AI 아이디어: ${summary.aiCount}개
-- 공통 아이디어: ${summary.consensusCount}개
-- 기준 추출 단독: ${summary.rulesOnlyCount}개
-- AI 단독: ${summary.aiOnlyCount}개
-- AI 모드: ${summary.aiMode}
-- 모델: ${summary.model ?? "해당 없음"}
-- 실행 메모: ${summary.note}
-
-## 비교 결과
-
-| 순서 | 아이디어 | 결과물 형태 | 판정 | 매칭 아이디어 | 유사도 | 검증 점수 | 다음 행동 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-${rows || "| - | 아이디어 없음 | - | - | - | - | - | - |"}
-`;
-}
-
-function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioItem[]) {
-  const rows = items
-    .map(
-      (item, index) =>
-        `| ${index + 1} | ${item.candidate.name} | ${item.candidate.productSurface.label} | ${item.gate.label} | ${item.candidate.validationScore}/100 | ${getCandidateStrategyScore(
-          item.candidate,
-        )}% | ${item.readinessScore}% | ${
-          item.similarIdea ? `${item.similarIdea.idea.name} ${item.similarIdea.score}%` : "없음"
-        } | ${item.gate.nextAction} |`,
-    )
-    .join("\n");
-  const gateSummary = (["proceed", "research", "pivot", "kill"] as ExtractionGateId[])
-    .map((gateId) => {
-      const count = items.filter((item) => item.gate.id === gateId).length;
-      const label = gateId === "proceed" ? "진행 가능" : gateId === "research" ? "추가 조사" : gateId === "pivot" ? "전환 검토" : "보류";
-
-      return `- ${label}: ${count}개`;
-    })
-    .join("\n");
-
-  return `# 아이디어 도출 실행 요약
-
-## 추천 판단 분포
-
-${gateSummary}
-
-## 실행 순서
-
-| 순서 | 아이디어 | 결과물 형태 | 추천 판단 | 검증 기준 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-${rows || "| - | 아이디어 없음 | - | - | - | - | - | - | - |"}
-
-## 운영 원칙
-
-- 진행 가능한 아이디어는 검증 자료로 저장한 뒤 실행 보드에서 사업성 평가와 첫 검증 계획을 확정합니다.
-- 추가 조사가 필요한 아이디어는 부족한 문제 신호, 구매자, 지표, 리스크, MVP 범위를 보완합니다.
-- 전환 검토 아이디어는 기존 기록 병합, 세그먼트 축소, 구매자 변경 중 하나를 먼저 결정합니다.
-- 보류 아이디어는 새 증거가 생길 때까지 저장하지 않습니다.
-`;
-}
-
-function buildExtractionReportBody(
-  items: ExtractionPortfolioItem[],
-  source: string,
-  organizationName: string | null,
-  runMeta: ExtractionRunMeta | null,
-  replaySummary: ExtractionReplaySummary | null,
-) {
-  const sourceExcerpt = redactSensitiveSource(source).trim().slice(0, 4000);
-  const generatedAt = new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-  const metaGeneratedAt = runMeta
-    ? new Date(runMeta.generatedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })
-    : generatedAt;
-
-  return `${buildExtractionPortfolioMarkdown(items)}
-
-## 찾기 조건
-
-- 생성 시각: ${generatedAt}
-- 워크스페이스: ${organizationName ?? "개인 기록"}
-- 아이디어 수: ${items.length}개
-- 추출 엔진: ${runMeta?.engine ?? "미기록"}
-- 모델: ${runMeta?.model ?? "해당 없음"}
-- 입력 길이: ${runMeta?.sourceLength ?? source.length}자
-- 추출 시각: ${metaGeneratedAt}
-- 실행 메모: ${runMeta?.note ?? "수동 또는 이전 방식으로 찾은 아이디어입니다."}
-
-${replaySummary ? buildExtractionReplayMarkdown(replaySummary) : "## AI 정리 다시 보기\n\n- 이번 리포트에는 다시 보기 결과가 포함되지 않았습니다."}
-
-## 메모 근거 요약
-
-${sourceExcerpt || "메모 근거가 비어 있습니다."}
-
-## 다음 처리
-
-1. 진행 가능한 아이디어는 검증 자료로 저장합니다.
-2. 추가 조사가 필요한 아이디어는 부족한 증거를 보완한 뒤 다시 찾습니다.
-3. 전환 검토 아이디어는 기존 아이디어 병합 또는 세그먼트 축소를 먼저 판단합니다.
-4. 보류 아이디어는 새 증거가 생길 때까지 실행 목록에서 제외합니다.
-`;
-}
-
 export function VentureConsoleActions({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
@@ -1122,6 +1012,21 @@ export function VentureConsoleActions({
       ),
     [extractionPortfolioItems],
   );
+  const extractionPortfolioMarkdownItems = useMemo<ExtractionPortfolioMarkdownItem[]>(
+    () =>
+      extractionPortfolioItems.map((item) => ({
+        candidateName: item.candidate.name,
+        gateId: item.gate.id,
+        gateLabel: item.gate.label,
+        nextAction: item.gate.nextAction,
+        productSurfaceLabel: item.candidate.productSurface.label,
+        readinessScore: item.readinessScore,
+        similarIdeaLabel: item.similarIdea ? `${item.similarIdea.idea.name} ${item.similarIdea.score}%` : null,
+        strategyScore: getCandidateStrategyScore(item.candidate),
+        validationScore: item.candidate.validationScore,
+      })),
+    [extractionPortfolioItems],
+  );
   const extractionDetailItems = useMemo(
     () =>
       extractedIdeas.map((candidate) => {
@@ -1153,10 +1058,13 @@ export function VentureConsoleActions({
   );
   const extractionPortfolioMarkdown = useMemo(
     () =>
-      [extractionReplay ? buildExtractionReplayMarkdown(extractionReplay) : "", buildExtractionPortfolioMarkdown(extractionPortfolioItems)]
+      [
+        extractionReplay ? buildExtractionReplayMarkdown(extractionReplay) : "",
+        buildExtractionPortfolioMarkdown(extractionPortfolioMarkdownItems),
+      ]
         .filter(Boolean)
         .join("\n\n"),
-    [extractionPortfolioItems, extractionReplay],
+    [extractionPortfolioMarkdownItems, extractionReplay],
   );
   const manualFormProductSurface = useMemo(() => {
     const hasFormInput = Object.values(form).some((value) => value.trim().length > 0);
@@ -2101,13 +2009,14 @@ ${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을
         status: "draft",
         version: 1,
         title: `아이디어 정리 리포트 ${titleDate}`,
-        body: buildExtractionReportBody(
-          extractionPortfolioItems,
-          rawIdeaSource,
-          activeOrganization?.name ?? null,
-          extractionRunMeta,
-          extractionReplay,
-        ),
+        body: buildExtractionReportBody({
+          items: extractionPortfolioMarkdownItems,
+          organizationName: activeOrganization?.name ?? null,
+          replaySummary: extractionReplay,
+          runMeta: extractionRunMeta,
+          sourceExcerpt: redactSensitiveSource(rawIdeaSource).trim().slice(0, 4000),
+          sourceLength: rawIdeaSource.length,
+        }),
         source: "extraction_portfolio",
         status_note: "메모에서 찾은 아이디어와 근거를 비교해 저장한 리포트입니다.",
       })
