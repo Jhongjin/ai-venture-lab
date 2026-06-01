@@ -263,6 +263,10 @@ import { buildDevelopmentArtifactDrafts, buildDevelopmentPackageDrafts } from "@
 import { buildFirstBuildBridge } from "@/lib/first-build-bridge";
 import { buildImplementationDependencyPlanMarkdown } from "@/lib/implementation-dependency-plan";
 import { buildImplementationTaskDrafts } from "@/lib/implementation-task-drafts";
+import {
+  buildImplementationTaskInsertRows,
+  getMissingImplementationTaskDrafts,
+} from "@/lib/implementation-task-rows";
 import { buildLaunchChecklistMarkdown } from "@/lib/launch-checklist-report";
 import { buildMvpSlicePlanMarkdown, buildMvpSpecMarkdown } from "@/lib/mvp-scope-markdown";
 import { buildMvpBuildCommandPacketMarkdown } from "@/lib/mvp-build-command-packet-markdown";
@@ -3578,8 +3582,10 @@ export function IdeaWorkbench({
       return;
     }
 
-    const existingTitles = new Set(selectedImplementationTasks.map((task) => task.title.trim().toLowerCase()));
-    const missingDrafts = implementationTaskDrafts.filter((task) => !existingTitles.has(task.title.trim().toLowerCase()));
+    const missingDrafts = getMissingImplementationTaskDrafts({
+      drafts: implementationTaskDrafts,
+      existingTasks: selectedImplementationTasks,
+    });
 
     if (missingDrafts.length === 0) {
       setMessage("이 아이디어에는 이미 기본 제작 할 일이 있습니다.");
@@ -3591,19 +3597,13 @@ export function IdeaWorkbench({
     const { data, error } = await supabase
       .from("implementation_tasks")
       .insert(
-        missingDrafts.map((task, index) => ({
-          idea_id: selectedIdea.id,
-          organization_id: selectedIdea.organization_id,
-          source_artifact_id: implementationTaskSourceArtifact?.id ?? null,
-          title: task.title,
-          task_type: task.task_type,
-          priority: task.priority,
-          status: "todo" as ImplementationTaskStatus,
-          owner_role: task.owner_role,
-          acceptance_criteria: task.acceptance_criteria,
-          evidence: "",
-          sort_order: selectedImplementationTasks.length + index,
-        })),
+        buildImplementationTaskInsertRows({
+          drafts: missingDrafts,
+          existingTaskCount: selectedImplementationTasks.length,
+          ideaId: selectedIdea.id,
+          organizationId: selectedIdea.organization_id,
+          sourceArtifactId: implementationTaskSourceArtifact?.id ?? null,
+        }),
       )
       .select();
     setIsBusy(false);

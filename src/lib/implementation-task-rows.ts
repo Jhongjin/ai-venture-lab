@@ -1,0 +1,61 @@
+import type { ImplementationTaskDraft } from "@/lib/external-progress-import";
+import type { ImplementationTaskStatus } from "@/lib/supabase/types";
+import type { ImplementationTask } from "@/lib/venture-data";
+
+export type ImplementationTaskInsertRow = {
+  idea_id: string;
+  organization_id: string | null;
+  source_artifact_id: string | null;
+  title: string;
+  task_type: ImplementationTaskDraft["task_type"];
+  priority: ImplementationTaskDraft["priority"];
+  status: ImplementationTaskStatus;
+  owner_role: string;
+  acceptance_criteria: string;
+  evidence: string;
+  sort_order: number;
+};
+
+function normalizeImplementationTaskTitle(value: string) {
+  return value.trim().toLowerCase();
+}
+
+export function getMissingImplementationTaskDrafts({
+  drafts,
+  existingTasks,
+}: {
+  drafts: ImplementationTaskDraft[];
+  existingTasks: Pick<ImplementationTask, "title">[];
+}) {
+  const existingTitles = new Set(existingTasks.map((task) => normalizeImplementationTaskTitle(task.title)));
+
+  return drafts.filter((task) => !existingTitles.has(normalizeImplementationTaskTitle(task.title)));
+}
+
+export function buildImplementationTaskInsertRows({
+  drafts,
+  existingTaskCount,
+  ideaId,
+  organizationId,
+  sourceArtifactId,
+}: {
+  drafts: ImplementationTaskDraft[];
+  existingTaskCount: number;
+  ideaId: string;
+  organizationId: string | null;
+  sourceArtifactId: string | null;
+}): ImplementationTaskInsertRow[] {
+  return drafts.map((task, index) => ({
+    idea_id: ideaId,
+    organization_id: organizationId,
+    source_artifact_id: sourceArtifactId,
+    title: task.title,
+    task_type: task.task_type,
+    priority: task.priority,
+    status: "todo",
+    owner_role: task.owner_role,
+    acceptance_criteria: task.acceptance_criteria,
+    evidence: "",
+    sort_order: existingTaskCount + index,
+  }));
+}
