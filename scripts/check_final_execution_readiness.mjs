@@ -21,6 +21,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   buildFinalExecutionConnectionHealth,
   buildFinalExecutionLiveToolContext,
+  buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
 } = await import(moduleUrl);
@@ -114,6 +115,34 @@ assert.equal(fallbackPreview.taskPreview.length, 0);
 assert.equal(fallbackPreview.fallbackTaskPreview.length, 6);
 assert.equal(fallbackPreview.visibleTaskCount, 6);
 assert.match(fallbackPreview.taskListDescription, /내부 개발 패키지/);
+
+const packageState = buildFinalExecutionPackageState({
+  canEnterOrchestrationFromDevelopmentDocs: false,
+  hasAgentRunPackageArtifact: true,
+  hasDevelopmentHandoffPackageArtifact: false,
+  hasDevelopmentPlanArtifact: true,
+  hasManualDevelopmentPackageFallback: false,
+  ideaId: "abcdef123456",
+  implementationTaskCount: 0,
+  runCount: 0,
+});
+assert.equal(packageState.hasPackage, true);
+assert.equal(packageState.hasWorkOrder, true);
+assert.equal(packageState.projectKey, "ABCDEF12");
+
+const emptyPackageState = buildFinalExecutionPackageState({
+  canEnterOrchestrationFromDevelopmentDocs: false,
+  hasAgentRunPackageArtifact: false,
+  hasDevelopmentHandoffPackageArtifact: false,
+  hasDevelopmentPlanArtifact: false,
+  hasManualDevelopmentPackageFallback: false,
+  ideaId: null,
+  implementationTaskCount: 0,
+  runCount: 0,
+});
+assert.equal(emptyPackageState.hasPackage, false);
+assert.equal(emptyPackageState.hasWorkOrder, false);
+assert.equal(emptyPackageState.projectKey, "PROJECT");
 
 const cursorLiveContext = buildFinalExecutionLiveToolContext({
   buildDeliveryMode: "external_tool",

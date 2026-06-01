@@ -128,6 +128,7 @@ import {
 import {
   buildFinalExecutionConnectionHealth,
   buildFinalExecutionLiveToolContext,
+  buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
 } from "@/lib/final-execution-readiness";
@@ -2040,13 +2041,18 @@ export function IdeaWorkbench({
     finalAgentRunPackageDraft,
     ideaName: selectedIdea?.name ?? null,
   });
-  const hasFinalExecutionPackage =
-    canEnterOrchestrationFromDevelopmentDocs ||
-    hasAgentRunPackageArtifact ||
-    hasDevelopmentHandoffPackageArtifact ||
-    hasManualDevelopmentPackageFallback;
-  const hasFinalExecutionWorkOrder =
-    selectedRuns.length > 0 || selectedImplementationTasks.length > 0 || hasDevelopmentPlanArtifact;
+  const finalExecutionPackageState = buildFinalExecutionPackageState({
+    canEnterOrchestrationFromDevelopmentDocs,
+    hasAgentRunPackageArtifact,
+    hasDevelopmentHandoffPackageArtifact,
+    hasDevelopmentPlanArtifact,
+    hasManualDevelopmentPackageFallback,
+    ideaId: selectedIdea?.id ?? null,
+    implementationTaskCount: selectedImplementationTasks.length,
+    runCount: selectedRuns.length,
+  });
+  const hasFinalExecutionPackage = finalExecutionPackageState.hasPackage;
+  const hasFinalExecutionWorkOrder = finalExecutionPackageState.hasWorkOrder;
   const finalExecutionReadiness = buildFinalExecutionReadiness({
     activeBuildDeliveryLabel,
     buildDeliveryMode,
@@ -2178,7 +2184,7 @@ export function IdeaWorkbench({
         nextLaunchBlocker,
       })
     : "";
-  const finalExecutionProjectKey = selectedIdea ? selectedIdea.id.slice(0, 8).toUpperCase() : "PROJECT";
+  const finalExecutionProjectKey = finalExecutionPackageState.projectKey;
   const cursorTaskPackageDraft = selectedIdea
     ? buildCursorTaskMarkdown({
         idea: selectedIdea,

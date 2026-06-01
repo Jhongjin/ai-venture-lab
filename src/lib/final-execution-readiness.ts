@@ -21,6 +21,12 @@ export type FinalExecutionReadiness = {
   canEnterLaunch: boolean;
 };
 
+export type FinalExecutionPackageState = {
+  hasPackage: boolean;
+  hasWorkOrder: boolean;
+  projectKey: string;
+};
+
 export type FinalExecutionConnectionHealth = {
   visibleConnections: CursorSyncConnection[];
   activeConnections: CursorSyncConnection[];
@@ -115,6 +121,36 @@ export function buildFinalExecutionReadiness({
     score,
     nextBlocker,
     canEnterLaunch,
+  };
+}
+
+export function buildFinalExecutionPackageState({
+  canEnterOrchestrationFromDevelopmentDocs,
+  hasAgentRunPackageArtifact,
+  hasDevelopmentHandoffPackageArtifact,
+  hasDevelopmentPlanArtifact,
+  hasManualDevelopmentPackageFallback,
+  ideaId,
+  implementationTaskCount,
+  runCount,
+}: {
+  canEnterOrchestrationFromDevelopmentDocs: boolean;
+  hasAgentRunPackageArtifact: boolean;
+  hasDevelopmentHandoffPackageArtifact: boolean;
+  hasDevelopmentPlanArtifact: boolean;
+  hasManualDevelopmentPackageFallback: boolean;
+  ideaId: string | null;
+  implementationTaskCount: number;
+  runCount: number;
+}): FinalExecutionPackageState {
+  return {
+    hasPackage:
+      canEnterOrchestrationFromDevelopmentDocs ||
+      hasAgentRunPackageArtifact ||
+      hasDevelopmentHandoffPackageArtifact ||
+      hasManualDevelopmentPackageFallback,
+    hasWorkOrder: runCount > 0 || implementationTaskCount > 0 || hasDevelopmentPlanArtifact,
+    projectKey: ideaId ? ideaId.slice(0, 8).toUpperCase() : "PROJECT",
   };
 }
 
