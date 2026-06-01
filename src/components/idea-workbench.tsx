@@ -126,7 +126,11 @@ import {
   triggerBrowserMarkdownDownload,
   triggerBrowserTextDownload,
 } from "@/lib/browser-file-download";
-import { buildFinalExecutionReadiness } from "@/lib/final-execution-readiness";
+import {
+  buildFinalExecutionConnectionHealth,
+  buildFinalExecutionReadiness,
+  buildFinalExecutionTaskPreview,
+} from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import {
   buildAntigravityMcpConfigJson,
@@ -2516,23 +2520,15 @@ export function IdeaWorkbench({
   const liveExternalToolSetupCommand = `powershell -ExecutionPolicy Bypass -File .\\${liveExternalToolSetupFileName}`;
   const liveExternalToolNextTaskCommand = `node ${liveExternalToolFolder}/venture-lab-cli.mjs next-task`;
   const finalExecutionDecisionSentence = `${withKoreanInstrumental(activeProductSurface.label)} 만들고, ${activeBuildDeliveryPhrase}.`;
-  const visibleCursorSyncConnections = cursorSyncConnections.filter((connection) => connection.tool === activeExternalBuildTool.key);
-  const activeCursorSyncConnections = visibleCursorSyncConnections.filter((connection) => connection.status === "active");
-  const latestCursorSyncUseAt =
-    activeCursorSyncConnections
-      .map((connection) => connection.lastUsedAt)
-      .filter((value): value is string => Boolean(value))
-      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
-  const finalExecutionConnectionHealthTitle =
-    activeCursorSyncConnections.length === 0
-      ? "연결 파일을 받으면 자동 반영이 준비됩니다"
-      : latestCursorSyncUseAt
-        ? `최근 자동 반영 ${formatTelemetryTime(latestCursorSyncUseAt)}`
-        : "연결됨, 아직 자동 반영 전";
-  const finalExecutionConnectionHealthDetail =
-    activeCursorSyncConnections.length === 0
-      ? `${activeExternalBuildTool.label} 연결 파일을 받은 뒤 설치 명령과 확인 명령을 실행하세요.`
-      : "외부 도구가 진행 기록 명령을 실행하면 Venture Lab 작업표와 STEP 8에 자동 반영됩니다.";
+  const finalExecutionConnectionHealth = buildFinalExecutionConnectionHealth({
+    connections: cursorSyncConnections,
+    externalToolKey: activeExternalBuildTool.key,
+    externalToolLabel: activeExternalBuildTool.label,
+  });
+  const visibleCursorSyncConnections = finalExecutionConnectionHealth.visibleConnections;
+  const activeCursorSyncConnections = finalExecutionConnectionHealth.activeConnections;
+  const finalExecutionConnectionHealthTitle = finalExecutionConnectionHealth.title;
+  const finalExecutionConnectionHealthDetail = finalExecutionConnectionHealth.detail;
   const cursorProgressPreviewItems =
     cursorProgressImportText.trim() && cursorHandoffTaskDrafts.length > 0
       ? buildCursorProgressImportDrafts({
@@ -2549,17 +2545,17 @@ export function IdeaWorkbench({
       : [];
   const visibleCursorProgressImportItems =
     cursorProgressImportItems.length > 0 ? cursorProgressImportItems : cursorProgressPreviewItems;
-  const finalExecutionTaskPreview = selectedImplementationTasks.slice(0, 6);
-  const finalExecutionFallbackTaskPreview =
-    selectedImplementationTasks.length === 0 ? cursorHandoffTaskDrafts.slice(0, 6) : [];
-  const finalExecutionVisibleTaskCount =
-    selectedImplementationTasks.length > 0 ? finalExecutionTaskPreview.length : finalExecutionFallbackTaskPreview.length;
-  const finalExecutionTaskListDescription =
-    buildDeliveryMode === "external_tool"
-      ? isLiveExternalDelivery
-        ? `${activeExternalBuildTool.label} 연결 파일에는 이 작업 목록이 포함됩니다. 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다.`
-        : `${activeExternalBuildTool.label} 시작 패키지에 이 작업 목록이 포함됩니다. 작업이 끝나면 완료 보고를 반영해 Venture Lab 작업 상태를 맞춥니다.`
-      : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다.";
+  const finalExecutionTaskPreviewSummary = buildFinalExecutionTaskPreview({
+    buildDeliveryMode,
+    externalToolLabel: activeExternalBuildTool.label,
+    fallbackTasks: cursorHandoffTaskDrafts,
+    implementationTasks: selectedImplementationTasks,
+    isLiveExternalDelivery,
+  });
+  const finalExecutionTaskPreview = finalExecutionTaskPreviewSummary.taskPreview;
+  const finalExecutionFallbackTaskPreview = finalExecutionTaskPreviewSummary.fallbackTaskPreview;
+  const finalExecutionVisibleTaskCount = finalExecutionTaskPreviewSummary.visibleTaskCount;
+  const finalExecutionTaskListDescription = finalExecutionTaskPreviewSummary.taskListDescription;
   const doneRunCount = selectedRuns.filter((run) => run.status === "done").length;
   const workbenchTasks = buildWorkbenchTaskSummaries({
     activeVisibleIdeaCount: getVisibleActiveIdeaCount(ideas, getRecordAccessState),

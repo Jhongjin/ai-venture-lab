@@ -1,4 +1,8 @@
 import type { BuildDeliveryMode } from "@/lib/build-delivery";
+import type { ImplementationTaskDraft } from "@/lib/external-progress-import";
+import type { CursorSyncConnection } from "@/lib/external-tool-sync-connection";
+import { formatTelemetryTime } from "@/lib/telemetry-format";
+import type { ImplementationTask } from "@/lib/venture-data";
 
 export type FinalExecutionReadinessCheck = {
   label: string;
@@ -12,6 +16,21 @@ export type FinalExecutionReadiness = {
   score: number;
   nextBlocker: FinalExecutionReadinessCheck | null;
   canEnterLaunch: boolean;
+};
+
+export type FinalExecutionConnectionHealth = {
+  visibleConnections: CursorSyncConnection[];
+  activeConnections: CursorSyncConnection[];
+  latestUsedAt: string | null;
+  title: string;
+  detail: string;
+};
+
+export type FinalExecutionTaskPreview = {
+  taskPreview: ImplementationTask[];
+  fallbackTaskPreview: ImplementationTaskDraft[];
+  visibleTaskCount: number;
+  taskListDescription: string;
 };
 
 export function buildFinalExecutionReadiness({
@@ -70,5 +89,74 @@ export function buildFinalExecutionReadiness({
     score,
     nextBlocker,
     canEnterLaunch,
+  };
+}
+
+export function buildFinalExecutionConnectionHealth({
+  connections,
+  externalToolKey,
+  externalToolLabel,
+}: {
+  connections: CursorSyncConnection[];
+  externalToolKey: string;
+  externalToolLabel: string;
+}): FinalExecutionConnectionHealth {
+  const visibleConnections = connections.filter((connection) => connection.tool === externalToolKey);
+  const activeConnections = visibleConnections.filter((connection) => connection.status === "active");
+  const latestUsedAt =
+    activeConnections
+      .map((connection) => connection.lastUsedAt)
+      .filter((value): value is string => Boolean(value))
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
+  const title =
+    activeConnections.length === 0
+      ? "연결 파일을 받으면 자동 반영이 준비됩니다"
+      : latestUsedAt
+        ? `최근 자동 반영 ${formatTelemetryTime(latestUsedAt)}`
+        : "연결됨, 아직 자동 반영 전";
+  const detail =
+    activeConnections.length === 0
+      ? `${externalToolLabel} 연결 파일을 받은 뒤 설치 명령과 확인 명령을 실행하세요.`
+      : "외부 도구가 진행 기록 명령을 실행하면 Venture Lab 작업표와 STEP 8에 자동 반영됩니다.";
+
+  return {
+    visibleConnections,
+    activeConnections,
+    latestUsedAt,
+    title,
+    detail,
+  };
+}
+
+export function buildFinalExecutionTaskPreview({
+  buildDeliveryMode,
+  externalToolLabel,
+  fallbackTasks,
+  implementationTasks,
+  isLiveExternalDelivery,
+  limit = 6,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  externalToolLabel: string;
+  fallbackTasks: ImplementationTaskDraft[];
+  implementationTasks: ImplementationTask[];
+  isLiveExternalDelivery: boolean;
+  limit?: number;
+}): FinalExecutionTaskPreview {
+  const taskPreview = implementationTasks.slice(0, limit);
+  const fallbackTaskPreview = implementationTasks.length === 0 ? fallbackTasks.slice(0, limit) : [];
+  const visibleTaskCount = implementationTasks.length > 0 ? taskPreview.length : fallbackTaskPreview.length;
+  const taskListDescription =
+    buildDeliveryMode === "external_tool"
+      ? isLiveExternalDelivery
+        ? `${externalToolLabel} 연결 파일에는 이 작업 목록이 포함됩니다. 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다.`
+        : `${externalToolLabel} 시작 패키지에 이 작업 목록이 포함됩니다. 작업이 끝나면 완료 보고를 반영해 Venture Lab 작업 상태를 맞춥니다.`
+      : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다.";
+
+  return {
+    taskPreview,
+    fallbackTaskPreview,
+    visibleTaskCount,
+    taskListDescription,
   };
 }
