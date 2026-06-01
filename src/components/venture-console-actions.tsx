@@ -79,6 +79,7 @@ import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
 import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
 import { VentureConsoleWorkspaceCard } from "@/components/venture-console-workspace-card";
+import { buildManualIdeaDirectionArtifactRow } from "@/lib/manual-idea-artifact";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -1086,32 +1087,13 @@ export function VentureConsoleActions({
       const manualBuildDelivery = normalizeBuildDeliveryPreference(buildDeliveryPreference);
       const { data: manualArtifact } = await supabase
         .from("venture_artifacts")
-        .insert({
-          idea_id: data.id,
-          organization_id: data.organization_id,
-          artifact_type: "idea_brief",
-          status: "draft",
-          version: 1,
-          title: `${data.name} 초기 제작 방향`,
-          source: "manual",
-          status_note: "직접 입력한 아이디어의 결과물 형태와 개발 방식을 저장함",
-          body: `# 초기 제작 방향: ${data.name}
-
-## 아이디어
-
-- 한 줄 설명: ${data.one_liner || "미정"}
-- 대상 사용자: ${data.target_user || "미정"}
-- 구매자: ${data.buyer || "미정"}
-
-${productSurfaceMarkdown(manualProductSurface)}
-
-${buildDeliveryPreferenceMarkdown(manualBuildDelivery)}
-
-## 다음 확인
-
-${data.next_evidence || "사업성 평가에서 AI가 필요한 검증 질문을 다시 정리합니다."}
-`,
-        })
+        .insert(
+          buildManualIdeaDirectionArtifactRow({
+            buildDeliveryMarkdown: buildDeliveryPreferenceMarkdown(manualBuildDelivery),
+            idea: data,
+            productSurfaceMarkdown: productSurfaceMarkdown(manualProductSurface),
+          }),
+        )
         .select()
         .single();
       if (manualArtifact) {
