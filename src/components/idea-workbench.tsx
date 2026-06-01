@@ -137,36 +137,15 @@ import {
 } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import {
-  buildAntigravityMcpConfigJson,
-  buildClaudeMcpConfigJson,
-  buildCursorMcpConfigJson,
   buildCursorSyncConfigJson,
 } from "@/lib/external-tool-connector-config";
 import {
-  buildAntigravityCliScript,
-  buildClaudeCliScript,
-  buildCodexCliScript,
-} from "@/lib/external-tool-cli-scripts";
-import { buildCursorMcpServerScript } from "@/lib/cursor-mcp-server-script";
-import {
-  buildAntigravityAcceptanceMarkdown,
-  buildAntigravityAgentInstructionsMarkdown,
   buildAntigravityGuideMarkdown,
-  buildAntigravityStartPromptMarkdown,
-  buildAntigravityTaskMarkdown,
   buildClaudeGuideMarkdown,
-  buildClaudeInstructionsMarkdown,
-  buildClaudeStartPromptMarkdown,
-  buildClaudeTaskMarkdown,
-  buildCodexAgentInstructionsMarkdown,
   buildCodexGuideMarkdown,
-  buildCodexStartPromptMarkdown,
-  buildCodexTaskMarkdown,
   buildCursorGuideMarkdown,
-  buildCursorRulesMarkdown,
-  buildCursorStartPromptMarkdown,
-  buildCursorTaskMarkdown,
 } from "@/lib/external-tool-handoff-markdown";
+import { buildExternalToolPackageDrafts } from "@/lib/external-tool-package-drafts";
 import {
   buildCodexSetupPowerShell,
   buildCursorSetupPowerShell,
@@ -2109,131 +2088,38 @@ export function IdeaWorkbench({
       })
     : "";
   const finalExecutionProjectKey = finalExecutionPackageState.projectKey;
-  const cursorTaskPackageDraft = selectedIdea
-    ? buildCursorTaskMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        tasks: selectedImplementationTasks,
-        fallbackTasks: cursorHandoffTaskDrafts,
-      })
-    : "";
-  const cursorStartPromptDraft = selectedIdea
-    ? buildCursorStartPromptMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-      })
-    : "";
-  const cursorRuleDraft = selectedIdea
-    ? buildCursorRulesMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-      })
-    : "";
-  const cursorGuideDraft = selectedIdea
-    ? buildCursorGuideMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-      })
-    : "";
-  const cursorMcpConfigDraft = buildCursorMcpConfigJson();
-  const cursorMcpServerDraft = buildCursorMcpServerScript();
-  const codexTaskPackageDraft = selectedIdea
-    ? buildCodexTaskMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        tasks: selectedImplementationTasks,
-        fallbackTasks: cursorHandoffTaskDrafts,
-      })
-    : "";
-  const codexStartPromptDraft = selectedIdea
-    ? buildCodexStartPromptMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-      })
-    : "";
-  const codexAgentInstructionsDraft = selectedIdea
-    ? buildCodexAgentInstructionsMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-      })
-    : "";
-  const codexGuideDraft = selectedIdea
-    ? buildCodexGuideMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-      })
-    : "";
-  const codexCliScriptDraft = buildCodexCliScript(cursorMcpServerDraft);
-  const claudeTaskPackageDraft = selectedIdea
-    ? buildClaudeTaskMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        tasks: selectedImplementationTasks,
-        fallbackTasks: cursorHandoffTaskDrafts,
-      })
-    : "";
-  const claudeStartPromptDraft = selectedIdea
-    ? buildClaudeStartPromptMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-      })
-    : "";
-  const claudeInstructionsDraft = selectedIdea
-    ? buildClaudeInstructionsMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-      })
-    : "";
-  const claudeGuideDraft = selectedIdea
-    ? buildClaudeGuideMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-      })
-    : "";
-  const claudeMcpConfigDraft = buildClaudeMcpConfigJson();
-  const claudeCliScriptDraft = buildClaudeCliScript(cursorMcpServerDraft);
-  const antigravityTaskPackageDraft = selectedIdea
-    ? buildAntigravityTaskMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        tasks: selectedImplementationTasks,
-        fallbackTasks: cursorHandoffTaskDrafts,
-      })
-    : "";
-  const antigravityStartPromptDraft = selectedIdea
-    ? buildAntigravityStartPromptMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-      })
-    : "";
-  const antigravityAgentInstructionsDraft = selectedIdea
-    ? buildAntigravityAgentInstructionsMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-      })
-    : "";
-  const antigravityAcceptanceDraft = selectedIdea
-    ? buildAntigravityAcceptanceMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-      })
-    : "";
-  const antigravityGuideDraft = selectedIdea
-    ? buildAntigravityGuideMarkdown({
-        idea: selectedIdea,
-        productSurface: activeProductSurface,
-        projectKey: finalExecutionProjectKey,
-      })
-    : "";
-  const antigravityMcpConfigDraft = buildAntigravityMcpConfigJson();
-  const antigravityCliScriptDraft = buildAntigravityCliScript(cursorMcpServerDraft);
+  const {
+    antigravityAcceptanceDraft,
+    antigravityAgentInstructionsDraft,
+    antigravityCliScriptDraft,
+    antigravityGuideDraft,
+    antigravityMcpConfigDraft,
+    antigravityStartPromptDraft,
+    antigravityTaskPackageDraft,
+    claudeCliScriptDraft,
+    claudeGuideDraft,
+    claudeInstructionsDraft,
+    claudeMcpConfigDraft,
+    claudeStartPromptDraft,
+    claudeTaskPackageDraft,
+    codexAgentInstructionsDraft,
+    codexCliScriptDraft,
+    codexGuideDraft,
+    codexStartPromptDraft,
+    codexTaskPackageDraft,
+    cursorGuideDraft,
+    cursorMcpConfigDraft,
+    cursorMcpServerDraft,
+    cursorRuleDraft,
+    cursorStartPromptDraft,
+    cursorTaskPackageDraft,
+  } = buildExternalToolPackageDrafts({
+    fallbackTasks: cursorHandoffTaskDrafts,
+    idea: selectedIdea,
+    productSurface: activeProductSurface,
+    projectKey: finalExecutionProjectKey,
+    tasks: selectedImplementationTasks,
+  });
   const {
     folder: liveExternalToolFolder,
     guideDraft: liveExternalToolGuideDraft,
