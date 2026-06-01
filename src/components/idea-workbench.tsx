@@ -35,6 +35,13 @@ import {
   buildArtifactReviewMemo,
   buildArtifactVersionSummaries,
 } from "@/lib/artifact-review-summary";
+import {
+  buildArtifactSourceFilterLabels,
+  buildArtifactSourceOptions,
+  filterArtifactLibrary,
+  getRecentDevelopmentHandoffArtifacts,
+  resolveArtifactSourceFilter,
+} from "@/lib/artifact-library-utils";
 import { buildAgentRunPackageMarkdown } from "@/lib/agent-run-package-markdown";
 import { buildAppDevelopmentPlanMarkdown } from "@/lib/app-development-plan-markdown";
 import { buildAppBlueprintMarkdown } from "@/lib/app-blueprint-markdown";
@@ -956,41 +963,26 @@ export function IdeaWorkbench({
   const nextArtifactReviewItem = artifactReviewQueue.find((item) => item.status !== "approved") ?? null;
   const artifactReviewProgress = Math.round((approvedArtifactReviewCount / artifactReviewQueue.length) * 100);
   const artifactSourceOptions = useMemo(
-    () =>
-      ["all", ...Array.from(new Set(selectedArtifactRecords.map((artifact) => artifact.source || "manual"))).sort((a, b) =>
-        a.localeCompare(b, "ko-KR"),
-      )],
+    () => buildArtifactSourceOptions(selectedArtifactRecords),
     [selectedArtifactRecords],
   );
   const artifactSourceFilterLabels = useMemo(
-    () =>
-      Object.fromEntries(
-        artifactSourceOptions.map((source) => [
-          source,
-          source === "all" ? "전체 출처" : (artifactSourceLabels[source] ?? source),
-        ]),
-      ) as Record<string, string>,
+    () => buildArtifactSourceFilterLabels(artifactSourceOptions),
     [artifactSourceOptions],
   );
-  const activeArtifactSourceFilter = artifactSourceOptions.includes(artifactSourceFilter) ? artifactSourceFilter : "all";
+  const activeArtifactSourceFilter = resolveArtifactSourceFilter(artifactSourceOptions, artifactSourceFilter);
   const selectedArtifacts = useMemo(
     () =>
-      selectedArtifactRecords
-        .filter((artifact) => artifactTypeFilter === "all" || artifact.artifact_type === artifactTypeFilter)
-        .filter((artifact) => artifactStatusFilter === "all" || (artifact.status ?? "draft") === artifactStatusFilter)
-        .filter((artifact) => activeArtifactSourceFilter === "all" || (artifact.source || "manual") === activeArtifactSourceFilter)
-        .slice(0, 8),
+      filterArtifactLibrary({
+        artifacts: selectedArtifactRecords,
+        sourceFilter: activeArtifactSourceFilter,
+        statusFilter: artifactStatusFilter,
+        typeFilter: artifactTypeFilter,
+      }),
     [activeArtifactSourceFilter, artifactStatusFilter, artifactTypeFilter, selectedArtifactRecords],
   );
   const recentDevelopmentHandoffArtifacts = useMemo(
-    () =>
-      selectedArtifactRecords
-        .filter(
-          (artifact) =>
-            artifact.artifact_type === "dev_runbook" &&
-            ["filtered_implementation_run", "development_process"].includes(artifact.source || ""),
-        )
-        .slice(0, 3),
+    () => getRecentDevelopmentHandoffArtifacts(selectedArtifactRecords),
     [selectedArtifactRecords],
   );
   const selectedImplementationTasks = useMemo(
