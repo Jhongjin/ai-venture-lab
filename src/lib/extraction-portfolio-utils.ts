@@ -31,6 +31,14 @@ export type ExtractionPortfolioItemSummary<Candidate extends ExtractionPortfolio
   similarIdea: ExtractionPortfolioSimilarIdeaSummary | null;
 };
 
+export type ExtractionPortfolioListItem<Candidate, Gate, SimilarIdea> = {
+  candidate: Candidate;
+  gate: Gate;
+  nextGap: string;
+  readinessScore: number;
+  similarIdea: SimilarIdea | null;
+};
+
 export function buildExtractionSimilarIdeaMatches<Candidate extends { id: string }, ExistingIdea, Match>(
   candidates: Candidate[],
   existingIdeas: ExistingIdea[],
@@ -68,6 +76,48 @@ export function buildExtractionGateMap<Candidate extends { id: string }, Match, 
   }
 
   return gates;
+}
+
+export function buildExtractionPortfolioItems<
+  Candidate extends { confidence: number; id: string; validationScore: number },
+  Match,
+  ReadinessCheck extends { label: string; passed: boolean },
+  Gate extends { rank: number },
+>({
+  buildGate,
+  buildReadiness,
+  candidates,
+  gatesByCandidateId,
+  similarIdeaMatches,
+}: {
+  buildGate: (candidate: Candidate, readinessChecks: ReadinessCheck[], similarIdea: Match | null) => Gate;
+  buildReadiness: (candidate: Candidate, similarIdea: Match | null) => ReadinessCheck[];
+  candidates: Candidate[];
+  gatesByCandidateId: ReadonlyMap<string, Gate>;
+  similarIdeaMatches: ReadonlyMap<string, Match>;
+}) {
+  return candidates
+    .map<ExtractionPortfolioListItem<Candidate, Gate, Match>>((candidate) => {
+      const similarIdea = similarIdeaMatches.get(candidate.id) ?? null;
+      const readinessChecks = buildReadiness(candidate, similarIdea);
+      const gate = gatesByCandidateId.get(candidate.id) ?? buildGate(candidate, readinessChecks, similarIdea);
+      const passedReadinessCount = readinessChecks.filter((check) => check.passed).length;
+      const nextReadinessGap = readinessChecks.find((check) => !check.passed);
+
+      return {
+        candidate,
+        gate,
+        nextGap: nextReadinessGap ? nextReadinessGap.label : "저장 가능",
+        readinessScore: Math.round((passedReadinessCount / readinessChecks.length) * 100),
+        similarIdea,
+      };
+    })
+    .sort(
+      (left, right) =>
+        right.gate.rank - left.gate.rank ||
+        right.candidate.validationScore - left.candidate.validationScore ||
+        right.candidate.confidence - left.candidate.confidence,
+    );
 }
 
 export function selectRecommendedExtractionCandidate<Candidate extends ExtractionPortfolioCandidateSummary>(

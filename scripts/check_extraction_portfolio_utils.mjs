@@ -15,6 +15,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildExtractionGateMap,
+  buildExtractionPortfolioItems,
   buildExtractionPortfolioMarkdownItems,
   buildExtractionSimilarIdeaMatches,
   countExtractionPortfolioGates,
@@ -75,6 +76,32 @@ const gateMap = buildExtractionGateMap({
 assert.equal(gateMap.get("a")?.id, "proceed");
 assert.equal(gateMap.get("b")?.id, "pivot");
 assert.equal(gateMap.get("c")?.id, "proceed");
+
+const partialGateMap = new Map(gateMap);
+partialGateMap.delete("c");
+const builtPortfolioItems = buildExtractionPortfolioItems({
+  buildGate: (current, checks, match) => ({
+    id: match ? "pivot" : checks.every((check) => check.passed) ? "proceed" : "research",
+    label: current.name,
+    nextAction: "next",
+    rank: current.validationScore,
+  }),
+  buildReadiness: (current, match) => [
+    { label: "score", passed: current.validationScore >= 80 },
+    { label: "duplicate", passed: !match },
+  ],
+  candidates,
+  gatesByCandidateId: partialGateMap,
+  similarIdeaMatches: matches,
+});
+assert.deepEqual(
+  builtPortfolioItems.map((item) => item.candidate.id),
+  ["c", "a", "b"],
+);
+assert.equal(builtPortfolioItems[0].gate.id, "proceed");
+assert.equal(builtPortfolioItems[1].nextGap, "저장 가능");
+assert.equal(builtPortfolioItems[2].nextGap, "score");
+assert.equal(builtPortfolioItems[2].readinessScore, 0);
 
 assert.equal(selectRecommendedExtractionCandidate(candidates, gatesById)?.id, "b");
 assert.equal(selectRecommendedExtractionCandidate([], gatesById), null);

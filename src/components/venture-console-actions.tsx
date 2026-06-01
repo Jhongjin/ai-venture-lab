@@ -54,9 +54,11 @@ import {
 } from "@/lib/extraction-replay-summary";
 import {
   buildExtractionGateMap,
+  buildExtractionPortfolioItems,
   buildExtractionPortfolioMarkdownItems,
   buildExtractionSimilarIdeaMatches,
   countExtractionPortfolioGates,
+  type ExtractionPortfolioListItem,
   getBulkSavableExtractionItems,
   getSecondaryExtractionPortfolioItems,
   selectRecommendedExtractionCandidate,
@@ -129,13 +131,7 @@ type AiGenerateSampleIdeasResponse = {
 
 type ExtractionReplaySummary = ExtractionReplaySummaryBase<ExtractedIdea>;
 
-type ExtractionPortfolioItem = {
-  candidate: ExtractedIdea;
-  gate: ExtractionGate;
-  similarIdea: SimilarIdeaMatch | null;
-  readinessScore: number;
-  nextGap: string;
-};
+type ExtractionPortfolioItem = ExtractionPortfolioListItem<ExtractedIdea, ExtractionGate, SimilarIdeaMatch>;
 
 const extractionGateStyles: Record<
   ExtractionGateId,
@@ -445,28 +441,13 @@ export function VentureConsoleActions({
   const recommendedGateStyle = recommendedExtractionGate ? extractionGateStyles[recommendedExtractionGate.id] : null;
   const extractionPortfolioItems = useMemo<ExtractionPortfolioItem[]>(
     () =>
-      extractedIdeas
-        .map((candidate) => {
-          const similarIdea = similarIdeaMatches.get(candidate.id) ?? null;
-          const readinessChecks = buildCandidateReadiness(candidate, similarIdea);
-          const gate = extractedIdeaGates.get(candidate.id) ?? buildExtractionGate(candidate, readinessChecks, similarIdea);
-          const passedReadinessCount = readinessChecks.filter((check) => check.passed).length;
-          const nextReadinessGap = readinessChecks.find((check) => !check.passed);
-
-          return {
-            candidate,
-            gate,
-            similarIdea,
-            readinessScore: Math.round((passedReadinessCount / readinessChecks.length) * 100),
-            nextGap: nextReadinessGap ? nextReadinessGap.label : "저장 가능",
-          };
-        })
-        .sort(
-          (left, right) =>
-            right.gate.rank - left.gate.rank ||
-            right.candidate.validationScore - left.candidate.validationScore ||
-            right.candidate.confidence - left.candidate.confidence,
-        ),
+      buildExtractionPortfolioItems({
+        buildGate: buildExtractionGate,
+        buildReadiness: buildCandidateReadiness,
+        candidates: extractedIdeas,
+        gatesByCandidateId: extractedIdeaGates,
+        similarIdeaMatches,
+      }),
     [extractedIdeaGates, extractedIdeas, similarIdeaMatches],
   );
   const recommendedPortfolioItem = useMemo(
