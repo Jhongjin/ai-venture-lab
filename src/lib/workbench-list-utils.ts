@@ -3,6 +3,14 @@ import type { IdeaStage, OrganizationRole } from "@/lib/supabase/types";
 
 export type WorkbenchIdeaFilterMode = "all" | "mine" | "read_only";
 export type WorkbenchRecordAccessState = "owned" | "workspace_admin" | "workspace_member" | "hidden";
+export type WorkbenchRecordAccessDisplay = {
+  accessState: WorkbenchRecordAccessState;
+  isManageable: boolean;
+  isOwned: boolean;
+  isWorkspaceAdmin: boolean;
+  label: string;
+  pillTone: "avl-pill-success" | "avl-pill-neutral";
+};
 export type WorkbenchAccessRecord = { created_by: string | null; organization_id: string | null };
 export type WorkbenchAccessMembership = {
   organization_id: string;
@@ -70,6 +78,27 @@ export function canManageWorkbenchRecord(args: {
 }) {
   const accessState = getWorkbenchRecordAccessState(args);
   return accessState === "owned" || accessState === "workspace_admin";
+}
+
+export function getWorkbenchRecordAccessDisplay(accessState: WorkbenchRecordAccessState): WorkbenchRecordAccessDisplay {
+  const isOwned = accessState === "owned";
+  const isWorkspaceAdmin = accessState === "workspace_admin";
+  const isManageable = isOwned || isWorkspaceAdmin;
+  const labels: Record<WorkbenchRecordAccessState, string> = {
+    hidden: "숨김",
+    owned: "내 기록",
+    workspace_admin: "팀 관리자",
+    workspace_member: "팀 기록",
+  };
+
+  return {
+    accessState,
+    isManageable,
+    isOwned,
+    isWorkspaceAdmin,
+    label: labels[accessState],
+    pillTone: isManageable ? "avl-pill-success" : "avl-pill-neutral",
+  };
 }
 
 export function getActiveIdeas(nextIdeas: Idea[]) {

@@ -8,6 +8,7 @@ const {
   canManageWorkbenchRecord,
   getActiveIdeas,
   getIdeaStageRank,
+  getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
   getVisibleActiveIdeaCount,
   getVisibleDiscardedIdeas,
@@ -111,6 +112,18 @@ assert.equal(getWorkbenchRecordAccessState({ memberships, record: ownedRecord, u
 assert.equal(canManageWorkbenchRecord({ memberships, record: ownedRecord, user: viewer }), true);
 assert.equal(canManageWorkbenchRecord({ memberships, record: adminRecord, user: viewer }), true);
 assert.equal(canManageWorkbenchRecord({ memberships, record: memberRecord, user: viewer }), false);
+assert.deepEqual(
+  ["owned", "workspace_admin", "workspace_member", "hidden"].map((accessState) => {
+    const display = getWorkbenchRecordAccessDisplay(accessState);
+    return [display.label, display.isManageable, display.pillTone];
+  }),
+  [
+    ["내 기록", true, "avl-pill-success"],
+    ["팀 관리자", true, "avl-pill-success"],
+    ["팀 기록", false, "avl-pill-neutral"],
+    ["숨김", false, "avl-pill-neutral"],
+  ],
+);
 
 assert.deepEqual(upsertRecordById([{ id: "a", value: 1 }], { id: "a", value: 2 }), [{ id: "a", value: 2 }]);
 assert.deepEqual(upsertRecordsById([{ id: "a", value: 1 }], [{ id: "b", value: 2 }]), [

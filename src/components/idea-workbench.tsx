@@ -54,6 +54,7 @@ import {
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
   getActiveIdeas,
+  getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
   getVisibleActiveIdeaCount,
   getVisibleDiscardedIdeas,
@@ -211,7 +212,6 @@ import {
 } from "@/lib/workbench-readiness-checks";
 import {
   decisionLabels,
-  editabilityLabels,
   evidenceConfidenceLabels,
   evidenceConfidenceOptions,
   experimentStatusGuides,
@@ -4510,10 +4510,7 @@ export function IdeaWorkbench({
         <div className="grid gap-3">
           {visibleIdeas.length > 0 ? (
             visibleIdeas.map((idea) => {
-              const accessState = getRecordAccessState(idea);
-              const isOwned = accessState === "owned";
-              const isOrgAdmin = accessState === "workspace_admin";
-              const isManageable = isOwned || isOrgAdmin;
+              const accessDisplay = getWorkbenchRecordAccessDisplay(getRecordAccessState(idea));
               const productSurface = inferIdeaProductSurface(idea);
 
               return (
@@ -4549,22 +4546,8 @@ export function IdeaWorkbench({
                         <span className="avl-pill avl-pill-info">
                           {productSurface.label}
                         </span>
-                        <span
-                          className={`avl-pill ${
-                            idea.id === selectedIdea.id
-                              ? isManageable
-                                ? "avl-pill-success"
-                                : "avl-pill-neutral"
-                              : isManageable
-                                ? "avl-pill-success"
-                                : "avl-pill-neutral"
-                          }`}
-                        >
-                          {isOwned
-                            ? editabilityLabels.editable
-                            : isOrgAdmin
-                              ? editabilityLabels.orgAdmin
-                              : editabilityLabels.readOnly}
+                        <span className={`avl-pill ${accessDisplay.pillTone}`}>
+                          {accessDisplay.label}
                         </span>
                       </div>
                     </div>
@@ -4575,7 +4558,7 @@ export function IdeaWorkbench({
                       {productSurface.firstBuild}
                     </p>
                   </button>
-                  {isManageable ? (
+                  {accessDisplay.isManageable ? (
                     <div className="mt-3 flex justify-end">
                       <button
                         type="button"
@@ -4712,10 +4695,7 @@ export function IdeaWorkbench({
               {visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {
                 const selectedProgress = getWorkbenchIdeaProgress(selectedIdea);
                 const selectedSurface = inferIdeaProductSurface(selectedIdea);
-                const selectedAccessState = getRecordAccessState(selectedIdea);
-                const isOwned = selectedAccessState === "owned";
-                const isOrgAdmin = selectedAccessState === "workspace_admin";
-                const isManageable = isOwned || isOrgAdmin;
+                const selectedAccessDisplay = getWorkbenchRecordAccessDisplay(getRecordAccessState(selectedIdea));
                 const comparisonIdeas = visibleIdeas.filter((idea) => idea.id !== selectedIdea.id).slice(0, 4);
 
                 return (
@@ -4738,15 +4718,9 @@ export function IdeaWorkbench({
                               {selectedSurface.label}
                             </span>
                             <span
-                              className={`avl-pill ${
-                                isManageable ? "avl-pill-success" : "avl-pill-neutral"
-                              }`}
+                              className={`avl-pill ${selectedAccessDisplay.pillTone}`}
                             >
-                              {isOwned
-                                ? editabilityLabels.editable
-                                : isOrgAdmin
-                                  ? editabilityLabels.orgAdmin
-                                  : editabilityLabels.readOnly}
+                              {selectedAccessDisplay.label}
                             </span>
                           </div>
                         </div>
@@ -4777,7 +4751,7 @@ export function IdeaWorkbench({
                           >
                             이어서 보기
                           </button>
-                          {isManageable ? (
+                          {selectedAccessDisplay.isManageable ? (
                             <button
                               type="button"
                               onClick={() => void discardIdeaRecord(selectedIdea)}
@@ -4809,9 +4783,7 @@ export function IdeaWorkbench({
                           comparisonIdeas.map((idea, index) => {
                             const progress = getWorkbenchIdeaProgress(idea);
                             const surface = inferIdeaProductSurface(idea);
-                            const comparisonAccessState = getRecordAccessState(idea);
-                            const isOwnedComparison = comparisonAccessState === "owned";
-                            const isOrgAdminComparison = comparisonAccessState === "workspace_admin";
+                            const comparisonAccessDisplay = getWorkbenchRecordAccessDisplay(getRecordAccessState(idea));
 
                             return (
                               <div
@@ -4842,13 +4814,9 @@ export function IdeaWorkbench({
                                 </button>
                                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                                   <span className="avl-pill avl-pill-neutral">
-                                    {isOwnedComparison
-                                      ? editabilityLabels.editable
-                                      : isOrgAdminComparison
-                                        ? editabilityLabels.orgAdmin
-                                        : editabilityLabels.readOnly}
+                                    {comparisonAccessDisplay.label}
                                   </span>
-                                  {isOwnedComparison || isOrgAdminComparison ? (
+                                  {comparisonAccessDisplay.isManageable ? (
                                     <button
                                       type="button"
                                       onClick={() => void discardIdeaRecord(idea)}
@@ -4897,8 +4865,7 @@ export function IdeaWorkbench({
             <div className="mt-5 grid gap-3">
               {discardedIdeas.length > 0 ? (
                 discardedIdeas.map((idea) => {
-                  const accessState = getRecordAccessState(idea);
-                  const isManageable = accessState === "owned" || accessState === "workspace_admin";
+                  const accessDisplay = getWorkbenchRecordAccessDisplay(getRecordAccessState(idea));
 
                   return (
                     <div key={idea.id} className="border border-slate-200 bg-slate-50 p-4">
@@ -4908,7 +4875,7 @@ export function IdeaWorkbench({
                           <h3 className="text-base font-semibold text-slate-950">{idea.name}</h3>
                           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
                         </div>
-                        {isManageable ? (
+                        {accessDisplay.isManageable ? (
                           <div className="flex flex-wrap gap-2">
                             <button
                               type="button"
