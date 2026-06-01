@@ -40,6 +40,18 @@ export const buildDeliveryModeLabels: Record<BuildDeliveryMode, string> = {
   external_tool: "외부 제작 도구로 개발",
 };
 
+export function getBuildDeliveryActionPhrase({
+  buildDeliveryMode,
+  externalToolLabel,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  externalToolLabel: string;
+}) {
+  return buildDeliveryMode === "external_tool"
+    ? `${externalToolLabel}로 개발합니다`
+    : "Venture Lab에서 계속 진행합니다";
+}
+
 export const externalBuildToolProfiles: Record<ExternalBuildToolKey, ExternalBuildToolProfile> = {
   cursor: {
     key: "cursor",

@@ -3,7 +3,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/build-delivery.ts")).href;
-const { normalizeBuildDeliveryPreference, resolveBuildDeliveryContext } = await import(moduleUrl);
+const { getBuildDeliveryActionPhrase, normalizeBuildDeliveryPreference, resolveBuildDeliveryContext } = await import(moduleUrl);
 
 const preference = normalizeBuildDeliveryPreference({
   mode: "external_tool",
@@ -54,5 +54,20 @@ assert.equal(internalContext.activeExternalBuildTool.key, "cursor");
 assert.equal(internalContext.hasFinalExternalToolOverride, false);
 assert.equal(internalContext.activeBuildDeliveryLabel, "Venture Lab에서 계속 진행");
 assert.match(internalContext.activeBuildDeliveryDetail, /Venture Lab 안에서/);
+
+assert.equal(
+  getBuildDeliveryActionPhrase({
+    buildDeliveryMode: "external_tool",
+    externalToolLabel: "Cursor",
+  }),
+  "Cursor로 개발합니다",
+);
+assert.equal(
+  getBuildDeliveryActionPhrase({
+    buildDeliveryMode: "venture_lab",
+    externalToolLabel: "Cursor",
+  }),
+  "Venture Lab에서 계속 진행합니다",
+);
 
 console.log("Build delivery context smoke passed.");

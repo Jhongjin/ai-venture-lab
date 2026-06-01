@@ -117,6 +117,7 @@ import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/pr
 import { cleanInlineText, getApiMessage, isPlainRecord } from "@/lib/record-utils";
 import {
   getBuildDeliveryPreferenceFromArtifacts,
+  getBuildDeliveryActionPhrase,
   resolveBuildDeliveryContext,
   type ExternalBuildToolKey,
 } from "@/lib/build-delivery";
@@ -1442,10 +1443,10 @@ export function IdeaWorkbench({
   const savedEditState = selectedIdea ? toEditState(selectedIdea) : null;
   const selectedProductSurface = selectedIdea && editState ? inferIdeaProductSurface(selectedIdea, editState) : null;
   const activeProductSurface = selectedProductSurface ?? productSurfaceProfiles.web_app;
-  const activeBuildDeliveryPhrase =
-    buildDeliveryMode === "external_tool"
-      ? `${activeExternalBuildTool.label}로 개발합니다`
-      : "Venture Lab에서 계속 진행합니다";
+  const activeBuildDeliveryPhrase = getBuildDeliveryActionPhrase({
+    buildDeliveryMode,
+    externalToolLabel: activeExternalBuildTool.label,
+  });
   const hasReachedScoreStage = selectedIdea ? isIdeaStageAtOrAfter(selectedIdea.stage, "score") : false;
   const isScoreEvaluationSaved = Boolean(
     selectedIdea &&
@@ -5612,7 +5613,7 @@ export function IdeaWorkbench({
                 </div>
 
                 <Step5BuildDirectionSummary
-                  decisionSentence={`${withKoreanInstrumental(activeProductSurface.label)} 만들고, ${activeBuildDeliveryPhrase}.`}
+                  decisionSentence={finalExecutionDecisionSentence}
                   deliveryLabel={buildDeliveryMode === "external_tool" ? activeExternalBuildTool.label : "내부 진행"}
                 />
 
