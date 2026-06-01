@@ -264,6 +264,7 @@ import { buildImplementationDependencyPlanMarkdown } from "@/lib/implementation-
 import { buildImplementationTaskDrafts } from "@/lib/implementation-task-drafts";
 import {
   buildImplementationTaskInsertRows,
+  buildManualImplementationTaskInsertRow,
   getMissingImplementationTaskDrafts,
 } from "@/lib/implementation-task-rows";
 import {
@@ -3812,19 +3813,15 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("implementation_tasks")
-      .insert({
-        idea_id: selectedIdea.id,
-        organization_id: selectedIdea.organization_id,
-        source_artifact_id: implementationTaskSourceArtifact?.id ?? null,
-        title: implementationTaskDraft.title.trim(),
-        task_type: implementationTaskDraft.task_type,
-        priority: implementationTaskDraft.priority,
-        status: "todo",
-        owner_role: implementationTaskDraft.owner_role.trim(),
-        acceptance_criteria: implementationTaskDraft.acceptance_criteria.trim(),
-        evidence: "",
-        sort_order: selectedImplementationTasks.length,
-      })
+      .insert(
+        buildManualImplementationTaskInsertRow({
+          draft: implementationTaskDraft,
+          existingTaskCount: selectedImplementationTasks.length,
+          ideaId: selectedIdea.id,
+          organizationId: selectedIdea.organization_id,
+          sourceArtifactId: implementationTaskSourceArtifact?.id ?? null,
+        }),
+      )
       .select()
       .single();
     setIsBusy(false);

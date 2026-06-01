@@ -3,7 +3,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-rows.ts")).href;
-const { buildImplementationTaskInsertRows, getMissingImplementationTaskDrafts } = await import(moduleUrl);
+const { buildImplementationTaskInsertRows, buildManualImplementationTaskInsertRow, getMissingImplementationTaskDrafts } =
+  await import(moduleUrl);
 
 const drafts = [
   {
@@ -60,5 +61,34 @@ assert.deepEqual(
 assert.equal(rows[0].evidence, "");
 assert.equal(rows[0].owner_role, "frontend-builder");
 assert.equal(rows[1].priority, "medium");
+
+assert.deepEqual(
+  buildManualImplementationTaskInsertRow({
+    draft: {
+      acceptance_criteria: "  사용자는 저장 후 다음 버튼만 누른다  ",
+      owner_role: " prototype-builder ",
+      priority: "medium",
+      task_type: "frontend",
+      title: "  저장 게이트 확인 UI 구현  ",
+    },
+    existingTaskCount: 5,
+    ideaId: "idea-2",
+    organizationId: null,
+    sourceArtifactId: null,
+  }),
+  {
+    acceptance_criteria: "사용자는 저장 후 다음 버튼만 누른다",
+    evidence: "",
+    idea_id: "idea-2",
+    organization_id: null,
+    owner_role: "prototype-builder",
+    priority: "medium",
+    sort_order: 5,
+    source_artifact_id: null,
+    status: "todo",
+    task_type: "frontend",
+    title: "저장 게이트 확인 UI 구현",
+  },
+);
 
 console.log("Implementation task rows smoke passed.");

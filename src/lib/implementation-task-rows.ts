@@ -59,3 +59,31 @@ export function buildImplementationTaskInsertRows({
     sort_order: existingTaskCount + index,
   }));
 }
+
+export function buildManualImplementationTaskInsertRow({
+  draft,
+  existingTaskCount,
+  ideaId,
+  organizationId,
+  sourceArtifactId,
+}: {
+  draft: ImplementationTaskDraft;
+  existingTaskCount: number;
+  ideaId: string;
+  organizationId: string | null;
+  sourceArtifactId: string | null;
+}): ImplementationTaskInsertRow {
+  return {
+    idea_id: ideaId,
+    organization_id: organizationId,
+    source_artifact_id: sourceArtifactId,
+    title: draft.title.trim(),
+    task_type: draft.task_type,
+    priority: draft.priority,
+    status: "todo",
+    owner_role: draft.owner_role.trim(),
+    acceptance_criteria: draft.acceptance_criteria.trim(),
+    evidence: "",
+    sort_order: existingTaskCount,
+  };
+}
