@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation
 const {
   buildImplementationOwnerFilterLabels,
   buildImplementationOwnerOptions,
+  buildImplementationTaskRefreshSummary,
   filterImplementationTasks,
   resolveImplementationOwnerFilter,
 } = await import(moduleUrl);
@@ -114,5 +115,26 @@ assert.deepEqual(
   }).map((item) => item.id),
   ["task-frontend", "task-design"],
 );
+
+const refreshSummary = buildImplementationTaskRefreshSummary(tasks);
+assert.equal(refreshSummary.totalCount, 4);
+assert.equal(refreshSummary.doneCount, 1);
+assert.equal(refreshSummary.nextTask?.id, "task-qa");
+assert.equal(
+  refreshSummary.message,
+  "작업 상태 4개를 확인했습니다. 완료 1/4. 다음 작업은 qa task입니다.",
+);
+
+const allDoneSummary = buildImplementationTaskRefreshSummary([
+  task({ id: "task-done", ownerRole: "qa", status: "done", taskType: "qa" }),
+]);
+assert.equal(allDoneSummary.doneCount, 1);
+assert.equal(allDoneSummary.nextTask, null);
+assert.equal(allDoneSummary.message, "작업 상태 1개를 확인했습니다. 완료 1/1. 모든 작업이 완료 상태입니다.");
+
+const emptySummary = buildImplementationTaskRefreshSummary([]);
+assert.equal(emptySummary.doneCount, 0);
+assert.equal(emptySummary.nextTask, null);
+assert.equal(emptySummary.message, "작업 상태 0개를 확인했습니다. 완료 0/0.");
 
 console.log("Implementation task filters smoke passed.");

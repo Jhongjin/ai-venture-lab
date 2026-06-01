@@ -301,6 +301,7 @@ import {
   buildImplementationDependencyStatuses,
   buildImplementationTaskBoardColumns,
   buildImplementationTaskProgressStats,
+  buildImplementationTaskRefreshSummary,
   buildImplementationOwnerFilterLabels,
   buildImplementationOwnerOptions,
   filterImplementationTasks,
@@ -2455,15 +2456,13 @@ export function IdeaWorkbench({
       ...refreshedTasks,
     ]);
     setCursorProgressImportItems([]);
-    const doneCount = refreshedTasks.filter((task) => task.status === "done").length;
-    const nextTask = sortImplementationTasksForAction(refreshedTasks).find((task) => task.status !== "done");
-    const nextTaskText = nextTask ? ` 다음 작업은 ${nextTask.title}입니다.` : refreshedTasks.length > 0 ? " 모든 작업이 완료 상태입니다." : "";
+    const refreshSummary = buildImplementationTaskRefreshSummary(refreshedTasks);
     const refreshedAt = new Intl.DateTimeFormat("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
     }).format(new Date());
-    const refreshMessage = `작업 상태 ${refreshedTasks.length}개를 확인했습니다. 완료 ${doneCount}/${refreshedTasks.length}.${nextTaskText}`;
+    const refreshMessage = refreshSummary.message;
 
     setTaskSyncUpdatedAt(refreshedAt);
     setTaskSyncMessage(refreshMessage);

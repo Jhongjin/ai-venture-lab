@@ -44,6 +44,13 @@ export type ImplementationTaskProgressStats = {
   byType: Record<ImplementationTaskType, { done: number; total: number }>;
 };
 
+export type ImplementationTaskRefreshSummary = {
+  doneCount: number;
+  message: string;
+  nextTask: ImplementationTask | null;
+  totalCount: number;
+};
+
 export type ImplementationTaskReadinessQueues = {
   readyStatuses: ImplementationDependencyStatus[];
   waitingStatuses: ImplementationDependencyStatus[];
@@ -211,6 +218,23 @@ export function buildImplementationTaskProgressStats(tasks: ImplementationTask[]
     completedTasks,
     totalCount: tasks.length,
     byType,
+  };
+}
+
+export function buildImplementationTaskRefreshSummary(tasks: ImplementationTask[]): ImplementationTaskRefreshSummary {
+  const doneCount = tasks.filter((task) => task.status === "done").length;
+  const nextTask = sortImplementationTasksForAction(tasks).find((task) => task.status !== "done") ?? null;
+  const nextTaskText = nextTask
+    ? ` 다음 작업은 ${nextTask.title}입니다.`
+    : tasks.length > 0
+      ? " 모든 작업이 완료 상태입니다."
+      : "";
+
+  return {
+    doneCount,
+    message: `작업 상태 ${tasks.length}개를 확인했습니다. 완료 ${doneCount}/${tasks.length}.${nextTaskText}`,
+    nextTask,
+    totalCount: tasks.length,
   };
 }
 
