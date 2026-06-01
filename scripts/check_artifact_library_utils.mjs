@@ -19,6 +19,7 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildArtifactDraftInsertRow,
   buildArtifactReadinessFlags,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
@@ -142,6 +143,40 @@ const artifacts = [
     type: "backend_decision",
   }),
 ];
+
+assert.deepEqual(
+  buildArtifactDraftInsertRow({
+    artifactType: "prd",
+    body: "# PRD",
+    idea: { id: "idea-1", organization_id: "org-1" },
+    source: "workbench",
+    title: "AI Venture Lab PRD",
+    version: 3,
+  }),
+  {
+    artifact_type: "prd",
+    body: "# PRD",
+    idea_id: "idea-1",
+    organization_id: "org-1",
+    source: "workbench",
+    status: "draft",
+    status_note: "실행 보드에서 생성한 초기 초안입니다.",
+    title: "AI Venture Lab PRD",
+    version: 3,
+  },
+);
+assert.equal(
+  buildArtifactDraftInsertRow({
+    artifactType: "research_note",
+    body: "evidence",
+    idea: { id: "idea-2", organization_id: null },
+    source: "validation_sprint",
+    statusNote: "검증 자료 자동 저장에서 생성한 초안입니다.",
+    title: "7일 검증 계획",
+    version: 1,
+  }).status_note,
+  "검증 자료 자동 저장에서 생성한 초안입니다.",
+);
 
 const sourceOptions = buildArtifactSourceOptions(artifacts);
 assert.equal(sourceOptions[0], "all");

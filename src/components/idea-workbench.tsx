@@ -37,6 +37,7 @@ import {
   buildArtifactVersionSummaries,
 } from "@/lib/artifact-review-summary";
 import {
+  buildArtifactDraftInsertRow,
   buildArtifactReadinessFlags,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
@@ -2984,17 +2985,17 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("venture_artifacts")
-      .insert({
-        idea_id: selectedIdea.id,
-        organization_id: selectedIdea.organization_id,
-        artifact_type: artifactType,
-        status: "draft",
-        version: nextVersion,
-        title,
-        body,
-        source,
-        status_note: options.statusNote ?? "실행 보드에서 생성한 초기 초안입니다.",
-      })
+      .insert(
+        buildArtifactDraftInsertRow({
+          artifactType,
+          body,
+          idea: selectedIdea,
+          source,
+          statusNote: options.statusNote,
+          title,
+          version: nextVersion,
+        }),
+      )
       .select()
       .single();
     setIsBusy(false);

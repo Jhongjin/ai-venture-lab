@@ -5,6 +5,41 @@ import { artifactSourceLabels } from "@/lib/artifact-labels";
 export type ArtifactTypeFilter = VentureArtifactType | "all";
 export type ArtifactStatusFilter = VentureArtifactStatus | "all";
 
+export type ArtifactDraftIdeaSummary = {
+  id: string;
+  organization_id: string | null;
+};
+
+export function buildArtifactDraftInsertRow({
+  artifactType,
+  body,
+  idea,
+  source,
+  statusNote = "실행 보드에서 생성한 초기 초안입니다.",
+  title,
+  version,
+}: {
+  artifactType: VentureArtifactType;
+  body: string;
+  idea: ArtifactDraftIdeaSummary;
+  source: string;
+  statusNote?: string;
+  title: string;
+  version: number;
+}) {
+  return {
+    artifact_type: artifactType,
+    body,
+    idea_id: idea.id,
+    organization_id: idea.organization_id,
+    source,
+    status: "draft" as const,
+    status_note: statusNote,
+    title,
+    version,
+  };
+}
+
 export type ArtifactReadinessFlags = {
   implementationTaskSourceArtifact: VentureArtifact | undefined;
   hasIdeaBriefArtifact: boolean;
