@@ -240,10 +240,10 @@ import {
 } from "@/lib/workbench-selection-utils";
 import {
   buildCursorProgressImportDrafts,
+  buildCursorProgressImportDisplayItems,
+  buildCursorProgressPersistencePlan,
   buildCursorProgressPreviewItems,
   getVisibleCursorProgressImportItems,
-  normalizeTaskLookupTitle,
-  summarizeCursorProgressEvidence,
   type CursorProgressDisplayItem,
   type ImplementationTaskDraft,
 } from "@/lib/external-progress-import";
@@ -383,9 +383,7 @@ import type {
 import type {
   Database,
   DecisionStatus,
-  ImplementationTaskPriority,
   ImplementationTaskStatus,
-  ImplementationTaskType,
   Json,
   OrchestrationPhase,
   OrchestrationStatus,
@@ -3682,22 +3680,10 @@ export function IdeaWorkbench({
       sourceText: cursorProgressImportText,
       fallbackTasks: cursorHandoffTaskDrafts,
     });
-    const displayItems = importPlan.drafts
-      .filter((draft) => draft.status !== "todo" || draft.evidence.trim())
-      .map((draft) => ({
-        taskCode: draft.taskCode,
-        title: draft.title,
-        status: draft.status,
-        detail:
-          summarizeCursorProgressEvidence(draft.evidence) ||
-          (draft.status === "done"
-            ? `${toolLabel} 완료 보고가 반영되었습니다.`
-            : draft.status === "doing"
-              ? `${toolLabel}에서 진행 중인 작업으로 표시되었습니다.`
-              : draft.status === "blocked"
-                ? `${toolLabel} 완료 보고에서 차단 상태로 표시되었습니다.`
-                : "다음 미완료 작업으로 표시되었습니다."),
-      }));
+    const displayItems = buildCursorProgressImportDisplayItems({
+      drafts: importPlan.drafts,
+      toolLabel,
+    });
 
     if (importPlan.parsedCount === 0) {
       setCursorProgressImportMessage("T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
@@ -3707,72 +3693,14 @@ export function IdeaWorkbench({
     }
 
     const existingSortedTasks = sortImplementationTasksForExecution(selectedImplementationTasks);
-    const existingByTitle = new Map(
-      selectedImplementationTasks.map((task) => [normalizeTaskLookupTitle(task.title), task]),
-    );
-    const rowsToInsert: Array<{
-      idea_id: string;
-      organization_id: string | null;
-      source_artifact_id: string | null;
-      title: string;
-      task_type: ImplementationTaskType;
-      priority: ImplementationTaskPriority;
-      status: ImplementationTaskStatus;
-      owner_role: string;
-      acceptance_criteria: string;
-      evidence: string;
-      sort_order: number;
-    }> = [];
-    const updateRows: Array<{
-      task: ImplementationTask;
-      status: ImplementationTaskStatus;
-      evidence: string;
-    }> = [];
-    let skippedTaskCount = 0;
-
-    importPlan.drafts.forEach((draft, index) => {
-      const normalizedTitle = normalizeTaskLookupTitle(draft.title);
-      const indexMatch =
-        existingSortedTasks.length === importPlan.drafts.length ? existingSortedTasks[index] ?? null : null;
-      const matchedTask = existingByTitle.get(normalizedTitle) ?? indexMatch;
-      const nextEvidence = draft.evidence.trim();
-
-      if (matchedTask) {
-        if (!canManageRecord(matchedTask)) {
-          skippedTaskCount += 1;
-          return;
-        }
-
-        const nextStatus = matchedTask.status === "done" && draft.status !== "done" ? matchedTask.status : draft.status;
-        const mergedEvidence = [matchedTask.evidence?.trim() ?? "", nextEvidence]
-          .filter(Boolean)
-          .join("\n\n---\n\n")
-          .slice(0, 9000);
-
-        if (matchedTask.status !== nextStatus || (nextEvidence && mergedEvidence !== (matchedTask.evidence ?? ""))) {
-          updateRows.push({
-            task: matchedTask,
-            status: nextStatus,
-            evidence: mergedEvidence,
-          });
-        }
-
-        return;
-      }
-
-      rowsToInsert.push({
-        idea_id: selectedIdea.id,
-        organization_id: selectedIdea.organization_id,
-        source_artifact_id: implementationTaskSourceArtifact?.id ?? null,
-        title: draft.title,
-        task_type: draft.task_type,
-        priority: draft.priority,
-        status: draft.status,
-        owner_role: draft.owner_role,
-        acceptance_criteria: draft.acceptance_criteria,
-        evidence: nextEvidence,
-        sort_order: selectedImplementationTasks.length + rowsToInsert.length,
-      });
+    const { rowsToInsert, skippedTaskCount, updateRows } = buildCursorProgressPersistencePlan({
+      canManageTask: canManageRecord,
+      drafts: importPlan.drafts,
+      existingSortedTasks,
+      existingTasks: selectedImplementationTasks,
+      ideaId: selectedIdea.id,
+      organizationId: selectedIdea.organization_id,
+      sourceArtifactId: implementationTaskSourceArtifact?.id ?? null,
     });
 
     if (rowsToInsert.length === 0 && updateRows.length === 0) {

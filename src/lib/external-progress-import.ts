@@ -3,6 +3,7 @@ import type {
   ImplementationTaskStatus,
   ImplementationTaskType,
 } from "@/lib/supabase/types";
+import type { ImplementationTask } from "@/lib/venture-data";
 import { isPlainRecord } from "@/lib/record-utils";
 
 export type ImplementationTaskDraft = {
@@ -21,7 +22,7 @@ type CursorProgressImportItem = {
   evidence: string;
 };
 
-type CursorProgressImportDraft = ImplementationTaskDraft & {
+export type CursorProgressImportDraft = ImplementationTaskDraft & {
   taskCode: string;
   status: ImplementationTaskStatus;
   evidence: string;
@@ -32,6 +33,26 @@ export type CursorProgressDisplayItem = {
   title: string;
   status: ImplementationTaskStatus;
   detail: string;
+};
+
+export type CursorProgressTaskInsertDraft = {
+  idea_id: string;
+  organization_id: string | null;
+  source_artifact_id: string | null;
+  title: string;
+  task_type: ImplementationTaskType;
+  priority: ImplementationTaskPriority;
+  status: ImplementationTaskStatus;
+  owner_role: string;
+  acceptance_criteria: string;
+  evidence: string;
+  sort_order: number;
+};
+
+export type CursorProgressTaskUpdateDraft = {
+  task: ImplementationTask;
+  status: ImplementationTaskStatus;
+  evidence: string;
 };
 
 const externalProgressStatusLabels: Record<ImplementationTaskStatus, string> = {
@@ -356,6 +377,106 @@ export function buildCursorProgressPreviewItems({
       status: draft.status,
       detail: summarizeCursorProgressEvidence(draft.evidence) || "붙여넣은 진행 결과에서 자동으로 읽은 작업입니다.",
     }));
+}
+
+export function buildCursorProgressImportDisplayItems({
+  drafts,
+  toolLabel,
+}: {
+  drafts: CursorProgressImportDraft[];
+  toolLabel: string;
+}): CursorProgressDisplayItem[] {
+  return drafts
+    .filter((draft) => draft.status !== "todo" || draft.evidence.trim())
+    .map((draft) => ({
+      taskCode: draft.taskCode,
+      title: draft.title,
+      status: draft.status,
+      detail:
+        summarizeCursorProgressEvidence(draft.evidence) ||
+        (draft.status === "done"
+          ? `${toolLabel} 완료 보고가 반영되었습니다.`
+          : draft.status === "doing"
+            ? `${toolLabel}에서 진행 중인 작업으로 표시되었습니다.`
+            : draft.status === "blocked"
+              ? `${toolLabel} 완료 보고에서 차단 상태로 표시되었습니다.`
+              : "다음 미완료 작업으로 표시되었습니다."),
+    }));
+}
+
+export function buildCursorProgressPersistencePlan({
+  canManageTask,
+  drafts,
+  existingSortedTasks,
+  existingTasks,
+  ideaId,
+  organizationId,
+  sourceArtifactId,
+}: {
+  canManageTask: (task: ImplementationTask) => boolean;
+  drafts: CursorProgressImportDraft[];
+  existingSortedTasks: ImplementationTask[];
+  existingTasks: ImplementationTask[];
+  ideaId: string;
+  organizationId: string | null;
+  sourceArtifactId: string | null;
+}) {
+  const existingByTitle = new Map(
+    existingTasks.map((task) => [normalizeTaskLookupTitle(task.title), task]),
+  );
+  const rowsToInsert: CursorProgressTaskInsertDraft[] = [];
+  const updateRows: CursorProgressTaskUpdateDraft[] = [];
+  let skippedTaskCount = 0;
+
+  drafts.forEach((draft, index) => {
+    const normalizedTitle = normalizeTaskLookupTitle(draft.title);
+    const indexMatch = existingSortedTasks.length === drafts.length ? existingSortedTasks[index] ?? null : null;
+    const matchedTask = existingByTitle.get(normalizedTitle) ?? indexMatch;
+    const nextEvidence = draft.evidence.trim();
+
+    if (matchedTask) {
+      if (!canManageTask(matchedTask)) {
+        skippedTaskCount += 1;
+        return;
+      }
+
+      const nextStatus = matchedTask.status === "done" && draft.status !== "done" ? matchedTask.status : draft.status;
+      const mergedEvidence = [matchedTask.evidence?.trim() ?? "", nextEvidence]
+        .filter(Boolean)
+        .join("\n\n---\n\n")
+        .slice(0, 9000);
+
+      if (matchedTask.status !== nextStatus || (nextEvidence && mergedEvidence !== (matchedTask.evidence ?? ""))) {
+        updateRows.push({
+          task: matchedTask,
+          status: nextStatus,
+          evidence: mergedEvidence,
+        });
+      }
+
+      return;
+    }
+
+    rowsToInsert.push({
+      idea_id: ideaId,
+      organization_id: organizationId,
+      source_artifact_id: sourceArtifactId,
+      title: draft.title,
+      task_type: draft.task_type,
+      priority: draft.priority,
+      status: draft.status,
+      owner_role: draft.owner_role,
+      acceptance_criteria: draft.acceptance_criteria,
+      evidence: nextEvidence,
+      sort_order: existingTasks.length + rowsToInsert.length,
+    });
+  });
+
+  return {
+    rowsToInsert,
+    skippedTaskCount,
+    updateRows,
+  };
 }
 
 export function getVisibleCursorProgressImportItems({
