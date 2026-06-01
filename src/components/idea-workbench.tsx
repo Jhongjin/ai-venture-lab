@@ -147,6 +147,13 @@ import {
 } from "@/lib/external-tool-handoff-markdown";
 import { buildExternalToolPackageDrafts } from "@/lib/external-tool-package-drafts";
 import {
+  buildAntigravityExternalToolSetupFiles,
+  buildClaudeExternalToolSetupFiles,
+  buildCodexExternalToolSetupFiles,
+  buildCursorExternalToolSetupFiles,
+  type ExternalToolSetupFileDraft,
+} from "@/lib/external-tool-setup-files";
+import {
   buildCodexSetupPowerShell,
   buildCursorSetupPowerShell,
   buildLiveToolSetupPowerShell,
@@ -469,10 +476,6 @@ type ExternalToolBuildSyncTokenPayload = CursorBuildSyncTokenResponse & {
   endpoint: string;
   expiresAt: string;
   token: string;
-};
-type ExternalToolSetupFileDraft = {
-  body: string;
-  path: string;
 };
 type ExternalToolEncodedSetupFile = {
   base64: string;
@@ -4249,18 +4252,17 @@ export function IdeaWorkbench({
       successMessage: "Cursor 연결 파일을 준비했습니다. venture_record_progress가 로컬 기록과 서버 반영을 함께 처리합니다.",
       errorMessage: "Cursor 연결 파일을 만들지 못했습니다.",
       buildGuideDraft: buildCursorGuideMarkdown,
-      buildFiles: ({ guideDraft, syncConfigDraft }) => [
-        { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
-        { path: "AI_VENTURE_TASKS.md", body: cursorTaskPackageDraft },
-        { path: "AI_VENTURE_CURSOR_START.md", body: cursorStartPromptDraft },
-        { path: "README_VENTURE_LAB_CURSOR.md", body: guideDraft },
-        { path: ".cursor/rules/ai-venture-lab.mdc", body: cursorRuleDraft },
-        { path: ".cursor/mcp.json", body: cursorMcpConfigDraft },
-        { path: ".cursor/venture-lab-cli.mjs", body: cursorMcpServerDraft },
-        { path: ".cursor/venture-lab-mcp-server.mjs", body: cursorMcpServerDraft },
-        { path: ".cursor/venture-lab-sync.json", body: syncConfigDraft },
-        { path: ".cursor/venture-lab-progress.json", body: "[]\n" },
-      ],
+      buildFiles: ({ guideDraft, syncConfigDraft }) =>
+        buildCursorExternalToolSetupFiles({
+          finalAgentRunPackageDraft,
+          guideDraft,
+          mcpConfigDraft: cursorMcpConfigDraft,
+          mcpServerDraft: cursorMcpServerDraft,
+          ruleDraft: cursorRuleDraft,
+          startPromptDraft: cursorStartPromptDraft,
+          syncConfigDraft,
+          taskPackageDraft: cursorTaskPackageDraft,
+        }),
       buildSetupScript: buildCursorSetupPowerShell,
     });
   }
@@ -4275,16 +4277,16 @@ export function IdeaWorkbench({
       successMessage: "Codex 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.",
       errorMessage: "Codex 연결 파일을 만들지 못했습니다.",
       buildGuideDraft: buildCodexGuideMarkdown,
-      buildFiles: ({ guideDraft, syncConfigDraft }) => [
-        { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
-        { path: "AI_VENTURE_TASKS.md", body: codexTaskPackageDraft },
-        { path: "AI_VENTURE_CODEX_START.md", body: codexStartPromptDraft },
-        { path: "AGENTS.ai-venture-lab.md", body: codexAgentInstructionsDraft },
-        { path: "README_VENTURE_LAB_CODEX.md", body: guideDraft },
-        { path: ".codex/venture-lab-cli.mjs", body: codexCliScriptDraft },
-        { path: ".codex/venture-lab-sync.json", body: syncConfigDraft },
-        { path: ".codex/venture-lab-progress.json", body: "[]\n" },
-      ],
+      buildFiles: ({ guideDraft, syncConfigDraft }) =>
+        buildCodexExternalToolSetupFiles({
+          agentInstructionsDraft: codexAgentInstructionsDraft,
+          cliScriptDraft: codexCliScriptDraft,
+          finalAgentRunPackageDraft,
+          guideDraft,
+          startPromptDraft: codexStartPromptDraft,
+          syncConfigDraft,
+          taskPackageDraft: codexTaskPackageDraft,
+        }),
       buildSetupScript: buildCodexSetupPowerShell,
     });
   }
@@ -4299,17 +4301,17 @@ export function IdeaWorkbench({
       successMessage: "Claude Code 연결 파일을 준비했습니다. 연결 도구 또는 record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.",
       errorMessage: "Claude Code 연결 파일을 만들지 못했습니다.",
       buildGuideDraft: buildClaudeGuideMarkdown,
-      buildFiles: ({ guideDraft, syncConfigDraft }) => [
-        { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
-        { path: "AI_VENTURE_TASKS.md", body: claudeTaskPackageDraft },
-        { path: "AI_VENTURE_CLAUDE_START.md", body: claudeStartPromptDraft },
-        { path: "CLAUDE.md", body: claudeInstructionsDraft },
-        { path: "README_VENTURE_LAB_CLAUDE.md", body: guideDraft },
-        { path: ".mcp.json", body: claudeMcpConfigDraft },
-        { path: ".claude/venture-lab-cli.mjs", body: claudeCliScriptDraft },
-        { path: ".claude/venture-lab-sync.json", body: syncConfigDraft },
-        { path: ".claude/venture-lab-progress.json", body: "[]\n" },
-      ],
+      buildFiles: ({ guideDraft, syncConfigDraft }) =>
+        buildClaudeExternalToolSetupFiles({
+          cliScriptDraft: claudeCliScriptDraft,
+          finalAgentRunPackageDraft,
+          guideDraft,
+          instructionsDraft: claudeInstructionsDraft,
+          mcpConfigDraft: claudeMcpConfigDraft,
+          startPromptDraft: claudeStartPromptDraft,
+          syncConfigDraft,
+          taskPackageDraft: claudeTaskPackageDraft,
+        }),
       buildSetupScript: ({ idea, projectKey, files }) => buildLiveToolSetupPowerShell({
         idea,
         projectKey,
@@ -4331,18 +4333,18 @@ export function IdeaWorkbench({
       successMessage: "Google Antigravity 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.",
       errorMessage: "Google Antigravity 연결 파일을 만들지 못했습니다.",
       buildGuideDraft: buildAntigravityGuideMarkdown,
-      buildFiles: ({ guideDraft, syncConfigDraft }) => [
-        { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
-        { path: "AI_VENTURE_TASKS.md", body: antigravityTaskPackageDraft },
-        { path: "AI_VENTURE_ANTIGRAVITY_START.md", body: antigravityStartPromptDraft },
-        { path: "AI_VENTURE_ACCEPTANCE.md", body: antigravityAcceptanceDraft },
-        { path: "AGENTS.ai-venture-lab.md", body: antigravityAgentInstructionsDraft },
-        { path: "README_VENTURE_LAB_ANTIGRAVITY.md", body: guideDraft },
-        { path: ".antigravity/mcp_config.json", body: antigravityMcpConfigDraft },
-        { path: ".antigravity/venture-lab-cli.mjs", body: antigravityCliScriptDraft },
-        { path: ".antigravity/venture-lab-sync.json", body: syncConfigDraft },
-        { path: ".antigravity/venture-lab-progress.json", body: "[]\n" },
-      ],
+      buildFiles: ({ guideDraft, syncConfigDraft }) =>
+        buildAntigravityExternalToolSetupFiles({
+          acceptanceDraft: antigravityAcceptanceDraft,
+          agentInstructionsDraft: antigravityAgentInstructionsDraft,
+          cliScriptDraft: antigravityCliScriptDraft,
+          finalAgentRunPackageDraft,
+          guideDraft,
+          mcpConfigDraft: antigravityMcpConfigDraft,
+          startPromptDraft: antigravityStartPromptDraft,
+          syncConfigDraft,
+          taskPackageDraft: antigravityTaskPackageDraft,
+        }),
       buildSetupScript: ({ idea, projectKey, files }) => buildLiveToolSetupPowerShell({
         idea,
         projectKey,
