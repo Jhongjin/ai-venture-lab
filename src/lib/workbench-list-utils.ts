@@ -39,6 +39,22 @@ export function isWorkbenchAdminRole(role: OrganizationRole) {
   return workbenchAdminRoles.has(role);
 }
 
+export function buildDiscardIdeaPatch(now = new Date().toISOString()) {
+  return {
+    decision: "kill" as const,
+    stage: "paused" as const,
+    updated_at: now,
+  };
+}
+
+export function buildRestoreIdeaPatch(now = new Date().toISOString()) {
+  return {
+    decision: "research_more" as const,
+    stage: "score" as const,
+    updated_at: now,
+  };
+}
+
 export function getWorkbenchRecordAccessState({
   memberships,
   record,

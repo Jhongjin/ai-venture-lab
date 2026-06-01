@@ -4,6 +4,8 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-list-utils.ts")).href;
 const {
+  buildDiscardIdeaPatch,
+  buildRestoreIdeaPatch,
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
   getActiveIdeas,
@@ -72,6 +74,16 @@ assert.equal(isDiscardedIdea(ideas[4]), true);
 assert.equal(isWorkbenchAdminRole("owner"), true);
 assert.equal(isWorkbenchAdminRole("admin"), true);
 assert.equal(isWorkbenchAdminRole("member"), false);
+assert.deepEqual(buildDiscardIdeaPatch("2026-06-01T00:00:00.000Z"), {
+  decision: "kill",
+  stage: "paused",
+  updated_at: "2026-06-01T00:00:00.000Z",
+});
+assert.deepEqual(buildRestoreIdeaPatch("2026-06-01T00:00:00.000Z"), {
+  decision: "research_more",
+  stage: "score",
+  updated_at: "2026-06-01T00:00:00.000Z",
+});
 assert.deepEqual(getActiveIdeas(ideas).map((record) => record.id), ["shared-old", "owned-new", "hidden", "admin"]);
 
 assert.deepEqual(

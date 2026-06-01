@@ -53,6 +53,8 @@ import { buildAppBlueprintMarkdown } from "@/lib/app-blueprint-markdown";
 import { buildBackendDecisionMarkdown, buildBackendExecutionPlanMarkdown } from "@/lib/backend-decision-markdown";
 import { buildBackendCandidateScores, buildBackendExecutionPlan } from "@/lib/backend-planning";
 import {
+  buildDiscardIdeaPatch,
+  buildRestoreIdeaPatch,
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
   getActiveIdeas,
@@ -1243,7 +1245,7 @@ export function IdeaWorkbench({
 
     const { data, error } = await supabase
       .from("ideas")
-      .update({ decision: "kill", stage: "paused", updated_at: new Date().toISOString() })
+      .update(buildDiscardIdeaPatch())
       .eq("id", idea.id)
       .select("*")
       .single();
@@ -1289,7 +1291,7 @@ export function IdeaWorkbench({
 
     const { data, error } = await supabase
       .from("ideas")
-      .update({ decision: "research_more", stage: "score", updated_at: new Date().toISOString() })
+      .update(buildRestoreIdeaPatch())
       .eq("id", idea.id)
       .select("*")
       .single();
