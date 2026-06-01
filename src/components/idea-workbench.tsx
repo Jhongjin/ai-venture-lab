@@ -283,6 +283,11 @@ import { buildReleaseDecisionPacket } from "@/lib/release-decision-packet";
 import { buildRolePromptPackMarkdown } from "@/lib/role-prompt-pack-markdown";
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import { buildEvidenceNoteMarkdown, buildExperimentResultMarkdown } from "@/lib/validation-evidence-markdown";
+import {
+  buildDecisionInsertRow,
+  buildExperimentInsertRow,
+  buildRiskInsertRow,
+} from "@/lib/validation-input-rows";
 import { buildValidationPackageSaveJobs } from "@/lib/validation-package-save-jobs";
 import {
   buildIdeaBriefMarkdown,
@@ -2489,15 +2494,13 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("risks")
-      .insert({
-        idea_id: selectedIdea.id,
-        title: riskDraft.title.trim(),
-        area: riskDraft.area.trim(),
-        severity: riskDraft.severity,
-        mitigation: riskDraft.mitigation.trim(),
-        status: "open",
-        organization_id: selectedIdea.organization_id,
-      })
+      .insert(
+        buildRiskInsertRow({
+          draft: riskDraft,
+          ideaId: selectedIdea.id,
+          organizationId: selectedIdea.organization_id,
+        }),
+      )
       .select()
       .single();
     setIsBusy(false);
@@ -2540,12 +2543,14 @@ export function IdeaWorkbench({
       supabase.from("ideas").update({ decision: editState.decision }).eq("id", selectedIdea.id).select().single(),
       supabase
         .from("decisions")
-        .insert({
-          idea_id: selectedIdea.id,
-          decision: editState.decision,
-          reason: decisionReason.trim(),
-          organization_id: selectedIdea.organization_id,
-        })
+        .insert(
+          buildDecisionInsertRow({
+            decision: editState.decision,
+            ideaId: selectedIdea.id,
+            organizationId: selectedIdea.organization_id,
+            reason: decisionReason,
+          }),
+        )
         .select()
         .single(),
     ]);
@@ -2597,13 +2602,13 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("experiments")
-      .insert({
-        idea_id: selectedIdea.id,
-        name: draft.name.trim(),
-        success_metric: draft.success_metric.trim(),
-        status: "planned",
-        organization_id: selectedIdea.organization_id,
-      })
+      .insert(
+        buildExperimentInsertRow({
+          draft,
+          ideaId: selectedIdea.id,
+          organizationId: selectedIdea.organization_id,
+        }),
+      )
       .select()
       .single();
     setIsBusy(false);
