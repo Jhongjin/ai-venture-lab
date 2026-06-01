@@ -19,9 +19,9 @@ type Step5PackageReviewProps = {
 };
 
 const step5ReviewFocusItems = [
-  ["1. 만들 결과", "결과물 형태와 개발 방식이 맞는지 확인"],
-  ["2. 첫 제작 범위", "첫 버전에 만들 것과 제외할 것 확인"],
-  ["3. 첫 작업", "STEP 6에서 T-001로 시작할 수 있는지 확인"],
+  ["1. 만들 결과", "결과물 형태 / 개발 방식"],
+  ["2. 첫 제작 범위", "포함할 것 / 제외할 것"],
+  ["3. 첫 작업", "T-001로 바로 시작 가능"],
 ] as const;
 
 export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCards }: Step5PackageReviewProps) {
@@ -33,7 +33,10 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
     <div className="mt-5 grid gap-4">
       <div className="border border-slate-200 bg-slate-50 p-4">
         <div className="avl-kicker">정리된 내용 확인</div>
-        <h4 className="mt-2 text-base font-semibold text-slate-950">저장 전 확인할 핵심 내용</h4>
+        <h4 className="mt-2 text-base font-semibold text-slate-950">지금은 세 가지만 확인</h4>
+        <p className="mt-1 text-sm leading-6 text-slate-600">
+          맞으면 바로 저장하세요. 세부 요약과 다음 단계 연결은 필요할 때만 펼칩니다.
+        </p>
         <div data-smoke="step5-review-save-focus" className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
           {step5ReviewFocusItems.map(([label, detail]) => (
             <div key={label} className="bg-white px-3 py-3">
@@ -48,29 +51,39 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
         >
           저장은 STEP 6으로 자동 이동하지 않고, 작업 순서를 만들 기준만 확정합니다. 이동은 하단 다음 단계 버튼으로만 합니다.
         </div>
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          {summaryCards.map((card) => (
-            <div key={card.label} className="border border-slate-200 bg-white p-3">
-              <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{card.label}</div>
-              <div className="mt-2 text-sm font-semibold text-slate-950">{card.value}</div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 grid gap-3 lg:grid-cols-3">
-          {bridgeCards.map((card) => (
-            <div key={card.label} className="border border-slate-200 bg-white p-3">
-              <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{card.label}</div>
-              <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700">
-                {card.items.map((item) => (
-                  <li key={item} className="border-l border-slate-200 pl-3">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <details data-smoke="step5-review-details-optional" className="mt-4">
+          <summary className="cursor-pointer border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950">
+            패키지 요약 자세히 보기
+          </summary>
+          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            {summaryCards.map((card) => (
+              <div key={card.label} className="border border-slate-200 bg-white p-3">
+                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{card.label}</div>
+                <div className="mt-2 text-sm font-semibold text-slate-950">{card.value}</div>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{card.detail}</p>
+              </div>
+            ))}
+          </div>
+        </details>
+        <details data-smoke="step5-review-bridge-optional" className="mt-3">
+          <summary className="cursor-pointer border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950">
+            STEP 6/7/8 연결 보기
+          </summary>
+          <div className="mt-3 grid gap-3 lg:grid-cols-3">
+            {bridgeCards.map((card) => (
+              <div key={card.label} className="border border-slate-200 bg-white p-3">
+                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{card.label}</div>
+                <ul className="mt-2 grid gap-2 text-sm leading-6 text-slate-700">
+                  {card.items.map((item) => (
+                    <li key={item} className="border-l border-slate-200 pl-3">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </details>
       </div>
 
       <div className="border border-slate-200 bg-white p-4">
