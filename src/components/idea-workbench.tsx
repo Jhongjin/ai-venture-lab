@@ -137,9 +137,7 @@ import {
   buildFinalExecutionTaskPreview,
 } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
-import {
-  buildCursorSyncConfigJson,
-} from "@/lib/external-tool-connector-config";
+import { buildExternalToolSyncConfigDraft } from "@/lib/external-tool-connector-config";
 import {
   buildAntigravityGuideMarkdown,
   buildClaudeGuideMarkdown,
@@ -4035,23 +4033,6 @@ export function IdeaWorkbench({
     }
   }
 
-  function buildExternalToolSyncConfigDraft(tool: LiveExternalToolSetupKey, payload: ExternalToolBuildSyncTokenPayload) {
-    if (!selectedIdea) {
-      return "";
-    }
-
-    return buildCursorSyncConfigJson({
-      projectKey: finalExecutionProjectKey,
-      ideaId: selectedIdea.id,
-      ideaName: selectedIdea.name,
-      tool,
-      endpoint: payload.endpoint,
-      token: payload.token,
-      expiresAt: payload.expiresAt,
-      createdAt: new Date().toISOString(),
-    });
-  }
-
   async function revokeCursorSyncConnection(connection: CursorSyncConnection) {
     if (!user) {
       setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결을 끊으려면 먼저 로그인하세요.`);
@@ -4137,7 +4118,12 @@ export function IdeaWorkbench({
         toolLabel: config.toolLabel,
       });
 
-      const syncConfigDraft = buildExternalToolSyncConfigDraft(config.tool, payload);
+      const syncConfigDraft = buildExternalToolSyncConfigDraft({
+        idea: selectedIdea,
+        payload,
+        projectKey: finalExecutionProjectKey,
+        tool: config.tool,
+      });
       const guideDraft = config.buildGuideDraft({
         idea: selectedIdea,
         productSurface: activeProductSurface,

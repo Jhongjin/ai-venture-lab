@@ -1,3 +1,5 @@
+import type { Idea } from "@/lib/venture-data";
+
 export type CursorSyncConfig = {
   projectKey: string;
   ideaId: string;
@@ -7,6 +9,16 @@ export type CursorSyncConfig = {
   token: string;
   expiresAt: string;
   createdAt: string;
+};
+
+export type ExternalToolSyncConfigPayload = Pick<CursorSyncConfig, "endpoint" | "expiresAt" | "token">;
+
+export type ExternalToolSyncConfigDraftInput = {
+  createdAt?: string;
+  idea: Pick<Idea, "id" | "name">;
+  payload: ExternalToolSyncConfigPayload;
+  projectKey: string;
+  tool: CursorSyncConfig["tool"];
 };
 
 export function buildClaudeMcpConfigJson() {
@@ -62,4 +74,23 @@ export function buildCursorMcpConfigJson() {
 export function buildCursorSyncConfigJson(config: CursorSyncConfig) {
   return `${JSON.stringify(config, null, 2)}
 `;
+}
+
+export function buildExternalToolSyncConfigDraft({
+  createdAt = new Date().toISOString(),
+  idea,
+  payload,
+  projectKey,
+  tool,
+}: ExternalToolSyncConfigDraftInput) {
+  return buildCursorSyncConfigJson({
+    projectKey,
+    ideaId: idea.id,
+    ideaName: idea.name,
+    tool,
+    endpoint: payload.endpoint,
+    token: payload.token,
+    expiresAt: payload.expiresAt,
+    createdAt,
+  });
 }
