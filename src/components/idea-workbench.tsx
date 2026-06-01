@@ -4107,10 +4107,6 @@ export function IdeaWorkbench({
     }
   }
 
-  function encodeExternalToolSetupFiles(files: ExternalToolSetupFileDraft[]) {
-    return encodeBrowserSetupFiles(files);
-  }
-
   function buildExternalToolSyncConfigDraft(tool: LiveExternalToolSetupKey, payload: ExternalToolBuildSyncTokenPayload) {
     if (!selectedIdea) {
       return "";
@@ -4220,7 +4216,7 @@ export function IdeaWorkbench({
         projectKey: finalExecutionProjectKey,
         syncExpiresAt: payload.expiresAt,
       });
-      const files = encodeExternalToolSetupFiles(config.buildFiles({ guideDraft, syncConfigDraft }));
+      const files = encodeBrowserSetupFiles(config.buildFiles({ guideDraft, syncConfigDraft }));
       const script = config.buildSetupScript({
         idea: selectedIdea,
         projectKey: finalExecutionProjectKey,
