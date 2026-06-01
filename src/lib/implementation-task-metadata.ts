@@ -51,6 +51,19 @@ export type ImplementationTaskReadinessQueues = {
   nextDependencyStatus: ImplementationDependencyStatus | null;
 };
 
+export type ImplementationEvidenceSummary = {
+  task: ImplementationTask;
+  missing: string[];
+  passedCount: number;
+  totalCount: number;
+};
+
+export type BlockedImplementationSummary = {
+  task: ImplementationTask;
+  hint: ReturnType<typeof getBlockedImplementationTaskHint>;
+  missing: string[];
+};
+
 export const implementationTaskStatuses: ImplementationTaskStatus[] = ["todo", "doing", "blocked", "done"];
 
 export const implementationTaskTypes: ImplementationTaskType[] = [
@@ -255,7 +268,7 @@ export function filterImplementationTasks({
   tasks: ImplementationTask[];
 }) {
   return tasks.filter((task) => {
-    const currentEvidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
+    const currentEvidence = getImplementationTaskEvidence(task, evidenceByTaskId);
     const hasEvidenceGap = getImplementationEvidenceChecklist(task, currentEvidence).some((item) => !item.passed);
     const matchesStatus = statusFilter === "all" || task.status === statusFilter;
     const matchesOwner = ownerFilter === "all" || getImplementationTaskOwnerRole(task) === ownerFilter;
@@ -268,6 +281,20 @@ export function filterImplementationTasks({
   });
 }
 
+function getImplementationTaskEvidence(task: ImplementationTask, evidenceByTaskId: Record<string, string>) {
+  return evidenceByTaskId[task.id] ?? task.evidence ?? "";
+}
+
+function getMissingImplementationEvidenceLabels(task: ImplementationTask, evidenceByTaskId: Record<string, string>) {
+  const evidence = getImplementationTaskEvidence(task, evidenceByTaskId);
+  const checklist = getImplementationEvidenceChecklist(task, evidence);
+
+  return {
+    checklist,
+    missing: checklist.filter((item) => !item.passed).map((item) => item.label),
+  };
+}
+
 export function getBlockedImplementationTaskHint(task: ImplementationTask) {
   const playbook = implementationBlockerPlaybooks[task.task_type];
 
@@ -277,6 +304,59 @@ export function getBlockedImplementationTaskHint(task: ImplementationTask) {
     unblockEvidence: playbook.unblockEvidence,
     escalation: playbook.escalation,
   };
+}
+
+export function buildImplementationEvidenceSummaries({
+  evidenceByTaskId,
+  tasks,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  tasks: ImplementationTask[];
+}): ImplementationEvidenceSummary[] {
+  return tasks
+    .map((task) => {
+      const { checklist, missing } = getMissingImplementationEvidenceLabels(task, evidenceByTaskId);
+
+      return {
+        task,
+        missing,
+        passedCount: checklist.length - missing.length,
+        totalCount: checklist.length,
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.missing.length - a.missing.length ||
+        implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
+        implementationTaskActionRank[a.task.status] - implementationTaskActionRank[b.task.status] ||
+        a.task.sort_order - b.task.sort_order,
+    );
+}
+
+export function getImplementationEvidenceIssues(summaries: ImplementationEvidenceSummary[]) {
+  return summaries.filter((summary) => summary.missing.length > 0);
+}
+
+export function buildBlockedImplementationSummaries({
+  evidenceByTaskId,
+  tasks,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  tasks: ImplementationTask[];
+}): BlockedImplementationSummary[] {
+  return tasks
+    .filter((task) => task.status === "blocked")
+    .map((task) => ({
+      task,
+      hint: getBlockedImplementationTaskHint(task),
+      missing: getMissingImplementationEvidenceLabels(task, evidenceByTaskId).missing,
+    }))
+    .sort(
+      (a, b) =>
+        implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
+        b.missing.length - a.missing.length ||
+        a.task.sort_order - b.task.sort_order,
+    );
 }
 
 export const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {

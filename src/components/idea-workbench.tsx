@@ -265,12 +265,15 @@ import { buildDevelopmentKickoffMarkdown } from "@/lib/development-kickoff-markd
 import { buildImplementationHandoffMarkdown } from "@/lib/implementation-handoff-markdown";
 import { buildDevelopmentCompletionReportMarkdown } from "@/lib/development-completion-report";
 import {
+  buildBlockedImplementationSummaries,
+  buildImplementationEvidenceSummaries,
   buildImplementationDependencyStatuses,
   buildImplementationTaskProgressStats,
   buildImplementationOwnerFilterLabels,
   buildImplementationOwnerOptions,
   filterImplementationTasks,
   getBlockedImplementationTaskHint,
+  getImplementationEvidenceIssues,
   getImplementationEvidenceChecklist,
   getImplementationTaskReadinessQueues,
   resolveImplementationOwnerFilter,
@@ -278,11 +281,9 @@ import {
   implementationEvidenceFilterOptions,
   implementationStatusFilterLabels,
   implementationStatusFilterOptions,
-  implementationTaskActionRank,
   implementationTaskExecutionOrder,
   implementationTaskPriorities,
   implementationTaskPriorityLabels,
-  implementationTaskPriorityRank,
   implementationTaskPriorityTone,
   implementationTaskStatusLabels,
   implementationTaskStatuses,
@@ -1219,50 +1220,19 @@ export function IdeaWorkbench({
     : "";
   const implementationEvidenceSummaries = useMemo(
     () =>
-      selectedImplementationTasks
-        .map((task) => {
-          const evidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
-          const checklist = getImplementationEvidenceChecklist(task, evidence);
-          const missing = checklist.filter((item) => !item.passed).map((item) => item.label);
-
-          return {
-            task,
-            missing,
-            passedCount: checklist.length - missing.length,
-            totalCount: checklist.length,
-          };
-        })
-        .sort(
-          (a, b) =>
-            b.missing.length - a.missing.length ||
-            implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
-            implementationTaskActionRank[a.task.status] - implementationTaskActionRank[b.task.status] ||
-            a.task.sort_order - b.task.sort_order,
-        ),
+      buildImplementationEvidenceSummaries({
+        evidenceByTaskId: implementationTaskEvidence,
+        tasks: selectedImplementationTasks,
+      }),
     [implementationTaskEvidence, selectedImplementationTasks],
   );
-  const implementationEvidenceIssues = implementationEvidenceSummaries.filter((summary) => summary.missing.length > 0);
+  const implementationEvidenceIssues = getImplementationEvidenceIssues(implementationEvidenceSummaries);
   const blockedImplementationSummaries = useMemo(
     () =>
-      selectedImplementationTasks
-        .filter((task) => task.status === "blocked")
-        .map((task) => {
-          const evidence = implementationTaskEvidence[task.id] ?? task.evidence ?? "";
-          const checklist = getImplementationEvidenceChecklist(task, evidence);
-          const missing = checklist.filter((item) => !item.passed).map((item) => item.label);
-
-          return {
-            task,
-            hint: getBlockedImplementationTaskHint(task),
-            missing,
-          };
-        })
-        .sort(
-          (a, b) =>
-            implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
-            b.missing.length - a.missing.length ||
-            a.task.sort_order - b.task.sort_order,
-        ),
+      buildBlockedImplementationSummaries({
+        evidenceByTaskId: implementationTaskEvidence,
+        tasks: selectedImplementationTasks,
+      }),
     [implementationTaskEvidence, selectedImplementationTasks],
   );
   const implementationOwnerOptions = useMemo(

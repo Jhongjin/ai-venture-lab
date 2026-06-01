@@ -1,0 +1,93 @@
+import assert from "node:assert/strict";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-metadata.ts")).href;
+const {
+  buildBlockedImplementationSummaries,
+  buildImplementationEvidenceSummaries,
+  getImplementationEvidenceIssues,
+} = await import(moduleUrl);
+
+function task({ evidence = "", id, ownerRole = "", priority = "medium", sortOrder = 1, status, taskType }) {
+  return {
+    acceptance_criteria: null,
+    artifact_id: null,
+    completed_at: null,
+    created_at: "2026-06-01T00:00:00.000Z",
+    created_by: null,
+    dependencies: [],
+    description: `${taskType} task`,
+    evidence,
+    id,
+    idea_id: "idea-1",
+    organization_id: null,
+    owner_role: ownerRole,
+    priority,
+    sort_order: sortOrder,
+    status,
+    task_type: taskType,
+    title: `${taskType} task`,
+    updated_at: "2026-06-01T00:00:00.000Z",
+  };
+}
+
+const tasks = [
+  task({ id: "task-frontend", priority: "high", status: "todo", taskType: "frontend" }),
+  task({
+    evidence: "commit abc pnpm typecheck 허용 차단 RLS with check",
+    id: "task-backend",
+    status: "doing",
+    taskType: "backend",
+  }),
+  task({
+    evidence: "commit abc pnpm",
+    id: "task-qa",
+    priority: "low",
+    sortOrder: 2,
+    status: "blocked",
+    taskType: "qa",
+  }),
+  task({
+    evidence: "commit abc pnpm Preview Production",
+    id: "task-deploy",
+    priority: "high",
+    status: "blocked",
+    taskType: "deploy",
+  }),
+];
+
+const evidenceSummaries = buildImplementationEvidenceSummaries({ evidenceByTaskId: {}, tasks });
+assert.deepEqual(
+  evidenceSummaries.map((summary) => summary.task.id),
+  ["task-frontend", "task-deploy", "task-qa", "task-backend"],
+);
+assert.deepEqual(evidenceSummaries[0].missing, ["커밋/PR", "검증 결과", "사용자 여정", "상태 UX"]);
+assert.equal(evidenceSummaries[0].passedCount, 0);
+assert.equal(evidenceSummaries[0].totalCount, 4);
+assert.equal(evidenceSummaries.at(-1).passedCount, evidenceSummaries.at(-1).totalCount);
+
+assert.deepEqual(
+  getImplementationEvidenceIssues(evidenceSummaries).map((summary) => summary.task.id),
+  ["task-frontend", "task-deploy", "task-qa"],
+);
+
+const overriddenEvidenceSummaries = buildImplementationEvidenceSummaries({
+  evidenceByTaskId: {
+    "task-frontend": "commit abc pnpm smoke 저장 로딩",
+  },
+  tasks,
+});
+assert.equal(overriddenEvidenceSummaries.find((summary) => summary.task.id === "task-frontend").missing.length, 0);
+
+const blockedSummaries = buildBlockedImplementationSummaries({ evidenceByTaskId: {}, tasks });
+assert.deepEqual(
+  blockedSummaries.map((summary) => summary.task.id),
+  ["task-deploy", "task-qa"],
+);
+assert.equal(blockedSummaries[0].hint.ownerRole, "release-manager");
+assert.deepEqual(blockedSummaries[0].missing, ["Vercel 로그", "롤백 기준"]);
+assert.equal(blockedSummaries[1].hint.ownerRole, "qa-runner");
+assert.deepEqual(blockedSummaries[1].missing, ["스모크 경로", "실패/회귀"]);
+
+console.log("Implementation task evidence summary smoke passed.");
