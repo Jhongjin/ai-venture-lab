@@ -254,6 +254,8 @@ const contracts = [
       "실행 패키지",
       "개발 시작 기준",
       "제작 범위 잠금",
+      "도구 전달 자료",
+      "Cursor, Codex, Claude Code, Antigravity가 읽을 첫 지시문",
       "다음 단계 연결",
       "최종 실행에서 외부 개발 도구 파일로 넘깁니다.",
     ],
