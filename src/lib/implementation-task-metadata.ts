@@ -225,6 +225,10 @@ export function buildImplementationTaskProgressStats(tasks: ImplementationTask[]
   };
 }
 
+export function getCompletedImplementationTasksWithEvidence(tasks: ImplementationTask[]) {
+  return tasks.filter((task) => task.status === "done" && Boolean(task.evidence.trim()));
+}
+
 export function buildImplementationTaskRefreshSummary(tasks: ImplementationTask[]): ImplementationTaskRefreshSummary {
   const doneCount = tasks.filter((task) => task.status === "done").length;
   const nextTask = sortImplementationTasksForAction(tasks).find((task) => task.status !== "done") ?? null;

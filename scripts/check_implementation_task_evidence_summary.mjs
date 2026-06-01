@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation
 const {
   buildBlockedImplementationSummaries,
   buildImplementationEvidenceSummaries,
+  getCompletedImplementationTasksWithEvidence,
   getImplementationEvidenceIssues,
 } = await import(moduleUrl);
 
@@ -56,6 +57,20 @@ const tasks = [
     taskType: "deploy",
   }),
 ];
+
+assert.deepEqual(
+  getCompletedImplementationTasksWithEvidence([
+    task({
+      evidence: "commit abc pnpm smoke 저장 로딩",
+      id: "task-done-with-evidence",
+      status: "done",
+      taskType: "frontend",
+    }),
+    task({ evidence: "commit abc pnpm", id: "task-todo-with-evidence", status: "todo", taskType: "qa" }),
+    task({ evidence: "   ", id: "task-done-empty-evidence", status: "done", taskType: "design" }),
+  ]).map((item) => item.id),
+  ["task-done-with-evidence"],
+);
 
 const evidenceSummaries = buildImplementationEvidenceSummaries({ evidenceByTaskId: {}, tasks });
 assert.deepEqual(

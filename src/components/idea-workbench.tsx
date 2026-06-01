@@ -308,6 +308,7 @@ import {
   buildImplementationOwnerFilterLabels,
   buildImplementationOwnerOptions,
   filterImplementationTasks,
+  getCompletedImplementationTasksWithEvidence,
   getImplementationEvidenceIssues,
   getOpenImplementationTasksForAction,
   getImplementationTaskReadinessQueues,
@@ -1792,7 +1793,7 @@ export function IdeaWorkbench({
       selectedIdea && editState ? editState.product_surface ?? selectedIdea.product_surface ?? "undecided" : null,
   });
   const completedImplementationTasks = implementationTaskProgressStats.completedTasks;
-  const implementationTasksWithEvidence = completedImplementationTasks.filter((task) => task.evidence.trim());
+  const implementationTasksWithEvidence = getCompletedImplementationTasksWithEvidence(selectedImplementationTasks);
   const hasCompletedExperiment = selectedExperiments.some((experiment) => experiment.status === "done");
   const { highRiskCount, unresolvedHighRiskCount } = countWorkbenchHighRiskItems(selectedIdeaRisks);
   const prdReadinessChecks: GateCheck[] = selectedIdea && editState
