@@ -271,6 +271,7 @@ import {
   buildFinalAgentRunPackageDraft,
   buildFinalDevelopmentPlanDraft,
 } from "@/lib/development-auto-package-copy";
+import { buildDevelopmentAutopilotRows } from "@/lib/development-autopilot-rows";
 import { buildFirstBuildBridge } from "@/lib/first-build-bridge";
 import { buildImplementationDependencyPlanMarkdown } from "@/lib/implementation-dependency-plan";
 import { buildImplementationTaskDrafts } from "@/lib/implementation-task-drafts";
@@ -3497,65 +3498,17 @@ export function IdeaWorkbench({
       return;
     }
 
-    const existingPhases = new Set(selectedRuns.map((run) => run.phase));
-    const missingRuns = orchestrationPhaseConfigs
-      .filter((config) => !existingPhases.has(config.phase))
-      .map((config) => ({
-        idea_id: selectedIdea.id,
-        organization_id: selectedIdea.organization_id,
-        phase: config.phase,
-        owner_role: config.ownerRole,
-        objective: config.objective,
-        status: "planned" as OrchestrationStatus,
-      }));
-
-    const existingArtifactTitles = new Set(
-      selectedArtifactRecords.map((artifact) => artifact.title.trim().toLowerCase()),
-    );
-    const packageDrafts = developmentPackageDrafts.filter(
-      (draft) => draft.body.trim() && !existingArtifactTitles.has(draft.title.trim().toLowerCase()),
-    );
-    const versionOffsets = new Map<VentureArtifactType, number>();
-    const artifactRows = packageDrafts.map((draft) => {
-      const previousVersion =
-        Math.max(
-          0,
-          ...selectedArtifactRecords
-            .filter((artifact) => artifact.artifact_type === draft.artifactType)
-            .map((artifact) => artifact.version ?? 1),
-        ) + (versionOffsets.get(draft.artifactType) ?? 0);
-
-      versionOffsets.set(draft.artifactType, (versionOffsets.get(draft.artifactType) ?? 0) + 1);
-
-      return {
-        idea_id: selectedIdea.id,
-        organization_id: selectedIdea.organization_id,
-        artifact_type: draft.artifactType,
-        status: "draft" as VentureArtifactStatus,
-        version: previousVersion + 1,
-        title: draft.title,
-        body: draft.body,
-        source: draft.source,
-        status_note: "제작 전달 묶음에서 자동 생성한 초안입니다.",
-      };
+    const { artifactRows, missingRuns, taskRows } = buildDevelopmentAutopilotRows({
+      artifactDrafts: developmentPackageDrafts,
+      existingArtifacts: selectedArtifactRecords,
+      existingRuns: selectedRuns,
+      existingTasks: selectedImplementationTasks,
+      ideaId: selectedIdea.id,
+      implementationTaskDrafts,
+      organizationId: selectedIdea.organization_id,
+      runConfigs: orchestrationPhaseConfigs,
+      sourceArtifactId: implementationTaskSourceArtifact?.id ?? null,
     });
-
-    const existingTaskTitles = new Set(selectedImplementationTasks.map((task) => task.title.trim().toLowerCase()));
-    const taskRows = implementationTaskDrafts
-      .filter((task) => !existingTaskTitles.has(task.title.trim().toLowerCase()))
-      .map((task, index) => ({
-        idea_id: selectedIdea.id,
-        organization_id: selectedIdea.organization_id,
-        source_artifact_id: implementationTaskSourceArtifact?.id ?? null,
-        title: task.title,
-        task_type: task.task_type,
-        priority: task.priority,
-        status: "todo" as ImplementationTaskStatus,
-        owner_role: task.owner_role,
-        acceptance_criteria: task.acceptance_criteria,
-        evidence: "",
-        sort_order: selectedImplementationTasks.length + index,
-      }));
 
     if (missingRuns.length === 0 && artifactRows.length === 0 && taskRows.length === 0) {
       setMessage("이미 제작 전달 묶음에 필요한 문서와 할 일이 준비되어 있습니다.");
