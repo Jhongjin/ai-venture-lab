@@ -287,7 +287,12 @@ import {
   type ImplementationEvidenceFilter,
   type ImplementationStatusFilter,
 } from "@/lib/implementation-task-metadata";
-import type { WorkbenchTask } from "@/lib/workbench-tasks";
+import {
+  buildWorkbenchTaskSummaries,
+  getVisibleWorkbenchTaskSummaries,
+  getWorkbenchIdeaProgress,
+  type WorkbenchTask,
+} from "@/lib/workbench-tasks";
 import { FinalExecutionConnectionManager } from "@/components/final-execution-connection-manager";
 import { FinalExecutionExternalToolSection } from "@/components/final-execution-external-tool-section";
 import { FinalExecutionHeader } from "@/components/final-execution-header";
@@ -2684,96 +2689,24 @@ export function IdeaWorkbench({
         : `${activeExternalBuildTool.label} 시작 패키지에 이 작업 목록이 포함됩니다. 작업이 끝나면 완료 보고를 반영해 Venture Lab 작업 상태를 맞춥니다.`
       : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다.";
   const doneRunCount = selectedRuns.filter((run) => run.status === "done").length;
-  const workbenchTasks: Array<{
-    id: WorkbenchTask;
-    label: string;
-    description: string;
-    status: string;
-  }> = [
-    {
-      id: "select",
-      label: "아이디어 도출",
-      description: "후보와 결과물 형태를 고릅니다.",
-      status: `${getActiveIdeas(ideas).filter((idea) => getRecordAccessState(idea) !== "hidden").length}개`,
-    },
-    {
-      id: "archive",
-      label: "삭제한 아이디어",
-      description: "복구하거나 완전히 삭제합니다.",
-      status: `${ideas.filter((idea) => isDiscardedIdea(idea) && getRecordAccessState(idea) !== "hidden").length}개`,
-    },
-    {
-      id: "score",
-      label: "사업성 평가",
-      description: "오늘 진행할지 보완할지 정합니다.",
-      status: currentScore > 0 ? `${currentScore}점` : "대기",
-    },
-    {
-      id: "risk",
-      label: "위험 확인",
-      description: "차단 요인과 완화 상태를 관리합니다.",
-      status: selectedIdeaRisks.length > 0 ? `${selectedIdeaRisks.length}개` : "대기",
-    },
-    {
-      id: "decision",
-      label: "판단 기록",
-      description: "진행, 전환, 중단 근거를 남깁니다.",
-      status: selectedDecisions.length > 0 ? `${selectedDecisions.length}개` : "대기",
-    },
-    {
-      id: "experiment",
-      label: "검증 계획",
-      description: "가장 작은 검증 계획을 정의합니다.",
-      status: selectedExperiments.length > 0 ? `${selectedExperiments.length}개` : "대기",
-    },
-    {
-      id: "orchestration",
-      label: "작업 순서 확인",
-      description: "전략부터 출시까지 처리 순서를 확인합니다.",
-      status: selectedRuns.length > 0 ? `${doneRunCount}/${selectedRuns.length}` : "대기",
-    },
-    {
-      id: "artifacts",
-      label: "검증 자료 저장",
-      description: "검증 자료를 한 번에 저장합니다.",
-      status: selectedArtifactRecords.length > 0 ? `${selectedArtifactRecords.length}개` : "대기",
-    },
-    {
-      id: "development",
-      label: "제작 패키지",
-      description: "제작 자료를 자동 정리합니다.",
-      status:
-        implementationTaskProgressStats.totalCount > 0
-          ? `${implementationTaskProgressStats.completedCount}/${implementationTaskProgressStats.totalCount}`
-          : selectedArtifactRecords.some((artifact) => artifact.source === "development_process")
-            ? "계획됨"
-            : "대기",
-    },
-    {
-      id: "launch",
-      label: "최종 실행",
-      description: "외부 연동 또는 내부 개발로 넘깁니다.",
-      status: canEnterLaunch ? "준비 완료" : `${launchReadinessScore}%`,
-    },
-    {
-      id: "learning",
-      label: "성과 확인",
-      description: "사용 신호로 다음 결정을 봅니다.",
-      status: selectedTelemetryEvents.length > 0 ? `${selectedTelemetryEvents.length}개` : "대기",
-    },
-  ];
-  const guidedWorkbenchTaskIds = new Set<WorkbenchTask>([
-    "select",
-    "score",
-    "experiment",
-    "artifacts",
-    "development",
-    "orchestration",
-    "launch",
-    "learning",
-  ]);
-  const visibleWorkbenchTasks =
-    experienceMode === "guided" ? workbenchTasks.filter((task) => guidedWorkbenchTaskIds.has(task.id)) : workbenchTasks;
+  const workbenchTasks = buildWorkbenchTaskSummaries({
+    activeVisibleIdeaCount: getActiveIdeas(ideas).filter((idea) => getRecordAccessState(idea) !== "hidden").length,
+    artifactCount: selectedArtifactRecords.length,
+    canEnterLaunch,
+    currentScore,
+    decisionCount: selectedDecisions.length,
+    discardedVisibleIdeaCount: ideas.filter((idea) => isDiscardedIdea(idea) && getRecordAccessState(idea) !== "hidden").length,
+    doneRunCount,
+    experimentCount: selectedExperiments.length,
+    hasDevelopmentProcessArtifact: selectedArtifactRecords.some((artifact) => artifact.source === "development_process"),
+    implementationCompletedCount: implementationTaskProgressStats.completedCount,
+    implementationTotalCount: implementationTaskProgressStats.totalCount,
+    launchReadinessScore,
+    riskCount: selectedIdeaRisks.length,
+    runCount: selectedRuns.length,
+    telemetryEventCount: selectedTelemetryEvents.length,
+  });
+  const visibleWorkbenchTasks = getVisibleWorkbenchTaskSummaries(workbenchTasks, experienceMode);
   const visibleIdeas = useMemo(() => {
     const activeRecords = getActiveIdeas(ideas);
 
@@ -2796,28 +2729,6 @@ export function IdeaWorkbench({
     () => sortWorkbenchIdeas(ideas.filter((idea) => isDiscardedIdea(idea) && getRecordAccessState(idea) !== "hidden")),
     [getRecordAccessState, ideas],
   );
-  function getIdeaProgress(idea: Idea) {
-    if (isDiscardedIdea(idea)) {
-      return { label: "삭제됨", task: "archive" as WorkbenchTask };
-    }
-
-    switch (idea.stage) {
-      case "prd":
-        return { label: "STEP 4 검증 자료 저장", task: "artifacts" as WorkbenchTask };
-      case "prototype":
-      case "qa":
-        return { label: "STEP 5 제작 패키지", task: "development" as WorkbenchTask };
-      case "launch":
-        return { label: "STEP 7 최종 실행", task: "launch" as WorkbenchTask };
-      case "intake":
-      case "research":
-      case "score":
-      case "paused":
-      default:
-        return { label: "STEP 2 사업성 평가", task: "score" as WorkbenchTask };
-    }
-  }
-
   async function refreshSelectedIdeaImplementationTasks(options: { source?: "auto" | "manual" } = {}) {
     const isAutoRefresh = options.source === "auto";
 
@@ -2977,7 +2888,7 @@ export function IdeaWorkbench({
   }
 
   const activeTaskMeta = workbenchTasks.find((task) => task.id === activeTask) ?? workbenchTasks[0];
-  const selectedIdeaProgress = getIdeaProgress(selectedIdea);
+  const selectedIdeaProgress = getWorkbenchIdeaProgress(selectedIdea);
   const operatorFocus = getWorkbenchOperatorFocusCopy({
     activeTask,
     isDiscardedIdea: isDiscardedIdea(selectedIdea),
@@ -5449,7 +5360,7 @@ export function IdeaWorkbench({
               </div>
 
               {visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {
-                const selectedProgress = getIdeaProgress(selectedIdea);
+                const selectedProgress = getWorkbenchIdeaProgress(selectedIdea);
                 const selectedSurface = inferIdeaProductSurface(selectedIdea);
                 const isOwned = Boolean(user && selectedIdea.created_by === user.id);
                 const isOrgAdmin = Boolean(
@@ -5554,7 +5465,7 @@ export function IdeaWorkbench({
                       <div className="mt-4 grid gap-3 md:grid-cols-2">
                         {comparisonIdeas.length > 0 ? (
                           comparisonIdeas.map((idea, index) => {
-                            const progress = getIdeaProgress(idea);
+                            const progress = getWorkbenchIdeaProgress(idea);
                             const surface = inferIdeaProductSurface(idea);
                             const isOwnedComparison = Boolean(user && idea.created_by === user.id);
                             const isOrgAdminComparison = Boolean(
