@@ -216,7 +216,6 @@ import {
   filterModeLabels,
   orchestrationPhaseConfigs,
   phaseLabels,
-  phaseOrder,
   riskSeverityLabels,
   riskStatusLabels,
   runStatusLabels,
@@ -225,6 +224,17 @@ import {
   stageLabels,
   type EvidenceConfidence,
 } from "@/lib/workbench-labels";
+import {
+  getOpenIdeaRisks,
+  getSelectedArtifactRecords,
+  getSelectedDecisions,
+  getSelectedExperiments,
+  getSelectedIdeaRisks,
+  getSelectedImplementationTasks,
+  getSelectedRisks,
+  getSelectedRuns,
+  getSelectedTelemetryEvents,
+} from "@/lib/workbench-selection-utils";
 import {
   buildCursorProgressImportDrafts,
   getCursorTaskCode,
@@ -875,37 +885,31 @@ export function IdeaWorkbench({
   }, [initialViewerUserId, supabase]);
 
   const selectedRisks = useMemo(
-    () => risks.filter((risk) => risk.idea_id === selectedIdea?.id || risk.idea_id === null),
+    () => getSelectedRisks(risks, selectedIdea?.id),
     [risks, selectedIdea?.id],
   );
   const selectedIdeaRisks = useMemo(
-    () => risks.filter((risk) => risk.idea_id === selectedIdea?.id),
+    () => getSelectedIdeaRisks(risks, selectedIdea?.id),
     [risks, selectedIdea?.id],
   );
 
   const selectedDecisions = useMemo(
-    () => decisionLog.filter((entry) => entry.idea_id === selectedIdea?.id).slice(0, 4),
+    () => getSelectedDecisions(decisionLog, selectedIdea?.id),
     [decisionLog, selectedIdea?.id],
   );
 
   const selectedExperiments = useMemo(
-    () => experiments.filter((experiment) => experiment.idea_id === selectedIdea?.id).slice(0, 5),
+    () => getSelectedExperiments(experiments, selectedIdea?.id),
     [experiments, selectedIdea?.id],
   );
 
   const selectedRuns = useMemo(
-    () =>
-      orchestrationRuns
-        .filter((run) => run.idea_id === selectedIdea?.id)
-        .sort((a, b) => (phaseOrder.get(a.phase) ?? 99) - (phaseOrder.get(b.phase) ?? 99)),
+    () => getSelectedRuns(orchestrationRuns, selectedIdea?.id),
     [orchestrationRuns, selectedIdea?.id],
   );
 
   const selectedArtifactRecords = useMemo(
-    () =>
-      artifacts
-        .filter((artifact) => artifact.idea_id === selectedIdea?.id)
-        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+    () => getSelectedArtifactRecords(artifacts, selectedIdea?.id),
     [artifacts, selectedIdea?.id],
   );
   const {
@@ -986,28 +990,17 @@ export function IdeaWorkbench({
     [selectedArtifactRecords],
   );
   const selectedImplementationTasks = useMemo(
-    () =>
-      implementationTasks
-        .filter((task) => task.idea_id === selectedIdea?.id)
-        .sort(
-          (a, b) =>
-            a.sort_order - b.sort_order ||
-            new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
-            a.title.localeCompare(b.title, "ko-KR"),
-        ),
+    () => getSelectedImplementationTasks(implementationTasks, selectedIdea?.id),
     [implementationTasks, selectedIdea?.id],
   );
   const firstImplementationTask = selectedImplementationTasks[0] ?? null;
   const hasGeneratedWorkOrder = selectedRuns.length > 0 || selectedImplementationTasks.length > 0;
   const selectedTelemetryEvents = useMemo(
-    () =>
-      telemetryEvents
-        .filter((event) => event.idea_id === selectedIdea?.id)
-        .sort((a, b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime()),
+    () => getSelectedTelemetryEvents(telemetryEvents, selectedIdea?.id),
     [selectedIdea?.id, telemetryEvents],
   );
   const openSelectedIdeaRisks = useMemo(
-    () => selectedIdeaRisks.filter((risk) => risk.status !== "closed"),
+    () => getOpenIdeaRisks(selectedIdeaRisks),
     [selectedIdeaRisks],
   );
   const learningTelemetryReportDraft = useMemo(
