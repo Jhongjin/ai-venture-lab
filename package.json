@@ -15,6 +15,7 @@
     "smoke:prod": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_production.ps1",
     "smoke:routes": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke_routes.ps1",
     "smoke:billing": "node ./scripts/smoke_billing_credits.mjs",
+    "smoke:workbench-readiness": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_workbench_readiness.mjs",
     "smoke:extraction": "pnpm smoke:extraction-text && pnpm smoke:text-match && pnpm smoke:extraction-match && pnpm smoke:extraction-gate && pnpm smoke:extraction-lens && pnpm smoke:extraction-risk && pnpm smoke:extraction-inference",
     "smoke:extraction-gate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_gate.mjs",
     "smoke:extraction-inference": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_extraction_inference.mjs",
