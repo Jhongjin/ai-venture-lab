@@ -189,12 +189,11 @@ import {
   buildMarketScanEvidenceImplication,
   buildMarketScanEvidenceText,
   buildMarketScanLearningText,
+  buildMarketScanReviewState,
   buildMarketScanResultText,
   getMarketScanLevelLabel,
   getMarketScanSourceStrengthTone,
   getPublicMarketScanSources,
-  isMarketScanArtifactForProductSurface,
-  isMarketScanArtifactRecord,
   marketScanSourceTypeLabels,
   normalizeMarketScanDraft,
   type MarketScanDraft,
@@ -1777,73 +1776,27 @@ export function IdeaWorkbench({
     isValidationBundleSaved,
     validationSummaryRequirements,
   } = buildArtifactReadinessFlags(selectedArtifactRecords);
-  const marketScanArtifacts = selectedArtifactRecords.filter(isMarketScanArtifactRecord);
-  const currentMarketScanArtifact = marketScanArtifacts.find((artifact) =>
-    isMarketScanArtifactForProductSurface(artifact, activeProductSurface.label),
-  );
-  const hasMarketScanArtifact = Boolean(currentMarketScanArtifact);
-  const hasOutdatedMarketScanArtifact = marketScanArtifacts.length > 0 && !hasMarketScanArtifact;
-  const marketScanContextKey =
-    selectedIdea && editState
-      ? `${selectedIdea.id}:${editState.product_surface ?? selectedIdea.product_surface ?? "undecided"}`
-      : null;
-  const visibleMarketScanDraft =
-    marketScanContextKey && marketScanDraftKey === marketScanContextKey ? marketScanDraft : null;
-  const isVisibleMarketScanEstimate = marketScanMode === "local_estimate" && Boolean(visibleMarketScanDraft);
-  const visibleMarketScanPublicSources = visibleMarketScanDraft
-    ? getPublicMarketScanSources(visibleMarketScanDraft.sources)
-    : [];
-  const marketScanSourceBoundaryText = visibleMarketScanDraft
-    ? isVisibleMarketScanEstimate
-      ? "제작 패키지 근거로 쓰기 전, 웹 조사 다시 시도로 공개 출처를 붙이는 것이 안전합니다."
-      : visibleMarketScanPublicSources.length > 0
-        ? `공개 출처 ${visibleMarketScanPublicSources.length}개를 함께 저장합니다. 중요한 수치만 원문에서 한 번 더 확인하세요.`
-        : "웹 조사 모드지만 표시할 공개 출처가 부족합니다. 중요한 판단 전에는 출처를 한 번 더 확인하세요."
-    : "";
-  const marketScanStatus = isMarketScanLoading
-    ? {
-        label: "정리 중",
-        tone: "avl-pill avl-pill-info",
-        detail: "AI가 수요, 경쟁도, 시장 포화도, 진입장벽을 확인하고 있습니다.",
-      }
-    : hasMarketScanArtifact
-      ? {
-          label: "저장 완료",
-          tone: "avl-pill avl-pill-success",
-          detail: "리서치 노트로 저장되어 다음 단계 판단과 제작 자료에 함께 반영됩니다.",
-        }
-      : visibleMarketScanDraft
-        ? isVisibleMarketScanEstimate
-          ? {
-              label: "추정 초안",
-              tone: "avl-pill avl-pill-warning",
-              detail: "웹 출처를 붙이지 못해 사용자 입력 기반 추정으로 준비됐습니다.",
-            }
-          : {
-              label: "웹 조사 준비",
-              tone: "avl-pill avl-pill-success",
-              detail: "출처가 포함된 자동 점검 초안이 준비됐습니다. 필요한 부분만 보완하면 됩니다.",
-            }
-        : hasOutdatedMarketScanArtifact
-          ? {
-              label: "다시 정리 필요",
-              tone: "avl-pill avl-pill-warning",
-              detail: "결과물 형태가 바뀌어서 현재 기준의 시장·경쟁 점검을 다시 저장해야 합니다.",
-            }
-        : {
-            label: "자동 대기",
-            tone: "avl-pill avl-pill-neutral",
-            detail: "이 단계가 열리면 AI가 먼저 시장과 경쟁 상황을 정리합니다.",
-          };
-  const marketScanActionLabel = isMarketScanLoading
-    ? "정리 중"
-    : hasOutdatedMarketScanArtifact
-      ? "현재 결과물 형태로 다시 정리"
-      : hasMarketScanArtifact || visibleMarketScanDraft
-      ? isVisibleMarketScanEstimate
-        ? "웹 조사 다시 시도"
-        : "다시 정리"
-      : "AI 자동 점검 실행";
+  const {
+    actionLabel: marketScanActionLabel,
+    contextKey: marketScanContextKey,
+    hasArtifact: hasMarketScanArtifact,
+    hasOutdatedArtifact: hasOutdatedMarketScanArtifact,
+    isVisibleEstimate: isVisibleMarketScanEstimate,
+    publicSources: visibleMarketScanPublicSources,
+    sourceBoundaryText: marketScanSourceBoundaryText,
+    status: marketScanStatus,
+    visibleDraft: visibleMarketScanDraft,
+  } = buildMarketScanReviewState({
+    artifacts: selectedArtifactRecords,
+    draft: marketScanDraft,
+    draftKey: marketScanDraftKey,
+    isLoading: isMarketScanLoading,
+    mode: marketScanMode,
+    productSurfaceLabel: activeProductSurface.label,
+    selectedIdeaId: selectedIdea && editState ? selectedIdea.id : null,
+    selectedProductSurface:
+      selectedIdea && editState ? editState.product_surface ?? selectedIdea.product_surface ?? "undecided" : null,
+  });
   const completedImplementationTasks = implementationTaskProgressStats.completedTasks;
   const implementationTasksWithEvidence = completedImplementationTasks.filter((task) => task.evidence.trim());
   const hasCompletedExperiment = selectedExperiments.some((experiment) => experiment.status === "done");
