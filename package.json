@@ -17,6 +17,7 @@
     "smoke:billing": "node ./scripts/smoke_billing_credits.mjs",
     "smoke:artifact-library": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_artifact_library_utils.mjs",
     "smoke:artifact-review": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_artifact_review_summary.mjs",
+    "smoke:build-delivery": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_build_delivery_context.mjs",
     "smoke:implementation-board": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_implementation_task_board_columns.mjs",
     "smoke:implementation-evidence": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_implementation_task_evidence_summary.mjs",
     "smoke:implementation-filters": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types ./scripts/check_implementation_task_filters.mjs",

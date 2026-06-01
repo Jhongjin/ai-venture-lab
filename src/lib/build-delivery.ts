@@ -20,6 +20,21 @@ export type BuildDeliveryPreference = {
   externalTool: ExternalBuildToolKey;
 };
 
+export type FinalExternalToolOverride = {
+  ideaId: string | null;
+  key: ExternalBuildToolKey;
+} | null;
+
+export type BuildDeliveryContext = {
+  buildDeliveryMode: BuildDeliveryMode;
+  persistedExternalBuildTool: ExternalBuildToolProfile;
+  finalExternalToolOverrideKey: ExternalBuildToolKey | null;
+  activeExternalBuildTool: ExternalBuildToolProfile;
+  hasFinalExternalToolOverride: boolean;
+  activeBuildDeliveryLabel: string;
+  activeBuildDeliveryDetail: string;
+};
+
 export const buildDeliveryModeLabels: Record<BuildDeliveryMode, string> = {
   venture_lab: "Venture Lab에서 계속 진행",
   external_tool: "외부 제작 도구로 개발",
@@ -204,6 +219,44 @@ export function normalizeBuildDeliveryPreference(
 
 export function getExternalBuildToolProfile(preference: BuildDeliveryPreference) {
   return externalBuildToolProfiles[preference.externalTool] ?? externalBuildToolProfiles.cursor;
+}
+
+export function resolveBuildDeliveryContext({
+  finalExternalToolOverride,
+  preference,
+  selectedIdeaId,
+}: {
+  finalExternalToolOverride: FinalExternalToolOverride;
+  preference: BuildDeliveryPreference;
+  selectedIdeaId: string | null;
+}): BuildDeliveryContext {
+  const buildDeliveryMode = preference.mode;
+  const persistedExternalBuildTool = getExternalBuildToolProfile(preference);
+  const finalExternalToolOverrideKey =
+    finalExternalToolOverride?.ideaId === selectedIdeaId ? finalExternalToolOverride.key : null;
+  const activeExternalBuildTool =
+    buildDeliveryMode === "external_tool" && finalExternalToolOverrideKey
+      ? externalBuildToolProfiles[finalExternalToolOverrideKey]
+      : persistedExternalBuildTool;
+  const hasFinalExternalToolOverride =
+    buildDeliveryMode === "external_tool" &&
+    Boolean(finalExternalToolOverrideKey) &&
+    finalExternalToolOverrideKey !== persistedExternalBuildTool.key;
+  const activeBuildDeliveryLabel = buildDeliveryModeLabels[buildDeliveryMode];
+  const activeBuildDeliveryDetail =
+    buildDeliveryMode === "external_tool"
+      ? `${activeExternalBuildTool.label}에 맞춰 전달 자료와 시작 방법을 정리합니다. 실제 파일 받기와 연동은 마지막 단계에서 열립니다.`
+      : "Venture Lab 안에서 작업 순서, 실행 할 일, 최종 실행, 성과 확인 화면으로 이어갑니다.";
+
+  return {
+    buildDeliveryMode,
+    persistedExternalBuildTool,
+    finalExternalToolOverrideKey,
+    activeExternalBuildTool,
+    hasFinalExternalToolOverride,
+    activeBuildDeliveryLabel,
+    activeBuildDeliveryDetail,
+  };
 }
 
 export function buildDeliveryPreferenceMarkdown(preference: BuildDeliveryPreference) {

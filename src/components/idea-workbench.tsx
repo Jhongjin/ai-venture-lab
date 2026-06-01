@@ -114,11 +114,8 @@ import {
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
 import { cleanInlineText, getApiMessage, isPlainRecord } from "@/lib/record-utils";
 import {
-  buildDeliveryModeLabels,
-  externalBuildToolProfiles,
   getBuildDeliveryPreferenceFromArtifacts,
-  getExternalBuildToolProfile,
-  type BuildDeliveryMode,
+  resolveBuildDeliveryContext,
   type ExternalBuildToolKey,
 } from "@/lib/build-delivery";
 import {
@@ -953,23 +950,17 @@ export function IdeaWorkbench({
     ideaId: string | null;
     key: ExternalBuildToolKey;
   } | null>(null);
-  const buildDeliveryMode: BuildDeliveryMode = buildDeliveryPreference.mode;
-  const persistedExternalBuildTool = getExternalBuildToolProfile(buildDeliveryPreference);
-  const finalExternalToolOverrideKey =
-    finalExternalToolOverride?.ideaId === (selectedIdea?.id ?? null) ? finalExternalToolOverride.key : null;
-  const activeExternalBuildTool =
-    buildDeliveryMode === "external_tool" && finalExternalToolOverrideKey
-      ? externalBuildToolProfiles[finalExternalToolOverrideKey]
-      : persistedExternalBuildTool;
-  const hasFinalExternalToolOverride =
-    buildDeliveryMode === "external_tool" &&
-    Boolean(finalExternalToolOverrideKey) &&
-    finalExternalToolOverrideKey !== persistedExternalBuildTool.key;
-  const activeBuildDeliveryLabel = buildDeliveryModeLabels[buildDeliveryMode];
-  const activeBuildDeliveryDetail =
-    buildDeliveryMode === "external_tool"
-      ? `${activeExternalBuildTool.label}에 맞춰 전달 자료와 시작 방법을 정리합니다. 실제 파일 받기와 연동은 마지막 단계에서 열립니다.`
-      : "Venture Lab 안에서 작업 순서, 실행 할 일, 최종 실행, 성과 확인 화면으로 이어갑니다.";
+  const {
+    activeBuildDeliveryDetail,
+    activeBuildDeliveryLabel,
+    activeExternalBuildTool,
+    buildDeliveryMode,
+    hasFinalExternalToolOverride,
+  } = resolveBuildDeliveryContext({
+    finalExternalToolOverride,
+    preference: buildDeliveryPreference,
+    selectedIdeaId: selectedIdea?.id ?? null,
+  });
   const artifactReviewQueue = useMemo(() => buildArtifactReviewQueue(selectedArtifactRecords), [selectedArtifactRecords]);
   const approvedArtifactReviewCount = artifactReviewQueue.filter((item) => item.status === "approved").length;
   const nextArtifactReviewItem = artifactReviewQueue.find((item) => item.status !== "approved") ?? null;
