@@ -65,6 +65,24 @@ export type MarketScanEvidenceDraft = {
   title: string;
 };
 
+export type MarketScanRequestPayloadInput = {
+  experiments: Array<{ name: string; success_metric: string | null }>;
+  idea: {
+    buyer: string;
+    name: string;
+    one_liner: string;
+    target_user: string;
+  };
+  productSurfaceLabel: string;
+  risks: Array<{ area: string | null; mitigation: string | null; title: string }>;
+  score: number;
+  state: {
+    next_evidence: string;
+    risk_summary: string;
+    signal: string;
+  };
+};
+
 export function isMarketScanArtifactRecord(artifact: VentureArtifact) {
   return artifact.source === "market_scan" || (artifact.title || "").includes("시장·경쟁 자동 조사");
 }
@@ -114,6 +132,35 @@ export function isPublicMarketScanSource(source: MarketScanSource) {
 
 export function getPublicMarketScanSources(sources: ReadonlyArray<MarketScanSource>) {
   return sources.filter(isPublicMarketScanSource);
+}
+
+export function buildMarketScanRequestPayload({
+  experiments,
+  idea,
+  productSurfaceLabel,
+  risks,
+  score,
+  state,
+}: MarketScanRequestPayloadInput) {
+  return {
+    idea: {
+      name: idea.name,
+      one_liner: idea.one_liner,
+      target_user: idea.target_user,
+      buyer: idea.buyer,
+      product_surface: productSurfaceLabel,
+    },
+    state: {
+      signal: state.signal,
+      risk_summary: state.risk_summary,
+      next_evidence: state.next_evidence,
+    },
+    score,
+    risks: risks.map((risk) => `${risk.title}: ${risk.mitigation || risk.area || "세부 내용 없음"}`),
+    experiments: experiments.map(
+      (experiment) => `${experiment.name}: ${experiment.success_metric || "성공/중단 기준 미정"}`,
+    ),
+  };
 }
 
 export type MarketScanReviewStatus = {

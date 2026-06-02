@@ -17,6 +17,7 @@ const {
   buildMarketScanArtifactSaveDraft,
   buildMarketScanEvidenceDraft,
   buildMarketScanExperimentResultPatch,
+  buildMarketScanRequestPayload,
   buildMarketScanReviewRows,
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
@@ -80,6 +81,49 @@ const draft = {
   ],
   summary: "시장 검증 자동화 수요가 있음",
 };
+
+assert.deepEqual(
+  buildMarketScanRequestPayload({
+    experiments: [
+      { name: "5명 인터뷰", success_metric: "3명 이상 반복 문제 인정" },
+      { name: "랜딩 대기자", success_metric: "" },
+    ],
+    idea: {
+      buyer: "소규모 팀 리더",
+      name: "AI Venture Lab",
+      one_liner: "아이디어를 검증 가능한 제작 패키지로 정리",
+      target_user: "1인 창업자",
+    },
+    productSurfaceLabel: "웹 서비스",
+    risks: [
+      { area: "시장", mitigation: "공개 출처 확인", title: "시장 근거 부족" },
+      { area: "", mitigation: "", title: "운영 리스크" },
+    ],
+    score: 22,
+    state: {
+      next_evidence: "공개 출처 2개 확인",
+      risk_summary: "출처와 수요 근거 필요",
+      signal: "반복 대화에서 아이디어 정리가 어렵다는 신호",
+    },
+  }),
+  {
+    idea: {
+      buyer: "소규모 팀 리더",
+      name: "AI Venture Lab",
+      one_liner: "아이디어를 검증 가능한 제작 패키지로 정리",
+      product_surface: "웹 서비스",
+      target_user: "1인 창업자",
+    },
+    state: {
+      next_evidence: "공개 출처 2개 확인",
+      risk_summary: "출처와 수요 근거 필요",
+      signal: "반복 대화에서 아이디어 정리가 어렵다는 신호",
+    },
+    score: 22,
+    risks: ["시장 근거 부족: 공개 출처 확인", "운영 리스크: 세부 내용 없음"],
+    experiments: ["5명 인터뷰: 3명 이상 반복 문제 인정", "랜딩 대기자: 성공/중단 기준 미정"],
+  },
+);
 
 const savedState = buildMarketScanReviewState({
   artifacts: [artifact({ body: "## 제작 형태\n\n웹앱", id: "saved-web" })],

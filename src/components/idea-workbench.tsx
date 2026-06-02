@@ -218,6 +218,7 @@ import {
   buildMarketScanArtifactSaveDraft,
   buildMarketScanEvidenceDraft,
   buildMarketScanExperimentResultPatch,
+  buildMarketScanRequestPayload,
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
   buildVisibleMarketScanReviewRows,
@@ -3821,25 +3822,16 @@ export function IdeaWorkbench({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          idea: {
-            name: selectedIdea.name,
-            one_liner: selectedIdea.one_liner,
-            target_user: selectedIdea.target_user,
-            buyer: selectedIdea.buyer,
-            product_surface: productSurface.label,
-          },
-          state: {
-            signal: editState.signal,
-            risk_summary: editState.risk_summary,
-            next_evidence: editState.next_evidence,
-          },
-          score: currentScore,
-          risks: selectedIdeaRisks.map((risk) => `${risk.title}: ${risk.mitigation || risk.area || "세부 내용 없음"}`),
-          experiments: selectedExperiments.map(
-            (experiment) => `${experiment.name}: ${experiment.success_metric || "성공/중단 기준 미정"}`,
-          ),
-        }),
+        body: JSON.stringify(
+          buildMarketScanRequestPayload({
+            experiments: selectedExperiments,
+            idea: selectedIdea,
+            productSurfaceLabel: productSurface.label,
+            risks: selectedIdeaRisks,
+            score: currentScore,
+            state: editState,
+          }),
+        ),
       });
       const payload = (await response.json().catch(() => ({}))) as unknown;
 
