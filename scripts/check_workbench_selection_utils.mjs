@@ -28,6 +28,7 @@ const {
   getSelectedRisks,
   getSelectedRuns,
   getSelectedTelemetryEvents,
+  getSelectedWorkbenchCollections,
 } = await import(moduleUrl);
 
 const ideaId = "idea-1";
@@ -104,6 +105,44 @@ const events = [
 assert.deepEqual(
   getSelectedTelemetryEvents(events, ideaId).map((event) => event.id),
   ["newer", "older"],
+);
+
+const selectedCollections = getSelectedWorkbenchCollections({
+  artifacts,
+  decisions: [...decisions, { id: "other-decision", idea_id: otherIdeaId }],
+  experiments,
+  implementationTasks: tasks,
+  ideaId,
+  risks,
+  runs,
+  telemetryEvents: events,
+});
+
+assert.deepEqual(
+  Object.fromEntries(
+    Object.entries({
+      selectedRisks: selectedCollections.selectedRisks,
+      selectedIdeaRisks: selectedCollections.selectedIdeaRisks,
+      openSelectedIdeaRisks: selectedCollections.openSelectedIdeaRisks,
+      selectedDecisions: selectedCollections.selectedDecisions,
+      selectedExperiments: selectedCollections.selectedExperiments,
+      selectedRuns: selectedCollections.selectedRuns,
+      selectedArtifactRecords: selectedCollections.selectedArtifactRecords,
+      selectedImplementationTasks: selectedCollections.selectedImplementationTasks,
+      selectedTelemetryEvents: selectedCollections.selectedTelemetryEvents,
+    }).map(([key, records]) => [key, records.map((record) => record.id)]),
+  ),
+  {
+    selectedRisks: ["global-open", "selected-closed", "selected-mitigating"],
+    selectedIdeaRisks: ["selected-closed", "selected-mitigating"],
+    openSelectedIdeaRisks: ["selected-mitigating"],
+    selectedDecisions: ["decision-1", "decision-2", "decision-3", "decision-4"],
+    selectedExperiments: ["experiment-1", "experiment-2", "experiment-3", "experiment-4", "experiment-5"],
+    selectedRuns: ["strategy", "product", "build"],
+    selectedArtifactRecords: ["newer", "older"],
+    selectedImplementationTasks: ["first-order", "early-created", "late-created"],
+    selectedTelemetryEvents: ["newer", "older"],
+  },
 );
 
 console.log("Workbench selection utils smoke passed.");

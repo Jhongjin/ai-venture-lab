@@ -277,17 +277,7 @@ import {
   type RiskDraft,
   type RunDraft,
 } from "@/lib/workbench-draft-defaults";
-import {
-  getOpenIdeaRisks,
-  getSelectedArtifactRecords,
-  getSelectedDecisions,
-  getSelectedExperiments,
-  getSelectedIdeaRisks,
-  getSelectedImplementationTasks,
-  getSelectedRisks,
-  getSelectedRuns,
-  getSelectedTelemetryEvents,
-} from "@/lib/workbench-selection-utils";
+import { getSelectedWorkbenchCollections } from "@/lib/workbench-selection-utils";
 import {
   buildCursorProgressImportDrafts,
   buildCursorProgressImportDisplayItems,
@@ -861,33 +851,29 @@ export function IdeaWorkbench({
     return () => data.subscription.unsubscribe();
   }, [initialViewerUserId, supabase]);
 
-  const selectedRisks = useMemo(
-    () => getSelectedRisks(risks, selectedIdea?.id),
-    [risks, selectedIdea?.id],
-  );
-  const selectedIdeaRisks = useMemo(
-    () => getSelectedIdeaRisks(risks, selectedIdea?.id),
-    [risks, selectedIdea?.id],
-  );
-
-  const selectedDecisions = useMemo(
-    () => getSelectedDecisions(decisionLog, selectedIdea?.id),
-    [decisionLog, selectedIdea?.id],
-  );
-
-  const selectedExperiments = useMemo(
-    () => getSelectedExperiments(experiments, selectedIdea?.id),
-    [experiments, selectedIdea?.id],
-  );
-
-  const selectedRuns = useMemo(
-    () => getSelectedRuns(orchestrationRuns, selectedIdea?.id),
-    [orchestrationRuns, selectedIdea?.id],
-  );
-
-  const selectedArtifactRecords = useMemo(
-    () => getSelectedArtifactRecords(artifacts, selectedIdea?.id),
-    [artifacts, selectedIdea?.id],
+  const {
+    selectedRisks,
+    selectedIdeaRisks,
+    openSelectedIdeaRisks,
+    selectedDecisions,
+    selectedExperiments,
+    selectedRuns,
+    selectedArtifactRecords,
+    selectedImplementationTasks,
+    selectedTelemetryEvents,
+  } = useMemo(
+    () =>
+      getSelectedWorkbenchCollections({
+        artifacts,
+        decisions: decisionLog,
+        experiments,
+        implementationTasks,
+        ideaId: selectedIdea?.id,
+        risks,
+        runs: orchestrationRuns,
+        telemetryEvents,
+      }),
+    [artifacts, decisionLog, experiments, implementationTasks, orchestrationRuns, risks, selectedIdea?.id, telemetryEvents],
   );
   const {
     isCreditSystemReady,
@@ -961,20 +947,8 @@ export function IdeaWorkbench({
     () => getRecentDevelopmentHandoffArtifacts(selectedArtifactRecords),
     [selectedArtifactRecords],
   );
-  const selectedImplementationTasks = useMemo(
-    () => getSelectedImplementationTasks(implementationTasks, selectedIdea?.id),
-    [implementationTasks, selectedIdea?.id],
-  );
   const firstImplementationTask = selectedImplementationTasks[0] ?? null;
   const hasGeneratedWorkOrder = selectedRuns.length > 0 || selectedImplementationTasks.length > 0;
-  const selectedTelemetryEvents = useMemo(
-    () => getSelectedTelemetryEvents(telemetryEvents, selectedIdea?.id),
-    [selectedIdea?.id, telemetryEvents],
-  );
-  const openSelectedIdeaRisks = useMemo(
-    () => getOpenIdeaRisks(selectedIdeaRisks),
-    [selectedIdeaRisks],
-  );
   const learningTelemetryReportDraft = useMemo(
     () =>
       selectedIdea

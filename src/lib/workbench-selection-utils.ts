@@ -57,3 +57,37 @@ export function getSelectedTelemetryEvents(events: TelemetryEvent[], ideaId: str
     .filter((event) => event.idea_id === ideaId)
     .sort((a, b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime());
 }
+
+export function getSelectedWorkbenchCollections({
+  artifacts,
+  decisions,
+  experiments,
+  implementationTasks,
+  ideaId,
+  risks,
+  runs,
+  telemetryEvents,
+}: {
+  artifacts: VentureArtifact[];
+  decisions: Decision[];
+  experiments: Experiment[];
+  implementationTasks: ImplementationTask[];
+  ideaId: string | null | undefined;
+  risks: Risk[];
+  runs: OrchestrationRun[];
+  telemetryEvents: TelemetryEvent[];
+}) {
+  const selectedIdeaRisks = getSelectedIdeaRisks(risks, ideaId);
+
+  return {
+    selectedRisks: getSelectedRisks(risks, ideaId),
+    selectedIdeaRisks,
+    openSelectedIdeaRisks: getOpenIdeaRisks(selectedIdeaRisks),
+    selectedDecisions: getSelectedDecisions(decisions, ideaId),
+    selectedExperiments: getSelectedExperiments(experiments, ideaId),
+    selectedRuns: getSelectedRuns(runs, ideaId),
+    selectedArtifactRecords: getSelectedArtifactRecords(artifacts, ideaId),
+    selectedImplementationTasks: getSelectedImplementationTasks(implementationTasks, ideaId),
+    selectedTelemetryEvents: getSelectedTelemetryEvents(telemetryEvents, ideaId),
+  };
+}
