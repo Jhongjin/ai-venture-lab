@@ -19,6 +19,14 @@ export type OrchestrationRunOutputSummary = {
   output: string;
 };
 
+export type OrchestrationRunOutputPatch = {
+  output: string;
+};
+
+export type OrchestrationRunStatusPatch<Status extends string> = {
+  status: Status;
+};
+
 export type PlannedOrchestrationRunRow<Phase extends string> = {
   idea_id: string;
   objective: string;
@@ -74,4 +82,14 @@ export function buildMissingOrchestrationRunRows<Phase extends string>({
 
 export function buildOrchestrationRunOutputMap(runs: OrchestrationRunOutputSummary[]) {
   return Object.fromEntries(runs.map((run) => [run.id, run.output])) as Record<string, string>;
+}
+
+export function buildOrchestrationRunOutputPatch(output: string | null | undefined): OrchestrationRunOutputPatch {
+  return { output: output ?? "" };
+}
+
+export function buildOrchestrationRunStatusPatch<Status extends string>(
+  status: Status,
+): OrchestrationRunStatusPatch<Status> {
+  return { status };
 }

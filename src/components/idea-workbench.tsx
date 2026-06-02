@@ -272,7 +272,9 @@ import {
   getMissingImplementationTaskDrafts,
 } from "@/lib/implementation-task-rows";
 import {
+  buildOrchestrationRunOutputPatch,
   buildOrchestrationRunOutputMap,
+  buildOrchestrationRunStatusPatch,
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
@@ -2844,7 +2846,7 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("orchestration_runs")
-      .update({ status })
+      .update(buildOrchestrationRunStatusPatch(status))
       .eq("id", run.id)
       .select()
       .single();
@@ -2930,7 +2932,7 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("orchestration_runs")
-      .update({ output: runOutputs[run.id] ?? "" })
+      .update(buildOrchestrationRunOutputPatch(runOutputs[run.id]))
       .eq("id", run.id)
       .select()
       .single();
