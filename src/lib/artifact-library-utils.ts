@@ -110,6 +110,16 @@ export function buildArtifactStatusUpdatePatch({
   };
 }
 
+export function buildArtifactStatusTelemetryProperties(
+  artifact: Pick<VentureArtifact, "artifact_type" | "status" | "version">,
+) {
+  return {
+    artifact_type: artifact.artifact_type,
+    status: artifact.status,
+    version: artifact.version ?? 1,
+  };
+}
+
 export type ArtifactReadinessFlags = {
   implementationTaskSourceArtifact: VentureArtifact | undefined;
   hasIdeaBriefArtifact: boolean;

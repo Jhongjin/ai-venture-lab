@@ -31,6 +31,7 @@ const {
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
   buildArtifactStatusChangedMessage,
+  buildArtifactStatusTelemetryProperties,
   buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
   filterArtifactLibrary,
@@ -302,6 +303,18 @@ assert.deepEqual(
     approved_by: null,
     status: "superseded",
     status_note: "대체됨",
+  },
+);
+assert.deepEqual(
+  buildArtifactStatusTelemetryProperties({
+    artifact_type: "tech_spec",
+    status: "approved",
+    version: null,
+  }),
+  {
+    artifact_type: "tech_spec",
+    status: "approved",
+    version: 1,
   },
 );
 

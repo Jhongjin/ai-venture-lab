@@ -46,6 +46,7 @@ import {
   buildArtifactSavedTelemetryPayload,
   buildArtifactSavedMessage,
   buildArtifactStatusChangedMessage,
+  buildArtifactStatusTelemetryProperties,
   buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
   getNextArtifactVersion,
@@ -3145,11 +3146,7 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "artifact_status_updated",
       eventCategory: "artifact",
-      properties: {
-        artifact_type: data.artifact_type,
-        status: data.status,
-        version: data.version ?? 1,
-      },
+      properties: buildArtifactStatusTelemetryProperties(data),
     });
     setArtifactStatusNotes((current) => omitRecordKey(current, data.id));
     setMessage(
