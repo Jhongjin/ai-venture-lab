@@ -19,11 +19,21 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildCursorProgressEmptyInputMessage,
+  buildCursorProgressFileLoadedMessage,
+  buildCursorProgressImportFailedMessage,
   buildCursorProgressImportDrafts,
   buildCursorProgressImportDisplayItems,
+  buildCursorProgressImportedMessage,
+  buildCursorProgressLoginRequiredMessage,
+  buildCursorProgressNoChangeMessage,
+  buildCursorProgressParseFailedMessage,
   buildCursorProgressPersistencePlan,
   buildCursorProgressPreviewDisplayState,
   buildCursorProgressPreviewItems,
+  buildCursorProgressReadingMessage,
+  buildCursorProgressSavingMessage,
+  buildCursorProgressSetupRequiredMessage,
   buildCursorProgressTaskUpdatePatch,
   getVisibleCursorProgressImportItems,
 } = await import(moduleUrl);
@@ -68,6 +78,40 @@ assert.equal(importPlan.completedCount, 1);
 assert.equal(importPlan.drafts[0].taskCode, "T-001");
 assert.equal(importPlan.drafts[0].status, "done");
 assert.match(importPlan.drafts[0].evidence, /pnpm smoke:browser passed/);
+assert.equal(
+  buildCursorProgressFileLoadedMessage("progress.json"),
+  "progress.json 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.",
+);
+assert.equal(buildCursorProgressReadingMessage("Cursor"), "Cursor 진행 결과를 읽는 중입니다...");
+assert.equal(buildCursorProgressLoginRequiredMessage("Cursor"), "Cursor 진행 결과를 반영하려면 먼저 로그인하세요.");
+assert.equal(
+  buildCursorProgressEmptyInputMessage({ toolLabel: "Cursor", toolProgressPath: ".cursor/venture-lab-progress.json" }),
+  "Cursor 완료 보고나 .cursor/venture-lab-progress.json 내용을 붙여넣으세요.",
+);
+assert.equal(
+  buildCursorProgressSetupRequiredMessage("Cursor"),
+  "먼저 제작 패키지와 작업 순서 초안을 준비해야 Cursor 진행 결과를 반영할 수 있습니다.",
+);
+assert.equal(buildCursorProgressParseFailedMessage(), "Cursor 결과에서 T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
+assert.equal(buildCursorProgressNoChangeMessage(0), "반영할 새 작업이나 변경된 상태가 없습니다.");
+assert.equal(
+  buildCursorProgressNoChangeMessage(2),
+  "반영할 수 있는 작업이 없습니다. 권한 때문에 2개 작업을 건너뛰었습니다.",
+);
+assert.equal(
+  buildCursorProgressSavingMessage({ insertCount: 1, updateCount: 2 }),
+  "작업을 저장하는 중입니다. 새 작업 1개, 상태 업데이트 2개를 준비했습니다.",
+);
+assert.equal(
+  buildCursorProgressImportedMessage({
+    completedCount: 3,
+    insertedTaskCount: 1,
+    toolLabel: "Cursor",
+    updatedTaskCount: 2,
+  }),
+  "Cursor 진행 결과를 반영했습니다. 새 작업 1개, 상태 업데이트 2개, 완료 인식 3개입니다.",
+);
+assert.equal(buildCursorProgressImportFailedMessage("Cursor"), "Cursor 진행 결과를 반영하지 못했습니다.");
 
 const displayItems = buildCursorProgressImportDisplayItems({
   drafts: importPlan.drafts,

@@ -65,6 +65,70 @@ export type CursorProgressTaskUpdatePatch = {
   evidence: string;
 };
 
+export function buildCursorProgressFileLoadedMessage(fileName: string) {
+  return `${fileName} 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.`;
+}
+
+export function buildCursorProgressReadingMessage(toolLabel: string) {
+  return `${toolLabel} 진행 결과를 읽는 중입니다...`;
+}
+
+export function buildCursorProgressLoginRequiredMessage(toolLabel: string) {
+  return `${toolLabel} 진행 결과를 반영하려면 먼저 로그인하세요.`;
+}
+
+export function buildCursorProgressEmptyInputMessage({
+  toolLabel,
+  toolProgressPath,
+}: {
+  toolLabel: string;
+  toolProgressPath: string;
+}) {
+  return `${toolLabel} 완료 보고나 ${toolProgressPath} 내용을 붙여넣으세요.`;
+}
+
+export function buildCursorProgressSetupRequiredMessage(toolLabel: string) {
+  return `먼저 제작 패키지와 작업 순서 초안을 준비해야 ${toolLabel} 진행 결과를 반영할 수 있습니다.`;
+}
+
+export function buildCursorProgressParseFailedMessage() {
+  return "Cursor 결과에서 T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.";
+}
+
+export function buildCursorProgressNoChangeMessage(skippedTaskCount: number) {
+  return skippedTaskCount > 0
+    ? `반영할 수 있는 작업이 없습니다. 권한 때문에 ${skippedTaskCount}개 작업을 건너뛰었습니다.`
+    : "반영할 새 작업이나 변경된 상태가 없습니다.";
+}
+
+export function buildCursorProgressSavingMessage({
+  insertCount,
+  updateCount,
+}: {
+  insertCount: number;
+  updateCount: number;
+}) {
+  return `작업을 저장하는 중입니다. 새 작업 ${insertCount}개, 상태 업데이트 ${updateCount}개를 준비했습니다.`;
+}
+
+export function buildCursorProgressImportedMessage({
+  completedCount,
+  insertedTaskCount,
+  toolLabel,
+  updatedTaskCount,
+}: {
+  completedCount: number;
+  insertedTaskCount: number;
+  toolLabel: string;
+  updatedTaskCount: number;
+}) {
+  return `${toolLabel} 진행 결과를 반영했습니다. 새 작업 ${insertedTaskCount}개, 상태 업데이트 ${updatedTaskCount}개, 완료 인식 ${completedCount}개입니다.`;
+}
+
+export function buildCursorProgressImportFailedMessage(toolLabel: string) {
+  return `${toolLabel} 진행 결과를 반영하지 못했습니다.`;
+}
+
 const externalProgressStatusLabels: Record<ImplementationTaskStatus, string> = {
   todo: "할 일",
   doing: "진행 중",

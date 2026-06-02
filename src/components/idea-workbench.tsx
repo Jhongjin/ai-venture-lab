@@ -238,10 +238,20 @@ import {
 } from "@/lib/workbench-draft-defaults";
 import { getSelectedWorkbenchCollections } from "@/lib/workbench-selection-utils";
 import {
+  buildCursorProgressEmptyInputMessage,
+  buildCursorProgressFileLoadedMessage,
+  buildCursorProgressImportFailedMessage,
   buildCursorProgressImportDrafts,
   buildCursorProgressImportDisplayItems,
+  buildCursorProgressImportedMessage,
+  buildCursorProgressLoginRequiredMessage,
+  buildCursorProgressNoChangeMessage,
+  buildCursorProgressParseFailedMessage,
   buildCursorProgressPersistencePlan,
   buildCursorProgressPreviewDisplayState,
+  buildCursorProgressReadingMessage,
+  buildCursorProgressSavingMessage,
+  buildCursorProgressSetupRequiredMessage,
   buildCursorProgressTaskUpdatePatch,
   type CursorProgressDisplayItem,
 } from "@/lib/external-progress-import";
@@ -3145,10 +3155,11 @@ export function IdeaWorkbench({
     }
 
     const text = await file.text();
+    const fileLoadedMessage = buildCursorProgressFileLoadedMessage(file.name);
     setCursorProgressImportText(text);
-    setCursorProgressImportMessage(`${file.name} 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.`);
+    setCursorProgressImportMessage(fileLoadedMessage);
     setCursorProgressImportItems([]);
-    setMessage(`${file.name} 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.`);
+    setMessage(fileLoadedMessage);
     event.currentTarget.value = "";
   }
 
@@ -3157,7 +3168,7 @@ export function IdeaWorkbench({
     const toolProgressPath = isLiveExternalDelivery
       ? liveExternalToolProgressPath
       : `${activeExternalBuildTool.label} 완료 보고`;
-    setCursorProgressImportMessage(`${toolLabel} 진행 결과를 읽는 중입니다...`);
+    setCursorProgressImportMessage(buildCursorProgressReadingMessage(toolLabel));
 
     if (!supabase || !selectedIdea) {
       setCursorProgressImportMessage(workbenchIdeaSelectionRequiredMessage);
@@ -3167,19 +3178,19 @@ export function IdeaWorkbench({
 
     if (!user) {
       setCursorProgressImportMessage("로그인 후 다시 시도하세요.");
-      setMessage(`${toolLabel} 진행 결과를 반영하려면 먼저 로그인하세요.`);
+      setMessage(buildCursorProgressLoginRequiredMessage(toolLabel));
       return;
     }
 
     if (!cursorProgressImportText.trim()) {
       setCursorProgressImportMessage("붙여넣은 내용이 없습니다.");
-      setMessage(`${toolLabel} 완료 보고나 ${toolProgressPath} 내용을 붙여넣으세요.`);
+      setMessage(buildCursorProgressEmptyInputMessage({ toolLabel, toolProgressPath }));
       return;
     }
 
     if (cursorHandoffTaskDrafts.length === 0) {
       setCursorProgressImportMessage("제작 패키지와 작업 순서 초안이 먼저 필요합니다.");
-      setMessage(`먼저 제작 패키지와 작업 순서 초안을 준비해야 ${toolLabel} 진행 결과를 반영할 수 있습니다.`);
+      setMessage(buildCursorProgressSetupRequiredMessage(toolLabel));
       return;
     }
 
@@ -3195,7 +3206,7 @@ export function IdeaWorkbench({
     if (importPlan.parsedCount === 0) {
       setCursorProgressImportMessage("T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
       setCursorProgressImportItems([]);
-      setMessage("Cursor 결과에서 T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
+      setMessage(buildCursorProgressParseFailedMessage());
       return;
     }
 
@@ -3211,10 +3222,7 @@ export function IdeaWorkbench({
     });
 
     if (rowsToInsert.length === 0 && updateRows.length === 0) {
-      const noChangeMessage =
-        skippedTaskCount > 0
-          ? `반영할 수 있는 작업이 없습니다. 권한 때문에 ${skippedTaskCount}개 작업을 건너뛰었습니다.`
-          : "반영할 새 작업이나 변경된 상태가 없습니다.";
+      const noChangeMessage = buildCursorProgressNoChangeMessage(skippedTaskCount);
       setCursorProgressImportMessage(noChangeMessage);
       setCursorProgressImportItems(displayItems);
       setMessage(noChangeMessage);
@@ -3224,7 +3232,10 @@ export function IdeaWorkbench({
     setIsBusy(true);
     setMessage(null);
     setCursorProgressImportMessage(
-      `작업을 저장하는 중입니다. 새 작업 ${rowsToInsert.length}개, 상태 업데이트 ${updateRows.length}개를 준비했습니다.`,
+      buildCursorProgressSavingMessage({
+        insertCount: rowsToInsert.length,
+        updateCount: updateRows.length,
+      }),
     );
 
     try {
@@ -3278,13 +3289,18 @@ export function IdeaWorkbench({
         },
       });
       setDevelopmentPanel("tasks");
-      const successMessage = `${toolLabel} 진행 결과를 반영했습니다. 새 작업 ${insertedTasks.length}개, 상태 업데이트 ${updatedTasks.length}개, 완료 인식 ${importPlan.completedCount}개입니다.`;
+      const successMessage = buildCursorProgressImportedMessage({
+        completedCount: importPlan.completedCount,
+        insertedTaskCount: insertedTasks.length,
+        toolLabel,
+        updatedTaskCount: updatedTasks.length,
+      });
       setCursorProgressImportMessage(successMessage);
       setCursorProgressImportItems(displayItems);
       setMessage(successMessage);
       router.refresh();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : `${toolLabel} 진행 결과를 반영하지 못했습니다.`;
+      const errorMessage = error instanceof Error ? error.message : buildCursorProgressImportFailedMessage(toolLabel);
       setCursorProgressImportMessage(errorMessage);
       setMessage(errorMessage);
     } finally {
