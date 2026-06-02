@@ -147,6 +147,7 @@ import {
 } from "@/lib/artifact-labels";
 import { resolveProductSurfaceForIdea as inferIdeaProductSurface } from "@/lib/product-surface";
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
+import { buildJsonPostRequestInit } from "@/lib/api-request-utils";
 import { cleanInlineText, getApiMessage, isPlainRecord, readResponseJson } from "@/lib/record-utils";
 import {
   getBuildDeliveryPreferenceFromArtifacts,
@@ -2843,12 +2844,10 @@ export function IdeaWorkbench({
     setCreditMessage(null);
 
     try {
-      const response = await fetch(getBuildPassUnlockUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(buildBuildPassUnlockRequestPayload(selectedIdea.id)),
-      });
+      const response = await fetch(
+        getBuildPassUnlockUrl(),
+        buildJsonPostRequestInit(buildBuildPassUnlockRequestPayload(selectedIdea.id), { credentials: "include" }),
+      );
       const payload = await readResponseJson<unknown>(response, null);
 
       if (isCreditSummary(payload)) {
@@ -3652,11 +3651,10 @@ export function IdeaWorkbench({
     tool: LiveExternalToolSetupKey;
     toolLabel: string;
   }) {
-    const response = await fetch(getExternalToolBuildSyncTokenUrl(), {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(buildExternalToolBuildSyncTokenRequestPayload({ ideaId, tool })),
-    });
+    const response = await fetch(
+      getExternalToolBuildSyncTokenUrl(),
+      buildJsonPostRequestInit(buildExternalToolBuildSyncTokenRequestPayload({ ideaId, tool })),
+    );
     const payload = await readResponseJson<CursorBuildSyncTokenResponse>(response, {});
 
     if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
@@ -3854,12 +3852,9 @@ export function IdeaWorkbench({
 
     try {
       const productSurface = inferIdeaProductSurface(selectedIdea, editState);
-      const response = await fetch(getMarketScanUrl(), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(
+      const response = await fetch(
+        getMarketScanUrl(),
+        buildJsonPostRequestInit(
           buildMarketScanRequestPayload({
             experiments: selectedExperiments,
             idea: selectedIdea,
@@ -3869,7 +3864,7 @@ export function IdeaWorkbench({
             state: editState,
           }),
         ),
-      });
+      );
       const payload = await readResponseJson<unknown>(response, {});
 
       if (!response.ok || !isPlainRecord(payload)) {

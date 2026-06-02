@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { buildJsonPostRequestInit } from "@/lib/api-request-utils";
 import { copyBrowserText } from "@/lib/browser-file-download";
 import { clearBrowserTimeout, scheduleBrowserTimeout } from "@/lib/browser-timing";
 import { readResponseJson } from "@/lib/record-utils";
@@ -1041,16 +1042,15 @@ export function VentureConsoleActions({
     }
 
     try {
-      const response = await fetch(getGenerateSampleIdeasUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
+      const response = await fetch(
+        getGenerateSampleIdeasUrl(),
+        buildJsonPostRequestInit(
           buildGenerateSampleIdeasRequestPayload({
             generatedIdeas: currentGeneratedIdeas,
             savedIdeas: existingIdeas,
           }),
         ),
-      });
+      );
       const payload = await readResponseJson<AiGenerateSampleIdeasResponse>(response, {});
 
       if (!response.ok || !payload.source) {
@@ -1105,11 +1105,10 @@ export function VentureConsoleActions({
     });
 
     try {
-      const response = await fetch(getExtractIdeasUrl(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
-      });
+      const response = await fetch(
+        getExtractIdeasUrl(),
+        buildJsonPostRequestInit(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
+      );
       const payload = await readResponseJson<AiExtractIdeasResponse>(response, {});
 
       if (!response.ok || !payload.candidates?.length) {
@@ -1230,11 +1229,10 @@ export function VentureConsoleActions({
       let replayNote = "AI 추출을 사용할 수 없어 내부 기준 결과만 점검했습니다.";
 
       try {
-        const response = await fetch(getExtractIdeasUrl(), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
-        });
+        const response = await fetch(
+          getExtractIdeasUrl(),
+          buildJsonPostRequestInit(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
+        );
         const payload = await readResponseJson<AiExtractIdeasResponse>(response, {});
 
         model = payload.model ?? null;

@@ -12,6 +12,7 @@ import {
   getSignupUrl,
   readSignupError,
 } from "@/lib/auth-form-utils";
+import { buildJsonPostRequestInit } from "@/lib/api-request-utils";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
@@ -130,13 +131,10 @@ export function SignupForm() {
     let signupResponse: Response;
 
     try {
-      signupResponse = await fetch(getSignupUrl(), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(buildSignupRequestPayload({ displayName, email, password })),
-      });
+      signupResponse = await fetch(
+        getSignupUrl(),
+        buildJsonPostRequestInit(buildSignupRequestPayload({ displayName, email, password })),
+      );
     } catch {
       setIsBusy(false);
       setMessage("회원가입 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.");
