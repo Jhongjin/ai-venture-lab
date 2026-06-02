@@ -263,12 +263,16 @@ import {
   buildCursorProgressImportDrafts,
   buildCursorProgressImportDisplayItems,
   buildCursorProgressImportedMessage,
+  buildCursorProgressLoginRetryInlineMessage,
   buildCursorProgressLoginRequiredMessage,
   buildCursorProgressNoChangeMessage,
+  buildCursorProgressEmptyInputInlineMessage,
   buildCursorProgressParseFailedMessage,
+  buildCursorProgressParseFailedInlineMessage,
   buildCursorProgressPersistencePlan,
   buildCursorProgressPreviewDisplayState,
   buildCursorProgressReadingMessage,
+  buildCursorProgressSetupRequiredInlineMessage,
   buildCursorProgressSavingMessage,
   buildCursorProgressSetupRequiredMessage,
   buildCursorProgressTaskUpdatePatch,
@@ -3201,19 +3205,19 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setCursorProgressImportMessage("로그인 후 다시 시도하세요.");
+      setCursorProgressImportMessage(buildCursorProgressLoginRetryInlineMessage());
       setMessage(buildCursorProgressLoginRequiredMessage(toolLabel));
       return;
     }
 
     if (!cursorProgressImportText.trim()) {
-      setCursorProgressImportMessage("붙여넣은 내용이 없습니다.");
+      setCursorProgressImportMessage(buildCursorProgressEmptyInputInlineMessage());
       setMessage(buildCursorProgressEmptyInputMessage({ toolLabel, toolProgressPath }));
       return;
     }
 
     if (cursorHandoffTaskDrafts.length === 0) {
-      setCursorProgressImportMessage("제작 패키지와 작업 순서 초안이 먼저 필요합니다.");
+      setCursorProgressImportMessage(buildCursorProgressSetupRequiredInlineMessage());
       setMessage(buildCursorProgressSetupRequiredMessage(toolLabel));
       return;
     }
@@ -3228,7 +3232,7 @@ export function IdeaWorkbench({
     });
 
     if (importPlan.parsedCount === 0) {
-      setCursorProgressImportMessage("T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
+      setCursorProgressImportMessage(buildCursorProgressParseFailedInlineMessage());
       setCursorProgressImportItems([]);
       setMessage(buildCursorProgressParseFailedMessage());
       return;

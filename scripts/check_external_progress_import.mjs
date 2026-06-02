@@ -20,19 +20,23 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildCursorProgressEmptyInputMessage,
+  buildCursorProgressEmptyInputInlineMessage,
   buildCursorProgressFileLoadedMessage,
   buildCursorProgressImportFailedMessage,
   buildCursorProgressImportDrafts,
   buildCursorProgressImportDisplayItems,
   buildCursorProgressImportedMessage,
+  buildCursorProgressLoginRetryInlineMessage,
   buildCursorProgressLoginRequiredMessage,
   buildCursorProgressNoChangeMessage,
+  buildCursorProgressParseFailedInlineMessage,
   buildCursorProgressParseFailedMessage,
   buildCursorProgressPersistencePlan,
   buildCursorProgressPreviewDisplayState,
   buildCursorProgressPreviewItems,
   buildCursorProgressReadingMessage,
   buildCursorProgressSavingMessage,
+  buildCursorProgressSetupRequiredInlineMessage,
   buildCursorProgressSetupRequiredMessage,
   buildCursorProgressTaskUpdatePatch,
   getVisibleCursorProgressImportItems,
@@ -83,15 +87,19 @@ assert.equal(
   "progress.json 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.",
 );
 assert.equal(buildCursorProgressReadingMessage("Cursor"), "Cursor 진행 결과를 읽는 중입니다...");
+assert.equal(buildCursorProgressLoginRetryInlineMessage(), "로그인 후 다시 시도하세요.");
 assert.equal(buildCursorProgressLoginRequiredMessage("Cursor"), "Cursor 진행 결과를 반영하려면 먼저 로그인하세요.");
+assert.equal(buildCursorProgressEmptyInputInlineMessage(), "붙여넣은 내용이 없습니다.");
 assert.equal(
   buildCursorProgressEmptyInputMessage({ toolLabel: "Cursor", toolProgressPath: ".cursor/venture-lab-progress.json" }),
   "Cursor 완료 보고나 .cursor/venture-lab-progress.json 내용을 붙여넣으세요.",
 );
+assert.equal(buildCursorProgressSetupRequiredInlineMessage(), "제작 패키지와 작업 순서 초안이 먼저 필요합니다.");
 assert.equal(
   buildCursorProgressSetupRequiredMessage("Cursor"),
   "먼저 제작 패키지와 작업 순서 초안을 준비해야 Cursor 진행 결과를 반영할 수 있습니다.",
 );
+assert.equal(buildCursorProgressParseFailedInlineMessage(), "T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
 assert.equal(buildCursorProgressParseFailedMessage(), "Cursor 결과에서 T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.");
 assert.equal(buildCursorProgressNoChangeMessage(0), "반영할 새 작업이나 변경된 상태가 없습니다.");
 assert.equal(

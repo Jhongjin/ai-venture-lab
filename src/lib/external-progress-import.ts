@@ -77,6 +77,10 @@ export function buildCursorProgressLoginRequiredMessage(toolLabel: string) {
   return `${toolLabel} 진행 결과를 반영하려면 먼저 로그인하세요.`;
 }
 
+export function buildCursorProgressLoginRetryInlineMessage() {
+  return "로그인 후 다시 시도하세요.";
+}
+
 export function buildCursorProgressEmptyInputMessage({
   toolLabel,
   toolProgressPath,
@@ -87,12 +91,24 @@ export function buildCursorProgressEmptyInputMessage({
   return `${toolLabel} 완료 보고나 ${toolProgressPath} 내용을 붙여넣으세요.`;
 }
 
+export function buildCursorProgressEmptyInputInlineMessage() {
+  return "붙여넣은 내용이 없습니다.";
+}
+
 export function buildCursorProgressSetupRequiredMessage(toolLabel: string) {
   return `먼저 제작 패키지와 작업 순서 초안을 준비해야 ${toolLabel} 진행 결과를 반영할 수 있습니다.`;
 }
 
+export function buildCursorProgressSetupRequiredInlineMessage() {
+  return "제작 패키지와 작업 순서 초안이 먼저 필요합니다.";
+}
+
 export function buildCursorProgressParseFailedMessage() {
   return "Cursor 결과에서 T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.";
+}
+
+export function buildCursorProgressParseFailedInlineMessage() {
+  return "T-001 같은 작업 번호나 progress JSON 기록을 찾지 못했습니다.";
 }
 
 export function buildCursorProgressNoChangeMessage(skippedTaskCount: number) {
