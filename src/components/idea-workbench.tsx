@@ -296,6 +296,7 @@ import {
   buildExperimentInsertRow,
   buildExperimentStatusUpdatePatch,
   buildRiskInsertRow,
+  buildRiskStatusUpdatePatch,
 } from "@/lib/validation-input-rows";
 import { buildValidationPackageSaveJobs } from "@/lib/validation-package-save-jobs";
 import {
@@ -3940,7 +3941,7 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("risks")
-      .update({ status })
+      .update(buildRiskStatusUpdatePatch(status))
       .eq("id", risk.id)
       .select()
       .single();

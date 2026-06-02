@@ -16,6 +16,10 @@ export type ExperimentStatusSource<Status extends string> = {
   status: Status;
 };
 
+export type RiskStatusUpdatePatch<Status extends string> = {
+  status: Status;
+};
+
 export function buildRiskInsertRow<Severity extends string>({
   draft,
   ideaId,
@@ -87,4 +91,8 @@ export function buildExperimentStatusUpdatePatch<Status extends string>({
     started_at: status === "running" ? now : experiment.started_at,
     status,
   };
+}
+
+export function buildRiskStatusUpdatePatch<Status extends string>(status: Status): RiskStatusUpdatePatch<Status> {
+  return { status };
 }

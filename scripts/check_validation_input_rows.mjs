@@ -3,8 +3,13 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-input-rows.ts")).href;
-const { buildDecisionInsertRow, buildExperimentInsertRow, buildExperimentStatusUpdatePatch, buildRiskInsertRow } =
-  await import(moduleUrl);
+const {
+  buildDecisionInsertRow,
+  buildExperimentInsertRow,
+  buildExperimentStatusUpdatePatch,
+  buildRiskInsertRow,
+  buildRiskStatusUpdatePatch,
+} = await import(moduleUrl);
 
 assert.deepEqual(
   buildRiskInsertRow({
@@ -93,5 +98,7 @@ assert.deepEqual(
     status: "done",
   },
 );
+
+assert.deepEqual(buildRiskStatusUpdatePatch("closed"), { status: "closed" });
 
 console.log("Validation input rows smoke passed.");
