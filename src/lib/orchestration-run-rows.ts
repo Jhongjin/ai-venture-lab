@@ -116,6 +116,24 @@ export function buildManualOrchestrationRunRow<Phase extends string>({
   };
 }
 
+export function buildOrchestrationRunPhaseDraft<Phase extends string>({
+  currentDraft,
+  nextPhase,
+  runConfigs,
+}: {
+  currentDraft: OrchestrationRunDraft<Phase>;
+  nextPhase: Phase;
+  runConfigs: OrchestrationRunPhaseConfig<Phase>[];
+}): OrchestrationRunDraft<Phase> {
+  const config = runConfigs.find((item) => item.phase === nextPhase);
+
+  return {
+    phase: nextPhase,
+    owner_role: config?.ownerRole ?? currentDraft.owner_role,
+    objective: config?.objective ?? currentDraft.objective,
+  };
+}
+
 export function buildMissingOrchestrationRunRows<Phase extends string>({
   existingRuns,
   ideaId,

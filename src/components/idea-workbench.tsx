@@ -364,6 +364,7 @@ import {
   buildOrchestrationRunOutputSavePermissionDeniedMessage,
   buildOrchestrationRunOutputSavedMessage,
   buildOrchestrationRunOutputTelemetryProperties,
+  buildOrchestrationRunPhaseDraft,
   buildOrchestrationRunStatusPatch,
   buildOrchestrationRunStatusChangedMessage,
   buildOrchestrationRunStatusTelemetryProperties,
@@ -6234,14 +6235,13 @@ export function IdeaWorkbench({
             isBusy={isBusy}
             onObjectiveChange={(value) => setRunDraft({ ...runDraft, objective: value })}
             onOwnerRoleChange={(value) => setRunDraft({ ...runDraft, owner_role: value })}
-            onPhaseChange={(nextPhase) => {
-              const config = orchestrationPhaseConfigs.find((item) => item.phase === nextPhase);
-              setRunDraft({
-                phase: nextPhase,
-                owner_role: config?.ownerRole ?? runDraft.owner_role,
-                objective: config?.objective ?? runDraft.objective,
-              });
-            }}
+            onPhaseChange={(nextPhase) =>
+              setRunDraft(buildOrchestrationRunPhaseDraft({
+                currentDraft: runDraft,
+                nextPhase,
+                runConfigs: orchestrationPhaseConfigs,
+              }))
+            }
             onSubmit={addOrchestrationRun}
             phaseLabels={phaseLabels}
             phaseOptions={orchestrationPhaseConfigs.map((config) => config.phase)}

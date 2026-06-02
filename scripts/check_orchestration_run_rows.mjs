@@ -20,6 +20,7 @@ const {
   buildOrchestrationRunOutputSavePermissionDeniedMessage,
   buildOrchestrationRunOutputSavedMessage,
   buildOrchestrationRunOutputTelemetryProperties,
+  buildOrchestrationRunPhaseDraft,
   buildOrchestrationRunStatusPatch,
   buildOrchestrationRunStatusChangedMessage,
   buildOrchestrationRunStatusTelemetryProperties,
@@ -46,6 +47,42 @@ assert.deepEqual(manualRow, {
   phase: "product",
   status: "planned",
 });
+
+assert.deepEqual(
+  buildOrchestrationRunPhaseDraft({
+    currentDraft: {
+      objective: "현재 목표",
+      owner_role: "current-owner",
+      phase: "strategy",
+    },
+    nextPhase: "research",
+    runConfigs: [
+      { objective: "전략 판단", ownerRole: "strategy-reviewer", phase: "strategy" },
+      { objective: "시장 검증", ownerRole: "researcher", phase: "research" },
+    ],
+  }),
+  {
+    objective: "시장 검증",
+    owner_role: "researcher",
+    phase: "research",
+  },
+);
+assert.deepEqual(
+  buildOrchestrationRunPhaseDraft({
+    currentDraft: {
+      objective: "현재 목표",
+      owner_role: "current-owner",
+      phase: "strategy",
+    },
+    nextPhase: "launch",
+    runConfigs: [{ objective: "전략 판단", ownerRole: "strategy-reviewer", phase: "strategy" }],
+  }),
+  {
+    objective: "현재 목표",
+    owner_role: "current-owner",
+    phase: "launch",
+  },
+);
 
 const missingRows = buildMissingOrchestrationRunRows({
   existingRuns: [{ phase: "strategy" }, { phase: "qa" }],
