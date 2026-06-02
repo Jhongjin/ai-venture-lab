@@ -51,7 +51,10 @@ import {
   buildRestoreIdeaPatch,
   buildWorkbenchIdeaDiscardFailedMessage,
   buildWorkbenchIdeaDiscardedMessage,
+  buildWorkbenchIdeaPermanentDeleteConfirmMessage,
+  buildWorkbenchIdeaPermanentDeleteFailedMessage,
   buildWorkbenchIdeaRemovalCompletionState,
+  buildWorkbenchIdeaRelatedTableDeleteFailedMessage,
   buildWorkbenchIdeaRestoreFailedMessage,
   buildWorkbenchIdeaRestoredMessage,
   buildWorkbenchIdeaVisibilityState,
@@ -1167,9 +1170,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const confirmed = window.confirm(
-      `"${idea.name}" 아이디어와 연결된 리스크, 판단, 실험, 제작 자료, 실행 기록까지 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`,
-    );
+    const confirmed = window.confirm(buildWorkbenchIdeaPermanentDeleteConfirmMessage(idea.name));
 
     if (!confirmed) {
       return;
@@ -1183,7 +1184,13 @@ export function IdeaWorkbench({
 
       if (error) {
         setIsBusy(false);
-        setMessage(`${idea.name} 삭제 중 ${table} 정리에서 막혔습니다: ${error.message}`);
+        setMessage(
+          buildWorkbenchIdeaRelatedTableDeleteFailedMessage({
+            errorMessage: error.message,
+            ideaName: idea.name,
+            table,
+          }),
+        );
         return;
       }
     }
@@ -1192,7 +1199,7 @@ export function IdeaWorkbench({
 
     if (error) {
       setIsBusy(false);
-      setMessage(`${idea.name} 아이디어를 삭제하지 못했습니다: ${error.message}`);
+      setMessage(buildWorkbenchIdeaPermanentDeleteFailedMessage({ errorMessage: error.message, ideaName: idea.name }));
       return;
     }
 

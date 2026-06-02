@@ -103,6 +103,32 @@ export function buildWorkbenchIdeaRestoredMessage(ideaName: string) {
   return `"${ideaName}" 아이디어를 다시 진행 목록으로 옮겼습니다.`;
 }
 
+export function buildWorkbenchIdeaPermanentDeleteConfirmMessage(ideaName: string) {
+  return `"${ideaName}" 아이디어와 연결된 리스크, 판단, 실험, 제작 자료, 실행 기록까지 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`;
+}
+
+export function buildWorkbenchIdeaRelatedTableDeleteFailedMessage({
+  errorMessage,
+  ideaName,
+  table,
+}: {
+  errorMessage: string;
+  ideaName: string;
+  table: IdeaDeletionRelatedTable;
+}) {
+  return `${ideaName} 삭제 중 ${table} 정리에서 막혔습니다: ${errorMessage}`;
+}
+
+export function buildWorkbenchIdeaPermanentDeleteFailedMessage({
+  errorMessage,
+  ideaName,
+}: {
+  errorMessage: string;
+  ideaName: string;
+}) {
+  return `${ideaName} 아이디어를 삭제하지 못했습니다: ${errorMessage}`;
+}
+
 export function getWorkbenchRecordAccessState({
   memberships,
   record,

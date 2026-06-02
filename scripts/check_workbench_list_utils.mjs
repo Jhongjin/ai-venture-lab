@@ -10,7 +10,10 @@ const {
   buildRestoreIdeaPatch,
   buildWorkbenchIdeaDiscardFailedMessage,
   buildWorkbenchIdeaDiscardedMessage,
+  buildWorkbenchIdeaPermanentDeleteConfirmMessage,
+  buildWorkbenchIdeaPermanentDeleteFailedMessage,
   buildWorkbenchIdeaRemovalCompletionState,
+  buildWorkbenchIdeaRelatedTableDeleteFailedMessage,
   buildWorkbenchIdeaRestoreFailedMessage,
   buildWorkbenchIdeaRestoredMessage,
   buildWorkbenchIdeaVisibilityState,
@@ -143,6 +146,25 @@ assert.equal(
   "AI Venture Lab 아이디어를 되살리지 못했습니다: permission denied",
 );
 assert.equal(buildWorkbenchIdeaRestoredMessage("AI Venture Lab"), "\"AI Venture Lab\" 아이디어를 다시 진행 목록으로 옮겼습니다.");
+assert.equal(
+  buildWorkbenchIdeaPermanentDeleteConfirmMessage("AI Venture Lab"),
+  "\"AI Venture Lab\" 아이디어와 연결된 리스크, 판단, 실험, 제작 자료, 실행 기록까지 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.",
+);
+assert.equal(
+  buildWorkbenchIdeaRelatedTableDeleteFailedMessage({
+    errorMessage: "permission denied",
+    ideaName: "AI Venture Lab",
+    table: "risks",
+  }),
+  "AI Venture Lab 삭제 중 risks 정리에서 막혔습니다: permission denied",
+);
+assert.equal(
+  buildWorkbenchIdeaPermanentDeleteFailedMessage({
+    errorMessage: "permission denied",
+    ideaName: "AI Venture Lab",
+  }),
+  "AI Venture Lab 아이디어를 삭제하지 못했습니다: permission denied",
+);
 assert.deepEqual(getActiveIdeas(ideas).map((record) => record.id), ["shared-old", "owned-new", "hidden", "admin"]);
 
 assert.deepEqual(
