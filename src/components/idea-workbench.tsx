@@ -228,6 +228,7 @@ import {
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
   buildVisibleMarketScanReviewRows,
+  getMarketScanUrl,
   getMarketScanLevelLabel,
   getMarketScanSourceStrengthTone,
   marketScanSourceTypeLabels,
@@ -3849,7 +3850,7 @@ export function IdeaWorkbench({
 
     try {
       const productSurface = inferIdeaProductSurface(selectedIdea, editState);
-      const response = await fetch("/api/ideas/market-scan", {
+      const response = await fetch(getMarketScanUrl(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

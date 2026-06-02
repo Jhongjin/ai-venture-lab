@@ -163,6 +163,10 @@ export function buildMarketScanRequestPayload({
   };
 }
 
+export function getMarketScanUrl() {
+  return "/api/ideas/market-scan";
+}
+
 export type MarketScanReviewStatus = {
   label: string;
   tone: string;

@@ -22,6 +22,7 @@ const {
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
   buildVisibleMarketScanReviewRows,
+  getMarketScanUrl,
 } = await import(moduleUrl);
 
 const decisionLabels = {
@@ -81,6 +82,8 @@ const draft = {
   ],
   summary: "시장 검증 자동화 수요가 있음",
 };
+
+assert.equal(getMarketScanUrl(), "/api/ideas/market-scan");
 
 assert.deepEqual(
   buildMarketScanRequestPayload({
