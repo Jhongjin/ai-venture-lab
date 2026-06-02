@@ -59,7 +59,7 @@ const moduleUrl = transpileModuleUrl("src/lib/design-architecture-drafts.ts", [
   ['from "@/lib/tech-spec-markdown";', `from ${JSON.stringify(techSpecUrl)};`],
 ]);
 
-const { buildDesignArchitectureDraftState } = await import(moduleUrl);
+const { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } = await import(moduleUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -188,6 +188,32 @@ assert.match(draftState.techSpecDraft, /# 기술 명세: AI Venture Lab/);
 assert.match(draftState.appBlueprintDraft, /# 앱 구조 청사진: AI Venture Lab/);
 assert.match(draftState.appBlueprintDraft, /T-001 워크벤치 첫 화면/);
 assert.match(draftState.scaffoldManifestDraft, /# 첫 제작 뼈대 안내서: AI Venture Lab/);
+
+const saveDrafts = buildDesignArchitectureArtifactSaveDrafts({
+  appBlueprintDraft: draftState.appBlueprintDraft,
+  ideaName: idea.name,
+  scaffoldManifestDraft: draftState.scaffoldManifestDraft,
+});
+assert.equal(saveDrafts.appBlueprintSaveDraft.artifactType, "tech_spec");
+assert.equal(saveDrafts.appBlueprintSaveDraft.title, "AI Venture Lab 앱 구조 청사진");
+assert.equal(saveDrafts.appBlueprintSaveDraft.source, "app_blueprint");
+assert.match(saveDrafts.appBlueprintSaveDraft.body, /# 앱 구조 청사진: AI Venture Lab/);
+assert.equal(saveDrafts.scaffoldManifestSaveDraft.artifactType, "dev_runbook");
+assert.equal(saveDrafts.scaffoldManifestSaveDraft.title, "AI Venture Lab 첫 제작 시작 구조");
+assert.equal(saveDrafts.scaffoldManifestSaveDraft.source, "scaffold_manifest");
+assert.match(saveDrafts.scaffoldManifestSaveDraft.body, /# 첫 제작 뼈대 안내서: AI Venture Lab/);
+
+assert.deepEqual(
+  buildDesignArchitectureArtifactSaveDrafts({
+    appBlueprintDraft: "",
+    ideaName: null,
+    scaffoldManifestDraft: "",
+  }),
+  {
+    appBlueprintSaveDraft: null,
+    scaffoldManifestSaveDraft: null,
+  },
+);
 
 const emptyDraftState = buildDesignArchitectureDraftState({
   backendCandidateScores: [],

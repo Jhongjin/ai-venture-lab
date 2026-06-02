@@ -107,7 +107,7 @@ import {
 } from "@/lib/step8-learning-summary";
 import { buildStep6ExecutionBridgeDisplayState } from "@/lib/step6-execution-bridge-state";
 import { buildValidationEvidenceCoach, buildValidationPlan } from "@/lib/validation-planning";
-import { buildDesignArchitectureDraftState } from "@/lib/design-architecture-drafts";
+import { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } from "@/lib/design-architecture-drafts";
 import {
   artifactLabels,
   artifactSourceLabels,
@@ -1255,6 +1255,11 @@ export function IdeaWorkbench({
     risks: selectedIdeaRisks,
     runs: selectedRuns,
     state: editState,
+  });
+  const { appBlueprintSaveDraft, scaffoldManifestSaveDraft } = buildDesignArchitectureArtifactSaveDrafts({
+    appBlueprintDraft,
+    ideaName: selectedIdea?.name ?? null,
+    scaffoldManifestDraft,
   });
   const {
     cursorHandoffTaskDrafts,
@@ -4860,9 +4865,16 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() =>
-                    saveArtifactDraft("tech_spec", `${selectedIdea.name} 앱 구조 청사진`, appBlueprintDraft, "app_blueprint")
+                    appBlueprintSaveDraft
+                      ? saveArtifactDraft(
+                          appBlueprintSaveDraft.artifactType,
+                          appBlueprintSaveDraft.title,
+                          appBlueprintSaveDraft.body,
+                          appBlueprintSaveDraft.source,
+                        )
+                      : undefined
                   }
-                  disabled={isBusy || !user || !appBlueprintDraft}
+                  disabled={isBusy || !user || !appBlueprintSaveDraft}
                   className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
@@ -4909,14 +4921,16 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() =>
-                    saveArtifactDraft(
-                      "dev_runbook",
-                      `${selectedIdea.name} 첫 제작 시작 구조`,
-                      scaffoldManifestDraft,
-                      "scaffold_manifest",
-                    )
+                    scaffoldManifestSaveDraft
+                      ? saveArtifactDraft(
+                          scaffoldManifestSaveDraft.artifactType,
+                          scaffoldManifestSaveDraft.title,
+                          scaffoldManifestSaveDraft.body,
+                          scaffoldManifestSaveDraft.source,
+                        )
+                      : undefined
                   }
-                  disabled={isBusy || !user || !scaffoldManifestDraft}
+                  disabled={isBusy || !user || !scaffoldManifestSaveDraft}
                   className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                 >
                   <Save size={16} />

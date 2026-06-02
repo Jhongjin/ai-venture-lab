@@ -15,6 +15,13 @@ export type DesignArchitectureDraftState = {
   techSpecDraft: string;
 };
 
+export type DesignArchitectureArtifactSaveDraft = {
+  artifactType: "dev_runbook" | "tech_spec";
+  body: string;
+  source: "app_blueprint" | "scaffold_manifest";
+  title: string;
+};
+
 const emptyDesignArchitectureDraftState: DesignArchitectureDraftState = {
   appBlueprintDraft: "",
   designBriefDraft: "",
@@ -22,6 +29,37 @@ const emptyDesignArchitectureDraftState: DesignArchitectureDraftState = {
   scaffoldManifestDraft: "",
   techSpecDraft: "",
 };
+
+export function buildDesignArchitectureArtifactSaveDrafts({
+  appBlueprintDraft,
+  ideaName,
+  scaffoldManifestDraft,
+}: {
+  appBlueprintDraft: string;
+  ideaName: string | null;
+  scaffoldManifestDraft: string;
+}) {
+  return {
+    appBlueprintSaveDraft:
+      ideaName && appBlueprintDraft
+        ? {
+            artifactType: "tech_spec" as const,
+            body: appBlueprintDraft,
+            source: "app_blueprint" as const,
+            title: `${ideaName} 앱 구조 청사진`,
+          }
+        : null,
+    scaffoldManifestSaveDraft:
+      ideaName && scaffoldManifestDraft
+        ? {
+            artifactType: "dev_runbook" as const,
+            body: scaffoldManifestDraft,
+            source: "scaffold_manifest" as const,
+            title: `${ideaName} 첫 제작 시작 구조`,
+          }
+        : null,
+  };
+}
 
 export function buildDesignArchitectureDraftState({
   backendCandidateScores,
