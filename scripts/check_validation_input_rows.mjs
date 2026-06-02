@@ -31,6 +31,7 @@ const {
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
+  buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
   buildValidationExperimentNameRequiredMessage,
@@ -95,6 +96,10 @@ assert.equal(
 );
 assert.equal(buildExperimentDeletedMessage(), "검증 계획을 삭제했습니다.");
 assert.equal(buildRiskStatusChangedMessage({ statusLabel: "완화 완료" }), "리스크 상태를 완화 완료(으)로 변경했습니다.");
+assert.equal(
+  buildRiskStatusUpdatePermissionDeniedMessage(),
+  "리스크 작성자 또는 협업 공간 관리자만 이 리스크를 수정할 수 있습니다.",
+);
 assert.equal(buildRiskSuggestionLoadedMessage(), "추천 리스크를 리스크 입력란에 채웠습니다. 완화 방안을 검토한 뒤 저장하세요.");
 assert.equal(buildDecisionTemplateLoadedMessage(), "검증 상태 기반 판단 근거 초안을 채웠습니다. 최종 판단을 확인한 뒤 기록하세요.");
 assert.equal(

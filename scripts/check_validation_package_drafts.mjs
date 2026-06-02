@@ -44,6 +44,7 @@ const {
   buildValidationEvidenceArtifactSaveDraft,
   buildValidationPackageArtifactSaveDrafts,
   buildValidationPackageDraftState,
+  buildValidationPackageSaveLoginRequiredMessage,
   buildValidationPackageSavedMessage,
 } = await import(moduleUrl);
 
@@ -397,6 +398,7 @@ assert.equal(
   buildValidationPackageSavedMessage(0),
   "이미 필요한 검증 자료가 모두 저장되어 있습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다.",
 );
+assert.equal(buildValidationPackageSaveLoginRequiredMessage(), "검증 자료를 저장하려면 먼저 로그인하세요.");
 assert.equal(
   buildExperimentResultSavedMessage(),
   "검증 결과를 저장했습니다. 다음 단계 이동은 하단 다음 단계 버튼에서 진행하세요.",

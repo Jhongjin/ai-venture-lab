@@ -372,6 +372,7 @@ import {
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
+  buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
   buildValidationExperimentNameRequiredMessage,
@@ -387,6 +388,7 @@ import {
   buildValidationEvidenceArtifactSaveDraft,
   buildValidationPackageArtifactSaveDrafts,
   buildValidationPackageDraftState,
+  buildValidationPackageSaveLoginRequiredMessage,
   buildValidationPackageSavedMessage,
 } from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
@@ -2689,7 +2691,7 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("검증 자료를 저장하려면 먼저 로그인하세요.");
+      setMessage(buildValidationPackageSaveLoginRequiredMessage());
       return;
     }
 
@@ -3523,7 +3525,7 @@ export function IdeaWorkbench({
     }
 
     if (!canManageRecord(risk)) {
-      setMessage("리스크 작성자 또는 워크스페이스 관리자만 이 리스크를 수정할 수 있습니다.");
+      setMessage(buildRiskStatusUpdatePermissionDeniedMessage());
       return;
     }
 

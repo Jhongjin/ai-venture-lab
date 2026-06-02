@@ -117,6 +117,10 @@ export function buildRiskStatusChangedMessage({ statusLabel }: { statusLabel: st
   return `리스크 상태를 ${statusLabel}(으)로 변경했습니다.`;
 }
 
+export function buildRiskStatusUpdatePermissionDeniedMessage() {
+  return "리스크 작성자 또는 협업 공간 관리자만 이 리스크를 수정할 수 있습니다.";
+}
+
 export function buildRiskSuggestionLoadedMessage() {
   return "추천 리스크를 리스크 입력란에 채웠습니다. 완화 방안을 검토한 뒤 저장하세요.";
 }
