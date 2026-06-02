@@ -32,6 +32,28 @@ export type ImplementationTaskTableError = {
 const missingImplementationTasksTableMessage =
   "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요.";
 
+export function buildImplementationTasksCreatedMessage(taskCount: number) {
+  return `${taskCount}개의 제작 할 일을 만들었습니다.`;
+}
+
+export function buildManualImplementationTaskCreatedMessage() {
+  return "제작 할 일을 추가했습니다.";
+}
+
+export function buildImplementationTaskStatusChangedMessage({
+  statusLabel,
+  taskTitle,
+}: {
+  statusLabel: string;
+  taskTitle: string;
+}) {
+  return `${taskTitle} 상태를 ${statusLabel}(으)로 변경했습니다.`;
+}
+
+export function buildImplementationTaskEvidenceSavedMessage() {
+  return "제작 할 일 근거를 저장했습니다.";
+}
+
 function normalizeImplementationTaskTitle(value: string) {
   return value.trim().toLowerCase();
 }

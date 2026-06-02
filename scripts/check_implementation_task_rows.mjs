@@ -4,9 +4,13 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-rows.ts")).href;
 const {
+  buildImplementationTaskEvidenceSavedMessage,
   buildImplementationTaskEvidencePatch,
   buildImplementationTaskInsertRows,
   buildImplementationTaskStatusPatch,
+  buildImplementationTaskStatusChangedMessage,
+  buildImplementationTasksCreatedMessage,
+  buildManualImplementationTaskCreatedMessage,
   buildManualImplementationTaskInsertRow,
   getImplementationTaskTableErrorMessage,
   getMissingImplementationTaskDrafts,
@@ -101,6 +105,13 @@ assert.deepEqual(buildImplementationTaskStatusPatch("doing"), { status: "doing" 
 assert.deepEqual(buildImplementationTaskEvidencePatch("saved evidence", "old evidence"), { evidence: "saved evidence" });
 assert.deepEqual(buildImplementationTaskEvidencePatch(undefined, "old evidence"), { evidence: "old evidence" });
 assert.deepEqual(buildImplementationTaskEvidencePatch(undefined, null), { evidence: "" });
+assert.equal(buildImplementationTasksCreatedMessage(2), "2개의 제작 할 일을 만들었습니다.");
+assert.equal(buildManualImplementationTaskCreatedMessage(), "제작 할 일을 추가했습니다.");
+assert.equal(
+  buildImplementationTaskStatusChangedMessage({ statusLabel: "진행 중", taskTitle: "핵심 입력 구현" }),
+  "핵심 입력 구현 상태를 진행 중(으)로 변경했습니다.",
+);
+assert.equal(buildImplementationTaskEvidenceSavedMessage(), "제작 할 일 근거를 저장했습니다.");
 assert.equal(
   getImplementationTaskTableErrorMessage({ code: "42P01", message: "relation does not exist" }),
   "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요.",

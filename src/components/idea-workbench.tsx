@@ -263,9 +263,13 @@ import {
   buildImplementationHandoffDraftState,
 } from "@/lib/implementation-handoff-drafts";
 import {
+  buildImplementationTaskEvidenceSavedMessage,
   buildImplementationTaskEvidencePatch,
   buildImplementationTaskInsertRows,
   buildImplementationTaskStatusPatch,
+  buildImplementationTaskStatusChangedMessage,
+  buildImplementationTasksCreatedMessage,
+  buildManualImplementationTaskCreatedMessage,
   buildManualImplementationTaskInsertRow,
   getImplementationTaskTableErrorMessage,
   getMissingImplementationTaskDrafts,
@@ -3105,7 +3109,7 @@ export function IdeaWorkbench({
         source_artifact: implementationTaskSourceArtifact ? "yes" : "no",
       },
     });
-    setMessage(`${missingDrafts.length}개의 제작 할 일을 만들었습니다.`);
+    setMessage(buildImplementationTasksCreatedMessage(missingDrafts.length));
     router.refresh();
   }
 
@@ -3315,7 +3319,7 @@ export function IdeaWorkbench({
       },
     });
     setImplementationTaskDraft(createDefaultImplementationTaskDraft());
-    setMessage("제작 할 일을 추가했습니다.");
+    setMessage(buildManualImplementationTaskCreatedMessage());
     router.refresh();
   }
 
@@ -3356,7 +3360,12 @@ export function IdeaWorkbench({
         previous_status: task.status,
       },
     });
-    setMessage(`${task.title} 상태를 ${implementationTaskStatusLabels[status]}(으)로 변경했습니다.`);
+    setMessage(
+      buildImplementationTaskStatusChangedMessage({
+        statusLabel: implementationTaskStatusLabels[status],
+        taskTitle: task.title,
+      }),
+    );
     router.refresh();
   }
 
@@ -3398,7 +3407,7 @@ export function IdeaWorkbench({
       },
     });
     setImplementationTaskEvidence((current) => omitRecordKey(current, data.id));
-    setMessage("제작 할 일 근거를 저장했습니다.");
+    setMessage(buildImplementationTaskEvidenceSavedMessage());
     router.refresh();
   }
 
