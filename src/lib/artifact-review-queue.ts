@@ -27,6 +27,19 @@ export type ArtifactReviewProgressState = {
   totalCount: number;
 };
 
+export const artifactReviewStatusDisplays: Record<
+  ArtifactReviewStatus,
+  { label: string; nextLabel: string; pillTone: "avl-pill-success" | "avl-pill-warning" | "avl-pill-danger" }
+> = {
+  approved: { label: "승인", nextLabel: "승인", pillTone: "avl-pill-success" },
+  draft: { label: "초안", nextLabel: "승인 대기", pillTone: "avl-pill-warning" },
+  missing: { label: "없음", nextLabel: "생성 필요", pillTone: "avl-pill-danger" },
+};
+
+export function getArtifactReviewStatusDisplay(status: ArtifactReviewStatus) {
+  return artifactReviewStatusDisplays[status];
+}
+
 export const artifactPanelLabels: Record<ArtifactPanel, string> = {
   validation: "검증 자료",
   product: "기획서",

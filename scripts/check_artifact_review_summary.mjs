@@ -25,7 +25,9 @@ const {
   buildArtifactVersionSummaries,
   summarizeArtifactLineChanges,
 } = await import(moduleUrl);
-const { buildArtifactReviewProgressState, buildArtifactReviewQueue } = await import(queueModuleUrl);
+const { buildArtifactReviewProgressState, buildArtifactReviewQueue, getArtifactReviewStatusDisplay } = await import(
+  queueModuleUrl
+);
 
 function artifact({ body, createdAt, id, status = "draft", type = "prd", version }) {
   return {
@@ -160,5 +162,20 @@ const emptyProgressState = buildArtifactReviewProgressState([]);
 assert.equal(emptyProgressState.approvedCount, 0);
 assert.equal(emptyProgressState.nextItem, null);
 assert.equal(emptyProgressState.progress, 0);
+assert.deepEqual(getArtifactReviewStatusDisplay("approved"), {
+  label: "승인",
+  nextLabel: "승인",
+  pillTone: "avl-pill-success",
+});
+assert.deepEqual(getArtifactReviewStatusDisplay("draft"), {
+  label: "초안",
+  nextLabel: "승인 대기",
+  pillTone: "avl-pill-warning",
+});
+assert.deepEqual(getArtifactReviewStatusDisplay("missing"), {
+  label: "없음",
+  nextLabel: "생성 필요",
+  pillTone: "avl-pill-danger",
+});
 
 console.log("Artifact review summary smoke passed.");

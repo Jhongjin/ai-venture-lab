@@ -26,6 +26,7 @@ import {
   buildArtifactReviewQueue,
   developmentPanelDescriptions,
   developmentPanelLabels,
+  getArtifactReviewStatusDisplay,
   type ArtifactPanel,
   type ArtifactReviewItem,
   type DevelopmentPanel,
@@ -8210,12 +8211,10 @@ export function IdeaWorkbench({
                         </span>
                         <span
                           className={`avl-pill ${
-                            nextArtifactReviewItem.status === "draft"
-                              ? "avl-pill-warning"
-                              : "avl-pill-danger"
+                            getArtifactReviewStatusDisplay(nextArtifactReviewItem.status).pillTone
                           }`}
                         >
-                          {nextArtifactReviewItem.status === "draft" ? "승인 대기" : "생성 필요"}
+                          {getArtifactReviewStatusDisplay(nextArtifactReviewItem.status).nextLabel}
                         </span>
                       </div>
                       <p className="mt-1 text-sm leading-5 text-slate-600">{nextArtifactReviewItem.detail}</p>
@@ -8255,14 +8254,10 @@ export function IdeaWorkbench({
                       <span className="text-xs font-semibold text-slate-950">{item.label}</span>
                       <span
                         className={`avl-pill ${
-                          item.status === "approved"
-                            ? "avl-pill-success"
-                            : item.status === "draft"
-                              ? "avl-pill-warning"
-                              : "avl-pill-danger"
+                          getArtifactReviewStatusDisplay(item.status).pillTone
                         }`}
                       >
-                        {item.status === "approved" ? "승인" : item.status === "draft" ? "초안" : "없음"}
+                        {getArtifactReviewStatusDisplay(item.status).label}
                       </span>
                     </div>
                     <p className="mt-1 text-xs leading-5 text-slate-600">{item.detail}</p>
