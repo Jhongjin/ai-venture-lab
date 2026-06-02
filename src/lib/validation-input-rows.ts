@@ -57,16 +57,52 @@ export function buildRiskCreatedMessage() {
   return "리스크를 추가했습니다.";
 }
 
+export function buildRiskCreateLoginRequiredMessage() {
+  return "리스크를 추가하려면 먼저 로그인하세요.";
+}
+
+export function buildRiskTitleRequiredMessage() {
+  return "리스크 제목은 필수입니다.";
+}
+
 export function buildDecisionRecordedMessage() {
   return "판단을 기록했습니다.";
+}
+
+export function buildDecisionRecordPermissionDeniedMessage() {
+  return "아이디어 작성자 또는 워크스페이스 관리자만 판단을 기록할 수 있습니다.";
+}
+
+export function buildDecisionRecordFailedMessage() {
+  return "판단을 기록하지 못했습니다.";
 }
 
 export function buildValidationExperimentSavedMessage() {
   return "검증 계획을 저장했습니다.";
 }
 
+export function buildValidationExperimentSaveLoginRequiredMessage() {
+  return "검증 계획을 저장하려면 먼저 로그인하세요.";
+}
+
+export function buildValidationExperimentNameRequiredMessage() {
+  return "검증 계획 이름은 필수입니다.";
+}
+
 export function buildRecommendedValidationExperimentSavedMessage() {
   return "AI 추천 검증 계획을 저장했습니다. 시장·경쟁 점검은 자동으로 정리되고, 이동은 하단 다음 단계 버튼에서만 진행됩니다.";
+}
+
+export function buildExperimentUpdatePermissionDeniedMessage() {
+  return "실험 작성자 또는 워크스페이스 관리자만 이 실험을 수정할 수 있습니다.";
+}
+
+export function buildExperimentDeletePermissionDeniedMessage() {
+  return "실험 작성자 또는 워크스페이스 관리자만 이 실험을 삭제할 수 있습니다.";
+}
+
+export function buildExperimentDeleteConfirmMessage(experimentName: string) {
+  return `"${experimentName}" 검증 계획을 삭제할까요?`;
 }
 
 export function buildExperimentStatusChangedMessage({ statusLabel }: { statusLabel: string }) {

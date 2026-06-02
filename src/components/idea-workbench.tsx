@@ -330,20 +330,29 @@ import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
   buildDecisionInsertRow,
   buildDecisionRecordedMessage,
+  buildDecisionRecordFailedMessage,
+  buildDecisionRecordPermissionDeniedMessage,
   buildDecisionTemplateLoadedMessage,
   buildEvidenceCoachPromptLoadedMessage,
+  buildExperimentDeleteConfirmMessage,
   buildExperimentDeletedMessage,
+  buildExperimentDeletePermissionDeniedMessage,
   buildExperimentInsertRow,
   buildExperimentStatusChangedMessage,
   buildExperimentStatusUpdatePatch,
+  buildExperimentUpdatePermissionDeniedMessage,
   buildIdeaDecisionUpdatePatch,
   buildRecommendedValidationExperimentSavedMessage,
   buildRiskCreatedMessage,
+  buildRiskCreateLoginRequiredMessage,
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
   buildRiskStatusUpdatePatch,
+  buildRiskTitleRequiredMessage,
+  buildValidationExperimentNameRequiredMessage,
   buildValidationExperimentSavedMessage,
+  buildValidationExperimentSaveLoginRequiredMessage,
   experimentResultGuideRows,
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
@@ -2094,12 +2103,12 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("리스크를 추가하려면 먼저 로그인하세요.");
+      setMessage(buildRiskCreateLoginRequiredMessage());
       return;
     }
 
     if (!riskDraft.title.trim()) {
-      setMessage("리스크 제목은 필수입니다.");
+      setMessage(buildRiskTitleRequiredMessage());
       return;
     }
 
@@ -2146,7 +2155,7 @@ export function IdeaWorkbench({
     }
 
     if (!canEdit) {
-      setMessage("아이디어 작성자 또는 워크스페이스 관리자만 판단을 기록할 수 있습니다.");
+      setMessage(buildDecisionRecordPermissionDeniedMessage());
       return;
     }
 
@@ -2175,7 +2184,7 @@ export function IdeaWorkbench({
     setIsBusy(false);
 
     if (ideaResult.error || decisionResult.error) {
-      setMessage(ideaResult.error?.message ?? decisionResult.error?.message ?? "판단을 기록하지 못했습니다.");
+      setMessage(ideaResult.error?.message ?? decisionResult.error?.message ?? buildDecisionRecordFailedMessage());
       return;
     }
 
@@ -2207,12 +2216,12 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("검증 계획을 저장하려면 먼저 로그인하세요.");
+      setMessage(buildValidationExperimentSaveLoginRequiredMessage());
       return false;
     }
 
     if (!draft.name.trim()) {
-      setMessage("검증 계획 이름은 필수입니다.");
+      setMessage(buildValidationExperimentNameRequiredMessage());
       return false;
     }
 
@@ -2370,7 +2379,7 @@ export function IdeaWorkbench({
     }
 
     if (!canManageRecord(experiment)) {
-      setMessage("실험 작성자 또는 워크스페이스 관리자만 이 실험을 수정할 수 있습니다.");
+      setMessage(buildExperimentUpdatePermissionDeniedMessage());
       return;
     }
 
@@ -2411,11 +2420,11 @@ export function IdeaWorkbench({
     }
 
     if (!canManageRecord(experiment)) {
-      setMessage("실험 작성자 또는 워크스페이스 관리자만 이 실험을 삭제할 수 있습니다.");
+      setMessage(buildExperimentDeletePermissionDeniedMessage());
       return;
     }
 
-    const confirmed = window.confirm(`"${experiment.name}" 검증 계획을 삭제할까요?`);
+    const confirmed = window.confirm(buildExperimentDeleteConfirmMessage(experiment.name));
 
     if (!confirmed) {
       return;

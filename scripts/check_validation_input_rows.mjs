@@ -6,20 +6,29 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-inp
 const {
   buildDecisionInsertRow,
   buildDecisionRecordedMessage,
+  buildDecisionRecordFailedMessage,
+  buildDecisionRecordPermissionDeniedMessage,
   buildDecisionTemplateLoadedMessage,
   buildEvidenceCoachPromptLoadedMessage,
+  buildExperimentDeleteConfirmMessage,
   buildExperimentDeletedMessage,
+  buildExperimentDeletePermissionDeniedMessage,
   buildExperimentInsertRow,
   buildExperimentStatusChangedMessage,
   buildExperimentStatusUpdatePatch,
+  buildExperimentUpdatePermissionDeniedMessage,
   buildIdeaDecisionUpdatePatch,
   buildRecommendedValidationExperimentSavedMessage,
   buildRiskCreatedMessage,
+  buildRiskCreateLoginRequiredMessage,
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
   buildRiskStatusUpdatePatch,
+  buildRiskTitleRequiredMessage,
+  buildValidationExperimentNameRequiredMessage,
   buildValidationExperimentSavedMessage,
+  buildValidationExperimentSaveLoginRequiredMessage,
   experimentResultGuideRows,
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
@@ -49,12 +58,30 @@ assert.deepEqual(
 );
 assert.equal(experimentResultGuideRows[1].detail, "결과를 보고 계속 진행할지, 더 조사할지, 전환/중단할지 고릅니다.");
 assert.equal(buildRiskCreatedMessage(), "리스크를 추가했습니다.");
+assert.equal(buildRiskCreateLoginRequiredMessage(), "리스크를 추가하려면 먼저 로그인하세요.");
+assert.equal(buildRiskTitleRequiredMessage(), "리스크 제목은 필수입니다.");
 assert.equal(buildDecisionRecordedMessage(), "판단을 기록했습니다.");
+assert.equal(
+  buildDecisionRecordPermissionDeniedMessage(),
+  "아이디어 작성자 또는 워크스페이스 관리자만 판단을 기록할 수 있습니다.",
+);
+assert.equal(buildDecisionRecordFailedMessage(), "판단을 기록하지 못했습니다.");
 assert.equal(buildValidationExperimentSavedMessage(), "검증 계획을 저장했습니다.");
+assert.equal(buildValidationExperimentSaveLoginRequiredMessage(), "검증 계획을 저장하려면 먼저 로그인하세요.");
+assert.equal(buildValidationExperimentNameRequiredMessage(), "검증 계획 이름은 필수입니다.");
 assert.equal(
   buildRecommendedValidationExperimentSavedMessage(),
   "AI 추천 검증 계획을 저장했습니다. 시장·경쟁 점검은 자동으로 정리되고, 이동은 하단 다음 단계 버튼에서만 진행됩니다.",
 );
+assert.equal(
+  buildExperimentUpdatePermissionDeniedMessage(),
+  "실험 작성자 또는 워크스페이스 관리자만 이 실험을 수정할 수 있습니다.",
+);
+assert.equal(
+  buildExperimentDeletePermissionDeniedMessage(),
+  "실험 작성자 또는 워크스페이스 관리자만 이 실험을 삭제할 수 있습니다.",
+);
+assert.equal(buildExperimentDeleteConfirmMessage("5명 인터뷰"), "\"5명 인터뷰\" 검증 계획을 삭제할까요?");
 assert.equal(
   buildExperimentStatusChangedMessage({ statusLabel: "진행 중" }),
   "실험 상태를 진행 중(으)로 변경했습니다.",
