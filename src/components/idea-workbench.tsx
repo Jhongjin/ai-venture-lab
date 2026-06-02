@@ -110,7 +110,7 @@ import {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSavePatch,
-  scoreWorkbenchState as scoreState,
+  buildWorkbenchScoringTelemetryProperties,
   toWorkbenchEditState as toEditState,
   type WorkbenchEditState,
 } from "@/lib/workbench-scoring";
@@ -2148,12 +2148,7 @@ export function IdeaWorkbench({
       eventName: "idea_updated",
       eventCategory: "scoring",
       idea: data,
-      properties: {
-        stage: data.stage,
-        decision: data.decision,
-        score: scoreState(toEditState(data)),
-        regulatory_risk: data.regulatory_risk,
-      },
+      properties: buildWorkbenchScoringTelemetryProperties(data),
     });
     setMessage(buildWorkbenchScoringSavedMessage({ usedProductSurfaceFallback }));
     router.refresh();

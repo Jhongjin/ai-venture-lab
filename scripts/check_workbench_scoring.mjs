@@ -22,6 +22,7 @@ const {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSavePatch,
+  buildWorkbenchScoringTelemetryProperties,
   isWorkbenchScoreEvaluationSaved,
   missingEvidence,
   recommendationForScore,
@@ -74,6 +75,12 @@ assert.equal(savePatch.decision, "ship");
 assert.equal(savePatch.product_surface, "automation");
 assert.equal(savePatch.problem_intensity, 5);
 assert.equal(savePatch.regulatory_risk, 1);
+assert.deepEqual(buildWorkbenchScoringTelemetryProperties({ ...idea, ...savePatch }), {
+  stage: "score",
+  decision: "ship",
+  score: 25,
+  regulatory_risk: 1,
+});
 assert.equal(
   buildWorkbenchScoringSavedMessage({ usedProductSurfaceFallback: false }),
   "사업성 평가를 저장했습니다.",
