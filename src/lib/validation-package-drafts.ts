@@ -20,6 +20,13 @@ export type ValidationPackageDraftState = {
   validationSummaryDraft: string;
 };
 
+export type ValidationPackageArtifactSaveDraft = {
+  artifactType: "idea_brief" | "research_note";
+  body: string;
+  source: "validation_sprint" | "validation_summary" | "workbench";
+  title: string;
+};
+
 const emptyValidationPackageDraftState: ValidationPackageDraftState = {
   evidenceNoteDraft: "",
   experimentResultNoteDraft: "",
@@ -29,6 +36,78 @@ const emptyValidationPackageDraftState: ValidationPackageDraftState = {
   validationSprintDraft: "",
   validationSummaryDraft: "",
 };
+
+function buildValidationPackageArtifactSaveDraft({
+  artifactType,
+  body,
+  ideaName,
+  source,
+  titleSuffix,
+}: {
+  artifactType: ValidationPackageArtifactSaveDraft["artifactType"];
+  body: string;
+  ideaName: string | null;
+  source: ValidationPackageArtifactSaveDraft["source"];
+  titleSuffix: string;
+}): ValidationPackageArtifactSaveDraft | null {
+  const normalizedIdeaName = ideaName?.trim();
+
+  if (!normalizedIdeaName || !body.trim()) {
+    return null;
+  }
+
+  return {
+    artifactType,
+    body,
+    source,
+    title: `${normalizedIdeaName} ${titleSuffix}`,
+  };
+}
+
+export function buildValidationPackageArtifactSaveDrafts({
+  ideaBrief,
+  ideaName,
+  researchBriefDraft,
+  validationSprintDraft,
+  validationSummaryDraft,
+}: {
+  ideaBrief: string;
+  ideaName: string | null;
+  researchBriefDraft: string;
+  validationSprintDraft: string;
+  validationSummaryDraft: string;
+}) {
+  return {
+    ideaBriefSaveDraft: buildValidationPackageArtifactSaveDraft({
+      artifactType: "idea_brief",
+      body: ideaBrief,
+      ideaName,
+      source: "workbench",
+      titleSuffix: "아이디어 요약",
+    }),
+    researchBriefSaveDraft: buildValidationPackageArtifactSaveDraft({
+      artifactType: "research_note",
+      body: researchBriefDraft,
+      ideaName,
+      source: "workbench",
+      titleSuffix: "조사 요약",
+    }),
+    validationSprintSaveDraft: buildValidationPackageArtifactSaveDraft({
+      artifactType: "research_note",
+      body: validationSprintDraft,
+      ideaName,
+      source: "validation_sprint",
+      titleSuffix: "7일 검증 계획",
+    }),
+    validationSummarySaveDraft: buildValidationPackageArtifactSaveDraft({
+      artifactType: "research_note",
+      body: validationSummaryDraft,
+      ideaName,
+      source: "validation_summary",
+      titleSuffix: "검증 완료 요약",
+    }),
+  };
+}
 
 export function buildValidationPackageDraftState({
   artifacts,

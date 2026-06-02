@@ -297,7 +297,10 @@ import {
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
 } from "@/lib/validation-input-rows";
-import { buildValidationPackageDraftState } from "@/lib/validation-package-drafts";
+import {
+  buildValidationPackageArtifactSaveDrafts,
+  buildValidationPackageDraftState,
+} from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
 import {
   buildImplementationTaskRefreshSummary,
@@ -1231,6 +1234,18 @@ export function IdeaWorkbench({
     runs: selectedRuns,
     score: currentScore,
     state: editState,
+  });
+  const {
+    ideaBriefSaveDraft,
+    researchBriefSaveDraft,
+    validationSprintSaveDraft,
+    validationSummarySaveDraft,
+  } = buildValidationPackageArtifactSaveDrafts({
+    ideaBrief,
+    ideaName: selectedIdea?.name ?? null,
+    researchBriefDraft,
+    validationSprintDraft,
+    validationSummaryDraft,
   });
   const {
     developmentPlanDraft,
@@ -7235,9 +7250,18 @@ export function IdeaWorkbench({
           rows={12}
           copyLabel="요약 복사"
           onCopy={() => copyDraft(ideaBrief, "아이디어 요약")}
-          onSave={() => saveArtifactDraft("idea_brief", `${selectedIdea.name} 아이디어 요약`, ideaBrief, "workbench")}
+          onSave={() =>
+            ideaBriefSaveDraft
+              ? saveArtifactDraft(
+                  ideaBriefSaveDraft.artifactType,
+                  ideaBriefSaveDraft.title,
+                  ideaBriefSaveDraft.body,
+                  ideaBriefSaveDraft.source,
+                )
+              : undefined
+          }
           saveLabel={hasIdeaBriefArtifact ? "저장 완료" : "제작 자료 저장"}
-          saveDisabled={isBusy || !user || hasIdeaBriefArtifact}
+          saveDisabled={isBusy || !user || hasIdeaBriefArtifact || !ideaBriefSaveDraft}
           disabledNote={hasIdeaBriefArtifact ? "아이디어 요약이 저장되어 상단 상태에 반영되었습니다." : undefined}
           actionMode="hidden"
         />
@@ -7252,10 +7276,17 @@ export function IdeaWorkbench({
           copyLabel="조사 요약 복사"
           onCopy={() => copyDraft(researchBriefDraft, "조사 요약")}
           onSave={() =>
-            saveArtifactDraft("research_note", `${selectedIdea.name} 조사 요약`, researchBriefDraft, "workbench")
+            researchBriefSaveDraft
+              ? saveArtifactDraft(
+                  researchBriefSaveDraft.artifactType,
+                  researchBriefSaveDraft.title,
+                  researchBriefSaveDraft.body,
+                  researchBriefSaveDraft.source,
+                )
+              : undefined
           }
           saveLabel={hasResearchBriefArtifact ? "저장 완료" : "제작 자료 저장"}
-          saveDisabled={isBusy || !user || hasResearchBriefArtifact}
+          saveDisabled={isBusy || !user || hasResearchBriefArtifact || !researchBriefSaveDraft}
           disabledNote={hasResearchBriefArtifact ? "조사 요약이 저장되어 상단 상태에 반영되었습니다." : undefined}
           actionMode="hidden"
         />
@@ -7270,15 +7301,17 @@ export function IdeaWorkbench({
           copyLabel="검증 계획 복사"
           onCopy={() => copyDraft(validationSprintDraft, "7일 검증 계획")}
           onSave={() =>
-            saveArtifactDraft(
-              "research_note",
-              `${selectedIdea.name} 7일 검증 계획`,
-              validationSprintDraft,
-              "validation_sprint",
-            )
+            validationSprintSaveDraft
+              ? saveArtifactDraft(
+                  validationSprintSaveDraft.artifactType,
+                  validationSprintSaveDraft.title,
+                  validationSprintSaveDraft.body,
+                  validationSprintSaveDraft.source,
+                )
+              : undefined
           }
           saveLabel={hasValidationSprintArtifact ? "저장 완료" : "제작 자료 저장"}
-          saveDisabled={isBusy || !user || hasValidationSprintArtifact}
+          saveDisabled={isBusy || !user || hasValidationSprintArtifact || !validationSprintSaveDraft}
           disabledNote={hasValidationSprintArtifact ? "7일 검증 계획이 저장되어 상단 상태에 반영되었습니다." : undefined}
           actionMode="hidden"
         />
@@ -7367,15 +7400,17 @@ export function IdeaWorkbench({
           onCopy={() => copyDraft(validationSummaryDraft, "검증 완료 요약")}
           copyDisabled={!canSaveValidationSummary}
           onSave={() =>
-            saveArtifactDraft(
-              "research_note",
-              `${selectedIdea.name} 검증 완료 요약`,
-              validationSummaryDraft,
-              "validation_summary",
-            )
+            validationSummarySaveDraft
+              ? saveArtifactDraft(
+                  validationSummarySaveDraft.artifactType,
+                  validationSummarySaveDraft.title,
+                  validationSummarySaveDraft.body,
+                  validationSummarySaveDraft.source,
+                )
+              : undefined
           }
           saveLabel={hasValidationSummaryArtifact ? "저장 완료" : "검증 자료 저장"}
-          saveDisabled={isBusy || !user || !canSaveValidationSummary || hasValidationSummaryArtifact}
+          saveDisabled={isBusy || !user || !canSaveValidationSummary || hasValidationSummaryArtifact || !validationSummarySaveDraft}
           disabledNote={
             hasValidationSummaryArtifact
               ? "검증 완료 요약이 저장되었습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다."

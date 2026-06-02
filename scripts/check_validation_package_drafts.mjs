@@ -38,7 +38,7 @@ const moduleUrl = transpileModuleUrl("src/lib/validation-package-drafts.ts", [
   ['from "@/lib/validation-package-markdown";', `from ${JSON.stringify(validationPackageUrl)};`],
 ]);
 
-const { buildValidationPackageDraftState } = await import(moduleUrl);
+const { buildValidationPackageArtifactSaveDrafts, buildValidationPackageDraftState } = await import(moduleUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -196,6 +196,77 @@ assert.match(draftState.evidenceNoteDraft, /# 근거 기록: 수요 인터뷰/);
 assert.equal(draftState.selectedExperimentForResult?.id, "exp-2");
 assert.match(draftState.experimentResultNoteDraft, /# 실험 결과: 랜딩 수요 확인/);
 assert.match(draftState.validationSummaryDraft, /# 검증 완료 요약: AI Venture Lab/);
+
+const saveDrafts = buildValidationPackageArtifactSaveDrafts({
+  ideaBrief: draftState.ideaBrief,
+  ideaName: idea.name,
+  researchBriefDraft: draftState.researchBriefDraft,
+  validationSprintDraft: draftState.validationSprintDraft,
+  validationSummaryDraft: draftState.validationSummaryDraft,
+});
+assert.deepEqual(
+  {
+    artifactType: saveDrafts.ideaBriefSaveDraft?.artifactType,
+    source: saveDrafts.ideaBriefSaveDraft?.source,
+    title: saveDrafts.ideaBriefSaveDraft?.title,
+  },
+  {
+    artifactType: "idea_brief",
+    source: "workbench",
+    title: "AI Venture Lab 아이디어 요약",
+  },
+);
+assert.deepEqual(
+  {
+    artifactType: saveDrafts.researchBriefSaveDraft?.artifactType,
+    source: saveDrafts.researchBriefSaveDraft?.source,
+    title: saveDrafts.researchBriefSaveDraft?.title,
+  },
+  {
+    artifactType: "research_note",
+    source: "workbench",
+    title: "AI Venture Lab 조사 요약",
+  },
+);
+assert.deepEqual(
+  {
+    artifactType: saveDrafts.validationSprintSaveDraft?.artifactType,
+    source: saveDrafts.validationSprintSaveDraft?.source,
+    title: saveDrafts.validationSprintSaveDraft?.title,
+  },
+  {
+    artifactType: "research_note",
+    source: "validation_sprint",
+    title: "AI Venture Lab 7일 검증 계획",
+  },
+);
+assert.deepEqual(
+  {
+    artifactType: saveDrafts.validationSummarySaveDraft?.artifactType,
+    source: saveDrafts.validationSummarySaveDraft?.source,
+    title: saveDrafts.validationSummarySaveDraft?.title,
+  },
+  {
+    artifactType: "research_note",
+    source: "validation_summary",
+    title: "AI Venture Lab 검증 완료 요약",
+  },
+);
+assert.equal(saveDrafts.validationSummarySaveDraft?.body, draftState.validationSummaryDraft);
+
+const emptySaveDrafts = buildValidationPackageArtifactSaveDrafts({
+  ideaBrief: " ",
+  ideaName: null,
+  researchBriefDraft: " ",
+  validationSprintDraft: " ",
+  validationSummaryDraft: " ",
+});
+assert.deepEqual(emptySaveDrafts, {
+  ideaBriefSaveDraft: null,
+  researchBriefSaveDraft: null,
+  validationSprintSaveDraft: null,
+  validationSummarySaveDraft: null,
+});
 
 const fallbackDraftState = buildValidationPackageDraftState({
   artifacts: [],
