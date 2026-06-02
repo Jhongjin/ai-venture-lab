@@ -241,6 +241,14 @@ export function removeRecordsByIdeaId<T extends { idea_id: string | null }>(reco
   return records.filter((record) => record.idea_id !== ideaId);
 }
 
+export function replaceRecordsByIdeaId<T extends { idea_id: string | null }>(
+  records: T[],
+  ideaId: string,
+  nextRecords: readonly T[],
+) {
+  return [...removeRecordsByIdeaId(records, ideaId), ...nextRecords];
+}
+
 export function omitRecordKey<T>(record: Record<string, T>, key: string) {
   const next = { ...record };
   delete next[key];

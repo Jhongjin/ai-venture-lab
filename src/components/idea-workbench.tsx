@@ -74,6 +74,7 @@ import {
   removeRecordById,
   removeRecordsByIdeaId,
   replaceRecordById,
+  replaceRecordsByIdeaId,
   replaceRecordsById,
   setRecordKey,
   sortWorkbenchIdeas,
@@ -2288,10 +2289,7 @@ export function IdeaWorkbench({
     }
 
     const refreshedTasks = (data ?? []) as ImplementationTask[];
-    setImplementationTasks((current) => [
-      ...removeRecordsByIdeaId(current, selectedIdea.id),
-      ...refreshedTasks,
-    ]);
+    setImplementationTasks((current) => replaceRecordsByIdeaId(current, selectedIdea.id, refreshedTasks));
     setCursorProgressImportItems([]);
     const refreshSummary = buildImplementationTaskRefreshSummary(refreshedTasks);
     const refreshedAt = new Intl.DateTimeFormat("ko-KR", {

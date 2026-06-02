@@ -27,6 +27,7 @@ const {
   removeRecordById,
   removeRecordsByIdeaId,
   replaceRecordById,
+  replaceRecordsByIdeaId,
   replaceRecordsById,
   setRecordKey,
   sortWorkbenchIdeas,
@@ -218,6 +219,24 @@ assert.deepEqual(
   [
     { id: "risk-2", idea_id: "idea-2" },
     { id: "global", idea_id: null },
+  ],
+);
+assert.deepEqual(
+  replaceRecordsByIdeaId(
+    [
+      { id: "old-1", idea_id: "idea-1" },
+      { id: "keep-1", idea_id: "idea-2" },
+    ],
+    "idea-1",
+    [
+      { id: "new-1", idea_id: "idea-1" },
+      { id: "new-2", idea_id: "idea-1" },
+    ],
+  ),
+  [
+    { id: "keep-1", idea_id: "idea-2" },
+    { id: "new-1", idea_id: "idea-1" },
+    { id: "new-2", idea_id: "idea-1" },
   ],
 );
 assert.deepEqual(upsertWorkbenchIdea([ideas[0]], ideas[1]).map((record) => record.id), ["owned-new", "shared-old"]);
