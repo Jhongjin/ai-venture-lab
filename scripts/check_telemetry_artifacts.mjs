@@ -18,7 +18,7 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { buildTelemetryReportDraftState, buildTelemetrySetupDrafts } = await import(moduleUrl);
+const { buildTelemetryArtifactSaveDrafts, buildTelemetryReportDraftState, buildTelemetrySetupDrafts } = await import(moduleUrl);
 
 assert.deepEqual(buildTelemetrySetupDrafts(null), {
   telemetryAdapterGuideDraft: "",
@@ -76,5 +76,38 @@ assert.match(reportDrafts.learningTelemetryReportDraft, /# 출시 후 학습 리
 assert.match(reportDrafts.learningTelemetryReportDraft, /최근 7일 이벤트: 1개/);
 assert.match(reportDrafts.productTelemetryFunnelDraft, /# 제품 이벤트 퍼널 리포트: 텔레메트리 검증/);
 assert.match(reportDrafts.productTelemetryFunnelDraft, /product_page_view/);
+
+const saveDrafts = buildTelemetryArtifactSaveDrafts({
+  ideaName: idea.name,
+  learningTelemetryReportDraft: reportDrafts.learningTelemetryReportDraft,
+  productTelemetryFunnelDraft: reportDrafts.productTelemetryFunnelDraft,
+  telemetryAdapterGuideDraft: setupDrafts.telemetryAdapterGuideDraft,
+});
+assert.equal(saveDrafts.telemetryAdapterGuideSaveDraft.artifactType, "tech_spec");
+assert.equal(saveDrafts.telemetryAdapterGuideSaveDraft.title, "텔레메트리 검증 성과 신호 연결 가이드");
+assert.equal(saveDrafts.telemetryAdapterGuideSaveDraft.source, "telemetry_adapter");
+assert.match(saveDrafts.telemetryAdapterGuideSaveDraft.body, /MVP 제품 이벤트 연결 가이드/);
+assert.equal(saveDrafts.productTelemetryFunnelSaveDraft.artifactType, "research_note");
+assert.equal(saveDrafts.productTelemetryFunnelSaveDraft.title, "텔레메트리 검증 제품 사용 퍼널");
+assert.equal(saveDrafts.productTelemetryFunnelSaveDraft.source, "product_telemetry_funnel");
+assert.match(saveDrafts.productTelemetryFunnelSaveDraft.body, /# 제품 이벤트 퍼널 리포트: 텔레메트리 검증/);
+assert.equal(saveDrafts.learningTelemetryReportSaveDraft.artifactType, "research_note");
+assert.equal(saveDrafts.learningTelemetryReportSaveDraft.title, "텔레메트리 검증 학습 리포트");
+assert.equal(saveDrafts.learningTelemetryReportSaveDraft.source, "post_launch_learning");
+assert.match(saveDrafts.learningTelemetryReportSaveDraft.body, /# 출시 후 학습 리포트: 텔레메트리 검증/);
+
+assert.deepEqual(
+  buildTelemetryArtifactSaveDrafts({
+    ideaName: null,
+    learningTelemetryReportDraft: "",
+    productTelemetryFunnelDraft: "",
+    telemetryAdapterGuideDraft: "",
+  }),
+  {
+    learningTelemetryReportSaveDraft: null,
+    productTelemetryFunnelSaveDraft: null,
+    telemetryAdapterGuideSaveDraft: null,
+  },
+);
 
 console.log("Telemetry artifacts smoke passed.");

@@ -100,7 +100,11 @@ import {
   telemetryCategoryTone,
   telemetryEventLabels,
 } from "@/lib/telemetry-format";
-import { buildTelemetryReportDraftState, buildTelemetrySetupDrafts } from "@/lib/telemetry-artifacts";
+import {
+  buildTelemetryArtifactSaveDrafts,
+  buildTelemetryReportDraftState,
+  buildTelemetrySetupDrafts,
+} from "@/lib/telemetry-artifacts";
 import {
   buildStep8LearningDisplayState,
   buildStep8ImplementationDerivedState,
@@ -883,6 +887,16 @@ export function IdeaWorkbench({
       selectedTelemetryEvents,
     ],
   );
+  const {
+    learningTelemetryReportSaveDraft,
+    productTelemetryFunnelSaveDraft,
+    telemetryAdapterGuideSaveDraft,
+  } = buildTelemetryArtifactSaveDrafts({
+    ideaName: selectedIdea?.name ?? null,
+    learningTelemetryReportDraft,
+    productTelemetryFunnelDraft,
+    telemetryAdapterGuideDraft,
+  });
   const {
     completedImplementationTasks: completedLearningImplementationTasks,
     implementationDependencyStatuses,
@@ -6186,12 +6200,14 @@ export function IdeaWorkbench({
               isBusy={isBusy}
               onCopyDraft={copyDraft}
               onSaveGuide={() =>
-                saveArtifactDraft(
-                  "tech_spec",
-                  `${selectedIdea.name} 성과 신호 연결 가이드`,
-                  telemetryAdapterGuideDraft,
-                  "telemetry_adapter",
-                )
+                telemetryAdapterGuideSaveDraft
+                  ? saveArtifactDraft(
+                      telemetryAdapterGuideSaveDraft.artifactType,
+                      telemetryAdapterGuideSaveDraft.title,
+                      telemetryAdapterGuideSaveDraft.body,
+                      telemetryAdapterGuideSaveDraft.source,
+                    )
+                  : undefined
               }
               telemetryAdapterGuideDraft={telemetryAdapterGuideDraft}
               telemetryClientHelperSnippet={telemetryClientHelperSnippet}
@@ -6214,20 +6230,24 @@ export function IdeaWorkbench({
             onCopyFunnel={() => copyDraft(productTelemetryFunnelDraft, "제품 사용 퍼널 리포트")}
             onCopyReport={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
             onSaveFunnel={() =>
-              saveArtifactDraft(
-                "research_note",
-                `${selectedIdea.name} 제품 사용 퍼널`,
-                productTelemetryFunnelDraft,
-                "product_telemetry_funnel",
-              )
+              productTelemetryFunnelSaveDraft
+                ? saveArtifactDraft(
+                    productTelemetryFunnelSaveDraft.artifactType,
+                    productTelemetryFunnelSaveDraft.title,
+                    productTelemetryFunnelSaveDraft.body,
+                    productTelemetryFunnelSaveDraft.source,
+                  )
+                : undefined
             }
             onSaveReport={() =>
-              saveArtifactDraft(
-                "research_note",
-                `${selectedIdea.name} 학습 리포트`,
-                learningTelemetryReportDraft,
-                "post_launch_learning",
-              )
+              learningTelemetryReportSaveDraft
+                ? saveArtifactDraft(
+                    learningTelemetryReportSaveDraft.artifactType,
+                    learningTelemetryReportSaveDraft.title,
+                    learningTelemetryReportSaveDraft.body,
+                    learningTelemetryReportSaveDraft.source,
+                  )
+                : undefined
             }
             productTelemetryFunnelDraft={productTelemetryFunnelDraft}
             productTelemetryFunnelRows={productTelemetryFunnelRows}

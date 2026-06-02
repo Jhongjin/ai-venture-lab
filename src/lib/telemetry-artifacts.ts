@@ -14,10 +14,59 @@ export type TelemetryReportDraftState = {
   productTelemetryFunnelDraft: string;
 };
 
+export type TelemetryArtifactSaveDraft = {
+  artifactType: "research_note" | "tech_spec";
+  body: string;
+  source: "post_launch_learning" | "product_telemetry_funnel" | "telemetry_adapter";
+  title: string;
+};
+
 const emptyTelemetryReportDraftState: TelemetryReportDraftState = {
   learningTelemetryReportDraft: "",
   productTelemetryFunnelDraft: "",
 };
+
+export function buildTelemetryArtifactSaveDrafts({
+  ideaName,
+  learningTelemetryReportDraft,
+  productTelemetryFunnelDraft,
+  telemetryAdapterGuideDraft,
+}: {
+  ideaName: string | null;
+  learningTelemetryReportDraft: string;
+  productTelemetryFunnelDraft: string;
+  telemetryAdapterGuideDraft: string;
+}) {
+  return {
+    learningTelemetryReportSaveDraft:
+      ideaName && learningTelemetryReportDraft
+        ? {
+            artifactType: "research_note" as const,
+            body: learningTelemetryReportDraft,
+            source: "post_launch_learning" as const,
+            title: `${ideaName} 학습 리포트`,
+          }
+        : null,
+    productTelemetryFunnelSaveDraft:
+      ideaName && productTelemetryFunnelDraft
+        ? {
+            artifactType: "research_note" as const,
+            body: productTelemetryFunnelDraft,
+            source: "product_telemetry_funnel" as const,
+            title: `${ideaName} 제품 사용 퍼널`,
+          }
+        : null,
+    telemetryAdapterGuideSaveDraft:
+      ideaName && telemetryAdapterGuideDraft
+        ? {
+            artifactType: "tech_spec" as const,
+            body: telemetryAdapterGuideDraft,
+            source: "telemetry_adapter" as const,
+            title: `${ideaName} 성과 신호 연결 가이드`,
+          }
+        : null,
+  };
+}
 
 export function buildLearningTelemetryReportMarkdown({
   idea,
