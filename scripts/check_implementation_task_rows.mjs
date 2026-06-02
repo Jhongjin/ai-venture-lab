@@ -3,8 +3,13 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-rows.ts")).href;
-const { buildImplementationTaskInsertRows, buildManualImplementationTaskInsertRow, getMissingImplementationTaskDrafts } =
-  await import(moduleUrl);
+const {
+  buildImplementationTaskEvidencePatch,
+  buildImplementationTaskInsertRows,
+  buildImplementationTaskStatusPatch,
+  buildManualImplementationTaskInsertRow,
+  getMissingImplementationTaskDrafts,
+} = await import(moduleUrl);
 
 const drafts = [
   {
@@ -90,5 +95,10 @@ assert.deepEqual(
     title: "저장 게이트 확인 UI 구현",
   },
 );
+
+assert.deepEqual(buildImplementationTaskStatusPatch("doing"), { status: "doing" });
+assert.deepEqual(buildImplementationTaskEvidencePatch("saved evidence", "old evidence"), { evidence: "saved evidence" });
+assert.deepEqual(buildImplementationTaskEvidencePatch(undefined, "old evidence"), { evidence: "old evidence" });
+assert.deepEqual(buildImplementationTaskEvidencePatch(undefined, null), { evidence: "" });
 
 console.log("Implementation task rows smoke passed.");

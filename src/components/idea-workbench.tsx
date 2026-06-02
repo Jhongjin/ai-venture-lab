@@ -267,7 +267,9 @@ import { buildFirstBuildBridge } from "@/lib/first-build-bridge";
 import { buildImplementationDependencyPlanMarkdown } from "@/lib/implementation-dependency-plan";
 import { buildImplementationTaskDrafts } from "@/lib/implementation-task-drafts";
 import {
+  buildImplementationTaskEvidencePatch,
   buildImplementationTaskInsertRows,
+  buildImplementationTaskStatusPatch,
   buildManualImplementationTaskInsertRow,
   getMissingImplementationTaskDrafts,
 } from "@/lib/implementation-task-rows";
@@ -3851,7 +3853,7 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("implementation_tasks")
-      .update({ status })
+      .update(buildImplementationTaskStatusPatch(status))
       .eq("id", task.id)
       .select()
       .single();
@@ -3892,7 +3894,7 @@ export function IdeaWorkbench({
     setMessage(null);
     const { data, error } = await supabase
       .from("implementation_tasks")
-      .update({ evidence: implementationTaskEvidence[task.id] ?? task.evidence ?? "" })
+      .update(buildImplementationTaskEvidencePatch(implementationTaskEvidence[task.id], task.evidence))
       .eq("id", task.id)
       .select()
       .single();

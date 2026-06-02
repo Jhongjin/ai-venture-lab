@@ -16,6 +16,14 @@ export type ImplementationTaskInsertRow = {
   sort_order: number;
 };
 
+export type ImplementationTaskEvidencePatch = {
+  evidence: string;
+};
+
+export type ImplementationTaskStatusPatch<Status extends string> = {
+  status: Status;
+};
+
 function normalizeImplementationTaskTitle(value: string) {
   return value.trim().toLowerCase();
 }
@@ -86,4 +94,17 @@ export function buildManualImplementationTaskInsertRow({
     evidence: "",
     sort_order: existingTaskCount,
   };
+}
+
+export function buildImplementationTaskEvidencePatch(
+  evidence: string | null | undefined,
+  fallbackEvidence: string | null | undefined = "",
+): ImplementationTaskEvidencePatch {
+  return { evidence: evidence ?? fallbackEvidence ?? "" };
+}
+
+export function buildImplementationTaskStatusPatch<Status extends string>(
+  status: Status,
+): ImplementationTaskStatusPatch<Status> {
+  return { status };
 }
