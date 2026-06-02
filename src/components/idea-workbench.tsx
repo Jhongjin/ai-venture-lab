@@ -86,6 +86,7 @@ import {
   upsertRecordById,
   upsertRecordsById,
   upsertWorkbenchIdea,
+  workbenchIdeaCreatedSelectedMessage,
   workbenchIdeaDeleteLoginRequiredMessage,
   workbenchIdeaDeletePermissionDeniedMessage,
   workbenchIdeaFilterModes,
@@ -730,7 +731,7 @@ export function IdeaWorkbench({
       setEditState(toEditState(createdIdea));
       updateActiveTask("score");
       setFilterMode("all");
-      setMessage("새 아이디어를 실행 보드에 바로 추가하고 선택했습니다.");
+      setMessage(workbenchIdeaCreatedSelectedMessage);
     }
     const handleIdeaUpdated = (event: Event) => handleRecordEvent<Idea>(event, setIdeas);
     const handleRiskCreated = (event: Event) => handleRecordEvent<Risk>(event, setRisks);

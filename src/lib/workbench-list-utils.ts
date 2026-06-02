@@ -34,6 +34,7 @@ const ideaDeletionRelatedTables = [
 
 export const workbenchAdminRoles = new Set<OrganizationRole>(["owner", "admin"]);
 export const workbenchIdeaFilterModes: WorkbenchIdeaFilterMode[] = ["all", "mine", "read_only"];
+export const workbenchIdeaCreatedSelectedMessage = "새 아이디어를 실행 보드에 바로 추가하고 선택했습니다.";
 export const workbenchIdeaDeleteLoginRequiredMessage = "아이디어를 삭제하려면 먼저 로그인해 주세요.";
 export const workbenchIdeaDeletePermissionDeniedMessage = "이 아이디어를 삭제할 권한이 없습니다.";
 export const workbenchIdeaSelectionRequiredMessage = "먼저 아이디어를 선택하세요.";

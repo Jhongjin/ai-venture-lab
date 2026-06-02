@@ -52,6 +52,7 @@ const {
   upsertRecordById,
   upsertRecordsById,
   upsertWorkbenchIdea,
+  workbenchIdeaCreatedSelectedMessage,
   workbenchIdeaDeleteLoginRequiredMessage,
   workbenchIdeaDeletePermissionDeniedMessage,
   workbenchIdeaFilterModes,
@@ -114,6 +115,7 @@ assert.equal(isWorkbenchAdminRole("owner"), true);
 assert.equal(isWorkbenchAdminRole("admin"), true);
 assert.equal(isWorkbenchAdminRole("member"), false);
 assert.deepEqual(workbenchIdeaFilterModes, ["all", "mine", "read_only"]);
+assert.equal(workbenchIdeaCreatedSelectedMessage, "새 아이디어를 실행 보드에 바로 추가하고 선택했습니다.");
 assert.equal(workbenchIdeaDeleteLoginRequiredMessage, "아이디어를 삭제하려면 먼저 로그인해 주세요.");
 assert.equal(workbenchIdeaDeletePermissionDeniedMessage, "이 아이디어를 삭제할 권한이 없습니다.");
 assert.equal(workbenchIdeaSelectionRequiredMessage, "먼저 아이디어를 선택하세요.");
