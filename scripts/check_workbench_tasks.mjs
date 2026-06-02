@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-tasks.ts")).href;
 const {
   WORKBENCH_TASK_IDS,
+  buildWorkbenchTaskNavigationState,
   buildWorkbenchTaskSummaries,
   getVisibleWorkbenchTaskSummaries,
   getWorkbenchIdeaProgress,
@@ -90,5 +91,29 @@ assert.deepEqual(
   ["select", "score", "experiment", "orchestration", "artifacts", "development", "launch", "learning"],
 );
 assert.equal(getVisibleWorkbenchTaskSummaries(tasks, "full").length, tasks.length);
+
+const navigationState = buildWorkbenchTaskNavigationState({
+  activeVisibleIdeaCount: 3,
+  artifactCount: 5,
+  canEnterLaunch: false,
+  currentScore: 77,
+  decisionCount: 2,
+  discardedVisibleIdeaCount: 1,
+  doneRunCount: 4,
+  experienceMode: "guided",
+  experimentCount: 1,
+  hasDevelopmentProcessArtifact: true,
+  implementationCompletedCount: 0,
+  implementationTotalCount: 0,
+  launchReadinessScore: 64,
+  riskCount: 2,
+  runCount: 5,
+  telemetryEventCount: 0,
+});
+assert.equal(navigationState.workbenchTasks.length, WORKBENCH_TASK_IDS.length);
+assert.deepEqual(
+  navigationState.visibleWorkbenchTasks.map((task) => task.id),
+  ["select", "score", "experiment", "orchestration", "artifacts", "development", "launch", "learning"],
+);
 
 console.log("Workbench tasks smoke passed.");

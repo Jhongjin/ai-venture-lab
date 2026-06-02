@@ -185,3 +185,18 @@ export function getVisibleWorkbenchTaskSummaries(
 ) {
   return experienceMode === "guided" ? tasks.filter((task) => guidedWorkbenchTaskIdSet.has(task.id)) : tasks;
 }
+
+export function buildWorkbenchTaskNavigationState({
+  experienceMode,
+  ...summaryInput
+}: Parameters<typeof buildWorkbenchTaskSummaries>[0] & {
+  experienceMode: WorkbenchExperienceMode;
+}) {
+  const workbenchTasks = buildWorkbenchTaskSummaries(summaryInput);
+  const visibleWorkbenchTasks = getVisibleWorkbenchTaskSummaries(workbenchTasks, experienceMode);
+
+  return {
+    visibleWorkbenchTasks,
+    workbenchTasks,
+  };
+}

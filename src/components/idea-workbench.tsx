@@ -354,8 +354,7 @@ import {
   type ImplementationStatusFilter,
 } from "@/lib/implementation-task-metadata";
 import {
-  buildWorkbenchTaskSummaries,
-  getVisibleWorkbenchTaskSummaries,
+  buildWorkbenchTaskNavigationState,
   getWorkbenchIdeaProgress,
   type WorkbenchTask,
 } from "@/lib/workbench-tasks";
@@ -1978,7 +1977,7 @@ export function IdeaWorkbench({
     () => buildWorkbenchIdeaVisibilityState(ideas, filterMode, getRecordAccessState),
     [filterMode, getRecordAccessState, ideas],
   );
-  const workbenchTasks = buildWorkbenchTaskSummaries({
+  const { visibleWorkbenchTasks, workbenchTasks } = buildWorkbenchTaskNavigationState({
     activeVisibleIdeaCount,
     artifactCount: selectedArtifactRecords.length,
     canEnterLaunch,
@@ -1994,8 +1993,8 @@ export function IdeaWorkbench({
     riskCount: selectedIdeaRisks.length,
     runCount: selectedRuns.length,
     telemetryEventCount: selectedTelemetryEvents.length,
+    experienceMode,
   });
-  const visibleWorkbenchTasks = getVisibleWorkbenchTaskSummaries(workbenchTasks, experienceMode);
   async function refreshSelectedIdeaImplementationTasks(options: { source?: "auto" | "manual" } = {}) {
     const isAutoRefresh = options.source === "auto";
 
