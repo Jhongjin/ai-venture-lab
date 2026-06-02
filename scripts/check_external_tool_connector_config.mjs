@@ -8,12 +8,29 @@ const {
   buildClaudeMcpConfigJson,
   buildCursorMcpConfigJson,
   buildCursorSyncConfigJson,
+  buildExternalToolConnectionCheckedMessage,
+  buildExternalToolConnectionCheckFailedMessage,
+  buildExternalToolConnectionCheckingMessage,
+  buildExternalToolConnectionRevokeFailedMessage,
+  buildExternalToolConnectionRevokeLoginRequiredMessage,
+  buildExternalToolConnectionRevokedMessage,
+  buildExternalToolConnectionRevokingMessage,
   buildExternalToolSyncConfigDraft,
 } = await import(moduleUrl);
 
 assert.match(buildCursorMcpConfigJson(), /\.cursor\/venture-lab-cli\.mjs/);
 assert.match(buildClaudeMcpConfigJson(), /\.claude\/venture-lab-cli\.mjs/);
 assert.match(buildAntigravityMcpConfigJson(), /\.antigravity\/venture-lab-cli\.mjs/);
+assert.equal(buildExternalToolConnectionCheckingMessage("Cursor"), "Cursor 연결 상태를 확인하는 중입니다...");
+assert.equal(buildExternalToolConnectionCheckFailedMessage("Cursor"), "Cursor 연결 상태를 확인하지 못했습니다.");
+assert.equal(buildExternalToolConnectionCheckedMessage("Cursor"), "Cursor 연결 상태를 확인했습니다.");
+assert.equal(buildExternalToolConnectionRevokeLoginRequiredMessage("Cursor"), "Cursor 연결을 끊으려면 먼저 로그인하세요.");
+assert.equal(buildExternalToolConnectionRevokingMessage("Cursor"), "Cursor 연결을 끊는 중입니다...");
+assert.equal(buildExternalToolConnectionRevokeFailedMessage("Cursor"), "Cursor 연결을 끊지 못했습니다.");
+assert.equal(
+  buildExternalToolConnectionRevokedMessage("Cursor"),
+  "Cursor 연결을 끊었습니다. 해당 연결 파일의 자동 반영은 더 이상 저장되지 않습니다.",
+);
 
 const syncConfig = JSON.parse(
   buildExternalToolSyncConfigDraft({

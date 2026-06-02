@@ -148,7 +148,16 @@ import {
   buildFinalExecutionPrimaryPackageAction,
 } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
-import { buildExternalToolSyncConfigDraft } from "@/lib/external-tool-connector-config";
+import {
+  buildExternalToolConnectionCheckedMessage,
+  buildExternalToolConnectionCheckingMessage,
+  buildExternalToolConnectionCheckFailedMessage,
+  buildExternalToolConnectionRevokeFailedMessage,
+  buildExternalToolConnectionRevokeLoginRequiredMessage,
+  buildExternalToolConnectionRevokedMessage,
+  buildExternalToolConnectionRevokingMessage,
+  buildExternalToolSyncConfigDraft,
+} from "@/lib/external-tool-connector-config";
 import { buildExternalToolPackageDrafts } from "@/lib/external-tool-package-drafts";
 import {
   buildAntigravitySetupDownloadConfig,
@@ -1923,7 +1932,7 @@ export function IdeaWorkbench({
     setIsCursorSyncConnectionLoading(true);
 
     if (!quiet) {
-      setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결 상태를 확인하는 중입니다...`);
+      setCursorSyncConnectionMessage(buildExternalToolConnectionCheckingMessage(activeExternalBuildTool.label));
     }
 
     try {
@@ -1931,7 +1940,7 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorSyncConnectionsResponse;
 
       if (!response.ok) {
-        throw new Error(payload.error || `${activeExternalBuildTool.label} 연결 상태를 확인하지 못했습니다.`);
+        throw new Error(payload.error || buildExternalToolConnectionCheckFailedMessage(activeExternalBuildTool.label));
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
@@ -1941,12 +1950,13 @@ export function IdeaWorkbench({
         setCursorSyncConnectionMessage(
           payload.message ??
             (payload.registryStatus === "ready"
-              ? `${activeExternalBuildTool.label} 연결 상태를 확인했습니다.`
+              ? buildExternalToolConnectionCheckedMessage(activeExternalBuildTool.label)
               : getExternalToolConnectionStatusFallbackMessage(activeExternalBuildTool.label)),
         );
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : `${activeExternalBuildTool.label} 연결 상태를 확인하지 못했습니다.`;
+      const errorMessage =
+        error instanceof Error ? error.message : buildExternalToolConnectionCheckFailedMessage(activeExternalBuildTool.label);
       setCursorSyncConnectionMessage(errorMessage);
     } finally {
       setIsCursorSyncConnectionLoading(false);
@@ -3515,12 +3525,12 @@ export function IdeaWorkbench({
 
   async function revokeCursorSyncConnection(connection: CursorSyncConnection) {
     if (!user) {
-      setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결을 끊으려면 먼저 로그인하세요.`);
+      setCursorSyncConnectionMessage(buildExternalToolConnectionRevokeLoginRequiredMessage(activeExternalBuildTool.label));
       return;
     }
 
     setRevokingCursorSyncConnectionId(connection.id);
-    setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결을 끊는 중입니다...`);
+    setCursorSyncConnectionMessage(buildExternalToolConnectionRevokingMessage(activeExternalBuildTool.label));
 
     try {
       const response = await fetch(`/api/build-sync/tokens/${encodeURIComponent(connection.id)}`, {
@@ -3529,13 +3539,14 @@ export function IdeaWorkbench({
       const payload = (await response.json().catch(() => ({}))) as CursorSyncConnectionRevokeResponse;
 
       if (!response.ok || !payload.connection) {
-        throw new Error(payload.error || `${activeExternalBuildTool.label} 연결을 끊지 못했습니다.`);
+        throw new Error(payload.error || buildExternalToolConnectionRevokeFailedMessage(activeExternalBuildTool.label));
       }
 
       setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
-      setCursorSyncConnectionMessage(`${activeExternalBuildTool.label} 연결을 끊었습니다. 해당 연결 파일의 자동 반영은 더 이상 저장되지 않습니다.`);
+      setCursorSyncConnectionMessage(buildExternalToolConnectionRevokedMessage(activeExternalBuildTool.label));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : `${activeExternalBuildTool.label} 연결을 끊지 못했습니다.`;
+      const errorMessage =
+        error instanceof Error ? error.message : buildExternalToolConnectionRevokeFailedMessage(activeExternalBuildTool.label);
       setCursorSyncConnectionMessage(errorMessage);
     } finally {
       setRevokingCursorSyncConnectionId(null);
