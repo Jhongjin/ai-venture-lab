@@ -28,6 +28,7 @@ const {
   upsertRecordById,
   upsertRecordsById,
   upsertWorkbenchIdea,
+  workbenchIdeaSelectionRequiredMessage,
   workbenchStorageConnectionRequiredMessage,
   workbenchStorageNotConfiguredMessage,
 } = await import(moduleUrl);
@@ -83,6 +84,7 @@ assert.equal(isDiscardedIdea(ideas[4]), true);
 assert.equal(isWorkbenchAdminRole("owner"), true);
 assert.equal(isWorkbenchAdminRole("admin"), true);
 assert.equal(isWorkbenchAdminRole("member"), false);
+assert.equal(workbenchIdeaSelectionRequiredMessage, "먼저 아이디어를 선택하세요.");
 assert.equal(workbenchStorageConnectionRequiredMessage, "저장 연결을 먼저 확인해 주세요.");
 assert.equal(workbenchStorageNotConfiguredMessage, "저장 연결이 설정되어 있지 않습니다.");
 assert.deepEqual(getIdeaDeletionRelatedTables(), [

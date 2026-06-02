@@ -76,6 +76,7 @@ import {
   upsertRecordsById,
   upsertWorkbenchIdea,
   type WorkbenchIdeaFilterMode,
+  workbenchIdeaSelectionRequiredMessage,
   workbenchStorageConnectionRequiredMessage,
   workbenchStorageNotConfiguredMessage,
 } from "@/lib/workbench-list-utils";
@@ -2237,7 +2238,7 @@ export function IdeaWorkbench({
 
     if (!supabase || !selectedIdea) {
       if (!isAutoRefresh) {
-        setMessage("먼저 아이디어를 선택하세요.");
+        setMessage(workbenchIdeaSelectionRequiredMessage);
       }
       return;
     }
@@ -2405,7 +2406,7 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!supabase || !selectedIdea || !editState) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -2475,7 +2476,7 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -2527,7 +2528,7 @@ export function IdeaWorkbench({
 
   async function recordDecision() {
     if (!supabase || !selectedIdea || !editState) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -2588,7 +2589,7 @@ export function IdeaWorkbench({
     options: { clearDraft?: boolean; source?: string; successMessage?: string } = {},
   ) {
     if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return false;
     }
 
@@ -2656,7 +2657,7 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -2703,7 +2704,7 @@ export function IdeaWorkbench({
 
   async function createRunbook() {
     if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -2969,7 +2970,7 @@ export function IdeaWorkbench({
     options: { version?: number; quiet?: boolean; statusNote?: string } = {},
   ) {
     if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return false;
     }
 
@@ -3031,7 +3032,7 @@ export function IdeaWorkbench({
 
   async function saveValidationPackageDrafts() {
     if (!selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -3123,7 +3124,7 @@ export function IdeaWorkbench({
 
   async function unlockSelectedIdeaBuildPass() {
     if (!selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -3179,7 +3180,7 @@ export function IdeaWorkbench({
 
   async function saveDevelopmentAutoPackage() {
     if (!selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -3261,7 +3262,7 @@ export function IdeaWorkbench({
 
   async function runAiExecutionAutopilot() {
     if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -3395,7 +3396,7 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -3549,7 +3550,7 @@ export function IdeaWorkbench({
 
   async function createImplementationTasks() {
     if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -3625,8 +3626,8 @@ export function IdeaWorkbench({
     setCursorProgressImportMessage(`${toolLabel} 진행 결과를 읽는 중입니다...`);
 
     if (!supabase || !selectedIdea) {
-      setCursorProgressImportMessage("먼저 아이디어를 선택하세요.");
-      setMessage("먼저 아이디어를 선택하세요.");
+      setCursorProgressImportMessage(workbenchIdeaSelectionRequiredMessage);
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -3761,7 +3762,7 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!supabase || !selectedIdea) {
-      setMessage("먼저 아이디어를 선택하세요.");
+      setMessage(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
@@ -4306,7 +4307,7 @@ export function IdeaWorkbench({
 
   async function runMarketScan() {
     if (!selectedIdea || !editState) {
-      setMarketScanError("먼저 아이디어를 선택하세요.");
+      setMarketScanError(workbenchIdeaSelectionRequiredMessage);
       return;
     }
 
