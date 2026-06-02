@@ -10,7 +10,14 @@ const {
   buildIdeaDecisionUpdatePatch,
   buildRiskInsertRow,
   buildRiskStatusUpdatePatch,
+  experimentResultGuideRows,
 } = await import(moduleUrl);
+
+assert.deepEqual(
+  experimentResultGuideRows.map((row) => row.title),
+  ["어떤 검증인가요", "검증 후 판단", "결과", "배운 점", "다음 행동"],
+);
+assert.equal(experimentResultGuideRows[1].detail, "결과를 보고 계속 진행할지, 더 조사할지, 전환/중단할지 고릅니다.");
 
 assert.deepEqual(
   buildRiskInsertRow({

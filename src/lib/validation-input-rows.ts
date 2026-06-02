@@ -24,6 +24,14 @@ export type IdeaDecisionUpdatePatch<Decision extends string> = {
   decision: Decision;
 };
 
+export const experimentResultGuideRows = [
+  { title: "어떤 검증인가요", detail: "결과를 남길 검증 계획을 고릅니다." },
+  { title: "검증 후 판단", detail: "결과를 보고 계속 진행할지, 더 조사할지, 전환/중단할지 고릅니다." },
+  { title: "결과", detail: "숫자, 사람 수, 반응처럼 실제 확인한 사실을 적습니다." },
+  { title: "배운 점", detail: "그 결과가 아이디어에 어떤 의미인지 정리합니다." },
+  { title: "다음 행동", detail: "바로 이어서 할 한 가지 행동을 적습니다." },
+] as const;
+
 export function buildRiskInsertRow<Severity extends string>({
   draft,
   ideaId,

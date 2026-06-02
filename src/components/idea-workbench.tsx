@@ -319,6 +319,7 @@ import {
   buildIdeaDecisionUpdatePatch,
   buildRiskInsertRow,
   buildRiskStatusUpdatePatch,
+  experimentResultGuideRows,
 } from "@/lib/validation-input-rows";
 import { buildValidationPackageSaveJobs } from "@/lib/validation-package-save-jobs";
 import {
@@ -7624,16 +7625,10 @@ export function IdeaWorkbench({
               </div>
             <div className="grid gap-4">
               <div className="grid gap-px bg-slate-200 md:grid-cols-5">
-                {[
-                  ["어떤 검증인가요", "결과를 남길 검증 계획을 고릅니다."],
-                  ["검증 후 판단", "결과를 보고 계속 진행할지, 더 조사할지, 전환/중단할지 고릅니다."],
-                  ["결과", "숫자, 사람 수, 반응처럼 실제 확인한 사실을 적습니다."],
-                  ["배운 점", "그 결과가 아이디어에 어떤 의미인지 정리합니다."],
-                  ["다음 행동", "바로 이어서 할 한 가지 행동을 적습니다."],
-                ].map(([title, detail]) => (
-                  <div key={title} className="bg-slate-50 px-3 py-3">
-                    <div className="text-xs font-semibold text-slate-950">{title}</div>
-                    <p className="mt-1 text-[11px] leading-5 text-slate-600">{detail}</p>
+                {experimentResultGuideRows.map((row) => (
+                  <div key={row.title} className="bg-slate-50 px-3 py-3">
+                    <div className="text-xs font-semibold text-slate-950">{row.title}</div>
+                    <p className="mt-1 text-[11px] leading-5 text-slate-600">{row.detail}</p>
                   </div>
                 ))}
               </div>
