@@ -208,11 +208,7 @@ import {
   normalizeMarketScanDraft,
   type MarketScanDraft,
 } from "@/lib/market-scan";
-import {
-  getWorkbenchOperatorActionItems,
-  getWorkbenchOperatorFocusCopy,
-  getWorkbenchOperatorGateNote,
-} from "@/lib/workbench-current-action-copy";
+import { buildWorkbenchCurrentActionDisplayState } from "@/lib/workbench-current-action-copy";
 import {
   buildWorkbenchGateReadinessState,
   buildWorkbenchStepReadinessSnapshot,
@@ -2144,9 +2140,7 @@ export function IdeaWorkbench({
     );
   }
 
-  const activeTaskMeta = workbenchTasks.find((task) => task.id === activeTask) ?? workbenchTasks[0];
-  const selectedIdeaProgress = getWorkbenchIdeaProgress(selectedIdea);
-  const operatorFocus = getWorkbenchOperatorFocusCopy({
+  const workbenchCurrentActionDisplayState = buildWorkbenchCurrentActionDisplayState({
     activeTask,
     isDiscardedIdea: isDiscardedIdea(selectedIdea),
     isScoreEvaluationSaved,
@@ -2156,9 +2150,9 @@ export function IdeaWorkbench({
     hasSavedDevelopmentAutoPackage,
     canEnterLaunch,
     nextLaunchBlocker,
+    selectedIdea,
+    workbenchTasks,
   });
-  const operatorFocusActionItems = getWorkbenchOperatorActionItems(activeTask);
-  const operatorFocusGateNote = getWorkbenchOperatorGateNote(activeTask);
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -4266,13 +4260,8 @@ export function IdeaWorkbench({
 
       <div className="grid min-w-0 gap-6">
         <WorkbenchCurrentAction
-          actionItems={operatorFocusActionItems}
-          activeTaskLabel={activeTaskMeta.label}
-          detail={operatorFocus.detail}
-          gateNote={operatorFocusGateNote}
+          {...workbenchCurrentActionDisplayState}
           productSurfaceLabel={activeProductSurface.label}
-          progressLabel={selectedIdeaProgress.label}
-          title={operatorFocus.title}
         />
 
         <div

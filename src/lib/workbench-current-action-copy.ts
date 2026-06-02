@@ -1,4 +1,9 @@
-import type { WorkbenchTask } from "@/lib/workbench-tasks";
+import type { DecisionStatus, IdeaStage } from "@/lib/supabase/types";
+import {
+  getWorkbenchIdeaProgress,
+  type WorkbenchTask,
+  type WorkbenchTaskSummary,
+} from "@/lib/workbench-tasks";
 
 type WorkbenchOperatorFocusInput = {
   activeTask: WorkbenchTask;
@@ -16,6 +21,55 @@ type WorkbenchOperatorFocusCopy = {
   title: string;
   detail: string;
 };
+
+export type WorkbenchCurrentActionDisplayState = {
+  actionItems: string[];
+  activeTaskLabel: string;
+  detail: string;
+  gateNote: string;
+  progressLabel: string;
+  title: string;
+};
+
+export function buildWorkbenchCurrentActionDisplayState({
+  activeTask,
+  canEnterLaunch,
+  hasMarketScanArtifact,
+  hasOutdatedMarketScanArtifact,
+  hasSavedDevelopmentAutoPackage,
+  isDiscardedIdea,
+  isScoreEvaluationSaved,
+  isValidationBundleSaved,
+  nextLaunchBlocker,
+  selectedIdea,
+  workbenchTasks,
+}: WorkbenchOperatorFocusInput & {
+  selectedIdea: { decision: DecisionStatus; stage: IdeaStage };
+  workbenchTasks: ReadonlyArray<WorkbenchTaskSummary>;
+}): WorkbenchCurrentActionDisplayState {
+  const activeTaskMeta = workbenchTasks.find((task) => task.id === activeTask) ?? workbenchTasks[0];
+  const operatorFocus = getWorkbenchOperatorFocusCopy({
+    activeTask,
+    canEnterLaunch,
+    hasMarketScanArtifact,
+    hasOutdatedMarketScanArtifact,
+    hasSavedDevelopmentAutoPackage,
+    isDiscardedIdea,
+    isScoreEvaluationSaved,
+    isValidationBundleSaved,
+    nextLaunchBlocker,
+  });
+  const selectedIdeaProgress = getWorkbenchIdeaProgress(selectedIdea);
+
+  return {
+    actionItems: getWorkbenchOperatorActionItems(activeTask),
+    activeTaskLabel: activeTaskMeta?.label ?? "현재 단계",
+    detail: operatorFocus.detail,
+    gateNote: getWorkbenchOperatorGateNote(activeTask),
+    progressLabel: selectedIdeaProgress.label,
+    title: operatorFocus.title,
+  };
+}
 
 export function getWorkbenchOperatorFocusCopy({
   activeTask,

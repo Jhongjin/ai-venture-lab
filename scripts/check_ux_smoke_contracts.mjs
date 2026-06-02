@@ -40,9 +40,7 @@ const contracts = [
   {
     file: "src/components/idea-workbench.tsx",
     tokens: [
-      "getWorkbenchOperatorFocusCopy",
-      "getWorkbenchOperatorActionItems",
-      "getWorkbenchOperatorGateNote",
+      "buildWorkbenchCurrentActionDisplayState",
       "getPublicMarketScanSources",
       "Claude Code 연결 파일을 준비했습니다. 연결 도구 또는 record-progress 명령",
       'data-smoke="market-scan-source-boundary"',
@@ -70,6 +68,7 @@ const contracts = [
   {
     file: "src/lib/workbench-current-action-copy.ts",
     tokens: [
+      "buildWorkbenchCurrentActionDisplayState",
       "결과물 형태 확인",
       "검증 계획 확인",
       "제작 패키지 저장",
