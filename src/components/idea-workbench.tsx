@@ -52,6 +52,7 @@ import { buildAgentRunPackageMarkdown } from "@/lib/agent-run-package-markdown";
 import { buildAppDevelopmentPlanMarkdown } from "@/lib/app-development-plan-markdown";
 import { buildAppBlueprintMarkdown } from "@/lib/app-blueprint-markdown";
 import { buildBackendDecisionMarkdown, buildBackendExecutionPlanMarkdown } from "@/lib/backend-decision-markdown";
+import { buildBackendExecutionPlanSummaryRows } from "@/lib/backend-execution-plan-rows";
 import { buildBackendCandidateScores, buildBackendExecutionPlan } from "@/lib/backend-planning";
 import {
   buildDiscardIdeaPatch,
@@ -1613,6 +1614,9 @@ export function IdeaWorkbench({
         plan: backendExecutionPlan,
       })
     : "";
+  const backendExecutionPlanSummaryRows = backendExecutionPlan
+    ? buildBackendExecutionPlanSummaryRows(backendExecutionPlan)
+    : [];
   const designBriefDraft = selectedIdea && editState
     ? buildDesignBriefMarkdown({
         idea: selectedIdea,
@@ -5450,14 +5454,10 @@ export function IdeaWorkbench({
                 </div>
 
                 <div className="mt-3 grid gap-3 lg:grid-cols-3">
-                  {[
-                    ["로컬 검증", backendExecutionPlan.localCommand],
-                    ["프로덕션 점검", backendExecutionPlan.productionGate],
-                    ["롤백 기준", backendExecutionPlan.rollback],
-                  ].map(([label, detail]) => (
-                    <div key={label} className="avl-surface-muted p-3">
-                      <div className="text-sm font-semibold text-slate-950">{label}</div>
-                      <p className="mt-1 text-sm leading-6 text-slate-600">{detail}</p>
+                  {backendExecutionPlanSummaryRows.map((row) => (
+                    <div key={row.label} className="avl-surface-muted p-3">
+                      <div className="text-sm font-semibold text-slate-950">{row.label}</div>
+                      <p className="mt-1 text-sm leading-6 text-slate-600">{row.detail}</p>
                     </div>
                   ))}
                 </div>
