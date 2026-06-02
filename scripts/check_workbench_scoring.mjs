@@ -20,6 +20,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildWorkbenchScoringSavePatch,
+  isWorkbenchScoreEvaluationSaved,
   missingEvidence,
   recommendationForScore,
   saveDecisionForScore,
@@ -71,6 +72,37 @@ assert.equal(savePatch.decision, "ship");
 assert.equal(savePatch.product_surface, "automation");
 assert.equal(savePatch.problem_intensity, 5);
 assert.equal(savePatch.regulatory_risk, 1);
+const savedIdea = { ...idea, ...savePatch };
+assert.equal(
+  isWorkbenchScoreEvaluationSaved({
+    hasReachedScoreStage: true,
+    idea: savedIdea,
+    saveDecision: "ship",
+    savedState: toWorkbenchEditState(savedIdea),
+    state: savePatch,
+  }),
+  true,
+);
+assert.equal(
+  isWorkbenchScoreEvaluationSaved({
+    hasReachedScoreStage: false,
+    idea: savedIdea,
+    saveDecision: "ship",
+    savedState: toWorkbenchEditState(savedIdea),
+    state: savePatch,
+  }),
+  false,
+);
+assert.equal(
+  isWorkbenchScoreEvaluationSaved({
+    hasReachedScoreStage: true,
+    idea: savedIdea,
+    saveDecision: "ship",
+    savedState: toWorkbenchEditState(savedIdea),
+    state: { ...savePatch, signal: "새 신호" },
+  }),
+  false,
+);
 
 assert.deepEqual(missingEvidence({ ...idea, one_liner: "", buyer: "" }, { ...editState, signal: "", next_evidence: "" }, 0), [
   "한 줄 설명",

@@ -89,6 +89,7 @@ import {
 } from "@/lib/workbench-list-utils";
 import {
   buildWorkbenchScoringSavePatch,
+  isWorkbenchScoreEvaluationSaved,
   missingEvidence,
   recommendationForScore,
   saveDecisionForScore,
@@ -1252,24 +1253,13 @@ export function IdeaWorkbench({
     externalToolLabel: activeExternalBuildTool.label,
   });
   const hasReachedScoreStage = selectedIdea ? isIdeaStageAtOrAfter(selectedIdea.stage, "score") : false;
-  const isScoreEvaluationSaved = Boolean(
-    selectedIdea &&
-      editState &&
-      savedEditState &&
-      hasReachedScoreStage &&
-      selectedIdea.decision === scoreSaveDecision &&
-      selectedIdea.problem_intensity === editState.problem_intensity &&
-      selectedIdea.frequency === editState.frequency &&
-      selectedIdea.reachability === editState.reachability &&
-      selectedIdea.willingness_to_pay === editState.willingness_to_pay &&
-      selectedIdea.mvp_speed === editState.mvp_speed &&
-      selectedIdea.differentiation === editState.differentiation &&
-      selectedIdea.regulatory_risk === editState.regulatory_risk &&
-      selectedIdea.signal === editState.signal &&
-      selectedIdea.risk_summary === editState.risk_summary &&
-      selectedIdea.next_evidence === editState.next_evidence &&
-      savedEditState.product_surface === editState.product_surface,
-  );
+  const isScoreEvaluationSaved = isWorkbenchScoreEvaluationSaved({
+    hasReachedScoreStage,
+    idea: selectedIdea,
+    saveDecision: scoreSaveDecision,
+    savedState: savedEditState,
+    state: editState,
+  });
   const missing =
     selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedIdeaRisks.length) : [];
   const validationPlan = selectedIdea && editState

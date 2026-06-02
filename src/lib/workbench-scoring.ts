@@ -86,6 +86,39 @@ export function buildWorkbenchScoringSavePatch({
   };
 }
 
+export function isWorkbenchScoreEvaluationSaved({
+  hasReachedScoreStage,
+  idea,
+  saveDecision,
+  savedState,
+  state,
+}: {
+  hasReachedScoreStage: boolean;
+  idea: Idea | null;
+  saveDecision: DecisionStatus;
+  savedState: WorkbenchEditState | null;
+  state: WorkbenchEditState | null;
+}) {
+  return Boolean(
+    idea &&
+      state &&
+      savedState &&
+      hasReachedScoreStage &&
+      idea.decision === saveDecision &&
+      idea.problem_intensity === state.problem_intensity &&
+      idea.frequency === state.frequency &&
+      idea.reachability === state.reachability &&
+      idea.willingness_to_pay === state.willingness_to_pay &&
+      idea.mvp_speed === state.mvp_speed &&
+      idea.differentiation === state.differentiation &&
+      idea.regulatory_risk === state.regulatory_risk &&
+      idea.signal === state.signal &&
+      idea.risk_summary === state.risk_summary &&
+      idea.next_evidence === state.next_evidence &&
+      savedState.product_surface === state.product_surface,
+  );
+}
+
 export function missingEvidence(idea: Idea, state: WorkbenchEditState, riskCount: number) {
   const missing = [];
 
