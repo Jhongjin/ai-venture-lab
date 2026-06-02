@@ -36,8 +36,24 @@ export function buildImplementationTasksCreatedMessage(taskCount: number) {
   return `${taskCount}개의 제작 할 일을 만들었습니다.`;
 }
 
+export function buildImplementationTasksCreateLoginRequiredMessage() {
+  return "제작 할 일을 만들려면 먼저 로그인하세요.";
+}
+
+export function buildImplementationTasksAlreadyExistMessage() {
+  return "이 아이디어에는 이미 기본 제작 할 일이 있습니다.";
+}
+
 export function buildManualImplementationTaskCreatedMessage() {
   return "제작 할 일을 추가했습니다.";
+}
+
+export function buildManualImplementationTaskLoginRequiredMessage() {
+  return "제작 할 일을 추가하려면 먼저 로그인하세요.";
+}
+
+export function buildManualImplementationTaskTitleRequiredMessage() {
+  return "제작 할 일 제목은 필수입니다.";
 }
 
 export function buildImplementationTaskStatusChangedMessage({
@@ -50,8 +66,16 @@ export function buildImplementationTaskStatusChangedMessage({
   return `${taskTitle} 상태를 ${statusLabel}(으)로 변경했습니다.`;
 }
 
+export function buildImplementationTaskStatusUpdatePermissionDeniedMessage() {
+  return "제작 할 일 작성자 또는 협업 공간 관리자만 이 할 일을 수정할 수 있습니다.";
+}
+
 export function buildImplementationTaskEvidenceSavedMessage() {
   return "제작 할 일 근거를 저장했습니다.";
+}
+
+export function buildImplementationTaskEvidenceSavePermissionDeniedMessage() {
+  return "제작 할 일 작성자 또는 협업 공간 관리자만 이 근거를 저장할 수 있습니다.";
 }
 
 function normalizeImplementationTaskTitle(value: string) {

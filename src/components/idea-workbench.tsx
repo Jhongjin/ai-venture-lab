@@ -305,14 +305,20 @@ import {
   buildImplementationHandoffDraftState,
 } from "@/lib/implementation-handoff-drafts";
 import {
+  buildImplementationTaskEvidenceSavePermissionDeniedMessage,
   buildImplementationTaskEvidenceSavedMessage,
   buildImplementationTaskEvidencePatch,
   buildImplementationTaskInsertRows,
   buildImplementationTaskStatusPatch,
   buildImplementationTaskStatusChangedMessage,
+  buildImplementationTaskStatusUpdatePermissionDeniedMessage,
+  buildImplementationTasksAlreadyExistMessage,
+  buildImplementationTasksCreateLoginRequiredMessage,
   buildImplementationTasksCreatedMessage,
   buildManualImplementationTaskCreatedMessage,
   buildManualImplementationTaskInsertRow,
+  buildManualImplementationTaskLoginRequiredMessage,
+  buildManualImplementationTaskTitleRequiredMessage,
   getImplementationTaskTableErrorMessage,
   getMissingImplementationTaskDrafts,
 } from "@/lib/implementation-task-rows";
@@ -3150,7 +3156,7 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("제작 할 일을 만들려면 먼저 로그인하세요.");
+      setMessage(buildImplementationTasksCreateLoginRequiredMessage());
       return;
     }
 
@@ -3160,7 +3166,7 @@ export function IdeaWorkbench({
     });
 
     if (missingDrafts.length === 0) {
-      setMessage("이 아이디어에는 이미 기본 제작 할 일이 있습니다.");
+      setMessage(buildImplementationTasksAlreadyExistMessage());
       return;
     }
 
@@ -3368,12 +3374,12 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("제작 할 일을 추가하려면 먼저 로그인하세요.");
+      setMessage(buildManualImplementationTaskLoginRequiredMessage());
       return;
     }
 
     if (!implementationTaskDraft.title.trim()) {
-      setMessage("태스크 제목은 필수입니다.");
+      setMessage(buildManualImplementationTaskTitleRequiredMessage());
       return;
     }
 
@@ -3422,7 +3428,7 @@ export function IdeaWorkbench({
     }
 
     if (!canManageRecord(task)) {
-      setMessage("태스크 작성자 또는 워크스페이스 관리자만 이 태스크를 수정할 수 있습니다.");
+      setMessage(buildImplementationTaskStatusUpdatePermissionDeniedMessage());
       return;
     }
 
@@ -3468,7 +3474,7 @@ export function IdeaWorkbench({
     }
 
     if (!canManageRecord(task)) {
-      setMessage("태스크 작성자 또는 워크스페이스 관리자만 이 증거를 저장할 수 있습니다.");
+      setMessage(buildImplementationTaskEvidenceSavePermissionDeniedMessage());
       return;
     }
 
