@@ -4225,15 +4225,6 @@ export function IdeaWorkbench({
     );
   }
 
-  async function copyLaunchChecklistDraft() {
-    if (!launchChecklistDraft) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(launchChecklistDraft);
-    setCopyMessage("출시 체크리스트를 클립보드에 복사했습니다.");
-  }
-
   async function saveRecommendedExperiment(suggestion: ExperimentDraft) {
     await createExperimentFromDraft(suggestion, {
       source: "ai_recommended",
@@ -8144,7 +8135,7 @@ export function IdeaWorkbench({
             body={launchChecklistDraft}
             rows={16}
             copyLabel="체크리스트 복사"
-            onCopy={copyLaunchChecklistDraft}
+            onCopy={() => copyDraft(launchChecklistDraft, "출시 체크리스트")}
             onSave={() =>
               saveArtifactDraft(
                 "launch_checklist",
