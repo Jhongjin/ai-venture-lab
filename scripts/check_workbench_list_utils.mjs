@@ -8,6 +8,7 @@ const {
   appendRecords,
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchIdeaRemovalCompletionState,
   buildWorkbenchIdeaVisibilityState,
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
@@ -202,6 +203,51 @@ assert.deepEqual(
     selectedIdeaId: "owned-new",
   }),
   { isRemovingSelectedIdea: true, nextSelectedIdea: ideas[2] },
+);
+assert.deepEqual(
+  buildWorkbenchIdeaRemovalCompletionState({
+    ideaName: "AI Venture Lab",
+    isRemovingSelectedIdea: true,
+    nextSelectedIdea: ideas[2],
+    remainingIdeaCount: 2,
+  }),
+  {
+    message: "\"AI Venture Lab\" 아이디어를 완전히 삭제했고, 다음 아이디어로 이동했습니다.",
+    nextTask: "score",
+  },
+);
+assert.deepEqual(
+  buildWorkbenchIdeaRemovalCompletionState({
+    ideaName: "AI Venture Lab",
+    isRemovingSelectedIdea: false,
+    nextSelectedIdea: ideas[2],
+    remainingIdeaCount: 2,
+  }),
+  {
+    message: "\"AI Venture Lab\" 아이디어를 완전히 삭제했고, 다음 아이디어로 이동했습니다.",
+    nextTask: null,
+  },
+);
+assert.deepEqual(
+  buildWorkbenchIdeaRemovalCompletionState({
+    ideaName: "AI Venture Lab",
+    isRemovingSelectedIdea: true,
+    nextSelectedIdea: null,
+    remainingIdeaCount: 1,
+  }),
+  {
+    message: "\"AI Venture Lab\" 아이디어를 완전히 삭제했습니다.",
+    nextTask: "archive",
+  },
+);
+assert.equal(
+  buildWorkbenchIdeaRemovalCompletionState({
+    ideaName: "AI Venture Lab",
+    isRemovingSelectedIdea: true,
+    nextSelectedIdea: null,
+    remainingIdeaCount: 0,
+  }).nextTask,
+  "select",
 );
 
 assert.deepEqual(

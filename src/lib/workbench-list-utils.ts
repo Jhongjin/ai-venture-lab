@@ -234,6 +234,30 @@ export function getWorkbenchIdeaRemovalSelectionState({
   return { isRemovingSelectedIdea, nextSelectedIdea };
 }
 
+export function buildWorkbenchIdeaRemovalCompletionState({
+  ideaName,
+  isRemovingSelectedIdea,
+  nextSelectedIdea,
+  remainingIdeaCount,
+}: {
+  ideaName: string;
+  isRemovingSelectedIdea: boolean;
+  nextSelectedIdea: Idea | null;
+  remainingIdeaCount: number;
+}): { message: string; nextTask: WorkbenchTask | null } {
+  if (nextSelectedIdea) {
+    return {
+      message: `"${ideaName}" 아이디어를 완전히 삭제했고, 다음 아이디어로 이동했습니다.`,
+      nextTask: isRemovingSelectedIdea ? "score" : null,
+    };
+  }
+
+  return {
+    message: `"${ideaName}" 아이디어를 완전히 삭제했습니다.`,
+    nextTask: remainingIdeaCount > 0 ? "archive" : "select",
+  };
+}
+
 export function filterVisibleWorkbenchIdeas(
   nextIdeas: Idea[],
   filterMode: WorkbenchIdeaFilterMode,

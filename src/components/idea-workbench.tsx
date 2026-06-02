@@ -47,6 +47,7 @@ import { buildExecutionPackageDraftState } from "@/lib/execution-package-drafts"
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchIdeaRemovalCompletionState,
   buildWorkbenchIdeaVisibilityState,
   canManageWorkbenchRecord,
   appendRecord,
@@ -1138,15 +1139,17 @@ export function IdeaWorkbench({
     setEditState(nextSelectedIdea ? toEditState(nextSelectedIdea) : null);
     setIsBusy(false);
 
-    if (nextSelectedIdea) {
-      if (deletingSelectedIdea) {
-        updateActiveTask("score");
-      }
-      setMessage(`"${idea.name}" 아이디어를 완전히 삭제했고, 다음 아이디어로 이동했습니다.`);
-    } else {
-      updateActiveTask(remainingIdeas.length > 0 ? "archive" : "select");
-      setMessage(`"${idea.name}" 아이디어를 완전히 삭제했습니다.`);
+    const removalCompletionState = buildWorkbenchIdeaRemovalCompletionState({
+      ideaName: idea.name,
+      isRemovingSelectedIdea: deletingSelectedIdea,
+      nextSelectedIdea,
+      remainingIdeaCount: remainingIdeas.length,
+    });
+
+    if (removalCompletionState.nextTask) {
+      updateActiveTask(removalCompletionState.nextTask);
     }
+    setMessage(removalCompletionState.message);
 
     router.refresh();
   }
