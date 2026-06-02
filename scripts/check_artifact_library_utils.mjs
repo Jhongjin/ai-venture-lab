@@ -21,6 +21,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const { artifactStatusOptions, artifactTypeOptions } = await import(artifactLabelsUrl);
 const {
   buildArtifactDraftInsertRow,
+  buildArtifactLibraryViewState,
   buildArtifactReadinessFlags,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
@@ -281,6 +282,21 @@ assert.deepEqual(
 
 assert.deepEqual(
   getRecentDevelopmentHandoffArtifacts(artifacts).map((item) => item.id),
+  ["handoff-filtered", "handoff-process"],
+);
+
+const libraryViewState = buildArtifactLibraryViewState({
+  artifacts,
+  sourceFilter: "stale-source",
+  statusFilter: "draft",
+  typeFilter: "prd",
+});
+assert.equal(libraryViewState.activeArtifactSourceFilter, "all");
+assert.deepEqual(libraryViewState.artifactSourceOptions, sourceOptions);
+assert.equal(libraryViewState.artifactSourceFilterLabels.manual, "수동");
+assert.deepEqual(libraryViewState.selectedArtifacts.map((item) => item.id), ["manual-prd"]);
+assert.deepEqual(
+  libraryViewState.recentDevelopmentHandoffArtifacts.map((item) => item.id),
   ["handoff-filtered", "handoff-process"],
 );
 assert.equal(getNextArtifactVersion(artifacts, "prd"), 2);

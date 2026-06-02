@@ -155,6 +155,34 @@ export function getRecentDevelopmentHandoffArtifacts(artifacts: VentureArtifact[
     .slice(0, limit);
 }
 
+export function buildArtifactLibraryViewState({
+  artifacts,
+  sourceFilter,
+  statusFilter,
+  typeFilter,
+}: {
+  artifacts: VentureArtifact[];
+  sourceFilter: string;
+  statusFilter: ArtifactStatusFilter;
+  typeFilter: ArtifactTypeFilter;
+}) {
+  const artifactSourceOptions = buildArtifactSourceOptions(artifacts);
+  const activeArtifactSourceFilter = resolveArtifactSourceFilter(artifactSourceOptions, sourceFilter);
+
+  return {
+    activeArtifactSourceFilter,
+    artifactSourceFilterLabels: buildArtifactSourceFilterLabels(artifactSourceOptions),
+    artifactSourceOptions,
+    recentDevelopmentHandoffArtifacts: getRecentDevelopmentHandoffArtifacts(artifacts),
+    selectedArtifacts: filterArtifactLibrary({
+      artifacts,
+      sourceFilter: activeArtifactSourceFilter,
+      statusFilter,
+      typeFilter,
+    }),
+  };
+}
+
 export function getNextArtifactVersion(artifacts: ReadonlyArray<VentureArtifact>, artifactType: VentureArtifactType) {
   return (
     Math.max(

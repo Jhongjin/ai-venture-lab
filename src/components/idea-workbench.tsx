@@ -39,14 +39,10 @@ import {
 } from "@/lib/artifact-review-summary";
 import {
   buildArtifactDraftInsertRow,
+  buildArtifactLibraryViewState,
   buildArtifactReadinessFlags,
-  buildArtifactSourceFilterLabels,
-  buildArtifactSourceOptions,
   buildArtifactStatusUpdatePatch,
-  filterArtifactLibrary,
   getNextArtifactVersion,
-  getRecentDevelopmentHandoffArtifacts,
-  resolveArtifactSourceFilter,
 } from "@/lib/artifact-library-utils";
 import { buildAgentRunPackageMarkdown } from "@/lib/agent-run-package-markdown";
 import { buildAppDevelopmentPlanMarkdown } from "@/lib/app-development-plan-markdown";
@@ -907,28 +903,21 @@ export function IdeaWorkbench({
   const approvedArtifactReviewCount = artifactReviewProgressState.approvedCount;
   const nextArtifactReviewItem = artifactReviewProgressState.nextItem;
   const artifactReviewProgress = artifactReviewProgressState.progress;
-  const artifactSourceOptions = useMemo(
-    () => buildArtifactSourceOptions(selectedArtifactRecords),
-    [selectedArtifactRecords],
-  );
-  const artifactSourceFilterLabels = useMemo(
-    () => buildArtifactSourceFilterLabels(artifactSourceOptions),
-    [artifactSourceOptions],
-  );
-  const activeArtifactSourceFilter = resolveArtifactSourceFilter(artifactSourceOptions, artifactSourceFilter);
-  const selectedArtifacts = useMemo(
+  const {
+    activeArtifactSourceFilter,
+    artifactSourceFilterLabels,
+    artifactSourceOptions,
+    recentDevelopmentHandoffArtifacts,
+    selectedArtifacts,
+  } = useMemo(
     () =>
-      filterArtifactLibrary({
+      buildArtifactLibraryViewState({
         artifacts: selectedArtifactRecords,
-        sourceFilter: activeArtifactSourceFilter,
+        sourceFilter: artifactSourceFilter,
         statusFilter: artifactStatusFilter,
         typeFilter: artifactTypeFilter,
       }),
-    [activeArtifactSourceFilter, artifactStatusFilter, artifactTypeFilter, selectedArtifactRecords],
-  );
-  const recentDevelopmentHandoffArtifacts = useMemo(
-    () => getRecentDevelopmentHandoffArtifacts(selectedArtifactRecords),
-    [selectedArtifactRecords],
+    [artifactSourceFilter, artifactStatusFilter, artifactTypeFilter, selectedArtifactRecords],
   );
   const firstImplementationTask = selectedImplementationTasks[0] ?? null;
   const hasGeneratedWorkOrder = selectedRuns.length > 0 || selectedImplementationTasks.length > 0;
