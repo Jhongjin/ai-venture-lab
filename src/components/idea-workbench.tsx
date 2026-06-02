@@ -355,17 +355,9 @@ import { buildDevelopmentKickoffMarkdown } from "@/lib/development-kickoff-markd
 import { buildImplementationHandoffMarkdown } from "@/lib/implementation-handoff-markdown";
 import { buildDevelopmentCompletionReportMarkdown } from "@/lib/development-completion-report";
 import {
-  buildBlockedImplementationSummaries,
-  buildImplementationEvidenceSummaries,
-  buildImplementationTaskBoardColumns,
   buildImplementationTaskRefreshSummary,
-  buildImplementationOwnerFilterLabels,
-  buildImplementationOwnerOptions,
-  filterImplementationTasks,
+  buildImplementationTaskReviewState,
   getCompletedImplementationTasksWithEvidence,
-  getImplementationEvidenceIssues,
-  getVisibleImplementationTaskStatuses,
-  resolveImplementationOwnerFilter,
   selectAgentRunPackageTasks,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
@@ -1045,61 +1037,25 @@ export function IdeaWorkbench({
         statuses: implementationDependencyStatuses,
       })
     : "";
-  const implementationEvidenceSummaries = useMemo(
+  const {
+    activeImplementationOwnerFilter,
+    blockedImplementationSummaries,
+    filteredImplementationTasks,
+    implementationEvidenceIssues,
+    implementationEvidenceSummaries,
+    implementationOwnerFilterLabels,
+    implementationOwnerOptions,
+    implementationTaskBoardColumns,
+  } = useMemo(
     () =>
-      buildImplementationEvidenceSummaries({
-        evidenceByTaskId: implementationTaskEvidence,
-        tasks: selectedImplementationTasks,
-      }),
-    [implementationTaskEvidence, selectedImplementationTasks],
-  );
-  const implementationEvidenceIssues = getImplementationEvidenceIssues(implementationEvidenceSummaries);
-  const blockedImplementationSummaries = useMemo(
-    () =>
-      buildBlockedImplementationSummaries({
-        evidenceByTaskId: implementationTaskEvidence,
-        tasks: selectedImplementationTasks,
-      }),
-    [implementationTaskEvidence, selectedImplementationTasks],
-  );
-  const implementationOwnerOptions = useMemo(
-    () => buildImplementationOwnerOptions(selectedImplementationTasks),
-    [selectedImplementationTasks],
-  );
-  const implementationOwnerFilterLabels = useMemo(
-    () => buildImplementationOwnerFilterLabels(implementationOwnerOptions),
-    [implementationOwnerOptions],
-  );
-  const activeImplementationOwnerFilter = resolveImplementationOwnerFilter(implementationOwnerOptions, implementationOwnerFilter);
-  const filteredImplementationTasks = useMemo(
-    () =>
-      filterImplementationTasks({
+      buildImplementationTaskReviewState({
         evidenceByTaskId: implementationTaskEvidence,
         evidenceFilter: implementationEvidenceFilter,
-        ownerFilter: activeImplementationOwnerFilter,
+        ownerFilter: implementationOwnerFilter,
         statusFilter: implementationStatusFilter,
         tasks: selectedImplementationTasks,
       }),
-    [
-      activeImplementationOwnerFilter,
-      implementationEvidenceFilter,
-      implementationTaskEvidence,
-      implementationStatusFilter,
-      selectedImplementationTasks,
-    ],
-  );
-  const visibleImplementationStatuses = useMemo(
-    () => getVisibleImplementationTaskStatuses(implementationStatusFilter),
-    [implementationStatusFilter],
-  );
-  const implementationTaskBoardColumns = useMemo(
-    () =>
-      buildImplementationTaskBoardColumns({
-        evidenceByTaskId: implementationTaskEvidence,
-        statuses: visibleImplementationStatuses,
-        tasks: filteredImplementationTasks,
-      }),
-    [filteredImplementationTasks, implementationTaskEvidence, visibleImplementationStatuses],
+    [implementationEvidenceFilter, implementationOwnerFilter, implementationStatusFilter, implementationTaskEvidence, selectedImplementationTasks],
   );
 
   const artifactVersionSummaries = useMemo(

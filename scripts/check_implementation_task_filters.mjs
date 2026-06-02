@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation
 const {
   buildImplementationOwnerFilterLabels,
   buildImplementationOwnerOptions,
+  buildImplementationTaskReviewState,
   buildImplementationTaskRefreshSummary,
   filterImplementationTasks,
   getOpenImplementationTasksForAction,
@@ -151,5 +152,30 @@ const emptySummary = buildImplementationTaskRefreshSummary([]);
 assert.equal(emptySummary.doneCount, 0);
 assert.equal(emptySummary.nextTask, null);
 assert.equal(emptySummary.message, "작업 상태 0개를 확인했습니다. 완료 0/0.");
+
+const reviewState = buildImplementationTaskReviewState({
+  evidenceByTaskId: {
+    "task-frontend": "commit abc pnpm smoke 저장 로딩",
+  },
+  evidenceFilter: "complete",
+  ownerFilter: "frontend",
+  statusFilter: "all",
+  tasks,
+});
+assert.deepEqual(reviewState.implementationOwnerOptions, ["all", "backend", "frontend", "owner 미정"]);
+assert.equal(reviewState.activeImplementationOwnerFilter, "frontend");
+assert.deepEqual(reviewState.filteredImplementationTasks.map((item) => item.id), ["task-frontend", "task-design"]);
+assert.deepEqual(reviewState.visibleImplementationStatuses, ["todo", "doing", "blocked", "done"]);
+assert.deepEqual(
+  reviewState.implementationTaskBoardColumns.map((column) => [column.status, column.taskSummaries.length]),
+  [
+    ["todo", 1],
+    ["doing", 0],
+    ["blocked", 0],
+    ["done", 1],
+  ],
+);
+assert.equal(reviewState.implementationEvidenceIssues.some((summary) => summary.task.id === "task-frontend"), false);
+assert.deepEqual(reviewState.blockedImplementationSummaries.map((summary) => summary.task.id), ["task-qa"]);
 
 console.log("Implementation task filters smoke passed.");

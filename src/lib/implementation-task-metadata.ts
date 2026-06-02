@@ -450,6 +450,66 @@ export function buildImplementationTaskBoardColumns({
   }));
 }
 
+export type ImplementationTaskReviewState = {
+  activeImplementationOwnerFilter: string;
+  blockedImplementationSummaries: BlockedImplementationSummary[];
+  filteredImplementationTasks: ImplementationTask[];
+  implementationEvidenceIssues: ImplementationEvidenceSummary[];
+  implementationEvidenceSummaries: ImplementationEvidenceSummary[];
+  implementationOwnerFilterLabels: Record<string, string>;
+  implementationOwnerOptions: string[];
+  implementationTaskBoardColumns: ImplementationTaskBoardColumn[];
+  visibleImplementationStatuses: ImplementationTaskStatus[];
+};
+
+export function buildImplementationTaskReviewState({
+  evidenceByTaskId,
+  evidenceFilter,
+  ownerFilter,
+  statusFilter,
+  tasks,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  evidenceFilter: ImplementationEvidenceFilter;
+  ownerFilter: string;
+  statusFilter: ImplementationStatusFilter;
+  tasks: ImplementationTask[];
+}): ImplementationTaskReviewState {
+  const implementationEvidenceSummaries = buildImplementationEvidenceSummaries({
+    evidenceByTaskId,
+    tasks,
+  });
+  const implementationOwnerOptions = buildImplementationOwnerOptions(tasks);
+  const activeImplementationOwnerFilter = resolveImplementationOwnerFilter(implementationOwnerOptions, ownerFilter);
+  const filteredImplementationTasks = filterImplementationTasks({
+    evidenceByTaskId,
+    evidenceFilter,
+    ownerFilter: activeImplementationOwnerFilter,
+    statusFilter,
+    tasks,
+  });
+  const visibleImplementationStatuses = getVisibleImplementationTaskStatuses(statusFilter);
+
+  return {
+    activeImplementationOwnerFilter,
+    blockedImplementationSummaries: buildBlockedImplementationSummaries({
+      evidenceByTaskId,
+      tasks,
+    }),
+    filteredImplementationTasks,
+    implementationEvidenceIssues: getImplementationEvidenceIssues(implementationEvidenceSummaries),
+    implementationEvidenceSummaries,
+    implementationOwnerFilterLabels: buildImplementationOwnerFilterLabels(implementationOwnerOptions),
+    implementationOwnerOptions,
+    implementationTaskBoardColumns: buildImplementationTaskBoardColumns({
+      evidenceByTaskId,
+      statuses: visibleImplementationStatuses,
+      tasks: filteredImplementationTasks,
+    }),
+    visibleImplementationStatuses,
+  };
+}
+
 export const implementationTaskTypeLabels: Record<ImplementationTaskType, string> = {
   planning: "기획",
   design: "디자인",
