@@ -18,6 +18,7 @@ const {
   isWorkbenchAdminRole,
   isDiscardedIdea,
   isIdeaStageAtOrAfter,
+  omitRecordKey,
   replaceRecordById,
   replaceRecordsById,
   sortWorkbenchIdeas,
@@ -169,6 +170,8 @@ assert.deepEqual(
     { id: "b", value: 3 },
   ],
 );
+assert.deepEqual(omitRecordKey({ a: "keep", b: "drop" }, "b"), { a: "keep" });
+assert.deepEqual(omitRecordKey({ a: "keep" }, "missing"), { a: "keep" });
 assert.deepEqual(upsertWorkbenchIdea([ideas[0]], ideas[1]).map((record) => record.id), ["owned-new", "shared-old"]);
 
 console.log("Workbench list utils smoke passed.");

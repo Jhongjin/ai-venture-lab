@@ -65,6 +65,7 @@ import {
   getVisibleDiscardedIdeas,
   isIdeaStageAtOrAfter,
   isDiscardedIdea,
+  omitRecordKey,
   replaceRecordById,
   replaceRecordsById,
   sortWorkbenchIdeas,
@@ -2903,11 +2904,7 @@ export function IdeaWorkbench({
     }
 
     setOrchestrationRuns((current) => current.filter((item) => item.id !== run.id));
-    setRunOutputs((current) => {
-      const next = { ...current };
-      delete next[run.id];
-      return next;
-    });
+    setRunOutputs((current) => omitRecordKey(current, run.id));
     void recordTelemetryEvent({
       eventName: "run_deleted",
       eventCategory: "orchestration",
@@ -3546,11 +3543,7 @@ export function IdeaWorkbench({
         version: data.version ?? 1,
       },
     });
-    setArtifactStatusNotes((current) => {
-      const next = { ...current };
-      delete next[data.id];
-      return next;
-    });
+    setArtifactStatusNotes((current) => omitRecordKey(current, data.id));
     setMessage(`${artifact.title || artifactLabels[artifact.artifact_type]} 상태를 ${artifactStatusLabels[status]}(으)로 변경했습니다.`);
     router.refresh();
   }
@@ -3913,11 +3906,7 @@ export function IdeaWorkbench({
         status: data.status,
       },
     });
-    setImplementationTaskEvidence((current) => {
-      const next = { ...current };
-      delete next[data.id];
-      return next;
-    });
+    setImplementationTaskEvidence((current) => omitRecordKey(current, data.id));
     setMessage("제작 할 일 근거를 저장했습니다.");
     router.refresh();
   }

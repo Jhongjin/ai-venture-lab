@@ -209,3 +209,9 @@ export function replaceRecordsById<T extends { id: string }>(records: T[], nextR
   const recordsById = new Map(nextRecords.map((record) => [record.id, record]));
   return records.map((record) => recordsById.get(record.id) ?? record);
 }
+
+export function omitRecordKey<T>(record: Record<string, T>, key: string) {
+  const next = { ...record };
+  delete next[key];
+  return next;
+}
