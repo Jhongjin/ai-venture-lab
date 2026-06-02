@@ -4,10 +4,13 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-rows.ts")).href;
 const {
+  buildImplementationTaskCreatedTelemetryProperties,
+  buildImplementationTaskEvidenceTelemetryProperties,
   buildImplementationTaskEvidenceSavePermissionDeniedMessage,
   buildImplementationTaskEvidenceSavedMessage,
   buildImplementationTaskEvidencePatch,
   buildImplementationTaskInsertRows,
+  buildImplementationTaskStatusTelemetryProperties,
   buildImplementationTaskStatusPatch,
   buildImplementationTaskStatusChangedMessage,
   buildImplementationTaskStatusUpdatePermissionDeniedMessage,
@@ -111,6 +114,44 @@ assert.deepEqual(buildImplementationTaskStatusPatch("doing"), { status: "doing" 
 assert.deepEqual(buildImplementationTaskEvidencePatch("saved evidence", "old evidence"), { evidence: "saved evidence" });
 assert.deepEqual(buildImplementationTaskEvidencePatch(undefined, "old evidence"), { evidence: "old evidence" });
 assert.deepEqual(buildImplementationTaskEvidencePatch(undefined, null), { evidence: "" });
+assert.deepEqual(
+  buildImplementationTaskCreatedTelemetryProperties({
+    owner_role: "",
+    priority: "medium",
+    task_type: "frontend",
+  }),
+  {
+    task_type: "frontend",
+    priority: "medium",
+    owner_role: "미정",
+  },
+);
+assert.deepEqual(
+  buildImplementationTaskStatusTelemetryProperties({
+    previousStatus: "todo",
+    task: {
+      status: "done",
+      task_type: "qa",
+    },
+  }),
+  {
+    task_type: "qa",
+    status: "done",
+    previous_status: "todo",
+  },
+);
+assert.deepEqual(
+  buildImplementationTaskEvidenceTelemetryProperties({
+    evidence: "배포 smoke 통과",
+    status: "done",
+    task_type: "deploy",
+  }),
+  {
+    task_type: "deploy",
+    evidence_length: 11,
+    status: "done",
+  },
+);
 assert.equal(buildImplementationTasksCreatedMessage(2), "2개의 제작 할 일을 만들었습니다.");
 assert.equal(buildImplementationTasksCreateLoginRequiredMessage(), "제작 할 일을 만들려면 먼저 로그인하세요.");
 assert.equal(buildImplementationTasksAlreadyExistMessage(), "이 아이디어에는 이미 기본 제작 할 일이 있습니다.");

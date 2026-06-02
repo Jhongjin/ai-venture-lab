@@ -163,6 +163,40 @@ export function buildImplementationTaskStatusPatch<Status extends string>(
   return { status };
 }
 
+export function buildImplementationTaskCreatedTelemetryProperties(
+  task: Pick<ImplementationTask, "owner_role" | "priority" | "task_type">,
+) {
+  return {
+    task_type: task.task_type,
+    priority: task.priority,
+    owner_role: task.owner_role || "미정",
+  };
+}
+
+export function buildImplementationTaskStatusTelemetryProperties({
+  previousStatus,
+  task,
+}: {
+  previousStatus: ImplementationTaskStatus;
+  task: Pick<ImplementationTask, "status" | "task_type">;
+}) {
+  return {
+    task_type: task.task_type,
+    status: task.status,
+    previous_status: previousStatus,
+  };
+}
+
+export function buildImplementationTaskEvidenceTelemetryProperties(
+  task: Pick<ImplementationTask, "evidence" | "status" | "task_type">,
+) {
+  return {
+    task_type: task.task_type,
+    evidence_length: task.evidence.length,
+    status: task.status,
+  };
+}
+
 export function getImplementationTaskTableErrorMessage(error: ImplementationTaskTableError) {
   return error.code === "42P01" ? missingImplementationTasksTableMessage : error.message;
 }

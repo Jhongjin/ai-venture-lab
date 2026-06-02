@@ -330,9 +330,12 @@ import {
   buildImplementationTaskEvidenceSavePermissionDeniedMessage,
   buildImplementationTaskEvidenceSavedMessage,
   buildImplementationTaskEvidencePatch,
+  buildImplementationTaskEvidenceTelemetryProperties,
+  buildImplementationTaskCreatedTelemetryProperties,
   buildImplementationTaskInsertRows,
   buildImplementationTaskStatusPatch,
   buildImplementationTaskStatusChangedMessage,
+  buildImplementationTaskStatusTelemetryProperties,
   buildImplementationTaskStatusUpdatePermissionDeniedMessage,
   buildImplementationTasksAlreadyExistMessage,
   buildImplementationTasksCreateLoginRequiredMessage,
@@ -3431,11 +3434,7 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "implementation_task_created",
       eventCategory: "development",
-      properties: {
-        task_type: data.task_type,
-        priority: data.priority,
-        owner_role: data.owner_role || "미정",
-      },
+      properties: buildImplementationTaskCreatedTelemetryProperties(data),
     });
     setImplementationTaskDraft(createDefaultImplementationTaskDraft());
     setMessage(buildManualImplementationTaskCreatedMessage());
@@ -3473,11 +3472,10 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "implementation_task_status_updated",
       eventCategory: "development",
-      properties: {
-        task_type: data.task_type,
-        status: data.status,
-        previous_status: task.status,
-      },
+      properties: buildImplementationTaskStatusTelemetryProperties({
+        previousStatus: task.status,
+        task: data,
+      }),
     });
     setMessage(
       buildImplementationTaskStatusChangedMessage({
@@ -3519,11 +3517,7 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "implementation_task_evidence_saved",
       eventCategory: "development",
-      properties: {
-        task_type: data.task_type,
-        evidence_length: data.evidence.length,
-        status: data.status,
-      },
+      properties: buildImplementationTaskEvidenceTelemetryProperties(data),
     });
     setImplementationTaskEvidence((current) => omitRecordKey(current, data.id));
     setMessage(buildImplementationTaskEvidenceSavedMessage());
