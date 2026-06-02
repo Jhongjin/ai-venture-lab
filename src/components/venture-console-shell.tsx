@@ -29,12 +29,14 @@ import type { CreditSummary } from "@/lib/billing";
 import {
   buildVentureConsoleTaskStatuses,
   firstRunGuideSteps,
+  buildVentureConsoleProgressState,
   getActiveConsoleTask,
   getActiveWorkbenchTask,
   getCurrentStepBlocker,
   getExecutiveFocus,
   getInitialShellTask,
   getNextTaskOptions,
+  getShellTaskOrderLabel,
   primaryShellTaskSet,
   resolveVisibleShellTask,
   taskCanvasDetails,
@@ -446,23 +448,23 @@ export function VentureConsoleShell({
     telemetryEventCount,
   });
   const executionStepTasks = shellTasks.filter((task) => primaryShellTaskSet.has(task.id));
+  const executionStepIds = executionStepTasks.map((task) => task.id);
   const executionStepTotal = executionStepTasks.length;
-  const activeExecutionStepIndex =
-    primaryShellTaskSet.has(activeTaskConfig.id)
-      ? executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id)
-      : -1;
-  const previousFlowTask = activeExecutionStepIndex > 0 ? executionStepTasks[activeExecutionStepIndex - 1] : null;
   const completedTasks = shellTasks.filter((task) => visitedTaskIds.includes(task.id) && task.id !== visibleTask);
-  const completedRequiredTasks = completedTasks.filter((task) => primaryShellTaskSet.has(task.id));
-  const stepNumber = primaryShellTaskSet.has(activeTaskConfig.id)
-    ? executionStepTasks.findIndex((task) => task.id === activeTaskConfig.id) + 1
-    : null;
-  const completedRequiredCount = completedTasks.filter((task) => primaryShellTaskSet.has(task.id)).length;
-  const progressCompletedCount = activeExecutionStepIndex >= 0 ? activeExecutionStepIndex : completedRequiredCount;
-  const workflowProgress = Math.min(
-    100,
-    Math.round((progressCompletedCount / Math.max(1, executionStepTotal)) * 100),
-  );
+  const completedTaskIds = completedTasks.map((task) => task.id);
+  const {
+    activeExecutionStepIndex,
+    completedRequiredTaskIds,
+    progressCompletedCount,
+    stepNumber,
+    workflowProgress,
+  } = buildVentureConsoleProgressState({
+    activeTaskId: activeTaskConfig.id,
+    completedTaskIds,
+    executionStepIds,
+  });
+  const previousFlowTask = activeExecutionStepIndex > 0 ? executionStepTasks[activeExecutionStepIndex - 1] : null;
+  const completedRequiredTasks = completedTasks.filter((task) => completedRequiredTaskIds.includes(task.id));
   const activeCanvas = taskCanvasDetails[visibleTask];
   const railPrimaryTasks = executionStepTasks.filter(
     (task) => task.id === visibleTask || enabledNextTaskOptions.some((option) => option.id === task.id),
@@ -483,15 +485,7 @@ export function VentureConsoleShell({
   const showFirstRunGuide = visibleTask === "console:extract" && ideaCount === 0;
 
   function getTaskOrderLabel(task: (typeof shellTasks)[number]) {
-    if (task.optional) {
-      return "선택";
-    }
-
-    if (task.id === "console:auth") {
-      return "0";
-    }
-
-    return String(executionStepTasks.findIndex((item) => item.id === task.id) + 1);
+    return getShellTaskOrderLabel({ executionStepIds, isOptional: task.optional, taskId: task.id });
   }
 
   return (

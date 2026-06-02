@@ -53,6 +53,15 @@ export type ShellTaskStatusContext = {
   telemetryEventCount: number;
 };
 
+export type ShellTaskProgressState = {
+  activeExecutionStepIndex: number;
+  completedRequiredCount: number;
+  completedRequiredTaskIds: ShellTask[];
+  progressCompletedCount: number;
+  stepNumber: number | null;
+  workflowProgress: number;
+};
+
 export const primaryShellTaskIds: ShellTask[] = [
   "console:extract",
   "workbench:score",
@@ -136,6 +145,55 @@ export function getActiveConsoleTask(visibleTask: ShellTask): ConsoleActionTask 
 
 export function getActiveWorkbenchTask(visibleTask: ShellTask): WorkbenchTask {
   return visibleTask.startsWith("workbench:") ? (visibleTask.replace("workbench:", "") as WorkbenchTask) : "select";
+}
+
+export function buildVentureConsoleProgressState({
+  activeTaskId,
+  completedTaskIds,
+  executionStepIds = primaryShellTaskIds,
+}: {
+  activeTaskId: ShellTask;
+  completedTaskIds: ShellTask[];
+  executionStepIds?: ShellTask[];
+}): ShellTaskProgressState {
+  const executionStepIdSet = new Set<ShellTask>(executionStepIds);
+  const activeExecutionStepIndex = executionStepIds.indexOf(activeTaskId);
+  const completedRequiredTaskIds = completedTaskIds.filter((taskId) => executionStepIdSet.has(taskId));
+  const completedRequiredCount = completedRequiredTaskIds.length;
+  const progressCompletedCount = activeExecutionStepIndex >= 0 ? activeExecutionStepIndex : completedRequiredCount;
+  const workflowProgress = Math.min(
+    100,
+    Math.round((progressCompletedCount / Math.max(1, executionStepIds.length)) * 100),
+  );
+
+  return {
+    activeExecutionStepIndex,
+    completedRequiredCount,
+    completedRequiredTaskIds,
+    progressCompletedCount,
+    stepNumber: activeExecutionStepIndex >= 0 ? activeExecutionStepIndex + 1 : null,
+    workflowProgress,
+  };
+}
+
+export function getShellTaskOrderLabel({
+  executionStepIds,
+  isOptional,
+  taskId,
+}: {
+  executionStepIds: ShellTask[];
+  isOptional?: boolean;
+  taskId: ShellTask;
+}) {
+  if (isOptional) {
+    return "선택";
+  }
+
+  if (taskId === "console:auth") {
+    return "0";
+  }
+
+  return String(executionStepIds.indexOf(taskId) + 1);
 }
 
 export const taskGuidance: Record<ShellTask, ShellTaskGuidance> = {

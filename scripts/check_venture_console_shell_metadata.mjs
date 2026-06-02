@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/venture-console-shell-metadata.ts")).href;
 const {
   buildVentureConsoleTaskStatuses,
+  buildVentureConsoleProgressState,
   firstRunGuideSteps,
   getActiveConsoleTask,
   getActiveWorkbenchTask,
@@ -12,6 +13,7 @@ const {
   getExecutiveFocus,
   getInitialShellTask,
   getNextTaskOptions,
+  getShellTaskOrderLabel,
   primaryShellTaskIds,
   primaryShellTaskSet,
   resolveVisibleShellTask,
@@ -90,6 +92,28 @@ assert.equal(getActiveConsoleTask("console:extract"), "extract");
 assert.equal(getActiveConsoleTask("workbench:score"), "idea");
 assert.equal(getActiveWorkbenchTask("workbench:launch"), "launch");
 assert.equal(getActiveWorkbenchTask("console:extract"), "select");
+
+const scoreProgress = buildVentureConsoleProgressState({
+  activeTaskId: "workbench:score",
+  completedTaskIds: ["console:auth", "console:extract"],
+});
+assert.equal(scoreProgress.activeExecutionStepIndex, 1);
+assert.deepEqual(scoreProgress.completedRequiredTaskIds, ["console:extract"]);
+assert.equal(scoreProgress.stepNumber, 2);
+assert.equal(scoreProgress.progressCompletedCount, 1);
+assert.equal(scoreProgress.workflowProgress, 13);
+
+const optionalProgress = buildVentureConsoleProgressState({
+  activeTaskId: "console:idea",
+  completedTaskIds: ["console:extract", "workbench:score", "workbench:experiment"],
+});
+assert.equal(optionalProgress.activeExecutionStepIndex, -1);
+assert.equal(optionalProgress.stepNumber, null);
+assert.equal(optionalProgress.completedRequiredCount, 3);
+assert.equal(optionalProgress.workflowProgress, 38);
+assert.equal(getShellTaskOrderLabel({ executionStepIds: primaryShellTaskIds, isOptional: true, taskId: "console:idea" }), "선택");
+assert.equal(getShellTaskOrderLabel({ executionStepIds: primaryShellTaskIds, taskId: "console:auth" }), "0");
+assert.equal(getShellTaskOrderLabel({ executionStepIds: primaryShellTaskIds, taskId: "workbench:development" }), "5");
 
 assert.deepEqual(
   getNextTaskOptions({
