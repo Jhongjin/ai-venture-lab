@@ -13,9 +13,9 @@ import {
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
 import { redactSensitiveSource } from "@/lib/source-redaction";
 import {
+  buildExistingIdeaContexts,
   buildGeneratedIdeaSourceFromSlots,
   createExtractionRunMeta,
-  generatedIdeaToExistingContext,
   mergeGeneratedIdeaSlots,
   type AiGeneratedSampleIdea,
   type ExtractionRunMeta,
@@ -1035,15 +1035,10 @@ export function VentureConsoleActions({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          existingIdeas: [
-            ...currentGeneratedIdeas.map(generatedIdeaToExistingContext),
-            ...existingIdeas.slice(0, 20).map((idea) => ({
-              name: idea.name,
-              one_liner: idea.one_liner,
-              target_user: idea.target_user,
-              buyer: idea.buyer,
-            })),
-          ],
+          existingIdeas: buildExistingIdeaContexts({
+            generatedIdeas: currentGeneratedIdeas,
+            savedIdeas: existingIdeas,
+          }),
         }),
       });
       const payload = (await response.json().catch(() => ({}))) as AiGenerateSampleIdeasResponse;
@@ -1105,12 +1100,7 @@ export function VentureConsoleActions({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           source,
-          existingIdeas: existingIdeas.slice(0, 20).map((idea) => ({
-            name: idea.name,
-            one_liner: idea.one_liner,
-            target_user: idea.target_user,
-            buyer: idea.buyer,
-          })),
+          existingIdeas: buildExistingIdeaContexts({ savedIdeas: existingIdeas }),
         }),
       });
       const payload = (await response.json().catch(() => ({}))) as AiExtractIdeasResponse;
@@ -1238,12 +1228,7 @@ export function VentureConsoleActions({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             source,
-            existingIdeas: existingIdeas.slice(0, 20).map((idea) => ({
-              name: idea.name,
-              one_liner: idea.one_liner,
-              target_user: idea.target_user,
-              buyer: idea.buyer,
-            })),
+            existingIdeas: buildExistingIdeaContexts({ savedIdeas: existingIdeas }),
           }),
         });
         const payload = (await response.json().catch(() => ({}))) as AiExtractIdeasResponse;

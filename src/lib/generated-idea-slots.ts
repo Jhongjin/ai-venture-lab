@@ -17,6 +17,13 @@ export type GeneratedIdeaSlot = {
   kept: boolean;
 };
 
+export type ExistingIdeaContext = {
+  name: string;
+  one_liner: string;
+  target_user: string;
+  buyer: string;
+};
+
 export type ExtractionRunMeta = {
   engine: "openai" | "rules" | "fallback";
   model: string | null;
@@ -163,4 +170,28 @@ export function generatedIdeaToExistingContext(idea: AiGeneratedSampleIdea) {
     target_user: idea.targetUser,
     buyer: idea.buyer,
   };
+}
+
+export function savedIdeaToExistingContext(idea: ExistingIdeaContext): ExistingIdeaContext {
+  return {
+    name: idea.name,
+    one_liner: idea.one_liner,
+    target_user: idea.target_user,
+    buyer: idea.buyer,
+  };
+}
+
+export function buildExistingIdeaContexts({
+  generatedIdeas = [],
+  savedIdeas = [],
+  savedIdeaLimit = 20,
+}: {
+  generatedIdeas?: AiGeneratedSampleIdea[];
+  savedIdeas?: ExistingIdeaContext[];
+  savedIdeaLimit?: number;
+}): ExistingIdeaContext[] {
+  return [
+    ...generatedIdeas.map(generatedIdeaToExistingContext),
+    ...savedIdeas.slice(0, savedIdeaLimit).map(savedIdeaToExistingContext),
+  ];
 }
