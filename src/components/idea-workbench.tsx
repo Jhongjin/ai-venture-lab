@@ -281,7 +281,7 @@ import {
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
 import { buildProductPlanningDraftState } from "@/lib/product-planning-drafts";
-import { buildReleasePackageDraftState } from "@/lib/release-package-drafts";
+import { buildReleasePackageArtifactSaveDrafts, buildReleasePackageDraftState } from "@/lib/release-package-drafts";
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
   buildDecisionInsertRow,
@@ -1613,6 +1613,18 @@ export function IdeaWorkbench({
     score: currentScore,
     scoreRecommendation,
     state: editState,
+  });
+  const {
+    developmentCompletionReportSaveDraft,
+    mvpBuildCommandPacketSaveDraft,
+    postLaunchLearningLoopSaveDraft,
+    qaAcceptanceMatrixSaveDraft,
+  } = buildReleasePackageArtifactSaveDrafts({
+    developmentCompletionReportDraft,
+    ideaName: selectedIdea?.name ?? null,
+    mvpBuildCommandPacketDraft,
+    postLaunchLearningLoopDraft,
+    qaAcceptanceMatrixDraft,
   });
   const finalExecutionProjectKey = finalExecutionPackageState.projectKey;
   const {
@@ -5781,14 +5793,16 @@ export function IdeaWorkbench({
               <button
                 type="button"
                 onClick={() =>
-                  saveArtifactDraft(
-                    "dev_runbook",
-                    `${selectedIdea.name} 제작 완료 보고서`,
-                    developmentCompletionReportDraft,
-                    "development_report",
-                  )
+                  developmentCompletionReportSaveDraft
+                    ? saveArtifactDraft(
+                        developmentCompletionReportSaveDraft.artifactType,
+                        developmentCompletionReportSaveDraft.title,
+                        developmentCompletionReportSaveDraft.body,
+                        developmentCompletionReportSaveDraft.source,
+                      )
+                    : undefined
                 }
-                disabled={isBusy || !user}
+                disabled={isBusy || !user || !developmentCompletionReportSaveDraft}
                 className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
               >
                 <Save size={16} />
@@ -5881,14 +5895,16 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() =>
-                        saveArtifactDraft(
-                          "dev_runbook",
-                          `${selectedIdea.name} 제작 시작 안내 묶음`,
-                          mvpBuildCommandPacketDraft,
-                          "mvp_build_command",
-                        )
+                        mvpBuildCommandPacketSaveDraft
+                          ? saveArtifactDraft(
+                              mvpBuildCommandPacketSaveDraft.artifactType,
+                              mvpBuildCommandPacketSaveDraft.title,
+                              mvpBuildCommandPacketSaveDraft.body,
+                              mvpBuildCommandPacketSaveDraft.source,
+                            )
+                          : undefined
                       }
-                      disabled={isBusy || !user || !mvpBuildCommandPacketDraft}
+                      disabled={isBusy || !user || !mvpBuildCommandPacketSaveDraft}
                       className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
@@ -5926,14 +5942,16 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() =>
-                        saveArtifactDraft(
-                          "dev_runbook",
-                          `${selectedIdea.name} 품질 점검표`,
-                          qaAcceptanceMatrixDraft,
-                          "qa_acceptance_matrix",
-                        )
+                        qaAcceptanceMatrixSaveDraft
+                          ? saveArtifactDraft(
+                              qaAcceptanceMatrixSaveDraft.artifactType,
+                              qaAcceptanceMatrixSaveDraft.title,
+                              qaAcceptanceMatrixSaveDraft.body,
+                              qaAcceptanceMatrixSaveDraft.source,
+                            )
+                          : undefined
                       }
-                      disabled={isBusy || !user || !qaAcceptanceMatrixDraft}
+                      disabled={isBusy || !user || !qaAcceptanceMatrixSaveDraft}
                       className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
@@ -6140,12 +6158,14 @@ export function IdeaWorkbench({
                 learningDraft={postLaunchLearningLoopDraft}
                 onCopyCriteria={() => copyDraft(postLaunchLearningLoopDraft, "출시 후 성과 확인")}
                 onSaveCriteria={() =>
-                  saveArtifactDraft(
-                    "launch_checklist",
-                    `${selectedIdea.name} 출시 후 성과 확인`,
-                    postLaunchLearningLoopDraft,
-                    "post_launch_learning",
-                  )
+                  postLaunchLearningLoopSaveDraft
+                    ? saveArtifactDraft(
+                        postLaunchLearningLoopSaveDraft.artifactType,
+                        postLaunchLearningLoopSaveDraft.title,
+                        postLaunchLearningLoopSaveDraft.body,
+                        postLaunchLearningLoopSaveDraft.source,
+                      )
+                    : undefined
                 }
                 userCanSave={Boolean(user)}
               />

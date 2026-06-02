@@ -32,6 +32,13 @@ export type ReleasePackageDraftState = {
   releaseDecisionPacket: ReleaseDecisionPacket | null;
 };
 
+export type ReleasePackageArtifactSaveDraft = {
+  artifactType: "dev_runbook" | "launch_checklist";
+  body: string;
+  source: "development_report" | "mvp_build_command" | "post_launch_learning" | "qa_acceptance_matrix";
+  title: string;
+};
+
 const emptyReleasePackageDraftState: ReleasePackageDraftState = {
   developmentCompletionReportDraft: "",
   mvpBuildCommandPacketDraft: "",
@@ -39,6 +46,59 @@ const emptyReleasePackageDraftState: ReleasePackageDraftState = {
   qaAcceptanceMatrixDraft: "",
   releaseDecisionPacket: null,
 };
+
+export function buildReleasePackageArtifactSaveDrafts({
+  developmentCompletionReportDraft,
+  ideaName,
+  mvpBuildCommandPacketDraft,
+  postLaunchLearningLoopDraft,
+  qaAcceptanceMatrixDraft,
+}: {
+  developmentCompletionReportDraft: string;
+  ideaName: string | null;
+  mvpBuildCommandPacketDraft: string;
+  postLaunchLearningLoopDraft: string;
+  qaAcceptanceMatrixDraft: string;
+}) {
+  return {
+    developmentCompletionReportSaveDraft:
+      ideaName && developmentCompletionReportDraft
+        ? {
+            artifactType: "dev_runbook" as const,
+            body: developmentCompletionReportDraft,
+            source: "development_report" as const,
+            title: `${ideaName} 제작 완료 보고서`,
+          }
+        : null,
+    mvpBuildCommandPacketSaveDraft:
+      ideaName && mvpBuildCommandPacketDraft
+        ? {
+            artifactType: "dev_runbook" as const,
+            body: mvpBuildCommandPacketDraft,
+            source: "mvp_build_command" as const,
+            title: `${ideaName} 제작 시작 안내 묶음`,
+          }
+        : null,
+    postLaunchLearningLoopSaveDraft:
+      ideaName && postLaunchLearningLoopDraft
+        ? {
+            artifactType: "launch_checklist" as const,
+            body: postLaunchLearningLoopDraft,
+            source: "post_launch_learning" as const,
+            title: `${ideaName} 출시 후 성과 확인`,
+          }
+        : null,
+    qaAcceptanceMatrixSaveDraft:
+      ideaName && qaAcceptanceMatrixDraft
+        ? {
+            artifactType: "dev_runbook" as const,
+            body: qaAcceptanceMatrixDraft,
+            source: "qa_acceptance_matrix" as const,
+            title: `${ideaName} 품질 점검표`,
+          }
+        : null,
+  };
+}
 
 export function buildReleasePackageDraftState({
   appBlueprint,

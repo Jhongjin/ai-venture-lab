@@ -57,7 +57,7 @@ const moduleUrl = transpileModuleUrl("src/lib/release-package-drafts.ts", [
   ['from "@/lib/release-decision-packet";', `from ${JSON.stringify(releaseDecisionUrl)};`],
 ]);
 
-const { buildReleasePackageDraftState } = await import(moduleUrl);
+const { buildReleasePackageArtifactSaveDrafts, buildReleasePackageDraftState } = await import(moduleUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -274,6 +274,46 @@ assert.match(draftState.qaAcceptanceMatrixDraft, /# 품질 점검표: AI Venture
 assert.match(draftState.postLaunchLearningLoopDraft, /# 출시 후 학습 루프: AI Venture Lab/);
 assert.match(draftState.developmentCompletionReportDraft, /# 개발 완료 보고서: AI Venture Lab/);
 assert.match(draftState.developmentCompletionReportDraft, /출시 권한 경계 점검/);
+
+const saveDrafts = buildReleasePackageArtifactSaveDrafts({
+  developmentCompletionReportDraft: draftState.developmentCompletionReportDraft,
+  ideaName: idea.name,
+  mvpBuildCommandPacketDraft: draftState.mvpBuildCommandPacketDraft,
+  postLaunchLearningLoopDraft: draftState.postLaunchLearningLoopDraft,
+  qaAcceptanceMatrixDraft: draftState.qaAcceptanceMatrixDraft,
+});
+assert.equal(saveDrafts.developmentCompletionReportSaveDraft.artifactType, "dev_runbook");
+assert.equal(saveDrafts.developmentCompletionReportSaveDraft.title, "AI Venture Lab 제작 완료 보고서");
+assert.equal(saveDrafts.developmentCompletionReportSaveDraft.source, "development_report");
+assert.match(saveDrafts.developmentCompletionReportSaveDraft.body, /# 개발 완료 보고서: AI Venture Lab/);
+assert.equal(saveDrafts.mvpBuildCommandPacketSaveDraft.artifactType, "dev_runbook");
+assert.equal(saveDrafts.mvpBuildCommandPacketSaveDraft.title, "AI Venture Lab 제작 시작 안내 묶음");
+assert.equal(saveDrafts.mvpBuildCommandPacketSaveDraft.source, "mvp_build_command");
+assert.match(saveDrafts.mvpBuildCommandPacketSaveDraft.body, /# 제작 시작 안내 묶음: AI Venture Lab/);
+assert.equal(saveDrafts.qaAcceptanceMatrixSaveDraft.artifactType, "dev_runbook");
+assert.equal(saveDrafts.qaAcceptanceMatrixSaveDraft.title, "AI Venture Lab 품질 점검표");
+assert.equal(saveDrafts.qaAcceptanceMatrixSaveDraft.source, "qa_acceptance_matrix");
+assert.match(saveDrafts.qaAcceptanceMatrixSaveDraft.body, /# 품질 점검표: AI Venture Lab/);
+assert.equal(saveDrafts.postLaunchLearningLoopSaveDraft.artifactType, "launch_checklist");
+assert.equal(saveDrafts.postLaunchLearningLoopSaveDraft.title, "AI Venture Lab 출시 후 성과 확인");
+assert.equal(saveDrafts.postLaunchLearningLoopSaveDraft.source, "post_launch_learning");
+assert.match(saveDrafts.postLaunchLearningLoopSaveDraft.body, /# 출시 후 학습 루프: AI Venture Lab/);
+
+assert.deepEqual(
+  buildReleasePackageArtifactSaveDrafts({
+    developmentCompletionReportDraft: "",
+    ideaName: null,
+    mvpBuildCommandPacketDraft: "",
+    postLaunchLearningLoopDraft: "",
+    qaAcceptanceMatrixDraft: "",
+  }),
+  {
+    developmentCompletionReportSaveDraft: null,
+    mvpBuildCommandPacketSaveDraft: null,
+    postLaunchLearningLoopSaveDraft: null,
+    qaAcceptanceMatrixSaveDraft: null,
+  },
+);
 
 const emptyDraftState = buildReleasePackageDraftState({
   appBlueprint: "",
