@@ -1,3 +1,9 @@
+import {
+  buildDeliveryPreferenceMarkdown,
+  normalizeBuildDeliveryPreference,
+  type BuildDeliveryPreference,
+} from "@/lib/build-delivery";
+import { productSurfaceMarkdown, type ProductSurfaceProfile } from "@/lib/product-surface";
 import type { Database } from "@/lib/supabase/types";
 
 type Idea = Database["public"]["Tables"]["ideas"]["Row"];
@@ -108,4 +114,20 @@ export function buildManualIdeaDirectionArtifactRow({
       targetUser: idea.target_user,
     }),
   };
+}
+
+export function buildManualIdeaDirectionArtifactRowFromProfiles({
+  buildDeliveryPreference,
+  idea,
+  productSurface,
+}: {
+  buildDeliveryPreference: Partial<BuildDeliveryPreference> | null | undefined;
+  idea: Pick<Idea, "buyer" | "id" | "name" | "next_evidence" | "one_liner" | "organization_id" | "target_user">;
+  productSurface: ProductSurfaceProfile;
+}): VentureArtifactInsert {
+  return buildManualIdeaDirectionArtifactRow({
+    buildDeliveryMarkdown: buildDeliveryPreferenceMarkdown(normalizeBuildDeliveryPreference(buildDeliveryPreference)),
+    idea,
+    productSurfaceMarkdown: productSurfaceMarkdown(productSurface),
+  });
 }

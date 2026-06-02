@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   inferProductSurface,
-  productSurfaceMarkdown,
   productSurfaceProfiles,
   type ProductSurfaceKey,
 } from "@/lib/product-surface";
@@ -23,7 +22,6 @@ import {
   type GeneratedIdeaSlot,
 } from "@/lib/generated-idea-slots";
 import {
-  buildDeliveryPreferenceMarkdown,
   defaultBuildDeliveryPreference,
   externalBuildToolProfiles,
   normalizeBuildDeliveryPreference,
@@ -93,7 +91,7 @@ import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
 import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
 import { VentureConsoleWorkspaceCard } from "@/components/venture-console-workspace-card";
-import { buildManualIdeaDirectionArtifactRow, buildManualIdeaInsertRow } from "@/lib/manual-idea-artifact";
+import { buildManualIdeaDirectionArtifactRowFromProfiles, buildManualIdeaInsertRow } from "@/lib/manual-idea-artifact";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -966,14 +964,13 @@ export function VentureConsoleActions({
     setForm(emptyForm);
     if (data) {
       window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: data }));
-      const manualBuildDelivery = normalizeBuildDeliveryPreference(buildDeliveryPreference);
       const { data: manualArtifact } = await supabase
         .from("venture_artifacts")
         .insert(
-          buildManualIdeaDirectionArtifactRow({
-            buildDeliveryMarkdown: buildDeliveryPreferenceMarkdown(manualBuildDelivery),
+          buildManualIdeaDirectionArtifactRowFromProfiles({
+            buildDeliveryPreference,
             idea: data,
-            productSurfaceMarkdown: productSurfaceMarkdown(manualProductSurface),
+            productSurface: manualProductSurface,
           }),
         )
         .select()
