@@ -178,7 +178,7 @@ import {
   type CreditSummary,
 } from "@/lib/billing";
 import {
-  buildMarketScanArtifactMarkdown,
+  buildMarketScanArtifactSaveDraft,
   buildMarketScanEvidenceImplication,
   buildMarketScanEvidenceText,
   buildMarketScanLearningText,
@@ -3781,7 +3781,7 @@ export function IdeaWorkbench({
         implication: buildMarketScanEvidenceImplication(scan, decisionLabels),
         confidence: scan.confidence,
       });
-      const marketScanBody = buildMarketScanArtifactMarkdown({
+      const marketScanArtifactDraft = buildMarketScanArtifactSaveDraft({
         idea: selectedIdea,
         scan,
         mode: scanMode,
@@ -3790,16 +3790,13 @@ export function IdeaWorkbench({
       });
       const savedMarketScan = user
         ? await saveArtifactDraft(
-            "research_note",
-            `${selectedIdea.name} 시장·경쟁 자동 조사`,
-            marketScanBody,
-            "market_scan",
+            marketScanArtifactDraft.artifactType,
+            marketScanArtifactDraft.title,
+            marketScanArtifactDraft.body,
+            marketScanArtifactDraft.source,
             {
               quiet: true,
-              statusNote:
-                scanMode === "openai_web"
-                  ? "AI 시장·경쟁 자동 점검에서 저장한 웹 검색 포함 리서치 노트입니다."
-                  : "AI 시장·경쟁 자동 점검에서 저장한 추정 초안입니다.",
+              statusNote: marketScanArtifactDraft.statusNote,
             },
           )
         : false;

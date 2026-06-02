@@ -663,3 +663,42 @@ ${sourceLines}
 ${scan.caveat}
 `;
 }
+
+export type MarketScanArtifactSaveDraft = {
+  artifactType: "research_note";
+  body: string;
+  source: "market_scan";
+  statusNote: string;
+  title: string;
+};
+
+export function buildMarketScanArtifactSaveDraft({
+  decisionLabels,
+  idea,
+  mode,
+  productSurfaceLabel,
+  scan,
+}: {
+  decisionLabels: MarketScanDecisionLabels;
+  idea: { name: string };
+  mode: string | null;
+  productSurfaceLabel: string;
+  scan: MarketScanDraft;
+}): MarketScanArtifactSaveDraft {
+  return {
+    artifactType: "research_note",
+    body: buildMarketScanArtifactMarkdown({
+      decisionLabels,
+      idea,
+      mode,
+      productSurfaceLabel,
+      scan,
+    }),
+    source: "market_scan",
+    statusNote:
+      mode === "openai_web"
+        ? "AI 시장·경쟁 자동 점검에서 저장한 웹 검색 포함 리서치 노트입니다."
+        : "AI 시장·경쟁 자동 점검에서 저장한 추정 초안입니다.",
+    title: `${idea.name} 시장·경쟁 자동 조사`,
+  };
+}

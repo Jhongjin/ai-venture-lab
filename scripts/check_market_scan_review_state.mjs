@@ -13,7 +13,12 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { buildMarketScanReviewRows, buildMarketScanReviewState, buildVisibleMarketScanReviewRows } = await import(moduleUrl);
+const {
+  buildMarketScanArtifactSaveDraft,
+  buildMarketScanReviewRows,
+  buildMarketScanReviewState,
+  buildVisibleMarketScanReviewRows,
+} = await import(moduleUrl);
 
 const decisionLabels = {
   kill: "중단",
@@ -164,6 +169,20 @@ assert.deepEqual(
   },
 );
 
+const saveDraft = buildMarketScanArtifactSaveDraft({
+  decisionLabels,
+  idea: { name: "AI Venture Lab" },
+  mode: "openai_web",
+  productSurfaceLabel: "웹앱",
+  scan: draft,
+});
+assert.equal(saveDraft.artifactType, "research_note");
+assert.equal(saveDraft.title, "AI Venture Lab 시장·경쟁 자동 조사");
+assert.equal(saveDraft.source, "market_scan");
+assert.match(saveDraft.body, /# 시장·경쟁 자동 조사: AI Venture Lab/);
+assert.match(saveDraft.body, /웹 검색 포함/);
+assert.match(saveDraft.statusNote, /웹 검색 포함/);
+
 const estimateState = buildMarketScanReviewState({
   artifacts: [],
   draft,
@@ -188,6 +207,15 @@ const estimateRows = buildMarketScanReviewRows({
 assert.equal(estimateRows.overviewRows[0].value, "추정 초안");
 assert.equal(estimateRows.decisionRows[2].value, "출처와 추정이 섞일 수 있으니 중요한 수치는 다시 확인하세요.");
 assert.equal(estimateRows.decisionRows[2].helper, "추정 초안");
+
+const estimateSaveDraft = buildMarketScanArtifactSaveDraft({
+  decisionLabels,
+  idea: { name: "AI Venture Lab" },
+  mode: "local_estimate",
+  productSurfaceLabel: "웹앱",
+  scan: draft,
+});
+assert.match(estimateSaveDraft.statusNote, /추정 초안/);
 
 const loadingState = buildMarketScanReviewState({
   artifacts: [],
