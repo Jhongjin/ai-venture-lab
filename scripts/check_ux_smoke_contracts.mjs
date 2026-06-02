@@ -278,8 +278,12 @@ const contracts = [
     tokens: [
       'data-smoke="step8-simple-review-details"',
       'data-smoke="step8-primary-action-now"',
+      'data-smoke="step8-one-sentence-outcome"',
+      'data-smoke="step8-next-judgment-brief"',
+      'data-smoke="step8-external-completion-bridge"',
       "오늘 확인할 것",
-      "완료/이어 할 것/판단 보기",
+      "완료/이어 할 것/판단 자세히 보기",
+      "오늘 답할 질문",
       'dataSmoke="step8-simple-review"',
     ],
   },
