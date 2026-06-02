@@ -3,7 +3,12 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/development-autopilot-rows.ts")).href;
-const { buildDevelopmentAutopilotRows } = await import(moduleUrl);
+const {
+  buildDevelopmentAutopilotArtifactTelemetryProperties,
+  buildDevelopmentAutopilotRows,
+  buildDevelopmentAutopilotRunbookTelemetryProperties,
+  buildDevelopmentAutopilotTaskTelemetryProperties,
+} = await import(moduleUrl);
 
 const rows = buildDevelopmentAutopilotRows({
   artifactDrafts: [
@@ -109,5 +114,34 @@ const emptyRows = buildDevelopmentAutopilotRows({
 assert.equal(emptyRows.missingRuns.length, 0);
 assert.equal(emptyRows.artifactRows.length, 0);
 assert.equal(emptyRows.taskRows.length, 0);
+
+assert.deepEqual(buildDevelopmentAutopilotRunbookTelemetryProperties(2), {
+  run_count: 2,
+  missing_phase_count: 2,
+});
+assert.deepEqual(buildDevelopmentAutopilotArtifactTelemetryProperties(3), {
+  artifact_count: 3,
+  source: "ai_execution_package",
+});
+assert.deepEqual(
+  buildDevelopmentAutopilotTaskTelemetryProperties({
+    hasSourceArtifact: true,
+    taskCount: 4,
+  }),
+  {
+    task_count: 4,
+    source_artifact: "yes",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutopilotTaskTelemetryProperties({
+    hasSourceArtifact: false,
+    taskCount: 1,
+  }),
+  {
+    task_count: 1,
+    source_artifact: "no",
+  },
+);
 
 console.log("Development autopilot rows smoke passed.");

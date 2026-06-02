@@ -307,7 +307,12 @@ import {
   buildDevelopmentFinalPackageDrafts,
   type DevelopmentAutoFlowState,
 } from "@/lib/development-auto-package-copy";
-import { buildDevelopmentAutopilotRows } from "@/lib/development-autopilot-rows";
+import {
+  buildDevelopmentAutopilotArtifactTelemetryProperties,
+  buildDevelopmentAutopilotRows,
+  buildDevelopmentAutopilotRunbookTelemetryProperties,
+  buildDevelopmentAutopilotTaskTelemetryProperties,
+} from "@/lib/development-autopilot-rows";
 import {
   appBlueprintGuideRows,
   buildDevelopmentPackageDraftState,
@@ -2972,10 +2977,7 @@ export function IdeaWorkbench({
         void recordTelemetryEvent({
           eventName: "runbook_created",
           eventCategory: "orchestration",
-          properties: {
-            run_count: insertedRuns.length,
-            missing_phase_count: insertedRuns.length,
-          },
+          properties: buildDevelopmentAutopilotRunbookTelemetryProperties(insertedRuns.length),
         });
       }
 
@@ -2985,10 +2987,7 @@ export function IdeaWorkbench({
         void recordTelemetryEvent({
           eventName: "artifact_package_saved",
           eventCategory: "development",
-          properties: {
-            artifact_count: insertedArtifacts.length,
-            source: "ai_execution_package",
-          },
+          properties: buildDevelopmentAutopilotArtifactTelemetryProperties(insertedArtifacts.length),
         });
       }
 
@@ -2998,10 +2997,10 @@ export function IdeaWorkbench({
         void recordTelemetryEvent({
           eventName: "implementation_tasks_created",
           eventCategory: "development",
-          properties: {
-            task_count: insertedTasks.length,
-            source_artifact: implementationTaskSourceArtifact ? "yes" : "no",
-          },
+          properties: buildDevelopmentAutopilotTaskTelemetryProperties({
+            hasSourceArtifact: Boolean(implementationTaskSourceArtifact),
+            taskCount: insertedTasks.length,
+          }),
         });
       }
 

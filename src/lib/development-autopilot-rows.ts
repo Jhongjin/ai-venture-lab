@@ -146,3 +146,30 @@ export function buildDevelopmentAutopilotRows({
     taskRows,
   };
 }
+
+export function buildDevelopmentAutopilotRunbookTelemetryProperties(runCount: number) {
+  return {
+    run_count: runCount,
+    missing_phase_count: runCount,
+  };
+}
+
+export function buildDevelopmentAutopilotArtifactTelemetryProperties(artifactCount: number) {
+  return {
+    artifact_count: artifactCount,
+    source: "ai_execution_package",
+  };
+}
+
+export function buildDevelopmentAutopilotTaskTelemetryProperties({
+  hasSourceArtifact,
+  taskCount,
+}: {
+  hasSourceArtifact: boolean;
+  taskCount: number;
+}) {
+  return {
+    task_count: taskCount,
+    source_artifact: hasSourceArtifact ? "yes" : "no",
+  };
+}
