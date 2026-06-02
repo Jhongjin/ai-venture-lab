@@ -12,6 +12,7 @@ import {
   getSignupUrl,
   readSignupError,
 } from "@/lib/auth-form-utils";
+import { fetchApiResponse } from "@/lib/api-client";
 import { buildJsonPostRequestInit } from "@/lib/api-request-utils";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -131,7 +132,7 @@ export function SignupForm() {
     let signupResponse: Response;
 
     try {
-      signupResponse = await fetch(
+      signupResponse = await fetchApiResponse(
         getSignupUrl(),
         buildJsonPostRequestInit(buildSignupRequestPayload({ displayName, email, password })),
       );

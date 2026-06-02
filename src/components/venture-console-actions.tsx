@@ -5,11 +5,11 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { fetchApiJson } from "@/lib/api-client";
 import { buildJsonPostRequestInit } from "@/lib/api-request-utils";
 import { copyBrowserText } from "@/lib/browser-file-download";
 import { getBrowserLocationSnapshot, replaceBrowserHistoryUrl } from "@/lib/browser-location";
 import { clearBrowserTimeout, scheduleBrowserTimeout } from "@/lib/browser-timing";
-import { readResponseJson } from "@/lib/record-utils";
 import {
   buildWorkspaceEmailRedirectUrl,
   readAuthCallbackErrorState,
@@ -1045,16 +1045,16 @@ export function VentureConsoleActions({
     }
 
     try {
-      const response = await fetch(
-        getGenerateSampleIdeasUrl(),
-        buildJsonPostRequestInit(
+      const { payload, response } = await fetchApiJson<AiGenerateSampleIdeasResponse>({
+        fallback: {},
+        init: buildJsonPostRequestInit(
           buildGenerateSampleIdeasRequestPayload({
             generatedIdeas: currentGeneratedIdeas,
             savedIdeas: existingIdeas,
           }),
         ),
-      );
-      const payload = await readResponseJson<AiGenerateSampleIdeasResponse>(response, {});
+        input: getGenerateSampleIdeasUrl(),
+      });
 
       if (!response.ok || !payload.source) {
         setExtractMessage(payload.error ?? `AI 아이디어 도출에 실패했습니다. HTTP ${response.status}`);
@@ -1108,11 +1108,11 @@ export function VentureConsoleActions({
     });
 
     try {
-      const response = await fetch(
-        getExtractIdeasUrl(),
-        buildJsonPostRequestInit(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
-      );
-      const payload = await readResponseJson<AiExtractIdeasResponse>(response, {});
+      const { payload, response } = await fetchApiJson<AiExtractIdeasResponse>({
+        fallback: {},
+        init: buildJsonPostRequestInit(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
+        input: getExtractIdeasUrl(),
+      });
 
       if (!response.ok || !payload.candidates?.length) {
         const fallbackIdeas = extractIdeasFromText(source);
@@ -1232,11 +1232,11 @@ export function VentureConsoleActions({
       let replayNote = "AI 추출을 사용할 수 없어 내부 기준 결과만 점검했습니다.";
 
       try {
-        const response = await fetch(
-          getExtractIdeasUrl(),
-          buildJsonPostRequestInit(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
-        );
-        const payload = await readResponseJson<AiExtractIdeasResponse>(response, {});
+        const { payload, response } = await fetchApiJson<AiExtractIdeasResponse>({
+          fallback: {},
+          init: buildJsonPostRequestInit(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
+          input: getExtractIdeasUrl(),
+        });
 
         model = payload.model ?? null;
 

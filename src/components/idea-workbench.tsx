@@ -147,8 +147,9 @@ import {
 } from "@/lib/artifact-labels";
 import { resolveProductSurfaceForIdea as inferIdeaProductSurface } from "@/lib/product-surface";
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
+import { fetchApiJson } from "@/lib/api-client";
 import { buildJsonPostRequestInit } from "@/lib/api-request-utils";
-import { cleanInlineText, getApiMessage, isPlainRecord, readResponseJson } from "@/lib/record-utils";
+import { cleanInlineText, getApiMessage, isPlainRecord } from "@/lib/record-utils";
 import {
   getBuildDeliveryPreferenceFromArtifacts,
   resolveBuildDeliveryContext,
@@ -720,11 +721,14 @@ export function IdeaWorkbench({
     setIsCreditSummaryLoading(true);
 
     try {
-      const response = await fetch(getCreditSummaryUrl(), {
-        credentials: "include",
-        cache: "no-store",
+      const { payload, response } = await fetchApiJson<unknown>({
+        fallback: null,
+        init: {
+          credentials: "include",
+          cache: "no-store",
+        },
+        input: getCreditSummaryUrl(),
       });
-      const payload = await readResponseJson<unknown>(response, null);
 
       if (!response.ok || !isCreditSummary(payload)) {
         const fallback = response.ok
@@ -2078,8 +2082,10 @@ export function IdeaWorkbench({
     }
 
     try {
-      const response = await fetch(buildExternalToolSyncConnectionsUrl(selectedIdea.id));
-      const payload = await readResponseJson<CursorSyncConnectionsResponse>(response, {});
+      const { payload, response } = await fetchApiJson<CursorSyncConnectionsResponse>({
+        fallback: {},
+        input: buildExternalToolSyncConnectionsUrl(selectedIdea.id),
+      });
 
       if (!response.ok) {
         throw new Error(payload.error || buildExternalToolConnectionCheckFailedMessage(activeExternalBuildTool.label));
@@ -2844,11 +2850,11 @@ export function IdeaWorkbench({
     setCreditMessage(null);
 
     try {
-      const response = await fetch(
-        getBuildPassUnlockUrl(),
-        buildJsonPostRequestInit(buildBuildPassUnlockRequestPayload(selectedIdea.id), { credentials: "include" }),
-      );
-      const payload = await readResponseJson<unknown>(response, null);
+      const { payload, response } = await fetchApiJson<unknown>({
+        fallback: null,
+        init: buildJsonPostRequestInit(buildBuildPassUnlockRequestPayload(selectedIdea.id), { credentials: "include" }),
+        input: getBuildPassUnlockUrl(),
+      });
 
       if (isCreditSummary(payload)) {
         setCreditSummary(payload);
@@ -3622,10 +3628,13 @@ export function IdeaWorkbench({
     setCursorSyncConnectionMessage(buildExternalToolConnectionRevokingMessage(activeExternalBuildTool.label));
 
     try {
-      const response = await fetch(buildExternalToolSyncConnectionRevokeUrl(connection.id), {
-        method: "DELETE",
+      const { payload, response } = await fetchApiJson<CursorSyncConnectionRevokeResponse>({
+        fallback: {},
+        init: {
+          method: "DELETE",
+        },
+        input: buildExternalToolSyncConnectionRevokeUrl(connection.id),
       });
-      const payload = await readResponseJson<CursorSyncConnectionRevokeResponse>(response, {});
 
       if (!response.ok || !payload.connection) {
         throw new Error(payload.error || buildExternalToolConnectionRevokeFailedMessage(activeExternalBuildTool.label));
@@ -3651,11 +3660,11 @@ export function IdeaWorkbench({
     tool: LiveExternalToolSetupKey;
     toolLabel: string;
   }) {
-    const response = await fetch(
-      getExternalToolBuildSyncTokenUrl(),
-      buildJsonPostRequestInit(buildExternalToolBuildSyncTokenRequestPayload({ ideaId, tool })),
-    );
-    const payload = await readResponseJson<CursorBuildSyncTokenResponse>(response, {});
+    const { payload, response } = await fetchApiJson<CursorBuildSyncTokenResponse>({
+      fallback: {},
+      init: buildJsonPostRequestInit(buildExternalToolBuildSyncTokenRequestPayload({ ideaId, tool })),
+      input: getExternalToolBuildSyncTokenUrl(),
+    });
 
     if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
       throw new Error(payload.error || getExternalToolSyncSetupErrorMessage(toolLabel));
@@ -3852,9 +3861,9 @@ export function IdeaWorkbench({
 
     try {
       const productSurface = inferIdeaProductSurface(selectedIdea, editState);
-      const response = await fetch(
-        getMarketScanUrl(),
-        buildJsonPostRequestInit(
+      const { payload, response } = await fetchApiJson<unknown>({
+        fallback: {},
+        init: buildJsonPostRequestInit(
           buildMarketScanRequestPayload({
             experiments: selectedExperiments,
             idea: selectedIdea,
@@ -3864,8 +3873,8 @@ export function IdeaWorkbench({
             state: editState,
           }),
         ),
-      );
-      const payload = await readResponseJson<unknown>(response, {});
+        input: getMarketScanUrl(),
+      });
 
       if (!response.ok || !isPlainRecord(payload)) {
         throw new Error("시장성 점검을 불러오지 못했습니다.");
