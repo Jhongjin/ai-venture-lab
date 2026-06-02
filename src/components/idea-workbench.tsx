@@ -42,8 +42,8 @@ import {
   buildArtifactStatusUpdatePatch,
   getNextArtifactVersion,
 } from "@/lib/artifact-library-utils";
-import { buildAgentRunPackageMarkdown } from "@/lib/agent-run-package-markdown";
 import { buildBackendPlanningDraftState } from "@/lib/backend-planning-drafts";
+import { buildExecutionPackageDraftState } from "@/lib/execution-package-drafts";
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
@@ -273,9 +273,7 @@ import {
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
-import { buildLaunchChecklistMarkdown } from "@/lib/launch-checklist-report";
 import { buildProductPlanningDraftState } from "@/lib/product-planning-drafts";
-import { buildPrdHandoffMarkdown } from "@/lib/prd-markdown";
 import { buildReleasePackageDraftState } from "@/lib/release-package-drafts";
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
@@ -291,12 +289,10 @@ import {
 } from "@/lib/validation-input-rows";
 import { buildValidationPackageDraftState } from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
-import { buildDevelopmentKickoffMarkdown } from "@/lib/development-kickoff-markdown";
 import {
   buildImplementationTaskRefreshSummary,
   buildImplementationTaskReviewState,
   getCompletedImplementationTasksWithEvidence,
-  selectAgentRunPackageTasks,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
   implementationStatusFilterLabels,
@@ -1424,59 +1420,36 @@ export function IdeaWorkbench({
     runs: selectedRuns,
     targetUser: selectedIdea?.target_user ?? "",
   });
-  const prdHandoffDraft = selectedIdea && editState
-    ? buildPrdHandoffMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        score: currentScore,
-        recommendation: scoreRecommendation,
-        prdReadinessScore,
-        prdReadinessChecks,
-        validationEvidenceCoach,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        decisions: selectedDecisions,
-        nextPrdBlocker,
-      })
-    : "";
-  const developmentKickoffDraft = selectedIdea && editState
-    ? buildDevelopmentKickoffMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        readinessChecks: buildReadinessChecks,
-        taskDrafts: implementationTaskDrafts,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        artifacts: selectedArtifactRecords,
-      })
-    : "";
-  const agentRunPackageTasks = selectAgentRunPackageTasks(filteredImplementationTasks, selectedOpenImplementationTasks);
-  const agentRunPackageDraft = selectedIdea && editState
-    ? buildAgentRunPackageMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        artifacts: selectedArtifactRecords,
-        tasks: agentRunPackageTasks,
-        nextTask: nextImplementationTask,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        readinessChecks: buildReadinessChecks,
-        filterSummary: implementationFilterSummary,
-        buildDeliveryMode,
-        externalBuildTool: activeExternalBuildTool,
-      })
-    : "";
-  const launchChecklistDraft = selectedIdea && editState
-    ? buildLaunchChecklistMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-        artifacts: selectedArtifactRecords,
-        implementationTasks: selectedImplementationTasks,
-      })
-    : "";
+  const {
+    agentRunPackageDraft,
+    agentRunPackageTasks,
+    developmentKickoffDraft,
+    launchChecklistDraft,
+    prdHandoffDraft,
+  } = buildExecutionPackageDraftState({
+    artifacts: selectedArtifactRecords,
+    buildDeliveryMode,
+    buildReadinessChecks,
+    decisions: selectedDecisions,
+    experiments: selectedExperiments,
+    externalBuildTool: activeExternalBuildTool,
+    filteredImplementationTasks,
+    filterSummary: implementationFilterSummary,
+    idea: selectedIdea,
+    implementationTasks: selectedImplementationTasks,
+    implementationTaskDrafts,
+    nextImplementationTask,
+    nextPrdBlocker,
+    openImplementationTasks: selectedOpenImplementationTasks,
+    prdReadinessChecks,
+    prdReadinessScore,
+    risks: selectedIdeaRisks,
+    runs: selectedRuns,
+    score: currentScore,
+    scoreRecommendation,
+    state: editState,
+    validationEvidenceCoach,
+  });
   const developmentArtifactDrafts = buildDevelopmentArtifactDrafts({
     backendDecisionDraft,
     backendExecutionPlanDraft,
