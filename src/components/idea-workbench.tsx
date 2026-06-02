@@ -275,9 +275,14 @@ import {
   getMissingImplementationTaskDrafts,
 } from "@/lib/implementation-task-rows";
 import {
+  buildManualOrchestrationRunCreatedMessage,
   buildOrchestrationRunOutputPatch,
+  buildOrchestrationRunDeletedMessage,
   buildOrchestrationRunOutputMap,
+  buildOrchestrationRunOutputSavedMessage,
   buildOrchestrationRunStatusPatch,
+  buildOrchestrationRunStatusChangedMessage,
+  buildOrchestrationRunbookCreatedMessage,
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
@@ -2250,7 +2255,7 @@ export function IdeaWorkbench({
         owner_role: data.owner_role || "미정",
       },
     });
-    setMessage("실행 단계를 추가했습니다.");
+    setMessage(buildManualOrchestrationRunCreatedMessage());
     router.refresh();
   }
 
@@ -2298,7 +2303,7 @@ export function IdeaWorkbench({
         missing_phase_count: missingRuns.length,
       },
     });
-    setMessage("전체 실행 순서 묶음을 만들었습니다.");
+    setMessage(buildOrchestrationRunbookCreatedMessage());
     router.refresh();
   }
 
@@ -2425,7 +2430,12 @@ export function IdeaWorkbench({
         previous_status: run.status,
       },
     });
-    setMessage(`${phaseLabels[run.phase]} 상태를 ${runStatusLabels[status]}(으)로 변경했습니다.`);
+    setMessage(
+      buildOrchestrationRunStatusChangedMessage({
+        phaseLabel: phaseLabels[run.phase],
+        statusLabel: runStatusLabels[status],
+      }),
+    );
     router.refresh();
   }
 
@@ -2466,7 +2476,7 @@ export function IdeaWorkbench({
         previous_status: run.status,
       },
     });
-    setMessage("실행 단계를 삭제했습니다.");
+    setMessage(buildOrchestrationRunDeletedMessage());
     router.refresh();
   }
 
@@ -2507,7 +2517,7 @@ export function IdeaWorkbench({
         output_length: data.output.length,
       },
     });
-    setMessage(`${phaseLabels[run.phase]} 결과를 저장했습니다.`);
+    setMessage(buildOrchestrationRunOutputSavedMessage({ phaseLabel: phaseLabels[run.phase] }));
     router.refresh();
   }
 

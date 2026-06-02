@@ -36,6 +36,32 @@ export type PlannedOrchestrationRunRow<Phase extends string> = {
   status: "planned";
 };
 
+export function buildManualOrchestrationRunCreatedMessage() {
+  return "실행 단계를 추가했습니다.";
+}
+
+export function buildOrchestrationRunbookCreatedMessage() {
+  return "전체 실행 순서 묶음을 만들었습니다.";
+}
+
+export function buildOrchestrationRunStatusChangedMessage({
+  phaseLabel,
+  statusLabel,
+}: {
+  phaseLabel: string;
+  statusLabel: string;
+}) {
+  return `${phaseLabel} 상태를 ${statusLabel}(으)로 변경했습니다.`;
+}
+
+export function buildOrchestrationRunDeletedMessage() {
+  return "실행 단계를 삭제했습니다.";
+}
+
+export function buildOrchestrationRunOutputSavedMessage({ phaseLabel }: { phaseLabel: string }) {
+  return `${phaseLabel} 결과를 저장했습니다.`;
+}
+
 export function buildManualOrchestrationRunRow<Phase extends string>({
   ideaId,
   organizationId,

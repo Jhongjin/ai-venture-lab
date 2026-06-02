@@ -4,11 +4,16 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/orchestration-run-rows.ts")).href;
 const {
+  buildManualOrchestrationRunCreatedMessage,
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
+  buildOrchestrationRunDeletedMessage,
   buildOrchestrationRunOutputMap,
   buildOrchestrationRunOutputPatch,
+  buildOrchestrationRunOutputSavedMessage,
   buildOrchestrationRunStatusPatch,
+  buildOrchestrationRunStatusChangedMessage,
+  buildOrchestrationRunbookCreatedMessage,
 } = await import(moduleUrl);
 
 const manualRow = buildManualOrchestrationRunRow({
@@ -77,5 +82,13 @@ assert.deepEqual(
 assert.deepEqual(buildOrchestrationRunStatusPatch("running"), { status: "running" });
 assert.deepEqual(buildOrchestrationRunOutputPatch("handoff ready"), { output: "handoff ready" });
 assert.deepEqual(buildOrchestrationRunOutputPatch(undefined), { output: "" });
+assert.equal(buildManualOrchestrationRunCreatedMessage(), "실행 단계를 추가했습니다.");
+assert.equal(buildOrchestrationRunbookCreatedMessage(), "전체 실행 순서 묶음을 만들었습니다.");
+assert.equal(
+  buildOrchestrationRunStatusChangedMessage({ phaseLabel: "제작", statusLabel: "진행 중" }),
+  "제작 상태를 진행 중(으)로 변경했습니다.",
+);
+assert.equal(buildOrchestrationRunDeletedMessage(), "실행 단계를 삭제했습니다.");
+assert.equal(buildOrchestrationRunOutputSavedMessage({ phaseLabel: "제작" }), "제작 결과를 저장했습니다.");
 
 console.log("Orchestration run rows smoke passed.");
