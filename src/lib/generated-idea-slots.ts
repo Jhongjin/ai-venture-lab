@@ -24,6 +24,16 @@ export type ExistingIdeaContext = {
   buyer: string;
 };
 
+export type GenerateSampleIdeasRequestPayloadInput = {
+  generatedIdeas?: AiGeneratedSampleIdea[];
+  savedIdeas?: ExistingIdeaContext[];
+};
+
+export type ExtractIdeasRequestPayloadInput = {
+  savedIdeas?: ExistingIdeaContext[];
+  source: string;
+};
+
 export type ExtractionRunMeta = {
   engine: "openai" | "rules" | "fallback";
   model: string | null;
@@ -194,4 +204,28 @@ export function buildExistingIdeaContexts({
     ...generatedIdeas.map(generatedIdeaToExistingContext),
     ...savedIdeas.slice(0, savedIdeaLimit).map(savedIdeaToExistingContext),
   ];
+}
+
+export function getGenerateSampleIdeasUrl() {
+  return "/api/ideas/generate-sample";
+}
+
+export function getExtractIdeasUrl() {
+  return "/api/ideas/extract";
+}
+
+export function buildGenerateSampleIdeasRequestPayload({
+  generatedIdeas = [],
+  savedIdeas = [],
+}: GenerateSampleIdeasRequestPayloadInput) {
+  return {
+    existingIdeas: buildExistingIdeaContexts({ generatedIdeas, savedIdeas }),
+  };
+}
+
+export function buildExtractIdeasRequestPayload({ savedIdeas = [], source }: ExtractIdeasRequestPayloadInput) {
+  return {
+    source,
+    existingIdeas: buildExistingIdeaContexts({ savedIdeas }),
+  };
 }

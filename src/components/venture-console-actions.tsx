@@ -13,9 +13,12 @@ import {
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
 import { redactSensitiveSource } from "@/lib/source-redaction";
 import {
-  buildExistingIdeaContexts,
+  buildExtractIdeasRequestPayload,
+  buildGenerateSampleIdeasRequestPayload,
   buildGeneratedIdeaSourceFromSlots,
   createExtractionRunMeta,
+  getExtractIdeasUrl,
+  getGenerateSampleIdeasUrl,
   mergeGeneratedIdeaSlots,
   type AiGeneratedSampleIdea,
   type ExtractionRunMeta,
@@ -1034,15 +1037,15 @@ export function VentureConsoleActions({
     }
 
     try {
-      const response = await fetch("/api/ideas/generate-sample", {
+      const response = await fetch(getGenerateSampleIdeasUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          existingIdeas: buildExistingIdeaContexts({
+        body: JSON.stringify(
+          buildGenerateSampleIdeasRequestPayload({
             generatedIdeas: currentGeneratedIdeas,
             savedIdeas: existingIdeas,
           }),
-        }),
+        ),
       });
       const payload = (await response.json().catch(() => ({}))) as AiGenerateSampleIdeasResponse;
 
@@ -1098,13 +1101,10 @@ export function VentureConsoleActions({
     });
 
     try {
-      const response = await fetch("/api/ideas/extract", {
+      const response = await fetch(getExtractIdeasUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          source,
-          existingIdeas: buildExistingIdeaContexts({ savedIdeas: existingIdeas }),
-        }),
+        body: JSON.stringify(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
       });
       const payload = (await response.json().catch(() => ({}))) as AiExtractIdeasResponse;
 
@@ -1226,13 +1226,10 @@ export function VentureConsoleActions({
       let replayNote = "AI 추출을 사용할 수 없어 내부 기준 결과만 점검했습니다.";
 
       try {
-        const response = await fetch("/api/ideas/extract", {
+        const response = await fetch(getExtractIdeasUrl(), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            source,
-            existingIdeas: buildExistingIdeaContexts({ savedIdeas: existingIdeas }),
-          }),
+          body: JSON.stringify(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
         });
         const payload = (await response.json().catch(() => ({}))) as AiExtractIdeasResponse;
 

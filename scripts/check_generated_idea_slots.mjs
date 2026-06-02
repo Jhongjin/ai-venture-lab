@@ -19,11 +19,15 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildExtractIdeasRequestPayload,
   buildExistingIdeaContexts,
+  buildGenerateSampleIdeasRequestPayload,
   buildGeneratedIdeaSourceFromSlots,
   createExtractionRunMeta,
   formatGeneratedIdeaSource,
   generatedIdeaToExistingContext,
+  getExtractIdeasUrl,
+  getGenerateSampleIdeasUrl,
   mergeGeneratedIdeaSlots,
   savedIdeaToExistingContext,
 } = await import(moduleUrl);
@@ -83,6 +87,17 @@ assert.deepEqual(
   limitedContexts.map((context) => context.name),
   ["Saved 1", "Saved 2"],
 );
+assert.equal(getGenerateSampleIdeasUrl(), "/api/ideas/generate-sample");
+assert.equal(getExtractIdeasUrl(), "/api/ideas/extract");
+assert.deepEqual(
+  buildGenerateSampleIdeasRequestPayload({ generatedIdeas: [generatedIdea], savedIdeas }).existingIdeas,
+  existingContexts,
+);
+const extractSource = "아이디어 메모를 붙여넣고 AI가 후보를 정리합니다.";
+assert.deepEqual(buildExtractIdeasRequestPayload({ source: extractSource, savedIdeas: limitedContexts }), {
+  source: extractSource,
+  existingIdeas: limitedContexts,
+});
 
 const sourceMarkdown = formatGeneratedIdeaSource(generatedIdea, 0);
 assert.match(sourceMarkdown, /아이디어 1: AI Venture Lab/);
