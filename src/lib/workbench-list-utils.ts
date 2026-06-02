@@ -258,3 +258,11 @@ export function omitRecordKey<T>(record: Record<string, T>, key: string) {
 export function setRecordKey<T>(record: Record<string, T>, key: string, value: T) {
   return { ...record, [key]: value };
 }
+
+export function setRecordField<T extends object, K extends keyof T>(record: T, key: K, value: T[K]) {
+  return { ...record, [key]: value };
+}
+
+export function setRecordFields<T extends object>(record: T, fields: Partial<T>) {
+  return { ...record, ...fields };
+}

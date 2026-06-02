@@ -29,6 +29,8 @@ const {
   replaceRecordById,
   replaceRecordsByIdeaId,
   replaceRecordsById,
+  setRecordField,
+  setRecordFields,
   setRecordKey,
   sortWorkbenchIdeas,
   upsertRecordById,
@@ -206,6 +208,8 @@ assert.deepEqual(omitRecordKey({ a: "keep", b: "drop" }, "b"), { a: "keep" });
 assert.deepEqual(omitRecordKey({ a: "keep" }, "missing"), { a: "keep" });
 assert.deepEqual(setRecordKey({ a: "keep" }, "b", "set"), { a: "keep", b: "set" });
 assert.deepEqual(setRecordKey({ a: "old" }, "a", "new"), { a: "new" });
+assert.deepEqual(setRecordField({ a: "old", b: 1 }, "a", "new"), { a: "new", b: 1 });
+assert.deepEqual(setRecordFields({ a: "old", b: 1 }, { a: "new" }), { a: "new", b: 1 });
 assert.deepEqual(removeRecordById([{ id: "a" }, { id: "b" }], "a"), [{ id: "b" }]);
 assert.deepEqual(
   removeRecordsByIdeaId(

@@ -76,6 +76,8 @@ import {
   replaceRecordById,
   replaceRecordsByIdeaId,
   replaceRecordsById,
+  setRecordField,
+  setRecordFields,
   setRecordKey,
   sortWorkbenchIdeas,
   upsertRecordById,
@@ -2825,7 +2827,7 @@ export function IdeaWorkbench({
     setExperiments((current) => removeRecordById(current, experiment.id));
     setExperimentResultDraft((current) =>
       current.experiment_id === experiment.id
-        ? { ...current, experiment_id: nextExperimentId }
+        ? setRecordField(current, "experiment_id", nextExperimentId)
         : current,
     );
     void recordTelemetryEvent({
@@ -4292,8 +4294,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setExperimentResultDraft((current) => ({
-      ...current,
+    setExperimentResultDraft((current) => setRecordFields(current, {
       experiment_id: current.experiment_id || selectedExperimentForResult?.id || "",
       next_action:
         validationEvidenceCoach.nextFocus?.action ??
@@ -4355,8 +4356,7 @@ export function IdeaWorkbench({
       setMarketScanDraftKey(`${selectedIdea.id}:${editState.product_surface ?? selectedIdea.product_surface ?? "undecided"}`);
       setMarketScanDraft(scan);
       setMarketScanMode(scanMode);
-      setExperimentResultDraft((current) => ({
-        ...current,
+      setExperimentResultDraft((current) => setRecordFields(current, {
         experiment_id: current.experiment_id || selectedExperimentForResult?.id || "",
         result: buildMarketScanResultText(scan),
         learning: buildMarketScanLearningText(scan, decisionLabels),
@@ -5742,26 +5742,26 @@ export function IdeaWorkbench({
                   <InputField
                     label="태스크 제목"
                     value={implementationTaskDraft.title}
-                    onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, title: value }))}
+                    onChange={(value) => setImplementationTaskDraft((current) => setRecordField(current, "title", value))}
                   />
                   <SelectField
                     label="유형"
                     value={implementationTaskDraft.task_type}
                     options={implementationTaskTypes}
                     labels={implementationTaskTypeLabels}
-                    onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, task_type: value }))}
+                    onChange={(value) => setImplementationTaskDraft((current) => setRecordField(current, "task_type", value))}
                   />
                   <SelectField
                     label="우선순위"
                     value={implementationTaskDraft.priority}
                     options={implementationTaskPriorities}
                     labels={implementationTaskPriorityLabels}
-                    onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, priority: value }))}
+                    onChange={(value) => setImplementationTaskDraft((current) => setRecordField(current, "priority", value))}
                   />
                   <InputField
                     label="담당 역할"
                     value={implementationTaskDraft.owner_role}
-                    onChange={(value) => setImplementationTaskDraft((current) => ({ ...current, owner_role: value }))}
+                    onChange={(value) => setImplementationTaskDraft((current) => setRecordField(current, "owner_role", value))}
                   />
                 </div>
                 <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
@@ -5769,7 +5769,7 @@ export function IdeaWorkbench({
                     label="수용 기준"
                     value={implementationTaskDraft.acceptance_criteria}
                     onChange={(value) =>
-                      setImplementationTaskDraft((current) => ({ ...current, acceptance_criteria: value }))
+                      setImplementationTaskDraft((current) => setRecordField(current, "acceptance_criteria", value))
                     }
                   />
                   <button
@@ -7700,7 +7700,7 @@ export function IdeaWorkbench({
                     value={selectedExperimentForResult?.id ?? ""}
                     disabled={selectedExperiments.length === 0}
                     onChange={(event) =>
-                      setExperimentResultDraft((current) => ({ ...current, experiment_id: event.target.value }))
+                      setExperimentResultDraft((current) => setRecordField(current, "experiment_id", event.target.value))
                     }
                     className="avl-select h-11 text-sm font-normal text-slate-950 disabled:bg-slate-100 disabled:text-slate-500"
                   >
@@ -7726,7 +7726,7 @@ export function IdeaWorkbench({
                   description="이 결과를 보고 아이디어를 계속 진행할지, 추가 조사할지, 전환/중단할지 고릅니다."
                   disabled={selectedExperiments.length === 0}
                   onChange={(value) =>
-                    setExperimentResultDraft((current) => ({ ...current, next_decision: value }))
+                    setExperimentResultDraft((current) => setRecordField(current, "next_decision", value))
                   }
                 />
               </div>
@@ -7737,7 +7737,7 @@ export function IdeaWorkbench({
                   placeholder="예) 5명 중 3명이 같은 문제를 겪고 있었고, 2명은 월 구독 의향을 보였습니다."
                   description="실제로 확인한 사실을 숫자와 반응 중심으로 적습니다."
                   disabled={selectedExperiments.length === 0}
-                  onChange={(value) => setExperimentResultDraft((current) => ({ ...current, result: value }))}
+                  onChange={(value) => setExperimentResultDraft((current) => setRecordField(current, "result", value))}
                 />
                 <TextArea
                   label="배운 점"
@@ -7745,7 +7745,7 @@ export function IdeaWorkbench({
                   placeholder="예) 문제는 있지만 기능보다 신뢰와 개인정보 설명이 먼저 필요했습니다."
                   description="결과를 보고 새로 알게 된 의미를 적습니다."
                   disabled={selectedExperiments.length === 0}
-                  onChange={(value) => setExperimentResultDraft((current) => ({ ...current, learning: value }))}
+                  onChange={(value) => setExperimentResultDraft((current) => setRecordField(current, "learning", value))}
                 />
               </div>
               <TextArea
@@ -7754,7 +7754,7 @@ export function IdeaWorkbench({
                 placeholder="예) 개인정보 저장 방식을 설명한 랜딩 페이지로 2차 확인"
                 description="이 결과 다음에 바로 할 한 가지 행동만 적습니다."
                 disabled={selectedExperiments.length === 0}
-                onChange={(value) => setExperimentResultDraft((current) => ({ ...current, next_action: value }))}
+                onChange={(value) => setExperimentResultDraft((current) => setRecordField(current, "next_action", value))}
               />
               <div className="flex justify-end">
                 <button
@@ -7931,31 +7931,31 @@ export function IdeaWorkbench({
               <InputField
                 label="근거 제목"
                 value={evidenceDraft.title}
-                onChange={(value) => setEvidenceDraft((current) => ({ ...current, title: value }))}
+                onChange={(value) => setEvidenceDraft((current) => setRecordField(current, "title", value))}
               />
               <InputField
                 label="출처/URL/인터뷰 대상"
                 value={evidenceDraft.source}
-                onChange={(value) => setEvidenceDraft((current) => ({ ...current, source: value }))}
+                onChange={(value) => setEvidenceDraft((current) => setRecordField(current, "source", value))}
               />
               <SelectField
                 label="확신도"
                 value={evidenceDraft.confidence}
                 options={[...evidenceConfidenceOptions]}
                 labels={evidenceConfidenceLabels}
-                onChange={(value) => setEvidenceDraft((current) => ({ ...current, confidence: value }))}
+                onChange={(value) => setEvidenceDraft((current) => setRecordField(current, "confidence", value))}
               />
             </div>
             <div className="grid gap-4 lg:grid-cols-2">
               <TextArea
                 label="관찰한 근거"
                 value={evidenceDraft.evidence}
-                onChange={(value) => setEvidenceDraft((current) => ({ ...current, evidence: value }))}
+                onChange={(value) => setEvidenceDraft((current) => setRecordField(current, "evidence", value))}
               />
               <TextArea
                 label="해석과 영향"
                 value={evidenceDraft.implication}
-                onChange={(value) => setEvidenceDraft((current) => ({ ...current, implication: value }))}
+                onChange={(value) => setEvidenceDraft((current) => setRecordField(current, "implication", value))}
               />
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3">
