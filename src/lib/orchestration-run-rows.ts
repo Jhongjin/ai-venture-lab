@@ -40,8 +40,20 @@ export function buildManualOrchestrationRunCreatedMessage() {
   return "실행 단계를 추가했습니다.";
 }
 
+export function buildManualOrchestrationRunLoginRequiredMessage() {
+  return "실행 단계를 추가하려면 먼저 로그인하세요.";
+}
+
 export function buildOrchestrationRunbookCreatedMessage() {
   return "전체 실행 순서 묶음을 만들었습니다.";
+}
+
+export function buildOrchestrationRunbookLoginRequiredMessage() {
+  return "실행 순서 묶음을 만들려면 먼저 로그인하세요.";
+}
+
+export function buildOrchestrationRunbookAlreadyExistsMessage() {
+  return "이 아이디어에는 이미 전체 실행 순서 묶음이 있습니다.";
 }
 
 export function buildOrchestrationRunStatusChangedMessage({
@@ -58,8 +70,24 @@ export function buildOrchestrationRunDeletedMessage() {
   return "실행 단계를 삭제했습니다.";
 }
 
+export function buildOrchestrationRunUpdatePermissionDeniedMessage() {
+  return "단계 작성자 또는 워크스페이스 관리자만 이 실행 단계를 수정할 수 있습니다.";
+}
+
+export function buildOrchestrationRunDeletePermissionDeniedMessage() {
+  return "단계 작성자 또는 워크스페이스 관리자만 이 실행 단계를 삭제할 수 있습니다.";
+}
+
+export function buildOrchestrationRunDeleteConfirmMessage(phaseLabel: string) {
+  return `${phaseLabel} 실행 단계를 삭제할까요? 저장된 단계 결과도 함께 사라집니다.`;
+}
+
 export function buildOrchestrationRunOutputSavedMessage({ phaseLabel }: { phaseLabel: string }) {
   return `${phaseLabel} 결과를 저장했습니다.`;
+}
+
+export function buildOrchestrationRunOutputSavePermissionDeniedMessage() {
+  return "단계 작성자 또는 협업 공간 관리자만 이 결과를 저장할 수 있습니다.";
 }
 
 export function buildManualOrchestrationRunRow<Phase extends string>({

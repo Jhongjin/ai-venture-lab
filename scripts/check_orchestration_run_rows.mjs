@@ -5,15 +5,22 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/orchestration-run-rows.ts")).href;
 const {
   buildManualOrchestrationRunCreatedMessage,
+  buildManualOrchestrationRunLoginRequiredMessage,
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
+  buildOrchestrationRunbookAlreadyExistsMessage,
   buildOrchestrationRunDeletedMessage,
+  buildOrchestrationRunDeleteConfirmMessage,
+  buildOrchestrationRunDeletePermissionDeniedMessage,
   buildOrchestrationRunOutputMap,
   buildOrchestrationRunOutputPatch,
+  buildOrchestrationRunOutputSavePermissionDeniedMessage,
   buildOrchestrationRunOutputSavedMessage,
   buildOrchestrationRunStatusPatch,
   buildOrchestrationRunStatusChangedMessage,
+  buildOrchestrationRunUpdatePermissionDeniedMessage,
   buildOrchestrationRunbookCreatedMessage,
+  buildOrchestrationRunbookLoginRequiredMessage,
 } = await import(moduleUrl);
 
 const manualRow = buildManualOrchestrationRunRow({
@@ -83,12 +90,31 @@ assert.deepEqual(buildOrchestrationRunStatusPatch("running"), { status: "running
 assert.deepEqual(buildOrchestrationRunOutputPatch("handoff ready"), { output: "handoff ready" });
 assert.deepEqual(buildOrchestrationRunOutputPatch(undefined), { output: "" });
 assert.equal(buildManualOrchestrationRunCreatedMessage(), "실행 단계를 추가했습니다.");
+assert.equal(buildManualOrchestrationRunLoginRequiredMessage(), "실행 단계를 추가하려면 먼저 로그인하세요.");
 assert.equal(buildOrchestrationRunbookCreatedMessage(), "전체 실행 순서 묶음을 만들었습니다.");
+assert.equal(buildOrchestrationRunbookLoginRequiredMessage(), "실행 순서 묶음을 만들려면 먼저 로그인하세요.");
+assert.equal(buildOrchestrationRunbookAlreadyExistsMessage(), "이 아이디어에는 이미 전체 실행 순서 묶음이 있습니다.");
 assert.equal(
   buildOrchestrationRunStatusChangedMessage({ phaseLabel: "제작", statusLabel: "진행 중" }),
   "제작 상태를 진행 중(으)로 변경했습니다.",
 );
 assert.equal(buildOrchestrationRunDeletedMessage(), "실행 단계를 삭제했습니다.");
+assert.equal(
+  buildOrchestrationRunUpdatePermissionDeniedMessage(),
+  "단계 작성자 또는 워크스페이스 관리자만 이 실행 단계를 수정할 수 있습니다.",
+);
+assert.equal(
+  buildOrchestrationRunDeletePermissionDeniedMessage(),
+  "단계 작성자 또는 워크스페이스 관리자만 이 실행 단계를 삭제할 수 있습니다.",
+);
+assert.equal(
+  buildOrchestrationRunDeleteConfirmMessage("제작"),
+  "제작 실행 단계를 삭제할까요? 저장된 단계 결과도 함께 사라집니다.",
+);
 assert.equal(buildOrchestrationRunOutputSavedMessage({ phaseLabel: "제작" }), "제작 결과를 저장했습니다.");
+assert.equal(
+  buildOrchestrationRunOutputSavePermissionDeniedMessage(),
+  "단계 작성자 또는 협업 공간 관리자만 이 결과를 저장할 수 있습니다.",
+);
 
 console.log("Orchestration run rows smoke passed.");

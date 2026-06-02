@@ -314,13 +314,20 @@ import {
 } from "@/lib/implementation-task-rows";
 import {
   buildManualOrchestrationRunCreatedMessage,
-  buildOrchestrationRunOutputPatch,
+  buildManualOrchestrationRunLoginRequiredMessage,
+  buildOrchestrationRunbookAlreadyExistsMessage,
+  buildOrchestrationRunbookCreatedMessage,
+  buildOrchestrationRunbookLoginRequiredMessage,
+  buildOrchestrationRunDeleteConfirmMessage,
   buildOrchestrationRunDeletedMessage,
+  buildOrchestrationRunDeletePermissionDeniedMessage,
   buildOrchestrationRunOutputMap,
+  buildOrchestrationRunOutputPatch,
+  buildOrchestrationRunOutputSavePermissionDeniedMessage,
   buildOrchestrationRunOutputSavedMessage,
   buildOrchestrationRunStatusPatch,
   buildOrchestrationRunStatusChangedMessage,
-  buildOrchestrationRunbookCreatedMessage,
+  buildOrchestrationRunUpdatePermissionDeniedMessage,
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
@@ -2284,7 +2291,7 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("실행 단계를 추가하려면 먼저 로그인하세요.");
+      setMessage(buildManualOrchestrationRunLoginRequiredMessage());
       return;
     }
 
@@ -2331,7 +2338,7 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("실행 순서 묶음을 만들려면 먼저 로그인하세요.");
+      setMessage(buildOrchestrationRunbookLoginRequiredMessage());
       return;
     }
 
@@ -2343,7 +2350,7 @@ export function IdeaWorkbench({
     });
 
     if (missingRuns.length === 0) {
-      setMessage("이 아이디어에는 이미 전체 실행 순서 묶음이 있습니다.");
+      setMessage(buildOrchestrationRunbookAlreadyExistsMessage());
       return;
     }
 
@@ -2465,7 +2472,7 @@ export function IdeaWorkbench({
     }
 
     if (!canManageRecord(run)) {
-      setMessage("단계 작성자 또는 워크스페이스 관리자만 이 실행 단계를 수정할 수 있습니다.");
+      setMessage(buildOrchestrationRunUpdatePermissionDeniedMessage());
       return;
     }
 
@@ -2511,11 +2518,11 @@ export function IdeaWorkbench({
     }
 
     if (!canManageRecord(run)) {
-      setMessage("단계 작성자 또는 워크스페이스 관리자만 이 실행 단계를 삭제할 수 있습니다.");
+      setMessage(buildOrchestrationRunDeletePermissionDeniedMessage());
       return;
     }
 
-    const confirmed = window.confirm(`${phaseLabels[run.phase]} 실행 단계를 삭제할까요? 저장된 단계 결과도 함께 사라집니다.`);
+    const confirmed = window.confirm(buildOrchestrationRunDeleteConfirmMessage(phaseLabels[run.phase]));
 
     if (!confirmed) {
       return;
@@ -2552,7 +2559,7 @@ export function IdeaWorkbench({
     }
 
     if (!canManageRecord(run)) {
-      setMessage("단계 작성자 또는 협업 공간 관리자만 이 결과를 저장할 수 있습니다.");
+      setMessage(buildOrchestrationRunOutputSavePermissionDeniedMessage());
       return;
     }
 
