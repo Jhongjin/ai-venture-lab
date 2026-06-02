@@ -20,6 +20,15 @@ export function buildClipboardCopyMessage(label: string) {
   return `${label}을 클립보드에 복사했습니다.`;
 }
 
+export async function copyBrowserText(body: string) {
+  if (!body) {
+    return false;
+  }
+
+  await navigator.clipboard.writeText(body);
+  return true;
+}
+
 export function buildDownloadPreparedMessage(label: string) {
   return `${label} 파일을 준비했습니다.`;
 }

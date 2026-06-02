@@ -155,6 +155,7 @@ import {
 } from "@/lib/build-delivery";
 import {
   buildClipboardCopyMessage,
+  copyBrowserText,
   encodeBrowserSetupFiles,
   triggerBrowserDraftDownload,
 } from "@/lib/browser-file-download";
@@ -3593,8 +3594,9 @@ export function IdeaWorkbench({
       return;
     }
 
-    await navigator.clipboard.writeText(body);
-    setCopyMessage(buildClipboardCopyMessage(label));
+    if (await copyBrowserText(body)) {
+      setCopyMessage(buildClipboardCopyMessage(label));
+    }
   }
 
   function downloadDraftFile(
@@ -7625,7 +7627,7 @@ export function IdeaWorkbench({
                     </div>
                     <button
                       type="button"
-                      onClick={() => navigator.clipboard.writeText(artifact.body)}
+                      onClick={() => void copyBrowserText(artifact.body)}
                       className="avl-btn avl-btn-secondary mt-3 px-2.5 text-xs"
                     >
                       <Clipboard size={14} />
@@ -7717,7 +7719,7 @@ export function IdeaWorkbench({
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={() => navigator.clipboard.writeText(artifact.body)}
+                          onClick={() => void copyBrowserText(artifact.body)}
                           className="avl-btn avl-btn-secondary px-3 text-xs"
                         >
                           <Clipboard size={14} />

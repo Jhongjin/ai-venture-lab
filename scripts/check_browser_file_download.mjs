@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/browser-file-d
 const {
   buildClipboardCopyMessage,
   buildDownloadPreparedMessage,
+  copyBrowserText,
   triggerBrowserDraftDownload,
   triggerBrowserTextDownload,
 } = await import(moduleUrl);
@@ -50,6 +51,17 @@ globalThis.Blob = class BrowserSmokeBlob {
     this.options = options;
   }
 };
+let clipboardText = "";
+Object.defineProperty(globalThis, "navigator", {
+  configurable: true,
+  value: {
+    clipboard: {
+      async writeText(value) {
+        clipboardText = value;
+      },
+    },
+  },
+});
 
 assert.equal(
   triggerBrowserTextDownload({
@@ -93,5 +105,9 @@ assert.equal(
 );
 assert.equal(appendedElements.length, 2);
 assert.equal(appendedElements[1].download, "venture-package.md");
+assert.equal(await copyBrowserText(""), false);
+assert.equal(clipboardText, "");
+assert.equal(await copyBrowserText("복사할 문서"), true);
+assert.equal(clipboardText, "복사할 문서");
 
 console.log("Browser file download smoke passed.");

@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { copyBrowserText } from "@/lib/browser-file-download";
 import {
   inferProductSurface,
   productSurfaceProfiles,
@@ -1287,8 +1288,9 @@ export function VentureConsoleActions({
       return;
     }
 
-    await navigator.clipboard.writeText(extractionPortfolioMarkdown);
-    setExtractMessage("아이디어 비교 실행 요약을 클립보드에 복사했습니다.");
+    if (await copyBrowserText(extractionPortfolioMarkdown)) {
+      setExtractMessage("아이디어 비교 실행 요약을 클립보드에 복사했습니다.");
+    }
   }
 
   async function saveExtractionPortfolioReport() {
