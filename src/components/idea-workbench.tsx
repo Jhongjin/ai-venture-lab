@@ -43,7 +43,6 @@ import {
   getNextArtifactVersion,
 } from "@/lib/artifact-library-utils";
 import { buildAgentRunPackageMarkdown } from "@/lib/agent-run-package-markdown";
-import { buildAppBlueprintMarkdown } from "@/lib/app-blueprint-markdown";
 import { buildBackendPlanningDraftState } from "@/lib/backend-planning-drafts";
 import {
   buildDiscardIdeaPatch,
@@ -111,9 +110,7 @@ import {
 } from "@/lib/step8-learning-summary";
 import { buildStep6ExecutionBridgeDisplayState } from "@/lib/step6-execution-bridge-state";
 import { buildValidationEvidenceCoach, buildValidationPlan } from "@/lib/validation-planning";
-import { buildDesignBriefMarkdown } from "@/lib/design-brief-markdown";
-import { buildDesignGenerationPromptMarkdown } from "@/lib/design-generation-prompt-markdown";
-import { buildTechSpecMarkdown } from "@/lib/tech-spec-markdown";
+import { buildDesignArchitectureDraftState } from "@/lib/design-architecture-drafts";
 import {
   artifactLabels,
   artifactSourceLabels,
@@ -282,7 +279,6 @@ import {
 } from "@/lib/orchestration-run-rows";
 import { buildLaunchChecklistMarkdown } from "@/lib/launch-checklist-report";
 import { buildMvpBuildCommandPacketMarkdown } from "@/lib/mvp-build-command-packet-markdown";
-import { buildMvpScaffoldManifestMarkdown } from "@/lib/mvp-scaffold-manifest-markdown";
 import { buildPostLaunchLearningLoopMarkdown } from "@/lib/post-launch-learning-loop-markdown";
 import { buildProductPlanningDraftState } from "@/lib/product-planning-drafts";
 import { buildPrdHandoffMarkdown } from "@/lib/prd-markdown";
@@ -1286,48 +1282,21 @@ export function IdeaWorkbench({
     risks: selectedIdeaRisks,
     state: editState,
   });
-  const designBriefDraft = selectedIdea && editState
-    ? buildDesignBriefMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        runs: selectedRuns,
-      })
-    : "";
-  const designGenerationPromptDraft = selectedIdea && editState
-    ? buildDesignGenerationPromptMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        backendCandidateScores,
-      })
-    : "";
-  const techSpecDraft = selectedIdea && editState
-    ? buildTechSpecMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-      })
-    : "";
-  const appBlueprintDraft = selectedIdea && editState
-    ? buildAppBlueprintMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        implementationTasks: selectedImplementationTasks,
-        backendCandidateScores,
-      })
-    : "";
-  const scaffoldManifestDraft = selectedIdea && editState
-    ? buildMvpScaffoldManifestMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        experiments: selectedExperiments,
-        backendCandidateScores,
-      })
-    : "";
+  const {
+    appBlueprintDraft,
+    designBriefDraft,
+    designGenerationPromptDraft,
+    scaffoldManifestDraft,
+    techSpecDraft,
+  } = buildDesignArchitectureDraftState({
+    backendCandidateScores,
+    experiments: selectedExperiments,
+    idea: selectedIdea,
+    implementationTasks: selectedImplementationTasks,
+    risks: selectedIdeaRisks,
+    runs: selectedRuns,
+    state: editState,
+  });
   const implementationHandoffDraft = selectedIdea && editState
     ? buildImplementationHandoffMarkdown({
         idea: selectedIdea,

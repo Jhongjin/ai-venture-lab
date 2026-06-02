@@ -1,0 +1,209 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import ts from "typescript";
+
+function transpileModuleUrl(modulePath, replacements = []) {
+  const absolutePath = path.join(process.cwd(), modulePath);
+  let source = readFileSync(absolutePath, "utf8");
+  for (const [from, to] of replacements) {
+    source = source.replaceAll(from, to);
+  }
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.ESNext,
+      target: ts.ScriptTarget.ES2022,
+    },
+    fileName: absolutePath,
+  });
+  return `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
+}
+
+const implementationTaskMetadataUrl = pathToFileURL(
+  path.join(process.cwd(), "src/lib/implementation-task-metadata.ts"),
+).href;
+const productSurfaceUrl = pathToFileURL(path.join(process.cwd(), "src/lib/product-surface.ts")).href;
+const productSurfaceImplementationUrl = pathToFileURL(
+  path.join(process.cwd(), "src/lib/product-surface-implementation.ts"),
+).href;
+const workbenchLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-labels.ts")).href;
+
+const appBlueprintUrl = transpileModuleUrl("src/lib/app-blueprint-markdown.ts", [
+  ['from "@/lib/product-surface-implementation";', `from ${JSON.stringify(productSurfaceImplementationUrl)};`],
+  ['from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`],
+  ['from "@/lib/implementation-task-metadata";', `from ${JSON.stringify(implementationTaskMetadataUrl)};`],
+  ['from "@/lib/workbench-labels";', `from ${JSON.stringify(workbenchLabelsUrl)};`],
+]);
+const designBriefUrl = transpileModuleUrl("src/lib/design-brief-markdown.ts", [
+  ['from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`],
+]);
+const designPromptUrl = transpileModuleUrl("src/lib/design-generation-prompt-markdown.ts", [
+  ['from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`],
+  ['from "@/lib/product-surface-implementation";', `from ${JSON.stringify(productSurfaceImplementationUrl)};`],
+  ['from "@/lib/workbench-labels";', `from ${JSON.stringify(workbenchLabelsUrl)};`],
+]);
+const scaffoldManifestUrl = transpileModuleUrl("src/lib/mvp-scaffold-manifest-markdown.ts", [
+  ['from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`],
+  ['from "@/lib/workbench-labels";', `from ${JSON.stringify(workbenchLabelsUrl)};`],
+]);
+const techSpecUrl = transpileModuleUrl("src/lib/tech-spec-markdown.ts", [
+  ['from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`],
+  ['from "@/lib/workbench-labels";', `from ${JSON.stringify(workbenchLabelsUrl)};`],
+]);
+const moduleUrl = transpileModuleUrl("src/lib/design-architecture-drafts.ts", [
+  ['from "@/lib/app-blueprint-markdown";', `from ${JSON.stringify(appBlueprintUrl)};`],
+  ['from "@/lib/design-brief-markdown";', `from ${JSON.stringify(designBriefUrl)};`],
+  ['from "@/lib/design-generation-prompt-markdown";', `from ${JSON.stringify(designPromptUrl)};`],
+  ['from "@/lib/mvp-scaffold-manifest-markdown";', `from ${JSON.stringify(scaffoldManifestUrl)};`],
+  ['from "@/lib/tech-spec-markdown";', `from ${JSON.stringify(techSpecUrl)};`],
+]);
+
+const { buildDesignArchitectureDraftState } = await import(moduleUrl);
+
+const idea = {
+  buyer: "운영팀",
+  created_at: "2026-06-01T00:00:00.000Z",
+  created_by: "user-1",
+  decision: "ship",
+  differentiation: 4,
+  frequency: 4,
+  id: "idea-1",
+  mvp_speed: 5,
+  name: "AI Venture Lab",
+  next_evidence: "외부 제작 도구에 전달 가능한 첫 패키지",
+  one_liner: "메모를 검증 패키지와 제작 실행 자료로 바꿉니다.",
+  organization_id: "org-1",
+  problem_intensity: 5,
+  product_surface: "operator_console",
+  reachability: 4,
+  regulatory_risk: 1,
+  risk_summary: "조직 권한과 개인정보 경계 필요",
+  signal: "운영 승인과 감사 로그가 중요함",
+  stage: "prototype",
+  target_user: "1인 창업자",
+  updated_at: "2026-06-01T00:00:00.000Z",
+  willingness_to_pay: 4,
+};
+const state = {
+  buyer: idea.buyer,
+  decision: idea.decision,
+  differentiation: idea.differentiation,
+  frequency: idea.frequency,
+  mvp_speed: idea.mvp_speed,
+  next_evidence: idea.next_evidence,
+  product_surface: idea.product_surface,
+  problem_intensity: idea.problem_intensity,
+  reachability: idea.reachability,
+  regulatory_risk: idea.regulatory_risk,
+  risk_summary: idea.risk_summary,
+  signal: idea.signal,
+  stage: idea.stage,
+  willingness_to_pay: idea.willingness_to_pay,
+};
+const backendCandidateScores = [
+  {
+    cautions: ["실시간 앱 품질 도구는 직접 조합"],
+    key: "supabase",
+    label: "Supabase",
+    score: 90,
+    strengths: ["Postgres/RLS 기반 권한"],
+    summary: "운영 콘솔과 조직 권한에 적합합니다.",
+  },
+];
+const experiments = [
+  {
+    created_at: "2026-06-01T00:00:00.000Z",
+    id: "exp-1",
+    idea_id: idea.id,
+    name: "디자인 검증",
+    organization_id: "org-1",
+    started_at: "2026-06-02",
+    ended_at: null,
+    status: "running",
+    success_metric: "첫 화면에서 다음 행동을 이해",
+    updated_at: "2026-06-01T00:00:00.000Z",
+  },
+];
+const risks = [
+  {
+    area: "privacy",
+    created_at: "2026-06-01T00:00:00.000Z",
+    id: "risk-1",
+    idea_id: idea.id,
+    mitigation: "민감 데이터 입력 전 목적과 삭제 경로 표시",
+    organization_id: "org-1",
+    severity: "high",
+    status: "mitigating",
+    title: "민감 데이터 노출",
+    updated_at: "2026-06-01T00:00:00.000Z",
+  },
+];
+const runs = [
+  {
+    created_at: "2026-06-01T00:00:00.000Z",
+    id: "run-1",
+    idea_id: idea.id,
+    objective: "디자인 기준 작성",
+    organization_id: "org-1",
+    owner_role: "designer",
+    phase: "design",
+    status: "done",
+    updated_at: "2026-06-01T00:00:00.000Z",
+  },
+];
+const implementationTasks = [
+  {
+    acceptance_criteria: "사용자가 다음 행동을 보고 저장 완료 상태를 확인한다.",
+    artifact_id: null,
+    blocked_reason: null,
+    completed_at: null,
+    created_at: "2026-06-01T00:00:00.000Z",
+    done_evidence: "",
+    id: "task-1",
+    idea_id: idea.id,
+    organization_id: "org-1",
+    owner_role: "prototype-builder",
+    priority: "high",
+    status: "todo",
+    task_type: "frontend",
+    title: "T-001 워크벤치 첫 화면",
+    updated_at: "2026-06-01T00:00:00.000Z",
+  },
+];
+
+const draftState = buildDesignArchitectureDraftState({
+  backendCandidateScores,
+  experiments,
+  idea,
+  implementationTasks,
+  risks,
+  runs,
+  state,
+});
+
+assert.match(draftState.designBriefDraft, /# 디자인 기준: AI Venture Lab/);
+assert.match(draftState.designGenerationPromptDraft, /# 디자인 생성 지시: AI Venture Lab/);
+assert.match(draftState.techSpecDraft, /# 기술 명세: AI Venture Lab/);
+assert.match(draftState.appBlueprintDraft, /# 앱 구조 청사진: AI Venture Lab/);
+assert.match(draftState.appBlueprintDraft, /T-001 워크벤치 첫 화면/);
+assert.match(draftState.scaffoldManifestDraft, /# 첫 제작 뼈대 안내서: AI Venture Lab/);
+
+const emptyDraftState = buildDesignArchitectureDraftState({
+  backendCandidateScores: [],
+  experiments: [],
+  idea: null,
+  implementationTasks: [],
+  risks: [],
+  runs: [],
+  state: null,
+});
+assert.deepEqual(emptyDraftState, {
+  appBlueprintDraft: "",
+  designBriefDraft: "",
+  designGenerationPromptDraft: "",
+  scaffoldManifestDraft: "",
+  techSpecDraft: "",
+});
+
+console.log("Design architecture drafts smoke passed.");
