@@ -10,10 +10,17 @@ const {
   buildDecisionRecordPermissionDeniedMessage,
   buildDecisionTemplateLoadedMessage,
   buildEvidenceCoachPromptLoadedMessage,
+  buildEvidenceNoteEmptySaveDraftMessage,
+  buildEvidenceNoteEvidenceRequiredMessage,
+  buildEvidenceNoteTitleRequiredMessage,
   buildExperimentDeleteConfirmMessage,
   buildExperimentDeletedMessage,
   buildExperimentDeletePermissionDeniedMessage,
   buildExperimentInsertRow,
+  buildExperimentResultEmptySaveDraftMessage,
+  buildExperimentResultExperimentRequiredMessage,
+  buildExperimentResultLearningRequiredMessage,
+  buildExperimentResultRequiredMessage,
   buildExperimentStatusChangedMessage,
   buildExperimentStatusUpdatePatch,
   buildExperimentUpdatePermissionDeniedMessage,
@@ -94,6 +101,13 @@ assert.equal(
   buildEvidenceCoachPromptLoadedMessage(),
   "보완할 질문을 아래 결과 기록의 다음 행동 입력칸에 넣었습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.",
 );
+assert.equal(buildEvidenceNoteTitleRequiredMessage(), "근거 제목은 필수입니다.");
+assert.equal(buildEvidenceNoteEvidenceRequiredMessage(), "관찰한 근거를 입력하세요.");
+assert.equal(buildEvidenceNoteEmptySaveDraftMessage(), "저장할 근거 내용이 비어 있습니다.");
+assert.equal(buildExperimentResultExperimentRequiredMessage(), "결과를 기록할 검증 계획을 먼저 추가하세요.");
+assert.equal(buildExperimentResultRequiredMessage(), "검증 결과를 입력하세요.");
+assert.equal(buildExperimentResultLearningRequiredMessage(), "검증에서 배운 점을 입력하세요.");
+assert.equal(buildExperimentResultEmptySaveDraftMessage(), "저장할 검증 결과 내용이 비어 있습니다.");
 
 assert.deepEqual(
   buildRiskInsertRow({

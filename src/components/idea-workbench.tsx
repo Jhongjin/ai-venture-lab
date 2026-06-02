@@ -351,10 +351,17 @@ import {
   buildDecisionRecordPermissionDeniedMessage,
   buildDecisionTemplateLoadedMessage,
   buildEvidenceCoachPromptLoadedMessage,
+  buildEvidenceNoteEmptySaveDraftMessage,
+  buildEvidenceNoteEvidenceRequiredMessage,
+  buildEvidenceNoteTitleRequiredMessage,
   buildExperimentDeleteConfirmMessage,
   buildExperimentDeletedMessage,
   buildExperimentDeletePermissionDeniedMessage,
   buildExperimentInsertRow,
+  buildExperimentResultEmptySaveDraftMessage,
+  buildExperimentResultExperimentRequiredMessage,
+  buildExperimentResultLearningRequiredMessage,
+  buildExperimentResultRequiredMessage,
   buildExperimentStatusChangedMessage,
   buildExperimentStatusUpdatePatch,
   buildExperimentUpdatePermissionDeniedMessage,
@@ -3009,17 +3016,17 @@ export function IdeaWorkbench({
     }
 
     if (!evidenceDraft.title.trim()) {
-      setMessage("근거 제목은 필수입니다.");
+      setMessage(buildEvidenceNoteTitleRequiredMessage());
       return;
     }
 
     if (!evidenceDraft.evidence.trim()) {
-      setMessage("관찰한 근거를 입력하세요.");
+      setMessage(buildEvidenceNoteEvidenceRequiredMessage());
       return;
     }
 
     if (!evidenceNoteSaveDraft) {
-      setMessage("저장할 근거 내용이 비어 있습니다.");
+      setMessage(buildEvidenceNoteEmptySaveDraftMessage());
       return;
     }
 
@@ -3034,22 +3041,22 @@ export function IdeaWorkbench({
     event.preventDefault();
 
     if (!selectedExperimentForResult) {
-      setMessage("결과를 기록할 실험을 먼저 추가하세요.");
+      setMessage(buildExperimentResultExperimentRequiredMessage());
       return;
     }
 
     if (!experimentResultDraft.result.trim()) {
-      setMessage("실험 결과를 입력하세요.");
+      setMessage(buildExperimentResultRequiredMessage());
       return;
     }
 
     if (!experimentResultDraft.learning.trim()) {
-      setMessage("실험에서 배운 점을 입력하세요.");
+      setMessage(buildExperimentResultLearningRequiredMessage());
       return;
     }
 
     if (!experimentResultNoteSaveDraft) {
-      setMessage("저장할 실험 결과 내용이 비어 있습니다.");
+      setMessage(buildExperimentResultEmptySaveDraftMessage());
       return;
     }
 
