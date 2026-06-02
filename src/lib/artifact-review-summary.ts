@@ -168,6 +168,13 @@ export function buildArtifactReviewSummaries(artifacts: VentureArtifact[]) {
   return summaries;
 }
 
+export function buildArtifactReviewSummaryState(artifacts: VentureArtifact[]) {
+  return {
+    artifactReviewSummaries: buildArtifactReviewSummaries(artifacts),
+    artifactVersionSummaries: buildArtifactVersionSummaries(artifacts),
+  };
+}
+
 export function buildArtifactReviewMemo(artifact: VentureArtifact, summary: ArtifactReviewSummary) {
   return `# 제작 자료 리뷰 메모: ${artifact.title || artifactLabels[artifact.artifact_type]}
 

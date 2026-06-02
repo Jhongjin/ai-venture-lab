@@ -32,9 +32,8 @@ import {
 } from "@/lib/artifact-review-queue";
 import {
   artifactReviewIntensityTone,
-  buildArtifactReviewSummaries,
   buildArtifactReviewMemo,
-  buildArtifactVersionSummaries,
+  buildArtifactReviewSummaryState,
 } from "@/lib/artifact-review-summary";
 import {
   buildArtifactDraftInsertRow,
@@ -1045,12 +1044,8 @@ export function IdeaWorkbench({
     [implementationEvidenceFilter, implementationOwnerFilter, implementationStatusFilter, implementationTaskEvidence, selectedImplementationTasks],
   );
 
-  const artifactVersionSummaries = useMemo(
-    () => buildArtifactVersionSummaries(selectedArtifactRecords),
-    [selectedArtifactRecords],
-  );
-  const artifactReviewSummaries = useMemo(
-    () => buildArtifactReviewSummaries(selectedArtifactRecords),
+  const { artifactReviewSummaries, artifactVersionSummaries } = useMemo(
+    () => buildArtifactReviewSummaryState(selectedArtifactRecords),
     [selectedArtifactRecords],
   );
 

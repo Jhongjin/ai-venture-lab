@@ -21,6 +21,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildArtifactReviewMemo,
+  buildArtifactReviewSummaryState,
   buildArtifactReviewSummaries,
   buildArtifactVersionSummaries,
   summarizeArtifactLineChanges,
@@ -96,6 +97,10 @@ assert.equal(reviewSummaries.get("prd-v2").previous.id, "prd-v1");
 assert.equal(reviewSummaries.get("prd-v3").previous.id, "prd-v2");
 assert.equal(reviewSummaries.get("prd-v3").intensity, "major");
 assert.ok(reviewSummaries.get("prd-v3").removedSections.includes("Scope"));
+const summaryState = buildArtifactReviewSummaryState(artifacts);
+assert.equal(summaryState.artifactVersionSummaries.get("prd-v3").previous.id, "prd-v2");
+assert.equal(summaryState.artifactReviewSummaries.get("prd-v3").previous.id, "prd-v2");
+assert.equal(summaryState.artifactReviewSummaries.get("prd-v3").intensity, "major");
 
 const memo = buildArtifactReviewMemo(artifacts[2], reviewSummaries.get("prd-v3"));
 assert.match(memo, /이전 비교: v2/);
