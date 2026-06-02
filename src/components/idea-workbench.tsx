@@ -116,6 +116,7 @@ import {
   buildStep8LearningDisplayState,
   buildStep8ImplementationDerivedState,
 } from "@/lib/step8-learning-summary";
+import { buildStep6ExecutionBridgeDisplayState } from "@/lib/step6-execution-bridge-state";
 import { buildValidationEvidenceCoach, buildValidationPlan } from "@/lib/validation-planning";
 import { buildDesignBriefMarkdown } from "@/lib/design-brief-markdown";
 import { buildDesignGenerationPromptMarkdown } from "@/lib/design-generation-prompt-markdown";
@@ -897,8 +898,12 @@ export function IdeaWorkbench({
       }),
     [artifactSourceFilter, artifactStatusFilter, artifactTypeFilter, selectedArtifactRecords],
   );
-  const firstImplementationTask = selectedImplementationTasks[0] ?? null;
-  const hasGeneratedWorkOrder = selectedRuns.length > 0 || selectedImplementationTasks.length > 0;
+  const step6ExecutionBridgeDisplayState = buildStep6ExecutionBridgeDisplayState({
+    buildDeliveryMode,
+    externalToolLabel: activeExternalBuildTool.label,
+    implementationTasks: selectedImplementationTasks,
+    runs: selectedRuns,
+  });
   const learningTelemetryReportDraft = useMemo(
     () =>
       selectedIdea
@@ -6549,17 +6554,7 @@ export function IdeaWorkbench({
           />
 
           <Step6ExecutionBridge
-            finalExecutionDetail={
-              buildDeliveryMode === "external_tool"
-                ? `${activeExternalBuildTool.label} 연결 파일과 START 파일`
-                : "내부 개발 시작 자료와 완료 기준"
-            }
-            firstTaskAcceptanceCriteria={firstImplementationTask?.acceptance_criteria ?? null}
-            firstTaskTitle={firstImplementationTask?.title ?? null}
-            firstTaskTypeLabel={
-              firstImplementationTask ? implementationTaskTypeLabels[firstImplementationTask.task_type] : null
-            }
-            hasGeneratedWorkOrder={hasGeneratedWorkOrder}
+            {...step6ExecutionBridgeDisplayState}
           />
 
           <Step6ManualRunForm
