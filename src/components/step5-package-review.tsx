@@ -19,9 +19,9 @@ type Step5PackageReviewProps = {
 };
 
 const step5ReviewFocusItems = [
-  ["결과", "무엇을 만들지 / 어디서 만들지"],
-  ["범위", "포함 / 제외"],
-  ["첫 작업", "T-001 시작 가능"],
+  ["결과", "만들 것 · 개발 방식"],
+  ["범위", "포함 · 제외"],
+  ["첫 작업", "T-001 가능"],
 ] as const;
 
 export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCards }: Step5PackageReviewProps) {
@@ -32,10 +32,10 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
   return (
     <div className="mt-5 grid gap-4">
       <div className="border border-slate-200 bg-slate-50 p-4">
-        <div className="avl-kicker">정리된 내용 확인</div>
-        <h4 className="mt-2 text-base font-semibold text-slate-950">세 가지만 확인</h4>
+        <div className="avl-kicker">지금 확인</div>
+        <h4 className="mt-2 text-base font-semibold text-slate-950">3개만</h4>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          맞으면 저장만 누르세요. 자세한 요약은 접어 둡니다.
+          맞으면 저장하세요. 자세한 요약은 접어 둡니다.
         </p>
         <div data-smoke="step5-review-save-focus" className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
           {step5ReviewFocusItems.map(([label, detail]) => (
