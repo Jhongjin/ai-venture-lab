@@ -31,7 +31,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 
 const { externalBuildToolProfiles } = await import(buildDeliveryUrl);
 const { productSurfaceProfiles } = await import(productSurfaceUrl);
-const { buildDevelopmentAutoPackageCopyState } = await import(moduleUrl);
+const { buildDevelopmentAutoPackageCopyState, buildDevelopmentAutoWorkbenchState } = await import(moduleUrl);
 
 const input = {
   activeBuildDeliveryDetail: "Cursor 연결 파일과 시작 지시문으로 넘깁니다.",
@@ -87,5 +87,42 @@ const emptyState = buildDevelopmentAutoPackageCopyState({
 });
 assert.equal(emptyState.developmentAutoSummaryDraft, "");
 assert.match(emptyState.developmentAutoTaskDraftLines, /핵심 제작 범위/);
+
+const workbenchState = buildDevelopmentAutoWorkbenchState({
+  ...input,
+  canEnterOrchestrationFromDevelopmentDocs: false,
+  developmentAutoFlowState: "review",
+  developmentAutoNote: "첫 버전은 결제 없이 진행",
+  developmentPanel: "tasks",
+  experienceMode: "guided",
+  ideaName: "AI Venture Lab",
+  implementationTaskDrafts: [
+    {
+      acceptance_criteria: "사용자가 입력하고 저장 완료 상태를 본다",
+      owner_role: "builder",
+      priority: "high",
+      task_type: "frontend",
+      title: "T-001 시작 화면",
+    },
+  ],
+});
+assert.equal(workbenchState.visibleDevelopmentPanel, "setup");
+assert.equal(workbenchState.hasSavedDevelopmentAutoPackage, false);
+assert.equal(workbenchState.effectiveDevelopmentAutoFlowState, "review");
+assert.match(workbenchState.developmentAutoSummaryDraft, /AI Venture Lab/);
+
+const savedWorkbenchState = buildDevelopmentAutoWorkbenchState({
+  ...input,
+  canEnterOrchestrationFromDevelopmentDocs: true,
+  developmentAutoFlowState: "review",
+  developmentAutoNote: "",
+  developmentPanel: "tasks",
+  experienceMode: "full",
+  ideaName: "AI Venture Lab",
+  implementationTaskDrafts: [],
+});
+assert.equal(savedWorkbenchState.visibleDevelopmentPanel, "tasks");
+assert.equal(savedWorkbenchState.hasSavedDevelopmentAutoPackage, true);
+assert.equal(savedWorkbenchState.effectiveDevelopmentAutoFlowState, "saved");
 
 console.log("Development auto package copy smoke passed.");

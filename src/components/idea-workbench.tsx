@@ -265,10 +265,11 @@ import {
   type CursorProgressDisplayItem,
 } from "@/lib/external-progress-import";
 import {
-  buildDevelopmentAutoPackageCopyState,
+  buildDevelopmentAutoWorkbenchState,
   buildExternalToolRunPackageDraft,
   buildFinalAgentRunPackageDraft,
   buildFinalDevelopmentPlanDraft,
+  type DevelopmentAutoFlowState,
 } from "@/lib/development-auto-package-copy";
 import { buildDevelopmentAutopilotRows } from "@/lib/development-autopilot-rows";
 import {
@@ -432,8 +433,6 @@ export type { WorkbenchTask } from "@/lib/workbench-tasks";
 type EditState = WorkbenchEditState;
 
 export type { WorkbenchStepReadiness };
-
-type DevelopmentAutoFlowState = "idle" | "running" | "review" | "summary";
 
 function emitVentureEvent<T>(eventName: string, detail: T) {
   window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
@@ -1707,22 +1706,6 @@ export function IdeaWorkbench({
     ideaName: selectedIdea?.name ?? null,
     scaffoldManifestDraft,
   });
-  const visibleDevelopmentPanel: DevelopmentPanel =
-    experienceMode === "guided" ? "setup" : developmentPanel;
-  const hasSavedDevelopmentAutoPackage =
-    canEnterOrchestrationFromDevelopmentDocs;
-  const effectiveDevelopmentAutoFlowState: DevelopmentAutoFlowState | "saved" =
-    hasSavedDevelopmentAutoPackage ? "saved" : developmentAutoFlowState;
-  const developmentAutoPackageCopyInput = {
-    activeBuildDeliveryDetail,
-    activeBuildDeliveryLabel,
-    backendCandidateLabel: backendCandidateScores[0]?.label ?? null,
-    buildDeliveryMode,
-    externalBuildTool: activeExternalBuildTool,
-    firstBuildBridge,
-    hasValidationSummaryArtifact,
-    productSurface: activeProductSurface,
-  };
   const {
     developmentAutoBuildBridgeCards,
     developmentAutoOutputItems,
@@ -1730,11 +1713,25 @@ export function IdeaWorkbench({
     developmentAutoSummaryCards,
     developmentAutoSummaryDraft,
     developmentAutoTaskDraftLines,
-  } = buildDevelopmentAutoPackageCopyState({
+    effectiveDevelopmentAutoFlowState,
+    hasSavedDevelopmentAutoPackage,
+    visibleDevelopmentPanel,
+  } = buildDevelopmentAutoWorkbenchState({
+    activeBuildDeliveryDetail,
+    activeBuildDeliveryLabel,
+    backendCandidateLabel: backendCandidateScores[0]?.label ?? null,
+    buildDeliveryMode,
+    canEnterOrchestrationFromDevelopmentDocs,
+    developmentAutoFlowState,
     developmentAutoNote,
+    developmentPanel,
+    experienceMode,
+    externalBuildTool: activeExternalBuildTool,
+    firstBuildBridge,
+    hasValidationSummaryArtifact,
     ideaName: selectedIdea?.name ?? null,
     implementationTaskDrafts,
-    input: developmentAutoPackageCopyInput,
+    productSurface: activeProductSurface,
   });
   const finalDevelopmentPlanDraft = buildFinalDevelopmentPlanDraft({
     developmentAutoSummaryDraft,

@@ -26,6 +26,14 @@ export type DevelopmentAutoOutputItem = {
   detail: string;
 };
 
+export type DevelopmentAutoFlowState = "idle" | "running" | "review" | "summary";
+
+export type DevelopmentAutoEffectiveFlowState = DevelopmentAutoFlowState | "saved";
+
+export type DevelopmentAutoPanel = "setup" | "tasks" | "handoff";
+
+export type DevelopmentExperienceMode = "guided" | "full";
+
 export type DevelopmentAutoPackageCopyInput = {
   activeBuildDeliveryDetail: string;
   activeBuildDeliveryLabel: string;
@@ -293,6 +301,60 @@ export function buildDevelopmentAutoPackageCopyState({
     developmentAutoSummaryCards,
     developmentAutoSummaryDraft,
     developmentAutoTaskDraftLines,
+  };
+}
+
+export function buildDevelopmentAutoWorkbenchState({
+  activeBuildDeliveryDetail,
+  activeBuildDeliveryLabel,
+  backendCandidateLabel,
+  buildDeliveryMode,
+  canEnterOrchestrationFromDevelopmentDocs,
+  developmentAutoFlowState,
+  developmentAutoNote,
+  developmentPanel,
+  experienceMode,
+  externalBuildTool,
+  firstBuildBridge,
+  hasValidationSummaryArtifact,
+  ideaName,
+  implementationTaskDrafts,
+  productSurface,
+}: DevelopmentAutoPackageCopyInput & {
+  canEnterOrchestrationFromDevelopmentDocs: boolean;
+  developmentAutoFlowState: DevelopmentAutoFlowState;
+  developmentAutoNote: string;
+  developmentPanel: DevelopmentAutoPanel;
+  experienceMode: DevelopmentExperienceMode;
+  ideaName: string | null;
+  implementationTaskDrafts: ReadonlyArray<ImplementationTaskDraft>;
+}) {
+  const hasSavedDevelopmentAutoPackage = canEnterOrchestrationFromDevelopmentDocs;
+  const effectiveDevelopmentAutoFlowState: DevelopmentAutoEffectiveFlowState = hasSavedDevelopmentAutoPackage
+    ? "saved"
+    : developmentAutoFlowState;
+  const visibleDevelopmentPanel: DevelopmentAutoPanel = experienceMode === "guided" ? "setup" : developmentPanel;
+  const copyState = buildDevelopmentAutoPackageCopyState({
+    developmentAutoNote,
+    ideaName,
+    implementationTaskDrafts,
+    input: {
+      activeBuildDeliveryDetail,
+      activeBuildDeliveryLabel,
+      backendCandidateLabel,
+      buildDeliveryMode,
+      externalBuildTool,
+      firstBuildBridge,
+      hasValidationSummaryArtifact,
+      productSurface,
+    },
+  });
+
+  return {
+    ...copyState,
+    effectiveDevelopmentAutoFlowState,
+    hasSavedDevelopmentAutoPackage,
+    visibleDevelopmentPanel,
   };
 }
 
