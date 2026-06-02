@@ -393,10 +393,12 @@ import {
   buildIdeaDecisionUpdatePatch,
   buildRecommendedValidationExperimentSavedMessage,
   buildRiskCreatedMessage,
+  buildRiskCreatedTelemetryProperties,
   buildRiskCreateLoginRequiredMessage,
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
+  buildRiskStatusTelemetryProperties,
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
@@ -2188,11 +2190,7 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "risk_created",
       eventCategory: "risk",
-      properties: {
-        severity: data.severity,
-        status: data.status,
-        area: data.area || "미정",
-      },
+      properties: buildRiskCreatedTelemetryProperties(data),
     });
     setRiskDraft(createDefaultRiskDraft());
     setMessage(buildRiskCreatedMessage());
@@ -3555,11 +3553,10 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "risk_status_updated",
       eventCategory: "risk",
-      properties: {
-        severity: data.severity,
-        status: data.status,
-        previous_status: risk.status,
-      },
+      properties: buildRiskStatusTelemetryProperties({
+        previousStatus: risk.status,
+        risk: data,
+      }),
     });
     setMessage(buildRiskStatusChangedMessage({ statusLabel: riskStatusLabels[status] ?? status }));
     router.refresh();

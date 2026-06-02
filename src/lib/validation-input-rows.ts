@@ -24,6 +24,12 @@ export type IdeaDecisionUpdatePatch<Decision extends string> = {
   decision: Decision;
 };
 
+export type RiskTelemetrySource<Severity extends string, Status extends string> = {
+  area: string | null;
+  severity: Severity;
+  status: Status;
+};
+
 export const validationExperimentGuideRows = [
   {
     title: "무엇을 확인할지",
@@ -181,6 +187,16 @@ export function buildRiskInsertRow<Severity extends string>({
   };
 }
 
+export function buildRiskCreatedTelemetryProperties<Severity extends string, Status extends string>(
+  risk: RiskTelemetrySource<Severity, Status>,
+) {
+  return {
+    severity: risk.severity,
+    status: risk.status,
+    area: risk.area || "미정",
+  };
+}
+
 export function buildDecisionInsertRow<Decision extends string>({
   decision,
   ideaId,
@@ -242,4 +258,18 @@ export function buildExperimentStatusUpdatePatch<Status extends string>({
 
 export function buildRiskStatusUpdatePatch<Status extends string>(status: Status): RiskStatusUpdatePatch<Status> {
   return { status };
+}
+
+export function buildRiskStatusTelemetryProperties<Severity extends string, Status extends string>({
+  previousStatus,
+  risk,
+}: {
+  previousStatus: Status;
+  risk: Pick<RiskTelemetrySource<Severity, Status>, "severity" | "status">;
+}) {
+  return {
+    severity: risk.severity,
+    status: risk.status,
+    previous_status: previousStatus,
+  };
 }

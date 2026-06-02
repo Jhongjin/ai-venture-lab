@@ -27,10 +27,12 @@ const {
   buildIdeaDecisionUpdatePatch,
   buildRecommendedValidationExperimentSavedMessage,
   buildRiskCreatedMessage,
+  buildRiskCreatedTelemetryProperties,
   buildRiskCreateLoginRequiredMessage,
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
+  buildRiskStatusTelemetryProperties,
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
@@ -135,6 +137,18 @@ assert.deepEqual(
     title: "민감정보 입력 위험",
   },
 );
+assert.deepEqual(
+  buildRiskCreatedTelemetryProperties({
+    area: "",
+    severity: "high",
+    status: "open",
+  }),
+  {
+    severity: "high",
+    status: "open",
+    area: "미정",
+  },
+);
 
 assert.deepEqual(
   buildDecisionInsertRow({
@@ -204,5 +218,19 @@ assert.deepEqual(
 );
 
 assert.deepEqual(buildRiskStatusUpdatePatch("closed"), { status: "closed" });
+assert.deepEqual(
+  buildRiskStatusTelemetryProperties({
+    previousStatus: "open",
+    risk: {
+      severity: "medium",
+      status: "mitigated",
+    },
+  }),
+  {
+    severity: "medium",
+    status: "mitigated",
+    previous_status: "open",
+  },
+);
 
 console.log("Validation input rows smoke passed.");
