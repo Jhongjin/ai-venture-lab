@@ -15,14 +15,17 @@ const {
   getIdeaStageRank,
   getInitialSelectedWorkbenchIdeaId,
   getInitialWorkbenchTask,
+  getNextSelectedWorkbenchIdeaAfterRemoval,
   getSelectedWorkbenchIdea,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
+  getWorkbenchIdeaRemovalSelectionState,
   getVisibleActiveIdeaCount,
   getVisibleDiscardedIdeas,
   isWorkbenchAdminRole,
   isDiscardedIdea,
   isIdeaStageAtOrAfter,
+  isRemovedWorkbenchIdeaSelected,
   mergeRecordMap,
   omitRecordKey,
   prependRecord,
@@ -135,6 +138,58 @@ assert.equal(getSelectedWorkbenchIdea(ideas, "admin")?.id, "admin");
 assert.equal(getSelectedWorkbenchIdea(ideas, "missing")?.id, "shared-old");
 assert.equal(getSelectedWorkbenchIdea([ideas[4]], "missing")?.id, "deleted");
 assert.equal(getSelectedWorkbenchIdea([], "missing"), null);
+assert.equal(
+  isRemovedWorkbenchIdeaSelected({
+    currentSelectedIdeaId: "owned-new",
+    removedIdeaId: "owned-new",
+    selectedIdeaId: "admin",
+  }),
+  true,
+);
+assert.equal(
+  isRemovedWorkbenchIdeaSelected({
+    currentSelectedIdeaId: "admin",
+    removedIdeaId: "owned-new",
+    selectedIdeaId: "admin",
+  }),
+  false,
+);
+assert.equal(
+  getNextSelectedWorkbenchIdeaAfterRemoval({
+    currentSelectedIdeaId: "owned-new",
+    nextIdeas: ideas.filter((record) => record.id !== "owned-new"),
+    removedIdeaId: "owned-new",
+    selectedIdeaId: "owned-new",
+  })?.id,
+  "hidden",
+);
+assert.equal(
+  getNextSelectedWorkbenchIdeaAfterRemoval({
+    currentSelectedIdeaId: "admin",
+    nextIdeas: ideas.filter((record) => record.id !== "shared-old"),
+    removedIdeaId: "shared-old",
+    selectedIdeaId: "admin",
+  })?.id,
+  "admin",
+);
+assert.equal(
+  getNextSelectedWorkbenchIdeaAfterRemoval({
+    currentSelectedIdeaId: "deleted",
+    nextIdeas: [ideas[4]],
+    removedIdeaId: "deleted",
+    selectedIdeaId: "deleted",
+  }),
+  null,
+);
+assert.deepEqual(
+  getWorkbenchIdeaRemovalSelectionState({
+    currentSelectedIdeaId: "owned-new",
+    nextIdeas: ideas.filter((record) => record.id !== "owned-new"),
+    removedIdeaId: "owned-new",
+    selectedIdeaId: "owned-new",
+  }),
+  { isRemovingSelectedIdea: true, nextSelectedIdea: ideas[2] },
+);
 
 assert.deepEqual(
   filterVisibleWorkbenchIdeas(ideas, "all", getAccess).map((record) => record.id),

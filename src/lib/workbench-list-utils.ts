@@ -170,6 +170,61 @@ export function getSelectedWorkbenchIdea(nextIdeas: Idea[], selectedIdeaId: stri
   );
 }
 
+export function isRemovedWorkbenchIdeaSelected({
+  currentSelectedIdeaId,
+  removedIdeaId,
+  selectedIdeaId,
+}: {
+  currentSelectedIdeaId?: string | null;
+  removedIdeaId: string;
+  selectedIdeaId: string;
+}) {
+  return selectedIdeaId === removedIdeaId || currentSelectedIdeaId === removedIdeaId;
+}
+
+export function getNextSelectedWorkbenchIdeaAfterRemoval({
+  currentSelectedIdeaId,
+  nextIdeas,
+  removedIdeaId,
+  selectedIdeaId,
+}: {
+  currentSelectedIdeaId?: string | null;
+  nextIdeas: Idea[];
+  removedIdeaId: string;
+  selectedIdeaId: string;
+}) {
+  return getWorkbenchIdeaRemovalSelectionState({
+    currentSelectedIdeaId,
+    nextIdeas,
+    removedIdeaId,
+    selectedIdeaId,
+  }).nextSelectedIdea;
+}
+
+export function getWorkbenchIdeaRemovalSelectionState({
+  currentSelectedIdeaId,
+  nextIdeas,
+  removedIdeaId,
+  selectedIdeaId,
+}: {
+  currentSelectedIdeaId?: string | null;
+  nextIdeas: Idea[];
+  removedIdeaId: string;
+  selectedIdeaId: string;
+}) {
+  const activeIdeas = sortWorkbenchIdeas(getActiveIdeas(nextIdeas));
+  const isRemovingSelectedIdea = isRemovedWorkbenchIdeaSelected({
+    currentSelectedIdeaId,
+    removedIdeaId,
+    selectedIdeaId,
+  });
+  const nextSelectedIdea = isRemovingSelectedIdea
+    ? (activeIdeas[0] ?? null)
+    : (activeIdeas.find((idea) => idea.id === selectedIdeaId) ?? activeIdeas[0] ?? null);
+
+  return { isRemovingSelectedIdea, nextSelectedIdea };
+}
+
 export function filterVisibleWorkbenchIdeas(
   nextIdeas: Idea[],
   filterMode: WorkbenchIdeaFilterMode,

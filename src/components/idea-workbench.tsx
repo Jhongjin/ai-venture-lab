@@ -68,6 +68,7 @@ import {
   getSelectedWorkbenchIdea,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
+  getWorkbenchIdeaRemovalSelectionState,
   getVisibleActiveIdeaCount,
   getVisibleDiscardedIdeas,
   isIdeaStageAtOrAfter,
@@ -1349,11 +1350,12 @@ export function IdeaWorkbench({
     }
 
     const remainingIdeas = sortWorkbenchIdeas(ideas.filter((currentIdea) => currentIdea.id !== idea.id));
-    const remainingActiveIdeas = getActiveIdeas(remainingIdeas);
-    const deletingSelectedIdea = selectedIdeaId === idea.id || selectedIdea?.id === idea.id;
-    const nextSelectedIdea = deletingSelectedIdea
-      ? (remainingActiveIdeas[0] ?? null)
-      : (remainingActiveIdeas.find((currentIdea) => currentIdea.id === selectedIdeaId) ?? remainingActiveIdeas[0] ?? null);
+    const { isRemovingSelectedIdea: deletingSelectedIdea, nextSelectedIdea } = getWorkbenchIdeaRemovalSelectionState({
+      currentSelectedIdeaId: selectedIdea?.id,
+      nextIdeas: remainingIdeas,
+      removedIdeaId: idea.id,
+      selectedIdeaId,
+    });
 
     setIdeas(remainingIdeas);
     setRisks((current) => removeRecordsByIdeaId(current, idea.id));
