@@ -19,9 +19,9 @@ type Step5PackageReviewProps = {
 };
 
 const step5ReviewFocusItems = [
-  ["결과", "만들 것과 개발 방식"],
-  ["범위", "넣을 것과 뺄 것"],
-  ["첫 작업", "T-001로 시작 가능"],
+  ["결과", "만들 것/방식"],
+  ["범위", "할 것/뺄 것"],
+  ["첫 작업", "T-001 시작"],
 ] as const;
 
 export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCards }: Step5PackageReviewProps) {
@@ -35,7 +35,7 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
         <div className="avl-kicker">지금 확인할 것</div>
         <h4 className="mt-2 text-base font-semibold text-slate-950">결과 · 범위 · 첫 작업</h4>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          세 칸이 맞으면 저장하세요. 자세한 요약은 필요할 때만 엽니다.
+          세 칸만 맞으면 저장하세요.
         </p>
         <div data-smoke="step5-review-save-focus" className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
           {step5ReviewFocusItems.map(([label, detail]) => (
@@ -49,7 +49,7 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
           data-smoke="step5-save-does-not-move"
           className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
         >
-          저장은 기준만 확정합니다. STEP 6 이동은 하단 다음 단계 버튼으로만 합니다.
+          저장은 기준만 확정합니다. 이동은 하단 다음 버튼에서 합니다.
         </div>
         <details data-smoke="step5-review-details-optional" className="mt-4">
           <summary className="cursor-pointer border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950">

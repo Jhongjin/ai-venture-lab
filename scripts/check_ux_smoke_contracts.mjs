@@ -41,7 +41,6 @@ const contracts = [
     file: "src/components/idea-workbench.tsx",
     tokens: [
       "buildWorkbenchCurrentActionDisplayState",
-      "getPublicMarketScanSources",
       'data-smoke="market-scan-source-boundary"',
       "추정 초안",
       "공개 출처가 없습니다. 웹 조사 다시 시도로 출처를 붙인 뒤 제작 패키지 근거로 쓰세요.",
@@ -50,6 +49,7 @@ const contracts = [
   {
     file: "src/lib/market-scan.ts",
     tokens: [
+      "getPublicMarketScanSources",
       "buildMarketScanReviewState",
       "웹 출처를 붙이지 못해 사용자 입력 기반 추정으로 준비됐습니다.",
       "제작 패키지 근거로 쓰기 전, 웹 조사 다시 시도로 공개 출처를 붙이는 것이 안전합니다.",
@@ -236,15 +236,15 @@ const contracts = [
       'data-smoke="step5-review-bridge-optional"',
       "지금 확인할 것",
       "결과 · 범위 · 첫 작업",
-      "세 칸이 맞으면 저장하세요.",
+      "세 칸만 맞으면 저장하세요.",
       "결과",
-      "만들 것과 개발 방식",
+      "만들 것/방식",
       "범위",
-      "넣을 것과 뺄 것",
+      "할 것/뺄 것",
       "첫 작업",
-      "T-001로 시작 가능",
+      "T-001 시작",
       "저장은 기준만 확정합니다.",
-      "STEP 6 이동은 하단 다음 단계 버튼으로만 합니다.",
+      "이동은 하단 다음 버튼에서 합니다.",
     ],
   },
   {
