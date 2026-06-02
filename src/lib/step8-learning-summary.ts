@@ -1,9 +1,12 @@
 import type { BuildDeliveryMode } from "@/lib/build-delivery";
 import { getCursorTaskCode, summarizeCursorProgressEvidence } from "@/lib/external-progress-import";
 import {
+  buildImplementationDependencyStatuses,
+  buildImplementationTaskProgressStats,
   getImplementationTaskReadinessQueues,
   getBlockedImplementationTaskHint,
   getImplementationEvidenceChecklist,
+  getOpenImplementationTasksForAction,
   implementationTaskStatusLabels,
   implementationTaskStatusTone,
   type ImplementationDependencyStatus,
@@ -76,6 +79,32 @@ export type Step8ImplementationTaskContext = {
   totalCount: number;
   waitingStatuses: ImplementationDependencyStatus[];
 };
+
+export type Step8ImplementationDerivedState = {
+  implementationDependencyStatuses: ImplementationDependencyStatus[];
+  implementationTaskProgressStats: ImplementationTaskProgressStats;
+  selectedOpenImplementationTasks: ImplementationTask[];
+  step8ImplementationTaskContext: Step8ImplementationTaskContext;
+};
+
+export function buildStep8ImplementationDerivedState(tasks: ImplementationTask[]): Step8ImplementationDerivedState {
+  const selectedOpenImplementationTasks = getOpenImplementationTasksForAction(tasks);
+  const implementationDependencyStatuses = buildImplementationDependencyStatuses(tasks);
+  const implementationTaskProgressStats = buildImplementationTaskProgressStats(tasks);
+  const step8ImplementationTaskContext = buildStep8ImplementationTaskContext({
+    dependencyStatuses: implementationDependencyStatuses,
+    openTasks: selectedOpenImplementationTasks,
+    progressStats: implementationTaskProgressStats,
+    tasks,
+  });
+
+  return {
+    implementationDependencyStatuses,
+    implementationTaskProgressStats,
+    selectedOpenImplementationTasks,
+    step8ImplementationTaskContext,
+  };
+}
 
 export function buildStep8ImplementationTaskContext({
   dependencyStatuses,

@@ -26,6 +26,7 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildStep8ImplementationDerivedState,
   buildStep8ImplementationTaskContext,
   buildStep8LearningSummary,
   buildStep8ProgressSummary,
@@ -114,6 +115,16 @@ assert.equal(context.readyStatuses.length, 1);
 assert.equal(context.waitingStatuses.length, 1);
 assert.equal(context.completedTasks.length, 1);
 assert.equal(context.totalCount, 3);
+
+const derivedState = buildStep8ImplementationDerivedState(tasks);
+assert.deepEqual(
+  derivedState.selectedOpenImplementationTasks.map((item) => item.id),
+  ["task-frontend", "task-qa"],
+);
+assert.equal(derivedState.implementationDependencyStatuses.length, 3);
+assert.equal(derivedState.implementationTaskProgressStats.completedCount, 1);
+assert.equal(derivedState.step8ImplementationTaskContext.nextTask?.id, "task-frontend");
+assert.equal(derivedState.step8ImplementationTaskContext.nextTaskCode, "T-002");
 
 const learningSummary = buildStep8LearningSummary({
   buildDeliveryMode: "external_tool",

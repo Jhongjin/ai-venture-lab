@@ -119,7 +119,11 @@ import {
   buildProductTelemetryFunnelMarkdown,
   buildTelemetrySetupDrafts,
 } from "@/lib/telemetry-artifacts";
-import { buildStep8ImplementationTaskContext, buildStep8LearningSummary, buildStep8ProgressSummary } from "@/lib/step8-learning-summary";
+import {
+  buildStep8ImplementationDerivedState,
+  buildStep8LearningSummary,
+  buildStep8ProgressSummary,
+} from "@/lib/step8-learning-summary";
 import { buildValidationEvidenceCoach, buildValidationPlan } from "@/lib/validation-planning";
 import { buildDesignBriefMarkdown } from "@/lib/design-brief-markdown";
 import { buildDesignGenerationPromptMarkdown } from "@/lib/design-generation-prompt-markdown";
@@ -353,16 +357,13 @@ import { buildDevelopmentCompletionReportMarkdown } from "@/lib/development-comp
 import {
   buildBlockedImplementationSummaries,
   buildImplementationEvidenceSummaries,
-  buildImplementationDependencyStatuses,
   buildImplementationTaskBoardColumns,
-  buildImplementationTaskProgressStats,
   buildImplementationTaskRefreshSummary,
   buildImplementationOwnerFilterLabels,
   buildImplementationOwnerOptions,
   filterImplementationTasks,
   getCompletedImplementationTasksWithEvidence,
   getImplementationEvidenceIssues,
-  getOpenImplementationTasksForAction,
   getVisibleImplementationTaskStatuses,
   resolveImplementationOwnerFilter,
   selectAgentRunPackageTasks,
@@ -984,28 +985,12 @@ export function IdeaWorkbench({
         : "",
     [selectedIdea, selectedProductTelemetryEvents],
   );
-  const selectedOpenImplementationTasks = useMemo(
-    () => getOpenImplementationTasksForAction(selectedImplementationTasks),
-    [selectedImplementationTasks],
-  );
-  const implementationDependencyStatuses = useMemo(
-    () => buildImplementationDependencyStatuses(selectedImplementationTasks),
-    [selectedImplementationTasks],
-  );
-  const implementationTaskProgressStats = useMemo(
-    () => buildImplementationTaskProgressStats(selectedImplementationTasks),
-    [selectedImplementationTasks],
-  );
-  const step8ImplementationTaskContext = useMemo(
-    () =>
-      buildStep8ImplementationTaskContext({
-        dependencyStatuses: implementationDependencyStatuses,
-        openTasks: selectedOpenImplementationTasks,
-        progressStats: implementationTaskProgressStats,
-        tasks: selectedImplementationTasks,
-      }),
-    [implementationDependencyStatuses, implementationTaskProgressStats, selectedImplementationTasks, selectedOpenImplementationTasks],
-  );
+  const {
+    implementationDependencyStatuses,
+    implementationTaskProgressStats,
+    selectedOpenImplementationTasks,
+    step8ImplementationTaskContext,
+  } = useMemo(() => buildStep8ImplementationDerivedState(selectedImplementationTasks), [selectedImplementationTasks]);
   const readyImplementationDependencyStatuses = step8ImplementationTaskContext.readyStatuses;
   const waitingImplementationDependencyStatuses = step8ImplementationTaskContext.waitingStatuses;
   const nextImplementationTask = step8ImplementationTaskContext.nextTask;
