@@ -14,6 +14,18 @@ export function buildArtifactSavedMessage({ artifactLabel, version }: { artifact
   return `${artifactLabel} v${version}을 저장했습니다.`;
 }
 
+export function buildArtifactSaveLoginRequiredMessage() {
+  return "제작 자료를 저장하려면 먼저 로그인하세요.";
+}
+
+export function buildArtifactSaveEmptyBodyMessage() {
+  return "저장할 제작 자료 본문이 비어 있습니다.";
+}
+
+export function buildArtifactLibraryFocusMessage(itemLabel: string) {
+  return `${itemLabel} 제작 자료를 보관함에서 확인하세요.`;
+}
+
 export function buildArtifactStatusChangedMessage({
   artifactLabel,
   statusLabel,
@@ -22,6 +34,10 @@ export function buildArtifactStatusChangedMessage({
   statusLabel: string;
 }) {
   return `${artifactLabel} 상태를 ${statusLabel}(으)로 변경했습니다.`;
+}
+
+export function buildArtifactStatusUpdatePermissionDeniedMessage() {
+  return "문서 작성자 또는 협업 공간 관리자만 이 제작 자료를 수정할 수 있습니다.";
 }
 
 export function buildArtifactDraftInsertRow({

@@ -38,9 +38,13 @@ import {
 import {
   buildArtifactDraftInsertRow,
   buildArtifactLibraryViewState,
+  buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
+  buildArtifactSaveEmptyBodyMessage,
+  buildArtifactSaveLoginRequiredMessage,
   buildArtifactSavedMessage,
   buildArtifactStatusChangedMessage,
+  buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
   getNextArtifactVersion,
 } from "@/lib/artifact-library-utils";
@@ -2606,12 +2610,12 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("제작 자료를 저장하려면 먼저 로그인하세요.");
+      setMessage(buildArtifactSaveLoginRequiredMessage());
       return false;
     }
 
     if (!body.trim()) {
-      setMessage("저장할 제작 자료 본문이 비어 있습니다.");
+      setMessage(buildArtifactSaveEmptyBodyMessage());
       return false;
     }
 
@@ -3068,7 +3072,7 @@ export function IdeaWorkbench({
       setArtifactSourceFilter("all");
       setArtifactPanel("library");
       updateActiveTask("artifacts");
-      setMessage(`${item.label} 제작 자료를 보관함에서 확인하세요.`);
+      setMessage(buildArtifactLibraryFocusMessage(item.label));
       return;
     }
 
@@ -3091,7 +3095,7 @@ export function IdeaWorkbench({
     }
 
     if (!canManageRecord(artifact)) {
-      setMessage("문서 작성자 또는 협업 공간 관리자만 이 제작 자료를 수정할 수 있습니다.");
+      setMessage(buildArtifactStatusUpdatePermissionDeniedMessage());
       return;
     }
 

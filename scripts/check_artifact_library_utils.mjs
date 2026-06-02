@@ -22,11 +22,15 @@ const { artifactStatusOptions, artifactTypeOptions } = await import(artifactLabe
 const {
   buildArtifactDraftInsertRow,
   buildArtifactLibraryViewState,
+  buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
+  buildArtifactSaveEmptyBodyMessage,
+  buildArtifactSaveLoginRequiredMessage,
   buildArtifactSavedMessage,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
   buildArtifactStatusChangedMessage,
+  buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
   filterArtifactLibrary,
   getNextArtifactVersion,
@@ -47,9 +51,16 @@ assert.deepEqual(artifactTypeOptions, [
   "launch_checklist",
 ]);
 assert.equal(buildArtifactSavedMessage({ artifactLabel: "제품 기획서", version: 2 }), "제품 기획서 v2을 저장했습니다.");
+assert.equal(buildArtifactSaveLoginRequiredMessage(), "제작 자료를 저장하려면 먼저 로그인하세요.");
+assert.equal(buildArtifactSaveEmptyBodyMessage(), "저장할 제작 자료 본문이 비어 있습니다.");
+assert.equal(buildArtifactLibraryFocusMessage("제품 기획서"), "제품 기획서 제작 자료를 보관함에서 확인하세요.");
 assert.equal(
   buildArtifactStatusChangedMessage({ artifactLabel: "제품 기획서", statusLabel: "승인" }),
   "제품 기획서 상태를 승인(으)로 변경했습니다.",
+);
+assert.equal(
+  buildArtifactStatusUpdatePermissionDeniedMessage(),
+  "문서 작성자 또는 협업 공간 관리자만 이 제작 자료를 수정할 수 있습니다.",
 );
 
 function artifact({ body, createdAt, id, source = "manual", status = "draft", title, type = "prd", version = 1 }) {
