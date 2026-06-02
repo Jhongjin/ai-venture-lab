@@ -8,6 +8,7 @@ const {
   buildDesignReadinessChecks,
   buildImplementationGateChecks,
   buildPrdReadinessChecks,
+  buildWorkbenchGateReadinessState,
   buildWorkbenchStepReadinessSnapshot,
   countDoneWorkbenchRuns,
   countWorkbenchHighRiskItems,
@@ -101,6 +102,69 @@ const implementationSummary = summarizeGateChecks(implementationChecks);
 assert.equal(implementationChecks.find((check) => check.label === "차단된 할 일 없음")?.detail, "1개 할 일이 차단 상태입니다.");
 assert.equal(implementationChecks.find((check) => check.label === "완료 증거 기록")?.passed, false);
 assert.equal(implementationSummary.score, 20);
+
+const gateStateInput = {
+  blockedTaskCount: 1,
+  completedTaskCount: 2,
+  completedTaskWithEvidenceCount: 1,
+  decision: "ship",
+  decisionCount: 2,
+  decisionLabel: "진행",
+  experiments: [{ status: "done" }],
+  hasApprovedDesignBriefArtifact: false,
+  hasApprovedMvpSpecArtifact: true,
+  hasApprovedPrdArtifact: false,
+  hasApprovedTechSpecArtifact: true,
+  hasBackendDecisionArtifact: true,
+  hasBackendRulesChecklist: true,
+  hasDesignBriefArtifact: false,
+  hasDesignStateCoverage: false,
+  hasDevRunbookArtifact: true,
+  hasEditableIdeaContext: true,
+  hasEnvironmentChecklist: true,
+  hasEvidenceCaptureArtifact: true,
+  hasExperimentResultArtifact: false,
+  hasIdeaBriefArtifact: true,
+  hasMvpSlicePlanArtifact: true,
+  hasMvpSpecArtifact: true,
+  hasPrdArtifact: true,
+  hasReleaseOpsChecklist: false,
+  hasResearchNoteArtifact: true,
+  hasSelectedIdea: true,
+  hasTechSpecArtifact: true,
+  hasValidationSprintArtifact: true,
+  hasValidationSummaryArtifact: true,
+  implementationTaskCount: 3,
+  missing: [],
+  nextEvidence: "가격 신호를 확인",
+  oneLiner: "반복 업무를 자동 정리합니다.",
+  risks: [{ severity: "high", status: "closed" }],
+  runs: [
+    { phase: "design", status: "done" },
+    { phase: "qa", status: "done" },
+    { phase: "security", status: "running" },
+  ],
+  targetUser: "1인 창업자",
+};
+const gateState = buildWorkbenchGateReadinessState(gateStateInput);
+assert.equal(gateState.prdReadinessScore, 100);
+assert.equal(gateState.nextPrdBlocker, null);
+assert.equal(gateState.designReadinessScore, 83);
+assert.equal(gateState.nextBuildBlocker.label, "제품 기획서 승인");
+assert.equal(gateState.implementationGateScore, 20);
+assert.equal(gateState.passedImplementationGateCount, 1);
+
+const emptyGateState = buildWorkbenchGateReadinessState({
+  ...gateStateInput,
+  hasEditableIdeaContext: false,
+  hasSelectedIdea: false,
+});
+assert.deepEqual(emptyGateState.prdReadinessChecks, []);
+assert.deepEqual(emptyGateState.designReadinessChecks, []);
+assert.deepEqual(emptyGateState.buildReadinessChecks, []);
+assert.deepEqual(emptyGateState.implementationGateChecks, []);
+assert.equal(emptyGateState.prdReadinessScore, 0);
+assert.equal(emptyGateState.buildReadinessScore, 0);
 
 const stepReadiness = buildWorkbenchStepReadinessSnapshot({
   canEnterDevelopment: true,

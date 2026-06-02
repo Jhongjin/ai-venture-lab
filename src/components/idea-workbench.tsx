@@ -214,17 +214,10 @@ import {
   getWorkbenchOperatorGateNote,
 } from "@/lib/workbench-current-action-copy";
 import {
-  buildBuildReadinessChecks,
-  buildDesignReadinessChecks,
-  buildImplementationGateChecks,
-  buildPrdReadinessChecks,
+  buildWorkbenchGateReadinessState,
   buildWorkbenchStepReadinessSnapshot,
   countDoneWorkbenchRuns,
-  countWorkbenchHighRiskItems,
   hasDevelopmentProcessArtifact,
-  hasDoneWorkbenchRunForPhase,
-  summarizeGateChecks,
-  type GateCheck,
   type WorkbenchStepReadiness,
 } from "@/lib/workbench-readiness-checks";
 import {
@@ -1594,31 +1587,59 @@ export function IdeaWorkbench({
     isEstimate: isVisibleMarketScanEstimate,
     publicSourceCount: visibleMarketScanPublicSources.length,
   });
-  const completedImplementationTasks = implementationTaskProgressStats.completedTasks;
-  const implementationTasksWithEvidence = getCompletedImplementationTasksWithEvidence(selectedImplementationTasks);
-  const hasCompletedExperiment = selectedExperiments.some((experiment) => experiment.status === "done");
-  const { highRiskCount, unresolvedHighRiskCount } = countWorkbenchHighRiskItems(selectedIdeaRisks);
-  const prdReadinessChecks: GateCheck[] = selectedIdea && editState
-    ? buildPrdReadinessChecks({
-        decision: editState.decision,
-        decisionCount: selectedDecisions.length,
-        decisionLabel: decisionLabels[editState.decision],
-        hasCompletedExperiment,
-        hasEvidenceCaptureArtifact,
-        hasExperimentResultArtifact,
-        hasIdeaBriefArtifact,
-        hasResearchNoteArtifact,
-        hasValidationSprintArtifact,
-        hasValidationSummaryArtifact,
-        highRiskCount,
-        missing,
-        unresolvedHighRiskCount,
-      })
-    : [];
-  const prdReadinessSummary = summarizeGateChecks(prdReadinessChecks);
-  const passedPrdReadinessCount = prdReadinessSummary.passedCount;
-  const prdReadinessScore = prdReadinessSummary.score;
-  const nextPrdBlocker = prdReadinessSummary.nextBlocker;
+  const {
+    buildReadinessChecks,
+    buildReadinessScore,
+    designReadinessChecks,
+    designReadinessScore,
+    implementationGateChecks,
+    implementationGateScore,
+    nextBuildBlocker,
+    nextPrdBlocker,
+    passedBuildReadinessCount,
+    passedImplementationGateCount,
+    passedPrdReadinessCount,
+    prdReadinessChecks,
+    prdReadinessScore,
+  } = buildWorkbenchGateReadinessState({
+    blockedTaskCount: implementationTaskProgressStats.blockedCount,
+    completedTaskCount: implementationTaskProgressStats.completedTasks.length,
+    completedTaskWithEvidenceCount: getCompletedImplementationTasksWithEvidence(selectedImplementationTasks).length,
+    decision: editState?.decision ?? "pending",
+    decisionCount: selectedDecisions.length,
+    decisionLabel: editState ? decisionLabels[editState.decision] : "",
+    experiments: selectedExperiments,
+    hasApprovedDesignBriefArtifact,
+    hasApprovedMvpSpecArtifact,
+    hasApprovedPrdArtifact,
+    hasApprovedTechSpecArtifact,
+    hasBackendDecisionArtifact,
+    hasBackendRulesChecklist,
+    hasDesignBriefArtifact,
+    hasDesignStateCoverage,
+    hasDevRunbookArtifact,
+    hasEditableIdeaContext: Boolean(selectedIdea && editState),
+    hasEnvironmentChecklist,
+    hasEvidenceCaptureArtifact,
+    hasExperimentResultArtifact,
+    hasIdeaBriefArtifact,
+    hasMvpSlicePlanArtifact,
+    hasMvpSpecArtifact,
+    hasPrdArtifact,
+    hasReleaseOpsChecklist,
+    hasResearchNoteArtifact,
+    hasSelectedIdea: Boolean(selectedIdea),
+    hasTechSpecArtifact,
+    hasValidationSprintArtifact,
+    hasValidationSummaryArtifact,
+    implementationTaskCount: selectedImplementationTasks.length,
+    missing,
+    nextEvidence: editState?.next_evidence ?? "",
+    oneLiner: selectedIdea?.one_liner ?? "",
+    risks: selectedIdeaRisks,
+    runs: selectedRuns,
+    targetUser: selectedIdea?.target_user ?? "",
+  });
   const prdHandoffDraft = selectedIdea && editState
     ? buildPrdHandoffMarkdown({
         idea: selectedIdea,
@@ -1634,45 +1655,6 @@ export function IdeaWorkbench({
         nextPrdBlocker,
       })
     : "";
-  const designReadinessChecks: GateCheck[] = selectedIdea && editState
-    ? buildDesignReadinessChecks({
-        hasBackendDecisionArtifact,
-        hasDesignBriefArtifact,
-        hasDesignStateCoverage,
-        hasDoneDesignRun: hasDoneWorkbenchRunForPhase(selectedRuns, "design"),
-        hasMvpSpecArtifact,
-        hasPrdArtifact,
-        nextEvidence: editState.next_evidence,
-        oneLiner: selectedIdea.one_liner,
-        targetUser: selectedIdea.target_user,
-      })
-    : [];
-  const designReadinessSummary = summarizeGateChecks(designReadinessChecks);
-  const designReadinessScore = designReadinessSummary.score;
-  const buildReadinessChecks: GateCheck[] = selectedIdea
-    ? buildBuildReadinessChecks({
-        hasApprovedDesignBriefArtifact,
-        hasApprovedMvpSpecArtifact,
-        hasApprovedPrdArtifact,
-        hasApprovedTechSpecArtifact,
-        hasBackendDecisionArtifact,
-        hasBackendRulesChecklist,
-        hasDesignBriefArtifact,
-        hasDevRunbookArtifact,
-        hasEnvironmentChecklist,
-        hasMvpSlicePlanArtifact,
-        hasMvpSpecArtifact,
-        hasPrdArtifact,
-        hasReleaseOpsChecklist,
-        hasTechSpecArtifact,
-        implementationTaskCount: selectedImplementationTasks.length,
-        unresolvedHighRiskCount,
-      })
-    : [];
-  const buildReadinessSummary = summarizeGateChecks(buildReadinessChecks);
-  const passedBuildReadinessCount = buildReadinessSummary.passedCount;
-  const buildReadinessScore = buildReadinessSummary.score;
-  const nextBuildBlocker = buildReadinessSummary.nextBlocker;
   const developmentKickoffDraft = selectedIdea && editState
     ? buildDevelopmentKickoffMarkdown({
         idea: selectedIdea,
@@ -1700,19 +1682,6 @@ export function IdeaWorkbench({
         externalBuildTool: activeExternalBuildTool,
       })
     : "";
-  const implementationGateChecks: GateCheck[] = selectedIdea
-    ? buildImplementationGateChecks({
-        blockedTaskCount: implementationTaskProgressStats.blockedCount,
-        completedTaskCount: completedImplementationTasks.length,
-        completedTaskWithEvidenceCount: implementationTasksWithEvidence.length,
-        hasDoneQaRun: hasDoneWorkbenchRunForPhase(selectedRuns, "qa"),
-        hasDoneSecurityRun: hasDoneWorkbenchRunForPhase(selectedRuns, "security"),
-        implementationTaskCount: selectedImplementationTasks.length,
-      })
-    : [];
-  const implementationGateSummary = summarizeGateChecks(implementationGateChecks);
-  const passedImplementationGateCount = implementationGateSummary.passedCount;
-  const implementationGateScore = implementationGateSummary.score;
   const launchChecklistDraft = selectedIdea && editState
     ? buildLaunchChecklistMarkdown({
         idea: selectedIdea,

@@ -29,6 +29,22 @@ export type WorkbenchRiskCounts = {
   unresolvedHighRiskCount: number;
 };
 
+export type WorkbenchGateReadinessState = {
+  buildReadinessChecks: GateCheck[];
+  buildReadinessScore: number;
+  designReadinessChecks: GateCheck[];
+  designReadinessScore: number;
+  implementationGateChecks: GateCheck[];
+  implementationGateScore: number;
+  nextBuildBlocker: GateCheck | null;
+  nextPrdBlocker: GateCheck | null;
+  passedBuildReadinessCount: number;
+  passedImplementationGateCount: number;
+  passedPrdReadinessCount: number;
+  prdReadinessChecks: GateCheck[];
+  prdReadinessScore: number;
+};
+
 const highRiskSeverities = new Set(["high", "critical"]);
 
 export function countWorkbenchHighRiskItems(risks: ReadonlyArray<WorkbenchRiskLike>): WorkbenchRiskCounts {
@@ -469,4 +485,165 @@ export function buildImplementationGateChecks({
       detail: "QA와 보안 점검이 모두 완료되어야 합니다.",
     },
   ];
+}
+
+export function buildWorkbenchGateReadinessState({
+  blockedTaskCount,
+  completedTaskCount,
+  completedTaskWithEvidenceCount,
+  decision,
+  decisionCount,
+  decisionLabel,
+  experiments,
+  hasApprovedDesignBriefArtifact,
+  hasApprovedMvpSpecArtifact,
+  hasApprovedPrdArtifact,
+  hasApprovedTechSpecArtifact,
+  hasBackendDecisionArtifact,
+  hasBackendRulesChecklist,
+  hasDesignBriefArtifact,
+  hasDesignStateCoverage,
+  hasDevRunbookArtifact,
+  hasEditableIdeaContext,
+  hasEnvironmentChecklist,
+  hasEvidenceCaptureArtifact,
+  hasExperimentResultArtifact,
+  hasIdeaBriefArtifact,
+  hasMvpSlicePlanArtifact,
+  hasMvpSpecArtifact,
+  hasPrdArtifact,
+  hasReleaseOpsChecklist,
+  hasResearchNoteArtifact,
+  hasSelectedIdea,
+  hasTechSpecArtifact,
+  hasValidationSprintArtifact,
+  hasValidationSummaryArtifact,
+  implementationTaskCount,
+  missing,
+  nextEvidence,
+  oneLiner,
+  risks,
+  runs,
+  targetUser,
+}: {
+  blockedTaskCount: number;
+  completedTaskCount: number;
+  completedTaskWithEvidenceCount: number;
+  decision: WorkbenchDecisionStatus;
+  decisionCount: number;
+  decisionLabel: string;
+  experiments: ReadonlyArray<{ status: string }>;
+  hasApprovedDesignBriefArtifact: boolean;
+  hasApprovedMvpSpecArtifact: boolean;
+  hasApprovedPrdArtifact: boolean;
+  hasApprovedTechSpecArtifact: boolean;
+  hasBackendDecisionArtifact: boolean;
+  hasBackendRulesChecklist: boolean;
+  hasDesignBriefArtifact: boolean;
+  hasDesignStateCoverage: boolean;
+  hasDevRunbookArtifact: boolean;
+  hasEditableIdeaContext: boolean;
+  hasEnvironmentChecklist: boolean;
+  hasEvidenceCaptureArtifact: boolean;
+  hasExperimentResultArtifact: boolean;
+  hasIdeaBriefArtifact: boolean;
+  hasMvpSlicePlanArtifact: boolean;
+  hasMvpSpecArtifact: boolean;
+  hasPrdArtifact: boolean;
+  hasReleaseOpsChecklist: boolean;
+  hasResearchNoteArtifact: boolean;
+  hasSelectedIdea: boolean;
+  hasTechSpecArtifact: boolean;
+  hasValidationSprintArtifact: boolean;
+  hasValidationSummaryArtifact: boolean;
+  implementationTaskCount: number;
+  missing: string[];
+  nextEvidence: string;
+  oneLiner: string;
+  risks: ReadonlyArray<WorkbenchRiskLike>;
+  runs: ReadonlyArray<WorkbenchRunLike>;
+  targetUser: string;
+}): WorkbenchGateReadinessState {
+  const hasCompletedExperiment = experiments.some((experiment) => experiment.status === "done");
+  const { highRiskCount, unresolvedHighRiskCount } = countWorkbenchHighRiskItems(risks);
+  const prdReadinessChecks = hasEditableIdeaContext
+    ? buildPrdReadinessChecks({
+        decision,
+        decisionCount,
+        decisionLabel,
+        hasCompletedExperiment,
+        hasEvidenceCaptureArtifact,
+        hasExperimentResultArtifact,
+        hasIdeaBriefArtifact,
+        hasResearchNoteArtifact,
+        hasValidationSprintArtifact,
+        hasValidationSummaryArtifact,
+        highRiskCount,
+        missing,
+        unresolvedHighRiskCount,
+      })
+    : [];
+  const prdReadinessSummary = summarizeGateChecks(prdReadinessChecks);
+  const designReadinessChecks = hasEditableIdeaContext
+    ? buildDesignReadinessChecks({
+        hasBackendDecisionArtifact,
+        hasDesignBriefArtifact,
+        hasDesignStateCoverage,
+        hasDoneDesignRun: hasDoneWorkbenchRunForPhase(runs, "design"),
+        hasMvpSpecArtifact,
+        hasPrdArtifact,
+        nextEvidence,
+        oneLiner,
+        targetUser,
+      })
+    : [];
+  const designReadinessSummary = summarizeGateChecks(designReadinessChecks);
+  const buildReadinessChecks = hasSelectedIdea
+    ? buildBuildReadinessChecks({
+        hasApprovedDesignBriefArtifact,
+        hasApprovedMvpSpecArtifact,
+        hasApprovedPrdArtifact,
+        hasApprovedTechSpecArtifact,
+        hasBackendDecisionArtifact,
+        hasBackendRulesChecklist,
+        hasDesignBriefArtifact,
+        hasDevRunbookArtifact,
+        hasEnvironmentChecklist,
+        hasMvpSlicePlanArtifact,
+        hasMvpSpecArtifact,
+        hasPrdArtifact,
+        hasReleaseOpsChecklist,
+        hasTechSpecArtifact,
+        implementationTaskCount,
+        unresolvedHighRiskCount,
+      })
+    : [];
+  const buildReadinessSummary = summarizeGateChecks(buildReadinessChecks);
+  const implementationGateChecks = hasSelectedIdea
+    ? buildImplementationGateChecks({
+        blockedTaskCount,
+        completedTaskCount,
+        completedTaskWithEvidenceCount,
+        hasDoneQaRun: hasDoneWorkbenchRunForPhase(runs, "qa"),
+        hasDoneSecurityRun: hasDoneWorkbenchRunForPhase(runs, "security"),
+        implementationTaskCount,
+      })
+    : [];
+  const implementationGateSummary = summarizeGateChecks(implementationGateChecks);
+
+  return {
+    buildReadinessChecks,
+    buildReadinessScore: buildReadinessSummary.score,
+    designReadinessChecks,
+    designReadinessScore: designReadinessSummary.score,
+    implementationGateChecks,
+    implementationGateScore: implementationGateSummary.score,
+    nextBuildBlocker: buildReadinessSummary.nextBlocker,
+    nextPrdBlocker: prdReadinessSummary.nextBlocker,
+    passedBuildReadinessCount: buildReadinessSummary.passedCount,
+    passedImplementationGateCount: implementationGateSummary.passedCount,
+    passedPrdReadinessCount: prdReadinessSummary.passedCount,
+    prdReadinessChecks,
+    prdReadinessScore: prdReadinessSummary.score,
+  };
 }
