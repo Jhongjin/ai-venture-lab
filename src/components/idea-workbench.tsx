@@ -44,9 +44,7 @@ import {
 } from "@/lib/artifact-library-utils";
 import { buildAgentRunPackageMarkdown } from "@/lib/agent-run-package-markdown";
 import { buildAppBlueprintMarkdown } from "@/lib/app-blueprint-markdown";
-import { buildBackendDecisionMarkdown, buildBackendExecutionPlanMarkdown } from "@/lib/backend-decision-markdown";
-import { buildBackendExecutionPlanSummaryRows } from "@/lib/backend-execution-plan-rows";
-import { buildBackendCandidateScores, buildBackendExecutionPlan } from "@/lib/backend-planning";
+import { buildBackendPlanningDraftState } from "@/lib/backend-planning-drafts";
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
@@ -265,7 +263,6 @@ import {
   buildDevelopmentPackageDrafts,
   scaffoldManifestGuideRows,
 } from "@/lib/development-package-drafts";
-import { buildFirstBuildBridge } from "@/lib/first-build-bridge";
 import { buildImplementationDependencyPlanMarkdown } from "@/lib/implementation-dependency-plan";
 import { buildImplementationTaskDrafts } from "@/lib/implementation-task-drafts";
 import {
@@ -1276,40 +1273,19 @@ export function IdeaWorkbench({
     score: currentScore,
     state: editState,
   });
-  const backendCandidateScores = selectedIdea && editState
-    ? buildBackendCandidateScores({
-        idea: selectedIdea,
-        state: editState,
-        experiments: selectedExperiments,
-        risks: selectedIdeaRisks,
-      })
-    : [];
-  const backendDecisionDraft = selectedIdea && editState
-    ? buildBackendDecisionMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        candidates: backendCandidateScores,
-      })
-    : "";
-  const backendExecutionPlan = backendCandidateScores[0] ? buildBackendExecutionPlan(backendCandidateScores[0]) : null;
-  const firstBuildBridge = selectedIdea && editState
-    ? buildFirstBuildBridge({
-        idea: selectedIdea,
-        state: editState,
-        backend: backendCandidateScores[0] ?? null,
-        experiments: selectedExperiments,
-        risks: selectedIdeaRisks,
-      })
-    : null;
-  const backendExecutionPlanDraft = selectedIdea && backendExecutionPlan
-    ? buildBackendExecutionPlanMarkdown({
-        idea: selectedIdea,
-        plan: backendExecutionPlan,
-      })
-    : "";
-  const backendExecutionPlanSummaryRows = backendExecutionPlan
-    ? buildBackendExecutionPlanSummaryRows(backendExecutionPlan)
-    : [];
+  const {
+    backendCandidateScores,
+    backendDecisionDraft,
+    backendExecutionPlan,
+    backendExecutionPlanDraft,
+    backendExecutionPlanSummaryRows,
+    firstBuildBridge,
+  } = buildBackendPlanningDraftState({
+    experiments: selectedExperiments,
+    idea: selectedIdea,
+    risks: selectedIdeaRisks,
+    state: editState,
+  });
   const designBriefDraft = selectedIdea && editState
     ? buildDesignBriefMarkdown({
         idea: selectedIdea,
