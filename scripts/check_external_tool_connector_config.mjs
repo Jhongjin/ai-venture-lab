@@ -8,6 +8,7 @@ const {
   buildClaudeMcpConfigJson,
   buildCursorMcpConfigJson,
   buildCursorSyncConfigJson,
+  buildExternalToolBuildSyncTokenRequestPayload,
   buildExternalToolConnectionCheckedMessage,
   buildExternalToolConnectionCheckFailedMessage,
   buildExternalToolConnectionCheckingMessage,
@@ -30,6 +31,16 @@ assert.equal(buildExternalToolConnectionRevokeFailedMessage("Cursor"), "Cursor �
 assert.equal(
   buildExternalToolConnectionRevokedMessage("Cursor"),
   "Cursor 연결을 끊었습니다. 해당 연결 파일의 자동 반영은 더 이상 저장되지 않습니다.",
+);
+assert.deepEqual(
+  buildExternalToolBuildSyncTokenRequestPayload({
+    ideaId: "idea-1",
+    tool: "codex",
+  }),
+  {
+    ideaId: "idea-1",
+    tool: "codex",
+  },
 );
 
 const syncConfig = JSON.parse(

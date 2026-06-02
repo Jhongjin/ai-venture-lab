@@ -168,6 +168,7 @@ import {
 } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import {
+  buildExternalToolBuildSyncTokenRequestPayload,
   buildExternalToolConnectionCheckedMessage,
   buildExternalToolConnectionCheckingMessage,
   buildExternalToolConnectionCheckFailedMessage,
@@ -3619,7 +3620,7 @@ export function IdeaWorkbench({
     const response = await fetch("/api/build-sync/token", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ideaId, tool }),
+      body: JSON.stringify(buildExternalToolBuildSyncTokenRequestPayload({ ideaId, tool })),
     });
     const payload = (await response.json().catch(() => ({}))) as CursorBuildSyncTokenResponse;
 

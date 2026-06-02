@@ -12,6 +12,10 @@ export type CursorSyncConfig = {
 };
 
 export type ExternalToolSyncConfigPayload = Pick<CursorSyncConfig, "endpoint" | "expiresAt" | "token">;
+export type ExternalToolBuildSyncTokenRequestPayload = {
+  ideaId: string;
+  tool: CursorSyncConfig["tool"];
+};
 
 export type ExternalToolSyncConfigDraftInput = {
   createdAt?: string;
@@ -47,6 +51,13 @@ export function buildExternalToolConnectionRevokeFailedMessage(toolLabel: string
 
 export function buildExternalToolConnectionRevokedMessage(toolLabel: string) {
   return `${toolLabel} 연결을 끊었습니다. 해당 연결 파일의 자동 반영은 더 이상 저장되지 않습니다.`;
+}
+
+export function buildExternalToolBuildSyncTokenRequestPayload({
+  ideaId,
+  tool,
+}: ExternalToolBuildSyncTokenRequestPayload): ExternalToolBuildSyncTokenRequestPayload {
+  return { ideaId, tool };
 }
 
 export function buildClaudeMcpConfigJson() {
