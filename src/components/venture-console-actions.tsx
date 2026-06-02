@@ -8,6 +8,11 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { copyBrowserText } from "@/lib/browser-file-download";
 import { clearBrowserTimeout, scheduleBrowserTimeout } from "@/lib/browser-timing";
 import {
+  buildWorkspaceEmailRedirectUrl,
+  readAuthCallbackErrorState,
+  readMagicLinkCodeState,
+} from "@/lib/auth-callback-url";
+import {
   inferProductSurface,
   productSurfaceProfiles,
   type ProductSurfaceKey,
@@ -574,20 +579,14 @@ export function VentureConsoleActions({
   }, [loadAuditEvents, loadPersonalRecordCount, supabase]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const authError = params.get("auth_error");
+    const callbackState = readAuthCallbackErrorState(window.location);
 
-    if (!authError) {
+    if (!callbackState) {
       return;
     }
 
-    const callbackMessage = formatAuthCallbackMessage(authError, params.get("auth_error_description"));
-    params.delete("auth_error");
-    params.delete("auth_error_description");
-
-    const nextQuery = params.toString();
-    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
-    window.history.replaceState(null, "", nextUrl);
+    const callbackMessage = formatAuthCallbackMessage(callbackState.error, callbackState.description);
+    window.history.replaceState(null, "", callbackState.nextUrl);
 
     const messageTimer = scheduleBrowserTimeout(() => {
       setAuthMessage(callbackMessage);
@@ -603,20 +602,16 @@ export function VentureConsoleActions({
       return;
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
+    const codeState = readMagicLinkCodeState(window.location);
 
-    if (!code) {
+    if (!codeState) {
       return;
     }
 
     const supabaseClient = supabase;
-    const authCode = code;
+    const authCode = codeState.code;
 
-    params.delete("code");
-    const nextQuery = params.toString();
-    const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
-    window.history.replaceState(null, "", nextUrl);
+    window.history.replaceState(null, "", codeState.nextUrl);
 
     const exchangeTimer = scheduleBrowserTimeout(() => {
       async function completeRootMagicLink() {
@@ -700,7 +695,7 @@ export function VentureConsoleActions({
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/workspace`,
+        emailRedirectTo: buildWorkspaceEmailRedirectUrl(window.location.origin),
       },
     });
     setIsAuthBusy(false);
