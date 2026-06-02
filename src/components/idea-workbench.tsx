@@ -256,7 +256,10 @@ import {
   buildDevelopmentPackageDraftState,
   scaffoldManifestGuideRows,
 } from "@/lib/development-package-drafts";
-import { buildImplementationDependencyPlanDraft } from "@/lib/implementation-dependency-plan";
+import {
+  buildImplementationDependencyPlanArtifactSaveDraft,
+  buildImplementationDependencyPlanDraft,
+} from "@/lib/implementation-dependency-plan";
 import { buildImplementationHandoffDraftState } from "@/lib/implementation-handoff-drafts";
 import {
   buildImplementationTaskEvidencePatch,
@@ -932,6 +935,10 @@ export function IdeaWorkbench({
     idea: selectedIdea,
     state: editState,
     statuses: implementationDependencyStatuses,
+  });
+  const implementationDependencyPlanSaveDraft = buildImplementationDependencyPlanArtifactSaveDraft({
+    body: implementationDependencyPlanDraft,
+    ideaName: selectedIdea?.name ?? null,
   });
   const {
     activeImplementationOwnerFilter,
@@ -5284,14 +5291,16 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() =>
-                        saveArtifactDraft(
-                          "dev_runbook",
-                          `${selectedIdea.name} 개발 실행 순서 점검`,
-                          implementationDependencyPlanDraft,
-                          "implementation_dependency_plan",
-                        )
+                        implementationDependencyPlanSaveDraft
+                          ? saveArtifactDraft(
+                              implementationDependencyPlanSaveDraft.artifactType,
+                              implementationDependencyPlanSaveDraft.title,
+                              implementationDependencyPlanSaveDraft.body,
+                              implementationDependencyPlanSaveDraft.source,
+                            )
+                          : undefined
                       }
-                      disabled={isBusy || !user || !implementationDependencyPlanDraft}
+                      disabled={isBusy || !user || !implementationDependencyPlanSaveDraft}
                       className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:opacity-50"
                     >
                       <Save size={15} />

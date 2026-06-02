@@ -29,7 +29,11 @@ const moduleUrl = transpileModuleUrl("src/lib/implementation-dependency-plan.ts"
   ['from "@/lib/workbench-labels";', `from ${JSON.stringify(workbenchLabelsUrl)};`],
 ]);
 
-const { buildImplementationDependencyPlanDraft, buildImplementationDependencyPlanMarkdown } = await import(moduleUrl);
+const {
+  buildImplementationDependencyPlanArtifactSaveDraft,
+  buildImplementationDependencyPlanDraft,
+  buildImplementationDependencyPlanMarkdown,
+} = await import(moduleUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -116,6 +120,15 @@ assert.equal(draft, markdown);
 assert.match(draft, /# 개발 실행 순서 점검: AI Venture Lab/);
 assert.match(draft, /T-001 제작 패키지 리뷰 화면/);
 assert.match(draft, /첫 화면 구현을 시작합니다/);
+const saveDraft = buildImplementationDependencyPlanArtifactSaveDraft({
+  body: draft,
+  ideaName: idea.name,
+});
+assert.equal(saveDraft.artifactType, "dev_runbook");
+assert.equal(saveDraft.title, "AI Venture Lab 개발 실행 순서 점검");
+assert.equal(saveDraft.source, "implementation_dependency_plan");
+assert.match(saveDraft.body, /# 개발 실행 순서 점검: AI Venture Lab/);
+assert.equal(buildImplementationDependencyPlanArtifactSaveDraft({ body: "", ideaName: null }), null);
 assert.equal(buildImplementationDependencyPlanDraft({ idea: null, state: null, statuses }), "");
 
 console.log("Implementation dependency plan smoke passed.");

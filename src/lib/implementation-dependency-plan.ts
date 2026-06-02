@@ -10,6 +10,32 @@ import type { Idea } from "@/lib/venture-data";
 
 type ImplementationDecisionState = Pick<Idea, "decision" | "stage">;
 
+export type ImplementationDependencyPlanArtifactSaveDraft = {
+  artifactType: "dev_runbook";
+  body: string;
+  source: "implementation_dependency_plan";
+  title: string;
+};
+
+export function buildImplementationDependencyPlanArtifactSaveDraft({
+  body,
+  ideaName,
+}: {
+  body: string;
+  ideaName: string | null;
+}) {
+  if (!ideaName || !body) {
+    return null;
+  }
+
+  return {
+    artifactType: "dev_runbook" as const,
+    body,
+    source: "implementation_dependency_plan" as const,
+    title: `${ideaName} 개발 실행 순서 점검`,
+  };
+}
+
 export function buildImplementationDependencyPlanMarkdown({
   idea,
   state,
