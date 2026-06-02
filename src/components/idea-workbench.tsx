@@ -1155,6 +1155,13 @@ export function IdeaWorkbench({
     [getRecordAccessState],
   );
 
+  const updateEditStateField = useCallback(
+    <Key extends keyof EditState>(field: Key, value: EditState[Key]) => {
+      setEditState((current) => (current ? setRecordField(current, field, value) : current));
+    },
+    [],
+  );
+
   function canManageRecord(record: { created_by: string | null; organization_id: string | null }) {
     return canManageWorkbenchRecord({ memberships, record, user });
   }
@@ -4397,12 +4404,7 @@ export function IdeaWorkbench({
                   <ProductSurfaceSelector
                     activeProductSurface={activeProductSurface}
                     canEdit={canEdit}
-                    onProductSurfaceChange={(value) =>
-                      setEditState({
-                        ...editState,
-                        product_surface: value,
-                      })
-                    }
+                    onProductSurfaceChange={(value) => updateEditStateField("product_surface", value)}
                   />
 
                   <div className="mt-5 grid gap-3 md:grid-cols-2">
@@ -4411,49 +4413,49 @@ export function IdeaWorkbench({
                       description={scoreFieldDescriptions.problem_intensity}
                       value={editState.problem_intensity}
                       disabled={!canEdit}
-                      onChange={(value) => setEditState({ ...editState, problem_intensity: value })}
+                      onChange={(value) => updateEditStateField("problem_intensity", value)}
                     />
                     <ScoreInput
                       label="발생 빈도"
                       description={scoreFieldDescriptions.frequency}
                       value={editState.frequency}
                       disabled={!canEdit}
-                      onChange={(value) => setEditState({ ...editState, frequency: value })}
+                      onChange={(value) => updateEditStateField("frequency", value)}
                     />
                     <ScoreInput
                       label="도달 가능성"
                       description={scoreFieldDescriptions.reachability}
                       value={editState.reachability}
                       disabled={!canEdit}
-                      onChange={(value) => setEditState({ ...editState, reachability: value })}
+                      onChange={(value) => updateEditStateField("reachability", value)}
                     />
                     <ScoreInput
                       label="지불 의향"
                       description={scoreFieldDescriptions.willingness_to_pay}
                       value={editState.willingness_to_pay}
                       disabled={!canEdit}
-                      onChange={(value) => setEditState({ ...editState, willingness_to_pay: value })}
+                      onChange={(value) => updateEditStateField("willingness_to_pay", value)}
                     />
                     <ScoreInput
                       label="첫 제작 속도"
                       description={scoreFieldDescriptions.mvp_speed}
                       value={editState.mvp_speed}
                       disabled={!canEdit}
-                      onChange={(value) => setEditState({ ...editState, mvp_speed: value })}
+                      onChange={(value) => updateEditStateField("mvp_speed", value)}
                     />
                     <ScoreInput
                       label="차별성"
                       description={scoreFieldDescriptions.differentiation}
                       value={editState.differentiation}
                       disabled={!canEdit}
-                      onChange={(value) => setEditState({ ...editState, differentiation: value })}
+                      onChange={(value) => updateEditStateField("differentiation", value)}
                     />
                     <ScoreInput
                       label="리스크 감점"
                       description={scoreFieldDescriptions.regulatory_risk}
                       value={editState.regulatory_risk}
                       disabled={!canEdit}
-                      onChange={(value) => setEditState({ ...editState, regulatory_risk: value })}
+                      onChange={(value) => updateEditStateField("regulatory_risk", value)}
                     />
                     <div className="border border-slate-200 bg-white p-4">
                       <div className="text-xs font-semibold tracking-[0.14em] text-slate-700">현재 평가</div>
@@ -4512,19 +4514,19 @@ export function IdeaWorkbench({
                     label="수요 신호"
                     value={editState.signal}
                     disabled={!canEdit}
-                    onChange={(value) => setEditState({ ...editState, signal: value })}
+                    onChange={(value) => updateEditStateField("signal", value)}
                   />
                   <TextArea
                     label="리스크 요약"
                     value={editState.risk_summary}
                     disabled={!canEdit}
-                    onChange={(value) => setEditState({ ...editState, risk_summary: value })}
+                    onChange={(value) => updateEditStateField("risk_summary", value)}
                   />
                   <TextArea
                     label="추가로 확인할 내용"
                     value={editState.next_evidence}
                     disabled={!canEdit}
-                    onChange={(value) => setEditState({ ...editState, next_evidence: value })}
+                    onChange={(value) => updateEditStateField("next_evidence", value)}
                   />
                 </div>
               </details>
