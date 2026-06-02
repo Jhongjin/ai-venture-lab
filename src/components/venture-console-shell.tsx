@@ -56,6 +56,7 @@ import type {
   TelemetryEvent,
   VentureArtifact,
 } from "@/lib/venture-data";
+import { subscribeToVentureEvents, type VentureEventListenerEntry } from "@/lib/venture-events";
 
 type IdeaCreatedEventDetail = Idea & { autoOpenWorkbench?: boolean };
 
@@ -343,41 +344,26 @@ export function VentureConsoleShell({
     const handleTaskUpdated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
     const handleTelemetryCreated = (event: Event) => handleRecordEvent<TelemetryEvent>(event, setTelemetryEvents);
 
-    window.addEventListener("venture:idea-created", handleIdeaCreated);
-    window.addEventListener("venture:idea-updated", handleIdeaUpdated);
-    window.addEventListener("venture:risk-created", handleRiskCreated);
-    window.addEventListener("venture:risk-updated", handleRiskUpdated);
-    window.addEventListener("venture:experiment-created", handleExperimentCreated);
-    window.addEventListener("venture:experiment-updated", handleExperimentUpdated);
-    window.addEventListener("venture:decision-created", handleDecisionCreated);
-    window.addEventListener("venture:run-created", handleRunCreated);
-    window.addEventListener("venture:runs-created", handleRunsCreated);
-    window.addEventListener("venture:run-updated", handleRunUpdated);
-    window.addEventListener("venture:artifact-created", handleArtifactCreated);
-    window.addEventListener("venture:artifact-updated", handleArtifactUpdated);
-    window.addEventListener("venture:task-created", handleTaskCreated);
-    window.addEventListener("venture:tasks-created", handleTasksCreated);
-    window.addEventListener("venture:task-updated", handleTaskUpdated);
-    window.addEventListener("venture:telemetry-created", handleTelemetryCreated);
+    const ventureEventListeners: VentureEventListenerEntry[] = [
+      ["venture:idea-created", handleIdeaCreated],
+      ["venture:idea-updated", handleIdeaUpdated],
+      ["venture:risk-created", handleRiskCreated],
+      ["venture:risk-updated", handleRiskUpdated],
+      ["venture:experiment-created", handleExperimentCreated],
+      ["venture:experiment-updated", handleExperimentUpdated],
+      ["venture:decision-created", handleDecisionCreated],
+      ["venture:run-created", handleRunCreated],
+      ["venture:runs-created", handleRunsCreated],
+      ["venture:run-updated", handleRunUpdated],
+      ["venture:artifact-created", handleArtifactCreated],
+      ["venture:artifact-updated", handleArtifactUpdated],
+      ["venture:task-created", handleTaskCreated],
+      ["venture:tasks-created", handleTasksCreated],
+      ["venture:task-updated", handleTaskUpdated],
+      ["venture:telemetry-created", handleTelemetryCreated],
+    ];
 
-    return () => {
-      window.removeEventListener("venture:idea-created", handleIdeaCreated);
-      window.removeEventListener("venture:idea-updated", handleIdeaUpdated);
-      window.removeEventListener("venture:risk-created", handleRiskCreated);
-      window.removeEventListener("venture:risk-updated", handleRiskUpdated);
-      window.removeEventListener("venture:experiment-created", handleExperimentCreated);
-      window.removeEventListener("venture:experiment-updated", handleExperimentUpdated);
-      window.removeEventListener("venture:decision-created", handleDecisionCreated);
-      window.removeEventListener("venture:run-created", handleRunCreated);
-      window.removeEventListener("venture:runs-created", handleRunsCreated);
-      window.removeEventListener("venture:run-updated", handleRunUpdated);
-      window.removeEventListener("venture:artifact-created", handleArtifactCreated);
-      window.removeEventListener("venture:artifact-updated", handleArtifactUpdated);
-      window.removeEventListener("venture:task-created", handleTaskCreated);
-      window.removeEventListener("venture:tasks-created", handleTasksCreated);
-      window.removeEventListener("venture:task-updated", handleTaskUpdated);
-      window.removeEventListener("venture:telemetry-created", handleTelemetryCreated);
-    };
+    return subscribeToVentureEvents(ventureEventListeners);
   }, [goToTask]);
 
   if (!isClientReady) {

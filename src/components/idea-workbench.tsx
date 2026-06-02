@@ -449,7 +449,7 @@ import {
   buildValidationPackageSavedMessage,
 } from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
-import { emitVentureEvent } from "@/lib/venture-events";
+import { emitVentureEvent, subscribeToVentureEvents, type VentureEventListenerEntry } from "@/lib/venture-events";
 import {
   buildImplementationTaskAutoRefreshMessage,
   buildImplementationTaskManualRefreshMessage,
@@ -844,7 +844,7 @@ export function IdeaWorkbench({
     const handleTasksCreated = (event: Event) => handleRecordListEvent<ImplementationTask>(event, setImplementationTasks);
     const handleTaskUpdated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
     const handleTelemetryCreated = (event: Event) => handleRecordEvent<TelemetryEvent>(event, setTelemetryEvents);
-    const ventureEventListeners: Array<[string, EventListener]> = [
+    const ventureEventListeners: VentureEventListenerEntry[] = [
       ["venture:idea-created", handleIdeaCreated],
       ["venture:idea-updated", handleIdeaUpdated],
       ["venture:risk-created", handleRiskCreated],
@@ -862,11 +862,7 @@ export function IdeaWorkbench({
       ["venture:telemetry-created", handleTelemetryCreated],
     ];
 
-    ventureEventListeners.forEach(([eventName, handler]) => window.addEventListener(eventName, handler));
-
-    return () => {
-      ventureEventListeners.forEach(([eventName, handler]) => window.removeEventListener(eventName, handler));
-    };
+    return subscribeToVentureEvents(ventureEventListeners);
   }, [updateActiveTask]);
 
   useEffect(() => {

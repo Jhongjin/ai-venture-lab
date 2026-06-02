@@ -1,12 +1,17 @@
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const helperRelativePath = "src/lib/venture-events.ts";
 const componentRelativePaths = [
   "src/components/idea-workbench.tsx",
   "src/components/venture-console-actions.tsx",
+];
+const subscriberRelativePaths = [
+  "src/components/idea-workbench.tsx",
+  "src/components/venture-console-shell.tsx",
 ];
 
 function normalizePath(filePath) {
@@ -26,13 +31,60 @@ async function listFiles(directory) {
 }
 
 const helperBody = await readFile(path.join(root, helperRelativePath), "utf8");
+const helperModuleUrl = pathToFileURL(path.join(root, helperRelativePath)).href;
+const { emitVentureEvent, subscribeToVentureEvents } = await import(helperModuleUrl);
+
+const dispatchedEvents = [];
+const addedListeners = [];
+const removedListeners = [];
+globalThis.CustomEvent = class VentureEventSmokeCustomEvent {
+  constructor(type, init) {
+    this.type = type;
+    this.detail = init?.detail;
+  }
+};
+globalThis.window = {
+  dispatchEvent(event) {
+    dispatchedEvents.push(event);
+  },
+  addEventListener(eventName, handler) {
+    addedListeners.push([eventName, handler]);
+  },
+  removeEventListener(eventName, handler) {
+    removedListeners.push([eventName, handler]);
+  },
+};
+
+function smokeHandler() {}
+const cleanup = subscribeToVentureEvents([["venture:test", smokeHandler]]);
+assert.deepEqual(addedListeners, [["venture:test", smokeHandler]]);
+cleanup();
+assert.deepEqual(removedListeners, [["venture:test", smokeHandler]]);
+
+emitVentureEvent("venture:test", { id: "T-001" });
+assert.equal(dispatchedEvents.length, 1);
+assert.equal(dispatchedEvents[0].type, "venture:test");
+assert.deepEqual(dispatchedEvents[0].detail, { id: "T-001" });
+
 assert.ok(
   helperBody.includes("export function emitVentureEvent"),
   `${helperRelativePath} must export emitVentureEvent.`,
 );
 assert.ok(
+  helperBody.includes("export function subscribeToVentureEvents"),
+  `${helperRelativePath} must export subscribeToVentureEvents.`,
+);
+assert.ok(
   helperBody.includes("window.dispatchEvent("),
   `${helperRelativePath} must own browser event dispatch.`,
+);
+assert.ok(
+  helperBody.includes("window.addEventListener("),
+  `${helperRelativePath} must own browser event listener registration.`,
+);
+assert.ok(
+  helperBody.includes("window.removeEventListener("),
+  `${helperRelativePath} must own browser event listener cleanup.`,
 );
 assert.ok(
   helperBody.includes("new CustomEvent<T>"),
@@ -42,12 +94,20 @@ assert.ok(
 for (const relativePath of componentRelativePaths) {
   const body = await readFile(path.join(root, relativePath), "utf8");
   assert.ok(
-    body.includes('import { emitVentureEvent } from "@/lib/venture-events";'),
-    `${relativePath} must import emitVentureEvent from the shared helper.`,
+    body.includes('from "@/lib/venture-events"'),
+    `${relativePath} must import from the shared venture event helper.`,
   );
   assert.ok(body.includes("emitVentureEvent"), `${relativePath} must use emitVentureEvent.`);
   assert.equal(body.includes("window.dispatchEvent("), false, `${relativePath} must not dispatch events directly.`);
   assert.equal(body.includes("new CustomEvent"), false, `${relativePath} must not create CustomEvent directly.`);
+}
+
+for (const relativePath of subscriberRelativePaths) {
+  const body = await readFile(path.join(root, relativePath), "utf8");
+  assert.ok(
+    body.includes("subscribeToVentureEvents"),
+    `${relativePath} must use subscribeToVentureEvents for venture event listeners.`,
+  );
 }
 
 const componentFiles = await listFiles(path.join(root, "src/components"));
@@ -56,6 +116,16 @@ for (const filePath of componentFiles.filter((file) => file.endsWith(".tsx"))) {
   const relativePath = normalizePath(filePath);
   assert.equal(body.includes("window.dispatchEvent("), false, `${relativePath} must not dispatch events directly.`);
   assert.equal(body.includes("new CustomEvent"), false, `${relativePath} must not create CustomEvent directly.`);
+  assert.equal(
+    body.includes("window.addEventListener("),
+    false,
+    `${relativePath} must not register venture event listeners directly.`,
+  );
+  assert.equal(
+    body.includes("window.removeEventListener("),
+    false,
+    `${relativePath} must not clean up venture event listeners directly.`,
+  );
 }
 
 console.log("Venture event helper smoke passed.");
