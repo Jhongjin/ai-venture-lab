@@ -260,8 +260,19 @@ import {
   runStatusTone,
   scoreFieldDescriptions,
   stageLabels,
-  type EvidenceConfidence,
 } from "@/lib/workbench-labels";
+import {
+  createDefaultEvidenceDraft,
+  createDefaultExperimentDraft,
+  createDefaultExperimentResultDraft,
+  createDefaultRiskDraft,
+  createDefaultRunDraft,
+  type EvidenceDraft,
+  type ExperimentDraft,
+  type ExperimentResultDraft,
+  type RiskDraft,
+  type RunDraft,
+} from "@/lib/workbench-draft-defaults";
 import {
   getOpenIdeaRisks,
   getSelectedArtifactRecords,
@@ -451,10 +462,8 @@ import type {
 } from "@/lib/venture-data";
 import type {
   Database,
-  DecisionStatus,
   ImplementationTaskStatus,
   Json,
-  OrchestrationPhase,
   OrchestrationStatus,
   RiskSeverity,
   VentureArtifactStatus,
@@ -467,40 +476,6 @@ type ViewerUser = Pick<User, "id">;
 export type { WorkbenchTask } from "@/lib/workbench-tasks";
 
 type EditState = WorkbenchEditState;
-
-type RiskDraft = {
-  title: string;
-  area: string;
-  severity: RiskSeverity;
-  mitigation: string;
-};
-
-type ExperimentDraft = {
-  name: string;
-  success_metric: string;
-};
-
-type RunDraft = {
-  phase: OrchestrationPhase;
-  owner_role: string;
-  objective: string;
-};
-
-type EvidenceDraft = {
-  title: string;
-  source: string;
-  evidence: string;
-  implication: string;
-  confidence: EvidenceConfidence;
-};
-
-type ExperimentResultDraft = {
-  experiment_id: string;
-  result: string;
-  learning: string;
-  next_decision: DecisionStatus;
-  next_action: string;
-};
 
 export type { WorkbenchStepReadiness };
 
@@ -615,33 +590,14 @@ export function IdeaWorkbench({
   );
   const selectedIdea = getSelectedWorkbenchIdea(ideas, selectedIdeaId);
   const [editState, setEditState] = useState<EditState | null>(selectedIdea ? toEditState(selectedIdea) : null);
-  const [riskDraft, setRiskDraft] = useState<RiskDraft>({
-    title: "",
-    area: "",
-    severity: "medium",
-    mitigation: "",
-  });
+  const [riskDraft, setRiskDraft] = useState<RiskDraft>(() => createDefaultRiskDraft());
   const [decisionReason, setDecisionReason] = useState("");
-  const [experimentDraft, setExperimentDraft] = useState<ExperimentDraft>({ name: "", success_metric: "" });
-  const [runDraft, setRunDraft] = useState<RunDraft>({
-    phase: "strategy",
-    owner_role: "strategy-reviewer",
-    objective: orchestrationPhaseConfigs[0].objective,
-  });
-  const [evidenceDraft, setEvidenceDraft] = useState<EvidenceDraft>({
-    title: "",
-    source: "",
-    evidence: "",
-    implication: "",
-    confidence: "medium",
-  });
-  const [experimentResultDraft, setExperimentResultDraft] = useState<ExperimentResultDraft>({
-    experiment_id: "",
-    result: "",
-    learning: "",
-    next_decision: "research_more",
-    next_action: "",
-  });
+  const [experimentDraft, setExperimentDraft] = useState<ExperimentDraft>(() => createDefaultExperimentDraft());
+  const [runDraft, setRunDraft] = useState<RunDraft>(() => createDefaultRunDraft());
+  const [evidenceDraft, setEvidenceDraft] = useState<EvidenceDraft>(() => createDefaultEvidenceDraft());
+  const [experimentResultDraft, setExperimentResultDraft] = useState<ExperimentResultDraft>(() =>
+    createDefaultExperimentResultDraft(),
+  );
   const [marketScanDraft, setMarketScanDraft] = useState<MarketScanDraft | null>(null);
   const [marketScanDraftKey, setMarketScanDraftKey] = useState<string | null>(null);
   const [marketScanMode, setMarketScanMode] = useState<string | null>(null);
@@ -2551,7 +2507,7 @@ export function IdeaWorkbench({
         area: data.area || "미정",
       },
     });
-    setRiskDraft({ title: "", area: "", severity: "medium", mitigation: "" });
+    setRiskDraft(createDefaultRiskDraft());
     setMessage("리스크를 추가했습니다.");
     router.refresh();
   }
@@ -2666,7 +2622,7 @@ export function IdeaWorkbench({
       },
     });
     if (options.clearDraft) {
-      setExperimentDraft({ name: "", success_metric: "" });
+      setExperimentDraft(createDefaultExperimentDraft());
     }
     setMessage(options.successMessage || "검증 계획을 저장했습니다.");
     router.refresh();
@@ -3442,13 +3398,7 @@ export function IdeaWorkbench({
     );
 
     if (saved) {
-      setEvidenceDraft({
-        title: "",
-        source: "",
-        evidence: "",
-        implication: "",
-        confidence: "medium",
-      });
+      setEvidenceDraft(createDefaultEvidenceDraft());
     }
   }
 
@@ -3488,13 +3438,7 @@ export function IdeaWorkbench({
           next_decision: experimentResultDraft.next_decision,
         },
       });
-      setExperimentResultDraft({
-        experiment_id: selectedExperimentForResult.id,
-        result: "",
-        learning: "",
-        next_decision: "research_more",
-        next_action: "",
-      });
+      setExperimentResultDraft(createDefaultExperimentResultDraft(selectedExperimentForResult.id));
       setMessage("검증 결과를 저장했습니다. 다음 단계 이동은 하단 다음 단계 버튼에서 진행하세요.");
     }
   }
