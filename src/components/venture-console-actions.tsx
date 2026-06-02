@@ -78,6 +78,7 @@ import {
   type AiExtractedIdeaCandidate,
   type ExtractedIdea,
 } from "@/lib/extracted-idea-normalization";
+import { buildTelemetryEventInsertRow } from "@/lib/telemetry-format";
 import { IdeaExtractionAdvancedQueue } from "@/components/idea-extraction-advanced-queue";
 import { IdeaExtractionDetailList } from "@/components/idea-extraction-detail-list";
 import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
@@ -301,19 +302,18 @@ export function VentureConsoleActions({
       return;
     }
 
-    const sanitizedProperties = Object.fromEntries(
-      Object.entries(properties).filter(([, value]) => value !== undefined),
-    ) as Record<string, Json>;
     const { data, error } = await supabase
       .from("telemetry_events")
-      .insert({
-        organization_id: organizationId ?? idea?.organization_id ?? null,
-        idea_id: idea?.id ?? null,
-        actor_id: user.id,
-        event_name: eventName,
-        event_category: eventCategory,
-        properties: sanitizedProperties,
-      })
+      .insert(
+        buildTelemetryEventInsertRow({
+          eventCategory,
+          eventName,
+          idea,
+          organizationId,
+          properties,
+          userId: user.id,
+        }),
+      )
       .select()
       .single();
 

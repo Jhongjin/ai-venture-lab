@@ -20,12 +20,14 @@ export function buildTelemetryEventInsertRow({
   eventCategory,
   eventName,
   idea,
+  organizationId,
   properties = {},
   userId,
 }: {
   eventCategory: string;
   eventName: string;
   idea?: TelemetryIdeaSummary | null;
+  organizationId?: string | null;
   properties?: Record<string, Json>;
   userId: string;
 }) {
@@ -34,7 +36,7 @@ export function buildTelemetryEventInsertRow({
     event_category: eventCategory,
     event_name: eventName,
     idea_id: idea?.id ?? null,
-    organization_id: idea?.organization_id ?? null,
+    organization_id: organizationId ?? idea?.organization_id ?? null,
     properties: sanitizeTelemetryProperties(properties),
   };
 }

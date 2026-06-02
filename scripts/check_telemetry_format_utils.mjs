@@ -56,6 +56,24 @@ assert.deepEqual(
     properties: { count: 1 },
   },
 );
+assert.deepEqual(
+  buildTelemetryEventInsertRow({
+    eventCategory: "extraction",
+    eventName: "idea_extraction_started",
+    idea: null,
+    organizationId: "org-console",
+    properties: { source: "manual", skipped: undefined },
+    userId: "user-1",
+  }),
+  {
+    actor_id: "user-1",
+    event_category: "extraction",
+    event_name: "idea_extraction_started",
+    idea_id: null,
+    organization_id: "org-console",
+    properties: { source: "manual" },
+  },
+);
 
 const productEvents = filterProductTelemetryEvents(events);
 assert.deepEqual(
