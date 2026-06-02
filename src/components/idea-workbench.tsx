@@ -275,12 +275,7 @@ import {
   type CursorProgressDisplayItem,
 } from "@/lib/external-progress-import";
 import {
-  buildDevelopmentAutoBridgeCards,
-  buildDevelopmentAutoOutputItems,
-  buildDevelopmentAutoProgressSteps,
-  buildDevelopmentAutoSummaryCards,
-  buildDevelopmentAutoSummaryDraft,
-  buildDevelopmentAutoTaskDraftLines,
+  buildDevelopmentAutoPackageCopyState,
   buildExternalToolRunPackageDraft,
   buildFinalAgentRunPackageDraft,
   buildFinalDevelopmentPlanDraft,
@@ -1768,21 +1763,18 @@ export function IdeaWorkbench({
     hasValidationSummaryArtifact,
     productSurface: activeProductSurface,
   };
-  const developmentAutoProgressSteps = buildDevelopmentAutoProgressSteps(developmentAutoPackageCopyInput);
-  const developmentAutoSummaryCards = buildDevelopmentAutoSummaryCards(developmentAutoPackageCopyInput);
-  const developmentAutoBuildBridgeCards = buildDevelopmentAutoBridgeCards(developmentAutoPackageCopyInput);
-  const developmentAutoOutputItems = buildDevelopmentAutoOutputItems(developmentAutoPackageCopyInput);
-  const developmentAutoTaskDraftLines = buildDevelopmentAutoTaskDraftLines(implementationTaskDrafts);
-  const developmentAutoSummaryDraft = buildDevelopmentAutoSummaryDraft({
-    activeBuildDeliveryDetail,
-    activeBuildDeliveryLabel,
-    buildDeliveryMode,
+  const {
+    developmentAutoBuildBridgeCards,
+    developmentAutoOutputItems,
+    developmentAutoProgressSteps,
+    developmentAutoSummaryCards,
+    developmentAutoSummaryDraft,
+    developmentAutoTaskDraftLines,
+  } = buildDevelopmentAutoPackageCopyState({
     developmentAutoNote,
-    externalBuildTool: activeExternalBuildTool,
     ideaName: selectedIdea?.name ?? null,
-    productSurface: activeProductSurface,
-    summaryCards: developmentAutoSummaryCards,
-    taskDraftLines: developmentAutoTaskDraftLines,
+    implementationTaskDrafts,
+    input: developmentAutoPackageCopyInput,
   });
   const finalDevelopmentPlanDraft = buildFinalDevelopmentPlanDraft({
     developmentAutoSummaryDraft,

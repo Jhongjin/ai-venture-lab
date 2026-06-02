@@ -26,7 +26,7 @@ export type DevelopmentAutoOutputItem = {
   detail: string;
 };
 
-type DevelopmentAutoPackageCopyInput = {
+export type DevelopmentAutoPackageCopyInput = {
   activeBuildDeliveryDetail: string;
   activeBuildDeliveryLabel: string;
   backendCandidateLabel: string | null;
@@ -260,6 +260,40 @@ export function buildDevelopmentAutoSummaryDraft({
     "## 사용자 보완 메모",
     developmentAutoNote.trim() || "- 추가 메모 없음",
   ].join("\n");
+}
+
+export function buildDevelopmentAutoPackageCopyState({
+  developmentAutoNote,
+  ideaName,
+  implementationTaskDrafts,
+  input,
+}: {
+  developmentAutoNote: string;
+  ideaName: string | null;
+  implementationTaskDrafts: ReadonlyArray<ImplementationTaskDraft>;
+  input: DevelopmentAutoPackageCopyInput;
+}) {
+  const developmentAutoProgressSteps = buildDevelopmentAutoProgressSteps(input);
+  const developmentAutoSummaryCards = buildDevelopmentAutoSummaryCards(input);
+  const developmentAutoBuildBridgeCards = buildDevelopmentAutoBridgeCards(input);
+  const developmentAutoOutputItems = buildDevelopmentAutoOutputItems(input);
+  const developmentAutoTaskDraftLines = buildDevelopmentAutoTaskDraftLines(implementationTaskDrafts);
+  const developmentAutoSummaryDraft = buildDevelopmentAutoSummaryDraft({
+    ...input,
+    developmentAutoNote,
+    ideaName,
+    summaryCards: developmentAutoSummaryCards,
+    taskDraftLines: developmentAutoTaskDraftLines,
+  });
+
+  return {
+    developmentAutoBuildBridgeCards,
+    developmentAutoOutputItems,
+    developmentAutoProgressSteps,
+    developmentAutoSummaryCards,
+    developmentAutoSummaryDraft,
+    developmentAutoTaskDraftLines,
+  };
 }
 
 export function buildFinalDevelopmentPlanDraft({
