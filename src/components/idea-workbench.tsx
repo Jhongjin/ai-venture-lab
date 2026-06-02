@@ -142,24 +142,13 @@ import {
 } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import { buildExternalToolSyncConfigDraft } from "@/lib/external-tool-connector-config";
-import {
-  buildAntigravityGuideMarkdown,
-  buildClaudeGuideMarkdown,
-  buildCodexGuideMarkdown,
-  buildCursorGuideMarkdown,
-} from "@/lib/external-tool-handoff-markdown";
 import { buildExternalToolPackageDrafts } from "@/lib/external-tool-package-drafts";
 import {
-  buildAntigravityExternalToolSetupFiles,
-  buildClaudeExternalToolSetupFiles,
-  buildCodexExternalToolSetupFiles,
-  buildCursorExternalToolSetupFiles,
-} from "@/lib/external-tool-setup-files";
-import {
-  buildCodexSetupPowerShell,
-  buildCursorSetupPowerShell,
+  buildAntigravitySetupDownloadConfig,
+  buildClaudeSetupDownloadConfig,
+  buildCodexSetupDownloadConfig,
+  buildCursorSetupDownloadConfig,
   buildLiveExternalToolSetupDownloadDraft,
-  buildLiveToolSetupPowerShell,
   type ExternalToolSetupDownloadConfig,
   type LiveExternalToolSetupKey,
 } from "@/lib/external-tool-setup-scripts";
@@ -3578,117 +3567,55 @@ export function IdeaWorkbench({
   }
 
   async function downloadCursorSetupScript() {
-    return downloadLiveExternalToolSetupScript({
-      tool: "cursor",
-      toolLabel: "Cursor",
-      loginMessage: "Cursor 자동 연결 파일을 받으려면 먼저 로그인하세요.",
-      fileLabel: "Cursor 연결 스크립트",
-      fileSuffix: "cursor-setup",
-      successMessage: "Cursor 연결 파일을 준비했습니다. venture_record_progress가 로컬 기록과 서버 반영을 함께 처리합니다.",
-      errorMessage: "Cursor 연결 파일을 만들지 못했습니다.",
-      buildGuideDraft: buildCursorGuideMarkdown,
-      buildFiles: ({ guideDraft, syncConfigDraft }) =>
-        buildCursorExternalToolSetupFiles({
-          finalAgentRunPackageDraft,
-          guideDraft,
-          mcpConfigDraft: cursorMcpConfigDraft,
-          mcpServerDraft: cursorMcpServerDraft,
-          ruleDraft: cursorRuleDraft,
-          startPromptDraft: cursorStartPromptDraft,
-          syncConfigDraft,
-          taskPackageDraft: cursorTaskPackageDraft,
-        }),
-      buildSetupScript: buildCursorSetupPowerShell,
-    });
+    return downloadLiveExternalToolSetupScript(
+      buildCursorSetupDownloadConfig({
+        cursorMcpConfigDraft,
+        cursorMcpServerDraft,
+        cursorRuleDraft,
+        cursorStartPromptDraft,
+        cursorTaskPackageDraft,
+        finalAgentRunPackageDraft,
+      }),
+    );
   }
 
   async function downloadCodexSetupScript() {
-    return downloadLiveExternalToolSetupScript({
-      tool: "codex",
-      toolLabel: "Codex",
-      loginMessage: "Codex 자동 연결 파일을 받으려면 먼저 로그인하세요.",
-      fileLabel: "Codex 연결 스크립트",
-      fileSuffix: "codex-setup",
-      successMessage: "Codex 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.",
-      errorMessage: "Codex 연결 파일을 만들지 못했습니다.",
-      buildGuideDraft: buildCodexGuideMarkdown,
-      buildFiles: ({ guideDraft, syncConfigDraft }) =>
-        buildCodexExternalToolSetupFiles({
-          agentInstructionsDraft: codexAgentInstructionsDraft,
-          cliScriptDraft: codexCliScriptDraft,
-          finalAgentRunPackageDraft,
-          guideDraft,
-          startPromptDraft: codexStartPromptDraft,
-          syncConfigDraft,
-          taskPackageDraft: codexTaskPackageDraft,
-        }),
-      buildSetupScript: buildCodexSetupPowerShell,
-    });
+    return downloadLiveExternalToolSetupScript(
+      buildCodexSetupDownloadConfig({
+        codexAgentInstructionsDraft,
+        codexCliScriptDraft,
+        codexStartPromptDraft,
+        codexTaskPackageDraft,
+        finalAgentRunPackageDraft,
+      }),
+    );
   }
 
   async function downloadClaudeSetupScript() {
-    return downloadLiveExternalToolSetupScript({
-      tool: "claude_code",
-      toolLabel: "Claude Code",
-      loginMessage: "Claude Code 자동 연결 파일을 받으려면 먼저 로그인하세요.",
-      fileLabel: "Claude Code 연결 스크립트",
-      fileSuffix: "claude-code-setup",
-      successMessage: "Claude Code 연결 파일을 준비했습니다. 연결 도구 또는 record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.",
-      errorMessage: "Claude Code 연결 파일을 만들지 못했습니다.",
-      buildGuideDraft: buildClaudeGuideMarkdown,
-      buildFiles: ({ guideDraft, syncConfigDraft }) =>
-        buildClaudeExternalToolSetupFiles({
-          cliScriptDraft: claudeCliScriptDraft,
-          finalAgentRunPackageDraft,
-          guideDraft,
-          instructionsDraft: claudeInstructionsDraft,
-          mcpConfigDraft: claudeMcpConfigDraft,
-          startPromptDraft: claudeStartPromptDraft,
-          syncConfigDraft,
-          taskPackageDraft: claudeTaskPackageDraft,
-        }),
-      buildSetupScript: ({ idea, projectKey, files }) => buildLiveToolSetupPowerShell({
-        idea,
-        projectKey,
-        files,
-        toolLabel: "Claude Code",
-        folder: ".claude",
-        startFileName: "AI_VENTURE_CLAUDE_START.md",
+    return downloadLiveExternalToolSetupScript(
+      buildClaudeSetupDownloadConfig({
+        claudeCliScriptDraft,
+        claudeInstructionsDraft,
+        claudeMcpConfigDraft,
+        claudeStartPromptDraft,
+        claudeTaskPackageDraft,
+        finalAgentRunPackageDraft,
       }),
-    });
+    );
   }
 
   async function downloadAntigravitySetupScript() {
-    return downloadLiveExternalToolSetupScript({
-      tool: "antigravity",
-      toolLabel: "Google Antigravity",
-      loginMessage: "Google Antigravity 자동 연결 파일을 받으려면 먼저 로그인하세요.",
-      fileLabel: "Google Antigravity 연결 스크립트",
-      fileSuffix: "antigravity-setup",
-      successMessage: "Google Antigravity 연결 파일을 준비했습니다. record-progress 명령이 로컬 기록과 서버 반영을 함께 처리합니다.",
-      errorMessage: "Google Antigravity 연결 파일을 만들지 못했습니다.",
-      buildGuideDraft: buildAntigravityGuideMarkdown,
-      buildFiles: ({ guideDraft, syncConfigDraft }) =>
-        buildAntigravityExternalToolSetupFiles({
-          acceptanceDraft: antigravityAcceptanceDraft,
-          agentInstructionsDraft: antigravityAgentInstructionsDraft,
-          cliScriptDraft: antigravityCliScriptDraft,
-          finalAgentRunPackageDraft,
-          guideDraft,
-          mcpConfigDraft: antigravityMcpConfigDraft,
-          startPromptDraft: antigravityStartPromptDraft,
-          syncConfigDraft,
-          taskPackageDraft: antigravityTaskPackageDraft,
-        }),
-      buildSetupScript: ({ idea, projectKey, files }) => buildLiveToolSetupPowerShell({
-        idea,
-        projectKey,
-        files,
-        toolLabel: "Google Antigravity",
-        folder: ".antigravity",
-        startFileName: "AI_VENTURE_ANTIGRAVITY_START.md",
+    return downloadLiveExternalToolSetupScript(
+      buildAntigravitySetupDownloadConfig({
+        antigravityAcceptanceDraft,
+        antigravityAgentInstructionsDraft,
+        antigravityCliScriptDraft,
+        antigravityMcpConfigDraft,
+        antigravityStartPromptDraft,
+        antigravityTaskPackageDraft,
+        finalAgentRunPackageDraft,
       }),
-    });
+    );
   }
 
   function downloadFinalExecutionPrimaryPackage() {
