@@ -294,7 +294,6 @@ import { buildQaAcceptanceMatrixMarkdown } from "@/lib/qa-acceptance-matrix-mark
 import { buildReleaseDecisionPacket } from "@/lib/release-decision-packet";
 import { buildRolePromptPackMarkdown } from "@/lib/role-prompt-pack-markdown";
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
-import { buildEvidenceNoteMarkdown, buildExperimentResultMarkdown } from "@/lib/validation-evidence-markdown";
 import {
   buildDecisionInsertRow,
   buildExperimentInsertRow,
@@ -306,13 +305,8 @@ import {
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
 } from "@/lib/validation-input-rows";
+import { buildValidationPackageDraftState } from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
-import {
-  buildIdeaBriefMarkdown,
-  buildResearchBriefMarkdown,
-  buildValidationSprintMarkdown,
-  buildValidationSummaryMarkdown,
-} from "@/lib/validation-package-markdown";
 import {
   buildFilteredImplementationRunPromptMarkdown,
   buildImplementationBacklogMarkdown,
@@ -1247,70 +1241,27 @@ export function IdeaWorkbench({
         decisions: selectedDecisions,
       })
     : null;
-  const ideaBrief = selectedIdea && editState
-    ? buildIdeaBriefMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        score: currentScore,
-        recommendation: scoreRecommendation,
-        risks: selectedIdeaRisks,
-      })
-    : "";
-  const researchBriefDraft = selectedIdea && editState
-    ? buildResearchBriefMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        score: currentScore,
-        recommendation: scoreRecommendation,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-      })
-    : "";
-  const validationSprintDraft = selectedIdea && editState
-    ? buildValidationSprintMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        score: currentScore,
-        recommendation: scoreRecommendation,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-      })
-    : "";
-  const evidenceNoteDraft = selectedIdea && editState
-    ? buildEvidenceNoteMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        draft: evidenceDraft,
-      })
-    : "";
-  const selectedExperimentForResult =
-    selectedExperiments.find((experiment) => experiment.id === experimentResultDraft.experiment_id) ??
-    selectedExperiments[0] ??
-    null;
-  const experimentResultNoteDraft = selectedIdea && editState && selectedExperimentForResult
-    ? buildExperimentResultMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        experiment: selectedExperimentForResult,
-        draft: {
-          ...experimentResultDraft,
-          experiment_id: selectedExperimentForResult.id,
-        },
-      })
-    : "";
-  const validationSummaryDraft = selectedIdea && editState
-    ? buildValidationSummaryMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        score: currentScore,
-        recommendation: scoreRecommendation,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        artifacts: selectedArtifactRecords,
-        decisions: selectedDecisions,
-      })
-    : "";
+  const {
+    evidenceNoteDraft,
+    experimentResultNoteDraft,
+    ideaBrief,
+    researchBriefDraft,
+    selectedExperimentForResult,
+    validationSprintDraft,
+    validationSummaryDraft,
+  } = buildValidationPackageDraftState({
+    artifacts: selectedArtifactRecords,
+    decisions: selectedDecisions,
+    evidenceDraft,
+    experiments: selectedExperiments,
+    experimentResultDraft,
+    idea: selectedIdea,
+    recommendation: scoreRecommendation,
+    risks: selectedIdeaRisks,
+    runs: selectedRuns,
+    score: currentScore,
+    state: editState,
+  });
   const prdDraft = selectedIdea && editState
     ? buildPrdMarkdown({
         idea: selectedIdea,
