@@ -226,3 +226,13 @@ export function buildArtifactReviewProgressState(queue: ArtifactReviewItem[]): A
     totalCount,
   };
 }
+
+export function buildArtifactReviewWorkflowState(artifacts: VentureArtifact[]) {
+  const queue = buildArtifactReviewQueue(artifacts);
+  const progressState = buildArtifactReviewProgressState(queue);
+
+  return {
+    ...progressState,
+    queue,
+  };
+}

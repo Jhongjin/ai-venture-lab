@@ -25,9 +25,12 @@ const {
   buildArtifactVersionSummaries,
   summarizeArtifactLineChanges,
 } = await import(moduleUrl);
-const { buildArtifactReviewProgressState, buildArtifactReviewQueue, getArtifactReviewStatusDisplay } = await import(
-  queueModuleUrl
-);
+const {
+  buildArtifactReviewProgressState,
+  buildArtifactReviewQueue,
+  buildArtifactReviewWorkflowState,
+  getArtifactReviewStatusDisplay,
+} = await import(queueModuleUrl);
 
 function artifact({ body, createdAt, id, status = "draft", type = "prd", version }) {
   return {
@@ -129,6 +132,41 @@ assert.equal(progressState.approvedCount, 2);
 assert.equal(progressState.nextItem?.id, "prd");
 assert.equal(progressState.nextItem?.status, "draft");
 assert.equal(progressState.progress, 22);
+const workflowState = buildArtifactReviewWorkflowState([
+  artifact({
+    body: "# Idea",
+    createdAt: "2026-05-05T00:00:00.000Z",
+    id: "idea-approved",
+    status: "approved",
+    type: "idea_brief",
+    version: 1,
+  }),
+  artifact({
+    body: "# Research",
+    createdAt: "2026-05-06T00:00:00.000Z",
+    id: "research-approved",
+    status: "approved",
+    type: "research_note",
+    version: 1,
+  }),
+  artifact({
+    body: "# PRD",
+    createdAt: "2026-05-07T00:00:00.000Z",
+    id: "prd-draft",
+    type: "prd",
+    version: 1,
+  }),
+]);
+assert.deepEqual(
+  {
+    approvedCount: workflowState.approvedCount,
+    nextItemId: workflowState.nextItem?.id,
+    progress: workflowState.progress,
+    queueLength: workflowState.queue.length,
+    totalCount: workflowState.totalCount,
+  },
+  { approvedCount: 2, nextItemId: "prd", progress: 22, queueLength: 9, totalCount: 9 },
+);
 
 const allApprovedProgressState = buildArtifactReviewProgressState(
   buildArtifactReviewQueue(
