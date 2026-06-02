@@ -42,7 +42,7 @@ import {
   buildArtifactStatusUpdatePatch,
   getNextArtifactVersion,
 } from "@/lib/artifact-library-utils";
-import { buildBackendPlanningDraftState } from "@/lib/backend-planning-drafts";
+import { buildBackendPlanningArtifactSaveDrafts, buildBackendPlanningDraftState } from "@/lib/backend-planning-drafts";
 import { buildExecutionPackageDraftState } from "@/lib/execution-package-drafts";
 import {
   buildDiscardIdeaPatch,
@@ -1235,6 +1235,11 @@ export function IdeaWorkbench({
     idea: selectedIdea,
     risks: selectedIdeaRisks,
     state: editState,
+  });
+  const { backendDecisionSaveDraft, backendExecutionPlanSaveDraft } = buildBackendPlanningArtifactSaveDrafts({
+    backendDecisionDraft,
+    backendExecutionPlanDraft,
+    ideaName: selectedIdea?.name ?? null,
   });
   const {
     appBlueprintDraft,
@@ -4694,9 +4699,16 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() =>
-                    saveArtifactDraft("backend_decision", `${selectedIdea.name} 백엔드 결정`, backendDecisionDraft, "development_process")
+                    backendDecisionSaveDraft
+                      ? saveArtifactDraft(
+                          backendDecisionSaveDraft.artifactType,
+                          backendDecisionSaveDraft.title,
+                          backendDecisionSaveDraft.body,
+                          backendDecisionSaveDraft.source,
+                        )
+                      : undefined
                   }
-                  disabled={isBusy || !user}
+                  disabled={isBusy || !user || !backendDecisionSaveDraft}
                   className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
@@ -4755,14 +4767,16 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() =>
-                        saveArtifactDraft(
-                          "backend_decision",
-                          `${selectedIdea.name} 백엔드 실행 체크리스트`,
-                          backendExecutionPlanDraft,
-                          "backend_execution_checklist",
-                        )
+                        backendExecutionPlanSaveDraft
+                          ? saveArtifactDraft(
+                              backendExecutionPlanSaveDraft.artifactType,
+                              backendExecutionPlanSaveDraft.title,
+                              backendExecutionPlanSaveDraft.body,
+                              backendExecutionPlanSaveDraft.source,
+                            )
+                          : undefined
                       }
-                      disabled={isBusy || !user || !backendExecutionPlanDraft}
+                      disabled={isBusy || !user || !backendExecutionPlanSaveDraft}
                       className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                     >
                       <Save size={16} />

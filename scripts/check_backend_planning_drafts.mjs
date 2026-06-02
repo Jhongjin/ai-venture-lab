@@ -39,7 +39,7 @@ const moduleUrl = transpileModuleUrl("src/lib/backend-planning-drafts.ts", [
   ['from "@/lib/first-build-bridge";', `from ${JSON.stringify(firstBuildBridgeUrl)};`],
 ]);
 
-const { buildBackendPlanningDraftState } = await import(moduleUrl);
+const { buildBackendPlanningArtifactSaveDrafts, buildBackendPlanningDraftState } = await import(moduleUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -127,6 +127,32 @@ assert.deepEqual(
 );
 assert.equal(draftState.firstBuildBridge?.stackTitle, "Next.js + Supabase");
 assert.match(draftState.firstBuildBridge?.decisionAnchor ?? "", /외부 제작 도구/);
+
+const saveDrafts = buildBackendPlanningArtifactSaveDrafts({
+  backendDecisionDraft: draftState.backendDecisionDraft,
+  backendExecutionPlanDraft: draftState.backendExecutionPlanDraft,
+  ideaName: idea.name,
+});
+assert.equal(saveDrafts.backendDecisionSaveDraft.artifactType, "backend_decision");
+assert.equal(saveDrafts.backendDecisionSaveDraft.title, "AI Venture Lab 백엔드 결정");
+assert.equal(saveDrafts.backendDecisionSaveDraft.source, "development_process");
+assert.match(saveDrafts.backendDecisionSaveDraft.body, /# 백엔드 결정: AI Venture Lab/);
+assert.equal(saveDrafts.backendExecutionPlanSaveDraft.artifactType, "backend_decision");
+assert.equal(saveDrafts.backendExecutionPlanSaveDraft.title, "AI Venture Lab 백엔드 실행 체크리스트");
+assert.equal(saveDrafts.backendExecutionPlanSaveDraft.source, "backend_execution_checklist");
+assert.match(saveDrafts.backendExecutionPlanSaveDraft.body, /# 백엔드 실행 체크리스트: AI Venture Lab/);
+
+assert.deepEqual(
+  buildBackendPlanningArtifactSaveDrafts({
+    backendDecisionDraft: "",
+    backendExecutionPlanDraft: "",
+    ideaName: null,
+  }),
+  {
+    backendDecisionSaveDraft: null,
+    backendExecutionPlanSaveDraft: null,
+  },
+);
 
 const emptyDraftState = buildBackendPlanningDraftState({
   experiments: [],

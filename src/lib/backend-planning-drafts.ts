@@ -20,6 +20,43 @@ export type BackendPlanningDraftState = {
   firstBuildBridge: FirstBuildBridge | null;
 };
 
+export type BackendPlanningArtifactSaveDraft = {
+  artifactType: "backend_decision";
+  body: string;
+  source: "backend_execution_checklist" | "development_process";
+  title: string;
+};
+
+export function buildBackendPlanningArtifactSaveDrafts({
+  backendDecisionDraft,
+  backendExecutionPlanDraft,
+  ideaName,
+}: {
+  backendDecisionDraft: string;
+  backendExecutionPlanDraft: string;
+  ideaName: string | null;
+}) {
+  return {
+    backendDecisionSaveDraft: ideaName
+      ? {
+          artifactType: "backend_decision" as const,
+          body: backendDecisionDraft,
+          source: "development_process" as const,
+          title: `${ideaName} 백엔드 결정`,
+        }
+      : null,
+    backendExecutionPlanSaveDraft:
+      ideaName && backendExecutionPlanDraft
+        ? {
+            artifactType: "backend_decision" as const,
+            body: backendExecutionPlanDraft,
+            source: "backend_execution_checklist" as const,
+            title: `${ideaName} 백엔드 실행 체크리스트`,
+          }
+        : null,
+  };
+}
+
 export function buildBackendPlanningDraftState({
   experiments,
   idea,
