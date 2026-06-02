@@ -304,7 +304,13 @@ const contracts = [
   },
   {
     file: "src/components/step8-decision-guidance.tsx",
-    tokens: ['data-smoke="step8-visible-action-sequence"', "확인 순서", "완료된 것 → 이어 할 것 → 지금 판단"],
+    tokens: [
+      'data-smoke="step8-visible-action-sequence"',
+      'data-smoke="step8-decision-options"',
+      "확인 순서",
+      "완료된 것 → 이어 할 것 → 지금 판단",
+      "판단 후보 보기",
+    ],
   },
   {
     file: "src/components/step8-current-decision-strip.tsx",
