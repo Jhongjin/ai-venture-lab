@@ -137,6 +137,8 @@ import {
   type ExternalBuildToolKey,
 } from "@/lib/build-delivery";
 import {
+  buildClipboardCopyMessage,
+  buildDownloadPreparedMessage,
   encodeBrowserSetupFiles,
   triggerBrowserTextDownload,
 } from "@/lib/browser-file-download";
@@ -3509,7 +3511,7 @@ export function IdeaWorkbench({
     }
 
     await navigator.clipboard.writeText(body);
-    setCopyMessage(`${label}을 클립보드에 복사했습니다.`);
+    setCopyMessage(buildClipboardCopyMessage(label));
   }
 
   function downloadDraftFile(
@@ -3519,7 +3521,7 @@ export function IdeaWorkbench({
     mimeType = "text/markdown;charset=utf-8",
   ) {
     if (triggerBrowserTextDownload({ body, fileName, mimeType })) {
-      setCopyMessage(`${label} 파일을 준비했습니다.`);
+      setCopyMessage(buildDownloadPreparedMessage(label));
     }
   }
 

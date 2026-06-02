@@ -9,6 +9,14 @@ export type BrowserSetupFileDraft = {
   body: string;
 };
 
+export function buildClipboardCopyMessage(label: string) {
+  return `${label}을 클립보드에 복사했습니다.`;
+}
+
+export function buildDownloadPreparedMessage(label: string) {
+  return `${label} 파일을 준비했습니다.`;
+}
+
 export function triggerBrowserTextDownload({ body, fileName, mimeType }: BrowserTextDownloadOptions) {
   if (!body) {
     return false;
