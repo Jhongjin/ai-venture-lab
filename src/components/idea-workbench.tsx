@@ -92,6 +92,7 @@ import {
   workbenchStorageNotConfiguredMessage,
 } from "@/lib/workbench-list-utils";
 import {
+  buildWorkbenchScoringSavePatch,
   missingEvidence,
   recommendationForScore,
   saveDecisionForScore,
@@ -2453,12 +2454,11 @@ export function IdeaWorkbench({
 
     setIsBusy(true);
     setMessage(null);
-    const scoringState: EditState = {
-      ...editState,
-      stage: "score",
+    const scoringState = buildWorkbenchScoringSavePatch({
       decision: scoreSaveDecision,
-      product_surface: inferIdeaProductSurface(selectedIdea, editState).key,
-    };
+      idea: selectedIdea,
+      state: editState,
+    });
     let updateResult = await supabase
       .from("ideas")
       .update(scoringState)

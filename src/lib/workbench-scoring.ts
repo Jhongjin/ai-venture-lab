@@ -69,6 +69,23 @@ export function saveDecisionForScore(recommendation: DecisionStatus): DecisionSt
   return recommendation === "kill" ? "research_more" : recommendation;
 }
 
+export function buildWorkbenchScoringSavePatch({
+  decision,
+  idea,
+  state,
+}: {
+  decision: DecisionStatus;
+  idea: Idea;
+  state: WorkbenchEditState;
+}): WorkbenchEditState {
+  return {
+    ...state,
+    stage: "score",
+    decision,
+    product_surface: resolveProductSurfaceForIdea(idea, state).key,
+  };
+}
+
 export function missingEvidence(idea: Idea, state: WorkbenchEditState, riskCount: number) {
   const missing = [];
 
