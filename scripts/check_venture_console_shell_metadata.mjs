@@ -1,0 +1,147 @@
+import assert from "node:assert/strict";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/venture-console-shell-metadata.ts")).href;
+const {
+  firstRunGuideSteps,
+  getCurrentStepBlocker,
+  getExecutiveFocus,
+  getNextTaskOptions,
+  primaryShellTaskIds,
+  primaryShellTaskSet,
+  taskCanvasDetails,
+  taskGuidance,
+} = await import(moduleUrl);
+
+const authenticatedStatus = {
+  hasExtractedIdeas: false,
+  hasIdeaSource: true,
+  hasWorkspace: false,
+  isAuthLoaded: true,
+  isAuthenticated: true,
+};
+
+assert.deepEqual(primaryShellTaskIds, [
+  "console:extract",
+  "workbench:score",
+  "workbench:experiment",
+  "workbench:artifacts",
+  "workbench:development",
+  "workbench:orchestration",
+  "workbench:launch",
+  "workbench:learning",
+]);
+assert.equal(primaryShellTaskSet.has("workbench:launch"), true);
+assert.equal(primaryShellTaskSet.has("console:idea"), false);
+
+assert.deepEqual(
+  firstRunGuideSteps.map((step) => step.title),
+  ["메모만 넣기", "AI 정리 확인", "저장 후 다음 단계"],
+);
+assert.equal(taskGuidance["console:extract"].checklist.at(-1), "마음에 드는 한 건 저장");
+assert.equal(taskGuidance["workbench:development"].checklist.includes("제작 패키지 저장"), true);
+assert.match(taskCanvasDetails["console:extract"].checkpoint, /STEP 2/);
+assert.match(taskCanvasDetails["workbench:learning"].deliverable, /작업 진행표/);
+
+assert.deepEqual(
+  getNextTaskOptions({
+    activeTask: "console:extract",
+    canEnterArtifacts: false,
+    canEnterDevelopment: false,
+    canEnterExperiment: false,
+    canEnterLaunch: false,
+    canEnterOrchestration: false,
+    ideaCount: 0,
+  }),
+  [],
+);
+
+const extractionNextTask = getNextTaskOptions({
+  activeTask: "console:extract",
+  canEnterArtifacts: false,
+  canEnterDevelopment: false,
+  canEnterExperiment: false,
+  canEnterLaunch: false,
+  canEnterOrchestration: false,
+  ideaCount: 1,
+});
+assert.equal(extractionNextTask[0].id, "workbench:score");
+assert.equal(extractionNextTask[0].disabled, false);
+
+const scoreLockedNextTask = getNextTaskOptions({
+  activeTask: "workbench:score",
+  canEnterArtifacts: false,
+  canEnterDevelopment: false,
+  canEnterExperiment: false,
+  canEnterLaunch: false,
+  canEnterOrchestration: false,
+  ideaCount: 1,
+});
+assert.equal(scoreLockedNextTask[0].id, "workbench:experiment");
+assert.equal(scoreLockedNextTask[0].disabled, true);
+assert.match(scoreLockedNextTask[0].hint, /저장하면 활성화/);
+
+const launchNextTask = getNextTaskOptions({
+  activeTask: "workbench:orchestration",
+  canEnterArtifacts: true,
+  canEnterDevelopment: true,
+  canEnterExperiment: true,
+  canEnterLaunch: true,
+  canEnterOrchestration: true,
+  ideaCount: 1,
+});
+assert.equal(launchNextTask[0].id, "workbench:launch");
+assert.equal(launchNextTask[0].disabled, false);
+
+assert.equal(
+  getCurrentStepBlocker({
+    activeTask: "console:idea",
+    consoleStatus: authenticatedStatus,
+    ideaCount: 0,
+  }),
+  "아이디어를 최소 한 건 저장해야 하단 다음 단계 버튼이 열립니다.",
+);
+assert.equal(
+  getCurrentStepBlocker({
+    activeTask: "console:workspace",
+    consoleStatus: { ...authenticatedStatus, hasWorkspace: true },
+    ideaCount: 1,
+  }),
+  "협업 공간을 연결했습니다. 다시 아이디어 도출로 돌아가 계속 진행하면 됩니다.",
+);
+
+const loginFocus = getExecutiveFocus({
+  activeTask: "console:auth",
+  artifactCount: 0,
+  consoleStatus: { ...authenticatedStatus, isAuthenticated: false },
+  decisionCount: 0,
+  experimentCount: 0,
+  ideaCount: 0,
+  implementationTaskCount: 0,
+  openRisks: 0,
+  runCount: 0,
+  source: "supabase",
+  telemetryEventCount: 0,
+});
+assert.equal(loginFocus.targetTask, "console:auth");
+assert.match(loginFocus.title, /로그인/);
+
+const learningFocus = getExecutiveFocus({
+  activeTask: "workbench:learning",
+  artifactCount: 3,
+  consoleStatus: authenticatedStatus,
+  decisionCount: 1,
+  experimentCount: 1,
+  ideaCount: 1,
+  implementationTaskCount: 4,
+  openRisks: 0,
+  runCount: 2,
+  source: "seed",
+  telemetryEventCount: 1,
+});
+assert.equal(learningFocus.targetTask, "workbench:learning");
+assert.match(learningFocus.title, /성과 신호/);
+assert.match(learningFocus.evidence, /샘플 데이터 기준/);
+
+console.log("Venture console shell metadata smoke passed.");
