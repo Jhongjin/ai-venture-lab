@@ -1,5 +1,8 @@
 import type { DecisionStatus, OrchestrationPhase, RiskSeverity } from "@/lib/supabase/types";
+import type { ImplementationTaskDraft } from "@/lib/external-progress-import";
 import type { EvidenceConfidence } from "@/lib/workbench-labels";
+
+export type { ImplementationTaskDraft };
 
 export type RiskDraft = {
   title: string;
@@ -73,5 +76,15 @@ export function createDefaultExperimentResultDraft(experimentId = ""): Experimen
     learning: "",
     next_decision: "research_more",
     next_action: "",
+  };
+}
+
+export function createDefaultImplementationTaskDraft(): ImplementationTaskDraft {
+  return {
+    title: "",
+    task_type: "frontend",
+    priority: "medium",
+    owner_role: "prototype-builder",
+    acceptance_criteria: "",
   };
 }

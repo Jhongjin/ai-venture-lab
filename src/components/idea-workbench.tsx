@@ -265,11 +265,13 @@ import {
   createDefaultEvidenceDraft,
   createDefaultExperimentDraft,
   createDefaultExperimentResultDraft,
+  createDefaultImplementationTaskDraft,
   createDefaultRiskDraft,
   createDefaultRunDraft,
   type EvidenceDraft,
   type ExperimentDraft,
   type ExperimentResultDraft,
+  type ImplementationTaskDraft,
   type RiskDraft,
   type RunDraft,
 } from "@/lib/workbench-draft-defaults";
@@ -292,7 +294,6 @@ import {
   buildCursorProgressTaskUpdatePatch,
   getVisibleCursorProgressImportItems,
   type CursorProgressDisplayItem,
-  type ImplementationTaskDraft,
 } from "@/lib/external-progress-import";
 import {
   buildDevelopmentAutoBridgeCards,
@@ -609,13 +610,9 @@ export function IdeaWorkbench({
   );
   const [artifactStatusNotes, setArtifactStatusNotes] = useState<Record<string, string>>({});
   const [implementationTaskEvidence, setImplementationTaskEvidence] = useState<Record<string, string>>({});
-  const [implementationTaskDraft, setImplementationTaskDraft] = useState<ImplementationTaskDraft>({
-    title: "",
-    task_type: "frontend",
-    priority: "medium",
-    owner_role: "prototype-builder",
-    acceptance_criteria: "",
-  });
+  const [implementationTaskDraft, setImplementationTaskDraft] = useState<ImplementationTaskDraft>(() =>
+    createDefaultImplementationTaskDraft(),
+  );
   const [user, setUser] = useState<User | ViewerUser | null>(() =>
     initialViewerUserId ? ({ id: initialViewerUserId } satisfies ViewerUser) : null,
   );
@@ -3777,13 +3774,7 @@ export function IdeaWorkbench({
         owner_role: data.owner_role || "미정",
       },
     });
-    setImplementationTaskDraft({
-      title: "",
-      task_type: "frontend",
-      priority: "medium",
-      owner_role: "prototype-builder",
-      acceptance_criteria: "",
-    });
+    setImplementationTaskDraft(createDefaultImplementationTaskDraft());
     setMessage("제작 할 일을 추가했습니다.");
     router.refresh();
   }

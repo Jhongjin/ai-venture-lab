@@ -7,6 +7,7 @@ const {
   createDefaultEvidenceDraft,
   createDefaultExperimentDraft,
   createDefaultExperimentResultDraft,
+  createDefaultImplementationTaskDraft,
   createDefaultRiskDraft,
   createDefaultRunDraft,
 } = await import(moduleUrl);
@@ -45,5 +46,13 @@ assert.deepEqual(createDefaultExperimentResultDraft(), {
   next_action: "",
 });
 assert.equal(createDefaultExperimentResultDraft("experiment-1").experiment_id, "experiment-1");
+
+assert.deepEqual(createDefaultImplementationTaskDraft(), {
+  title: "",
+  task_type: "frontend",
+  priority: "medium",
+  owner_role: "prototype-builder",
+  acceptance_criteria: "",
+});
 
 console.log("Workbench draft defaults smoke passed.");
