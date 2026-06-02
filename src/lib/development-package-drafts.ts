@@ -4,6 +4,7 @@ export type DevelopmentArtifactDraft = {
   artifactType: VentureArtifactType;
   body: string;
   description: string;
+  source: "development_process";
   title: string;
 };
 
@@ -55,24 +56,28 @@ export function buildDevelopmentArtifactDrafts({
       title: `${ideaName} 백엔드 결정`,
       body: backendDecisionDraft,
       description: "Supabase, Firebase, SQL Connect, 하이브리드 중 어떤 백엔드를 쓸지 기록합니다.",
+      source: "development_process",
     },
     {
       artifactType: "backend_decision",
       title: `${ideaName} 백엔드 실행 체크리스트`,
       body: backendExecutionPlanDraft,
       description: "선택한 백엔드의 환경변수, 권한 규칙, 검증 명령, 롤백 기준을 제작 자료로 고정합니다.",
+      source: "development_process",
     },
     {
       artifactType: "design_brief",
       title: `${ideaName} 디자인 기준`,
       body: designBriefDraft,
       description: "핵심 여정, 화면 상태, 모바일/접근성 체크를 제작 전에 고정합니다.",
+      source: "development_process",
     },
     {
       artifactType: "tech_spec",
       title: `${ideaName} 기술 명세`,
       body: techSpecDraft,
       description: "데이터 모델, 권한 경계, 구현 순서, 검증 명령, 롤백 경로를 정리합니다.",
+      source: "development_process",
     },
   ];
 }
@@ -99,7 +104,7 @@ export function buildDevelopmentPackageDrafts({
       artifactType: draft.artifactType,
       title: draft.title,
       body: draft.body,
-      source: "development_process",
+      source: draft.source,
     })),
     {
       artifactType: "dev_runbook",

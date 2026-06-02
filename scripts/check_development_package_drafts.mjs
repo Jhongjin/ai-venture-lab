@@ -40,6 +40,10 @@ assert.deepEqual(
   artifactDrafts.map((draft) => draft.artifactType),
   ["backend_decision", "backend_decision", "design_brief", "tech_spec"],
 );
+assert.deepEqual(
+  artifactDrafts.map((draft) => draft.source),
+  ["development_process", "development_process", "development_process", "development_process"],
+);
 assert.ok(artifactDrafts[1].description.includes("환경변수"));
 
 const packageDrafts = buildDevelopmentPackageDrafts({

@@ -5070,7 +5070,7 @@ export function IdeaWorkbench({
                   </button>
                   <button
                     type="button"
-                    onClick={() => saveArtifactDraft(draft.artifactType, draft.title, draft.body, "development_process")}
+                    onClick={() => saveArtifactDraft(draft.artifactType, draft.title, draft.body, draft.source)}
                     disabled={isBusy || !user}
                     className="avl-btn avl-btn-primary h-9 rounded-[0.125rem] px-3 text-xs disabled:opacity-50"
                   >
