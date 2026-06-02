@@ -21,6 +21,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   buildFinalExecutionConnectionHealth,
   buildFinalExecutionLiveToolContext,
+  buildFinalExecutionPackageReadinessState,
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
@@ -144,6 +145,27 @@ const emptyPackageState = buildFinalExecutionPackageState({
 assert.equal(emptyPackageState.hasPackage, false);
 assert.equal(emptyPackageState.hasWorkOrder, false);
 assert.equal(emptyPackageState.projectKey, "PROJECT");
+const packageReadinessState = buildFinalExecutionPackageReadinessState({
+  activeBuildDeliveryLabel: "Cursor",
+  buildDeliveryMode: "external_tool",
+  canEnterOrchestrationFromDevelopmentDocs: false,
+  externalToolLabel: "Cursor",
+  hasAgentRunPackageArtifact: true,
+  hasDevelopmentHandoffPackageArtifact: false,
+  hasDevelopmentPlanArtifact: true,
+  hasIdeaContext: true,
+  hasManualDevelopmentPackageFallback: false,
+  ideaId: "abcdef123456",
+  implementationTaskCount: 0,
+  runCount: 0,
+});
+assert.equal(packageReadinessState.hasFinalExecutionPackage, true);
+assert.equal(packageReadinessState.hasFinalExecutionWorkOrder, true);
+assert.equal(packageReadinessState.finalExecutionPackageState.projectKey, "ABCDEF12");
+assert.equal(packageReadinessState.canEnterLaunch, true);
+assert.equal(packageReadinessState.launchReadinessScore, 100);
+assert.equal(packageReadinessState.passedLaunchReadinessCount, 3);
+assert.equal(packageReadinessState.nextLaunchBlocker, null);
 
 const cursorLiveContext = buildFinalExecutionLiveToolContext({
   buildDeliveryMode: "external_tool",

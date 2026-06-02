@@ -154,6 +154,67 @@ export function buildFinalExecutionPackageState({
   };
 }
 
+export function buildFinalExecutionPackageReadinessState({
+  activeBuildDeliveryLabel,
+  buildDeliveryMode,
+  canEnterOrchestrationFromDevelopmentDocs,
+  externalToolLabel,
+  hasAgentRunPackageArtifact,
+  hasDevelopmentHandoffPackageArtifact,
+  hasDevelopmentPlanArtifact,
+  hasIdeaContext,
+  hasManualDevelopmentPackageFallback,
+  ideaId,
+  implementationTaskCount,
+  runCount,
+}: {
+  activeBuildDeliveryLabel: string;
+  buildDeliveryMode: BuildDeliveryMode;
+  canEnterOrchestrationFromDevelopmentDocs: boolean;
+  externalToolLabel: string;
+  hasAgentRunPackageArtifact: boolean;
+  hasDevelopmentHandoffPackageArtifact: boolean;
+  hasDevelopmentPlanArtifact: boolean;
+  hasIdeaContext: boolean;
+  hasManualDevelopmentPackageFallback: boolean;
+  ideaId: string | null;
+  implementationTaskCount: number;
+  runCount: number;
+}) {
+  const finalExecutionPackageState = buildFinalExecutionPackageState({
+    canEnterOrchestrationFromDevelopmentDocs,
+    hasAgentRunPackageArtifact,
+    hasDevelopmentHandoffPackageArtifact,
+    hasDevelopmentPlanArtifact,
+    hasManualDevelopmentPackageFallback,
+    ideaId,
+    implementationTaskCount,
+    runCount,
+  });
+  const finalExecutionReadiness = buildFinalExecutionReadiness({
+    activeBuildDeliveryLabel,
+    buildDeliveryMode,
+    externalToolLabel,
+    hasFinalExecutionPackage: finalExecutionPackageState.hasPackage,
+    hasFinalExecutionWorkOrder: finalExecutionPackageState.hasWorkOrder,
+    hasIdeaContext,
+    implementationTaskCount,
+    runCount,
+  });
+
+  return {
+    canEnterLaunch: finalExecutionReadiness.canEnterLaunch,
+    finalExecutionPackageState,
+    finalExecutionReadiness,
+    hasFinalExecutionPackage: finalExecutionPackageState.hasPackage,
+    hasFinalExecutionWorkOrder: finalExecutionPackageState.hasWorkOrder,
+    launchReadiness: finalExecutionReadiness.checks,
+    launchReadinessScore: finalExecutionReadiness.score,
+    nextLaunchBlocker: finalExecutionReadiness.nextBlocker,
+    passedLaunchReadinessCount: finalExecutionReadiness.passedCount,
+  };
+}
+
 export function buildFinalExecutionLiveToolContext({
   buildDeliveryMode,
   externalToolKey,

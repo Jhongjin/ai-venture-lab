@@ -151,8 +151,7 @@ import {
 import {
   buildFinalExecutionConnectionHealth,
   buildFinalExecutionLiveToolContext,
-  buildFinalExecutionPackageState,
-  buildFinalExecutionReadiness,
+  buildFinalExecutionPackageReadinessState,
   buildFinalExecutionTaskPreview,
   selectFinalExecutionLiveSetupDownload,
 } from "@/lib/final-execution-readiness";
@@ -1796,33 +1795,27 @@ export function IdeaWorkbench({
     finalAgentRunPackageDraft,
     ideaName: selectedIdea?.name ?? null,
   });
-  const finalExecutionPackageState = buildFinalExecutionPackageState({
+  const {
+    canEnterLaunch,
+    finalExecutionPackageState,
+    launchReadiness,
+    launchReadinessScore,
+    nextLaunchBlocker,
+    passedLaunchReadinessCount,
+  } = buildFinalExecutionPackageReadinessState({
+    activeBuildDeliveryLabel,
+    buildDeliveryMode,
+    externalToolLabel: activeExternalBuildTool.label,
     canEnterOrchestrationFromDevelopmentDocs,
     hasAgentRunPackageArtifact,
     hasDevelopmentHandoffPackageArtifact,
     hasDevelopmentPlanArtifact,
+    hasIdeaContext: Boolean(selectedIdea && editState),
     hasManualDevelopmentPackageFallback,
     ideaId: selectedIdea?.id ?? null,
     implementationTaskCount: selectedImplementationTasks.length,
     runCount: selectedRuns.length,
   });
-  const hasFinalExecutionPackage = finalExecutionPackageState.hasPackage;
-  const hasFinalExecutionWorkOrder = finalExecutionPackageState.hasWorkOrder;
-  const finalExecutionReadiness = buildFinalExecutionReadiness({
-    activeBuildDeliveryLabel,
-    buildDeliveryMode,
-    externalToolLabel: activeExternalBuildTool.label,
-    hasFinalExecutionPackage,
-    hasFinalExecutionWorkOrder,
-    hasIdeaContext: Boolean(selectedIdea && editState),
-    implementationTaskCount: selectedImplementationTasks.length,
-    runCount: selectedRuns.length,
-  });
-  const launchReadiness = finalExecutionReadiness.checks;
-  const passedLaunchReadinessCount = finalExecutionReadiness.passedCount;
-  const launchReadinessScore = finalExecutionReadiness.score;
-  const nextLaunchBlocker = finalExecutionReadiness.nextBlocker;
-  const canEnterLaunch = finalExecutionReadiness.canEnterLaunch;
 
   useEffect(() => {
     onStepReadinessChange?.(
