@@ -290,6 +290,9 @@ import {
 import {
   buildDevelopmentAutoPackageSavedMessage,
   buildDevelopmentAutoPackageSaveJobs,
+  buildDevelopmentAutopilotAlreadyPreparedMessage,
+  buildDevelopmentAutopilotFailedMessage,
+  buildDevelopmentAutopilotLoginRequiredMessage,
   buildDevelopmentAutopilotPreparedMessage,
   buildDevelopmentAutoWorkbenchState,
   buildDevelopmentFinalPackageDrafts,
@@ -2888,7 +2891,7 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("제작 전달 묶음을 만들려면 먼저 로그인하세요.");
+      setMessage(buildDevelopmentAutopilotLoginRequiredMessage());
       return;
     }
 
@@ -2916,7 +2919,7 @@ export function IdeaWorkbench({
     });
 
     if (missingRuns.length === 0 && artifactRows.length === 0 && taskRows.length === 0) {
-      setMessage("이미 제작 전달 묶음에 필요한 문서와 할 일이 준비되어 있습니다.");
+      setMessage(buildDevelopmentAutopilotAlreadyPreparedMessage());
       return;
     }
 
@@ -3008,7 +3011,7 @@ export function IdeaWorkbench({
       );
       router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "제작 전달 묶음을 만들지 못했습니다.");
+      setMessage(error instanceof Error ? error.message : buildDevelopmentAutopilotFailedMessage());
     } finally {
       setIsBusy(false);
     }

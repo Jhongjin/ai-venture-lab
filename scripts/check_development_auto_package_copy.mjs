@@ -35,6 +35,9 @@ const {
   buildDevelopmentAutoPackageSavedMessage,
   buildDevelopmentAutoPackageSaveJobs,
   buildDevelopmentAutoPackageCopyState,
+  buildDevelopmentAutopilotAlreadyPreparedMessage,
+  buildDevelopmentAutopilotFailedMessage,
+  buildDevelopmentAutopilotLoginRequiredMessage,
   buildDevelopmentAutopilotPreparedMessage,
   buildDevelopmentAutoWorkbenchState,
   buildDevelopmentFinalPackageDrafts,
@@ -93,6 +96,12 @@ assert.equal(
   buildDevelopmentAutopilotPreparedMessage({ artifactCount: 3, runCount: 2, taskCount: 4 }),
   "제작 전달 묶음을 준비했습니다. 실행 단계 2개, 제작 자료 3개, 실행 할 일 4개를 만들었습니다.",
 );
+assert.equal(buildDevelopmentAutopilotLoginRequiredMessage(), "제작 전달 묶음을 만들려면 먼저 로그인하세요.");
+assert.equal(
+  buildDevelopmentAutopilotAlreadyPreparedMessage(),
+  "이미 제작 전달 묶음에 필요한 문서와 할 일이 준비되어 있습니다.",
+);
+assert.equal(buildDevelopmentAutopilotFailedMessage(), "제작 전달 묶음을 만들지 못했습니다.");
 
 const emptyState = buildDevelopmentAutoPackageCopyState({
   developmentAutoNote: "",
