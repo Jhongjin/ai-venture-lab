@@ -377,6 +377,7 @@ import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
   buildDecisionInsertRow,
   buildDecisionRecordedMessage,
+  buildDecisionRecordedTelemetryProperties,
   buildDecisionRecordFailedMessage,
   buildDecisionRecordPermissionDeniedMessage,
   buildDecisionTemplateLoadedMessage,
@@ -2253,10 +2254,7 @@ export function IdeaWorkbench({
       eventName: "decision_recorded",
       eventCategory: "decision",
       idea: ideaResult.data,
-      properties: {
-        decision: decisionResult.data.decision,
-        reason_length: decisionResult.data.reason.length,
-      },
+      properties: buildDecisionRecordedTelemetryProperties(decisionResult.data),
     });
     setDecisionReason("");
     setMessage(buildDecisionRecordedMessage());

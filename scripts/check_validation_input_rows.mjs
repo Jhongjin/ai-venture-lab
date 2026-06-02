@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-inp
 const {
   buildDecisionInsertRow,
   buildDecisionRecordedMessage,
+  buildDecisionRecordedTelemetryProperties,
   buildDecisionRecordFailedMessage,
   buildDecisionRecordPermissionDeniedMessage,
   buildDecisionTemplateLoadedMessage,
@@ -168,6 +169,16 @@ assert.deepEqual(
   },
 );
 assert.deepEqual(buildIdeaDecisionUpdatePatch("ship"), { decision: "ship" });
+assert.deepEqual(
+  buildDecisionRecordedTelemetryProperties({
+    decision: "research_more",
+    reason: "인터뷰 증거가 더 필요함",
+  }),
+  {
+    decision: "research_more",
+    reason_length: 13,
+  },
+);
 
 assert.deepEqual(
   buildExperimentInsertRow({

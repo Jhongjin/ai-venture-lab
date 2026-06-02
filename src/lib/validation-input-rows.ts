@@ -30,6 +30,11 @@ export type IdeaDecisionUpdatePatch<Decision extends string> = {
   decision: Decision;
 };
 
+export type DecisionTelemetrySource<Decision extends string> = {
+  decision: Decision;
+  reason: string;
+};
+
 export type RiskTelemetrySource<Severity extends string, Status extends string> = {
   area: string | null;
   severity: Severity;
@@ -219,6 +224,15 @@ export function buildDecisionInsertRow<Decision extends string>({
     idea_id: ideaId,
     organization_id: organizationId,
     reason: reason.trim(),
+  };
+}
+
+export function buildDecisionRecordedTelemetryProperties<Decision extends string>(
+  decision: DecisionTelemetrySource<Decision>,
+) {
+  return {
+    decision: decision.decision,
+    reason_length: decision.reason.length,
   };
 }
 
