@@ -70,6 +70,25 @@ export function buildArtifactDraftInsertRow({
   };
 }
 
+export function buildArtifactSavedTelemetryPayload({
+  artifact,
+  source,
+}: {
+  artifact: Pick<VentureArtifact, "artifact_type" | "body" | "source" | "title" | "version">;
+  source: string;
+}) {
+  return {
+    eventCategory: source === "post_launch_learning" ? "learning" : source.includes("launch") ? "launch" : "artifact",
+    properties: {
+      artifact_type: artifact.artifact_type,
+      source: artifact.source || "manual",
+      version: artifact.version ?? 1,
+      title_length: artifact.title.length,
+      body_length: artifact.body.length,
+    },
+  };
+}
+
 export function buildArtifactStatusUpdatePatch({
   approvedAt = new Date().toISOString(),
   defaultStatusNotes,

@@ -26,6 +26,7 @@ const {
   buildArtifactReadinessFlags,
   buildArtifactSaveEmptyBodyMessage,
   buildArtifactSaveLoginRequiredMessage,
+  buildArtifactSavedTelemetryPayload,
   buildArtifactSavedMessage,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
@@ -210,6 +211,57 @@ assert.equal(
     version: 1,
   }).status_note,
   "검증 자료 자동 저장에서 생성한 초안입니다.",
+);
+
+assert.deepEqual(
+  buildArtifactSavedTelemetryPayload({
+    artifact: artifact({
+      body: "# 학습 리포트",
+      createdAt: "2026-06-01T06:00:00.000Z",
+      id: "learning-report",
+      source: "post_launch_learning",
+      title: "학습 리포트",
+      type: "research_note",
+      version: 2,
+    }),
+    source: "post_launch_learning",
+  }),
+  {
+    eventCategory: "learning",
+    properties: {
+      artifact_type: "research_note",
+      source: "post_launch_learning",
+      version: 2,
+      title_length: 6,
+      body_length: 8,
+    },
+  },
+);
+assert.equal(
+  buildArtifactSavedTelemetryPayload({
+    artifact: artifact({
+      createdAt: "2026-06-01T06:30:00.000Z",
+      id: "launch-checklist",
+      source: "",
+      title: "출시 점검",
+      type: "launch_checklist",
+    }),
+    source: "launch_checklist",
+  }).eventCategory,
+  "launch",
+);
+assert.equal(
+  buildArtifactSavedTelemetryPayload({
+    artifact: artifact({
+      createdAt: "2026-06-01T07:00:00.000Z",
+      id: "manual-doc",
+      source: "",
+      title: "수동 문서",
+      type: "prd",
+    }),
+    source: "workbench",
+  }).properties.source,
+  "manual",
 );
 
 assert.deepEqual(

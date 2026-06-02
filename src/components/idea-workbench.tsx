@@ -43,6 +43,7 @@ import {
   buildArtifactReadinessFlags,
   buildArtifactSaveEmptyBodyMessage,
   buildArtifactSaveLoginRequiredMessage,
+  buildArtifactSavedTelemetryPayload,
   buildArtifactSavedMessage,
   buildArtifactStatusChangedMessage,
   buildArtifactStatusUpdatePermissionDeniedMessage,
@@ -2678,16 +2679,11 @@ export function IdeaWorkbench({
 
     setArtifacts((current) => prependRecord(current, data));
     emitVentureEvent("venture:artifact-created", data);
+    const artifactSavedTelemetry = buildArtifactSavedTelemetryPayload({ artifact: data, source });
     void recordTelemetryEvent({
       eventName: "artifact_saved",
-      eventCategory: source === "post_launch_learning" ? "learning" : source.includes("launch") ? "launch" : "artifact",
-      properties: {
-        artifact_type: data.artifact_type,
-        source: data.source || "manual",
-        version: data.version ?? 1,
-        title_length: data.title.length,
-        body_length: data.body.length,
-      },
+      eventCategory: artifactSavedTelemetry.eventCategory,
+      properties: artifactSavedTelemetry.properties,
     });
     if (!options.quiet) {
       setMessage(buildArtifactSavedMessage({ artifactLabel: artifactLabels[artifactType], version: nextVersion }));
