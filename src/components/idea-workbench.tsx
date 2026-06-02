@@ -266,9 +266,7 @@ import {
 } from "@/lib/external-progress-import";
 import {
   buildDevelopmentAutoWorkbenchState,
-  buildExternalToolRunPackageDraft,
-  buildFinalAgentRunPackageDraft,
-  buildFinalDevelopmentPlanDraft,
+  buildDevelopmentFinalPackageDrafts,
   type DevelopmentAutoFlowState,
 } from "@/lib/development-auto-package-copy";
 import { buildDevelopmentAutopilotRows } from "@/lib/development-autopilot-rows";
@@ -1733,25 +1731,19 @@ export function IdeaWorkbench({
     implementationTaskDrafts,
     productSurface: activeProductSurface,
   });
-  const finalDevelopmentPlanDraft = buildFinalDevelopmentPlanDraft({
-    developmentAutoSummaryDraft,
-    developmentPlanDraft,
-    ideaName: selectedIdea?.name ?? null,
-  });
-  const finalAgentRunPackageDraft = buildFinalAgentRunPackageDraft({
+  const {
+    externalToolRunPackageDraft,
+    finalAgentRunPackageDraft,
+    finalDevelopmentPlanDraft,
+  } = buildDevelopmentFinalPackageDrafts({
     agentRunPackageDraft,
     buildDeliveryMode,
     developmentAutoSummaryDraft,
+    developmentPlanDraft,
     externalBuildTool: activeExternalBuildTool,
     ideaName: selectedIdea?.name ?? null,
     productSurface: activeProductSurface,
     taskDraftLines: developmentAutoTaskDraftLines,
-  });
-  const externalToolRunPackageDraft = buildExternalToolRunPackageDraft({
-    buildDeliveryMode,
-    externalBuildTool: activeExternalBuildTool,
-    finalAgentRunPackageDraft,
-    ideaName: selectedIdea?.name ?? null,
   });
   const {
     canEnterLaunch,

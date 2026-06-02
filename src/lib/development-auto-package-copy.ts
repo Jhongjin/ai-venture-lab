@@ -473,3 +473,50 @@ export function buildExternalToolRunPackageDraft({
     finalAgentRunPackageDraft,
   ].join("\n");
 }
+
+export function buildDevelopmentFinalPackageDrafts({
+  agentRunPackageDraft,
+  buildDeliveryMode,
+  developmentAutoSummaryDraft,
+  developmentPlanDraft,
+  externalBuildTool,
+  ideaName,
+  productSurface,
+  taskDraftLines,
+}: {
+  agentRunPackageDraft: string;
+  buildDeliveryMode: BuildDeliveryMode;
+  developmentAutoSummaryDraft: string;
+  developmentPlanDraft: string;
+  externalBuildTool: ExternalBuildToolProfile;
+  ideaName: string | null;
+  productSurface: ProductSurfaceProfile;
+  taskDraftLines: string;
+}) {
+  const finalDevelopmentPlanDraft = buildFinalDevelopmentPlanDraft({
+    developmentAutoSummaryDraft,
+    developmentPlanDraft,
+    ideaName,
+  });
+  const finalAgentRunPackageDraft = buildFinalAgentRunPackageDraft({
+    agentRunPackageDraft,
+    buildDeliveryMode,
+    developmentAutoSummaryDraft,
+    externalBuildTool,
+    ideaName,
+    productSurface,
+    taskDraftLines,
+  });
+  const externalToolRunPackageDraft = buildExternalToolRunPackageDraft({
+    buildDeliveryMode,
+    externalBuildTool,
+    finalAgentRunPackageDraft,
+    ideaName,
+  });
+
+  return {
+    externalToolRunPackageDraft,
+    finalAgentRunPackageDraft,
+    finalDevelopmentPlanDraft,
+  };
+}

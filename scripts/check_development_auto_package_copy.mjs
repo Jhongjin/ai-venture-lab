@@ -31,7 +31,11 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 
 const { externalBuildToolProfiles } = await import(buildDeliveryUrl);
 const { productSurfaceProfiles } = await import(productSurfaceUrl);
-const { buildDevelopmentAutoPackageCopyState, buildDevelopmentAutoWorkbenchState } = await import(moduleUrl);
+const {
+  buildDevelopmentAutoPackageCopyState,
+  buildDevelopmentAutoWorkbenchState,
+  buildDevelopmentFinalPackageDrafts,
+} = await import(moduleUrl);
 
 const input = {
   activeBuildDeliveryDetail: "Cursor 연결 파일과 시작 지시문으로 넘깁니다.",
@@ -124,5 +128,32 @@ const savedWorkbenchState = buildDevelopmentAutoWorkbenchState({
 assert.equal(savedWorkbenchState.visibleDevelopmentPanel, "tasks");
 assert.equal(savedWorkbenchState.hasSavedDevelopmentAutoPackage, true);
 assert.equal(savedWorkbenchState.effectiveDevelopmentAutoFlowState, "saved");
+
+const finalDrafts = buildDevelopmentFinalPackageDrafts({
+  agentRunPackageDraft: "## 제작 도구 전달 자료\n작업 순서",
+  buildDeliveryMode: "external_tool",
+  developmentAutoSummaryDraft: state.developmentAutoSummaryDraft,
+  developmentPlanDraft: "## 상세 실행 계획\n검증 후 배포",
+  externalBuildTool: externalBuildToolProfiles.cursor,
+  ideaName: "AI Venture Lab",
+  productSurface: productSurfaceProfiles.automation,
+  taskDraftLines: state.developmentAutoTaskDraftLines,
+});
+assert.match(finalDrafts.finalDevelopmentPlanDraft, /상세 실행 계획/);
+assert.match(finalDrafts.finalAgentRunPackageDraft, /# 제작 패키지: AI Venture Lab/);
+assert.match(finalDrafts.externalToolRunPackageDraft, /# Cursor 시작 패키지: AI Venture Lab/);
+
+const internalFinalDrafts = buildDevelopmentFinalPackageDrafts({
+  ...finalDrafts,
+  agentRunPackageDraft: "내부 제작 자료",
+  buildDeliveryMode: "venture_lab",
+  developmentAutoSummaryDraft: state.developmentAutoSummaryDraft,
+  developmentPlanDraft: "## 상세 실행 계획\n검증 후 배포",
+  externalBuildTool: externalBuildToolProfiles.cursor,
+  ideaName: "AI Venture Lab",
+  productSurface: productSurfaceProfiles.automation,
+  taskDraftLines: state.developmentAutoTaskDraftLines,
+});
+assert.equal(internalFinalDrafts.externalToolRunPackageDraft, internalFinalDrafts.finalAgentRunPackageDraft);
 
 console.log("Development auto package copy smoke passed.");
