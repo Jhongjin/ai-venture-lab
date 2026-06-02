@@ -200,3 +200,12 @@ export function upsertRecordById<T extends { id: string }>(records: T[], nextRec
 export function upsertRecordsById<T extends { id: string }>(records: T[], nextRecords: T[]) {
   return nextRecords.reduce((current, record) => upsertRecordById(current, record), records);
 }
+
+export function replaceRecordById<T extends { id: string }>(records: T[], nextRecord: T) {
+  return records.map((record) => (record.id === nextRecord.id ? nextRecord : record));
+}
+
+export function replaceRecordsById<T extends { id: string }>(records: T[], nextRecords: T[]) {
+  const recordsById = new Map(nextRecords.map((record) => [record.id, record]));
+  return records.map((record) => recordsById.get(record.id) ?? record);
+}

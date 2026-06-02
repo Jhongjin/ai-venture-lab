@@ -18,6 +18,8 @@ const {
   isWorkbenchAdminRole,
   isDiscardedIdea,
   isIdeaStageAtOrAfter,
+  replaceRecordById,
+  replaceRecordsById,
   sortWorkbenchIdeas,
   upsertRecordById,
   upsertRecordsById,
@@ -152,6 +154,21 @@ assert.deepEqual(upsertRecordsById([{ id: "a", value: 1 }], [{ id: "b", value: 2
   { id: "b", value: 2 },
   { id: "a", value: 1 },
 ]);
+assert.deepEqual(replaceRecordById([{ id: "a", value: 1 }], { id: "a", value: 2 }), [{ id: "a", value: 2 }]);
+assert.deepEqual(replaceRecordById([{ id: "a", value: 1 }], { id: "b", value: 2 }), [{ id: "a", value: 1 }]);
+assert.deepEqual(
+  replaceRecordsById(
+    [
+      { id: "a", value: 1 },
+      { id: "b", value: 2 },
+    ],
+    [{ id: "b", value: 3 }],
+  ),
+  [
+    { id: "a", value: 1 },
+    { id: "b", value: 3 },
+  ],
+);
 assert.deepEqual(upsertWorkbenchIdea([ideas[0]], ideas[1]).map((record) => record.id), ["owned-new", "shared-old"]);
 
 console.log("Workbench list utils smoke passed.");

@@ -65,6 +65,8 @@ import {
   getVisibleDiscardedIdeas,
   isIdeaStageAtOrAfter,
   isDiscardedIdea,
+  replaceRecordById,
+  replaceRecordsById,
   sortWorkbenchIdeas,
   upsertRecordById,
   upsertRecordsById,
@@ -1312,7 +1314,7 @@ export function IdeaWorkbench({
 
     const updatedIdea = data as Idea;
 
-    setIdeas((current) => sortWorkbenchIdeas(current.map((currentIdea) => (currentIdea.id === idea.id ? updatedIdea : currentIdea))));
+    setIdeas((current) => sortWorkbenchIdeas(replaceRecordById(current, updatedIdea)));
     setSelectedIdeaId(updatedIdea.id);
     setEditState(toEditState(updatedIdea));
     setIsBusy(false);
@@ -2443,7 +2445,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setIdeas((current) => current.map((idea) => (idea.id === data.id ? data : idea)));
+    setIdeas((current) => replaceRecordById(current, data));
     setEditState(toEditState(data));
     emitVentureEvent("venture:idea-updated", data);
     void recordTelemetryEvent({
@@ -2559,7 +2561,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setIdeas((current) => current.map((idea) => (idea.id === ideaResult.data.id ? ideaResult.data : idea)));
+    setIdeas((current) => replaceRecordById(current, ideaResult.data));
     setDecisionLog((current) => [decisionResult.data, ...current]);
     emitVentureEvent("venture:idea-updated", ideaResult.data);
     emitVentureEvent("venture:decision-created", decisionResult.data);
@@ -2773,7 +2775,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setExperiments((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setExperiments((current) => replaceRecordById(current, data));
     emitVentureEvent("venture:experiment-updated", data);
     void recordTelemetryEvent({
       eventName: "experiment_status_updated",
@@ -2858,7 +2860,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setOrchestrationRuns((current) => replaceRecordById(current, data));
     emitVentureEvent("venture:run-updated", data);
     void recordTelemetryEvent({
       eventName: "run_status_updated",
@@ -2944,7 +2946,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setOrchestrationRuns((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setOrchestrationRuns((current) => replaceRecordById(current, data));
     setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
     emitVentureEvent("venture:run-updated", data);
     void recordTelemetryEvent({
@@ -3533,7 +3535,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setArtifacts((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setArtifacts((current) => replaceRecordById(current, data));
     emitVentureEvent("venture:artifact-updated", data);
     void recordTelemetryEvent({
       eventName: "artifact_status_updated",
@@ -3741,8 +3743,7 @@ export function IdeaWorkbench({
       }
 
       if (updatedTasks.length > 0) {
-        const updatedById = new Map(updatedTasks.map((task) => [task.id, task]));
-        setImplementationTasks((current) => current.map((task) => updatedById.get(task.id) ?? task));
+        setImplementationTasks((current) => replaceRecordsById(current, updatedTasks));
         updatedTasks.forEach((task) => emitVentureEvent("venture:task-updated", task));
       }
 
@@ -3860,7 +3861,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setImplementationTasks((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setImplementationTasks((current) => replaceRecordById(current, data));
     emitVentureEvent("venture:task-updated", data);
     void recordTelemetryEvent({
       eventName: "implementation_task_status_updated",
@@ -3901,7 +3902,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setImplementationTasks((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setImplementationTasks((current) => replaceRecordById(current, data));
     emitVentureEvent("venture:task-updated", data);
     void recordTelemetryEvent({
       eventName: "implementation_task_evidence_saved",
@@ -3947,7 +3948,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setRisks((current) => current.map((item) => (item.id === data.id ? data : item)));
+    setRisks((current) => replaceRecordById(current, data));
     emitVentureEvent("venture:risk-updated", data);
     void recordTelemetryEvent({
       eventName: "risk_status_updated",
