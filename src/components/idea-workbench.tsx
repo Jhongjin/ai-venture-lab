@@ -74,7 +74,6 @@ import {
   getInitialSelectedWorkbenchIdeaId,
   getInitialWorkbenchTask,
   getSelectedWorkbenchIdea,
-  getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
   getWorkbenchIdeaDiscardSelectionState,
   getWorkbenchIdeaRemovalSelectionState,
@@ -4279,7 +4278,7 @@ export function IdeaWorkbench({
             <div className="mt-5 grid gap-3">
               {discardedIdeas.length > 0 ? (
                 discardedIdeas.map((idea) => {
-                  const accessDisplay = getWorkbenchRecordAccessDisplay(getRecordAccessState(idea));
+                  const ideaDisplay = getIdeaDisplayState(idea);
 
                   return (
                     <div key={idea.id} className="border border-slate-200 bg-slate-50 p-4">
@@ -4289,7 +4288,7 @@ export function IdeaWorkbench({
                           <h3 className="text-base font-semibold text-slate-950">{idea.name}</h3>
                           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
                         </div>
-                        {accessDisplay.isManageable ? (
+                        {ideaDisplay.accessDisplay.isManageable ? (
                           <div className="flex flex-wrap gap-2">
                             <button
                               type="button"
