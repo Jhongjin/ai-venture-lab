@@ -245,6 +245,7 @@ import {
   type CursorProgressDisplayItem,
 } from "@/lib/external-progress-import";
 import {
+  buildDevelopmentAutoPackageSaveJobs,
   buildDevelopmentAutoWorkbenchState,
   buildDevelopmentFinalPackageDrafts,
   type DevelopmentAutoFlowState,
@@ -2663,60 +2664,26 @@ export function IdeaWorkbench({
 
     const nextDesignBriefVersion = getNextArtifactVersion(selectedArtifactRecords, "design_brief");
     const nextDevRunbookVersion = getNextArtifactVersion(selectedArtifactRecords, "dev_runbook");
-    let plannedDevRunbookVersion = nextDevRunbookVersion;
+    const saveJobs = buildDevelopmentAutoPackageSaveJobs({
+      designGenerationPromptDraft,
+      finalAgentRunPackageDraft,
+      finalDevelopmentPlanDraft,
+      hasAgentRunPackageArtifact,
+      hasDesignGenerationPromptArtifact,
+      hasDevelopmentPlanArtifact,
+      ideaName: selectedIdea.name,
+      nextDesignBriefVersion,
+      nextDevRunbookVersion,
+    });
 
-    if (!hasDesignGenerationPromptArtifact) {
-      const savedPrompt = await saveArtifactDraft(
-        "design_brief",
-        `${selectedIdea.name} 디자인 기준 자료`,
-        designGenerationPromptDraft,
-        "design_generation_prompt",
-        {
-          version: nextDesignBriefVersion,
-          quiet: true,
-          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 디자인 기준 자료입니다.",
-        },
-      );
+    for (const job of saveJobs) {
+      const saved = await saveArtifactDraft(job.artifactType, job.title, job.body, job.source, {
+        version: job.version,
+        quiet: true,
+        statusNote: job.statusNote,
+      });
 
-      if (!savedPrompt) {
-        return;
-      }
-    }
-
-    if (!hasDevelopmentPlanArtifact) {
-      const savedPlan = await saveArtifactDraft(
-        "dev_runbook",
-        `${selectedIdea.name} 제작 실행 계획`,
-        finalDevelopmentPlanDraft,
-        "development_process",
-        {
-          version: plannedDevRunbookVersion,
-          quiet: true,
-          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 제작 실행 계획입니다.",
-        },
-      );
-
-      if (!savedPlan) {
-        return;
-      }
-
-      plannedDevRunbookVersion += 1;
-    }
-
-    if (!hasAgentRunPackageArtifact) {
-      const savedRunPackage = await saveArtifactDraft(
-        "dev_runbook",
-        `${selectedIdea.name} 제작 패키지`,
-        finalAgentRunPackageDraft,
-        "agent_run_package",
-        {
-          version: plannedDevRunbookVersion,
-          quiet: true,
-          statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 제작 도구 전달 자료입니다.",
-        },
-      );
-
-      if (!savedRunPackage) {
+      if (!saved) {
         return;
       }
     }

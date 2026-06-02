@@ -32,6 +32,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const { externalBuildToolProfiles } = await import(buildDeliveryUrl);
 const { productSurfaceProfiles } = await import(productSurfaceUrl);
 const {
+  buildDevelopmentAutoPackageSaveJobs,
   buildDevelopmentAutoPackageCopyState,
   buildDevelopmentAutoWorkbenchState,
   buildDevelopmentFinalPackageDrafts,
@@ -142,6 +143,57 @@ const finalDrafts = buildDevelopmentFinalPackageDrafts({
 assert.match(finalDrafts.finalDevelopmentPlanDraft, /상세 실행 계획/);
 assert.match(finalDrafts.finalAgentRunPackageDraft, /# 제작 패키지: AI Venture Lab/);
 assert.match(finalDrafts.externalToolRunPackageDraft, /# Cursor 시작 패키지: AI Venture Lab/);
+
+const saveJobs = buildDevelopmentAutoPackageSaveJobs({
+  designGenerationPromptDraft: "디자인 기준",
+  finalAgentRunPackageDraft: finalDrafts.finalAgentRunPackageDraft,
+  finalDevelopmentPlanDraft: finalDrafts.finalDevelopmentPlanDraft,
+  hasAgentRunPackageArtifact: false,
+  hasDesignGenerationPromptArtifact: false,
+  hasDevelopmentPlanArtifact: false,
+  ideaName: "AI Venture Lab",
+  nextDesignBriefVersion: 2,
+  nextDevRunbookVersion: 4,
+});
+assert.deepEqual(
+  saveJobs.map((job) => [job.artifactType, job.source, job.version]),
+  [
+    ["design_brief", "design_generation_prompt", 2],
+    ["dev_runbook", "development_process", 4],
+    ["dev_runbook", "agent_run_package", 5],
+  ],
+);
+assert.equal(saveJobs[0].title, "AI Venture Lab 디자인 기준 자료");
+assert.match(saveJobs[2].statusNote, /제작 도구 전달 자료/);
+
+const packageOnlySaveJobs = buildDevelopmentAutoPackageSaveJobs({
+  designGenerationPromptDraft: "디자인 기준",
+  finalAgentRunPackageDraft: finalDrafts.finalAgentRunPackageDraft,
+  finalDevelopmentPlanDraft: finalDrafts.finalDevelopmentPlanDraft,
+  hasAgentRunPackageArtifact: false,
+  hasDesignGenerationPromptArtifact: true,
+  hasDevelopmentPlanArtifact: true,
+  ideaName: "AI Venture Lab",
+  nextDesignBriefVersion: 2,
+  nextDevRunbookVersion: 4,
+});
+assert.deepEqual(
+  packageOnlySaveJobs.map((job) => [job.artifactType, job.source, job.version]),
+  [["dev_runbook", "agent_run_package", 4]],
+);
+
+const allSavedJobs = buildDevelopmentAutoPackageSaveJobs({
+  designGenerationPromptDraft: "디자인 기준",
+  finalAgentRunPackageDraft: finalDrafts.finalAgentRunPackageDraft,
+  finalDevelopmentPlanDraft: finalDrafts.finalDevelopmentPlanDraft,
+  hasAgentRunPackageArtifact: true,
+  hasDesignGenerationPromptArtifact: true,
+  hasDevelopmentPlanArtifact: true,
+  ideaName: "AI Venture Lab",
+  nextDesignBriefVersion: 2,
+  nextDevRunbookVersion: 4,
+});
+assert.equal(allSavedJobs.length, 0);
 
 const internalFinalDrafts = buildDevelopmentFinalPackageDrafts({
   ...finalDrafts,

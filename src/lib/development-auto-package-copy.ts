@@ -358,6 +358,76 @@ export function buildDevelopmentAutoWorkbenchState({
   };
 }
 
+export type DevelopmentAutoPackageSaveJob = {
+  artifactType: "design_brief" | "dev_runbook";
+  body: string;
+  source: "agent_run_package" | "design_generation_prompt" | "development_process";
+  statusNote: string;
+  title: string;
+  version: number;
+};
+
+export function buildDevelopmentAutoPackageSaveJobs({
+  designGenerationPromptDraft,
+  finalAgentRunPackageDraft,
+  finalDevelopmentPlanDraft,
+  hasAgentRunPackageArtifact,
+  hasDesignGenerationPromptArtifact,
+  hasDevelopmentPlanArtifact,
+  ideaName,
+  nextDesignBriefVersion,
+  nextDevRunbookVersion,
+}: {
+  designGenerationPromptDraft: string;
+  finalAgentRunPackageDraft: string;
+  finalDevelopmentPlanDraft: string;
+  hasAgentRunPackageArtifact: boolean;
+  hasDesignGenerationPromptArtifact: boolean;
+  hasDevelopmentPlanArtifact: boolean;
+  ideaName: string;
+  nextDesignBriefVersion: number;
+  nextDevRunbookVersion: number;
+}): DevelopmentAutoPackageSaveJob[] {
+  const jobs: DevelopmentAutoPackageSaveJob[] = [];
+  let plannedDevRunbookVersion = nextDevRunbookVersion;
+
+  if (!hasDesignGenerationPromptArtifact) {
+    jobs.push({
+      artifactType: "design_brief",
+      body: designGenerationPromptDraft,
+      source: "design_generation_prompt",
+      statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 디자인 기준 자료입니다.",
+      title: `${ideaName} 디자인 기준 자료`,
+      version: nextDesignBriefVersion,
+    });
+  }
+
+  if (!hasDevelopmentPlanArtifact) {
+    jobs.push({
+      artifactType: "dev_runbook",
+      body: finalDevelopmentPlanDraft,
+      source: "development_process",
+      statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 제작 실행 계획입니다.",
+      title: `${ideaName} 제작 실행 계획`,
+      version: plannedDevRunbookVersion,
+    });
+    plannedDevRunbookVersion += 1;
+  }
+
+  if (!hasAgentRunPackageArtifact) {
+    jobs.push({
+      artifactType: "dev_runbook",
+      body: finalAgentRunPackageDraft,
+      source: "agent_run_package",
+      statusNote: "최종 제작 패키지 저장 과정에서 함께 저장한 제작 도구 전달 자료입니다.",
+      title: `${ideaName} 제작 패키지`,
+      version: plannedDevRunbookVersion,
+    });
+  }
+
+  return jobs;
+}
+
 export function buildFinalDevelopmentPlanDraft({
   developmentAutoSummaryDraft,
   developmentPlanDraft,
