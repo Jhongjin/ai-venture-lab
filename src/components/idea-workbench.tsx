@@ -183,6 +183,7 @@ import {
   buildMarketScanEvidenceText,
   buildMarketScanLearningText,
   buildMarketScanReviewState,
+  buildMarketScanRunCompletedMessage,
   buildMarketScanResultText,
   buildVisibleMarketScanReviewRows,
   getMarketScanLevelLabel,
@@ -3811,11 +3812,7 @@ export function IdeaWorkbench({
           })
         : false;
 
-      setMessage(
-        savedMarketScan
-          ? "시장·경쟁 자동 점검을 리서치 노트로 저장했습니다. 결과물 형태까지 반영했으니 필요한 부분만 보완하고 하단 다음 단계로 넘어가세요."
-          : "시장·경쟁 자동 점검 초안을 채웠습니다. 로그인 상태가 아니거나 저장 권한이 없으면 리서치 노트 자동 저장은 건너뜁니다.",
-      );
+      setMessage(buildMarketScanRunCompletedMessage({ savedMarketScan }));
     } catch (error) {
       setMarketScanError(error instanceof Error ? error.message : "시장성 점검을 불러오지 못했습니다.");
     } finally {
