@@ -317,3 +317,31 @@ export function buildLearningSignalCards({
     },
   ];
 }
+
+export function buildProductTelemetryDerivedState({
+  events,
+  openRiskCount,
+}: {
+  events: TelemetryEvent[];
+  openRiskCount: number;
+}) {
+  const selectedProductTelemetryEvents = filterProductTelemetryEvents(events);
+  const productTelemetryEventCounts = countTelemetryEventsByName(selectedProductTelemetryEvents);
+  const productTelemetryFunnelRows = buildProductTelemetryFunnelRows(productTelemetryEventCounts);
+  const productTelemetryTaxonomyRows = buildProductTelemetryTaxonomyRows(productTelemetryEventCounts);
+  const telemetryWindowCounts = buildTelemetryWindowCounts(events);
+
+  return {
+    selectedProductTelemetryEvents,
+    productTelemetryEventCounts,
+    productTelemetryFunnelRows,
+    productTelemetryMaxCount: getProductTelemetryMaxCount(productTelemetryFunnelRows),
+    productTelemetryTaxonomyRows,
+    telemetryWindowCounts,
+    learningSignalCards: buildLearningSignalCards({
+      openRiskCount,
+      productEventCount: selectedProductTelemetryEvents.length,
+      telemetryWindowCounts,
+    }),
+  };
+}

@@ -105,17 +105,11 @@ import {
   type WorkbenchEditState,
 } from "@/lib/workbench-scoring";
 import {
-  buildLearningSignalCards,
-  buildProductTelemetryFunnelRows,
-  buildProductTelemetryTaxonomyRows,
+  buildProductTelemetryDerivedState,
   buildTelemetryEventInsertRow,
-  buildTelemetryWindowCounts,
-  countTelemetryEventsByName,
-  filterProductTelemetryEvents,
   formatStableKoreanDate,
   formatTelemetryProperties,
   formatTelemetryTime,
-  getProductTelemetryMaxCount,
   telemetryCategoryLabels,
   telemetryCategoryTone,
   telemetryEventLabels,
@@ -965,9 +959,20 @@ export function IdeaWorkbench({
     telemetryClientHelperSnippet,
     telemetrySmokeCommandSnippet,
   } = useMemo(() => buildTelemetrySetupDrafts(selectedIdea), [selectedIdea]);
-  const selectedProductTelemetryEvents = useMemo(
-    () => filterProductTelemetryEvents(selectedTelemetryEvents),
-    [selectedTelemetryEvents],
+  const {
+    selectedProductTelemetryEvents,
+    productTelemetryFunnelRows,
+    productTelemetryMaxCount,
+    productTelemetryTaxonomyRows,
+    telemetryWindowCounts,
+    learningSignalCards,
+  } = useMemo(
+    () =>
+      buildProductTelemetryDerivedState({
+        events: selectedTelemetryEvents,
+        openRiskCount: openSelectedIdeaRisks.length,
+      }),
+    [openSelectedIdeaRisks.length, selectedTelemetryEvents],
   );
   const productTelemetryFunnelDraft = useMemo(
     () =>
@@ -978,35 +983,6 @@ export function IdeaWorkbench({
           })
         : "",
     [selectedIdea, selectedProductTelemetryEvents],
-  );
-  const productTelemetryEventCounts = useMemo(
-    () => countTelemetryEventsByName(selectedProductTelemetryEvents),
-    [selectedProductTelemetryEvents],
-  );
-  const productTelemetryFunnelRows = useMemo(
-    () => buildProductTelemetryFunnelRows(productTelemetryEventCounts),
-    [productTelemetryEventCounts],
-  );
-  const productTelemetryMaxCount = useMemo(
-    () => getProductTelemetryMaxCount(productTelemetryFunnelRows),
-    [productTelemetryFunnelRows],
-  );
-  const productTelemetryTaxonomyRows = useMemo(
-    () => buildProductTelemetryTaxonomyRows(productTelemetryEventCounts),
-    [productTelemetryEventCounts],
-  );
-  const telemetryWindowCounts = useMemo(
-    () => buildTelemetryWindowCounts(selectedTelemetryEvents),
-    [selectedTelemetryEvents],
-  );
-  const learningSignalCards = useMemo(
-    () =>
-      buildLearningSignalCards({
-        openRiskCount: openSelectedIdeaRisks.length,
-        productEventCount: selectedProductTelemetryEvents.length,
-        telemetryWindowCounts,
-      }),
-    [openSelectedIdeaRisks.length, selectedProductTelemetryEvents.length, telemetryWindowCounts],
   );
   const selectedOpenImplementationTasks = useMemo(
     () => getOpenImplementationTasksForAction(selectedImplementationTasks),

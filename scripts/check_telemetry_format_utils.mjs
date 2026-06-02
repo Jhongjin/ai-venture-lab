@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/telemetry-form
 const {
   buildLearningSignalCards,
   buildProductTelemetryFunnelRows,
+  buildProductTelemetryDerivedState,
   buildProductTelemetryTaxonomyRows,
   buildTelemetryEventInsertRow,
   buildTelemetryWindowCounts,
@@ -108,6 +109,27 @@ const cards = buildLearningSignalCards({
 });
 assert.deepEqual(
   cards.map((card) => card.value),
+  ["4개", "3개", "4개", "4개", "2개"],
+);
+
+const derivedState = buildProductTelemetryDerivedState({
+  events,
+  openRiskCount: 2,
+});
+assert.deepEqual(
+  derivedState.selectedProductTelemetryEvents.map((item) => item.id),
+  ["visit-1", "visit-2", "signup", "prefixed"],
+);
+assert.equal(derivedState.productTelemetryEventCounts.get("product_page_view"), 2);
+assert.deepEqual(
+  derivedState.productTelemetryFunnelRows.map((row) => [row.eventName, row.count, row.conversion]),
+  funnelRows.map((row) => [row.eventName, row.count, row.conversion]),
+);
+assert.equal(derivedState.productTelemetryMaxCount, 2);
+assert.equal(derivedState.productTelemetryTaxonomyRows.find((row) => row.eventName === "product_feedback").count, 1);
+assert.deepEqual(derivedState.telemetryWindowCounts, windowCounts);
+assert.deepEqual(
+  derivedState.learningSignalCards.map((card) => card.value),
   ["4개", "3개", "4개", "4개", "2개"],
 );
 
