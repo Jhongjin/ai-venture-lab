@@ -8,6 +8,7 @@ const {
   appendRecords,
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchIdeaDiscardConfirmMessage,
   buildWorkbenchIdeaDiscardFailedMessage,
   buildWorkbenchIdeaDiscardedMessage,
   buildWorkbenchIdeaPermanentDeleteConfirmMessage,
@@ -151,6 +152,10 @@ assert.equal(
 assert.equal(
   buildWorkbenchIdeaDiscardFailedMessage({ errorMessage: null, ideaName: "AI Venture Lab" }),
   "AI Venture Lab 아이디어를 삭제 목록으로 옮기지 못했습니다: 응답 없음",
+);
+assert.equal(
+  buildWorkbenchIdeaDiscardConfirmMessage("AI Venture Lab"),
+  "\"AI Venture Lab\" 아이디어를 삭제 목록으로 옮길까요?\n나중에 다시 되살릴 수 있습니다.",
 );
 assert.equal(buildWorkbenchIdeaDiscardedMessage("AI Venture Lab"), "\"AI Venture Lab\" 아이디어를 삭제 목록으로 옮겼습니다.");
 assert.equal(

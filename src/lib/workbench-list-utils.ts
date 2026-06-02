@@ -91,6 +91,10 @@ export function buildWorkbenchIdeaDiscardFailedMessage({
   return `${ideaName} 아이디어를 삭제 목록으로 옮기지 못했습니다: ${errorMessage ?? "응답 없음"}`;
 }
 
+export function buildWorkbenchIdeaDiscardConfirmMessage(ideaName: string) {
+  return `"${ideaName}" 아이디어를 삭제 목록으로 옮길까요?\n나중에 다시 되살릴 수 있습니다.`;
+}
+
 export function buildWorkbenchIdeaDiscardedMessage(ideaName: string) {
   return `"${ideaName}" 아이디어를 삭제 목록으로 옮겼습니다.`;
 }

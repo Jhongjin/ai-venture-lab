@@ -53,6 +53,7 @@ import { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftStat
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchIdeaDiscardConfirmMessage,
   buildWorkbenchIdeaDiscardFailedMessage,
   buildWorkbenchIdeaDiscardedMessage,
   buildWorkbenchIdeaPermanentDeleteConfirmMessage,
@@ -1133,7 +1134,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const confirmed = window.confirm(`"${idea.name}" 아이디어를 삭제 목록으로 옮길까요?\n나중에 다시 되살릴 수 있습니다.`);
+    const confirmed = window.confirm(buildWorkbenchIdeaDiscardConfirmMessage(idea.name));
 
     if (!confirmed) {
       return;
