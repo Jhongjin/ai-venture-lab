@@ -79,6 +79,7 @@ import {
   type ExtractedIdea,
 } from "@/lib/extracted-idea-normalization";
 import { buildTelemetryEventInsertRow } from "@/lib/telemetry-format";
+import { buildDefaultWorkspaceInsertRow } from "@/lib/workspace-organization-rows";
 import { IdeaExtractionAdvancedQueue } from "@/components/idea-extraction-advanced-queue";
 import { IdeaExtractionDetailList } from "@/components/idea-extraction-detail-list";
 import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
@@ -771,11 +772,7 @@ export function VentureConsoleActions({
     setIsWorkspaceBusy(true);
     const { data, error } = await supabase
       .from("organizations")
-      .insert({
-        name: "AI Venture Lab",
-        slug: `ai-venture-lab-${user.id.slice(0, 8)}`,
-        created_by: user.id,
-      })
+      .insert(buildDefaultWorkspaceInsertRow({ userId: user.id }))
       .select()
       .single();
     setIsWorkspaceBusy(false);
