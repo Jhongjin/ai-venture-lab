@@ -42,6 +42,7 @@ import {
   type ShellTask,
   type ShellTaskGroup,
 } from "@/lib/venture-console-shell-metadata";
+import { upsertRecordById, upsertRecordsById } from "@/lib/workbench-list-utils";
 import type { Database } from "@/lib/supabase/types";
 import type {
   Decision,
@@ -177,16 +178,6 @@ const shellTasks: Array<{
   },
 ];
 
-function upsertById<T extends { id: string }>(records: T[], nextRecord: T) {
-  return records.some((record) => record.id === nextRecord.id)
-    ? records.map((record) => (record.id === nextRecord.id ? nextRecord : record))
-    : [nextRecord, ...records];
-}
-
-function upsertManyById<T extends { id: string }>(records: T[], nextRecords: T[]) {
-  return nextRecords.reduce((current, record) => upsertById(current, record), records);
-}
-
 function subscribeClientReady() {
   return () => {};
 }
@@ -296,7 +287,7 @@ export function VentureConsoleShell({
         return;
       }
 
-      setter((current) => upsertById(current, record));
+      setter((current) => upsertRecordById(current, record));
     }
 
     function handleRecordListEvent<T extends { id: string }>(event: Event, setter: Dispatch<SetStateAction<T[]>>) {
@@ -306,7 +297,7 @@ export function VentureConsoleShell({
         return;
       }
 
-      setter((current) => upsertManyById(current, records));
+      setter((current) => upsertRecordsById(current, records));
     }
 
     function handleIdeaCreated(event: Event) {
@@ -316,7 +307,7 @@ export function VentureConsoleShell({
         return;
       }
 
-      setIdeas((current) => upsertById(current, record as Idea));
+      setIdeas((current) => upsertRecordById(current, record as Idea));
 
       if (autoOpenWorkbench) {
         setVisitedTaskIds((current) => {
