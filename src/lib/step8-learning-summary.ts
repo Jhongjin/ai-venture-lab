@@ -69,6 +69,11 @@ export type Step8ProgressSummary = {
   progressTitle: string;
 };
 
+export type Step8LearningDisplayState = Step8LearningSummary &
+  Step8ProgressSummary & {
+    canCopyLearningReport: boolean;
+  };
+
 export type Step8ImplementationTaskContext = {
   completedTasks: ImplementationTask[];
   nextDependencyStatus: ImplementationDependencyStatus | null;
@@ -338,6 +343,60 @@ export function buildStep8LearningSummary({
     externalSyncNextTaskText,
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
+  };
+}
+
+export function buildStep8LearningDisplayState({
+  buildDeliveryMode,
+  completedImplementationTaskCount,
+  evidenceByTaskId,
+  externalToolLabel,
+  nextImplementationTask,
+  nextImplementationTaskCode,
+  nextImplementationTaskId,
+  openRiskCount,
+  productSignalCount,
+  recentSignalCount,
+  taskSyncUpdatedAt,
+  tasks,
+  totalImplementationTaskCount,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  completedImplementationTaskCount: number;
+  evidenceByTaskId: Record<string, string>;
+  externalToolLabel: string;
+  nextImplementationTask: Pick<ImplementationTask, "title"> | null;
+  nextImplementationTaskCode: string | null;
+  nextImplementationTaskId: string | null;
+  openRiskCount: number;
+  productSignalCount: number;
+  recentSignalCount: number;
+  taskSyncUpdatedAt: string | null;
+  tasks: ReadonlyArray<ImplementationTask>;
+  totalImplementationTaskCount: number;
+}): Step8LearningDisplayState {
+  const learningSummary = buildStep8LearningSummary({
+    buildDeliveryMode,
+    completedImplementationTaskCount,
+    externalToolLabel,
+    nextImplementationTask,
+    nextImplementationTaskCode,
+    openRiskCount,
+    productSignalCount,
+    recentSignalCount,
+    taskSyncUpdatedAt,
+    totalImplementationTaskCount,
+  });
+  const progressSummary = buildStep8ProgressSummary({
+    evidenceByTaskId,
+    nextImplementationTaskId,
+    tasks,
+  });
+
+  return {
+    ...learningSummary,
+    ...progressSummary,
+    canCopyLearningReport: productSignalCount > 0 && !nextImplementationTask,
   };
 }
 

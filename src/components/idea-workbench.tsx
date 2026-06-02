@@ -113,9 +113,8 @@ import {
   buildTelemetrySetupDrafts,
 } from "@/lib/telemetry-artifacts";
 import {
+  buildStep8LearningDisplayState,
   buildStep8ImplementationDerivedState,
-  buildStep8LearningSummary,
-  buildStep8ProgressSummary,
 } from "@/lib/step8-learning-summary";
 import { buildValidationEvidenceCoach, buildValidationPlan } from "@/lib/validation-planning";
 import { buildDesignBriefMarkdown } from "@/lib/design-brief-markdown";
@@ -958,20 +957,8 @@ export function IdeaWorkbench({
     totalImplementationTaskCount: totalLearningImplementationTasks,
     waitingImplementationDependencyStatuses,
   } = useMemo(() => buildStep8ImplementationDerivedState(selectedImplementationTasks), [selectedImplementationTasks]);
-  const productSignalCount = selectedProductTelemetryEvents.length;
-  const step8LearningSummary = buildStep8LearningSummary({
-    buildDeliveryMode,
-    completedImplementationTaskCount: completedLearningImplementationTasks.length,
-    externalToolLabel: activeExternalBuildTool.label,
-    nextImplementationTask,
-    nextImplementationTaskCode,
-    openRiskCount: openSelectedIdeaRisks.length,
-    productSignalCount,
-    recentSignalCount: telemetryWindowCounts.fourteenDays,
-    taskSyncUpdatedAt,
-    totalImplementationTaskCount: totalLearningImplementationTasks,
-  });
   const {
+    canCopyLearningReport,
     externalSyncCheckedText,
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
@@ -987,17 +974,24 @@ export function IdeaWorkbench({
     learningPrimaryNavigationHintDetail,
     learningPrimaryNavigationHintTitle,
     learningSimpleReviewRows,
-  } = step8LearningSummary;
-  const step8ProgressSummary = buildStep8ProgressSummary({
-    evidenceByTaskId: implementationTaskEvidence,
-    nextImplementationTaskId,
-    tasks: selectedImplementationTasks,
-  });
-  const {
     progressDetail: learningProgressDetail,
     progressItems: step8ProgressItems,
     progressTitle: learningProgressTitle,
-  } = step8ProgressSummary;
+  } = buildStep8LearningDisplayState({
+    buildDeliveryMode,
+    completedImplementationTaskCount: completedLearningImplementationTasks.length,
+    evidenceByTaskId: implementationTaskEvidence,
+    externalToolLabel: activeExternalBuildTool.label,
+    nextImplementationTask,
+    nextImplementationTaskCode,
+    nextImplementationTaskId,
+    openRiskCount: openSelectedIdeaRisks.length,
+    productSignalCount: selectedProductTelemetryEvents.length,
+    recentSignalCount: telemetryWindowCounts.fourteenDays,
+    taskSyncUpdatedAt,
+    tasks: selectedImplementationTasks,
+    totalImplementationTaskCount: totalLearningImplementationTasks,
+  });
   const implementationDependencyPlanDraft = selectedIdea && editState
     ? buildImplementationDependencyPlanMarkdown({
         idea: selectedIdea,
@@ -6463,7 +6457,7 @@ export function IdeaWorkbench({
             learningSimpleReviewRows={learningSimpleReviewRows}
             primaryCtaSlot={
               <Step8PrimaryCta
-                canCopyReport={productSignalCount > 0 && !nextImplementationTask}
+                canCopyReport={canCopyLearningReport}
                 ctaLabel={learningPrimaryCtaLabel}
                 navigationHintDetail={learningPrimaryNavigationHintDetail}
                 navigationHintTitle={learningPrimaryNavigationHintTitle}

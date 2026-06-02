@@ -28,6 +28,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   buildStep8ImplementationDerivedState,
   buildStep8ImplementationTaskContext,
+  buildStep8LearningDisplayState,
   buildStep8LearningSummary,
   buildStep8ProgressSummary,
 } = await import(moduleUrl);
@@ -161,5 +162,26 @@ assert.deepEqual(
   ["T-002"],
 );
 assert.equal(progressSummary.progressItems[0].isDone, true);
+
+const displayState = buildStep8LearningDisplayState({
+  buildDeliveryMode: "external_tool",
+  completedImplementationTaskCount: 3,
+  evidenceByTaskId: {},
+  externalToolLabel: "Codex",
+  nextImplementationTask: null,
+  nextImplementationTaskCode: null,
+  nextImplementationTaskId: null,
+  openRiskCount: 0,
+  productSignalCount: 4,
+  recentSignalCount: 2,
+  taskSyncUpdatedAt: "2026-06-01 10:00",
+  tasks: tasks.map((item) => ({ ...item, status: "done" })),
+  totalImplementationTaskCount: 3,
+});
+assert.equal(displayState.canCopyLearningReport, true);
+assert.equal(displayState.learningDecisionCards[0].label, "완료된 것");
+assert.equal(displayState.learningPrimaryCtaLabel, "리포트 복사");
+assert.equal(displayState.progressTitle, "제작 작업 완료");
+assert.equal(displayState.progressItems.length, 3);
 
 console.log("Step 8 learning summary smoke passed.");
