@@ -331,7 +331,7 @@ import {
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
 } from "@/lib/validation-input-rows";
-import { buildValidationPackageSaveJobs } from "@/lib/validation-package-save-jobs";
+import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
 import {
   buildIdeaBriefMarkdown,
   buildResearchBriefMarkdown,
@@ -1788,6 +1788,12 @@ export function IdeaWorkbench({
     selectedIdeaId: selectedIdea && editState ? selectedIdea.id : null,
     selectedProductSurface:
       selectedIdea && editState ? editState.product_surface ?? selectedIdea.product_surface ?? "undecided" : null,
+  });
+  const validationPackageStatusRows = buildValidationPackageStatusRows({
+    hasIdeaBriefArtifact,
+    hasResearchBriefArtifact,
+    hasValidationSprintArtifact,
+    hasValidationSummaryArtifact,
   });
   const visibleMarketScanReviewRows = visibleMarketScanDraft
     ? buildMarketScanReviewRows({
@@ -7751,16 +7757,11 @@ export function IdeaWorkbench({
           </div>
           <Step4ValidationBundleBridge isValidationBundleSaved={isValidationBundleSaved} />
           <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-4">
-            {[
-              ["아이디어 요약", hasIdeaBriefArtifact],
-              ["조사 요약", hasResearchBriefArtifact],
-              ["7일 검증 계획", hasValidationSprintArtifact],
-              ["검증 완료 요약", hasValidationSummaryArtifact],
-            ].map(([label, passed]) => (
-              <div key={String(label)} className="bg-slate-50 px-3 py-3">
-                <div className="text-xs font-semibold text-slate-500">{String(label)}</div>
-                <div className={`mt-1 text-sm font-semibold ${passed ? "text-emerald-700" : "text-slate-700"}`}>
-                  {passed ? "저장 완료" : "저장 필요"}
+            {validationPackageStatusRows.map((row) => (
+              <div key={row.label} className="bg-slate-50 px-3 py-3">
+                <div className="text-xs font-semibold text-slate-500">{row.label}</div>
+                <div className={`mt-1 text-sm font-semibold ${row.passed ? "text-emerald-700" : "text-slate-700"}`}>
+                  {row.passed ? "저장 완료" : "저장 필요"}
                 </div>
               </div>
             ))}

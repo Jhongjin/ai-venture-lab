@@ -6,6 +6,30 @@ export type ValidationPackageSaveJob = {
   title: string;
 };
 
+export type ValidationPackageStatusRow = {
+  label: string;
+  passed: boolean;
+};
+
+export function buildValidationPackageStatusRows({
+  hasIdeaBriefArtifact,
+  hasResearchBriefArtifact,
+  hasValidationSprintArtifact,
+  hasValidationSummaryArtifact,
+}: {
+  hasIdeaBriefArtifact: boolean;
+  hasResearchBriefArtifact: boolean;
+  hasValidationSprintArtifact: boolean;
+  hasValidationSummaryArtifact: boolean;
+}): ValidationPackageStatusRow[] {
+  return [
+    { label: "아이디어 요약", passed: hasIdeaBriefArtifact },
+    { label: "조사 요약", passed: hasResearchBriefArtifact },
+    { label: "7일 검증 계획", passed: hasValidationSprintArtifact },
+    { label: "검증 완료 요약", passed: hasValidationSummaryArtifact },
+  ];
+}
+
 export function buildValidationPackageSaveJobs({
   hasIdeaBriefArtifact,
   hasResearchBriefArtifact,
