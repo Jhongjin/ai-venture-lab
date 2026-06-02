@@ -135,6 +135,28 @@ export function buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage(count: numb
   return `선택한 ${count}개 아이디어와 연결된 리스크, 판단, 실험, 제작 자료, 실행 기록까지 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`;
 }
 
+export function buildWorkbenchIdeasBulkDiscardFailedMessage(errorMessage?: string | null) {
+  return `선택한 아이디어를 삭제 목록으로 옮기지 못했습니다: ${errorMessage ?? "응답 없음"}`;
+}
+
+export function buildWorkbenchIdeasBulkRestoreFailedMessage(errorMessage?: string | null) {
+  return `선택한 아이디어를 되살리지 못했습니다: ${errorMessage ?? "응답 없음"}`;
+}
+
+export function buildWorkbenchIdeasBulkRelatedTableDeleteFailedMessage({
+  errorMessage,
+  table,
+}: {
+  errorMessage: string;
+  table: IdeaDeletionRelatedTable;
+}) {
+  return `선택한 아이디어 삭제 중 ${table} 정리에서 막혔습니다: ${errorMessage}`;
+}
+
+export function buildWorkbenchIdeasBulkPermanentDeleteFailedMessage(errorMessage: string) {
+  return `선택한 아이디어를 삭제하지 못했습니다: ${errorMessage}`;
+}
+
 export function buildWorkbenchIdeaRelatedTableDeleteFailedMessage({
   errorMessage,
   ideaName,

@@ -11,8 +11,12 @@ import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
   buildWorkbenchIdeasBulkDiscardConfirmMessage,
+  buildWorkbenchIdeasBulkDiscardFailedMessage,
   buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage,
+  buildWorkbenchIdeasBulkPermanentDeleteFailedMessage,
+  buildWorkbenchIdeasBulkRelatedTableDeleteFailedMessage,
   buildWorkbenchIdeasBulkRestoreConfirmMessage,
+  buildWorkbenchIdeasBulkRestoreFailedMessage,
   getIdeaDeletionRelatedTables,
 } from "@/lib/workbench-list-utils";
 import type { Idea } from "@/lib/venture-data";
@@ -119,7 +123,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
     setIsBusy(false);
 
     if (error) {
-      setMessage(`선택한 아이디어를 삭제하지 못했습니다: ${error.message}`);
+      setMessage(buildWorkbenchIdeasBulkDiscardFailedMessage(error.message));
       return;
     }
 
@@ -158,7 +162,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
     setIsBusy(false);
 
     if (error) {
-      setMessage(`선택한 아이디어를 되살리지 못했습니다: ${error.message}`);
+      setMessage(buildWorkbenchIdeasBulkRestoreFailedMessage(error.message));
       return;
     }
 
@@ -193,7 +197,12 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
 
       if (error) {
         setIsBusy(false);
-        setMessage(`완전 삭제 중 ${table} 정리에서 막혔습니다: ${error.message}`);
+        setMessage(
+          buildWorkbenchIdeasBulkRelatedTableDeleteFailedMessage({
+            errorMessage: error.message,
+            table,
+          }),
+        );
         return;
       }
     }
@@ -203,7 +212,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
     setIsBusy(false);
 
     if (error) {
-      setMessage(`선택한 아이디어를 완전히 삭제하지 못했습니다: ${error.message}`);
+      setMessage(buildWorkbenchIdeasBulkPermanentDeleteFailedMessage(error.message));
       return;
     }
 
