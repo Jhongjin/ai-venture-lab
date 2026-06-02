@@ -1,3 +1,7 @@
+import type { Database } from "@/lib/supabase/types";
+
+type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["Insert"];
+
 export type ExtractionReplayMarkdownItem = {
   matchedName: string | null;
   nextAction: string;
@@ -45,6 +49,16 @@ export type ExtractionReportRunMeta = {
   note?: string | null;
   sourceLength?: number | null;
 };
+
+export function formatExtractionReportTitleDate(now = new Date()) {
+  return now.toLocaleString("ko-KR", {
+    timeZone: "Asia/Seoul",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 export function buildExtractionReplayMarkdown(summary: ExtractionReplayMarkdownSummary) {
   const generatedAt = new Date(summary.generatedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
@@ -165,4 +179,43 @@ ${sourceExcerpt || "메모 근거가 비어 있습니다."}
 3. 전환 검토 아이디어는 기존 아이디어 병합 또는 세그먼트 축소를 먼저 판단합니다.
 4. 보류 아이디어는 새 증거가 생길 때까지 실행 목록에서 제외합니다.
 `;
+}
+
+export function buildExtractionPortfolioReportArtifactRow({
+  items,
+  organizationId,
+  organizationName,
+  replaySummary,
+  runMeta,
+  sourceExcerpt,
+  sourceLength,
+  titleDate = formatExtractionReportTitleDate(),
+}: {
+  items: ExtractionPortfolioMarkdownItem[];
+  organizationId: string | null;
+  organizationName: string | null;
+  replaySummary: ExtractionReplayMarkdownSummary | null;
+  runMeta: ExtractionReportRunMeta | null;
+  sourceExcerpt: string;
+  sourceLength: number;
+  titleDate?: string;
+}): VentureArtifactInsert {
+  return {
+    idea_id: null,
+    organization_id: organizationId,
+    artifact_type: "research_note",
+    status: "draft",
+    version: 1,
+    title: `아이디어 정리 리포트 ${titleDate}`,
+    body: buildExtractionReportBody({
+      items,
+      organizationName,
+      replaySummary,
+      runMeta,
+      sourceExcerpt,
+      sourceLength,
+    }),
+    source: "extraction_portfolio",
+    status_note: "메모에서 찾은 아이디어와 근거를 비교해 저장한 리포트입니다.",
+  };
 }

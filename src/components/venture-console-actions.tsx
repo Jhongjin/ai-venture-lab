@@ -43,8 +43,8 @@ import {
 } from "@/lib/extraction-strategy-lens";
 import {
   buildExtractionPortfolioMarkdown,
+  buildExtractionPortfolioReportArtifactRow,
   buildExtractionReplayMarkdown,
-  buildExtractionReportBody,
   type ExtractionPortfolioMarkdownItem,
 } from "@/lib/extraction-report-markdown";
 import {
@@ -1341,33 +1341,19 @@ export function VentureConsoleActions({
     setIsSavingExtractionReport(true);
     setExtractMessage(null);
 
-    const titleDate = new Date().toLocaleString("ko-KR", {
-      timeZone: "Asia/Seoul",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
     const { data, error } = await supabase
       .from("venture_artifacts")
-      .insert({
-        idea_id: null,
-        organization_id: activeOrganization?.id ?? null,
-        artifact_type: "research_note",
-        status: "draft",
-        version: 1,
-        title: `아이디어 정리 리포트 ${titleDate}`,
-        body: buildExtractionReportBody({
+      .insert(
+        buildExtractionPortfolioReportArtifactRow({
           items: extractionPortfolioMarkdownItems,
+          organizationId: activeOrganization?.id ?? null,
           organizationName: activeOrganization?.name ?? null,
           replaySummary: extractionReplay,
           runMeta: extractionRunMeta,
           sourceExcerpt: redactSensitiveSource(rawIdeaSource).trim().slice(0, 4000),
           sourceLength: rawIdeaSource.length,
         }),
-        source: "extraction_portfolio",
-        status_note: "메모에서 찾은 아이디어와 근거를 비교해 저장한 리포트입니다.",
-      })
+      )
       .select()
       .single();
 

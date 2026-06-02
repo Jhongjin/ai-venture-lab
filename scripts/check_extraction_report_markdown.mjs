@@ -13,7 +13,13 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { buildExtractionPortfolioMarkdown, buildExtractionReplayMarkdown, buildExtractionReportBody } = await import(moduleUrl);
+const {
+  buildExtractionPortfolioMarkdown,
+  buildExtractionPortfolioReportArtifactRow,
+  buildExtractionReplayMarkdown,
+  buildExtractionReportBody,
+  formatExtractionReportTitleDate,
+} = await import(moduleUrl);
 
 const portfolioItems = [
   {
@@ -97,6 +103,36 @@ assert.match(reportBody, /추출 엔진: rules_plus_ai/);
 assert.match(reportBody, /입력 길이: 512자/);
 assert.match(reportBody, /연락처는 \[가림\] 처리된 근거만 저장/);
 assert.match(reportBody, /다음 처리/);
+
+const titleDate = formatExtractionReportTitleDate(new Date("2026-06-01T00:00:00.000Z"));
+assert.match(titleDate, /06.*01/);
+
+const reportRow = buildExtractionPortfolioReportArtifactRow({
+  items: portfolioItems,
+  organizationId: "org-1",
+  organizationName: "Operator Lab",
+  replaySummary,
+  runMeta: {
+    engine: "rules_plus_ai",
+    generatedAt: "2026-06-01T03:01:00.000Z",
+    model: "gpt-test",
+    note: "AI+규칙 비교",
+    sourceLength: 512,
+  },
+  sourceExcerpt: "연락처는 [가림] 처리된 근거만 저장",
+  sourceLength: 999,
+  titleDate: "06.02 09:30",
+});
+assert.equal(reportRow.idea_id, null);
+assert.equal(reportRow.organization_id, "org-1");
+assert.equal(reportRow.artifact_type, "research_note");
+assert.equal(reportRow.status, "draft");
+assert.equal(reportRow.version, 1);
+assert.equal(reportRow.title, "아이디어 정리 리포트 06.02 09:30");
+assert.equal(reportRow.source, "extraction_portfolio");
+assert.equal(reportRow.status_note, "메모에서 찾은 아이디어와 근거를 비교해 저장한 리포트입니다.");
+assert.match(reportRow.body, /워크스페이스: Operator Lab/);
+assert.match(reportRow.body, /연락처는 \[가림\] 처리된 근거만 저장/);
 
 const fallbackReportBody = buildExtractionReportBody({
   items: [],
