@@ -133,6 +133,21 @@ ${rows || "| - | 아이디어 없음 | - | - | - | - | - | - | - |"}
 `;
 }
 
+export function buildExtractionPortfolioReviewMarkdown({
+  items,
+  replaySummary,
+}: {
+  items: ExtractionPortfolioMarkdownItem[];
+  replaySummary: ExtractionReplayMarkdownSummary | null;
+}) {
+  return [
+    replaySummary ? buildExtractionReplayMarkdown(replaySummary) : "",
+    buildExtractionPortfolioMarkdown(items),
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 export function buildExtractionReportBody({
   items,
   organizationName,

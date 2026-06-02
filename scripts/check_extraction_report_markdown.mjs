@@ -16,6 +16,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   buildExtractionPortfolioMarkdown,
   buildExtractionPortfolioReportArtifactRow,
+  buildExtractionPortfolioReviewMarkdown,
   buildExtractionReplayMarkdown,
   buildExtractionReportBody,
   formatExtractionReportTitleDate,
@@ -83,6 +84,21 @@ assert.match(replayMarkdown, /AI 정리 다시 보기/);
 assert.match(replayMarkdown, /AI 모드: openai/);
 assert.match(replayMarkdown, /Venture OS/);
 assert.match(replayMarkdown, /84/);
+
+const reviewMarkdown = buildExtractionPortfolioReviewMarkdown({
+  items: portfolioItems,
+  replaySummary,
+});
+assert.ok(reviewMarkdown.indexOf("# AI 정리 다시 보기") < reviewMarkdown.indexOf("# 아이디어 도출 실행 요약"));
+assert.match(reviewMarkdown, /공통 아이디어/);
+assert.match(reviewMarkdown, /추천 판단 분포/);
+
+const fallbackReviewMarkdown = buildExtractionPortfolioReviewMarkdown({
+  items: portfolioItems,
+  replaySummary: null,
+});
+assert.ok(fallbackReviewMarkdown.startsWith("# 아이디어 도출 실행 요약"));
+assert.doesNotMatch(fallbackReviewMarkdown, /AI 정리 다시 보기/);
 
 const reportBody = buildExtractionReportBody({
   items: portfolioItems,

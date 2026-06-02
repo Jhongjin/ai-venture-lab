@@ -39,9 +39,8 @@ import {
   getCandidateStrategyScore,
 } from "@/lib/extraction-strategy-lens";
 import {
-  buildExtractionPortfolioMarkdown,
   buildExtractionPortfolioReportArtifactRow,
-  buildExtractionReplayMarkdown,
+  buildExtractionPortfolioReviewMarkdown,
   type ExtractionPortfolioMarkdownItem,
 } from "@/lib/extraction-report-markdown";
 import {
@@ -431,12 +430,10 @@ export function VentureConsoleActions({
   );
   const extractionPortfolioMarkdown = useMemo(
     () =>
-      [
-        extractionReplay ? buildExtractionReplayMarkdown(extractionReplay) : "",
-        buildExtractionPortfolioMarkdown(extractionPortfolioMarkdownItems),
-      ]
-        .filter(Boolean)
-        .join("\n\n"),
+      buildExtractionPortfolioReviewMarkdown({
+        items: extractionPortfolioMarkdownItems,
+        replaySummary: extractionReplay,
+      }),
     [extractionPortfolioMarkdownItems, extractionReplay],
   );
   const manualFormProductSurface = useMemo(() => {
