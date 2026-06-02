@@ -122,7 +122,6 @@ import {
 } from "@/lib/artifact-labels";
 import {
   resolveProductSurfaceForIdea as inferIdeaProductSurface,
-  withKoreanInstrumental,
   type ProductSurfaceProfile,
 } from "@/lib/product-surface";
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
@@ -137,6 +136,7 @@ import {
   triggerBrowserTextDownload,
 } from "@/lib/browser-file-download";
 import {
+  buildFinalExecutionDecisionSentence,
   buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionPackageReadinessState,
@@ -1748,7 +1748,10 @@ export function IdeaWorkbench({
       cursor: cursorStartPromptDraft,
     },
   });
-  const finalExecutionDecisionSentence = `${withKoreanInstrumental(activeProductSurface.label)} 만들고, ${activeBuildDeliveryPhrase}.`;
+  const finalExecutionDecisionSentence = buildFinalExecutionDecisionSentence({
+    buildDeliveryPhrase: activeBuildDeliveryPhrase,
+    productSurface: activeProductSurface,
+  });
   const {
     activeCursorSyncConnections,
     finalExecutionConnectionHealthDetail,

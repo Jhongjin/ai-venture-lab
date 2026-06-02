@@ -2,6 +2,7 @@ import type { BuildDeliveryMode, ExternalBuildToolKey } from "@/lib/build-delive
 import { toDownloadFileName } from "@/lib/download-file-name";
 import type { ImplementationTaskDraft } from "@/lib/external-progress-import";
 import type { CursorSyncConnection } from "@/lib/external-tool-sync-connection";
+import { withKoreanInstrumental, type ProductSurfaceProfile } from "@/lib/product-surface";
 import { formatTelemetryTime } from "@/lib/telemetry-format";
 import type { ImplementationTask } from "@/lib/venture-data";
 
@@ -68,6 +69,16 @@ export type FinalExecutionLiveToolContext = {
   setupFileName: string;
   startPromptDraft: string;
 };
+
+export function buildFinalExecutionDecisionSentence({
+  buildDeliveryPhrase,
+  productSurface,
+}: {
+  buildDeliveryPhrase: string;
+  productSurface: ProductSurfaceProfile;
+}) {
+  return `${withKoreanInstrumental(productSurface.label)} 만들고, ${buildDeliveryPhrase}.`;
+}
 
 const liveExternalToolFolders: Record<LiveExternalToolKey, string> = {
   antigravity: ".antigravity",

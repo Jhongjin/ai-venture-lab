@@ -6,9 +6,11 @@ import ts from "typescript";
 
 const modulePath = path.join(process.cwd(), "src/lib/final-execution-readiness.ts");
 const downloadFileNameUrl = pathToFileURL(path.join(process.cwd(), "src/lib/download-file-name.ts")).href;
+const productSurfaceUrl = pathToFileURL(path.join(process.cwd(), "src/lib/product-surface.ts")).href;
 const telemetryFormatUrl = pathToFileURL(path.join(process.cwd(), "src/lib/telemetry-format.ts")).href;
 const source = readFileSync(modulePath, "utf8")
   .replace('from "@/lib/download-file-name";', `from ${JSON.stringify(downloadFileNameUrl)};`)
+  .replace('from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`)
   .replace('from "@/lib/telemetry-format";', `from ${JSON.stringify(telemetryFormatUrl)};`);
 const { outputText } = ts.transpileModule(source, {
   compilerOptions: {
@@ -20,6 +22,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildFinalExecutionConnectionHealth,
+  buildFinalExecutionDecisionSentence,
   buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionPackageReadinessState,
@@ -28,6 +31,16 @@ const {
   buildFinalExecutionTaskPreview,
   selectFinalExecutionLiveSetupDownload,
 } = await import(moduleUrl);
+
+const { productSurfaceProfiles } = await import(productSurfaceUrl);
+
+assert.equal(
+  buildFinalExecutionDecisionSentence({
+    buildDeliveryPhrase: "Cursor로 넘깁니다",
+    productSurface: productSurfaceProfiles.operator_console,
+  }),
+  "운영 콘솔로 만들고, Cursor로 넘깁니다.",
+);
 
 const readiness = buildFinalExecutionReadiness({
   activeBuildDeliveryLabel: "Cursor",
