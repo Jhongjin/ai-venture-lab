@@ -27,6 +27,13 @@ export type OrchestrationRunStatusPatch<Status extends string> = {
   status: Status;
 };
 
+export type OrchestrationRunTelemetrySource<Phase extends string, Status extends string> = {
+  output: string;
+  owner_role: string | null;
+  phase: Phase;
+  status: Status;
+};
+
 export type PlannedOrchestrationRunRow<Phase extends string> = {
   idea_id: string;
   objective: string;
@@ -146,4 +153,59 @@ export function buildOrchestrationRunStatusPatch<Status extends string>(
   status: Status,
 ): OrchestrationRunStatusPatch<Status> {
   return { status };
+}
+
+export function buildOrchestrationRunCreatedTelemetryProperties<Phase extends string, Status extends string>(
+  run: Pick<OrchestrationRunTelemetrySource<Phase, Status>, "owner_role" | "phase" | "status">,
+) {
+  return {
+    phase: run.phase,
+    status: run.status,
+    owner_role: run.owner_role || "미정",
+  };
+}
+
+export function buildOrchestrationRunbookTelemetryProperties({
+  missingPhaseCount,
+  runCount,
+}: {
+  missingPhaseCount: number;
+  runCount: number;
+}) {
+  return {
+    run_count: runCount,
+    missing_phase_count: missingPhaseCount,
+  };
+}
+
+export function buildOrchestrationRunStatusTelemetryProperties<Phase extends string, Status extends string>({
+  previousStatus,
+  run,
+}: {
+  previousStatus: Status;
+  run: Pick<OrchestrationRunTelemetrySource<Phase, Status>, "phase" | "status">;
+}) {
+  return {
+    phase: run.phase,
+    status: run.status,
+    previous_status: previousStatus,
+  };
+}
+
+export function buildOrchestrationRunDeletedTelemetryProperties<Phase extends string, Status extends string>(
+  run: Pick<OrchestrationRunTelemetrySource<Phase, Status>, "phase" | "status">,
+) {
+  return {
+    phase: run.phase,
+    previous_status: run.status,
+  };
+}
+
+export function buildOrchestrationRunOutputTelemetryProperties<Phase extends string>(
+  run: Pick<OrchestrationRunTelemetrySource<Phase, string>, "output" | "phase">,
+) {
+  return {
+    phase: run.phase,
+    output_length: run.output.length,
+  };
 }

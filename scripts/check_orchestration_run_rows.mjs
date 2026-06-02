@@ -9,6 +9,9 @@ const {
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
   buildOrchestrationRunbookAlreadyExistsMessage,
+  buildOrchestrationRunbookTelemetryProperties,
+  buildOrchestrationRunCreatedTelemetryProperties,
+  buildOrchestrationRunDeletedTelemetryProperties,
   buildOrchestrationRunDeletedMessage,
   buildOrchestrationRunDeleteConfirmMessage,
   buildOrchestrationRunDeletePermissionDeniedMessage,
@@ -16,8 +19,10 @@ const {
   buildOrchestrationRunOutputPatch,
   buildOrchestrationRunOutputSavePermissionDeniedMessage,
   buildOrchestrationRunOutputSavedMessage,
+  buildOrchestrationRunOutputTelemetryProperties,
   buildOrchestrationRunStatusPatch,
   buildOrchestrationRunStatusChangedMessage,
+  buildOrchestrationRunStatusTelemetryProperties,
   buildOrchestrationRunUpdatePermissionDeniedMessage,
   buildOrchestrationRunbookCreatedMessage,
   buildOrchestrationRunbookLoginRequiredMessage,
@@ -89,6 +94,56 @@ assert.deepEqual(
 assert.deepEqual(buildOrchestrationRunStatusPatch("running"), { status: "running" });
 assert.deepEqual(buildOrchestrationRunOutputPatch("handoff ready"), { output: "handoff ready" });
 assert.deepEqual(buildOrchestrationRunOutputPatch(undefined), { output: "" });
+assert.deepEqual(
+  buildOrchestrationRunCreatedTelemetryProperties({
+    owner_role: "",
+    phase: "product",
+    status: "planned",
+  }),
+  {
+    phase: "product",
+    status: "planned",
+    owner_role: "미정",
+  },
+);
+assert.deepEqual(buildOrchestrationRunbookTelemetryProperties({ missingPhaseCount: 2, runCount: 1 }), {
+  run_count: 1,
+  missing_phase_count: 2,
+});
+assert.deepEqual(
+  buildOrchestrationRunStatusTelemetryProperties({
+    previousStatus: "planned",
+    run: {
+      phase: "build",
+      status: "running",
+    },
+  }),
+  {
+    phase: "build",
+    status: "running",
+    previous_status: "planned",
+  },
+);
+assert.deepEqual(
+  buildOrchestrationRunDeletedTelemetryProperties({
+    phase: "qa",
+    status: "blocked",
+  }),
+  {
+    phase: "qa",
+    previous_status: "blocked",
+  },
+);
+assert.deepEqual(
+  buildOrchestrationRunOutputTelemetryProperties({
+    output: "handoff ready",
+    phase: "launch",
+  }),
+  {
+    phase: "launch",
+    output_length: 13,
+  },
+);
 assert.equal(buildManualOrchestrationRunCreatedMessage(), "실행 단계를 추가했습니다.");
 assert.equal(buildManualOrchestrationRunLoginRequiredMessage(), "실행 단계를 추가하려면 먼저 로그인하세요.");
 assert.equal(buildOrchestrationRunbookCreatedMessage(), "전체 실행 순서 묶음을 만들었습니다.");

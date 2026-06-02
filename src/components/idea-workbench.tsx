@@ -350,18 +350,23 @@ import {
 import {
   buildManualOrchestrationRunCreatedMessage,
   buildManualOrchestrationRunLoginRequiredMessage,
+  buildOrchestrationRunbookTelemetryProperties,
   buildOrchestrationRunbookAlreadyExistsMessage,
   buildOrchestrationRunbookCreatedMessage,
   buildOrchestrationRunbookLoginRequiredMessage,
+  buildOrchestrationRunCreatedTelemetryProperties,
   buildOrchestrationRunDeleteConfirmMessage,
+  buildOrchestrationRunDeletedTelemetryProperties,
   buildOrchestrationRunDeletedMessage,
   buildOrchestrationRunDeletePermissionDeniedMessage,
   buildOrchestrationRunOutputMap,
   buildOrchestrationRunOutputPatch,
   buildOrchestrationRunOutputSavePermissionDeniedMessage,
   buildOrchestrationRunOutputSavedMessage,
+  buildOrchestrationRunOutputTelemetryProperties,
   buildOrchestrationRunStatusPatch,
   buildOrchestrationRunStatusChangedMessage,
+  buildOrchestrationRunStatusTelemetryProperties,
   buildOrchestrationRunUpdatePermissionDeniedMessage,
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
@@ -2364,11 +2369,7 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "run_created",
       eventCategory: "orchestration",
-      properties: {
-        phase: data.phase,
-        status: data.status,
-        owner_role: data.owner_role || "미정",
-      },
+      properties: buildOrchestrationRunCreatedTelemetryProperties(data),
     });
     setMessage(buildManualOrchestrationRunCreatedMessage());
     router.refresh();
@@ -2413,10 +2414,10 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "runbook_created",
       eventCategory: "orchestration",
-      properties: {
-        run_count: data?.length ?? 0,
-        missing_phase_count: missingRuns.length,
-      },
+      properties: buildOrchestrationRunbookTelemetryProperties({
+        missingPhaseCount: missingRuns.length,
+        runCount: data?.length ?? 0,
+      }),
     });
     setMessage(buildOrchestrationRunbookCreatedMessage());
     router.refresh();
@@ -2537,11 +2538,10 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "run_status_updated",
       eventCategory: "orchestration",
-      properties: {
-        phase: data.phase,
-        status: data.status,
-        previous_status: run.status,
-      },
+      properties: buildOrchestrationRunStatusTelemetryProperties({
+        previousStatus: run.status,
+        run: data,
+      }),
     });
     setMessage(
       buildOrchestrationRunStatusChangedMessage({
@@ -2584,10 +2584,7 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "run_deleted",
       eventCategory: "orchestration",
-      properties: {
-        phase: run.phase,
-        previous_status: run.status,
-      },
+      properties: buildOrchestrationRunDeletedTelemetryProperties(run),
     });
     setMessage(buildOrchestrationRunDeletedMessage());
     router.refresh();
@@ -2625,10 +2622,7 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "run_output_saved",
       eventCategory: "orchestration",
-      properties: {
-        phase: data.phase,
-        output_length: data.output.length,
-      },
+      properties: buildOrchestrationRunOutputTelemetryProperties(data),
     });
     setMessage(buildOrchestrationRunOutputSavedMessage({ phaseLabel: phaseLabels[run.phase] }));
     router.refresh();
