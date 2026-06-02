@@ -216,16 +216,13 @@ import {
 } from "@/lib/billing";
 import {
   buildMarketScanArtifactSaveDraft,
-  buildMarketScanEvidenceImplication,
-  buildMarketScanEvidenceText,
-  buildMarketScanLearningText,
+  buildMarketScanEvidenceDraft,
+  buildMarketScanExperimentResultPatch,
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
-  buildMarketScanResultText,
   buildVisibleMarketScanReviewRows,
   getMarketScanLevelLabel,
   getMarketScanSourceStrengthTone,
-  getPublicMarketScanSources,
   marketScanSourceTypeLabels,
   normalizeMarketScanDraft,
   type MarketScanDraft,
@@ -3849,29 +3846,26 @@ export function IdeaWorkbench({
       }
 
       const scanMode = cleanInlineText(payload.mode, 80);
-      const publicSources = getPublicMarketScanSources(scan.sources);
       setMarketScanDraftKey(`${selectedIdea.id}:${editState.product_surface ?? selectedIdea.product_surface ?? "undecided"}`);
       setMarketScanDraft(scan);
       setMarketScanMode(scanMode);
-      setExperimentResultDraft((current) => setRecordFields(current, {
-        experiment_id: current.experiment_id || selectedExperimentForResult?.id || "",
-        result: buildMarketScanResultText(scan),
-        learning: buildMarketScanLearningText(scan, decisionLabels),
-        next_decision: scan.recommendation,
-        next_action: scan.next_action,
+      setExperimentResultDraft((current) =>
+        setRecordFields(
+          current,
+          buildMarketScanExperimentResultPatch({
+            currentExperimentId: current.experiment_id,
+            decisionLabels,
+            scan,
+            selectedExperimentId: selectedExperimentForResult?.id,
+          }),
+        ),
+      );
+      setEvidenceDraft(buildMarketScanEvidenceDraft({
+        decisionLabels,
+        ideaName: selectedIdea.name,
+        mode: scanMode,
+        scan,
       }));
-      setEvidenceDraft({
-        title: `시장·경쟁 자동 점검 - ${selectedIdea.name}`,
-        source:
-          publicSources.length > 0
-            ? publicSources.map((source) => source.url || source.title).filter(Boolean).join(", ")
-            : scanMode === "local_estimate"
-              ? "AI 추정 초안"
-              : "AI 시장·경쟁 자동 점검",
-        evidence: buildMarketScanEvidenceText(scan),
-        implication: buildMarketScanEvidenceImplication(scan, decisionLabels),
-        confidence: scan.confidence,
-      });
       const marketScanArtifactDraft = buildMarketScanArtifactSaveDraft({
         idea: selectedIdea,
         scan,

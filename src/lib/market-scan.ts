@@ -49,6 +49,22 @@ export type MarketScanDraft = {
 
 export type MarketScanDecisionLabels = Record<DecisionStatus, string>;
 
+export type MarketScanExperimentResultPatch = {
+  experiment_id: string;
+  learning: string;
+  next_action: string;
+  next_decision: DecisionStatus;
+  result: string;
+};
+
+export type MarketScanEvidenceDraft = {
+  confidence: MarketScanDraft["confidence"];
+  evidence: string;
+  implication: string;
+  source: string;
+  title: string;
+};
+
 export function isMarketScanArtifactRecord(artifact: VentureArtifact) {
   return artifact.source === "market_scan" || (artifact.title || "").includes("시장·경쟁 자동 조사");
 }
@@ -570,6 +586,53 @@ ${scan.next_action}
 
 주의
 ${scan.caveat}`;
+}
+
+export function buildMarketScanExperimentResultPatch({
+  currentExperimentId,
+  decisionLabels,
+  scan,
+  selectedExperimentId,
+}: {
+  currentExperimentId: string;
+  decisionLabels: MarketScanDecisionLabels;
+  scan: MarketScanDraft;
+  selectedExperimentId: string | null | undefined;
+}): MarketScanExperimentResultPatch {
+  return {
+    experiment_id: currentExperimentId || selectedExperimentId || "",
+    result: buildMarketScanResultText(scan),
+    learning: buildMarketScanLearningText(scan, decisionLabels),
+    next_decision: scan.recommendation,
+    next_action: scan.next_action,
+  };
+}
+
+export function buildMarketScanEvidenceDraft({
+  decisionLabels,
+  ideaName,
+  mode,
+  scan,
+}: {
+  decisionLabels: MarketScanDecisionLabels;
+  ideaName: string;
+  mode: string | null;
+  scan: MarketScanDraft;
+}): MarketScanEvidenceDraft {
+  const publicSources = getPublicMarketScanSources(scan.sources);
+
+  return {
+    title: `시장·경쟁 자동 점검 - ${ideaName}`,
+    source:
+      publicSources.length > 0
+        ? publicSources.map((source) => source.url || source.title).filter(Boolean).join(", ")
+        : mode === "local_estimate"
+          ? "AI 추정 초안"
+          : "AI 시장·경쟁 자동 점검",
+    evidence: buildMarketScanEvidenceText(scan),
+    implication: buildMarketScanEvidenceImplication(scan, decisionLabels),
+    confidence: scan.confidence,
+  };
 }
 
 export function buildMarketScanArtifactMarkdown({

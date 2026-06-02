@@ -15,6 +15,8 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildMarketScanArtifactSaveDraft,
+  buildMarketScanEvidenceDraft,
+  buildMarketScanExperimentResultPatch,
   buildMarketScanReviewRows,
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
@@ -154,6 +156,46 @@ assert.equal(
 assert.equal(
   buildMarketScanRunCompletedMessage({ savedMarketScan: false }),
   "시장·경쟁 자동 점검 초안을 채웠습니다. 로그인 상태가 아니거나 저장 권한이 없으면 리서치 노트 자동 저장은 건너뜁니다.",
+);
+const experimentResultPatch = buildMarketScanExperimentResultPatch({
+  currentExperimentId: "",
+  decisionLabels,
+  scan: draft,
+  selectedExperimentId: "experiment-1",
+});
+assert.equal(experimentResultPatch.experiment_id, "experiment-1");
+assert.match(experimentResultPatch.result, /시장·경쟁 자동 점검 초안/);
+assert.match(experimentResultPatch.learning, /추천 판단: 추가 조사/);
+assert.equal(experimentResultPatch.next_decision, "research_more");
+assert.equal(experimentResultPatch.next_action, draft.next_action);
+assert.equal(
+  buildMarketScanExperimentResultPatch({
+    currentExperimentId: "experiment-2",
+    decisionLabels,
+    scan: draft,
+    selectedExperimentId: "experiment-1",
+  }).experiment_id,
+  "experiment-2",
+);
+const evidenceDraft = buildMarketScanEvidenceDraft({
+  decisionLabels,
+  ideaName: "AI Venture Lab",
+  mode: "openai_web",
+  scan: draft,
+});
+assert.equal(evidenceDraft.title, "시장·경쟁 자동 점검 - AI Venture Lab");
+assert.equal(evidenceDraft.source, "https://example.com/source");
+assert.match(evidenceDraft.evidence, /AI 시장·경쟁 자동 점검/);
+assert.match(evidenceDraft.implication, /AI 추천 판단: 추가 조사/);
+assert.equal(evidenceDraft.confidence, "medium");
+assert.equal(
+  buildMarketScanEvidenceDraft({
+    decisionLabels,
+    ideaName: "AI Venture Lab",
+    mode: "local_estimate",
+    scan: { ...draft, sources: [] },
+  }).source,
+  "AI 추정 초안",
 );
 
 const visibleRows = buildVisibleMarketScanReviewRows({
