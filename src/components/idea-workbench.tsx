@@ -379,7 +379,9 @@ import {
   buildEvidenceNoteEmptySaveDraftMessage,
   buildEvidenceNoteEvidenceRequiredMessage,
   buildEvidenceNoteTitleRequiredMessage,
+  buildExperimentCreatedTelemetryProperties,
   buildExperimentDeleteConfirmMessage,
+  buildExperimentDeletedTelemetryProperties,
   buildExperimentDeletedMessage,
   buildExperimentDeletePermissionDeniedMessage,
   buildExperimentInsertRow,
@@ -388,6 +390,7 @@ import {
   buildExperimentResultLearningRequiredMessage,
   buildExperimentResultRequiredMessage,
   buildExperimentStatusChangedMessage,
+  buildExperimentStatusTelemetryProperties,
   buildExperimentStatusUpdatePatch,
   buildExperimentUpdatePermissionDeniedMessage,
   buildIdeaDecisionUpdatePatch,
@@ -2299,12 +2302,10 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "experiment_created",
       eventCategory: "experiment",
-      properties: {
-        status: data.status,
-        name_length: data.name.length,
-        success_metric_length: data.success_metric.length,
-        source: options.source || "manual",
-      },
+      properties: buildExperimentCreatedTelemetryProperties({
+        experiment: data,
+        source: options.source,
+      }),
     });
     if (options.clearDraft) {
       setExperimentDraft(createDefaultExperimentDraft());
@@ -2453,10 +2454,10 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "experiment_status_updated",
       eventCategory: "experiment",
-      properties: {
-        status: data.status,
-        previous_status: experiment.status,
-      },
+      properties: buildExperimentStatusTelemetryProperties({
+        experiment: data,
+        previousStatus: experiment.status,
+      }),
     });
     setMessage(buildExperimentStatusChangedMessage({ statusLabel: experimentStatusLabels[status] ?? status }));
     router.refresh();
@@ -2499,9 +2500,7 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "experiment_deleted",
       eventCategory: "experiment",
-      properties: {
-        previous_status: experiment.status,
-      },
+      properties: buildExperimentDeletedTelemetryProperties(experiment.status),
     });
     setMessage(buildExperimentDeletedMessage());
     router.refresh();

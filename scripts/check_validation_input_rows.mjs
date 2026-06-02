@@ -13,7 +13,9 @@ const {
   buildEvidenceNoteEmptySaveDraftMessage,
   buildEvidenceNoteEvidenceRequiredMessage,
   buildEvidenceNoteTitleRequiredMessage,
+  buildExperimentCreatedTelemetryProperties,
   buildExperimentDeleteConfirmMessage,
+  buildExperimentDeletedTelemetryProperties,
   buildExperimentDeletedMessage,
   buildExperimentDeletePermissionDeniedMessage,
   buildExperimentInsertRow,
@@ -22,6 +24,7 @@ const {
   buildExperimentResultLearningRequiredMessage,
   buildExperimentResultRequiredMessage,
   buildExperimentStatusChangedMessage,
+  buildExperimentStatusTelemetryProperties,
   buildExperimentStatusUpdatePatch,
   buildExperimentUpdatePermissionDeniedMessage,
   buildIdeaDecisionUpdatePatch,
@@ -183,6 +186,22 @@ assert.deepEqual(
     success_metric: "5명 이상 반복 문제 인정",
   },
 );
+assert.deepEqual(
+  buildExperimentCreatedTelemetryProperties({
+    experiment: {
+      name: "10명 인터뷰",
+      status: "planned",
+      success_metric: "5명 이상 반복 문제 인정",
+    },
+    source: "",
+  }),
+  {
+    status: "planned",
+    name_length: 7,
+    success_metric_length: 14,
+    source: "manual",
+  },
+);
 
 assert.deepEqual(
   buildExperimentStatusUpdatePatch({
@@ -216,6 +235,17 @@ assert.deepEqual(
     status: "done",
   },
 );
+assert.deepEqual(
+  buildExperimentStatusTelemetryProperties({
+    experiment: { status: "done" },
+    previousStatus: "running",
+  }),
+  {
+    status: "done",
+    previous_status: "running",
+  },
+);
+assert.deepEqual(buildExperimentDeletedTelemetryProperties("done"), { previous_status: "done" });
 
 assert.deepEqual(buildRiskStatusUpdatePatch("closed"), { status: "closed" });
 assert.deepEqual(

@@ -16,6 +16,12 @@ export type ExperimentStatusSource<Status extends string> = {
   status: Status;
 };
 
+export type ExperimentTelemetrySource<Status extends string> = {
+  name: string;
+  status: Status;
+  success_metric: string;
+};
+
 export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
 };
@@ -240,6 +246,21 @@ export function buildExperimentInsertRow({
   };
 }
 
+export function buildExperimentCreatedTelemetryProperties<Status extends string>({
+  experiment,
+  source,
+}: {
+  experiment: ExperimentTelemetrySource<Status>;
+  source: string | null | undefined;
+}) {
+  return {
+    status: experiment.status,
+    name_length: experiment.name.length,
+    success_metric_length: experiment.success_metric.length,
+    source: source || "manual",
+  };
+}
+
 export function buildExperimentStatusUpdatePatch<Status extends string>({
   experiment,
   now,
@@ -258,6 +279,25 @@ export function buildExperimentStatusUpdatePatch<Status extends string>({
 
 export function buildRiskStatusUpdatePatch<Status extends string>(status: Status): RiskStatusUpdatePatch<Status> {
   return { status };
+}
+
+export function buildExperimentStatusTelemetryProperties<Status extends string>({
+  experiment,
+  previousStatus,
+}: {
+  experiment: Pick<ExperimentStatusSource<Status>, "status">;
+  previousStatus: Status;
+}) {
+  return {
+    status: experiment.status,
+    previous_status: previousStatus,
+  };
+}
+
+export function buildExperimentDeletedTelemetryProperties<Status extends string>(previousStatus: Status) {
+  return {
+    previous_status: previousStatus,
+  };
 }
 
 export function buildRiskStatusTelemetryProperties<Severity extends string, Status extends string>({
