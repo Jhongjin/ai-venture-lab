@@ -213,6 +213,26 @@ export function replaceRecordsById<T extends { id: string }>(records: T[], nextR
   return records.map((record) => recordsById.get(record.id) ?? record);
 }
 
+export function prependRecord<T>(records: T[], nextRecord: T) {
+  return [nextRecord, ...records];
+}
+
+export function prependRecords<T>(records: T[], nextRecords: readonly T[]) {
+  return [...nextRecords, ...records];
+}
+
+export function appendRecord<T>(records: T[], nextRecord: T) {
+  return [...records, nextRecord];
+}
+
+export function appendRecords<T>(records: T[], nextRecords: readonly T[]) {
+  return [...records, ...nextRecords];
+}
+
+export function mergeRecordMap<T>(record: Record<string, T>, nextRecord: Record<string, T>) {
+  return { ...record, ...nextRecord };
+}
+
 export function removeRecordById<T extends { id: string }>(records: T[], recordId: string) {
   return records.filter((record) => record.id !== recordId);
 }

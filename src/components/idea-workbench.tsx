@@ -57,6 +57,8 @@ import {
   buildRestoreIdeaPatch,
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
+  appendRecord,
+  appendRecords,
   getActiveIdeas,
   getIdeaDeletionRelatedTables,
   getWorkbenchRecordAccessDisplay,
@@ -65,7 +67,10 @@ import {
   getVisibleDiscardedIdeas,
   isIdeaStageAtOrAfter,
   isDiscardedIdea,
+  mergeRecordMap,
   omitRecordKey,
+  prependRecord,
+  prependRecords,
   removeRecordById,
   removeRecordsByIdeaId,
   replaceRecordById,
@@ -2510,7 +2515,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setRisks((current) => [data, ...current]);
+    setRisks((current) => prependRecord(current, data));
     emitVentureEvent("venture:risk-created", data);
     void recordTelemetryEvent({
       eventName: "risk_created",
@@ -2567,7 +2572,7 @@ export function IdeaWorkbench({
     }
 
     setIdeas((current) => replaceRecordById(current, ideaResult.data));
-    setDecisionLog((current) => [decisionResult.data, ...current]);
+    setDecisionLog((current) => prependRecord(current, decisionResult.data));
     emitVentureEvent("venture:idea-updated", ideaResult.data);
     emitVentureEvent("venture:decision-created", decisionResult.data);
     void recordTelemetryEvent({
@@ -2623,7 +2628,7 @@ export function IdeaWorkbench({
       return false;
     }
 
-    setExperiments((current) => [data, ...current]);
+    setExperiments((current) => prependRecord(current, data));
     emitVentureEvent("venture:experiment-created", data);
     void recordTelemetryEvent({
       eventName: "experiment_created",
@@ -2686,7 +2691,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setOrchestrationRuns((current) => [data, ...current]);
+    setOrchestrationRuns((current) => prependRecord(current, data));
     setRunOutputs((current) => setRecordKey(current, data.id, data.output));
     emitVentureEvent("venture:run-created", data);
     void recordTelemetryEvent({
@@ -2735,11 +2740,8 @@ export function IdeaWorkbench({
       return;
     }
 
-    setOrchestrationRuns((current) => [...(data ?? []), ...current]);
-    setRunOutputs((current) => ({
-      ...current,
-      ...buildOrchestrationRunOutputMap(data ?? []),
-    }));
+    setOrchestrationRuns((current) => prependRecords(current, data ?? []));
+    setRunOutputs((current) => mergeRecordMap(current, buildOrchestrationRunOutputMap(data ?? [])));
     emitVentureEvent("venture:runs-created", data ?? []);
     void recordTelemetryEvent({
       eventName: "runbook_created",
@@ -3010,7 +3012,7 @@ export function IdeaWorkbench({
       return false;
     }
 
-    setArtifacts((current) => [data, ...current]);
+    setArtifacts((current) => prependRecord(current, data));
     emitVentureEvent("venture:artifact-created", data);
     void recordTelemetryEvent({
       eventName: "artifact_saved",
@@ -3338,11 +3340,8 @@ export function IdeaWorkbench({
       }
 
       if (insertedRuns.length > 0) {
-        setOrchestrationRuns((current) => [...insertedRuns, ...current]);
-        setRunOutputs((current) => ({
-          ...current,
-          ...buildOrchestrationRunOutputMap(insertedRuns),
-        }));
+        setOrchestrationRuns((current) => prependRecords(current, insertedRuns));
+        setRunOutputs((current) => mergeRecordMap(current, buildOrchestrationRunOutputMap(insertedRuns)));
         emitVentureEvent("venture:runs-created", insertedRuns);
         void recordTelemetryEvent({
           eventName: "runbook_created",
@@ -3355,7 +3354,7 @@ export function IdeaWorkbench({
       }
 
       if (insertedArtifacts.length > 0) {
-        setArtifacts((current) => [...insertedArtifacts, ...current]);
+        setArtifacts((current) => prependRecords(current, insertedArtifacts));
         insertedArtifacts.forEach((artifact) => emitVentureEvent("venture:artifact-created", artifact));
         void recordTelemetryEvent({
           eventName: "artifact_package_saved",
@@ -3368,7 +3367,7 @@ export function IdeaWorkbench({
       }
 
       if (insertedTasks.length > 0) {
-        setImplementationTasks((current) => [...current, ...insertedTasks]);
+        setImplementationTasks((current) => appendRecords(current, insertedTasks));
         emitVentureEvent("venture:tasks-created", insertedTasks);
         void recordTelemetryEvent({
           eventName: "implementation_tasks_created",
@@ -3590,7 +3589,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setImplementationTasks((current) => [...current, ...(data ?? [])]);
+    setImplementationTasks((current) => appendRecords(current, data ?? []));
     emitVentureEvent("venture:tasks-created", data ?? []);
     void recordTelemetryEvent({
       eventName: "implementation_tasks_created",
@@ -3723,7 +3722,7 @@ export function IdeaWorkbench({
       }
 
       if (insertedTasks.length > 0) {
-        setImplementationTasks((current) => [...current, ...insertedTasks]);
+        setImplementationTasks((current) => appendRecords(current, insertedTasks));
         emitVentureEvent("venture:tasks-created", insertedTasks);
       }
 
@@ -3798,7 +3797,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setImplementationTasks((current) => [...current, data]);
+    setImplementationTasks((current) => appendRecord(current, data));
     emitVentureEvent("venture:task-created", data);
     void recordTelemetryEvent({
       eventName: "implementation_task_created",

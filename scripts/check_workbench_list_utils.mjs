@@ -4,6 +4,8 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-list-utils.ts")).href;
 const {
+  appendRecord,
+  appendRecords,
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
   filterVisibleWorkbenchIdeas,
@@ -18,7 +20,10 @@ const {
   isWorkbenchAdminRole,
   isDiscardedIdea,
   isIdeaStageAtOrAfter,
+  mergeRecordMap,
   omitRecordKey,
+  prependRecord,
+  prependRecords,
   removeRecordById,
   removeRecordsByIdeaId,
   replaceRecordById,
@@ -179,6 +184,23 @@ assert.deepEqual(
     { id: "b", value: 3 },
   ],
 );
+assert.deepEqual(prependRecord([{ id: "b" }], { id: "a" }), [{ id: "a" }, { id: "b" }]);
+assert.deepEqual(prependRecords([{ id: "c" }], [{ id: "a" }, { id: "b" }]), [
+  { id: "a" },
+  { id: "b" },
+  { id: "c" },
+]);
+assert.deepEqual(appendRecord([{ id: "a" }], { id: "b" }), [{ id: "a" }, { id: "b" }]);
+assert.deepEqual(appendRecords([{ id: "a" }], [{ id: "b" }, { id: "c" }]), [
+  { id: "a" },
+  { id: "b" },
+  { id: "c" },
+]);
+assert.deepEqual(mergeRecordMap({ a: "old", b: "keep" }, { a: "new", c: "added" }), {
+  a: "new",
+  b: "keep",
+  c: "added",
+});
 assert.deepEqual(omitRecordKey({ a: "keep", b: "drop" }, "b"), { a: "keep" });
 assert.deepEqual(omitRecordKey({ a: "keep" }, "missing"), { a: "keep" });
 assert.deepEqual(setRecordKey({ a: "keep" }, "b", "set"), { a: "keep", b: "set" });
