@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   Sparkle,
 } from "@phosphor-icons/react";
+import { clearBrowserInterval, scheduleBrowserInterval } from "@/lib/browser-timing";
 
 const stages = [
   {
@@ -75,11 +76,11 @@ export function LandingHeroVisual({ variant = "panel" }: LandingHeroVisualProps)
   const [activeStage, setActiveStage] = useState(0);
 
   useEffect(() => {
-    const intervalId = window.setInterval(() => {
+    const intervalId = scheduleBrowserInterval(() => {
       setActiveStage((current) => (current + 1) % stages.length);
     }, 2600);
 
-    return () => window.clearInterval(intervalId);
+    return () => clearBrowserInterval(intervalId);
   }, []);
 
   const handleMove = (event: React.MouseEvent<HTMLDivElement>) => {

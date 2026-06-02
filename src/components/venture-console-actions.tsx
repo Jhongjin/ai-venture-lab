@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { copyBrowserText } from "@/lib/browser-file-download";
+import { clearBrowserTimeout, scheduleBrowserTimeout } from "@/lib/browser-timing";
 import {
   inferProductSurface,
   productSurfaceProfiles,
@@ -588,12 +589,12 @@ export function VentureConsoleActions({
     const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
     window.history.replaceState(null, "", nextUrl);
 
-    const messageTimer = window.setTimeout(() => {
+    const messageTimer = scheduleBrowserTimeout(() => {
       setAuthMessage(callbackMessage);
-    }, 0);
+    });
 
     return () => {
-      window.clearTimeout(messageTimer);
+      clearBrowserTimeout(messageTimer);
     };
   }, []);
 
@@ -617,7 +618,7 @@ export function VentureConsoleActions({
     const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}${window.location.hash}`;
     window.history.replaceState(null, "", nextUrl);
 
-    const exchangeTimer = window.setTimeout(() => {
+    const exchangeTimer = scheduleBrowserTimeout(() => {
       async function completeRootMagicLink() {
         setIsAuthBusy(true);
         setAuthMessage("이메일 로그인 링크를 확인하는 중입니다...");
@@ -643,10 +644,10 @@ export function VentureConsoleActions({
       }
 
       void completeRootMagicLink();
-    }, 0);
+    });
 
     return () => {
-      window.clearTimeout(exchangeTimer);
+      clearBrowserTimeout(exchangeTimer);
     };
   }, [loadWorkspaceData, router, supabase, updateActiveTask]);
 

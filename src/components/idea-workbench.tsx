@@ -160,6 +160,13 @@ import {
   triggerBrowserDraftDownload,
 } from "@/lib/browser-file-download";
 import {
+  clearBrowserInterval,
+  clearBrowserTimeout,
+  scheduleBrowserInterval,
+  scheduleBrowserTimeout,
+  waitForBrowserDelay,
+} from "@/lib/browser-timing";
+import {
   buildFinalExecutionDecisionSentence,
   buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveToolContext,
@@ -742,11 +749,11 @@ export function IdeaWorkbench({
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
+    const timeoutId = scheduleBrowserTimeout(() => {
       void refreshCreditSummary();
-    }, 0);
+    });
 
-    return () => window.clearTimeout(timeoutId);
+    return () => clearBrowserTimeout(timeoutId);
   }, [refreshCreditSummary]);
 
   async function recordTelemetryEvent({
@@ -2046,16 +2053,16 @@ export function IdeaWorkbench({
       return;
     }
 
-    const initialRefresh = window.setTimeout(() => {
+    const initialRefresh = scheduleBrowserTimeout(() => {
       void refreshSelectedIdeaImplementationTasks({ source: "auto" });
-    }, 0);
-    const interval = window.setInterval(() => {
+    });
+    const interval = scheduleBrowserInterval(() => {
       void refreshSelectedIdeaImplementationTasks({ source: "auto" });
     }, 20000);
 
     return () => {
-      window.clearTimeout(initialRefresh);
-      window.clearInterval(interval);
+      clearBrowserTimeout(initialRefresh);
+      clearBrowserInterval(interval);
     };
     // Restart polling only when the selected record or viewer changes; object identity churn should not reset the timer.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2105,11 +2112,11 @@ export function IdeaWorkbench({
       return;
     }
 
-    const refreshTimer = window.setTimeout(() => {
+    const refreshTimer = scheduleBrowserTimeout(() => {
       void refreshCursorSyncConnections();
-    }, 0);
+    });
 
-    return () => window.clearTimeout(refreshTimer);
+    return () => clearBrowserTimeout(refreshTimer);
     // This mirrors the task polling boundary: reload only when the selected project, viewer, or final tool changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTask, isLiveExternalDelivery, selectedIdea?.id, user?.id, activeExternalBuildTool.key]);
@@ -2808,9 +2815,7 @@ export function IdeaWorkbench({
       }
 
       setDevelopmentAutoStepIndex(index);
-      await new Promise<void>((resolve) => {
-        window.setTimeout(resolve, 420);
-      });
+      await waitForBrowserDelay(420);
     }
 
     if (developmentAutoRunIdRef.current !== runId) {
