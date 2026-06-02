@@ -171,9 +171,8 @@ const contracts = [
     tokens: [
       'data-smoke="first-use-one-sentence"',
       'data-smoke="first-use-final-output"',
-      "처음이라면 메모를 그대로 붙이고 이 내용으로 아이디어 정리하기만 누르세요.",
-      "첫 검증 질문",
-      "제작 패키지, 작업 순서, STEP 7 연결 파일까지 이어집니다",
+      "처음이라면 메모만 붙이고 AI 정리만 누르세요.",
+      "저장한 후보는 다음 단계와 제작 패키지로 이어집니다.",
     ],
     orderedTokens: [
       'data-smoke="first-use-one-sentence"',
