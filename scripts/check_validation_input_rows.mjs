@@ -7,6 +7,7 @@ const {
   buildDecisionInsertRow,
   buildExperimentInsertRow,
   buildExperimentStatusUpdatePatch,
+  buildIdeaDecisionUpdatePatch,
   buildRiskInsertRow,
   buildRiskStatusUpdatePatch,
 } = await import(moduleUrl);
@@ -47,6 +48,7 @@ assert.deepEqual(
     reason: "인터뷰 증거가 더 필요함",
   },
 );
+assert.deepEqual(buildIdeaDecisionUpdatePatch("ship"), { decision: "ship" });
 
 assert.deepEqual(
   buildExperimentInsertRow({

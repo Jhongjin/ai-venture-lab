@@ -296,6 +296,7 @@ import {
   buildDecisionInsertRow,
   buildExperimentInsertRow,
   buildExperimentStatusUpdatePatch,
+  buildIdeaDecisionUpdatePatch,
   buildRiskInsertRow,
   buildRiskStatusUpdatePatch,
 } from "@/lib/validation-input-rows";
@@ -2541,7 +2542,12 @@ export function IdeaWorkbench({
     setIsBusy(true);
     setMessage(null);
     const [ideaResult, decisionResult] = await Promise.all([
-      supabase.from("ideas").update({ decision: editState.decision }).eq("id", selectedIdea.id).select().single(),
+      supabase
+        .from("ideas")
+        .update(buildIdeaDecisionUpdatePatch(editState.decision))
+        .eq("id", selectedIdea.id)
+        .select()
+        .single(),
       supabase
         .from("decisions")
         .insert(

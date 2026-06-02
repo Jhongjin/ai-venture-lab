@@ -20,6 +20,10 @@ export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
 };
 
+export type IdeaDecisionUpdatePatch<Decision extends string> = {
+  decision: Decision;
+};
+
 export function buildRiskInsertRow<Severity extends string>({
   draft,
   ideaId,
@@ -57,6 +61,12 @@ export function buildDecisionInsertRow<Decision extends string>({
     organization_id: organizationId,
     reason: reason.trim(),
   };
+}
+
+export function buildIdeaDecisionUpdatePatch<Decision extends string>(
+  decision: Decision,
+): IdeaDecisionUpdatePatch<Decision> {
+  return { decision };
 }
 
 export function buildExperimentInsertRow({
