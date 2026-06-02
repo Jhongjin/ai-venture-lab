@@ -64,6 +64,20 @@ export const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
 };
 
+export function buildArtifactReviewDevelopmentFocusMessage(itemLabel: string) {
+  return `${itemLabel} 생성을 위해 개발 프로세스 화면으로 이동했습니다.`;
+}
+
+export function buildArtifactReviewPanelFocusMessage({
+  itemLabel,
+  panel,
+}: {
+  itemLabel: string;
+  panel: ArtifactPanel;
+}) {
+  return `${itemLabel} 생성을 위해 ${artifactPanelLabels[panel]} 화면으로 이동했습니다.`;
+}
+
 const artifactReviewBlueprint: Array<
   Omit<ArtifactReviewItem, "status" | "artifact" | "detail"> & {
     missingDetail: string;

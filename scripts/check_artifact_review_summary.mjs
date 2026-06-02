@@ -27,6 +27,8 @@ const {
   summarizeArtifactLineChanges,
 } = await import(moduleUrl);
 const {
+  buildArtifactReviewDevelopmentFocusMessage,
+  buildArtifactReviewPanelFocusMessage,
   buildArtifactReviewProgressState,
   buildArtifactReviewQueue,
   buildArtifactReviewWorkflowState,
@@ -220,5 +222,13 @@ assert.deepEqual(getArtifactReviewStatusDisplay("missing"), {
   nextLabel: "생성 필요",
   pillTone: "avl-pill-danger",
 });
+assert.equal(
+  buildArtifactReviewDevelopmentFocusMessage("기술 명세"),
+  "기술 명세 생성을 위해 개발 프로세스 화면으로 이동했습니다.",
+);
+assert.equal(
+  buildArtifactReviewPanelFocusMessage({ itemLabel: "제품 기획서", panel: "product" }),
+  "제품 기획서 생성을 위해 기획서 화면으로 이동했습니다.",
+);
 
 console.log("Artifact review summary smoke passed.");

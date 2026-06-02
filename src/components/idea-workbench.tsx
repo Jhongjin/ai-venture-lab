@@ -21,7 +21,8 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   artifactPanelDescriptions,
-  artifactPanelLabels,
+  buildArtifactReviewDevelopmentFocusMessage,
+  buildArtifactReviewPanelFocusMessage,
   buildArtifactReviewWorkflowState,
   developmentPanelDescriptions,
   developmentPanelLabels,
@@ -3107,13 +3108,13 @@ export function IdeaWorkbench({
     if (item.task === "development") {
       setDevelopmentPanel(item.developmentPanel ?? "setup");
       updateActiveTask("development");
-      setMessage(`${item.label} 생성을 위해 개발 프로세스 화면으로 이동했습니다.`);
+      setMessage(buildArtifactReviewDevelopmentFocusMessage(item.label));
       return;
     }
 
     setArtifactPanel(item.panel ?? "product");
     updateActiveTask("artifacts");
-    setMessage(`${item.label} 생성을 위해 ${artifactPanelLabels[item.panel ?? "product"]} 화면으로 이동했습니다.`);
+    setMessage(buildArtifactReviewPanelFocusMessage({ itemLabel: item.label, panel: item.panel ?? "product" }));
   }
 
   async function updateArtifactStatus(artifact: VentureArtifact, status: VentureArtifactStatus) {
