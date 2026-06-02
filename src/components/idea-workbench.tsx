@@ -149,7 +149,6 @@ import {
 } from "@/lib/build-delivery";
 import {
   encodeBrowserSetupFiles,
-  triggerBrowserMarkdownDownload,
   triggerBrowserTextDownload,
 } from "@/lib/browser-file-download";
 import {
@@ -3948,14 +3947,13 @@ export function IdeaWorkbench({
     setCopyMessage(`${label}을 클립보드에 복사했습니다.`);
   }
 
-  function downloadTextFile(body: string, label: string, fileName: string, mimeType: string) {
+  function downloadDraftFile(
+    body: string,
+    label: string,
+    fileName: string,
+    mimeType = "text/markdown;charset=utf-8",
+  ) {
     if (triggerBrowserTextDownload({ body, fileName, mimeType })) {
-      setCopyMessage(`${label} 파일을 준비했습니다.`);
-    }
-  }
-
-  function downloadMarkdownFile(body: string, label: string, fileName: string) {
-    if (triggerBrowserMarkdownDownload(body, fileName)) {
       setCopyMessage(`${label} 파일을 준비했습니다.`);
     }
   }
@@ -4064,7 +4062,7 @@ export function IdeaWorkbench({
         files,
       });
 
-      downloadTextFile(
+      downloadDraftFile(
         script,
         config.fileLabel,
         toDownloadFileName(selectedIdea.name, config.fileSuffix, "ps1"),
@@ -4207,7 +4205,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    downloadMarkdownFile(
+    downloadDraftFile(
       externalToolRunPackageDraft,
       `${activeExternalBuildTool.label} 시작 패키지`,
       toDownloadFileName(selectedIdea.name, activeExternalBuildTool.handoffFileSuffix),
@@ -6635,7 +6633,7 @@ export function IdeaWorkbench({
                     onCopyDraft={copyDraft}
                     onDownloadPrimaryPackage={downloadFinalExecutionPrimaryPackage}
                     onDownloadProductionPackage={() =>
-                      downloadMarkdownFile(
+                      downloadDraftFile(
                         finalAgentRunPackageDraft,
                         "최종 제작 패키지",
                         toDownloadFileName(selectedIdea.name, "production-package"),
@@ -6660,7 +6658,7 @@ export function IdeaWorkbench({
                   finalAgentRunPackageDraft={finalAgentRunPackageDraft}
                   onCopyPackage={() => copyDraft(finalAgentRunPackageDraft, "내부 개발 패키지")}
                   onDownloadPackage={() =>
-                    downloadMarkdownFile(
+                    downloadDraftFile(
                       finalAgentRunPackageDraft,
                       "내부 개발 패키지",
                       toDownloadFileName(selectedIdea.name, "venture-lab-build-package"),
