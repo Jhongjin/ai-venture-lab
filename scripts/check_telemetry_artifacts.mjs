@@ -18,7 +18,7 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { buildTelemetrySetupDrafts } = await import(moduleUrl);
+const { buildTelemetryReportDraftState, buildTelemetrySetupDrafts } = await import(moduleUrl);
 
 assert.deepEqual(buildTelemetrySetupDrafts(null), {
   telemetryAdapterGuideDraft: "",
@@ -38,5 +38,43 @@ assert.match(setupDrafts.telemetryNextRouteSnippet, /app\/api\/product-events\/r
 assert.match(setupDrafts.telemetryNextRouteSnippet, /idea-telemetry-1/);
 assert.match(setupDrafts.telemetryClientHelperSnippet, /trackProductEvent/);
 assert.match(setupDrafts.telemetrySmokeCommandSnippet, /TELEMETRY_SMOKE_IDEA_ID="idea-telemetry-1"/);
+
+assert.deepEqual(
+  buildTelemetryReportDraftState({
+    events: [],
+    experiments: [],
+    idea: null,
+    implementationTasks: [],
+    openRisks: [],
+    productEvents: [],
+  }),
+  {
+    learningTelemetryReportDraft: "",
+    productTelemetryFunnelDraft: "",
+  },
+);
+
+const event = {
+  created_at: "2026-06-02T00:00:00.000Z",
+  event_category: "product",
+  event_name: "product_page_view",
+  id: "event-1",
+  idea_id: "idea-telemetry-1",
+  occurred_at: "2026-06-02T00:00:00.000Z",
+  properties: { path: "/workspace" },
+};
+const reportDrafts = buildTelemetryReportDraftState({
+  events: [event],
+  experiments: [{ status: "running" }],
+  idea,
+  implementationTasks: [{ status: "done" }, { status: "todo" }],
+  openRisks: [{ status: "open" }],
+  productEvents: [event],
+});
+
+assert.match(reportDrafts.learningTelemetryReportDraft, /# 출시 후 학습 리포트: 텔레메트리 검증/);
+assert.match(reportDrafts.learningTelemetryReportDraft, /최근 7일 이벤트: 1개/);
+assert.match(reportDrafts.productTelemetryFunnelDraft, /# 제품 이벤트 퍼널 리포트: 텔레메트리 검증/);
+assert.match(reportDrafts.productTelemetryFunnelDraft, /product_page_view/);
 
 console.log("Telemetry artifacts smoke passed.");

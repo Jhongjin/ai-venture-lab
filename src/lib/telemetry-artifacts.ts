@@ -9,6 +9,16 @@ import {
 } from "@/lib/telemetry-format";
 import type { Experiment, Idea, ImplementationTask, Risk, TelemetryEvent } from "@/lib/venture-data";
 
+export type TelemetryReportDraftState = {
+  learningTelemetryReportDraft: string;
+  productTelemetryFunnelDraft: string;
+};
+
+const emptyTelemetryReportDraftState: TelemetryReportDraftState = {
+  learningTelemetryReportDraft: "",
+  productTelemetryFunnelDraft: "",
+};
+
 export function buildLearningTelemetryReportMarkdown({
   idea,
   events,
@@ -343,4 +353,38 @@ ${taxonomyRows}
 - 전환율이 낮은 단계는 새 기능 개발보다 마찰 제거를 먼저 검증합니다.
 - 핵심 행동과 활성화 이벤트가 없으면 Day 7/14/30 판단을 보류합니다.
 `;
+}
+
+export function buildTelemetryReportDraftState({
+  events,
+  experiments,
+  idea,
+  implementationTasks,
+  openRisks,
+  productEvents,
+}: {
+  events: TelemetryEvent[];
+  experiments: Experiment[];
+  idea: Idea | null;
+  implementationTasks: ImplementationTask[];
+  openRisks: Risk[];
+  productEvents: TelemetryEvent[];
+}): TelemetryReportDraftState {
+  if (!idea) {
+    return emptyTelemetryReportDraftState;
+  }
+
+  return {
+    learningTelemetryReportDraft: buildLearningTelemetryReportMarkdown({
+      idea,
+      events,
+      openRisks,
+      experiments,
+      implementationTasks,
+    }),
+    productTelemetryFunnelDraft: buildProductTelemetryFunnelMarkdown({
+      idea,
+      events: productEvents,
+    }),
+  };
 }

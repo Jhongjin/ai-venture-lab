@@ -99,11 +99,7 @@ import {
   telemetryCategoryTone,
   telemetryEventLabels,
 } from "@/lib/telemetry-format";
-import {
-  buildLearningTelemetryReportMarkdown,
-  buildProductTelemetryFunnelMarkdown,
-  buildTelemetrySetupDrafts,
-} from "@/lib/telemetry-artifacts";
+import { buildTelemetryReportDraftState, buildTelemetrySetupDrafts } from "@/lib/telemetry-artifacts";
 import {
   buildStep8LearningDisplayState,
   buildStep8ImplementationDerivedState,
@@ -870,19 +866,6 @@ export function IdeaWorkbench({
     implementationTasks: selectedImplementationTasks,
     runs: selectedRuns,
   });
-  const learningTelemetryReportDraft = useMemo(
-    () =>
-      selectedIdea
-        ? buildLearningTelemetryReportMarkdown({
-            idea: selectedIdea,
-            events: selectedTelemetryEvents,
-            openRisks: openSelectedIdeaRisks,
-            experiments: selectedExperiments,
-            implementationTasks: selectedImplementationTasks,
-          })
-        : "",
-    [openSelectedIdeaRisks, selectedExperiments, selectedIdea, selectedImplementationTasks, selectedTelemetryEvents],
-  );
   const {
     telemetryAdapterGuideDraft,
     telemetryEnvSnippet,
@@ -905,15 +888,24 @@ export function IdeaWorkbench({
       }),
     [openSelectedIdeaRisks.length, selectedTelemetryEvents],
   );
-  const productTelemetryFunnelDraft = useMemo(
+  const { learningTelemetryReportDraft, productTelemetryFunnelDraft } = useMemo(
     () =>
-      selectedIdea
-        ? buildProductTelemetryFunnelMarkdown({
-            idea: selectedIdea,
-            events: selectedProductTelemetryEvents,
-          })
-        : "",
-    [selectedIdea, selectedProductTelemetryEvents],
+      buildTelemetryReportDraftState({
+        events: selectedTelemetryEvents,
+        experiments: selectedExperiments,
+        idea: selectedIdea,
+        implementationTasks: selectedImplementationTasks,
+        openRisks: openSelectedIdeaRisks,
+        productEvents: selectedProductTelemetryEvents,
+      }),
+    [
+      openSelectedIdeaRisks,
+      selectedExperiments,
+      selectedIdea,
+      selectedImplementationTasks,
+      selectedProductTelemetryEvents,
+      selectedTelemetryEvents,
+    ],
   );
   const {
     completedImplementationTasks: completedLearningImplementationTasks,
