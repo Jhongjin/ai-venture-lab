@@ -82,6 +82,7 @@ import {
   buildDefaultWorkspaceInsertRow,
   workspaceRecordTables,
 } from "@/lib/workspace-organization-rows";
+import { emitVentureEvent } from "@/lib/venture-events";
 import { IdeaExtractionAdvancedQueue } from "@/components/idea-extraction-advanced-queue";
 import { IdeaExtractionDetailList } from "@/components/idea-extraction-detail-list";
 import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
@@ -316,7 +317,7 @@ export function VentureConsoleActions({
     }
 
     if (data) {
-      window.dispatchEvent(new CustomEvent<TelemetryEvent>("venture:telemetry-created", { detail: data }));
+      emitVentureEvent<TelemetryEvent>("venture:telemetry-created", data);
     }
   }
 
@@ -961,7 +962,7 @@ export function VentureConsoleActions({
 
     setForm(emptyForm);
     if (data) {
-      window.dispatchEvent(new CustomEvent<Idea>("venture:idea-created", { detail: data }));
+      emitVentureEvent<Idea>("venture:idea-created", data);
       const { data: manualArtifact } = await supabase
         .from("venture_artifacts")
         .insert(
@@ -974,7 +975,7 @@ export function VentureConsoleActions({
         .select()
         .single();
       if (manualArtifact) {
-        window.dispatchEvent(new CustomEvent<VentureArtifact>("venture:artifact-created", { detail: manualArtifact }));
+        emitVentureEvent<VentureArtifact>("venture:artifact-created", manualArtifact);
       }
       void recordTelemetryEvent({
         eventName: "idea_created",
@@ -1335,7 +1336,7 @@ export function VentureConsoleActions({
       return;
     }
 
-    window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: data }));
+    emitVentureEvent("venture:artifact-created", data);
     setExtractMessage("아이디어 정리 리포트를 제작 자료로 저장했습니다. 최근 리포트에서 다시 복사할 수 있습니다.");
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");
@@ -1434,20 +1435,19 @@ export function VentureConsoleActions({
         .select(),
     ]);
 
-    window.dispatchEvent(
-      new CustomEvent<Idea & { autoOpenWorkbench: true }>("venture:idea-created", {
-        detail: { ...idea, autoOpenWorkbench: true },
-      }),
-    );
+    emitVentureEvent<Idea & { autoOpenWorkbench: true }>("venture:idea-created", {
+      ...idea,
+      autoOpenWorkbench: true,
+    });
     if (riskResult.data) {
-      window.dispatchEvent(new CustomEvent("venture:risk-created", { detail: riskResult.data }));
+      emitVentureEvent("venture:risk-created", riskResult.data);
     }
     if (experimentResult.data) {
-      window.dispatchEvent(new CustomEvent("venture:experiment-created", { detail: experimentResult.data }));
+      emitVentureEvent("venture:experiment-created", experimentResult.data);
     }
     if (artifactResult.data) {
       for (const artifact of artifactResult.data as VentureArtifact[]) {
-        window.dispatchEvent(new CustomEvent("venture:artifact-created", { detail: artifact }));
+        emitVentureEvent("venture:artifact-created", artifact);
       }
     }
     void recordTelemetryEvent({

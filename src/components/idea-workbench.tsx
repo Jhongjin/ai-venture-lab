@@ -435,6 +435,7 @@ import {
   buildValidationPackageSavedMessage,
 } from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
+import { emitVentureEvent } from "@/lib/venture-events";
 import {
   buildImplementationTaskAutoRefreshMessage,
   buildImplementationTaskManualRefreshMessage,
@@ -544,10 +545,6 @@ type PreparedArtifactSaveDraft = {
 };
 
 export type { WorkbenchStepReadiness };
-
-function emitVentureEvent<T>(eventName: string, detail: T) {
-  window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
-}
 
 type CursorBuildSyncTokenResponse = {
   ok?: boolean;
@@ -1234,7 +1231,7 @@ export function IdeaWorkbench({
     setEditState(nextSelectedIdea ? toEditState(nextSelectedIdea) : null);
     setIsBusy(false);
     setMessage(buildWorkbenchIdeaDiscardedMessage(idea.name));
-    window.dispatchEvent(new CustomEvent<Idea>("venture:idea-updated", { detail: updatedIdea }));
+    emitVentureEvent("venture:idea-updated", updatedIdea);
     updateActiveTask(nextTask);
     router.refresh();
   }
@@ -1278,7 +1275,7 @@ export function IdeaWorkbench({
     setEditState(toEditState(updatedIdea));
     setIsBusy(false);
     setMessage(buildWorkbenchIdeaRestoredMessage(idea.name));
-    window.dispatchEvent(new CustomEvent<Idea>("venture:idea-updated", { detail: updatedIdea }));
+    emitVentureEvent("venture:idea-updated", updatedIdea);
     updateActiveTask("score");
     router.refresh();
   }
