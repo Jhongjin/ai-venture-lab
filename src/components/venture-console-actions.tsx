@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { copyBrowserText } from "@/lib/browser-file-download";
 import { clearBrowserTimeout, scheduleBrowserTimeout } from "@/lib/browser-timing";
+import { readResponseJson } from "@/lib/record-utils";
 import {
   buildWorkspaceEmailRedirectUrl,
   readAuthCallbackErrorState,
@@ -1050,7 +1051,7 @@ export function VentureConsoleActions({
           }),
         ),
       });
-      const payload = (await response.json().catch(() => ({}))) as AiGenerateSampleIdeasResponse;
+      const payload = await readResponseJson<AiGenerateSampleIdeasResponse>(response, {});
 
       if (!response.ok || !payload.source) {
         setExtractMessage(payload.error ?? `AI 아이디어 도출에 실패했습니다. HTTP ${response.status}`);
@@ -1109,7 +1110,7 @@ export function VentureConsoleActions({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
       });
-      const payload = (await response.json().catch(() => ({}))) as AiExtractIdeasResponse;
+      const payload = await readResponseJson<AiExtractIdeasResponse>(response, {});
 
       if (!response.ok || !payload.candidates?.length) {
         const fallbackIdeas = extractIdeasFromText(source);
@@ -1234,7 +1235,7 @@ export function VentureConsoleActions({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(buildExtractIdeasRequestPayload({ source, savedIdeas: existingIdeas })),
         });
-        const payload = (await response.json().catch(() => ({}))) as AiExtractIdeasResponse;
+        const payload = await readResponseJson<AiExtractIdeasResponse>(response, {});
 
         model = payload.model ?? null;
 

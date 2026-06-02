@@ -6,6 +6,14 @@ export function cleanInlineText(value: unknown, maxLength = 900) {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, maxLength) : "";
 }
 
+export async function readResponseJson<T>(response: Pick<Response, "json">, fallback: T): Promise<T> {
+  try {
+    return (await response.json()) as T;
+  } catch {
+    return fallback;
+  }
+}
+
 export function getApiMessage(value: unknown, fallback: string) {
   if (!isPlainRecord(value)) {
     return fallback;
