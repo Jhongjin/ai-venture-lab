@@ -194,6 +194,11 @@ import {
   type CursorSyncRegistryStatus,
 } from "@/lib/external-tool-sync-connection";
 import {
+  buildBuildPassAlreadyUnlockedMessage,
+  buildBuildPassUnlockFailedMessage,
+  buildBuildPassUnlockLoginRequiredMessage,
+  buildBuildPassUnlockRetryMessage,
+  buildBuildPassUnlockSuccessMessage,
   getBuildPassRequirementMessage,
   getBuildPassUnlockResult,
   getCreditAccessState,
@@ -2779,12 +2784,12 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("제작 패스를 열려면 먼저 로그인하세요.");
+      setMessage(buildBuildPassUnlockLoginRequiredMessage());
       return;
     }
 
     if (!needsSelectedIdeaBuildPass) {
-      setCreditMessage("이 아이디어는 이미 전체 제작 패키지가 열려 있습니다.");
+      setCreditMessage(buildBuildPassAlreadyUnlockedMessage());
       return;
     }
 
@@ -2805,14 +2810,14 @@ export function IdeaWorkbench({
       }
 
       if (!response.ok || !isCreditSummary(payload)) {
-        setCreditMessage(getApiMessage(payload, "제작 패스를 열지 못했습니다."));
+        setCreditMessage(getApiMessage(payload, buildBuildPassUnlockFailedMessage()));
         return;
       }
 
       const unlockResult = getBuildPassUnlockResult(payload, buildPassCost);
 
       setCreditMessage(unlockResult.creditMessage);
-      setMessage("전체 제작 패키지가 열렸습니다. 이제 AI 제작 패키지를 만들고 저장할 수 있습니다.");
+      setMessage(buildBuildPassUnlockSuccessMessage());
       await recordTelemetryEvent({
         eventName: "production_package_build_pass_unlocked",
         eventCategory: "development",
@@ -2822,7 +2827,7 @@ export function IdeaWorkbench({
         },
       });
     } catch {
-      setCreditMessage("제작 패스를 열지 못했습니다. 잠시 후 다시 시도하세요.");
+      setCreditMessage(buildBuildPassUnlockRetryMessage());
     } finally {
       setIsBuildPassUnlocking(false);
     }

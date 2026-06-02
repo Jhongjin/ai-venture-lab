@@ -85,6 +85,26 @@ export type BuildPassRequirementMessageMode =
   | "save_package_gate"
   | "delivery_bundle";
 
+export function buildBuildPassUnlockLoginRequiredMessage() {
+  return "제작 패스를 열려면 먼저 로그인하세요.";
+}
+
+export function buildBuildPassAlreadyUnlockedMessage() {
+  return "이 아이디어는 이미 전체 제작 패키지가 열려 있습니다.";
+}
+
+export function buildBuildPassUnlockFailedMessage() {
+  return "제작 패스를 열지 못했습니다.";
+}
+
+export function buildBuildPassUnlockRetryMessage() {
+  return "제작 패스를 열지 못했습니다. 잠시 후 다시 시도하세요.";
+}
+
+export function buildBuildPassUnlockSuccessMessage() {
+  return "전체 제작 패키지가 열렸습니다. 이제 AI 제작 패키지를 만들고 저장할 수 있습니다.";
+}
+
 export function isCreditSummary(value: unknown): value is CreditSummary {
   return (
     isPlainRecord(value) &&
