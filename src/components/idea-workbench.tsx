@@ -175,7 +175,10 @@ import {
   buildExternalToolConnectionRevokeLoginRequiredMessage,
   buildExternalToolConnectionRevokedMessage,
   buildExternalToolConnectionRevokingMessage,
+  buildExternalToolSyncConnectionRevokeUrl,
   buildExternalToolSyncConfigDraft,
+  buildExternalToolSyncConnectionsUrl,
+  getExternalToolBuildSyncTokenUrl,
 } from "@/lib/external-tool-connector-config";
 import { buildExternalToolPackageDrafts } from "@/lib/external-tool-package-drafts";
 import {
@@ -2066,7 +2069,7 @@ export function IdeaWorkbench({
     }
 
     try {
-      const response = await fetch(`/api/build-sync/tokens?ideaId=${encodeURIComponent(selectedIdea.id)}`);
+      const response = await fetch(buildExternalToolSyncConnectionsUrl(selectedIdea.id));
       const payload = (await response.json().catch(() => ({}))) as CursorSyncConnectionsResponse;
 
       if (!response.ok) {
@@ -3613,7 +3616,7 @@ export function IdeaWorkbench({
     setCursorSyncConnectionMessage(buildExternalToolConnectionRevokingMessage(activeExternalBuildTool.label));
 
     try {
-      const response = await fetch(`/api/build-sync/tokens/${encodeURIComponent(connection.id)}`, {
+      const response = await fetch(buildExternalToolSyncConnectionRevokeUrl(connection.id), {
         method: "DELETE",
       });
       const payload = (await response.json().catch(() => ({}))) as CursorSyncConnectionRevokeResponse;
@@ -3642,7 +3645,7 @@ export function IdeaWorkbench({
     tool: LiveExternalToolSetupKey;
     toolLabel: string;
   }) {
-    const response = await fetch("/api/build-sync/token", {
+    const response = await fetch(getExternalToolBuildSyncTokenUrl(), {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(buildExternalToolBuildSyncTokenRequestPayload({ ideaId, tool })),

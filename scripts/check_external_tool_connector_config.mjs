@@ -16,7 +16,10 @@ const {
   buildExternalToolConnectionRevokeLoginRequiredMessage,
   buildExternalToolConnectionRevokedMessage,
   buildExternalToolConnectionRevokingMessage,
+  buildExternalToolSyncConnectionRevokeUrl,
   buildExternalToolSyncConfigDraft,
+  buildExternalToolSyncConnectionsUrl,
+  getExternalToolBuildSyncTokenUrl,
 } = await import(moduleUrl);
 
 assert.match(buildCursorMcpConfigJson(), /\.cursor\/venture-lab-cli\.mjs/);
@@ -42,6 +45,9 @@ assert.deepEqual(
     tool: "codex",
   },
 );
+assert.equal(getExternalToolBuildSyncTokenUrl(), "/api/build-sync/token");
+assert.equal(buildExternalToolSyncConnectionsUrl("idea 1/2"), "/api/build-sync/tokens?ideaId=idea%201%2F2");
+assert.equal(buildExternalToolSyncConnectionRevokeUrl("token 1/2"), "/api/build-sync/tokens/token%201%2F2");
 
 const syncConfig = JSON.parse(
   buildExternalToolSyncConfigDraft({

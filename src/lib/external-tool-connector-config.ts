@@ -60,6 +60,18 @@ export function buildExternalToolBuildSyncTokenRequestPayload({
   return { ideaId, tool };
 }
 
+export function getExternalToolBuildSyncTokenUrl() {
+  return "/api/build-sync/token";
+}
+
+export function buildExternalToolSyncConnectionsUrl(ideaId: string) {
+  return `/api/build-sync/tokens?ideaId=${encodeURIComponent(ideaId)}`;
+}
+
+export function buildExternalToolSyncConnectionRevokeUrl(connectionId: string) {
+  return `/api/build-sync/tokens/${encodeURIComponent(connectionId)}`;
+}
+
 export function buildClaudeMcpConfigJson() {
   return `${JSON.stringify(
     {
