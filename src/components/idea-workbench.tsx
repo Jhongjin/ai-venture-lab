@@ -43,7 +43,6 @@ import {
   getNextArtifactVersion,
 } from "@/lib/artifact-library-utils";
 import { buildAgentRunPackageMarkdown } from "@/lib/agent-run-package-markdown";
-import { buildAppDevelopmentPlanMarkdown } from "@/lib/app-development-plan-markdown";
 import { buildAppBlueprintMarkdown } from "@/lib/app-blueprint-markdown";
 import { buildBackendDecisionMarkdown, buildBackendExecutionPlanMarkdown } from "@/lib/backend-decision-markdown";
 import { buildBackendExecutionPlanSummaryRows } from "@/lib/backend-execution-plan-rows";
@@ -285,11 +284,11 @@ import {
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
 import { buildLaunchChecklistMarkdown } from "@/lib/launch-checklist-report";
-import { buildMvpSlicePlanMarkdown, buildMvpSpecMarkdown } from "@/lib/mvp-scope-markdown";
 import { buildMvpBuildCommandPacketMarkdown } from "@/lib/mvp-build-command-packet-markdown";
 import { buildMvpScaffoldManifestMarkdown } from "@/lib/mvp-scaffold-manifest-markdown";
 import { buildPostLaunchLearningLoopMarkdown } from "@/lib/post-launch-learning-loop-markdown";
-import { buildPrdHandoffMarkdown, buildPrdMarkdown } from "@/lib/prd-markdown";
+import { buildProductPlanningDraftState } from "@/lib/product-planning-drafts";
+import { buildPrdHandoffMarkdown } from "@/lib/prd-markdown";
 import { buildQaAcceptanceMatrixMarkdown } from "@/lib/qa-acceptance-matrix-markdown";
 import { buildReleaseDecisionPacket } from "@/lib/release-decision-packet";
 import { buildRolePromptPackMarkdown } from "@/lib/role-prompt-pack-markdown";
@@ -1262,43 +1261,21 @@ export function IdeaWorkbench({
     score: currentScore,
     state: editState,
   });
-  const prdDraft = selectedIdea && editState
-    ? buildPrdMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        score: currentScore,
-        recommendation: scoreRecommendation,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-      })
-    : "";
-  const mvpSpecDraft = selectedIdea && editState
-    ? buildMvpSpecMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-      })
-    : "";
-  const mvpSlicePlanDraft = selectedIdea && editState
-    ? buildMvpSlicePlanMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        experiments: selectedExperiments,
-        risks: selectedIdeaRisks,
-        artifacts: selectedArtifactRecords,
-      })
-    : "";
-  const developmentPlanDraft = selectedIdea && editState
-    ? buildAppDevelopmentPlanMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-        artifacts: selectedArtifactRecords,
-      })
-    : "";
+  const {
+    developmentPlanDraft,
+    mvpSlicePlanDraft,
+    mvpSpecDraft,
+    prdDraft,
+  } = buildProductPlanningDraftState({
+    artifacts: selectedArtifactRecords,
+    experiments: selectedExperiments,
+    idea: selectedIdea,
+    recommendation: scoreRecommendation,
+    risks: selectedIdeaRisks,
+    runs: selectedRuns,
+    score: currentScore,
+    state: editState,
+  });
   const backendCandidateScores = selectedIdea && editState
     ? buildBackendCandidateScores({
         idea: selectedIdea,
