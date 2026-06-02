@@ -3943,33 +3943,6 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
-  async function copyIdeaBrief() {
-    if (!ideaBrief) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(ideaBrief);
-    setCopyMessage("아이디어 요약을 클립보드에 복사했습니다.");
-  }
-
-  async function copyPrdDraft() {
-    if (!prdDraft) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(prdDraft);
-    setCopyMessage("제품 기획서 초안을 클립보드에 복사했습니다.");
-  }
-
-  async function copyMvpSpecDraft() {
-    if (!mvpSpecDraft) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(mvpSpecDraft);
-    setCopyMessage("첫 제작 범위를 클립보드에 복사했습니다.");
-  }
-
   async function copyDraft(body: string, label: string) {
     if (!body) {
       return;
@@ -7852,7 +7825,7 @@ export function IdeaWorkbench({
           body={ideaBrief}
           rows={12}
           copyLabel="요약 복사"
-          onCopy={copyIdeaBrief}
+          onCopy={() => copyDraft(ideaBrief, "아이디어 요약")}
           onSave={() => saveArtifactDraft("idea_brief", `${selectedIdea.name} 아이디어 요약`, ideaBrief, "workbench")}
           saveLabel={hasIdeaBriefArtifact ? "저장 완료" : "제작 자료 저장"}
           saveDisabled={isBusy || !user || hasIdeaBriefArtifact}
@@ -8111,7 +8084,7 @@ export function IdeaWorkbench({
           body={prdDraft}
           rows={18}
           copyLabel="기획서 복사"
-          onCopy={copyPrdDraft}
+          onCopy={() => copyDraft(prdDraft, "제품 기획서 초안")}
           onSave={() => saveArtifactDraft("prd", `${selectedIdea.name} 제품 기획서`, prdDraft, "workbench")}
           saveLabel={hasPrdArtifact ? "저장 완료" : "제작 자료 저장"}
           saveDisabled={isBusy || !user || hasPrdArtifact}
@@ -8157,7 +8130,7 @@ export function IdeaWorkbench({
             body={mvpSpecDraft}
             rows={16}
             copyLabel="명세 복사"
-            onCopy={copyMvpSpecDraft}
+            onCopy={() => copyDraft(mvpSpecDraft, "첫 제작 범위")}
             onSave={() => saveArtifactDraft("mvp_spec", `${selectedIdea.name} 첫 제작 범위`, mvpSpecDraft, "workbench")}
             saveLabel={hasMvpScopeArtifact ? "저장 완료" : "제작 자료 저장"}
             saveDisabled={isBusy || !user || hasMvpScopeArtifact}
