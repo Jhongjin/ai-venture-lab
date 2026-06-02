@@ -88,8 +88,14 @@ import {
 } from "@/lib/extracted-idea-normalization";
 import { buildTelemetryEventInsertRow } from "@/lib/telemetry-format";
 import {
+  addableOrganizationRoles,
+  buildAddOrganizationMemberParams,
   buildAttachPersonalRecordsPatch,
   buildDefaultWorkspaceInsertRow,
+  buildRemoveOrganizationMemberParams,
+  buildUpdateOrganizationMemberRoleParams,
+  organizationRoleLabels,
+  type AddableOrganizationRole,
   workspaceRecordTables,
 } from "@/lib/workspace-organization-rows";
 import { emitVentureEvent } from "@/lib/venture-events";
@@ -103,7 +109,7 @@ import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
 import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
 import { VentureConsoleWorkspaceCard } from "@/components/venture-console-workspace-card";
 import { buildManualIdeaDirectionArtifactRowFromProfiles, buildManualIdeaInsertRow } from "@/lib/manual-idea-artifact";
-import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
+import type { Database, Json } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
 type OrganizationMember = Database["public"]["Tables"]["organization_members"]["Row"];
@@ -111,8 +117,6 @@ type AuditEvent = Database["public"]["Tables"]["audit_events"]["Row"];
 type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 type VentureArtifact = Database["public"]["Tables"]["venture_artifacts"]["Row"];
 type TelemetryEvent = Database["public"]["Tables"]["telemetry_events"]["Row"];
-type AddableOrganizationRole = Extract<OrganizationRole, "admin" | "member" | "viewer">;
-
 type FormState = {
   name: string;
   one_liner: string;
@@ -196,13 +200,6 @@ const emptyForm: FormState = {
   next_evidence: "",
 };
 
-const memberRoles: AddableOrganizationRole[] = ["member", "viewer", "admin"];
-const organizationRoleLabels: Record<OrganizationRole, string> = {
-  owner: "소유자",
-  admin: "관리자",
-  member: "멤버",
-  viewer: "뷰어",
-};
 export function VentureConsoleActions({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
@@ -838,11 +835,14 @@ export function VentureConsoleActions({
     }
 
     setIsMemberBusy(true);
-    const { error } = await supabase.rpc("add_organization_member_by_email", {
-      target_organization_id: activeOrganization.id,
-      target_email: memberEmail.trim(),
-      target_role: memberRole,
-    });
+    const { error } = await supabase.rpc(
+      "add_organization_member_by_email",
+      buildAddOrganizationMemberParams({
+        email: memberEmail,
+        organizationId: activeOrganization.id,
+        role: memberRole,
+      }),
+    );
     setIsMemberBusy(false);
 
     if (error) {
@@ -864,11 +864,14 @@ export function VentureConsoleActions({
     }
 
     setMemberActionKey(`${member.user_id}:role:${role}`);
-    const { error } = await supabase.rpc("update_organization_member_role", {
-      target_organization_id: activeOrganization.id,
-      target_user_id: member.user_id,
-      target_role: role,
-    });
+    const { error } = await supabase.rpc(
+      "update_organization_member_role",
+      buildUpdateOrganizationMemberRoleParams({
+        organizationId: activeOrganization.id,
+        role,
+        userId: member.user_id,
+      }),
+    );
     setMemberActionKey(null);
 
     if (error) {
@@ -889,10 +892,13 @@ export function VentureConsoleActions({
     }
 
     setMemberActionKey(`${member.user_id}:remove`);
-    const { error } = await supabase.rpc("remove_organization_member", {
-      target_organization_id: activeOrganization.id,
-      target_user_id: member.user_id,
-    });
+    const { error } = await supabase.rpc(
+      "remove_organization_member",
+      buildRemoveOrganizationMemberParams({
+        organizationId: activeOrganization.id,
+        userId: member.user_id,
+      }),
+    );
     setMemberActionKey(null);
 
     if (error) {
@@ -1587,7 +1593,7 @@ export function VentureConsoleActions({
           memberActionKey={memberActionKey}
           memberEmail={memberEmail}
           memberRole={memberRole}
-          memberRoles={memberRoles}
+          memberRoles={addableOrganizationRoles}
           onAddMember={handleAddMember}
           onAttachPersonalRecords={handleAttachPersonalRecords}
           onCreateWorkspace={handleCreateWorkspace}
