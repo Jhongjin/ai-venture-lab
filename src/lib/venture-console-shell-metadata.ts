@@ -35,6 +35,23 @@ export type ExecutiveFocus = {
   metrics: Array<{ label: string; value: string }>;
 };
 
+export type ShellTaskStatusContext = {
+  artifactCount: number;
+  completedImplementationTaskCount: number;
+  discardedIdeaCount: number;
+  experimentCount: number;
+  ideaCount: number;
+  implementationTaskCount: number;
+  launchReadiness: {
+    canEnterLaunch: boolean;
+    launchReadinessScore: number;
+    nextLaunchBlockerLabel: string | null;
+  };
+  openRisks: number;
+  runCount: number;
+  telemetryEventCount: number;
+};
+
 export const primaryShellTaskIds: ShellTask[] = [
   "console:extract",
   "workbench:score",
@@ -374,6 +391,44 @@ export function getCurrentStepBlocker({
     default:
       return null;
   }
+}
+
+export function buildVentureConsoleTaskStatuses({
+  artifactCount,
+  completedImplementationTaskCount,
+  discardedIdeaCount,
+  experimentCount,
+  ideaCount,
+  implementationTaskCount,
+  launchReadiness,
+  openRisks,
+  runCount,
+  telemetryEventCount,
+}: ShellTaskStatusContext): Record<ShellTask, string> {
+  return {
+    "console:auth": "접근",
+    "console:workspace": "선택",
+    "console:extract": "도출",
+    "console:idea": "저장",
+    "workbench:select": `${ideaCount}개`,
+    "workbench:score": "평가",
+    "workbench:risk": `${openRisks}개`,
+    "workbench:experiment": `${experimentCount}개`,
+    "workbench:decision": "판단",
+    "workbench:archive": `${discardedIdeaCount}개`,
+    "workbench:artifacts": `${artifactCount}개`,
+    "workbench:development": implementationTaskCount > 0 ? `${implementationTaskCount}개` : "준비",
+    "workbench:orchestration": `${runCount}개`,
+    "workbench:launch": launchReadiness.canEnterLaunch
+      ? "준비 완료"
+      : launchReadiness.nextLaunchBlockerLabel ?? `${launchReadiness.launchReadinessScore}%`,
+    "workbench:learning":
+      implementationTaskCount > 0
+        ? `${completedImplementationTaskCount}/${implementationTaskCount}`
+        : telemetryEventCount > 0
+          ? `${telemetryEventCount}개`
+          : "대기",
+  };
 }
 
 export function getExecutiveFocus({

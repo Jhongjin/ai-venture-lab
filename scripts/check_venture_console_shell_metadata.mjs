@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/venture-console-shell-metadata.ts")).href;
 const {
+  buildVentureConsoleTaskStatuses,
   firstRunGuideSteps,
   getCurrentStepBlocker,
   getExecutiveFocus,
@@ -143,5 +144,50 @@ const learningFocus = getExecutiveFocus({
 assert.equal(learningFocus.targetTask, "workbench:learning");
 assert.match(learningFocus.title, /성과 신호/);
 assert.match(learningFocus.evidence, /샘플 데이터 기준/);
+
+const blockedStatusContext = {
+  artifactCount: 3,
+  completedImplementationTaskCount: 0,
+  discardedIdeaCount: 2,
+  experimentCount: 1,
+  ideaCount: 5,
+  implementationTaskCount: 0,
+  launchReadiness: {
+    canEnterLaunch: false,
+    launchReadinessScore: 65,
+    nextLaunchBlockerLabel: "제작 패키지 저장",
+  },
+  openRisks: 4,
+  runCount: 0,
+  telemetryEventCount: 2,
+};
+const blockedStatuses = buildVentureConsoleTaskStatuses(blockedStatusContext);
+assert.equal(blockedStatuses["workbench:select"], "5개");
+assert.equal(blockedStatuses["workbench:risk"], "4개");
+assert.equal(blockedStatuses["workbench:development"], "준비");
+assert.equal(blockedStatuses["workbench:launch"], "제작 패키지 저장");
+assert.equal(blockedStatuses["workbench:learning"], "2개");
+
+const readyStatuses = buildVentureConsoleTaskStatuses({
+  ...blockedStatusContext,
+  artifactCount: 4,
+  completedImplementationTaskCount: 3,
+  discardedIdeaCount: 1,
+  experimentCount: 2,
+  ideaCount: 6,
+  implementationTaskCount: 4,
+  launchReadiness: {
+    canEnterLaunch: true,
+    launchReadinessScore: 100,
+    nextLaunchBlockerLabel: null,
+  },
+  openRisks: 0,
+  runCount: 2,
+  telemetryEventCount: 0,
+});
+assert.equal(readyStatuses["workbench:archive"], "1개");
+assert.equal(readyStatuses["workbench:development"], "4개");
+assert.equal(readyStatuses["workbench:launch"], "준비 완료");
+assert.equal(readyStatuses["workbench:learning"], "3/4");
 
 console.log("Venture console shell metadata smoke passed.");

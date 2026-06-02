@@ -27,6 +27,7 @@ import {
 } from "@/components/venture-console-actions";
 import type { CreditSummary } from "@/lib/billing";
 import {
+  buildVentureConsoleTaskStatuses,
   firstRunGuideSteps,
   getCurrentStepBlocker,
   getExecutiveFocus,
@@ -452,30 +453,22 @@ export function VentureConsoleShell({
     consoleStatus,
     ideaCount,
   });
-  const taskStatuses: Record<ShellTask, string> = {
-    "console:auth": "접근",
-    "console:workspace": "선택",
-    "console:extract": "도출",
-    "console:idea": "저장",
-    "workbench:select": `${ideaCount}개`,
-    "workbench:score": "평가",
-    "workbench:risk": `${openRisks}개`,
-    "workbench:experiment": `${experimentCount}개`,
-    "workbench:decision": "판단",
-    "workbench:archive": `${discardedIdeaCount}개`,
-    "workbench:artifacts": `${artifactCount}개`,
-    "workbench:development": implementationTaskCount > 0 ? `${implementationTaskCount}개` : "준비",
-    "workbench:orchestration": `${runCount}개`,
-    "workbench:launch": validationDocumentReadiness.canEnterLaunch
-      ? "준비 완료"
-      : validationDocumentReadiness.nextLaunchBlockerLabel ?? `${validationDocumentReadiness.launchReadinessScore}%`,
-    "workbench:learning":
-      implementationTaskCount > 0
-        ? `${completedImplementationTaskCount}/${implementationTaskCount}`
-        : telemetryEventCount > 0
-          ? `${telemetryEventCount}개`
-          : "대기",
-  };
+  const taskStatuses = buildVentureConsoleTaskStatuses({
+    artifactCount,
+    completedImplementationTaskCount,
+    discardedIdeaCount,
+    experimentCount,
+    ideaCount,
+    implementationTaskCount,
+    launchReadiness: {
+      canEnterLaunch: validationDocumentReadiness.canEnterLaunch,
+      launchReadinessScore: validationDocumentReadiness.launchReadinessScore,
+      nextLaunchBlockerLabel: validationDocumentReadiness.nextLaunchBlockerLabel,
+    },
+    openRisks,
+    runCount,
+    telemetryEventCount,
+  });
   const executionStepTasks = shellTasks.filter((task) => primaryShellTaskSet.has(task.id));
   const executionStepTotal = executionStepTasks.length;
   const activeExecutionStepIndex =
