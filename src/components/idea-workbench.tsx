@@ -283,7 +283,7 @@ import {
   buildManualOrchestrationRunRow,
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
-import { buildProductPlanningDraftState } from "@/lib/product-planning-drafts";
+import { buildProductPlanningArtifactSaveDrafts, buildProductPlanningDraftState } from "@/lib/product-planning-drafts";
 import { buildReleasePackageArtifactSaveDrafts, buildReleasePackageDraftState } from "@/lib/release-package-drafts";
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
@@ -1246,6 +1246,12 @@ export function IdeaWorkbench({
     runs: selectedRuns,
     score: currentScore,
     state: editState,
+  });
+  const { mvpSlicePlanSaveDraft, mvpSpecSaveDraft, prdSaveDraft } = buildProductPlanningArtifactSaveDrafts({
+    ideaName: selectedIdea?.name ?? null,
+    mvpSlicePlanDraft,
+    mvpSpecDraft,
+    prdDraft,
   });
   const {
     backendCandidateScores,
@@ -7490,9 +7496,13 @@ export function IdeaWorkbench({
           rows={18}
           copyLabel="기획서 복사"
           onCopy={() => copyDraft(prdDraft, "제품 기획서 초안")}
-          onSave={() => saveArtifactDraft("prd", `${selectedIdea.name} 제품 기획서`, prdDraft, "workbench")}
+          onSave={() =>
+            prdSaveDraft
+              ? saveArtifactDraft(prdSaveDraft.artifactType, prdSaveDraft.title, prdSaveDraft.body, prdSaveDraft.source)
+              : undefined
+          }
           saveLabel={hasPrdArtifact ? "저장 완료" : "제작 자료 저장"}
-          saveDisabled={isBusy || !user || hasPrdArtifact}
+          saveDisabled={isBusy || !user || hasPrdArtifact || !prdSaveDraft}
           disabledNote={hasPrdArtifact ? "제품 기획서가 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
         />
 
@@ -7516,15 +7526,17 @@ export function IdeaWorkbench({
             copyLabel="플랜 복사"
             onCopy={() => copyDraft(mvpSlicePlanDraft, "첫 제작 범위 플랜")}
             onSave={() =>
-              saveArtifactDraft(
-                "mvp_spec",
-                `${selectedIdea.name} 첫 제작 범위 플랜`,
-                mvpSlicePlanDraft,
-                "mvp_slice_plan",
-              )
+              mvpSlicePlanSaveDraft
+                ? saveArtifactDraft(
+                    mvpSlicePlanSaveDraft.artifactType,
+                    mvpSlicePlanSaveDraft.title,
+                    mvpSlicePlanSaveDraft.body,
+                    mvpSlicePlanSaveDraft.source,
+                  )
+                : undefined
             }
             saveLabel={hasMvpSlicePlanArtifact ? "저장 완료" : "제작 자료 저장"}
-            saveDisabled={isBusy || !user || !mvpSlicePlanDraft || hasMvpSlicePlanArtifact}
+            saveDisabled={isBusy || !user || hasMvpSlicePlanArtifact || !mvpSlicePlanSaveDraft}
             disabledNote={hasMvpSlicePlanArtifact ? "첫 제작 범위 플랜이 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
           />
 
@@ -7536,9 +7548,18 @@ export function IdeaWorkbench({
             rows={16}
             copyLabel="명세 복사"
             onCopy={() => copyDraft(mvpSpecDraft, "첫 제작 범위")}
-            onSave={() => saveArtifactDraft("mvp_spec", `${selectedIdea.name} 첫 제작 범위`, mvpSpecDraft, "workbench")}
+            onSave={() =>
+              mvpSpecSaveDraft
+                ? saveArtifactDraft(
+                    mvpSpecSaveDraft.artifactType,
+                    mvpSpecSaveDraft.title,
+                    mvpSpecSaveDraft.body,
+                    mvpSpecSaveDraft.source,
+                  )
+                : undefined
+            }
             saveLabel={hasMvpScopeArtifact ? "저장 완료" : "제작 자료 저장"}
-            saveDisabled={isBusy || !user || hasMvpScopeArtifact}
+            saveDisabled={isBusy || !user || hasMvpScopeArtifact || !mvpSpecSaveDraft}
             disabledNote={hasMvpScopeArtifact ? "첫 제작 범위 초안이 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
           />
 

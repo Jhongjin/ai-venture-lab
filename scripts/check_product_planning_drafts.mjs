@@ -47,7 +47,7 @@ const moduleUrl = transpileModuleUrl("src/lib/product-planning-drafts.ts", [
   ['from "@/lib/prd-markdown";', `from ${JSON.stringify(prdUrl)};`],
 ]);
 
-const { buildProductPlanningDraftState } = await import(moduleUrl);
+const { buildProductPlanningArtifactSaveDrafts, buildProductPlanningDraftState } = await import(moduleUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -164,6 +164,39 @@ assert.match(draftState.mvpSpecDraft, /# 첫 제작 범위: AI Venture Lab/);
 assert.match(draftState.mvpSlicePlanDraft, /# 첫 제작 범위 플랜: AI Venture Lab/);
 assert.match(draftState.developmentPlanDraft, /# 앱 개발 실행 계획: AI Venture Lab/);
 assert.match(draftState.developmentPlanDraft, /자동화/);
+
+const saveDrafts = buildProductPlanningArtifactSaveDrafts({
+  ideaName: idea.name,
+  mvpSlicePlanDraft: draftState.mvpSlicePlanDraft,
+  mvpSpecDraft: draftState.mvpSpecDraft,
+  prdDraft: draftState.prdDraft,
+});
+assert.equal(saveDrafts.prdSaveDraft.artifactType, "prd");
+assert.equal(saveDrafts.prdSaveDraft.title, "AI Venture Lab 제품 기획서");
+assert.equal(saveDrafts.prdSaveDraft.source, "workbench");
+assert.match(saveDrafts.prdSaveDraft.body, /# 제품 기획서: AI Venture Lab/);
+assert.equal(saveDrafts.mvpSlicePlanSaveDraft.artifactType, "mvp_spec");
+assert.equal(saveDrafts.mvpSlicePlanSaveDraft.title, "AI Venture Lab 첫 제작 범위 플랜");
+assert.equal(saveDrafts.mvpSlicePlanSaveDraft.source, "mvp_slice_plan");
+assert.match(saveDrafts.mvpSlicePlanSaveDraft.body, /# 첫 제작 범위 플랜: AI Venture Lab/);
+assert.equal(saveDrafts.mvpSpecSaveDraft.artifactType, "mvp_spec");
+assert.equal(saveDrafts.mvpSpecSaveDraft.title, "AI Venture Lab 첫 제작 범위");
+assert.equal(saveDrafts.mvpSpecSaveDraft.source, "workbench");
+assert.match(saveDrafts.mvpSpecSaveDraft.body, /# 첫 제작 범위: AI Venture Lab/);
+
+assert.deepEqual(
+  buildProductPlanningArtifactSaveDrafts({
+    ideaName: null,
+    mvpSlicePlanDraft: "",
+    mvpSpecDraft: "",
+    prdDraft: "",
+  }),
+  {
+    mvpSlicePlanSaveDraft: null,
+    mvpSpecSaveDraft: null,
+    prdSaveDraft: null,
+  },
+);
 
 const emptyDraftState = buildProductPlanningDraftState({
   artifacts: [],
