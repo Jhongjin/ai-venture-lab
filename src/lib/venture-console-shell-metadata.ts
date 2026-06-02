@@ -3,6 +3,7 @@ import type { ConsoleActionTask, ConsoleWorkflowStatus } from "@/components/vent
 
 export type ShellTask = `console:${ConsoleActionTask}` | `workbench:${WorkbenchTask}`;
 export type ShellTaskGroup = "시작" | "검증" | "제작" | "출시 후";
+export type VentureConsoleInitialView = "ideas" | "deleted";
 
 export type ShellTaskGuidance = {
   summary: string;
@@ -82,6 +83,60 @@ export const firstRunGuideSteps = [
     detail: "저장 완료 후에는 화면 하단의 다음 단계 버튼만 따라가면 됩니다.",
   },
 ] as const;
+
+export function getInitialShellTask({
+  initialTask,
+  initialView,
+}: {
+  initialTask?: WorkbenchTask;
+  initialView?: VentureConsoleInitialView;
+}): ShellTask {
+  if (initialTask) {
+    return `workbench:${initialTask}`;
+  }
+
+  if (initialView === "ideas") {
+    return "workbench:select";
+  }
+
+  if (initialView === "deleted") {
+    return "workbench:archive";
+  }
+
+  return "console:auth";
+}
+
+export function resolveVisibleShellTask({
+  activeTask,
+  consoleStatus,
+  ideaCount,
+}: {
+  activeTask: ShellTask;
+  consoleStatus: ConsoleWorkflowStatus;
+  ideaCount: number;
+}): ShellTask {
+  if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {
+    return "console:auth";
+  }
+
+  if (activeTask === "console:auth") {
+    return ideaCount > 0 ? "workbench:score" : "console:extract";
+  }
+
+  if (ideaCount === 0 && activeTask.startsWith("workbench:")) {
+    return "console:extract";
+  }
+
+  return activeTask;
+}
+
+export function getActiveConsoleTask(visibleTask: ShellTask): ConsoleActionTask {
+  return visibleTask.startsWith("console:") ? (visibleTask.replace("console:", "") as ConsoleActionTask) : "idea";
+}
+
+export function getActiveWorkbenchTask(visibleTask: ShellTask): WorkbenchTask {
+  return visibleTask.startsWith("workbench:") ? (visibleTask.replace("workbench:", "") as WorkbenchTask) : "select";
+}
 
 export const taskGuidance: Record<ShellTask, ShellTaskGuidance> = {
   "console:auth": {

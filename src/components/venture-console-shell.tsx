@@ -29,10 +29,14 @@ import type { CreditSummary } from "@/lib/billing";
 import {
   buildVentureConsoleTaskStatuses,
   firstRunGuideSteps,
+  getActiveConsoleTask,
+  getActiveWorkbenchTask,
   getCurrentStepBlocker,
   getExecutiveFocus,
+  getInitialShellTask,
   getNextTaskOptions,
   primaryShellTaskSet,
+  resolveVisibleShellTask,
   taskCanvasDetails,
   taskGuidance,
   type ShellTask,
@@ -229,8 +233,7 @@ export function VentureConsoleShell({
   initialIdeaId?: string;
 }) {
   const isClientReady = useSyncExternalStore(subscribeClientReady, getClientReadySnapshot, getServerReadySnapshot);
-  const initialShellTask: ShellTask =
-    initialTask ? `workbench:${initialTask}` : initialView === "ideas" ? "workbench:select" : initialView === "deleted" ? "workbench:archive" : "console:auth";
+  const initialShellTask = getInitialShellTask({ initialTask, initialView });
   const [activeTask, setActiveTask] = useState<ShellTask>(
     initialShellTask,
   );
@@ -404,27 +407,9 @@ export function VentureConsoleShell({
   const discardedIdeas = ideas.filter((idea) => idea.decision === "kill");
   const ideaCount = activeIdeas.length;
   const discardedIdeaCount = discardedIdeas.length;
-  const visibleTask: ShellTask = (() => {
-    if (!consoleStatus.isAuthLoaded || !consoleStatus.isAuthenticated) {
-      return "console:auth";
-    }
-
-    if (activeTask === "console:auth") {
-      return ideaCount > 0 ? "workbench:score" : "console:extract";
-    }
-
-    if (ideaCount === 0 && activeTask.startsWith("workbench:")) {
-      return "console:extract";
-    }
-
-    return activeTask;
-  })();
-  const activeConsoleTask = visibleTask.startsWith("console:")
-    ? (visibleTask.replace("console:", "") as ConsoleActionTask)
-    : "idea";
-  const activeWorkbenchTask = visibleTask.startsWith("workbench:")
-    ? (visibleTask.replace("workbench:", "") as WorkbenchTask)
-    : "select";
+  const visibleTask = resolveVisibleShellTask({ activeTask, consoleStatus, ideaCount });
+  const activeConsoleTask = getActiveConsoleTask(visibleTask);
+  const activeWorkbenchTask = getActiveWorkbenchTask(visibleTask);
   const openRisks = risks.filter((risk) => risk.status.toLowerCase() === "open").length;
   const experimentCount = experiments.length;
   const decisionCount = decisions.length;

@@ -6,11 +6,15 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/venture-consol
 const {
   buildVentureConsoleTaskStatuses,
   firstRunGuideSteps,
+  getActiveConsoleTask,
+  getActiveWorkbenchTask,
   getCurrentStepBlocker,
   getExecutiveFocus,
+  getInitialShellTask,
   getNextTaskOptions,
   primaryShellTaskIds,
   primaryShellTaskSet,
+  resolveVisibleShellTask,
   taskCanvasDetails,
   taskGuidance,
 } = await import(moduleUrl);
@@ -44,6 +48,48 @@ assert.equal(taskGuidance["console:extract"].checklist.at(-1), "마음에 드는
 assert.equal(taskGuidance["workbench:development"].checklist.includes("제작 패키지 저장"), true);
 assert.match(taskCanvasDetails["console:extract"].checkpoint, /STEP 2/);
 assert.match(taskCanvasDetails["workbench:learning"].deliverable, /작업 진행표/);
+
+assert.equal(getInitialShellTask({}), "console:auth");
+assert.equal(getInitialShellTask({ initialView: "ideas" }), "workbench:select");
+assert.equal(getInitialShellTask({ initialView: "deleted" }), "workbench:archive");
+assert.equal(getInitialShellTask({ initialTask: "launch", initialView: "ideas" }), "workbench:launch");
+
+assert.equal(
+  resolveVisibleShellTask({
+    activeTask: "workbench:launch",
+    consoleStatus: { ...authenticatedStatus, isAuthLoaded: false },
+    ideaCount: 4,
+  }),
+  "console:auth",
+);
+assert.equal(
+  resolveVisibleShellTask({
+    activeTask: "console:auth",
+    consoleStatus: authenticatedStatus,
+    ideaCount: 0,
+  }),
+  "console:extract",
+);
+assert.equal(
+  resolveVisibleShellTask({
+    activeTask: "console:auth",
+    consoleStatus: authenticatedStatus,
+    ideaCount: 2,
+  }),
+  "workbench:score",
+);
+assert.equal(
+  resolveVisibleShellTask({
+    activeTask: "workbench:launch",
+    consoleStatus: authenticatedStatus,
+    ideaCount: 0,
+  }),
+  "console:extract",
+);
+assert.equal(getActiveConsoleTask("console:extract"), "extract");
+assert.equal(getActiveConsoleTask("workbench:score"), "idea");
+assert.equal(getActiveWorkbenchTask("workbench:launch"), "launch");
+assert.equal(getActiveWorkbenchTask("console:extract"), "select");
 
 assert.deepEqual(
   getNextTaskOptions({
