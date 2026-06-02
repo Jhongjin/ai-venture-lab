@@ -21,6 +21,13 @@ export type ImplementationHandoffDraftState = {
   rolePromptPackDraft: string;
 };
 
+export type ImplementationHandoffArtifactSaveDraft = {
+  artifactType: "dev_runbook";
+  body: string;
+  source: "development_process" | "filtered_implementation_run";
+  title: string;
+};
+
 const emptyImplementationHandoffDraftState: ImplementationHandoffDraftState = {
   cursorHandoffTaskDrafts: [],
   filteredImplementationBacklogDraft: "",
@@ -31,6 +38,48 @@ const emptyImplementationHandoffDraftState: ImplementationHandoffDraftState = {
   implementationTaskTicketDraft: "",
   rolePromptPackDraft: "",
 };
+
+export function buildImplementationHandoffArtifactSaveDrafts({
+  filteredImplementationRunPromptDraft,
+  ideaName,
+  implementationHandoffDraft,
+  rolePromptPackDraft,
+}: {
+  filteredImplementationRunPromptDraft: string;
+  ideaName: string | null;
+  implementationHandoffDraft: string;
+  rolePromptPackDraft: string;
+}) {
+  return {
+    filteredImplementationRunPromptSaveDraft:
+      ideaName && filteredImplementationRunPromptDraft
+        ? {
+            artifactType: "dev_runbook" as const,
+            body: filteredImplementationRunPromptDraft,
+            source: "filtered_implementation_run" as const,
+            title: `${ideaName} 필터된 제작 지시`,
+          }
+        : null,
+    implementationHandoffSaveDraft:
+      ideaName && implementationHandoffDraft
+        ? {
+            artifactType: "dev_runbook" as const,
+            body: implementationHandoffDraft,
+            source: "development_process" as const,
+            title: `${ideaName} 제작 도구 전달 자료`,
+          }
+        : null,
+    rolePromptPackSaveDraft:
+      ideaName && rolePromptPackDraft
+        ? {
+            artifactType: "dev_runbook" as const,
+            body: rolePromptPackDraft,
+            source: "development_process" as const,
+            title: `${ideaName} 역할별 작업 안내 묶음`,
+          }
+        : null,
+  };
+}
 
 export function buildImplementationHandoffDraftState({
   artifacts,

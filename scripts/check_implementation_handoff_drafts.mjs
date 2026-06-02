@@ -59,7 +59,7 @@ const moduleUrl = transpileModuleUrl("src/lib/implementation-handoff-drafts.ts",
   ['from "@/lib/role-prompt-pack-markdown";', `from ${JSON.stringify(rolePromptPackUrl)};`],
 ]);
 
-const { buildImplementationHandoffDraftState } = await import(moduleUrl);
+const { buildImplementationHandoffArtifactSaveDrafts, buildImplementationHandoffDraftState } = await import(moduleUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -203,6 +203,39 @@ assert.match(draftState.filteredImplementationBacklogDraft, /필터된 제작 �
 assert.match(draftState.filteredImplementationRunPromptDraft, /# 제작 도구 작업 안내: AI Venture Lab/);
 assert.equal(draftState.implementationTaskDrafts.length, 9);
 assert.equal(draftState.cursorHandoffTaskDrafts, draftState.implementationTaskDrafts);
+
+const saveDrafts = buildImplementationHandoffArtifactSaveDrafts({
+  filteredImplementationRunPromptDraft: draftState.filteredImplementationRunPromptDraft,
+  ideaName: idea.name,
+  implementationHandoffDraft: draftState.implementationHandoffDraft,
+  rolePromptPackDraft: draftState.rolePromptPackDraft,
+});
+assert.equal(saveDrafts.filteredImplementationRunPromptSaveDraft.artifactType, "dev_runbook");
+assert.equal(saveDrafts.filteredImplementationRunPromptSaveDraft.title, "AI Venture Lab 필터된 제작 지시");
+assert.equal(saveDrafts.filteredImplementationRunPromptSaveDraft.source, "filtered_implementation_run");
+assert.match(saveDrafts.filteredImplementationRunPromptSaveDraft.body, /# 제작 도구 작업 안내: AI Venture Lab/);
+assert.equal(saveDrafts.implementationHandoffSaveDraft.artifactType, "dev_runbook");
+assert.equal(saveDrafts.implementationHandoffSaveDraft.title, "AI Venture Lab 제작 도구 전달 자료");
+assert.equal(saveDrafts.implementationHandoffSaveDraft.source, "development_process");
+assert.match(saveDrafts.implementationHandoffSaveDraft.body, /# 제작 도구 전달 자료: AI Venture Lab/);
+assert.equal(saveDrafts.rolePromptPackSaveDraft.artifactType, "dev_runbook");
+assert.equal(saveDrafts.rolePromptPackSaveDraft.title, "AI Venture Lab 역할별 작업 안내 묶음");
+assert.equal(saveDrafts.rolePromptPackSaveDraft.source, "development_process");
+assert.match(saveDrafts.rolePromptPackSaveDraft.body, /# 역할별 작업 안내 묶음: AI Venture Lab/);
+
+assert.deepEqual(
+  buildImplementationHandoffArtifactSaveDrafts({
+    filteredImplementationRunPromptDraft: "",
+    ideaName: null,
+    implementationHandoffDraft: "",
+    rolePromptPackDraft: "",
+  }),
+  {
+    filteredImplementationRunPromptSaveDraft: null,
+    implementationHandoffSaveDraft: null,
+    rolePromptPackSaveDraft: null,
+  },
+);
 
 const emptyDraftState = buildImplementationHandoffDraftState({
   artifacts: [],

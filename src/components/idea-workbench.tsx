@@ -264,7 +264,10 @@ import {
   buildImplementationDependencyPlanArtifactSaveDraft,
   buildImplementationDependencyPlanDraft,
 } from "@/lib/implementation-dependency-plan";
-import { buildImplementationHandoffDraftState } from "@/lib/implementation-handoff-drafts";
+import {
+  buildImplementationHandoffArtifactSaveDrafts,
+  buildImplementationHandoffDraftState,
+} from "@/lib/implementation-handoff-drafts";
 import {
   buildImplementationTaskEvidencePatch,
   buildImplementationTaskInsertRows,
@@ -1304,6 +1307,16 @@ export function IdeaWorkbench({
     runs: selectedRuns,
     state: editState,
     tasks: selectedImplementationTasks,
+  });
+  const {
+    filteredImplementationRunPromptSaveDraft,
+    implementationHandoffSaveDraft,
+    rolePromptPackSaveDraft,
+  } = buildImplementationHandoffArtifactSaveDrafts({
+    filteredImplementationRunPromptDraft,
+    ideaName: selectedIdea?.name ?? null,
+    implementationHandoffDraft,
+    rolePromptPackDraft,
   });
   const {
     canEnterDevelopmentFromValidationDocs,
@@ -5610,18 +5623,18 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => {
-                        if (!selectedIdea) {
+                        if (!filteredImplementationRunPromptSaveDraft) {
                           return;
                         }
 
                         saveArtifactDraft(
-                          "dev_runbook",
-                          `${selectedIdea.name} 필터된 제작 지시`,
-                          filteredImplementationRunPromptDraft,
-                          "filtered_implementation_run",
+                          filteredImplementationRunPromptSaveDraft.artifactType,
+                          filteredImplementationRunPromptSaveDraft.title,
+                          filteredImplementationRunPromptSaveDraft.body,
+                          filteredImplementationRunPromptSaveDraft.source,
                         );
                       }}
-                      disabled={isBusy || !user || !selectedIdea}
+                      disabled={isBusy || !user || !filteredImplementationRunPromptSaveDraft}
                       className="avl-btn avl-btn-secondary h-11 w-full px-3 disabled:opacity-50 lg:w-auto"
                     >
                       <Save size={15} />
@@ -5850,14 +5863,16 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() =>
-                        saveArtifactDraft(
-                          "dev_runbook",
-                          `${selectedIdea.name} 제작 도구 전달 자료`,
-                          implementationHandoffDraft,
-                          "development_process",
-                        )
+                        implementationHandoffSaveDraft
+                          ? saveArtifactDraft(
+                              implementationHandoffSaveDraft.artifactType,
+                              implementationHandoffSaveDraft.title,
+                              implementationHandoffSaveDraft.body,
+                              implementationHandoffSaveDraft.source,
+                            )
+                          : undefined
                       }
-                      disabled={isBusy || !user}
+                      disabled={isBusy || !user || !implementationHandoffSaveDraft}
                       className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
@@ -5988,14 +6003,16 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() =>
-                        saveArtifactDraft(
-                          "dev_runbook",
-                          `${selectedIdea.name} 역할별 작업 안내 묶음`,
-                          rolePromptPackDraft,
-                          "development_process",
-                        )
+                        rolePromptPackSaveDraft
+                          ? saveArtifactDraft(
+                              rolePromptPackSaveDraft.artifactType,
+                              rolePromptPackSaveDraft.title,
+                              rolePromptPackSaveDraft.body,
+                              rolePromptPackSaveDraft.source,
+                            )
+                          : undefined
                       }
-                      disabled={isBusy || !user}
+                      disabled={isBusy || !user || !rolePromptPackSaveDraft}
                       className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
