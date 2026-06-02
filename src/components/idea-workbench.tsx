@@ -290,6 +290,7 @@ import {
   validationExperimentGuideRows,
 } from "@/lib/validation-input-rows";
 import {
+  buildExperimentResultSavedMessage,
   buildExperimentResultArtifactSaveDraft,
   buildValidationEvidenceArtifactSaveDraft,
   buildValidationPackageArtifactSaveDrafts,
@@ -2968,7 +2969,7 @@ export function IdeaWorkbench({
         },
       });
       setExperimentResultDraft(createDefaultExperimentResultDraft(selectedExperimentForResult.id));
-      setMessage("검증 결과를 저장했습니다. 다음 단계 이동은 하단 다음 단계 버튼에서 진행하세요.");
+      setMessage(buildExperimentResultSavedMessage());
     }
   }
 
