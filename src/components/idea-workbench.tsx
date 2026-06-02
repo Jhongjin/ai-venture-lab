@@ -267,9 +267,8 @@ import {
   buildCursorProgressImportDrafts,
   buildCursorProgressImportDisplayItems,
   buildCursorProgressPersistencePlan,
-  buildCursorProgressPreviewItems,
+  buildCursorProgressPreviewDisplayState,
   buildCursorProgressTaskUpdatePatch,
-  getVisibleCursorProgressImportItems,
   type CursorProgressDisplayItem,
 } from "@/lib/external-progress-import";
 import {
@@ -2017,13 +2016,10 @@ export function IdeaWorkbench({
     implementationTasks: selectedImplementationTasks,
     isLiveExternalDelivery,
   });
-  const cursorProgressPreviewItems = buildCursorProgressPreviewItems({
+  const { visibleCursorProgressImportItems } = buildCursorProgressPreviewDisplayState({
     fallbackTasks: cursorHandoffTaskDrafts,
-    sourceText: cursorProgressImportText,
-  });
-  const visibleCursorProgressImportItems = getVisibleCursorProgressImportItems({
     importedItems: cursorProgressImportItems,
-    previewItems: cursorProgressPreviewItems,
+    sourceText: cursorProgressImportText,
   });
   const doneRunCount = countDoneWorkbenchRuns(selectedRuns);
   const { activeVisibleIdeaCount, discardedIdeas, discardedVisibleIdeaCount, visibleIdeas } = useMemo(

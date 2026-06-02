@@ -22,6 +22,7 @@ const {
   buildCursorProgressImportDrafts,
   buildCursorProgressImportDisplayItems,
   buildCursorProgressPersistencePlan,
+  buildCursorProgressPreviewDisplayState,
   buildCursorProgressPreviewItems,
   buildCursorProgressTaskUpdatePatch,
   getVisibleCursorProgressImportItems,
@@ -188,6 +189,28 @@ assert.deepEqual(
     previewItems,
   }).map((item) => item.taskCode),
   ["T-001", "T-002"],
+);
+const previewDisplayState = buildCursorProgressPreviewDisplayState({
+  fallbackTasks,
+  importedItems: [],
+  sourceText,
+});
+assert.deepEqual(
+  previewDisplayState.cursorProgressPreviewItems.map((item) => item.taskCode),
+  ["T-001", "T-002"],
+);
+assert.deepEqual(
+  previewDisplayState.visibleCursorProgressImportItems.map((item) => item.taskCode),
+  ["T-001", "T-002"],
+);
+const importedPreviewDisplayState = buildCursorProgressPreviewDisplayState({
+  fallbackTasks,
+  importedItems: [{ detail: "already imported", status: "done", taskCode: "T-999", title: "Imported" }],
+  sourceText,
+});
+assert.deepEqual(
+  importedPreviewDisplayState.visibleCursorProgressImportItems.map((item) => item.taskCode),
+  ["T-999"],
 );
 
 console.log("External progress import smoke passed.");

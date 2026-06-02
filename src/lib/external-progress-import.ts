@@ -35,6 +35,11 @@ export type CursorProgressDisplayItem = {
   detail: string;
 };
 
+export type CursorProgressPreviewDisplayState = {
+  cursorProgressPreviewItems: CursorProgressDisplayItem[];
+  visibleCursorProgressImportItems: CursorProgressDisplayItem[];
+};
+
 export type CursorProgressTaskInsertDraft = {
   idea_id: string;
   organization_id: string | null;
@@ -499,4 +504,28 @@ export function getVisibleCursorProgressImportItems({
   previewItems: CursorProgressDisplayItem[];
 }) {
   return importedItems.length > 0 ? importedItems : previewItems;
+}
+
+export function buildCursorProgressPreviewDisplayState({
+  fallbackTasks,
+  importedItems,
+  sourceText,
+}: {
+  fallbackTasks: ImplementationTaskDraft[];
+  importedItems: CursorProgressDisplayItem[];
+  sourceText: string;
+}): CursorProgressPreviewDisplayState {
+  const cursorProgressPreviewItems = buildCursorProgressPreviewItems({
+    fallbackTasks,
+    sourceText,
+  });
+  const visibleCursorProgressImportItems = getVisibleCursorProgressImportItems({
+    importedItems,
+    previewItems: cursorProgressPreviewItems,
+  });
+
+  return {
+    cursorProgressPreviewItems,
+    visibleCursorProgressImportItems,
+  };
 }
