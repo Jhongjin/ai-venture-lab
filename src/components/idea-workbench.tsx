@@ -39,6 +39,8 @@ import {
   buildArtifactDraftInsertRow,
   buildArtifactLibraryViewState,
   buildArtifactReadinessFlags,
+  buildArtifactSavedMessage,
+  buildArtifactStatusChangedMessage,
   buildArtifactStatusUpdatePatch,
   getNextArtifactVersion,
 } from "@/lib/artifact-library-utils";
@@ -2567,7 +2569,7 @@ export function IdeaWorkbench({
       },
     });
     if (!options.quiet) {
-      setMessage(`${artifactLabels[artifactType]} v${nextVersion}을 저장했습니다.`);
+      setMessage(buildArtifactSavedMessage({ artifactLabel: artifactLabels[artifactType], version: nextVersion }));
     }
     router.refresh();
     return true;
@@ -3042,7 +3044,12 @@ export function IdeaWorkbench({
       },
     });
     setArtifactStatusNotes((current) => omitRecordKey(current, data.id));
-    setMessage(`${artifact.title || artifactLabels[artifact.artifact_type]} 상태를 ${artifactStatusLabels[status]}(으)로 변경했습니다.`);
+    setMessage(
+      buildArtifactStatusChangedMessage({
+        artifactLabel: artifact.title || artifactLabels[artifact.artifact_type],
+        statusLabel: artifactStatusLabels[status],
+      }),
+    );
     router.refresh();
   }
 

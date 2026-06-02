@@ -10,6 +10,20 @@ export type ArtifactDraftIdeaSummary = {
   organization_id: string | null;
 };
 
+export function buildArtifactSavedMessage({ artifactLabel, version }: { artifactLabel: string; version: number }) {
+  return `${artifactLabel} v${version}을 저장했습니다.`;
+}
+
+export function buildArtifactStatusChangedMessage({
+  artifactLabel,
+  statusLabel,
+}: {
+  artifactLabel: string;
+  statusLabel: string;
+}) {
+  return `${artifactLabel} 상태를 ${statusLabel}(으)로 변경했습니다.`;
+}
+
 export function buildArtifactDraftInsertRow({
   artifactType,
   body,

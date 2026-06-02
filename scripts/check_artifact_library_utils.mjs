@@ -23,8 +23,10 @@ const {
   buildArtifactDraftInsertRow,
   buildArtifactLibraryViewState,
   buildArtifactReadinessFlags,
+  buildArtifactSavedMessage,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceOptions,
+  buildArtifactStatusChangedMessage,
   buildArtifactStatusUpdatePatch,
   filterArtifactLibrary,
   getNextArtifactVersion,
@@ -44,6 +46,11 @@ assert.deepEqual(artifactTypeOptions, [
   "dev_runbook",
   "launch_checklist",
 ]);
+assert.equal(buildArtifactSavedMessage({ artifactLabel: "제품 기획서", version: 2 }), "제품 기획서 v2을 저장했습니다.");
+assert.equal(
+  buildArtifactStatusChangedMessage({ artifactLabel: "제품 기획서", statusLabel: "승인" }),
+  "제품 기획서 상태를 승인(으)로 변경했습니다.",
+);
 
 function artifact({ body, createdAt, id, source = "manual", status = "draft", title, type = "prd", version = 1 }) {
   return {
