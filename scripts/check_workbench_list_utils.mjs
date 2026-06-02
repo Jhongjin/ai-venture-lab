@@ -19,6 +19,9 @@ const {
   buildWorkbenchIdeaRestoreFailedMessage,
   buildWorkbenchIdeaRestoredMessage,
   buildWorkbenchIdeaVisibilityState,
+  buildWorkbenchIdeasBulkDiscardConfirmMessage,
+  buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage,
+  buildWorkbenchIdeasBulkRestoreConfirmMessage,
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
   getActiveIdeas,
@@ -168,6 +171,15 @@ assert.equal(buildWorkbenchIdeaRestoredMessage("AI Venture Lab"), "\"AI Venture 
 assert.equal(
   buildWorkbenchIdeaPermanentDeleteConfirmMessage("AI Venture Lab"),
   "\"AI Venture Lab\" 아이디어와 연결된 리스크, 판단, 실험, 제작 자료, 실행 기록까지 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.",
+);
+assert.equal(
+  buildWorkbenchIdeasBulkDiscardConfirmMessage(3),
+  "선택한 3개 아이디어를 삭제 목록으로 옮길까요?\n나중에 삭제한 아이디어 화면에서 다시 되살릴 수 있습니다.",
+);
+assert.equal(buildWorkbenchIdeasBulkRestoreConfirmMessage(2), "선택한 2개 아이디어를 검토 아이디어로 되살릴까요?");
+assert.equal(
+  buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage(4),
+  "선택한 4개 아이디어와 연결된 리스크, 판단, 실험, 제작 자료, 실행 기록까지 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.",
 );
 assert.equal(
   buildWorkbenchIdeaRelatedTableDeleteFailedMessage({

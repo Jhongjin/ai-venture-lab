@@ -4,18 +4,19 @@ import { useState } from "react";
 import { ArrowCounterClockwise, Trash } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 
+import {
+  buildDiscardIdeaPatch,
+  buildRestoreIdeaPatch,
+  buildWorkbenchIdeaDiscardConfirmMessage,
+  buildWorkbenchIdeaDiscardFailedMessage,
+  buildWorkbenchIdeaPermanentDeleteConfirmMessage,
+  buildWorkbenchIdeaPermanentDeleteFailedMessage,
+  buildWorkbenchIdeaRelatedTableDeleteFailedMessage,
+  buildWorkbenchIdeaRestoreFailedMessage,
+  getIdeaDeletionRelatedTables,
+} from "@/lib/workbench-list-utils";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Idea } from "@/lib/venture-data";
-
-const relatedIdeaTables = [
-  "telemetry_events",
-  "implementation_tasks",
-  "venture_artifacts",
-  "orchestration_runs",
-  "experiments",
-  "decisions",
-  "risks",
-] as const;
 
 type WorkspaceIdeaListActionsProps = {
   idea: Pick<Idea, "id" | "name">;
@@ -35,7 +36,7 @@ export function WorkspaceIdeaListActions({ idea, mode, canManage }: WorkspaceIde
       return;
     }
 
-    const confirmed = window.confirm(`"${idea.name}" 아이디어를 삭제한 아이디어로 옮길까요?\n나중에 다시 되살릴 수 있습니다.`);
+    const confirmed = window.confirm(buildWorkbenchIdeaDiscardConfirmMessage(idea.name));
 
     if (!confirmed) {
       return;
@@ -46,13 +47,13 @@ export function WorkspaceIdeaListActions({ idea, mode, canManage }: WorkspaceIde
 
     const { error } = await supabase
       .from("ideas")
-      .update({ decision: "kill", stage: "paused", updated_at: new Date().toISOString() })
+      .update(buildDiscardIdeaPatch())
       .eq("id", idea.id);
 
     setIsBusy(false);
 
     if (error) {
-      setMessage(`삭제하지 못했습니다: ${error.message}`);
+      setMessage(buildWorkbenchIdeaDiscardFailedMessage({ errorMessage: error.message, ideaName: idea.name }));
       return;
     }
 
@@ -70,13 +71,13 @@ export function WorkspaceIdeaListActions({ idea, mode, canManage }: WorkspaceIde
 
     const { error } = await supabase
       .from("ideas")
-      .update({ decision: "research_more", stage: "score", updated_at: new Date().toISOString() })
+      .update(buildRestoreIdeaPatch())
       .eq("id", idea.id);
 
     setIsBusy(false);
 
     if (error) {
-      setMessage(`되살리지 못했습니다: ${error.message}`);
+      setMessage(buildWorkbenchIdeaRestoreFailedMessage({ errorMessage: error.message, ideaName: idea.name }));
       return;
     }
 
@@ -89,9 +90,7 @@ export function WorkspaceIdeaListActions({ idea, mode, canManage }: WorkspaceIde
       return;
     }
 
-    const confirmed = window.confirm(
-      `"${idea.name}" 아이디어와 연결된 기록을 완전히 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`,
-    );
+    const confirmed = window.confirm(buildWorkbenchIdeaPermanentDeleteConfirmMessage(idea.name));
 
     if (!confirmed) {
       return;
@@ -100,12 +99,18 @@ export function WorkspaceIdeaListActions({ idea, mode, canManage }: WorkspaceIde
     setIsBusy(true);
     setMessage(null);
 
-    for (const table of relatedIdeaTables) {
+    for (const table of getIdeaDeletionRelatedTables()) {
       const { error } = await supabase.from(table).delete().eq("idea_id", idea.id);
 
       if (error) {
         setIsBusy(false);
-        setMessage(`완전 삭제 중 ${table} 정리에서 막혔습니다: ${error.message}`);
+        setMessage(
+          buildWorkbenchIdeaRelatedTableDeleteFailedMessage({
+            errorMessage: error.message,
+            ideaName: idea.name,
+            table,
+          }),
+        );
         return;
       }
     }
@@ -115,7 +120,7 @@ export function WorkspaceIdeaListActions({ idea, mode, canManage }: WorkspaceIde
     setIsBusy(false);
 
     if (error) {
-      setMessage(`완전히 삭제하지 못했습니다: ${error.message}`);
+      setMessage(buildWorkbenchIdeaPermanentDeleteFailedMessage({ errorMessage: error.message, ideaName: idea.name }));
       return;
     }
 

@@ -123,6 +123,18 @@ export function buildWorkbenchIdeaPermanentDeleteConfirmMessage(ideaName: string
   return `"${ideaName}" 아이디어와 연결된 리스크, 판단, 실험, 제작 자료, 실행 기록까지 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`;
 }
 
+export function buildWorkbenchIdeasBulkDiscardConfirmMessage(count: number) {
+  return `선택한 ${count}개 아이디어를 삭제 목록으로 옮길까요?\n나중에 삭제한 아이디어 화면에서 다시 되살릴 수 있습니다.`;
+}
+
+export function buildWorkbenchIdeasBulkRestoreConfirmMessage(count: number) {
+  return `선택한 ${count}개 아이디어를 검토 아이디어로 되살릴까요?`;
+}
+
+export function buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage(count: number) {
+  return `선택한 ${count}개 아이디어와 연결된 리스크, 판단, 실험, 제작 자료, 실행 기록까지 영구 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`;
+}
+
 export function buildWorkbenchIdeaRelatedTableDeleteFailedMessage({
   errorMessage,
   ideaName,

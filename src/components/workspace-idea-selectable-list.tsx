@@ -7,6 +7,14 @@ import { useRouter } from "next/navigation";
 
 import { WorkspaceIdeaListActions } from "@/components/workspace-idea-list-actions";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import {
+  buildDiscardIdeaPatch,
+  buildRestoreIdeaPatch,
+  buildWorkbenchIdeasBulkDiscardConfirmMessage,
+  buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage,
+  buildWorkbenchIdeasBulkRestoreConfirmMessage,
+  getIdeaDeletionRelatedTables,
+} from "@/lib/workbench-list-utils";
 import type { Idea } from "@/lib/venture-data";
 
 type IdeaListMode = "active" | "deleted";
@@ -93,9 +101,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
       return;
     }
 
-    const confirmed = window.confirm(
-      `선택한 ${ids.length}개 아이디어를 삭제한 아이디어로 옮길까요?\n나중에 삭제한 아이디어 화면에서 다시 되살릴 수 있습니다.`,
-    );
+    const confirmed = window.confirm(buildWorkbenchIdeasBulkDiscardConfirmMessage(ids.length));
 
     if (!confirmed) {
       return;
@@ -106,7 +112,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
 
     const { error } = await supabase
       .from("ideas")
-      .update({ decision: "kill", stage: "paused", updated_at: new Date().toISOString() })
+      .update(buildDiscardIdeaPatch())
       .in("id", ids)
       .neq("decision", "kill");
 
@@ -134,7 +140,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
       return;
     }
 
-    const confirmed = window.confirm(`선택한 ${ids.length}개 아이디어를 검토 아이디어로 되살릴까요?`);
+    const confirmed = window.confirm(buildWorkbenchIdeasBulkRestoreConfirmMessage(ids.length));
 
     if (!confirmed) {
       return;
@@ -145,7 +151,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
 
     const { error } = await supabase
       .from("ideas")
-      .update({ decision: "research_more", stage: "score", updated_at: new Date().toISOString() })
+      .update(buildRestoreIdeaPatch())
       .in("id", ids)
       .eq("decision", "kill");
 
@@ -173,9 +179,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
       return;
     }
 
-    const confirmed = window.confirm(
-      `선택한 ${ids.length}개 아이디어와 연결된 기록을 완전히 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`,
-    );
+    const confirmed = window.confirm(buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage(ids.length));
 
     if (!confirmed) {
       return;
@@ -184,17 +188,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
     setIsBusy(true);
     setMessage(null);
 
-    const relatedIdeaTables = [
-      "telemetry_events",
-      "implementation_tasks",
-      "venture_artifacts",
-      "orchestration_runs",
-      "experiments",
-      "decisions",
-      "risks",
-    ] as const;
-
-    for (const table of relatedIdeaTables) {
+    for (const table of getIdeaDeletionRelatedTables()) {
       const { error } = await supabase.from(table).delete().in("idea_id", ids);
 
       if (error) {
