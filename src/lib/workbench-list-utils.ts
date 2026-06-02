@@ -32,6 +32,8 @@ const ideaDeletionRelatedTables = [
 ] as const;
 
 export const workbenchAdminRoles = new Set<OrganizationRole>(["owner", "admin"]);
+export const workbenchStorageConnectionRequiredMessage = "저장 연결을 먼저 확인해 주세요.";
+export const workbenchStorageNotConfiguredMessage = "저장 연결이 설정되어 있지 않습니다.";
 export type IdeaDeletionRelatedTable = (typeof ideaDeletionRelatedTables)[number];
 
 export function getIdeaStageRank(stage: IdeaStage) {

@@ -76,6 +76,8 @@ import {
   upsertRecordsById,
   upsertWorkbenchIdea,
   type WorkbenchIdeaFilterMode,
+  workbenchStorageConnectionRequiredMessage,
+  workbenchStorageNotConfiguredMessage,
 } from "@/lib/workbench-list-utils";
 import {
   missingEvidence,
@@ -1235,7 +1237,7 @@ export function IdeaWorkbench({
 
   async function discardIdeaRecord(idea: Idea) {
     if (!supabase) {
-      setMessage("Supabase 연결을 먼저 확인해 주세요.");
+      setMessage(workbenchStorageConnectionRequiredMessage);
       return;
     }
 
@@ -1287,7 +1289,7 @@ export function IdeaWorkbench({
 
   async function restoreIdeaRecord(idea: Idea) {
     if (!supabase) {
-      setMessage("Supabase 연결을 먼저 확인해 주세요.");
+      setMessage(workbenchStorageConnectionRequiredMessage);
       return;
     }
 
@@ -1331,7 +1333,7 @@ export function IdeaWorkbench({
 
   async function deleteIdeaRecord(idea: Idea) {
     if (!supabase) {
-      setMessage("Supabase 연결을 먼저 확인해 주세요.");
+      setMessage(workbenchStorageConnectionRequiredMessage);
       return;
     }
 
@@ -2752,7 +2754,7 @@ export function IdeaWorkbench({
 
   async function updateExperimentStatus(experiment: Experiment, status: string) {
     if (!supabase) {
-      setMessage("Supabase가 설정되어 있지 않습니다.");
+      setMessage(workbenchStorageNotConfiguredMessage);
       return;
     }
 
@@ -2793,7 +2795,7 @@ export function IdeaWorkbench({
 
   async function deleteExperiment(experiment: Experiment) {
     if (!supabase) {
-      setMessage("Supabase가 설정되어 있지 않습니다.");
+      setMessage(workbenchStorageNotConfiguredMessage);
       return;
     }
 
@@ -2838,7 +2840,7 @@ export function IdeaWorkbench({
 
   async function updateRunStatus(run: OrchestrationRun, status: OrchestrationStatus) {
     if (!supabase) {
-      setMessage("Supabase가 설정되어 있지 않습니다.");
+      setMessage(workbenchStorageNotConfiguredMessage);
       return;
     }
 
@@ -2879,7 +2881,7 @@ export function IdeaWorkbench({
 
   async function deleteOrchestrationRun(run: OrchestrationRun) {
     if (!supabase) {
-      setMessage("Supabase가 설정되어 있지 않습니다.");
+      setMessage(workbenchStorageNotConfiguredMessage);
       return;
     }
 
@@ -2920,7 +2922,7 @@ export function IdeaWorkbench({
 
   async function saveRunOutput(run: OrchestrationRun) {
     if (!supabase) {
-      setMessage("Supabase가 설정되어 있지 않습니다.");
+      setMessage(workbenchStorageNotConfiguredMessage);
       return;
     }
 
@@ -3497,7 +3499,7 @@ export function IdeaWorkbench({
 
   async function updateArtifactStatus(artifact: VentureArtifact, status: VentureArtifactStatus) {
     if (!supabase) {
-      setMessage("Supabase가 설정되어 있지 않습니다.");
+      setMessage(workbenchStorageNotConfiguredMessage);
       return;
     }
 
@@ -3819,7 +3821,7 @@ export function IdeaWorkbench({
 
   async function updateImplementationTaskStatus(task: ImplementationTask, status: ImplementationTaskStatus) {
     if (!supabase) {
-      setMessage("Supabase가 설정되어 있지 않습니다.");
+      setMessage(workbenchStorageNotConfiguredMessage);
       return;
     }
 
@@ -3860,7 +3862,7 @@ export function IdeaWorkbench({
 
   async function saveImplementationTaskEvidence(task: ImplementationTask) {
     if (!supabase) {
-      setMessage("Supabase가 설정되어 있지 않습니다.");
+      setMessage(workbenchStorageNotConfiguredMessage);
       return;
     }
 
@@ -3902,7 +3904,7 @@ export function IdeaWorkbench({
 
   async function updateRiskStatus(risk: Risk, status: string) {
     if (!supabase) {
-      setMessage("Supabase가 설정되어 있지 않습니다.");
+      setMessage(workbenchStorageNotConfiguredMessage);
       return;
     }
 
