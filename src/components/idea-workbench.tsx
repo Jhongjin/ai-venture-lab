@@ -84,6 +84,7 @@ import {
   upsertRecordById,
   upsertRecordsById,
   upsertWorkbenchIdea,
+  workbenchIdeaFilterModes,
   type WorkbenchIdeaFilterMode,
   workbenchIdeaSelectionRequiredMessage,
   workbenchStorageConnectionRequiredMessage,
@@ -4382,20 +4383,16 @@ export function IdeaWorkbench({
         </div>
 
         <div className="avl-segmented mb-4 grid grid-cols-3 gap-2 p-1">
-          {[
-            ["all", filterModeLabels.all],
-            ["mine", filterModeLabels.mine],
-            ["read_only", filterModeLabels.read_only],
-          ].map(([value, label]) => (
+          {workbenchIdeaFilterModes.map((value) => (
             <button
               key={value}
               type="button"
-              onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
+              onClick={() => setFilterMode(value)}
                 className={`h-9 rounded-[0.125rem] text-sm font-semibold transition ${
                   filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
                 }`}
               >
-              {label}
+              {filterModeLabels[value]}
             </button>
           ))}
         </div>
@@ -4547,20 +4544,16 @@ export function IdeaWorkbench({
               <h3 className="mt-2 text-base font-semibold text-slate-950">검토 아이디어</h3>
 
               <div className="mt-4 avl-segmented grid grid-cols-3 gap-2 p-1">
-                {[
-                  ["all", filterModeLabels.all],
-                  ["mine", filterModeLabels.mine],
-                  ["read_only", filterModeLabels.read_only],
-                ].map(([value, label]) => (
+                {workbenchIdeaFilterModes.map((value) => (
                   <button
                     key={value}
                     type="button"
-                    onClick={() => setFilterMode(value as "all" | "mine" | "read_only")}
+                    onClick={() => setFilterMode(value)}
                     className={`h-10 text-sm font-semibold transition ${
                       filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
                     }`}
                   >
-                    {label}
+                    {filterModeLabels[value]}
                   </button>
                 ))}
               </div>

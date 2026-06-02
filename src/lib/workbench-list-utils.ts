@@ -32,6 +32,7 @@ const ideaDeletionRelatedTables = [
 ] as const;
 
 export const workbenchAdminRoles = new Set<OrganizationRole>(["owner", "admin"]);
+export const workbenchIdeaFilterModes: WorkbenchIdeaFilterMode[] = ["all", "mine", "read_only"];
 export const workbenchIdeaSelectionRequiredMessage = "먼저 아이디어를 선택하세요.";
 export const workbenchStorageConnectionRequiredMessage = "저장 연결을 먼저 확인해 주세요.";
 export const workbenchStorageNotConfiguredMessage = "저장 연결이 설정되어 있지 않습니다.";
