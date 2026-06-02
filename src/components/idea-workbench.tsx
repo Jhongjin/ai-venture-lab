@@ -86,7 +86,11 @@ import {
   upsertRecordById,
   upsertRecordsById,
   upsertWorkbenchIdea,
+  workbenchIdeaDeleteLoginRequiredMessage,
+  workbenchIdeaDeletePermissionDeniedMessage,
   workbenchIdeaFilterModes,
+  workbenchIdeaRestoreLoginRequiredMessage,
+  workbenchIdeaRestorePermissionDeniedMessage,
   type WorkbenchIdeaFilterMode,
   workbenchIdeaSelectionRequiredMessage,
   workbenchStorageConnectionRequiredMessage,
@@ -1065,12 +1069,12 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("아이디어를 삭제하려면 먼저 로그인해 주세요.");
+      setMessage(workbenchIdeaDeleteLoginRequiredMessage);
       return;
     }
 
     if (!canManageRecord(idea)) {
-      setMessage("이 아이디어를 삭제할 권한이 없습니다.");
+      setMessage(workbenchIdeaDeletePermissionDeniedMessage);
       return;
     }
 
@@ -1117,12 +1121,12 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("아이디어를 되살리려면 먼저 로그인해 주세요.");
+      setMessage(workbenchIdeaRestoreLoginRequiredMessage);
       return;
     }
 
     if (!canManageRecord(idea)) {
-      setMessage("이 아이디어를 되살릴 권한이 없습니다.");
+      setMessage(workbenchIdeaRestorePermissionDeniedMessage);
       return;
     }
 
@@ -1161,12 +1165,12 @@ export function IdeaWorkbench({
     }
 
     if (!user) {
-      setMessage("아이디어를 삭제하려면 먼저 로그인해 주세요.");
+      setMessage(workbenchIdeaDeleteLoginRequiredMessage);
       return;
     }
 
     if (!canManageRecord(idea)) {
-      setMessage("이 아이디어를 삭제할 권한이 없습니다.");
+      setMessage(workbenchIdeaDeletePermissionDeniedMessage);
       return;
     }
 

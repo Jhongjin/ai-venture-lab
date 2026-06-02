@@ -52,7 +52,11 @@ const {
   upsertRecordById,
   upsertRecordsById,
   upsertWorkbenchIdea,
+  workbenchIdeaDeleteLoginRequiredMessage,
+  workbenchIdeaDeletePermissionDeniedMessage,
   workbenchIdeaFilterModes,
+  workbenchIdeaRestoreLoginRequiredMessage,
+  workbenchIdeaRestorePermissionDeniedMessage,
   workbenchIdeaSelectionRequiredMessage,
   workbenchStorageConnectionRequiredMessage,
   workbenchStorageNotConfiguredMessage,
@@ -110,7 +114,11 @@ assert.equal(isWorkbenchAdminRole("owner"), true);
 assert.equal(isWorkbenchAdminRole("admin"), true);
 assert.equal(isWorkbenchAdminRole("member"), false);
 assert.deepEqual(workbenchIdeaFilterModes, ["all", "mine", "read_only"]);
+assert.equal(workbenchIdeaDeleteLoginRequiredMessage, "아이디어를 삭제하려면 먼저 로그인해 주세요.");
+assert.equal(workbenchIdeaDeletePermissionDeniedMessage, "이 아이디어를 삭제할 권한이 없습니다.");
 assert.equal(workbenchIdeaSelectionRequiredMessage, "먼저 아이디어를 선택하세요.");
+assert.equal(workbenchIdeaRestoreLoginRequiredMessage, "아이디어를 되살리려면 먼저 로그인해 주세요.");
+assert.equal(workbenchIdeaRestorePermissionDeniedMessage, "이 아이디어를 되살릴 권한이 없습니다.");
 assert.equal(workbenchStorageConnectionRequiredMessage, "저장 연결을 먼저 확인해 주세요.");
 assert.equal(workbenchStorageNotConfiguredMessage, "저장 연결이 설정되어 있지 않습니다.");
 assert.deepEqual(getIdeaDeletionRelatedTables(), [
