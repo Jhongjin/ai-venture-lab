@@ -13,7 +13,7 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { buildMarketScanReviewRows, buildMarketScanReviewState } = await import(moduleUrl);
+const { buildMarketScanReviewRows, buildMarketScanReviewState, buildVisibleMarketScanReviewRows } = await import(moduleUrl);
 
 const decisionLabels = {
   kill: "중단",
@@ -141,6 +141,28 @@ assert.deepEqual(
   ["예상 수요", "경쟁/포화도", "진입장벽"],
 );
 assert.equal(reviewRows.marketDetailRows[1].detail, `${draft.competition} ${draft.saturation}`);
+
+const visibleRows = buildVisibleMarketScanReviewRows({
+  decisionLabels,
+  draft,
+  isEstimate: false,
+  publicSourceCount: webDraftState.publicSources.length,
+});
+assert.equal(visibleRows.overviewRows[1].value, "1개");
+assert.equal(visibleRows.decisionRows[0].value, "추가 조사");
+assert.deepEqual(
+  buildVisibleMarketScanReviewRows({
+    decisionLabels,
+    draft: null,
+    isEstimate: false,
+    publicSourceCount: 0,
+  }),
+  {
+    decisionRows: [],
+    marketDetailRows: [],
+    overviewRows: [],
+  },
+);
 
 const estimateState = buildMarketScanReviewState({
   artifacts: [],

@@ -167,6 +167,33 @@ export function buildMarketScanReviewRows({
   };
 }
 
+export function buildVisibleMarketScanReviewRows({
+  decisionLabels,
+  draft,
+  isEstimate,
+  publicSourceCount,
+}: {
+  decisionLabels: MarketScanDecisionLabels;
+  draft: MarketScanDraft | null;
+  isEstimate: boolean;
+  publicSourceCount: number;
+}): MarketScanReviewRows {
+  if (!draft) {
+    return {
+      decisionRows: [],
+      marketDetailRows: [],
+      overviewRows: [],
+    };
+  }
+
+  return buildMarketScanReviewRows({
+    decisionLabels,
+    draft,
+    isEstimate,
+    publicSourceCount,
+  });
+}
+
 export function buildMarketScanReviewState({
   artifacts,
   draft,

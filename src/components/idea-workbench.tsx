@@ -198,9 +198,9 @@ import {
   buildMarketScanEvidenceImplication,
   buildMarketScanEvidenceText,
   buildMarketScanLearningText,
-  buildMarketScanReviewRows,
   buildMarketScanReviewState,
   buildMarketScanResultText,
+  buildVisibleMarketScanReviewRows,
   getMarketScanLevelLabel,
   getMarketScanSourceStrengthTone,
   getPublicMarketScanSources,
@@ -1588,18 +1588,12 @@ export function IdeaWorkbench({
     hasValidationSprintArtifact,
     hasValidationSummaryArtifact,
   });
-  const visibleMarketScanReviewRows = visibleMarketScanDraft
-    ? buildMarketScanReviewRows({
-        decisionLabels,
-        draft: visibleMarketScanDraft,
-        isEstimate: isVisibleMarketScanEstimate,
-        publicSourceCount: visibleMarketScanPublicSources.length,
-      })
-    : {
-        decisionRows: [],
-        marketDetailRows: [],
-        overviewRows: [],
-      };
+  const visibleMarketScanReviewRows = buildVisibleMarketScanReviewRows({
+    decisionLabels,
+    draft: visibleMarketScanDraft,
+    isEstimate: isVisibleMarketScanEstimate,
+    publicSourceCount: visibleMarketScanPublicSources.length,
+  });
   const completedImplementationTasks = implementationTaskProgressStats.completedTasks;
   const implementationTasksWithEvidence = getCompletedImplementationTasksWithEvidence(selectedImplementationTasks);
   const hasCompletedExperiment = selectedExperiments.some((experiment) => experiment.status === "done");
