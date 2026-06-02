@@ -2150,10 +2150,6 @@ export function IdeaWorkbench({
   const {
     folder: liveExternalToolFolder,
     guideDraft: liveExternalToolGuideDraft,
-    isAntigravityExternalDelivery,
-    isClaudeCodeExternalDelivery,
-    isCodexExternalDelivery,
-    isCursorExternalDelivery,
     isLiveExternalDelivery,
     mcpConfigDraft: liveExternalToolMcpConfigDraft,
     nextTaskCommand: liveExternalToolNextTaskCommand,
@@ -4198,23 +4194,16 @@ export function IdeaWorkbench({
   }
 
   function downloadFinalExecutionPrimaryPackage() {
-    if (isCursorExternalDelivery) {
-      void downloadCursorSetupScript();
-      return;
-    }
+    const liveSetupDownloads: Partial<Record<ExternalBuildToolKey, () => Promise<void>>> = {
+      antigravity: downloadAntigravitySetupScript,
+      claude_code: downloadClaudeSetupScript,
+      codex: downloadCodexSetupScript,
+      cursor: downloadCursorSetupScript,
+    };
+    const downloadLiveSetup = isLiveExternalDelivery ? liveSetupDownloads[activeExternalBuildTool.key] : null;
 
-    if (isCodexExternalDelivery) {
-      void downloadCodexSetupScript();
-      return;
-    }
-
-    if (isClaudeCodeExternalDelivery) {
-      void downloadClaudeSetupScript();
-      return;
-    }
-
-    if (isAntigravityExternalDelivery) {
-      void downloadAntigravitySetupScript();
+    if (downloadLiveSetup) {
+      void downloadLiveSetup();
       return;
     }
 
