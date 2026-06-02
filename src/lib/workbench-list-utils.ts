@@ -262,6 +262,21 @@ export function getVisibleDiscardedIdeas(
   return sortWorkbenchIdeas(nextIdeas.filter((idea) => isDiscardedIdea(idea) && getRecordAccessState(idea) !== "hidden"));
 }
 
+export function buildWorkbenchIdeaVisibilityState(
+  nextIdeas: Idea[],
+  filterMode: WorkbenchIdeaFilterMode,
+  getRecordAccessState: (idea: Idea) => WorkbenchRecordAccessState,
+) {
+  const discardedIdeas = getVisibleDiscardedIdeas(nextIdeas, getRecordAccessState);
+
+  return {
+    activeVisibleIdeaCount: getVisibleActiveIdeaCount(nextIdeas, getRecordAccessState),
+    discardedIdeas,
+    discardedVisibleIdeaCount: discardedIdeas.length,
+    visibleIdeas: filterVisibleWorkbenchIdeas(nextIdeas, filterMode, getRecordAccessState),
+  };
+}
+
 export function upsertWorkbenchIdea(current: Idea[], nextIdea: Idea) {
   const exists = current.some((idea) => idea.id === nextIdea.id);
   const nextIdeas = exists

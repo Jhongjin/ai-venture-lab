@@ -53,7 +53,7 @@ import { buildBackendCandidateScores, buildBackendExecutionPlan } from "@/lib/ba
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
-  filterVisibleWorkbenchIdeas,
+  buildWorkbenchIdeaVisibilityState,
   canManageWorkbenchRecord,
   appendRecord,
   appendRecords,
@@ -65,8 +65,6 @@ import {
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
   getWorkbenchIdeaRemovalSelectionState,
-  getVisibleActiveIdeaCount,
-  getVisibleDiscardedIdeas,
   isIdeaStageAtOrAfter,
   isDiscardedIdea,
   mergeRecordMap,
@@ -2061,13 +2059,17 @@ export function IdeaWorkbench({
   const finalExecutionVisibleTaskCount = finalExecutionTaskPreviewSummary.visibleTaskCount;
   const finalExecutionTaskListDescription = finalExecutionTaskPreviewSummary.taskListDescription;
   const doneRunCount = countDoneWorkbenchRuns(selectedRuns);
+  const { activeVisibleIdeaCount, discardedIdeas, discardedVisibleIdeaCount, visibleIdeas } = useMemo(
+    () => buildWorkbenchIdeaVisibilityState(ideas, filterMode, getRecordAccessState),
+    [filterMode, getRecordAccessState, ideas],
+  );
   const workbenchTasks = buildWorkbenchTaskSummaries({
-    activeVisibleIdeaCount: getVisibleActiveIdeaCount(ideas, getRecordAccessState),
+    activeVisibleIdeaCount,
     artifactCount: selectedArtifactRecords.length,
     canEnterLaunch,
     currentScore,
     decisionCount: selectedDecisions.length,
-    discardedVisibleIdeaCount: getVisibleDiscardedIdeas(ideas, getRecordAccessState).length,
+    discardedVisibleIdeaCount,
     doneRunCount,
     experimentCount: selectedExperiments.length,
     hasDevelopmentProcessArtifact: hasDevelopmentProcessArtifact(selectedArtifactRecords),
@@ -2079,14 +2081,6 @@ export function IdeaWorkbench({
     telemetryEventCount: selectedTelemetryEvents.length,
   });
   const visibleWorkbenchTasks = getVisibleWorkbenchTaskSummaries(workbenchTasks, experienceMode);
-  const visibleIdeas = useMemo(
-    () => filterVisibleWorkbenchIdeas(ideas, filterMode, getRecordAccessState),
-    [filterMode, getRecordAccessState, ideas],
-  );
-  const discardedIdeas = useMemo(
-    () => getVisibleDiscardedIdeas(ideas, getRecordAccessState),
-    [getRecordAccessState, ideas],
-  );
   async function refreshSelectedIdeaImplementationTasks(options: { source?: "auto" | "manual" } = {}) {
     const isAutoRefresh = options.source === "auto";
 

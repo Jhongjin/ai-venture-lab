@@ -8,6 +8,7 @@ const {
   appendRecords,
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchIdeaVisibilityState,
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
   getActiveIdeas,
@@ -205,6 +206,11 @@ assert.deepEqual(
 );
 assert.equal(getVisibleActiveIdeaCount(ideas, getAccess), 3);
 assert.deepEqual(getVisibleDiscardedIdeas(ideas, getAccess).map((record) => record.id), ["deleted"]);
+const visibilityState = buildWorkbenchIdeaVisibilityState(ideas, "all", getAccess);
+assert.deepEqual(visibilityState.visibleIdeas.map((record) => record.id), ["owned-new", "shared-old", "admin"]);
+assert.deepEqual(visibilityState.discardedIdeas.map((record) => record.id), ["deleted"]);
+assert.equal(visibilityState.activeVisibleIdeaCount, 3);
+assert.equal(visibilityState.discardedVisibleIdeaCount, 1);
 
 const memberships = [
   { organization_id: "org-admin", role: "admin", user_id: "viewer-1" },
