@@ -116,10 +116,7 @@ import {
   artifactStatusTone,
   artifactTypeOptions,
 } from "@/lib/artifact-labels";
-import {
-  resolveProductSurfaceForIdea as inferIdeaProductSurface,
-  type ProductSurfaceProfile,
-} from "@/lib/product-surface";
+import { resolveProductSurfaceForIdea as inferIdeaProductSurface } from "@/lib/product-surface";
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
 import { cleanInlineText, getApiMessage, isPlainRecord } from "@/lib/record-utils";
 import {
@@ -152,12 +149,14 @@ import {
   buildClaudeExternalToolSetupFiles,
   buildCodexExternalToolSetupFiles,
   buildCursorExternalToolSetupFiles,
-  type ExternalToolSetupFileDraft,
 } from "@/lib/external-tool-setup-files";
 import {
   buildCodexSetupPowerShell,
   buildCursorSetupPowerShell,
+  buildLiveExternalToolSetupDownloadDraft,
   buildLiveToolSetupPowerShell,
+  type ExternalToolSetupDownloadConfig,
+  type LiveExternalToolSetupKey,
 } from "@/lib/external-tool-setup-scripts";
 import {
   cursorSyncRegistrySetupNotice,
@@ -417,33 +416,10 @@ type CursorSyncConnectionRevokeResponse = {
   error?: string;
 };
 
-type LiveExternalToolSetupKey = Exclude<ExternalBuildToolKey, "generic_mcp">;
 type ExternalToolBuildSyncTokenPayload = CursorBuildSyncTokenResponse & {
   endpoint: string;
   expiresAt: string;
   token: string;
-};
-type ExternalToolEncodedSetupFile = {
-  base64: string;
-  path: string;
-};
-type ExternalToolSetupGuideArgs = {
-  idea: Idea;
-  productSurface: ProductSurfaceProfile;
-  projectKey: string;
-  syncExpiresAt: string;
-};
-type ExternalToolSetupDownloadConfig = {
-  tool: LiveExternalToolSetupKey;
-  toolLabel: string;
-  loginMessage: string;
-  fileLabel: string;
-  fileSuffix: string;
-  successMessage: string;
-  errorMessage: string;
-  buildGuideDraft: (args: ExternalToolSetupGuideArgs) => string;
-  buildFiles: (args: { guideDraft: string; syncConfigDraft: string }) => ExternalToolSetupFileDraft[];
-  buildSetupScript: (args: { idea: Idea; projectKey: string; files: ExternalToolEncodedSetupFile[] }) => string;
 };
 
 export function IdeaWorkbench({
@@ -3467,25 +3443,17 @@ export function IdeaWorkbench({
         projectKey: finalExecutionProjectKey,
         tool: config.tool,
       });
-      const guideDraft = config.buildGuideDraft({
+      const downloadDraft = buildLiveExternalToolSetupDownloadDraft({
+        config,
+        encodeSetupFiles: encodeBrowserSetupFiles,
         idea: selectedIdea,
         productSurface: activeProductSurface,
         projectKey: finalExecutionProjectKey,
+        syncConfigDraft,
         syncExpiresAt: payload.expiresAt,
       });
-      const files = encodeBrowserSetupFiles(config.buildFiles({ guideDraft, syncConfigDraft }));
-      const script = config.buildSetupScript({
-        idea: selectedIdea,
-        projectKey: finalExecutionProjectKey,
-        files,
-      });
 
-      downloadDraftFile(
-        script,
-        config.fileLabel,
-        toDownloadFileName(selectedIdea.name, config.fileSuffix, "ps1"),
-        "text/plain;charset=utf-8",
-      );
+      downloadDraftFile(downloadDraft.body, downloadDraft.label, downloadDraft.fileName, downloadDraft.mimeType);
       setMessage(config.successMessage);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : config.errorMessage;

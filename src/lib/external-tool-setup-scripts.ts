@@ -1,6 +1,44 @@
+import type { ExternalBuildToolKey } from "@/lib/build-delivery";
+import { toDownloadFileName } from "@/lib/download-file-name";
+import type { ExternalToolSetupFileDraft } from "@/lib/external-tool-setup-files";
+import type { ProductSurfaceProfile } from "@/lib/product-surface";
 import type { Idea } from "@/lib/venture-data";
 
-type SetupFile = { path: string; base64: string };
+export type LiveExternalToolSetupKey = Exclude<ExternalBuildToolKey, "generic_mcp">;
+
+export type ExternalToolEncodedSetupFile = {
+  base64: string;
+  path: string;
+};
+
+type SetupFile = ExternalToolEncodedSetupFile;
+
+export type ExternalToolSetupGuideArgs = {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+  syncExpiresAt: string;
+};
+
+export type ExternalToolSetupDownloadConfig = {
+  tool: LiveExternalToolSetupKey;
+  toolLabel: string;
+  loginMessage: string;
+  fileLabel: string;
+  fileSuffix: string;
+  successMessage: string;
+  errorMessage: string;
+  buildGuideDraft: (args: ExternalToolSetupGuideArgs) => string;
+  buildFiles: (args: { guideDraft: string; syncConfigDraft: string }) => ExternalToolSetupFileDraft[];
+  buildSetupScript: (args: { idea: Idea; projectKey: string; files: ExternalToolEncodedSetupFile[] }) => string;
+};
+
+export type LiveExternalToolSetupDownloadDraft = {
+  body: string;
+  fileName: string;
+  label: string;
+  mimeType: "text/plain;charset=utf-8";
+};
 
 function escapePowerShellSingleQuoted(value: string) {
   return value.replace(/'/g, "''");
@@ -8,6 +46,44 @@ function escapePowerShellSingleQuoted(value: string) {
 
 function buildSetupFileRows(files: SetupFile[]) {
   return files.map((file) => `  @{ Path = '${escapePowerShellSingleQuoted(file.path)}'; Base64 = '${file.base64}' }`).join("\n");
+}
+
+export function buildLiveExternalToolSetupDownloadDraft({
+  config,
+  encodeSetupFiles,
+  idea,
+  productSurface,
+  projectKey,
+  syncConfigDraft,
+  syncExpiresAt,
+}: {
+  config: ExternalToolSetupDownloadConfig;
+  encodeSetupFiles: (files: ExternalToolSetupFileDraft[]) => ExternalToolEncodedSetupFile[];
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+  syncConfigDraft: string;
+  syncExpiresAt: string;
+}): LiveExternalToolSetupDownloadDraft {
+  const guideDraft = config.buildGuideDraft({
+    idea,
+    productSurface,
+    projectKey,
+    syncExpiresAt,
+  });
+  const files = encodeSetupFiles(config.buildFiles({ guideDraft, syncConfigDraft }));
+  const script = config.buildSetupScript({
+    files,
+    idea,
+    projectKey,
+  });
+
+  return {
+    body: script,
+    fileName: toDownloadFileName(idea.name, config.fileSuffix, "ps1"),
+    label: config.fileLabel,
+    mimeType: "text/plain;charset=utf-8",
+  };
 }
 
 export function buildCursorSetupPowerShell({
