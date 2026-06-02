@@ -49,7 +49,11 @@ import { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftStat
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchIdeaDiscardFailedMessage,
+  buildWorkbenchIdeaDiscardedMessage,
   buildWorkbenchIdeaRemovalCompletionState,
+  buildWorkbenchIdeaRestoreFailedMessage,
+  buildWorkbenchIdeaRestoredMessage,
   buildWorkbenchIdeaVisibilityState,
   canManageWorkbenchRecord,
   appendRecord,
@@ -1060,7 +1064,7 @@ export function IdeaWorkbench({
 
     if (error || !data) {
       setIsBusy(false);
-      setMessage(`${idea.name} 아이디어를 삭제 목록으로 옮기지 못했습니다: ${error?.message ?? "응답 없음"}`);
+      setMessage(buildWorkbenchIdeaDiscardFailedMessage({ errorMessage: error?.message, ideaName: idea.name }));
       return;
     }
 
@@ -1072,7 +1076,7 @@ export function IdeaWorkbench({
     setSelectedIdeaId(nextSelectedIdea?.id ?? "");
     setEditState(nextSelectedIdea ? toEditState(nextSelectedIdea) : null);
     setIsBusy(false);
-    setMessage(`"${idea.name}" 아이디어를 삭제 목록으로 옮겼습니다.`);
+    setMessage(buildWorkbenchIdeaDiscardedMessage(idea.name));
     window.dispatchEvent(new CustomEvent<Idea>("venture:idea-updated", { detail: updatedIdea }));
     updateActiveTask(nextTask);
     router.refresh();
@@ -1106,7 +1110,7 @@ export function IdeaWorkbench({
 
     if (error || !data) {
       setIsBusy(false);
-      setMessage(`${idea.name} 아이디어를 되살리지 못했습니다: ${error?.message ?? "응답 없음"}`);
+      setMessage(buildWorkbenchIdeaRestoreFailedMessage({ errorMessage: error?.message, ideaName: idea.name }));
       return;
     }
 
@@ -1116,7 +1120,7 @@ export function IdeaWorkbench({
     setSelectedIdeaId(updatedIdea.id);
     setEditState(toEditState(updatedIdea));
     setIsBusy(false);
-    setMessage(`"${idea.name}" 아이디어를 다시 진행 목록으로 옮겼습니다.`);
+    setMessage(buildWorkbenchIdeaRestoredMessage(idea.name));
     window.dispatchEvent(new CustomEvent<Idea>("venture:idea-updated", { detail: updatedIdea }));
     updateActiveTask("score");
     router.refresh();

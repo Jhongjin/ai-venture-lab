@@ -75,6 +75,34 @@ export function buildRestoreIdeaPatch(now = new Date().toISOString()) {
   };
 }
 
+export function buildWorkbenchIdeaDiscardFailedMessage({
+  errorMessage,
+  ideaName,
+}: {
+  errorMessage?: string | null;
+  ideaName: string;
+}) {
+  return `${ideaName} 아이디어를 삭제 목록으로 옮기지 못했습니다: ${errorMessage ?? "응답 없음"}`;
+}
+
+export function buildWorkbenchIdeaDiscardedMessage(ideaName: string) {
+  return `"${ideaName}" 아이디어를 삭제 목록으로 옮겼습니다.`;
+}
+
+export function buildWorkbenchIdeaRestoreFailedMessage({
+  errorMessage,
+  ideaName,
+}: {
+  errorMessage?: string | null;
+  ideaName: string;
+}) {
+  return `${ideaName} 아이디어를 되살리지 못했습니다: ${errorMessage ?? "응답 없음"}`;
+}
+
+export function buildWorkbenchIdeaRestoredMessage(ideaName: string) {
+  return `"${ideaName}" 아이디어를 다시 진행 목록으로 옮겼습니다.`;
+}
+
 export function getWorkbenchRecordAccessState({
   memberships,
   record,
