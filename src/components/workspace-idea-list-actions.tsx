@@ -15,6 +15,7 @@ import {
   buildWorkbenchIdeaRestoreFailedMessage,
   getIdeaDeletionRelatedTables,
 } from "@/lib/workbench-list-utils";
+import { confirmBrowserAction } from "@/lib/browser-dialogs";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Idea } from "@/lib/venture-data";
 
@@ -36,7 +37,7 @@ export function WorkspaceIdeaListActions({ idea, mode, canManage }: WorkspaceIde
       return;
     }
 
-    const confirmed = window.confirm(buildWorkbenchIdeaDiscardConfirmMessage(idea.name));
+    const confirmed = confirmBrowserAction(buildWorkbenchIdeaDiscardConfirmMessage(idea.name));
 
     if (!confirmed) {
       return;
@@ -90,7 +91,7 @@ export function WorkspaceIdeaListActions({ idea, mode, canManage }: WorkspaceIde
       return;
     }
 
-    const confirmed = window.confirm(buildWorkbenchIdeaPermanentDeleteConfirmMessage(idea.name));
+    const confirmed = confirmBrowserAction(buildWorkbenchIdeaPermanentDeleteConfirmMessage(idea.name));
 
     if (!confirmed) {
       return;

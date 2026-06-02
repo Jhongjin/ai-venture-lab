@@ -166,6 +166,7 @@ import {
   scheduleBrowserTimeout,
   waitForBrowserDelay,
 } from "@/lib/browser-timing";
+import { confirmBrowserAction } from "@/lib/browser-dialogs";
 import {
   buildFinalExecutionDecisionSentence,
   buildFinalExecutionLaunchDisplayState,
@@ -1213,7 +1214,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const confirmed = window.confirm(buildWorkbenchIdeaDiscardConfirmMessage(idea.name));
+    const confirmed = confirmBrowserAction(buildWorkbenchIdeaDiscardConfirmMessage(idea.name));
 
     if (!confirmed) {
       return;
@@ -1309,7 +1310,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const confirmed = window.confirm(buildWorkbenchIdeaPermanentDeleteConfirmMessage(idea.name));
+    const confirmed = confirmBrowserAction(buildWorkbenchIdeaPermanentDeleteConfirmMessage(idea.name));
 
     if (!confirmed) {
       return;
@@ -2520,7 +2521,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const confirmed = window.confirm(buildExperimentDeleteConfirmMessage(experiment.name));
+    const confirmed = confirmBrowserAction(buildExperimentDeleteConfirmMessage(experiment.name));
 
     if (!confirmed) {
       return;
@@ -2608,7 +2609,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const confirmed = window.confirm(buildOrchestrationRunDeleteConfirmMessage(phaseLabels[run.phase]));
+    const confirmed = confirmBrowserAction(buildOrchestrationRunDeleteConfirmMessage(phaseLabels[run.phase]));
 
     if (!confirmed) {
       return;

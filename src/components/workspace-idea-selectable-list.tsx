@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { WorkspaceIdeaListActions } from "@/components/workspace-idea-list-actions";
+import { confirmBrowserAction } from "@/lib/browser-dialogs";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   buildDiscardIdeaPatch,
@@ -105,7 +106,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
       return;
     }
 
-    const confirmed = window.confirm(buildWorkbenchIdeasBulkDiscardConfirmMessage(ids.length));
+    const confirmed = confirmBrowserAction(buildWorkbenchIdeasBulkDiscardConfirmMessage(ids.length));
 
     if (!confirmed) {
       return;
@@ -144,7 +145,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
       return;
     }
 
-    const confirmed = window.confirm(buildWorkbenchIdeasBulkRestoreConfirmMessage(ids.length));
+    const confirmed = confirmBrowserAction(buildWorkbenchIdeasBulkRestoreConfirmMessage(ids.length));
 
     if (!confirmed) {
       return;
@@ -183,7 +184,7 @@ export function WorkspaceIdeaSelectableList({ mode, items, emptyMessage }: Works
       return;
     }
 
-    const confirmed = window.confirm(buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage(ids.length));
+    const confirmed = confirmBrowserAction(buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage(ids.length));
 
     if (!confirmed) {
       return;
