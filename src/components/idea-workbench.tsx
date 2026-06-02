@@ -341,6 +341,7 @@ import {
   buildImplementationTasksAlreadyExistMessage,
   buildImplementationTasksCreateLoginRequiredMessage,
   buildImplementationTasksCreatedMessage,
+  buildImplementationTasksCreatedTelemetryProperties,
   buildManualImplementationTaskCreatedMessage,
   buildManualImplementationTaskInsertRow,
   buildManualImplementationTaskLoginRequiredMessage,
@@ -3205,10 +3206,10 @@ export function IdeaWorkbench({
     void recordTelemetryEvent({
       eventName: "implementation_tasks_created",
       eventCategory: "development",
-      properties: {
-        task_count: data?.length ?? 0,
-        source_artifact: implementationTaskSourceArtifact ? "yes" : "no",
-      },
+      properties: buildImplementationTasksCreatedTelemetryProperties({
+        hasSourceArtifact: Boolean(implementationTaskSourceArtifact),
+        taskCount: data?.length ?? 0,
+      }),
     });
     setMessage(buildImplementationTasksCreatedMessage(missingDrafts.length));
     router.refresh();

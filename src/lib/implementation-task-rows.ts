@@ -173,6 +173,19 @@ export function buildImplementationTaskCreatedTelemetryProperties(
   };
 }
 
+export function buildImplementationTasksCreatedTelemetryProperties({
+  hasSourceArtifact,
+  taskCount,
+}: {
+  hasSourceArtifact: boolean;
+  taskCount: number;
+}) {
+  return {
+    task_count: taskCount,
+    source_artifact: hasSourceArtifact ? "yes" : "no",
+  };
+}
+
 export function buildImplementationTaskStatusTelemetryProperties({
   previousStatus,
   task,

@@ -17,6 +17,7 @@ const {
   buildImplementationTasksAlreadyExistMessage,
   buildImplementationTasksCreateLoginRequiredMessage,
   buildImplementationTasksCreatedMessage,
+  buildImplementationTasksCreatedTelemetryProperties,
   buildManualImplementationTaskCreatedMessage,
   buildManualImplementationTaskInsertRow,
   buildManualImplementationTaskLoginRequiredMessage,
@@ -125,6 +126,23 @@ assert.deepEqual(
     priority: "medium",
     owner_role: "미정",
   },
+);
+assert.deepEqual(
+  buildImplementationTasksCreatedTelemetryProperties({
+    hasSourceArtifact: false,
+    taskCount: 2,
+  }),
+  {
+    task_count: 2,
+    source_artifact: "no",
+  },
+);
+assert.deepEqual(
+  buildImplementationTasksCreatedTelemetryProperties({
+    hasSourceArtifact: true,
+    taskCount: 1,
+  }).source_artifact,
+  "yes",
 );
 assert.deepEqual(
   buildImplementationTaskStatusTelemetryProperties({
