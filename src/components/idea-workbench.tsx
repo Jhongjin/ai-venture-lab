@@ -140,7 +140,6 @@ import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/pr
 import { cleanInlineText, getApiMessage, isPlainRecord } from "@/lib/record-utils";
 import {
   getBuildDeliveryPreferenceFromArtifacts,
-  getBuildDeliveryActionPhrase,
   resolveBuildDeliveryContext,
   type ExternalBuildToolKey,
 } from "@/lib/build-delivery";
@@ -864,6 +863,7 @@ export function IdeaWorkbench({
   const {
     activeBuildDeliveryDetail,
     activeBuildDeliveryLabel,
+    activeBuildDeliveryPhrase,
     activeExternalBuildTool,
     buildDeliveryMode,
     hasFinalExternalToolOverride,
@@ -1225,10 +1225,6 @@ export function IdeaWorkbench({
   const savedEditState = selectedIdea ? toEditState(selectedIdea) : null;
   const selectedProductSurface = selectedIdea && editState ? inferIdeaProductSurface(selectedIdea, editState) : null;
   const activeProductSurface = selectedProductSurface ?? productSurfaceProfiles.web_app;
-  const activeBuildDeliveryPhrase = getBuildDeliveryActionPhrase({
-    buildDeliveryMode,
-    externalToolLabel: activeExternalBuildTool.label,
-  });
   const hasReachedScoreStage = selectedIdea ? isIdeaStageAtOrAfter(selectedIdea.stage, "score") : false;
   const isScoreEvaluationSaved = isWorkbenchScoreEvaluationSaved({
     hasReachedScoreStage,

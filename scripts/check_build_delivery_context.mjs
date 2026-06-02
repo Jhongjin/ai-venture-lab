@@ -23,6 +23,7 @@ assert.equal(overriddenContext.persistedExternalBuildTool.key, "cursor");
 assert.equal(overriddenContext.finalExternalToolOverrideKey, "codex");
 assert.equal(overriddenContext.activeExternalBuildTool.key, "codex");
 assert.equal(overriddenContext.hasFinalExternalToolOverride, true);
+assert.equal(overriddenContext.activeBuildDeliveryPhrase, "Codex로 개발합니다");
 assert.equal(overriddenContext.activeBuildDeliveryLabel, "외부 제작 도구로 개발");
 assert.match(overriddenContext.activeBuildDeliveryDetail, /Codex/);
 
@@ -52,6 +53,7 @@ const internalContext = resolveBuildDeliveryContext({
 assert.equal(internalContext.buildDeliveryMode, "venture_lab");
 assert.equal(internalContext.activeExternalBuildTool.key, "cursor");
 assert.equal(internalContext.hasFinalExternalToolOverride, false);
+assert.equal(internalContext.activeBuildDeliveryPhrase, "Venture Lab에서 계속 진행합니다");
 assert.equal(internalContext.activeBuildDeliveryLabel, "Venture Lab에서 계속 진행");
 assert.match(internalContext.activeBuildDeliveryDetail, /Venture Lab 안에서/);
 

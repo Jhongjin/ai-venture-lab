@@ -31,6 +31,7 @@ export type BuildDeliveryContext = {
   finalExternalToolOverrideKey: ExternalBuildToolKey | null;
   activeExternalBuildTool: ExternalBuildToolProfile;
   hasFinalExternalToolOverride: boolean;
+  activeBuildDeliveryPhrase: string;
   activeBuildDeliveryLabel: string;
   activeBuildDeliveryDetail: string;
 };
@@ -254,6 +255,10 @@ export function resolveBuildDeliveryContext({
     buildDeliveryMode === "external_tool" &&
     Boolean(finalExternalToolOverrideKey) &&
     finalExternalToolOverrideKey !== persistedExternalBuildTool.key;
+  const activeBuildDeliveryPhrase = getBuildDeliveryActionPhrase({
+    buildDeliveryMode,
+    externalToolLabel: activeExternalBuildTool.label,
+  });
   const activeBuildDeliveryLabel = buildDeliveryModeLabels[buildDeliveryMode];
   const activeBuildDeliveryDetail =
     buildDeliveryMode === "external_tool"
@@ -266,6 +271,7 @@ export function resolveBuildDeliveryContext({
     finalExternalToolOverrideKey,
     activeExternalBuildTool,
     hasFinalExternalToolOverride,
+    activeBuildDeliveryPhrase,
     activeBuildDeliveryLabel,
     activeBuildDeliveryDetail,
   };
