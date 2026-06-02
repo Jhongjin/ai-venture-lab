@@ -22,6 +22,13 @@ export type ExperimentTelemetrySource<Status extends string> = {
   success_metric: string;
 };
 
+export type ExperimentResultTelemetryInput<Decision extends string> = {
+  experimentId: string;
+  learning: string;
+  nextDecision: Decision;
+  result: string;
+};
+
 export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
 };
@@ -311,6 +318,20 @@ export function buildExperimentStatusTelemetryProperties<Status extends string>(
 export function buildExperimentDeletedTelemetryProperties<Status extends string>(previousStatus: Status) {
   return {
     previous_status: previousStatus,
+  };
+}
+
+export function buildExperimentResultSavedTelemetryProperties<Decision extends string>({
+  experimentId,
+  learning,
+  nextDecision,
+  result,
+}: ExperimentResultTelemetryInput<Decision>) {
+  return {
+    experiment_id: experimentId,
+    result_length: result.length,
+    learning_length: learning.length,
+    next_decision: nextDecision,
   };
 }
 

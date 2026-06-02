@@ -397,6 +397,7 @@ import {
   buildExperimentResultExperimentRequiredMessage,
   buildExperimentResultLearningRequiredMessage,
   buildExperimentResultRequiredMessage,
+  buildExperimentResultSavedTelemetryProperties,
   buildExperimentStatusChangedMessage,
   buildExperimentStatusTelemetryProperties,
   buildExperimentStatusUpdatePatch,
@@ -3073,12 +3074,12 @@ export function IdeaWorkbench({
       void recordTelemetryEvent({
         eventName: "experiment_result_saved",
         eventCategory: "experiment",
-        properties: {
-          experiment_id: selectedExperimentForResult.id,
-          result_length: experimentResultDraft.result.length,
-          learning_length: experimentResultDraft.learning.length,
-          next_decision: experimentResultDraft.next_decision,
-        },
+        properties: buildExperimentResultSavedTelemetryProperties({
+          experimentId: selectedExperimentForResult.id,
+          learning: experimentResultDraft.learning,
+          nextDecision: experimentResultDraft.next_decision,
+          result: experimentResultDraft.result,
+        }),
       });
       setExperimentResultDraft(createDefaultExperimentResultDraft(selectedExperimentForResult.id));
       setMessage(buildExperimentResultSavedMessage());

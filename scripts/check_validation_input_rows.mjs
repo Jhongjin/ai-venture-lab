@@ -24,6 +24,7 @@ const {
   buildExperimentResultExperimentRequiredMessage,
   buildExperimentResultLearningRequiredMessage,
   buildExperimentResultRequiredMessage,
+  buildExperimentResultSavedTelemetryProperties,
   buildExperimentStatusChangedMessage,
   buildExperimentStatusTelemetryProperties,
   buildExperimentStatusUpdatePatch,
@@ -119,6 +120,20 @@ assert.equal(buildExperimentResultExperimentRequiredMessage(), "결과를 기록
 assert.equal(buildExperimentResultRequiredMessage(), "검증 결과를 입력하세요.");
 assert.equal(buildExperimentResultLearningRequiredMessage(), "검증에서 배운 점을 입력하세요.");
 assert.equal(buildExperimentResultEmptySaveDraftMessage(), "저장할 검증 결과 내용이 비어 있습니다.");
+assert.deepEqual(
+  buildExperimentResultSavedTelemetryProperties({
+    experimentId: "experiment-1",
+    learning: "반복 문제 확인",
+    nextDecision: "ship",
+    result: "5명 중 4명 긍정",
+  }),
+  {
+    experiment_id: "experiment-1",
+    result_length: 10,
+    learning_length: 8,
+    next_decision: "ship",
+  },
+);
 
 assert.deepEqual(
   buildRiskInsertRow({
