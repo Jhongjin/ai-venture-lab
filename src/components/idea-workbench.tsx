@@ -277,6 +277,7 @@ import {
   buildCursorProgressImportFailedMessage,
   buildCursorProgressImportDrafts,
   buildCursorProgressImportDisplayItems,
+  buildCursorProgressImportTelemetryProperties,
   buildCursorProgressImportedMessage,
   buildCursorProgressLoginRetryInlineMessage,
   buildCursorProgressLoginRequiredMessage,
@@ -291,6 +292,7 @@ import {
   buildCursorProgressSavingMessage,
   buildCursorProgressSetupRequiredMessage,
   buildCursorProgressTaskUpdatePatch,
+  buildCursorProgressToolContext,
   type CursorProgressDisplayItem,
 } from "@/lib/external-progress-import";
 import {
@@ -3244,10 +3246,11 @@ export function IdeaWorkbench({
   }
 
   async function importCursorProgressResult() {
-    const toolLabel = isLiveExternalDelivery ? activeExternalBuildTool.label : "외부 개발 도구";
-    const toolProgressPath = isLiveExternalDelivery
-      ? liveExternalToolProgressPath
-      : `${activeExternalBuildTool.label} 완료 보고`;
+    const { toolLabel, toolProgressPath } = buildCursorProgressToolContext({
+      isLiveExternalDelivery,
+      liveProgressPath: liveExternalToolProgressPath,
+      toolLabel: activeExternalBuildTool.label,
+    });
     setCursorProgressImportMessage(buildCursorProgressReadingMessage(toolLabel));
 
     if (!supabase || !selectedIdea) {
@@ -3360,13 +3363,13 @@ export function IdeaWorkbench({
       void recordTelemetryEvent({
         eventName: "cursor_progress_imported",
         eventCategory: "development",
-        properties: {
-          external_tool: activeExternalBuildTool.key,
-          inserted_task_count: insertedTasks.length,
-          updated_task_count: updatedTasks.length,
-          parsed_task_count: importPlan.parsedCount,
-          completed_task_count: importPlan.completedCount,
-        },
+        properties: buildCursorProgressImportTelemetryProperties({
+          completedTaskCount: importPlan.completedCount,
+          externalToolKey: activeExternalBuildTool.key,
+          insertedTaskCount: insertedTasks.length,
+          parsedTaskCount: importPlan.parsedCount,
+          updatedTaskCount: updatedTasks.length,
+        }),
       });
       setDevelopmentPanel("tasks");
       const successMessage = buildCursorProgressImportedMessage({

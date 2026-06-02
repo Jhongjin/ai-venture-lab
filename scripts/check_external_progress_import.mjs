@@ -25,6 +25,7 @@ const {
   buildCursorProgressImportFailedMessage,
   buildCursorProgressImportDrafts,
   buildCursorProgressImportDisplayItems,
+  buildCursorProgressImportTelemetryProperties,
   buildCursorProgressImportedMessage,
   buildCursorProgressLoginRetryInlineMessage,
   buildCursorProgressLoginRequiredMessage,
@@ -39,6 +40,7 @@ const {
   buildCursorProgressSetupRequiredInlineMessage,
   buildCursorProgressSetupRequiredMessage,
   buildCursorProgressTaskUpdatePatch,
+  buildCursorProgressToolContext,
   getVisibleCursorProgressImportItems,
 } = await import(moduleUrl);
 
@@ -87,6 +89,28 @@ assert.equal(
   "progress.json 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.",
 );
 assert.equal(buildCursorProgressReadingMessage("Cursor"), "Cursor 진행 결과를 읽는 중입니다...");
+assert.deepEqual(
+  buildCursorProgressToolContext({
+    isLiveExternalDelivery: true,
+    liveProgressPath: ".cursor/venture-lab-progress.json",
+    toolLabel: "Cursor",
+  }),
+  {
+    toolLabel: "Cursor",
+    toolProgressPath: ".cursor/venture-lab-progress.json",
+  },
+);
+assert.deepEqual(
+  buildCursorProgressToolContext({
+    isLiveExternalDelivery: false,
+    liveProgressPath: ".cursor/venture-lab-progress.json",
+    toolLabel: "Cursor",
+  }),
+  {
+    toolLabel: "외부 개발 도구",
+    toolProgressPath: "Cursor 완료 보고",
+  },
+);
 assert.equal(buildCursorProgressLoginRetryInlineMessage(), "로그인 후 다시 시도하세요.");
 assert.equal(buildCursorProgressLoginRequiredMessage("Cursor"), "Cursor 진행 결과를 반영하려면 먼저 로그인하세요.");
 assert.equal(buildCursorProgressEmptyInputInlineMessage(), "붙여넣은 내용이 없습니다.");
@@ -120,6 +144,22 @@ assert.equal(
   "Cursor 진행 결과를 반영했습니다. 새 작업 1개, 상태 업데이트 2개, 완료 인식 3개입니다.",
 );
 assert.equal(buildCursorProgressImportFailedMessage("Cursor"), "Cursor 진행 결과를 반영하지 못했습니다.");
+assert.deepEqual(
+  buildCursorProgressImportTelemetryProperties({
+    completedTaskCount: 3,
+    externalToolKey: "cursor",
+    insertedTaskCount: 1,
+    parsedTaskCount: 4,
+    updatedTaskCount: 2,
+  }),
+  {
+    external_tool: "cursor",
+    inserted_task_count: 1,
+    updated_task_count: 2,
+    parsed_task_count: 4,
+    completed_task_count: 3,
+  },
+);
 
 const displayItems = buildCursorProgressImportDisplayItems({
   drafts: importPlan.drafts,

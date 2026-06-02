@@ -40,6 +40,43 @@ export type CursorProgressPreviewDisplayState = {
   visibleCursorProgressImportItems: CursorProgressDisplayItem[];
 };
 
+export function buildCursorProgressToolContext({
+  isLiveExternalDelivery,
+  liveProgressPath,
+  toolLabel,
+}: {
+  isLiveExternalDelivery: boolean;
+  liveProgressPath: string;
+  toolLabel: string;
+}) {
+  return {
+    toolLabel: isLiveExternalDelivery ? toolLabel : "외부 개발 도구",
+    toolProgressPath: isLiveExternalDelivery ? liveProgressPath : `${toolLabel} 완료 보고`,
+  };
+}
+
+export function buildCursorProgressImportTelemetryProperties({
+  completedTaskCount,
+  externalToolKey,
+  insertedTaskCount,
+  parsedTaskCount,
+  updatedTaskCount,
+}: {
+  completedTaskCount: number;
+  externalToolKey: string;
+  insertedTaskCount: number;
+  parsedTaskCount: number;
+  updatedTaskCount: number;
+}) {
+  return {
+    external_tool: externalToolKey,
+    inserted_task_count: insertedTaskCount,
+    updated_task_count: updatedTaskCount,
+    parsed_task_count: parsedTaskCount,
+    completed_task_count: completedTaskCount,
+  };
+}
+
 export type CursorProgressTaskInsertDraft = {
   idea_id: string;
   organization_id: string | null;
