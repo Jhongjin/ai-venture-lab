@@ -20,7 +20,7 @@ type Step5PackageReviewProps = {
 
 const step5ReviewFocusItems = [
   ["결과", "무엇을 만들지 / 어디서 만들지"],
-  ["범위", "이번에 포함 / 제외"],
+  ["범위", "포함 / 제외"],
   ["첫 작업", "T-001 시작 가능"],
 ] as const;
 
@@ -33,9 +33,9 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
     <div className="mt-5 grid gap-4">
       <div className="border border-slate-200 bg-slate-50 p-4">
         <div className="avl-kicker">정리된 내용 확인</div>
-        <h4 className="mt-2 text-base font-semibold text-slate-950">지금 확인할 것 3가지</h4>
+        <h4 className="mt-2 text-base font-semibold text-slate-950">세 가지만 확인</h4>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          맞으면 저장만 누르세요. 자세한 요약은 필요할 때만 펼칩니다.
+          맞으면 저장만 누르세요. 자세한 요약은 접어 둡니다.
         </p>
         <div data-smoke="step5-review-save-focus" className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
           {step5ReviewFocusItems.map(([label, detail]) => (
@@ -49,11 +49,11 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
           data-smoke="step5-save-does-not-move"
           className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
         >
-          저장은 STEP 6으로 자동 이동하지 않고, 작업 순서를 만들 기준만 확정합니다. 이동은 하단 다음 단계 버튼으로만 합니다.
+          저장은 기준만 확정합니다. STEP 6 이동은 하단 다음 단계 버튼으로만 합니다.
         </div>
         <details data-smoke="step5-review-details-optional" className="mt-4">
           <summary className="cursor-pointer border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950">
-            패키지 요약 자세히 보기
+            자세한 요약 보기
           </summary>
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             {summaryCards.map((card) => (
@@ -67,7 +67,7 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
         </details>
         <details data-smoke="step5-review-bridge-optional" className="mt-3">
           <summary className="cursor-pointer border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950">
-            STEP 6/7/8 연결 보기
+            다음 단계 연결 보기
           </summary>
           <div className="mt-3 grid gap-3 lg:grid-cols-3">
             {bridgeCards.map((card) => (
