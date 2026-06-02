@@ -235,6 +235,18 @@ export function getCompletedImplementationTasksWithEvidence(tasks: Implementatio
   return tasks.filter((task) => task.status === "done" && Boolean(task.evidence.trim()));
 }
 
+export function buildImplementationTaskRefreshLoginRequiredMessage() {
+  return "작업 상태를 새로고침하려면 먼저 로그인하세요.";
+}
+
+export function buildImplementationTaskAutoRefreshMessage() {
+  return "Venture Lab에 저장된 작업 상태를 자동 확인 중입니다...";
+}
+
+export function buildImplementationTaskManualRefreshMessage() {
+  return "Venture Lab에 저장된 작업 상태를 불러오는 중입니다...";
+}
+
 export function buildImplementationTaskRefreshSummary(tasks: ImplementationTask[]): ImplementationTaskRefreshSummary {
   const doneCount = tasks.filter((task) => task.status === "done").length;
   const nextTask = sortImplementationTasksForAction(tasks).find((task) => task.status !== "done") ?? null;

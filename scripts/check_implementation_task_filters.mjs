@@ -7,6 +7,9 @@ const {
   buildImplementationFilterSummary,
   buildImplementationOwnerFilterLabels,
   buildImplementationOwnerOptions,
+  buildImplementationTaskAutoRefreshMessage,
+  buildImplementationTaskManualRefreshMessage,
+  buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskReviewState,
   buildImplementationTaskRefreshSummary,
   filterImplementationTasks,
@@ -14,6 +17,10 @@ const {
   resolveImplementationOwnerFilter,
   selectAgentRunPackageTasks,
 } = await import(moduleUrl);
+
+assert.equal(buildImplementationTaskRefreshLoginRequiredMessage(), "작업 상태를 새로고침하려면 먼저 로그인하세요.");
+assert.equal(buildImplementationTaskAutoRefreshMessage(), "Venture Lab에 저장된 작업 상태를 자동 확인 중입니다...");
+assert.equal(buildImplementationTaskManualRefreshMessage(), "Venture Lab에 저장된 작업 상태를 불러오는 중입니다...");
 
 function task({ evidence = "", id, ownerRole, status, taskType }) {
   return {

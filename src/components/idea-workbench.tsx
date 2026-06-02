@@ -358,6 +358,9 @@ import {
 } from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
 import {
+  buildImplementationTaskAutoRefreshMessage,
+  buildImplementationTaskManualRefreshMessage,
+  buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskRefreshSummary,
   buildImplementationTaskReviewState,
   getCompletedImplementationTasksWithEvidence,
@@ -1864,17 +1867,17 @@ export function IdeaWorkbench({
 
     if (!user) {
       if (!isAutoRefresh) {
-        setMessage("작업 상태를 새로고침하려면 먼저 로그인하세요.");
+        setMessage(buildImplementationTaskRefreshLoginRequiredMessage());
       }
       return;
     }
 
     if (isAutoRefresh) {
       setIsTaskSyncRefreshing(true);
-      setTaskSyncMessage("Venture Lab에 저장된 작업 상태를 자동 확인 중입니다...");
+      setTaskSyncMessage(buildImplementationTaskAutoRefreshMessage());
     } else {
       setIsBusy(true);
-      setCursorProgressImportMessage("Venture Lab에 저장된 작업 상태를 불러오는 중입니다...");
+      setCursorProgressImportMessage(buildImplementationTaskManualRefreshMessage());
     }
 
     const { data, error } = await supabase
