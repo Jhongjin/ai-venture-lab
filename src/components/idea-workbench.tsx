@@ -203,6 +203,7 @@ import {
   buildBuildPassUnlockedTelemetryProperties,
   buildBuildPassUnlockFailedMessage,
   buildBuildPassUnlockLoginRequiredMessage,
+  buildBuildPassUnlockRequestPayload,
   buildBuildPassUnlockRetryMessage,
   buildBuildPassUnlockSuccessMessage,
   buildCreditSummaryLoadFailedMessage,
@@ -2812,7 +2813,7 @@ export function IdeaWorkbench({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ ideaId: selectedIdea.id }),
+        body: JSON.stringify(buildBuildPassUnlockRequestPayload(selectedIdea.id)),
       });
       const payload: unknown = await response.json().catch(() => null);
 

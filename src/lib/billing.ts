@@ -105,6 +105,10 @@ export function buildBuildPassUnlockSuccessMessage() {
   return "전체 제작 패키지가 열렸습니다. 이제 AI 제작 패키지를 만들고 저장할 수 있습니다.";
 }
 
+export function buildBuildPassUnlockRequestPayload(ideaId: string) {
+  return { ideaId };
+}
+
 export function buildCreditSummaryReadFailedMessage() {
   return "크레딧 상태를 읽지 못했습니다.";
 }
