@@ -79,7 +79,11 @@ import {
   type ExtractedIdea,
 } from "@/lib/extracted-idea-normalization";
 import { buildTelemetryEventInsertRow } from "@/lib/telemetry-format";
-import { buildDefaultWorkspaceInsertRow } from "@/lib/workspace-organization-rows";
+import {
+  buildAttachPersonalRecordsPatch,
+  buildDefaultWorkspaceInsertRow,
+  workspaceRecordTables,
+} from "@/lib/workspace-organization-rows";
 import { IdeaExtractionAdvancedQueue } from "@/components/idea-extraction-advanced-queue";
 import { IdeaExtractionDetailList } from "@/components/idea-extraction-detail-list";
 import { IdeaExtractionLeftPanel } from "@/components/idea-extraction-left-panel";
@@ -190,16 +194,6 @@ const organizationRoleLabels: Record<OrganizationRole, string> = {
   member: "멤버",
   viewer: "뷰어",
 };
-const workspaceRecordTables = [
-  "ideas",
-  "risks",
-  "decisions",
-  "experiments",
-  "orchestration_runs",
-  "venture_artifacts",
-  "implementation_tasks",
-] as const;
-
 export function VentureConsoleActions({
   activeTask: controlledActiveTask,
   onActiveTaskChange,
@@ -801,7 +795,7 @@ export function VentureConsoleActions({
       workspaceRecordTables.map((table) =>
         supabase
           .from(table)
-          .update({ organization_id: activeOrganization.id })
+          .update(buildAttachPersonalRecordsPatch({ organizationId: activeOrganization.id }))
           .eq("created_by", user.id)
           .is("organization_id", null),
       ),
