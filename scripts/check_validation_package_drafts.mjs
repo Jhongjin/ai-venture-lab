@@ -38,7 +38,12 @@ const moduleUrl = transpileModuleUrl("src/lib/validation-package-drafts.ts", [
   ['from "@/lib/validation-package-markdown";', `from ${JSON.stringify(validationPackageUrl)};`],
 ]);
 
-const { buildValidationPackageArtifactSaveDrafts, buildValidationPackageDraftState } = await import(moduleUrl);
+const {
+  buildExperimentResultArtifactSaveDraft,
+  buildValidationEvidenceArtifactSaveDraft,
+  buildValidationPackageArtifactSaveDrafts,
+  buildValidationPackageDraftState,
+} = await import(moduleUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -254,6 +259,43 @@ assert.deepEqual(
 );
 assert.equal(saveDrafts.validationSummarySaveDraft?.body, draftState.validationSummaryDraft);
 
+const evidenceSaveDraft = buildValidationEvidenceArtifactSaveDraft({
+  evidenceNoteDraft: draftState.evidenceNoteDraft,
+  evidenceTitle: " 수요 인터뷰 ",
+  ideaName: " AI Venture Lab ",
+});
+assert.deepEqual(
+  {
+    artifactType: evidenceSaveDraft?.artifactType,
+    source: evidenceSaveDraft?.source,
+    title: evidenceSaveDraft?.title,
+  },
+  {
+    artifactType: "research_note",
+    source: "evidence_capture",
+    title: "AI Venture Lab 근거 - 수요 인터뷰",
+  },
+);
+assert.equal(evidenceSaveDraft?.body, draftState.evidenceNoteDraft);
+
+const experimentResultSaveDraft = buildExperimentResultArtifactSaveDraft({
+  experimentName: draftState.selectedExperimentForResult?.name ?? null,
+  experimentResultNoteDraft: draftState.experimentResultNoteDraft,
+});
+assert.deepEqual(
+  {
+    artifactType: experimentResultSaveDraft?.artifactType,
+    source: experimentResultSaveDraft?.source,
+    title: experimentResultSaveDraft?.title,
+  },
+  {
+    artifactType: "research_note",
+    source: "experiment_result",
+    title: "랜딩 수요 확인 실험 결과",
+  },
+);
+assert.equal(experimentResultSaveDraft?.body, draftState.experimentResultNoteDraft);
+
 const emptySaveDrafts = buildValidationPackageArtifactSaveDrafts({
   ideaBrief: " ",
   ideaName: null,
@@ -267,6 +309,21 @@ assert.deepEqual(emptySaveDrafts, {
   validationSprintSaveDraft: null,
   validationSummarySaveDraft: null,
 });
+assert.equal(
+  buildValidationEvidenceArtifactSaveDraft({
+    evidenceNoteDraft: draftState.evidenceNoteDraft,
+    evidenceTitle: "",
+    ideaName: idea.name,
+  }),
+  null,
+);
+assert.equal(
+  buildExperimentResultArtifactSaveDraft({
+    experimentName: "운영자 인터뷰",
+    experimentResultNoteDraft: " ",
+  }),
+  null,
+);
 
 const fallbackDraftState = buildValidationPackageDraftState({
   artifacts: [],

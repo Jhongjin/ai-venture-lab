@@ -23,7 +23,7 @@ export type ValidationPackageDraftState = {
 export type ValidationPackageArtifactSaveDraft = {
   artifactType: "idea_brief" | "research_note";
   body: string;
-  source: "validation_sprint" | "validation_summary" | "workbench";
+  source: "evidence_capture" | "experiment_result" | "validation_sprint" | "validation_summary" | "workbench";
   title: string;
 };
 
@@ -40,19 +40,17 @@ const emptyValidationPackageDraftState: ValidationPackageDraftState = {
 function buildValidationPackageArtifactSaveDraft({
   artifactType,
   body,
-  ideaName,
   source,
-  titleSuffix,
+  title,
 }: {
   artifactType: ValidationPackageArtifactSaveDraft["artifactType"];
   body: string;
-  ideaName: string | null;
   source: ValidationPackageArtifactSaveDraft["source"];
-  titleSuffix: string;
+  title: string;
 }): ValidationPackageArtifactSaveDraft | null {
-  const normalizedIdeaName = ideaName?.trim();
+  const normalizedTitle = title.trim();
 
-  if (!normalizedIdeaName || !body.trim()) {
+  if (!normalizedTitle || !body.trim()) {
     return null;
   }
 
@@ -60,7 +58,7 @@ function buildValidationPackageArtifactSaveDraft({
     artifactType,
     body,
     source,
-    title: `${normalizedIdeaName} ${titleSuffix}`,
+    title: normalizedTitle,
   };
 }
 
@@ -77,36 +75,74 @@ export function buildValidationPackageArtifactSaveDrafts({
   validationSprintDraft: string;
   validationSummaryDraft: string;
 }) {
+  const normalizedIdeaName = ideaName?.trim() ?? "";
+
   return {
     ideaBriefSaveDraft: buildValidationPackageArtifactSaveDraft({
       artifactType: "idea_brief",
       body: ideaBrief,
-      ideaName,
       source: "workbench",
-      titleSuffix: "아이디어 요약",
+      title: normalizedIdeaName ? `${normalizedIdeaName} 아이디어 요약` : "",
     }),
     researchBriefSaveDraft: buildValidationPackageArtifactSaveDraft({
       artifactType: "research_note",
       body: researchBriefDraft,
-      ideaName,
       source: "workbench",
-      titleSuffix: "조사 요약",
+      title: normalizedIdeaName ? `${normalizedIdeaName} 조사 요약` : "",
     }),
     validationSprintSaveDraft: buildValidationPackageArtifactSaveDraft({
       artifactType: "research_note",
       body: validationSprintDraft,
-      ideaName,
       source: "validation_sprint",
-      titleSuffix: "7일 검증 계획",
+      title: normalizedIdeaName ? `${normalizedIdeaName} 7일 검증 계획` : "",
     }),
     validationSummarySaveDraft: buildValidationPackageArtifactSaveDraft({
       artifactType: "research_note",
       body: validationSummaryDraft,
-      ideaName,
       source: "validation_summary",
-      titleSuffix: "검증 완료 요약",
+      title: normalizedIdeaName ? `${normalizedIdeaName} 검증 완료 요약` : "",
     }),
   };
+}
+
+export function buildValidationEvidenceArtifactSaveDraft({
+  evidenceNoteDraft,
+  evidenceTitle,
+  ideaName,
+}: {
+  evidenceNoteDraft: string;
+  evidenceTitle: string;
+  ideaName: string | null;
+}) {
+  const normalizedEvidenceTitle = evidenceTitle.trim();
+  const normalizedIdeaName = ideaName?.trim() ?? "";
+
+  return buildValidationPackageArtifactSaveDraft({
+    artifactType: "research_note",
+    body: evidenceNoteDraft,
+    source: "evidence_capture",
+    title:
+      normalizedIdeaName && normalizedEvidenceTitle
+        ? `${normalizedIdeaName} 근거 - ${normalizedEvidenceTitle}`
+        : "",
+  });
+}
+
+export function buildExperimentResultArtifactSaveDraft({
+  experimentName,
+  experimentResultNoteDraft,
+}: {
+  experimentName: string | null;
+  experimentResultNoteDraft: string;
+}) {
+  const normalizedExperimentName = experimentName?.trim() ?? "";
+
+  return buildValidationPackageArtifactSaveDraft({
+    artifactType: "research_note",
+    body: experimentResultNoteDraft,
+    source: "experiment_result",
+    title: normalizedExperimentName ? `${normalizedExperimentName} 실험 결과` : "",
+  });
 }
 
 export function buildValidationPackageDraftState({

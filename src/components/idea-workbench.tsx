@@ -298,6 +298,8 @@ import {
   validationExperimentGuideRows,
 } from "@/lib/validation-input-rows";
 import {
+  buildExperimentResultArtifactSaveDraft,
+  buildValidationEvidenceArtifactSaveDraft,
   buildValidationPackageArtifactSaveDrafts,
   buildValidationPackageDraftState,
 } from "@/lib/validation-package-drafts";
@@ -1246,6 +1248,15 @@ export function IdeaWorkbench({
     researchBriefDraft,
     validationSprintDraft,
     validationSummaryDraft,
+  });
+  const evidenceNoteSaveDraft = buildValidationEvidenceArtifactSaveDraft({
+    evidenceNoteDraft,
+    evidenceTitle: evidenceDraft.title,
+    ideaName: selectedIdea?.name ?? null,
+  });
+  const experimentResultNoteSaveDraft = buildExperimentResultArtifactSaveDraft({
+    experimentName: selectedExperimentForResult?.name ?? null,
+    experimentResultNoteDraft,
   });
   const {
     developmentPlanDraft,
@@ -2908,11 +2919,16 @@ export function IdeaWorkbench({
       return;
     }
 
+    if (!evidenceNoteSaveDraft) {
+      setMessage("저장할 근거 내용이 비어 있습니다.");
+      return;
+    }
+
     const saved = await saveArtifactDraft(
-      "research_note",
-      `${selectedIdea.name} 근거 - ${evidenceDraft.title.trim()}`,
-      evidenceNoteDraft,
-      "evidence_capture",
+      evidenceNoteSaveDraft.artifactType,
+      evidenceNoteSaveDraft.title,
+      evidenceNoteSaveDraft.body,
+      evidenceNoteSaveDraft.source,
     );
 
     if (saved) {
@@ -2938,11 +2954,16 @@ export function IdeaWorkbench({
       return;
     }
 
+    if (!experimentResultNoteSaveDraft) {
+      setMessage("저장할 실험 결과 내용이 비어 있습니다.");
+      return;
+    }
+
     const saved = await saveArtifactDraft(
-      "research_note",
-      `${selectedExperimentForResult.name} 실험 결과`,
-      experimentResultNoteDraft,
-      "experiment_result",
+      experimentResultNoteSaveDraft.artifactType,
+      experimentResultNoteSaveDraft.title,
+      experimentResultNoteSaveDraft.body,
+      experimentResultNoteSaveDraft.source,
     );
 
     if (saved) {
