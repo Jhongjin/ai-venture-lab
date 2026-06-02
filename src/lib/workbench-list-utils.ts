@@ -1,5 +1,6 @@
 import type { Idea } from "@/lib/venture-data";
 import type { IdeaStage, OrganizationRole } from "@/lib/supabase/types";
+import type { WorkbenchTask } from "@/lib/workbench-tasks";
 
 export type WorkbenchIdeaFilterMode = "all" | "mine" | "read_only";
 export type WorkbenchRecordAccessState = "owned" | "workspace_admin" | "workspace_member" | "hidden";
@@ -154,6 +155,10 @@ export function getInitialSelectedWorkbenchIdeaId(nextIdeas: Idea[], requestedId
   const requestedIdea = requestedIdeaId ? activeIdeas.find((idea) => idea.id === requestedIdeaId) : null;
 
   return requestedIdea?.id ?? activeIdeas[0]?.id ?? "";
+}
+
+export function getInitialWorkbenchTask(nextIdeas: Idea[]): WorkbenchTask {
+  return sortWorkbenchIdeas(getActiveIdeas(nextIdeas))[0] ? "score" : "select";
 }
 
 export function getSelectedWorkbenchIdea(nextIdeas: Idea[], selectedIdeaId: string) {

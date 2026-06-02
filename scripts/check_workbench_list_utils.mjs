@@ -14,6 +14,7 @@ const {
   getIdeaDeletionRelatedTables,
   getIdeaStageRank,
   getInitialSelectedWorkbenchIdeaId,
+  getInitialWorkbenchTask,
   getSelectedWorkbenchIdea,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
@@ -127,6 +128,9 @@ assert.deepEqual(
 assert.equal(getInitialSelectedWorkbenchIdeaId(ideas, "admin"), "admin");
 assert.equal(getInitialSelectedWorkbenchIdeaId(ideas, "deleted"), "hidden");
 assert.equal(getInitialSelectedWorkbenchIdeaId([ideas[4]]), "");
+assert.equal(getInitialWorkbenchTask(ideas), "score");
+assert.equal(getInitialWorkbenchTask([ideas[4]]), "select");
+assert.equal(getInitialWorkbenchTask([]), "select");
 assert.equal(getSelectedWorkbenchIdea(ideas, "admin")?.id, "admin");
 assert.equal(getSelectedWorkbenchIdea(ideas, "missing")?.id, "shared-old");
 assert.equal(getSelectedWorkbenchIdea([ideas[4]], "missing")?.id, "deleted");

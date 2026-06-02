@@ -64,6 +64,7 @@ import {
   getActiveIdeas,
   getIdeaDeletionRelatedTables,
   getInitialSelectedWorkbenchIdeaId,
+  getInitialWorkbenchTask,
   getSelectedWorkbenchIdea,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
@@ -629,9 +630,7 @@ export function IdeaWorkbench({
   const [artifactTypeFilter, setArtifactTypeFilter] = useState<VentureArtifactType | "all">("all");
   const [artifactStatusFilter, setArtifactStatusFilter] = useState<VentureArtifactStatus | "all">("all");
   const [artifactSourceFilter, setArtifactSourceFilter] = useState("all");
-  const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>(() =>
-    sortWorkbenchIdeas(getActiveIdeas(initialIdeas))[0] ? "score" : "select",
-  );
+  const [localActiveTask, setLocalActiveTask] = useState<WorkbenchTask>(() => getInitialWorkbenchTask(initialIdeas));
   const [artifactPanel, setArtifactPanel] = useState<ArtifactPanel>("validation");
   const [developmentPanel, setDevelopmentPanel] = useState<DevelopmentPanel>("setup");
   const [developmentAutoFlowState, setDevelopmentAutoFlowState] = useState<DevelopmentAutoFlowState>("idle");
