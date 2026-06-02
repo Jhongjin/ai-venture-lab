@@ -278,12 +278,9 @@ import {
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
 import { buildLaunchChecklistMarkdown } from "@/lib/launch-checklist-report";
-import { buildMvpBuildCommandPacketMarkdown } from "@/lib/mvp-build-command-packet-markdown";
-import { buildPostLaunchLearningLoopMarkdown } from "@/lib/post-launch-learning-loop-markdown";
 import { buildProductPlanningDraftState } from "@/lib/product-planning-drafts";
 import { buildPrdHandoffMarkdown } from "@/lib/prd-markdown";
-import { buildQaAcceptanceMatrixMarkdown } from "@/lib/qa-acceptance-matrix-markdown";
-import { buildReleaseDecisionPacket } from "@/lib/release-decision-packet";
+import { buildReleasePackageDraftState } from "@/lib/release-package-drafts";
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
   buildDecisionInsertRow,
@@ -299,7 +296,6 @@ import {
 import { buildValidationPackageDraftState } from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
 import { buildDevelopmentKickoffMarkdown } from "@/lib/development-kickoff-markdown";
-import { buildDevelopmentCompletionReportMarkdown } from "@/lib/development-completion-report";
 import {
   buildImplementationTaskRefreshSummary,
   buildImplementationTaskReviewState,
@@ -1608,79 +1604,35 @@ export function IdeaWorkbench({
     selectedExperiments.length,
     selectedIdea?.id,
   ]);
-  const releaseDecisionPacket = selectedIdea && editState
-    ? buildReleaseDecisionPacket({
-        idea: selectedIdea,
-        state: editState,
-        score: currentScore,
-        scoreRecommendation,
-        launchReadinessScore,
-        launchReadiness,
-        implementationGateScore,
-        implementationGateChecks,
-        artifactReviewProgress,
-        artifactReviewQueue,
-        nextLaunchBlocker,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-        artifacts: selectedArtifactRecords,
-        implementationTasks: selectedImplementationTasks,
-        decisions: selectedDecisions,
-      })
-    : null;
-  const mvpBuildCommandPacketDraft = selectedIdea && editState
-    ? buildMvpBuildCommandPacketMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        appBlueprint: appBlueprintDraft,
-        scaffoldManifest: scaffoldManifestDraft,
-        implementationHandoff: implementationHandoffDraft,
-        releaseDecisionPacket,
-        implementationTasks: selectedImplementationTasks,
-        dependencyStatuses: implementationDependencyStatuses,
-        backendCandidateScores,
-        artifactReviewQueue,
-      })
-    : "";
-  const qaAcceptanceMatrixDraft = selectedIdea && editState
-    ? buildQaAcceptanceMatrixMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        implementationTasks: selectedImplementationTasks,
-        launchReadiness,
-        implementationGateChecks,
-        releaseDecisionPacket,
-        backendCandidateScores,
-      })
-    : "";
-  const postLaunchLearningLoopDraft = selectedIdea && editState
-    ? buildPostLaunchLearningLoopMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        experiments: selectedExperiments,
-        risks: selectedIdeaRisks,
-        releaseDecisionPacket,
-        launchReadiness,
-        implementationTasks: selectedImplementationTasks,
-      })
-    : "";
-  const developmentCompletionReportDraft = selectedIdea && editState
-    ? buildDevelopmentCompletionReportMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-        artifacts: selectedArtifactRecords,
-        implementationTasks: selectedImplementationTasks,
-        implementationGateChecks,
-        launchReadiness,
-        nextLaunchBlocker,
-      })
-    : "";
+  const {
+    developmentCompletionReportDraft,
+    mvpBuildCommandPacketDraft,
+    postLaunchLearningLoopDraft,
+    qaAcceptanceMatrixDraft,
+  } = buildReleasePackageDraftState({
+    appBlueprint: appBlueprintDraft,
+    artifactReviewProgress,
+    artifactReviewQueue,
+    artifacts: selectedArtifactRecords,
+    backendCandidateScores,
+    decisions: selectedDecisions,
+    dependencyStatuses: implementationDependencyStatuses,
+    experiments: selectedExperiments,
+    idea: selectedIdea,
+    implementationGateChecks,
+    implementationGateScore,
+    implementationHandoff: implementationHandoffDraft,
+    implementationTasks: selectedImplementationTasks,
+    launchReadiness,
+    launchReadinessScore,
+    nextLaunchBlocker,
+    risks: selectedIdeaRisks,
+    runs: selectedRuns,
+    scaffoldManifest: scaffoldManifestDraft,
+    score: currentScore,
+    scoreRecommendation,
+    state: editState,
+  });
   const finalExecutionProjectKey = finalExecutionPackageState.projectKey;
   const {
     antigravityAcceptanceDraft,
