@@ -163,6 +163,7 @@ import {
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
+  selectFinalExecutionLiveSetupDownload,
 } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import { buildExternalToolSyncConfigDraft } from "@/lib/external-tool-connector-config";
@@ -4234,7 +4235,11 @@ export function IdeaWorkbench({
       codex: downloadCodexSetupScript,
       cursor: downloadCursorSetupScript,
     };
-    const downloadLiveSetup = isLiveExternalDelivery ? liveSetupDownloads[activeExternalBuildTool.key] : null;
+    const downloadLiveSetup = selectFinalExecutionLiveSetupDownload({
+      externalToolKey: activeExternalBuildTool.key,
+      isLiveExternalDelivery,
+      liveSetupDownloads,
+    });
 
     if (downloadLiveSetup) {
       void downloadLiveSetup();

@@ -24,6 +24,7 @@ const {
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
+  selectFinalExecutionLiveSetupDownload,
 } = await import(moduleUrl);
 
 const readiness = buildFinalExecutionReadiness({
@@ -240,5 +241,34 @@ assert.equal(genericContext.isLiveExternalDelivery, false);
 assert.equal(genericContext.folder, ".cursor");
 assert.equal(genericContext.startPromptDraft, "cursor start");
 assert.equal(genericContext.mcpConfigDraft, "");
+
+const liveDownloads = {
+  codex: "codex-download",
+  cursor: "cursor-download",
+};
+assert.equal(
+  selectFinalExecutionLiveSetupDownload({
+    externalToolKey: "cursor",
+    isLiveExternalDelivery: true,
+    liveSetupDownloads: liveDownloads,
+  }),
+  "cursor-download",
+);
+assert.equal(
+  selectFinalExecutionLiveSetupDownload({
+    externalToolKey: "antigravity",
+    isLiveExternalDelivery: true,
+    liveSetupDownloads: liveDownloads,
+  }),
+  null,
+);
+assert.equal(
+  selectFinalExecutionLiveSetupDownload({
+    externalToolKey: "generic_mcp",
+    isLiveExternalDelivery: false,
+    liveSetupDownloads: liveDownloads,
+  }),
+  null,
+);
 
 console.log("Final execution readiness smoke passed.");

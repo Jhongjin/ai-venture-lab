@@ -212,6 +212,22 @@ export function buildFinalExecutionLiveToolContext({
   };
 }
 
+export function selectFinalExecutionLiveSetupDownload<Download>({
+  externalToolKey,
+  isLiveExternalDelivery,
+  liveSetupDownloads,
+}: {
+  externalToolKey: ExternalBuildToolKey;
+  isLiveExternalDelivery: boolean;
+  liveSetupDownloads: Partial<Record<LiveExternalToolKey, Download>>;
+}): Download | null {
+  if (!isLiveExternalDelivery || externalToolKey === "generic_mcp") {
+    return null;
+  }
+
+  return liveSetupDownloads[externalToolKey] ?? null;
+}
+
 export function buildFinalExecutionConnectionHealth({
   connections,
   externalToolKey,
