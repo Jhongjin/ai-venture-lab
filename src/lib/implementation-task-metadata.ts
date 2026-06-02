@@ -247,6 +247,14 @@ export function buildImplementationTaskManualRefreshMessage() {
   return "Venture Lab에 저장된 작업 상태를 불러오는 중입니다...";
 }
 
+export function formatImplementationTaskRefreshTime(refreshedAt = new Date()) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(refreshedAt);
+}
+
 export function buildImplementationTaskRefreshSummary(tasks: ImplementationTask[]): ImplementationTaskRefreshSummary {
   const doneCount = tasks.filter((task) => task.status === "done").length;
   const nextTask = sortImplementationTasksForAction(tasks).find((task) => task.status !== "done") ?? null;

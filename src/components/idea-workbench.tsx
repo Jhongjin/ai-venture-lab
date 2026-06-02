@@ -438,6 +438,7 @@ import {
   buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskRefreshSummary,
   buildImplementationTaskReviewState,
+  formatImplementationTaskRefreshTime,
   getCompletedImplementationTasksWithEvidence,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
@@ -1993,11 +1994,7 @@ export function IdeaWorkbench({
     setImplementationTasks((current) => replaceRecordsByIdeaId(current, selectedIdea.id, refreshedTasks));
     setCursorProgressImportItems([]);
     const refreshSummary = buildImplementationTaskRefreshSummary(refreshedTasks);
-    const refreshedAt = new Intl.DateTimeFormat("ko-KR", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    }).format(new Date());
+    const refreshedAt = formatImplementationTaskRefreshTime();
     const refreshMessage = refreshSummary.message;
 
     setTaskSyncUpdatedAt(refreshedAt);

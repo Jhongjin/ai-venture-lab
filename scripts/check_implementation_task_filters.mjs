@@ -13,6 +13,7 @@ const {
   buildImplementationTaskReviewState,
   buildImplementationTaskRefreshSummary,
   filterImplementationTasks,
+  formatImplementationTaskRefreshTime,
   getOpenImplementationTasksForAction,
   resolveImplementationOwnerFilter,
   selectAgentRunPackageTasks,
@@ -21,6 +22,15 @@ const {
 assert.equal(buildImplementationTaskRefreshLoginRequiredMessage(), "작업 상태를 새로고침하려면 먼저 로그인하세요.");
 assert.equal(buildImplementationTaskAutoRefreshMessage(), "Venture Lab에 저장된 작업 상태를 자동 확인 중입니다...");
 assert.equal(buildImplementationTaskManualRefreshMessage(), "Venture Lab에 저장된 작업 상태를 불러오는 중입니다...");
+const refreshDate = new Date("2026-06-01T09:08:07+09:00");
+assert.equal(
+  formatImplementationTaskRefreshTime(refreshDate),
+  new Intl.DateTimeFormat("ko-KR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(refreshDate),
+);
 
 function task({ evidence = "", id, ownerRole, status, taskType }) {
   return {
