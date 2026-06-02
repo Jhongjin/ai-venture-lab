@@ -64,7 +64,7 @@ import {
   getSecondaryExtractionPortfolioItems,
   selectRecommendedExtractionCandidate,
 } from "@/lib/extraction-portfolio-utils";
-import { buildExtractedIdeaPackageArtifactRows } from "@/lib/extracted-idea-artifact-rows";
+import { buildExtractedIdeaInsertRow, buildExtractedIdeaPackageArtifactRows } from "@/lib/extracted-idea-artifact-rows";
 import { inferRiskArea, inferRiskSeverity } from "@/lib/extraction-risk-utils";
 import { compactText } from "@/lib/extraction-text-utils";
 import { findBestCandidateMatch, findSimilarIdea, type SimilarIdeaMatch } from "@/lib/extraction-candidate-match";
@@ -93,7 +93,6 @@ type Idea = Database["public"]["Tables"]["ideas"]["Row"];
 type VentureArtifact = Database["public"]["Tables"]["venture_artifacts"]["Row"];
 type TelemetryEvent = Database["public"]["Tables"]["telemetry_events"]["Row"];
 type AddableOrganizationRole = Extract<OrganizationRole, "admin" | "member" | "viewer">;
-type IdeaInsert = Database["public"]["Tables"]["ideas"]["Insert"];
 
 type FormState = {
   name: string;
@@ -1424,22 +1423,11 @@ export function VentureConsoleActions({
     }
 
     const organizationId = activeOrganization?.id ?? null;
-    const extractedIdeaInsertPayload: IdeaInsert = {
-      name: candidate.name.trim(),
-      one_liner: candidate.one_liner.trim(),
-      target_user: candidate.target_user.trim(),
-      buyer: candidate.buyer.trim(),
-      signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
-      risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-      next_evidence: `결과물 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
-        "\n- ",
-      )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n추천 판단\n${extractionGate.label}: ${extractionGate.nextAction}`,
-      product_surface: candidate.productSurface.key,
-      stage: "research",
-      decision: "research_more",
-      ...candidate.initialScores,
-      organization_id: organizationId,
-    };
+    const extractedIdeaInsertPayload = buildExtractedIdeaInsertRow({
+      candidate,
+      extractionGate,
+      organizationId,
+    });
     let extractedIdeaInsertResult = await supabase
       .from("ideas")
       .insert(extractedIdeaInsertPayload)

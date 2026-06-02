@@ -11,7 +11,35 @@ import { productSurfaceMarkdown } from "@/lib/product-surface";
 import { redactSensitiveSource } from "@/lib/source-redaction";
 import type { Database } from "@/lib/supabase/types";
 
+type IdeaInsert = Database["public"]["Tables"]["ideas"]["Insert"];
 type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["Insert"];
+
+export function buildExtractedIdeaInsertRow({
+  candidate,
+  extractionGate,
+  organizationId,
+}: {
+  candidate: ExtractedIdea;
+  extractionGate: { label: string; nextAction: string };
+  organizationId: string | null;
+}): IdeaInsert {
+  return {
+    name: candidate.name.trim(),
+    one_liner: candidate.one_liner.trim(),
+    target_user: candidate.target_user.trim(),
+    buyer: candidate.buyer.trim(),
+    signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
+    risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
+    next_evidence: `결과물 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
+      "\n- ",
+    )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n추천 판단\n${extractionGate.label}: ${extractionGate.nextAction}`,
+    product_surface: candidate.productSurface.key,
+    stage: "research",
+    decision: "research_more",
+    ...candidate.initialScores,
+    organization_id: organizationId,
+  };
+}
 
 export function buildExtractedIdeaArtifactRows({
   artifactBodies,
