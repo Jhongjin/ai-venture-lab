@@ -123,11 +123,7 @@ import {
 import {
   buildLearningTelemetryReportMarkdown,
   buildProductTelemetryFunnelMarkdown,
-  buildTelemetryAdapterGuideMarkdown,
-  buildTelemetryClientHelperSnippet,
-  buildTelemetryEnvSnippet,
-  buildTelemetryNextRouteSnippet,
-  buildTelemetrySmokeCommandSnippet,
+  buildTelemetrySetupDrafts,
 } from "@/lib/telemetry-artifacts";
 import { buildStep8ImplementationTaskContext, buildStep8LearningSummary, buildStep8ProgressSummary } from "@/lib/step8-learning-summary";
 import { buildValidationEvidenceCoach, buildValidationPlan } from "@/lib/validation-planning";
@@ -962,23 +958,13 @@ export function IdeaWorkbench({
         : "",
     [openSelectedIdeaRisks, selectedExperiments, selectedIdea, selectedImplementationTasks, selectedTelemetryEvents],
   );
-  const telemetryAdapterGuideDraft = useMemo(
-    () => (selectedIdea ? buildTelemetryAdapterGuideMarkdown(selectedIdea) : ""),
-    [selectedIdea],
-  );
-  const telemetryEnvSnippet = useMemo(() => (selectedIdea ? buildTelemetryEnvSnippet() : ""), [selectedIdea]);
-  const telemetryNextRouteSnippet = useMemo(
-    () => (selectedIdea ? buildTelemetryNextRouteSnippet(selectedIdea) : ""),
-    [selectedIdea],
-  );
-  const telemetryClientHelperSnippet = useMemo(
-    () => (selectedIdea ? buildTelemetryClientHelperSnippet() : ""),
-    [selectedIdea],
-  );
-  const telemetrySmokeCommandSnippet = useMemo(
-    () => (selectedIdea ? buildTelemetrySmokeCommandSnippet(selectedIdea) : ""),
-    [selectedIdea],
-  );
+  const {
+    telemetryAdapterGuideDraft,
+    telemetryEnvSnippet,
+    telemetryNextRouteSnippet,
+    telemetryClientHelperSnippet,
+    telemetrySmokeCommandSnippet,
+  } = useMemo(() => buildTelemetrySetupDrafts(selectedIdea), [selectedIdea]);
   const selectedProductTelemetryEvents = useMemo(
     () => filterProductTelemetryEvents(selectedTelemetryEvents),
     [selectedTelemetryEvents],

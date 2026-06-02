@@ -268,6 +268,26 @@ pnpm smoke:telemetry
 pnpm smoke:telemetry:funnel`;
 }
 
+export function buildTelemetrySetupDrafts(idea: Idea | null | undefined) {
+  if (!idea) {
+    return {
+      telemetryAdapterGuideDraft: "",
+      telemetryEnvSnippet: "",
+      telemetryNextRouteSnippet: "",
+      telemetryClientHelperSnippet: "",
+      telemetrySmokeCommandSnippet: "",
+    };
+  }
+
+  return {
+    telemetryAdapterGuideDraft: buildTelemetryAdapterGuideMarkdown(idea),
+    telemetryEnvSnippet: buildTelemetryEnvSnippet(),
+    telemetryNextRouteSnippet: buildTelemetryNextRouteSnippet(idea),
+    telemetryClientHelperSnippet: buildTelemetryClientHelperSnippet(),
+    telemetrySmokeCommandSnippet: buildTelemetrySmokeCommandSnippet(idea),
+  };
+}
+
 export function buildProductTelemetryFunnelMarkdown({
   idea,
   events,
