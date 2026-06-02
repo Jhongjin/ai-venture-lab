@@ -19,6 +19,8 @@ export const riskStatusLabels: Record<string, string> = {
   closed: "종료",
 };
 
+export const riskStatusOptions = ["open", "mitigating", "closed"] as const;
+
 export const filterModeLabels: Record<"all" | "mine" | "read_only", string> = {
   all: "전체",
   mine: "내 기록",
@@ -36,6 +38,8 @@ export const experimentStatusLabels: Record<string, string> = {
   running: "진행 중",
   done: "완료",
 };
+
+export const experimentStatusOptions = ["planned", "running", "done"] as const;
 
 export const experimentStatusGuides: Record<string, string> = {
   planned: "아직 실행 전입니다. 방법과 성공/중단 기준만 정해둔 상태입니다.",

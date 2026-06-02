@@ -241,11 +241,13 @@ import {
   evidenceConfidenceOptions,
   experimentStatusGuides,
   experimentStatusLabels,
+  experimentStatusOptions,
   filterModeLabels,
   orchestrationPhaseConfigs,
   phaseLabels,
   riskSeverityLabels,
   riskStatusLabels,
+  riskStatusOptions,
   runStatusLabels,
   runStatusTone,
   scoreFieldDescriptions,
@@ -7004,7 +7006,7 @@ export function IdeaWorkbench({
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {["open", "mitigating", "closed"].map((status) => (
+                          {riskStatusOptions.map((status) => (
                             <button
                               key={status}
                               type="button"
@@ -7251,7 +7253,7 @@ export function IdeaWorkbench({
                           <div>
                             <div className="text-xs font-semibold tracking-[0.12em] text-slate-500">상태 변경 기준</div>
                             <div className="mt-2 grid gap-2 md:grid-cols-3">
-                              {["planned", "running", "done"].map((status) => {
+                              {experimentStatusOptions.map((status) => {
                                 const isSelected = experiment.status === status;
 
                                 return (
