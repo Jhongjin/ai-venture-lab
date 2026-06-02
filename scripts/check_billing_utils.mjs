@@ -20,6 +20,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildBuildPassAlreadyUnlockedMessage,
+  buildBuildPassUnlockedTelemetryProperties,
   buildBuildPassUnlockFailedMessage,
   buildBuildPassUnlockLoginRequiredMessage,
   buildBuildPassUnlockRetryMessage,
@@ -73,6 +74,16 @@ assert.deepEqual(
     alreadyUnlocked: false,
     chargedCredits: 30,
     creditMessage: "30크레딧을 사용해 전체 제작 패키지를 열었습니다.",
+  },
+);
+assert.deepEqual(
+  buildBuildPassUnlockedTelemetryProperties({
+    chargedCredits: 30,
+    ideaId: "idea-1",
+  }),
+  {
+    idea_id: "idea-1",
+    charged_credits: 30,
   },
 );
 

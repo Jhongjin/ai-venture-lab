@@ -153,6 +153,19 @@ export function getBuildPassUnlockResult(
   };
 }
 
+export function buildBuildPassUnlockedTelemetryProperties({
+  chargedCredits,
+  ideaId,
+}: {
+  chargedCredits: number;
+  ideaId: string;
+}) {
+  return {
+    idea_id: ideaId,
+    charged_credits: chargedCredits,
+  };
+}
+
 export function getBuildPassRequirementMessage({
   buildPassCost,
   isChecking,

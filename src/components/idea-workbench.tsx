@@ -200,6 +200,7 @@ import {
 } from "@/lib/external-tool-sync-connection";
 import {
   buildBuildPassAlreadyUnlockedMessage,
+  buildBuildPassUnlockedTelemetryProperties,
   buildBuildPassUnlockFailedMessage,
   buildBuildPassUnlockLoginRequiredMessage,
   buildBuildPassUnlockRetryMessage,
@@ -2823,10 +2824,10 @@ export function IdeaWorkbench({
       await recordTelemetryEvent({
         eventName: "production_package_build_pass_unlocked",
         eventCategory: "development",
-        properties: {
-          idea_id: selectedIdea.id,
-          charged_credits: unlockResult.chargedCredits,
-        },
+        properties: buildBuildPassUnlockedTelemetryProperties({
+          chargedCredits: unlockResult.chargedCredits,
+          ideaId: selectedIdea.id,
+        }),
       });
     } catch {
       setCreditMessage(buildBuildPassUnlockRetryMessage());
