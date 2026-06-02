@@ -23,6 +23,7 @@ const {
   buildCursorProgressImportDisplayItems,
   buildCursorProgressPersistencePlan,
   buildCursorProgressPreviewItems,
+  buildCursorProgressTaskUpdatePatch,
   getVisibleCursorProgressImportItems,
 } = await import(moduleUrl);
 
@@ -163,6 +164,10 @@ assert.equal(persistenceRows.updateRows.length, 1);
 assert.equal(persistenceRows.updateRows[0].task.id, "task-1");
 assert.equal(persistenceRows.updateRows[0].status, "done");
 assert.match(persistenceRows.updateRows[0].evidence, /기존 메모[\s\S]+First slice completed/);
+assert.deepEqual(buildCursorProgressTaskUpdatePatch(persistenceRows.updateRows[0]), {
+  evidence: persistenceRows.updateRows[0].evidence,
+  status: "done",
+});
 assert.equal(persistenceRows.skippedTaskCount, 1);
 assert.equal(persistenceRows.rowsToInsert.length, 1);
 assert.equal(persistenceRows.rowsToInsert[0].title, "Env setup");

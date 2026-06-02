@@ -55,6 +55,11 @@ export type CursorProgressTaskUpdateDraft = {
   evidence: string;
 };
 
+export type CursorProgressTaskUpdatePatch = {
+  status: ImplementationTaskStatus;
+  evidence: string;
+};
+
 const externalProgressStatusLabels: Record<ImplementationTaskStatus, string> = {
   todo: "할 일",
   doing: "진행 중",
@@ -477,6 +482,13 @@ export function buildCursorProgressPersistencePlan({
     skippedTaskCount,
     updateRows,
   };
+}
+
+export function buildCursorProgressTaskUpdatePatch({
+  evidence,
+  status,
+}: Pick<CursorProgressTaskUpdateDraft, "evidence" | "status">): CursorProgressTaskUpdatePatch {
+  return { status, evidence };
 }
 
 export function getVisibleCursorProgressImportItems({

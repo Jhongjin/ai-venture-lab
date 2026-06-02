@@ -246,6 +246,7 @@ import {
   buildCursorProgressImportDisplayItems,
   buildCursorProgressPersistencePlan,
   buildCursorProgressPreviewItems,
+  buildCursorProgressTaskUpdatePatch,
   getVisibleCursorProgressImportItems,
   type CursorProgressDisplayItem,
   type ImplementationTaskDraft,
@@ -3725,10 +3726,7 @@ export function IdeaWorkbench({
       for (const update of updateRows) {
         const { data, error } = await supabase
           .from("implementation_tasks")
-          .update({
-            status: update.status,
-            evidence: update.evidence,
-          })
+          .update(buildCursorProgressTaskUpdatePatch(update))
           .eq("id", update.task.id)
           .select()
           .single();
