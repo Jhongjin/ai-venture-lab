@@ -17,7 +17,7 @@ export function Step8DecisionGuidance({ decisionOptions }: Step8DecisionGuidance
         data-smoke="step8-single-decision-rule"
         className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
       >
-        오늘은 아래 판단 후보 중 하나만 고르면 됩니다. 완료 근거가 없으면 다음 작업 하나만 유지하고, 상세 리포트는 필요할 때만 엽니다.
+        오늘은 판단 하나만 고릅니다. 근거가 부족하면 다음 작업 하나만 남기고, 리포트는 필요할 때만 엽니다.
       </div>
       <div
         data-smoke="step8-visible-action-sequence"

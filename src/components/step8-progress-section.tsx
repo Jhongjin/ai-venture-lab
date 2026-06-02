@@ -60,7 +60,7 @@ export function Step8ProgressSection({
             먼저 STEP 7에서 연결 파일로 첫 제작 작업을 시작하세요.
           </p>
           <p className="mt-1 text-xs leading-5 text-slate-600">
-            완료 보고가 들어온 뒤 이 화면은 완료된 것, 이어 할 것, 지금 판단만 보여줍니다.
+            완료 보고가 들어오면 완료된 것, 이어 할 것, 지금 판단만 봅니다.
           </p>
         </div>
       ) : null}

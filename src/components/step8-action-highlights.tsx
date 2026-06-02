@@ -33,7 +33,7 @@ export function Step8ActionHighlights({
       </div>
       <details data-smoke="step8-simple-review-details" className="mt-3 border border-blue-200 bg-white px-3 py-2">
         <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">
-          완료/다음/판단 설명 보기
+          완료/이어 할 것/판단 보기
         </summary>
         <div className="mt-3">
           <WorkbenchReviewGrid dataSmoke="step8-simple-review" detailTone="soft" rows={reviewRows} variant="blue" />
@@ -44,10 +44,10 @@ export function Step8ActionHighlights({
           외부 도구 완료 보고 후
         </div>
         <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
-          이 화면에서 완료된 것, 다음 작업, 오늘 판단만 확인합니다.
+          완료된 것, 이어 할 것, 지금 판단만 봅니다.
         </p>
         <p className="mt-1 text-xs leading-5 text-slate-600">
-          자동 반영이 들어오면 아래 요약이 갱신되고, 자세한 진행표는 필요할 때만 엽니다.
+          자동 반영이 들어오면 아래 요약이 갱신됩니다. 진행표는 필요할 때만 엽니다.
         </p>
       </div>
       <div data-smoke="step8-next-judgment-brief" className="mt-3 border border-blue-200 bg-white px-3 py-2">
