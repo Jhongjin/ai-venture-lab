@@ -4,6 +4,8 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-labels.ts")).href;
 const {
+  evidenceConfidenceLabels,
+  evidenceConfidenceSelectOptions,
   experimentStatusGuides,
   experimentStatusLabels,
   experimentStatusOptions,
@@ -23,5 +25,11 @@ assert.deepEqual(
   ["계획", "진행 중", "완료"],
 );
 assert.equal(experimentStatusGuides.running, "인터뷰, 랜딩, 직접 테스트처럼 실제 확인을 시작했을 때 바꿉니다.");
+
+assert.deepEqual(evidenceConfidenceSelectOptions, ["low", "medium", "high"]);
+assert.deepEqual(
+  evidenceConfidenceSelectOptions.map((confidence) => evidenceConfidenceLabels[confidence]),
+  ["낮음", "보통", "높음"],
+);
 
 console.log("Workbench labels smoke passed.");

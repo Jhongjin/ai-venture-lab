@@ -162,6 +162,7 @@ export const scoreFieldDescriptions = {
 
 export const evidenceConfidenceOptions = ["low", "medium", "high"] as const;
 export type EvidenceConfidence = (typeof evidenceConfidenceOptions)[number];
+export const evidenceConfidenceSelectOptions: EvidenceConfidence[] = [...evidenceConfidenceOptions];
 
 export const evidenceConfidenceLabels: Record<EvidenceConfidence, string> = {
   low: "낮음",

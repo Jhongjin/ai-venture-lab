@@ -239,7 +239,7 @@ import {
 import {
   decisionLabels,
   evidenceConfidenceLabels,
-  evidenceConfidenceOptions,
+  evidenceConfidenceSelectOptions,
   experimentStatusGuides,
   experimentStatusLabels,
   experimentStatusOptions,
@@ -7868,7 +7868,7 @@ export function IdeaWorkbench({
               <SelectField
                 label="확신도"
                 value={evidenceDraft.confidence}
-                options={[...evidenceConfidenceOptions]}
+                options={evidenceConfidenceSelectOptions}
                 labels={evidenceConfidenceLabels}
                 onChange={(value) => setEvidenceDraft((current) => setRecordField(current, "confidence", value))}
               />
