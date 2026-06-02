@@ -386,6 +386,15 @@ const contracts = [
     ],
   },
   {
+    file: "src/components/final-execution-package-panel.tsx",
+    tokens: [
+      'data-smoke="final-execution-primary-download-cue"',
+      "연결 파일 받기만 누르세요.",
+      "설치 확인 뒤에만 START 지시문 복사와 보관용 문서 받기를 씁니다.",
+      "실행 위치: 실제 앱 폴더 최상단",
+    ],
+  },
+  {
     file: "src/components/final-execution-external-tool-section.tsx",
     tokens: [
       'data-smoke="final-execution-live-three-actions"',

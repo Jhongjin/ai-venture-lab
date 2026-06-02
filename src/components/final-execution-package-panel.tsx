@@ -61,22 +61,15 @@ export function FinalExecutionPackagePanel({
           data-smoke="final-execution-primary-download-cue"
           className="mt-3 border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
         >
-          먼저 누를 버튼은 {activeExternalBuildTool.label} 연결 파일 받기입니다. 시작 지시문 복사는 설치 확인 뒤에
-          사용합니다.
+          먼저 {activeExternalBuildTool.label} 연결 파일 받기만 누르세요.
           <span className="mt-1 block text-xs leading-5 text-blue-800">
-            처음에는 연결 파일 받기만 누르세요. START 지시문 복사와 보관용 문서 받기는 설치 확인 뒤 쓰는 보조 버튼입니다.
-          </span>
-          <span className="mt-1 block text-xs leading-5 text-blue-800">
-            START 지시문은 확인 명령에서 T-001을 본 뒤, 외부 도구의 첫 메시지가 필요할 때만 씁니다.
+            설치 확인 뒤에만 START 지시문 복사와 보관용 문서 받기를 씁니다.
           </span>
           <span className="mt-1 block text-xs leading-5 text-blue-800">
             받을 파일명: <span className="font-mono">{setupFileName}</span>
           </span>
           <span className="mt-1 block text-xs leading-5 text-blue-800">
-            받은 파일은 실제 앱 폴더 최상단으로 옮긴 뒤 실행합니다.
-          </span>
-          <span className="mt-1 block text-xs leading-5 text-blue-800">
-            보관용 문서는 연결 없이 자료만 남길 때 사용합니다.
+            실행 위치: 실제 앱 폴더 최상단
           </span>
         </div>
       ) : null}
