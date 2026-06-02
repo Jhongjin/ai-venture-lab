@@ -296,6 +296,8 @@ import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
   buildDecisionInsertRow,
   buildDecisionRecordedMessage,
+  buildDecisionTemplateLoadedMessage,
+  buildEvidenceCoachPromptLoadedMessage,
   buildExperimentDeletedMessage,
   buildExperimentInsertRow,
   buildExperimentStatusChangedMessage,
@@ -304,6 +306,7 @@ import {
   buildRecommendedValidationExperimentSavedMessage,
   buildRiskCreatedMessage,
   buildRiskInsertRow,
+  buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
   buildRiskStatusUpdatePatch,
   buildValidationExperimentSavedMessage,
@@ -3691,7 +3694,7 @@ export function IdeaWorkbench({
   function loadRiskSuggestion(suggestion: RiskDraft) {
     setRiskDraft(suggestion);
     updateActiveTask("risk");
-    setMessage("추천 리스크를 리스크 입력란에 채웠습니다. 완화 방안을 검토한 뒤 저장하세요.");
+    setMessage(buildRiskSuggestionLoadedMessage());
   }
 
   function loadDecisionTemplate() {
@@ -3705,7 +3708,7 @@ export function IdeaWorkbench({
       )}`,
     );
     updateActiveTask("decision");
-    setMessage("검증 상태 기반 판단 근거 초안을 채웠습니다. 최종 판단을 확인한 뒤 기록하세요.");
+    setMessage(buildDecisionTemplateLoadedMessage());
   }
 
   function loadEvidenceCoachPrompt() {
@@ -3719,7 +3722,7 @@ export function IdeaWorkbench({
         validationEvidenceCoach.nextFocus?.action ??
         "완료한 검증 결과를 바탕으로 계속 진행, 추가 조사, 전환, 중단 중 다음 행동을 정합니다.",
     }));
-    setMessage("보완할 질문을 아래 결과 기록의 다음 행동 입력칸에 넣었습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.");
+    setMessage(buildEvidenceCoachPromptLoadedMessage());
   }
 
   async function runMarketScan() {

@@ -81,6 +81,18 @@ export function buildRiskStatusChangedMessage({ statusLabel }: { statusLabel: st
   return `리스크 상태를 ${statusLabel}(으)로 변경했습니다.`;
 }
 
+export function buildRiskSuggestionLoadedMessage() {
+  return "추천 리스크를 리스크 입력란에 채웠습니다. 완화 방안을 검토한 뒤 저장하세요.";
+}
+
+export function buildDecisionTemplateLoadedMessage() {
+  return "검증 상태 기반 판단 근거 초안을 채웠습니다. 최종 판단을 확인한 뒤 기록하세요.";
+}
+
+export function buildEvidenceCoachPromptLoadedMessage() {
+  return "보완할 질문을 아래 결과 기록의 다음 행동 입력칸에 넣었습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.";
+}
+
 export function buildRiskInsertRow<Severity extends string>({
   draft,
   ideaId,

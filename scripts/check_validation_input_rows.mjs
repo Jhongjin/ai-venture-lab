@@ -6,6 +6,8 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-inp
 const {
   buildDecisionInsertRow,
   buildDecisionRecordedMessage,
+  buildDecisionTemplateLoadedMessage,
+  buildEvidenceCoachPromptLoadedMessage,
   buildExperimentDeletedMessage,
   buildExperimentInsertRow,
   buildExperimentStatusChangedMessage,
@@ -14,6 +16,7 @@ const {
   buildRecommendedValidationExperimentSavedMessage,
   buildRiskCreatedMessage,
   buildRiskInsertRow,
+  buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
   buildRiskStatusUpdatePatch,
   buildValidationExperimentSavedMessage,
@@ -58,6 +61,12 @@ assert.equal(
 );
 assert.equal(buildExperimentDeletedMessage(), "검증 계획을 삭제했습니다.");
 assert.equal(buildRiskStatusChangedMessage({ statusLabel: "완화 완료" }), "리스크 상태를 완화 완료(으)로 변경했습니다.");
+assert.equal(buildRiskSuggestionLoadedMessage(), "추천 리스크를 리스크 입력란에 채웠습니다. 완화 방안을 검토한 뒤 저장하세요.");
+assert.equal(buildDecisionTemplateLoadedMessage(), "검증 상태 기반 판단 근거 초안을 채웠습니다. 최종 판단을 확인한 뒤 기록하세요.");
+assert.equal(
+  buildEvidenceCoachPromptLoadedMessage(),
+  "보완할 질문을 아래 결과 기록의 다음 행동 입력칸에 넣었습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.",
+);
 
 assert.deepEqual(
   buildRiskInsertRow({
