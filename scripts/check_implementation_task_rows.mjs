@@ -8,6 +8,7 @@ const {
   buildImplementationTaskInsertRows,
   buildImplementationTaskStatusPatch,
   buildManualImplementationTaskInsertRow,
+  getImplementationTaskTableErrorMessage,
   getMissingImplementationTaskDrafts,
 } = await import(moduleUrl);
 
@@ -100,5 +101,10 @@ assert.deepEqual(buildImplementationTaskStatusPatch("doing"), { status: "doing" 
 assert.deepEqual(buildImplementationTaskEvidencePatch("saved evidence", "old evidence"), { evidence: "saved evidence" });
 assert.deepEqual(buildImplementationTaskEvidencePatch(undefined, "old evidence"), { evidence: "old evidence" });
 assert.deepEqual(buildImplementationTaskEvidencePatch(undefined, null), { evidence: "" });
+assert.equal(
+  getImplementationTaskTableErrorMessage({ code: "42P01", message: "relation does not exist" }),
+  "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요.",
+);
+assert.equal(getImplementationTaskTableErrorMessage({ code: "42501", message: "permission denied" }), "permission denied");
 
 console.log("Implementation task rows smoke passed.");

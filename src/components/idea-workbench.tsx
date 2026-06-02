@@ -278,6 +278,7 @@ import {
   buildImplementationTaskInsertRows,
   buildImplementationTaskStatusPatch,
   buildManualImplementationTaskInsertRow,
+  getImplementationTaskTableErrorMessage,
   getMissingImplementationTaskDrafts,
 } from "@/lib/implementation-task-rows";
 import {
@@ -2267,10 +2268,7 @@ export function IdeaWorkbench({
     }
 
     if (error) {
-      const errorMessage =
-        error.code === "42P01"
-          ? "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요."
-          : error.message;
+      const errorMessage = getImplementationTaskTableErrorMessage(error);
       if (isAutoRefresh) {
         setTaskSyncMessage(errorMessage);
       } else {
@@ -3329,11 +3327,7 @@ export function IdeaWorkbench({
         const { data, error } = await supabase.from("implementation_tasks").insert(taskRows).select();
 
         if (error) {
-          throw new Error(
-            error.code === "42P01"
-              ? "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요."
-              : error.message,
-          );
+          throw new Error(getImplementationTaskTableErrorMessage(error));
         }
 
         insertedTasks = (data ?? []) as ImplementationTask[];
@@ -3588,11 +3582,7 @@ export function IdeaWorkbench({
     setIsBusy(false);
 
     if (error) {
-      setMessage(
-        error.code === "42P01"
-          ? "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요."
-          : error.message,
-      );
+      setMessage(getImplementationTaskTableErrorMessage(error));
       return;
     }
 
@@ -3707,11 +3697,7 @@ export function IdeaWorkbench({
         const { data, error } = await supabase.from("implementation_tasks").insert(rowsToInsert).select();
 
         if (error) {
-          throw new Error(
-            error.code === "42P01"
-              ? "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요."
-              : error.message,
-          );
+          throw new Error(getImplementationTaskTableErrorMessage(error));
         }
 
         insertedTasks = (data ?? []) as ImplementationTask[];

@@ -24,6 +24,14 @@ export type ImplementationTaskStatusPatch<Status extends string> = {
   status: Status;
 };
 
+export type ImplementationTaskTableError = {
+  code?: string | null;
+  message: string;
+};
+
+const missingImplementationTasksTableMessage =
+  "implementation_tasks 테이블이 아직 없습니다. 이번 배포의 Supabase SQL을 먼저 실행하세요.";
+
 function normalizeImplementationTaskTitle(value: string) {
   return value.trim().toLowerCase();
 }
@@ -107,4 +115,8 @@ export function buildImplementationTaskStatusPatch<Status extends string>(
   status: Status,
 ): ImplementationTaskStatusPatch<Status> {
   return { status };
+}
+
+export function getImplementationTaskTableErrorMessage(error: ImplementationTaskTableError) {
+  return error.code === "42P01" ? missingImplementationTasksTableMessage : error.message;
 }
