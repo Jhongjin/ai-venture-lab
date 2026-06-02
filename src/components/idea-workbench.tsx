@@ -70,6 +70,7 @@ import {
   removeRecordsByIdeaId,
   replaceRecordById,
   replaceRecordsById,
+  setRecordKey,
   sortWorkbenchIdeas,
   upsertRecordById,
   upsertRecordsById,
@@ -2683,7 +2684,7 @@ export function IdeaWorkbench({
     }
 
     setOrchestrationRuns((current) => [data, ...current]);
-    setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
+    setRunOutputs((current) => setRecordKey(current, data.id, data.output));
     emitVentureEvent("venture:run-created", data);
     void recordTelemetryEvent({
       eventName: "run_created",
@@ -2944,7 +2945,7 @@ export function IdeaWorkbench({
     }
 
     setOrchestrationRuns((current) => replaceRecordById(current, data));
-    setRunOutputs((current) => ({ ...current, [data.id]: data.output }));
+    setRunOutputs((current) => setRecordKey(current, data.id, data.output));
     emitVentureEvent("venture:run-updated", data);
     void recordTelemetryEvent({
       eventName: "run_output_saved",
@@ -6282,10 +6283,7 @@ export function IdeaWorkbench({
                             <textarea
                               value={evidence}
                               onChange={(event) =>
-                                setImplementationTaskEvidence((current) => ({
-                                  ...current,
-                                  [task.id]: event.target.value,
-                                }))
+                                setImplementationTaskEvidence((current) => setRecordKey(current, task.id, event.target.value))
                               }
                               disabled={isBusy || !canManageRecord(task)}
                               rows={3}
@@ -6920,12 +6918,9 @@ export function IdeaWorkbench({
             isBusy={isBusy}
             onDeleteRun={deleteOrchestrationRun}
             onFillRunOutput={(run) =>
-              setRunOutputs((current) => ({
-                ...current,
-                [run.id]: buildRunOutputTemplate(run, selectedIdea, editState),
-              }))
+              setRunOutputs((current) => setRecordKey(current, run.id, buildRunOutputTemplate(run, selectedIdea, editState)))
             }
-            onRunOutputChange={(runId, value) => setRunOutputs((current) => ({ ...current, [runId]: value }))}
+            onRunOutputChange={(runId, value) => setRunOutputs((current) => setRecordKey(current, runId, value))}
             onSaveRunOutput={saveRunOutput}
             onUpdateRunStatus={updateRunStatus}
             orchestrationStatuses={orchestrationStatuses}
@@ -8481,10 +8476,7 @@ export function IdeaWorkbench({
                       <textarea
                         value={artifactStatusNotes[artifact.id] ?? artifact.status_note ?? ""}
                         onChange={(event) =>
-                          setArtifactStatusNotes((current) => ({
-                            ...current,
-                            [artifact.id]: event.target.value,
-                          }))
+                          setArtifactStatusNotes((current) => setRecordKey(current, artifact.id, event.target.value))
                         }
                         rows={2}
                         disabled={isBusy || !canManageRecord(artifact)}

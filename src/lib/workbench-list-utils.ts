@@ -223,3 +223,7 @@ export function omitRecordKey<T>(record: Record<string, T>, key: string) {
   delete next[key];
   return next;
 }
+
+export function setRecordKey<T>(record: Record<string, T>, key: string, value: T) {
+  return { ...record, [key]: value };
+}
