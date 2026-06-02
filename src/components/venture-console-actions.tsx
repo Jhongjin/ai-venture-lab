@@ -64,8 +64,7 @@ import {
   getSecondaryExtractionPortfolioItems,
   selectRecommendedExtractionCandidate,
 } from "@/lib/extraction-portfolio-utils";
-import { buildExtractedIdeaArtifactBodies } from "@/lib/extracted-idea-artifact-markdown";
-import { buildExtractedIdeaArtifactRows } from "@/lib/extracted-idea-artifact-rows";
+import { buildExtractedIdeaPackageArtifactRows } from "@/lib/extracted-idea-artifact-rows";
 import { inferRiskArea, inferRiskSeverity } from "@/lib/extraction-risk-utils";
 import { compactText } from "@/lib/extraction-text-utils";
 import { findBestCandidateMatch, findSimilarIdea, type SimilarIdeaMatch } from "@/lib/extraction-candidate-match";
@@ -195,60 +194,6 @@ const workspaceRecordTables = [
   "venture_artifacts",
   "implementation_tasks",
 ] as const;
-
-function buildExtractedIdeaArtifacts(
-  candidate: ExtractedIdea,
-  idea: Idea,
-  organizationId: string | null,
-  extractionGate?: ExtractionGate,
-  buildDeliveryPreference: BuildDeliveryPreference = defaultBuildDeliveryPreference,
-) {
-  const gate = extractionGate ?? buildExtractionGate(candidate, buildCandidateReadiness(candidate, null), null);
-  const productSurface = candidate.productSurface;
-  const buildDelivery = normalizeBuildDeliveryPreference(buildDeliveryPreference);
-  const buildDeliveryMarkdown = buildDeliveryPreferenceMarkdown(buildDelivery);
-  const redactedSourceBlock = redactSensitiveSource(candidate.sourceBlock);
-  const sourceBlock =
-    redactedSourceBlock === candidate.sourceBlock
-      ? redactedSourceBlock
-      : `${redactedSourceBlock}
-
-> 자동 가림 처리: 메모 근거에서 연락처, 카드, 계좌, 신분 정보로 보이는 패턴을 치환했습니다.`;
-  const artifactBodies = buildExtractedIdeaArtifactBodies({
-    assumptions: candidate.assumptions,
-    buildDeliveryMarkdown,
-    buyer: candidate.buyer,
-    confidence: candidate.confidence,
-    evidence: candidate.evidence,
-    firstPrototypeScope: candidate.firstPrototypeScope,
-    gateLabel: gate.label,
-    gateNextAction: gate.nextAction,
-    killCriteria: candidate.killCriteria,
-    name: candidate.name,
-    nextEvidence: candidate.next_evidence,
-    oneLiner: candidate.one_liner,
-    pricingHypothesis: candidate.pricingHypothesis,
-    productSurfaceMarkdown: productSurfaceMarkdown(productSurface),
-    recommendation: candidate.recommendation,
-    riskLevel: candidate.riskLevel,
-    riskSummary: candidate.risk_summary,
-    sevenDayExperiment: candidate.sevenDayExperiment,
-    signal: candidate.signal,
-    sourceBlock,
-    strategyLensMarkdown: buildCandidateStrategyLensMarkdown(candidate),
-    successMetric: candidate.successMetric,
-    targetUser: candidate.target_user,
-    validationQuestions: candidate.validationQuestions,
-    validationRationale: candidate.validationRationale,
-    validationScore: candidate.validationScore,
-  });
-  return buildExtractedIdeaArtifactRows({
-    artifactBodies,
-    candidateName: candidate.name,
-    ideaId: idea.id,
-    organizationId,
-  });
-}
 
 export function VentureConsoleActions({
   activeTask: controlledActiveTask,
@@ -1557,7 +1502,16 @@ export function VentureConsoleActions({
         .single(),
       supabase
         .from("venture_artifacts")
-        .insert(buildExtractedIdeaArtifacts(candidate, idea, organizationId, extractionGate, deliveryPreference))
+        .insert(
+          buildExtractedIdeaPackageArtifactRows({
+            buildDeliveryPreference: deliveryPreference,
+            candidate,
+            extractionGate,
+            ideaId: idea.id,
+            organizationId,
+            strategyLensMarkdown: buildCandidateStrategyLensMarkdown(candidate),
+          }),
+        )
         .select(),
     ]);
 
