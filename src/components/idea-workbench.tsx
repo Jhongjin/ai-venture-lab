@@ -252,8 +252,7 @@ import {
 import { buildDevelopmentAutopilotRows } from "@/lib/development-autopilot-rows";
 import {
   appBlueprintGuideRows,
-  buildDevelopmentArtifactDrafts,
-  buildDevelopmentPackageDrafts,
+  buildDevelopmentPackageDraftState,
   scaffoldManifestGuideRows,
 } from "@/lib/development-package-drafts";
 import { buildImplementationDependencyPlanMarkdown } from "@/lib/implementation-dependency-plan";
@@ -1450,19 +1449,15 @@ export function IdeaWorkbench({
     state: editState,
     validationEvidenceCoach,
   });
-  const developmentArtifactDrafts = buildDevelopmentArtifactDrafts({
+  const { developmentArtifactDrafts, developmentPackageDrafts } = buildDevelopmentPackageDraftState({
+    appBlueprintDraft,
     backendDecisionDraft,
     backendExecutionPlanDraft,
     designBriefDraft,
-    ideaName: selectedIdea?.name ?? null,
-    techSpecDraft,
-  });
-  const developmentPackageDrafts = buildDevelopmentPackageDrafts({
-    appBlueprintDraft,
-    developmentArtifactDrafts,
     developmentPlanDraft,
     ideaName: selectedIdea?.name ?? null,
     scaffoldManifestDraft,
+    techSpecDraft,
   });
   const {
     developmentAutoBuildBridgeCards,

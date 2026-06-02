@@ -14,6 +14,11 @@ export type DevelopmentPackageDraft = {
   title: string;
 };
 
+export type DevelopmentPackageDraftState = {
+  developmentArtifactDrafts: DevelopmentArtifactDraft[];
+  developmentPackageDrafts: DevelopmentPackageDraft[];
+};
+
 export const appBlueprintGuideRows = [
   { label: "라우트/화면", detail: "대시보드, 새 기록, 상세, 문서, 설정 화면을 구현 단위로 나눕니다." },
   { label: "데이터/API", detail: "작업 공간, 기록, 근거, 리스크, 문서, 이벤트 로그 계약을 정의합니다." },
@@ -115,4 +120,43 @@ export function buildDevelopmentPackageDrafts({
       source: "scaffold_manifest",
     },
   ];
+}
+
+export function buildDevelopmentPackageDraftState({
+  appBlueprintDraft,
+  backendDecisionDraft,
+  backendExecutionPlanDraft,
+  designBriefDraft,
+  developmentPlanDraft,
+  ideaName,
+  scaffoldManifestDraft,
+  techSpecDraft,
+}: {
+  appBlueprintDraft: string;
+  backendDecisionDraft: string;
+  backendExecutionPlanDraft: string;
+  designBriefDraft: string;
+  developmentPlanDraft: string;
+  ideaName: string | null;
+  scaffoldManifestDraft: string;
+  techSpecDraft: string;
+}): DevelopmentPackageDraftState {
+  const developmentArtifactDrafts = buildDevelopmentArtifactDrafts({
+    backendDecisionDraft,
+    backendExecutionPlanDraft,
+    designBriefDraft,
+    ideaName,
+    techSpecDraft,
+  });
+
+  return {
+    developmentArtifactDrafts,
+    developmentPackageDrafts: buildDevelopmentPackageDrafts({
+      appBlueprintDraft,
+      developmentArtifactDrafts,
+      developmentPlanDraft,
+      ideaName,
+      scaffoldManifestDraft,
+    }),
+  };
 }

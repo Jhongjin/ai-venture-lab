@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/development-pa
 const {
   appBlueprintGuideRows,
   buildDevelopmentArtifactDrafts,
+  buildDevelopmentPackageDraftState,
   buildDevelopmentPackageDrafts,
   scaffoldManifestGuideRows,
 } = await import(moduleUrl);
@@ -58,6 +59,22 @@ assert.deepEqual(packageDrafts.slice(4).map((draft) => draft.source), [
   "app_blueprint",
   "scaffold_manifest",
 ]);
+assert.deepEqual(
+  buildDevelopmentPackageDraftState({
+    appBlueprintDraft: "blueprint",
+    backendDecisionDraft: "backend decision",
+    backendExecutionPlanDraft: "backend checklist",
+    designBriefDraft: "design brief",
+    developmentPlanDraft: "runbook",
+    ideaName: "AI Venture Lab",
+    scaffoldManifestDraft: "scaffold",
+    techSpecDraft: "tech spec",
+  }),
+  {
+    developmentArtifactDrafts: artifactDrafts,
+    developmentPackageDrafts: packageDrafts,
+  },
+);
 assert.deepEqual(buildDevelopmentArtifactDrafts({ backendDecisionDraft: "", backendExecutionPlanDraft: "", designBriefDraft: "", ideaName: null, techSpecDraft: "" }), []);
 assert.deepEqual(
   buildDevelopmentPackageDrafts({
@@ -68,6 +85,22 @@ assert.deepEqual(
     scaffoldManifestDraft: "",
   }),
   [],
+);
+assert.deepEqual(
+  buildDevelopmentPackageDraftState({
+    appBlueprintDraft: "",
+    backendDecisionDraft: "",
+    backendExecutionPlanDraft: "",
+    designBriefDraft: "",
+    developmentPlanDraft: "",
+    ideaName: null,
+    scaffoldManifestDraft: "",
+    techSpecDraft: "",
+  }),
+  {
+    developmentArtifactDrafts: [],
+    developmentPackageDrafts: [],
+  },
 );
 
 console.log("Development package drafts smoke passed.");
