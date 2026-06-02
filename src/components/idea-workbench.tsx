@@ -291,11 +291,18 @@ import { buildReleasePackageArtifactSaveDrafts, buildReleasePackageDraftState } 
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
   buildDecisionInsertRow,
+  buildDecisionRecordedMessage,
+  buildExperimentDeletedMessage,
   buildExperimentInsertRow,
+  buildExperimentStatusChangedMessage,
   buildExperimentStatusUpdatePatch,
   buildIdeaDecisionUpdatePatch,
+  buildRecommendedValidationExperimentSavedMessage,
+  buildRiskCreatedMessage,
   buildRiskInsertRow,
+  buildRiskStatusChangedMessage,
   buildRiskStatusUpdatePatch,
+  buildValidationExperimentSavedMessage,
   experimentResultGuideRows,
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
@@ -2079,7 +2086,7 @@ export function IdeaWorkbench({
       },
     });
     setRiskDraft(createDefaultRiskDraft());
-    setMessage("리스크를 추가했습니다.");
+    setMessage(buildRiskCreatedMessage());
     router.refresh();
   }
 
@@ -2137,7 +2144,7 @@ export function IdeaWorkbench({
       },
     });
     setDecisionReason("");
-    setMessage("판단을 기록했습니다.");
+    setMessage(buildDecisionRecordedMessage());
     router.refresh();
   }
 
@@ -2195,7 +2202,7 @@ export function IdeaWorkbench({
     if (options.clearDraft) {
       setExperimentDraft(createDefaultExperimentDraft());
     }
-    setMessage(options.successMessage || "검증 계획을 저장했습니다.");
+    setMessage(options.successMessage || buildValidationExperimentSavedMessage());
     router.refresh();
     return true;
   }
@@ -2206,7 +2213,7 @@ export function IdeaWorkbench({
     await createExperimentFromDraft(experimentDraft, {
       clearDraft: true,
       source: "manual_or_edited",
-      successMessage: "검증 계획을 저장했습니다.",
+      successMessage: buildValidationExperimentSavedMessage(),
     });
   }
 
@@ -2344,7 +2351,7 @@ export function IdeaWorkbench({
         previous_status: experiment.status,
       },
     });
-    setMessage(`실험 상태를 ${experimentStatusLabels[status] ?? status}(으)로 변경했습니다.`);
+    setMessage(buildExperimentStatusChangedMessage({ statusLabel: experimentStatusLabels[status] ?? status }));
     router.refresh();
   }
 
@@ -2389,7 +2396,7 @@ export function IdeaWorkbench({
         previous_status: experiment.status,
       },
     });
-    setMessage("검증 계획을 삭제했습니다.");
+    setMessage(buildExperimentDeletedMessage());
     router.refresh();
   }
 
@@ -3458,7 +3465,7 @@ export function IdeaWorkbench({
         previous_status: risk.status,
       },
     });
-    setMessage(`리스크 상태를 ${riskStatusLabels[status] ?? status}(으)로 변경했습니다.`);
+    setMessage(buildRiskStatusChangedMessage({ statusLabel: riskStatusLabels[status] ?? status }));
     router.refresh();
   }
 
@@ -3673,8 +3680,7 @@ export function IdeaWorkbench({
   async function saveRecommendedExperiment(suggestion: ExperimentDraft) {
     await createExperimentFromDraft(suggestion, {
       source: "ai_recommended",
-      successMessage:
-        "AI 추천 검증 계획을 저장했습니다. 시장·경쟁 점검은 자동으로 정리되고, 이동은 하단 다음 단계 버튼에서만 진행됩니다.",
+      successMessage: buildRecommendedValidationExperimentSavedMessage(),
     });
   }
 

@@ -53,6 +53,34 @@ export const experimentResultGuideRows = [
   { title: "다음 행동", detail: "바로 이어서 할 한 가지 행동을 적습니다." },
 ] as const;
 
+export function buildRiskCreatedMessage() {
+  return "리스크를 추가했습니다.";
+}
+
+export function buildDecisionRecordedMessage() {
+  return "판단을 기록했습니다.";
+}
+
+export function buildValidationExperimentSavedMessage() {
+  return "검증 계획을 저장했습니다.";
+}
+
+export function buildRecommendedValidationExperimentSavedMessage() {
+  return "AI 추천 검증 계획을 저장했습니다. 시장·경쟁 점검은 자동으로 정리되고, 이동은 하단 다음 단계 버튼에서만 진행됩니다.";
+}
+
+export function buildExperimentStatusChangedMessage({ statusLabel }: { statusLabel: string }) {
+  return `실험 상태를 ${statusLabel}(으)로 변경했습니다.`;
+}
+
+export function buildExperimentDeletedMessage() {
+  return "검증 계획을 삭제했습니다.";
+}
+
+export function buildRiskStatusChangedMessage({ statusLabel }: { statusLabel: string }) {
+  return `리스크 상태를 ${statusLabel}(으)로 변경했습니다.`;
+}
+
 export function buildRiskInsertRow<Severity extends string>({
   draft,
   ideaId,

@@ -5,11 +5,18 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-input-rows.ts")).href;
 const {
   buildDecisionInsertRow,
+  buildDecisionRecordedMessage,
+  buildExperimentDeletedMessage,
   buildExperimentInsertRow,
+  buildExperimentStatusChangedMessage,
   buildExperimentStatusUpdatePatch,
   buildIdeaDecisionUpdatePatch,
+  buildRecommendedValidationExperimentSavedMessage,
+  buildRiskCreatedMessage,
   buildRiskInsertRow,
+  buildRiskStatusChangedMessage,
   buildRiskStatusUpdatePatch,
+  buildValidationExperimentSavedMessage,
   experimentResultGuideRows,
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
@@ -38,6 +45,19 @@ assert.deepEqual(
   ["어떤 검증인가요", "검증 후 판단", "결과", "배운 점", "다음 행동"],
 );
 assert.equal(experimentResultGuideRows[1].detail, "결과를 보고 계속 진행할지, 더 조사할지, 전환/중단할지 고릅니다.");
+assert.equal(buildRiskCreatedMessage(), "리스크를 추가했습니다.");
+assert.equal(buildDecisionRecordedMessage(), "판단을 기록했습니다.");
+assert.equal(buildValidationExperimentSavedMessage(), "검증 계획을 저장했습니다.");
+assert.equal(
+  buildRecommendedValidationExperimentSavedMessage(),
+  "AI 추천 검증 계획을 저장했습니다. 시장·경쟁 점검은 자동으로 정리되고, 이동은 하단 다음 단계 버튼에서만 진행됩니다.",
+);
+assert.equal(
+  buildExperimentStatusChangedMessage({ statusLabel: "진행 중" }),
+  "실험 상태를 진행 중(으)로 변경했습니다.",
+);
+assert.equal(buildExperimentDeletedMessage(), "검증 계획을 삭제했습니다.");
+assert.equal(buildRiskStatusChangedMessage({ statusLabel: "완화 완료" }), "리스크 상태를 완화 완료(으)로 변경했습니다.");
 
 assert.deepEqual(
   buildRiskInsertRow({
