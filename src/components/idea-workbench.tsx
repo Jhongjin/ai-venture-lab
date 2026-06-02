@@ -149,10 +149,9 @@ import {
   triggerBrowserTextDownload,
 } from "@/lib/browser-file-download";
 import {
-  buildFinalExecutionConnectionHealth,
+  buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionPackageReadinessState,
-  buildFinalExecutionTaskPreview,
   selectFinalExecutionLiveSetupDownload,
 } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
@@ -2000,15 +1999,24 @@ export function IdeaWorkbench({
     },
   });
   const finalExecutionDecisionSentence = `${withKoreanInstrumental(activeProductSurface.label)} 만들고, ${activeBuildDeliveryPhrase}.`;
-  const finalExecutionConnectionHealth = buildFinalExecutionConnectionHealth({
+  const {
+    activeCursorSyncConnections,
+    finalExecutionConnectionHealthDetail,
+    finalExecutionConnectionHealthTitle,
+    finalExecutionFallbackTaskPreview,
+    finalExecutionTaskListDescription,
+    finalExecutionTaskPreview,
+    finalExecutionVisibleTaskCount,
+    visibleCursorSyncConnections,
+  } = buildFinalExecutionLaunchDisplayState({
+    buildDeliveryMode,
     connections: cursorSyncConnections,
     externalToolKey: activeExternalBuildTool.key,
     externalToolLabel: activeExternalBuildTool.label,
+    fallbackTasks: cursorHandoffTaskDrafts,
+    implementationTasks: selectedImplementationTasks,
+    isLiveExternalDelivery,
   });
-  const visibleCursorSyncConnections = finalExecutionConnectionHealth.visibleConnections;
-  const activeCursorSyncConnections = finalExecutionConnectionHealth.activeConnections;
-  const finalExecutionConnectionHealthTitle = finalExecutionConnectionHealth.title;
-  const finalExecutionConnectionHealthDetail = finalExecutionConnectionHealth.detail;
   const cursorProgressPreviewItems = buildCursorProgressPreviewItems({
     fallbackTasks: cursorHandoffTaskDrafts,
     sourceText: cursorProgressImportText,
@@ -2017,17 +2025,6 @@ export function IdeaWorkbench({
     importedItems: cursorProgressImportItems,
     previewItems: cursorProgressPreviewItems,
   });
-  const finalExecutionTaskPreviewSummary = buildFinalExecutionTaskPreview({
-    buildDeliveryMode,
-    externalToolLabel: activeExternalBuildTool.label,
-    fallbackTasks: cursorHandoffTaskDrafts,
-    implementationTasks: selectedImplementationTasks,
-    isLiveExternalDelivery,
-  });
-  const finalExecutionTaskPreview = finalExecutionTaskPreviewSummary.taskPreview;
-  const finalExecutionFallbackTaskPreview = finalExecutionTaskPreviewSummary.fallbackTaskPreview;
-  const finalExecutionVisibleTaskCount = finalExecutionTaskPreviewSummary.visibleTaskCount;
-  const finalExecutionTaskListDescription = finalExecutionTaskPreviewSummary.taskListDescription;
   const doneRunCount = countDoneWorkbenchRuns(selectedRuns);
   const { activeVisibleIdeaCount, discardedIdeas, discardedVisibleIdeaCount, visibleIdeas } = useMemo(
     () => buildWorkbenchIdeaVisibilityState(ideas, filterMode, getRecordAccessState),

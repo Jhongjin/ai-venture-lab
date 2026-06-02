@@ -42,6 +42,17 @@ export type FinalExecutionTaskPreview = {
   taskListDescription: string;
 };
 
+export type FinalExecutionLaunchDisplayState = {
+  activeCursorSyncConnections: CursorSyncConnection[];
+  finalExecutionConnectionHealthDetail: string;
+  finalExecutionConnectionHealthTitle: string;
+  finalExecutionFallbackTaskPreview: ImplementationTaskDraft[];
+  finalExecutionTaskListDescription: string;
+  finalExecutionTaskPreview: ImplementationTask[];
+  finalExecutionVisibleTaskCount: number;
+  visibleCursorSyncConnections: CursorSyncConnection[];
+};
+
 export type FinalExecutionLiveToolContext = {
   folder: string;
   guideDraft: string;
@@ -355,5 +366,47 @@ export function buildFinalExecutionTaskPreview({
     fallbackTaskPreview,
     visibleTaskCount,
     taskListDescription,
+  };
+}
+
+export function buildFinalExecutionLaunchDisplayState({
+  buildDeliveryMode,
+  connections,
+  externalToolKey,
+  externalToolLabel,
+  fallbackTasks,
+  implementationTasks,
+  isLiveExternalDelivery,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  connections: CursorSyncConnection[];
+  externalToolKey: string;
+  externalToolLabel: string;
+  fallbackTasks: ImplementationTaskDraft[];
+  implementationTasks: ImplementationTask[];
+  isLiveExternalDelivery: boolean;
+}): FinalExecutionLaunchDisplayState {
+  const connectionHealth = buildFinalExecutionConnectionHealth({
+    connections,
+    externalToolKey,
+    externalToolLabel,
+  });
+  const taskPreview = buildFinalExecutionTaskPreview({
+    buildDeliveryMode,
+    externalToolLabel,
+    fallbackTasks,
+    implementationTasks,
+    isLiveExternalDelivery,
+  });
+
+  return {
+    activeCursorSyncConnections: connectionHealth.activeConnections,
+    finalExecutionConnectionHealthDetail: connectionHealth.detail,
+    finalExecutionConnectionHealthTitle: connectionHealth.title,
+    finalExecutionFallbackTaskPreview: taskPreview.fallbackTaskPreview,
+    finalExecutionTaskListDescription: taskPreview.taskListDescription,
+    finalExecutionTaskPreview: taskPreview.taskPreview,
+    finalExecutionVisibleTaskCount: taskPreview.visibleTaskCount,
+    visibleCursorSyncConnections: connectionHealth.visibleConnections,
   };
 }

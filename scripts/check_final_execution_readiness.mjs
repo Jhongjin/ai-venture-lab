@@ -20,6 +20,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildFinalExecutionConnectionHealth,
+  buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionPackageReadinessState,
   buildFinalExecutionPackageState,
@@ -105,6 +106,26 @@ assert.equal(livePreview.taskPreview.length, 6);
 assert.equal(livePreview.fallbackTaskPreview.length, 0);
 assert.equal(livePreview.visibleTaskCount, 6);
 assert.match(livePreview.taskListDescription, /Cursor 연결 파일/);
+
+const launchDisplayState = buildFinalExecutionLaunchDisplayState({
+  buildDeliveryMode: "external_tool",
+  connections,
+  externalToolKey: "cursor",
+  externalToolLabel: "Cursor",
+  fallbackTasks,
+  implementationTasks,
+  isLiveExternalDelivery: true,
+});
+assert.deepEqual(
+  launchDisplayState.visibleCursorSyncConnections.map((connection) => connection.id),
+  ["older-active", "newer-active"],
+);
+assert.equal(launchDisplayState.activeCursorSyncConnections.length, 2);
+assert.match(launchDisplayState.finalExecutionConnectionHealthTitle, /^최근 자동 반영 /);
+assert.equal(launchDisplayState.finalExecutionTaskPreview.length, 6);
+assert.equal(launchDisplayState.finalExecutionFallbackTaskPreview.length, 0);
+assert.equal(launchDisplayState.finalExecutionVisibleTaskCount, 6);
+assert.match(launchDisplayState.finalExecutionTaskListDescription, /Cursor 연결 파일/);
 
 const fallbackPreview = buildFinalExecutionTaskPreview({
   buildDeliveryMode: "venture_lab",
