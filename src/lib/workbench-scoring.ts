@@ -1,6 +1,11 @@
-import { resolveProductSurfaceForIdea } from "@/lib/product-surface";
+import {
+  productSurfaceProfiles,
+  resolveProductSurfaceForIdea,
+  type ProductSurfaceProfile,
+} from "@/lib/product-surface";
 import type { DecisionStatus } from "@/lib/supabase/types";
 import type { Idea } from "@/lib/venture-data";
+import { isIdeaStageAtOrAfter } from "@/lib/workbench-list-utils";
 
 export type WorkbenchEditState = Pick<
   Idea,
@@ -83,6 +88,49 @@ export function buildWorkbenchScoringSavePatch({
     stage: "score",
     decision,
     product_surface: resolveProductSurfaceForIdea(idea, state).key,
+  };
+}
+
+export type WorkbenchScoreEvaluationState = {
+  activeProductSurface: ProductSurfaceProfile;
+  currentScore: number;
+  isScoreEvaluationSaved: boolean;
+  missing: string[];
+  scoreRecommendation: DecisionStatus;
+  scoreSaveDecision: DecisionStatus;
+  selectedProductSurface: ProductSurfaceProfile | null;
+};
+
+export function buildWorkbenchScoreEvaluationState({
+  idea,
+  riskCount,
+  state,
+}: {
+  idea: Idea | null;
+  riskCount: number;
+  state: WorkbenchEditState | null;
+}): WorkbenchScoreEvaluationState {
+  const currentScore = state ? scoreWorkbenchState(state) : 0;
+  const scoreRecommendation = recommendationForScore(currentScore);
+  const scoreSaveDecision = saveDecisionForScore(scoreRecommendation);
+  const savedEditState = idea ? toWorkbenchEditState(idea) : null;
+  const selectedProductSurface = idea && state ? resolveProductSurfaceForIdea(idea, state) : null;
+  const hasReachedScoreStage = idea ? isIdeaStageAtOrAfter(idea.stage, "score") : false;
+
+  return {
+    activeProductSurface: selectedProductSurface ?? productSurfaceProfiles.web_app,
+    currentScore,
+    isScoreEvaluationSaved: isWorkbenchScoreEvaluationSaved({
+      hasReachedScoreStage,
+      idea,
+      saveDecision: scoreSaveDecision,
+      savedState: savedEditState,
+      state,
+    }),
+    missing: idea && state ? missingEvidence(idea, state, riskCount) : [],
+    scoreRecommendation,
+    scoreSaveDecision,
+    selectedProductSurface,
   };
 }
 

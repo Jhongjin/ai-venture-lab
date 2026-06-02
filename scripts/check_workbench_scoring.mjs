@@ -6,10 +6,10 @@ import ts from "typescript";
 
 const modulePath = path.join(process.cwd(), "src/lib/workbench-scoring.ts");
 const productSurfaceUrl = pathToFileURL(path.join(process.cwd(), "src/lib/product-surface.ts")).href;
-const source = readFileSync(modulePath, "utf8").replaceAll(
-  'from "@/lib/product-surface";',
-  `from ${JSON.stringify(productSurfaceUrl)};`,
-);
+const workbenchListUtilsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-list-utils.ts")).href;
+const source = readFileSync(modulePath, "utf8")
+  .replaceAll('from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`)
+  .replaceAll('from "@/lib/workbench-list-utils";', `from ${JSON.stringify(workbenchListUtilsUrl)};`);
 const { outputText } = ts.transpileModule(source, {
   compilerOptions: {
     module: ts.ModuleKind.ESNext,
@@ -19,6 +19,7 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoringSavePatch,
   isWorkbenchScoreEvaluationSaved,
   missingEvidence,
@@ -103,6 +104,29 @@ assert.equal(
   }),
   false,
 );
+
+const scoreEvaluationState = buildWorkbenchScoreEvaluationState({
+  idea: savedIdea,
+  riskCount: 1,
+  state: savePatch,
+});
+assert.equal(scoreEvaluationState.currentScore, 25);
+assert.equal(scoreEvaluationState.scoreRecommendation, "ship");
+assert.equal(scoreEvaluationState.scoreSaveDecision, "ship");
+assert.equal(scoreEvaluationState.selectedProductSurface?.key, "automation");
+assert.equal(scoreEvaluationState.activeProductSurface.key, "automation");
+assert.equal(scoreEvaluationState.isScoreEvaluationSaved, true);
+assert.deepEqual(scoreEvaluationState.missing, []);
+
+const emptyScoreEvaluationState = buildWorkbenchScoreEvaluationState({
+  idea: null,
+  riskCount: 0,
+  state: null,
+});
+assert.equal(emptyScoreEvaluationState.currentScore, 0);
+assert.equal(emptyScoreEvaluationState.activeProductSurface.key, "web_app");
+assert.equal(emptyScoreEvaluationState.isScoreEvaluationSaved, false);
+assert.deepEqual(emptyScoreEvaluationState.missing, []);
 
 assert.deepEqual(missingEvidence({ ...idea, one_liner: "", buyer: "" }, { ...editState, signal: "", next_evidence: "" }, 0), [
   "한 줄 설명",

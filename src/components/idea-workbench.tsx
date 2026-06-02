@@ -63,7 +63,6 @@ import {
   getWorkbenchRecordAccessState,
   getWorkbenchIdeaDiscardSelectionState,
   getWorkbenchIdeaRemovalSelectionState,
-  isIdeaStageAtOrAfter,
   isDiscardedIdea,
   mergeRecordMap,
   omitRecordKey,
@@ -88,11 +87,8 @@ import {
   workbenchStorageNotConfiguredMessage,
 } from "@/lib/workbench-list-utils";
 import {
+  buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoringSavePatch,
-  isWorkbenchScoreEvaluationSaved,
-  missingEvidence,
-  recommendationForScore,
-  saveDecisionForScore,
   scoreWorkbenchState as scoreState,
   toWorkbenchEditState as toEditState,
   type WorkbenchEditState,
@@ -131,7 +127,6 @@ import {
   artifactTypeOptions,
 } from "@/lib/artifact-labels";
 import {
-  productSurfaceProfiles,
   resolveProductSurfaceForIdea as inferIdeaProductSurface,
   withKoreanInstrumental,
   type ProductSurfaceProfile,
@@ -1219,22 +1214,18 @@ export function IdeaWorkbench({
     router.refresh();
   }
 
-  const currentScore = editState ? scoreState(editState) : 0;
-  const scoreRecommendation = recommendationForScore(currentScore);
-  const scoreSaveDecision = saveDecisionForScore(scoreRecommendation);
-  const savedEditState = selectedIdea ? toEditState(selectedIdea) : null;
-  const selectedProductSurface = selectedIdea && editState ? inferIdeaProductSurface(selectedIdea, editState) : null;
-  const activeProductSurface = selectedProductSurface ?? productSurfaceProfiles.web_app;
-  const hasReachedScoreStage = selectedIdea ? isIdeaStageAtOrAfter(selectedIdea.stage, "score") : false;
-  const isScoreEvaluationSaved = isWorkbenchScoreEvaluationSaved({
-    hasReachedScoreStage,
+  const {
+    activeProductSurface,
+    currentScore,
+    isScoreEvaluationSaved,
+    missing,
+    scoreRecommendation,
+    scoreSaveDecision,
+  } = buildWorkbenchScoreEvaluationState({
     idea: selectedIdea,
-    saveDecision: scoreSaveDecision,
-    savedState: savedEditState,
+    riskCount: selectedIdeaRisks.length,
     state: editState,
   });
-  const missing =
-    selectedIdea && editState ? missingEvidence(selectedIdea, editState, selectedIdeaRisks.length) : [];
   const validationPlan = selectedIdea && editState
     ? buildValidationPlan({
         idea: selectedIdea,
