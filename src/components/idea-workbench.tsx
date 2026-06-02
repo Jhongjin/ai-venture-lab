@@ -63,6 +63,8 @@ import {
   appendRecords,
   getActiveIdeas,
   getIdeaDeletionRelatedTables,
+  getInitialSelectedWorkbenchIdeaId,
+  getSelectedWorkbenchIdea,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
   getVisibleActiveIdeaCount,
@@ -608,19 +610,10 @@ export function IdeaWorkbench({
   const [artifacts, setArtifacts] = useState(initialArtifacts);
   const [implementationTasks, setImplementationTasks] = useState(initialImplementationTasks);
   const [telemetryEvents, setTelemetryEvents] = useState(initialTelemetryEvents);
-  const [selectedIdeaId, setSelectedIdeaId] = useState(() => {
-    const activeInitialIdeas = sortWorkbenchIdeas(getActiveIdeas(initialIdeas));
-    const requestedIdea = initialSelectedIdeaId
-      ? activeInitialIdeas.find((idea) => idea.id === initialSelectedIdeaId)
-      : null;
-
-    return requestedIdea?.id ?? activeInitialIdeas[0]?.id ?? "";
-  });
-  const selectedIdea =
-    ideas.find((idea) => idea.id === selectedIdeaId && !isDiscardedIdea(idea)) ??
-    getActiveIdeas(ideas)[0] ??
-    ideas.find((idea) => isDiscardedIdea(idea)) ??
-    null;
+  const [selectedIdeaId, setSelectedIdeaId] = useState(() =>
+    getInitialSelectedWorkbenchIdeaId(initialIdeas, initialSelectedIdeaId),
+  );
+  const selectedIdea = getSelectedWorkbenchIdea(ideas, selectedIdeaId);
   const [editState, setEditState] = useState<EditState | null>(selectedIdea ? toEditState(selectedIdea) : null);
   const [riskDraft, setRiskDraft] = useState<RiskDraft>({
     title: "",

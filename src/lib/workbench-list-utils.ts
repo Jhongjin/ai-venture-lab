@@ -149,6 +149,22 @@ export function sortWorkbenchIdeas(nextIdeas: Idea[]) {
   );
 }
 
+export function getInitialSelectedWorkbenchIdeaId(nextIdeas: Idea[], requestedIdeaId?: string) {
+  const activeIdeas = sortWorkbenchIdeas(getActiveIdeas(nextIdeas));
+  const requestedIdea = requestedIdeaId ? activeIdeas.find((idea) => idea.id === requestedIdeaId) : null;
+
+  return requestedIdea?.id ?? activeIdeas[0]?.id ?? "";
+}
+
+export function getSelectedWorkbenchIdea(nextIdeas: Idea[], selectedIdeaId: string) {
+  return (
+    nextIdeas.find((idea) => idea.id === selectedIdeaId && !isDiscardedIdea(idea)) ??
+    getActiveIdeas(nextIdeas)[0] ??
+    nextIdeas.find((idea) => isDiscardedIdea(idea)) ??
+    null
+  );
+}
+
 export function filterVisibleWorkbenchIdeas(
   nextIdeas: Idea[],
   filterMode: WorkbenchIdeaFilterMode,

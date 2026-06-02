@@ -13,6 +13,8 @@ const {
   getActiveIdeas,
   getIdeaDeletionRelatedTables,
   getIdeaStageRank,
+  getInitialSelectedWorkbenchIdeaId,
+  getSelectedWorkbenchIdea,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
   getVisibleActiveIdeaCount,
@@ -122,6 +124,13 @@ assert.deepEqual(
   sortWorkbenchIdeas([ideas[3], ideas[1], ideas[0]]).map((record) => record.id),
   ["owned-new", "shared-old", "admin"],
 );
+assert.equal(getInitialSelectedWorkbenchIdeaId(ideas, "admin"), "admin");
+assert.equal(getInitialSelectedWorkbenchIdeaId(ideas, "deleted"), "hidden");
+assert.equal(getInitialSelectedWorkbenchIdeaId([ideas[4]]), "");
+assert.equal(getSelectedWorkbenchIdea(ideas, "admin")?.id, "admin");
+assert.equal(getSelectedWorkbenchIdea(ideas, "missing")?.id, "shared-old");
+assert.equal(getSelectedWorkbenchIdea([ideas[4]], "missing")?.id, "deleted");
+assert.equal(getSelectedWorkbenchIdea([], "missing"), null);
 
 assert.deepEqual(
   filterVisibleWorkbenchIdeas(ideas, "all", getAccess).map((record) => record.id),
