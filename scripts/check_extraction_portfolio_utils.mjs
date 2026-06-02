@@ -19,6 +19,8 @@ const {
   buildExtractionPortfolioItems,
   buildExtractionPortfolioMarkdownItems,
   buildExtractionSimilarIdeaMatches,
+  buildBulkExtractionSaveMessage,
+  buildSingleExtractionSaveMessage,
   countExtractionPortfolioGates,
   getBulkSavableExtractionItems,
   getSecondaryExtractionPortfolioItems,
@@ -192,5 +194,43 @@ assert.equal(markdownItems[0].strategyScore, 77);
 assert.equal(markdownItems[0].similarIdeaLabel, null);
 assert.equal(markdownItems[1].similarIdeaLabel, "Existing B 64%");
 assert.equal(markdownItems[1].gateLabel, "추가 조사");
+
+assert.equal(
+  buildSingleExtractionSaveMessage({
+    artifactCount: 3,
+    candidateName: "AI Venture Lab",
+    partialError: null,
+  }),
+  "'AI Venture Lab' 아이디어를 리스크, 7일 검증 계획, 제작 자료 3개까지 저장했습니다.",
+);
+assert.equal(
+  buildSingleExtractionSaveMessage({
+    artifactCount: 1,
+    candidateName: "AI Venture Lab",
+    partialError: "risk insert failed",
+  }),
+  "아이디어는 저장했지만 연결 기록 일부가 실패했습니다: risk insert failed",
+);
+assert.equal(
+  buildBulkExtractionSaveMessage({
+    partialErrors: [],
+    savedNames: ["A", "B"],
+  }),
+  "상위 아이디어 2개를 검증 자료로 저장했습니다: A, B",
+);
+assert.equal(
+  buildBulkExtractionSaveMessage({
+    partialErrors: ["B: 저장 실패"],
+    savedNames: ["A", "B"],
+  }),
+  "상위 아이디어 2개를 검증 자료로 저장했습니다: A, B / 일부 보완 필요: B: 저장 실패",
+);
+assert.equal(
+  buildBulkExtractionSaveMessage({
+    partialErrors: [],
+    savedNames: [],
+  }),
+  "일괄 저장에 실패했습니다: 저장된 아이디어가 없습니다.",
+);
 
 console.log("Extraction portfolio utils smoke passed.");

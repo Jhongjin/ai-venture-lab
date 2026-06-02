@@ -54,6 +54,8 @@ import {
   buildExtractionPortfolioItems,
   buildExtractionPortfolioMarkdownItems,
   buildExtractionSimilarIdeaMatches,
+  buildBulkExtractionSaveMessage,
+  buildSingleExtractionSaveMessage,
   countExtractionPortfolioGates,
   type ExtractionPortfolioListItem,
   getBulkSavableExtractionItems,
@@ -1493,13 +1495,13 @@ export function VentureConsoleActions({
     try {
       const result = await createExtractedIdeaPackage(candidate, extractionGate);
 
-      if (result.partialError) {
-        setExtractMessage(`아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${result.partialError}`);
-      } else {
-        setExtractMessage(
-            `'${candidate.name}' 아이디어를 리스크, 7일 검증 계획, 제작 자료 ${result.artifactCount}개까지 저장했습니다.`,
-        );
-      }
+      setExtractMessage(
+        buildSingleExtractionSaveMessage({
+          artifactCount: result.artifactCount,
+          candidateName: candidate.name,
+          partialError: result.partialError,
+        }),
+      );
     } catch (error) {
       setExtractMessage(error instanceof Error ? error.message : "아이디어를 검증 자료로 저장하지 못했습니다.");
     }
@@ -1546,11 +1548,10 @@ export function VentureConsoleActions({
 
     setExtractSaveKey(null);
     setExtractMessage(
-      savedNames.length > 0
-        ? `상위 아이디어 ${savedNames.length}개를 검증 자료로 저장했습니다: ${savedNames.join(", ")}${
-            partialErrors.length > 0 ? ` / 일부 보완 필요: ${partialErrors.join(" | ")}` : ""
-          }`
-        : `일괄 저장에 실패했습니다: ${partialErrors.join(" | ")}`,
+      buildBulkExtractionSaveMessage({
+        partialErrors,
+        savedNames,
+      }),
     );
     await loadPersonalRecordCount(user);
     await loadWorkspaceData(user, activeOrganization?.id ?? "");

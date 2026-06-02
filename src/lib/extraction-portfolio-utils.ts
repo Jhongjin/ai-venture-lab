@@ -249,3 +249,33 @@ export function buildExtractionPortfolioMarkdownItems<Candidate extends Extracti
     validationScore: item.candidate.validationScore,
   }));
 }
+
+export function buildSingleExtractionSaveMessage({
+  artifactCount,
+  candidateName,
+  partialError,
+}: {
+  artifactCount: number;
+  candidateName: string;
+  partialError: string | null;
+}) {
+  return partialError
+    ? `아이디어는 저장했지만 연결 기록 일부가 실패했습니다: ${partialError}`
+    : `'${candidateName}' 아이디어를 리스크, 7일 검증 계획, 제작 자료 ${artifactCount}개까지 저장했습니다.`;
+}
+
+export function buildBulkExtractionSaveMessage({
+  partialErrors,
+  savedNames,
+}: {
+  partialErrors: string[];
+  savedNames: string[];
+}) {
+  if (savedNames.length === 0) {
+    return `일괄 저장에 실패했습니다: ${partialErrors.join(" | ") || "저장된 아이디어가 없습니다."}`;
+  }
+
+  const partialErrorText = partialErrors.length > 0 ? ` / 일부 보완 필요: ${partialErrors.join(" | ")}` : "";
+
+  return `상위 아이디어 ${savedNames.length}개를 검증 자료로 저장했습니다: ${savedNames.join(", ")}${partialErrorText}`;
+}
