@@ -123,8 +123,16 @@ assert.deepEqual(
 );
 assert.equal(derivedState.implementationDependencyStatuses.length, 3);
 assert.equal(derivedState.implementationTaskProgressStats.completedCount, 1);
+assert.equal(derivedState.completedImplementationTasks.length, 1);
 assert.equal(derivedState.step8ImplementationTaskContext.nextTask?.id, "task-frontend");
 assert.equal(derivedState.step8ImplementationTaskContext.nextTaskCode, "T-002");
+assert.equal(derivedState.nextImplementationDependencyStatus?.task.id, "task-frontend");
+assert.equal(derivedState.nextImplementationTask?.id, "task-frontend");
+assert.equal(derivedState.nextImplementationTaskCode, "T-002");
+assert.equal(derivedState.nextImplementationTaskId, "task-frontend");
+assert.equal(derivedState.readyImplementationDependencyStatuses.length, 0);
+assert.equal(derivedState.totalImplementationTaskCount, 3);
+assert.equal(derivedState.waitingImplementationDependencyStatuses.length, 2);
 
 const learningSummary = buildStep8LearningSummary({
   buildDeliveryMode: "external_tool",

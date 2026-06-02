@@ -81,10 +81,18 @@ export type Step8ImplementationTaskContext = {
 };
 
 export type Step8ImplementationDerivedState = {
+  completedImplementationTasks: ImplementationTask[];
   implementationDependencyStatuses: ImplementationDependencyStatus[];
   implementationTaskProgressStats: ImplementationTaskProgressStats;
+  nextImplementationDependencyStatus: ImplementationDependencyStatus | null;
+  nextImplementationTask: ImplementationTask | null;
+  nextImplementationTaskCode: string | null;
+  nextImplementationTaskId: string | null;
+  readyImplementationDependencyStatuses: ImplementationDependencyStatus[];
   selectedOpenImplementationTasks: ImplementationTask[];
   step8ImplementationTaskContext: Step8ImplementationTaskContext;
+  totalImplementationTaskCount: number;
+  waitingImplementationDependencyStatuses: ImplementationDependencyStatus[];
 };
 
 export function buildStep8ImplementationDerivedState(tasks: ImplementationTask[]): Step8ImplementationDerivedState {
@@ -99,10 +107,18 @@ export function buildStep8ImplementationDerivedState(tasks: ImplementationTask[]
   });
 
   return {
+    completedImplementationTasks: step8ImplementationTaskContext.completedTasks,
     implementationDependencyStatuses,
     implementationTaskProgressStats,
+    nextImplementationDependencyStatus: step8ImplementationTaskContext.nextDependencyStatus,
+    nextImplementationTask: step8ImplementationTaskContext.nextTask,
+    nextImplementationTaskCode: step8ImplementationTaskContext.nextTaskCode,
+    nextImplementationTaskId: step8ImplementationTaskContext.nextTaskId,
+    readyImplementationDependencyStatuses: step8ImplementationTaskContext.readyStatuses,
     selectedOpenImplementationTasks,
     step8ImplementationTaskContext,
+    totalImplementationTaskCount: step8ImplementationTaskContext.totalCount,
+    waitingImplementationDependencyStatuses: step8ImplementationTaskContext.waitingStatuses,
   };
 }
 

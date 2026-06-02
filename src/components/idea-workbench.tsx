@@ -965,18 +965,18 @@ export function IdeaWorkbench({
     [selectedIdea, selectedProductTelemetryEvents],
   );
   const {
+    completedImplementationTasks: completedLearningImplementationTasks,
     implementationDependencyStatuses,
     implementationTaskProgressStats,
+    nextImplementationDependencyStatus,
+    nextImplementationTask,
+    nextImplementationTaskCode,
+    nextImplementationTaskId,
+    readyImplementationDependencyStatuses,
     selectedOpenImplementationTasks,
-    step8ImplementationTaskContext,
+    totalImplementationTaskCount: totalLearningImplementationTasks,
+    waitingImplementationDependencyStatuses,
   } = useMemo(() => buildStep8ImplementationDerivedState(selectedImplementationTasks), [selectedImplementationTasks]);
-  const readyImplementationDependencyStatuses = step8ImplementationTaskContext.readyStatuses;
-  const waitingImplementationDependencyStatuses = step8ImplementationTaskContext.waitingStatuses;
-  const nextImplementationTask = step8ImplementationTaskContext.nextTask;
-  const nextImplementationDependencyStatus = step8ImplementationTaskContext.nextDependencyStatus;
-  const nextImplementationTaskCode = step8ImplementationTaskContext.nextTaskCode;
-  const completedLearningImplementationTasks = step8ImplementationTaskContext.completedTasks;
-  const totalLearningImplementationTasks = step8ImplementationTaskContext.totalCount;
   const productSignalCount = selectedProductTelemetryEvents.length;
   const step8LearningSummary = buildStep8LearningSummary({
     buildDeliveryMode,
@@ -1009,7 +1009,7 @@ export function IdeaWorkbench({
   } = step8LearningSummary;
   const step8ProgressSummary = buildStep8ProgressSummary({
     evidenceByTaskId: implementationTaskEvidence,
-    nextImplementationTaskId: step8ImplementationTaskContext.nextTaskId,
+    nextImplementationTaskId,
     tasks: selectedImplementationTasks,
   });
   const {
