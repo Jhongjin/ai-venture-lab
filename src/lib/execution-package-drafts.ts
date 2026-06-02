@@ -32,6 +32,66 @@ export type ExecutionPackageDraftState = {
   prdHandoffDraft: string;
 };
 
+export type ExecutionPackageArtifactSaveDraft = {
+  artifactType: "dev_runbook" | "launch_checklist" | "research_note";
+  body: string;
+  source: "agent_run_package" | "development_kickoff" | "prd_readiness_handoff" | "workbench";
+  title: string;
+};
+
+export function buildExecutionPackageArtifactSaveDrafts({
+  agentRunPackageDraft,
+  developmentKickoffDraft,
+  ideaName,
+  launchChecklistDraft,
+  prdHandoffDraft,
+}: {
+  agentRunPackageDraft: string;
+  developmentKickoffDraft: string;
+  ideaName: string | null;
+  launchChecklistDraft: string;
+  prdHandoffDraft: string;
+}) {
+  return {
+    agentRunPackageSaveDraft:
+      ideaName && agentRunPackageDraft
+        ? {
+            artifactType: "dev_runbook" as const,
+            body: agentRunPackageDraft,
+            source: "agent_run_package" as const,
+            title: `${ideaName} 제작 패키지`,
+          }
+        : null,
+    developmentKickoffSaveDraft:
+      ideaName && developmentKickoffDraft
+        ? {
+            artifactType: "dev_runbook" as const,
+            body: developmentKickoffDraft,
+            source: "development_kickoff" as const,
+            title: `${ideaName} 제작 시작 요약`,
+          }
+        : null,
+    launchChecklistSaveDraft:
+      ideaName && launchChecklistDraft
+        ? {
+            artifactType: "launch_checklist" as const,
+            body: launchChecklistDraft,
+            source: "workbench" as const,
+            title: `${ideaName} 출시 체크리스트`,
+          }
+        : null,
+    prdHandoffSaveDraft:
+      ideaName && prdHandoffDraft
+        ? {
+            artifactType: "research_note" as const,
+            body: prdHandoffDraft,
+            source: "prd_readiness_handoff" as const,
+            title: `${ideaName} 기획서 전환 전달 내용`,
+          }
+        : null,
+  };
+}
+
 export function buildExecutionPackageDraftState({
   artifacts,
   buildDeliveryMode,

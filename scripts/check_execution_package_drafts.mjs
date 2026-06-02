@@ -64,7 +64,7 @@ const moduleUrl = transpileModuleUrl("src/lib/execution-package-drafts.ts", [
   ['from "@/lib/prd-markdown";', `from ${JSON.stringify(prdHandoffUrl)};`],
 ]);
 
-const { buildExecutionPackageDraftState } = await import(moduleUrl);
+const { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftState } = await import(moduleUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -302,6 +302,46 @@ assert.match(draftState.developmentKickoffDraft, /# 제작 시작 요약: AI Ven
 assert.match(draftState.agentRunPackageDraft, /# 제작 패키지: AI Venture Lab/);
 assert.match(draftState.agentRunPackageDraft, /T-001 제작 패키지 리뷰 화면/);
 assert.match(draftState.launchChecklistDraft, /# 출시 체크리스트: AI Venture Lab/);
+
+const saveDrafts = buildExecutionPackageArtifactSaveDrafts({
+  agentRunPackageDraft: draftState.agentRunPackageDraft,
+  developmentKickoffDraft: draftState.developmentKickoffDraft,
+  ideaName: idea.name,
+  launchChecklistDraft: draftState.launchChecklistDraft,
+  prdHandoffDraft: draftState.prdHandoffDraft,
+});
+assert.equal(saveDrafts.developmentKickoffSaveDraft.artifactType, "dev_runbook");
+assert.equal(saveDrafts.developmentKickoffSaveDraft.title, "AI Venture Lab 제작 시작 요약");
+assert.equal(saveDrafts.developmentKickoffSaveDraft.source, "development_kickoff");
+assert.match(saveDrafts.developmentKickoffSaveDraft.body, /# 제작 시작 요약: AI Venture Lab/);
+assert.equal(saveDrafts.agentRunPackageSaveDraft.artifactType, "dev_runbook");
+assert.equal(saveDrafts.agentRunPackageSaveDraft.title, "AI Venture Lab 제작 패키지");
+assert.equal(saveDrafts.agentRunPackageSaveDraft.source, "agent_run_package");
+assert.match(saveDrafts.agentRunPackageSaveDraft.body, /# 제작 패키지: AI Venture Lab/);
+assert.equal(saveDrafts.prdHandoffSaveDraft.artifactType, "research_note");
+assert.equal(saveDrafts.prdHandoffSaveDraft.title, "AI Venture Lab 기획서 전환 전달 내용");
+assert.equal(saveDrafts.prdHandoffSaveDraft.source, "prd_readiness_handoff");
+assert.match(saveDrafts.prdHandoffSaveDraft.body, /# 제품 기획서 전환 요약: AI Venture Lab/);
+assert.equal(saveDrafts.launchChecklistSaveDraft.artifactType, "launch_checklist");
+assert.equal(saveDrafts.launchChecklistSaveDraft.title, "AI Venture Lab 출시 체크리스트");
+assert.equal(saveDrafts.launchChecklistSaveDraft.source, "workbench");
+assert.match(saveDrafts.launchChecklistSaveDraft.body, /# 출시 체크리스트: AI Venture Lab/);
+
+assert.deepEqual(
+  buildExecutionPackageArtifactSaveDrafts({
+    agentRunPackageDraft: "",
+    developmentKickoffDraft: "",
+    ideaName: null,
+    launchChecklistDraft: "",
+    prdHandoffDraft: "",
+  }),
+  {
+    agentRunPackageSaveDraft: null,
+    developmentKickoffSaveDraft: null,
+    launchChecklistSaveDraft: null,
+    prdHandoffSaveDraft: null,
+  },
+);
 
 const emptyDraftState = buildExecutionPackageDraftState({
   artifacts: [],
