@@ -9,6 +9,7 @@ const {
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
   getActiveIdeas,
+  getIdeaDeletionRelatedTables,
   getIdeaStageRank,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
@@ -74,6 +75,15 @@ assert.equal(isDiscardedIdea(ideas[4]), true);
 assert.equal(isWorkbenchAdminRole("owner"), true);
 assert.equal(isWorkbenchAdminRole("admin"), true);
 assert.equal(isWorkbenchAdminRole("member"), false);
+assert.deepEqual(getIdeaDeletionRelatedTables(), [
+  "telemetry_events",
+  "implementation_tasks",
+  "venture_artifacts",
+  "orchestration_runs",
+  "experiments",
+  "decisions",
+  "risks",
+]);
 assert.deepEqual(buildDiscardIdeaPatch("2026-06-01T00:00:00.000Z"), {
   decision: "kill",
   stage: "paused",

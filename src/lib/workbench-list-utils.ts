@@ -21,10 +21,25 @@ export type WorkbenchAccessViewer = { id: string } | null;
 
 const ideaStageOrder: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const ideaStageRank = new Map(ideaStageOrder.map((stage, index) => [stage, index]));
+const ideaDeletionRelatedTables = [
+  "telemetry_events",
+  "implementation_tasks",
+  "venture_artifacts",
+  "orchestration_runs",
+  "experiments",
+  "decisions",
+  "risks",
+] as const;
+
 export const workbenchAdminRoles = new Set<OrganizationRole>(["owner", "admin"]);
+export type IdeaDeletionRelatedTable = (typeof ideaDeletionRelatedTables)[number];
 
 export function getIdeaStageRank(stage: IdeaStage) {
   return ideaStageRank.get(stage) ?? 99;
+}
+
+export function getIdeaDeletionRelatedTables(): readonly IdeaDeletionRelatedTable[] {
+  return ideaDeletionRelatedTables;
 }
 
 export function isIdeaStageAtOrAfter(stage: IdeaStage, targetStage: IdeaStage) {

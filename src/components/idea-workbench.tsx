@@ -58,6 +58,7 @@ import {
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
   getActiveIdeas,
+  getIdeaDeletionRelatedTables,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
   getVisibleActiveIdeaCount,
@@ -1348,17 +1349,7 @@ export function IdeaWorkbench({
     setIsBusy(true);
     setMessage(null);
 
-    const relatedTables = [
-      "telemetry_events",
-      "implementation_tasks",
-      "venture_artifacts",
-      "orchestration_runs",
-      "experiments",
-      "decisions",
-      "risks",
-    ] as const;
-
-    for (const table of relatedTables) {
+    for (const table of getIdeaDeletionRelatedTables()) {
       const { error } = await supabase.from(table).delete().eq("idea_id", idea.id);
 
       if (error) {
