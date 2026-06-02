@@ -13,6 +13,8 @@ export const riskSeverityLabels: Record<RiskSeverity, string> = {
   critical: "매우 높음",
 };
 
+export const riskSeverityOptions: RiskSeverity[] = ["low", "medium", "high", "critical"];
+
 export const riskStatusLabels: Record<string, string> = {
   open: "열려 있음",
   mitigating: "완화 중",
@@ -54,6 +56,8 @@ export const runStatusLabels: Record<OrchestrationStatus, string> = {
   done: "완료",
   skipped: "건너뜀",
 };
+
+export const orchestrationStatusOptions: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
 
 export const orchestrationPhaseConfigs: Array<{
   phase: OrchestrationPhase;
@@ -149,6 +153,8 @@ export const decisionLabels: Record<DecisionStatus, string> = {
   pivot: "방향 수정",
   kill: "중단",
 };
+
+export const decisionOptions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
 
 export const scoreFieldDescriptions = {
   problem_intensity: "사용자가 이 문제를 얼마나 크게 불편하거나 비용으로 느끼는지입니다.",

@@ -240,15 +240,18 @@ import {
 } from "@/lib/workbench-readiness-checks";
 import {
   decisionLabels,
+  decisionOptions,
   evidenceConfidenceLabels,
   evidenceConfidenceSelectOptions,
   experimentStatusGuides,
   experimentStatusLabels,
   experimentStatusOptions,
   filterModeLabels,
+  orchestrationStatusOptions,
   orchestrationPhaseConfigs,
   phaseLabels,
   riskSeverityLabels,
+  riskSeverityOptions,
   riskStatusLabels,
   riskStatusOptions,
   runStatusLabels,
@@ -461,9 +464,6 @@ type ViewerUser = Pick<User, "id">;
 
 export type { WorkbenchTask } from "@/lib/workbench-tasks";
 
-const decisions: DecisionStatus[] = ["pending", "research_more", "ship", "pivot", "kill"];
-const riskSeverities: RiskSeverity[] = ["low", "medium", "high", "critical"];
-const orchestrationStatuses: OrchestrationStatus[] = ["planned", "running", "blocked", "done", "skipped"];
 type EditState = WorkbenchEditState;
 
 type RiskDraft = {
@@ -6894,7 +6894,7 @@ export function IdeaWorkbench({
             onRunOutputChange={(runId, value) => setRunOutputs((current) => setRecordKey(current, runId, value))}
             onSaveRunOutput={saveRunOutput}
             onUpdateRunStatus={updateRunStatus}
-            orchestrationStatuses={orchestrationStatuses}
+            orchestrationStatuses={orchestrationStatusOptions}
             phaseLabels={phaseLabels}
             runOutputs={runOutputs}
             runStatusLabels={runStatusLabels}
@@ -6943,7 +6943,7 @@ export function IdeaWorkbench({
                 <SelectField
                   label="심각도"
                   value={riskDraft.severity}
-                  options={riskSeverities}
+                  options={riskSeverityOptions}
                   labels={riskSeverityLabels}
                   disabled={!user}
                   onChange={(value) => setRiskDraft({ ...riskDraft, severity: value as RiskSeverity })}
@@ -7658,7 +7658,7 @@ export function IdeaWorkbench({
                 <SelectField
                   label="검증 후 판단"
                   value={experimentResultDraft.next_decision}
-                  options={decisions}
+                  options={decisionOptions}
                   labels={decisionLabels}
                   description="이 결과를 보고 아이디어를 계속 진행할지, 추가 조사할지, 전환/중단할지 고릅니다."
                   disabled={selectedExperiments.length === 0}
