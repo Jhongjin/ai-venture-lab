@@ -11,7 +11,27 @@ const {
   buildRiskInsertRow,
   buildRiskStatusUpdatePatch,
   experimentResultGuideRows,
+  validationEvidenceCoachGuideRows,
+  validationExperimentGuideRows,
 } = await import(moduleUrl);
+
+assert.deepEqual(
+  validationExperimentGuideRows.map((row) => row.title),
+  ["무엇을 확인할지", "어떻게 확인할지", "어디까지 보면 될지"],
+);
+assert.equal(
+  validationExperimentGuideRows[0].detail,
+  "가장 불확실한 한 가지를 고릅니다. 예: 실제로 자주 겪는 문제인지, 돈을 낼 만큼 불편한지.",
+);
+
+assert.deepEqual(
+  validationEvidenceCoachGuideRows.map((row) => row.title),
+  ["근거 충분도", "질문 복사", "아래 입력칸에 넣기"],
+);
+assert.equal(
+  validationEvidenceCoachGuideRows[2].detail,
+  "부족한 근거를 아래 결과 기록의 다음 행동 입력칸에 넣습니다.",
+);
 
 assert.deepEqual(
   experimentResultGuideRows.map((row) => row.title),

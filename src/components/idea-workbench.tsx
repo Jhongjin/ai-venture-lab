@@ -326,6 +326,8 @@ import {
   buildRiskInsertRow,
   buildRiskStatusUpdatePatch,
   experimentResultGuideRows,
+  validationEvidenceCoachGuideRows,
+  validationExperimentGuideRows,
 } from "@/lib/validation-input-rows";
 import { buildValidationPackageSaveJobs } from "@/lib/validation-package-save-jobs";
 import {
@@ -7104,17 +7106,13 @@ export function IdeaWorkbench({
                   isMarketScanOutdated={hasOutdatedMarketScanArtifact}
                 />
                 <div className="mb-5 grid gap-px bg-slate-200 md:grid-cols-3">
-                  {[
-                    ["무엇을 확인할지", "가장 불확실한 한 가지를 고릅니다. 예: 실제로 자주 겪는 문제인지, 돈을 낼 만큼 불편한지."],
-                    ["어떻게 확인할지", "7일 안에 직접 할 수 있는 행동 하나만 정합니다. 예: 5명 인터뷰, 랜딩/대기자, 직접 테스트."],
-                    ["어디까지 보면 될지", "몇 명이 어떤 행동을 하면 계속할지, 어떤 반응이면 멈출지 숫자로 정합니다."],
-                  ].map(([title, detail], index) => (
-                    <div key={title} className="bg-slate-50 px-4 py-3">
+                  {validationExperimentGuideRows.map((row, index) => (
+                    <div key={row.title} className="bg-slate-50 px-4 py-3">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
                         0{index + 1}
                       </div>
-                      <div className="mt-1 text-sm font-semibold text-slate-950">{title}</div>
-                      <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+                      <div className="mt-1 text-sm font-semibold text-slate-950">{row.title}</div>
+                      <p className="mt-1 text-xs leading-5 text-slate-600">{row.detail}</p>
                     </div>
                   ))}
                 </div>
@@ -7318,14 +7316,10 @@ export function IdeaWorkbench({
                 </div>
               </div>
               <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-3">
-                {[
-                  ["근거 충분도", "현재 확인한 내용이 다음 단계로 넘어가기에 충분한지 참고로 보여줍니다."],
-                  ["질문 복사", "외부 AI, 인터뷰 준비, 조사 메모에 붙여넣을 질문을 복사합니다."],
-                  ["아래 입력칸에 넣기", "부족한 근거를 아래 결과 기록의 다음 행동 입력칸에 넣습니다."],
-                ].map(([title, detail]) => (
-                  <div key={title} className="bg-slate-50 px-4 py-3">
-                    <div className="text-sm font-semibold text-slate-950">{title}</div>
-                    <p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p>
+                {validationEvidenceCoachGuideRows.map((row) => (
+                  <div key={row.title} className="bg-slate-50 px-4 py-3">
+                    <div className="text-sm font-semibold text-slate-950">{row.title}</div>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{row.detail}</p>
                   </div>
                 ))}
               </div>
