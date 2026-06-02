@@ -47,7 +47,7 @@ export type MarketScanDraft = {
   sources: MarketScanSource[];
 };
 
-type MarketScanDecisionLabels = Record<DecisionStatus, string>;
+export type MarketScanDecisionLabels = Record<DecisionStatus, string>;
 
 export function isMarketScanArtifactRecord(artifact: VentureArtifact) {
   return artifact.source === "market_scan" || (artifact.title || "").includes("시장·경쟁 자동 조사");
@@ -118,6 +118,54 @@ export type MarketScanReviewState = {
   status: MarketScanReviewStatus;
   visibleDraft: MarketScanDraft | null;
 };
+
+export type MarketScanReviewRows = {
+  decisionRows: Array<{ helper: string; label: string; value: string }>;
+  marketDetailRows: Array<{ detail: string; title: string }>;
+  overviewRows: Array<{ label: string; value: string }>;
+};
+
+export function buildMarketScanReviewRows({
+  decisionLabels,
+  draft,
+  isEstimate,
+  publicSourceCount,
+}: {
+  decisionLabels: MarketScanDecisionLabels;
+  draft: MarketScanDraft;
+  isEstimate: boolean;
+  publicSourceCount: number;
+}): MarketScanReviewRows {
+  return {
+    overviewRows: [
+      { label: "조사 방식", value: isEstimate ? "추정 초안" : "웹 출처 포함" },
+      { label: "공개 출처", value: `${publicSourceCount}개` },
+      { label: "경쟁/대체재", value: `${draft.competitor_map.length}개` },
+    ],
+    decisionRows: [
+      {
+        label: "지금 판단",
+        value: decisionLabels[draft.recommendation],
+        helper: `신뢰도 ${getMarketScanLevelLabel(draft.confidence)}`,
+      },
+      {
+        label: "다음 행동",
+        value: draft.next_action,
+        helper: "이 행동만 확인하면 다음 단계 판단이 쉬워집니다",
+      },
+      {
+        label: "주의",
+        value: draft.caveat || "출처와 추정이 섞일 수 있으니 중요한 수치는 다시 확인하세요.",
+        helper: isEstimate ? "추정 초안" : "웹 출처 포함",
+      },
+    ],
+    marketDetailRows: [
+      { title: "예상 수요", detail: draft.demand_forecast },
+      { title: "경쟁/포화도", detail: `${draft.competition} ${draft.saturation}` },
+      { title: "진입장벽", detail: draft.entry_barriers },
+    ],
+  };
+}
 
 export function buildMarketScanReviewState({
   artifacts,

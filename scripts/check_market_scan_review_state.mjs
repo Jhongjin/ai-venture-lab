@@ -13,7 +13,14 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { buildMarketScanReviewState } = await import(moduleUrl);
+const { buildMarketScanReviewRows, buildMarketScanReviewState } = await import(moduleUrl);
+
+const decisionLabels = {
+  kill: "중단",
+  pivot: "전환",
+  research_more: "추가 조사",
+  ship: "진행",
+};
 
 function artifact({ body, id, title = "시장·경쟁 자동 조사" }) {
   return {
@@ -114,6 +121,27 @@ assert.equal(webDraftState.status.label, "웹 조사 준비");
 assert.equal(webDraftState.actionLabel, "다시 정리");
 assert.match(webDraftState.sourceBoundaryText, /공개 출처 1개/);
 
+const reviewRows = buildMarketScanReviewRows({
+  decisionLabels,
+  draft,
+  isEstimate: false,
+  publicSourceCount: webDraftState.publicSources.length,
+});
+assert.deepEqual(
+  reviewRows.overviewRows.map((row) => row.label),
+  ["조사 방식", "공개 출처", "경쟁/대체재"],
+);
+assert.equal(reviewRows.overviewRows[0].value, "웹 출처 포함");
+assert.equal(reviewRows.overviewRows[1].value, "1개");
+assert.equal(reviewRows.decisionRows[0].value, "추가 조사");
+assert.equal(reviewRows.decisionRows[0].helper, "신뢰도 보통");
+assert.equal(reviewRows.decisionRows[2].value, draft.caveat);
+assert.deepEqual(
+  reviewRows.marketDetailRows.map((row) => row.title),
+  ["예상 수요", "경쟁/포화도", "진입장벽"],
+);
+assert.equal(reviewRows.marketDetailRows[1].detail, `${draft.competition} ${draft.saturation}`);
+
 const estimateState = buildMarketScanReviewState({
   artifacts: [],
   draft,
@@ -128,6 +156,16 @@ assert.equal(estimateState.status.label, "추정 초안");
 assert.equal(estimateState.actionLabel, "웹 조사 다시 시도");
 assert.equal(estimateState.isVisibleEstimate, true);
 assert.match(estimateState.sourceBoundaryText, /웹 조사 다시 시도/);
+
+const estimateRows = buildMarketScanReviewRows({
+  decisionLabels,
+  draft: { ...draft, caveat: "" },
+  isEstimate: true,
+  publicSourceCount: 0,
+});
+assert.equal(estimateRows.overviewRows[0].value, "추정 초안");
+assert.equal(estimateRows.decisionRows[2].value, "출처와 추정이 섞일 수 있으니 중요한 수치는 다시 확인하세요.");
+assert.equal(estimateRows.decisionRows[2].helper, "추정 초안");
 
 const loadingState = buildMarketScanReviewState({
   artifacts: [],
