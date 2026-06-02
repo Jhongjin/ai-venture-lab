@@ -136,7 +136,7 @@ import {
   buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionPackageReadinessState,
-  selectFinalExecutionLiveSetupDownload,
+  buildFinalExecutionPrimaryPackageAction,
 } from "@/lib/final-execution-readiness";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import { buildExternalToolSyncConfigDraft } from "@/lib/external-tool-connector-config";
@@ -3616,22 +3616,22 @@ export function IdeaWorkbench({
       codex: downloadCodexSetupScript,
       cursor: downloadCursorSetupScript,
     };
-    const downloadLiveSetup = selectFinalExecutionLiveSetupDownload({
+    const primaryPackageAction = buildFinalExecutionPrimaryPackageAction({
       externalToolKey: activeExternalBuildTool.key,
+      externalToolLabel: activeExternalBuildTool.label,
+      externalToolRunPackageDraft,
+      handoffFileSuffix: activeExternalBuildTool.handoffFileSuffix,
+      ideaName: selectedIdea.name,
       isLiveExternalDelivery,
       liveSetupDownloads,
     });
 
-    if (downloadLiveSetup) {
-      void downloadLiveSetup();
+    if (primaryPackageAction.kind === "live_setup") {
+      void primaryPackageAction.download();
       return;
     }
 
-    downloadDraftFile(
-      externalToolRunPackageDraft,
-      `${activeExternalBuildTool.label} 시작 패키지`,
-      toDownloadFileName(selectedIdea.name, activeExternalBuildTool.handoffFileSuffix),
-    );
+    downloadDraftFile(primaryPackageAction.body, primaryPackageAction.label, primaryPackageAction.fileName);
   }
 
   async function saveRecommendedExperiment(suggestion: ExperimentDraft) {

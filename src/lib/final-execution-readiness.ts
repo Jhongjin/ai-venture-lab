@@ -54,6 +54,18 @@ export type FinalExecutionLaunchDisplayState = {
   visibleCursorSyncConnections: CursorSyncConnection[];
 };
 
+export type FinalExecutionPrimaryPackageAction<Download> =
+  | {
+      download: Download;
+      kind: "live_setup";
+    }
+  | {
+      body: string;
+      fileName: string;
+      kind: "package_download";
+      label: string;
+    };
+
 export type FinalExecutionLiveToolContext = {
   folder: string;
   guideDraft: string;
@@ -309,6 +321,44 @@ export function selectFinalExecutionLiveSetupDownload<Download>({
   }
 
   return liveSetupDownloads[externalToolKey] ?? null;
+}
+
+export function buildFinalExecutionPrimaryPackageAction<Download>({
+  externalToolKey,
+  externalToolLabel,
+  externalToolRunPackageDraft,
+  handoffFileSuffix,
+  ideaName,
+  isLiveExternalDelivery,
+  liveSetupDownloads,
+}: {
+  externalToolKey: ExternalBuildToolKey;
+  externalToolLabel: string;
+  externalToolRunPackageDraft: string;
+  handoffFileSuffix: string;
+  ideaName: string;
+  isLiveExternalDelivery: boolean;
+  liveSetupDownloads: Partial<Record<LiveExternalToolKey, Download>>;
+}): FinalExecutionPrimaryPackageAction<Download> {
+  const liveSetupDownload = selectFinalExecutionLiveSetupDownload({
+    externalToolKey,
+    isLiveExternalDelivery,
+    liveSetupDownloads,
+  });
+
+  if (liveSetupDownload) {
+    return {
+      download: liveSetupDownload,
+      kind: "live_setup",
+    };
+  }
+
+  return {
+    body: externalToolRunPackageDraft,
+    fileName: toDownloadFileName(ideaName, handoffFileSuffix),
+    kind: "package_download",
+    label: `${externalToolLabel} 시작 패키지`,
+  };
 }
 
 export function buildFinalExecutionConnectionHealth({
