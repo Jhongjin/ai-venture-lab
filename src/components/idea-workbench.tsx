@@ -348,6 +348,7 @@ import {
   getOpenImplementationTasksForAction,
   getVisibleImplementationTaskStatuses,
   resolveImplementationOwnerFilter,
+  selectAgentRunPackageTasks,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
   implementationStatusFilterLabels,
@@ -1862,9 +1863,7 @@ export function IdeaWorkbench({
         artifacts: selectedArtifactRecords,
       })
     : "";
-  const agentRunPackageTasks = filteredImplementationTasks.some((task) => task.status !== "done")
-    ? filteredImplementationTasks.filter((task) => task.status !== "done")
-    : selectedOpenImplementationTasks;
+  const agentRunPackageTasks = selectAgentRunPackageTasks(filteredImplementationTasks, selectedOpenImplementationTasks);
   const agentRunPackageDraft = selectedIdea && editState
     ? buildAgentRunPackageMarkdown({
         idea: selectedIdea,

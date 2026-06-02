@@ -184,6 +184,12 @@ export function getOpenImplementationTasksForAction(tasks: ImplementationTask[])
   return sortImplementationTasksForAction(tasks.filter((task) => task.status !== "done"));
 }
 
+export function selectAgentRunPackageTasks(filteredTasks: ImplementationTask[], openTasks: ImplementationTask[]) {
+  const filteredOpenTasks = filteredTasks.filter((task) => task.status !== "done");
+
+  return filteredOpenTasks.length > 0 ? filteredOpenTasks : openTasks;
+}
+
 export function sortImplementationTasksForExecution(tasks: ImplementationTask[]) {
   return [...tasks].sort(
     (a, b) =>

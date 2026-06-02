@@ -10,6 +10,7 @@ const {
   filterImplementationTasks,
   getOpenImplementationTasksForAction,
   resolveImplementationOwnerFilter,
+  selectAgentRunPackageTasks,
 } = await import(moduleUrl);
 
 function task({ evidence = "", id, ownerRole, status, taskType }) {
@@ -119,6 +120,14 @@ assert.deepEqual(
 
 assert.deepEqual(
   getOpenImplementationTasksForAction(tasks).map((item) => item.id),
+  ["task-qa", "task-backend", "task-frontend"],
+);
+assert.deepEqual(
+  selectAgentRunPackageTasks([tasks[1], tasks[3]], getOpenImplementationTasksForAction(tasks)).map((item) => item.id),
+  ["task-backend"],
+);
+assert.deepEqual(
+  selectAgentRunPackageTasks([tasks[3]], getOpenImplementationTasksForAction(tasks)).map((item) => item.id),
   ["task-qa", "task-backend", "task-frontend"],
 );
 
