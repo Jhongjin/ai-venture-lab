@@ -10,12 +10,29 @@ const artifactMarkdownUrl = pathToFileURL(
 ).href;
 const buildDeliveryUrl = pathToFileURL(path.join(process.cwd(), "src/lib/build-delivery.ts")).href;
 const extractionRiskUrl = pathToFileURL(path.join(process.cwd(), "src/lib/extraction-risk-utils.ts")).href;
+const extractionTextUrl = pathToFileURL(path.join(process.cwd(), "src/lib/extraction-text-utils.ts")).href;
 const productSurfaceUrl = pathToFileURL(path.join(process.cwd(), "src/lib/product-surface.ts")).href;
 const sourceRedactionUrl = pathToFileURL(path.join(process.cwd(), "src/lib/source-redaction.ts")).href;
+const strategyLensPath = path.join(process.cwd(), "src/lib/extraction-strategy-lens.ts");
+const strategyLensSource = readFileSync(strategyLensPath, "utf8")
+  .replace('from "@/lib/extraction-text-utils";', `from ${JSON.stringify(extractionTextUrl)};`)
+  .replace(
+    'import { hasNumericSignal } from "@/lib/extraction-gate";',
+    'function hasNumericSignal(value) { return /\\d|명|일|%|퍼센트|건|회|만원|원/.test(value); }',
+  );
+const { outputText: strategyLensOutput } = ts.transpileModule(strategyLensSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ESNext,
+    target: ts.ScriptTarget.ES2022,
+  },
+  fileName: strategyLensPath,
+});
+const strategyLensUrl = `data:text/javascript;base64,${Buffer.from(strategyLensOutput).toString("base64")}`;
 const source = readFileSync(modulePath, "utf8")
   .replaceAll('from "@/lib/extracted-idea-artifact-markdown";', `from ${JSON.stringify(artifactMarkdownUrl)};`)
   .replaceAll('from "@/lib/build-delivery";', `from ${JSON.stringify(buildDeliveryUrl)};`)
   .replaceAll('from "@/lib/extraction-risk-utils";', `from ${JSON.stringify(extractionRiskUrl)};`)
+  .replaceAll('from "@/lib/extraction-strategy-lens";', `from ${JSON.stringify(strategyLensUrl)};`)
   .replaceAll('from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`)
   .replaceAll('from "@/lib/source-redaction";', `from ${JSON.stringify(sourceRedactionUrl)};`);
 const { outputText } = ts.transpileModule(source, {
@@ -143,7 +160,6 @@ const packageRows = buildExtractedIdeaPackageArtifactRows({
   extractionGate,
   ideaId: "idea-2",
   organizationId: null,
-  strategyLensMarkdown: "## 전략 렌즈\n\n- 제작 속도: 높음",
 });
 
 assert.deepEqual(packageRows.map((row) => row.artifact_type), ["idea_brief", "research_note", "research_note"]);
@@ -151,5 +167,7 @@ assert.equal(packageRows[0].idea_id, "idea-2");
 assert.equal(packageRows[0].organization_id, null);
 assert.equal(packageRows[0].body.includes("자동 가림 처리"), true);
 assert.equal(packageRows[0].body.includes("founder@example.com"), false);
+assert.match(packageRows[0].body, /## 사업\/제작 렌즈/);
+assert.match(packageRows[0].body, /종합 점수: \d+%/);
 
 console.log("Extracted idea artifact rows smoke passed.");

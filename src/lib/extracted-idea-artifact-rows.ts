@@ -8,6 +8,7 @@ import {
 } from "@/lib/build-delivery";
 import type { ExtractedIdea } from "@/lib/extracted-idea-normalization";
 import { inferRiskArea, inferRiskSeverity } from "@/lib/extraction-risk-utils";
+import { buildCandidateStrategyLensMarkdown } from "@/lib/extraction-strategy-lens";
 import { productSurfaceMarkdown } from "@/lib/product-surface";
 import { redactSensitiveSource } from "@/lib/source-redaction";
 import type { Database } from "@/lib/supabase/types";
@@ -139,7 +140,7 @@ export function buildExtractedIdeaPackageArtifactRows({
   extractionGate: { label: string; nextAction: string };
   ideaId: string;
   organizationId: string | null;
-  strategyLensMarkdown: string;
+  strategyLensMarkdown?: string;
 }) {
   const buildDelivery = normalizeBuildDeliveryPreference(buildDeliveryPreference);
   const redactedSourceBlock = redactSensitiveSource(candidate.sourceBlock);
@@ -170,7 +171,7 @@ export function buildExtractedIdeaPackageArtifactRows({
     sevenDayExperiment: candidate.sevenDayExperiment,
     signal: candidate.signal,
     sourceBlock,
-    strategyLensMarkdown,
+    strategyLensMarkdown: strategyLensMarkdown ?? buildCandidateStrategyLensMarkdown(candidate),
     successMetric: candidate.successMetric,
     targetUser: candidate.target_user,
     validationQuestions: candidate.validationQuestions,

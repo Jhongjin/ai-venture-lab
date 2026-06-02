@@ -36,7 +36,6 @@ import {
 } from "@/lib/extraction-gate";
 import {
   buildCandidateStrategyLens,
-  buildCandidateStrategyLensMarkdown,
   getCandidateStrategyScore,
 } from "@/lib/extraction-strategy-lens";
 import {
@@ -1446,7 +1445,6 @@ export function VentureConsoleActions({
             extractionGate,
             ideaId: idea.id,
             organizationId,
-            strategyLensMarkdown: buildCandidateStrategyLensMarkdown(candidate),
           }),
         )
         .select(),
