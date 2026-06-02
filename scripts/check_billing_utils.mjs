@@ -29,8 +29,10 @@ const {
   buildCreditSummaryLoadFailedMessage,
   buildCreditSummaryLoadRetryMessage,
   buildCreditSummaryReadFailedMessage,
+  getBuildPassUnlockUrl,
   getBuildPassRequirementMessage,
   getBuildPassUnlockResult,
+  getCreditSummaryUrl,
 } = await import(moduleUrl);
 
 assert.equal(buildBuildPassUnlockLoginRequiredMessage(), "제작 패스를 열려면 먼저 로그인하세요.");
@@ -42,6 +44,8 @@ assert.equal(
   "전체 제작 패키지가 열렸습니다. 이제 AI 제작 패키지를 만들고 저장할 수 있습니다.",
 );
 assert.deepEqual(buildBuildPassUnlockRequestPayload("idea-1"), { ideaId: "idea-1" });
+assert.equal(getCreditSummaryUrl(), "/api/billing/credits");
+assert.equal(getBuildPassUnlockUrl(), "/api/billing/build-pass");
 assert.equal(buildCreditSummaryReadFailedMessage(), "크레딧 상태를 읽지 못했습니다.");
 assert.equal(buildCreditSummaryLoadFailedMessage(), "크레딧 상태를 불러오지 못했습니다.");
 assert.equal(buildCreditSummaryLoadRetryMessage(), "크레딧 상태를 불러오지 못했습니다. 잠시 후 다시 시도하세요.");

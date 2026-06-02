@@ -109,6 +109,14 @@ export function buildBuildPassUnlockRequestPayload(ideaId: string) {
   return { ideaId };
 }
 
+export function getCreditSummaryUrl() {
+  return "/api/billing/credits";
+}
+
+export function getBuildPassUnlockUrl() {
+  return "/api/billing/build-pass";
+}
+
 export function buildCreditSummaryReadFailedMessage() {
   return "크레딧 상태를 읽지 못했습니다.";
 }

@@ -212,9 +212,11 @@ import {
   buildCreditSummaryLoadFailedMessage,
   buildCreditSummaryLoadRetryMessage,
   buildCreditSummaryReadFailedMessage,
+  getBuildPassUnlockUrl,
   getBuildPassRequirementMessage,
   getBuildPassUnlockResult,
   getCreditAccessState,
+  getCreditSummaryUrl,
   isCreditSummary,
   type CreditSummary,
 } from "@/lib/billing";
@@ -707,7 +709,7 @@ export function IdeaWorkbench({
     setIsCreditSummaryLoading(true);
 
     try {
-      const response = await fetch("/api/billing/credits", {
+      const response = await fetch(getCreditSummaryUrl(), {
         credentials: "include",
         cache: "no-store",
       });
@@ -2837,7 +2839,7 @@ export function IdeaWorkbench({
     setCreditMessage(null);
 
     try {
-      const response = await fetch("/api/billing/build-pass", {
+      const response = await fetch(getBuildPassUnlockUrl(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
