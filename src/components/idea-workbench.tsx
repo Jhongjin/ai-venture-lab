@@ -261,7 +261,7 @@ import {
   scaffoldManifestGuideRows,
 } from "@/lib/development-package-drafts";
 import { buildImplementationDependencyPlanMarkdown } from "@/lib/implementation-dependency-plan";
-import { buildImplementationTaskDrafts } from "@/lib/implementation-task-drafts";
+import { buildImplementationHandoffDraftState } from "@/lib/implementation-handoff-drafts";
 import {
   buildImplementationTaskEvidencePatch,
   buildImplementationTaskInsertRows,
@@ -284,7 +284,6 @@ import { buildProductPlanningDraftState } from "@/lib/product-planning-drafts";
 import { buildPrdHandoffMarkdown } from "@/lib/prd-markdown";
 import { buildQaAcceptanceMatrixMarkdown } from "@/lib/qa-acceptance-matrix-markdown";
 import { buildReleaseDecisionPacket } from "@/lib/release-decision-packet";
-import { buildRolePromptPackMarkdown } from "@/lib/role-prompt-pack-markdown";
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
   buildDecisionInsertRow,
@@ -299,13 +298,7 @@ import {
 } from "@/lib/validation-input-rows";
 import { buildValidationPackageDraftState } from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
-import {
-  buildFilteredImplementationRunPromptMarkdown,
-  buildImplementationBacklogMarkdown,
-  buildImplementationTaskTicketMarkdown,
-} from "@/lib/implementation-task-markdown";
 import { buildDevelopmentKickoffMarkdown } from "@/lib/development-kickoff-markdown";
-import { buildImplementationHandoffMarkdown } from "@/lib/implementation-handoff-markdown";
 import { buildDevelopmentCompletionReportMarkdown } from "@/lib/development-completion-report";
 import {
   buildImplementationTaskRefreshSummary,
@@ -1297,75 +1290,29 @@ export function IdeaWorkbench({
     runs: selectedRuns,
     state: editState,
   });
-  const implementationHandoffDraft = selectedIdea && editState
-    ? buildImplementationHandoffMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-        artifacts: selectedArtifactRecords,
-      })
-    : "";
-  const rolePromptPackDraft = selectedIdea && editState
-    ? buildRolePromptPackMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        runs: selectedRuns,
-        artifacts: selectedArtifactRecords,
-        implementationTasks: selectedImplementationTasks,
-      })
-    : "";
-  const implementationTaskTicketDraft = selectedIdea && editState && nextImplementationTask
-    ? buildImplementationTaskTicketMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        task: nextImplementationTask,
-      })
-    : "";
-  const implementationBacklogDraft = selectedIdea && editState
-    ? buildImplementationBacklogMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        tasks: selectedOpenImplementationTasks,
-        viewName: "열린 제작 할 일",
-        filterSummary: "상태: 완료 제외 / 담당: 전체 / 증거: 전체",
-        evidenceByTaskId: implementationTaskEvidence,
-        emptyMessage: "열린 제작 할 일이 없습니다.",
-      })
-    : "";
-  const filteredImplementationBacklogDraft = selectedIdea && editState
-    ? buildImplementationBacklogMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        tasks: filteredImplementationTasks,
-        viewName: "필터된 제작 할 일",
-        filterSummary: implementationFilterSummary,
-        evidenceByTaskId: implementationTaskEvidence,
-        emptyMessage: "현재 필터 조건에 맞는 제작 할 일이 없습니다.",
-      })
-    : "";
-  const filteredImplementationRunPromptDraft = selectedIdea && editState
-    ? buildFilteredImplementationRunPromptMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        tasks: filteredImplementationTasks,
-        filterSummary: implementationFilterSummary,
-        evidenceByTaskId: implementationTaskEvidence,
-      })
-    : "";
-  const implementationTaskDrafts = selectedIdea && editState
-    ? buildImplementationTaskDrafts({
-        idea: selectedIdea,
-        state: editState,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        artifacts: selectedArtifactRecords,
-      })
-    : [];
-  const cursorHandoffTaskDrafts = implementationTaskDrafts;
+  const {
+    cursorHandoffTaskDrafts,
+    filteredImplementationBacklogDraft,
+    filteredImplementationRunPromptDraft,
+    implementationBacklogDraft,
+    implementationHandoffDraft,
+    implementationTaskDrafts,
+    implementationTaskTicketDraft,
+    rolePromptPackDraft,
+  } = buildImplementationHandoffDraftState({
+    artifacts: selectedArtifactRecords,
+    evidenceByTaskId: implementationTaskEvidence,
+    experiments: selectedExperiments,
+    filteredTasks: filteredImplementationTasks,
+    filterSummary: implementationFilterSummary,
+    idea: selectedIdea,
+    nextTask: nextImplementationTask,
+    openTasks: selectedOpenImplementationTasks,
+    risks: selectedIdeaRisks,
+    runs: selectedRuns,
+    state: editState,
+    tasks: selectedImplementationTasks,
+  });
   const {
     canEnterDevelopmentFromValidationDocs,
     canEnterOrchestrationFromDevelopmentDocs,
