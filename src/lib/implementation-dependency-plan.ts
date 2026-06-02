@@ -80,3 +80,23 @@ ${
 - QA와 보안이 완료되기 전에는 Production 배포 태스크를 완료 처리하지 않습니다.
 `;
 }
+
+export function buildImplementationDependencyPlanDraft({
+  idea,
+  state,
+  statuses,
+}: {
+  idea: Idea | null;
+  state: ImplementationDecisionState | null;
+  statuses: ImplementationDependencyStatus[];
+}) {
+  if (!idea || !state) {
+    return "";
+  }
+
+  return buildImplementationDependencyPlanMarkdown({
+    idea,
+    state,
+    statuses,
+  });
+}

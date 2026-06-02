@@ -255,7 +255,7 @@ import {
   buildDevelopmentPackageDraftState,
   scaffoldManifestGuideRows,
 } from "@/lib/development-package-drafts";
-import { buildImplementationDependencyPlanMarkdown } from "@/lib/implementation-dependency-plan";
+import { buildImplementationDependencyPlanDraft } from "@/lib/implementation-dependency-plan";
 import { buildImplementationHandoffDraftState } from "@/lib/implementation-handoff-drafts";
 import {
   buildImplementationTaskEvidencePatch,
@@ -950,13 +950,11 @@ export function IdeaWorkbench({
     tasks: selectedImplementationTasks,
     totalImplementationTaskCount: totalLearningImplementationTasks,
   });
-  const implementationDependencyPlanDraft = selectedIdea && editState
-    ? buildImplementationDependencyPlanMarkdown({
-        idea: selectedIdea,
-        state: editState,
-        statuses: implementationDependencyStatuses,
-      })
-    : "";
+  const implementationDependencyPlanDraft = buildImplementationDependencyPlanDraft({
+    idea: selectedIdea,
+    state: editState,
+    statuses: implementationDependencyStatuses,
+  });
   const {
     activeImplementationOwnerFilter,
     blockedImplementationSummaries,
