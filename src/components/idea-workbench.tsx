@@ -291,6 +291,7 @@ import {
   buildValidationEvidenceArtifactSaveDraft,
   buildValidationPackageArtifactSaveDrafts,
   buildValidationPackageDraftState,
+  buildValidationPackageSavedMessage,
 } from "@/lib/validation-package-drafts";
 import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
 import {
@@ -2620,11 +2621,7 @@ export function IdeaWorkbench({
     }
 
     setIsSavingValidationBundle(false);
-    setMessage(
-      savedCount > 0
-        ? "검증 자료를 한 번에 저장했습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다."
-        : "이미 필요한 검증 자료가 모두 저장되어 있습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다.",
-    );
+    setMessage(buildValidationPackageSavedMessage(savedCount));
   }
 
   async function startDevelopmentAutoPackage() {
