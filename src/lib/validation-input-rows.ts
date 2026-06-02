@@ -29,6 +29,18 @@ export type ExperimentResultTelemetryInput<Decision extends string> = {
   result: string;
 };
 
+export type DecisionTemplateSource = {
+  hypotheses: string[];
+  nextAction: string;
+  status: string;
+  statusDetail: string;
+};
+
+export type EvidenceCoachExperimentResultPatch = {
+  experiment_id: string;
+  next_action: string;
+};
+
 export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
 };
@@ -155,6 +167,27 @@ export function buildDecisionTemplateLoadedMessage() {
 
 export function buildEvidenceCoachPromptLoadedMessage() {
   return "보완할 질문을 아래 결과 기록의 다음 행동 입력칸에 넣었습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.";
+}
+
+export function buildDecisionTemplateReason(plan: DecisionTemplateSource) {
+  return `${plan.status}: ${plan.statusDetail}\n\n다음 행동: ${plan.nextAction}\n\n확인할 핵심 가설\n- ${plan.hypotheses.join(
+    "\n- ",
+  )}`;
+}
+
+export function buildEvidenceCoachExperimentResultPatch({
+  currentExperimentId,
+  nextFocusAction,
+  selectedExperimentId,
+}: {
+  currentExperimentId: string;
+  nextFocusAction: string | null | undefined;
+  selectedExperimentId: string | null | undefined;
+}): EvidenceCoachExperimentResultPatch {
+  return {
+    experiment_id: currentExperimentId || selectedExperimentId || "",
+    next_action: nextFocusAction ?? "완료한 검증 결과를 바탕으로 계속 진행, 추가 조사, 전환, 중단 중 다음 행동을 정합니다.",
+  };
 }
 
 export function buildEvidenceNoteTitleRequiredMessage() {

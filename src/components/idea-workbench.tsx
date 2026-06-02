@@ -383,7 +383,9 @@ import {
   buildDecisionRecordedTelemetryProperties,
   buildDecisionRecordFailedMessage,
   buildDecisionRecordPermissionDeniedMessage,
+  buildDecisionTemplateReason,
   buildDecisionTemplateLoadedMessage,
+  buildEvidenceCoachExperimentResultPatch,
   buildEvidenceCoachPromptLoadedMessage,
   buildEvidenceNoteEmptySaveDraftMessage,
   buildEvidenceNoteEvidenceRequiredMessage,
@@ -3775,11 +3777,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setDecisionReason(
-      `${validationPlan.status}: ${validationPlan.statusDetail}\n\n다음 행동: ${validationPlan.nextAction}\n\n확인할 핵심 가설\n- ${validationPlan.hypotheses.join(
-        "\n- ",
-      )}`,
-    );
+    setDecisionReason(buildDecisionTemplateReason(validationPlan));
     updateActiveTask("decision");
     setMessage(buildDecisionTemplateLoadedMessage());
   }
@@ -3789,12 +3787,16 @@ export function IdeaWorkbench({
       return;
     }
 
-    setExperimentResultDraft((current) => setRecordFields(current, {
-      experiment_id: current.experiment_id || selectedExperimentForResult?.id || "",
-      next_action:
-        validationEvidenceCoach.nextFocus?.action ??
-        "완료한 검증 결과를 바탕으로 계속 진행, 추가 조사, 전환, 중단 중 다음 행동을 정합니다.",
-    }));
+    setExperimentResultDraft((current) =>
+      setRecordFields(
+        current,
+        buildEvidenceCoachExperimentResultPatch({
+          currentExperimentId: current.experiment_id,
+          nextFocusAction: validationEvidenceCoach.nextFocus?.action,
+          selectedExperimentId: selectedExperimentForResult?.id,
+        }),
+      ),
+    );
     setMessage(buildEvidenceCoachPromptLoadedMessage());
   }
 

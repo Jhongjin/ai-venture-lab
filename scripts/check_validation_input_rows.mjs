@@ -9,7 +9,9 @@ const {
   buildDecisionRecordedTelemetryProperties,
   buildDecisionRecordFailedMessage,
   buildDecisionRecordPermissionDeniedMessage,
+  buildDecisionTemplateReason,
   buildDecisionTemplateLoadedMessage,
+  buildEvidenceCoachExperimentResultPatch,
   buildEvidenceCoachPromptLoadedMessage,
   buildEvidenceNoteEmptySaveDraftMessage,
   buildEvidenceNoteEvidenceRequiredMessage,
@@ -112,6 +114,37 @@ assert.equal(buildDecisionTemplateLoadedMessage(), "검증 상태 기반 판단 
 assert.equal(
   buildEvidenceCoachPromptLoadedMessage(),
   "보완할 질문을 아래 결과 기록의 다음 행동 입력칸에 넣었습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.",
+);
+assert.equal(
+  buildDecisionTemplateReason({
+    hypotheses: ["5명 중 3명이 반복 문제를 말한다", "월 1만원 지불 의사가 있다"],
+    nextAction: "5명 인터뷰",
+    status: "증거 공백 해소",
+    statusDetail: "반복 문제를 직접 확인해야 합니다.",
+  }),
+  "증거 공백 해소: 반복 문제를 직접 확인해야 합니다.\n\n다음 행동: 5명 인터뷰\n\n확인할 핵심 가설\n- 5명 중 3명이 반복 문제를 말한다\n- 월 1만원 지불 의사가 있다",
+);
+assert.deepEqual(
+  buildEvidenceCoachExperimentResultPatch({
+    currentExperimentId: "",
+    nextFocusAction: "인터뷰 질문을 먼저 확정합니다.",
+    selectedExperimentId: "experiment-1",
+  }),
+  {
+    experiment_id: "experiment-1",
+    next_action: "인터뷰 질문을 먼저 확정합니다.",
+  },
+);
+assert.deepEqual(
+  buildEvidenceCoachExperimentResultPatch({
+    currentExperimentId: "experiment-2",
+    nextFocusAction: null,
+    selectedExperimentId: "experiment-1",
+  }),
+  {
+    experiment_id: "experiment-2",
+    next_action: "완료한 검증 결과를 바탕으로 계속 진행, 추가 조사, 전환, 중단 중 다음 행동을 정합니다.",
+  },
 );
 assert.equal(buildEvidenceNoteTitleRequiredMessage(), "근거 제목은 필수입니다.");
 assert.equal(buildEvidenceNoteEvidenceRequiredMessage(), "관찰한 근거를 입력하세요.");
