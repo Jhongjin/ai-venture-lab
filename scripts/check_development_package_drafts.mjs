@@ -3,7 +3,21 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/development-package-drafts.ts")).href;
-const { buildDevelopmentArtifactDrafts, buildDevelopmentPackageDrafts } = await import(moduleUrl);
+const {
+  appBlueprintGuideRows,
+  buildDevelopmentArtifactDrafts,
+  buildDevelopmentPackageDrafts,
+  scaffoldManifestGuideRows,
+} = await import(moduleUrl);
+
+assert.deepEqual(
+  appBlueprintGuideRows.map((row) => row.label),
+  ["라우트/화면", "데이터/API", "테스트/배포"],
+);
+assert.deepEqual(
+  scaffoldManifestGuideRows.map((row) => row.label),
+  ["파일 트리", "환경변수", "백엔드 규칙", "검증 명령"],
+);
 
 const artifactDrafts = buildDevelopmentArtifactDrafts({
   backendDecisionDraft: "backend decision",

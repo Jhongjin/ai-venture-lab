@@ -14,6 +14,19 @@ export type DevelopmentPackageDraft = {
   title: string;
 };
 
+export const appBlueprintGuideRows = [
+  { label: "라우트/화면", detail: "대시보드, 새 기록, 상세, 문서, 설정 화면을 구현 단위로 나눕니다." },
+  { label: "데이터/API", detail: "작업 공간, 기록, 근거, 리스크, 문서, 이벤트 로그 계약을 정의합니다." },
+  { label: "테스트/배포", detail: "권한, 빈 상태, 저장 실패, 모바일, Production 스모크 기준을 포함합니다." },
+] as const;
+
+export const scaffoldManifestGuideRows = [
+  { label: "파일 트리", detail: "app, components, lib, scripts, docs 기준 시작 구조" },
+  { label: "환경변수", detail: "클라이언트 공개 키와 서버 전용 비밀값 경계" },
+  { label: "백엔드 규칙", detail: "Supabase RLS 또는 Firebase Security Rules 시작점" },
+  { label: "검증 명령", detail: "lint, typecheck, build, Preview/Production smoke" },
+] as const;
+
 export function buildDevelopmentArtifactDrafts({
   backendDecisionDraft,
   backendExecutionPlanDraft,

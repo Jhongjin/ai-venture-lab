@@ -133,6 +133,7 @@ import {
   artifactSourceLabels,
   artifactStatusDefaultNotes,
   artifactStatusLabels,
+  artifactStatusOptions,
   artifactStatusTone,
 } from "@/lib/artifact-labels";
 import {
@@ -282,7 +283,12 @@ import {
   buildFinalDevelopmentPlanDraft,
 } from "@/lib/development-auto-package-copy";
 import { buildDevelopmentAutopilotRows } from "@/lib/development-autopilot-rows";
-import { buildDevelopmentArtifactDrafts, buildDevelopmentPackageDrafts } from "@/lib/development-package-drafts";
+import {
+  appBlueprintGuideRows,
+  buildDevelopmentArtifactDrafts,
+  buildDevelopmentPackageDrafts,
+  scaffoldManifestGuideRows,
+} from "@/lib/development-package-drafts";
 import { buildFirstBuildBridge } from "@/lib/first-build-bridge";
 import { buildImplementationDependencyPlanMarkdown } from "@/lib/implementation-dependency-plan";
 import { buildImplementationTaskDrafts } from "@/lib/implementation-task-drafts";
@@ -5478,14 +5484,10 @@ export function IdeaWorkbench({
               </div>
             </div>
             <div className="mt-4 grid gap-3 lg:grid-cols-3">
-              {[
-                ["라우트/화면", "대시보드, 새 기록, 상세, 문서, 설정 화면을 구현 단위로 나눕니다."],
-                ["데이터/API", "작업 공간, 기록, 근거, 리스크, 문서, 이벤트 로그 계약을 정의합니다."],
-                ["테스트/배포", "권한, 빈 상태, 저장 실패, 모바일, Production 스모크 기준을 포함합니다."],
-              ].map(([label, detail]) => (
-                <div key={label} className="border border-slate-200 bg-slate-50 p-3">
-                  <div className="text-sm font-semibold text-slate-950">{label}</div>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">{detail}</p>
+              {appBlueprintGuideRows.map((row) => (
+                <div key={row.label} className="border border-slate-200 bg-slate-50 p-3">
+                  <div className="text-sm font-semibold text-slate-950">{row.label}</div>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{row.detail}</p>
                 </div>
               ))}
             </div>
@@ -5536,15 +5538,10 @@ export function IdeaWorkbench({
               </div>
             </div>
             <div className="mt-4 grid gap-3 lg:grid-cols-4">
-              {[
-                ["파일 트리", "app, components, lib, scripts, docs 기준 시작 구조"],
-                ["환경변수", "클라이언트 공개 키와 서버 전용 비밀값 경계"],
-                ["백엔드 규칙", "Supabase RLS 또는 Firebase Security Rules 시작점"],
-                ["검증 명령", "lint, typecheck, build, Preview/Production smoke"],
-              ].map(([label, detail]) => (
-                <div key={label} className="border border-slate-200 bg-slate-50 p-3">
-                  <div className="text-sm font-semibold text-slate-950">{label}</div>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">{detail}</p>
+              {scaffoldManifestGuideRows.map((row) => (
+                <div key={row.label} className="border border-slate-200 bg-slate-50 p-3">
+                  <div className="text-sm font-semibold text-slate-950">{row.label}</div>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{row.detail}</p>
                 </div>
               ))}
             </div>
@@ -8159,7 +8156,7 @@ export function IdeaWorkbench({
                   className="avl-select h-10 text-sm normal-case tracking-normal text-slate-800"
                 >
                   <option value="all">전체 상태</option>
-                  {(["draft", "approved", "archived"] as VentureArtifactStatus[]).map((status) => (
+                  {artifactStatusOptions.map((status) => (
                     <option key={status} value={status}>
                       {artifactStatusLabels[status]}
                     </option>
@@ -8391,7 +8388,7 @@ export function IdeaWorkbench({
                             리뷰 메모
                           </button>
                         ) : null}
-                        {(["draft", "approved", "archived"] as VentureArtifactStatus[]).map((nextStatus) => (
+                        {artifactStatusOptions.map((nextStatus) => (
                           <button
                             key={nextStatus}
                             type="button"

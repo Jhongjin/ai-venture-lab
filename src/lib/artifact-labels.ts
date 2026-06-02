@@ -18,6 +18,8 @@ export const artifactStatusLabels: Record<VentureArtifactStatus, string> = {
   archived: "보관됨",
 };
 
+export const artifactStatusOptions: VentureArtifactStatus[] = ["draft", "approved", "archived"];
+
 export const artifactStatusTone: Record<VentureArtifactStatus, string> = {
   draft: "avl-pill avl-pill-neutral",
   approved: "avl-pill avl-pill-success",
