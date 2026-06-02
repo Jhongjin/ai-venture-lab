@@ -1162,6 +1162,27 @@ export function IdeaWorkbench({
     [],
   );
 
+  const updateRiskDraftField = useCallback(
+    <Key extends keyof RiskDraft>(field: Key, value: RiskDraft[Key]) => {
+      setRiskDraft((current) => setRecordField(current, field, value));
+    },
+    [],
+  );
+
+  const updateExperimentDraftField = useCallback(
+    <Key extends keyof ExperimentDraft>(field: Key, value: ExperimentDraft[Key]) => {
+      setExperimentDraft((current) => setRecordField(current, field, value));
+    },
+    [],
+  );
+
+  const updateRunDraftField = useCallback(
+    <Key extends keyof RunDraft>(field: Key, value: RunDraft[Key]) => {
+      setRunDraft((current) => setRecordField(current, field, value));
+    },
+    [],
+  );
+
   function canManageRecord(record: { created_by: string | null; organization_id: string | null }) {
     return canManageWorkbenchRecord({ memberships, record, user });
   }
@@ -6231,8 +6252,8 @@ export function IdeaWorkbench({
           <Step6ManualRunForm
             canSubmit={Boolean(user)}
             isBusy={isBusy}
-            onObjectiveChange={(value) => setRunDraft({ ...runDraft, objective: value })}
-            onOwnerRoleChange={(value) => setRunDraft({ ...runDraft, owner_role: value })}
+            onObjectiveChange={(value) => updateRunDraftField("objective", value)}
+            onOwnerRoleChange={(value) => updateRunDraftField("owner_role", value)}
             onPhaseChange={(nextPhase) =>
               setRunDraft(buildOrchestrationRunPhaseDraft({
                 currentDraft: runDraft,
@@ -6295,12 +6316,12 @@ export function IdeaWorkbench({
                 <InputField
                   label="제목"
                   value={riskDraft.title}
-                  onChange={(value) => setRiskDraft({ ...riskDraft, title: value })}
+                  onChange={(value) => updateRiskDraftField("title", value)}
                 />
                 <InputField
                   label="영역"
                   value={riskDraft.area}
-                  onChange={(value) => setRiskDraft({ ...riskDraft, area: value })}
+                  onChange={(value) => updateRiskDraftField("area", value)}
                 />
                 <SelectField
                   label="심각도"
@@ -6308,7 +6329,7 @@ export function IdeaWorkbench({
                   options={riskSeverityOptions}
                   labels={riskSeverityLabels}
                   disabled={!user}
-                  onChange={(value) => setRiskDraft({ ...riskDraft, severity: value as RiskSeverity })}
+                  onChange={(value) => updateRiskDraftField("severity", value as RiskSeverity)}
                 />
               </div>
               <div className="avl-surface-muted mt-4 grid gap-3 px-4 py-3 sm:grid-cols-3">
@@ -6334,7 +6355,7 @@ export function IdeaWorkbench({
                   label="완화 방안"
                   value={riskDraft.mitigation}
                   disabled={!user}
-                  onChange={(value) => setRiskDraft({ ...riskDraft, mitigation: value })}
+                  onChange={(value) => updateRiskDraftField("mitigation", value)}
                 />
               </div>
               <div className="mt-5 flex flex-wrap gap-2">
@@ -6565,13 +6586,13 @@ export function IdeaWorkbench({
                           label="이번에 해볼 작은 검증"
                           value={experimentDraft.name}
                           placeholder="예) 타깃 5명에게 문제 인터뷰하기"
-                          onChange={(value) => setExperimentDraft({ ...experimentDraft, name: value })}
+                          onChange={(value) => updateExperimentDraftField("name", value)}
                         />
                         <InputField
                           label="성공/중단 기준"
                           value={experimentDraft.success_metric}
                           placeholder="예) 5명 중 3명이 최근 사례와 비용 지불 의향을 말하면 진행"
-                          onChange={(value) => setExperimentDraft({ ...experimentDraft, success_metric: value })}
+                          onChange={(value) => updateExperimentDraftField("success_metric", value)}
                         />
                         <button
                           type="submit"
