@@ -57,13 +57,13 @@ import {
   canManageWorkbenchRecord,
   appendRecord,
   appendRecords,
-  getActiveIdeas,
   getIdeaDeletionRelatedTables,
   getInitialSelectedWorkbenchIdeaId,
   getInitialWorkbenchTask,
   getSelectedWorkbenchIdea,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
+  getWorkbenchIdeaDiscardSelectionState,
   getWorkbenchIdeaRemovalSelectionState,
   isIdeaStageAtOrAfter,
   isDiscardedIdea,
@@ -1112,15 +1112,15 @@ export function IdeaWorkbench({
 
     const updatedIdea = data as Idea;
     const nextIdeas = sortWorkbenchIdeas(ideas.map((currentIdea) => (currentIdea.id === idea.id ? updatedIdea : currentIdea)));
-    const nextActiveIdea = getActiveIdeas(nextIdeas)[0] ?? null;
+    const { nextSelectedIdea, nextTask } = getWorkbenchIdeaDiscardSelectionState(nextIdeas);
 
     setIdeas(nextIdeas);
-    setSelectedIdeaId(nextActiveIdea?.id ?? "");
-    setEditState(nextActiveIdea ? toEditState(nextActiveIdea) : null);
+    setSelectedIdeaId(nextSelectedIdea?.id ?? "");
+    setEditState(nextSelectedIdea ? toEditState(nextSelectedIdea) : null);
     setIsBusy(false);
     setMessage(`"${idea.name}" 아이디어를 삭제 목록으로 옮겼습니다.`);
     window.dispatchEvent(new CustomEvent<Idea>("venture:idea-updated", { detail: updatedIdea }));
-    updateActiveTask(nextActiveIdea ? "select" : "archive");
+    updateActiveTask(nextTask);
     router.refresh();
   }
 

@@ -161,6 +161,15 @@ export function getInitialWorkbenchTask(nextIdeas: Idea[]): WorkbenchTask {
   return sortWorkbenchIdeas(getActiveIdeas(nextIdeas))[0] ? "score" : "select";
 }
 
+export function getWorkbenchIdeaDiscardSelectionState(nextIdeas: Idea[]) {
+  const nextSelectedIdea = sortWorkbenchIdeas(getActiveIdeas(nextIdeas))[0] ?? null;
+
+  return {
+    nextSelectedIdea,
+    nextTask: nextSelectedIdea ? ("select" as const) : ("archive" as const),
+  };
+}
+
 export function getSelectedWorkbenchIdea(nextIdeas: Idea[], selectedIdeaId: string) {
   return (
     nextIdeas.find((idea) => idea.id === selectedIdeaId && !isDiscardedIdea(idea)) ??

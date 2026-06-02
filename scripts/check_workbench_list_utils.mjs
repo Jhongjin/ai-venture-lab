@@ -20,6 +20,7 @@ const {
   getSelectedWorkbenchIdea,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
+  getWorkbenchIdeaDiscardSelectionState,
   getWorkbenchIdeaRemovalSelectionState,
   getVisibleActiveIdeaCount,
   getVisibleDiscardedIdeas,
@@ -135,6 +136,17 @@ assert.equal(getInitialSelectedWorkbenchIdeaId([ideas[4]]), "");
 assert.equal(getInitialWorkbenchTask(ideas), "score");
 assert.equal(getInitialWorkbenchTask([ideas[4]]), "select");
 assert.equal(getInitialWorkbenchTask([]), "select");
+assert.deepEqual(
+  {
+    nextSelectedIdeaId: getWorkbenchIdeaDiscardSelectionState(ideas).nextSelectedIdea?.id,
+    nextTask: getWorkbenchIdeaDiscardSelectionState(ideas).nextTask,
+  },
+  { nextSelectedIdeaId: "hidden", nextTask: "select" },
+);
+assert.deepEqual(getWorkbenchIdeaDiscardSelectionState([ideas[4]]), {
+  nextSelectedIdea: null,
+  nextTask: "archive",
+});
 assert.equal(getSelectedWorkbenchIdea(ideas, "admin")?.id, "admin");
 assert.equal(getSelectedWorkbenchIdea(ideas, "missing")?.id, "shared-old");
 assert.equal(getSelectedWorkbenchIdea([ideas[4]], "missing")?.id, "deleted");
