@@ -11,6 +11,7 @@ const {
   buildWorkbenchIdeaDiscardConfirmMessage,
   buildWorkbenchIdeaDiscardFailedMessage,
   buildWorkbenchIdeaDiscardedMessage,
+  buildWorkbenchIdeaDisplayState,
   buildWorkbenchIdeaPermanentDeleteConfirmMessage,
   buildWorkbenchIdeaPermanentDeleteFailedMessage,
   buildWorkbenchIdeaRemovalCompletionState,
@@ -71,6 +72,7 @@ function idea({
   decision = "pending",
   id,
   name,
+  productSurface = null,
   stage,
 }) {
   return {
@@ -88,7 +90,7 @@ function idea({
     one_liner: "",
     organization_id: null,
     problem_intensity: 0,
-    product_surface: null,
+    product_surface: productSurface,
     reachability: 0,
     regulatory_risk: 0,
     risk_summary: "",
@@ -326,6 +328,38 @@ assert.deepEqual(visibilityState.visibleIdeas.map((record) => record.id), ["owne
 assert.deepEqual(visibilityState.discardedIdeas.map((record) => record.id), ["deleted"]);
 assert.equal(visibilityState.activeVisibleIdeaCount, 3);
 assert.equal(visibilityState.discardedVisibleIdeaCount, 1);
+const displayState = buildWorkbenchIdeaDisplayState({
+  getRecordAccessState: getAccess,
+  getProductSurface: () => ({
+    description: "반복 업무를 자동으로 처리하는 흐름입니다.",
+    firstBuild: "자동화 설정과 결과 확인 흐름",
+    handoffHint: "작업 목록과 자동 실행 조건을 넘깁니다.",
+    harnessFocus: "자동화 입력/결과 확인을 검증합니다.",
+    iaHint: "설정, 실행, 결과 화면을 둡니다.",
+    key: "automation",
+    label: "업무 자동화",
+    promptFocus: "반복 업무 자동 실행을 우선 반영합니다.",
+    shortLabel: "자동화",
+    stackHint: "API와 스케줄러를 비교합니다.",
+  }),
+  getProgress: () => ({
+    label: "STEP 5 제작 패키지",
+    task: "development",
+  }),
+  idea: idea({
+    access: "owned",
+    createdAt: "2026-05-08T00:00:00.000Z",
+    id: "display",
+    name: "자동화 OS",
+    productSurface: "automation",
+    stage: "prototype",
+  }),
+});
+assert.equal(displayState.accessDisplay.label, "내 기록");
+assert.equal(displayState.accessDisplay.isManageable, true);
+assert.equal(displayState.productSurface.label, "업무 자동화");
+assert.equal(displayState.progress.label, "STEP 5 제작 패키지");
+assert.equal(displayState.progress.task, "development");
 
 const memberships = [
   { organization_id: "org-admin", role: "admin", user_id: "viewer-1" },

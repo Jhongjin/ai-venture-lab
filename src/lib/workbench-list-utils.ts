@@ -1,6 +1,7 @@
 import type { Idea } from "@/lib/venture-data";
+import type { ProductSurfaceProfile } from "@/lib/product-surface";
 import type { IdeaStage, OrganizationRole } from "@/lib/supabase/types";
-import type { WorkbenchTask } from "@/lib/workbench-tasks";
+import type { WorkbenchIdeaProgress, WorkbenchTask } from "@/lib/workbench-tasks";
 
 export type WorkbenchIdeaFilterMode = "all" | "mine" | "read_only";
 export type WorkbenchRecordAccessState = "owned" | "workspace_admin" | "workspace_member" | "hidden";
@@ -19,6 +20,11 @@ export type WorkbenchAccessMembership = {
   user_id: string;
 };
 export type WorkbenchAccessViewer = { id: string } | null;
+export type WorkbenchIdeaDisplayState = {
+  accessDisplay: WorkbenchRecordAccessDisplay;
+  productSurface: ProductSurfaceProfile;
+  progress: WorkbenchIdeaProgress;
+};
 
 const ideaStageOrder: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const ideaStageRank = new Map(ideaStageOrder.map((stage, index) => [stage, index]));
@@ -371,6 +377,24 @@ export function buildWorkbenchIdeaVisibilityState(
     discardedIdeas,
     discardedVisibleIdeaCount: discardedIdeas.length,
     visibleIdeas: filterVisibleWorkbenchIdeas(nextIdeas, filterMode, getRecordAccessState),
+  };
+}
+
+export function buildWorkbenchIdeaDisplayState({
+  getRecordAccessState,
+  getProductSurface,
+  getProgress,
+  idea,
+}: {
+  getRecordAccessState: (idea: Idea) => WorkbenchRecordAccessState;
+  getProductSurface: (idea: Idea) => ProductSurfaceProfile;
+  getProgress: (idea: Idea) => WorkbenchIdeaProgress;
+  idea: Idea;
+}): WorkbenchIdeaDisplayState {
+  return {
+    accessDisplay: getWorkbenchRecordAccessDisplay(getRecordAccessState(idea)),
+    productSurface: getProductSurface(idea),
+    progress: getProgress(idea),
   };
 }
 

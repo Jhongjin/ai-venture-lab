@@ -65,6 +65,7 @@ import {
   buildWorkbenchIdeaRelatedTableDeleteFailedMessage,
   buildWorkbenchIdeaRestoreFailedMessage,
   buildWorkbenchIdeaRestoredMessage,
+  buildWorkbenchIdeaDisplayState,
   buildWorkbenchIdeaVisibilityState,
   canManageWorkbenchRecord,
   appendRecord,
@@ -1139,6 +1140,16 @@ export function IdeaWorkbench({
     (record: { created_by: string | null; organization_id: string | null }) =>
       getWorkbenchRecordAccessState({ memberships, record, user }),
     [memberships, user],
+  );
+  const getIdeaDisplayState = useCallback(
+    (idea: Idea) =>
+      buildWorkbenchIdeaDisplayState({
+        getProductSurface: inferIdeaProductSurface,
+        getProgress: getWorkbenchIdeaProgress,
+        getRecordAccessState,
+        idea,
+      }),
+    [getRecordAccessState],
   );
 
   function canManageRecord(record: { created_by: string | null; organization_id: string | null }) {
@@ -3927,8 +3938,7 @@ export function IdeaWorkbench({
         <div className="grid gap-3">
           {visibleIdeas.length > 0 ? (
             visibleIdeas.map((idea) => {
-              const accessDisplay = getWorkbenchRecordAccessDisplay(getRecordAccessState(idea));
-              const productSurface = inferIdeaProductSurface(idea);
+              const ideaDisplay = getIdeaDisplayState(idea);
 
               return (
                 <div
@@ -3961,10 +3971,10 @@ export function IdeaWorkbench({
                           {stageLabels[idea.stage]}
                         </span>
                         <span className="avl-pill avl-pill-info">
-                          {productSurface.label}
+                          {ideaDisplay.productSurface.label}
                         </span>
-                        <span className={`avl-pill ${accessDisplay.pillTone}`}>
-                          {accessDisplay.label}
+                        <span className={`avl-pill ${ideaDisplay.accessDisplay.pillTone}`}>
+                          {ideaDisplay.accessDisplay.label}
                         </span>
                       </div>
                     </div>
@@ -3972,10 +3982,10 @@ export function IdeaWorkbench({
                       {idea.one_liner || idea.signal}
                     </p>
                     <p className="mt-2 text-xs leading-5 text-slate-500">
-                      {productSurface.firstBuild}
+                      {ideaDisplay.productSurface.firstBuild}
                     </p>
                   </button>
-                  {accessDisplay.isManageable ? (
+                  {ideaDisplay.accessDisplay.isManageable ? (
                     <div className="mt-3 flex justify-end">
                       <button
                         type="button"
@@ -4101,9 +4111,7 @@ export function IdeaWorkbench({
               </div>
 
               {visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {
-                const selectedProgress = getWorkbenchIdeaProgress(selectedIdea);
-                const selectedSurface = inferIdeaProductSurface(selectedIdea);
-                const selectedAccessDisplay = getWorkbenchRecordAccessDisplay(getRecordAccessState(selectedIdea));
+                const selectedIdeaDisplay = getIdeaDisplayState(selectedIdea);
                 const comparisonIdeas = visibleIdeas.filter((idea) => idea.id !== selectedIdea.id).slice(0, 4);
 
                 return (
@@ -4120,15 +4128,15 @@ export function IdeaWorkbench({
                           </div>
                           <div className="flex flex-wrap gap-2">
                             <span className="avl-pill avl-pill-neutral">
-                              {selectedProgress.label}
+                              {selectedIdeaDisplay.progress.label}
                             </span>
                             <span className="avl-pill avl-pill-info">
-                              {selectedSurface.label}
+                              {selectedIdeaDisplay.productSurface.label}
                             </span>
                             <span
-                              className={`avl-pill ${selectedAccessDisplay.pillTone}`}
+                              className={`avl-pill ${selectedIdeaDisplay.accessDisplay.pillTone}`}
                             >
-                              {selectedAccessDisplay.label}
+                              {selectedIdeaDisplay.accessDisplay.label}
                             </span>
                           </div>
                         </div>
@@ -4136,7 +4144,7 @@ export function IdeaWorkbench({
                         <div className="mt-4 grid gap-4 border-t border-slate-200 pt-4 md:grid-cols-3">
                           <div>
                             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">현재 단계</div>
-                            <div className="mt-2 text-base font-semibold text-slate-950">{selectedProgress.label}</div>
+                            <div className="mt-2 text-base font-semibold text-slate-950">{selectedIdeaDisplay.progress.label}</div>
                             <p className="mt-1 text-sm leading-6 text-slate-600">클릭하면 이 단계에서 이어갑니다.</p>
                           </div>
                           <div>
@@ -4146,20 +4154,20 @@ export function IdeaWorkbench({
                           </div>
                           <div>
                             <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">결과물 형태</div>
-                            <div className="mt-2 text-base font-semibold text-slate-950">{selectedSurface.label}</div>
-                            <p className="mt-1 text-sm leading-6 text-slate-600">{selectedSurface.firstBuild}</p>
+                            <div className="mt-2 text-base font-semibold text-slate-950">{selectedIdeaDisplay.productSurface.label}</div>
+                            <p className="mt-1 text-sm leading-6 text-slate-600">{selectedIdeaDisplay.productSurface.firstBuild}</p>
                           </div>
                         </div>
 
                         <div className="mt-5 flex flex-wrap gap-2">
                           <button
                             type="button"
-                            onClick={() => updateActiveTask(selectedProgress.task)}
+                            onClick={() => updateActiveTask(selectedIdeaDisplay.progress.task)}
                             className="avl-btn avl-btn-primary h-11 px-4"
                           >
                             이어서 보기
                           </button>
-                          {selectedAccessDisplay.isManageable ? (
+                          {selectedIdeaDisplay.accessDisplay.isManageable ? (
                             <button
                               type="button"
                               onClick={() => void discardIdeaRecord(selectedIdea)}
@@ -4189,9 +4197,7 @@ export function IdeaWorkbench({
                       <div className="mt-4 grid gap-3 md:grid-cols-2">
                         {comparisonIdeas.length > 0 ? (
                           comparisonIdeas.map((idea, index) => {
-                            const progress = getWorkbenchIdeaProgress(idea);
-                            const surface = inferIdeaProductSurface(idea);
-                            const comparisonAccessDisplay = getWorkbenchRecordAccessDisplay(getRecordAccessState(idea));
+                            const comparisonDisplay = getIdeaDisplayState(idea);
 
                             return (
                               <div
@@ -4203,7 +4209,7 @@ export function IdeaWorkbench({
                                   onClick={() => {
                                     setSelectedIdeaId(idea.id);
                                     setEditState(toEditState(idea));
-                                    updateActiveTask(progress.task);
+                                    updateActiveTask(comparisonDisplay.progress.task);
                                   }}
                                   className="w-full text-left"
                                 >
@@ -4212,19 +4218,19 @@ export function IdeaWorkbench({
                                       {index + 2}
                                     </span>
                                     <div className="flex flex-wrap justify-end gap-2">
-                                      <span className="avl-pill avl-pill-neutral">{surface.shortLabel}</span>
-                                      <span className="avl-pill avl-pill-info">{progress.label}</span>
+                                      <span className="avl-pill avl-pill-neutral">{comparisonDisplay.productSurface.shortLabel}</span>
+                                      <span className="avl-pill avl-pill-info">{comparisonDisplay.progress.label}</span>
                                     </div>
                                   </div>
                                   <div className="mt-3 text-base font-semibold text-slate-950">{idea.name}</div>
                                   <p className="mt-2 text-sm leading-5 text-slate-600">{idea.one_liner || idea.signal}</p>
-                                  <p className="mt-2 text-xs leading-5 text-slate-500">{surface.firstBuild}</p>
+                                  <p className="mt-2 text-xs leading-5 text-slate-500">{comparisonDisplay.productSurface.firstBuild}</p>
                                 </button>
                                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                                   <span className="avl-pill avl-pill-neutral">
-                                    {comparisonAccessDisplay.label}
+                                    {comparisonDisplay.accessDisplay.label}
                                   </span>
-                                  {comparisonAccessDisplay.isManageable ? (
+                                  {comparisonDisplay.accessDisplay.isManageable ? (
                                     <button
                                       type="button"
                                       onClick={() => void discardIdeaRecord(idea)}
