@@ -400,6 +400,13 @@ type ViewerUser = Pick<User, "id">;
 export type { WorkbenchTask } from "@/lib/workbench-tasks";
 
 type EditState = WorkbenchEditState;
+type ArtifactSaveOptions = { version?: number; quiet?: boolean; statusNote?: string };
+type PreparedArtifactSaveDraft = {
+  artifactType: VentureArtifactType;
+  body: string;
+  source: string;
+  title: string;
+};
 
 export type { WorkbenchStepReadiness };
 
@@ -2513,7 +2520,7 @@ export function IdeaWorkbench({
     title: string,
     body: string,
     source: string,
-    options: { version?: number; quiet?: boolean; statusNote?: string } = {},
+    options: ArtifactSaveOptions = {},
   ) {
     if (!supabase || !selectedIdea) {
       setMessage(workbenchIdeaSelectionRequiredMessage);
@@ -2576,6 +2583,10 @@ export function IdeaWorkbench({
     return true;
   }
 
+  function savePreparedArtifactDraft(draft: PreparedArtifactSaveDraft | null | undefined, options?: ArtifactSaveOptions) {
+    return draft ? saveArtifactDraft(draft.artifactType, draft.title, draft.body, draft.source, options) : undefined;
+  }
+
   async function saveValidationPackageDrafts() {
     if (!selectedIdea) {
       setMessage(workbenchIdeaSelectionRequiredMessage);
@@ -2606,7 +2617,7 @@ export function IdeaWorkbench({
         continue;
       }
 
-      const saved = await saveArtifactDraft(job.artifactType, job.title, job.body, job.source, {
+      const saved = await savePreparedArtifactDraft(job, {
         quiet: true,
         statusNote: "검증 자료 자동 저장에서 생성한 초안입니다.",
       });
@@ -2756,7 +2767,7 @@ export function IdeaWorkbench({
     });
 
     for (const job of saveJobs) {
-      const saved = await saveArtifactDraft(job.artifactType, job.title, job.body, job.source, {
+      const saved = await savePreparedArtifactDraft(job, {
         version: job.version,
         quiet: true,
         statusNote: job.statusNote,
@@ -2924,12 +2935,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const saved = await saveArtifactDraft(
-      evidenceNoteSaveDraft.artifactType,
-      evidenceNoteSaveDraft.title,
-      evidenceNoteSaveDraft.body,
-      evidenceNoteSaveDraft.source,
-    );
+    const saved = await savePreparedArtifactDraft(evidenceNoteSaveDraft);
 
     if (saved) {
       setEvidenceDraft(createDefaultEvidenceDraft());
@@ -2959,12 +2965,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const saved = await saveArtifactDraft(
-      experimentResultNoteSaveDraft.artifactType,
-      experimentResultNoteSaveDraft.title,
-      experimentResultNoteSaveDraft.body,
-      experimentResultNoteSaveDraft.source,
-    );
+    const saved = await savePreparedArtifactDraft(experimentResultNoteSaveDraft);
 
     if (saved) {
       void recordTelemetryEvent({
@@ -3837,16 +3838,10 @@ export function IdeaWorkbench({
         decisionLabels,
       });
       const savedMarketScan = user
-        ? await saveArtifactDraft(
-            marketScanArtifactDraft.artifactType,
-            marketScanArtifactDraft.title,
-            marketScanArtifactDraft.body,
-            marketScanArtifactDraft.source,
-            {
-              quiet: true,
-              statusNote: marketScanArtifactDraft.statusNote,
-            },
-          )
+        ? await savePreparedArtifactDraft(marketScanArtifactDraft, {
+            quiet: true,
+            statusNote: marketScanArtifactDraft.statusNote,
+          })
         : false;
 
       setMessage(
@@ -4803,16 +4798,7 @@ export function IdeaWorkbench({
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    backendDecisionSaveDraft
-                      ? saveArtifactDraft(
-                          backendDecisionSaveDraft.artifactType,
-                          backendDecisionSaveDraft.title,
-                          backendDecisionSaveDraft.body,
-                          backendDecisionSaveDraft.source,
-                        )
-                      : undefined
-                  }
+                  onClick={() => savePreparedArtifactDraft(backendDecisionSaveDraft)}
                   disabled={isBusy || !user || !backendDecisionSaveDraft}
                   className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                 >
@@ -4871,16 +4857,7 @@ export function IdeaWorkbench({
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        backendExecutionPlanSaveDraft
-                          ? saveArtifactDraft(
-                              backendExecutionPlanSaveDraft.artifactType,
-                              backendExecutionPlanSaveDraft.title,
-                              backendExecutionPlanSaveDraft.body,
-                              backendExecutionPlanSaveDraft.source,
-                            )
-                          : undefined
-                      }
+                      onClick={() => savePreparedArtifactDraft(backendExecutionPlanSaveDraft)}
                       disabled={isBusy || !user || !backendExecutionPlanSaveDraft}
                       className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                     >
@@ -4964,16 +4941,7 @@ export function IdeaWorkbench({
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    appBlueprintSaveDraft
-                      ? saveArtifactDraft(
-                          appBlueprintSaveDraft.artifactType,
-                          appBlueprintSaveDraft.title,
-                          appBlueprintSaveDraft.body,
-                          appBlueprintSaveDraft.source,
-                        )
-                      : undefined
-                  }
+                  onClick={() => savePreparedArtifactDraft(appBlueprintSaveDraft)}
                   disabled={isBusy || !user || !appBlueprintSaveDraft}
                   className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                 >
@@ -5020,16 +4988,7 @@ export function IdeaWorkbench({
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    scaffoldManifestSaveDraft
-                      ? saveArtifactDraft(
-                          scaffoldManifestSaveDraft.artifactType,
-                          scaffoldManifestSaveDraft.title,
-                          scaffoldManifestSaveDraft.body,
-                          scaffoldManifestSaveDraft.source,
-                        )
-                      : undefined
-                  }
+                  onClick={() => savePreparedArtifactDraft(scaffoldManifestSaveDraft)}
                   disabled={isBusy || !user || !scaffoldManifestSaveDraft}
                   className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                 >
@@ -5070,7 +5029,7 @@ export function IdeaWorkbench({
                   </button>
                   <button
                     type="button"
-                    onClick={() => saveArtifactDraft(draft.artifactType, draft.title, draft.body, draft.source)}
+                    onClick={() => savePreparedArtifactDraft(draft)}
                     disabled={isBusy || !user}
                     className="avl-btn avl-btn-primary h-9 rounded-[0.125rem] px-3 text-xs disabled:opacity-50"
                   >
@@ -5137,16 +5096,7 @@ export function IdeaWorkbench({
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
-                      developmentKickoffSaveDraft
-                        ? saveArtifactDraft(
-                            developmentKickoffSaveDraft.artifactType,
-                            developmentKickoffSaveDraft.title,
-                            developmentKickoffSaveDraft.body,
-                            developmentKickoffSaveDraft.source,
-                          )
-                        : undefined
-                    }
+                    onClick={() => savePreparedArtifactDraft(developmentKickoffSaveDraft)}
                     disabled={isBusy || !user || !developmentKickoffSaveDraft}
                     className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                   >
@@ -5371,16 +5321,7 @@ export function IdeaWorkbench({
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        implementationDependencyPlanSaveDraft
-                          ? saveArtifactDraft(
-                              implementationDependencyPlanSaveDraft.artifactType,
-                              implementationDependencyPlanSaveDraft.title,
-                              implementationDependencyPlanSaveDraft.body,
-                              implementationDependencyPlanSaveDraft.source,
-                            )
-                          : undefined
-                      }
+                      onClick={() => savePreparedArtifactDraft(implementationDependencyPlanSaveDraft)}
                       disabled={isBusy || !user || !implementationDependencyPlanSaveDraft}
                       className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:opacity-50"
                     >
@@ -5486,16 +5427,7 @@ export function IdeaWorkbench({
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
-                      agentRunPackageSaveDraft
-                        ? saveArtifactDraft(
-                            agentRunPackageSaveDraft.artifactType,
-                            agentRunPackageSaveDraft.title,
-                            agentRunPackageSaveDraft.body,
-                            agentRunPackageSaveDraft.source,
-                          )
-                        : undefined
-                    }
+                    onClick={() => savePreparedArtifactDraft(agentRunPackageSaveDraft)}
                     disabled={isBusy || !user || !agentRunPackageSaveDraft}
                     className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                   >
@@ -5669,12 +5601,7 @@ export function IdeaWorkbench({
                           return;
                         }
 
-                        saveArtifactDraft(
-                          filteredImplementationRunPromptSaveDraft.artifactType,
-                          filteredImplementationRunPromptSaveDraft.title,
-                          filteredImplementationRunPromptSaveDraft.body,
-                          filteredImplementationRunPromptSaveDraft.source,
-                        );
+                        savePreparedArtifactDraft(filteredImplementationRunPromptSaveDraft);
                       }}
                       disabled={isBusy || !user || !filteredImplementationRunPromptSaveDraft}
                       className="avl-btn avl-btn-secondary h-11 w-full px-3 disabled:opacity-50 lg:w-auto"
@@ -5847,16 +5774,7 @@ export function IdeaWorkbench({
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  developmentCompletionReportSaveDraft
-                    ? saveArtifactDraft(
-                        developmentCompletionReportSaveDraft.artifactType,
-                        developmentCompletionReportSaveDraft.title,
-                        developmentCompletionReportSaveDraft.body,
-                        developmentCompletionReportSaveDraft.source,
-                      )
-                    : undefined
-                }
+                onClick={() => savePreparedArtifactDraft(developmentCompletionReportSaveDraft)}
                 disabled={isBusy || !user || !developmentCompletionReportSaveDraft}
                 className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
               >
@@ -5904,16 +5822,7 @@ export function IdeaWorkbench({
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        implementationHandoffSaveDraft
-                          ? saveArtifactDraft(
-                              implementationHandoffSaveDraft.artifactType,
-                              implementationHandoffSaveDraft.title,
-                              implementationHandoffSaveDraft.body,
-                              implementationHandoffSaveDraft.source,
-                            )
-                          : undefined
-                      }
+                      onClick={() => savePreparedArtifactDraft(implementationHandoffSaveDraft)}
                       disabled={isBusy || !user || !implementationHandoffSaveDraft}
                       className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
@@ -5951,16 +5860,7 @@ export function IdeaWorkbench({
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        mvpBuildCommandPacketSaveDraft
-                          ? saveArtifactDraft(
-                              mvpBuildCommandPacketSaveDraft.artifactType,
-                              mvpBuildCommandPacketSaveDraft.title,
-                              mvpBuildCommandPacketSaveDraft.body,
-                              mvpBuildCommandPacketSaveDraft.source,
-                            )
-                          : undefined
-                      }
+                      onClick={() => savePreparedArtifactDraft(mvpBuildCommandPacketSaveDraft)}
                       disabled={isBusy || !user || !mvpBuildCommandPacketSaveDraft}
                       className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
@@ -5998,16 +5898,7 @@ export function IdeaWorkbench({
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        qaAcceptanceMatrixSaveDraft
-                          ? saveArtifactDraft(
-                              qaAcceptanceMatrixSaveDraft.artifactType,
-                              qaAcceptanceMatrixSaveDraft.title,
-                              qaAcceptanceMatrixSaveDraft.body,
-                              qaAcceptanceMatrixSaveDraft.source,
-                            )
-                          : undefined
-                      }
+                      onClick={() => savePreparedArtifactDraft(qaAcceptanceMatrixSaveDraft)}
                       disabled={isBusy || !user || !qaAcceptanceMatrixSaveDraft}
                       className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
@@ -6044,16 +5935,7 @@ export function IdeaWorkbench({
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
-                        rolePromptPackSaveDraft
-                          ? saveArtifactDraft(
-                              rolePromptPackSaveDraft.artifactType,
-                              rolePromptPackSaveDraft.title,
-                              rolePromptPackSaveDraft.body,
-                              rolePromptPackSaveDraft.source,
-                            )
-                          : undefined
-                      }
+                      onClick={() => savePreparedArtifactDraft(rolePromptPackSaveDraft)}
                       disabled={isBusy || !user || !rolePromptPackSaveDraft}
                       className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
                     >
@@ -6216,16 +6098,7 @@ export function IdeaWorkbench({
                 isBusy={isBusy}
                 learningDraft={postLaunchLearningLoopDraft}
                 onCopyCriteria={() => copyDraft(postLaunchLearningLoopDraft, "출시 후 성과 확인")}
-                onSaveCriteria={() =>
-                  postLaunchLearningLoopSaveDraft
-                    ? saveArtifactDraft(
-                        postLaunchLearningLoopSaveDraft.artifactType,
-                        postLaunchLearningLoopSaveDraft.title,
-                        postLaunchLearningLoopSaveDraft.body,
-                        postLaunchLearningLoopSaveDraft.source,
-                      )
-                    : undefined
-                }
+                onSaveCriteria={() => savePreparedArtifactDraft(postLaunchLearningLoopSaveDraft)}
                 userCanSave={Boolean(user)}
               />
             </div>
@@ -6278,16 +6151,7 @@ export function IdeaWorkbench({
               ideaId={selectedIdea.id}
               isBusy={isBusy}
               onCopyDraft={copyDraft}
-              onSaveGuide={() =>
-                telemetryAdapterGuideSaveDraft
-                  ? saveArtifactDraft(
-                      telemetryAdapterGuideSaveDraft.artifactType,
-                      telemetryAdapterGuideSaveDraft.title,
-                      telemetryAdapterGuideSaveDraft.body,
-                      telemetryAdapterGuideSaveDraft.source,
-                    )
-                  : undefined
-              }
+              onSaveGuide={() => savePreparedArtifactDraft(telemetryAdapterGuideSaveDraft)}
               telemetryAdapterGuideDraft={telemetryAdapterGuideDraft}
               telemetryClientHelperSnippet={telemetryClientHelperSnippet}
               telemetryEnvSnippet={telemetryEnvSnippet}
@@ -6308,26 +6172,8 @@ export function IdeaWorkbench({
             learningTelemetryReportDraft={learningTelemetryReportDraft}
             onCopyFunnel={() => copyDraft(productTelemetryFunnelDraft, "제품 사용 퍼널 리포트")}
             onCopyReport={() => copyDraft(learningTelemetryReportDraft, "학습 리포트")}
-            onSaveFunnel={() =>
-              productTelemetryFunnelSaveDraft
-                ? saveArtifactDraft(
-                    productTelemetryFunnelSaveDraft.artifactType,
-                    productTelemetryFunnelSaveDraft.title,
-                    productTelemetryFunnelSaveDraft.body,
-                    productTelemetryFunnelSaveDraft.source,
-                  )
-                : undefined
-            }
-            onSaveReport={() =>
-              learningTelemetryReportSaveDraft
-                ? saveArtifactDraft(
-                    learningTelemetryReportSaveDraft.artifactType,
-                    learningTelemetryReportSaveDraft.title,
-                    learningTelemetryReportSaveDraft.body,
-                    learningTelemetryReportSaveDraft.source,
-                  )
-                : undefined
-            }
+            onSaveFunnel={() => savePreparedArtifactDraft(productTelemetryFunnelSaveDraft)}
+            onSaveReport={() => savePreparedArtifactDraft(learningTelemetryReportSaveDraft)}
             productTelemetryFunnelDraft={productTelemetryFunnelDraft}
             productTelemetryFunnelRows={productTelemetryFunnelRows}
             productTelemetryMaxCount={productTelemetryMaxCount}
@@ -7271,16 +7117,7 @@ export function IdeaWorkbench({
           rows={12}
           copyLabel="요약 복사"
           onCopy={() => copyDraft(ideaBrief, "아이디어 요약")}
-          onSave={() =>
-            ideaBriefSaveDraft
-              ? saveArtifactDraft(
-                  ideaBriefSaveDraft.artifactType,
-                  ideaBriefSaveDraft.title,
-                  ideaBriefSaveDraft.body,
-                  ideaBriefSaveDraft.source,
-                )
-              : undefined
-          }
+          onSave={() => savePreparedArtifactDraft(ideaBriefSaveDraft)}
           saveLabel={hasIdeaBriefArtifact ? "저장 완료" : "제작 자료 저장"}
           saveDisabled={isBusy || !user || hasIdeaBriefArtifact || !ideaBriefSaveDraft}
           disabledNote={hasIdeaBriefArtifact ? "아이디어 요약이 저장되어 상단 상태에 반영되었습니다." : undefined}
@@ -7296,16 +7133,7 @@ export function IdeaWorkbench({
           rows={18}
           copyLabel="조사 요약 복사"
           onCopy={() => copyDraft(researchBriefDraft, "조사 요약")}
-          onSave={() =>
-            researchBriefSaveDraft
-              ? saveArtifactDraft(
-                  researchBriefSaveDraft.artifactType,
-                  researchBriefSaveDraft.title,
-                  researchBriefSaveDraft.body,
-                  researchBriefSaveDraft.source,
-                )
-              : undefined
-          }
+          onSave={() => savePreparedArtifactDraft(researchBriefSaveDraft)}
           saveLabel={hasResearchBriefArtifact ? "저장 완료" : "제작 자료 저장"}
           saveDisabled={isBusy || !user || hasResearchBriefArtifact || !researchBriefSaveDraft}
           disabledNote={hasResearchBriefArtifact ? "조사 요약이 저장되어 상단 상태에 반영되었습니다." : undefined}
@@ -7321,16 +7149,7 @@ export function IdeaWorkbench({
           rows={18}
           copyLabel="검증 계획 복사"
           onCopy={() => copyDraft(validationSprintDraft, "7일 검증 계획")}
-          onSave={() =>
-            validationSprintSaveDraft
-              ? saveArtifactDraft(
-                  validationSprintSaveDraft.artifactType,
-                  validationSprintSaveDraft.title,
-                  validationSprintSaveDraft.body,
-                  validationSprintSaveDraft.source,
-                )
-              : undefined
-          }
+          onSave={() => savePreparedArtifactDraft(validationSprintSaveDraft)}
           saveLabel={hasValidationSprintArtifact ? "저장 완료" : "제작 자료 저장"}
           saveDisabled={isBusy || !user || hasValidationSprintArtifact || !validationSprintSaveDraft}
           disabledNote={hasValidationSprintArtifact ? "7일 검증 계획이 저장되어 상단 상태에 반영되었습니다." : undefined}
@@ -7420,16 +7239,7 @@ export function IdeaWorkbench({
           copyLabel="요약 복사"
           onCopy={() => copyDraft(validationSummaryDraft, "검증 완료 요약")}
           copyDisabled={!canSaveValidationSummary}
-          onSave={() =>
-            validationSummarySaveDraft
-              ? saveArtifactDraft(
-                  validationSummarySaveDraft.artifactType,
-                  validationSummarySaveDraft.title,
-                  validationSummarySaveDraft.body,
-                  validationSummarySaveDraft.source,
-                )
-              : undefined
-          }
+          onSave={() => savePreparedArtifactDraft(validationSummarySaveDraft)}
           saveLabel={hasValidationSummaryArtifact ? "저장 완료" : "검증 자료 저장"}
           saveDisabled={isBusy || !user || !canSaveValidationSummary || hasValidationSummaryArtifact || !validationSummarySaveDraft}
           disabledNote={
@@ -7517,16 +7327,7 @@ export function IdeaWorkbench({
             </button>
             <button
               type="button"
-              onClick={() =>
-                prdHandoffSaveDraft
-                  ? saveArtifactDraft(
-                      prdHandoffSaveDraft.artifactType,
-                      prdHandoffSaveDraft.title,
-                      prdHandoffSaveDraft.body,
-                      prdHandoffSaveDraft.source,
-                    )
-                  : undefined
-              }
+              onClick={() => savePreparedArtifactDraft(prdHandoffSaveDraft)}
               disabled={isBusy || !user || !prdHandoffSaveDraft}
               className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
             >
@@ -7552,11 +7353,7 @@ export function IdeaWorkbench({
           rows={18}
           copyLabel="기획서 복사"
           onCopy={() => copyDraft(prdDraft, "제품 기획서 초안")}
-          onSave={() =>
-            prdSaveDraft
-              ? saveArtifactDraft(prdSaveDraft.artifactType, prdSaveDraft.title, prdSaveDraft.body, prdSaveDraft.source)
-              : undefined
-          }
+          onSave={() => savePreparedArtifactDraft(prdSaveDraft)}
           saveLabel={hasPrdArtifact ? "저장 완료" : "제작 자료 저장"}
           saveDisabled={isBusy || !user || hasPrdArtifact || !prdSaveDraft}
           disabledNote={hasPrdArtifact ? "제품 기획서가 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
@@ -7581,16 +7378,7 @@ export function IdeaWorkbench({
             rows={18}
             copyLabel="플랜 복사"
             onCopy={() => copyDraft(mvpSlicePlanDraft, "첫 제작 범위 플랜")}
-            onSave={() =>
-              mvpSlicePlanSaveDraft
-                ? saveArtifactDraft(
-                    mvpSlicePlanSaveDraft.artifactType,
-                    mvpSlicePlanSaveDraft.title,
-                    mvpSlicePlanSaveDraft.body,
-                    mvpSlicePlanSaveDraft.source,
-                  )
-                : undefined
-            }
+            onSave={() => savePreparedArtifactDraft(mvpSlicePlanSaveDraft)}
             saveLabel={hasMvpSlicePlanArtifact ? "저장 완료" : "제작 자료 저장"}
             saveDisabled={isBusy || !user || hasMvpSlicePlanArtifact || !mvpSlicePlanSaveDraft}
             disabledNote={hasMvpSlicePlanArtifact ? "첫 제작 범위 플랜이 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
@@ -7604,16 +7392,7 @@ export function IdeaWorkbench({
             rows={16}
             copyLabel="명세 복사"
             onCopy={() => copyDraft(mvpSpecDraft, "첫 제작 범위")}
-            onSave={() =>
-              mvpSpecSaveDraft
-                ? saveArtifactDraft(
-                    mvpSpecSaveDraft.artifactType,
-                    mvpSpecSaveDraft.title,
-                    mvpSpecSaveDraft.body,
-                    mvpSpecSaveDraft.source,
-                  )
-                : undefined
-            }
+            onSave={() => savePreparedArtifactDraft(mvpSpecSaveDraft)}
             saveLabel={hasMvpScopeArtifact ? "저장 완료" : "제작 자료 저장"}
             saveDisabled={isBusy || !user || hasMvpScopeArtifact || !mvpSpecSaveDraft}
             disabledNote={hasMvpScopeArtifact ? "첫 제작 범위 초안이 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
@@ -7627,16 +7406,7 @@ export function IdeaWorkbench({
             rows={16}
             copyLabel="체크리스트 복사"
             onCopy={() => copyDraft(launchChecklistDraft, "출시 체크리스트")}
-            onSave={() =>
-              launchChecklistSaveDraft
-                ? saveArtifactDraft(
-                    launchChecklistSaveDraft.artifactType,
-                    launchChecklistSaveDraft.title,
-                    launchChecklistSaveDraft.body,
-                    launchChecklistSaveDraft.source,
-                  )
-                : undefined
-            }
+            onSave={() => savePreparedArtifactDraft(launchChecklistSaveDraft)}
             saveLabel={hasLaunchChecklistArtifact ? "저장 완료" : "제작 자료 저장"}
             saveDisabled={isBusy || !user || hasLaunchChecklistArtifact || !launchChecklistSaveDraft}
             disabledNote={hasLaunchChecklistArtifact ? "출시 체크리스트가 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
