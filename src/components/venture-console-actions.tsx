@@ -83,7 +83,7 @@ import { ManualIdeaIntakeForm } from "@/components/manual-idea-intake-form";
 import { VentureConsoleAuthCard } from "@/components/venture-console-auth-card";
 import { VentureConsoleStartGuide, type VentureConsoleStartGuideTask } from "@/components/venture-console-start-guide";
 import { VentureConsoleWorkspaceCard } from "@/components/venture-console-workspace-card";
-import { buildManualIdeaDirectionArtifactRow } from "@/lib/manual-idea-artifact";
+import { buildManualIdeaDirectionArtifactRow, buildManualIdeaInsertRow } from "@/lib/manual-idea-artifact";
 import type { Database, Json, OrganizationRole } from "@/lib/supabase/types";
 
 type Organization = Database["public"]["Tables"]["organizations"]["Row"];
@@ -942,26 +942,11 @@ export function VentureConsoleActions({
       risk_summary: form.risk_summary,
       next_evidence: form.next_evidence,
     });
-    const ideaInsertPayload: IdeaInsert = {
-      name: form.name.trim(),
-      one_liner: form.one_liner.trim(),
-      target_user: form.target_user.trim(),
-      buyer: form.buyer.trim(),
-      signal: form.signal.trim(),
-      risk_summary: form.risk_summary.trim(),
-      next_evidence: form.next_evidence.trim(),
-      product_surface: manualProductSurface.key,
-      stage: "intake",
-      decision: "pending",
-      problem_intensity: 0,
-      frequency: 0,
-      reachability: 0,
-      willingness_to_pay: 0,
-      mvp_speed: 0,
-      differentiation: 0,
-      regulatory_risk: 0,
-      organization_id: activeOrganization?.id ?? null,
-    };
+    const ideaInsertPayload = buildManualIdeaInsertRow({
+      form,
+      organizationId: activeOrganization?.id ?? null,
+      productSurfaceKey: manualProductSurface.key,
+    });
     let ideaInsertResult = await supabase
       .from("ideas")
       .insert(ideaInsertPayload)

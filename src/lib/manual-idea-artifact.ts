@@ -1,7 +1,49 @@
 import type { Database } from "@/lib/supabase/types";
 
 type Idea = Database["public"]["Tables"]["ideas"]["Row"];
+type IdeaInsert = Database["public"]["Tables"]["ideas"]["Insert"];
 type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["Insert"];
+
+export type ManualIdeaInput = {
+  buyer: string;
+  name: string;
+  next_evidence: string;
+  one_liner: string;
+  risk_summary: string;
+  signal: string;
+  target_user: string;
+};
+
+export function buildManualIdeaInsertRow({
+  form,
+  organizationId,
+  productSurfaceKey,
+}: {
+  form: ManualIdeaInput;
+  organizationId: string | null;
+  productSurfaceKey: NonNullable<IdeaInsert["product_surface"]>;
+}): IdeaInsert {
+  return {
+    name: form.name.trim(),
+    one_liner: form.one_liner.trim(),
+    target_user: form.target_user.trim(),
+    buyer: form.buyer.trim(),
+    signal: form.signal.trim(),
+    risk_summary: form.risk_summary.trim(),
+    next_evidence: form.next_evidence.trim(),
+    product_surface: productSurfaceKey,
+    stage: "intake",
+    decision: "pending",
+    problem_intensity: 0,
+    frequency: 0,
+    reachability: 0,
+    willingness_to_pay: 0,
+    mvp_speed: 0,
+    differentiation: 0,
+    regulatory_risk: 0,
+    organization_id: organizationId,
+  };
+}
 
 export function buildManualIdeaDirectionArtifactBody({
   buildDeliveryMarkdown,

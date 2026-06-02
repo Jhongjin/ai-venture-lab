@@ -3,7 +3,43 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/manual-idea-artifact.ts")).href;
-const { buildManualIdeaDirectionArtifactBody, buildManualIdeaDirectionArtifactRow } = await import(moduleUrl);
+const { buildManualIdeaDirectionArtifactBody, buildManualIdeaDirectionArtifactRow, buildManualIdeaInsertRow } =
+  await import(moduleUrl);
+
+const insertRow = buildManualIdeaInsertRow({
+  form: {
+    buyer: "  운영팀 리더  ",
+    name: "  AI Venture Lab  ",
+    next_evidence: "  인터뷰 3명  ",
+    one_liner: "  아이디어를 검증 패키지로 정리합니다.  ",
+    risk_summary: "  자동화 실패 리스크  ",
+    signal: "  반복 업무 메모  ",
+    target_user: "  1인 창업자  ",
+  },
+  organizationId: "org-1",
+  productSurfaceKey: "operator_console",
+});
+
+assert.deepEqual(insertRow, {
+  buyer: "운영팀 리더",
+  decision: "pending",
+  differentiation: 0,
+  frequency: 0,
+  mvp_speed: 0,
+  name: "AI Venture Lab",
+  next_evidence: "인터뷰 3명",
+  one_liner: "아이디어를 검증 패키지로 정리합니다.",
+  organization_id: "org-1",
+  problem_intensity: 0,
+  product_surface: "operator_console",
+  reachability: 0,
+  regulatory_risk: 0,
+  risk_summary: "자동화 실패 리스크",
+  signal: "반복 업무 메모",
+  stage: "intake",
+  target_user: "1인 창업자",
+  willingness_to_pay: 0,
+});
 
 const body = buildManualIdeaDirectionArtifactBody({
   buildDeliveryMarkdown: "## 제작 방식\n\n- Cursor",
