@@ -32,8 +32,10 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const { externalBuildToolProfiles } = await import(buildDeliveryUrl);
 const { productSurfaceProfiles } = await import(productSurfaceUrl);
 const {
+  buildDevelopmentAutoPackageSavedMessage,
   buildDevelopmentAutoPackageSaveJobs,
   buildDevelopmentAutoPackageCopyState,
+  buildDevelopmentAutopilotPreparedMessage,
   buildDevelopmentAutoWorkbenchState,
   buildDevelopmentFinalPackageDrafts,
 } = await import(moduleUrl);
@@ -83,6 +85,14 @@ assert.match(state.developmentAutoTaskDraftLines, /프론트/);
 assert.match(state.developmentAutoSummaryDraft, /# 제작 실행 요약: AI Venture Lab/);
 assert.match(state.developmentAutoSummaryDraft, /첫 버전은 결제 없이 진행/);
 assert.match(state.developmentAutoSummaryDraft, /Cursor/);
+assert.equal(
+  buildDevelopmentAutoPackageSavedMessage(),
+  "제작 패키지를 저장했습니다. 실제 파일 받기와 제작 도구 연동은 최종 실행 단계에서 열립니다.",
+);
+assert.equal(
+  buildDevelopmentAutopilotPreparedMessage({ artifactCount: 3, runCount: 2, taskCount: 4 }),
+  "제작 전달 묶음을 준비했습니다. 실행 단계 2개, 제작 자료 3개, 실행 할 일 4개를 만들었습니다.",
+);
 
 const emptyState = buildDevelopmentAutoPackageCopyState({
   developmentAutoNote: "",

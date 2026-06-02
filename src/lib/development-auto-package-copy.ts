@@ -34,6 +34,22 @@ export type DevelopmentAutoPanel = "setup" | "tasks" | "handoff";
 
 export type DevelopmentExperienceMode = "guided" | "full";
 
+export function buildDevelopmentAutoPackageSavedMessage() {
+  return "제작 패키지를 저장했습니다. 실제 파일 받기와 제작 도구 연동은 최종 실행 단계에서 열립니다.";
+}
+
+export function buildDevelopmentAutopilotPreparedMessage({
+  artifactCount,
+  runCount,
+  taskCount,
+}: {
+  artifactCount: number;
+  runCount: number;
+  taskCount: number;
+}) {
+  return `제작 전달 묶음을 준비했습니다. 실행 단계 ${runCount}개, 제작 자료 ${artifactCount}개, 실행 할 일 ${taskCount}개를 만들었습니다.`;
+}
+
 export type DevelopmentAutoPackageCopyInput = {
   activeBuildDeliveryDetail: string;
   activeBuildDeliveryLabel: string;

@@ -238,7 +238,9 @@ import {
   type CursorProgressDisplayItem,
 } from "@/lib/external-progress-import";
 import {
+  buildDevelopmentAutoPackageSavedMessage,
   buildDevelopmentAutoPackageSaveJobs,
+  buildDevelopmentAutopilotPreparedMessage,
   buildDevelopmentAutoWorkbenchState,
   buildDevelopmentFinalPackageDrafts,
   type DevelopmentAutoFlowState,
@@ -2766,7 +2768,7 @@ export function IdeaWorkbench({
 
     setDevelopmentAutoFlowState("summary");
     setDevelopmentAutoStepIndex(developmentAutoProgressSteps.length);
-    setMessage("제작 패키지를 저장했습니다. 실제 파일 받기와 제작 도구 연동은 최종 실행 단계에서 열립니다.");
+    setMessage(buildDevelopmentAutoPackageSavedMessage());
   }
 
   async function runAiExecutionAutopilot() {
@@ -2888,7 +2890,11 @@ export function IdeaWorkbench({
 
       setDevelopmentPanel(insertedTasks.length > 0 || selectedImplementationTasks.length > 0 ? "tasks" : "setup");
       setMessage(
-        `제작 전달 묶음을 준비했습니다. 실행 단계 ${insertedRuns.length}개, 제작 자료 ${insertedArtifacts.length}개, 실행 할 일 ${insertedTasks.length}개를 만들었습니다.`,
+        buildDevelopmentAutopilotPreparedMessage({
+          artifactCount: insertedArtifacts.length,
+          runCount: insertedRuns.length,
+          taskCount: insertedTasks.length,
+        }),
       );
       router.refresh();
     } catch (error) {
