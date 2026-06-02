@@ -9,11 +9,13 @@ const artifactMarkdownUrl = pathToFileURL(
   path.join(process.cwd(), "src/lib/extracted-idea-artifact-markdown.ts"),
 ).href;
 const buildDeliveryUrl = pathToFileURL(path.join(process.cwd(), "src/lib/build-delivery.ts")).href;
+const extractionRiskUrl = pathToFileURL(path.join(process.cwd(), "src/lib/extraction-risk-utils.ts")).href;
 const productSurfaceUrl = pathToFileURL(path.join(process.cwd(), "src/lib/product-surface.ts")).href;
 const sourceRedactionUrl = pathToFileURL(path.join(process.cwd(), "src/lib/source-redaction.ts")).href;
 const source = readFileSync(modulePath, "utf8")
   .replaceAll('from "@/lib/extracted-idea-artifact-markdown";', `from ${JSON.stringify(artifactMarkdownUrl)};`)
   .replaceAll('from "@/lib/build-delivery";', `from ${JSON.stringify(buildDeliveryUrl)};`)
+  .replaceAll('from "@/lib/extraction-risk-utils";', `from ${JSON.stringify(extractionRiskUrl)};`)
   .replaceAll('from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`)
   .replaceAll('from "@/lib/source-redaction";', `from ${JSON.stringify(sourceRedactionUrl)};`);
 const { outputText } = ts.transpileModule(source, {
@@ -24,8 +26,13 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { buildExtractedIdeaArtifactRows, buildExtractedIdeaInsertRow, buildExtractedIdeaPackageArtifactRows } =
-  await import(moduleUrl);
+const {
+  buildExtractedIdeaArtifactRows,
+  buildExtractedIdeaExperimentRow,
+  buildExtractedIdeaInsertRow,
+  buildExtractedIdeaPackageArtifactRows,
+  buildExtractedIdeaRiskRow,
+} = await import(moduleUrl);
 const { productSurfaceProfiles } = await import(productSurfaceUrl);
 
 const rows = buildExtractedIdeaArtifactRows({
@@ -102,6 +109,34 @@ assert.match(insertRow.risk_summary, /리스크 등급: 보통/);
 assert.match(insertRow.risk_summary, /개인정보 가림을 신뢰하지 못하면 중단/);
 assert.match(insertRow.next_evidence, /성공 지표\n3명 중 2명이 다음 검증에 쓰겠다고 말함/);
 assert.match(insertRow.next_evidence, /추천 판단\n진행: 검증 패키지를 저장합니다\./);
+
+const riskRow = buildExtractedIdeaRiskRow({
+  candidate,
+  ideaId: "idea-2",
+  organizationId: "org-1",
+});
+assert.deepEqual(riskRow, {
+  area: "제품/보안",
+  idea_id: "idea-2",
+  mitigation: "개인정보가 섞인 메모를 안전하게 가려야 합니다.",
+  organization_id: "org-1",
+  severity: "medium",
+  status: "open",
+  title: "AI Venture Lab 핵심 리스크",
+});
+
+const experimentRow = buildExtractedIdeaExperimentRow({
+  candidate,
+  ideaId: "idea-2",
+  organizationId: null,
+});
+assert.deepEqual(experimentRow, {
+  idea_id: "idea-2",
+  name: "AI Venture Lab 7일 검증",
+  organization_id: null,
+  status: "planned",
+  success_metric: "3명 중 2명이 다음 검증에 쓰겠다고 말함",
+});
 
 const packageRows = buildExtractedIdeaPackageArtifactRows({
   candidate,

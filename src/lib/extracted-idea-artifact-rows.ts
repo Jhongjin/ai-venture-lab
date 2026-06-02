@@ -7,11 +7,14 @@ import {
   type BuildDeliveryPreference,
 } from "@/lib/build-delivery";
 import type { ExtractedIdea } from "@/lib/extracted-idea-normalization";
+import { inferRiskArea, inferRiskSeverity } from "@/lib/extraction-risk-utils";
 import { productSurfaceMarkdown } from "@/lib/product-surface";
 import { redactSensitiveSource } from "@/lib/source-redaction";
 import type { Database } from "@/lib/supabase/types";
 
+type ExperimentInsert = Database["public"]["Tables"]["experiments"]["Insert"];
 type IdeaInsert = Database["public"]["Tables"]["ideas"]["Insert"];
+type RiskInsert = Database["public"]["Tables"]["risks"]["Insert"];
 type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["Insert"];
 
 export function buildExtractedIdeaInsertRow({
@@ -37,6 +40,44 @@ export function buildExtractedIdeaInsertRow({
     stage: "research",
     decision: "research_more",
     ...candidate.initialScores,
+    organization_id: organizationId,
+  };
+}
+
+export function buildExtractedIdeaRiskRow({
+  candidate,
+  ideaId,
+  organizationId,
+}: {
+  candidate: Pick<ExtractedIdea, "name" | "one_liner" | "riskLevel" | "risk_summary">;
+  ideaId: string;
+  organizationId: string | null;
+}): RiskInsert {
+  return {
+    idea_id: ideaId,
+    title: `${candidate.name} 핵심 리스크`,
+    area: inferRiskArea(`${candidate.name} ${candidate.one_liner} ${candidate.risk_summary}`),
+    severity: inferRiskSeverity(candidate.riskLevel),
+    mitigation: candidate.risk_summary,
+    status: "open",
+    organization_id: organizationId,
+  };
+}
+
+export function buildExtractedIdeaExperimentRow({
+  candidate,
+  ideaId,
+  organizationId,
+}: {
+  candidate: Pick<ExtractedIdea, "name" | "successMetric">;
+  ideaId: string;
+  organizationId: string | null;
+}): ExperimentInsert {
+  return {
+    idea_id: ideaId,
+    name: `${candidate.name} 7일 검증`,
+    success_metric: candidate.successMetric,
+    status: "planned",
     organization_id: organizationId,
   };
 }

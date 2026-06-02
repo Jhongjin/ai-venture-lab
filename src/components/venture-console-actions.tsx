@@ -64,8 +64,12 @@ import {
   getSecondaryExtractionPortfolioItems,
   selectRecommendedExtractionCandidate,
 } from "@/lib/extraction-portfolio-utils";
-import { buildExtractedIdeaInsertRow, buildExtractedIdeaPackageArtifactRows } from "@/lib/extracted-idea-artifact-rows";
-import { inferRiskArea, inferRiskSeverity } from "@/lib/extraction-risk-utils";
+import {
+  buildExtractedIdeaExperimentRow,
+  buildExtractedIdeaInsertRow,
+  buildExtractedIdeaPackageArtifactRows,
+  buildExtractedIdeaRiskRow,
+} from "@/lib/extracted-idea-artifact-rows";
 import { compactText } from "@/lib/extraction-text-utils";
 import { findBestCandidateMatch, findSimilarIdea, type SimilarIdeaMatch } from "@/lib/extraction-candidate-match";
 import {
@@ -1451,26 +1455,12 @@ export function VentureConsoleActions({
     const [riskResult, experimentResult, artifactResult] = await Promise.all([
       supabase
         .from("risks")
-        .insert({
-          idea_id: idea.id,
-          title: `${candidate.name} 핵심 리스크`,
-          area: inferRiskArea(`${candidate.name} ${candidate.one_liner} ${candidate.risk_summary}`),
-          severity: inferRiskSeverity(candidate.riskLevel),
-          mitigation: candidate.risk_summary,
-          status: "open",
-          organization_id: organizationId,
-        })
+        .insert(buildExtractedIdeaRiskRow({ candidate, ideaId: idea.id, organizationId }))
         .select()
         .single(),
       supabase
         .from("experiments")
-        .insert({
-          idea_id: idea.id,
-          name: `${candidate.name} 7일 검증`,
-          success_metric: candidate.successMetric,
-          status: "planned",
-          organization_id: organizationId,
-        })
+        .insert(buildExtractedIdeaExperimentRow({ candidate, ideaId: idea.id, organizationId }))
         .select()
         .single(),
       supabase
