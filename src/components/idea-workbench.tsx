@@ -66,6 +66,8 @@ import {
   isIdeaStageAtOrAfter,
   isDiscardedIdea,
   omitRecordKey,
+  removeRecordById,
+  removeRecordsByIdeaId,
   replaceRecordById,
   replaceRecordsById,
   sortWorkbenchIdeas,
@@ -1378,13 +1380,13 @@ export function IdeaWorkbench({
       : (remainingActiveIdeas.find((currentIdea) => currentIdea.id === selectedIdeaId) ?? remainingActiveIdeas[0] ?? null);
 
     setIdeas(remainingIdeas);
-    setRisks((current) => current.filter((risk) => risk.idea_id !== idea.id));
-    setDecisionLog((current) => current.filter((entry) => entry.idea_id !== idea.id));
-    setExperiments((current) => current.filter((experiment) => experiment.idea_id !== idea.id));
-    setOrchestrationRuns((current) => current.filter((run) => run.idea_id !== idea.id));
-    setArtifacts((current) => current.filter((artifact) => artifact.idea_id !== idea.id));
-    setImplementationTasks((current) => current.filter((task) => task.idea_id !== idea.id));
-    setTelemetryEvents((current) => current.filter((event) => event.idea_id !== idea.id));
+    setRisks((current) => removeRecordsByIdeaId(current, idea.id));
+    setDecisionLog((current) => removeRecordsByIdeaId(current, idea.id));
+    setExperiments((current) => removeRecordsByIdeaId(current, idea.id));
+    setOrchestrationRuns((current) => removeRecordsByIdeaId(current, idea.id));
+    setArtifacts((current) => removeRecordsByIdeaId(current, idea.id));
+    setImplementationTasks((current) => removeRecordsByIdeaId(current, idea.id));
+    setTelemetryEvents((current) => removeRecordsByIdeaId(current, idea.id));
     setSelectedIdeaId(nextSelectedIdea?.id ?? "");
     setEditState(nextSelectedIdea ? toEditState(nextSelectedIdea) : null);
     setIsBusy(false);
@@ -2280,7 +2282,7 @@ export function IdeaWorkbench({
 
     const refreshedTasks = (data ?? []) as ImplementationTask[];
     setImplementationTasks((current) => [
-      ...current.filter((task) => task.idea_id !== selectedIdea.id),
+      ...removeRecordsByIdeaId(current, selectedIdea.id),
       ...refreshedTasks,
     ]);
     setCursorProgressImportItems([]);
@@ -2818,7 +2820,7 @@ export function IdeaWorkbench({
     }
 
     const nextExperimentId = selectedExperiments.find((item) => item.id !== experiment.id)?.id ?? "";
-    setExperiments((current) => current.filter((item) => item.id !== experiment.id));
+    setExperiments((current) => removeRecordById(current, experiment.id));
     setExperimentResultDraft((current) =>
       current.experiment_id === experiment.id
         ? { ...current, experiment_id: nextExperimentId }
@@ -2903,7 +2905,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    setOrchestrationRuns((current) => current.filter((item) => item.id !== run.id));
+    setOrchestrationRuns((current) => removeRecordById(current, run.id));
     setRunOutputs((current) => omitRecordKey(current, run.id));
     void recordTelemetryEvent({
       eventName: "run_deleted",

@@ -210,6 +210,14 @@ export function replaceRecordsById<T extends { id: string }>(records: T[], nextR
   return records.map((record) => recordsById.get(record.id) ?? record);
 }
 
+export function removeRecordById<T extends { id: string }>(records: T[], recordId: string) {
+  return records.filter((record) => record.id !== recordId);
+}
+
+export function removeRecordsByIdeaId<T extends { idea_id: string | null }>(records: T[], ideaId: string) {
+  return records.filter((record) => record.idea_id !== ideaId);
+}
+
 export function omitRecordKey<T>(record: Record<string, T>, key: string) {
   const next = { ...record };
   delete next[key];

@@ -19,6 +19,8 @@ const {
   isDiscardedIdea,
   isIdeaStageAtOrAfter,
   omitRecordKey,
+  removeRecordById,
+  removeRecordsByIdeaId,
   replaceRecordById,
   replaceRecordsById,
   sortWorkbenchIdeas,
@@ -172,6 +174,21 @@ assert.deepEqual(
 );
 assert.deepEqual(omitRecordKey({ a: "keep", b: "drop" }, "b"), { a: "keep" });
 assert.deepEqual(omitRecordKey({ a: "keep" }, "missing"), { a: "keep" });
+assert.deepEqual(removeRecordById([{ id: "a" }, { id: "b" }], "a"), [{ id: "b" }]);
+assert.deepEqual(
+  removeRecordsByIdeaId(
+    [
+      { id: "risk-1", idea_id: "idea-1" },
+      { id: "risk-2", idea_id: "idea-2" },
+      { id: "global", idea_id: null },
+    ],
+    "idea-1",
+  ),
+  [
+    { id: "risk-2", idea_id: "idea-2" },
+    { id: "global", idea_id: null },
+  ],
+);
 assert.deepEqual(upsertWorkbenchIdea([ideas[0]], ideas[1]).map((record) => record.id), ["owned-new", "shared-old"]);
 
 console.log("Workbench list utils smoke passed.");
