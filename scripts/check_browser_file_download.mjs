@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/browser-file-d
 const {
   buildClipboardCopyMessage,
   buildDownloadPreparedMessage,
+  triggerBrowserDraftDownload,
   triggerBrowserTextDownload,
 } = await import(moduleUrl);
 
@@ -73,5 +74,24 @@ assert.equal(objectUrlCreated, true);
 assert.equal(anchorClicked, true);
 assert.equal(appendedElements.length, 1);
 assert.equal(appendedElements[0].download, "ready.md");
+
+assert.equal(
+  triggerBrowserDraftDownload({
+    body: "",
+    fileName: "empty-package.md",
+    label: "제작 패키지",
+  }),
+  null,
+);
+assert.equal(
+  triggerBrowserDraftDownload({
+    body: "# Ready",
+    fileName: "venture-package.md",
+    label: "제작 패키지",
+  }),
+  "제작 패키지 파일을 준비했습니다.",
+);
+assert.equal(appendedElements.length, 2);
+assert.equal(appendedElements[1].download, "venture-package.md");
 
 console.log("Browser file download smoke passed.");

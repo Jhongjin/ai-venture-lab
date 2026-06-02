@@ -4,6 +4,13 @@ export type BrowserTextDownloadOptions = {
   mimeType: string;
 };
 
+export type BrowserDraftDownloadOptions = {
+  body: string;
+  fileName: string;
+  label: string;
+  mimeType?: string;
+};
+
 export type BrowserSetupFileDraft = {
   path: string;
   body: string;
@@ -40,6 +47,19 @@ export function triggerBrowserMarkdownDownload(body: string, fileName: string) {
     fileName,
     mimeType: "text/markdown;charset=utf-8",
   });
+}
+
+export function triggerBrowserDraftDownload({
+  body,
+  fileName,
+  label,
+  mimeType = "text/markdown;charset=utf-8",
+}: BrowserDraftDownloadOptions) {
+  if (!triggerBrowserTextDownload({ body, fileName, mimeType })) {
+    return null;
+  }
+
+  return buildDownloadPreparedMessage(label);
 }
 
 export function encodeBrowserUtf8Base64(body: string) {

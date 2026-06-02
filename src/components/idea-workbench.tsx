@@ -155,9 +155,8 @@ import {
 } from "@/lib/build-delivery";
 import {
   buildClipboardCopyMessage,
-  buildDownloadPreparedMessage,
   encodeBrowserSetupFiles,
-  triggerBrowserTextDownload,
+  triggerBrowserDraftDownload,
 } from "@/lib/browser-file-download";
 import {
   buildFinalExecutionDecisionSentence,
@@ -3598,8 +3597,9 @@ export function IdeaWorkbench({
     fileName: string,
     mimeType = "text/markdown;charset=utf-8",
   ) {
-    if (triggerBrowserTextDownload({ body, fileName, mimeType })) {
-      setCopyMessage(buildDownloadPreparedMessage(label));
+    const preparedMessage = triggerBrowserDraftDownload({ body, fileName, label, mimeType });
+    if (preparedMessage) {
+      setCopyMessage(preparedMessage);
     }
   }
 
