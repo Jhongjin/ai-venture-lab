@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { buildJsonPostRequestInit } from "@/lib/api-request-utils";
 import { copyBrowserText } from "@/lib/browser-file-download";
+import { getBrowserLocationSnapshot, replaceBrowserHistoryUrl } from "@/lib/browser-location";
 import { clearBrowserTimeout, scheduleBrowserTimeout } from "@/lib/browser-timing";
 import { readResponseJson } from "@/lib/record-utils";
 import {
@@ -578,14 +579,15 @@ export function VentureConsoleActions({
   }, [loadAuditEvents, loadPersonalRecordCount, supabase]);
 
   useEffect(() => {
-    const callbackState = readAuthCallbackErrorState(window.location);
+    const browserLocation = getBrowserLocationSnapshot();
+    const callbackState = readAuthCallbackErrorState(browserLocation);
 
     if (!callbackState) {
       return;
     }
 
     const callbackMessage = formatAuthCallbackMessage(callbackState.error, callbackState.description);
-    window.history.replaceState(null, "", callbackState.nextUrl);
+    replaceBrowserHistoryUrl(callbackState.nextUrl);
 
     const messageTimer = scheduleBrowserTimeout(() => {
       setAuthMessage(callbackMessage);
@@ -601,7 +603,8 @@ export function VentureConsoleActions({
       return;
     }
 
-    const codeState = readMagicLinkCodeState(window.location);
+    const browserLocation = getBrowserLocationSnapshot();
+    const codeState = readMagicLinkCodeState(browserLocation);
 
     if (!codeState) {
       return;
@@ -610,7 +613,7 @@ export function VentureConsoleActions({
     const supabaseClient = supabase;
     const authCode = codeState.code;
 
-    window.history.replaceState(null, "", codeState.nextUrl);
+    replaceBrowserHistoryUrl(codeState.nextUrl);
 
     const exchangeTimer = scheduleBrowserTimeout(() => {
       async function completeRootMagicLink() {
@@ -694,7 +697,7 @@ export function VentureConsoleActions({
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        emailRedirectTo: buildWorkspaceEmailRedirectUrl(window.location.origin),
+        emailRedirectTo: buildWorkspaceEmailRedirectUrl(getBrowserLocationSnapshot().origin),
       },
     });
     setIsAuthBusy(false);
