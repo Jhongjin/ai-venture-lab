@@ -18,7 +18,7 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { artifactStatusOptions } = await import(artifactLabelsUrl);
+const { artifactStatusOptions, artifactTypeOptions } = await import(artifactLabelsUrl);
 const {
   buildArtifactDraftInsertRow,
   buildArtifactReadinessFlags,
@@ -32,6 +32,17 @@ const {
 } = await import(moduleUrl);
 
 assert.deepEqual(artifactStatusOptions, ["draft", "approved", "archived"]);
+assert.deepEqual(artifactTypeOptions, [
+  "idea_brief",
+  "research_note",
+  "prd",
+  "mvp_spec",
+  "backend_decision",
+  "design_brief",
+  "tech_spec",
+  "dev_runbook",
+  "launch_checklist",
+]);
 
 function artifact({ body, createdAt, id, source = "manual", status = "draft", title, type = "prd", version = 1 }) {
   return {

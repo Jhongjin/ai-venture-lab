@@ -136,6 +136,7 @@ import {
   artifactStatusLabels,
   artifactStatusOptions,
   artifactStatusTone,
+  artifactTypeOptions,
 } from "@/lib/artifact-labels";
 import {
   productSurfaceProfiles,
@@ -8131,9 +8132,9 @@ export function IdeaWorkbench({
                   className="avl-select h-10 text-sm normal-case tracking-normal text-slate-800"
                 >
                   <option value="all">전체 유형</option>
-                  {Object.entries(artifactLabels).map(([value, label]) => (
+                  {artifactTypeOptions.map((value) => (
                     <option key={value} value={value}>
-                      {label}
+                      {artifactLabels[value]}
                     </option>
                   ))}
                 </select>

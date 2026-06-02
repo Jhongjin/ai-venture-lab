@@ -12,6 +12,8 @@ export const artifactLabels: Record<VentureArtifactType, string> = {
   launch_checklist: "출시 체크리스트",
 };
 
+export const artifactTypeOptions = Object.keys(artifactLabels) as VentureArtifactType[];
+
 export const artifactStatusLabels: Record<VentureArtifactStatus, string> = {
   draft: "초안",
   approved: "승인됨",
