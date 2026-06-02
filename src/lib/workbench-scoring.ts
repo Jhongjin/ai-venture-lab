@@ -91,6 +91,12 @@ export function buildWorkbenchScoringSavePatch({
   };
 }
 
+export function buildWorkbenchScoringSavedMessage({ usedProductSurfaceFallback }: { usedProductSurfaceFallback: boolean }) {
+  return usedProductSurfaceFallback
+    ? "사업성 평가는 저장했습니다. 결과물 형태는 DB 마이그레이션 적용 후 저장됩니다."
+    : "사업성 평가를 저장했습니다.";
+}
+
 export type WorkbenchScoreEvaluationState = {
   activeProductSurface: ProductSurfaceProfile;
   currentScore: number;

@@ -85,6 +85,7 @@ import {
 } from "@/lib/workbench-list-utils";
 import {
   buildWorkbenchScoreEvaluationState,
+  buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSavePatch,
   scoreWorkbenchState as scoreState,
   toWorkbenchEditState as toEditState,
@@ -2012,11 +2013,7 @@ export function IdeaWorkbench({
         regulatory_risk: data.regulatory_risk,
       },
     });
-    setMessage(
-      usedProductSurfaceFallback
-        ? "사업성 평가는 저장했습니다. 결과물 형태는 DB 마이그레이션 적용 후 저장됩니다."
-        : "사업성 평가를 저장했습니다.",
-    );
+    setMessage(buildWorkbenchScoringSavedMessage({ usedProductSurfaceFallback }));
     router.refresh();
   }
 
