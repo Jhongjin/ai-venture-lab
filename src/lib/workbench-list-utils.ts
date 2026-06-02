@@ -38,6 +38,7 @@ export const workbenchIdeaCreatedSelectedMessage = "새 아이디어를 실행 �
 export const workbenchIdeaDeleteLoginRequiredMessage = "아이디어를 삭제하려면 먼저 로그인해 주세요.";
 export const workbenchIdeaDeletePermissionDeniedMessage = "이 아이디어를 삭제할 권한이 없습니다.";
 export const workbenchIdeaSelectionRequiredMessage = "먼저 아이디어를 선택하세요.";
+export const workbenchIdeaReadOnlyMessage = "현재 운영자에게는 이 아이디어가 읽기 전용입니다.";
 export const workbenchIdeaRestoreLoginRequiredMessage = "아이디어를 되살리려면 먼저 로그인해 주세요.";
 export const workbenchIdeaRestorePermissionDeniedMessage = "이 아이디어를 되살릴 권한이 없습니다.";
 export const workbenchStorageConnectionRequiredMessage = "저장 연결을 먼저 확인해 주세요.";

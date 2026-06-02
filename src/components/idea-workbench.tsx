@@ -94,6 +94,7 @@ import {
   workbenchIdeaDeleteLoginRequiredMessage,
   workbenchIdeaDeletePermissionDeniedMessage,
   workbenchIdeaFilterModes,
+  workbenchIdeaReadOnlyMessage,
   workbenchIdeaRestoreLoginRequiredMessage,
   workbenchIdeaRestorePermissionDeniedMessage,
   type WorkbenchIdeaFilterMode,
@@ -199,6 +200,9 @@ import {
   buildBuildPassUnlockLoginRequiredMessage,
   buildBuildPassUnlockRetryMessage,
   buildBuildPassUnlockSuccessMessage,
+  buildCreditSummaryLoadFailedMessage,
+  buildCreditSummaryLoadRetryMessage,
+  buildCreditSummaryReadFailedMessage,
   getBuildPassRequirementMessage,
   getBuildPassUnlockResult,
   getCreditAccessState,
@@ -680,8 +684,8 @@ export function IdeaWorkbench({
 
       if (!response.ok || !isCreditSummary(payload)) {
         const fallback = response.ok
-          ? "크레딧 상태를 읽지 못했습니다."
-          : "크레딧 상태를 불러오지 못했습니다.";
+          ? buildCreditSummaryReadFailedMessage()
+          : buildCreditSummaryLoadFailedMessage();
         setCreditMessage(getApiMessage(payload, fallback));
         return null;
       }
@@ -690,7 +694,7 @@ export function IdeaWorkbench({
       setCreditMessage(payload.message);
       return payload;
     } catch {
-      setCreditMessage("크레딧 상태를 불러오지 못했습니다. 잠시 후 다시 시도하세요.");
+      setCreditMessage(buildCreditSummaryLoadRetryMessage());
       return null;
     } finally {
       setIsCreditSummaryLoading(false);
@@ -2072,7 +2076,7 @@ export function IdeaWorkbench({
     }
 
     if (!canEdit) {
-      setMessage("현재 운영자에게는 이 아이디어가 읽기 전용입니다.");
+      setMessage(workbenchIdeaReadOnlyMessage);
       return;
     }
 

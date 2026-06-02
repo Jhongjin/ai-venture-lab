@@ -105,6 +105,18 @@ export function buildBuildPassUnlockSuccessMessage() {
   return "전체 제작 패키지가 열렸습니다. 이제 AI 제작 패키지를 만들고 저장할 수 있습니다.";
 }
 
+export function buildCreditSummaryReadFailedMessage() {
+  return "크레딧 상태를 읽지 못했습니다.";
+}
+
+export function buildCreditSummaryLoadFailedMessage() {
+  return "크레딧 상태를 불러오지 못했습니다.";
+}
+
+export function buildCreditSummaryLoadRetryMessage() {
+  return "크레딧 상태를 불러오지 못했습니다. 잠시 후 다시 시도하세요.";
+}
+
 export function isCreditSummary(value: unknown): value is CreditSummary {
   return (
     isPlainRecord(value) &&
