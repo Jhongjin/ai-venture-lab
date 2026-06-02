@@ -302,6 +302,22 @@ export function buildImplementationOwnerFilterLabels(ownerOptions: string[]) {
   >;
 }
 
+export function buildImplementationFilterSummary({
+  activeOwnerFilter,
+  evidenceFilter,
+  ownerFilterLabels,
+  statusFilter,
+}: {
+  activeOwnerFilter: string;
+  evidenceFilter: ImplementationEvidenceFilter;
+  ownerFilterLabels: Record<string, string>;
+  statusFilter: ImplementationStatusFilter;
+}) {
+  return `상태: ${implementationStatusFilterLabels[statusFilter]} / 담당: ${
+    ownerFilterLabels[activeOwnerFilter] ?? activeOwnerFilter
+  } / 증거: ${implementationEvidenceFilterLabels[evidenceFilter]}`;
+}
+
 export function resolveImplementationOwnerFilter(ownerOptions: string[], ownerFilter: string) {
   return ownerOptions.includes(ownerFilter) ? ownerFilter : "all";
 }
@@ -456,6 +472,7 @@ export type ImplementationTaskReviewState = {
   filteredImplementationTasks: ImplementationTask[];
   implementationEvidenceIssues: ImplementationEvidenceSummary[];
   implementationEvidenceSummaries: ImplementationEvidenceSummary[];
+  implementationFilterSummary: string;
   implementationOwnerFilterLabels: Record<string, string>;
   implementationOwnerOptions: string[];
   implementationTaskBoardColumns: ImplementationTaskBoardColumn[];
@@ -481,6 +498,7 @@ export function buildImplementationTaskReviewState({
   });
   const implementationOwnerOptions = buildImplementationOwnerOptions(tasks);
   const activeImplementationOwnerFilter = resolveImplementationOwnerFilter(implementationOwnerOptions, ownerFilter);
+  const implementationOwnerFilterLabels = buildImplementationOwnerFilterLabels(implementationOwnerOptions);
   const filteredImplementationTasks = filterImplementationTasks({
     evidenceByTaskId,
     evidenceFilter,
@@ -499,7 +517,13 @@ export function buildImplementationTaskReviewState({
     filteredImplementationTasks,
     implementationEvidenceIssues: getImplementationEvidenceIssues(implementationEvidenceSummaries),
     implementationEvidenceSummaries,
-    implementationOwnerFilterLabels: buildImplementationOwnerFilterLabels(implementationOwnerOptions),
+    implementationFilterSummary: buildImplementationFilterSummary({
+      activeOwnerFilter: activeImplementationOwnerFilter,
+      evidenceFilter,
+      ownerFilterLabels: implementationOwnerFilterLabels,
+      statusFilter,
+    }),
+    implementationOwnerFilterLabels,
     implementationOwnerOptions,
     implementationTaskBoardColumns: buildImplementationTaskBoardColumns({
       evidenceByTaskId,

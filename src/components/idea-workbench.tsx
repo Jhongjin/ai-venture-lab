@@ -1006,6 +1006,7 @@ export function IdeaWorkbench({
     filteredImplementationTasks,
     implementationEvidenceIssues,
     implementationEvidenceSummaries,
+    implementationFilterSummary,
     implementationOwnerFilterLabels,
     implementationOwnerOptions,
     implementationTaskBoardColumns,
@@ -1475,9 +1476,6 @@ export function IdeaWorkbench({
         emptyMessage: "열린 제작 할 일이 없습니다.",
       })
     : "";
-  const implementationFilterSummary = `상태: ${implementationStatusFilterLabels[implementationStatusFilter]} / 담당: ${
-    implementationOwnerFilterLabels[activeImplementationOwnerFilter]
-  } / 증거: ${implementationEvidenceFilterLabels[implementationEvidenceFilter]}`;
   const filteredImplementationBacklogDraft = selectedIdea && editState
     ? buildImplementationBacklogMarkdown({
         idea: selectedIdea,

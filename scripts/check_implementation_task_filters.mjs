@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-metadata.ts")).href;
 const {
+  buildImplementationFilterSummary,
   buildImplementationOwnerFilterLabels,
   buildImplementationOwnerOptions,
   buildImplementationTaskReviewState,
@@ -72,6 +73,15 @@ assert.deepEqual(buildImplementationOwnerFilterLabels(ownerOptions), {
 });
 assert.equal(resolveImplementationOwnerFilter(ownerOptions, "backend"), "backend");
 assert.equal(resolveImplementationOwnerFilter(ownerOptions, "stale-owner"), "all");
+assert.equal(
+  buildImplementationFilterSummary({
+    activeOwnerFilter: "frontend",
+    evidenceFilter: "complete",
+    ownerFilterLabels: buildImplementationOwnerFilterLabels(ownerOptions),
+    statusFilter: "doing",
+  }),
+  "상태: 진행 중 / 담당: frontend / 증거: 근거 채워짐",
+);
 
 assert.deepEqual(
   filterImplementationTasks({
@@ -164,6 +174,7 @@ const reviewState = buildImplementationTaskReviewState({
 });
 assert.deepEqual(reviewState.implementationOwnerOptions, ["all", "backend", "frontend", "owner 미정"]);
 assert.equal(reviewState.activeImplementationOwnerFilter, "frontend");
+assert.equal(reviewState.implementationFilterSummary, "상태: 전체 상태 / 담당: frontend / 증거: 근거 채워짐");
 assert.deepEqual(reviewState.filteredImplementationTasks.map((item) => item.id), ["task-frontend", "task-design"]);
 assert.deepEqual(reviewState.visibleImplementationStatuses, ["todo", "doing", "blocked", "done"]);
 assert.deepEqual(
