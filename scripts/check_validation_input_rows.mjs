@@ -53,8 +53,12 @@ const {
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
 } = await import(moduleUrl);
-const { buildValidationPlanningReviewState, getValidationPlanExperimentPreview, includesAnyNormalized } =
-  await import(validationPlanningUrl);
+const {
+  buildIdeaDomainText,
+  buildValidationPlanningReviewState,
+  getValidationPlanExperimentPreview,
+  includesAnyNormalized,
+} = await import(validationPlanningUrl);
 
 assert.equal(includesAnyNormalized("반복 검증 자동화 수요", ["반복"]), true);
 assert.equal(includesAnyNormalized("Weekly validation demand", ["weekly"]), true);
@@ -103,6 +107,14 @@ const validationState = {
   signal: validationIdea.signal,
   willingness_to_pay: validationIdea.willingness_to_pay,
 };
+const ideaDomainText = buildIdeaDomainText(validationIdea, validationState);
+assert.match(ideaDomainText, /AI Venture Lab/);
+assert.match(ideaDomainText, /아이디어를 검증 패키지로 바꿉니다/);
+assert.match(ideaDomainText, /창업자/);
+assert.match(ideaDomainText, /운영팀/);
+assert.match(ideaDomainText, /반복 검증 자동화 수요/);
+assert.match(ideaDomainText, /범위 확장 주의/);
+assert.match(ideaDomainText, /5명 인터뷰/);
 const validationReviewState = buildValidationPlanningReviewState({
   artifacts: [],
   decisions: [],
