@@ -3,7 +3,12 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-sync-connection.ts")).href;
-const { sortCursorSyncConnectionsByCreatedAt, upsertCursorSyncConnection } = await import(moduleUrl);
+const {
+  compareCursorSyncConnectionsByCreatedAt,
+  getCursorSyncConnectionCreatedAtTime,
+  sortCursorSyncConnectionsByCreatedAt,
+  upsertCursorSyncConnection,
+} = await import(moduleUrl);
 
 function connection({ createdAt, id, status = "active", tool = "cursor" }) {
   return {
@@ -25,6 +30,19 @@ const connections = [
 
 assert.deepEqual(sortCursorSyncConnectionsByCreatedAt(connections).map((item) => item.id), ["newer", "middle", "older"]);
 assert.deepEqual(connections.map((item) => item.id), ["older", "newer", "middle"]);
+assert.equal(
+  getCursorSyncConnectionCreatedAtTime({ createdAt: "2026-06-03T00:00:00.000Z" }),
+  Date.parse("2026-06-03T00:00:00.000Z"),
+);
+assert.equal(compareCursorSyncConnectionsByCreatedAt(connections[0], connections[1]) > 0, true);
+assert.equal(compareCursorSyncConnectionsByCreatedAt(connections[1], connections[0]) < 0, true);
+assert.equal(
+  compareCursorSyncConnectionsByCreatedAt(
+    { createdAt: "2026-06-02T00:00:00.000Z" },
+    { createdAt: "2026-06-02T00:00:00.000Z" },
+  ),
+  0,
+);
 
 const upsertedNew = upsertCursorSyncConnection(
   connections,

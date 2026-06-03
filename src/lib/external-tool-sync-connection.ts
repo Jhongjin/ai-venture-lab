@@ -39,16 +39,21 @@ export function getExternalToolConnectionStatusFallbackMessage(toolLabel: string
   return `${toolLabel} 연결 파일은 만들 수 있지만, ${cursorSyncRegistryFallbackMessage}`;
 }
 
-function getCursorSyncConnectionCreatedAtTime(connection: Pick<CursorSyncConnection, "createdAt">) {
+export function getCursorSyncConnectionCreatedAtTime(connection: Pick<CursorSyncConnection, "createdAt">) {
   return new Date(connection.createdAt).getTime();
+}
+
+export function compareCursorSyncConnectionsByCreatedAt(
+  a: Pick<CursorSyncConnection, "createdAt">,
+  b: Pick<CursorSyncConnection, "createdAt">,
+) {
+  return getCursorSyncConnectionCreatedAtTime(b) - getCursorSyncConnectionCreatedAtTime(a);
 }
 
 export function sortCursorSyncConnectionsByCreatedAt<T extends Pick<CursorSyncConnection, "createdAt">>(
   connections: T[],
 ) {
-  return [...connections].sort(
-    (a, b) => getCursorSyncConnectionCreatedAtTime(b) - getCursorSyncConnectionCreatedAtTime(a),
-  );
+  return [...connections].sort(compareCursorSyncConnectionsByCreatedAt);
 }
 
 export function upsertCursorSyncConnection(connections: CursorSyncConnection[], connection: CursorSyncConnection) {
