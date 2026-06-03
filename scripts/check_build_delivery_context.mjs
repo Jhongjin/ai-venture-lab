@@ -5,6 +5,8 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/build-delivery.ts")).href;
 const {
   compareBuildDeliveryPreferenceArtifactsByCreatedAt,
+  externalBuildToolProfiles,
+  getActiveExternalBuildToolProfile,
   getBuildDeliveryActionPhrase,
   getBuildDeliveryPreferenceArtifactTime,
   getBuildDeliveryPreferenceFromArtifacts,
@@ -23,6 +25,22 @@ assert.equal(isBuildDeliveryMode("manual"), false);
 assert.equal(isExternalBuildToolKey("cursor"), true);
 assert.equal(isExternalBuildToolKey("generic_mcp"), true);
 assert.equal(isExternalBuildToolKey("manual"), false);
+assert.equal(
+  getActiveExternalBuildToolProfile({
+    buildDeliveryMode: "external_tool",
+    finalExternalToolOverrideKey: "codex",
+    persistedExternalBuildTool: externalBuildToolProfiles.cursor,
+  }).key,
+  "codex",
+);
+assert.equal(
+  getActiveExternalBuildToolProfile({
+    buildDeliveryMode: "venture_lab",
+    finalExternalToolOverrideKey: "codex",
+    persistedExternalBuildTool: externalBuildToolProfiles.cursor,
+  }).key,
+  "cursor",
+);
 
 const preference = normalizeBuildDeliveryPreference({
   mode: "external_tool",

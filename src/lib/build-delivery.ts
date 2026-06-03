@@ -265,6 +265,20 @@ export function hasActiveFinalExternalToolOverride({
   );
 }
 
+export function getActiveExternalBuildToolProfile({
+  buildDeliveryMode,
+  finalExternalToolOverrideKey,
+  persistedExternalBuildTool,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  finalExternalToolOverrideKey: ExternalBuildToolKey | null;
+  persistedExternalBuildTool: ExternalBuildToolProfile;
+}) {
+  return buildDeliveryMode === "external_tool" && finalExternalToolOverrideKey
+    ? externalBuildToolProfiles[finalExternalToolOverrideKey]
+    : persistedExternalBuildTool;
+}
+
 export function resolveBuildDeliveryContext({
   finalExternalToolOverride,
   preference,
@@ -280,10 +294,11 @@ export function resolveBuildDeliveryContext({
     finalExternalToolOverride,
     selectedIdeaId,
   });
-  const activeExternalBuildTool =
-    buildDeliveryMode === "external_tool" && finalExternalToolOverrideKey
-      ? externalBuildToolProfiles[finalExternalToolOverrideKey]
-      : persistedExternalBuildTool;
+  const activeExternalBuildTool = getActiveExternalBuildToolProfile({
+    buildDeliveryMode,
+    finalExternalToolOverrideKey,
+    persistedExternalBuildTool,
+  });
   const hasFinalExternalToolOverride = hasActiveFinalExternalToolOverride({
     buildDeliveryMode,
     finalExternalToolOverrideKey,
