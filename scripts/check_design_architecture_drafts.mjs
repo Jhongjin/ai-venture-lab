@@ -59,7 +59,13 @@ const moduleUrl = transpileModuleUrl("src/lib/design-architecture-drafts.ts", [
   ['from "@/lib/tech-spec-markdown";', `from ${JSON.stringify(techSpecUrl)};`],
 ]);
 
-const { getHighAppBlueprintRisks, getRecommendedAppBlueprintBackend } = await import(appBlueprintUrl);
+const {
+  buildAppBlueprintExperimentLines,
+  buildAppBlueprintRiskLines,
+  buildAppBlueprintTaskLines,
+  getHighAppBlueprintRisks,
+  getRecommendedAppBlueprintBackend,
+} = await import(appBlueprintUrl);
 const { getDesignBriefRun } = await import(designBriefUrl);
 const { getDesignGenerationSurfaceOpening, getRecommendedDesignGenerationBackend } = await import(designPromptUrl);
 const { getMvpScaffoldExclusions, getRecommendedMvpScaffoldBackend, usesFirebaseMvpScaffoldBackend } =
@@ -194,6 +200,18 @@ assert.deepEqual(
   getHighAppBlueprintRisks(risks).map((risk) => risk.id),
   ["risk-1"],
 );
+assert.match(buildAppBlueprintRiskLines(risks), /민감 데이터 입력 전 목적과 삭제 경로 표시/);
+assert.equal(
+  buildAppBlueprintRiskLines([]),
+  "- 아직 등록된 리스크가 없습니다. 인증, 개인정보, 결제, 규제, 운영 장애 리스크를 먼저 적습니다.",
+);
+assert.match(buildAppBlueprintExperimentLines(experiments), /디자인 검증/);
+assert.equal(
+  buildAppBlueprintExperimentLines([]),
+  "- 첫 제작 전에 5명 이상 대상 사용자에게 핵심 행동을 시켜 보는 검증 계획을 정의합니다.",
+);
+assert.match(buildAppBlueprintTaskLines(implementationTasks), /T-001 워크벤치 첫 화면/);
+assert.match(buildAppBlueprintTaskLines([]), /범위 잠금/);
 assert.equal(getDesignBriefRun(runs)?.id, "run-1");
 assert.equal(getDesignBriefRun([]), undefined);
 assert.equal(

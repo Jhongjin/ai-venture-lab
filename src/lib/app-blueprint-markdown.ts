@@ -23,6 +23,39 @@ export function getHighAppBlueprintRisks(risks: Risk[]) {
   return risks.filter((risk) => risk.severity === "high" || risk.severity === "critical");
 }
 
+export function buildAppBlueprintRiskLines(risks: Risk[]) {
+  return risks.length > 0
+    ? risks
+        .slice(0, 8)
+        .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] || risk.status} / ${risk.mitigation || "완화책 미정"}`)
+        .join("\n")
+    : "- 아직 등록된 리스크가 없습니다. 인증, 개인정보, 결제, 규제, 운영 장애 리스크를 먼저 적습니다.";
+}
+
+export function buildAppBlueprintExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments
+        .slice(0, 6)
+        .map(
+          (experiment) =>
+            `- ${experiment.name}: ${experiment.status} / ${experiment.success_metric || "성공 지표 미정"} / 결과는 근거 제작 자료에 기록`,
+        )
+        .join("\n")
+    : "- 첫 제작 전에 5명 이상 대상 사용자에게 핵심 행동을 시켜 보는 검증 계획을 정의합니다.";
+}
+
+export function buildAppBlueprintTaskLines(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.length > 0
+    ? sortImplementationTasksForAction(implementationTasks)
+        .slice(0, 10)
+        .map(
+          (task, index) =>
+            `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / ${implementationTaskPriorityLabels[task.priority]}`,
+        )
+        .join("\n")
+    : "1. 범위 잠금: 포함/제외 범위, No-go 조건, 성공 지표를 먼저 확정합니다.\n2. 데이터 경계: 사용자/워크스페이스/레코드 소유권을 정의합니다.\n3. 핵심 입력-저장-조회 흐름: 첫 수직 슬라이스를 구현합니다.\n4. 권한 차단과 오류 상태: 허용/차단/빈 상태/로딩을 모두 검증합니다.\n5. 배포와 스모크: Preview, Production, 롤백 기준을 남깁니다.";
+}
+
 export function buildAppBlueprintMarkdown({
   idea,
   state,
@@ -41,33 +74,9 @@ export function buildAppBlueprintMarkdown({
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const topBackend = getRecommendedAppBlueprintBackend(backendCandidateScores);
   const highRisks = getHighAppBlueprintRisks(risks);
-  const riskLines =
-    risks.length > 0
-      ? risks
-          .slice(0, 8)
-          .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] || risk.status} / ${risk.mitigation || "완화책 미정"}`)
-          .join("\n")
-      : "- 아직 등록된 리스크가 없습니다. 인증, 개인정보, 결제, 규제, 운영 장애 리스크를 먼저 적습니다.";
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .slice(0, 6)
-          .map(
-            (experiment) =>
-              `- ${experiment.name}: ${experiment.status} / ${experiment.success_metric || "성공 지표 미정"} / 결과는 근거 제작 자료에 기록`,
-          )
-          .join("\n")
-      : "- 첫 제작 전에 5명 이상 대상 사용자에게 핵심 행동을 시켜 보는 검증 계획을 정의합니다.";
-  const taskLines =
-    implementationTasks.length > 0
-      ? sortImplementationTasksForAction(implementationTasks)
-          .slice(0, 10)
-          .map(
-            (task, index) =>
-              `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / ${implementationTaskPriorityLabels[task.priority]}`,
-          )
-          .join("\n")
-      : "1. 범위 잠금: 포함/제외 범위, No-go 조건, 성공 지표를 먼저 확정합니다.\n2. 데이터 경계: 사용자/워크스페이스/레코드 소유권을 정의합니다.\n3. 핵심 입력-저장-조회 흐름: 첫 수직 슬라이스를 구현합니다.\n4. 권한 차단과 오류 상태: 허용/차단/빈 상태/로딩을 모두 검증합니다.\n5. 배포와 스모크: Preview, Production, 롤백 기준을 남깁니다.";
+  const riskLines = buildAppBlueprintRiskLines(risks);
+  const experimentLines = buildAppBlueprintExperimentLines(experiments);
+  const taskLines = buildAppBlueprintTaskLines(implementationTasks);
   const surfaceStructure = buildSurfaceBlueprintStructure(productSurface);
 
   return `# 앱 구조 청사진: ${idea.name}
