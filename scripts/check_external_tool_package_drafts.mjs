@@ -41,8 +41,14 @@ const source = readFileSync(modulePath, "utf8")
   .replace('from "@/lib/cursor-mcp-server-script";', `from ${JSON.stringify(cursorMcpServerUrl)};`)
   .replace('from "@/lib/external-tool-handoff-markdown";', `from ${JSON.stringify(handoffUrl)};`);
 const moduleUrl = transpileToDataUrl(source, modulePath);
-const { buildExternalToolTaskBody, buildFallbackExternalToolTaskSection, buildSavedExternalToolTaskSection, formatExternalToolSyncExpiryText } =
-  await import(handoffUrl);
+const {
+  buildExternalToolProjectContextLines,
+  buildExternalToolProjectInfoSection,
+  buildExternalToolTaskBody,
+  buildFallbackExternalToolTaskSection,
+  buildSavedExternalToolTaskSection,
+  formatExternalToolSyncExpiryText,
+} = await import(handoffUrl);
 const { buildExternalToolConnectorDrafts, buildExternalToolPackageDrafts } = await import(moduleUrl);
 
 assert.equal(formatExternalToolSyncExpiryText(), "");
@@ -92,6 +98,19 @@ const productSurface = {
   promptFocus: "대시보드, 리스트/상세, 상태 변경, 권한",
   handoffHint: "테이블/상세 계약, 상태 전환, 권한 정책, 운영 smoke",
 };
+assert.equal(
+  buildExternalToolProjectContextLines({ idea, productSurface, projectKey: "venture-idea-1" }),
+  "- 프로젝트 키: venture-idea-1\n- 아이디어: 고객 문의 자동 정리 콘솔\n- 결과물 형태: 운영 콘솔\n- 첫 제작 기준: 리스트, 상세, 상태 변경이 있는 콘솔형 첫 제작 범위",
+);
+assert.match(
+  buildExternalToolProjectInfoSection({
+    idea,
+    productSurface,
+    projectKey: "venture-idea-1",
+    syncExpiresAt: "2026-06-03T00:00:00.000Z",
+  }),
+  /## 프로젝트 정보\n\n- 프로젝트 키: venture-idea-1[\s\S]+자동 반영 토큰 만료: 2026-06-03T00:00:00.000Z/,
+);
 const tasks = [
   {
     acceptance_criteria: "T-001 첫 화면과 저장 흐름 확인",

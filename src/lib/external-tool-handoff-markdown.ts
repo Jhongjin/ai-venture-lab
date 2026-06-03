@@ -19,8 +19,39 @@ const implementationTaskCompletionReportTemplate = `### 완료 보고 형식
 const externalStartPromptIntentSentence =
   'Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.';
 
+type ExternalToolProjectContext = {
+  idea: Pick<Idea, "name">;
+  productSurface: Pick<ProductSurfaceProfile, "label" | "firstBuild">;
+  projectKey?: string;
+  syncExpiresAt?: string;
+};
+
 export function formatExternalToolSyncExpiryText(syncExpiresAt?: string) {
   return syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
+}
+
+export function buildExternalToolProjectContextLines({
+  idea,
+  productSurface,
+  projectKey,
+}: ExternalToolProjectContext) {
+  const projectKeyLine = projectKey ? `- 프로젝트 키: ${projectKey}\n` : "";
+
+  return `${projectKeyLine}- 아이디어: ${idea.name}
+- 결과물 형태: ${productSurface.label}
+- 첫 제작 기준: ${productSurface.firstBuild}`;
+}
+
+export function buildExternalToolProjectInfoSection({
+  idea,
+  productSurface,
+  projectKey,
+  syncExpiresAt,
+}: ExternalToolProjectContext) {
+  return `## 프로젝트 정보
+
+${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
+${formatExternalToolSyncExpiryText(syncExpiresAt)}`;
 }
 
 export function buildSavedExternalToolTaskSection(task: ImplementationTask, index: number) {
@@ -200,8 +231,6 @@ export function buildCursorGuideMarkdown({
   projectKey: string;
   syncExpiresAt?: string;
 }) {
-  const syncExpiryText = formatExternalToolSyncExpiryText(syncExpiresAt);
-
   return `# Cursor 연결 가이드
 
 이 폴더는 AI Venture Lab에서 만든 제작 패키지를 Cursor 프로젝트에 연결하기 위한 자료입니다.
@@ -241,13 +270,7 @@ node .cursor/venture-lab-cli.mjs next-task
 9. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
 10. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
 
-## 프로젝트 정보
-
-- 프로젝트 키: ${projectKey}
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
-${syncExpiryText}
+${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
 ## 현재 동기화 범위
 
@@ -373,8 +396,6 @@ export function buildCodexGuideMarkdown({
   projectKey: string;
   syncExpiresAt?: string;
 }) {
-  const syncExpiryText = formatExternalToolSyncExpiryText(syncExpiresAt);
-
   return `# Codex 연결 가이드
 
 이 폴더는 AI Venture Lab에서 만든 제작 패키지를 Codex 작업 세션에 연결하기 위한 자료입니다.
@@ -406,13 +427,7 @@ powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cod
 7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
 8. 자동 반영이 실패한 경우에만 \`.codex/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
 
-## 프로젝트 정보
-
-- 프로젝트 키: ${projectKey}
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
-${syncExpiryText}
+${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
 ## 보안 주의
 
@@ -533,8 +548,6 @@ export function buildClaudeGuideMarkdown({
   projectKey: string;
   syncExpiresAt?: string;
 }) {
-  const syncExpiryText = formatExternalToolSyncExpiryText(syncExpiresAt);
-
   return `# Claude Code 연결 가이드
 
 이 폴더는 AI Venture Lab에서 만든 제작 패키지를 Claude Code 프로젝트에 연결하기 위한 자료입니다.
@@ -567,13 +580,7 @@ powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cla
 7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
 8. 자동 반영이 실패한 경우에만 \`.claude/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
 
-## 프로젝트 정보
-
-- 프로젝트 키: ${projectKey}
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
-${syncExpiryText}
+${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
 ## 보안 주의
 
@@ -659,8 +666,6 @@ export function buildAntigravityGuideMarkdown({
   projectKey: string;
   syncExpiresAt?: string;
 }) {
-  const syncExpiryText = formatExternalToolSyncExpiryText(syncExpiresAt);
-
   return `# Google Antigravity 연결 가이드
 
 이 폴더는 AI Venture Lab에서 만든 제작 패키지를 Google Antigravity 프로젝트에 연결하기 위한 자료입니다.
@@ -694,13 +699,7 @@ powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "ant
 7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
 8. 자동 반영이 실패한 경우에만 \`.antigravity/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
 
-## 프로젝트 정보
-
-- 프로젝트 키: ${projectKey}
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
-${syncExpiryText}
+${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
 ## 보안 주의
 
