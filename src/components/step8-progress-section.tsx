@@ -31,8 +31,8 @@ export function Step8ProgressSection({
       ? `${nextTaskCode} ${nextTaskTitle}`
       : hasProgressItems
         ? isAllTasksComplete
-          ? "남은 제작 작업 없음"
-          : "상태 확인 필요"
+          ? "남은 작업 없음"
+          : "상태만 확인"
         : "STEP 7에서 첫 작업 시작";
 
   return (

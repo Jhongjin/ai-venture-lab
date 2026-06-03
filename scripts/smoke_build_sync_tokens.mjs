@@ -107,7 +107,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
     state: "visible",
     timeout,
   });
-  await page.getByText("먼저 세 가지만 확인합니다: 완료된 것, 이어 할 것, 지금 결정할 것.", { exact: false }).waitFor({
+  await page.getByText("완료된 것, 이어 할 것, 지금 판단만 먼저 봅니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
@@ -117,12 +117,12 @@ async function verifyLearningTaskBoard(page, ideaId) {
   });
   await page
     .locator('[data-smoke="step8-confirm-not-run-header"]')
-    .getByText("STEP 8은 새 실행을 시작하는 화면이 아닙니다.", { exact: false })
+    .getByText("STEP 8에서는 실행하지 않습니다.", { exact: false })
     .waitFor({
       state: "visible",
       timeout,
     });
-  await page.getByText("여기서는 리포트를 먼저 읽지 않습니다.", { exact: false }).waitFor({
+  await page.getByText("완료 보고와 다음 판단 하나만 확인합니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
@@ -153,7 +153,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
     timeout,
   });
   const currentDecisionStrip = page.locator('[data-smoke="step8-current-decision-strip"]');
-  for (const label of ["완료 상태", "다음 행동", "오늘 판단"]) {
+  for (const label of ["완료된 것", "이어 할 것", "지금 판단"]) {
     await currentDecisionStrip.getByText(label, { exact: true }).waitFor({
       state: "visible",
       timeout,
@@ -161,15 +161,11 @@ async function verifyLearningTaskBoard(page, ideaId) {
   }
   await waitForVisibleDecisionSentence(page);
   const singleDecisionRule = page.locator('[data-smoke="step8-single-decision-rule"]');
-  await singleDecisionRule.getByText("판단 후보 중 하나만", { exact: false }).waitFor({
+  await singleDecisionRule.getByText("판단은 하나만 고릅니다.", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
-  await singleDecisionRule.getByText("상세 리포트는 필요할 때만", { exact: false }).waitFor({
-    state: "visible",
-    timeout,
-  });
-  await singleDecisionRule.getByText("완료 근거가 없으면 다음 작업 하나만 유지", { exact: false }).waitFor({
+  await singleDecisionRule.getByText("부족하면 다음 작업 하나만 남기세요.", { exact: false }).waitFor({
     state: "visible",
     timeout,
   });
@@ -180,7 +176,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
   });
   await actionLadderDetails.locator("summary").click();
   const actionLadder = actionLadderDetails.locator('[data-smoke="step8-action-ladder"]');
-  for (const label of ["1. 완료 확인", "2. 다음 하나", "3. 판단 하나"]) {
+  for (const label of ["1. 완료된 것", "2. 이어 할 것", "3. 지금 판단"]) {
     await actionLadder.getByText(label, { exact: true }).waitFor({
       state: "visible",
       timeout,
@@ -202,13 +198,13 @@ async function verifyLearningTaskBoard(page, ideaId) {
     fail(`STEP 8 decision options did not include an expected current-state option: ${decisionOptionsText}`);
   }
   const simpleReviewDetails = page.locator('[data-smoke="step8-simple-review-details"]');
-  await simpleReviewDetails.getByText("완료/다음/판단 설명 보기", { exact: true }).waitFor({
+  await simpleReviewDetails.getByText("요약 자세히 보기", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
   await simpleReviewDetails.locator("summary").click();
   const simpleReview = simpleReviewDetails.locator('[data-smoke="step8-simple-review"]');
-  for (const label of ["완료", "다음", "판단"]) {
+  for (const label of ["완료", "이어 할 것", "판단"]) {
     await simpleReview.getByText(label, { exact: true }).waitFor({
       state: "visible",
       timeout,

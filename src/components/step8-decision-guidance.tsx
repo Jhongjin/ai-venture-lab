@@ -17,13 +17,7 @@ export function Step8DecisionGuidance({ decisionOptions }: Step8DecisionGuidance
         data-smoke="step8-single-decision-rule"
         className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
       >
-        오늘은 판단 하나만 고릅니다. 부족하면 다음 작업 하나만 남기세요.
-      </div>
-      <div
-        data-smoke="step8-visible-action-sequence"
-        className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-slate-950"
-      >
-        <span className="text-blue-700">확인 순서</span>: 완료된 것 → 이어 할 것 → 지금 판단
+        판단은 하나만 고릅니다. 부족하면 다음 작업 하나만 남기세요.
       </div>
       <details data-smoke="step8-decision-options" className="mt-3 border border-blue-200 bg-white px-3 py-2">
         <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">판단 후보 보기</summary>

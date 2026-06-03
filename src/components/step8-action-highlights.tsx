@@ -30,7 +30,7 @@ export function Step8ActionHighlights({
       </div>
       <details data-smoke="step8-simple-review-details" className="mt-3 border border-blue-200 bg-white px-3 py-2">
         <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">
-          완료/이어 할 것/판단 자세히 보기
+          요약 자세히 보기
         </summary>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           <div data-smoke="step8-one-sentence-outcome" className="border border-blue-100 bg-blue-50 px-3 py-2">
