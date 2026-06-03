@@ -4,7 +4,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/api-client.ts")).href;
-const { fetchApiJson, fetchApiResponse } = await import(moduleUrl);
+const { fetchApiJson, fetchApiResponse, readApiResponseJson } = await import(moduleUrl);
 
 const requests = [];
 
@@ -30,6 +30,18 @@ const { payload, response } = await fetchApiJson({
 
 assert.equal(response.status, 202);
 assert.deepEqual(payload, { ok: true, method: "POST" });
+assert.deepEqual(await readApiResponseJson(new Response(JSON.stringify({ ok: "direct" })), {}), { ok: "direct" });
+assert.deepEqual(
+  await readApiResponseJson(
+    {
+      async json() {
+        throw new Error("not json");
+      },
+    },
+    { fallback: true },
+  ),
+  { fallback: true },
+);
 assert.deepEqual(
   requests.map((request) => [request.input, request.init.method]),
   [

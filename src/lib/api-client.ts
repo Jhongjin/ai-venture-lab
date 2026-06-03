@@ -3,7 +3,10 @@ export type ApiJsonResult<TPayload> = {
   response: Response;
 };
 
-async function readApiResponseJson<TPayload>(response: Pick<Response, "json">, fallback: TPayload): Promise<TPayload> {
+export async function readApiResponseJson<TPayload>(
+  response: Pick<Response, "json">,
+  fallback: TPayload,
+): Promise<TPayload> {
   return response.json().catch(() => fallback) as Promise<TPayload>;
 }
 
