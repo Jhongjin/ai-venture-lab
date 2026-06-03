@@ -82,6 +82,14 @@ export type FinalExecutionLiveToolContext = {
   startPromptDraft: string;
 };
 
+export type FinalExecutionLiveDeliveryFlags = {
+  isAntigravityExternalDelivery: boolean;
+  isClaudeCodeExternalDelivery: boolean;
+  isCodexExternalDelivery: boolean;
+  isCursorExternalDelivery: boolean;
+  isLiveExternalDelivery: boolean;
+};
+
 export function buildFinalExecutionDecisionSentence({
   buildDeliveryPhrase,
   productSurface,
@@ -98,6 +106,46 @@ const liveExternalToolFolders: Record<LiveExternalToolKey, string> = {
   codex: ".codex",
   cursor: ".cursor",
 };
+
+export function buildFinalExecutionLiveDeliveryFlags({
+  buildDeliveryMode,
+  externalToolKey,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  externalToolKey: ExternalBuildToolKey;
+}): FinalExecutionLiveDeliveryFlags {
+  const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "cursor";
+  const isCodexExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "codex";
+  const isClaudeCodeExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "claude_code";
+  const isAntigravityExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "antigravity";
+  const isLiveExternalDelivery =
+    isCursorExternalDelivery || isCodexExternalDelivery || isClaudeCodeExternalDelivery || isAntigravityExternalDelivery;
+
+  return {
+    isAntigravityExternalDelivery,
+    isClaudeCodeExternalDelivery,
+    isCodexExternalDelivery,
+    isCursorExternalDelivery,
+    isLiveExternalDelivery,
+  };
+}
+
+export function selectFinalExecutionLiveToolKey({
+  isAntigravityExternalDelivery,
+  isClaudeCodeExternalDelivery,
+  isCodexExternalDelivery,
+}: Pick<
+  FinalExecutionLiveDeliveryFlags,
+  "isAntigravityExternalDelivery" | "isClaudeCodeExternalDelivery" | "isCodexExternalDelivery"
+>): LiveExternalToolKey {
+  return isAntigravityExternalDelivery
+    ? "antigravity"
+    : isClaudeCodeExternalDelivery
+      ? "claude_code"
+      : isCodexExternalDelivery
+        ? "codex"
+        : "cursor";
+}
 
 export function buildFinalExecutionReadiness({
   activeBuildDeliveryLabel,
@@ -266,19 +314,18 @@ export function buildFinalExecutionLiveToolContext({
   mcpConfigDrafts: Record<LiveExternalToolKey, string>;
   startPromptDrafts: Record<LiveExternalToolKey, string>;
 }): FinalExecutionLiveToolContext {
-  const isCursorExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "cursor";
-  const isCodexExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "codex";
-  const isClaudeCodeExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "claude_code";
-  const isAntigravityExternalDelivery = buildDeliveryMode === "external_tool" && externalToolKey === "antigravity";
-  const isLiveExternalDelivery =
-    isCursorExternalDelivery || isCodexExternalDelivery || isClaudeCodeExternalDelivery || isAntigravityExternalDelivery;
-  const selectedLiveToolKey: LiveExternalToolKey = isAntigravityExternalDelivery
-    ? "antigravity"
-    : isClaudeCodeExternalDelivery
-      ? "claude_code"
-      : isCodexExternalDelivery
-        ? "codex"
-        : "cursor";
+  const liveDeliveryFlags = buildFinalExecutionLiveDeliveryFlags({
+    buildDeliveryMode,
+    externalToolKey,
+  });
+  const {
+    isAntigravityExternalDelivery,
+    isClaudeCodeExternalDelivery,
+    isCodexExternalDelivery,
+    isCursorExternalDelivery,
+    isLiveExternalDelivery,
+  } = liveDeliveryFlags;
+  const selectedLiveToolKey = selectFinalExecutionLiveToolKey(liveDeliveryFlags);
   const folder = liveExternalToolFolders[selectedLiveToolKey];
   const setupFileName = ideaName
     ? toDownloadFileName(ideaName, handoffFileSuffix, "ps1")

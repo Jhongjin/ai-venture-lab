@@ -24,6 +24,7 @@ const {
   buildFinalExecutionConnectionHealth,
   buildFinalExecutionDecisionSentence,
   buildFinalExecutionLaunchDisplayState,
+  buildFinalExecutionLiveDeliveryFlags,
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionPackageReadinessState,
   buildFinalExecutionPrimaryPackageAction,
@@ -33,6 +34,7 @@ const {
   compareFinalExecutionConnectionUsedAtValues,
   getFinalExecutionConnectionUsedAtTime,
   getLatestFinalExecutionConnectionUsedAt,
+  selectFinalExecutionLiveToolKey,
   selectFinalExecutionLiveSetupDownload,
 } = await import(moduleUrl);
 
@@ -44,6 +46,35 @@ assert.equal(
     productSurface: productSurfaceProfiles.operator_console,
   }),
   "운영 콘솔로 만들고, Cursor로 넘깁니다.",
+);
+const cursorLiveFlags = buildFinalExecutionLiveDeliveryFlags({
+  buildDeliveryMode: "external_tool",
+  externalToolKey: "cursor",
+});
+assert.equal(cursorLiveFlags.isCursorExternalDelivery, true);
+assert.equal(cursorLiveFlags.isLiveExternalDelivery, true);
+assert.equal(
+  buildFinalExecutionLiveDeliveryFlags({
+    buildDeliveryMode: "external_tool",
+    externalToolKey: "generic_mcp",
+  }).isLiveExternalDelivery,
+  false,
+);
+assert.equal(
+  selectFinalExecutionLiveToolKey({
+    isAntigravityExternalDelivery: true,
+    isClaudeCodeExternalDelivery: false,
+    isCodexExternalDelivery: false,
+  }),
+  "antigravity",
+);
+assert.equal(
+  selectFinalExecutionLiveToolKey({
+    isAntigravityExternalDelivery: false,
+    isClaudeCodeExternalDelivery: false,
+    isCodexExternalDelivery: true,
+  }),
+  "codex",
 );
 
 const readiness = buildFinalExecutionReadiness({
