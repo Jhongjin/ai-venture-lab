@@ -31,6 +31,7 @@ const {
   buildStep8LearningDisplayState,
   buildStep8LearningSummary,
   buildStep8ProgressSummary,
+  compareStep8ProgressTasks,
   sortStep8ProgressTasks,
 } = await import(moduleUrl);
 
@@ -163,6 +164,9 @@ assert.deepEqual(sortStep8ProgressTasks([tasks[2], tasks[0], tasks[1]]).map((ite
   "task-frontend",
   "task-qa",
 ]);
+assert.equal(compareStep8ProgressTasks(tasks[0], tasks[1]), -1);
+assert.equal(compareStep8ProgressTasks(tasks[2], tasks[1]), 1);
+assert.equal(compareStep8ProgressTasks(tasks[1], { sort_order: 2 }), 0);
 assert.deepEqual(
   progressSummary.progressItems.filter((item) => item.isNext).map((item) => item.code),
   ["T-002"],

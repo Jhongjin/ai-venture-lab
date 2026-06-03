@@ -467,5 +467,9 @@ export function buildStep8ProgressSummary({
 }
 
 export function sortStep8ProgressTasks(tasks: ReadonlyArray<ImplementationTask>) {
-  return [...tasks].sort((a, b) => a.sort_order - b.sort_order);
+  return [...tasks].sort(compareStep8ProgressTasks);
+}
+
+export function compareStep8ProgressTasks(a: Pick<ImplementationTask, "sort_order">, b: Pick<ImplementationTask, "sort_order">) {
+  return a.sort_order - b.sort_order;
 }
