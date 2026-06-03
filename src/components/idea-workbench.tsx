@@ -49,6 +49,7 @@ import {
   buildArtifactStatusTelemetryProperties,
   buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
+  countApprovedArtifacts,
   getNextArtifactVersion,
 } from "@/lib/artifact-library-utils";
 import { buildBackendPlanningArtifactSaveDrafts, buildBackendPlanningDraftState } from "@/lib/backend-planning-drafts";
@@ -1006,6 +1007,7 @@ export function IdeaWorkbench({
       }),
     [artifactSourceFilter, artifactStatusFilter, artifactTypeFilter, selectedArtifactRecords],
   );
+  const approvedSelectedArtifactCount = countApprovedArtifacts(selectedArtifactRecords);
   const step6ExecutionBridgeDisplayState = buildStep6ExecutionBridgeDisplayState({
     buildDeliveryMode,
     externalToolLabel: activeExternalBuildTool.label,
@@ -5477,7 +5479,7 @@ export function IdeaWorkbench({
                       할 일 {agentRunPackageTasks.length}개
                     </span>
                     <span className="avl-pill avl-pill-neutral">
-                      승인 제작 자료 {selectedArtifactRecords.filter((artifact) => artifact.status === "approved").length}개
+                      승인 제작 자료 {approvedSelectedArtifactCount}개
                     </span>
                   </div>
                 </div>

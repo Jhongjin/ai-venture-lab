@@ -120,6 +120,10 @@ export function buildArtifactStatusTelemetryProperties(
   };
 }
 
+export function countApprovedArtifacts(artifacts: Array<Pick<VentureArtifact, "status">>) {
+  return artifacts.filter((artifact) => artifact.status === "approved").length;
+}
+
 export type ArtifactReadinessFlags = {
   implementationTaskSourceArtifact: VentureArtifact | undefined;
   hasIdeaBriefArtifact: boolean;

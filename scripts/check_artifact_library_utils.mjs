@@ -34,6 +34,7 @@ const {
   buildArtifactStatusTelemetryProperties,
   buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
+  countApprovedArtifacts,
   compareArtifactSources,
   filterArtifactLibrary,
   getNextArtifactVersion,
@@ -181,6 +182,7 @@ const artifacts = [
     type: "backend_decision",
   }),
 ];
+assert.equal(countApprovedArtifacts(artifacts), 3);
 
 assert.deepEqual(
   buildArtifactDraftInsertRow({
