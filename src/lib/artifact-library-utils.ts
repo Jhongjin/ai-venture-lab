@@ -166,8 +166,12 @@ export function buildArtifactSourceOptions(artifacts: VentureArtifact[]) {
   return ["all", ...sortArtifactSources(artifacts.map((artifact) => artifact.source || "manual"))];
 }
 
+export function compareArtifactSources(a: string, b: string) {
+  return a.localeCompare(b, "ko-KR");
+}
+
 export function sortArtifactSources(sources: Iterable<string>) {
-  return Array.from(new Set(sources)).sort((a, b) => a.localeCompare(b, "ko-KR"));
+  return Array.from(new Set(sources)).sort(compareArtifactSources);
 }
 
 export function buildArtifactSourceFilterLabels(sourceOptions: string[]) {

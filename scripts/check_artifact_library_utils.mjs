@@ -34,6 +34,7 @@ const {
   buildArtifactStatusTelemetryProperties,
   buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
+  compareArtifactSources,
   filterArtifactLibrary,
   getNextArtifactVersion,
   getRecentDevelopmentHandoffArtifacts,
@@ -326,6 +327,9 @@ assert.deepEqual(sortArtifactSources(["workbench", "manual", "evidence_capture",
   "manual",
   "workbench",
 ]);
+assert.equal(compareArtifactSources("evidence_capture", "manual"), -1);
+assert.equal(compareArtifactSources("workbench", "manual"), 1);
+assert.equal(compareArtifactSources("manual", "manual"), 0);
 assert.deepEqual(sourceOptions.slice(1), [
   "agent_run_package",
   "design_generation_prompt",
