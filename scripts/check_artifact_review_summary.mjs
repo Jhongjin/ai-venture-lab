@@ -32,10 +32,12 @@ const {
   buildArtifactReviewProgressState,
   buildArtifactReviewQueue,
   buildArtifactReviewWorkflowState,
+  getLatestArtifactByType,
   getArtifactReviewStatusDisplay,
+  sortArtifactsByReviewRecency,
 } = await import(queueModuleUrl);
 
-function artifact({ body, createdAt, id, status = "draft", type = "prd", version }) {
+function artifact({ body, createdAt, id, status = "draft", type = "prd", updatedAt = createdAt, version }) {
   return {
     artifact_type: type,
     body,
@@ -48,7 +50,7 @@ function artifact({ body, createdAt, id, status = "draft", type = "prd", version
     status,
     status_note: null,
     title: `Artifact ${id}`,
-    updated_at: createdAt,
+    updated_at: updatedAt,
     version,
   };
 }
@@ -80,6 +82,47 @@ const artifacts = [
     version: 1,
   }),
 ];
+const recencyArtifacts = [
+  artifact({
+    body: "# PRD",
+    createdAt: "2026-05-01T00:00:00.000Z",
+    id: "older-version",
+    type: "prd",
+    updatedAt: "2026-05-03T00:00:00.000Z",
+    version: 1,
+  }),
+  artifact({
+    body: "# PRD",
+    createdAt: "2026-05-02T00:00:00.000Z",
+    id: "newer-version",
+    type: "prd",
+    updatedAt: "2026-05-03T00:00:00.000Z",
+    version: 2,
+  }),
+  artifact({
+    body: "# PRD",
+    createdAt: "2026-05-01T00:00:00.000Z",
+    id: "newest-update",
+    type: "prd",
+    updatedAt: "2026-05-04T00:00:00.000Z",
+    version: 1,
+  }),
+  artifact({
+    body: "# Tech",
+    createdAt: "2026-05-05T00:00:00.000Z",
+    id: "tech-newer",
+    type: "tech_spec",
+    version: 1,
+  }),
+];
+assert.deepEqual(sortArtifactsByReviewRecency(recencyArtifacts).map((item) => item.id), [
+  "tech-newer",
+  "newest-update",
+  "newer-version",
+  "older-version",
+]);
+assert.equal(getLatestArtifactByType(recencyArtifacts, "prd")?.id, "newest-update");
+assert.equal(getLatestArtifactByType(recencyArtifacts, "mvp_spec"), null);
 
 assert.deepEqual(summarizeArtifactLineChanges("a\nb\nb", "a\nb\nc"), { added: 1, removed: 1 });
 
