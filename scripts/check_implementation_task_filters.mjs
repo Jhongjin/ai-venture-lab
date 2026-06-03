@@ -12,11 +12,15 @@ const {
   buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskReviewState,
   buildImplementationTaskRefreshSummary,
+  compareImplementationTasksByActionOrder,
+  compareImplementationTasksByExecutionOrder,
   filterImplementationTasks,
   formatImplementationTaskRefreshTime,
   getOpenImplementationTasksForAction,
   resolveImplementationOwnerFilter,
   selectAgentRunPackageTasks,
+  sortImplementationTasksForAction,
+  sortImplementationTasksForExecution,
 } = await import(moduleUrl);
 
 assert.equal(buildImplementationTaskRefreshLoginRequiredMessage(), "작업 상태를 새로고침하려면 먼저 로그인하세요.");
@@ -32,12 +36,22 @@ assert.equal(
   }).format(refreshDate),
 );
 
-function task({ evidence = "", id, ownerRole, status, taskType }) {
+function task({
+  createdAt = "2026-06-01T00:00:00.000Z",
+  evidence = "",
+  id,
+  ownerRole,
+  priority = "medium",
+  sortOrder = 1,
+  status,
+  taskType,
+  title = `${taskType} task`,
+}) {
   return {
     acceptance_criteria: null,
     artifact_id: null,
     completed_at: null,
-    created_at: "2026-06-01T00:00:00.000Z",
+    created_at: createdAt,
     created_by: null,
     dependencies: [],
     description: `${taskType} task`,
@@ -46,12 +60,12 @@ function task({ evidence = "", id, ownerRole, status, taskType }) {
     idea_id: "idea-1",
     organization_id: null,
     owner_role: ownerRole,
-    priority: "medium",
-    sort_order: 1,
+    priority,
+    sort_order: sortOrder,
     status,
     task_type: taskType,
-    title: `${taskType} task`,
-    updated_at: "2026-06-01T00:00:00.000Z",
+    title,
+    updated_at: createdAt,
   };
 }
 
@@ -150,6 +164,46 @@ assert.deepEqual(
   getOpenImplementationTasksForAction(tasks).map((item) => item.id),
   ["task-qa", "task-backend", "task-frontend"],
 );
+
+const actionOrderTasks = [
+  task({
+    createdAt: "2026-06-01T02:00:00.000Z",
+    id: "todo-high-late",
+    ownerRole: "",
+    priority: "high",
+    status: "todo",
+    taskType: "frontend",
+    title: "B",
+  }),
+  task({ id: "blocked-low", ownerRole: "", priority: "low", status: "blocked", taskType: "qa" }),
+  task({
+    createdAt: "2026-06-01T01:00:00.000Z",
+    id: "todo-high-early",
+    ownerRole: "",
+    priority: "high",
+    status: "todo",
+    taskType: "frontend",
+    title: "A",
+  }),
+  task({ id: "doing-medium", ownerRole: "", priority: "medium", status: "doing", taskType: "backend" }),
+];
+assert.deepEqual(
+  sortImplementationTasksForAction(actionOrderTasks).map((item) => item.id),
+  ["blocked-low", "doing-medium", "todo-high-early", "todo-high-late"],
+);
+assert.equal(compareImplementationTasksByActionOrder(actionOrderTasks[2], actionOrderTasks[0]) < 0, true);
+
+const executionOrderTasks = [
+  task({ id: "frontend-blocked", ownerRole: "", status: "blocked", taskType: "frontend" }),
+  task({ id: "planning-done", ownerRole: "", status: "done", taskType: "planning" }),
+  task({ id: "backend-doing", ownerRole: "", status: "doing", taskType: "backend" }),
+];
+assert.deepEqual(
+  sortImplementationTasksForExecution(executionOrderTasks).map((item) => item.id),
+  ["planning-done", "backend-doing", "frontend-blocked"],
+);
+assert.equal(compareImplementationTasksByExecutionOrder(executionOrderTasks[1], executionOrderTasks[0]) < 0, true);
+
 assert.deepEqual(
   selectAgentRunPackageTasks([tasks[1], tasks[3]], getOpenImplementationTasksForAction(tasks)).map((item) => item.id),
   ["task-backend"],

@@ -169,15 +169,18 @@ export const implementationTaskExecutionRank = new Map<ImplementationTaskType, n
   implementationTaskExecutionOrder.map((taskType, index) => [taskType, index]),
 );
 
-export function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
-  return [...tasks].sort(
-    (a, b) =>
-      implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
-      implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
-      a.sort_order - b.sort_order ||
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
-      a.title.localeCompare(b.title, "ko-KR"),
+export function compareImplementationTasksByActionOrder(a: ImplementationTask, b: ImplementationTask) {
+  return (
+    implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
+    implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
+    a.sort_order - b.sort_order ||
+    new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
+    a.title.localeCompare(b.title, "ko-KR")
   );
+}
+
+export function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
+  return [...tasks].sort(compareImplementationTasksByActionOrder);
 }
 
 export function getOpenImplementationTasksForAction(tasks: ImplementationTask[]) {
@@ -191,14 +194,14 @@ export function selectAgentRunPackageTasks(filteredTasks: ImplementationTask[], 
 }
 
 export function sortImplementationTasksForExecution(tasks: ImplementationTask[]) {
-  return [...tasks].sort(
-    (a, b) =>
-      (implementationTaskExecutionRank.get(a.task_type) ?? 99) - (implementationTaskExecutionRank.get(b.task_type) ?? 99) ||
-      implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
-      implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
-      a.sort_order - b.sort_order ||
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
-      a.title.localeCompare(b.title, "ko-KR"),
+  return [...tasks].sort(compareImplementationTasksByExecutionOrder);
+}
+
+export function compareImplementationTasksByExecutionOrder(a: ImplementationTask, b: ImplementationTask) {
+  return (
+    (implementationTaskExecutionRank.get(a.task_type) ?? 99) -
+      (implementationTaskExecutionRank.get(b.task_type) ?? 99) ||
+    compareImplementationTasksByActionOrder(a, b)
   );
 }
 
