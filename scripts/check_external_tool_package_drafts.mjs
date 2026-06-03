@@ -44,6 +44,7 @@ const moduleUrl = transpileToDataUrl(source, modulePath);
 const {
   buildExternalToolProjectContextLines,
   buildExternalToolProjectInfoSection,
+  buildExternalToolRecordProgressExampleCommand,
   buildExternalToolSyncSecuritySection,
   buildExternalToolTaskBody,
   buildFallbackExternalToolTaskSection,
@@ -57,6 +58,12 @@ assert.equal(
   formatExternalToolSyncExpiryText("2026-06-03T00:00:00.000Z"),
   "\n- 자동 반영 토큰 만료: 2026-06-03T00:00:00.000Z",
 );
+assert.equal(
+  buildExternalToolRecordProgressExampleCommand(".codex"),
+  'node .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"',
+);
+assert.match(buildExternalToolRecordProgressExampleCommand(".claude"), /\.claude\/venture-lab-cli\.mjs/);
+assert.match(buildExternalToolRecordProgressExampleCommand(".antigravity"), /--task T-001/);
 const connectorDrafts = buildExternalToolConnectorDrafts();
 assert.match(connectorDrafts.cursorMcpConfigDraft, /ai-venture-lab/);
 assert.match(connectorDrafts.cursorMcpServerDraft, /venture:\/\/package/);

@@ -62,6 +62,10 @@ export function buildExternalToolSyncSecuritySection(syncFilePath: string) {
 - 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.`;
 }
 
+export function buildExternalToolRecordProgressExampleCommand(toolFolder: string) {
+  return `node ${toolFolder}/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"`;
+}
+
 export function buildSavedExternalToolTaskSection(task: ImplementationTask, index: number) {
   const taskCode = getCursorTaskCode(index);
 
@@ -334,7 +338,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 5. 작업 완료 후 아래 형식으로 Venture Lab에 진행 결과를 기록합니다.
 
 \`\`\`powershell
-node .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"
+${buildExternalToolRecordProgressExampleCommand(".codex")}
 \`\`\`
 
 6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
@@ -477,7 +481,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 6. 작업 완료 후 \`venture_record_progress\` 도구 또는 아래 명령으로 Venture Lab에 진행 결과를 기록합니다.
 
 \`\`\`powershell
-node .claude/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"
+${buildExternalToolRecordProgressExampleCommand(".claude")}
 \`\`\`
 
 7. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
@@ -621,7 +625,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 5. 작업 완료 후 아래 명령으로 Venture Lab에 진행 결과를 기록합니다.
 
 \`\`\`powershell
-node .antigravity/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"
+${buildExternalToolRecordProgressExampleCommand(".antigravity")}
 \`\`\`
 
 6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
