@@ -250,11 +250,14 @@ export function localizeRiskRecord(risk: Risk): Risk {
 }
 
 export function sortIdeasByWorkflow(ideas: Idea[]) {
-  return [...ideas].sort(
-    (a, b) =>
-      (workflowStageRank.get(a.stage) ?? 99) - (workflowStageRank.get(b.stage) ?? 99) ||
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
-      a.name.localeCompare(b.name, "ko-KR"),
+  return [...ideas].sort(compareIdeasByWorkflow);
+}
+
+export function compareIdeasByWorkflow(a: Idea, b: Idea) {
+  return (
+    (workflowStageRank.get(a.stage) ?? 99) - (workflowStageRank.get(b.stage) ?? 99) ||
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
+    a.name.localeCompare(b.name, "ko-KR")
   );
 }
 
