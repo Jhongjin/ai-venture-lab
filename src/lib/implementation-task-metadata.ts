@@ -309,13 +309,12 @@ export function getImplementationTaskOwnerRole(task: ImplementationTask) {
   return task.owner_role.trim() || "owner 미정";
 }
 
+export function sortImplementationOwnerRoles(ownerRoles: Iterable<string>) {
+  return Array.from(new Set(ownerRoles)).sort((a, b) => a.localeCompare(b, "ko-KR"));
+}
+
 export function buildImplementationOwnerOptions(tasks: ImplementationTask[]) {
-  return [
-    "all",
-    ...Array.from(new Set(tasks.map((task) => getImplementationTaskOwnerRole(task)))).sort((a, b) =>
-      a.localeCompare(b, "ko-KR"),
-    ),
-  ];
+  return ["all", ...sortImplementationOwnerRoles(tasks.map((task) => getImplementationTaskOwnerRole(task)))];
 }
 
 export function buildImplementationOwnerFilterLabels(ownerOptions: string[]) {

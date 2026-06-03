@@ -19,6 +19,7 @@ const {
   getOpenImplementationTasksForAction,
   resolveImplementationOwnerFilter,
   selectAgentRunPackageTasks,
+  sortImplementationOwnerRoles,
   sortImplementationTasksForAction,
   sortImplementationTasksForExecution,
 } = await import(moduleUrl);
@@ -95,6 +96,11 @@ const tasks = [
 ];
 
 const ownerOptions = buildImplementationOwnerOptions(tasks);
+assert.deepEqual(sortImplementationOwnerRoles(["frontend", "owner 미정", "backend", "frontend"]), [
+  "backend",
+  "frontend",
+  "owner 미정",
+]);
 assert.deepEqual(ownerOptions, ["all", "backend", "frontend", "owner 미정"]);
 assert.deepEqual(buildImplementationOwnerFilterLabels(ownerOptions), {
   all: "전체 담당",
