@@ -65,6 +65,14 @@ export type ImplementationEvidenceSummary = {
   totalCount: number;
 };
 
+export type ImplementationTaskEvidenceState = {
+  evidence: string;
+  checklist: ReturnType<typeof getImplementationEvidenceChecklist>;
+  missingLabels: string[];
+  passedCount: number;
+  totalCount: number;
+};
+
 export type BlockedImplementationSummary = {
   task: ImplementationTask;
   hint: ReturnType<typeof getBlockedImplementationTaskHint>;
@@ -532,22 +540,27 @@ export function hasImplementationTaskEvidenceGap(
   task: ImplementationTask,
   evidenceByTaskId: Record<string, string>,
 ) {
-  const currentEvidence = getImplementationTaskEvidence(task, evidenceByTaskId);
-
-  return getImplementationEvidenceChecklist(task, currentEvidence).some((item) => !item.passed);
+  return buildImplementationTaskEvidenceState(task, evidenceByTaskId).missingLabels.length > 0;
 }
 
 function getImplementationTaskEvidence(task: ImplementationTask, evidenceByTaskId: Record<string, string>) {
   return evidenceByTaskId[task.id] ?? task.evidence ?? "";
 }
 
-function getMissingImplementationEvidenceLabels(task: ImplementationTask, evidenceByTaskId: Record<string, string>) {
+export function buildImplementationTaskEvidenceState(
+  task: ImplementationTask,
+  evidenceByTaskId: Record<string, string>,
+): ImplementationTaskEvidenceState {
   const evidence = getImplementationTaskEvidence(task, evidenceByTaskId);
   const checklist = getImplementationEvidenceChecklist(task, evidence);
+  const missingLabels = getMissingImplementationEvidenceChecklistLabels(checklist);
 
   return {
+    evidence,
     checklist,
-    missing: getMissingImplementationEvidenceChecklistLabels(checklist),
+    missingLabels,
+    passedCount: checklist.length - missingLabels.length,
+    totalCount: checklist.length,
   };
 }
 
@@ -583,13 +596,13 @@ export function buildImplementationEvidenceSummaries({
 }): ImplementationEvidenceSummary[] {
   return tasks
     .map((task) => {
-      const { checklist, missing } = getMissingImplementationEvidenceLabels(task, evidenceByTaskId);
+      const evidenceState = buildImplementationTaskEvidenceState(task, evidenceByTaskId);
 
       return {
         task,
-        missing,
-        passedCount: checklist.length - missing.length,
-        totalCount: checklist.length,
+        missing: evidenceState.missingLabels,
+        passedCount: evidenceState.passedCount,
+        totalCount: evidenceState.totalCount,
       };
     })
     .sort(compareImplementationEvidenceSummaries);
@@ -626,7 +639,7 @@ export function buildBlockedImplementationSummaries({
     .map((task) => ({
       task,
       hint: getBlockedImplementationTaskHint(task),
-      missing: getMissingImplementationEvidenceLabels(task, evidenceByTaskId).missing,
+      missing: buildImplementationTaskEvidenceState(task, evidenceByTaskId).missingLabels,
     }))
     .sort(compareBlockedImplementationSummaries);
 }
@@ -643,16 +656,14 @@ export function buildImplementationTaskCardSummary(
   task: ImplementationTask,
   evidenceByTaskId: Record<string, string>,
 ): ImplementationTaskCardSummary {
-  const evidence = getImplementationTaskEvidence(task, evidenceByTaskId);
-  const evidenceChecklist = getImplementationEvidenceChecklist(task, evidence);
-  const missingEvidenceLabels = getMissingImplementationEvidenceChecklistLabels(evidenceChecklist);
+  const evidenceState = buildImplementationTaskEvidenceState(task, evidenceByTaskId);
 
   return {
     task,
-    evidence,
-    evidenceChecklist,
-    passedEvidenceCount: evidenceChecklist.length - missingEvidenceLabels.length,
-    missingEvidenceLabels,
+    evidence: evidenceState.evidence,
+    evidenceChecklist: evidenceState.checklist,
+    passedEvidenceCount: evidenceState.passedCount,
+    missingEvidenceLabels: evidenceState.missingLabels,
     blockedHint: task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null,
   };
 }

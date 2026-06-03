@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation
 const {
   buildBlockedImplementationSummaries,
   buildImplementationEvidenceSummaries,
+  buildImplementationTaskEvidenceState,
   compareBlockedImplementationSummaries,
   compareImplementationEvidenceSummaries,
   getBlockedImplementationSummaryPreview,
@@ -70,6 +71,15 @@ assert.deepEqual(
   ]),
   ["커밋/PR"],
 );
+
+const frontendEvidenceState = buildImplementationTaskEvidenceState(tasks[0], {
+  "task-frontend": "commit abc pnpm smoke 저장 로딩",
+});
+assert.equal(frontendEvidenceState.evidence, "commit abc pnpm smoke 저장 로딩");
+assert.deepEqual(frontendEvidenceState.missingLabels, []);
+assert.equal(frontendEvidenceState.passedCount, frontendEvidenceState.totalCount);
+const emptyEvidenceState = buildImplementationTaskEvidenceState(tasks[0], {});
+assert.deepEqual(emptyEvidenceState.missingLabels, ["커밋/PR", "검증 결과", "사용자 여정", "상태 UX"]);
 
 assert.deepEqual(
   getCompletedImplementationTasksWithEvidence([
