@@ -14,10 +14,13 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildExtractionPortfolioGateSummary,
   buildExtractionPortfolioMarkdown,
   buildExtractionPortfolioReportArtifactRow,
   buildExtractionPortfolioReviewMarkdown,
+  buildExtractionPortfolioRows,
   buildExtractionReplayMarkdown,
+  buildExtractionReplayRows,
   buildExtractionReportBody,
   formatExtractionReportTitleDate,
 } = await import(moduleUrl);
@@ -74,12 +77,18 @@ const replaySummary = {
 };
 
 const portfolioMarkdown = buildExtractionPortfolioMarkdown(portfolioItems);
+assert.match(buildExtractionPortfolioGateSummary(portfolioItems), /진행 가능: 1개/);
+assert.match(buildExtractionPortfolioGateSummary(portfolioItems), /보류: 0개/);
+assert.match(buildExtractionPortfolioRows(portfolioItems), /Care Ops/);
+assert.equal(buildExtractionPortfolioRows([]), "| - | 아이디어 없음 | - | - | - | - | - | - | - |");
 assert.match(portfolioMarkdown, /진행 가능: 1개/);
 assert.match(portfolioMarkdown, /추가 조사: 1개/);
 assert.match(portfolioMarkdown, /AI Venture Lab \| 웹앱 \| 진행 가능 \| 82\/100 \| 76% \| 88% \| 없음/);
 assert.match(portfolioMarkdown, /Care Memo 72%/);
 
 const replayMarkdown = buildExtractionReplayMarkdown(replaySummary);
+assert.match(buildExtractionReplayRows(replaySummary.items), /AI Venture Lab/);
+assert.equal(buildExtractionReplayRows([]), "| - | 아이디어 없음 | - | - | - | - | - | - |");
 assert.match(replayMarkdown, /AI 정리 다시 보기/);
 assert.match(replayMarkdown, /AI 모드: openai/);
 assert.match(replayMarkdown, /Venture OS/);

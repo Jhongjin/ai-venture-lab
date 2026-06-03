@@ -60,9 +60,12 @@ export function formatExtractionReportTitleDate(now = new Date()) {
   });
 }
 
-export function buildExtractionReplayMarkdown(summary: ExtractionReplayMarkdownSummary) {
-  const generatedAt = new Date(summary.generatedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-  const rows = summary.items
+export function buildExtractionReplayRows(items: ExtractionReplayMarkdownItem[]) {
+  if (items.length === 0) {
+    return "| - | 아이디어 없음 | - | - | - | - | - | - |";
+  }
+
+  return items
     .map(
       (item, index) =>
         `| ${index + 1} | ${item.primaryCandidate.name} | ${item.primaryCandidate.productSurface.label} | ${item.verdict} | ${
@@ -70,6 +73,37 @@ export function buildExtractionReplayMarkdown(summary: ExtractionReplayMarkdownS
         } | ${item.overlapScore || "-"} | ${item.primaryCandidate.validationScore}/100 | ${item.nextAction} |`,
     )
     .join("\n");
+}
+
+export function buildExtractionPortfolioRows(items: ExtractionPortfolioMarkdownItem[]) {
+  if (items.length === 0) {
+    return "| - | 아이디어 없음 | - | - | - | - | - | - | - |";
+  }
+
+  return items
+    .map(
+      (item, index) =>
+        `| ${index + 1} | ${item.candidateName} | ${item.productSurfaceLabel} | ${item.gateLabel} | ${item.validationScore}/100 | ${
+          item.strategyScore
+        }% | ${item.readinessScore}% | ${item.similarIdeaLabel ?? "없음"} | ${item.nextAction} |`,
+    )
+    .join("\n");
+}
+
+export function buildExtractionPortfolioGateSummary(items: ExtractionPortfolioMarkdownItem[]) {
+  return (["proceed", "research", "pivot", "kill"] as const)
+    .map((gateId) => {
+      const count = items.filter((item) => item.gateId === gateId).length;
+      const label = gateId === "proceed" ? "진행 가능" : gateId === "research" ? "추가 조사" : gateId === "pivot" ? "전환 검토" : "보류";
+
+      return `- ${label}: ${count}개`;
+    })
+    .join("\n");
+}
+
+export function buildExtractionReplayMarkdown(summary: ExtractionReplayMarkdownSummary) {
+  const generatedAt = new Date(summary.generatedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+  const rows = buildExtractionReplayRows(summary.items);
 
   return `# AI 정리 다시 보기
 
@@ -90,27 +124,13 @@ export function buildExtractionReplayMarkdown(summary: ExtractionReplayMarkdownS
 
 | 순서 | 아이디어 | 결과물 형태 | 판정 | 매칭 아이디어 | 유사도 | 검증 점수 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-${rows || "| - | 아이디어 없음 | - | - | - | - | - | - |"}
+${rows}
 `;
 }
 
 export function buildExtractionPortfolioMarkdown(items: ExtractionPortfolioMarkdownItem[]) {
-  const rows = items
-    .map(
-      (item, index) =>
-        `| ${index + 1} | ${item.candidateName} | ${item.productSurfaceLabel} | ${item.gateLabel} | ${item.validationScore}/100 | ${
-          item.strategyScore
-        }% | ${item.readinessScore}% | ${item.similarIdeaLabel ?? "없음"} | ${item.nextAction} |`,
-    )
-    .join("\n");
-  const gateSummary = (["proceed", "research", "pivot", "kill"] as const)
-    .map((gateId) => {
-      const count = items.filter((item) => item.gateId === gateId).length;
-      const label = gateId === "proceed" ? "진행 가능" : gateId === "research" ? "추가 조사" : gateId === "pivot" ? "전환 검토" : "보류";
-
-      return `- ${label}: ${count}개`;
-    })
-    .join("\n");
+  const rows = buildExtractionPortfolioRows(items);
+  const gateSummary = buildExtractionPortfolioGateSummary(items);
 
   return `# 아이디어 도출 실행 요약
 
@@ -122,7 +142,7 @@ ${gateSummary}
 
 | 순서 | 아이디어 | 결과물 형태 | 추천 판단 | 검증 기준 | 사업/제작 | 준비도 | 중복 신호 | 다음 행동 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-${rows || "| - | 아이디어 없음 | - | - | - | - | - | - | - |"}
+${rows}
 
 ## 운영 원칙
 
