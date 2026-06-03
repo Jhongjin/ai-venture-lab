@@ -1,4 +1,5 @@
 import { artifactLabels, artifactSourceLabels } from "@/lib/artifact-labels";
+import { getApprovedAgentRunPackageArtifacts } from "@/lib/agent-run-package-artifacts";
 import {
   externalBuildToolProfiles,
   type BuildDeliveryMode,
@@ -60,9 +61,7 @@ export function buildAgentRunPackageMarkdown({
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
-  const approvedArtifacts = artifacts
-    .filter((artifact) => artifact.status === "approved")
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const approvedArtifacts = getApprovedAgentRunPackageArtifacts(artifacts);
   const sourceLines =
     approvedArtifacts.length > 0
       ? approvedArtifacts

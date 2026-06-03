@@ -21,6 +21,9 @@ function transpileModuleUrl(modulePath, replacements = []) {
 }
 
 const artifactLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/artifact-labels.ts")).href;
+const agentRunPackageArtifactsUrl = pathToFileURL(
+  path.join(process.cwd(), "src/lib/agent-run-package-artifacts.ts"),
+).href;
 const buildDeliveryUrl = pathToFileURL(path.join(process.cwd(), "src/lib/build-delivery.ts")).href;
 const implementationTaskMetadataUrl = pathToFileURL(
   path.join(process.cwd(), "src/lib/implementation-task-metadata.ts"),
@@ -36,6 +39,7 @@ const externalGuideUrl = transpileModuleUrl("src/lib/external-production-package
 ]);
 const agentRunPackageUrl = transpileModuleUrl("src/lib/agent-run-package-markdown.ts", [
   ['from "@/lib/artifact-labels";', `from ${JSON.stringify(artifactLabelsUrl)};`],
+  ['from "@/lib/agent-run-package-artifacts";', `from ${JSON.stringify(agentRunPackageArtifactsUrl)};`],
   ['from "@/lib/build-delivery";', `from ${JSON.stringify(buildDeliveryUrl)};`],
   ['from "@/lib/external-production-package-guide";', `from ${JSON.stringify(externalGuideUrl)};`],
   ['from "@/lib/implementation-task-metadata";', `from ${JSON.stringify(implementationTaskMetadataUrl)};`],
@@ -65,6 +69,7 @@ const moduleUrl = transpileModuleUrl("src/lib/execution-package-drafts.ts", [
 ]);
 
 const { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftState } = await import(moduleUrl);
+const { getApprovedAgentRunPackageArtifacts } = await import(agentRunPackageArtifactsUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -142,6 +147,29 @@ const artifacts = [
     version: 1,
   },
 ];
+assert.deepEqual(
+  getApprovedAgentRunPackageArtifacts([
+    { id: "older-approved", status: "approved", created_at: "2026-06-01T00:00:00.000Z" },
+    { id: "draft-newer", status: "draft", created_at: "2026-06-03T00:00:00.000Z" },
+    { id: "newer-approved", status: "approved", created_at: "2026-06-02T00:00:00.000Z" },
+  ]).map((artifact) => artifact.id),
+  ["newer-approved", "older-approved"],
+);
+
+const agentRunPackageSource = readFileSync(
+  path.join(process.cwd(), "src/lib/agent-run-package-markdown.ts"),
+  "utf8",
+);
+assert.equal(
+  agentRunPackageSource.includes(".sort("),
+  false,
+  "agent run package markdown should delegate artifact ordering to agent-run-package-artifacts",
+);
+assert.equal(
+  agentRunPackageSource.includes("new Date("),
+  false,
+  "agent run package markdown should not parse artifact dates inline",
+);
 const experiments = [
   {
     created_at: timestamp,
