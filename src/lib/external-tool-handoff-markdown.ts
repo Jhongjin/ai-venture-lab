@@ -126,9 +126,7 @@ export function buildCursorTaskMarkdown({
 
 ## 프로젝트
 
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
+${buildExternalToolProjectContextLines({ idea, productSurface })}
 
 ## 작업 원칙
 
@@ -163,10 +161,7 @@ export function buildCursorStartPromptMarkdown({
 
 ## 프로젝트 맥락
 
-- 프로젝트 키: ${projectKey}
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
+${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 
 ## 진행 방식
 
@@ -205,9 +200,7 @@ alwaysApply: true
 
 ## 프로젝트 기준
 
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
+${buildExternalToolProjectContextLines({ idea, productSurface })}
 
 ## 실행 원칙
 
@@ -326,10 +319,7 @@ export function buildCodexStartPromptMarkdown({
 
 ## 프로젝트 맥락
 
-- 프로젝트 키: ${projectKey}
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
+${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 
 ## 진행 방식
 
@@ -369,9 +359,7 @@ export function buildCodexAgentInstructionsMarkdown({
 
 ## 프로젝트 기준
 
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
+${buildExternalToolProjectContextLines({ idea, productSurface })}
 
 ## 실행 원칙
 
@@ -477,10 +465,7 @@ export function buildClaudeStartPromptMarkdown({
 
 ## 프로젝트 맥락
 
-- 프로젝트 키: ${projectKey}
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
+${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 
 ## 진행 방식
 
@@ -521,9 +506,7 @@ export function buildClaudeInstructionsMarkdown({
 
 ## 프로젝트 기준
 
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
+${buildExternalToolProjectContextLines({ idea, productSurface })}
 
 ## 실행 원칙
 
@@ -631,10 +614,7 @@ export function buildAntigravityStartPromptMarkdown({
 
 ## 프로젝트 맥락
 
-- 프로젝트 키: ${projectKey}
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
+${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 
 ## 진행 방식
 
@@ -733,9 +713,7 @@ export function buildAntigravityAcceptanceMarkdown({
 
 ## 프로젝트
 
-- 아이디어: ${idea.name}
-- 결과물 형태: ${productSurface.label}
-- 첫 제작 기준: ${productSurface.firstBuild}
+${buildExternalToolProjectContextLines({ idea, productSurface })}
 
 ## 완료 기준
 
