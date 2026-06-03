@@ -48,9 +48,15 @@ const {
   buildExtractedIdeaExperimentRow,
   buildExtractedIdeaInsertRow,
   buildExtractedIdeaPackageArtifactRows,
+  buildExtractedIdeaSourceBlock,
   buildExtractedIdeaRiskRow,
 } = await import(moduleUrl);
 const { productSurfaceProfiles } = await import(productSurfaceUrl);
+
+assert.equal(buildExtractedIdeaSourceBlock("사용자 메모: 반복 보고서 자동 정리 필요"), "사용자 메모: 반복 보고서 자동 정리 필요");
+const redactedSourceBlock = buildExtractedIdeaSourceBlock("사용자 메모: founder@example.com 으로 연락");
+assert.match(redactedSourceBlock, /자동 가림 처리/);
+assert.equal(redactedSourceBlock.includes("founder@example.com"), false);
 
 const rows = buildExtractedIdeaArtifactRows({
   artifactBodies: {

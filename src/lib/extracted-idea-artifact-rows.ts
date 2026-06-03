@@ -127,6 +127,18 @@ export function buildExtractedIdeaArtifactRows({
   ];
 }
 
+export function buildExtractedIdeaSourceBlock(sourceBlock: string) {
+  const redactedSourceBlock = redactSensitiveSource(sourceBlock);
+
+  if (redactedSourceBlock === sourceBlock) {
+    return redactedSourceBlock;
+  }
+
+  return `${redactedSourceBlock}
+
+> 자동 가림 처리: 메모 근거에서 연락처, 카드, 계좌, 신분 정보로 보이는 패턴을 치환했습니다.`;
+}
+
 export function buildExtractedIdeaPackageArtifactRows({
   buildDeliveryPreference = defaultBuildDeliveryPreference,
   candidate,
@@ -143,13 +155,7 @@ export function buildExtractedIdeaPackageArtifactRows({
   strategyLensMarkdown?: string;
 }) {
   const buildDelivery = normalizeBuildDeliveryPreference(buildDeliveryPreference);
-  const redactedSourceBlock = redactSensitiveSource(candidate.sourceBlock);
-  const sourceBlock =
-    redactedSourceBlock === candidate.sourceBlock
-      ? redactedSourceBlock
-      : `${redactedSourceBlock}
-
-> 자동 가림 처리: 메모 근거에서 연락처, 카드, 계좌, 신분 정보로 보이는 패턴을 치환했습니다.`;
+  const sourceBlock = buildExtractedIdeaSourceBlock(candidate.sourceBlock);
   const artifactBodies = buildExtractedIdeaArtifactBodies({
     assumptions: candidate.assumptions,
     buildDeliveryMarkdown: buildDeliveryPreferenceMarkdown(buildDelivery),
