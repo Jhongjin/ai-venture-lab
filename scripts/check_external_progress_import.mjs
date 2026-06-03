@@ -42,6 +42,7 @@ const {
   buildCursorProgressTaskUpdatePatch,
   buildCursorProgressToolContext,
   getVisibleCursorProgressImportItems,
+  sortCursorProgressImportItemsByDraftIndex,
 } = await import(moduleUrl);
 
 const fallbackTasks = [
@@ -84,6 +85,17 @@ assert.equal(importPlan.completedCount, 1);
 assert.equal(importPlan.drafts[0].taskCode, "T-001");
 assert.equal(importPlan.drafts[0].status, "done");
 assert.match(importPlan.drafts[0].evidence, /pnpm smoke:browser passed/);
+const unorderedImportItems = [
+  { draftIndex: 2, taskCode: "T-003" },
+  { draftIndex: 0, taskCode: "T-001" },
+  { draftIndex: 1, taskCode: "T-002" },
+];
+assert.deepEqual(sortCursorProgressImportItemsByDraftIndex(unorderedImportItems).map((item) => item.taskCode), [
+  "T-001",
+  "T-002",
+  "T-003",
+]);
+assert.deepEqual(unorderedImportItems.map((item) => item.taskCode), ["T-003", "T-001", "T-002"]);
 assert.equal(
   buildCursorProgressFileLoadedMessage("progress.json"),
   "progress.json 내용을 가져왔습니다. 진행 결과 반영을 눌러 작업 목록에 저장하세요.",

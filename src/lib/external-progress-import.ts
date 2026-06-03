@@ -14,13 +14,19 @@ export type ImplementationTaskDraft = {
   acceptance_criteria: string;
 };
 
-type CursorProgressImportItem = {
+export type CursorProgressImportItem = {
   taskCode: string;
   draftIndex: number;
   title: string;
   status: ImplementationTaskStatus;
   evidence: string;
 };
+
+export function sortCursorProgressImportItemsByDraftIndex<T extends Pick<CursorProgressImportItem, "draftIndex">>(
+  items: T[],
+) {
+  return [...items].sort((a, b) => a.draftIndex - b.draftIndex);
+}
 
 export type CursorProgressImportDraft = ImplementationTaskDraft & {
   taskCode: string;
@@ -429,7 +435,7 @@ function parseCursorProgressTextItems(sourceText: string): CursorProgressImportI
     }
   }
 
-  return Array.from(byCode.values()).sort((a, b) => a.draftIndex - b.draftIndex);
+  return sortCursorProgressImportItemsByDraftIndex(Array.from(byCode.values()));
 }
 
 export function buildCursorProgressImportDrafts({
