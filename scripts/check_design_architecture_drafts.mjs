@@ -61,6 +61,7 @@ const moduleUrl = transpileModuleUrl("src/lib/design-architecture-drafts.ts", [
 
 const { getHighAppBlueprintRisks, getRecommendedAppBlueprintBackend } = await import(appBlueprintUrl);
 const { getDesignBriefRun } = await import(designBriefUrl);
+const { getTechSpecBuildRun, getTechSpecSecurityRun } = await import(techSpecUrl);
 const { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } = await import(moduleUrl);
 
 const idea = {
@@ -182,6 +183,37 @@ assert.deepEqual(
 );
 assert.equal(getDesignBriefRun(runs)?.id, "run-1");
 assert.equal(getDesignBriefRun([]), undefined);
+assert.equal(
+  getTechSpecBuildRun([
+    {
+      ...runs[0],
+      id: "run-build",
+      phase: "build",
+    },
+    {
+      ...runs[0],
+      id: "run-security",
+      phase: "security",
+    },
+  ])?.id,
+  "run-build",
+);
+assert.equal(
+  getTechSpecSecurityRun([
+    {
+      ...runs[0],
+      id: "run-build",
+      phase: "build",
+    },
+    {
+      ...runs[0],
+      id: "run-security",
+      phase: "security",
+    },
+  ])?.id,
+  "run-security",
+);
+assert.equal(getTechSpecBuildRun([]), undefined);
 
 const draftState = buildDesignArchitectureDraftState({
   backendCandidateScores,

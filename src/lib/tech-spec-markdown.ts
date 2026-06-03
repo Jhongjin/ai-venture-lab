@@ -4,6 +4,14 @@ import { decisionLabels, stageLabels } from "@/lib/workbench-labels";
 
 type TechSpecState = Pick<Idea, "stage" | "decision" | "risk_summary" | "next_evidence" | "product_surface">;
 
+export function getTechSpecBuildRun(runs: OrchestrationRun[]) {
+  return runs.find((run) => run.phase === "build");
+}
+
+export function getTechSpecSecurityRun(runs: OrchestrationRun[]) {
+  return runs.find((run) => run.phase === "security");
+}
+
 export function buildTechSpecMarkdown({
   idea,
   state,
@@ -16,8 +24,8 @@ export function buildTechSpecMarkdown({
   runs: OrchestrationRun[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const buildRun = runs.find((run) => run.phase === "build");
-  const securityRun = runs.find((run) => run.phase === "security");
+  const buildRun = getTechSpecBuildRun(runs);
+  const securityRun = getTechSpecSecurityRun(runs);
   const experimentLines =
     experiments.length > 0
       ? experiments.map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
