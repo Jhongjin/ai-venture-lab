@@ -14,7 +14,14 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { compareIdeasByWorkflow, scoreIdea, sortIdeasByWorkflow, workflowStageOrder } = await import(moduleUrl);
+const {
+  compareIdeasByCreatedAtDesc,
+  compareIdeasByWorkflow,
+  getIdeaCreatedAtTime,
+  scoreIdea,
+  sortIdeasByWorkflow,
+  workflowStageOrder,
+} = await import(moduleUrl);
 
 function idea({ createdAt, id, name, stage }) {
   return {
@@ -55,6 +62,8 @@ assert.deepEqual(
   sortIdeasByWorkflow(ideas).map((item) => item.id),
   ["score-new", "score-old", "prd-old", "launch-new"],
 );
+assert.equal(getIdeaCreatedAtTime(ideas[1]), 1780444800000);
+assert.equal(compareIdeasByCreatedAtDesc(ideas[1], ideas[2]) < 0, true);
 assert.equal(compareIdeasByWorkflow(ideas[1], ideas[0]) < 0, true);
 assert.equal(compareIdeasByWorkflow(ideas[1], ideas[2]) < 0, true);
 assert.equal(scoreIdea(ideas[0]), 22);
