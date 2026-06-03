@@ -30,6 +30,8 @@ const {
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
+  compareFinalExecutionConnectionUsedAtValues,
+  getFinalExecutionConnectionUsedAtTime,
   getLatestFinalExecutionConnectionUsedAt,
   selectFinalExecutionLiveSetupDownload,
 } = await import(moduleUrl);
@@ -86,6 +88,15 @@ const connections = [
     tool: "codex",
   },
 ];
+assert.equal(getFinalExecutionConnectionUsedAtTime("2026-06-01T03:00:00.000Z"), 1780282800000);
+assert.equal(
+  compareFinalExecutionConnectionUsedAtValues("2026-06-01T01:00:00.000Z", "2026-06-01T03:00:00.000Z") > 0,
+  true,
+);
+assert.equal(
+  compareFinalExecutionConnectionUsedAtValues("2026-06-01T03:00:00.000Z", "2026-06-01T01:00:00.000Z") < 0,
+  true,
+);
 assert.equal(getLatestFinalExecutionConnectionUsedAt(connections), "2026-06-01T04:00:00.000Z");
 assert.equal(getLatestFinalExecutionConnectionUsedAt([{ lastUsedAt: null }, { lastUsedAt: "" }]), null);
 

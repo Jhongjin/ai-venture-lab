@@ -361,12 +361,20 @@ export function buildFinalExecutionPrimaryPackageAction<Download>({
   };
 }
 
+export function getFinalExecutionConnectionUsedAtTime(usedAt: string) {
+  return new Date(usedAt).getTime();
+}
+
+export function compareFinalExecutionConnectionUsedAtValues(a: string, b: string) {
+  return getFinalExecutionConnectionUsedAtTime(b) - getFinalExecutionConnectionUsedAtTime(a);
+}
+
 export function getLatestFinalExecutionConnectionUsedAt(connections: Array<Pick<CursorSyncConnection, "lastUsedAt">>) {
   return (
     connections
       .map((connection) => connection.lastUsedAt)
       .filter((value): value is string => Boolean(value))
-      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null
+      .sort(compareFinalExecutionConnectionUsedAtValues)[0] ?? null
   );
 }
 
