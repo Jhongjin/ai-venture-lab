@@ -88,6 +88,11 @@ const {
   getMvpSliceDevelopmentKickoffArtifact,
   getOpenHighDevelopmentKickoffRisks,
 } = await import(developmentKickoffUrl);
+const {
+  getFailedAgentRunPackageChecks,
+  getMissingAgentRunEvidenceLabels,
+  getOpenHighAgentRunPackageRisks,
+} = await import(agentRunPackageUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -333,6 +338,17 @@ const gateChecks = [
   { label: "승인 제작 자료", passed: true, detail: "필수 자료 승인 완료" },
   { label: "리스크 경계", passed: true, detail: "고위험 리스크 종료" },
 ];
+assert.deepEqual(getMissingAgentRunEvidenceLabels([{ label: "커밋", passed: false }, { label: "스모크", passed: true }]), [
+  "커밋",
+]);
+assert.deepEqual(
+  getFailedAgentRunPackageChecks([{ ...gateChecks[0], label: "승인 자료", passed: false }]).map((check) => check.label),
+  ["승인 자료"],
+);
+assert.deepEqual(
+  getOpenHighAgentRunPackageRisks([{ ...risks[0], id: "risk-open", status: "open" }]).map((risk) => risk.id),
+  ["risk-open"],
+);
 assert.equal(countPassedDevelopmentKickoffChecks(gateChecks), 2);
 assert.deepEqual(
   getFailedDevelopmentKickoffChecks([{ ...gateChecks[0], label: "범위 잠금", passed: false }]).map((check) => check.label),

@@ -28,11 +28,23 @@ import {
 
 type AgentRunPackageState = Pick<Idea, "stage" | "decision" | "next_evidence" | "product_surface">;
 
-type AgentRunPackageGateCheck = {
+export type AgentRunPackageGateCheck = {
   label: string;
   passed: boolean;
   detail: string;
 };
+
+export function getMissingAgentRunEvidenceLabels(checklist: { label: string; passed: boolean }[]) {
+  return checklist.filter((item) => !item.passed).map((item) => item.label);
+}
+
+export function getFailedAgentRunPackageChecks(readinessChecks: AgentRunPackageGateCheck[]) {
+  return readinessChecks.filter((check) => !check.passed);
+}
+
+export function getOpenHighAgentRunPackageRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+}
 
 export function buildAgentRunPackageMarkdown({
   idea,
@@ -80,7 +92,7 @@ export function buildAgentRunPackageMarkdown({
           .slice(0, 8)
           .map((task, index) => {
             const checklist = getImplementationEvidenceChecklist(task, task.evidence ?? "");
-            const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+            const missingLabels = getMissingAgentRunEvidenceLabels(checklist);
 
             return [
               `${index + 1}. ${task.title}`,
@@ -94,12 +106,12 @@ export function buildAgentRunPackageMarkdown({
           })
           .join("\n")
       : "- 현재 실행할 개발 태스크가 없습니다. 기본 태스크를 생성하거나 필터를 초기화하세요.";
-  const blockerLines = readinessChecks
-    .filter((check) => !check.passed)
-    .map((check) => `- ${check.label}: ${check.detail}`);
-  const riskLines = risks
-    .filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed")
-    .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`);
+  const blockerLines = getFailedAgentRunPackageChecks(readinessChecks).map(
+    (check) => `- ${check.label}: ${check.detail}`,
+  );
+  const riskLines = getOpenHighAgentRunPackageRisks(risks).map(
+    (risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`,
+  );
   const experimentLines =
     experiments.length > 0
       ? experiments
