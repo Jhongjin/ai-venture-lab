@@ -149,6 +149,13 @@ export function buildExperimentDeletedMessage() {
   return "검증 계획을 삭제했습니다.";
 }
 
+export function getNextExperimentResultSelectionId(
+  experiments: Array<{ id: string }>,
+  removedExperimentId: string,
+) {
+  return experiments.find((experiment) => experiment.id !== removedExperimentId)?.id ?? "";
+}
+
 export function buildRiskStatusChangedMessage({ statusLabel }: { statusLabel: string }) {
   return `리스크 상태를 ${statusLabel}(으)로 변경했습니다.`;
 }

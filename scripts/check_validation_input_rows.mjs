@@ -48,6 +48,7 @@ const {
   buildValidationExperimentSavedMessage,
   buildValidationExperimentSaveLoginRequiredMessage,
   experimentResultGuideRows,
+  getNextExperimentResultSelectionId,
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
 } = await import(moduleUrl);
@@ -100,6 +101,11 @@ assert.equal(
   "실험 작성자 또는 워크스페이스 관리자만 이 실험을 삭제할 수 있습니다.",
 );
 assert.equal(buildExperimentDeleteConfirmMessage("5명 인터뷰"), "\"5명 인터뷰\" 검증 계획을 삭제할까요?");
+assert.equal(
+  getNextExperimentResultSelectionId([{ id: "experiment-1" }, { id: "experiment-2" }], "experiment-1"),
+  "experiment-2",
+);
+assert.equal(getNextExperimentResultSelectionId([{ id: "experiment-1" }], "experiment-1"), "");
 assert.equal(
   buildExperimentStatusChangedMessage({ statusLabel: "진행 중" }),
   "실험 상태를 진행 중(으)로 변경했습니다.",

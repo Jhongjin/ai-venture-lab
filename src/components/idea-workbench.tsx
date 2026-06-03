@@ -428,6 +428,7 @@ import {
   buildExperimentStatusUpdatePatch,
   buildExperimentUpdatePermissionDeniedMessage,
   buildIdeaDecisionUpdatePatch,
+  getNextExperimentResultSelectionId,
   buildRecommendedValidationExperimentSavedMessage,
   buildRiskCreatedMessage,
   buildRiskCreatedTelemetryProperties,
@@ -2547,7 +2548,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const nextExperimentId = selectedExperiments.find((item) => item.id !== experiment.id)?.id ?? "";
+    const nextExperimentId = getNextExperimentResultSelectionId(selectedExperiments, experiment.id);
     setExperiments((current) => removeRecordById(current, experiment.id));
     setExperimentResultDraft((current) =>
       current.experiment_id === experiment.id
