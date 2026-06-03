@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 import { telemetryJson, telemetryJsonError } from "@/lib/telemetry-http";
+import { safeTelemetryIngestIsoDate } from "@/lib/telemetry-ingest-utils";
 import type { Json } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
@@ -101,18 +102,6 @@ function hashIdentifier(value: unknown, secret: string) {
   return createHmac("sha256", secret).update(text).digest("hex").slice(0, 32);
 }
 
-function safeIsoDate(value: unknown) {
-  const text = toText(value, 80);
-
-  if (!text) {
-    return new Date().toISOString();
-  }
-
-  const date = new Date(text);
-
-  return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
-}
-
 export async function POST(request: Request) {
   const configuredSecret = process.env.TELEMETRY_INGEST_SECRET ?? "";
   const providedSecret = getProvidedSecret(request);
@@ -144,7 +133,7 @@ export async function POST(request: Request) {
   const eventName = toEventToken(body.eventName, "product_event", MAX_EVENT_NAME_LENGTH);
   const eventCategory = toEventToken(body.eventCategory, "product", MAX_EVENT_CATEGORY_LENGTH);
   const source = toText(body.source, 120) || "external_mvp";
-  const occurredAt = safeIsoDate(body.occurredAt);
+  const occurredAt = safeTelemetryIngestIsoDate(body.occurredAt);
   const properties = sanitizeProperties(body.properties);
   const anonymousHash = hashIdentifier(body.anonymousId, configuredSecret);
   const sessionHash = hashIdentifier(body.sessionId, configuredSecret);
