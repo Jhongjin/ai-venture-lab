@@ -361,6 +361,15 @@ export function buildFinalExecutionPrimaryPackageAction<Download>({
   };
 }
 
+export function getLatestFinalExecutionConnectionUsedAt(connections: Array<Pick<CursorSyncConnection, "lastUsedAt">>) {
+  return (
+    connections
+      .map((connection) => connection.lastUsedAt)
+      .filter((value): value is string => Boolean(value))
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null
+  );
+}
+
 export function buildFinalExecutionConnectionHealth({
   connections,
   externalToolKey,
@@ -372,11 +381,7 @@ export function buildFinalExecutionConnectionHealth({
 }): FinalExecutionConnectionHealth {
   const visibleConnections = connections.filter((connection) => connection.tool === externalToolKey);
   const activeConnections = visibleConnections.filter((connection) => connection.status === "active");
-  const latestUsedAt =
-    activeConnections
-      .map((connection) => connection.lastUsedAt)
-      .filter((value): value is string => Boolean(value))
-      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] ?? null;
+  const latestUsedAt = getLatestFinalExecutionConnectionUsedAt(activeConnections);
   const title =
     activeConnections.length === 0
       ? "연결 파일을 받으면 자동 반영이 준비됩니다"

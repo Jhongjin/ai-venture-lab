@@ -30,6 +30,7 @@ const {
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
+  getLatestFinalExecutionConnectionUsedAt,
   selectFinalExecutionLiveSetupDownload,
 } = await import(moduleUrl);
 
@@ -85,6 +86,9 @@ const connections = [
     tool: "codex",
   },
 ];
+assert.equal(getLatestFinalExecutionConnectionUsedAt(connections), "2026-06-01T04:00:00.000Z");
+assert.equal(getLatestFinalExecutionConnectionUsedAt([{ lastUsedAt: null }, { lastUsedAt: "" }]), null);
+
 const health = buildFinalExecutionConnectionHealth({
   connections,
   externalToolKey: "cursor",
