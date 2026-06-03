@@ -10,7 +10,7 @@ import {
 
 type PostLaunchLearningState = Pick<Idea, "stage" | "decision" | "next_evidence">;
 
-type PostLaunchGateCheck = {
+export type PostLaunchGateCheck = {
   label: string;
   passed: boolean;
   detail: string;
@@ -20,6 +20,18 @@ type PostLaunchReleaseDecisionPacket = {
   recommendation: DecisionStatus;
   blockers: string[];
 };
+
+export function getOpenHighPostLaunchRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+}
+
+export function countDonePostLaunchImplementationTasks(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.filter((task) => task.status === "done").length;
+}
+
+export function getUnresolvedPostLaunchChecks(launchReadiness: PostLaunchGateCheck[]) {
+  return launchReadiness.filter((check) => !check.passed);
+}
 
 export function buildPostLaunchLearningLoopMarkdown({
   idea,
@@ -39,11 +51,9 @@ export function buildPostLaunchLearningLoopMarkdown({
   implementationTasks: ImplementationTask[];
 }) {
   const releaseRecommendation = releaseDecisionPacket ? decisionLabels[releaseDecisionPacket.recommendation] : "미계산";
-  const openHighRisks = risks.filter(
-    (risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed",
-  );
-  const doneTaskCount = implementationTasks.filter((task) => task.status === "done").length;
-  const unresolvedLaunchChecks = launchReadiness.filter((check) => !check.passed);
+  const openHighRisks = getOpenHighPostLaunchRisks(risks);
+  const doneTaskCount = countDonePostLaunchImplementationTasks(implementationTasks);
+  const unresolvedLaunchChecks = getUnresolvedPostLaunchChecks(launchReadiness);
   const experimentLines =
     experiments.length > 0
       ? experiments

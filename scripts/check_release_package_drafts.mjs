@@ -69,6 +69,11 @@ const {
   getDoneDevelopmentCompletionRuns,
   getReleaseEvidenceImplementationTasks,
 } = await import(completionReportUrl);
+const {
+  countDonePostLaunchImplementationTasks,
+  getOpenHighPostLaunchRisks,
+  getUnresolvedPostLaunchChecks,
+} = await import(postLaunchUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -249,6 +254,15 @@ assert.equal(countDoneReleaseDecisionTasks(implementationTasks), 2);
 assert.deepEqual(
   getDoneReleaseDecisionRuns(runs).map((run) => run.id),
   ["run-1"],
+);
+assert.equal(countDonePostLaunchImplementationTasks(implementationTasks), 2);
+assert.deepEqual(
+  getOpenHighPostLaunchRisks([{ ...risks[0], id: "risk-open", status: "open" }]).map((risk) => risk.id),
+  ["risk-open"],
+);
+assert.deepEqual(
+  getUnresolvedPostLaunchChecks([{ ...gateChecks[0], label: "배포 로그", passed: false }]).map((check) => check.label),
+  ["배포 로그"],
 );
 const backendCandidateScores = [
   {
