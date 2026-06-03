@@ -47,6 +47,8 @@ const {
   buildStep8LearningDecisionOptions,
   buildStep8LearningCompletedSummary,
   buildStep8LearningDisplayState,
+  buildStep8LearningJudgmentQuestion,
+  buildStep8LearningNextJudgmentBrief,
   buildStep8LearningRemainingSummary,
   buildStep8LearningSummary,
   buildStep8ProgressDetail,
@@ -255,6 +257,23 @@ assert.deepEqual(
 assert.equal(learningSummary.learningCompletedValue, "1/3 작업");
 assert.equal(learningSummary.learningRemainingValue, "T-002 남음");
 assert.equal(
+  buildStep8LearningJudgmentQuestion({
+    hasNextImplementationTask: true,
+    openRiskCount: 0,
+    productSignalCount: 0,
+  }),
+  "이 작업을 완료로 볼 근거가 있나요?",
+);
+assert.match(
+  buildStep8LearningNextJudgmentBrief({
+    hasNextImplementationTask: true,
+    openRiskCount: 0,
+    productSignalCount: 0,
+  }),
+  /완료 여부만 확인/,
+);
+assert.equal(learningSummary.learningJudgmentQuestion, "이 작업을 완료로 볼 근거가 있나요?");
+assert.equal(
   buildStep8ExternalSyncCompletedText({
     completedImplementationTaskCount: 1,
     totalImplementationTaskCount: 3,
@@ -423,6 +442,54 @@ assert.deepEqual(
     value: "없음",
     detail: "남은 차단 항목이 없으면 다음 빌드 범위를 작게 정하면 됩니다.",
   },
+);
+assert.equal(
+  buildStep8LearningJudgmentQuestion({
+    hasNextImplementationTask: false,
+    openRiskCount: 0,
+    productSignalCount: 0,
+  }),
+  "첫 버전 배포와 성과 신호 연결이 끝났나요?",
+);
+assert.equal(
+  buildStep8LearningJudgmentQuestion({
+    hasNextImplementationTask: false,
+    openRiskCount: 2,
+    productSignalCount: 4,
+  }),
+  "다음 빌드에서 어떤 리스크 하나를 먼저 줄일까요?",
+);
+assert.equal(
+  buildStep8LearningJudgmentQuestion({
+    hasNextImplementationTask: false,
+    openRiskCount: 0,
+    productSignalCount: 4,
+  }),
+  "다음 빌드를 작게 승인할까요, 아니면 보류할까요?",
+);
+assert.match(
+  buildStep8LearningNextJudgmentBrief({
+    hasNextImplementationTask: false,
+    openRiskCount: 0,
+    productSignalCount: 0,
+  }),
+  /숫자 리포트는 아직 이릅니다/,
+);
+assert.match(
+  buildStep8LearningNextJudgmentBrief({
+    hasNextImplementationTask: false,
+    openRiskCount: 2,
+    productSignalCount: 4,
+  }),
+  /리스크 하나만/,
+);
+assert.match(
+  buildStep8LearningNextJudgmentBrief({
+    hasNextImplementationTask: false,
+    openRiskCount: 0,
+    productSignalCount: 4,
+  }),
+  /승인할지 보류/,
 );
 assert.match(buildStep8LearningDecisionDetail("첫 버전 배포"), /핵심 행동 신호/);
 assert.match(buildStep8LearningDecisionDetail("리스크 보완"), /열린 리스크/);

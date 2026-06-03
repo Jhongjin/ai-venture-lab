@@ -268,20 +268,16 @@ export function buildStep8LearningSummary({
     ["이어 할 것", learningRemainingValue, learningRemainingDetail],
     ["판단", learningDecisionLabel, learningDecisionDetail],
   ];
-  const learningJudgmentQuestion = nextImplementationTask
-    ? "이 작업을 완료로 볼 근거가 있나요?"
-    : productSignalCount === 0
-      ? "첫 버전 배포와 성과 신호 연결이 끝났나요?"
-      : openRiskCount > 0
-        ? "다음 빌드에서 어떤 리스크 하나를 먼저 줄일까요?"
-        : "다음 빌드를 작게 승인할까요, 아니면 보류할까요?";
-  const learningNextJudgmentBrief = nextImplementationTask
-    ? "다음 제작 작업의 완료 여부만 확인하면 됩니다. 상세 리포트는 아직 열지 않아도 됩니다."
-    : productSignalCount === 0
-      ? "첫 버전 배포와 성과 신호 연결만 확인하면 됩니다. 숫자 리포트는 아직 이릅니다."
-      : openRiskCount > 0
-        ? "다음 빌드에서 줄일 리스크 하나만 고르면 됩니다. 상세 리포트는 필요할 때만 엽니다."
-        : "다음 빌드 범위를 승인할지 보류할지만 정하면 됩니다. 상세 리포트는 필요할 때만 엽니다.";
+  const learningJudgmentQuestion = buildStep8LearningJudgmentQuestion({
+    hasNextImplementationTask: Boolean(nextImplementationTask),
+    openRiskCount,
+    productSignalCount,
+  });
+  const learningNextJudgmentBrief = buildStep8LearningNextJudgmentBrief({
+    hasNextImplementationTask: Boolean(nextImplementationTask),
+    openRiskCount,
+    productSignalCount,
+  });
   const externalSyncCompletedText = buildStep8ExternalSyncCompletedText({
     completedImplementationTaskCount,
     totalImplementationTaskCount,
@@ -328,6 +324,50 @@ export function buildStep8LearningSummary({
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
   };
+}
+
+export function buildStep8LearningJudgmentQuestion({
+  hasNextImplementationTask,
+  openRiskCount,
+  productSignalCount,
+}: {
+  hasNextImplementationTask: boolean;
+  openRiskCount: number;
+  productSignalCount: number;
+}) {
+  if (hasNextImplementationTask) {
+    return "이 작업을 완료로 볼 근거가 있나요?";
+  }
+
+  if (productSignalCount === 0) {
+    return "첫 버전 배포와 성과 신호 연결이 끝났나요?";
+  }
+
+  return openRiskCount > 0
+    ? "다음 빌드에서 어떤 리스크 하나를 먼저 줄일까요?"
+    : "다음 빌드를 작게 승인할까요, 아니면 보류할까요?";
+}
+
+export function buildStep8LearningNextJudgmentBrief({
+  hasNextImplementationTask,
+  openRiskCount,
+  productSignalCount,
+}: {
+  hasNextImplementationTask: boolean;
+  openRiskCount: number;
+  productSignalCount: number;
+}) {
+  if (hasNextImplementationTask) {
+    return "다음 제작 작업의 완료 여부만 확인하면 됩니다. 상세 리포트는 아직 열지 않아도 됩니다.";
+  }
+
+  if (productSignalCount === 0) {
+    return "첫 버전 배포와 성과 신호 연결만 확인하면 됩니다. 숫자 리포트는 아직 이릅니다.";
+  }
+
+  return openRiskCount > 0
+    ? "다음 빌드에서 줄일 리스크 하나만 고르면 됩니다. 상세 리포트는 필요할 때만 엽니다."
+    : "다음 빌드 범위를 승인할지 보류할지만 정하면 됩니다. 상세 리포트는 필요할 때만 엽니다.";
 }
 
 export function buildStep8LearningCompletedSummary({
