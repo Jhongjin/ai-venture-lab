@@ -47,7 +47,10 @@ const {
   buildExtractedIdeaArtifactRows,
   buildExtractedIdeaExperimentRow,
   buildExtractedIdeaInsertRow,
+  buildExtractedIdeaNextEvidenceText,
   buildExtractedIdeaPackageArtifactRows,
+  buildExtractedIdeaRiskSummaryText,
+  buildExtractedIdeaSignalText,
   buildExtractedIdeaSourceBlock,
   buildExtractedIdeaRiskRow,
 } = await import(moduleUrl);
@@ -113,6 +116,13 @@ const candidate = {
   productSurface: productSurfaceProfiles.web_app,
 };
 const extractionGate = { label: "진행", nextAction: "검증 패키지를 저장합니다." };
+
+assert.match(buildExtractedIdeaSignalText(candidate), /핵심 가설\n- 사용자는 정리보다 확인을 원합니다\./);
+assert.match(buildExtractedIdeaRiskSummaryText(candidate), /리스크 등급: 보통/);
+assert.match(
+  buildExtractedIdeaNextEvidenceText({ candidate, extractionGate }),
+  /추천 판단\n진행: 검증 패키지를 저장합니다\./,
+);
 
 const insertRow = buildExtractedIdeaInsertRow({
   candidate,

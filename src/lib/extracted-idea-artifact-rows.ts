@@ -18,13 +18,69 @@ type IdeaInsert = Database["public"]["Tables"]["ideas"]["Insert"];
 type RiskInsert = Database["public"]["Tables"]["risks"]["Insert"];
 type VentureArtifactInsert = Database["public"]["Tables"]["venture_artifacts"]["Insert"];
 
+type ExtractionGateSummary = { label: string; nextAction: string };
+
+export function buildExtractedIdeaSignalText(candidate: Pick<ExtractedIdea, "assumptions" | "signal">) {
+  return `${candidate.signal}
+
+핵심 가설
+- ${candidate.assumptions.join("\n- ")}`;
+}
+
+export function buildExtractedIdeaRiskSummaryText(
+  candidate: Pick<ExtractedIdea, "killCriteria" | "riskLevel" | "risk_summary">,
+) {
+  return `${candidate.risk_summary}
+
+리스크 등급: ${candidate.riskLevel}
+중단 기준
+${candidate.killCriteria}`;
+}
+
+export function buildExtractedIdeaNextEvidenceText({
+  candidate,
+  extractionGate,
+}: {
+  candidate: Pick<
+    ExtractedIdea,
+    | "firstPrototypeScope"
+    | "pricingHypothesis"
+    | "productSurface"
+    | "sevenDayExperiment"
+    | "successMetric"
+    | "validationQuestions"
+  >;
+  extractionGate: ExtractionGateSummary;
+}) {
+  return `결과물 형태
+${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}
+
+7일 검증 계획
+${candidate.sevenDayExperiment}
+
+성공 지표
+${candidate.successMetric}
+
+검증 질문
+- ${candidate.validationQuestions.join("\n- ")}
+
+첫 제작 범위
+${candidate.firstPrototypeScope}
+
+가격/구매 가설
+${candidate.pricingHypothesis}
+
+추천 판단
+${extractionGate.label}: ${extractionGate.nextAction}`;
+}
+
 export function buildExtractedIdeaInsertRow({
   candidate,
   extractionGate,
   organizationId,
 }: {
   candidate: ExtractedIdea;
-  extractionGate: { label: string; nextAction: string };
+  extractionGate: ExtractionGateSummary;
   organizationId: string | null;
 }): IdeaInsert {
   return {
@@ -32,11 +88,9 @@ export function buildExtractedIdeaInsertRow({
     one_liner: candidate.one_liner.trim(),
     target_user: candidate.target_user.trim(),
     buyer: candidate.buyer.trim(),
-    signal: `${candidate.signal}\n\n핵심 가설\n- ${candidate.assumptions.join("\n- ")}`,
-    risk_summary: `${candidate.risk_summary}\n\n리스크 등급: ${candidate.riskLevel}\n중단 기준\n${candidate.killCriteria}`,
-    next_evidence: `결과물 형태\n${candidate.productSurface.label}: ${candidate.productSurface.harnessFocus}\n\n7일 검증 계획\n${candidate.sevenDayExperiment}\n\n성공 지표\n${candidate.successMetric}\n\n검증 질문\n- ${candidate.validationQuestions.join(
-      "\n- ",
-    )}\n\n첫 제작 범위\n${candidate.firstPrototypeScope}\n\n가격/구매 가설\n${candidate.pricingHypothesis}\n\n추천 판단\n${extractionGate.label}: ${extractionGate.nextAction}`,
+    signal: buildExtractedIdeaSignalText(candidate),
+    risk_summary: buildExtractedIdeaRiskSummaryText(candidate),
+    next_evidence: buildExtractedIdeaNextEvidenceText({ candidate, extractionGate }),
     product_surface: candidate.productSurface.key,
     stage: "research",
     decision: "research_more",
