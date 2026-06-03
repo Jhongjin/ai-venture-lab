@@ -402,6 +402,12 @@ export function getImplementationEvidenceChecklist(task: ImplementationTask, evi
   }));
 }
 
+export function getMissingImplementationEvidenceChecklistLabels(
+  checklist: ReturnType<typeof getImplementationEvidenceChecklist>,
+) {
+  return checklist.filter((item) => !item.passed).map((item) => item.label);
+}
+
 export function getImplementationTaskOwnerRole(task: ImplementationTask) {
   return task.owner_role.trim() || "owner 미정";
 }
@@ -541,7 +547,7 @@ function getMissingImplementationEvidenceLabels(task: ImplementationTask, eviden
 
   return {
     checklist,
-    missing: checklist.filter((item) => !item.passed).map((item) => item.label),
+    missing: getMissingImplementationEvidenceChecklistLabels(checklist),
   };
 }
 
@@ -639,7 +645,7 @@ export function buildImplementationTaskCardSummary(
 ): ImplementationTaskCardSummary {
   const evidence = getImplementationTaskEvidence(task, evidenceByTaskId);
   const evidenceChecklist = getImplementationEvidenceChecklist(task, evidence);
-  const missingEvidenceLabels = evidenceChecklist.filter((item) => !item.passed).map((item) => item.label);
+  const missingEvidenceLabels = getMissingImplementationEvidenceChecklistLabels(evidenceChecklist);
 
   return {
     task,

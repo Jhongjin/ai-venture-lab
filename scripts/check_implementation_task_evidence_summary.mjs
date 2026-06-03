@@ -12,6 +12,7 @@ const {
   getCompletedImplementationTasksWithEvidence,
   getImplementationEvidenceIssuePreview,
   getImplementationEvidenceIssues,
+  getMissingImplementationEvidenceChecklistLabels,
 } = await import(moduleUrl);
 
 function task({ evidence = "", id, ownerRole = "", priority = "medium", sortOrder = 1, status, taskType }) {
@@ -61,6 +62,14 @@ const tasks = [
     taskType: "deploy",
   }),
 ];
+
+assert.deepEqual(
+  getMissingImplementationEvidenceChecklistLabels([
+    { label: "커밋/PR", passed: false, terms: ["commit"] },
+    { label: "검증 결과", passed: true, terms: ["pnpm"] },
+  ]),
+  ["커밋/PR"],
+);
 
 assert.deepEqual(
   getCompletedImplementationTasksWithEvidence([
