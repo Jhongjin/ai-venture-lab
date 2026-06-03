@@ -21,6 +21,7 @@ const {
   buildExtractionSimilarIdeaMatches,
   buildBulkExtractionSaveMessage,
   buildSingleExtractionSaveMessage,
+  compareExtractionPortfolioItemsByStrength,
   countExtractionPortfolioGates,
   getBulkSavableExtractionItems,
   getSecondaryExtractionPortfolioItems,
@@ -101,6 +102,8 @@ assert.deepEqual(
   builtPortfolioItems.map((item) => item.candidate.id),
   ["c", "a", "b"],
 );
+assert.equal(compareExtractionPortfolioItemsByStrength(builtPortfolioItems[0], builtPortfolioItems[1]) < 0, true);
+assert.equal(compareExtractionPortfolioItemsByStrength(builtPortfolioItems[1], builtPortfolioItems[2]) < 0, true);
 assert.equal(builtPortfolioItems[0].gate.id, "proceed");
 assert.equal(builtPortfolioItems[1].nextGap, "저장 가능");
 assert.equal(builtPortfolioItems[2].nextGap, "score");

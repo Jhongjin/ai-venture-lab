@@ -53,6 +53,21 @@ export type ExtractionDetailListItem<Candidate, Gate, GateStyle, SimilarIdea, Re
   strategyScore: number;
 };
 
+export function compareExtractionPortfolioItemsByStrength<
+  Candidate extends { confidence: number; validationScore: number },
+  Gate extends { rank: number },
+  SimilarIdea,
+>(
+  left: ExtractionPortfolioListItem<Candidate, Gate, SimilarIdea>,
+  right: ExtractionPortfolioListItem<Candidate, Gate, SimilarIdea>,
+) {
+  return (
+    right.gate.rank - left.gate.rank ||
+    right.candidate.validationScore - left.candidate.validationScore ||
+    right.candidate.confidence - left.candidate.confidence
+  );
+}
+
 export function buildExtractionSimilarIdeaMatches<Candidate extends { id: string }, ExistingIdea, Match>(
   candidates: Candidate[],
   existingIdeas: ExistingIdea[],
@@ -126,12 +141,7 @@ export function buildExtractionPortfolioItems<
         similarIdea,
       };
     })
-    .sort(
-      (left, right) =>
-        right.gate.rank - left.gate.rank ||
-        right.candidate.validationScore - left.candidate.validationScore ||
-        right.candidate.confidence - left.candidate.confidence,
-    );
+    .sort(compareExtractionPortfolioItemsByStrength);
 }
 
 export function buildExtractionDetailItems<
