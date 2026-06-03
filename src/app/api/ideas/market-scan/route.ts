@@ -1,5 +1,9 @@
 import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
 import { aiRouteJson, aiRouteJsonError } from "@/lib/ai-route-http";
+import {
+  getMarketScanSourceQualityScore,
+  sortMarketScanSourcesByQuality,
+} from "@/lib/market-scan-source-utils";
 import { postOpenAIResponsesJson } from "@/lib/openai-responses-api";
 
 export const dynamic = "force-dynamic";
@@ -497,22 +501,6 @@ function isPublicSource(source: MarketScanSource) {
   return Boolean(normalizePublicSourceUrl(source.url)) && source.source_type !== "user_input";
 }
 
-function getSourceQualityScore(source: MarketScanSource) {
-  const strengthScore = source.strength === "high" ? 30 : source.strength === "medium" ? 20 : 10;
-  const typeScore =
-    source.source_type === "primary"
-      ? 5
-      : source.source_type === "news"
-        ? 4
-        : source.source_type === "directory"
-          ? 3
-          : source.source_type === "secondary"
-            ? 2
-            : 1;
-
-  return strengthScore + typeScore;
-}
-
 function mergePublicSources(...sourceGroups: MarketScanSource[][]) {
   const byUrl = new Map<string, MarketScanSource>();
 
@@ -529,16 +517,17 @@ function mergePublicSources(...sourceGroups: MarketScanSource[][]) {
     };
     const previous = byUrl.get(normalizedUrl);
 
-    if (previous && getSourceQualityScore(previous) >= getSourceQualityScore(current)) {
+    if (
+      previous &&
+      getMarketScanSourceQualityScore(previous) >= getMarketScanSourceQualityScore(current)
+    ) {
       return;
     }
 
     byUrl.set(normalizedUrl, current);
   });
 
-  return Array.from(byUrl.values())
-    .sort((sourceA, sourceB) => getSourceQualityScore(sourceB) - getSourceQualityScore(sourceA))
-    .slice(0, 5);
+  return sortMarketScanSourcesByQuality(Array.from(byUrl.values()), 5);
 }
 
 function createFallbackScan({
