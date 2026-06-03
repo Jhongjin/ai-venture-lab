@@ -239,6 +239,40 @@ export function buildAiExtractedIdeaEvidence({
   ].filter(Boolean);
 }
 
+export function buildAiExtractedIdeaAssumptions({
+  blockForInference,
+  buyer,
+  candidate,
+  name,
+  targetUser,
+}: {
+  blockForInference: string;
+  buyer: string;
+  candidate: AiExtractedIdeaCandidate;
+  name: string;
+  targetUser: string;
+}) {
+  return candidate.assumptions && candidate.assumptions.length >= 3
+    ? candidate.assumptions.slice(0, 4).map((item) => compactText(item, 220))
+    : inferAssumptions(blockForInference, name, targetUser, buyer);
+}
+
+export function buildAiExtractedIdeaValidationQuestions({
+  blockForInference,
+  buyer,
+  candidate,
+  targetUser,
+}: {
+  blockForInference: string;
+  buyer: string;
+  candidate: AiExtractedIdeaCandidate;
+  targetUser: string;
+}) {
+  return candidate.validation_questions && candidate.validation_questions.length >= 3
+    ? candidate.validation_questions.slice(0, 5).map((item) => compactText(item, 240))
+    : inferValidationQuestions(blockForInference, targetUser, buyer);
+}
+
 export function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCandidate[]): ExtractedIdea[] {
   return sortExtractedIdeasByValidationStrength(
     candidates.slice(0, 8).map((candidate, index) => {
@@ -265,14 +299,19 @@ export function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedI
         riskLevel,
         buyer,
       });
-      const assumptions =
-        candidate.assumptions && candidate.assumptions.length >= 3
-          ? candidate.assumptions.slice(0, 4).map((item) => compactText(item, 220))
-          : inferAssumptions(blockForInference, name, target_user, buyer);
-      const validationQuestions =
-        candidate.validation_questions && candidate.validation_questions.length >= 3
-          ? candidate.validation_questions.slice(0, 5).map((item) => compactText(item, 240))
-          : inferValidationQuestions(blockForInference, target_user, buyer);
+      const assumptions = buildAiExtractedIdeaAssumptions({
+        blockForInference,
+        buyer,
+        candidate,
+        name,
+        targetUser: target_user,
+      });
+      const validationQuestions = buildAiExtractedIdeaValidationQuestions({
+        blockForInference,
+        buyer,
+        candidate,
+        targetUser: target_user,
+      });
       const sevenDayExperiment = firstText([candidate.seven_day_experiment], inferSevenDayExperiment(blockForInference, name), 520);
       const successMetric = firstText([candidate.success_metric], inferSuccessMetric(blockForInference), 320);
       const killCriteria = firstText([candidate.kill_criteria], inferKillCriteria(blockForInference), 360);

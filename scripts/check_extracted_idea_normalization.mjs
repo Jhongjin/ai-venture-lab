@@ -30,8 +30,10 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildAiExtractedIdeaAssumptions,
   buildAiExtractedIdeaEvidence,
   buildAiExtractedIdeaSourceBlock,
+  buildAiExtractedIdeaValidationQuestions,
   compareExtractedIdeasByValidationStrength,
   extractIdeasFromText,
   hydrateAiExtractedIdeas,
@@ -106,6 +108,31 @@ assert.deepEqual(
     targetUser: "쇼핑몰 CS 담당자",
   }),
   ["AI 문제 신호", "AI 솔루션 정리", "AI 타겟 추론", "AI 구매자 추론", "AI 리스크 추론"],
+);
+assert.deepEqual(
+  buildAiExtractedIdeaAssumptions({
+    blockForInference: aiSourceBlock,
+    buyer: "운영팀 리더",
+    candidate: {
+      ...aiCandidate,
+      assumptions: ["권한이 있다", "시간을 절감한다", "검토자가 있다", "반복된다", "예산이 있다"],
+    },
+    name: "문의 정리 도우미",
+    targetUser: "쇼핑몰 CS 담당자",
+  }),
+  ["권한이 있다", "시간을 절감한다", "검토자가 있다", "반복된다"],
+);
+assert.deepEqual(
+  buildAiExtractedIdeaValidationQuestions({
+    blockForInference: aiSourceBlock,
+    buyer: "운영팀 리더",
+    candidate: {
+      ...aiCandidate,
+      validation_questions: ["정리 시간은?", "오답 기준은?", "예산은?", "담당자는?", "권한은?", "출처는?"],
+    },
+    targetUser: "쇼핑몰 CS 담당자",
+  }),
+  ["정리 시간은?", "오답 기준은?", "예산은?", "담당자는?", "권한은?"],
 );
 
 const hydrated = hydrateAiExtractedIdeas("고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만듭니다.", [
