@@ -180,7 +180,7 @@ export function buildStep8LearningSummary({
   taskSyncUpdatedAt: string | null;
   totalImplementationTaskCount: number;
 }): Step8LearningSummary {
-  const taskPrefix = nextImplementationTaskCode ? `${nextImplementationTaskCode} ` : "";
+  const taskPrefix = formatStep8TaskCodePrefix(nextImplementationTaskCode);
   const learningDecisionLabel =
     totalImplementationTaskCount > 0 && completedImplementationTaskCount < totalImplementationTaskCount
       ? "다음 작업 완료"
@@ -344,6 +344,10 @@ export function buildStep8LearningSummary({
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
   };
+}
+
+export function formatStep8TaskCodePrefix(taskCode: string | null) {
+  return taskCode ? `${taskCode} ` : "";
 }
 
 export function buildStep8LearningDisplayState({

@@ -32,6 +32,7 @@ const {
   buildStep8LearningSummary,
   buildStep8ProgressSummary,
   compareStep8ProgressTasks,
+  formatStep8TaskCodePrefix,
   sortStep8ProgressTasks,
 } = await import(moduleUrl);
 
@@ -152,6 +153,8 @@ const learningSummary = buildStep8LearningSummary({
 assert.equal(learningSummary.learningDecisionCards[0].label, "완료된 것");
 assert.equal(learningSummary.learningDecisionCards[1].value, "T-002 남음");
 assert.match(learningSummary.learningPrimaryActionText, /T-002 첫 화면 제작/);
+assert.equal(formatStep8TaskCodePrefix("T-002"), "T-002 ");
+assert.equal(formatStep8TaskCodePrefix(null), "");
 
 const progressSummary = buildStep8ProgressSummary({
   evidenceByTaskId: {},
