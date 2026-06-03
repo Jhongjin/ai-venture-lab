@@ -29,6 +29,111 @@ export function getPrimaryValidationSprintExperiment(experiments: Experiment[]) 
   return experiments[0] ?? null;
 }
 
+export function buildIdeaBriefRiskLines(risks: Risk[]) {
+  return risks.length > 0
+    ? risks
+        .map((risk) => `- ${risk.title} (${riskSeverityLabels[risk.severity]}): ${risk.mitigation || "완화 방안 미정"}`)
+        .join("\n")
+    : "- 아직 연결된 리스크가 없습니다.";
+}
+
+export function buildResearchBriefRiskLines(risks: Risk[]) {
+  return risks.length > 0
+    ? risks
+        .map(
+          (risk) =>
+            `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
+              risk.mitigation || "완화 방안 미정"
+            }`,
+        )
+        .join("\n")
+    : "- 아직 연결된 리스크가 없습니다. 보안, 개인정보, 규제, 운영 책임 리스크를 먼저 적어보세요.";
+}
+
+export function buildResearchBriefExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments
+        .map(
+          (experiment) =>
+            `- ${experiment.name} (${experimentStatusLabels[experiment.status] ?? experiment.status}): ${
+              experiment.success_metric || "성공 지표 미정"
+            }`,
+        )
+        .join("\n")
+    : "- 아직 실험이 없습니다. 5명 인터뷰, 랜딩/대기자, 수동 컨시어지, 가격 민감도 테스트 중 하나를 선택하세요.";
+}
+
+export function buildResearchBriefRunLines(runs: OrchestrationRun[]) {
+  const researchRuns = getValidationPackageResearchRuns(runs);
+
+  return researchRuns.length > 0
+    ? researchRuns
+        .map((run) => `### ${phaseLabels[run.phase]} (${runStatusLabels[run.status]})\n\n목표: ${run.objective || "미정"}\n\n제작 자료:\n\n${run.output || "미정"}`)
+        .join("\n\n")
+    : "전략/조사 실행 기록이 아직 없습니다.";
+}
+
+export function buildValidationSprintHighRiskLines(risks: Risk[]) {
+  const highRiskLines = getHighValidationSprintRisks(risks).map(
+    (risk) => `- ${risk.title}: ${risk.mitigation || "완화 방안 미정"}`,
+  );
+
+  return highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 현재 높음/치명 리스크가 없습니다. 개인정보, 규제, 운영 책임 리스크를 다시 확인하세요.";
+}
+
+export function getValidationSummaryResearchArtifacts(artifacts: VentureArtifact[]) {
+  return artifacts.filter((artifact) => artifact.artifact_type === "research_note");
+}
+
+export function buildValidationSummaryRiskLines(risks: Risk[]) {
+  return risks.length > 0
+    ? risks
+        .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`)
+        .join("\n")
+    : "- 연결된 리스크가 없습니다.";
+}
+
+export function buildValidationSummaryExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments
+        .map(
+          (experiment) =>
+            `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
+              experiment.success_metric || "성공 지표 미정"
+            }`,
+        )
+        .join("\n")
+    : "- 연결된 실험이 없습니다.";
+}
+
+export function buildValidationSummaryResearchLines(artifacts: VentureArtifact[]) {
+  const researchArtifacts = getValidationSummaryResearchArtifacts(artifacts);
+
+  return researchArtifacts.length > 0
+    ? researchArtifacts
+        .slice(0, 8)
+        .map((artifact) => `- ${artifact.title || "제목 없음"} (${artifactSourceLabels[artifact.source] ?? artifact.source})`)
+        .join("\n")
+    : "- 저장된 리서치 노트가 없습니다.";
+}
+
+export function buildValidationSummaryDecisionLines(decisions: Decision[]) {
+  return decisions.length > 0
+    ? decisions
+        .slice(0, 5)
+        .map((decision) => `- ${decisionLabels[decision.decision]}: ${decision.reason || "근거 미기록"}`)
+        .join("\n")
+    : "- 판단 기록이 없습니다.";
+}
+
+export function getOpenValidationSummaryHighRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+}
+
+export function getDoneValidationSummaryExperiments(experiments: Experiment[]) {
+  return experiments.filter((experiment) => experiment.status === "done");
+}
+
 export function buildIdeaBriefMarkdown({
   idea,
   state,
@@ -43,12 +148,7 @@ export function buildIdeaBriefMarkdown({
   risks: Risk[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const riskLines =
-    risks.length > 0
-      ? risks
-          .map((risk) => `- ${risk.title} (${riskSeverityLabels[risk.severity]}): ${risk.mitigation || "완화 방안 미정"}`)
-          .join("\n")
-      : "- 아직 연결된 리스크가 없습니다.";
+  const riskLines = buildIdeaBriefRiskLines(risks);
 
   return `# 아이디어 요약: ${idea.name}
 
@@ -100,35 +200,9 @@ export function buildResearchBriefMarkdown({
   runs: OrchestrationRun[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const riskLines =
-    risks.length > 0
-      ? risks
-          .map(
-            (risk) =>
-              `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
-                risk.mitigation || "완화 방안 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 아직 연결된 리스크가 없습니다. 보안, 개인정보, 규제, 운영 책임 리스크를 먼저 적어보세요.";
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .map(
-            (experiment) =>
-              `- ${experiment.name} (${experimentStatusLabels[experiment.status] ?? experiment.status}): ${
-                experiment.success_metric || "성공 지표 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 아직 실험이 없습니다. 5명 인터뷰, 랜딩/대기자, 수동 컨시어지, 가격 민감도 테스트 중 하나를 선택하세요.";
-  const researchRuns = getValidationPackageResearchRuns(runs);
-  const researchRunLines =
-    researchRuns.length > 0
-      ? researchRuns
-          .map((run) => `### ${phaseLabels[run.phase]} (${runStatusLabels[run.status]})\n\n목표: ${run.objective || "미정"}\n\n제작 자료:\n\n${run.output || "미정"}`)
-          .join("\n\n")
-      : "전략/조사 실행 기록이 아직 없습니다.";
+  const riskLines = buildResearchBriefRiskLines(risks);
+  const experimentLines = buildResearchBriefExperimentLines(experiments);
+  const researchRunLines = buildResearchBriefRunLines(runs);
 
   return `# 조사 요약: ${idea.name}
 
@@ -267,9 +341,7 @@ export function buildValidationSprintMarkdown({
   experiments: Experiment[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const highRiskLines = getHighValidationSprintRisks(risks).map(
-    (risk) => `- ${risk.title}: ${risk.mitigation || "완화 방안 미정"}`,
-  );
+  const highRiskLines = buildValidationSprintHighRiskLines(risks);
   const primaryExperiment = getPrimaryValidationSprintExperiment(experiments);
 
   return `# 7일 검증 계획: ${idea.name}
@@ -357,7 +429,7 @@ ${idea.target_user || "대상 사용자"}의 ${idea.one_liner || "반복 업무 
 
 높음/치명 리스크:
 
-${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 현재 높음/치명 리스크가 없습니다. 개인정보, 규제, 운영 책임 리스크를 다시 확인하세요."}
+${highRiskLines}
 
 필수 확인:
 
@@ -426,40 +498,12 @@ export function buildValidationSummaryMarkdown({
   decisions: Decision[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const researchArtifacts = artifacts.filter((artifact) => artifact.artifact_type === "research_note");
-  const riskLines =
-    risks.length > 0
-      ? risks
-          .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`)
-          .join("\n")
-      : "- 연결된 리스크가 없습니다.";
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .map(
-            (experiment) =>
-              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
-                experiment.success_metric || "성공 지표 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 연결된 실험이 없습니다.";
-  const researchLines =
-    researchArtifacts.length > 0
-      ? researchArtifacts
-          .slice(0, 8)
-          .map((artifact) => `- ${artifact.title || "제목 없음"} (${artifactSourceLabels[artifact.source] ?? artifact.source})`)
-          .join("\n")
-      : "- 저장된 리서치 노트가 없습니다.";
-  const decisionLines =
-    decisions.length > 0
-      ? decisions
-          .slice(0, 5)
-          .map((decision) => `- ${decisionLabels[decision.decision]}: ${decision.reason || "근거 미기록"}`)
-          .join("\n")
-      : "- 판단 기록이 없습니다.";
-  const openHighRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
-  const doneExperiments = experiments.filter((experiment) => experiment.status === "done");
+  const riskLines = buildValidationSummaryRiskLines(risks);
+  const experimentLines = buildValidationSummaryExperimentLines(experiments);
+  const researchLines = buildValidationSummaryResearchLines(artifacts);
+  const decisionLines = buildValidationSummaryDecisionLines(decisions);
+  const openHighRisks = getOpenValidationSummaryHighRisks(risks);
+  const doneExperiments = getDoneValidationSummaryExperiments(experiments);
   const suggestedGate =
     openHighRisks.length > 0
       ? "추가 조사"

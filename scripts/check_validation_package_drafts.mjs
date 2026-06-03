@@ -38,8 +38,23 @@ const moduleUrl = transpileModuleUrl("src/lib/validation-package-drafts.ts", [
   ['from "@/lib/validation-package-markdown";', `from ${JSON.stringify(validationPackageUrl)};`],
 ]);
 
-const { getHighValidationSprintRisks, getPrimaryValidationSprintExperiment, getValidationPackageResearchRuns } =
-  await import(validationPackageUrl);
+const {
+  buildIdeaBriefRiskLines,
+  buildResearchBriefExperimentLines,
+  buildResearchBriefRiskLines,
+  buildResearchBriefRunLines,
+  buildValidationSprintHighRiskLines,
+  buildValidationSummaryDecisionLines,
+  buildValidationSummaryExperimentLines,
+  buildValidationSummaryResearchLines,
+  buildValidationSummaryRiskLines,
+  getDoneValidationSummaryExperiments,
+  getHighValidationSprintRisks,
+  getOpenValidationSummaryHighRisks,
+  getPrimaryValidationSprintExperiment,
+  getValidationPackageResearchRuns,
+  getValidationSummaryResearchArtifacts,
+} = await import(validationPackageUrl);
 const {
   buildExperimentResultArtifactSaveDraft,
   buildExperimentResultSavedMessage,
@@ -191,6 +206,43 @@ assert.deepEqual(
 );
 assert.equal(getPrimaryValidationSprintExperiment(experiments)?.id, "exp-1");
 assert.equal(getPrimaryValidationSprintExperiment([]), null);
+assert.match(buildIdeaBriefRiskLines(risks), /붙여넣은 대화의 개인정보/);
+assert.equal(buildIdeaBriefRiskLines([]), "- 아직 연결된 리스크가 없습니다.");
+assert.match(buildResearchBriefRiskLines(risks), /출처에서 연락처와 식별자를 저장 전 제거/);
+assert.match(buildResearchBriefExperimentLines(experiments), /운영자 인터뷰/);
+assert.match(
+  buildResearchBriefRunLines([
+    {
+      ...runs[0],
+      id: "run-research",
+      output: "조사 메모",
+      phase: "research",
+    },
+  ]),
+  /조사 메모/,
+);
+assert.equal(buildResearchBriefRunLines([]), "전략/조사 실행 기록이 아직 없습니다.");
+assert.match(buildValidationSprintHighRiskLines(risks), /출처에서 연락처와 식별자를 저장 전 제거/);
+assert.equal(
+  buildValidationSprintHighRiskLines([]),
+  "- 현재 높음/치명 리스크가 없습니다. 개인정보, 규제, 운영 책임 리스크를 다시 확인하세요.",
+);
+assert.deepEqual(
+  getValidationSummaryResearchArtifacts(artifacts).map((artifact) => artifact.id),
+  ["artifact-1"],
+);
+assert.match(buildValidationSummaryRiskLines(risks), /붙여넣은 대화의 개인정보/);
+assert.match(buildValidationSummaryExperimentLines(experiments), /운영자 인터뷰/);
+assert.match(buildValidationSummaryResearchLines(artifacts), /AI Venture Lab 조사 요약/);
+assert.match(buildValidationSummaryDecisionLines(decisions), /반복 업무 고통이 명확함/);
+assert.deepEqual(
+  getOpenValidationSummaryHighRisks(risks).map((risk) => risk.id),
+  ["risk-1"],
+);
+assert.equal(
+  getDoneValidationSummaryExperiments([{ ...experiments[0], status: "done" }]).length,
+  1,
+);
 assert.equal(getSelectedExperimentForResult(experiments, { experiment_id: "exp-2" })?.id, "exp-2");
 assert.equal(getSelectedExperimentForResult(experiments, { experiment_id: "missing" })?.id, "exp-1");
 assert.equal(getSelectedExperimentForResult([], { experiment_id: "missing" }), null);
