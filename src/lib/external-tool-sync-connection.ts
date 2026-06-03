@@ -56,6 +56,13 @@ export function sortCursorSyncConnectionsByCreatedAt<T extends Pick<CursorSyncCo
   return [...connections].sort(compareCursorSyncConnectionsByCreatedAt);
 }
 
+export function filterCursorSyncConnectionsByTool<T extends Pick<CursorSyncConnection, "tool">>(
+  connections: T[],
+  tool: ExternalBuildToolKey,
+) {
+  return connections.filter((connection) => connection.tool === tool);
+}
+
 export function upsertCursorSyncConnection(connections: CursorSyncConnection[], connection: CursorSyncConnection) {
   const withoutCurrent = connections.filter((item) => item.id !== connection.id);
   return sortCursorSyncConnectionsByCreatedAt([connection, ...withoutCurrent]);

@@ -205,6 +205,7 @@ import {
 } from "@/lib/external-tool-setup-scripts";
 import {
   cursorSyncRegistrySetupNotice,
+  filterCursorSyncConnectionsByTool,
   getExternalToolConnectionCreatedMessage,
   getExternalToolConnectionFallbackMessage,
   getExternalToolConnectionStatusFallbackMessage,
@@ -2103,7 +2104,7 @@ export function IdeaWorkbench({
       }
 
       setCursorSyncRegistryStatus(payload.registryStatus ?? null);
-      setCursorSyncConnections((payload.tokens ?? []).filter((connection) => connection.tool === activeExternalBuildTool.key));
+      setCursorSyncConnections(filterCursorSyncConnectionsByTool(payload.tokens ?? [], activeExternalBuildTool.key));
 
       if (!quiet || payload.registryStatus !== "ready") {
         setCursorSyncConnectionMessage(
