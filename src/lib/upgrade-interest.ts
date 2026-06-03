@@ -56,13 +56,20 @@ export function getUpgradeInterestDedupeSinceIso(currentTimeMs = Date.now()) {
   return new Date(currentTimeMs - UPGRADE_INTEREST_DEDUPE_WINDOW_MS).toISOString();
 }
 
+export function compareUpgradeInterestCountEntries([, countA]: [string, number], [, countB]: [string, number]) {
+  return countB - countA;
+}
+
+export function sortUpgradeInterestCountEntries(counts: Record<string, number>) {
+  return Object.entries(counts).sort(compareUpgradeInterestCountEntries);
+}
+
 export function getTopUpgradeInterestCountLabel(
   counts: Record<string, number>,
   getLabel: (key: string) => string,
   fallback: string,
 ) {
-  const [topKey, topValue] =
-    Object.entries(counts).sort(([, countA], [, countB]) => countB - countA)[0] ?? [];
+  const [topKey, topValue] = sortUpgradeInterestCountEntries(counts)[0] ?? [];
 
   if (!topKey || !topValue) {
     return fallback;

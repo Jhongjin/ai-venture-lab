@@ -8,6 +8,7 @@ const {
   PRO_INTEREST_DEMAND_SIGNAL_MESSAGE,
   PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE,
   PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE,
+  compareUpgradeInterestCountEntries,
   formatUpgradeInterestCount,
   getUpgradeInterestDedupeSinceIso,
   getTopUpgradeInterestCountLabel,
@@ -15,6 +16,7 @@ const {
   getUpgradeInterestSourceLabel,
   normalizeUpgradeInterestIntent,
   normalizeUpgradeInterestSource,
+  sortUpgradeInterestCountEntries,
 } = await import(moduleUrl);
 
 assert.equal(normalizeUpgradeInterestSource("step5_credit_panel"), "step5_credit_panel");
@@ -39,6 +41,19 @@ assert.equal(
   ),
   "STEP 5 크레딧 부족 3회",
 );
+assert.deepEqual(
+  sortUpgradeInterestCountEntries({
+    profile_credit_summary: 1,
+    step5_credit_panel: 3,
+  }),
+  [
+    ["step5_credit_panel", 3],
+    ["profile_credit_summary", 1],
+  ],
+);
+assert.equal(compareUpgradeInterestCountEntries(["profile_credit_summary", 1], ["step5_credit_panel", 3]), 2);
+assert.equal(compareUpgradeInterestCountEntries(["step5_credit_panel", 3], ["profile_credit_summary", 1]), -2);
+assert.equal(compareUpgradeInterestCountEntries(["profile_credit_summary", 1], ["step5_credit_panel", 1]), 0);
 assert.equal(getTopUpgradeInterestCountLabel({}, getUpgradeInterestIntentLabel, "아직 없음"), "아직 없음");
 assert.equal(
   getTopUpgradeInterestCountLabel({ repeated_production_packages: 0 }, getUpgradeInterestIntentLabel, "아직 없음"),
