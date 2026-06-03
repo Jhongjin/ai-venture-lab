@@ -5,6 +5,14 @@ import { decisionLabels, phaseLabels, stageLabels } from "@/lib/workbench-labels
 
 type ImplementationHandoffState = Pick<Idea, "stage" | "decision" | "next_evidence" | "product_surface">;
 
+export function getApprovedImplementationHandoffArtifacts(artifacts: VentureArtifact[]) {
+  return artifacts.filter((artifact) => artifact.status === "approved");
+}
+
+export function getDoneImplementationHandoffPhaseLabels(runs: OrchestrationRun[]) {
+  return runs.filter((run) => run.status === "done").map((run) => phaseLabels[run.phase]);
+}
+
 export function buildImplementationHandoffMarkdown({
   idea,
   state,
@@ -21,7 +29,7 @@ export function buildImplementationHandoffMarkdown({
   artifacts: VentureArtifact[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const approvedArtifacts = artifacts.filter((artifact) => artifact.status === "approved");
+  const approvedArtifacts = getApprovedImplementationHandoffArtifacts(artifacts);
   const artifactLines =
     artifacts.length > 0
       ? artifacts
@@ -42,7 +50,7 @@ export function buildImplementationHandoffMarkdown({
     experiments.length > 0
       ? experiments.map((experiment) => `- ${experiment.name}: ${experiment.status} / ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
       : "- 연결된 실험이 없습니다.";
-  const donePhases = runs.filter((run) => run.status === "done").map((run) => phaseLabels[run.phase]);
+  const donePhases = getDoneImplementationHandoffPhaseLabels(runs);
 
   return `# 제작 도구 전달 자료: ${idea.name}
 

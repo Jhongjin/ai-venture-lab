@@ -59,6 +59,8 @@ const moduleUrl = transpileModuleUrl("src/lib/implementation-handoff-drafts.ts",
   ['from "@/lib/role-prompt-pack-markdown";', `from ${JSON.stringify(rolePromptPackUrl)};`],
 ]);
 
+const { getApprovedImplementationHandoffArtifacts, getDoneImplementationHandoffPhaseLabels } =
+  await import(implementationHandoffUrl);
 const { buildImplementationHandoffArtifactSaveDrafts, buildImplementationHandoffDraftState } = await import(moduleUrl);
 
 const idea = {
@@ -179,6 +181,29 @@ const tasks = [
     updated_at: "2026-06-01T00:00:00.000Z",
   },
 ];
+
+assert.deepEqual(
+  getApprovedImplementationHandoffArtifacts([
+    artifacts[0],
+    {
+      ...artifacts[0],
+      id: "artifact-2",
+      status: "draft",
+    },
+  ]).map((artifact) => artifact.id),
+  ["artifact-1"],
+);
+assert.deepEqual(
+  getDoneImplementationHandoffPhaseLabels([
+    runs[0],
+    {
+      ...runs[0],
+      id: "run-2",
+      status: "done",
+    },
+  ]),
+  ["구현"],
+);
 
 const draftState = buildImplementationHandoffDraftState({
   artifacts,
