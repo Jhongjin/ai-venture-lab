@@ -19,6 +19,10 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  compareWorkbenchArtifactsByCreatedAtDesc,
+  compareWorkbenchImplementationTasksByOrder,
+  compareWorkbenchRunsByPhaseOrder,
+  compareWorkbenchTelemetryEventsByOccurredAtDesc,
   getOpenIdeaRisks,
   getSelectedArtifactRecords,
   getSelectedDecisions,
@@ -75,6 +79,7 @@ assert.deepEqual(
   getSelectedRuns(runs, ideaId).map((run) => run.id),
   ["strategy", "product", "build"],
 );
+assert.equal(compareWorkbenchRunsByPhaseOrder(runs[1], runs[0]) < 0, true);
 
 const artifacts = [
   { id: "older", idea_id: ideaId, created_at: "2026-06-01T00:00:00.000Z" },
@@ -85,6 +90,7 @@ assert.deepEqual(
   getSelectedArtifactRecords(artifacts, ideaId).map((artifact) => artifact.id),
   ["newer", "older"],
 );
+assert.equal(compareWorkbenchArtifactsByCreatedAtDesc(artifacts[1], artifacts[0]) < 0, true);
 
 const tasks = [
   { id: "late-created", idea_id: ideaId, sort_order: 1, created_at: "2026-06-01T02:00:00.000Z", title: "B" },
@@ -96,6 +102,8 @@ assert.deepEqual(
   getSelectedImplementationTasks(tasks, ideaId).map((task) => task.id),
   ["first-order", "early-created", "late-created"],
 );
+assert.equal(compareWorkbenchImplementationTasksByOrder(tasks[2], tasks[1]) < 0, true);
+assert.equal(compareWorkbenchImplementationTasksByOrder(tasks[1], tasks[0]) < 0, true);
 
 const events = [
   { id: "older", idea_id: ideaId, occurred_at: "2026-06-01T00:00:00.000Z" },
@@ -106,6 +114,7 @@ assert.deepEqual(
   getSelectedTelemetryEvents(events, ideaId).map((event) => event.id),
   ["newer", "older"],
 );
+assert.equal(compareWorkbenchTelemetryEventsByOccurredAtDesc(events[1], events[0]) < 0, true);
 
 const selectedCollections = getSelectedWorkbenchCollections({
   artifacts,
