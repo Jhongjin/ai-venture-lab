@@ -44,6 +44,7 @@ const moduleUrl = transpileToDataUrl(source, modulePath);
 const {
   buildExternalToolProjectContextLines,
   buildExternalToolProjectInfoSection,
+  buildExternalToolSyncSecuritySection,
   buildExternalToolTaskBody,
   buildFallbackExternalToolTaskSection,
   buildSavedExternalToolTaskSection,
@@ -110,6 +111,10 @@ assert.match(
     syncExpiresAt: "2026-06-03T00:00:00.000Z",
   }),
   /## 프로젝트 정보\n\n- 프로젝트 키: venture-idea-1[\s\S]+자동 반영 토큰 만료: 2026-06-03T00:00:00.000Z/,
+);
+assert.match(
+  buildExternalToolSyncSecuritySection(".cursor/venture-lab-sync.json"),
+  /## 보안 주의[\s\S]+\.cursor\/venture-lab-sync\.json[\s\S]+Git, Slack, 문서, 스크린샷/,
 );
 const tasks = [
   {

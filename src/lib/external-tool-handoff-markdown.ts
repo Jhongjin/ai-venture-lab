@@ -54,6 +54,14 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 ${formatExternalToolSyncExpiryText(syncExpiresAt)}`;
 }
 
+export function buildExternalToolSyncSecuritySection(syncFilePath: string) {
+  return `## 보안 주의
+
+- \`${syncFilePath}\`에는 프로젝트 전용 토큰이 들어 있습니다.
+- 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
+- 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.`;
+}
+
 export function buildSavedExternalToolTaskSection(task: ImplementationTask, index: number) {
   const taskCode = getCursorTaskCode(index);
 
@@ -271,11 +279,7 @@ ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncEx
 
 \`venture_record_progress\` 도구는 같은 내용을 Venture Lab 서버에도 보냅니다. 서버는 연결 파일에 포함된 토큰으로 해당 아이디어의 제작 작업 상태만 저장하거나 갱신합니다.
 
-## 보안 주의
-
-- \`.cursor/venture-lab-sync.json\`에는 프로젝트 전용 토큰이 들어 있습니다.
-- 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
-- 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.
+${buildExternalToolSyncSecuritySection(".cursor/venture-lab-sync.json")}
 `;
 }
 
@@ -417,11 +421,7 @@ powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cod
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
-## 보안 주의
-
-- \`.codex/venture-lab-sync.json\`에는 프로젝트 전용 토큰이 들어 있습니다.
-- 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
-- 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.
+${buildExternalToolSyncSecuritySection(".codex/venture-lab-sync.json")}
 `;
 }
 
@@ -565,11 +565,7 @@ powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cla
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
-## 보안 주의
-
-- \`.claude/venture-lab-sync.json\`에는 프로젝트 전용 토큰이 들어 있습니다.
-- 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
-- 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.
+${buildExternalToolSyncSecuritySection(".claude/venture-lab-sync.json")}
 `;
 }
 
@@ -681,11 +677,7 @@ powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "ant
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
-## 보안 주의
-
-- \`.antigravity/venture-lab-sync.json\`에는 프로젝트 전용 토큰이 들어 있습니다.
-- 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
-- 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.
+${buildExternalToolSyncSecuritySection(".antigravity/venture-lab-sync.json")}
 `;
 }
 
