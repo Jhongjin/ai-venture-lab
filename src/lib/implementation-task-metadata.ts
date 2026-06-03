@@ -192,7 +192,7 @@ export function sortImplementationTasksForAction(tasks: ImplementationTask[]) {
 }
 
 export function getOpenImplementationTasksForAction(tasks: ImplementationTask[]) {
-  return sortImplementationTasksForAction(tasks.filter((task) => task.status !== "done"));
+  return sortImplementationTasksForAction(tasks.filter(isOpenImplementationTask));
 }
 
 export function getOpenImplementationTaskPreview(tasks: ImplementationTask[], limit = 5) {
@@ -200,7 +200,7 @@ export function getOpenImplementationTaskPreview(tasks: ImplementationTask[], li
 }
 
 export function selectAgentRunPackageTasks(filteredTasks: ImplementationTask[], openTasks: ImplementationTask[]) {
-  const filteredOpenTasks = filteredTasks.filter((task) => task.status !== "done");
+  const filteredOpenTasks = filteredTasks.filter(isOpenImplementationTask);
 
   return filteredOpenTasks.length > 0 ? filteredOpenTasks : openTasks;
 }
@@ -259,6 +259,10 @@ export function countBlockedImplementationTasks(tasks: ImplementationTask[]) {
 
 export function isDoneImplementationTask(task: Pick<ImplementationTask, "status">) {
   return task.status === "done";
+}
+
+export function isOpenImplementationTask(task: Pick<ImplementationTask, "status">) {
+  return !isDoneImplementationTask(task);
 }
 
 export function isBlockedImplementationTask(task: Pick<ImplementationTask, "status">) {
@@ -332,7 +336,7 @@ export function countDoneImplementationTasks(tasks: ImplementationTask[]) {
 }
 
 export function getNextImplementationTaskForRefresh(tasks: ImplementationTask[]) {
-  return sortImplementationTasksForAction(tasks).find((task) => task.status !== "done") ?? null;
+  return sortImplementationTasksForAction(tasks).find(isOpenImplementationTask) ?? null;
 }
 
 export function buildImplementationTaskRefreshSummaryMessage({
@@ -357,7 +361,7 @@ export function getImplementationTaskReadinessQueues({
   openTasks: ImplementationTask[];
 }): ImplementationTaskReadinessQueues {
   const readyStatuses = dependencyStatuses.filter((status) => status.ready);
-  const waitingStatuses = dependencyStatuses.filter((status) => status.task.status !== "done" && !status.ready);
+  const waitingStatuses = dependencyStatuses.filter((status) => isOpenImplementationTask(status.task) && !status.ready);
   const nextTask = readyStatuses[0]?.task ?? openTasks[0] ?? null;
   const nextDependencyStatus = dependencyStatuses.find((status) => status.task.id === nextTask?.id) ?? null;
 
@@ -899,7 +903,7 @@ export function buildImplementationDependencyStatuses(tasks: ImplementationTask[
 
     return {
       task,
-      ready: !isDoneImplementationTask(task) && blockers.length === 0,
+      ready: isOpenImplementationTask(task) && blockers.length === 0,
       blockers,
       completedPrerequisites: prerequisiteStatus.completedPrerequisites,
       missingPrerequisites: prerequisiteStatus.missingPrerequisites,

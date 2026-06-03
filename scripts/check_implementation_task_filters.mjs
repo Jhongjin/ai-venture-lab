@@ -24,6 +24,7 @@ const {
   getNextImplementationTaskForRefresh,
   getOpenImplementationTasksForAction,
   hasImplementationTaskEvidenceGap,
+  isOpenImplementationTask,
   matchesImplementationTaskEvidenceFilter,
   matchesImplementationTaskFilters,
   matchesImplementationTaskOwnerFilter,
@@ -218,6 +219,8 @@ assert.deepEqual(
   getOpenImplementationTasksForAction(tasks).map((item) => item.id),
   ["task-qa", "task-backend", "task-frontend"],
 );
+assert.equal(isOpenImplementationTask(tasks[0]), true);
+assert.equal(isOpenImplementationTask(tasks[3]), false);
 
 const actionOrderTasks = [
   task({
