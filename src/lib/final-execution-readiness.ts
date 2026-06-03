@@ -226,14 +226,50 @@ export function buildFinalExecutionPackageState({
   runCount: number;
 }): FinalExecutionPackageState {
   return {
-    hasPackage:
-      canEnterOrchestrationFromDevelopmentDocs ||
-      hasAgentRunPackageArtifact ||
-      hasDevelopmentHandoffPackageArtifact ||
+    hasPackage: hasFinalExecutionPackage({
+      canEnterOrchestrationFromDevelopmentDocs,
+      hasAgentRunPackageArtifact,
+      hasDevelopmentHandoffPackageArtifact,
       hasManualDevelopmentPackageFallback,
-    hasWorkOrder: runCount > 0 || implementationTaskCount > 0 || hasDevelopmentPlanArtifact,
-    projectKey: ideaId ? ideaId.slice(0, 8).toUpperCase() : "PROJECT",
+    }),
+    hasWorkOrder: hasFinalExecutionWorkOrder({ hasDevelopmentPlanArtifact, implementationTaskCount, runCount }),
+    projectKey: formatFinalExecutionProjectKey(ideaId),
   };
+}
+
+export function hasFinalExecutionPackage({
+  canEnterOrchestrationFromDevelopmentDocs,
+  hasAgentRunPackageArtifact,
+  hasDevelopmentHandoffPackageArtifact,
+  hasManualDevelopmentPackageFallback,
+}: {
+  canEnterOrchestrationFromDevelopmentDocs: boolean;
+  hasAgentRunPackageArtifact: boolean;
+  hasDevelopmentHandoffPackageArtifact: boolean;
+  hasManualDevelopmentPackageFallback: boolean;
+}) {
+  return (
+    canEnterOrchestrationFromDevelopmentDocs ||
+    hasAgentRunPackageArtifact ||
+    hasDevelopmentHandoffPackageArtifact ||
+    hasManualDevelopmentPackageFallback
+  );
+}
+
+export function hasFinalExecutionWorkOrder({
+  hasDevelopmentPlanArtifact,
+  implementationTaskCount,
+  runCount,
+}: {
+  hasDevelopmentPlanArtifact: boolean;
+  implementationTaskCount: number;
+  runCount: number;
+}) {
+  return runCount > 0 || implementationTaskCount > 0 || hasDevelopmentPlanArtifact;
+}
+
+export function formatFinalExecutionProjectKey(ideaId: string | null) {
+  return ideaId ? ideaId.slice(0, 8).toUpperCase() : "PROJECT";
 }
 
 export function buildFinalExecutionPackageReadinessState({

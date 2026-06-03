@@ -32,8 +32,11 @@ const {
   buildFinalExecutionReadiness,
   buildFinalExecutionTaskPreview,
   compareFinalExecutionConnectionUsedAtValues,
+  formatFinalExecutionProjectKey,
   getFinalExecutionConnectionUsedAtTime,
   getLatestFinalExecutionConnectionUsedAt,
+  hasFinalExecutionPackage,
+  hasFinalExecutionWorkOrder,
   selectFinalExecutionLiveToolKey,
   selectFinalExecutionLiveSetupDownload,
 } = await import(moduleUrl);
@@ -212,6 +215,42 @@ const packageState = buildFinalExecutionPackageState({
 assert.equal(packageState.hasPackage, true);
 assert.equal(packageState.hasWorkOrder, true);
 assert.equal(packageState.projectKey, "ABCDEF12");
+assert.equal(
+  hasFinalExecutionPackage({
+    canEnterOrchestrationFromDevelopmentDocs: false,
+    hasAgentRunPackageArtifact: false,
+    hasDevelopmentHandoffPackageArtifact: true,
+    hasManualDevelopmentPackageFallback: false,
+  }),
+  true,
+);
+assert.equal(
+  hasFinalExecutionPackage({
+    canEnterOrchestrationFromDevelopmentDocs: false,
+    hasAgentRunPackageArtifact: false,
+    hasDevelopmentHandoffPackageArtifact: false,
+    hasManualDevelopmentPackageFallback: false,
+  }),
+  false,
+);
+assert.equal(
+  hasFinalExecutionWorkOrder({
+    hasDevelopmentPlanArtifact: false,
+    implementationTaskCount: 0,
+    runCount: 1,
+  }),
+  true,
+);
+assert.equal(
+  hasFinalExecutionWorkOrder({
+    hasDevelopmentPlanArtifact: false,
+    implementationTaskCount: 0,
+    runCount: 0,
+  }),
+  false,
+);
+assert.equal(formatFinalExecutionProjectKey("abcdef123456"), "ABCDEF12");
+assert.equal(formatFinalExecutionProjectKey(null), "PROJECT");
 
 const emptyPackageState = buildFinalExecutionPackageState({
   canEnterOrchestrationFromDevelopmentDocs: false,
