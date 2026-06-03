@@ -1,33 +1,20 @@
 import type { UpgradeInterestSummary } from "@/lib/upgrade-interest-server";
 import {
   PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE,
+  formatUpgradeInterestCount,
   getUpgradeInterestIntentLabel,
   getUpgradeInterestSourceLabel,
+  getTopUpgradeInterestCountLabel,
 } from "@/lib/upgrade-interest";
 
 type ProfileUpgradeInterestSummaryProps = {
   summary: UpgradeInterestSummary;
 };
 
-function formatCount(value: number) {
-  return value.toLocaleString("ko-KR");
-}
-
-function getTopCountLabel(counts: Record<string, number>, getLabel: (key: string) => string, fallback: string) {
-  const [topKey, topValue] =
-    Object.entries(counts).sort(([, countA], [, countB]) => countB - countA)[0] ?? [];
-
-  if (!topKey || !topValue) {
-    return fallback;
-  }
-
-  return `${getLabel(topKey)} ${formatCount(topValue)}회`;
-}
-
 export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInterestSummaryProps) {
   const latestEvent = summary.latestEvents[0] ?? null;
-  const topSourceLabel = getTopCountLabel(summary.sourceCounts, getUpgradeInterestSourceLabel, "아직 없음");
-  const topIntentLabel = getTopCountLabel(summary.intentCounts, getUpgradeInterestIntentLabel, "아직 없음");
+  const topSourceLabel = getTopUpgradeInterestCountLabel(summary.sourceCounts, getUpgradeInterestSourceLabel, "아직 없음");
+  const topIntentLabel = getTopUpgradeInterestCountLabel(summary.intentCounts, getUpgradeInterestIntentLabel, "아직 없음");
   const demandQualityLabel =
     summary.totalCount === 0
       ? "아직 관심을 남기지 않음"
@@ -57,7 +44,9 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
         <div className="border border-slate-200 bg-slate-50 p-3">
           <div className="text-xs font-semibold text-slate-500">관심 등록</div>
-          <div className="mt-2 text-2xl font-semibold text-slate-950">{formatCount(summary.totalCount)}회</div>
+          <div className="mt-2 text-2xl font-semibold text-slate-950">
+            {formatUpgradeInterestCount(summary.totalCount)}회
+          </div>
           <p className="mt-1 text-xs leading-5 text-slate-500">결제 없이 남긴 Pro 필요 기록입니다.</p>
         </div>
         <div className="border border-slate-200 bg-slate-50 p-3">
@@ -94,7 +83,8 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
           이 기록은 결제 예약이나 구독 신청이 아니라 Pro가 필요한 순간을 모아 보는 신호입니다.
         </p>
         <p className="mt-1 text-xs leading-5 text-slate-600">
-          기준: 관심 등록 {formatCount(summary.totalCount)}회, 계정 {formatCount(summary.uniqueActorCount)}개, 최근 주요 이유 {topIntentLabel}.
+          기준: 관심 등록 {formatUpgradeInterestCount(summary.totalCount)}회, 계정{" "}
+          {formatUpgradeInterestCount(summary.uniqueActorCount)}개, 최근 주요 이유 {topIntentLabel}.
         </p>
         <p data-smoke="profile-upgrade-interest-dedupe-rule" className="mt-1 text-xs leading-5 text-slate-600">
           중복 기준: 같은 계정, 같은 위치, 같은 이유는 24시간 안에 한 번만 늘어납니다.
@@ -113,7 +103,9 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
                 : "아직 Pro 관심 등록이 없습니다."}
             </p>
           </div>
-          <span className="avl-pill avl-pill-neutral shrink-0">저장 범위 {formatCount(summary.uniqueActorCount)}계정</span>
+          <span className="avl-pill avl-pill-neutral shrink-0">
+            저장 범위 {formatUpgradeInterestCount(summary.uniqueActorCount)}계정
+          </span>
         </div>
         {summary.error ? <p className="mt-2 text-sm font-semibold text-amber-700">{summary.error}</p> : null}
       </div>

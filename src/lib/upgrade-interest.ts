@@ -47,3 +47,22 @@ export function getUpgradeInterestSourceLabel(source: string) {
 export function getUpgradeInterestIntentLabel(intent: string) {
   return upgradeInterestIntentLabels[intent as UpgradeInterestIntent] ?? "의도 미확인";
 }
+
+export function formatUpgradeInterestCount(value: number) {
+  return value.toLocaleString("ko-KR");
+}
+
+export function getTopUpgradeInterestCountLabel(
+  counts: Record<string, number>,
+  getLabel: (key: string) => string,
+  fallback: string,
+) {
+  const [topKey, topValue] =
+    Object.entries(counts).sort(([, countA], [, countB]) => countB - countA)[0] ?? [];
+
+  if (!topKey || !topValue) {
+    return fallback;
+  }
+
+  return `${getLabel(topKey)} ${formatUpgradeInterestCount(topValue)}회`;
+}
