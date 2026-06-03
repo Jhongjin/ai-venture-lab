@@ -25,6 +25,8 @@ export type BuildDeliveryPreferenceArtifact = {
   created_at?: string | null;
 };
 
+export type BuildDeliveryPreferenceTextField = "build_delivery_mode" | "external_tool";
+
 export type FinalExternalToolOverride = {
   ideaId: string | null;
   key: ExternalBuildToolKey;
@@ -358,15 +360,31 @@ final_execution_rule: external handoff or internal build opens only after the pr
 - 실행 시점: 제작 패키지와 작업 순서가 준비된 마지막 단계에서 실행합니다.`;
 }
 
-export function getBuildDeliveryPreferenceFromText(text: string | null | undefined): BuildDeliveryPreference | null {
+export function getBuildDeliveryPreferenceFieldFromText({
+  fieldName,
+  text,
+}: {
+  fieldName: BuildDeliveryPreferenceTextField;
+  text: string | null | undefined;
+}) {
   if (!text) {
     return null;
   }
 
-  const modeMatch = text.match(/build_delivery_mode:\s*([a-z_]+)/i);
-  const toolMatch = text.match(/external_tool:\s*([a-z_]+)/i);
-  const modeValue = modeMatch?.[1]?.toLowerCase();
-  const toolValue = toolMatch?.[1]?.toLowerCase();
+  const match = text.match(new RegExp(`${fieldName}:\\s*([a-z_]+)`, "i"));
+
+  return match?.[1]?.toLowerCase() ?? null;
+}
+
+export function getBuildDeliveryPreferenceFromText(text: string | null | undefined): BuildDeliveryPreference | null {
+  const modeValue = getBuildDeliveryPreferenceFieldFromText({
+    fieldName: "build_delivery_mode",
+    text,
+  });
+  const toolValue = getBuildDeliveryPreferenceFieldFromText({
+    fieldName: "external_tool",
+    text,
+  });
 
   if (!isBuildDeliveryMode(modeValue)) {
     return null;

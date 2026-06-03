@@ -10,6 +10,7 @@ const {
   getBuildDeliveryActionPhrase,
   getBuildDeliveryDetail,
   getBuildDeliveryPreferenceArtifactTime,
+  getBuildDeliveryPreferenceFieldFromText,
   getBuildDeliveryPreferenceFromArtifacts,
   getFinalExternalToolOverrideKey,
   hasActiveFinalExternalToolOverride,
@@ -160,6 +161,27 @@ assert.equal(
     externalToolLabel: "Cursor",
   }),
   "Venture Lab에서 계속 진행합니다",
+);
+assert.equal(
+  getBuildDeliveryPreferenceFieldFromText({
+    fieldName: "build_delivery_mode",
+    text: "build_delivery_mode: EXTERNAL_TOOL\nexternal_tool: CURSOR",
+  }),
+  "external_tool",
+);
+assert.equal(
+  getBuildDeliveryPreferenceFieldFromText({
+    fieldName: "external_tool",
+    text: "build_delivery_mode: external_tool\nexternal_tool: CLAUDE_CODE",
+  }),
+  "claude_code",
+);
+assert.equal(
+  getBuildDeliveryPreferenceFieldFromText({
+    fieldName: "external_tool",
+    text: "build_delivery_mode: venture_lab",
+  }),
+  null,
 );
 
 const deliveryArtifacts = [
