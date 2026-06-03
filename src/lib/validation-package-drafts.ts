@@ -37,7 +37,7 @@ const emptyValidationPackageDraftState: ValidationPackageDraftState = {
   validationSummaryDraft: "",
 };
 
-function buildValidationPackageArtifactSaveDraft({
+export function buildValidationPackageArtifactSaveDraft({
   artifactType,
   body,
   source,

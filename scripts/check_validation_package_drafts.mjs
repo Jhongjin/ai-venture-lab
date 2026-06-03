@@ -63,6 +63,7 @@ const {
 const {
   buildExperimentResultArtifactSaveDraft,
   buildExperimentResultSavedMessage,
+  buildValidationPackageArtifactSaveDraft,
   buildValidationEvidenceArtifactSaveDraft,
   buildValidationPackageArtifactSaveDrafts,
   buildValidationPackageDraftState,
@@ -367,6 +368,39 @@ assert.deepEqual(
   },
 );
 assert.equal(saveDrafts.validationSummarySaveDraft?.body, draftState.validationSummaryDraft);
+
+assert.deepEqual(
+  buildValidationPackageArtifactSaveDraft({
+    artifactType: "research_note",
+    body: "# 조사 메모",
+    source: "workbench",
+    title: "  저장 제목  ",
+  }),
+  {
+    artifactType: "research_note",
+    body: "# 조사 메모",
+    source: "workbench",
+    title: "저장 제목",
+  },
+);
+assert.equal(
+  buildValidationPackageArtifactSaveDraft({
+    artifactType: "research_note",
+    body: " ",
+    source: "workbench",
+    title: "저장 제목",
+  }),
+  null,
+);
+assert.equal(
+  buildValidationPackageArtifactSaveDraft({
+    artifactType: "research_note",
+    body: "# 조사 메모",
+    source: "workbench",
+    title: " ",
+  }),
+  null,
+);
 
 const evidenceSaveDraft = buildValidationEvidenceArtifactSaveDraft({
   evidenceNoteDraft: draftState.evidenceNoteDraft,
