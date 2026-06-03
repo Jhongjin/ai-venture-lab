@@ -53,6 +53,12 @@ const {
   getPrimaryAppDevelopmentPlanExperiment,
   hasAppDevelopmentPlanArtifactType,
 } = await import(appDevelopmentPlanUrl);
+const {
+  getApprovedMvpScopeArtifacts,
+  getFirstMetricMvpScopeExperiment,
+  getHighMvpScopeRisks,
+  getMvpScopeRunByPhase,
+} = await import(mvpScopeUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -157,6 +163,23 @@ assert.equal(hasAppDevelopmentPlanArtifactType(artifacts, "mvp_spec"), false);
 assert.deepEqual([...getDoneAppDevelopmentPlanPhases(runs)], ["product"]);
 assert.equal(getPrimaryAppDevelopmentPlanExperiment(experiments)?.id, "exp-1");
 assert.equal(getPrimaryAppDevelopmentPlanExperiment([]), null);
+assert.equal(getMvpScopeRunByPhase(runs, "product")?.id, "run-1");
+assert.equal(getMvpScopeRunByPhase(runs, "build"), null);
+assert.deepEqual(
+  getHighMvpScopeRisks(risks).map((risk) => risk.id),
+  ["risk-1"],
+);
+assert.deepEqual(
+  getApprovedMvpScopeArtifacts(artifacts).map((artifact) => artifact.id),
+  ["artifact-1"],
+);
+assert.equal(
+  getFirstMetricMvpScopeExperiment([
+    { ...experiments[0], id: "exp-empty", success_metric: "" },
+    { ...experiments[0], id: "exp-metric", success_metric: "핵심 행동 완료" },
+  ])?.id,
+  "exp-metric",
+);
 
 const draftState = buildProductPlanningDraftState({
   artifacts,

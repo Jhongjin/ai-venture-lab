@@ -5,6 +5,22 @@ import { experimentStatusLabels, riskSeverityLabels, riskStatusLabels } from "@/
 
 type MvpScopeState = Pick<Idea, "signal" | "risk_summary" | "next_evidence" | "product_surface">;
 
+export function getMvpScopeRunByPhase(runs: OrchestrationRun[], phase: OrchestrationRun["phase"]) {
+  return runs.find((run) => run.phase === phase) ?? null;
+}
+
+export function getHighMvpScopeRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity));
+}
+
+export function getApprovedMvpScopeArtifacts(artifacts: VentureArtifact[]) {
+  return artifacts.filter((artifact) => artifact.status === "approved");
+}
+
+export function getFirstMetricMvpScopeExperiment(experiments: Experiment[]) {
+  return experiments.find((experiment) => experiment.success_metric.trim()) ?? experiments[0] ?? null;
+}
+
 export function buildMvpSpecMarkdown({
   idea,
   state,
@@ -17,10 +33,10 @@ export function buildMvpSpecMarkdown({
   runs: OrchestrationRun[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const buildRun = runs.find((run) => run.phase === "build");
-  const designRun = runs.find((run) => run.phase === "design");
-  const qaRun = runs.find((run) => run.phase === "qa");
-  const securityRun = runs.find((run) => run.phase === "security");
+  const buildRun = getMvpScopeRunByPhase(runs, "build");
+  const designRun = getMvpScopeRunByPhase(runs, "design");
+  const qaRun = getMvpScopeRunByPhase(runs, "qa");
+  const securityRun = getMvpScopeRunByPhase(runs, "security");
   const experimentLines =
     experiments.length > 0
       ? experiments
@@ -166,19 +182,16 @@ export function buildMvpSlicePlanMarkdown({
           )
           .join("\n")
       : "- 아직 연결된 실험이 없습니다. 먼저 인터뷰, 랜딩, 수동 운영 테스트 중 하나를 만듭니다.";
-  const highRiskLines = risks
-    .filter((risk) => ["high", "critical"].includes(risk.severity))
-    .map(
-      (risk) =>
-        `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
-          risk.mitigation || "완화 조건 미정"
-        }`,
-    );
-  const approvedArtifactLines = artifacts
-    .filter((artifact) => artifact.status === "approved")
+  const highRiskLines = getHighMvpScopeRisks(risks).map(
+    (risk) =>
+      `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
+        risk.mitigation || "완화 조건 미정"
+      }`,
+  );
+  const approvedArtifactLines = getApprovedMvpScopeArtifacts(artifacts)
     .slice(0, 6)
     .map((artifact) => `- ${artifactLabels[artifact.artifact_type]}: ${artifact.title}`);
-  const firstExperiment = experiments.find((experiment) => experiment.success_metric.trim()) ?? experiments[0] ?? null;
+  const firstExperiment = getFirstMetricMvpScopeExperiment(experiments);
   const primaryMetric = firstExperiment?.success_metric || state.next_evidence || "사용자가 핵심 여정을 완료하고 다음 테스트 또는 구매 의향을 남깁니다.";
 
   return `# 첫 제작 범위 플랜: ${idea.name}
