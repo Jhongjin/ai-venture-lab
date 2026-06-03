@@ -10,15 +10,18 @@ const {
   buildImplementationTaskAutoRefreshMessage,
   buildImplementationTaskManualRefreshMessage,
   buildImplementationTaskRefreshLoginRequiredMessage,
+  buildImplementationTaskRefreshSummaryMessage,
   buildImplementationTaskReviewState,
   buildImplementationTaskRefreshSummary,
   compareImplementationOwnerRoles,
   compareImplementationTasksByActionOrder,
   compareImplementationTasksByCreatedAt,
   compareImplementationTasksByExecutionOrder,
+  countDoneImplementationTasks,
   filterImplementationTasks,
   formatImplementationTaskRefreshTime,
   getImplementationTaskCreatedAtTime,
+  getNextImplementationTaskForRefresh,
   getOpenImplementationTasksForAction,
   resolveImplementationOwnerFilter,
   selectAgentRunPackageTasks,
@@ -229,6 +232,16 @@ const refreshSummary = buildImplementationTaskRefreshSummary(tasks);
 assert.equal(refreshSummary.totalCount, 4);
 assert.equal(refreshSummary.doneCount, 1);
 assert.equal(refreshSummary.nextTask?.id, "task-qa");
+assert.equal(countDoneImplementationTasks(tasks), 1);
+assert.equal(getNextImplementationTaskForRefresh(tasks)?.id, "task-qa");
+assert.equal(
+  buildImplementationTaskRefreshSummaryMessage({
+    doneCount: 1,
+    nextTask: tasks[2],
+    totalCount: 4,
+  }),
+  "작업 상태 4개를 확인했습니다. 완료 1/4. 다음 작업은 qa task입니다.",
+);
 assert.equal(
   refreshSummary.message,
   "작업 상태 4개를 확인했습니다. 완료 1/4. 다음 작업은 qa task입니다.",

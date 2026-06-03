@@ -267,20 +267,41 @@ export function formatImplementationTaskRefreshTime(refreshedAt = new Date()) {
 }
 
 export function buildImplementationTaskRefreshSummary(tasks: ImplementationTask[]): ImplementationTaskRefreshSummary {
-  const doneCount = tasks.filter((task) => task.status === "done").length;
-  const nextTask = sortImplementationTasksForAction(tasks).find((task) => task.status !== "done") ?? null;
-  const nextTaskText = nextTask
-    ? ` 다음 작업은 ${nextTask.title}입니다.`
-    : tasks.length > 0
-      ? " 모든 작업이 완료 상태입니다."
-      : "";
+  const doneCount = countDoneImplementationTasks(tasks);
+  const nextTask = getNextImplementationTaskForRefresh(tasks);
 
   return {
     doneCount,
-    message: `작업 상태 ${tasks.length}개를 확인했습니다. 완료 ${doneCount}/${tasks.length}.${nextTaskText}`,
+    message: buildImplementationTaskRefreshSummaryMessage({
+      doneCount,
+      nextTask,
+      totalCount: tasks.length,
+    }),
     nextTask,
     totalCount: tasks.length,
   };
+}
+
+export function countDoneImplementationTasks(tasks: ImplementationTask[]) {
+  return tasks.filter((task) => task.status === "done").length;
+}
+
+export function getNextImplementationTaskForRefresh(tasks: ImplementationTask[]) {
+  return sortImplementationTasksForAction(tasks).find((task) => task.status !== "done") ?? null;
+}
+
+export function buildImplementationTaskRefreshSummaryMessage({
+  doneCount,
+  nextTask,
+  totalCount,
+}: {
+  doneCount: number;
+  nextTask: Pick<ImplementationTask, "title"> | null;
+  totalCount: number;
+}) {
+  const nextTaskText = nextTask ? ` 다음 작업은 ${nextTask.title}입니다.` : totalCount > 0 ? " 모든 작업이 완료 상태입니다." : "";
+
+  return `작업 상태 ${totalCount}개를 확인했습니다. 완료 ${doneCount}/${totalCount}.${nextTaskText}`;
 }
 
 export function getImplementationTaskReadinessQueues({
