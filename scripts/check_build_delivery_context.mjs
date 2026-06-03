@@ -4,7 +4,9 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/build-delivery.ts")).href;
 const {
+  compareBuildDeliveryPreferenceArtifactsByCreatedAt,
   getBuildDeliveryActionPhrase,
+  getBuildDeliveryPreferenceArtifactTime,
   getBuildDeliveryPreferenceFromArtifacts,
   normalizeBuildDeliveryPreference,
   resolveBuildDeliveryContext,
@@ -100,6 +102,32 @@ assert.deepEqual(sortBuildDeliveryPreferenceArtifacts(deliveryArtifacts).map((ar
   "newer",
   "older",
 ]);
+assert.equal(
+  getBuildDeliveryPreferenceArtifactTime({ created_at: "2026-06-03T00:00:00.000Z" }),
+  Date.parse("2026-06-03T00:00:00.000Z"),
+);
+assert.equal(getBuildDeliveryPreferenceArtifactTime({ created_at: "not-a-date" }), 0);
+assert.equal(
+  compareBuildDeliveryPreferenceArtifactsByCreatedAt(
+    { created_at: "2026-06-01T00:00:00.000Z" },
+    { created_at: "2026-06-03T00:00:00.000Z" },
+  ) > 0,
+  true,
+);
+assert.equal(
+  compareBuildDeliveryPreferenceArtifactsByCreatedAt(
+    { created_at: "2026-06-03T00:00:00.000Z" },
+    { created_at: "2026-06-01T00:00:00.000Z" },
+  ) < 0,
+  true,
+);
+assert.equal(
+  compareBuildDeliveryPreferenceArtifactsByCreatedAt(
+    { created_at: "not-a-date" },
+    { created_at: null },
+  ),
+  0,
+);
 assert.deepEqual(deliveryArtifacts.map((artifact) => artifact.id), ["older", "newer", "ignored-newest"]);
 assert.deepEqual(getBuildDeliveryPreferenceFromArtifacts(deliveryArtifacts), {
   mode: "venture_lab",

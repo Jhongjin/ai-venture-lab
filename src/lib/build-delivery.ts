@@ -322,16 +322,21 @@ export function getBuildDeliveryPreferenceFromText(text: string | null | undefin
   });
 }
 
-function getBuildDeliveryPreferenceArtifactTime(artifact: BuildDeliveryPreferenceArtifact) {
+export function getBuildDeliveryPreferenceArtifactTime(artifact: BuildDeliveryPreferenceArtifact) {
   const timestamp = new Date(artifact.created_at ?? 0).getTime();
 
   return Number.isFinite(timestamp) ? timestamp : 0;
 }
 
+export function compareBuildDeliveryPreferenceArtifactsByCreatedAt(
+  a: BuildDeliveryPreferenceArtifact,
+  b: BuildDeliveryPreferenceArtifact,
+) {
+  return getBuildDeliveryPreferenceArtifactTime(b) - getBuildDeliveryPreferenceArtifactTime(a);
+}
+
 export function sortBuildDeliveryPreferenceArtifacts(artifacts: BuildDeliveryPreferenceArtifact[]) {
-  return [...artifacts].sort(
-    (a, b) => getBuildDeliveryPreferenceArtifactTime(b) - getBuildDeliveryPreferenceArtifactTime(a),
-  );
+  return [...artifacts].sort(compareBuildDeliveryPreferenceArtifactsByCreatedAt);
 }
 
 export function getBuildDeliveryPreferenceFromArtifacts(artifacts: BuildDeliveryPreferenceArtifact[]) {
