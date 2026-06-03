@@ -542,17 +542,32 @@ export function buildFinalExecutionTaskPreview({
     implementationTasks,
     limit,
   });
-  const taskListDescription =
-    buildDeliveryMode === "external_tool"
-      ? isLiveExternalDelivery
-        ? `${externalToolLabel} 연결 파일에는 이 작업 목록이 포함됩니다. 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다.`
-        : `${externalToolLabel} 시작 패키지에 이 작업 목록이 포함됩니다. 작업이 끝나면 완료 보고를 반영해 Venture Lab 작업 상태를 맞춥니다.`
-      : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다.";
+  const taskListDescription = buildFinalExecutionTaskListDescription({
+    buildDeliveryMode,
+    externalToolLabel,
+    isLiveExternalDelivery,
+  });
 
   return {
     ...previewLists,
     taskListDescription,
   };
+}
+
+export function buildFinalExecutionTaskListDescription({
+  buildDeliveryMode,
+  externalToolLabel,
+  isLiveExternalDelivery,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  externalToolLabel: string;
+  isLiveExternalDelivery: boolean;
+}) {
+  return buildDeliveryMode === "external_tool"
+    ? isLiveExternalDelivery
+      ? `${externalToolLabel} 연결 파일에는 이 작업 목록이 포함됩니다. 진행 결과를 남기면 로컬 기록과 Venture Lab 작업 상태가 함께 업데이트됩니다.`
+      : `${externalToolLabel} 시작 패키지에 이 작업 목록이 포함됩니다. 작업이 끝나면 완료 보고를 반영해 Venture Lab 작업 상태를 맞춥니다.`
+    : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다.";
 }
 
 export function buildFinalExecutionTaskPreviewLists({

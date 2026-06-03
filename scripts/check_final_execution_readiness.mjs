@@ -30,6 +30,7 @@ const {
   buildFinalExecutionPrimaryPackageAction,
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
+  buildFinalExecutionTaskListDescription,
   buildFinalExecutionTaskPreviewLists,
   buildFinalExecutionTaskPreview,
   compareFinalExecutionConnectionUsedAtValues,
@@ -219,6 +220,30 @@ assert.deepEqual(
   ["fallback-1", "fallback-2"],
 );
 assert.equal(fallbackPreviewLists.visibleTaskCount, 2);
+assert.match(
+  buildFinalExecutionTaskListDescription({
+    buildDeliveryMode: "external_tool",
+    externalToolLabel: "Cursor",
+    isLiveExternalDelivery: true,
+  }),
+  /Cursor 연결 파일/,
+);
+assert.match(
+  buildFinalExecutionTaskListDescription({
+    buildDeliveryMode: "external_tool",
+    externalToolLabel: "Codex",
+    isLiveExternalDelivery: false,
+  }),
+  /Codex 시작 패키지/,
+);
+assert.match(
+  buildFinalExecutionTaskListDescription({
+    buildDeliveryMode: "venture_lab",
+    externalToolLabel: "Cursor",
+    isLiveExternalDelivery: false,
+  }),
+  /내부 개발 패키지/,
+);
 const livePreview = buildFinalExecutionTaskPreview({
   buildDeliveryMode: "external_tool",
   externalToolLabel: "Cursor",
