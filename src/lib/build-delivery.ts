@@ -214,11 +214,11 @@ export const defaultBuildDeliveryPreference: BuildDeliveryPreference = {
   externalTool: "cursor",
 };
 
-function isBuildDeliveryMode(value: string | null | undefined): value is BuildDeliveryMode {
+export function isBuildDeliveryMode(value: string | null | undefined): value is BuildDeliveryMode {
   return value === "venture_lab" || value === "external_tool";
 }
 
-function isExternalBuildToolKey(value: string | null | undefined): value is ExternalBuildToolKey {
+export function isExternalBuildToolKey(value: string | null | undefined): value is ExternalBuildToolKey {
   return Boolean(value && value in externalBuildToolProfiles);
 }
 

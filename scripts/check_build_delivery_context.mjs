@@ -10,10 +10,19 @@ const {
   getBuildDeliveryPreferenceFromArtifacts,
   getFinalExternalToolOverrideKey,
   hasActiveFinalExternalToolOverride,
+  isBuildDeliveryMode,
+  isExternalBuildToolKey,
   normalizeBuildDeliveryPreference,
   resolveBuildDeliveryContext,
   sortBuildDeliveryPreferenceArtifacts,
 } = await import(moduleUrl);
+
+assert.equal(isBuildDeliveryMode("external_tool"), true);
+assert.equal(isBuildDeliveryMode("venture_lab"), true);
+assert.equal(isBuildDeliveryMode("manual"), false);
+assert.equal(isExternalBuildToolKey("cursor"), true);
+assert.equal(isExternalBuildToolKey("generic_mcp"), true);
+assert.equal(isExternalBuildToolKey("manual"), false);
 
 const preference = normalizeBuildDeliveryPreference({
   mode: "external_tool",
