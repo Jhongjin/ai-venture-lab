@@ -74,6 +74,14 @@ const {
   getOpenHighPostLaunchRisks,
   getUnresolvedPostLaunchChecks,
 } = await import(postLaunchUrl);
+const {
+  getCompletedQaImplementationTasks,
+  getHighQaRisks,
+  getIncompleteQaChecks,
+  getOpenQaImplementationTasks,
+  getRecommendedQaBackend,
+  isFirebaseQaBackend,
+} = await import(qaAcceptanceUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -274,6 +282,25 @@ const backendCandidateScores = [
     summary: "워크스페이스 기반 제품 OS에 적합",
   },
 ];
+assert.equal(getRecommendedQaBackend(backendCandidateScores), "Supabase");
+assert.equal(getRecommendedQaBackend([]), "Supabase");
+assert.equal(isFirebaseQaBackend("Firebase"), true);
+assert.deepEqual(
+  getHighQaRisks(risks).map((risk) => risk.id),
+  ["risk-1"],
+);
+assert.deepEqual(
+  getIncompleteQaChecks([{ ...gateChecks[0], label: "브라우저 smoke", passed: false }]).map((check) => check.label),
+  ["브라우저 smoke"],
+);
+assert.deepEqual(
+  getCompletedQaImplementationTasks(implementationTasks).map((task) => task.id),
+  ["task-1", "task-2"],
+);
+assert.deepEqual(
+  getOpenQaImplementationTasks([{ ...implementationTasks[0], id: "task-open", status: "todo" }]).map((task) => task.id),
+  ["task-open"],
+);
 const decisions = [
   {
     created_by: "user-1",

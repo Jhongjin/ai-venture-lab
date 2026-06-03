@@ -14,7 +14,7 @@ import {
 
 type QaAcceptanceState = Pick<Idea, "stage" | "decision">;
 
-type QaGateCheck = {
+export type QaGateCheck = {
   label: string;
   passed: boolean;
   detail: string;
@@ -29,6 +29,30 @@ type QaReleaseDecisionPacket = {
 type QaBackendCandidate = {
   label: string;
 };
+
+export function getRecommendedQaBackend(backendCandidateScores: QaBackendCandidate[]) {
+  return backendCandidateScores[0]?.label ?? "Supabase";
+}
+
+export function isFirebaseQaBackend(recommendedBackend: string) {
+  return /Firebase/i.test(recommendedBackend);
+}
+
+export function getHighQaRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity));
+}
+
+export function getIncompleteQaChecks(checks: QaGateCheck[]) {
+  return checks.filter((check) => !check.passed);
+}
+
+export function getCompletedQaImplementationTasks(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.filter((task) => task.status === "done");
+}
+
+export function getOpenQaImplementationTasks(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.filter((task) => task.status !== "done");
+}
 
 export function buildQaAcceptanceMatrixMarkdown({
   idea,
@@ -51,13 +75,13 @@ export function buildQaAcceptanceMatrixMarkdown({
   releaseDecisionPacket: QaReleaseDecisionPacket | null;
   backendCandidateScores: QaBackendCandidate[];
 }) {
-  const recommendedBackend = backendCandidateScores[0]?.label ?? "Supabase";
-  const usesFirebase = /Firebase/i.test(recommendedBackend);
-  const highRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity));
-  const incompleteLaunchChecks = launchReadiness.filter((check) => !check.passed);
-  const incompleteImplementationChecks = implementationGateChecks.filter((check) => !check.passed);
-  const completedTasks = implementationTasks.filter((task) => task.status === "done");
-  const openTasks = implementationTasks.filter((task) => task.status !== "done");
+  const recommendedBackend = getRecommendedQaBackend(backendCandidateScores);
+  const usesFirebase = isFirebaseQaBackend(recommendedBackend);
+  const highRisks = getHighQaRisks(risks);
+  const incompleteLaunchChecks = getIncompleteQaChecks(launchReadiness);
+  const incompleteImplementationChecks = getIncompleteQaChecks(implementationGateChecks);
+  const completedTasks = getCompletedQaImplementationTasks(implementationTasks);
+  const openTasks = getOpenQaImplementationTasks(implementationTasks);
   const experimentLines =
     experiments.length > 0
       ? experiments
