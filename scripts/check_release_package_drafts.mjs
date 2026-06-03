@@ -75,6 +75,12 @@ const {
   getUnresolvedPostLaunchChecks,
 } = await import(postLaunchUrl);
 const {
+  buildQaBackendRuleRows,
+  buildQaBlockerLines,
+  buildQaExperimentLines,
+  buildQaRiskLines,
+  buildQaTaskCoverageLines,
+  formatQaReleaseSummary,
   getCompletedQaImplementationTasks,
   getHighQaRisks,
   getIncompleteQaChecks,
@@ -327,6 +333,31 @@ assert.deepEqual(
   getOpenQaImplementationTasks([{ ...implementationTasks[0], id: "task-open", status: "todo" }]).map((task) => task.id),
   ["task-open"],
 );
+assert.match(buildQaExperimentLines(experiments), /제작 패키지 전달 테스트/);
+assert.equal(
+  buildQaExperimentLines([]),
+  "- 연결된 실험이 없습니다. QA 전에 성공 지표가 있는 실험을 최소 1개 정의합니다.",
+);
+assert.match(buildQaRiskLines(risks), /원본 저장 전 식별 패턴을 제거/);
+assert.equal(buildQaRiskLines([]), "- 높음/치명 리스크가 없습니다.");
+assert.match(buildQaTaskCoverageLines(implementationTasks), /제작 패키지 리뷰 화면/);
+assert.equal(buildQaTaskCoverageLines([]), "- 구현 태스크가 없습니다.");
+assert.match(
+  buildQaBlockerLines([{ ...gateChecks[0], label: "브라우저 smoke", passed: false }], "- 차단 없음"),
+  /브라우저 smoke/,
+);
+assert.equal(buildQaBlockerLines(gateChecks, "- 차단 없음"), "- 차단 없음");
+assert.equal(
+  formatQaReleaseSummary({
+    blockers: ["배포 로그"],
+    confidenceLabel: "높음",
+    recommendation: "ship",
+  }),
+  "진행 / 신뢰도 높음 / 차단 1개",
+);
+assert.equal(formatQaReleaseSummary(null), "출시 판단 패킷 미생성");
+assert.match(buildQaBackendRuleRows("Firebase"), /Firebase Rules 허용/);
+assert.match(buildQaBackendRuleRows("Supabase"), /Supabase RLS 허용/);
 const decisions = [
   {
     created_by: "user-1",

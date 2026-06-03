@@ -54,6 +54,77 @@ export function getOpenQaImplementationTasks(implementationTasks: Implementation
   return implementationTasks.filter((task) => task.status !== "done");
 }
 
+export function buildQaExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments
+        .map(
+          (experiment) =>
+            `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
+              experiment.success_metric || "성공 지표 미정"
+            }`,
+        )
+        .join("\n")
+    : "- 연결된 실험이 없습니다. QA 전에 성공 지표가 있는 실험을 최소 1개 정의합니다.";
+}
+
+export function buildQaRiskLines(risks: Risk[]) {
+  const highRisks = getHighQaRisks(risks);
+
+  return highRisks.length > 0
+    ? highRisks
+        .map(
+          (risk) =>
+            `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${
+              riskStatusLabels[risk.status] ?? risk.status
+            } / ${risk.mitigation || "완화책 미정"}`,
+        )
+        .join("\n")
+    : "- 높음/치명 리스크가 없습니다.";
+}
+
+export function buildQaTaskCoverageLines(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.length > 0
+    ? implementationTasks
+        .map(
+          (task) =>
+            `- [${task.status === "done" ? "x" : " "}] ${task.title}: ${
+              implementationTaskTypeLabels[task.task_type]
+            } / ${implementationTaskStatusLabels[task.status]}`,
+        )
+        .join("\n")
+    : "- 구현 태스크가 없습니다.";
+}
+
+export function buildQaBlockerLines(checks: QaGateCheck[], emptyMessage: string) {
+  const incompleteChecks = getIncompleteQaChecks(checks);
+
+  return incompleteChecks.length > 0
+    ? incompleteChecks.map((check) => `- ${check.label}: ${check.detail}`).join("\n")
+    : emptyMessage;
+}
+
+export function formatQaReleaseSummary(releaseDecisionPacket: QaReleaseDecisionPacket | null) {
+  return releaseDecisionPacket
+    ? `${decisionLabels[releaseDecisionPacket.recommendation]} / 신뢰도 ${
+        releaseDecisionPacket.confidenceLabel
+      } / 차단 ${releaseDecisionPacket.blockers.length}개`
+    : "출시 판단 패킷 미생성";
+}
+
+export function buildQaBackendRuleRows(recommendedBackend: string) {
+  return isFirebaseQaBackend(recommendedBackend)
+    ? [
+        "| Firebase Rules 허용 | 로그인한 owner가 본인 문서 생성/수정 | 성공, audit/event 기록 |",
+        "| Firebase Rules 차단 | 다른 uid 또는 workspace 문서 쓰기 | permission-denied 표시, 데이터 변경 없음 |",
+        "| App Check/Emulator | Preview 또는 Emulator에서 rules 시나리오 실행 | 허용/차단 로그 보관 |",
+      ].join("\n")
+    : [
+        "| Supabase RLS 허용 | 로그인한 owner가 본인 record insert/update | 성공, owner_id/workspace_id 보존 |",
+        "| Supabase RLS 차단 | 다른 owner/workspace record update/delete | 거부, 데이터 변경 없음 |",
+        "| 서비스 키 경계 | 브라우저 번들에서 service role 키 검색 | 노출 없음 |",
+      ].join("\n");
+}
+
 export function buildQaAcceptanceMatrixMarkdown({
   idea,
   state,
@@ -76,69 +147,18 @@ export function buildQaAcceptanceMatrixMarkdown({
   backendCandidateScores: QaBackendCandidate[];
 }) {
   const recommendedBackend = getRecommendedQaBackend(backendCandidateScores);
-  const usesFirebase = isFirebaseQaBackend(recommendedBackend);
-  const highRisks = getHighQaRisks(risks);
-  const incompleteLaunchChecks = getIncompleteQaChecks(launchReadiness);
-  const incompleteImplementationChecks = getIncompleteQaChecks(implementationGateChecks);
   const completedTasks = getCompletedQaImplementationTasks(implementationTasks);
   const openTasks = getOpenQaImplementationTasks(implementationTasks);
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .map(
-            (experiment) =>
-              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
-                experiment.success_metric || "성공 지표 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 연결된 실험이 없습니다. QA 전에 성공 지표가 있는 실험을 최소 1개 정의합니다.";
-  const riskLines =
-    highRisks.length > 0
-      ? highRisks
-          .map(
-            (risk) =>
-              `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${
-                riskStatusLabels[risk.status] ?? risk.status
-              } / ${risk.mitigation || "완화책 미정"}`,
-          )
-          .join("\n")
-      : "- 높음/치명 리스크가 없습니다.";
-  const taskCoverageLines =
-    implementationTasks.length > 0
-      ? implementationTasks
-          .map(
-            (task) =>
-              `- [${task.status === "done" ? "x" : " "}] ${task.title}: ${
-                implementationTaskTypeLabels[task.task_type]
-              } / ${implementationTaskStatusLabels[task.status]}`,
-          )
-          .join("\n")
-      : "- 구현 태스크가 없습니다.";
-  const launchBlockerLines =
-    incompleteLaunchChecks.length > 0
-      ? incompleteLaunchChecks.map((check) => `- ${check.label}: ${check.detail}`).join("\n")
-      : "- 출시 준비도 차단 항목이 없습니다.";
-  const implementationBlockerLines =
-    incompleteImplementationChecks.length > 0
-      ? incompleteImplementationChecks.map((check) => `- ${check.label}: ${check.detail}`).join("\n")
-      : "- 개발 완료 점검 차단 항목이 없습니다.";
-  const releaseSummary = releaseDecisionPacket
-    ? `${decisionLabels[releaseDecisionPacket.recommendation]} / 신뢰도 ${
-        releaseDecisionPacket.confidenceLabel
-      } / 차단 ${releaseDecisionPacket.blockers.length}개`
-    : "출시 판단 패킷 미생성";
-  const backendRuleRows = usesFirebase
-    ? [
-        "| Firebase Rules 허용 | 로그인한 owner가 본인 문서 생성/수정 | 성공, audit/event 기록 |",
-        "| Firebase Rules 차단 | 다른 uid 또는 workspace 문서 쓰기 | permission-denied 표시, 데이터 변경 없음 |",
-        "| App Check/Emulator | Preview 또는 Emulator에서 rules 시나리오 실행 | 허용/차단 로그 보관 |",
-      ].join("\n")
-    : [
-        "| Supabase RLS 허용 | 로그인한 owner가 본인 record insert/update | 성공, owner_id/workspace_id 보존 |",
-        "| Supabase RLS 차단 | 다른 owner/workspace record update/delete | 거부, 데이터 변경 없음 |",
-        "| 서비스 키 경계 | 브라우저 번들에서 service role 키 검색 | 노출 없음 |",
-      ].join("\n");
+  const experimentLines = buildQaExperimentLines(experiments);
+  const riskLines = buildQaRiskLines(risks);
+  const taskCoverageLines = buildQaTaskCoverageLines(implementationTasks);
+  const launchBlockerLines = buildQaBlockerLines(launchReadiness, "- 출시 준비도 차단 항목이 없습니다.");
+  const implementationBlockerLines = buildQaBlockerLines(
+    implementationGateChecks,
+    "- 개발 완료 점검 차단 항목이 없습니다.",
+  );
+  const releaseSummary = formatQaReleaseSummary(releaseDecisionPacket);
+  const backendRuleRows = buildQaBackendRuleRows(recommendedBackend);
 
   return `# 품질 점검표: ${idea.name}
 
