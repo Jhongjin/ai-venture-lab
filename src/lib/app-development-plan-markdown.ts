@@ -9,6 +9,26 @@ import { decisionLabels, stageLabels } from "@/lib/workbench-labels";
 
 type AppDevelopmentPlanState = Pick<Idea, "decision" | "next_evidence" | "product_surface" | "risk_summary" | "stage">;
 
+type AppDevelopmentPlanArtifactReadiness = {
+  hasBackendDecision: boolean;
+  hasDesignBrief: boolean;
+  hasMvpSpec: boolean;
+  hasPrd: boolean;
+  hasResearchNote: boolean;
+  hasTechSpec: boolean;
+};
+
+const appDevelopmentPlanPhaseStatusRows: Array<[OrchestrationRun["phase"], string]> = [
+  ["strategy", "전략"],
+  ["research", "리서치"],
+  ["product", "제품"],
+  ["design", "디자인"],
+  ["build", "개발"],
+  ["qa", "QA"],
+  ["security", "보안"],
+  ["launch", "출시"],
+];
+
 export function hasAppDevelopmentPlanArtifactType(
   artifacts: VentureArtifact[],
   artifactType: VentureArtifact["artifact_type"],
@@ -22,6 +42,31 @@ export function getDoneAppDevelopmentPlanPhases(runs: OrchestrationRun[]) {
 
 export function getPrimaryAppDevelopmentPlanExperiment(experiments: Experiment[]) {
   return experiments[0] ?? null;
+}
+
+export function getAppDevelopmentPlanArtifactReadiness(artifacts: VentureArtifact[]): AppDevelopmentPlanArtifactReadiness {
+  return {
+    hasBackendDecision: hasAppDevelopmentPlanArtifactType(artifacts, "backend_decision"),
+    hasDesignBrief: hasAppDevelopmentPlanArtifactType(artifacts, "design_brief"),
+    hasMvpSpec: hasAppDevelopmentPlanArtifactType(artifacts, "mvp_spec"),
+    hasPrd: hasAppDevelopmentPlanArtifactType(artifacts, "prd"),
+    hasResearchNote: hasAppDevelopmentPlanArtifactType(artifacts, "research_note"),
+    hasTechSpec: hasAppDevelopmentPlanArtifactType(artifacts, "tech_spec"),
+  };
+}
+
+export function formatAppDevelopmentPlanReadinessStatus(isReady: boolean, missingLabel = "필요") {
+  return isReady ? "완료" : missingLabel;
+}
+
+export function formatAppDevelopmentPlanExperimentLine(experiment: Experiment | null) {
+  return experiment ? `${experiment.name} / ${experiment.success_metric || "성공 지표 미정"}` : "측정 가능한 검증 계획 필요";
+}
+
+export function buildAppDevelopmentPlanPhaseStatusLines(donePhases: Set<OrchestrationRun["phase"]>) {
+  return appDevelopmentPlanPhaseStatusRows
+    .map(([phase, label]) => `- ${label}: ${donePhases.has(phase) ? "완료" : "필요"}`)
+    .join("\n");
 }
 
 export function buildAppDevelopmentPlanMarkdown({
@@ -38,17 +83,13 @@ export function buildAppDevelopmentPlanMarkdown({
   artifacts: VentureArtifact[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const hasPrd = hasAppDevelopmentPlanArtifactType(artifacts, "prd");
-  const hasResearchNote = hasAppDevelopmentPlanArtifactType(artifacts, "research_note");
-  const hasMvpSpec = hasAppDevelopmentPlanArtifactType(artifacts, "mvp_spec");
-  const hasBackendDecision = hasAppDevelopmentPlanArtifactType(artifacts, "backend_decision");
-  const hasDesignBrief = hasAppDevelopmentPlanArtifactType(artifacts, "design_brief");
-  const hasTechSpec = hasAppDevelopmentPlanArtifactType(artifacts, "tech_spec");
+  const artifactReadiness = getAppDevelopmentPlanArtifactReadiness(artifacts);
   const donePhases = getDoneAppDevelopmentPlanPhases(runs);
   const primaryExperiment = getPrimaryAppDevelopmentPlanExperiment(experiments);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
   const surfaceDesignContext = buildSurfaceDesignContext(productSurface, surfaceGuidance);
   const surfaceArchitectureNotes = buildSurfaceArchitectureNotes(productSurface, surfaceGuidance);
+  const phaseStatusLines = buildAppDevelopmentPlanPhaseStatusLines(donePhases);
 
   return `# 앱 개발 실행 계획: ${idea.name}
 
@@ -56,13 +97,13 @@ export function buildAppDevelopmentPlanMarkdown({
 
 - 현재 단계: ${stageLabels[state.stage]}
 - 현재 판단: ${decisionLabels[state.decision]}
-- 조사 요약 저장: ${hasResearchNote ? "완료" : "권장"}
-- PRD 저장: ${hasPrd ? "완료" : "필요"}
-- 첫 제작 범위 저장: ${hasMvpSpec ? "완료" : "필요"}
-- 백엔드 결정 저장: ${hasBackendDecision ? "완료" : "필요"}
-- 디자인 기준 저장: ${hasDesignBrief ? "완료" : "필요"}
-- 기술 명세 저장: ${hasTechSpec ? "완료" : "필요"}
-- 검증 계획: ${primaryExperiment ? `${primaryExperiment.name} / ${primaryExperiment.success_metric || "성공 지표 미정"}` : "측정 가능한 검증 계획 필요"}
+- 조사 요약 저장: ${formatAppDevelopmentPlanReadinessStatus(artifactReadiness.hasResearchNote, "권장")}
+- PRD 저장: ${formatAppDevelopmentPlanReadinessStatus(artifactReadiness.hasPrd)}
+- 첫 제작 범위 저장: ${formatAppDevelopmentPlanReadinessStatus(artifactReadiness.hasMvpSpec)}
+- 백엔드 결정 저장: ${formatAppDevelopmentPlanReadinessStatus(artifactReadiness.hasBackendDecision)}
+- 디자인 기준 저장: ${formatAppDevelopmentPlanReadinessStatus(artifactReadiness.hasDesignBrief)}
+- 기술 명세 저장: ${formatAppDevelopmentPlanReadinessStatus(artifactReadiness.hasTechSpec)}
+- 검증 계획: ${formatAppDevelopmentPlanExperimentLine(primaryExperiment)}
 - 추가 확인 내용: ${state.next_evidence || "미정"}
 
 ${productSurfaceMarkdown(productSurface)}
@@ -243,13 +284,6 @@ ${state.risk_summary || "보안/개인정보 리스크가 아직 정리되지 �
 
 ## 7. 현재 실행 상태
 
-- 전략: ${donePhases.has("strategy") ? "완료" : "필요"}
-- 리서치: ${donePhases.has("research") ? "완료" : "필요"}
-- 제품: ${donePhases.has("product") ? "완료" : "필요"}
-- 디자인: ${donePhases.has("design") ? "완료" : "필요"}
-- 개발: ${donePhases.has("build") ? "완료" : "필요"}
-- QA: ${donePhases.has("qa") ? "완료" : "필요"}
-- 보안: ${donePhases.has("security") ? "완료" : "필요"}
-- 출시: ${donePhases.has("launch") ? "완료" : "필요"}
+${phaseStatusLines}
 `;
 }

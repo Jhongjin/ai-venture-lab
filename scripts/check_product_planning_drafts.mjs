@@ -49,6 +49,10 @@ const moduleUrl = transpileModuleUrl("src/lib/product-planning-drafts.ts", [
 
 const { buildProductPlanningArtifactSaveDrafts, buildProductPlanningDraftState } = await import(moduleUrl);
 const {
+  buildAppDevelopmentPlanPhaseStatusLines,
+  formatAppDevelopmentPlanExperimentLine,
+  formatAppDevelopmentPlanReadinessStatus,
+  getAppDevelopmentPlanArtifactReadiness,
   getDoneAppDevelopmentPlanPhases,
   getPrimaryAppDevelopmentPlanExperiment,
   hasAppDevelopmentPlanArtifactType,
@@ -164,6 +168,24 @@ assert.equal(hasAppDevelopmentPlanArtifactType(artifacts, "mvp_spec"), false);
 assert.deepEqual([...getDoneAppDevelopmentPlanPhases(runs)], ["product"]);
 assert.equal(getPrimaryAppDevelopmentPlanExperiment(experiments)?.id, "exp-1");
 assert.equal(getPrimaryAppDevelopmentPlanExperiment([]), null);
+assert.deepEqual(getAppDevelopmentPlanArtifactReadiness(artifacts), {
+  hasBackendDecision: false,
+  hasDesignBrief: false,
+  hasMvpSpec: false,
+  hasPrd: true,
+  hasResearchNote: false,
+  hasTechSpec: false,
+});
+assert.equal(formatAppDevelopmentPlanReadinessStatus(true), "완료");
+assert.equal(formatAppDevelopmentPlanReadinessStatus(false), "필요");
+assert.equal(formatAppDevelopmentPlanReadinessStatus(false, "권장"), "권장");
+assert.equal(
+  formatAppDevelopmentPlanExperimentLine(experiments[0]),
+  "운영자 인터뷰 / 외부 도구 전달 자료가 바로 실행 가능한지 확인",
+);
+assert.equal(formatAppDevelopmentPlanExperimentLine(null), "측정 가능한 검증 계획 필요");
+assert.match(buildAppDevelopmentPlanPhaseStatusLines(getDoneAppDevelopmentPlanPhases(runs)), /제품: 완료/);
+assert.match(buildAppDevelopmentPlanPhaseStatusLines(getDoneAppDevelopmentPlanPhases(runs)), /전략: 필요/);
 assert.equal(getMvpScopeRunByPhase(runs, "product")?.id, "run-1");
 assert.equal(getMvpScopeRunByPhase(runs, "build"), null);
 assert.deepEqual(
