@@ -1,5 +1,6 @@
 import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
 import { aiRouteJson, aiRouteJsonError } from "@/lib/ai-route-http";
+import { postOpenAIResponsesJson } from "@/lib/openai-responses-api";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -748,13 +749,10 @@ ${risks.length > 0 ? risks.map((risk) => `- ${risk}`).join("\n") : "- 없음"}
 저장된 하위 검증 계획:
 ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).join("\n") : "- 없음"}`;
 
-  const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  const { payload, response: openaiResponse } = await postOpenAIResponsesJson<OpenAIResponse>({
+    apiKey,
+    fallback: {},
+    body: {
       model,
       max_output_tokens: 6000,
       reasoning: {
@@ -802,10 +800,8 @@ ${experiments.length > 0 ? experiments.map((experiment) => `- ${experiment}`).jo
           ],
         },
       ],
-    }),
+    },
   });
-
-  const payload = (await openaiResponse.json().catch(() => ({}))) as OpenAIResponse;
 
   if (!openaiResponse.ok) {
     return aiRouteJson({

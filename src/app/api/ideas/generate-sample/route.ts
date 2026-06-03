@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
 import { aiRouteJson, aiRouteJsonError } from "@/lib/ai-route-http";
+import { postOpenAIResponsesJson } from "@/lib/openai-responses-api";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -416,13 +417,10 @@ export async function POST(request: Request) {
   const themes = pickRandomItems(ideaThemes, 5);
   const model = process.env.OPENAI_IDEA_MODEL || process.env.OPENAI_MODEL || "gpt-5-mini";
 
-  const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  const { payload, response: openaiResponse } = await postOpenAIResponsesJson<OpenAIResponse>({
+    apiKey,
+    fallback: {},
+    body: {
       model,
       max_output_tokens: 6000,
       text: {
@@ -459,10 +457,8 @@ ${existingIdeaContext}
           ],
         },
       ],
-    }),
+    },
   });
-
-  const payload = (await openaiResponse.json().catch(() => ({}))) as OpenAIResponse;
 
   if (!openaiResponse.ok) {
     return aiRouteJsonError(getOpenAIErrorMessage(payload) ?? `OpenAI request failed with HTTP ${openaiResponse.status}.`, 502);

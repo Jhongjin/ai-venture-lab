@@ -1,5 +1,6 @@
 import { enforceAiRouteRateLimit } from "@/lib/ai-route-rate-limit";
 import { aiRouteJson, aiRouteJsonError } from "@/lib/ai-route-http";
+import { postOpenAIResponsesJson } from "@/lib/openai-responses-api";
 
 const MAX_SOURCE_LENGTH = 24000;
 const MAX_EXISTING_IDEAS = 20;
@@ -192,13 +193,10 @@ export async function POST(request: Request) {
       : "저장된 기존 아이디어 없음";
   const model = process.env.OPENAI_IDEA_MODEL || process.env.OPENAI_MODEL || "gpt-5-mini";
 
-  const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  const { payload, response: openaiResponse } = await postOpenAIResponsesJson<OpenAIResponse>({
+    apiKey,
+    fallback: {},
+    body: {
       model,
       max_output_tokens: 6000,
       text: {
@@ -230,10 +228,8 @@ export async function POST(request: Request) {
           ],
         },
       ],
-    }),
+    },
   });
-
-  const payload = (await openaiResponse.json().catch(() => ({}))) as OpenAIResponse;
 
   if (!openaiResponse.ok) {
     return createFallbackResponse(
