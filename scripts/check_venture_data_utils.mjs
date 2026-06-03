@@ -17,7 +17,9 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   compareIdeasByCreatedAtDesc,
   compareIdeasByWorkflow,
+  filterChildRecordsForVisibleIdeas,
   getIdeaCreatedAtTime,
+  isUserScopedRecordVisible,
   scoreIdea,
   sortIdeasByWorkflow,
   workflowStageOrder,
@@ -67,5 +69,30 @@ assert.equal(compareIdeasByCreatedAtDesc(ideas[1], ideas[2]) < 0, true);
 assert.equal(compareIdeasByWorkflow(ideas[1], ideas[0]) < 0, true);
 assert.equal(compareIdeasByWorkflow(ideas[1], ideas[2]) < 0, true);
 assert.equal(scoreIdea(ideas[0]), 22);
+assert.equal(
+  isUserScopedRecordVisible({ created_by: "user-1", organization_id: null }, "user-1", new Set()),
+  true,
+);
+assert.equal(
+  isUserScopedRecordVisible({ created_by: "other-user", organization_id: "org-1" }, "user-1", new Set(["org-1"])),
+  true,
+);
+assert.equal(
+  isUserScopedRecordVisible({ created_by: "other-user", organization_id: null }, "user-1", new Set(["org-1"])),
+  false,
+);
+assert.deepEqual(
+  filterChildRecordsForVisibleIdeas(
+    [
+      { id: "risk-1", idea_id: "idea-1", organization_id: null },
+      { id: "risk-2", idea_id: "idea-2", organization_id: null },
+      { id: "org-record", idea_id: null, organization_id: "org-1" },
+      { id: "hidden-record", idea_id: null, organization_id: "org-2" },
+    ],
+    new Set(["idea-1"]),
+    new Set(["org-1"]),
+  ).map((record) => record.id),
+  ["risk-1", "org-record"],
+);
 
 console.log("Venture data utils smoke passed.");

@@ -43,7 +43,7 @@ function emptyConsoleData(error: string | null = null): ConsoleData {
   };
 }
 
-function isUserScopedRecordVisible(
+export function isUserScopedRecordVisible(
   record: { created_by: string | null; organization_id: string | null },
   userId: string,
   organizationIds: Set<string>,
@@ -51,7 +51,7 @@ function isUserScopedRecordVisible(
   return record.created_by === userId || (record.organization_id ? organizationIds.has(record.organization_id) : false);
 }
 
-function filterChildRecordsForVisibleIdeas<T extends { idea_id: string | null; organization_id: string | null }>(
+export function filterChildRecordsForVisibleIdeas<T extends { idea_id: string | null; organization_id: string | null }>(
   records: T[],
   visibleIdeaIds: Set<string>,
   organizationIds: Set<string>,
