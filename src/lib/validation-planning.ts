@@ -78,6 +78,12 @@ export function getOpenHighValidationRisks(risks: Risk[]) {
   return risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
 }
 
+export function getValidationEvidenceArtifacts(artifacts: VentureArtifact[]) {
+  return artifacts.filter((artifact) =>
+    ["evidence_capture", "experiment_result", "validation_summary", "market_scan"].includes(artifact.source || ""),
+  );
+}
+
 export function buildValidationPlan({
   idea,
   state,
@@ -275,9 +281,7 @@ export function buildValidationEvidenceCoach({
   ].join(" ");
   const doneExperiments = experiments.filter((experiment) => experiment.status === "done");
   const runningExperiments = experiments.filter((experiment) => experiment.status === "running");
-  const evidenceArtifacts = artifacts.filter((artifact) =>
-    ["evidence_capture", "experiment_result", "validation_summary", "market_scan"].includes(artifact.source || ""),
-  );
+  const evidenceArtifacts = getValidationEvidenceArtifacts(artifacts);
   const openHighRisks = getOpenHighValidationRisks(risks);
   const domainQuestions: Record<IdeaDomain, string[]> = {
     care: [
