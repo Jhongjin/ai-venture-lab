@@ -13,7 +13,8 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { buildExtractionReplaySummary } = await import(moduleUrl);
+const { buildExtractionReplaySummary, compareExtractionReplayItemsByStrength, sortExtractionReplayItems } =
+  await import(moduleUrl);
 
 function candidate({ confidence, id, name, score }) {
   return {
@@ -58,6 +59,17 @@ assert.equal(summary.items[0].matchedName, "Venture OS");
 assert.equal(summary.items[1].source, "ai");
 assert.equal(summary.items[2].source, "rules");
 assert.equal(summary.items[0].nextAction, "두 방식이 모두 포착했습니다. 아이디어 패키지로 저장하거나 실행 보드에서 먼저 평가하세요.");
+
+const replayItems = [summary.items[2], summary.items[1], summary.items[0]];
+assert.deepEqual(
+  sortExtractionReplayItems(replayItems).map((item) => item.source),
+  ["both", "ai", "rules"],
+);
+assert.deepEqual(
+  replayItems.map((item) => item.source),
+  ["rules", "ai", "both"],
+);
+assert.equal(compareExtractionReplayItemsByStrength(summary.items[0], summary.items[1]) < 0, true);
 
 const lowScoreSummary = buildExtractionReplaySummary({
   aiIdeas: [candidate({ confidence: 99, id: "ai-low", name: "Low Match", score: 99 })],

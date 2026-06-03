@@ -35,6 +35,29 @@ export type ExtractionReplayMatch<Candidate extends ExtractionReplayCandidate> =
   score: number;
 };
 
+const extractionReplaySourceRank: Record<ExtractionReplayItem["source"], number> = {
+  both: 3,
+  ai: 2,
+  rules: 1,
+};
+
+export function compareExtractionReplayItemsByStrength<Candidate extends ExtractionReplayCandidate>(
+  a: ExtractionReplayItem<Candidate>,
+  b: ExtractionReplayItem<Candidate>,
+) {
+  return (
+    extractionReplaySourceRank[b.source] - extractionReplaySourceRank[a.source] ||
+    b.primaryCandidate.validationScore - a.primaryCandidate.validationScore ||
+    b.primaryCandidate.confidence - a.primaryCandidate.confidence
+  );
+}
+
+export function sortExtractionReplayItems<Candidate extends ExtractionReplayCandidate>(
+  items: ReadonlyArray<ExtractionReplayItem<Candidate>>,
+) {
+  return [...items].sort(compareExtractionReplayItemsByStrength);
+}
+
 export function buildExtractionReplaySummary<Candidate extends ExtractionReplayCandidate>({
   aiIdeas,
   aiMode,
@@ -108,15 +131,7 @@ export function buildExtractionReplaySummary<Candidate extends ExtractionReplayC
     });
   }
 
-  const sortedItems = items.sort((a, b) => {
-    const sourceRank = { both: 3, ai: 2, rules: 1 };
-
-    return (
-      sourceRank[b.source] - sourceRank[a.source] ||
-      b.primaryCandidate.validationScore - a.primaryCandidate.validationScore ||
-      b.primaryCandidate.confidence - a.primaryCandidate.confidence
-    );
-  });
+  const sortedItems = sortExtractionReplayItems(items);
   const consensusCount = sortedItems.filter((item) => item.source === "both").length;
   const rulesOnlyCount = sortedItems.filter((item) => item.source === "rules").length;
   const aiOnlyCount = sortedItems.filter((item) => item.source === "ai").length;
