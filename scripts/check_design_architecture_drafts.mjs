@@ -68,8 +68,14 @@ const {
 } = await import(appBlueprintUrl);
 const { getDesignBriefRun } = await import(designBriefUrl);
 const { getDesignGenerationSurfaceOpening, getRecommendedDesignGenerationBackend } = await import(designPromptUrl);
-const { getMvpScaffoldExclusions, getRecommendedMvpScaffoldBackend, usesFirebaseMvpScaffoldBackend } =
-  await import(scaffoldManifestUrl);
+const {
+  buildMvpScaffoldBackendRules,
+  buildMvpScaffoldEnvLines,
+  buildMvpScaffoldExperimentLines,
+  getMvpScaffoldExclusions,
+  getRecommendedMvpScaffoldBackend,
+  usesFirebaseMvpScaffoldBackend,
+} = await import(scaffoldManifestUrl);
 const { getTechSpecBuildRun, getTechSpecSecurityRun } = await import(techSpecUrl);
 const { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } = await import(moduleUrl);
 
@@ -196,6 +202,12 @@ assert.match(getDesignGenerationSurfaceOpening({ key: "web_site" }), /랜딩\/�
 assert.match(getDesignGenerationSurfaceOpening({ key: "operator_console" }), /실제 앱 첫 화면/);
 assert.match(getMvpScaffoldExclusions({ key: "web_site" }), /회원 계정/);
 assert.match(getMvpScaffoldExclusions({ key: "operator_console" }), /마케팅 랜딩 페이지/);
+assert.match(buildMvpScaffoldEnvLines(true), /FIREBASE_SERVICE_ACCOUNT_JSON/);
+assert.match(buildMvpScaffoldEnvLines(false), /SUPABASE_SERVICE_ROLE_KEY/);
+assert.match(buildMvpScaffoldBackendRules(true), /Firebase 규칙 초안/);
+assert.match(buildMvpScaffoldBackendRules(false), /Supabase 스키마\/RLS 초안/);
+assert.match(buildMvpScaffoldExperimentLines(experiments), /첫 화면에서 다음 행동을 이해/);
+assert.equal(buildMvpScaffoldExperimentLines([]), "- 첫 구현 전 성공 지표를 가진 실험을 1개 이상 정의합니다.");
 assert.deepEqual(
   getHighAppBlueprintRisks(risks).map((risk) => risk.id),
   ["risk-1"],

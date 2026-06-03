@@ -22,22 +22,8 @@ export function getMvpScaffoldExclusions(productSurface: { key: string }) {
     : "마케팅 랜딩 페이지, 결제, 고급 AI 자동화, 관리자 대시보드, 복잡한 알림은 첫 슬라이스에서 제외합니다.";
 }
 
-export function buildMvpScaffoldManifestMarkdown({
-  idea,
-  state,
-  experiments,
-  backendCandidateScores,
-}: {
-  idea: Idea;
-  state: MvpScaffoldManifestState;
-  experiments: Experiment[];
-  backendCandidateScores: MvpScaffoldBackendCandidate[];
-}) {
-  const topBackend = getRecommendedMvpScaffoldBackend(backendCandidateScores);
-  const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const usesFirebase = usesFirebaseMvpScaffoldBackend(topBackend);
-  const scaffoldExclusions = getMvpScaffoldExclusions(productSurface);
-  const envLines = usesFirebase
+export function buildMvpScaffoldEnvLines(usesFirebase: boolean) {
+  return usesFirebase
     ? [
         "| NEXT_PUBLIC_FIREBASE_API_KEY | 클라이언트 공개 | Firebase Web SDK 공개 키 |",
         "| NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN | 클라이언트 공개 | Firebase Auth domain |",
@@ -51,7 +37,10 @@ export function buildMvpScaffoldManifestMarkdown({
         "| SUPABASE_SERVICE_ROLE_KEY | 서버 전용 | 마이그레이션/관리 작업에서만 사용, 브라우저 금지 |",
         "| OPENAI_API_KEY | 서버 전용 | AI 생성 기능이 Slice 2로 승인된 뒤 사용 |",
       ].join("\n");
-  const backendRules = usesFirebase
+}
+
+export function buildMvpScaffoldBackendRules(usesFirebase: boolean) {
+  return usesFirebase
     ? `## Firebase 규칙 초안
 
 - Firestore/Realtime Database/SQL Connect 중 하나만 첫 버전에 선택합니다.
@@ -94,13 +83,37 @@ with check (owner_id = auth.uid());
 
 - 워크스페이스 협업이 필요하면 membership 테이블을 먼저 만들고 정책에 exists 조건을 추가합니다.
 - 삭제는 첫 버전에서 hard delete보다 archived 상태를 우선 검토합니다.`;
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .slice(0, 5)
-          .map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`)
-          .join("\n")
-      : "- 첫 구현 전 성공 지표를 가진 실험을 1개 이상 정의합니다.";
+}
+
+export function buildMvpScaffoldExperimentLines(experiments: Experiment[]) {
+  if (experiments.length === 0) {
+    return "- 첫 구현 전 성공 지표를 가진 실험을 1개 이상 정의합니다.";
+  }
+
+  return experiments
+    .slice(0, 5)
+    .map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`)
+    .join("\n");
+}
+
+export function buildMvpScaffoldManifestMarkdown({
+  idea,
+  state,
+  experiments,
+  backendCandidateScores,
+}: {
+  idea: Idea;
+  state: MvpScaffoldManifestState;
+  experiments: Experiment[];
+  backendCandidateScores: MvpScaffoldBackendCandidate[];
+}) {
+  const topBackend = getRecommendedMvpScaffoldBackend(backendCandidateScores);
+  const productSurface = resolveProductSurfaceForIdea(idea, state);
+  const usesFirebase = usesFirebaseMvpScaffoldBackend(topBackend);
+  const scaffoldExclusions = getMvpScaffoldExclusions(productSurface);
+  const envLines = buildMvpScaffoldEnvLines(usesFirebase);
+  const backendRules = buildMvpScaffoldBackendRules(usesFirebase);
+  const experimentLines = buildMvpScaffoldExperimentLines(experiments);
 
   return `# 첫 제작 뼈대 안내서: ${idea.name}
 
