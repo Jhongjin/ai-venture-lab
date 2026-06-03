@@ -30,6 +30,7 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildAiExtractedIdeaSourceBlock,
   compareExtractedIdeasByValidationStrength,
   extractIdeasFromText,
   hydrateAiExtractedIdeas,
@@ -78,6 +79,23 @@ assert.equal(
   ) < 0,
   true,
 );
+
+const aiCandidate = {
+  name: "문의 정리 도우미",
+  one_liner: "문의 분류와 답변 초안을 만드는 운영 콘솔",
+  target_user: "쇼핑몰 CS 담당자",
+  buyer: "운영팀 리더",
+  signal: "반복 문의 정리 시간이 큽니다.",
+  risk_summary: "개인정보 마스킹 필요",
+};
+const aiSourceBlock = buildAiExtractedIdeaSourceBlock({
+  candidate: aiCandidate,
+  name: "문의 정리 도우미",
+  source: "고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만듭니다.",
+});
+assert.match(aiSourceBlock, /AI 아이디어: 문의 정리 도우미/);
+assert.match(aiSourceBlock, /문제 신호: 반복 문의 정리 시간이 큽니다/);
+assert.match(aiSourceBlock, /메모 요약 근거: 고객 문의를 매주 시트로 옮기고/);
 
 const hydrated = hydrateAiExtractedIdeas("고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만듭니다.", [
   {

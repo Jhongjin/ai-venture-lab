@@ -195,21 +195,33 @@ function firstText(values: Array<string | undefined>, fallback: string, maxLengt
   return compactText(values.find((value) => value && value.trim()) ?? fallback, maxLength);
 }
 
+export function buildAiExtractedIdeaSourceBlock({
+  candidate,
+  name,
+  source,
+}: {
+  candidate: AiExtractedIdeaCandidate;
+  name: string;
+  source: string;
+}) {
+  return [
+    `AI 아이디어: ${name}`,
+    candidate.signal ? `문제 신호: ${candidate.signal}` : "",
+    candidate.one_liner ? `솔루션: ${candidate.one_liner}` : "",
+    candidate.target_user ? `대상 사용자: ${candidate.target_user}` : "",
+    candidate.buyer ? `구매자: ${candidate.buyer}` : "",
+    candidate.risk_summary ? `리스크: ${candidate.risk_summary}` : "",
+    `메모 요약 근거: ${compactText(source, 900)}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCandidate[]): ExtractedIdea[] {
   return sortExtractedIdeasByValidationStrength(
     candidates.slice(0, 8).map((candidate, index) => {
       const name = firstText([candidate.name], `AI 아이디어 ${index + 1}`, 42);
-      const sourceBlock = [
-        `AI 아이디어: ${name}`,
-        candidate.signal ? `문제 신호: ${candidate.signal}` : "",
-        candidate.one_liner ? `솔루션: ${candidate.one_liner}` : "",
-        candidate.target_user ? `대상 사용자: ${candidate.target_user}` : "",
-        candidate.buyer ? `구매자: ${candidate.buyer}` : "",
-        candidate.risk_summary ? `리스크: ${candidate.risk_summary}` : "",
-        `메모 요약 근거: ${compactText(source, 900)}`,
-      ]
-        .filter(Boolean)
-        .join("\n");
+      const sourceBlock = buildAiExtractedIdeaSourceBlock({ candidate, name, source });
       const blockForInference = `${sourceBlock}\n${source}`;
       const oneLiner = firstText([candidate.one_liner], compactText(source, 150), 150);
       const target_user = firstText([candidate.target_user], inferText(blockForInference, "target"), 160);
