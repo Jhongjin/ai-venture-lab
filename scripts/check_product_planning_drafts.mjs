@@ -63,7 +63,17 @@ const {
   getHighMvpScopeRisks,
   getMvpScopeRunByPhase,
 } = await import(mvpScopeUrl);
-const { getHighPrdRisks } = await import(prdUrl);
+const {
+  buildPrdExperimentLines,
+  buildPrdHandoffDecisionLines,
+  buildPrdHandoffExperimentLines,
+  buildPrdHandoffHighRiskLines,
+  buildPrdReadinessCheckLines,
+  buildPrdRiskLines,
+  buildPrdRunLines,
+  getHighPrdRisks,
+  getPrdHandoffDecisionLabel,
+} = await import(prdUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -196,6 +206,19 @@ assert.deepEqual(
   getHighPrdRisks(risks).map((risk) => risk.id),
   ["risk-1"],
 );
+assert.equal(buildPrdReadinessCheckLines([]), "- 준비도 체크가 없습니다.");
+assert.match(buildPrdReadinessCheckLines([{ detail: "확인됨", label: "문제", passed: true }]), /\[x\] 문제: 확인됨/);
+assert.match(buildPrdHandoffHighRiskLines(risks), /붙여넣은 대화 개인정보/);
+assert.equal(buildPrdHandoffHighRiskLines([]), "- 높음/치명 리스크가 없습니다.");
+assert.match(buildPrdHandoffExperimentLines(experiments), /운영자 인터뷰/);
+assert.match(buildPrdHandoffDecisionLines([{ decision: "ship", reason: "진행 근거" }]), /진행 근거/);
+assert.equal(getPrdHandoffDecisionLabel(100), "제품 기획서 작성 가능");
+assert.equal(getPrdHandoffDecisionLabel(70), "조건부 제품 기획서 작성");
+assert.equal(getPrdHandoffDecisionLabel(69), "검증 보완 후 제품 기획서");
+assert.match(buildPrdRiskLines(risks), /원문 저장 전 식별자 제거/);
+assert.match(buildPrdExperimentLines(experiments), /외부 도구 전달 자료가 바로 실행 가능한지 확인/);
+assert.match(buildPrdRunLines(runs), /제품 기획서 작성/);
+assert.equal(buildPrdRunLines([]), "아직 실행 기록이 없습니다.");
 assert.deepEqual(
   getApprovedMvpScopeArtifacts(artifacts).map((artifact) => artifact.id),
   ["artifact-1"],

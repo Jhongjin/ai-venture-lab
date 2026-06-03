@@ -34,6 +34,88 @@ export function getHighPrdRisks(risks: Risk[]) {
   return risks.filter((risk) => ["high", "critical"].includes(risk.severity));
 }
 
+export function buildPrdReadinessCheckLines(prdReadinessChecks: PrdGateCheck[]) {
+  const readinessLines = prdReadinessChecks
+    .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
+    .join("\n");
+
+  return readinessLines || "- 준비도 체크가 없습니다.";
+}
+
+export function buildPrdHandoffHighRiskLines(risks: Risk[]) {
+  const highRiskLines = getHighPrdRisks(risks).map(
+    (risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`,
+  );
+
+  return highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 높음/치명 리스크가 없습니다.";
+}
+
+export function buildPrdHandoffExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments
+        .map(
+          (experiment) =>
+            `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
+              experiment.success_metric || "성공 지표 미정"
+            }`,
+        )
+        .join("\n")
+    : "- 연결된 실험이 없습니다.";
+}
+
+export function buildPrdHandoffDecisionLines(decisions: Decision[]) {
+  return decisions.length > 0
+    ? decisions.map((decision) => `- ${decisionLabels[decision.decision]}: ${decision.reason || "근거 미기록"}`).join("\n")
+    : "- 판단 기록이 없습니다.";
+}
+
+export function getPrdHandoffDecisionLabel(prdReadinessScore: number) {
+  return prdReadinessScore >= 100
+    ? "제품 기획서 작성 가능"
+    : prdReadinessScore >= 70
+      ? "조건부 제품 기획서 작성"
+      : "검증 보완 후 제품 기획서";
+}
+
+export function buildPrdRiskLines(risks: Risk[]) {
+  return risks.length > 0
+    ? risks
+        .map(
+          (risk) =>
+            `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
+              risk.mitigation || "미정"
+            }`,
+        )
+        .join("\n")
+    : "- 아직 연결된 리스크가 없습니다.";
+}
+
+export function buildPrdExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments
+        .map(
+          (experiment) =>
+            `- ${experiment.name} (${experimentStatusLabels[experiment.status] ?? experiment.status}): ${
+              experiment.success_metric || "성공 지표 미정"
+            }`,
+        )
+        .join("\n")
+    : "- 아직 계획된 실험이 없습니다.";
+}
+
+export function buildPrdRunLines(runs: OrchestrationRun[]) {
+  return runs.length > 0
+    ? runs
+        .map(
+          (run) =>
+            `### ${phaseLabels[run.phase]} (${runStatusLabels[run.status]})\n\n담당 역할: ${
+              run.owner_role || "미정"
+            }\n\n목표: ${run.objective || "미정"}\n\n제작 자료:\n\n${run.output || "미정"}`,
+        )
+        .join("\n\n")
+    : "아직 실행 기록이 없습니다.";
+}
+
 export function buildPrdHandoffMarkdown({
   idea,
   state,
@@ -60,33 +142,11 @@ export function buildPrdHandoffMarkdown({
   nextPrdBlocker: PrdGateCheck | null;
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const readinessLines = prdReadinessChecks
-    .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
-    .join("\n");
-  const highRiskLines = getHighPrdRisks(risks).map(
-    (risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`,
-  );
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .map(
-            (experiment) =>
-              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
-                experiment.success_metric || "성공 지표 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 연결된 실험이 없습니다.";
-  const decisionLines =
-    decisions.length > 0
-      ? decisions.map((decision) => `- ${decisionLabels[decision.decision]}: ${decision.reason || "근거 미기록"}`).join("\n")
-      : "- 판단 기록이 없습니다.";
-  const handoffDecision =
-    prdReadinessScore >= 100
-      ? "제품 기획서 작성 가능"
-      : prdReadinessScore >= 70
-        ? "조건부 제품 기획서 작성"
-        : "검증 보완 후 제품 기획서";
+  const readinessLines = buildPrdReadinessCheckLines(prdReadinessChecks);
+  const highRiskLines = buildPrdHandoffHighRiskLines(risks);
+  const experimentLines = buildPrdHandoffExperimentLines(experiments);
+  const decisionLines = buildPrdHandoffDecisionLines(decisions);
+  const handoffDecision = getPrdHandoffDecisionLabel(prdReadinessScore);
 
   return `# 제품 기획서 전환 요약: ${idea.name}
 
@@ -113,7 +173,7 @@ ${productSurfaceMarkdown(productSurface)}
 
 ## 준비도 체크
 
-${readinessLines || "- 준비도 체크가 없습니다."}
+${readinessLines}
 
 ## 실험과 판단 근거
 
@@ -123,7 +183,7 @@ ${decisionLines}
 
 ## 높은 리스크
 
-${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 높음/치명 리스크가 없습니다."}
+${highRiskLines}
 
 ## 제품 기획서 작성 지시
 
@@ -161,39 +221,9 @@ export function buildPrdMarkdown({
   runs: OrchestrationRun[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const riskLines =
-    risks.length > 0
-      ? risks
-          .map(
-            (risk) =>
-              `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
-                risk.mitigation || "미정"
-              }`,
-          )
-          .join("\n")
-      : "- 아직 연결된 리스크가 없습니다.";
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .map(
-            (experiment) =>
-              `- ${experiment.name} (${experimentStatusLabels[experiment.status] ?? experiment.status}): ${
-                experiment.success_metric || "성공 지표 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 아직 계획된 실험이 없습니다.";
-  const runLines =
-    runs.length > 0
-      ? runs
-          .map(
-            (run) =>
-              `### ${phaseLabels[run.phase]} (${runStatusLabels[run.status]})\n\n담당 역할: ${
-                run.owner_role || "미정"
-              }\n\n목표: ${run.objective || "미정"}\n\n제작 자료:\n\n${run.output || "미정"}`,
-          )
-          .join("\n\n")
-      : "아직 실행 기록이 없습니다.";
+  const riskLines = buildPrdRiskLines(risks);
+  const experimentLines = buildPrdExperimentLines(experiments);
+  const runLines = buildPrdRunLines(runs);
 
   return `# 제품 기획서: ${idea.name}
 
