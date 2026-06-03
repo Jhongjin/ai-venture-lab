@@ -470,6 +470,10 @@ export function replaceRecordById<T extends { id: string }>(records: T[], nextRe
   return records.map((record) => (record.id === nextRecord.id ? nextRecord : record));
 }
 
+export function replaceWorkbenchIdeaInList(current: Idea[], nextIdea: Idea) {
+  return sortWorkbenchIdeas(replaceRecordById(current, nextIdea));
+}
+
 export function replaceRecordsById<T extends { id: string }>(records: T[], nextRecords: T[]) {
   const recordsById = new Map(nextRecords.map((record) => [record.id, record]));
   return records.map((record) => recordsById.get(record.id) ?? record);
@@ -497,6 +501,10 @@ export function mergeRecordMap<T>(record: Record<string, T>, nextRecord: Record<
 
 export function removeRecordById<T extends { id: string }>(records: T[], recordId: string) {
   return records.filter((record) => record.id !== recordId);
+}
+
+export function removeWorkbenchIdeaFromList(current: Idea[], ideaId: string) {
+  return sortWorkbenchIdeas(removeRecordById(current, ideaId));
 }
 
 export function removeRecordsByIdeaId<T extends { idea_id: string | null }>(records: T[], ideaId: string) {

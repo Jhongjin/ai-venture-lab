@@ -87,8 +87,10 @@ import {
   prependRecord,
   prependRecords,
   removeRecordById,
+  removeWorkbenchIdeaFromList,
   removeRecordsByIdeaId,
   replaceRecordById,
+  replaceWorkbenchIdeaInList,
   replaceRecordsByIdeaId,
   replaceRecordsById,
   setRecordField,
@@ -1259,7 +1261,7 @@ export function IdeaWorkbench({
     }
 
     const updatedIdea = data as Idea;
-    const nextIdeas = sortWorkbenchIdeas(ideas.map((currentIdea) => (currentIdea.id === idea.id ? updatedIdea : currentIdea)));
+    const nextIdeas = replaceWorkbenchIdeaInList(ideas, updatedIdea);
     const { nextSelectedIdea, nextTask } = getWorkbenchIdeaDiscardSelectionState(nextIdeas);
 
     setIdeas(nextIdeas);
@@ -1306,7 +1308,7 @@ export function IdeaWorkbench({
 
     const updatedIdea = data as Idea;
 
-    setIdeas((current) => sortWorkbenchIdeas(replaceRecordById(current, updatedIdea)));
+    setIdeas((current) => replaceWorkbenchIdeaInList(current, updatedIdea));
     setSelectedIdeaId(updatedIdea.id);
     setEditState(toEditState(updatedIdea));
     setIsBusy(false);
@@ -1365,7 +1367,7 @@ export function IdeaWorkbench({
       return;
     }
 
-    const remainingIdeas = sortWorkbenchIdeas(ideas.filter((currentIdea) => currentIdea.id !== idea.id));
+    const remainingIdeas = removeWorkbenchIdeaFromList(ideas, idea.id);
     const { isRemovingSelectedIdea: deletingSelectedIdea, nextSelectedIdea } = getWorkbenchIdeaRemovalSelectionState({
       currentSelectedIdeaId: selectedIdea?.id,
       nextIdeas: remainingIdeas,
