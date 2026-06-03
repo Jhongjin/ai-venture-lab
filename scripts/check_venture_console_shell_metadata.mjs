@@ -11,11 +11,14 @@ const {
   formatWorkbenchLearningStatus,
   getActiveConsoleTask,
   getActiveWorkbenchTask,
+  getCompletedRequiredShellTaskIds,
   getCurrentStepBlocker,
   getExecutiveFocus,
   getInitialShellTask,
   getNextTaskOptions,
+  getShellProgressCompletedCount,
   getShellTaskOrderLabel,
+  getShellWorkflowProgress,
   primaryShellTaskIds,
   primaryShellTaskSet,
   resolveVisibleShellTask,
@@ -113,6 +116,17 @@ assert.equal(optionalProgress.activeExecutionStepIndex, -1);
 assert.equal(optionalProgress.stepNumber, null);
 assert.equal(optionalProgress.completedRequiredCount, 3);
 assert.equal(optionalProgress.workflowProgress, 38);
+assert.deepEqual(
+  getCompletedRequiredShellTaskIds({
+    completedTaskIds: ["console:auth", "console:extract", "workbench:score"],
+    executionStepIds: primaryShellTaskIds,
+  }),
+  ["console:extract", "workbench:score"],
+);
+assert.equal(getShellProgressCompletedCount({ activeExecutionStepIndex: 2, completedRequiredCount: 1 }), 2);
+assert.equal(getShellProgressCompletedCount({ activeExecutionStepIndex: -1, completedRequiredCount: 3 }), 3);
+assert.equal(getShellWorkflowProgress({ progressCompletedCount: 3, stepCount: 8 }), 38);
+assert.equal(getShellWorkflowProgress({ progressCompletedCount: 12, stepCount: 8 }), 100);
 assert.equal(getShellTaskOrderLabel({ executionStepIds: primaryShellTaskIds, isOptional: true, taskId: "console:idea" }), "선택");
 assert.equal(getShellTaskOrderLabel({ executionStepIds: primaryShellTaskIds, taskId: "console:auth" }), "0");
 assert.equal(getShellTaskOrderLabel({ executionStepIds: primaryShellTaskIds, taskId: "workbench:development" }), "5");

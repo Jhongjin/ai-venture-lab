@@ -156,15 +156,11 @@ export function buildVentureConsoleProgressState({
   completedTaskIds: ShellTask[];
   executionStepIds?: ShellTask[];
 }): ShellTaskProgressState {
-  const executionStepIdSet = new Set<ShellTask>(executionStepIds);
   const activeExecutionStepIndex = executionStepIds.indexOf(activeTaskId);
-  const completedRequiredTaskIds = completedTaskIds.filter((taskId) => executionStepIdSet.has(taskId));
+  const completedRequiredTaskIds = getCompletedRequiredShellTaskIds({ completedTaskIds, executionStepIds });
   const completedRequiredCount = completedRequiredTaskIds.length;
-  const progressCompletedCount = activeExecutionStepIndex >= 0 ? activeExecutionStepIndex : completedRequiredCount;
-  const workflowProgress = Math.min(
-    100,
-    Math.round((progressCompletedCount / Math.max(1, executionStepIds.length)) * 100),
-  );
+  const progressCompletedCount = getShellProgressCompletedCount({ activeExecutionStepIndex, completedRequiredCount });
+  const workflowProgress = getShellWorkflowProgress({ progressCompletedCount, stepCount: executionStepIds.length });
 
   return {
     activeExecutionStepIndex,
@@ -174,6 +170,38 @@ export function buildVentureConsoleProgressState({
     stepNumber: activeExecutionStepIndex >= 0 ? activeExecutionStepIndex + 1 : null,
     workflowProgress,
   };
+}
+
+export function getCompletedRequiredShellTaskIds({
+  completedTaskIds,
+  executionStepIds,
+}: {
+  completedTaskIds: ShellTask[];
+  executionStepIds: ShellTask[];
+}) {
+  const executionStepIdSet = new Set<ShellTask>(executionStepIds);
+
+  return completedTaskIds.filter((taskId) => executionStepIdSet.has(taskId));
+}
+
+export function getShellProgressCompletedCount({
+  activeExecutionStepIndex,
+  completedRequiredCount,
+}: {
+  activeExecutionStepIndex: number;
+  completedRequiredCount: number;
+}) {
+  return activeExecutionStepIndex >= 0 ? activeExecutionStepIndex : completedRequiredCount;
+}
+
+export function getShellWorkflowProgress({
+  progressCompletedCount,
+  stepCount,
+}: {
+  progressCompletedCount: number;
+  stepCount: number;
+}) {
+  return Math.min(100, Math.round((progressCompletedCount / Math.max(1, stepCount)) * 100));
 }
 
 export function getShellTaskOrderLabel({
