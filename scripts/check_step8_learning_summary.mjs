@@ -49,6 +49,7 @@ const {
   buildStep8LearningDisplayState,
   buildStep8LearningJudgmentQuestion,
   buildStep8LearningNextJudgmentBrief,
+  buildStep8LearningPrimaryActionSummary,
   buildStep8LearningRemainingSummary,
   buildStep8LearningSummary,
   buildStep8ProgressDetail,
@@ -273,6 +274,32 @@ assert.match(
   /완료 여부만 확인/,
 );
 assert.equal(learningSummary.learningJudgmentQuestion, "이 작업을 완료로 볼 근거가 있나요?");
+assert.deepEqual(
+  buildStep8LearningPrimaryActionSummary({
+    buildDeliveryMode: "external_tool",
+    externalToolLabel: "Codex",
+    nextImplementationTask: context.nextTask,
+    productSignalCount: 0,
+    recentSignalCount: 0,
+    taskPrefix: "T-002 ",
+  }),
+  {
+    label: "다음 제작 작업",
+    text: "다음 제작 작업은 T-002 첫 화면 제작입니다. 실제 실행은 STEP 7/외부 도구에서 이어가고, 여기서는 완료 보고 반영 여부만 확인하세요.",
+    detail: "Codex에서 완료 보고가 들어오면 이 화면의 작업 목록이 자동으로 갱신됩니다.",
+  },
+);
+assert.match(
+  buildStep8LearningPrimaryActionSummary({
+    buildDeliveryMode: "venture_lab",
+    externalToolLabel: "Codex",
+    nextImplementationTask: context.nextTask,
+    productSignalCount: 0,
+    recentSignalCount: 0,
+    taskPrefix: "T-002 ",
+  }).detail,
+  /내부 제작 흐름/,
+);
 assert.equal(
   buildStep8ExternalSyncCompletedText({
     completedImplementationTaskCount: 1,
@@ -441,6 +468,36 @@ assert.deepEqual(
   {
     value: "없음",
     detail: "남은 차단 항목이 없으면 다음 빌드 범위를 작게 정하면 됩니다.",
+  },
+);
+assert.deepEqual(
+  buildStep8LearningPrimaryActionSummary({
+    buildDeliveryMode: "external_tool",
+    externalToolLabel: "Codex",
+    nextImplementationTask: null,
+    productSignalCount: 0,
+    recentSignalCount: 0,
+    taskPrefix: "",
+  }),
+  {
+    label: "출시 전 확인",
+    text: "첫 버전을 배포하거나 내부 제작 흐름으로 넘긴 뒤, 방문과 핵심 행동 이벤트가 들어오는지 확인하세요.",
+    detail: "실제 사용 신호가 없을 때는 리포트보다 제작 완료와 이벤트 연결 여부를 먼저 봅니다.",
+  },
+);
+assert.deepEqual(
+  buildStep8LearningPrimaryActionSummary({
+    buildDeliveryMode: "external_tool",
+    externalToolLabel: "Codex",
+    nextImplementationTask: null,
+    productSignalCount: 4,
+    recentSignalCount: 2,
+    taskPrefix: "",
+  }),
+  {
+    label: "다음 빌드 판단",
+    text: "최근 14일 신호 2개를 기준으로 다음 빌드 범위를 작게 정하세요.",
+    detail: "이제 상세 이벤트는 필요할 때만 열고, 다음 개선 또는 보류 판단을 남기면 됩니다.",
   },
 );
 assert.equal(

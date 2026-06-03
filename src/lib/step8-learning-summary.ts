@@ -29,6 +29,12 @@ export type Step8LearningValueDetail = {
   value: string;
 };
 
+export type Step8LearningPrimaryActionSummary = {
+  detail: string;
+  label: string;
+  text: string;
+};
+
 export type Step8LearningSummary = {
   learningDecisionCards: Step8OutcomeCard[];
   learningDecisionDetail: string;
@@ -195,23 +201,17 @@ export function buildStep8LearningSummary({
     totalImplementationTaskCount,
   });
   const learningDecisionDetail = buildStep8LearningDecisionDetail(learningDecisionLabel);
-  const learningPrimaryActionLabel = nextImplementationTask
-    ? "다음 제작 작업"
-    : productSignalCount === 0
-      ? "출시 전 확인"
-      : "다음 빌드 판단";
-  const learningPrimaryActionText = nextImplementationTask
-    ? `다음 제작 작업은 ${taskPrefix}${nextImplementationTask.title}입니다. 실제 실행은 STEP 7/외부 도구에서 이어가고, 여기서는 완료 보고 반영 여부만 확인하세요.`
-    : productSignalCount === 0
-      ? "첫 버전을 배포하거나 내부 제작 흐름으로 넘긴 뒤, 방문과 핵심 행동 이벤트가 들어오는지 확인하세요."
-      : `최근 14일 신호 ${recentSignalCount}개를 기준으로 다음 빌드 범위를 작게 정하세요.`;
-  const learningPrimaryActionDetail = nextImplementationTask
-    ? buildDeliveryMode === "external_tool"
-      ? `${externalToolLabel}에서 완료 보고가 들어오면 이 화면의 작업 목록이 자동으로 갱신됩니다.`
-      : "내부 제작 흐름에서 완료 증거가 저장되면 이 화면의 작업 목록이 자동으로 갱신됩니다."
-    : productSignalCount === 0
-      ? "실제 사용 신호가 없을 때는 리포트보다 제작 완료와 이벤트 연결 여부를 먼저 봅니다."
-      : "이제 상세 이벤트는 필요할 때만 열고, 다음 개선 또는 보류 판단을 남기면 됩니다.";
+  const learningPrimaryActionSummary = buildStep8LearningPrimaryActionSummary({
+    buildDeliveryMode,
+    externalToolLabel,
+    nextImplementationTask,
+    productSignalCount,
+    recentSignalCount,
+    taskPrefix,
+  });
+  const learningPrimaryActionLabel = learningPrimaryActionSummary.label;
+  const learningPrimaryActionText = learningPrimaryActionSummary.text;
+  const learningPrimaryActionDetail = learningPrimaryActionSummary.detail;
   const learningOneSentenceOutcome = nextImplementationTask
     ? `${taskPrefix}${nextImplementationTask.title} 완료 보고가 반영되면 다음 판단으로 넘어갈 수 있습니다.`
     : productSignalCount === 0
@@ -323,6 +323,47 @@ export function buildStep8LearningSummary({
     externalSyncNextTaskText,
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
+  };
+}
+
+export function buildStep8LearningPrimaryActionSummary({
+  buildDeliveryMode,
+  externalToolLabel,
+  nextImplementationTask,
+  productSignalCount,
+  recentSignalCount,
+  taskPrefix,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  externalToolLabel: string;
+  nextImplementationTask: Pick<ImplementationTask, "title"> | null;
+  productSignalCount: number;
+  recentSignalCount: number;
+  taskPrefix: string;
+}): Step8LearningPrimaryActionSummary {
+  if (nextImplementationTask) {
+    return {
+      label: "다음 제작 작업",
+      text: `다음 제작 작업은 ${taskPrefix}${nextImplementationTask.title}입니다. 실제 실행은 STEP 7/외부 도구에서 이어가고, 여기서는 완료 보고 반영 여부만 확인하세요.`,
+      detail:
+        buildDeliveryMode === "external_tool"
+          ? `${externalToolLabel}에서 완료 보고가 들어오면 이 화면의 작업 목록이 자동으로 갱신됩니다.`
+          : "내부 제작 흐름에서 완료 증거가 저장되면 이 화면의 작업 목록이 자동으로 갱신됩니다.",
+    };
+  }
+
+  if (productSignalCount === 0) {
+    return {
+      label: "출시 전 확인",
+      text: "첫 버전을 배포하거나 내부 제작 흐름으로 넘긴 뒤, 방문과 핵심 행동 이벤트가 들어오는지 확인하세요.",
+      detail: "실제 사용 신호가 없을 때는 리포트보다 제작 완료와 이벤트 연결 여부를 먼저 봅니다.",
+    };
+  }
+
+  return {
+    label: "다음 빌드 판단",
+    text: `최근 14일 신호 ${recentSignalCount}개를 기준으로 다음 빌드 범위를 작게 정하세요.`,
+    detail: "이제 상세 이벤트는 필요할 때만 열고, 다음 개선 또는 보류 판단을 남기면 됩니다.",
   };
 }
 
