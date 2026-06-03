@@ -3,6 +3,32 @@ import { decisionLabels, stageLabels } from "@/lib/workbench-labels";
 
 type LaunchChecklistState = Pick<Idea, "stage" | "decision" | "next_evidence">;
 
+export function hasLaunchChecklistArtifactType(
+  artifacts: VentureArtifact[],
+  artifactType: VentureArtifact["artifact_type"],
+) {
+  return artifacts.some((artifact) => artifact.artifact_type === artifactType);
+}
+
+export function hasApprovedLaunchChecklistArtifactType(
+  artifacts: VentureArtifact[],
+  artifactType: VentureArtifact["artifact_type"],
+) {
+  return artifacts.some((artifact) => artifact.artifact_type === artifactType && artifact.status === "approved");
+}
+
+export function countDoneLaunchChecklistImplementationTasks(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.filter((task) => task.status === "done").length;
+}
+
+export function getLaunchChecklistHighRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity));
+}
+
+export function getDoneLaunchChecklistPhases(runs: OrchestrationRun[]) {
+  return new Set(runs.filter((run) => run.status === "done").map((run) => run.phase));
+}
+
 export function buildLaunchChecklistMarkdown({
   idea,
   state,
@@ -20,28 +46,23 @@ export function buildLaunchChecklistMarkdown({
   artifacts: VentureArtifact[];
   implementationTasks: ImplementationTask[];
 }) {
-  const hasPrd = artifacts.some((artifact) => artifact.artifact_type === "prd");
-  const hasApprovedPrd = artifacts.some((artifact) => artifact.artifact_type === "prd" && artifact.status === "approved");
-  const hasMvpSpec = artifacts.some((artifact) => artifact.artifact_type === "mvp_spec");
-  const hasApprovedMvpSpec = artifacts.some(
-    (artifact) => artifact.artifact_type === "mvp_spec" && artifact.status === "approved",
+  const hasPrd = hasLaunchChecklistArtifactType(artifacts, "prd");
+  const hasApprovedPrd = hasApprovedLaunchChecklistArtifactType(artifacts, "prd");
+  const hasMvpSpec = hasLaunchChecklistArtifactType(artifacts, "mvp_spec");
+  const hasApprovedMvpSpec = hasApprovedLaunchChecklistArtifactType(artifacts, "mvp_spec");
+  const hasBackendDecision = hasLaunchChecklistArtifactType(artifacts, "backend_decision");
+  const hasDesignBrief = hasLaunchChecklistArtifactType(artifacts, "design_brief");
+  const hasApprovedDesignBrief = hasApprovedLaunchChecklistArtifactType(artifacts, "design_brief");
+  const hasTechSpec = hasLaunchChecklistArtifactType(artifacts, "tech_spec");
+  const hasApprovedTechSpec = hasApprovedLaunchChecklistArtifactType(artifacts, "tech_spec");
+  const hasDevRunbook = hasLaunchChecklistArtifactType(artifacts, "dev_runbook");
+  const hasIdeaBrief = hasLaunchChecklistArtifactType(artifacts, "idea_brief");
+  const hasResearchNote = hasLaunchChecklistArtifactType(artifacts, "research_note");
+  const doneImplementationTaskCount = countDoneLaunchChecklistImplementationTasks(implementationTasks);
+  const highRiskLines = getLaunchChecklistHighRisks(risks).map(
+    (risk) => `- [ ] ${risk.title} (${risk.severity}, ${risk.status})`,
   );
-  const hasBackendDecision = artifacts.some((artifact) => artifact.artifact_type === "backend_decision");
-  const hasDesignBrief = artifacts.some((artifact) => artifact.artifact_type === "design_brief");
-  const hasApprovedDesignBrief = artifacts.some(
-    (artifact) => artifact.artifact_type === "design_brief" && artifact.status === "approved",
-  );
-  const hasTechSpec = artifacts.some((artifact) => artifact.artifact_type === "tech_spec");
-  const hasApprovedTechSpec = artifacts.some(
-    (artifact) => artifact.artifact_type === "tech_spec" && artifact.status === "approved",
-  );
-  const hasDevRunbook = artifacts.some((artifact) => artifact.artifact_type === "dev_runbook");
-  const hasResearchNote = artifacts.some((artifact) => artifact.artifact_type === "research_note");
-  const doneImplementationTaskCount = implementationTasks.filter((task) => task.status === "done").length;
-  const highRiskLines = risks
-    .filter((risk) => ["high", "critical"].includes(risk.severity))
-    .map((risk) => `- [ ] ${risk.title} (${risk.severity}, ${risk.status})`);
-  const donePhases = new Set(runs.filter((run) => run.status === "done").map((run) => run.phase));
+  const donePhases = getDoneLaunchChecklistPhases(runs);
   const plannedExperimentLines =
     experiments.length > 0
       ? experiments.map((experiment) => `- [ ] ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
@@ -67,7 +88,7 @@ export function buildLaunchChecklistMarkdown({
 - [${hasTechSpec ? "x" : " "}] 기술 명세 저장
 - [${hasApprovedTechSpec ? "x" : " "}] 기술 명세 제작 자료 승인
 - [${hasDevRunbook ? "x" : " "}] 제작 실행 계획 저장
-- [${artifacts.some((artifact) => artifact.artifact_type === "idea_brief") ? "x" : " "}] 아이디어 요약 저장
+- [${hasIdeaBrief ? "x" : " "}] 아이디어 요약 저장
 - [${hasResearchNote ? "x" : " "}] 조사 요약 저장
 - [${implementationTasks.length > 0 ? "x" : " "}] 구현 태스크 생성
 - [${implementationTasks.length > 0 && doneImplementationTaskCount === implementationTasks.length ? "x" : " "}] 구현 태스크 완료 (${doneImplementationTaskCount}/${implementationTasks.length})

@@ -74,6 +74,13 @@ const {
   getAgentRunPackageArtifactCreatedAtTime,
   getApprovedAgentRunPackageArtifacts,
 } = await import(agentRunPackageArtifactsUrl);
+const {
+  countDoneLaunchChecklistImplementationTasks,
+  getDoneLaunchChecklistPhases,
+  getLaunchChecklistHighRisks,
+  hasApprovedLaunchChecklistArtifactType,
+  hasLaunchChecklistArtifactType,
+} = await import(launchChecklistUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -296,6 +303,16 @@ const tasks = [
     updated_at: timestamp,
   },
 ];
+assert.equal(hasLaunchChecklistArtifactType(artifacts, "prd"), true);
+assert.equal(hasLaunchChecklistArtifactType(artifacts, "idea_brief"), false);
+assert.equal(hasApprovedLaunchChecklistArtifactType(artifacts, "prd"), true);
+assert.equal(hasApprovedLaunchChecklistArtifactType(artifacts, "mvp_spec"), true);
+assert.equal(countDoneLaunchChecklistImplementationTasks(tasks), 1);
+assert.deepEqual([...getDoneLaunchChecklistPhases(runs)], ["build"]);
+assert.deepEqual(
+  getLaunchChecklistHighRisks(risks).map((risk) => risk.id),
+  ["risk-1"],
+);
 const taskDrafts = [
   {
     acceptance_criteria: "첫 제작 범위를 잠그고 제외 범위를 확인한다.",
