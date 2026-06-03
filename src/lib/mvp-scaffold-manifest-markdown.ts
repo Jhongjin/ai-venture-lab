@@ -4,9 +4,23 @@ import { decisionLabels, stageLabels } from "@/lib/workbench-labels";
 
 type MvpScaffoldManifestState = Pick<Idea, "stage" | "decision" | "next_evidence" | "product_surface">;
 
-type MvpScaffoldBackendCandidate = {
+export type MvpScaffoldBackendCandidate = {
   label: string;
 };
+
+export function getRecommendedMvpScaffoldBackend(backendCandidateScores: MvpScaffoldBackendCandidate[]) {
+  return backendCandidateScores[0]?.label || "Supabase";
+}
+
+export function usesFirebaseMvpScaffoldBackend(backendLabel: string) {
+  return /Firebase/i.test(backendLabel);
+}
+
+export function getMvpScaffoldExclusions(productSurface: { key: string }) {
+  return productSurface.key === "web_site"
+    ? "회원 계정, 결제, 고급 AI 자동화, 복잡한 관리자 대시보드, 다단계 CRM 자동화는 첫 슬라이스에서 제외합니다."
+    : "마케팅 랜딩 페이지, 결제, 고급 AI 자동화, 관리자 대시보드, 복잡한 알림은 첫 슬라이스에서 제외합니다.";
+}
 
 export function buildMvpScaffoldManifestMarkdown({
   idea,
@@ -19,13 +33,10 @@ export function buildMvpScaffoldManifestMarkdown({
   experiments: Experiment[];
   backendCandidateScores: MvpScaffoldBackendCandidate[];
 }) {
-  const topBackend = backendCandidateScores[0]?.label || "Supabase";
+  const topBackend = getRecommendedMvpScaffoldBackend(backendCandidateScores);
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const usesFirebase = /Firebase/i.test(topBackend);
-  const scaffoldExclusions =
-    productSurface.key === "web_site"
-      ? "회원 계정, 결제, 고급 AI 자동화, 복잡한 관리자 대시보드, 다단계 CRM 자동화는 첫 슬라이스에서 제외합니다."
-      : "마케팅 랜딩 페이지, 결제, 고급 AI 자동화, 관리자 대시보드, 복잡한 알림은 첫 슬라이스에서 제외합니다.";
+  const usesFirebase = usesFirebaseMvpScaffoldBackend(topBackend);
+  const scaffoldExclusions = getMvpScaffoldExclusions(productSurface);
   const envLines = usesFirebase
     ? [
         "| NEXT_PUBLIC_FIREBASE_API_KEY | 클라이언트 공개 | Firebase Web SDK 공개 키 |",

@@ -62,6 +62,8 @@ const moduleUrl = transpileModuleUrl("src/lib/design-architecture-drafts.ts", [
 const { getHighAppBlueprintRisks, getRecommendedAppBlueprintBackend } = await import(appBlueprintUrl);
 const { getDesignBriefRun } = await import(designBriefUrl);
 const { getDesignGenerationSurfaceOpening, getRecommendedDesignGenerationBackend } = await import(designPromptUrl);
+const { getMvpScaffoldExclusions, getRecommendedMvpScaffoldBackend, usesFirebaseMvpScaffoldBackend } =
+  await import(scaffoldManifestUrl);
 const { getTechSpecBuildRun, getTechSpecSecurityRun } = await import(techSpecUrl);
 const { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } = await import(moduleUrl);
 
@@ -180,8 +182,14 @@ assert.equal(getRecommendedAppBlueprintBackend(backendCandidateScores), "Supabas
 assert.equal(getRecommendedAppBlueprintBackend([]), "Supabase");
 assert.equal(getRecommendedDesignGenerationBackend(backendCandidateScores), "Supabase");
 assert.equal(getRecommendedDesignGenerationBackend([]), "Supabase");
+assert.equal(getRecommendedMvpScaffoldBackend(backendCandidateScores), "Supabase");
+assert.equal(getRecommendedMvpScaffoldBackend([]), "Supabase");
+assert.equal(usesFirebaseMvpScaffoldBackend("Firebase SQL Connect"), true);
+assert.equal(usesFirebaseMvpScaffoldBackend("Supabase"), false);
 assert.match(getDesignGenerationSurfaceOpening({ key: "web_site" }), /랜딩\/웹사이트 첫 화면/);
 assert.match(getDesignGenerationSurfaceOpening({ key: "operator_console" }), /실제 앱 첫 화면/);
+assert.match(getMvpScaffoldExclusions({ key: "web_site" }), /회원 계정/);
+assert.match(getMvpScaffoldExclusions({ key: "operator_console" }), /마케팅 랜딩 페이지/);
 assert.deepEqual(
   getHighAppBlueprintRisks(risks).map((risk) => risk.id),
   ["risk-1"],
