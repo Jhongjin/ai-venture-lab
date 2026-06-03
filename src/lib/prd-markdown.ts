@@ -30,6 +30,10 @@ type ValidationEvidenceCoachSummary = {
   } | null;
 };
 
+export function getHighPrdRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity));
+}
+
 export function buildPrdHandoffMarkdown({
   idea,
   state,
@@ -59,9 +63,9 @@ export function buildPrdHandoffMarkdown({
   const readinessLines = prdReadinessChecks
     .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
     .join("\n");
-  const highRiskLines = risks
-    .filter((risk) => ["high", "critical"].includes(risk.severity))
-    .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`);
+  const highRiskLines = getHighPrdRisks(risks).map(
+    (risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`,
+  );
   const experimentLines =
     experiments.length > 0
       ? experiments

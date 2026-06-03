@@ -59,6 +59,7 @@ const {
   getHighMvpScopeRisks,
   getMvpScopeRunByPhase,
 } = await import(mvpScopeUrl);
+const { getHighPrdRisks } = await import(prdUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -167,6 +168,10 @@ assert.equal(getMvpScopeRunByPhase(runs, "product")?.id, "run-1");
 assert.equal(getMvpScopeRunByPhase(runs, "build"), null);
 assert.deepEqual(
   getHighMvpScopeRisks(risks).map((risk) => risk.id),
+  ["risk-1"],
+);
+assert.deepEqual(
+  getHighPrdRisks(risks).map((risk) => risk.id),
   ["risk-1"],
 );
 assert.deepEqual(
