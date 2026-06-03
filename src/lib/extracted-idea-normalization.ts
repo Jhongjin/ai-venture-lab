@@ -66,6 +66,14 @@ export type AiExtractedIdeaCandidate = {
   product_surface_reason?: string;
 };
 
+export function compareExtractedIdeasByValidationStrength(a: ExtractedIdea, b: ExtractedIdea) {
+  return b.validationScore - a.validationScore || b.confidence - a.confidence;
+}
+
+export function sortExtractedIdeasByValidationStrength(ideas: ReadonlyArray<ExtractedIdea>) {
+  return [...ideas].sort(compareExtractedIdeasByValidationStrength);
+}
+
 export function splitIdeaBlocks(source: string) {
   const lines = source
     .split(/\r?\n/)
@@ -99,8 +107,8 @@ export function splitIdeaBlocks(source: string) {
 }
 
 export function extractIdeasFromText(source: string): ExtractedIdea[] {
-  return splitIdeaBlocks(source)
-    .map((block, index) => {
+  return sortExtractedIdeasByValidationStrength(
+    splitIdeaBlocks(source).map((block, index) => {
       const lines = block.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
       const rawName = findLabeledValue(block, ["아이디어", "서비스명", "앱"]) || stripLabel(lines[0] ?? `아이디어 ${index + 1}`);
       const name = compactText(rawName.replace(/\(.+\)/, ""), 42) || `아이디어 ${index + 1}`;
@@ -179,8 +187,8 @@ export function extractIdeasFromText(source: string): ExtractedIdea[] {
             ? "수요가 보여도 규제, 권한, 책임 구조를 먼저 통과해야 합니다."
             : "문제, 대상, 구매자, 첫 실험 단서가 있어 초기 검증 대상으로 볼 수 있습니다.",
       };
-    })
-    .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
+    }),
+  );
 }
 
 function firstText(values: Array<string | undefined>, fallback: string, maxLength = 180) {
@@ -188,9 +196,8 @@ function firstText(values: Array<string | undefined>, fallback: string, maxLengt
 }
 
 export function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCandidate[]): ExtractedIdea[] {
-  return candidates
-    .slice(0, 8)
-    .map((candidate, index) => {
+  return sortExtractedIdeasByValidationStrength(
+    candidates.slice(0, 8).map((candidate, index) => {
       const name = firstText([candidate.name], `AI 아이디어 ${index + 1}`, 42);
       const sourceBlock = [
         `AI 아이디어: ${name}`,
@@ -279,6 +286,6 @@ export function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedI
             ? "AI가 수요는 정리했지만 규제, 개인정보, 운영 책임 검증이 먼저 필요합니다."
             : "AI가 문제, 대상, 구매자, 첫 실험을 정리해 검증할 아이디어로 볼 수 있습니다.",
       };
-    })
-    .sort((a, b) => b.validationScore - a.validationScore || b.confidence - a.confidence);
+    }),
+  );
 }

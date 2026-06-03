@@ -29,7 +29,13 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { extractIdeasFromText, hydrateAiExtractedIdeas, splitIdeaBlocks } = await import(moduleUrl);
+const {
+  compareExtractedIdeasByValidationStrength,
+  extractIdeasFromText,
+  hydrateAiExtractedIdeas,
+  sortExtractedIdeasByValidationStrength,
+  splitIdeaBlocks,
+} = await import(moduleUrl);
 
 const sourceText = [
   "1. 아이디어: 고객 문의 자동 정리 콘솔",
@@ -57,6 +63,21 @@ assert.equal(ideas[0].buyer, "운영팀 리더");
 assert.ok(ideas[0].evidence.includes("문제 신호"));
 assert.equal(ideas[0].riskLevel, "보통");
 assert.ok(ideas[0].validationScore >= ideas[1].validationScore);
+assert.deepEqual(
+  sortExtractedIdeasByValidationStrength([
+    { id: "lower", validationScore: 58, confidence: 90 },
+    { id: "higher", validationScore: 78, confidence: 50 },
+    { id: "tie-stronger", validationScore: 58, confidence: 95 },
+  ]).map((item) => item.id),
+  ["higher", "tie-stronger", "lower"],
+);
+assert.equal(
+  compareExtractedIdeasByValidationStrength(
+    { validationScore: 78, confidence: 50 },
+    { validationScore: 58, confidence: 95 },
+  ) < 0,
+  true,
+);
 
 const hydrated = hydrateAiExtractedIdeas("고객 문의를 매주 시트로 옮기고 답변 초안을 따로 만듭니다.", [
   {
