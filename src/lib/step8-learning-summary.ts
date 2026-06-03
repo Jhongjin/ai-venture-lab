@@ -22,10 +22,12 @@ export type Step8OutcomeCard = {
 
 export type Step8ReviewRow = readonly [label: string, value: string, detail: string];
 
+export type Step8LearningDecisionLabel = "다음 작업 완료" | "첫 버전 배포" | "리스크 보완" | "다음 빌드 범위 결정";
+
 export type Step8LearningSummary = {
   learningDecisionCards: Step8OutcomeCard[];
   learningDecisionDetail: string;
-  learningDecisionLabel: string;
+  learningDecisionLabel: Step8LearningDecisionLabel;
   learningDecisionOptions: string[];
   learningCompletedDetail: string;
   learningCompletedValue: string;
@@ -181,22 +183,13 @@ export function buildStep8LearningSummary({
   totalImplementationTaskCount: number;
 }): Step8LearningSummary {
   const taskPrefix = formatStep8TaskCodePrefix(nextImplementationTaskCode);
-  const learningDecisionLabel =
-    totalImplementationTaskCount > 0 && completedImplementationTaskCount < totalImplementationTaskCount
-      ? "다음 작업 완료"
-      : productSignalCount === 0
-        ? "첫 버전 배포"
-        : openRiskCount > 0
-          ? "리스크 보완"
-          : "다음 빌드 범위 결정";
-  const learningDecisionDetail =
-    learningDecisionLabel === "다음 작업 완료"
-      ? "아직 완료되지 않은 제작 작업이 있습니다. 선택한 외부 개발 도구나 내부 제작 흐름에서 다음 작업을 끝내고 결과를 다시 반영하세요."
-      : learningDecisionLabel === "첫 버전 배포"
-        ? "아직 실제 제품 이벤트가 없습니다. 먼저 첫 사용자에게 보여줄 버전을 만들고 핵심 행동 신호를 연결하세요."
-        : learningDecisionLabel === "리스크 보완"
-          ? "사용 신호와 열린 리스크를 같이 보고 다음 빌드에서 제거할 차단 요인을 정하세요."
-          : "최근 사용 신호를 보며 다음 빌드 범위를 작게 승인할지 판단하세요.";
+  const learningDecisionLabel = buildStep8LearningDecisionLabel({
+    completedImplementationTaskCount,
+    openRiskCount,
+    productSignalCount,
+    totalImplementationTaskCount,
+  });
+  const learningDecisionDetail = buildStep8LearningDecisionDetail(learningDecisionLabel);
   const learningPrimaryActionLabel = nextImplementationTask
     ? "다음 제작 작업"
     : productSignalCount === 0
@@ -228,13 +221,11 @@ export function buildStep8LearningSummary({
   const learningPrimaryNavigationHintDetail = nextImplementationTask
     ? "이 화면은 완료와 다음 판단만 보여줍니다. 단계 이동은 왼쪽 단계 메뉴나 하단 단계 버튼에서 진행하세요."
     : "성과 확인 화면 안에서는 단계를 자동 이동하지 않습니다. 최종 실행 자료는 STEP 7에서 확인하세요.";
-  const learningDecisionOptions = nextImplementationTask
-    ? ["작업 계속", "막힘 해결", "완료 보고 반영"]
-    : productSignalCount === 0
-      ? ["첫 버전 배포", "성과 신호 연결", "최종 실행 확인"]
-      : openRiskCount > 0
-        ? ["리스크 보완", "범위 축소", "보류"]
-        : ["다음 빌드 승인", "작게 개선", "보류"];
+  const learningDecisionOptions = buildStep8LearningDecisionOptions({
+    hasNextImplementationTask: Boolean(nextImplementationTask),
+    openRiskCount,
+    productSignalCount,
+  });
   const learningCompletedValue =
     totalImplementationTaskCount > 0
       ? `${completedImplementationTaskCount}/${totalImplementationTaskCount} 작업`
@@ -344,6 +335,64 @@ export function buildStep8LearningSummary({
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
   };
+}
+
+export function buildStep8LearningDecisionLabel({
+  completedImplementationTaskCount,
+  openRiskCount,
+  productSignalCount,
+  totalImplementationTaskCount,
+}: {
+  completedImplementationTaskCount: number;
+  openRiskCount: number;
+  productSignalCount: number;
+  totalImplementationTaskCount: number;
+}): Step8LearningDecisionLabel {
+  if (totalImplementationTaskCount > 0 && completedImplementationTaskCount < totalImplementationTaskCount) {
+    return "다음 작업 완료";
+  }
+
+  if (productSignalCount === 0) {
+    return "첫 버전 배포";
+  }
+
+  return openRiskCount > 0 ? "리스크 보완" : "다음 빌드 범위 결정";
+}
+
+export function buildStep8LearningDecisionDetail(learningDecisionLabel: Step8LearningDecisionLabel) {
+  if (learningDecisionLabel === "다음 작업 완료") {
+    return "아직 완료되지 않은 제작 작업이 있습니다. 선택한 외부 개발 도구나 내부 제작 흐름에서 다음 작업을 끝내고 결과를 다시 반영하세요.";
+  }
+
+  if (learningDecisionLabel === "첫 버전 배포") {
+    return "아직 실제 제품 이벤트가 없습니다. 먼저 첫 사용자에게 보여줄 버전을 만들고 핵심 행동 신호를 연결하세요.";
+  }
+
+  if (learningDecisionLabel === "리스크 보완") {
+    return "사용 신호와 열린 리스크를 같이 보고 다음 빌드에서 제거할 차단 요인을 정하세요.";
+  }
+
+  return "최근 사용 신호를 보며 다음 빌드 범위를 작게 승인할지 판단하세요.";
+}
+
+export function buildStep8LearningDecisionOptions({
+  hasNextImplementationTask,
+  openRiskCount,
+  productSignalCount,
+}: {
+  hasNextImplementationTask: boolean;
+  openRiskCount: number;
+  productSignalCount: number;
+}) {
+  if (hasNextImplementationTask) {
+    return ["작업 계속", "막힘 해결", "완료 보고 반영"];
+  }
+
+  if (productSignalCount === 0) {
+    return ["첫 버전 배포", "성과 신호 연결", "최종 실행 확인"];
+  }
+
+  return openRiskCount > 0 ? ["리스크 보완", "범위 축소", "보류"] : ["다음 빌드 승인", "작게 개선", "보류"];
 }
 
 export function formatStep8TaskCodePrefix(taskCode: string | null) {

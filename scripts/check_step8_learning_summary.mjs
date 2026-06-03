@@ -38,6 +38,9 @@ const {
   areAllStep8ProgressItemsDone,
   buildStep8ImplementationDerivedState,
   buildStep8ImplementationTaskContext,
+  buildStep8LearningDecisionDetail,
+  buildStep8LearningDecisionLabel,
+  buildStep8LearningDecisionOptions,
   buildStep8LearningDisplayState,
   buildStep8LearningSummary,
   buildStep8ProgressDetail,
@@ -199,8 +202,27 @@ const learningSummary = buildStep8LearningSummary({
   taskSyncUpdatedAt: "2026-06-01 09:00",
   totalImplementationTaskCount: context.totalCount,
 });
+assert.equal(
+  buildStep8LearningDecisionLabel({
+    completedImplementationTaskCount: 1,
+    openRiskCount: 0,
+    productSignalCount: 0,
+    totalImplementationTaskCount: 3,
+  }),
+  "다음 작업 완료",
+);
+assert.match(buildStep8LearningDecisionDetail("다음 작업 완료"), /완료되지 않은 제작 작업/);
+assert.deepEqual(
+  buildStep8LearningDecisionOptions({
+    hasNextImplementationTask: true,
+    openRiskCount: 0,
+    productSignalCount: 0,
+  }),
+  ["작업 계속", "막힘 해결", "완료 보고 반영"],
+);
 assert.equal(learningSummary.learningDecisionCards[0].label, "완료된 것");
 assert.equal(learningSummary.learningDecisionCards[1].value, "T-002 남음");
+assert.equal(learningSummary.learningDecisionLabel, "다음 작업 완료");
 assert.match(learningSummary.learningPrimaryActionText, /T-002 첫 화면 제작/);
 assert.equal(formatStep8TaskCodePrefix("T-002"), "T-002 ");
 assert.equal(formatStep8TaskCodePrefix(null), "");
@@ -279,6 +301,52 @@ const displayState = buildStep8LearningDisplayState({
 assert.equal(displayState.canCopyLearningReport, true);
 assert.equal(displayState.learningDecisionCards[0].label, "완료된 것");
 assert.equal(displayState.learningPrimaryCtaLabel, "리포트 복사");
+assert.equal(displayState.learningDecisionLabel, "다음 빌드 범위 결정");
+assert.match(buildStep8LearningDecisionDetail("첫 버전 배포"), /핵심 행동 신호/);
+assert.match(buildStep8LearningDecisionDetail("리스크 보완"), /열린 리스크/);
+assert.match(buildStep8LearningDecisionDetail("다음 빌드 범위 결정"), /다음 빌드 범위/);
+assert.equal(
+  buildStep8LearningDecisionLabel({
+    completedImplementationTaskCount: 0,
+    openRiskCount: 0,
+    productSignalCount: 0,
+    totalImplementationTaskCount: 0,
+  }),
+  "첫 버전 배포",
+);
+assert.equal(
+  buildStep8LearningDecisionLabel({
+    completedImplementationTaskCount: 0,
+    openRiskCount: 1,
+    productSignalCount: 2,
+    totalImplementationTaskCount: 0,
+  }),
+  "리스크 보완",
+);
+assert.deepEqual(
+  buildStep8LearningDecisionOptions({
+    hasNextImplementationTask: false,
+    openRiskCount: 0,
+    productSignalCount: 0,
+  }),
+  ["첫 버전 배포", "성과 신호 연결", "최종 실행 확인"],
+);
+assert.deepEqual(
+  buildStep8LearningDecisionOptions({
+    hasNextImplementationTask: false,
+    openRiskCount: 1,
+    productSignalCount: 2,
+  }),
+  ["리스크 보완", "범위 축소", "보류"],
+);
+assert.deepEqual(
+  buildStep8LearningDecisionOptions({
+    hasNextImplementationTask: false,
+    openRiskCount: 0,
+    productSignalCount: 2,
+  }),
+  ["다음 빌드 승인", "작게 개선", "보류"],
+);
 assert.equal(displayState.progressTitle, "제작 작업 완료");
 assert.equal(areAllStep8ProgressItemsDone(displayState.progressItems), true);
 assert.equal(buildStep8ProgressTitle({ hasNextTask: false, progressItems: displayState.progressItems }), "제작 작업 완료");
