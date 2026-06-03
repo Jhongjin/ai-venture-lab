@@ -41,7 +41,8 @@ const source = readFileSync(modulePath, "utf8")
   .replace('from "@/lib/cursor-mcp-server-script";', `from ${JSON.stringify(cursorMcpServerUrl)};`)
   .replace('from "@/lib/external-tool-handoff-markdown";', `from ${JSON.stringify(handoffUrl)};`);
 const moduleUrl = transpileToDataUrl(source, modulePath);
-const { formatExternalToolSyncExpiryText } = await import(handoffUrl);
+const { buildExternalToolTaskBody, buildFallbackExternalToolTaskSection, buildSavedExternalToolTaskSection, formatExternalToolSyncExpiryText } =
+  await import(handoffUrl);
 const { buildExternalToolConnectorDrafts, buildExternalToolPackageDrafts } = await import(moduleUrl);
 
 assert.equal(formatExternalToolSyncExpiryText(), "");
@@ -122,6 +123,18 @@ const fallbackTasks = [
     title: "첫 화면 제작",
   },
 ];
+const savedTaskBody = buildExternalToolTaskBody({ fallbackTasks, tasks });
+assert.match(savedTaskBody, /T-001 첫 화면 제작/);
+assert.doesNotMatch(savedTaskBody, /아직 작업 보드에는 저장 전/);
+assert.match(buildSavedExternalToolTaskSection(tasks[0], 0), /T-001 첫 화면 제작/);
+
+const fallbackTaskBody = buildExternalToolTaskBody({ fallbackTasks, tasks: [] });
+assert.match(fallbackTaskBody, /Venture Lab 저장 상태/);
+assert.match(buildFallbackExternalToolTaskSection(fallbackTasks[0], 0), /venture_record_progress/);
+assert.equal(
+  buildExternalToolTaskBody({ fallbackTasks: [], tasks: [] }),
+  "아직 저장된 제작 작업이 없습니다. Venture Lab STEP 6에서 작업 순서를 먼저 생성하세요.",
+);
 
 const drafts = buildExternalToolPackageDrafts({
   fallbackTasks,

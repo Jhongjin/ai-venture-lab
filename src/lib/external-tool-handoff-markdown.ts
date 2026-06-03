@@ -23,24 +23,10 @@ export function formatExternalToolSyncExpiryText(syncExpiresAt?: string) {
   return syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
 }
 
-export function buildCursorTaskMarkdown({
-  idea,
-  productSurface,
-  tasks,
-  fallbackTasks = [],
-}: {
-  idea: Idea;
-  productSurface: ProductSurfaceProfile;
-  tasks: ImplementationTask[];
-  fallbackTasks?: ImplementationTaskDraft[];
-}) {
-  const sortedTasks = sortImplementationTasksForExecution(tasks);
-  const taskBody =
-    sortedTasks.length > 0
-      ? sortedTasks
-          .map((task, index) => {
-            const taskCode = getCursorTaskCode(index);
-            return `## ${taskCode} ${task.title}
+export function buildSavedExternalToolTaskSection(task: ImplementationTask, index: number) {
+  const taskCode = getCursorTaskCode(index);
+
+  return `## ${taskCode} ${task.title}
 
 - 상태: ${implementationTaskStatusLabels[task.status]}
 - 유형: ${implementationTaskTypeLabels[task.task_type]}
@@ -52,13 +38,12 @@ export function buildCursorTaskMarkdown({
 ${task.acceptance_criteria || "제작 패키지의 범위와 품질 기준을 따릅니다."}
 
 ${implementationTaskCompletionReportTemplate}`;
-          })
-          .join("\n\n")
-      : fallbackTasks.length > 0
-        ? fallbackTasks
-            .map((task, index) => {
-              const taskCode = getCursorTaskCode(index);
-              return `## ${taskCode} ${task.title}
+}
+
+export function buildFallbackExternalToolTaskSection(task: ImplementationTaskDraft, index: number) {
+  const taskCode = getCursorTaskCode(index);
+
+  return `## ${taskCode} ${task.title}
 
 - 상태: 할 일
 - 유형: ${implementationTaskTypeLabels[task.task_type]}
@@ -71,9 +56,40 @@ ${implementationTaskCompletionReportTemplate}`;
 ${task.acceptance_criteria || "제작 패키지의 범위와 품질 기준을 따릅니다."}
 
 ${implementationTaskCompletionReportTemplate}`;
-            })
-            .join("\n\n")
-        : "아직 저장된 제작 작업이 없습니다. Venture Lab STEP 6에서 작업 순서를 먼저 생성하세요.";
+}
+
+export function buildExternalToolTaskBody({
+  fallbackTasks = [],
+  tasks,
+}: {
+  fallbackTasks?: ImplementationTaskDraft[];
+  tasks: ImplementationTask[];
+}) {
+  const sortedTasks = sortImplementationTasksForExecution(tasks);
+
+  if (sortedTasks.length > 0) {
+    return sortedTasks.map(buildSavedExternalToolTaskSection).join("\n\n");
+  }
+
+  if (fallbackTasks.length > 0) {
+    return fallbackTasks.map(buildFallbackExternalToolTaskSection).join("\n\n");
+  }
+
+  return "아직 저장된 제작 작업이 없습니다. Venture Lab STEP 6에서 작업 순서를 먼저 생성하세요.";
+}
+
+export function buildCursorTaskMarkdown({
+  idea,
+  productSurface,
+  tasks,
+  fallbackTasks = [],
+}: {
+  idea: Idea;
+  productSurface: ProductSurfaceProfile;
+  tasks: ImplementationTask[];
+  fallbackTasks?: ImplementationTaskDraft[];
+}) {
+  const taskBody = buildExternalToolTaskBody({ fallbackTasks, tasks });
 
   return `# Cursor 작업 목록
 
