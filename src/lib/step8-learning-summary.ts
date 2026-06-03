@@ -292,23 +292,26 @@ export function buildStep8LearningSummary({
       : openRiskCount > 0
         ? "다음 빌드에서 줄일 리스크 하나만 고르면 됩니다. 상세 리포트는 필요할 때만 엽니다."
         : "다음 빌드 범위를 승인할지 보류할지만 정하면 됩니다. 상세 리포트는 필요할 때만 엽니다.";
-  const externalSyncCompletedText =
-    totalImplementationTaskCount > 0 ? `${completedImplementationTaskCount}/${totalImplementationTaskCount} 작업` : "작업 생성 전";
-  const externalSyncNextTaskText = nextImplementationTask
-    ? `${taskPrefix}${nextImplementationTask.title}`
-    : totalImplementationTaskCount > 0
-      ? "모든 작업 완료"
-      : "STEP 6 작업 순서 생성";
+  const externalSyncCompletedText = buildStep8ExternalSyncCompletedText({
+    completedImplementationTaskCount,
+    totalImplementationTaskCount,
+  });
+  const externalSyncNextTaskText = buildStep8ExternalSyncNextTaskText({
+    nextImplementationTask,
+    taskPrefix,
+    totalImplementationTaskCount,
+  });
   const externalSyncCheckedText = taskSyncUpdatedAt ?? "화면을 열면 자동 확인";
-  const externalSyncOutcomeSentence =
-    totalImplementationTaskCount > 0
-      ? `자동 반영 기준으로 완료 ${externalSyncCompletedText}, 다음은 ${externalSyncNextTaskText}입니다.`
-      : "아직 반영할 제작 작업이 없습니다. STEP 6에서 작업 순서를 만든 뒤 최종 실행으로 넘기세요.";
-  const externalSyncReviewRows: Step8ReviewRow[] = [
-    ["반영 결과", externalSyncCompletedText, "외부 도구 완료 보고가 반영된 작업 수입니다."],
-    ["다음 작업", externalSyncNextTaskText, "이 작업만 이어서 처리하면 됩니다."],
-    ["최근 확인", externalSyncCheckedText, "최종 실행과 성과 확인 화면에서 자동으로 다시 읽습니다."],
-  ];
+  const externalSyncOutcomeSentence = buildStep8ExternalSyncOutcomeSentence({
+    externalSyncCompletedText,
+    externalSyncNextTaskText,
+    totalImplementationTaskCount,
+  });
+  const externalSyncReviewRows = buildStep8ExternalSyncReviewRows({
+    externalSyncCheckedText,
+    externalSyncCompletedText,
+    externalSyncNextTaskText,
+  });
 
   return {
     learningDecisionCards,
@@ -335,6 +338,64 @@ export function buildStep8LearningSummary({
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
   };
+}
+
+export function buildStep8ExternalSyncCompletedText({
+  completedImplementationTaskCount,
+  totalImplementationTaskCount,
+}: {
+  completedImplementationTaskCount: number;
+  totalImplementationTaskCount: number;
+}) {
+  return totalImplementationTaskCount > 0
+    ? `${completedImplementationTaskCount}/${totalImplementationTaskCount} 작업`
+    : "작업 생성 전";
+}
+
+export function buildStep8ExternalSyncNextTaskText({
+  nextImplementationTask,
+  taskPrefix,
+  totalImplementationTaskCount,
+}: {
+  nextImplementationTask: Pick<ImplementationTask, "title"> | null;
+  taskPrefix: string;
+  totalImplementationTaskCount: number;
+}) {
+  if (nextImplementationTask) {
+    return `${taskPrefix}${nextImplementationTask.title}`;
+  }
+
+  return totalImplementationTaskCount > 0 ? "모든 작업 완료" : "STEP 6 작업 순서 생성";
+}
+
+export function buildStep8ExternalSyncOutcomeSentence({
+  externalSyncCompletedText,
+  externalSyncNextTaskText,
+  totalImplementationTaskCount,
+}: {
+  externalSyncCompletedText: string;
+  externalSyncNextTaskText: string;
+  totalImplementationTaskCount: number;
+}) {
+  return totalImplementationTaskCount > 0
+    ? `자동 반영 기준으로 완료 ${externalSyncCompletedText}, 다음은 ${externalSyncNextTaskText}입니다.`
+    : "아직 반영할 제작 작업이 없습니다. STEP 6에서 작업 순서를 만든 뒤 최종 실행으로 넘기세요.";
+}
+
+export function buildStep8ExternalSyncReviewRows({
+  externalSyncCheckedText,
+  externalSyncCompletedText,
+  externalSyncNextTaskText,
+}: {
+  externalSyncCheckedText: string;
+  externalSyncCompletedText: string;
+  externalSyncNextTaskText: string;
+}): Step8ReviewRow[] {
+  return [
+    ["반영 결과", externalSyncCompletedText, "외부 도구 완료 보고가 반영된 작업 수입니다."],
+    ["다음 작업", externalSyncNextTaskText, "이 작업만 이어서 처리하면 됩니다."],
+    ["최근 확인", externalSyncCheckedText, "최종 실행과 성과 확인 화면에서 자동으로 다시 읽습니다."],
+  ];
 }
 
 export function buildStep8LearningDecisionLabel({

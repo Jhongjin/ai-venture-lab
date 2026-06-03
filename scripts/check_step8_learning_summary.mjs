@@ -36,6 +36,10 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   areAllStep8ProgressItemsDone,
+  buildStep8ExternalSyncCompletedText,
+  buildStep8ExternalSyncNextTaskText,
+  buildStep8ExternalSyncOutcomeSentence,
+  buildStep8ExternalSyncReviewRows,
   buildStep8ImplementationDerivedState,
   buildStep8ImplementationTaskContext,
   buildStep8LearningDecisionDetail,
@@ -223,6 +227,39 @@ assert.deepEqual(
 assert.equal(learningSummary.learningDecisionCards[0].label, "완료된 것");
 assert.equal(learningSummary.learningDecisionCards[1].value, "T-002 남음");
 assert.equal(learningSummary.learningDecisionLabel, "다음 작업 완료");
+assert.equal(
+  buildStep8ExternalSyncCompletedText({
+    completedImplementationTaskCount: 1,
+    totalImplementationTaskCount: 3,
+  }),
+  "1/3 작업",
+);
+assert.equal(
+  buildStep8ExternalSyncNextTaskText({
+    nextImplementationTask: context.nextTask,
+    taskPrefix: context.nextTaskCode ? `${context.nextTaskCode} ` : "",
+    totalImplementationTaskCount: 3,
+  }),
+  "T-002 첫 화면 제작",
+);
+assert.equal(
+  buildStep8ExternalSyncOutcomeSentence({
+    externalSyncCompletedText: "1/3 작업",
+    externalSyncNextTaskText: "T-002 첫 화면 제작",
+    totalImplementationTaskCount: 3,
+  }),
+  "자동 반영 기준으로 완료 1/3 작업, 다음은 T-002 첫 화면 제작입니다.",
+);
+assert.deepEqual(
+  buildStep8ExternalSyncReviewRows({
+    externalSyncCheckedText: "2026-06-01 09:00",
+    externalSyncCompletedText: "1/3 작업",
+    externalSyncNextTaskText: "T-002 첫 화면 제작",
+  })[0],
+  ["반영 결과", "1/3 작업", "외부 도구 완료 보고가 반영된 작업 수입니다."],
+);
+assert.equal(learningSummary.externalSyncCompletedText, "1/3 작업");
+assert.equal(learningSummary.externalSyncNextTaskText, "T-002 첫 화면 제작");
 assert.match(learningSummary.learningPrimaryActionText, /T-002 첫 화면 제작/);
 assert.equal(formatStep8TaskCodePrefix("T-002"), "T-002 ");
 assert.equal(formatStep8TaskCodePrefix(null), "");
@@ -346,6 +383,37 @@ assert.deepEqual(
     productSignalCount: 2,
   }),
   ["다음 빌드 승인", "작게 개선", "보류"],
+);
+assert.equal(
+  buildStep8ExternalSyncCompletedText({
+    completedImplementationTaskCount: 0,
+    totalImplementationTaskCount: 0,
+  }),
+  "작업 생성 전",
+);
+assert.equal(
+  buildStep8ExternalSyncNextTaskText({
+    nextImplementationTask: null,
+    taskPrefix: "",
+    totalImplementationTaskCount: 0,
+  }),
+  "STEP 6 작업 순서 생성",
+);
+assert.equal(
+  buildStep8ExternalSyncNextTaskText({
+    nextImplementationTask: null,
+    taskPrefix: "",
+    totalImplementationTaskCount: 3,
+  }),
+  "모든 작업 완료",
+);
+assert.match(
+  buildStep8ExternalSyncOutcomeSentence({
+    externalSyncCompletedText: "작업 생성 전",
+    externalSyncNextTaskText: "STEP 6 작업 순서 생성",
+    totalImplementationTaskCount: 0,
+  }),
+  /아직 반영할 제작 작업/,
 );
 assert.equal(displayState.progressTitle, "제작 작업 완료");
 assert.equal(areAllStep8ProgressItemsDone(displayState.progressItems), true);
