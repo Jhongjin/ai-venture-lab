@@ -26,7 +26,9 @@ const {
   buildArtifactVersionSummaries,
   comparePreviousArtifactVersions,
   findPreviousArtifactVersion,
+  formatArtifactReviewSectionPreview,
   getPreviousArtifactVersionCreatedAtTime,
+  getArtifactReviewChecksPreview,
   summarizeArtifactLineChanges,
   sortPreviousArtifactVersions,
 } = await import(moduleUrl);
@@ -221,6 +223,11 @@ const summaryState = buildArtifactReviewSummaryState(artifacts);
 assert.equal(summaryState.artifactVersionSummaries.get("prd-v3").previous.id, "prd-v2");
 assert.equal(summaryState.artifactReviewSummaries.get("prd-v3").previous.id, "prd-v2");
 assert.equal(summaryState.artifactReviewSummaries.get("prd-v3").intensity, "major");
+assert.equal(formatArtifactReviewSectionPreview(["A", "B", "C", "D", "E"]), "A, B, C, D");
+assert.equal(formatArtifactReviewSectionPreview([]), "없음");
+assert.equal(formatArtifactReviewSectionPreview(["A", "B"], 1), "A");
+assert.deepEqual(getArtifactReviewChecksPreview(["a", "b", "c", "d"]), ["a", "b", "c"]);
+assert.deepEqual(getArtifactReviewChecksPreview(["a", "b", "c", "d"], 2), ["a", "b"]);
 
 const memo = buildArtifactReviewMemo(artifacts[2], reviewSummaries.get("prd-v3"));
 assert.match(memo, /이전 비교: v2/);

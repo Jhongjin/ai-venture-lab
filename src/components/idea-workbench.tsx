@@ -35,6 +35,8 @@ import {
   artifactReviewIntensityTone,
   buildArtifactReviewMemo,
   buildArtifactReviewSummaryState,
+  formatArtifactReviewSectionPreview,
+  getArtifactReviewChecksPreview,
 } from "@/lib/artifact-review-summary";
 import {
   buildArtifactDraftInsertRow,
@@ -7704,10 +7706,10 @@ export function IdeaWorkbench({
                                   섹션 변화
                                 </div>
                                 <p className="mt-1 text-xs leading-5 text-slate-600">
-                                  추가: {reviewSummary.addedSections.slice(0, 4).join(", ") || "없음"}
+                                  추가: {formatArtifactReviewSectionPreview(reviewSummary.addedSections)}
                                 </p>
                                 <p className="mt-1 text-xs leading-5 text-slate-600">
-                                  삭제: {reviewSummary.removedSections.slice(0, 4).join(", ") || "없음"}
+                                  삭제: {formatArtifactReviewSectionPreview(reviewSummary.removedSections)}
                                 </p>
                               </div>
                               <div className="border border-slate-200 bg-white px-3 py-2">
@@ -7715,7 +7717,7 @@ export function IdeaWorkbench({
                                   승인 전 확인
                                 </div>
                                 <ul className="mt-1 grid gap-1 text-xs leading-5 text-slate-600">
-                                  {reviewSummary.checks.slice(0, 3).map((check) => (
+                                  {getArtifactReviewChecksPreview(reviewSummary.checks).map((check) => (
                                     <li key={check}>- {check}</li>
                                   ))}
                                 </ul>

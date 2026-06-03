@@ -189,6 +189,14 @@ export function buildArtifactReviewSummaryState(artifacts: VentureArtifact[]) {
   };
 }
 
+export function formatArtifactReviewSectionPreview(sections: string[], limit = 4) {
+  return sections.slice(0, limit).join(", ") || "없음";
+}
+
+export function getArtifactReviewChecksPreview(checks: string[], limit = 3) {
+  return checks.slice(0, limit);
+}
+
 export function buildArtifactReviewMemo(artifact: VentureArtifact, summary: ArtifactReviewSummary) {
   return `# 제작 자료 리뷰 메모: ${artifact.title || artifactLabels[artifact.artifact_type]}
 
