@@ -249,10 +249,18 @@ export function sortWorkbenchIdeas(nextIdeas: Idea[]) {
   return [...nextIdeas].sort(compareWorkbenchIdeas);
 }
 
+export function getWorkbenchIdeaCreatedAtTime(idea: Pick<Idea, "created_at">) {
+  return new Date(idea.created_at).getTime();
+}
+
+export function compareWorkbenchIdeasByCreatedAtDesc(a: Idea, b: Idea) {
+  return getWorkbenchIdeaCreatedAtTime(b) - getWorkbenchIdeaCreatedAtTime(a);
+}
+
 export function compareWorkbenchIdeas(a: Idea, b: Idea) {
   return (
     getIdeaStageRank(a.stage) - getIdeaStageRank(b.stage) ||
-    new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
+    compareWorkbenchIdeasByCreatedAtDesc(a, b) ||
     a.name.localeCompare(b.name, "ko-KR")
   );
 }
