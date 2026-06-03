@@ -23,6 +23,30 @@ type DevelopmentCompletionGateCheck = {
 
 type DevelopmentCompletionState = Pick<Idea, "stage" | "decision">;
 
+export type DevelopmentCompletionTaskStats = {
+  completedTaskCount: number;
+  taskEvidenceCount: number;
+};
+
+export function getDoneDevelopmentCompletionRuns(runs: OrchestrationRun[]) {
+  return runs.filter((run) => run.status === "done");
+}
+
+export function buildDevelopmentCompletionTaskStats(
+  implementationTasks: ImplementationTask[],
+): DevelopmentCompletionTaskStats {
+  const completedTasks = implementationTasks.filter((task) => task.status === "done");
+
+  return {
+    completedTaskCount: completedTasks.length,
+    taskEvidenceCount: completedTasks.filter((task) => task.evidence.trim()).length,
+  };
+}
+
+export function getReleaseEvidenceImplementationTasks(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.filter((task) => ["backend", "data", "security", "deploy"].includes(task.task_type));
+}
+
 export function buildDevelopmentCompletionReportMarkdown({
   idea,
   state,
@@ -73,12 +97,10 @@ export function buildDevelopmentCompletionReportMarkdown({
           )
           .join("\n")
       : "- 저장된 제작 자료가 없습니다.";
+  const doneRuns = getDoneDevelopmentCompletionRuns(runs);
   const doneRunLines =
-    runs.filter((run) => run.status === "done").length > 0
-      ? runs
-          .filter((run) => run.status === "done")
-          .map((run) => `- ${phaseLabels[run.phase]}: ${run.owner_role || "owner 미정"}`)
-          .join("\n")
+    doneRuns.length > 0
+      ? doneRuns.map((run) => `- ${phaseLabels[run.phase]}: ${run.owner_role || "owner 미정"}`).join("\n")
       : "- 완료된 실행 단계가 없습니다.";
   const gateLines = implementationGateChecks
     .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
@@ -86,11 +108,8 @@ export function buildDevelopmentCompletionReportMarkdown({
   const launchLines = launchReadiness
     .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
     .join("\n");
-  const completedTaskCount = implementationTasks.filter((task) => task.status === "done").length;
-  const taskEvidenceCount = implementationTasks.filter((task) => task.status === "done" && task.evidence.trim()).length;
-  const releaseEvidenceTasks = implementationTasks.filter((task) =>
-    ["backend", "data", "security", "deploy"].includes(task.task_type),
-  );
+  const { completedTaskCount, taskEvidenceCount } = buildDevelopmentCompletionTaskStats(implementationTasks);
+  const releaseEvidenceTasks = getReleaseEvidenceImplementationTasks(implementationTasks);
   const releaseEvidenceLines =
     releaseEvidenceTasks.length > 0
       ? releaseEvidenceTasks

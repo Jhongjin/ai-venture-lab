@@ -58,6 +58,11 @@ const moduleUrl = transpileModuleUrl("src/lib/release-package-drafts.ts", [
 ]);
 
 const { buildReleasePackageArtifactSaveDrafts, buildReleasePackageDraftState } = await import(moduleUrl);
+const {
+  buildDevelopmentCompletionTaskStats,
+  getDoneDevelopmentCompletionRuns,
+  getReleaseEvidenceImplementationTasks,
+} = await import(completionReportUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -203,6 +208,18 @@ const implementationTasks = [
     updated_at: timestamp,
   },
 ];
+assert.deepEqual(buildDevelopmentCompletionTaskStats(implementationTasks), {
+  completedTaskCount: 2,
+  taskEvidenceCount: 2,
+});
+assert.deepEqual(
+  getReleaseEvidenceImplementationTasks(implementationTasks).map((task) => task.id),
+  ["task-2"],
+);
+assert.deepEqual(
+  getDoneDevelopmentCompletionRuns(runs).map((run) => run.id),
+  ["run-1"],
+);
 const dependencyStatuses = implementationTasks.map((task) => ({
   blockers: [],
   completedPrerequisites: [],
