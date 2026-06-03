@@ -294,6 +294,10 @@ export function getSelectedWorkbenchIdea(nextIdeas: Idea[], selectedIdeaId: stri
   );
 }
 
+export function getWorkbenchComparisonIdeas(visibleIdeas: Idea[], selectedIdeaId: string, limit = 4) {
+  return visibleIdeas.filter((idea) => idea.id !== selectedIdeaId).slice(0, limit);
+}
+
 export function isRemovedWorkbenchIdeaSelected({
   currentSelectedIdeaId,
   removedIdeaId,

@@ -75,6 +75,7 @@ import {
   getInitialSelectedWorkbenchIdeaId,
   getInitialWorkbenchTask,
   getSelectedWorkbenchIdea,
+  getWorkbenchComparisonIdeas,
   getWorkbenchRecordAccessState,
   getWorkbenchIdeaDiscardSelectionState,
   getWorkbenchIdeaRemovalSelectionState,
@@ -4150,7 +4151,7 @@ export function IdeaWorkbench({
 
               {visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {
                 const selectedIdeaDisplay = getIdeaDisplayState(selectedIdea);
-                const comparisonIdeas = visibleIdeas.filter((idea) => idea.id !== selectedIdea.id).slice(0, 4);
+                const comparisonIdeas = getWorkbenchComparisonIdeas(visibleIdeas, selectedIdea.id);
 
                 return (
                   <div className="mt-6 grid gap-4">

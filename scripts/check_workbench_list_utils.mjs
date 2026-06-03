@@ -38,6 +38,7 @@ const {
   getInitialWorkbenchTask,
   getNextSelectedWorkbenchIdeaAfterRemoval,
   getSelectedWorkbenchIdea,
+  getWorkbenchComparisonIdeas,
   getWorkbenchRecordAccessDisplay,
   getWorkbenchRecordAccessState,
   getWorkbenchIdeaDiscardSelectionState,
@@ -257,6 +258,14 @@ assert.equal(getSelectedWorkbenchIdea(ideas, "admin")?.id, "admin");
 assert.equal(getSelectedWorkbenchIdea(ideas, "missing")?.id, "shared-old");
 assert.equal(getSelectedWorkbenchIdea([ideas[4]], "missing")?.id, "deleted");
 assert.equal(getSelectedWorkbenchIdea([], "missing"), null);
+assert.deepEqual(
+  getWorkbenchComparisonIdeas([ideas[1], ideas[0], ideas[3]], "owned-new").map((record) => record.id),
+  ["shared-old", "admin"],
+);
+assert.deepEqual(
+  getWorkbenchComparisonIdeas([ideas[1], ideas[0], ideas[3]], "owned-new", 1).map((record) => record.id),
+  ["shared-old"],
+);
 assert.equal(
   isRemovedWorkbenchIdeaSelected({
     currentSelectedIdeaId: "owned-new",
