@@ -55,6 +55,15 @@ export type ExternalToolPackageDrafts = {
   cursorTaskPackageDraft: string;
 };
 
+export function buildExternalToolConnectorDrafts() {
+  return {
+    cursorMcpConfigDraft: buildCursorMcpConfigJson(),
+    cursorMcpServerDraft: buildCursorMcpServerScript(),
+    claudeMcpConfigDraft: buildClaudeMcpConfigJson(),
+    antigravityMcpConfigDraft: buildAntigravityMcpConfigJson(),
+  };
+}
+
 export function buildExternalToolPackageDrafts({
   fallbackTasks,
   idea,
@@ -68,10 +77,8 @@ export function buildExternalToolPackageDrafts({
   projectKey: string;
   tasks: ImplementationTask[];
 }): ExternalToolPackageDrafts {
-  const cursorMcpConfigDraft = buildCursorMcpConfigJson();
-  const cursorMcpServerDraft = buildCursorMcpServerScript();
-  const claudeMcpConfigDraft = buildClaudeMcpConfigJson();
-  const antigravityMcpConfigDraft = buildAntigravityMcpConfigJson();
+  const { antigravityMcpConfigDraft, claudeMcpConfigDraft, cursorMcpConfigDraft, cursorMcpServerDraft } =
+    buildExternalToolConnectorDrafts();
 
   return {
     cursorTaskPackageDraft: idea

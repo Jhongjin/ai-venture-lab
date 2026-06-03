@@ -42,13 +42,18 @@ const source = readFileSync(modulePath, "utf8")
   .replace('from "@/lib/external-tool-handoff-markdown";', `from ${JSON.stringify(handoffUrl)};`);
 const moduleUrl = transpileToDataUrl(source, modulePath);
 const { formatExternalToolSyncExpiryText } = await import(handoffUrl);
-const { buildExternalToolPackageDrafts } = await import(moduleUrl);
+const { buildExternalToolConnectorDrafts, buildExternalToolPackageDrafts } = await import(moduleUrl);
 
 assert.equal(formatExternalToolSyncExpiryText(), "");
 assert.equal(
   formatExternalToolSyncExpiryText("2026-06-03T00:00:00.000Z"),
   "\n- 자동 반영 토큰 만료: 2026-06-03T00:00:00.000Z",
 );
+const connectorDrafts = buildExternalToolConnectorDrafts();
+assert.match(connectorDrafts.cursorMcpConfigDraft, /ai-venture-lab/);
+assert.match(connectorDrafts.cursorMcpServerDraft, /venture:\/\/package/);
+assert.match(connectorDrafts.claudeMcpConfigDraft, /\.claude\/venture-lab-cli\.mjs/);
+assert.match(connectorDrafts.antigravityMcpConfigDraft, /\.antigravity\/venture-lab-cli\.mjs/);
 
 const idea = {
   buyer: "운영팀 리더",
