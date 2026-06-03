@@ -20,6 +20,7 @@ const {
   emptyConsoleData,
   filterChildRecordsForVisibleIdeas,
   getIdeaCreatedAtTime,
+  getWorkflowStageRank,
   isUserScopedRecordVisible,
   scoreIdea,
   sortIdeasByWorkflow,
@@ -78,6 +79,8 @@ assert.deepEqual(
     viewerUserId: null,
   },
 );
+assert.equal(getWorkflowStageRank("intake") < getWorkflowStageRank("launch"), true);
+assert.equal(getWorkflowStageRank("paused"), 7);
 assert.deepEqual(
   sortIdeasByWorkflow(ideas).map((item) => item.id),
   ["score-new", "score-old", "prd-old", "launch-new"],

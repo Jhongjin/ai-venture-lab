@@ -253,6 +253,10 @@ export function sortIdeasByWorkflow(ideas: Idea[]) {
   return [...ideas].sort(compareIdeasByWorkflow);
 }
 
+export function getWorkflowStageRank(stage: IdeaStage) {
+  return workflowStageRank.get(stage) ?? 99;
+}
+
 export function getIdeaCreatedAtTime(idea: Pick<Idea, "created_at">) {
   return new Date(idea.created_at).getTime();
 }
@@ -263,7 +267,7 @@ export function compareIdeasByCreatedAtDesc(a: Idea, b: Idea) {
 
 export function compareIdeasByWorkflow(a: Idea, b: Idea) {
   return (
-    (workflowStageRank.get(a.stage) ?? 99) - (workflowStageRank.get(b.stage) ?? 99) ||
+    getWorkflowStageRank(a.stage) - getWorkflowStageRank(b.stage) ||
     compareIdeasByCreatedAtDesc(a, b) ||
     a.name.localeCompare(b.name, "ko-KR")
   );
