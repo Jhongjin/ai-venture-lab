@@ -35,6 +35,11 @@ export type Step8LearningPrimaryActionSummary = {
   text: string;
 };
 
+export type Step8LearningNavigationHint = {
+  detail: string;
+  title: string;
+};
+
 export type Step8LearningSummary = {
   learningDecisionCards: Step8OutcomeCard[];
   learningDecisionDetail: string;
@@ -212,20 +217,18 @@ export function buildStep8LearningSummary({
   const learningPrimaryActionLabel = learningPrimaryActionSummary.label;
   const learningPrimaryActionText = learningPrimaryActionSummary.text;
   const learningPrimaryActionDetail = learningPrimaryActionSummary.detail;
-  const learningOneSentenceOutcome = nextImplementationTask
-    ? `${taskPrefix}${nextImplementationTask.title} 완료 보고가 반영되면 다음 판단으로 넘어갈 수 있습니다.`
-    : productSignalCount === 0
-      ? "지금은 성과 분석보다 첫 버전 배포와 이벤트 연결이 먼저입니다."
-      : openRiskCount > 0
-        ? "사용 신호는 들어왔고, 다음 결정은 열린 리스크를 하나 줄이는 것입니다."
-        : "사용 신호가 들어왔으니 다음 빌드 범위를 작게 승인할 차례입니다.";
+  const learningOneSentenceOutcome = buildStep8LearningOneSentenceOutcome({
+    nextImplementationTask,
+    openRiskCount,
+    productSignalCount,
+    taskPrefix,
+  });
   const learningPrimaryCtaLabel = "리포트 복사";
-  const learningPrimaryNavigationHintTitle = nextImplementationTask
-    ? "다음 작업은 STEP 7에서 이어갑니다"
-    : "최종 실행은 STEP 7에서 확인합니다";
-  const learningPrimaryNavigationHintDetail = nextImplementationTask
-    ? "이 화면은 완료와 다음 판단만 보여줍니다. 단계 이동은 왼쪽 단계 메뉴나 하단 단계 버튼에서 진행하세요."
-    : "성과 확인 화면 안에서는 단계를 자동 이동하지 않습니다. 최종 실행 자료는 STEP 7에서 확인하세요.";
+  const learningPrimaryNavigationHint = buildStep8LearningNavigationHint({
+    hasNextImplementationTask: Boolean(nextImplementationTask),
+  });
+  const learningPrimaryNavigationHintTitle = learningPrimaryNavigationHint.title;
+  const learningPrimaryNavigationHintDetail = learningPrimaryNavigationHint.detail;
   const learningDecisionOptions = buildStep8LearningDecisionOptions({
     hasNextImplementationTask: Boolean(nextImplementationTask),
     openRiskCount,
@@ -324,6 +327,46 @@ export function buildStep8LearningSummary({
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
   };
+}
+
+export function buildStep8LearningOneSentenceOutcome({
+  nextImplementationTask,
+  openRiskCount,
+  productSignalCount,
+  taskPrefix,
+}: {
+  nextImplementationTask: Pick<ImplementationTask, "title"> | null;
+  openRiskCount: number;
+  productSignalCount: number;
+  taskPrefix: string;
+}) {
+  if (nextImplementationTask) {
+    return `${taskPrefix}${nextImplementationTask.title} 완료 보고가 반영되면 다음 판단으로 넘어갈 수 있습니다.`;
+  }
+
+  if (productSignalCount === 0) {
+    return "지금은 성과 분석보다 첫 버전 배포와 이벤트 연결이 먼저입니다.";
+  }
+
+  return openRiskCount > 0
+    ? "사용 신호는 들어왔고, 다음 결정은 열린 리스크를 하나 줄이는 것입니다."
+    : "사용 신호가 들어왔으니 다음 빌드 범위를 작게 승인할 차례입니다.";
+}
+
+export function buildStep8LearningNavigationHint({
+  hasNextImplementationTask,
+}: {
+  hasNextImplementationTask: boolean;
+}): Step8LearningNavigationHint {
+  return hasNextImplementationTask
+    ? {
+        title: "다음 작업은 STEP 7에서 이어갑니다",
+        detail: "이 화면은 완료와 다음 판단만 보여줍니다. 단계 이동은 왼쪽 단계 메뉴나 하단 단계 버튼에서 진행하세요.",
+      }
+    : {
+        title: "최종 실행은 STEP 7에서 확인합니다",
+        detail: "성과 확인 화면 안에서는 단계를 자동 이동하지 않습니다. 최종 실행 자료는 STEP 7에서 확인하세요.",
+      };
 }
 
 export function buildStep8LearningPrimaryActionSummary({

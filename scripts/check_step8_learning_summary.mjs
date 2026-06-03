@@ -48,7 +48,9 @@ const {
   buildStep8LearningCompletedSummary,
   buildStep8LearningDisplayState,
   buildStep8LearningJudgmentQuestion,
+  buildStep8LearningNavigationHint,
   buildStep8LearningNextJudgmentBrief,
+  buildStep8LearningOneSentenceOutcome,
   buildStep8LearningPrimaryActionSummary,
   buildStep8LearningRemainingSummary,
   buildStep8LearningSummary,
@@ -301,6 +303,19 @@ assert.match(
   /내부 제작 흐름/,
 );
 assert.equal(
+  buildStep8LearningOneSentenceOutcome({
+    nextImplementationTask: context.nextTask,
+    openRiskCount: 0,
+    productSignalCount: 0,
+    taskPrefix: "T-002 ",
+  }),
+  "T-002 첫 화면 제작 완료 보고가 반영되면 다음 판단으로 넘어갈 수 있습니다.",
+);
+assert.deepEqual(buildStep8LearningNavigationHint({ hasNextImplementationTask: true }), {
+  title: "다음 작업은 STEP 7에서 이어갑니다",
+  detail: "이 화면은 완료와 다음 판단만 보여줍니다. 단계 이동은 왼쪽 단계 메뉴나 하단 단계 버튼에서 진행하세요.",
+});
+assert.equal(
   buildStep8ExternalSyncCompletedText({
     completedImplementationTaskCount: 1,
     totalImplementationTaskCount: 3,
@@ -500,6 +515,37 @@ assert.deepEqual(
     detail: "이제 상세 이벤트는 필요할 때만 열고, 다음 개선 또는 보류 판단을 남기면 됩니다.",
   },
 );
+assert.equal(
+  buildStep8LearningOneSentenceOutcome({
+    nextImplementationTask: null,
+    openRiskCount: 0,
+    productSignalCount: 0,
+    taskPrefix: "",
+  }),
+  "지금은 성과 분석보다 첫 버전 배포와 이벤트 연결이 먼저입니다.",
+);
+assert.equal(
+  buildStep8LearningOneSentenceOutcome({
+    nextImplementationTask: null,
+    openRiskCount: 2,
+    productSignalCount: 4,
+    taskPrefix: "",
+  }),
+  "사용 신호는 들어왔고, 다음 결정은 열린 리스크를 하나 줄이는 것입니다.",
+);
+assert.equal(
+  buildStep8LearningOneSentenceOutcome({
+    nextImplementationTask: null,
+    openRiskCount: 0,
+    productSignalCount: 4,
+    taskPrefix: "",
+  }),
+  "사용 신호가 들어왔으니 다음 빌드 범위를 작게 승인할 차례입니다.",
+);
+assert.deepEqual(buildStep8LearningNavigationHint({ hasNextImplementationTask: false }), {
+  title: "최종 실행은 STEP 7에서 확인합니다",
+  detail: "성과 확인 화면 안에서는 단계를 자동 이동하지 않습니다. 최종 실행 자료는 STEP 7에서 확인하세요.",
+});
 assert.equal(
   buildStep8LearningJudgmentQuestion({
     hasNextImplementationTask: false,
