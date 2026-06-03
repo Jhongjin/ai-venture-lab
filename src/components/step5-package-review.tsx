@@ -19,9 +19,9 @@ type Step5PackageReviewProps = {
 };
 
 const step5ReviewFocusItems = [
-  ["결과", "만들 것/방식"],
-  ["범위", "할 것/뺄 것"],
-  ["첫 작업", "T-001 시작"],
+  ["만들 것", "결과물과 개발 방식"],
+  ["범위", "할 일과 제외할 일"],
+  ["첫 작업", "T-001로 시작"],
 ] as const;
 
 export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCards }: Step5PackageReviewProps) {
@@ -33,9 +33,9 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
     <div className="mt-5 grid gap-4">
       <div className="border border-slate-200 bg-slate-50 p-4">
         <div className="avl-kicker">지금 확인할 것</div>
-        <h4 className="mt-2 text-base font-semibold text-slate-950">결과 · 범위 · 첫 작업</h4>
+        <h4 className="mt-2 text-base font-semibold text-slate-950">세 가지만 확인하세요</h4>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          세 칸만 맞으면 저장하세요.
+          맞으면 바로 저장해도 됩니다.
         </p>
         <div data-smoke="step5-review-save-focus" className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
           {step5ReviewFocusItems.map(([label, detail]) => (
@@ -49,7 +49,7 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
           data-smoke="step5-save-does-not-move"
           className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
         >
-          저장은 기준만 확정합니다. 이동은 하단 다음 버튼에서 합니다.
+          저장은 기준만 확정합니다. 다음 이동은 하단 버튼에서 합니다.
         </div>
         <details data-smoke="step5-review-details-optional" className="mt-4">
           <summary className="cursor-pointer border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950">
@@ -88,22 +88,20 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
 
       <div className="border border-slate-200 bg-white p-4">
         <label className="text-sm font-semibold text-slate-950" htmlFor="development-auto-note">
-          추가로 남길 내용
+          보완 메모
         </label>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          다음 작업자가 꼭 알아야 할 내용이 있으면 적으세요. 없으면 비워둬도 됩니다.
+          바꿀 점이 있을 때만 적으세요. 없으면 비워둬도 됩니다.
         </p>
         <textarea
           id="development-auto-note"
           value={note}
           onChange={handleNoteChange}
-          rows={7}
+          rows={5}
           className="avl-textarea mt-3"
-          placeholder="예) 이번 제작에서는 결제와 관리자 화면은 제외하고, 입력/저장/조회 흐름만 먼저 확인합니다."
+          placeholder="예) 결제와 관리자 화면은 빼고, 입력/저장/조회만 먼저 확인합니다."
         />
       </div>
-
-      <p className="text-sm leading-6 text-slate-600">보완할 내용이 없다면 메모는 비워둔 채 바로 저장하면 됩니다.</p>
     </div>
   );
 }

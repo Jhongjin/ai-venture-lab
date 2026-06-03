@@ -29,8 +29,7 @@ export function Step5ExecutionPackageBrief() {
         data-smoke="step5-execution-package-focus"
         className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
       >
-        처음에는 세 가지만 확인합니다: 첫 메시지가 맞는지, T-001이 첫 작업인지, 완료 기준이 검수 가능한지. 나머지 문서는
-        도구가 읽습니다.
+        처음엔 첫 메시지, T-001, 완료 기준만 봅니다. 나머지는 도구가 읽습니다.
       </div>
       <div className="mt-3 grid gap-px bg-blue-200 md:grid-cols-2 xl:grid-cols-4">
         {step5ExecutionPackageBriefItems.map(([label, detail]) => (

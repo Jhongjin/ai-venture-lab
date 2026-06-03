@@ -387,15 +387,11 @@ async function verifyAuthenticatedCreditSummary() {
         timeout: timeoutMs,
       });
       const step5ExecutionPackageFocus = page.locator('[data-smoke="step5-execution-package-focus"]');
-      await step5ExecutionPackageFocus.getByText("처음에는 세 가지만 확인합니다", { exact: false }).waitFor({
+      await step5ExecutionPackageFocus.getByText("처음엔 첫 메시지, T-001, 완료 기준만 봅니다.", { exact: false }).waitFor({
         state: "visible",
         timeout: timeoutMs,
       });
-      await step5ExecutionPackageFocus.getByText("T-001이 첫 작업인지", { exact: false }).waitFor({
-        state: "visible",
-        timeout: timeoutMs,
-      });
-      await step5ExecutionPackageFocus.getByText("나머지 문서는 도구가 읽습니다", { exact: false }).waitFor({
+      await step5ExecutionPackageFocus.getByText("나머지는 도구가 읽습니다.", { exact: false }).waitFor({
         state: "visible",
         timeout: timeoutMs,
       });
