@@ -39,6 +39,11 @@ const moduleUrl = transpileModuleUrl("src/lib/validation-package-drafts.ts", [
 ]);
 
 const {
+  buildValidationEvidenceIdeaContextLines,
+  formatEvidenceNoteNextAction,
+  formatExperimentResultNextAction,
+} = await import(validationEvidenceUrl);
+const {
   buildIdeaBriefRiskLines,
   buildResearchBriefExperimentLines,
   buildResearchBriefRiskLines,
@@ -106,6 +111,31 @@ const state = {
   stage: "score",
   willingness_to_pay: 4,
 };
+assert.match(buildValidationEvidenceIdeaContextLines({ idea, state }), /아이디어: AI Venture Lab/);
+assert.match(buildValidationEvidenceIdeaContextLines({ idea, state }), /현재 판단: 진행/);
+assert.equal(formatEvidenceNoteNextAction("인터뷰 3명"), "인터뷰 3명");
+assert.match(formatEvidenceNoteNextAction(""), /어떤 판단을 강화/);
+assert.equal(
+  formatExperimentResultNextAction({
+    draftNextAction: "제품 기획서 수정",
+    stateNextEvidence: "인터뷰 3명",
+  }),
+  "제품 기획서 수정",
+);
+assert.equal(
+  formatExperimentResultNextAction({
+    draftNextAction: "",
+    stateNextEvidence: "인터뷰 3명",
+  }),
+  "인터뷰 3명",
+);
+assert.match(
+  formatExperimentResultNextAction({
+    draftNextAction: "",
+    stateNextEvidence: "",
+  }),
+  /다음 검증/,
+);
 const experiments = [
   {
     created_at: "2026-06-01T00:00:00.000Z",

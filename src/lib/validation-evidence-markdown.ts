@@ -30,6 +30,35 @@ type ExperimentResultMarkdownDraft = {
   next_action: string;
 };
 
+export function buildValidationEvidenceIdeaContextLines({
+  idea,
+  state,
+}: {
+  idea: Idea;
+  state: ValidationEvidenceState;
+}) {
+  return `- 아이디어: ${idea.name}
+- 한 줄 설명: ${idea.one_liner || "미정"}
+- 대상 사용자: ${idea.target_user || "미정"}
+- 구매자: ${idea.buyer || "미정"}
+- 현재 단계: ${stageLabels[state.stage]}
+- 현재 판단: ${decisionLabels[state.decision]}`;
+}
+
+export function formatEvidenceNoteNextAction(nextEvidence: string | null | undefined) {
+  return nextEvidence || "이 근거가 진행, 추가 조사, 전환, 중단 중 어떤 판단을 강화하는지 결정하세요.";
+}
+
+export function formatExperimentResultNextAction({
+  draftNextAction,
+  stateNextEvidence,
+}: {
+  draftNextAction: string | null | undefined;
+  stateNextEvidence: string | null | undefined;
+}) {
+  return draftNextAction || stateNextEvidence || "다음 검증, 제품 기획서 수정, 리스크 완화, 중단/전환 중 하나를 기록하세요.";
+}
+
 export function buildEvidenceNoteMarkdown({
   idea,
   state,
@@ -40,17 +69,14 @@ export function buildEvidenceNoteMarkdown({
   draft: EvidenceNoteDraft;
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
+  const ideaContextLines = buildValidationEvidenceIdeaContextLines({ idea, state });
+  const nextAction = formatEvidenceNoteNextAction(state.next_evidence);
 
   return `# 근거 기록: ${draft.title || "제목 미정"}
 
 ## 아이디어 맥락
 
-- 아이디어: ${idea.name}
-- 한 줄 설명: ${idea.one_liner || "미정"}
-- 대상 사용자: ${idea.target_user || "미정"}
-- 구매자: ${idea.buyer || "미정"}
-- 현재 단계: ${stageLabels[state.stage]}
-- 현재 판단: ${decisionLabels[state.decision]}
+${ideaContextLines}
 
 ${productSurfaceMarkdown(productSurface)}
 
@@ -72,7 +98,7 @@ ${draft.implication || "미정"}
 
 ## 다음 행동
 
-${state.next_evidence || "이 근거가 진행, 추가 조사, 전환, 중단 중 어떤 판단을 강화하는지 결정하세요."}
+${nextAction}
 `;
 }
 
@@ -88,17 +114,17 @@ export function buildExperimentResultMarkdown({
   draft: ExperimentResultMarkdownDraft;
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
+  const ideaContextLines = buildValidationEvidenceIdeaContextLines({ idea, state });
+  const nextAction = formatExperimentResultNextAction({
+    draftNextAction: draft.next_action,
+    stateNextEvidence: state.next_evidence,
+  });
 
   return `# 실험 결과: ${experiment.name}
 
 ## 아이디어 맥락
 
-- 아이디어: ${idea.name}
-- 한 줄 설명: ${idea.one_liner || "미정"}
-- 대상 사용자: ${idea.target_user || "미정"}
-- 구매자: ${idea.buyer || "미정"}
-- 현재 단계: ${stageLabels[state.stage]}
-- 현재 판단: ${decisionLabels[state.decision]}
+${ideaContextLines}
 
 ${productSurfaceMarkdown(productSurface)}
 
@@ -124,6 +150,6 @@ ${draft.learning || "미정"}
 
 ## 다음 행동
 
-${draft.next_action || state.next_evidence || "다음 검증, 제품 기획서 수정, 리스크 완화, 중단/전환 중 하나를 기록하세요."}
+${nextAction}
 `;
 }
