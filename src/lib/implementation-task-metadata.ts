@@ -360,10 +360,10 @@ export function getImplementationTaskReadinessQueues({
   dependencyStatuses: ImplementationDependencyStatus[];
   openTasks: ImplementationTask[];
 }): ImplementationTaskReadinessQueues {
-  const readyStatuses = dependencyStatuses.filter((status) => status.ready);
-  const waitingStatuses = dependencyStatuses.filter((status) => isOpenImplementationTask(status.task) && !status.ready);
+  const readyStatuses = getReadyImplementationDependencyStatuses(dependencyStatuses);
+  const waitingStatuses = getWaitingImplementationDependencyStatuses(dependencyStatuses);
   const nextTask = readyStatuses[0]?.task ?? openTasks[0] ?? null;
-  const nextDependencyStatus = dependencyStatuses.find((status) => status.task.id === nextTask?.id) ?? null;
+  const nextDependencyStatus = getImplementationDependencyStatusForTask(dependencyStatuses, nextTask);
 
   return {
     readyStatuses,
@@ -371,6 +371,21 @@ export function getImplementationTaskReadinessQueues({
     nextTask,
     nextDependencyStatus,
   };
+}
+
+export function getReadyImplementationDependencyStatuses(statuses: ImplementationDependencyStatus[]) {
+  return statuses.filter((status) => status.ready);
+}
+
+export function getWaitingImplementationDependencyStatuses(statuses: ImplementationDependencyStatus[]) {
+  return statuses.filter((status) => isOpenImplementationTask(status.task) && !status.ready);
+}
+
+export function getImplementationDependencyStatusForTask(
+  statuses: ImplementationDependencyStatus[],
+  task: Pick<ImplementationTask, "id"> | null,
+) {
+  return statuses.find((status) => status.task.id === task?.id) ?? null;
 }
 
 export function getImplementationDependencyStatusPreview(statuses: ImplementationDependencyStatus[], limit = 4) {

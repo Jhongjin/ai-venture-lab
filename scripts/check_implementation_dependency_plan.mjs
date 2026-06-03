@@ -31,9 +31,13 @@ const {
   buildNextImplementationTaskActionDetail,
   getBlockedImplementationTaskDependencyBlockers,
   getCompletedImplementationTaskTypes,
+  getImplementationDependencyStatusForTask,
   getImplementationDependencyStatusPreview,
+  getImplementationTaskReadinessQueues,
   getImplementationTaskTypes,
   getOpenImplementationTaskPreview,
+  getReadyImplementationDependencyStatuses,
+  getWaitingImplementationDependencyStatuses,
 } = await import(implementationTaskMetadataUrl);
 const workbenchLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-labels.ts")).href;
 const moduleUrl = transpileModuleUrl("src/lib/implementation-dependency-plan.ts", [
@@ -206,6 +210,21 @@ const statuses = [
     task: doneTask,
   },
 ];
+const queueStatuses = [statuses[0], statuses[1], blockedFrontendStatus];
+assert.deepEqual(getReadyImplementationDependencyStatuses(queueStatuses).map((status) => status.task.id), ["task-1"]);
+assert.deepEqual(getWaitingImplementationDependencyStatuses(queueStatuses).map((status) => status.task.id), [
+  "task-blocked-frontend",
+]);
+assert.equal(getImplementationDependencyStatusForTask(queueStatuses, readyTask)?.task.id, "task-1");
+assert.equal(getImplementationDependencyStatusForTask(queueStatuses, null), null);
+const readinessQueues = getImplementationTaskReadinessQueues({
+  dependencyStatuses: queueStatuses,
+  openTasks: [blockedFrontendTask],
+});
+assert.deepEqual(readinessQueues.readyStatuses.map((status) => status.task.id), ["task-1"]);
+assert.deepEqual(readinessQueues.waitingStatuses.map((status) => status.task.id), ["task-blocked-frontend"]);
+assert.equal(readinessQueues.nextTask?.id, "task-1");
+assert.equal(readinessQueues.nextDependencyStatus?.task.id, "task-1");
 assert.deepEqual(getImplementationDependencyStatusPreview(statuses, 1).map((status) => status.task.id), ["task-1"]);
 assert.deepEqual(getImplementationDependencyStatusPreview(statuses).map((status) => status.task.id), ["task-1", "task-2"]);
 
