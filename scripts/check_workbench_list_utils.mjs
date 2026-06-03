@@ -28,6 +28,7 @@ const {
   buildWorkbenchIdeasBulkRestoreFailedMessage,
   filterVisibleWorkbenchIdeas,
   canManageWorkbenchRecord,
+  compareWorkbenchIdeas,
   getActiveIdeas,
   getIdeaDeletionRelatedTables,
   getIdeaStageRank,
@@ -229,6 +230,8 @@ assert.deepEqual(
   sortWorkbenchIdeas([ideas[3], ideas[1], ideas[0]]).map((record) => record.id),
   ["owned-new", "shared-old", "admin"],
 );
+assert.equal(compareWorkbenchIdeas(ideas[1], ideas[0]) < 0, true);
+assert.equal(compareWorkbenchIdeas(ideas[2], ideas[1]) < 0, true);
 assert.equal(getInitialSelectedWorkbenchIdeaId(ideas, "admin"), "admin");
 assert.equal(getInitialSelectedWorkbenchIdeaId(ideas, "deleted"), "hidden");
 assert.equal(getInitialSelectedWorkbenchIdeaId([ideas[4]]), "");

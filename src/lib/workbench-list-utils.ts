@@ -246,11 +246,14 @@ export function getActiveIdeas(nextIdeas: Idea[]) {
 }
 
 export function sortWorkbenchIdeas(nextIdeas: Idea[]) {
-  return [...nextIdeas].sort(
-    (a, b) =>
-      getIdeaStageRank(a.stage) - getIdeaStageRank(b.stage) ||
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
-      a.name.localeCompare(b.name, "ko-KR"),
+  return [...nextIdeas].sort(compareWorkbenchIdeas);
+}
+
+export function compareWorkbenchIdeas(a: Idea, b: Idea) {
+  return (
+    getIdeaStageRank(a.stage) - getIdeaStageRank(b.stage) ||
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime() ||
+    a.name.localeCompare(b.name, "ko-KR")
   );
 }
 
