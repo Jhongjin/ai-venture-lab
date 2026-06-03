@@ -13,7 +13,13 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { buildExtractedIdeaArtifactBodies } = await import(moduleUrl);
+const { buildExtractedIdeaArtifactBodies, buildExtractedIdeaBulletLines } = await import(moduleUrl);
+
+assert.equal(
+  buildExtractedIdeaBulletLines(["반복 업무를 자동 정리하면 저장률이 오른다", "구매자는 팀 리더다"]),
+  "- 반복 업무를 자동 정리하면 저장률이 오른다\n- 구매자는 팀 리더다",
+);
+assert.equal(buildExtractedIdeaBulletLines([]), "");
 
 const bodies = buildExtractedIdeaArtifactBodies({
   assumptions: ["반복 업무를 자동 정리하면 저장률이 오른다", "구매자는 팀 리더다"],

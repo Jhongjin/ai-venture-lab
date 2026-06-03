@@ -33,6 +33,10 @@ export type ExtractedIdeaArtifactBodies = {
   validationSprintBody: string;
 };
 
+export function buildExtractedIdeaBulletLines(items: string[]) {
+  return items.map((item) => `- ${item}`).join("\n");
+}
+
 export function buildExtractedIdeaArtifactBodies({
   assumptions,
   buildDeliveryMarkdown,
@@ -83,7 +87,7 @@ ${sourceBlock}
 
 ## 핵심 가설
 
-${assumptions.map((item) => `- ${item}`).join("\n")}
+${buildExtractedIdeaBulletLines(assumptions)}
 
 ## 초기 점수
 
@@ -112,7 +116,7 @@ ${nextEvidence}
 
 ## 확인된 단서
 
-${evidence.map((item) => `- ${item}`).join("\n")}
+${buildExtractedIdeaBulletLines(evidence)}
 
 ## 메모 근거
 
@@ -120,7 +124,7 @@ ${sourceBlock}
 
 ## 검증 질문
 
-${validationQuestions.map((item) => `- ${item}`).join("\n")}
+${buildExtractedIdeaBulletLines(validationQuestions)}
 
 ## 가격/구매 가설
 
