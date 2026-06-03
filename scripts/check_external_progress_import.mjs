@@ -41,6 +41,7 @@ const {
   buildCursorProgressSetupRequiredMessage,
   buildCursorProgressTaskUpdatePatch,
   buildCursorProgressToolContext,
+  compareCursorProgressImportItemsByDraftIndex,
   getVisibleCursorProgressImportItems,
   sortCursorProgressImportItemsByDraftIndex,
 } = await import(moduleUrl);
@@ -95,6 +96,9 @@ assert.deepEqual(sortCursorProgressImportItemsByDraftIndex(unorderedImportItems)
   "T-002",
   "T-003",
 ]);
+assert.equal(compareCursorProgressImportItemsByDraftIndex(unorderedImportItems[1], unorderedImportItems[2]), -1);
+assert.equal(compareCursorProgressImportItemsByDraftIndex(unorderedImportItems[0], unorderedImportItems[2]), 1);
+assert.equal(compareCursorProgressImportItemsByDraftIndex(unorderedImportItems[2], { draftIndex: 1 }), 0);
 assert.deepEqual(unorderedImportItems.map((item) => item.taskCode), ["T-003", "T-001", "T-002"]);
 assert.equal(
   buildCursorProgressFileLoadedMessage("progress.json"),

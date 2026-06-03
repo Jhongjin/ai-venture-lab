@@ -25,7 +25,14 @@ export type CursorProgressImportItem = {
 export function sortCursorProgressImportItemsByDraftIndex<T extends Pick<CursorProgressImportItem, "draftIndex">>(
   items: T[],
 ) {
-  return [...items].sort((a, b) => a.draftIndex - b.draftIndex);
+  return [...items].sort(compareCursorProgressImportItemsByDraftIndex);
+}
+
+export function compareCursorProgressImportItemsByDraftIndex<T extends Pick<CursorProgressImportItem, "draftIndex">>(
+  a: T,
+  b: T,
+) {
+  return a.draftIndex - b.draftIndex;
 }
 
 export type CursorProgressImportDraft = ImplementationTaskDraft & {
