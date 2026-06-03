@@ -331,6 +331,26 @@ export function buildDevelopmentAutoPackageCopyState({
   };
 }
 
+export function getDevelopmentAutoEffectiveFlowState({
+  developmentAutoFlowState,
+  hasSavedDevelopmentAutoPackage,
+}: {
+  developmentAutoFlowState: DevelopmentAutoFlowState;
+  hasSavedDevelopmentAutoPackage: boolean;
+}): DevelopmentAutoEffectiveFlowState {
+  return hasSavedDevelopmentAutoPackage ? "saved" : developmentAutoFlowState;
+}
+
+export function getVisibleDevelopmentAutoPanel({
+  developmentPanel,
+  experienceMode,
+}: {
+  developmentPanel: DevelopmentAutoPanel;
+  experienceMode: DevelopmentExperienceMode;
+}): DevelopmentAutoPanel {
+  return experienceMode === "guided" ? "setup" : developmentPanel;
+}
+
 export function buildDevelopmentAutoWorkbenchState({
   activeBuildDeliveryDetail,
   activeBuildDeliveryLabel,
@@ -357,10 +377,14 @@ export function buildDevelopmentAutoWorkbenchState({
   implementationTaskDrafts: ReadonlyArray<ImplementationTaskDraft>;
 }) {
   const hasSavedDevelopmentAutoPackage = canEnterOrchestrationFromDevelopmentDocs;
-  const effectiveDevelopmentAutoFlowState: DevelopmentAutoEffectiveFlowState = hasSavedDevelopmentAutoPackage
-    ? "saved"
-    : developmentAutoFlowState;
-  const visibleDevelopmentPanel: DevelopmentAutoPanel = experienceMode === "guided" ? "setup" : developmentPanel;
+  const effectiveDevelopmentAutoFlowState = getDevelopmentAutoEffectiveFlowState({
+    developmentAutoFlowState,
+    hasSavedDevelopmentAutoPackage,
+  });
+  const visibleDevelopmentPanel = getVisibleDevelopmentAutoPanel({
+    developmentPanel,
+    experienceMode,
+  });
   const copyState = buildDevelopmentAutoPackageCopyState({
     developmentAutoNote,
     ideaName,

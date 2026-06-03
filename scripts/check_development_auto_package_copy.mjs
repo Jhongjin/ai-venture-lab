@@ -42,6 +42,8 @@ const {
   buildDevelopmentAutoTaskDraftLine,
   buildDevelopmentAutoWorkbenchState,
   buildDevelopmentFinalPackageDrafts,
+  getDevelopmentAutoEffectiveFlowState,
+  getVisibleDevelopmentAutoPanel,
 } = await import(moduleUrl);
 
 const input = {
@@ -148,6 +150,34 @@ assert.equal(workbenchState.visibleDevelopmentPanel, "setup");
 assert.equal(workbenchState.hasSavedDevelopmentAutoPackage, false);
 assert.equal(workbenchState.effectiveDevelopmentAutoFlowState, "review");
 assert.match(workbenchState.developmentAutoSummaryDraft, /AI Venture Lab/);
+assert.equal(
+  getDevelopmentAutoEffectiveFlowState({
+    developmentAutoFlowState: "review",
+    hasSavedDevelopmentAutoPackage: true,
+  }),
+  "saved",
+);
+assert.equal(
+  getDevelopmentAutoEffectiveFlowState({
+    developmentAutoFlowState: "review",
+    hasSavedDevelopmentAutoPackage: false,
+  }),
+  "review",
+);
+assert.equal(
+  getVisibleDevelopmentAutoPanel({
+    developmentPanel: "tasks",
+    experienceMode: "guided",
+  }),
+  "setup",
+);
+assert.equal(
+  getVisibleDevelopmentAutoPanel({
+    developmentPanel: "tasks",
+    experienceMode: "full",
+  }),
+  "tasks",
+);
 
 const savedWorkbenchState = buildDevelopmentAutoWorkbenchState({
   ...input,
