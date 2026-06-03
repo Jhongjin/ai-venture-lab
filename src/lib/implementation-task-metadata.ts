@@ -935,7 +935,7 @@ export function buildImplementationDependencyStatuses(tasks: ImplementationTask[
 
     return {
       task,
-      ready: isOpenImplementationTask(task) && blockers.length === 0,
+      ready: isImplementationDependencyStatusReady({ blockers, task }),
       blockers,
       completedPrerequisites: prerequisiteStatus.completedPrerequisites,
       missingPrerequisites: prerequisiteStatus.missingPrerequisites,
@@ -943,6 +943,16 @@ export function buildImplementationDependencyStatuses(tasks: ImplementationTask[
       nextAction: rule.nextAction,
     };
   });
+}
+
+export function isImplementationDependencyStatusReady({
+  blockers,
+  task,
+}: {
+  blockers: string[];
+  task: Pick<ImplementationTask, "status">;
+}) {
+  return isOpenImplementationTask(task) && blockers.length === 0;
 }
 
 export function getImplementationTaskTypes(tasks: ImplementationTask[]) {

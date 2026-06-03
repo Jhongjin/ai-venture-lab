@@ -38,6 +38,7 @@ const {
   getOpenImplementationTaskPreview,
   getReadyImplementationDependencyStatuses,
   getWaitingImplementationDependencyStatuses,
+  isImplementationDependencyStatusReady,
 } = await import(implementationTaskMetadataUrl);
 const workbenchLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-labels.ts")).href;
 const moduleUrl = transpileModuleUrl("src/lib/implementation-dependency-plan.ts", [
@@ -155,6 +156,15 @@ assert.deepEqual(getBlockedImplementationTaskDependencyBlockers(blockedFrontendT
   blockedImplementationTaskDependencyMessage,
 ]);
 assert.deepEqual(getBlockedImplementationTaskDependencyBlockers(readyTask), []);
+assert.equal(isImplementationDependencyStatusReady({ blockers: [], task: readyTask }), true);
+assert.equal(
+  isImplementationDependencyStatusReady({
+    blockers: ["디자인 태스크 완료 필요"],
+    task: readyTask,
+  }),
+  false,
+);
+assert.equal(isImplementationDependencyStatusReady({ blockers: [], task: doneTask }), false);
 assert.equal(
   buildNextImplementationTaskActionDetail({
     dependencyStatus: null,
