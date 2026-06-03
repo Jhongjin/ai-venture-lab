@@ -38,6 +38,7 @@ const {
   getNextArtifactVersion,
   getRecentDevelopmentHandoffArtifacts,
   resolveArtifactSourceFilter,
+  sortArtifactSources,
 } = await import(moduleUrl);
 
 assert.deepEqual(artifactStatusOptions, ["draft", "approved", "archived"]);
@@ -320,6 +321,11 @@ assert.deepEqual(
 
 const sourceOptions = buildArtifactSourceOptions(artifacts);
 assert.equal(sourceOptions[0], "all");
+assert.deepEqual(sortArtifactSources(["workbench", "manual", "evidence_capture", "manual"]), [
+  "evidence_capture",
+  "manual",
+  "workbench",
+]);
 assert.deepEqual(sourceOptions.slice(1), [
   "agent_run_package",
   "design_generation_prompt",

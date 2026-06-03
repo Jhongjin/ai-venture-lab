@@ -163,12 +163,11 @@ export type ArtifactReadinessFlags = {
 };
 
 export function buildArtifactSourceOptions(artifacts: VentureArtifact[]) {
-  return [
-    "all",
-    ...Array.from(new Set(artifacts.map((artifact) => artifact.source || "manual"))).sort((a, b) =>
-      a.localeCompare(b, "ko-KR"),
-    ),
-  ];
+  return ["all", ...sortArtifactSources(artifacts.map((artifact) => artifact.source || "manual"))];
+}
+
+export function sortArtifactSources(sources: Iterable<string>) {
+  return Array.from(new Set(sources)).sort((a, b) => a.localeCompare(b, "ko-KR"));
 }
 
 export function buildArtifactSourceFilterLabels(sourceOptions: string[]) {
