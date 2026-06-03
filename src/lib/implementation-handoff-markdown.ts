@@ -13,6 +13,36 @@ export function getDoneImplementationHandoffPhaseLabels(runs: OrchestrationRun[]
   return runs.filter((run) => run.status === "done").map((run) => phaseLabels[run.phase]);
 }
 
+export function buildImplementationHandoffArtifactLines(artifacts: VentureArtifact[]) {
+  return artifacts.length > 0
+    ? artifacts
+        .slice(0, 8)
+        .map(
+          (artifact) =>
+            `- ${artifactLabels[artifact.artifact_type]} v${artifact.version ?? 1}: ${
+              artifact.title || "제목 없음"
+            } (${artifactStatusLabels[artifact.status]})`,
+        )
+        .join("\n")
+    : "- 아직 저장된 제작 자료가 없습니다.";
+}
+
+export function buildImplementationHandoffRiskLines(risks: Risk[]) {
+  return risks.length > 0
+    ? risks.map((risk) => `- ${risk.title}: ${risk.severity} / ${risk.status} / ${risk.mitigation}`).join("\n")
+    : "- 연결된 리스크가 없습니다.";
+}
+
+export function buildImplementationHandoffExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments.map((experiment) => `- ${experiment.name}: ${experiment.status} / ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
+    : "- 연결된 실험이 없습니다.";
+}
+
+export function buildImplementationHandoffDonePhaseLines(donePhases: string[]) {
+  return donePhases.length > 0 ? donePhases.map((phase) => `- ${phase}`).join("\n") : "- 아직 완료된 역할 단계가 없습니다.";
+}
+
 export function buildImplementationHandoffMarkdown({
   idea,
   state,
@@ -30,27 +60,11 @@ export function buildImplementationHandoffMarkdown({
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const approvedArtifacts = getApprovedImplementationHandoffArtifacts(artifacts);
-  const artifactLines =
-    artifacts.length > 0
-      ? artifacts
-          .slice(0, 8)
-          .map(
-            (artifact) =>
-              `- ${artifactLabels[artifact.artifact_type]} v${artifact.version ?? 1}: ${
-                artifact.title || "제목 없음"
-              } (${artifactStatusLabels[artifact.status]})`,
-          )
-          .join("\n")
-      : "- 아직 저장된 제작 자료가 없습니다.";
-  const riskLines =
-    risks.length > 0
-      ? risks.map((risk) => `- ${risk.title}: ${risk.severity} / ${risk.status} / ${risk.mitigation}`).join("\n")
-      : "- 연결된 리스크가 없습니다.";
-  const experimentLines =
-    experiments.length > 0
-      ? experiments.map((experiment) => `- ${experiment.name}: ${experiment.status} / ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
-      : "- 연결된 실험이 없습니다.";
+  const artifactLines = buildImplementationHandoffArtifactLines(artifacts);
+  const riskLines = buildImplementationHandoffRiskLines(risks);
+  const experimentLines = buildImplementationHandoffExperimentLines(experiments);
   const donePhases = getDoneImplementationHandoffPhaseLabels(runs);
+  const donePhaseLines = buildImplementationHandoffDonePhaseLines(donePhases);
 
   return `# 제작 도구 전달 자료: ${idea.name}
 
@@ -94,7 +108,7 @@ ${experimentLines}
 
 ## 완료된 실행 단계
 
-${donePhases.length > 0 ? donePhases.map((phase) => `- ${phase}`).join("\n") : "- 아직 완료된 역할 단계가 없습니다."}
+${donePhaseLines}
 
 ## 구현 작업 목록
 

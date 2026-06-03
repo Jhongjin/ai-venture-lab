@@ -59,8 +59,14 @@ const moduleUrl = transpileModuleUrl("src/lib/implementation-handoff-drafts.ts",
   ['from "@/lib/role-prompt-pack-markdown";', `from ${JSON.stringify(rolePromptPackUrl)};`],
 ]);
 
-const { getApprovedImplementationHandoffArtifacts, getDoneImplementationHandoffPhaseLabels } =
-  await import(implementationHandoffUrl);
+const {
+  buildImplementationHandoffArtifactLines,
+  buildImplementationHandoffDonePhaseLines,
+  buildImplementationHandoffExperimentLines,
+  buildImplementationHandoffRiskLines,
+  getApprovedImplementationHandoffArtifacts,
+  getDoneImplementationHandoffPhaseLabels,
+} = await import(implementationHandoffUrl);
 const {
   buildFilteredImplementationRoleLines,
   buildFilteredImplementationTaskLines,
@@ -218,6 +224,14 @@ assert.deepEqual(
   ]),
   ["구현"],
 );
+assert.match(buildImplementationHandoffArtifactLines(artifacts), /AI Venture Lab 제품 기획서/);
+assert.equal(buildImplementationHandoffArtifactLines([]), "- 아직 저장된 제작 자료가 없습니다.");
+assert.match(buildImplementationHandoffRiskLines(risks), /민감 데이터 입력 전 목적과 삭제 경로 표시/);
+assert.equal(buildImplementationHandoffRiskLines([]), "- 연결된 리스크가 없습니다.");
+assert.match(buildImplementationHandoffExperimentLines(experiments), /첫 작업을 외부 도구가 바로 이해/);
+assert.equal(buildImplementationHandoffExperimentLines([]), "- 연결된 실험이 없습니다.");
+assert.match(buildImplementationHandoffDonePhaseLines(getDoneImplementationHandoffPhaseLabels([{ ...runs[0], status: "done" }])), /구현/);
+assert.equal(buildImplementationHandoffDonePhaseLines([]), "- 아직 완료된 역할 단계가 없습니다.");
 assert.equal(buildImplementationTaskBlockerHintSection(tasks[0]), "");
 assert.match(
   buildImplementationTaskBlockerHintSection({
