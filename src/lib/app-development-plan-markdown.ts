@@ -9,6 +9,21 @@ import { decisionLabels, stageLabels } from "@/lib/workbench-labels";
 
 type AppDevelopmentPlanState = Pick<Idea, "decision" | "next_evidence" | "product_surface" | "risk_summary" | "stage">;
 
+export function hasAppDevelopmentPlanArtifactType(
+  artifacts: VentureArtifact[],
+  artifactType: VentureArtifact["artifact_type"],
+) {
+  return artifacts.some((artifact) => artifact.artifact_type === artifactType);
+}
+
+export function getDoneAppDevelopmentPlanPhases(runs: OrchestrationRun[]) {
+  return new Set(runs.filter((run) => run.status === "done").map((run) => run.phase));
+}
+
+export function getPrimaryAppDevelopmentPlanExperiment(experiments: Experiment[]) {
+  return experiments[0] ?? null;
+}
+
 export function buildAppDevelopmentPlanMarkdown({
   idea,
   state,
@@ -23,14 +38,14 @@ export function buildAppDevelopmentPlanMarkdown({
   artifacts: VentureArtifact[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const hasPrd = artifacts.some((artifact) => artifact.artifact_type === "prd");
-  const hasResearchNote = artifacts.some((artifact) => artifact.artifact_type === "research_note");
-  const hasMvpSpec = artifacts.some((artifact) => artifact.artifact_type === "mvp_spec");
-  const hasBackendDecision = artifacts.some((artifact) => artifact.artifact_type === "backend_decision");
-  const hasDesignBrief = artifacts.some((artifact) => artifact.artifact_type === "design_brief");
-  const hasTechSpec = artifacts.some((artifact) => artifact.artifact_type === "tech_spec");
-  const donePhases = new Set(runs.filter((run) => run.status === "done").map((run) => run.phase));
-  const primaryExperiment = experiments[0];
+  const hasPrd = hasAppDevelopmentPlanArtifactType(artifacts, "prd");
+  const hasResearchNote = hasAppDevelopmentPlanArtifactType(artifacts, "research_note");
+  const hasMvpSpec = hasAppDevelopmentPlanArtifactType(artifacts, "mvp_spec");
+  const hasBackendDecision = hasAppDevelopmentPlanArtifactType(artifacts, "backend_decision");
+  const hasDesignBrief = hasAppDevelopmentPlanArtifactType(artifacts, "design_brief");
+  const hasTechSpec = hasAppDevelopmentPlanArtifactType(artifacts, "tech_spec");
+  const donePhases = getDoneAppDevelopmentPlanPhases(runs);
+  const primaryExperiment = getPrimaryAppDevelopmentPlanExperiment(experiments);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
   const surfaceDesignContext = buildSurfaceDesignContext(productSurface, surfaceGuidance);
   const surfaceArchitectureNotes = buildSurfaceArchitectureNotes(productSurface, surfaceGuidance);

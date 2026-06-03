@@ -48,6 +48,11 @@ const moduleUrl = transpileModuleUrl("src/lib/product-planning-drafts.ts", [
 ]);
 
 const { buildProductPlanningArtifactSaveDrafts, buildProductPlanningDraftState } = await import(moduleUrl);
+const {
+  getDoneAppDevelopmentPlanPhases,
+  getPrimaryAppDevelopmentPlanExperiment,
+  hasAppDevelopmentPlanArtifactType,
+} = await import(appDevelopmentPlanUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -147,6 +152,11 @@ const artifacts = [
     version: 1,
   },
 ];
+assert.equal(hasAppDevelopmentPlanArtifactType(artifacts, "prd"), true);
+assert.equal(hasAppDevelopmentPlanArtifactType(artifacts, "mvp_spec"), false);
+assert.deepEqual([...getDoneAppDevelopmentPlanPhases(runs)], ["product"]);
+assert.equal(getPrimaryAppDevelopmentPlanExperiment(experiments)?.id, "exp-1");
+assert.equal(getPrimaryAppDevelopmentPlanExperiment([]), null);
 
 const draftState = buildProductPlanningDraftState({
   artifacts,
