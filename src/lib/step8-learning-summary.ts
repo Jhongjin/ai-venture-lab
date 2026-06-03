@@ -24,6 +24,11 @@ export type Step8ReviewRow = readonly [label: string, value: string, detail: str
 
 export type Step8LearningDecisionLabel = "다음 작업 완료" | "첫 버전 배포" | "리스크 보완" | "다음 빌드 범위 결정";
 
+export type Step8LearningValueDetail = {
+  detail: string;
+  value: string;
+};
+
 export type Step8LearningSummary = {
   learningDecisionCards: Step8OutcomeCard[];
   learningDecisionDetail: string;
@@ -226,36 +231,21 @@ export function buildStep8LearningSummary({
     openRiskCount,
     productSignalCount,
   });
-  const learningCompletedValue =
-    totalImplementationTaskCount > 0
-      ? `${completedImplementationTaskCount}/${totalImplementationTaskCount} 작업`
-      : productSignalCount > 0
-        ? `${productSignalCount}개 신호`
-        : "없음";
-  const learningCompletedDetail =
-    totalImplementationTaskCount > 0
-      ? completedImplementationTaskCount > 0
-        ? "완료 보고가 저장된 제작 작업입니다."
-        : "아직 완료 보고가 들어온 제작 작업은 없습니다."
-      : productSignalCount > 0
-        ? "첫 버전에서 들어온 실제 사용 신호입니다."
-        : "아직 완료 보고나 제품 신호가 없습니다.";
-  const learningRemainingValue = nextImplementationTask
-    ? nextImplementationTaskCode
-      ? `${nextImplementationTaskCode} 남음`
-      : "작업 남음"
-    : productSignalCount === 0
-      ? "신호 연결"
-      : openRiskCount > 0
-        ? `${openRiskCount}개 리스크`
-        : "없음";
-  const learningRemainingDetail = nextImplementationTask
-    ? `${nextImplementationTask.title}만 이어서 처리하면 됩니다.`
-    : productSignalCount === 0
-      ? "첫 버전을 배포한 뒤 방문과 핵심 행동 이벤트를 연결하세요."
-      : openRiskCount > 0
-        ? "열린 리스크 중 다음 빌드에서 줄일 항목을 하나 고르세요."
-        : "남은 차단 항목이 없으면 다음 빌드 범위를 작게 정하면 됩니다.";
+  const learningCompletedSummary = buildStep8LearningCompletedSummary({
+    completedImplementationTaskCount,
+    productSignalCount,
+    totalImplementationTaskCount,
+  });
+  const learningRemainingSummary = buildStep8LearningRemainingSummary({
+    nextImplementationTask,
+    nextImplementationTaskCode,
+    openRiskCount,
+    productSignalCount,
+  });
+  const learningCompletedValue = learningCompletedSummary.value;
+  const learningCompletedDetail = learningCompletedSummary.detail;
+  const learningRemainingValue = learningRemainingSummary.value;
+  const learningRemainingDetail = learningRemainingSummary.detail;
   const learningDecisionCards = [
     {
       label: "완료된 것",
@@ -337,6 +327,76 @@ export function buildStep8LearningSummary({
     externalSyncNextTaskText,
     externalSyncOutcomeSentence,
     externalSyncReviewRows,
+  };
+}
+
+export function buildStep8LearningCompletedSummary({
+  completedImplementationTaskCount,
+  productSignalCount,
+  totalImplementationTaskCount,
+}: {
+  completedImplementationTaskCount: number;
+  productSignalCount: number;
+  totalImplementationTaskCount: number;
+}): Step8LearningValueDetail {
+  if (totalImplementationTaskCount > 0) {
+    return {
+      value: `${completedImplementationTaskCount}/${totalImplementationTaskCount} 작업`,
+      detail:
+        completedImplementationTaskCount > 0
+          ? "완료 보고가 저장된 제작 작업입니다."
+          : "아직 완료 보고가 들어온 제작 작업은 없습니다.",
+    };
+  }
+
+  if (productSignalCount > 0) {
+    return {
+      value: `${productSignalCount}개 신호`,
+      detail: "첫 버전에서 들어온 실제 사용 신호입니다.",
+    };
+  }
+
+  return {
+    value: "없음",
+    detail: "아직 완료 보고나 제품 신호가 없습니다.",
+  };
+}
+
+export function buildStep8LearningRemainingSummary({
+  nextImplementationTask,
+  nextImplementationTaskCode,
+  openRiskCount,
+  productSignalCount,
+}: {
+  nextImplementationTask: Pick<ImplementationTask, "title"> | null;
+  nextImplementationTaskCode: string | null;
+  openRiskCount: number;
+  productSignalCount: number;
+}): Step8LearningValueDetail {
+  if (nextImplementationTask) {
+    return {
+      value: nextImplementationTaskCode ? `${nextImplementationTaskCode} 남음` : "작업 남음",
+      detail: `${nextImplementationTask.title}만 이어서 처리하면 됩니다.`,
+    };
+  }
+
+  if (productSignalCount === 0) {
+    return {
+      value: "신호 연결",
+      detail: "첫 버전을 배포한 뒤 방문과 핵심 행동 이벤트를 연결하세요.",
+    };
+  }
+
+  if (openRiskCount > 0) {
+    return {
+      value: `${openRiskCount}개 리스크`,
+      detail: "열린 리스크 중 다음 빌드에서 줄일 항목을 하나 고르세요.",
+    };
+  }
+
+  return {
+    value: "없음",
+    detail: "남은 차단 항목이 없으면 다음 빌드 범위를 작게 정하면 됩니다.",
   };
 }
 

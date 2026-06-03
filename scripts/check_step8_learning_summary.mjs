@@ -45,7 +45,9 @@ const {
   buildStep8LearningDecisionDetail,
   buildStep8LearningDecisionLabel,
   buildStep8LearningDecisionOptions,
+  buildStep8LearningCompletedSummary,
   buildStep8LearningDisplayState,
+  buildStep8LearningRemainingSummary,
   buildStep8LearningSummary,
   buildStep8ProgressDetail,
   buildStep8ProgressDisplayItem,
@@ -227,6 +229,31 @@ assert.deepEqual(
 assert.equal(learningSummary.learningDecisionCards[0].label, "완료된 것");
 assert.equal(learningSummary.learningDecisionCards[1].value, "T-002 남음");
 assert.equal(learningSummary.learningDecisionLabel, "다음 작업 완료");
+assert.deepEqual(
+  buildStep8LearningCompletedSummary({
+    completedImplementationTaskCount: 1,
+    productSignalCount: 0,
+    totalImplementationTaskCount: 3,
+  }),
+  {
+    value: "1/3 작업",
+    detail: "완료 보고가 저장된 제작 작업입니다.",
+  },
+);
+assert.deepEqual(
+  buildStep8LearningRemainingSummary({
+    nextImplementationTask: context.nextTask,
+    nextImplementationTaskCode: context.nextTaskCode,
+    openRiskCount: 0,
+    productSignalCount: 0,
+  }),
+  {
+    value: "T-002 남음",
+    detail: "첫 화면 제작만 이어서 처리하면 됩니다.",
+  },
+);
+assert.equal(learningSummary.learningCompletedValue, "1/3 작업");
+assert.equal(learningSummary.learningRemainingValue, "T-002 남음");
 assert.equal(
   buildStep8ExternalSyncCompletedText({
     completedImplementationTaskCount: 1,
@@ -339,6 +366,64 @@ assert.equal(displayState.canCopyLearningReport, true);
 assert.equal(displayState.learningDecisionCards[0].label, "완료된 것");
 assert.equal(displayState.learningPrimaryCtaLabel, "리포트 복사");
 assert.equal(displayState.learningDecisionLabel, "다음 빌드 범위 결정");
+assert.deepEqual(
+  buildStep8LearningCompletedSummary({
+    completedImplementationTaskCount: 0,
+    productSignalCount: 4,
+    totalImplementationTaskCount: 0,
+  }),
+  {
+    value: "4개 신호",
+    detail: "첫 버전에서 들어온 실제 사용 신호입니다.",
+  },
+);
+assert.deepEqual(
+  buildStep8LearningCompletedSummary({
+    completedImplementationTaskCount: 0,
+    productSignalCount: 0,
+    totalImplementationTaskCount: 0,
+  }),
+  {
+    value: "없음",
+    detail: "아직 완료 보고나 제품 신호가 없습니다.",
+  },
+);
+assert.deepEqual(
+  buildStep8LearningRemainingSummary({
+    nextImplementationTask: null,
+    nextImplementationTaskCode: null,
+    openRiskCount: 0,
+    productSignalCount: 0,
+  }),
+  {
+    value: "신호 연결",
+    detail: "첫 버전을 배포한 뒤 방문과 핵심 행동 이벤트를 연결하세요.",
+  },
+);
+assert.deepEqual(
+  buildStep8LearningRemainingSummary({
+    nextImplementationTask: null,
+    nextImplementationTaskCode: null,
+    openRiskCount: 2,
+    productSignalCount: 4,
+  }),
+  {
+    value: "2개 리스크",
+    detail: "열린 리스크 중 다음 빌드에서 줄일 항목을 하나 고르세요.",
+  },
+);
+assert.deepEqual(
+  buildStep8LearningRemainingSummary({
+    nextImplementationTask: null,
+    nextImplementationTaskCode: null,
+    openRiskCount: 0,
+    productSignalCount: 4,
+  }),
+  {
+    value: "없음",
+    detail: "남은 차단 항목이 없으면 다음 빌드 범위를 작게 정하면 됩니다.",
+  },
+);
 assert.match(buildStep8LearningDecisionDetail("첫 버전 배포"), /핵심 행동 신호/);
 assert.match(buildStep8LearningDecisionDetail("리스크 보완"), /열린 리스크/);
 assert.match(buildStep8LearningDecisionDetail("다음 빌드 범위 결정"), /다음 빌드 범위/);
