@@ -217,6 +217,28 @@ export function buildAiExtractedIdeaSourceBlock({
     .join("\n");
 }
 
+export function buildAiExtractedIdeaEvidence({
+  buyer,
+  oneLiner,
+  riskSummary,
+  signal,
+  targetUser,
+}: {
+  buyer: string;
+  oneLiner: string;
+  riskSummary: string;
+  signal: string;
+  targetUser: string;
+}) {
+  return [
+    signal ? "AI 문제 신호" : "",
+    oneLiner ? "AI 솔루션 정리" : "",
+    targetUser ? "AI 타겟 추론" : "",
+    buyer ? "AI 구매자 추론" : "",
+    riskSummary ? "AI 리스크 추론" : "",
+  ].filter(Boolean);
+}
+
 export function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedIdeaCandidate[]): ExtractedIdea[] {
   return sortExtractedIdeasByValidationStrength(
     candidates.slice(0, 8).map((candidate, index) => {
@@ -230,13 +252,13 @@ export function hydrateAiExtractedIdeas(source: string, candidates: AiExtractedI
       const risk_summary = firstText([candidate.risk_summary], inferText(blockForInference, "risk"), 240);
       const next_evidence = firstText([candidate.next_evidence], inferText(blockForInference, "next"), 240);
       const riskLevel = inferRiskLevel(blockForInference);
-      const evidence = [
-        signal ? "AI 문제 신호" : "",
-        oneLiner ? "AI 솔루션 정리" : "",
-        target_user ? "AI 타겟 추론" : "",
-        buyer ? "AI 구매자 추론" : "",
-        risk_summary ? "AI 리스크 추론" : "",
-      ].filter(Boolean);
+      const evidence = buildAiExtractedIdeaEvidence({
+        buyer,
+        oneLiner,
+        riskSummary: risk_summary,
+        signal,
+        targetUser: target_user,
+      });
       const validationScore = scoreExtractedIdea({
         block: blockForInference,
         evidenceCount: evidence.length + 1,
