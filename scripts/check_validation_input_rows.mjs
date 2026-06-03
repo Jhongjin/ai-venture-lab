@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -294,6 +295,17 @@ assert.deepEqual(
     status: "done",
   },
 );
+assert.match(
+  buildExperimentStatusUpdatePatch({
+    experiment: {
+      ended_at: null,
+      started_at: null,
+      status: "planned",
+    },
+    status: "running",
+  }).started_at,
+  /^\d{4}-\d{2}-\d{2}T/,
+);
 assert.deepEqual(
   buildExperimentStatusTelemetryProperties({
     experiment: { status: "done" },
@@ -321,5 +333,19 @@ assert.deepEqual(
     previous_status: "open",
   },
 );
+
+const componentDirectory = path.join(process.cwd(), "src/components");
+for (const entry of fs.readdirSync(componentDirectory, { withFileTypes: true })) {
+  if (entry.isDirectory() || !/\.(ts|tsx)$/.test(entry.name)) {
+    continue;
+  }
+
+  const filePath = path.join(componentDirectory, entry.name);
+  assert.equal(
+    fs.readFileSync(filePath, "utf8").includes("new Date("),
+    false,
+    `${path.relative(process.cwd(), filePath)} should delegate date generation to helper modules`,
+  );
+}
 
 console.log("Validation input rows smoke passed.");

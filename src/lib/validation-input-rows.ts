@@ -317,11 +317,11 @@ export function buildExperimentCreatedTelemetryProperties<Status extends string>
 
 export function buildExperimentStatusUpdatePatch<Status extends string>({
   experiment,
-  now,
+  now = new Date().toISOString(),
   status,
 }: {
   experiment: ExperimentStatusSource<Status>;
-  now: string;
+  now?: string;
   status: Status;
 }) {
   return {

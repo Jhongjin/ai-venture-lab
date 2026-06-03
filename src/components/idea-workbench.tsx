@@ -2485,10 +2485,9 @@ export function IdeaWorkbench({
 
     setIsBusy(true);
     setMessage(null);
-    const now = new Date().toISOString();
     const { data, error } = await supabase
       .from("experiments")
-      .update(buildExperimentStatusUpdatePatch({ experiment, now, status }))
+      .update(buildExperimentStatusUpdatePatch({ experiment, status }))
       .eq("id", experiment.id)
       .select()
       .single();
