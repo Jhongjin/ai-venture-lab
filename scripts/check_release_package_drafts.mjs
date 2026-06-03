@@ -83,6 +83,13 @@ const {
   getUnapprovedReleaseDecisionArtifacts,
 } = await import(releaseDecisionUrl);
 const {
+  buildDevelopmentCompletionArtifactLines,
+  buildDevelopmentCompletionDoneRunLines,
+  buildDevelopmentCompletionExperimentLines,
+  buildDevelopmentCompletionGateLines,
+  buildDevelopmentCompletionReleaseEvidenceLines,
+  buildDevelopmentCompletionRiskLines,
+  buildDevelopmentCompletionTaskLines,
   buildDevelopmentCompletionTaskStats,
   getDoneDevelopmentCompletionRuns,
   getReleaseEvidenceImplementationTasks,
@@ -298,6 +305,26 @@ const artifactReviewQueue = [
   { status: "approved", label: "출시 체크리스트", detail: "프로덕션 smoke와 롤백 기준 확인" },
   { status: "approved", label: "제작 도구 전달 자료", detail: "첫 지시문과 작업 목록 확인" },
 ];
+assert.match(buildDevelopmentCompletionTaskLines(implementationTasks), /제작 패키지 리뷰 화면/);
+assert.equal(buildDevelopmentCompletionTaskLines([]), "- 아직 생성된 개발 태스크가 없습니다.");
+assert.match(buildDevelopmentCompletionRiskLines(risks), /원본 대화 식별 정보 노출/);
+assert.equal(buildDevelopmentCompletionRiskLines([]), "- 연결된 리스크가 없습니다.");
+assert.match(buildDevelopmentCompletionExperimentLines(experiments), /제작 패키지 전달 테스트/);
+assert.equal(buildDevelopmentCompletionExperimentLines([]), "- 연결된 실험이 없습니다.");
+assert.match(buildDevelopmentCompletionArtifactLines(artifacts), /출시 체크리스트 v1/);
+assert.equal(buildDevelopmentCompletionArtifactLines([]), "- 저장된 제작 자료가 없습니다.");
+assert.match(buildDevelopmentCompletionDoneRunLines(getDoneDevelopmentCompletionRuns(runs)), /prototype-builder/);
+assert.equal(buildDevelopmentCompletionDoneRunLines([]), "- 완료된 실행 단계가 없습니다.");
+assert.match(buildDevelopmentCompletionGateLines(gateChecks), /\[x\] 핵심 저장 흐름/);
+assert.equal(buildDevelopmentCompletionGateLines([]), "");
+assert.match(
+  buildDevelopmentCompletionReleaseEvidenceLines(getReleaseEvidenceImplementationTasks(implementationTasks)),
+  /증거 품질/,
+);
+assert.equal(
+  buildDevelopmentCompletionReleaseEvidenceLines([]),
+  "- 릴리스 안전장치와 직접 연결된 백엔드, 데이터, 보안, 배포 태스크가 아직 없습니다.",
+);
 const openDependencyStatusFixtures = [
   { ...dependencyStatuses[0], ready: true, task: { ...implementationTasks[0], id: "task-ready", status: "todo" } },
   { ...dependencyStatuses[1], ready: false, task: { ...implementationTasks[1], id: "task-waiting", status: "blocked" } },

@@ -47,6 +47,69 @@ export function getReleaseEvidenceImplementationTasks(implementationTasks: Imple
   return implementationTasks.filter((task) => ["backend", "data", "security", "deploy"].includes(task.task_type));
 }
 
+export function buildDevelopmentCompletionTaskLines(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.length > 0
+    ? implementationTasks
+        .map(
+          (task) =>
+            `- [${task.status === "done" ? "x" : " "}] ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / ${implementationTaskPriorityLabels[task.priority]}\n  - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n    ")}\n  - 완료 증거: ${task.evidence.trim() || "미기록"}`,
+        )
+        .join("\n")
+    : "- 아직 생성된 개발 태스크가 없습니다.";
+}
+
+export function buildDevelopmentCompletionRiskLines(risks: Risk[]) {
+  return risks.length > 0
+    ? risks.map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`).join("\n")
+    : "- 연결된 리스크가 없습니다.";
+}
+
+export function buildDevelopmentCompletionExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments
+        .map((experiment) => `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${experiment.success_metric || "성공 지표 미정"}`)
+        .join("\n")
+    : "- 연결된 실험이 없습니다.";
+}
+
+export function buildDevelopmentCompletionArtifactLines(artifacts: VentureArtifact[]) {
+  return artifacts.length > 0
+    ? artifacts
+        .slice(0, 12)
+        .map(
+          (artifact) =>
+            `- ${artifactLabels[artifact.artifact_type]} v${artifact.version ?? 1}: ${artifact.title || "제목 없음"} (${artifactStatusLabels[artifact.status]})`,
+        )
+        .join("\n")
+    : "- 저장된 제작 자료가 없습니다.";
+}
+
+export function buildDevelopmentCompletionDoneRunLines(doneRuns: OrchestrationRun[]) {
+  return doneRuns.length > 0
+    ? doneRuns.map((run) => `- ${phaseLabels[run.phase]}: ${run.owner_role || "owner 미정"}`).join("\n")
+    : "- 완료된 실행 단계가 없습니다.";
+}
+
+export function buildDevelopmentCompletionGateLines(checks: DevelopmentCompletionGateCheck[]) {
+  return checks.map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`).join("\n");
+}
+
+export function buildDevelopmentCompletionReleaseEvidenceLines(releaseEvidenceTasks: ImplementationTask[]) {
+  return releaseEvidenceTasks.length > 0
+    ? releaseEvidenceTasks
+        .map((task) => {
+          const checklist = getImplementationEvidenceChecklist(task, task.evidence ?? "");
+          const passed = checklist.filter((item) => item.passed).length;
+          const missing = checklist.filter((item) => !item.passed).map((item) => item.label);
+
+          return `- ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / 증거 품질 ${passed}/${checklist.length}
+  - 보완 필요: ${missing.length > 0 ? missing.join(", ") : "없음"}
+  - 완료 증거: ${task.evidence.trim() || "미기록"}`;
+        })
+        .join("\n")
+    : "- 릴리스 안전장치와 직접 연결된 백엔드, 데이터, 보안, 배포 태스크가 아직 없습니다.";
+}
+
 export function buildDevelopmentCompletionReportMarkdown({
   idea,
   state,
@@ -70,60 +133,17 @@ export function buildDevelopmentCompletionReportMarkdown({
   launchReadiness: DevelopmentCompletionGateCheck[];
   nextLaunchBlocker: DevelopmentCompletionGateCheck | null;
 }) {
-  const taskLines =
-    implementationTasks.length > 0
-      ? implementationTasks
-          .map(
-            (task) =>
-              `- [${task.status === "done" ? "x" : " "}] ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / ${implementationTaskPriorityLabels[task.priority]}\n  - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n    ")}\n  - 완료 증거: ${task.evidence.trim() || "미기록"}`,
-          )
-          .join("\n")
-      : "- 아직 생성된 개발 태스크가 없습니다.";
-  const riskLines =
-    risks.length > 0
-      ? risks.map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`).join("\n")
-      : "- 연결된 리스크가 없습니다.";
-  const experimentLines =
-    experiments.length > 0
-      ? experiments.map((experiment) => `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
-      : "- 연결된 실험이 없습니다.";
-  const artifactLines =
-    artifacts.length > 0
-      ? artifacts
-          .slice(0, 12)
-          .map(
-            (artifact) =>
-              `- ${artifactLabels[artifact.artifact_type]} v${artifact.version ?? 1}: ${artifact.title || "제목 없음"} (${artifactStatusLabels[artifact.status]})`,
-          )
-          .join("\n")
-      : "- 저장된 제작 자료가 없습니다.";
+  const taskLines = buildDevelopmentCompletionTaskLines(implementationTasks);
+  const riskLines = buildDevelopmentCompletionRiskLines(risks);
+  const experimentLines = buildDevelopmentCompletionExperimentLines(experiments);
+  const artifactLines = buildDevelopmentCompletionArtifactLines(artifacts);
   const doneRuns = getDoneDevelopmentCompletionRuns(runs);
-  const doneRunLines =
-    doneRuns.length > 0
-      ? doneRuns.map((run) => `- ${phaseLabels[run.phase]}: ${run.owner_role || "owner 미정"}`).join("\n")
-      : "- 완료된 실행 단계가 없습니다.";
-  const gateLines = implementationGateChecks
-    .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
-    .join("\n");
-  const launchLines = launchReadiness
-    .map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`)
-    .join("\n");
+  const doneRunLines = buildDevelopmentCompletionDoneRunLines(doneRuns);
+  const gateLines = buildDevelopmentCompletionGateLines(implementationGateChecks);
+  const launchLines = buildDevelopmentCompletionGateLines(launchReadiness);
   const { completedTaskCount, taskEvidenceCount } = buildDevelopmentCompletionTaskStats(implementationTasks);
   const releaseEvidenceTasks = getReleaseEvidenceImplementationTasks(implementationTasks);
-  const releaseEvidenceLines =
-    releaseEvidenceTasks.length > 0
-      ? releaseEvidenceTasks
-          .map((task) => {
-            const checklist = getImplementationEvidenceChecklist(task, task.evidence ?? "");
-            const passed = checklist.filter((item) => item.passed).length;
-            const missing = checklist.filter((item) => !item.passed).map((item) => item.label);
-
-            return `- ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / 증거 품질 ${passed}/${checklist.length}
-  - 보완 필요: ${missing.length > 0 ? missing.join(", ") : "없음"}
-  - 완료 증거: ${task.evidence.trim() || "미기록"}`;
-          })
-          .join("\n")
-      : "- 릴리스 안전장치와 직접 연결된 백엔드, 데이터, 보안, 배포 태스크가 아직 없습니다.";
+  const releaseEvidenceLines = buildDevelopmentCompletionReleaseEvidenceLines(releaseEvidenceTasks);
 
   return `# 개발 완료 보고서: ${idea.name}
 
