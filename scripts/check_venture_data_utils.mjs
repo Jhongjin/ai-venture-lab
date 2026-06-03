@@ -20,6 +20,7 @@ const {
   emptyConsoleData,
   filterChildRecordsForVisibleIdeas,
   getIdeaCreatedAtTime,
+  getIdeaScoreInputs,
   getWorkflowStageRank,
   isUserScopedRecordVisible,
   scoreIdea,
@@ -89,6 +90,15 @@ assert.equal(getIdeaCreatedAtTime(ideas[1]), 1780444800000);
 assert.equal(compareIdeasByCreatedAtDesc(ideas[1], ideas[2]) < 0, true);
 assert.equal(compareIdeasByWorkflow(ideas[1], ideas[0]) < 0, true);
 assert.equal(compareIdeasByWorkflow(ideas[1], ideas[2]) < 0, true);
+assert.deepEqual(getIdeaScoreInputs(ideas[0]), {
+  differentiation: 4,
+  frequency: 3,
+  mvpSpeed: 5,
+  problemIntensity: 5,
+  reachability: 4,
+  regulatoryRisk: 2,
+  willingnessToPay: 3,
+});
 assert.equal(scoreIdea(ideas[0]), 22);
 assert.equal(
   isUserScopedRecordVisible({ created_by: "user-1", organization_id: null }, "user-1", new Set()),

@@ -273,15 +273,29 @@ export function compareIdeasByWorkflow(a: Idea, b: Idea) {
   );
 }
 
+export function getIdeaScoreInputs(idea: Idea) {
+  return {
+    differentiation: idea.differentiation,
+    frequency: idea.frequency,
+    mvpSpeed: idea.mvp_speed,
+    problemIntensity: idea.problem_intensity,
+    reachability: idea.reachability,
+    regulatoryRisk: idea.regulatory_risk,
+    willingnessToPay: idea.willingness_to_pay,
+  };
+}
+
 export function scoreIdea(idea: Idea) {
+  const inputs = getIdeaScoreInputs(idea);
+
   return (
-    idea.problem_intensity +
-    idea.frequency +
-    idea.reachability +
-    idea.willingness_to_pay +
-    idea.mvp_speed +
-    idea.differentiation -
-    idea.regulatory_risk
+    inputs.problemIntensity +
+    inputs.frequency +
+    inputs.reachability +
+    inputs.willingnessToPay +
+    inputs.mvpSpeed +
+    inputs.differentiation -
+    inputs.regulatoryRisk
   );
 }
 
