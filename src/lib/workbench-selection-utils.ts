@@ -41,18 +41,30 @@ export function getSelectedArtifactRecords(artifacts: VentureArtifact[], ideaId:
   return artifacts.filter((artifact) => artifact.idea_id === ideaId).sort(compareWorkbenchArtifactsByCreatedAtDesc);
 }
 
+export function getWorkbenchArtifactCreatedAtTime(artifact: Pick<VentureArtifact, "created_at">) {
+  return new Date(artifact.created_at).getTime();
+}
+
 export function compareWorkbenchArtifactsByCreatedAtDesc(a: VentureArtifact, b: VentureArtifact) {
-  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  return getWorkbenchArtifactCreatedAtTime(b) - getWorkbenchArtifactCreatedAtTime(a);
 }
 
 export function getSelectedImplementationTasks(tasks: ImplementationTask[], ideaId: string | null | undefined) {
   return tasks.filter((task) => task.idea_id === ideaId).sort(compareWorkbenchImplementationTasksByOrder);
 }
 
+export function getWorkbenchImplementationTaskCreatedAtTime(task: Pick<ImplementationTask, "created_at">) {
+  return new Date(task.created_at).getTime();
+}
+
+export function compareWorkbenchImplementationTasksByCreatedAtAsc(a: ImplementationTask, b: ImplementationTask) {
+  return getWorkbenchImplementationTaskCreatedAtTime(a) - getWorkbenchImplementationTaskCreatedAtTime(b);
+}
+
 export function compareWorkbenchImplementationTasksByOrder(a: ImplementationTask, b: ImplementationTask) {
   return (
     a.sort_order - b.sort_order ||
-    new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
+    compareWorkbenchImplementationTasksByCreatedAtAsc(a, b) ||
     a.title.localeCompare(b.title, "ko-KR")
   );
 }
@@ -61,8 +73,12 @@ export function getSelectedTelemetryEvents(events: TelemetryEvent[], ideaId: str
   return events.filter((event) => event.idea_id === ideaId).sort(compareWorkbenchTelemetryEventsByOccurredAtDesc);
 }
 
+export function getWorkbenchTelemetryEventOccurredAtTime(event: Pick<TelemetryEvent, "occurred_at">) {
+  return new Date(event.occurred_at).getTime();
+}
+
 export function compareWorkbenchTelemetryEventsByOccurredAtDesc(a: TelemetryEvent, b: TelemetryEvent) {
-  return new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime();
+  return getWorkbenchTelemetryEventOccurredAtTime(b) - getWorkbenchTelemetryEventOccurredAtTime(a);
 }
 
 export function getSelectedWorkbenchCollections({
