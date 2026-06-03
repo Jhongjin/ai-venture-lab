@@ -169,12 +169,20 @@ export const implementationTaskExecutionRank = new Map<ImplementationTaskType, n
   implementationTaskExecutionOrder.map((taskType, index) => [taskType, index]),
 );
 
+export function getImplementationTaskCreatedAtTime(task: Pick<ImplementationTask, "created_at">) {
+  return new Date(task.created_at).getTime();
+}
+
+export function compareImplementationTasksByCreatedAt(a: ImplementationTask, b: ImplementationTask) {
+  return getImplementationTaskCreatedAtTime(a) - getImplementationTaskCreatedAtTime(b);
+}
+
 export function compareImplementationTasksByActionOrder(a: ImplementationTask, b: ImplementationTask) {
   return (
     implementationTaskActionRank[a.status] - implementationTaskActionRank[b.status] ||
     implementationTaskPriorityRank[a.priority] - implementationTaskPriorityRank[b.priority] ||
     a.sort_order - b.sort_order ||
-    new Date(a.created_at).getTime() - new Date(b.created_at).getTime() ||
+    compareImplementationTasksByCreatedAt(a, b) ||
     a.title.localeCompare(b.title, "ko-KR")
   );
 }
@@ -309,8 +317,12 @@ export function getImplementationTaskOwnerRole(task: ImplementationTask) {
   return task.owner_role.trim() || "owner 미정";
 }
 
+export function compareImplementationOwnerRoles(a: string, b: string) {
+  return a.localeCompare(b, "ko-KR");
+}
+
 export function sortImplementationOwnerRoles(ownerRoles: Iterable<string>) {
-  return Array.from(new Set(ownerRoles)).sort((a, b) => a.localeCompare(b, "ko-KR"));
+  return Array.from(new Set(ownerRoles)).sort(compareImplementationOwnerRoles);
 }
 
 export function buildImplementationOwnerOptions(tasks: ImplementationTask[]) {

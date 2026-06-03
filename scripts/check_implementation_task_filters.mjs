@@ -12,10 +12,13 @@ const {
   buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskReviewState,
   buildImplementationTaskRefreshSummary,
+  compareImplementationOwnerRoles,
   compareImplementationTasksByActionOrder,
+  compareImplementationTasksByCreatedAt,
   compareImplementationTasksByExecutionOrder,
   filterImplementationTasks,
   formatImplementationTaskRefreshTime,
+  getImplementationTaskCreatedAtTime,
   getOpenImplementationTasksForAction,
   resolveImplementationOwnerFilter,
   selectAgentRunPackageTasks,
@@ -96,6 +99,7 @@ const tasks = [
 ];
 
 const ownerOptions = buildImplementationOwnerOptions(tasks);
+assert.equal(compareImplementationOwnerRoles("backend", "frontend") < 0, true);
 assert.deepEqual(sortImplementationOwnerRoles(["frontend", "owner 미정", "backend", "frontend"]), [
   "backend",
   "frontend",
@@ -193,6 +197,8 @@ const actionOrderTasks = [
   }),
   task({ id: "doing-medium", ownerRole: "", priority: "medium", status: "doing", taskType: "backend" }),
 ];
+assert.equal(getImplementationTaskCreatedAtTime(actionOrderTasks[0]), 1780279200000);
+assert.equal(compareImplementationTasksByCreatedAt(actionOrderTasks[2], actionOrderTasks[0]) < 0, true);
 assert.deepEqual(
   sortImplementationTasksForAction(actionOrderTasks).map((item) => item.id),
   ["blocked-low", "doing-medium", "todo-high-early", "todo-high-late"],
