@@ -397,6 +397,18 @@ export function getBlockedImplementationTaskHint(task: ImplementationTask) {
   };
 }
 
+export function compareImplementationEvidenceSummaries(
+  a: ImplementationEvidenceSummary,
+  b: ImplementationEvidenceSummary,
+) {
+  return (
+    b.missing.length - a.missing.length ||
+    implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
+    implementationTaskActionRank[a.task.status] - implementationTaskActionRank[b.task.status] ||
+    a.task.sort_order - b.task.sort_order
+  );
+}
+
 export function buildImplementationEvidenceSummaries({
   evidenceByTaskId,
   tasks,
@@ -415,17 +427,22 @@ export function buildImplementationEvidenceSummaries({
         totalCount: checklist.length,
       };
     })
-    .sort(
-      (a, b) =>
-        b.missing.length - a.missing.length ||
-        implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
-        implementationTaskActionRank[a.task.status] - implementationTaskActionRank[b.task.status] ||
-        a.task.sort_order - b.task.sort_order,
-    );
+    .sort(compareImplementationEvidenceSummaries);
 }
 
 export function getImplementationEvidenceIssues(summaries: ImplementationEvidenceSummary[]) {
   return summaries.filter((summary) => summary.missing.length > 0);
+}
+
+export function compareBlockedImplementationSummaries(
+  a: BlockedImplementationSummary,
+  b: BlockedImplementationSummary,
+) {
+  return (
+    implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
+    b.missing.length - a.missing.length ||
+    a.task.sort_order - b.task.sort_order
+  );
 }
 
 export function buildBlockedImplementationSummaries({
@@ -442,12 +459,7 @@ export function buildBlockedImplementationSummaries({
       hint: getBlockedImplementationTaskHint(task),
       missing: getMissingImplementationEvidenceLabels(task, evidenceByTaskId).missing,
     }))
-    .sort(
-      (a, b) =>
-        implementationTaskPriorityRank[a.task.priority] - implementationTaskPriorityRank[b.task.priority] ||
-        b.missing.length - a.missing.length ||
-        a.task.sort_order - b.task.sort_order,
-    );
+    .sort(compareBlockedImplementationSummaries);
 }
 
 export function getVisibleImplementationTaskStatuses(statusFilter: ImplementationStatusFilter): ImplementationTaskStatus[] {

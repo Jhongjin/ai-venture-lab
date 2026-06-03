@@ -6,6 +6,8 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation
 const {
   buildBlockedImplementationSummaries,
   buildImplementationEvidenceSummaries,
+  compareBlockedImplementationSummaries,
+  compareImplementationEvidenceSummaries,
   getCompletedImplementationTasksWithEvidence,
   getImplementationEvidenceIssues,
 } = await import(moduleUrl);
@@ -81,6 +83,8 @@ assert.deepEqual(evidenceSummaries[0].missing, ["커밋/PR", "검증 결과", "�
 assert.equal(evidenceSummaries[0].passedCount, 0);
 assert.equal(evidenceSummaries[0].totalCount, 4);
 assert.equal(evidenceSummaries.at(-1).passedCount, evidenceSummaries.at(-1).totalCount);
+assert.equal(compareImplementationEvidenceSummaries(evidenceSummaries[0], evidenceSummaries[1]) < 0, true);
+assert.equal(compareImplementationEvidenceSummaries(evidenceSummaries[1], evidenceSummaries[2]) < 0, true);
 
 assert.deepEqual(
   getImplementationEvidenceIssues(evidenceSummaries).map((summary) => summary.task.id),
@@ -104,5 +108,6 @@ assert.equal(blockedSummaries[0].hint.ownerRole, "release-manager");
 assert.deepEqual(blockedSummaries[0].missing, ["Vercel 로그", "롤백 기준"]);
 assert.equal(blockedSummaries[1].hint.ownerRole, "qa-runner");
 assert.deepEqual(blockedSummaries[1].missing, ["스모크 경로", "실패/회귀"]);
+assert.equal(compareBlockedImplementationSummaries(blockedSummaries[0], blockedSummaries[1]) < 0, true);
 
 console.log("Implementation task evidence summary smoke passed.");
