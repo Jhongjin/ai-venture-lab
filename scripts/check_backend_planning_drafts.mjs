@@ -32,6 +32,7 @@ const backendDecisionMarkdownUrl = transpileModuleUrl("src/lib/backend-decision-
 const backendPlanningUrl = transpileModuleUrl("src/lib/backend-planning.ts", [
   ['from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`],
 ]);
+const { compareBackendCandidateScores, sortBackendCandidateScores } = await import(backendPlanningUrl);
 const moduleUrl = transpileModuleUrl("src/lib/backend-planning-drafts.ts", [
   ['from "@/lib/backend-decision-markdown";', `from ${JSON.stringify(backendDecisionMarkdownUrl)};`],
   ['from "@/lib/backend-execution-plan-rows";', `from ${JSON.stringify(backendExecutionPlanRowsUrl)};`],
@@ -118,6 +119,15 @@ const draftState = buildBackendPlanningDraftState({
 });
 
 assert.equal(draftState.backendCandidateScores[0].label, "Supabase");
+assert.deepEqual(
+  sortBackendCandidateScores([
+    { label: "Low", score: 25 },
+    { label: "High", score: 82 },
+    { label: "Mid", score: 61 },
+  ]).map((item) => item.label),
+  ["High", "Mid", "Low"],
+);
+assert.equal(compareBackendCandidateScores({ score: 82 }, { score: 25 }) < 0, true);
 assert.match(draftState.backendDecisionDraft, /# 백엔드 결정: AI Venture Lab/);
 assert.equal(draftState.backendExecutionPlan?.backend.label, "Supabase");
 assert.match(draftState.backendExecutionPlanDraft, /# 백엔드 실행 체크리스트: AI Venture Lab/);

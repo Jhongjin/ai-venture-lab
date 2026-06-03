@@ -28,6 +28,14 @@ export type BackendExecutionPlan = {
   rollback: string;
 };
 
+export function compareBackendCandidateScores(a: BackendCandidateScore, b: BackendCandidateScore) {
+  return b.score - a.score;
+}
+
+export function sortBackendCandidateScores(candidates: ReadonlyArray<BackendCandidateScore>) {
+  return [...candidates].sort(compareBackendCandidateScores);
+}
+
 type BackendPlanningState = Pick<Idea, "signal" | "risk_summary" | "next_evidence" | "mvp_speed" | "product_surface">;
 
 function includesAny(text: string, terms: string[]) {
@@ -147,7 +155,7 @@ export function buildBackendCandidateScores({
     },
   ];
 
-  return candidates.sort((left, right) => right.score - left.score);
+  return sortBackendCandidateScores(candidates);
 }
 
 export function buildBackendExecutionPlan(backend: BackendCandidateScore): BackendExecutionPlan {
