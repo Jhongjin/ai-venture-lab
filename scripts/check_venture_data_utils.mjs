@@ -17,6 +17,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   compareIdeasByCreatedAtDesc,
   compareIdeasByWorkflow,
+  emptyConsoleData,
   filterChildRecordsForVisibleIdeas,
   getIdeaCreatedAtTime,
   isUserScopedRecordVisible,
@@ -60,6 +61,23 @@ const ideas = [
 ];
 
 assert.deepEqual(workflowStageOrder, ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"]);
+assert.deepEqual(
+  emptyConsoleData("Supabase is not connected."),
+  {
+    artifacts: [],
+    decisions: [],
+    error: "Supabase is not connected.",
+    experiments: [],
+    ideas: [],
+    implementationTasks: [],
+    orchestrationRuns: [],
+    risks: [],
+    source: "seed",
+    telemetryEvents: [],
+    viewerMemberships: [],
+    viewerUserId: null,
+  },
+);
 assert.deepEqual(
   sortIdeasByWorkflow(ideas).map((item) => item.id),
   ["score-new", "score-old", "prd-old", "launch-new"],

@@ -26,7 +26,7 @@ type ConsoleData = {
   error: string | null;
 };
 
-function emptyConsoleData(error: string | null = null): ConsoleData {
+export function emptyConsoleData(error: string | null = null): ConsoleData {
   return {
     ideas: [],
     risks: [],
