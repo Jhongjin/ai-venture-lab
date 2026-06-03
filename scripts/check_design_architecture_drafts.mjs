@@ -61,6 +61,7 @@ const moduleUrl = transpileModuleUrl("src/lib/design-architecture-drafts.ts", [
 
 const { getHighAppBlueprintRisks, getRecommendedAppBlueprintBackend } = await import(appBlueprintUrl);
 const { getDesignBriefRun } = await import(designBriefUrl);
+const { getDesignGenerationSurfaceOpening, getRecommendedDesignGenerationBackend } = await import(designPromptUrl);
 const { getTechSpecBuildRun, getTechSpecSecurityRun } = await import(techSpecUrl);
 const { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } = await import(moduleUrl);
 
@@ -177,6 +178,10 @@ const implementationTasks = [
 
 assert.equal(getRecommendedAppBlueprintBackend(backendCandidateScores), "Supabase");
 assert.equal(getRecommendedAppBlueprintBackend([]), "Supabase");
+assert.equal(getRecommendedDesignGenerationBackend(backendCandidateScores), "Supabase");
+assert.equal(getRecommendedDesignGenerationBackend([]), "Supabase");
+assert.match(getDesignGenerationSurfaceOpening({ key: "web_site" }), /랜딩\/웹사이트 첫 화면/);
+assert.match(getDesignGenerationSurfaceOpening({ key: "operator_console" }), /실제 앱 첫 화면/);
 assert.deepEqual(
   getHighAppBlueprintRisks(risks).map((risk) => risk.id),
   ["risk-1"],

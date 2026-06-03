@@ -8,9 +8,19 @@ type DesignGenerationPromptState = Pick<
   "stage" | "decision" | "signal" | "next_evidence" | "product_surface"
 >;
 
-type DesignGenerationBackendCandidate = {
+export type DesignGenerationBackendCandidate = {
   label: string;
 };
+
+export function getRecommendedDesignGenerationBackend(backendCandidateScores: DesignGenerationBackendCandidate[]) {
+  return backendCandidateScores[0]?.label ?? "Supabase";
+}
+
+export function getDesignGenerationSurfaceOpening(productSurface: { key: string }) {
+  return productSurface.key === "web_site"
+    ? "아래 내용을 기반으로 전환 가능한 랜딩/웹사이트 첫 화면과 신청 흐름을 생성하세요. 방문자가 제안을 이해하고 신청 또는 예약까지 끝낼 수 있어야 합니다."
+    : "아래 내용을 기반으로 실제 앱 첫 화면과 핵심 업무 흐름을 생성하세요. 마케팅 랜딩 페이지가 아니라, 사용자가 바로 입력하고 저장하고 다음 행동으로 넘어가는 제품 화면이어야 합니다.";
+}
 
 export function buildDesignGenerationPromptMarkdown({
   idea,
@@ -27,12 +37,9 @@ export function buildDesignGenerationPromptMarkdown({
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
-  const surfaceOpening =
-    productSurface.key === "web_site"
-      ? "아래 내용을 기반으로 전환 가능한 랜딩/웹사이트 첫 화면과 신청 흐름을 생성하세요. 방문자가 제안을 이해하고 신청 또는 예약까지 끝낼 수 있어야 합니다."
-      : "아래 내용을 기반으로 실제 앱 첫 화면과 핵심 업무 흐름을 생성하세요. 마케팅 랜딩 페이지가 아니라, 사용자가 바로 입력하고 저장하고 다음 행동으로 넘어가는 제품 화면이어야 합니다.";
+  const surfaceOpening = getDesignGenerationSurfaceOpening(productSurface);
   const screenOutline = buildSurfaceScreenOutline(productSurface, surfaceGuidance);
-  const topBackend = backendCandidateScores[0]?.label ?? "Supabase";
+  const topBackend = getRecommendedDesignGenerationBackend(backendCandidateScores);
   const riskLines =
     risks.length > 0
       ? risks
