@@ -24,7 +24,9 @@ const {
   buildArtifactReviewSummaryState,
   buildArtifactReviewSummaries,
   buildArtifactVersionSummaries,
+  findPreviousArtifactVersion,
   summarizeArtifactLineChanges,
+  sortPreviousArtifactVersions,
 } = await import(moduleUrl);
 const {
   buildArtifactReviewDevelopmentFocusMessage,
@@ -123,6 +125,53 @@ assert.deepEqual(sortArtifactsByReviewRecency(recencyArtifacts).map((item) => it
 ]);
 assert.equal(getLatestArtifactByType(recencyArtifacts, "prd")?.id, "newest-update");
 assert.equal(getLatestArtifactByType(recencyArtifacts, "mvp_spec"), null);
+
+const currentVersionArtifact = artifact({
+  body: "# Current",
+  createdAt: "2026-05-05T00:00:00.000Z",
+  id: "prd-current-v3",
+  type: "prd",
+  version: 3,
+});
+const previousVersionArtifacts = [
+  artifact({
+    body: "# Previous",
+    createdAt: "2026-05-01T00:00:00.000Z",
+    id: "prd-v2-older",
+    type: "prd",
+    version: 2,
+  }),
+  artifact({
+    body: "# Previous",
+    createdAt: "2026-05-02T00:00:00.000Z",
+    id: "prd-v2-newer",
+    type: "prd",
+    version: 2,
+  }),
+  artifact({
+    body: "# Previous",
+    createdAt: "2026-05-03T00:00:00.000Z",
+    id: "prd-v1-newer",
+    type: "prd",
+    version: 1,
+  }),
+  artifact({
+    body: "# Tech",
+    createdAt: "2026-05-04T00:00:00.000Z",
+    id: "tech-v2",
+    type: "tech_spec",
+    version: 2,
+  }),
+  currentVersionArtifact,
+];
+assert.deepEqual(sortPreviousArtifactVersions(previousVersionArtifacts).map((artifact) => artifact.id), [
+  "prd-current-v3",
+  "tech-v2",
+  "prd-v2-newer",
+  "prd-v2-older",
+  "prd-v1-newer",
+]);
+assert.equal(findPreviousArtifactVersion(currentVersionArtifact, previousVersionArtifacts)?.id, "prd-v2-newer");
 
 assert.deepEqual(summarizeArtifactLineChanges("a\nb\nb", "a\nb\nc"), { added: 1, removed: 1 });
 

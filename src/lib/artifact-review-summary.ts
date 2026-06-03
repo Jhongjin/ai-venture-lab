@@ -77,20 +77,22 @@ export function summarizeArtifactLineChanges(currentBody: string, previousBody: 
   return { added, removed };
 }
 
-function findPreviousArtifactVersion(artifact: VentureArtifact, artifacts: VentureArtifact[]) {
+export function sortPreviousArtifactVersions<T extends Pick<VentureArtifact, "created_at" | "version">>(artifacts: T[]) {
+  return [...artifacts].sort(
+    (a, b) => (b.version ?? 1) - (a.version ?? 1) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  );
+}
+
+export function findPreviousArtifactVersion(artifact: VentureArtifact, artifacts: VentureArtifact[]) {
   return (
-    artifacts
-      .filter(
+    sortPreviousArtifactVersions(
+      artifacts.filter(
         (candidate) =>
           candidate.id !== artifact.id &&
           candidate.artifact_type === artifact.artifact_type &&
           (candidate.version ?? 1) < (artifact.version ?? 1),
-      )
-      .sort(
-        (a, b) =>
-          (b.version ?? 1) - (a.version ?? 1) ||
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      )[0] ?? null
+      ),
+    )[0] ?? null
   );
 }
 
