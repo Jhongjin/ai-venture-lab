@@ -423,61 +423,110 @@ export function buildStep8ProgressSummary({
   nextImplementationTaskId: string | null;
   tasks: ReadonlyArray<ImplementationTask>;
 }): Step8ProgressSummary {
-  const progressItems = sortStep8ProgressTasks(tasks)
-    .map((task, index) => {
-      const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
-      const checklist = getImplementationEvidenceChecklist(task, evidence);
-      const passedCount = checklist.filter((item) => item.passed).length;
-      const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
-      const isNext = nextImplementationTaskId === task.id;
-      const statusDetail =
-        task.status === "done"
-          ? evidence
-            ? summarizeCursorProgressEvidence(evidence)
-            : "완료 상태입니다."
-          : task.status === "blocked"
-            ? getBlockedImplementationTaskHint(task).nextAction
-            : isNext
-              ? "다음으로 이어서 처리할 작업입니다."
-              : "앞선 작업이 끝나면 이어서 처리합니다.";
-
-      return {
-        id: task.id,
-        code: getCursorTaskCode(index),
-        title: task.title,
-        statusDetail,
-        statusLabel: implementationTaskStatusLabels[task.status],
-        statusTone: implementationTaskStatusTone[task.status],
-        passedCount,
-        totalCount: checklist.length,
-        missingLabels,
-        isNext,
-        isDone: task.status === "done",
-        showMissingEvidence: missingLabels.length > 0 && task.status !== "done",
-      };
-    });
+  const progressItems = sortStep8ProgressTasks(tasks).map((task, index) =>
+    buildStep8ProgressDisplayItem({
+      evidenceByTaskId,
+      index,
+      nextImplementationTaskId,
+      task,
+    }),
+  );
   const hasNextTask = Boolean(nextImplementationTaskId);
-  const allTasksDone = progressItems.length > 0 && progressItems.every((item) => item.isDone);
-  const progressTitle = hasNextTask
+
+  return {
+    progressDetail: buildStep8ProgressDetail({ hasNextTask, progressItems }),
+    progressItems,
+    progressTitle: buildStep8ProgressTitle({ hasNextTask, progressItems }),
+  };
+}
+
+export function buildStep8ProgressDisplayItem({
+  evidenceByTaskId,
+  index,
+  nextImplementationTaskId,
+  task,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  index: number;
+  nextImplementationTaskId: string | null;
+  task: ImplementationTask;
+}): Step8ProgressDisplayItem {
+  const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
+  const checklist = getImplementationEvidenceChecklist(task, evidence);
+  const passedCount = checklist.filter((item) => item.passed).length;
+  const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+  const isNext = nextImplementationTaskId === task.id;
+
+  return {
+    id: task.id,
+    code: getCursorTaskCode(index),
+    title: task.title,
+    statusDetail: buildStep8ProgressStatusDetail({ evidence, isNext, task }),
+    statusLabel: implementationTaskStatusLabels[task.status],
+    statusTone: implementationTaskStatusTone[task.status],
+    passedCount,
+    totalCount: checklist.length,
+    missingLabels,
+    isNext,
+    isDone: task.status === "done",
+    showMissingEvidence: missingLabels.length > 0 && task.status !== "done",
+  };
+}
+
+export function buildStep8ProgressStatusDetail({
+  evidence,
+  isNext,
+  task,
+}: {
+  evidence: string;
+  isNext: boolean;
+  task: ImplementationTask;
+}) {
+  if (task.status === "done") {
+    return evidence ? summarizeCursorProgressEvidence(evidence) : "완료 상태입니다.";
+  }
+
+  if (task.status === "blocked") {
+    return getBlockedImplementationTaskHint(task).nextAction;
+  }
+
+  return isNext ? "다음으로 이어서 처리할 작업입니다." : "앞선 작업이 끝나면 이어서 처리합니다.";
+}
+
+export function buildStep8ProgressTitle({
+  hasNextTask,
+  progressItems,
+}: {
+  hasNextTask: boolean;
+  progressItems: Step8ProgressDisplayItem[];
+}) {
+  return hasNextTask
     ? "다음 작업 하나만 확인"
-    : allTasksDone
+    : areAllStep8ProgressItemsDone(progressItems)
       ? "제작 작업 완료"
       : progressItems.length > 0
         ? "상태 확인만 하기"
-      : "진행표 대기";
-  const progressDetail = hasNextTask
+        : "진행표 대기";
+}
+
+export function buildStep8ProgressDetail({
+  hasNextTask,
+  progressItems,
+}: {
+  hasNextTask: boolean;
+  progressItems: Step8ProgressDisplayItem[];
+}) {
+  return hasNextTask
     ? "오늘은 표시된 다음 작업 하나만 끝내면 됩니다. 전체 목록은 진행 순서 확인용으로만 봅니다."
-    : allTasksDone
+    : areAllStep8ProgressItemsDone(progressItems)
       ? "남은 제작 작업은 없습니다. 완료 근거를 훑고 다음 판단은 위의 한눈 요약에서 정합니다."
       : progressItems.length > 0
         ? "다음 작업이 자동으로 잡히지 않았습니다. 막힘, 건너뜀, 상태 누락만 확인합니다."
-      : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 이어 할 것, 지금 판단이 여기에 표시됩니다.";
+        : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 이어 할 것, 지금 판단이 여기에 표시됩니다.";
+}
 
-  return {
-    progressDetail,
-    progressItems,
-    progressTitle,
-  };
+export function areAllStep8ProgressItemsDone(progressItems: Step8ProgressDisplayItem[]) {
+  return progressItems.length > 0 && progressItems.every((item) => item.isDone);
 }
 
 export function sortStep8ProgressTasks(tasks: ReadonlyArray<ImplementationTask>) {

@@ -35,11 +35,16 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  areAllStep8ProgressItemsDone,
   buildStep8ImplementationDerivedState,
   buildStep8ImplementationTaskContext,
   buildStep8LearningDisplayState,
   buildStep8LearningSummary,
+  buildStep8ProgressDetail,
+  buildStep8ProgressDisplayItem,
   buildStep8ProgressSummary,
+  buildStep8ProgressStatusDetail,
+  buildStep8ProgressTitle,
   canCopyStep8LearningReport,
   compareStep8ProgressTasks,
   formatStep8TaskCodePrefix,
@@ -214,6 +219,38 @@ assert.deepEqual(sortStep8ProgressTasks([tasks[2], tasks[0], tasks[1]]).map((ite
 assert.equal(compareStep8ProgressTasks(tasks[0], tasks[1]), -1);
 assert.equal(compareStep8ProgressTasks(tasks[2], tasks[1]), 1);
 assert.equal(compareStep8ProgressTasks(tasks[1], { sort_order: 2 }), 0);
+const nextProgressItem = buildStep8ProgressDisplayItem({
+  evidenceByTaskId: {},
+  index: 1,
+  nextImplementationTaskId: context.nextTaskId,
+  task: tasks[1],
+});
+assert.equal(nextProgressItem.code, "T-002");
+assert.equal(nextProgressItem.isNext, true);
+assert.equal(nextProgressItem.statusDetail, "다음으로 이어서 처리할 작업입니다.");
+assert.equal(nextProgressItem.showMissingEvidence, true);
+assert.equal(
+  buildStep8ProgressStatusDetail({
+    evidence: "",
+    isNext: false,
+    task: tasks[2],
+  }),
+  "앞선 작업이 끝나면 이어서 처리합니다.",
+);
+assert.equal(
+  buildStep8ProgressStatusDetail({
+    evidence: "",
+    isNext: false,
+    task: { ...tasks[2], status: "blocked" },
+  }).includes("재현"),
+  true,
+);
+assert.equal(areAllStep8ProgressItemsDone(progressSummary.progressItems), false);
+assert.equal(buildStep8ProgressTitle({ hasNextTask: true, progressItems: progressSummary.progressItems }), "다음 작업 하나만 확인");
+assert.match(
+  buildStep8ProgressDetail({ hasNextTask: true, progressItems: progressSummary.progressItems }),
+  /다음 작업 하나/,
+);
 assert.deepEqual(
   progressSummary.progressItems.filter((item) => item.isNext).map((item) => item.code),
   ["T-002"],
@@ -243,6 +280,13 @@ assert.equal(displayState.canCopyLearningReport, true);
 assert.equal(displayState.learningDecisionCards[0].label, "완료된 것");
 assert.equal(displayState.learningPrimaryCtaLabel, "리포트 복사");
 assert.equal(displayState.progressTitle, "제작 작업 완료");
+assert.equal(areAllStep8ProgressItemsDone(displayState.progressItems), true);
+assert.equal(buildStep8ProgressTitle({ hasNextTask: false, progressItems: displayState.progressItems }), "제작 작업 완료");
+assert.match(
+  buildStep8ProgressDetail({ hasNextTask: false, progressItems: displayState.progressItems }),
+  /남은 제작 작업은 없습니다/,
+);
+assert.equal(buildStep8ProgressTitle({ hasNextTask: false, progressItems: [] }), "진행표 대기");
 assert.equal(displayState.progressItems.length, 3);
 assert.equal(canCopyStep8LearningReport({ nextImplementationTask: null, productSignalCount: 1 }), true);
 assert.equal(canCopyStep8LearningReport({ nextImplementationTask: tasks[1], productSignalCount: 1 }), false);
