@@ -61,6 +61,16 @@ export type DevelopmentAutopilotRows = {
   taskRows: DevelopmentAutopilotTaskRow[];
 };
 
+export function getDevelopmentAutopilotNextPanel({
+  existingTaskCount,
+  insertedTaskCount,
+}: {
+  existingTaskCount: number;
+  insertedTaskCount: number;
+}) {
+  return insertedTaskCount > 0 || existingTaskCount > 0 ? "tasks" : "setup";
+}
+
 export function buildDevelopmentAutopilotRows({
   artifactDrafts,
   existingArtifacts,

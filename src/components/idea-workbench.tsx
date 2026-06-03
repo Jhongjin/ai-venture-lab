@@ -345,6 +345,7 @@ import {
   buildDevelopmentAutopilotRows,
   buildDevelopmentAutopilotRunbookTelemetryProperties,
   buildDevelopmentAutopilotTaskTelemetryProperties,
+  getDevelopmentAutopilotNextPanel,
 } from "@/lib/development-autopilot-rows";
 import {
   appBlueprintGuideRows,
@@ -3062,7 +3063,12 @@ export function IdeaWorkbench({
         });
       }
 
-      setDevelopmentPanel(insertedTasks.length > 0 || selectedImplementationTasks.length > 0 ? "tasks" : "setup");
+      setDevelopmentPanel(
+        getDevelopmentAutopilotNextPanel({
+          existingTaskCount: selectedImplementationTasks.length,
+          insertedTaskCount: insertedTasks.length,
+        }),
+      );
       setMessage(
         buildDevelopmentAutopilotPreparedMessage({
           artifactCount: insertedArtifacts.length,

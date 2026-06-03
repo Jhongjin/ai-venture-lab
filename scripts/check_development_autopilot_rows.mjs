@@ -8,6 +8,7 @@ const {
   buildDevelopmentAutopilotRows,
   buildDevelopmentAutopilotRunbookTelemetryProperties,
   buildDevelopmentAutopilotTaskTelemetryProperties,
+  getDevelopmentAutopilotNextPanel,
 } = await import(moduleUrl);
 
 const rows = buildDevelopmentAutopilotRows({
@@ -114,6 +115,9 @@ const emptyRows = buildDevelopmentAutopilotRows({
 assert.equal(emptyRows.missingRuns.length, 0);
 assert.equal(emptyRows.artifactRows.length, 0);
 assert.equal(emptyRows.taskRows.length, 0);
+assert.equal(getDevelopmentAutopilotNextPanel({ existingTaskCount: 0, insertedTaskCount: 0 }), "setup");
+assert.equal(getDevelopmentAutopilotNextPanel({ existingTaskCount: 1, insertedTaskCount: 0 }), "tasks");
+assert.equal(getDevelopmentAutopilotNextPanel({ existingTaskCount: 0, insertedTaskCount: 1 }), "tasks");
 
 assert.deepEqual(buildDevelopmentAutopilotRunbookTelemetryProperties(2), {
   run_count: 2,
