@@ -22,6 +22,28 @@ export function getDesignGenerationSurfaceOpening(productSurface: { key: string 
     : "아래 내용을 기반으로 실제 앱 첫 화면과 핵심 업무 흐름을 생성하세요. 마케팅 랜딩 페이지가 아니라, 사용자가 바로 입력하고 저장하고 다음 행동으로 넘어가는 제품 화면이어야 합니다.";
 }
 
+export function buildDesignGenerationRiskLines(risks: Risk[]) {
+  if (risks.length === 0) {
+    return "- 아직 연결된 리스크가 없습니다. 개인정보, 권한, 결제, 규제 리스크를 기본 상태로 고려하세요.";
+  }
+
+  return risks
+    .slice(0, 5)
+    .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 방안 미정"}`)
+    .join("\n");
+}
+
+export function buildDesignGenerationExperimentLines(experiments: Experiment[]) {
+  if (experiments.length === 0) {
+    return "- 아직 실험이 없습니다. 첫 화면에서 사용자가 핵심 행동을 완료했는지 측정할 수 있게 설계하세요.";
+  }
+
+  return experiments
+    .slice(0, 4)
+    .map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`)
+    .join("\n");
+}
+
 export function buildDesignGenerationPromptMarkdown({
   idea,
   state,
@@ -40,20 +62,8 @@ export function buildDesignGenerationPromptMarkdown({
   const surfaceOpening = getDesignGenerationSurfaceOpening(productSurface);
   const screenOutline = buildSurfaceScreenOutline(productSurface, surfaceGuidance);
   const topBackend = getRecommendedDesignGenerationBackend(backendCandidateScores);
-  const riskLines =
-    risks.length > 0
-      ? risks
-          .slice(0, 5)
-          .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 방안 미정"}`)
-          .join("\n")
-      : "- 아직 연결된 리스크가 없습니다. 개인정보, 권한, 결제, 규제 리스크를 기본 상태로 고려하세요.";
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .slice(0, 4)
-          .map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`)
-          .join("\n")
-      : "- 아직 실험이 없습니다. 첫 화면에서 사용자가 핵심 행동을 완료했는지 측정할 수 있게 설계하세요.";
+  const riskLines = buildDesignGenerationRiskLines(risks);
+  const experimentLines = buildDesignGenerationExperimentLines(experiments);
 
   return `# 디자인 생성 지시: ${idea.name}
 

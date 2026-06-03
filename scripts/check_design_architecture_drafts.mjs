@@ -67,7 +67,12 @@ const {
   getRecommendedAppBlueprintBackend,
 } = await import(appBlueprintUrl);
 const { getDesignBriefRun } = await import(designBriefUrl);
-const { getDesignGenerationSurfaceOpening, getRecommendedDesignGenerationBackend } = await import(designPromptUrl);
+const {
+  buildDesignGenerationExperimentLines,
+  buildDesignGenerationRiskLines,
+  getDesignGenerationSurfaceOpening,
+  getRecommendedDesignGenerationBackend,
+} = await import(designPromptUrl);
 const {
   buildMvpScaffoldBackendRules,
   buildMvpScaffoldEnvLines,
@@ -200,6 +205,16 @@ assert.equal(usesFirebaseMvpScaffoldBackend("Firebase SQL Connect"), true);
 assert.equal(usesFirebaseMvpScaffoldBackend("Supabase"), false);
 assert.match(getDesignGenerationSurfaceOpening({ key: "web_site" }), /랜딩\/웹사이트 첫 화면/);
 assert.match(getDesignGenerationSurfaceOpening({ key: "operator_console" }), /실제 앱 첫 화면/);
+assert.match(buildDesignGenerationRiskLines(risks), /민감 데이터 입력 전 목적과 삭제 경로 표시/);
+assert.equal(
+  buildDesignGenerationRiskLines([]),
+  "- 아직 연결된 리스크가 없습니다. 개인정보, 권한, 결제, 규제 리스크를 기본 상태로 고려하세요.",
+);
+assert.match(buildDesignGenerationExperimentLines(experiments), /첫 화면에서 다음 행동을 이해/);
+assert.equal(
+  buildDesignGenerationExperimentLines([]),
+  "- 아직 실험이 없습니다. 첫 화면에서 사용자가 핵심 행동을 완료했는지 측정할 수 있게 설계하세요.",
+);
 assert.match(getMvpScaffoldExclusions({ key: "web_site" }), /회원 계정/);
 assert.match(getMvpScaffoldExclusions({ key: "operator_console" }), /마케팅 랜딩 페이지/);
 assert.match(buildMvpScaffoldEnvLines(true), /FIREBASE_SERVICE_ACCOUNT_JSON/);
