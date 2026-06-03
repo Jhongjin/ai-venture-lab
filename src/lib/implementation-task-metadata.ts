@@ -543,7 +543,7 @@ export function hasImplementationTaskEvidenceGap(
   return buildImplementationTaskEvidenceState(task, evidenceByTaskId).missingLabels.length > 0;
 }
 
-function getImplementationTaskEvidence(task: ImplementationTask, evidenceByTaskId: Record<string, string>) {
+export function getImplementationTaskEvidence(task: ImplementationTask, evidenceByTaskId: Record<string, string>) {
   return evidenceByTaskId[task.id] ?? task.evidence ?? "";
 }
 

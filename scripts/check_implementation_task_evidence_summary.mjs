@@ -13,6 +13,7 @@ const {
   getCompletedImplementationTasksWithEvidence,
   getImplementationEvidenceIssuePreview,
   getImplementationEvidenceIssues,
+  getImplementationTaskEvidence,
   getMissingImplementationEvidenceChecklistLabels,
 } = await import(moduleUrl);
 
@@ -80,6 +81,14 @@ assert.deepEqual(frontendEvidenceState.missingLabels, []);
 assert.equal(frontendEvidenceState.passedCount, frontendEvidenceState.totalCount);
 const emptyEvidenceState = buildImplementationTaskEvidenceState(tasks[0], {});
 assert.deepEqual(emptyEvidenceState.missingLabels, ["커밋/PR", "검증 결과", "사용자 여정", "상태 UX"]);
+assert.equal(
+  getImplementationTaskEvidence(tasks[1], {
+    "task-backend": "draft evidence wins",
+  }),
+  "draft evidence wins",
+);
+assert.equal(getImplementationTaskEvidence(tasks[1], {}), "commit abc pnpm typecheck 허용 차단 RLS with check");
+assert.equal(getImplementationTaskEvidence({ ...tasks[0], evidence: null }, {}), "");
 
 assert.deepEqual(
   getCompletedImplementationTasksWithEvidence([
