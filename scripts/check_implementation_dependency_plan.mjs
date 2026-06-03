@@ -23,6 +23,15 @@ function transpileModuleUrl(modulePath, replacements = []) {
 const implementationTaskMetadataUrl = pathToFileURL(
   path.join(process.cwd(), "src/lib/implementation-task-metadata.ts"),
 ).href;
+const {
+  blockedImplementationTaskDependencyMessage,
+  buildImplementationDependencyPrerequisiteStatus,
+  buildImplementationDependencyStatuses,
+  buildImplementationPrerequisiteBlocker,
+  getBlockedImplementationTaskDependencyBlockers,
+  getCompletedImplementationTaskTypes,
+  getImplementationTaskTypes,
+} = await import(implementationTaskMetadataUrl);
 const workbenchLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-labels.ts")).href;
 const moduleUrl = transpileModuleUrl("src/lib/implementation-dependency-plan.ts", [
   ['from "@/lib/implementation-task-metadata";', `from ${JSON.stringify(implementationTaskMetadataUrl)};`],
@@ -92,6 +101,56 @@ const doneTask = {
   task_type: "planning",
   title: "범위 잠금",
 };
+const designTodoTask = {
+  ...readyTask,
+  id: "task-design",
+  status: "todo",
+  task_type: "design",
+  title: "화면 흐름 확정",
+};
+const blockedFrontendTask = {
+  ...readyTask,
+  id: "task-blocked-frontend",
+  status: "blocked",
+};
+const taskTypes = getImplementationTaskTypes([readyTask, doneTask, designTodoTask]);
+const completedTypes = getCompletedImplementationTaskTypes([readyTask, doneTask, designTodoTask]);
+assert.equal(taskTypes.has("frontend"), true);
+assert.equal(completedTypes.has("planning"), true);
+assert.equal(completedTypes.has("frontend"), false);
+assert.equal(
+  buildImplementationPrerequisiteBlocker({
+    prerequisite: "design",
+    taskTypes,
+  }),
+  "디자인 태스크 완료 필요",
+);
+assert.equal(
+  buildImplementationPrerequisiteBlocker({
+    prerequisite: "backend",
+    taskTypes,
+  }),
+  "백엔드 태스크 생성 필요",
+);
+const prerequisiteStatus = buildImplementationDependencyPrerequisiteStatus({
+  completedTypes,
+  prerequisites: ["planning", "design", "backend"],
+  taskTypes,
+});
+assert.deepEqual(prerequisiteStatus.completedPrerequisites, ["planning"]);
+assert.deepEqual(prerequisiteStatus.missingPrerequisites, ["design", "backend"]);
+assert.deepEqual(prerequisiteStatus.blockers, ["디자인 태스크 완료 필요", "백엔드 태스크 생성 필요"]);
+assert.deepEqual(getBlockedImplementationTaskDependencyBlockers(blockedFrontendTask), [
+  blockedImplementationTaskDependencyMessage,
+]);
+assert.deepEqual(getBlockedImplementationTaskDependencyBlockers(readyTask), []);
+
+const dependencyMetadataStatuses = buildImplementationDependencyStatuses([doneTask, designTodoTask, blockedFrontendTask]);
+const blockedFrontendStatus = dependencyMetadataStatuses.find((item) => item.task.id === blockedFrontendTask.id);
+assert.equal(blockedFrontendStatus.ready, false);
+assert.equal(blockedFrontendStatus.blockers[0], blockedImplementationTaskDependencyMessage);
+assert.equal(blockedFrontendStatus.blockers.includes("백엔드 태스크 생성 필요"), true);
+
 const statuses = [
   {
     blockers: [],

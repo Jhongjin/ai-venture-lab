@@ -836,41 +836,83 @@ export const implementationDependencyRules: Record<ImplementationTaskType, Imple
   },
 };
 
+export const blockedImplementationTaskDependencyMessage =
+  "현재 차단 상태입니다. 차단 해소 큐의 다음 액션과 해소 증거를 먼저 남기세요.";
+
 export function buildImplementationDependencyStatuses(tasks: ImplementationTask[]): ImplementationDependencyStatus[] {
-  const taskTypes = new Set(tasks.map((task) => task.task_type));
-  const completedTypes = new Set(tasks.filter((task) => task.status === "done").map((task) => task.task_type));
+  const taskTypes = getImplementationTaskTypes(tasks);
+  const completedTypes = getCompletedImplementationTaskTypes(tasks);
 
   return sortImplementationTasksForExecution(tasks).map((task) => {
     const rule = implementationDependencyRules[task.task_type];
-    const completedPrerequisites: ImplementationTaskType[] = [];
-    const missingPrerequisites: ImplementationTaskType[] = [];
-    const blockers = rule.prerequisites.flatMap((prerequisite) => {
-      if (completedTypes.has(prerequisite)) {
-        completedPrerequisites.push(prerequisite);
-        return [];
-      }
-
-      missingPrerequisites.push(prerequisite);
-
-      return [
-        taskTypes.has(prerequisite)
-          ? `${implementationTaskTypeLabels[prerequisite]} 태스크 완료 필요`
-          : `${implementationTaskTypeLabels[prerequisite]} 태스크 생성 필요`,
-      ];
+    const prerequisiteStatus = buildImplementationDependencyPrerequisiteStatus({
+      completedTypes,
+      prerequisites: rule.prerequisites,
+      taskTypes,
     });
-
-    if (task.status === "blocked") {
-      blockers.unshift("현재 차단 상태입니다. 차단 해소 큐의 다음 액션과 해소 증거를 먼저 남기세요.");
-    }
+    const blockers = [...getBlockedImplementationTaskDependencyBlockers(task), ...prerequisiteStatus.blockers];
 
     return {
       task,
-      ready: task.status !== "done" && blockers.length === 0,
+      ready: !isDoneImplementationTask(task) && blockers.length === 0,
       blockers,
-      completedPrerequisites,
-      missingPrerequisites,
+      completedPrerequisites: prerequisiteStatus.completedPrerequisites,
+      missingPrerequisites: prerequisiteStatus.missingPrerequisites,
       gate: rule.gate,
       nextAction: rule.nextAction,
     };
   });
+}
+
+export function getImplementationTaskTypes(tasks: ImplementationTask[]) {
+  return new Set(tasks.map((task) => task.task_type));
+}
+
+export function getCompletedImplementationTaskTypes(tasks: ImplementationTask[]) {
+  return new Set(getDoneImplementationTasks(tasks).map((task) => task.task_type));
+}
+
+export function buildImplementationDependencyPrerequisiteStatus({
+  completedTypes,
+  prerequisites,
+  taskTypes,
+}: {
+  completedTypes: ReadonlySet<ImplementationTaskType>;
+  prerequisites: ImplementationTaskType[];
+  taskTypes: ReadonlySet<ImplementationTaskType>;
+}) {
+  const completedPrerequisites: ImplementationTaskType[] = [];
+  const missingPrerequisites: ImplementationTaskType[] = [];
+  const blockers = prerequisites.flatMap((prerequisite) => {
+    if (completedTypes.has(prerequisite)) {
+      completedPrerequisites.push(prerequisite);
+      return [];
+    }
+
+    missingPrerequisites.push(prerequisite);
+
+    return [buildImplementationPrerequisiteBlocker({ prerequisite, taskTypes })];
+  });
+
+  return {
+    blockers,
+    completedPrerequisites,
+    missingPrerequisites,
+  };
+}
+
+export function buildImplementationPrerequisiteBlocker({
+  prerequisite,
+  taskTypes,
+}: {
+  prerequisite: ImplementationTaskType;
+  taskTypes: ReadonlySet<ImplementationTaskType>;
+}) {
+  return taskTypes.has(prerequisite)
+    ? `${implementationTaskTypeLabels[prerequisite]} 태스크 완료 필요`
+    : `${implementationTaskTypeLabels[prerequisite]} 태스크 생성 필요`;
+}
+
+export function getBlockedImplementationTaskDependencyBlockers(task: Pick<ImplementationTask, "status">) {
+  return isBlockedImplementationTask(task) ? [blockedImplementationTaskDependencyMessage] : [];
 }
