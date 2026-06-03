@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-package-save-jobs.ts")).href;
 const {
+  buildValidationPackageSaveJob,
   buildValidationPackageSaveJobs,
   buildValidationPackageStatusRows,
   buildValidationSummaryDisabledNote,
@@ -48,6 +49,23 @@ assert.equal(
     requirements: statusRows,
   }),
   "검증 완료 요약이 저장되었습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다.",
+);
+assert.deepEqual(
+  buildValidationPackageSaveJob({
+    artifactType: "research_note",
+    body: "# sprint",
+    done: false,
+    ideaName: "AI Venture Lab",
+    source: "validation_sprint",
+    titleSuffix: "7일 검증 계획",
+  }),
+  {
+    artifactType: "research_note",
+    body: "# sprint",
+    done: false,
+    source: "validation_sprint",
+    title: "AI Venture Lab 7일 검증 계획",
+  },
 );
 
 const jobs = buildValidationPackageSaveJobs({

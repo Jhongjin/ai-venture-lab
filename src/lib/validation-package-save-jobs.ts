@@ -30,6 +30,30 @@ export function buildValidationPackageStatusRows({
   ];
 }
 
+export function buildValidationPackageSaveJob({
+  artifactType,
+  body,
+  done,
+  ideaName,
+  source,
+  titleSuffix,
+}: {
+  artifactType: ValidationPackageSaveJob["artifactType"];
+  body: string;
+  done: boolean;
+  ideaName: string;
+  source: ValidationPackageSaveJob["source"];
+  titleSuffix: string;
+}): ValidationPackageSaveJob {
+  return {
+    artifactType,
+    body,
+    done,
+    source,
+    title: `${ideaName} ${titleSuffix}`,
+  };
+}
+
 export function buildValidationPackageSaveJobs({
   hasIdeaBriefArtifact,
   hasResearchBriefArtifact,
@@ -52,34 +76,38 @@ export function buildValidationPackageSaveJobs({
   validationSummaryDraft: string;
 }): ValidationPackageSaveJob[] {
   return [
-    {
+    buildValidationPackageSaveJob({
       artifactType: "idea_brief",
       body: ideaBrief,
       done: hasIdeaBriefArtifact,
+      ideaName,
       source: "workbench",
-      title: `${ideaName} 아이디어 요약`,
-    },
-    {
+      titleSuffix: "아이디어 요약",
+    }),
+    buildValidationPackageSaveJob({
       artifactType: "research_note",
       body: researchBriefDraft,
       done: hasResearchBriefArtifact,
+      ideaName,
       source: "workbench",
-      title: `${ideaName} 조사 요약`,
-    },
-    {
+      titleSuffix: "조사 요약",
+    }),
+    buildValidationPackageSaveJob({
       artifactType: "research_note",
       body: validationSprintDraft,
       done: hasValidationSprintArtifact,
+      ideaName,
       source: "validation_sprint",
-      title: `${ideaName} 7일 검증 계획`,
-    },
-    {
+      titleSuffix: "7일 검증 계획",
+    }),
+    buildValidationPackageSaveJob({
       artifactType: "research_note",
       body: validationSummaryDraft,
       done: hasValidationSummaryArtifact,
+      ideaName,
       source: "validation_summary",
-      title: `${ideaName} 검증 완료 요약`,
-    },
+      titleSuffix: "검증 완료 요약",
+    }),
   ];
 }
 
