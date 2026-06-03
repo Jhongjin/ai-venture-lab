@@ -22,6 +22,100 @@ export type ImplementationMarkdownState = Pick<
   "stage" | "decision" | "signal" | "risk_summary" | "next_evidence" | "product_surface"
 >;
 
+export function buildImplementationTaskBlockerHintSection(task: ImplementationTask) {
+  const blockerHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
+
+  if (!blockerHint) {
+    return "";
+  }
+
+  return `## 차단 해소 힌트
+
+- 담당: ${blockerHint.ownerRole}
+- 다음 액션: ${blockerHint.nextAction}
+- 해소 증거: ${blockerHint.unblockEvidence}
+- 에스컬레이션: ${blockerHint.escalation}`;
+}
+
+export function buildImplementationBacklogTaskLines({
+  tasks,
+  evidenceByTaskId = {},
+  emptyMessage = "대상 개발 태스크가 없습니다.",
+}: {
+  tasks: ImplementationTask[];
+  evidenceByTaskId?: Record<string, string>;
+  emptyMessage?: string;
+}) {
+  if (tasks.length === 0) {
+    return emptyMessage;
+  }
+
+  return sortImplementationTasksForAction(tasks)
+    .map((task, index) => {
+      const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
+      const checklist = getImplementationEvidenceChecklist(task, evidence);
+      const passedCount = checklist.filter((item) => item.passed).length;
+      const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+
+      return [
+        `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${implementationTaskStatusLabels[task.status]} / ${task.owner_role || "owner 미정"} / 증거 ${passedCount}/${checklist.length}`,
+        `   - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n     ") || "미정"}`,
+        `   - 증거 공백: ${missingLabels.length > 0 ? missingLabels.join(", ") : "없음"}`,
+      ].join("\n");
+    })
+    .join("\n");
+}
+
+export function buildFilteredImplementationRoleLines(tasks: ImplementationTask[]) {
+  const sortedTasks = sortImplementationTasksForAction(tasks);
+
+  if (sortedTasks.length === 0) {
+    return "- 현재 필터 조건에 맞는 실행 태스크가 없습니다.";
+  }
+
+  return Array.from(new Set(sortedTasks.map((task) => `${getImplementationTaskOwnerRole(task)}|${task.task_type}`)))
+    .map((entry) => {
+      const [ownerRole, taskType] = entry.split("|") as [string, ImplementationTaskType];
+
+      return `- ${ownerRole}: ${implementationTaskTypeLabels[taskType]} - ${implementationRunFocus[taskType]}`;
+    })
+    .join("\n");
+}
+
+export function buildFilteredImplementationTaskLines({
+  tasks,
+  evidenceByTaskId = {},
+}: {
+  tasks: ImplementationTask[];
+  evidenceByTaskId?: Record<string, string>;
+}) {
+  const sortedTasks = sortImplementationTasksForAction(tasks);
+
+  if (sortedTasks.length === 0) {
+    return "현재 필터 조건에 맞는 실행 태스크가 없습니다.";
+  }
+
+  return sortedTasks
+    .map((task, index) => {
+      const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
+      const checklist = getImplementationEvidenceChecklist(task, evidence);
+      const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+      const blockerHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
+
+      return [
+        `## ${index + 1}. ${task.title}`,
+        `- 담당 역할: ${getImplementationTaskOwnerRole(task)}`,
+        `- 유형/우선순위/상태: ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${implementationTaskStatusLabels[task.status]}`,
+        `- 수용 기준:\n${task.acceptance_criteria.trim() || "  - 미정"}`,
+        `- 증거 공백: ${missingLabels.length > 0 ? missingLabels.join(", ") : "없음"}`,
+        blockerHint
+          ? `- 차단 해소: ${blockerHint.nextAction}\n- 해소 증거: ${blockerHint.unblockEvidence}\n- 에스컬레이션: ${blockerHint.escalation}`
+          : "- 차단 해소: 해당 없음",
+      ].join("\n");
+    })
+    .join("\n\n");
+}
+
 export function buildImplementationTaskTicketMarkdown({
   idea,
   state,
@@ -33,7 +127,7 @@ export function buildImplementationTaskTicketMarkdown({
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
-  const blockerHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
+  const blockerHintSection = buildImplementationTaskBlockerHintSection(task);
 
   return `# ${task.title}
 
@@ -54,12 +148,7 @@ ${buildProductSurfaceContextSection(productSurface, surfaceGuidance)}
 - 상태: ${implementationTaskStatusLabels[task.status]}
 - 담당 역할: ${task.owner_role || "owner 미정"}
 
-${blockerHint ? `## 차단 해소 힌트
-
-- 담당: ${blockerHint.ownerRole}
-- 다음 액션: ${blockerHint.nextAction}
-- 해소 증거: ${blockerHint.unblockEvidence}
-- 에스컬레이션: ${blockerHint.escalation}` : ""}
+${blockerHintSection}
 
 ## 수용 기준
 
@@ -106,23 +195,11 @@ export function buildImplementationBacklogMarkdown({
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
-  const lines =
-    tasks.length > 0
-      ? sortImplementationTasksForAction(tasks)
-          .map((task, index) => {
-            const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
-            const checklist = getImplementationEvidenceChecklist(task, evidence);
-            const passedCount = checklist.filter((item) => item.passed).length;
-            const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
-
-            return [
-              `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${implementationTaskStatusLabels[task.status]} / ${task.owner_role || "owner 미정"} / 증거 ${passedCount}/${checklist.length}`,
-              `   - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n     ") || "미정"}`,
-              `   - 증거 공백: ${missingLabels.length > 0 ? missingLabels.join(", ") : "없음"}`,
-            ].join("\n");
-          })
-          .join("\n")
-      : emptyMessage;
+  const lines = buildImplementationBacklogTaskLines({
+    emptyMessage,
+    evidenceByTaskId,
+    tasks,
+  });
 
   return `# 개발 백로그: ${idea.name} - ${viewName}
 
@@ -163,39 +240,11 @@ export function buildFilteredImplementationRunPromptMarkdown({
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
-  const sortedTasks = sortImplementationTasksForAction(tasks);
-  const roleLines =
-    sortedTasks.length > 0
-      ? Array.from(new Set(sortedTasks.map((task) => `${getImplementationTaskOwnerRole(task)}|${task.task_type}`)))
-          .map((entry) => {
-            const [ownerRole, taskType] = entry.split("|") as [string, ImplementationTaskType];
-
-            return `- ${ownerRole}: ${implementationTaskTypeLabels[taskType]} - ${implementationRunFocus[taskType]}`;
-          })
-          .join("\n")
-      : "- 현재 필터 조건에 맞는 실행 태스크가 없습니다.";
-  const taskLines =
-    sortedTasks.length > 0
-      ? sortedTasks
-          .map((task, index) => {
-            const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
-            const checklist = getImplementationEvidenceChecklist(task, evidence);
-            const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
-            const blockerHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
-
-            return [
-              `## ${index + 1}. ${task.title}`,
-              `- 담당 역할: ${getImplementationTaskOwnerRole(task)}`,
-              `- 유형/우선순위/상태: ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${implementationTaskStatusLabels[task.status]}`,
-              `- 수용 기준:\n${task.acceptance_criteria.trim() || "  - 미정"}`,
-              `- 증거 공백: ${missingLabels.length > 0 ? missingLabels.join(", ") : "없음"}`,
-              blockerHint
-                ? `- 차단 해소: ${blockerHint.nextAction}\n- 해소 증거: ${blockerHint.unblockEvidence}\n- 에스컬레이션: ${blockerHint.escalation}`
-                : "- 차단 해소: 해당 없음",
-            ].join("\n");
-          })
-          .join("\n\n")
-      : "현재 필터 조건에 맞는 실행 태스크가 없습니다.";
+  const roleLines = buildFilteredImplementationRoleLines(tasks);
+  const taskLines = buildFilteredImplementationTaskLines({
+    evidenceByTaskId,
+    tasks,
+  });
 
   return `# 제작 도구 작업 안내: ${idea.name}
 

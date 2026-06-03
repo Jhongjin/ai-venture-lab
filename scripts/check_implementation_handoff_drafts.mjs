@@ -61,6 +61,12 @@ const moduleUrl = transpileModuleUrl("src/lib/implementation-handoff-drafts.ts",
 
 const { getApprovedImplementationHandoffArtifacts, getDoneImplementationHandoffPhaseLabels } =
   await import(implementationHandoffUrl);
+const {
+  buildFilteredImplementationRoleLines,
+  buildFilteredImplementationTaskLines,
+  buildImplementationBacklogTaskLines,
+  buildImplementationTaskBlockerHintSection,
+} = await import(implementationTaskMarkdownUrl);
 const { buildImplementationHandoffArtifactSaveDrafts, buildImplementationHandoffDraftState } = await import(moduleUrl);
 
 const idea = {
@@ -203,6 +209,38 @@ assert.deepEqual(
     },
   ]),
   ["구현"],
+);
+assert.equal(buildImplementationTaskBlockerHintSection(tasks[0]), "");
+assert.match(
+  buildImplementationTaskBlockerHintSection({
+    ...tasks[0],
+    blocked_reason: "권한 경계 미정",
+    status: "blocked",
+  }),
+  /차단 해소 힌트/,
+);
+assert.match(
+  buildImplementationBacklogTaskLines({
+    evidenceByTaskId: { "task-1": "commit abc123 / preview ok" },
+    tasks,
+  }),
+  /T-001 워크벤치 첫 화면/,
+);
+assert.equal(buildImplementationBacklogTaskLines({ emptyMessage: "비어 있음", tasks: [] }), "비어 있음");
+assert.match(buildFilteredImplementationRoleLines(tasks), /prototype-builder/);
+assert.equal(buildFilteredImplementationRoleLines([]), "- 현재 필터 조건에 맞는 실행 태스크가 없습니다.");
+assert.match(
+  buildFilteredImplementationTaskLines({
+    evidenceByTaskId: { "task-1": "commit abc123 / preview ok" },
+    tasks,
+  }),
+  /차단 해소: 해당 없음/,
+);
+assert.equal(
+  buildFilteredImplementationTaskLines({
+    tasks: [],
+  }),
+  "현재 필터 조건에 맞는 실행 태스크가 없습니다.",
 );
 
 const draftState = buildImplementationHandoffDraftState({
