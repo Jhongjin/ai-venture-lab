@@ -58,6 +58,7 @@ const {
   buildValidationPlanningReviewState,
   getOpenHighValidationRisks,
   getValidationEvidenceArtifacts,
+  getValidationExperimentsByStatus,
   getValidationPlanExperimentPreview,
   includesAnyNormalized,
 } = await import(validationPlanningUrl);
@@ -86,6 +87,18 @@ assert.deepEqual(
     { id: "artifact-6", source: null },
   ]).map((artifact) => artifact.id),
   ["artifact-1", "artifact-2", "artifact-3", "artifact-4"],
+);
+assert.deepEqual(
+  getValidationExperimentsByStatus(
+    [
+      { id: "experiment-1", status: "planned" },
+      { id: "experiment-2", status: "running" },
+      { id: "experiment-3", status: "done" },
+      { id: "experiment-4", status: "running" },
+    ],
+    "running",
+  ).map((experiment) => experiment.id),
+  ["experiment-2", "experiment-4"],
 );
 
 assert.deepEqual(

@@ -84,6 +84,13 @@ export function getValidationEvidenceArtifacts(artifacts: VentureArtifact[]) {
   );
 }
 
+export function getValidationExperimentsByStatus<Status extends Experiment["status"]>(
+  experiments: Experiment[],
+  status: Status,
+) {
+  return experiments.filter((experiment) => experiment.status === status);
+}
+
 export function buildValidationPlan({
   idea,
   state,
@@ -279,8 +286,8 @@ export function buildValidationEvidenceCoach({
     state.next_evidence,
     ...artifacts.map((artifact) => `${artifact.title} ${artifact.body}`),
   ].join(" ");
-  const doneExperiments = experiments.filter((experiment) => experiment.status === "done");
-  const runningExperiments = experiments.filter((experiment) => experiment.status === "running");
+  const doneExperiments = getValidationExperimentsByStatus(experiments, "done");
+  const runningExperiments = getValidationExperimentsByStatus(experiments, "running");
   const evidenceArtifacts = getValidationEvidenceArtifacts(artifacts);
   const openHighRisks = getOpenHighValidationRisks(risks);
   const domainQuestions: Record<IdeaDomain, string[]> = {
