@@ -24,7 +24,9 @@ const {
   buildArtifactReviewSummaryState,
   buildArtifactReviewSummaries,
   buildArtifactVersionSummaries,
+  comparePreviousArtifactVersions,
   findPreviousArtifactVersion,
+  getPreviousArtifactVersionCreatedAtTime,
   summarizeArtifactLineChanges,
   sortPreviousArtifactVersions,
 } = await import(moduleUrl);
@@ -171,6 +173,14 @@ assert.deepEqual(sortPreviousArtifactVersions(previousVersionArtifacts).map((art
   "prd-v2-older",
   "prd-v1-newer",
 ]);
+assert.equal(
+  getPreviousArtifactVersionCreatedAtTime({ created_at: "2026-05-02T00:00:00.000Z" }),
+  Date.parse("2026-05-02T00:00:00.000Z"),
+);
+assert.equal(comparePreviousArtifactVersions(previousVersionArtifacts[0], previousVersionArtifacts[1]) > 0, true);
+assert.equal(comparePreviousArtifactVersions(previousVersionArtifacts[1], previousVersionArtifacts[0]) < 0, true);
+assert.equal(comparePreviousArtifactVersions(previousVersionArtifacts[1], previousVersionArtifacts[2]) < 0, true);
+assert.equal(comparePreviousArtifactVersions(previousVersionArtifacts[0], { created_at: "2026-05-01T00:00:00.000Z", version: 2 }), 0);
 assert.equal(findPreviousArtifactVersion(currentVersionArtifact, previousVersionArtifacts)?.id, "prd-v2-newer");
 
 assert.deepEqual(summarizeArtifactLineChanges("a\nb\nb", "a\nb\nc"), { added: 1, removed: 1 });

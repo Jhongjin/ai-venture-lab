@@ -77,10 +77,22 @@ export function summarizeArtifactLineChanges(currentBody: string, previousBody: 
   return { added, removed };
 }
 
-export function sortPreviousArtifactVersions<T extends Pick<VentureArtifact, "created_at" | "version">>(artifacts: T[]) {
-  return [...artifacts].sort(
-    (a, b) => (b.version ?? 1) - (a.version ?? 1) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+export function getPreviousArtifactVersionCreatedAtTime(artifact: Pick<VentureArtifact, "created_at">) {
+  return new Date(artifact.created_at).getTime();
+}
+
+export function comparePreviousArtifactVersions<T extends Pick<VentureArtifact, "created_at" | "version">>(
+  a: T,
+  b: T,
+) {
+  return (
+    (b.version ?? 1) - (a.version ?? 1) ||
+    getPreviousArtifactVersionCreatedAtTime(b) - getPreviousArtifactVersionCreatedAtTime(a)
   );
+}
+
+export function sortPreviousArtifactVersions<T extends Pick<VentureArtifact, "created_at" | "version">>(artifacts: T[]) {
+  return [...artifacts].sort(comparePreviousArtifactVersions);
 }
 
 export function findPreviousArtifactVersion(artifact: VentureArtifact, artifacts: VentureArtifact[]) {
