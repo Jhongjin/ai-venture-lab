@@ -41,7 +41,14 @@ const source = readFileSync(modulePath, "utf8")
   .replace('from "@/lib/cursor-mcp-server-script";', `from ${JSON.stringify(cursorMcpServerUrl)};`)
   .replace('from "@/lib/external-tool-handoff-markdown";', `from ${JSON.stringify(handoffUrl)};`);
 const moduleUrl = transpileToDataUrl(source, modulePath);
+const { formatExternalToolSyncExpiryText } = await import(handoffUrl);
 const { buildExternalToolPackageDrafts } = await import(moduleUrl);
+
+assert.equal(formatExternalToolSyncExpiryText(), "");
+assert.equal(
+  formatExternalToolSyncExpiryText("2026-06-03T00:00:00.000Z"),
+  "\n- 자동 반영 토큰 만료: 2026-06-03T00:00:00.000Z",
+);
 
 const idea = {
   buyer: "운영팀 리더",

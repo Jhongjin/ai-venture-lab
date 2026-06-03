@@ -19,6 +19,10 @@ const implementationTaskCompletionReportTemplate = `### 완료 보고 형식
 const externalStartPromptIntentSentence =
   'Venture Lab의 의도는 "문서를 많이 읽는 것"이 아니라 검증된 범위를 기준으로 실제 제작을 안전하게 시작하는 것입니다.';
 
+export function formatExternalToolSyncExpiryText(syncExpiresAt?: string) {
+  return syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
+}
+
 export function buildCursorTaskMarkdown({
   idea,
   productSurface,
@@ -180,7 +184,7 @@ export function buildCursorGuideMarkdown({
   projectKey: string;
   syncExpiresAt?: string;
 }) {
-  const syncExpiryText = syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
+  const syncExpiryText = formatExternalToolSyncExpiryText(syncExpiresAt);
 
   return `# Cursor 연결 가이드
 
@@ -353,7 +357,7 @@ export function buildCodexGuideMarkdown({
   projectKey: string;
   syncExpiresAt?: string;
 }) {
-  const syncExpiryText = syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
+  const syncExpiryText = formatExternalToolSyncExpiryText(syncExpiresAt);
 
   return `# Codex 연결 가이드
 
@@ -513,7 +517,7 @@ export function buildClaudeGuideMarkdown({
   projectKey: string;
   syncExpiresAt?: string;
 }) {
-  const syncExpiryText = syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
+  const syncExpiryText = formatExternalToolSyncExpiryText(syncExpiresAt);
 
   return `# Claude Code 연결 가이드
 
@@ -639,7 +643,7 @@ export function buildAntigravityGuideMarkdown({
   projectKey: string;
   syncExpiresAt?: string;
 }) {
-  const syncExpiryText = syncExpiresAt ? `\n- 자동 반영 토큰 만료: ${syncExpiresAt}` : "";
+  const syncExpiryText = formatExternalToolSyncExpiryText(syncExpiresAt);
 
   return `# Google Antigravity 연결 가이드
 
