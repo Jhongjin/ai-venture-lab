@@ -22,6 +22,7 @@ const {
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
   buildVisibleMarketScanReviewRows,
+  countHighStrengthMarketScanSources,
   getMarketScanUrl,
 } = await import(moduleUrl);
 
@@ -172,6 +173,7 @@ assert.equal(webDraftState.contextKey, "idea-1:web");
 assert.equal(webDraftState.visibleDraft?.summary, draft.summary);
 assert.equal(webDraftState.isVisibleEstimate, false);
 assert.equal(webDraftState.publicSources.length, 1);
+assert.equal(countHighStrengthMarketScanSources(webDraftState.publicSources), 1);
 assert.equal(webDraftState.status.label, "웹 조사 준비");
 assert.equal(webDraftState.actionLabel, "다시 정리");
 assert.match(webDraftState.sourceBoundaryText, /공개 출처 1개/);

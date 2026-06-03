@@ -134,6 +134,10 @@ export function getPublicMarketScanSources(sources: ReadonlyArray<MarketScanSour
   return sources.filter(isPublicMarketScanSource);
 }
 
+export function countHighStrengthMarketScanSources(sources: ReadonlyArray<MarketScanSource>) {
+  return sources.filter((source) => source.strength === "high").length;
+}
+
 export function buildMarketScanRequestPayload({
   experiments,
   idea,
