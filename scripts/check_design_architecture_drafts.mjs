@@ -66,7 +66,7 @@ const {
   getHighAppBlueprintRisks,
   getRecommendedAppBlueprintBackend,
 } = await import(appBlueprintUrl);
-const { getDesignBriefRun } = await import(designBriefUrl);
+const { formatDesignBriefRunOutput, getDesignBriefRun } = await import(designBriefUrl);
 const {
   buildDesignGenerationExperimentLines,
   buildDesignGenerationRiskLines,
@@ -247,6 +247,8 @@ assert.match(buildAppBlueprintTaskLines(implementationTasks), /T-001 워크벤�
 assert.match(buildAppBlueprintTaskLines([]), /범위 잠금/);
 assert.equal(getDesignBriefRun(runs)?.id, "run-1");
 assert.equal(getDesignBriefRun([]), undefined);
+assert.equal(formatDesignBriefRunOutput({ ...runs[0], output: "모바일 상태 점검 완료" }), "모바일 상태 점검 완료");
+assert.match(formatDesignBriefRunOutput(undefined), /디자인 실행 결과가 아직 없습니다/);
 assert.equal(
   getTechSpecBuildRun([
     {

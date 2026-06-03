@@ -7,6 +7,10 @@ export function getDesignBriefRun(runs: OrchestrationRun[]) {
   return runs.find((run) => run.phase === "design");
 }
 
+export function formatDesignBriefRunOutput(designRun: OrchestrationRun | undefined) {
+  return designRun?.output || "디자인 실행 결과가 아직 없습니다. 화면 흐름, 상태, 모바일 제약을 먼저 작성하세요.";
+}
+
 export function buildDesignBriefMarkdown({
   idea,
   state,
@@ -18,6 +22,7 @@ export function buildDesignBriefMarkdown({
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const designRun = getDesignBriefRun(runs);
+  const designRunOutput = formatDesignBriefRunOutput(designRun);
 
   return `# 디자인 기준: ${idea.name}
 
@@ -59,7 +64,7 @@ export function buildDesignBriefMarkdown({
 
 ## 디자인 제작 자료
 
-${designRun?.output || "디자인 실행 결과가 아직 없습니다. 화면 흐름, 상태, 모바일 제약을 먼저 작성하세요."}
+${designRunOutput}
 
 ## 검수 체크
 
