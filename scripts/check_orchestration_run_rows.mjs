@@ -27,6 +27,7 @@ const {
   buildOrchestrationRunUpdatePermissionDeniedMessage,
   buildOrchestrationRunbookCreatedMessage,
   buildOrchestrationRunbookLoginRequiredMessage,
+  getMissingOrchestrationRunConfigs,
 } = await import(moduleUrl);
 
 const manualRow = buildManualOrchestrationRunRow({
@@ -82,6 +83,19 @@ assert.deepEqual(
     owner_role: "current-owner",
     phase: "launch",
   },
+);
+
+assert.deepEqual(
+  getMissingOrchestrationRunConfigs({
+    existingRuns: [{ phase: "strategy" }, { phase: "qa" }],
+    runConfigs: [
+      { objective: "전략 판단", ownerRole: "strategy-reviewer", phase: "strategy" },
+      { objective: "시장 검증", ownerRole: "researcher", phase: "research" },
+      { objective: "품질 점검", ownerRole: "qa", phase: "qa" },
+      { objective: "출시 준비", ownerRole: "launch", phase: "launch" },
+    ],
+  }).map((config) => config.phase),
+  ["research", "launch"],
 );
 
 const missingRows = buildMissingOrchestrationRunRows({

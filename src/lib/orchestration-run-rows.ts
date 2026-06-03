@@ -134,6 +134,18 @@ export function buildOrchestrationRunPhaseDraft<Phase extends string>({
   };
 }
 
+export function getMissingOrchestrationRunConfigs<Phase extends string>({
+  existingRuns,
+  runConfigs,
+}: {
+  existingRuns: ExistingOrchestrationRun<Phase>[];
+  runConfigs: OrchestrationRunPhaseConfig<Phase>[];
+}) {
+  const existingPhases = new Set(existingRuns.map((run) => run.phase));
+
+  return runConfigs.filter((config) => !existingPhases.has(config.phase));
+}
+
 export function buildMissingOrchestrationRunRows<Phase extends string>({
   existingRuns,
   ideaId,
@@ -145,10 +157,7 @@ export function buildMissingOrchestrationRunRows<Phase extends string>({
   organizationId: string | null;
   runConfigs: OrchestrationRunPhaseConfig<Phase>[];
 }): PlannedOrchestrationRunRow<Phase>[] {
-  const existingPhases = new Set(existingRuns.map((run) => run.phase));
-
-  return runConfigs
-    .filter((config) => !existingPhases.has(config.phase))
+  return getMissingOrchestrationRunConfigs({ existingRuns, runConfigs })
     .map((config) => ({
       idea_id: ideaId,
       objective: config.objective,
