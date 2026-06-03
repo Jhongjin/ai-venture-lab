@@ -195,16 +195,21 @@ const artifactReviewBlueprint: Array<
   },
 ];
 
-function getArtifactReviewRecencyTime(artifact: Pick<VentureArtifact, "created_at" | "updated_at">) {
+export function getArtifactReviewRecencyTime(artifact: Pick<VentureArtifact, "created_at" | "updated_at">) {
   return new Date(artifact.updated_at ?? artifact.created_at).getTime();
+}
+
+export function compareArtifactsByReviewRecency<T extends Pick<VentureArtifact, "created_at" | "updated_at" | "version">>(
+  a: T,
+  b: T,
+) {
+  return getArtifactReviewRecencyTime(b) - getArtifactReviewRecencyTime(a) || (b.version ?? 1) - (a.version ?? 1);
 }
 
 export function sortArtifactsByReviewRecency<T extends Pick<VentureArtifact, "created_at" | "updated_at" | "version">>(
   artifacts: T[],
 ) {
-  return [...artifacts].sort(
-    (a, b) => getArtifactReviewRecencyTime(b) - getArtifactReviewRecencyTime(a) || (b.version ?? 1) - (a.version ?? 1),
-  );
+  return [...artifacts].sort(compareArtifactsByReviewRecency);
 }
 
 export function getLatestArtifactByType(artifacts: VentureArtifact[], artifactType: VentureArtifactType) {

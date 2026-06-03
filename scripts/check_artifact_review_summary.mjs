@@ -36,7 +36,9 @@ const {
   buildArtifactReviewProgressState,
   buildArtifactReviewQueue,
   buildArtifactReviewWorkflowState,
+  compareArtifactsByReviewRecency,
   getLatestArtifactByType,
+  getArtifactReviewRecencyTime,
   getArtifactReviewStatusDisplay,
   sortArtifactsByReviewRecency,
 } = await import(queueModuleUrl);
@@ -125,6 +127,20 @@ assert.deepEqual(sortArtifactsByReviewRecency(recencyArtifacts).map((item) => it
   "newer-version",
   "older-version",
 ]);
+assert.equal(
+  getArtifactReviewRecencyTime({ created_at: "2026-05-01T00:00:00.000Z", updated_at: "2026-05-04T00:00:00.000Z" }),
+  Date.parse("2026-05-04T00:00:00.000Z"),
+);
+assert.equal(compareArtifactsByReviewRecency(recencyArtifacts[0], recencyArtifacts[2]) > 0, true);
+assert.equal(compareArtifactsByReviewRecency(recencyArtifacts[2], recencyArtifacts[0]) < 0, true);
+assert.equal(compareArtifactsByReviewRecency(recencyArtifacts[0], recencyArtifacts[1]) > 0, true);
+assert.equal(
+  compareArtifactsByReviewRecency(
+    { created_at: "2026-05-01T00:00:00.000Z", updated_at: "2026-05-03T00:00:00.000Z", version: 1 },
+    { created_at: "2026-05-02T00:00:00.000Z", updated_at: "2026-05-03T00:00:00.000Z", version: 1 },
+  ),
+  0,
+);
 assert.equal(getLatestArtifactByType(recencyArtifacts, "prd")?.id, "newest-update");
 assert.equal(getLatestArtifactByType(recencyArtifacts, "mvp_spec"), null);
 
