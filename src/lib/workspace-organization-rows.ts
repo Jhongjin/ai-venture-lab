@@ -39,6 +39,10 @@ export function buildAttachPersonalRecordsPatch({ organizationId }: { organizati
   };
 }
 
+export function normalizeOrganizationMemberEmail(email: string) {
+  return email.trim();
+}
+
 export function buildAddOrganizationMemberParams({
   email,
   organizationId,
@@ -49,7 +53,7 @@ export function buildAddOrganizationMemberParams({
   role: AddableOrganizationRole;
 }) {
   return {
-    target_email: email.trim(),
+    target_email: normalizeOrganizationMemberEmail(email),
     target_organization_id: organizationId,
     target_role: role,
   };

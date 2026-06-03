@@ -12,6 +12,7 @@ const {
   buildRemoveOrganizationMemberParams,
   buildUpdateOrganizationMemberRoleParams,
   defaultWorkspaceName,
+  normalizeOrganizationMemberEmail,
   organizationRoleLabels,
   workspaceRecordTables,
 } = await import(moduleUrl);
@@ -48,6 +49,7 @@ assert.deepEqual(buildDefaultWorkspaceInsertRow({ userId: "abc" }), {
 assert.deepEqual(buildAttachPersonalRecordsPatch({ organizationId: "org-1" }), {
   organization_id: "org-1",
 });
+assert.equal(normalizeOrganizationMemberEmail("  teammate@example.com "), "teammate@example.com");
 assert.deepEqual(
   buildAddOrganizationMemberParams({
     email: "  teammate@example.com ",
