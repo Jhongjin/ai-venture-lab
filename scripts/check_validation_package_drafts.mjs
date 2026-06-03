@@ -48,6 +48,7 @@ const {
   buildValidationPackageDraftState,
   buildValidationPackageSaveLoginRequiredMessage,
   buildValidationPackageSavedMessage,
+  getSelectedExperimentForResult,
 } = await import(moduleUrl);
 
 const idea = {
@@ -190,6 +191,9 @@ assert.deepEqual(
 );
 assert.equal(getPrimaryValidationSprintExperiment(experiments)?.id, "exp-1");
 assert.equal(getPrimaryValidationSprintExperiment([]), null);
+assert.equal(getSelectedExperimentForResult(experiments, { experiment_id: "exp-2" })?.id, "exp-2");
+assert.equal(getSelectedExperimentForResult(experiments, { experiment_id: "missing" })?.id, "exp-1");
+assert.equal(getSelectedExperimentForResult([], { experiment_id: "missing" }), null);
 
 const draftState = buildValidationPackageDraftState({
   artifacts,

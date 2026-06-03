@@ -159,6 +159,13 @@ export function buildExperimentResultSavedMessage() {
   return "검증 결과를 저장했습니다. 다음 단계 이동은 하단 다음 단계 버튼에서 진행하세요.";
 }
 
+export function getSelectedExperimentForResult(
+  experiments: Experiment[],
+  experimentResultDraft: Pick<ExperimentResultDraft, "experiment_id">,
+) {
+  return experiments.find((experiment) => experiment.id === experimentResultDraft.experiment_id) ?? experiments[0] ?? null;
+}
+
 export function buildValidationPackageDraftState({
   artifacts,
   decisions,
@@ -188,8 +195,7 @@ export function buildValidationPackageDraftState({
     return emptyValidationPackageDraftState;
   }
 
-  const selectedExperimentForResult =
-    experiments.find((experiment) => experiment.id === experimentResultDraft.experiment_id) ?? experiments[0] ?? null;
+  const selectedExperimentForResult = getSelectedExperimentForResult(experiments, experimentResultDraft);
 
   return {
     evidenceNoteDraft: buildEvidenceNoteMarkdown({
