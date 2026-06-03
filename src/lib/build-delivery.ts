@@ -58,6 +58,18 @@ export function getBuildDeliveryActionPhrase({
     : "Venture Lab에서 계속 진행합니다";
 }
 
+export function getBuildDeliveryDetail({
+  buildDeliveryMode,
+  externalToolLabel,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  externalToolLabel: string;
+}) {
+  return buildDeliveryMode === "external_tool"
+    ? `${externalToolLabel}에 맞춰 전달 자료와 시작 방법을 정리합니다. 실제 파일 받기와 연동은 마지막 단계에서 열립니다.`
+    : "Venture Lab 안에서 작업 순서, 실행 할 일, 최종 실행, 성과 확인 화면으로 이어갑니다.";
+}
+
 export const externalBuildToolProfiles: Record<ExternalBuildToolKey, ExternalBuildToolProfile> = {
   cursor: {
     key: "cursor",
@@ -309,10 +321,10 @@ export function resolveBuildDeliveryContext({
     externalToolLabel: activeExternalBuildTool.label,
   });
   const activeBuildDeliveryLabel = buildDeliveryModeLabels[buildDeliveryMode];
-  const activeBuildDeliveryDetail =
-    buildDeliveryMode === "external_tool"
-      ? `${activeExternalBuildTool.label}에 맞춰 전달 자료와 시작 방법을 정리합니다. 실제 파일 받기와 연동은 마지막 단계에서 열립니다.`
-      : "Venture Lab 안에서 작업 순서, 실행 할 일, 최종 실행, 성과 확인 화면으로 이어갑니다.";
+  const activeBuildDeliveryDetail = getBuildDeliveryDetail({
+    buildDeliveryMode,
+    externalToolLabel: activeExternalBuildTool.label,
+  });
 
   return {
     buildDeliveryMode,

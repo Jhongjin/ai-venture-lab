@@ -8,6 +8,7 @@ const {
   externalBuildToolProfiles,
   getActiveExternalBuildToolProfile,
   getBuildDeliveryActionPhrase,
+  getBuildDeliveryDetail,
   getBuildDeliveryPreferenceArtifactTime,
   getBuildDeliveryPreferenceFromArtifacts,
   getFinalExternalToolOverrideKey,
@@ -40,6 +41,20 @@ assert.equal(
     persistedExternalBuildTool: externalBuildToolProfiles.cursor,
   }).key,
   "cursor",
+);
+assert.match(
+  getBuildDeliveryDetail({
+    buildDeliveryMode: "external_tool",
+    externalToolLabel: "Cursor",
+  }),
+  /Cursor에 맞춰 전달 자료/,
+);
+assert.match(
+  getBuildDeliveryDetail({
+    buildDeliveryMode: "venture_lab",
+    externalToolLabel: "Cursor",
+  }),
+  /Venture Lab 안에서 작업 순서/,
 );
 
 const preference = normalizeBuildDeliveryPreference({
