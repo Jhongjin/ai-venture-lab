@@ -11,9 +11,17 @@ import { decisionLabels, riskSeverityLabels, riskStatusLabels, stageLabels } fro
 
 type AppBlueprintState = Pick<Idea, "stage" | "decision" | "next_evidence" | "product_surface">;
 
-type AppBlueprintBackendCandidate = {
+export type AppBlueprintBackendCandidate = {
   label: string;
 };
+
+export function getRecommendedAppBlueprintBackend(backendCandidateScores: AppBlueprintBackendCandidate[]) {
+  return backendCandidateScores[0]?.label || "Supabase";
+}
+
+export function getHighAppBlueprintRisks(risks: Risk[]) {
+  return risks.filter((risk) => risk.severity === "high" || risk.severity === "critical");
+}
 
 export function buildAppBlueprintMarkdown({
   idea,
@@ -31,8 +39,8 @@ export function buildAppBlueprintMarkdown({
   backendCandidateScores: AppBlueprintBackendCandidate[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const topBackend = backendCandidateScores[0]?.label || "Supabase";
-  const highRisks = risks.filter((risk) => risk.severity === "high" || risk.severity === "critical");
+  const topBackend = getRecommendedAppBlueprintBackend(backendCandidateScores);
+  const highRisks = getHighAppBlueprintRisks(risks);
   const riskLines =
     risks.length > 0
       ? risks

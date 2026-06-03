@@ -59,6 +59,7 @@ const moduleUrl = transpileModuleUrl("src/lib/design-architecture-drafts.ts", [
   ['from "@/lib/tech-spec-markdown";', `from ${JSON.stringify(techSpecUrl)};`],
 ]);
 
+const { getHighAppBlueprintRisks, getRecommendedAppBlueprintBackend } = await import(appBlueprintUrl);
 const { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } = await import(moduleUrl);
 
 const idea = {
@@ -171,6 +172,13 @@ const implementationTasks = [
     updated_at: "2026-06-01T00:00:00.000Z",
   },
 ];
+
+assert.equal(getRecommendedAppBlueprintBackend(backendCandidateScores), "Supabase");
+assert.equal(getRecommendedAppBlueprintBackend([]), "Supabase");
+assert.deepEqual(
+  getHighAppBlueprintRisks(risks).map((risk) => risk.id),
+  ["risk-1"],
+);
 
 const draftState = buildDesignArchitectureDraftState({
   backendCandidateScores,
