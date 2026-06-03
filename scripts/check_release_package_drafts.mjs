@@ -59,6 +59,12 @@ const moduleUrl = transpileModuleUrl("src/lib/release-package-drafts.ts", [
 
 const { buildReleasePackageArtifactSaveDrafts, buildReleasePackageDraftState } = await import(moduleUrl);
 const {
+  countApprovedReleaseDecisionArtifacts,
+  countDoneReleaseDecisionTasks,
+  countPassedReleaseDecisionChecks,
+  getDoneReleaseDecisionRuns,
+} = await import(releaseDecisionUrl);
+const {
   buildDevelopmentCompletionTaskStats,
   getDoneDevelopmentCompletionRuns,
   getReleaseEvidenceImplementationTasks,
@@ -237,6 +243,13 @@ const artifactReviewQueue = [
   { status: "approved", label: "출시 체크리스트", detail: "프로덕션 smoke와 롤백 기준 확인" },
   { status: "approved", label: "제작 도구 전달 자료", detail: "첫 지시문과 작업 목록 확인" },
 ];
+assert.equal(countPassedReleaseDecisionChecks(gateChecks), 2);
+assert.equal(countApprovedReleaseDecisionArtifacts(artifactReviewQueue), 2);
+assert.equal(countDoneReleaseDecisionTasks(implementationTasks), 2);
+assert.deepEqual(
+  getDoneReleaseDecisionRuns(runs).map((run) => run.id),
+  ["run-1"],
+);
 const backendCandidateScores = [
   {
     cautions: [],

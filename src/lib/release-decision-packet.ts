@@ -30,11 +30,27 @@ export type ReleaseDecisionPacket = {
 
 type ReleaseDecisionState = Pick<Idea, "decision">;
 
-type ReleaseDecisionGateCheck = {
+export type ReleaseDecisionGateCheck = {
   label: string;
   passed: boolean;
   detail: string;
 };
+
+export function countPassedReleaseDecisionChecks(checks: ReleaseDecisionGateCheck[]) {
+  return checks.filter((check) => check.passed).length;
+}
+
+export function countApprovedReleaseDecisionArtifacts(queue: ArtifactReviewItem[]) {
+  return queue.filter((item) => item.status === "approved").length;
+}
+
+export function countDoneReleaseDecisionTasks(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.filter((task) => task.status === "done").length;
+}
+
+export function getDoneReleaseDecisionRuns(runs: OrchestrationRun[]) {
+  return runs.filter((run) => run.status === "done");
+}
 
 export function buildReleaseDecisionPacket({
   idea,
@@ -77,8 +93,8 @@ export function buildReleaseDecisionPacket({
   const blockedTasks = implementationTasks.filter((task) => task.status === "blocked");
   const failedImplementationChecks = implementationGateChecks.filter((check) => !check.passed);
   const unapprovedArtifacts = artifactReviewQueue.filter((item) => item.status !== "approved");
-  const completedTaskCount = implementationTasks.filter((task) => task.status === "done").length;
-  const completedRuns = runs.filter((run) => run.status === "done");
+  const completedTaskCount = countDoneReleaseDecisionTasks(implementationTasks);
+  const completedRuns = getDoneReleaseDecisionRuns(runs);
   const latestDecision = decisions[0] ?? null;
   const releaseReady =
     launchReadinessScore === 100 &&
@@ -113,9 +129,9 @@ export function buildReleaseDecisionPacket({
   ].slice(0, 8);
 
   const greenSignals = [
-    `출시 준비도 ${launchReadinessScore}% (${launchReadiness.filter((check) => check.passed).length}/${launchReadiness.length})`,
-    `개발 완료 점검 ${implementationGateScore}% (${implementationGateChecks.filter((check) => check.passed).length}/${implementationGateChecks.length})`,
-    `제작 자료 승인 ${artifactReviewProgress}% (${artifactReviewQueue.filter((item) => item.status === "approved").length}/${artifactReviewQueue.length})`,
+    `출시 준비도 ${launchReadinessScore}% (${countPassedReleaseDecisionChecks(launchReadiness)}/${launchReadiness.length})`,
+    `개발 완료 점검 ${implementationGateScore}% (${countPassedReleaseDecisionChecks(implementationGateChecks)}/${implementationGateChecks.length})`,
+    `제작 자료 승인 ${artifactReviewProgress}% (${countApprovedReleaseDecisionArtifacts(artifactReviewQueue)}/${artifactReviewQueue.length})`,
     `구현 태스크 ${completedTaskCount}/${implementationTasks.length} 완료`,
     `실행 단계 ${completedRuns.length}/${runs.length} 완료`,
     latestDecision ? `최근 판단 기록: ${decisionLabels[latestDecision.decision]} - ${latestDecision.reason || "근거 미기록"}` : "최근 판단 기록 없음",
