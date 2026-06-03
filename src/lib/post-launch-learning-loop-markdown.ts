@@ -33,6 +33,58 @@ export function getUnresolvedPostLaunchChecks(launchReadiness: PostLaunchGateChe
   return launchReadiness.filter((check) => !check.passed);
 }
 
+export function formatPostLaunchReleaseRecommendation(releaseDecisionPacket: PostLaunchReleaseDecisionPacket | null) {
+  return releaseDecisionPacket ? decisionLabels[releaseDecisionPacket.recommendation] : "미계산";
+}
+
+export function buildPostLaunchExperimentLines(experiments: Experiment[]) {
+  if (experiments.length === 0) {
+    return "- 출시 후 학습에 연결할 실험이 없습니다. 첫 사용자 5명 관찰 실험을 추가하세요.";
+  }
+
+  return experiments
+    .map(
+      (experiment) =>
+        `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / 성공 지표: ${
+          experiment.success_metric || "미정"
+        }`,
+    )
+    .join("\n");
+}
+
+export function buildPostLaunchRiskLines(openHighRisks: Risk[]) {
+  if (openHighRisks.length === 0) {
+    return "- 열린 높음/치명 리스크가 없습니다.";
+  }
+
+  return openHighRisks
+    .map(
+      (risk) =>
+        `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${
+          riskStatusLabels[risk.status] ?? risk.status
+        } / ${risk.mitigation || "완화책 미정"}`,
+    )
+    .join("\n");
+}
+
+export function buildPostLaunchBlockerLines({
+  releaseDecisionPacket,
+  unresolvedLaunchChecks,
+}: {
+  releaseDecisionPacket: PostLaunchReleaseDecisionPacket | null;
+  unresolvedLaunchChecks: PostLaunchGateCheck[];
+}) {
+  if (releaseDecisionPacket?.blockers.length) {
+    return releaseDecisionPacket.blockers.map((blocker) => `- ${blocker}`).join("\n");
+  }
+
+  if (unresolvedLaunchChecks.length > 0) {
+    return unresolvedLaunchChecks.map((check) => `- ${check.label}: ${check.detail}`).join("\n");
+  }
+
+  return "- 출시 후 관찰 가능한 상태입니다.";
+}
+
 export function buildPostLaunchLearningLoopMarkdown({
   idea,
   state,
@@ -50,37 +102,16 @@ export function buildPostLaunchLearningLoopMarkdown({
   launchReadiness: PostLaunchGateCheck[];
   implementationTasks: ImplementationTask[];
 }) {
-  const releaseRecommendation = releaseDecisionPacket ? decisionLabels[releaseDecisionPacket.recommendation] : "미계산";
+  const releaseRecommendation = formatPostLaunchReleaseRecommendation(releaseDecisionPacket);
   const openHighRisks = getOpenHighPostLaunchRisks(risks);
   const doneTaskCount = countDonePostLaunchImplementationTasks(implementationTasks);
   const unresolvedLaunchChecks = getUnresolvedPostLaunchChecks(launchReadiness);
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .map(
-            (experiment) =>
-              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / 성공 지표: ${
-                experiment.success_metric || "미정"
-              }`,
-          )
-          .join("\n")
-      : "- 출시 후 학습에 연결할 실험이 없습니다. 첫 사용자 5명 관찰 실험을 추가하세요.";
-  const riskLines =
-    openHighRisks.length > 0
-      ? openHighRisks
-          .map(
-            (risk) =>
-              `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${
-                riskStatusLabels[risk.status] ?? risk.status
-              } / ${risk.mitigation || "완화책 미정"}`,
-          )
-          .join("\n")
-      : "- 열린 높음/치명 리스크가 없습니다.";
-  const blockerLines = releaseDecisionPacket?.blockers.length
-    ? releaseDecisionPacket.blockers.map((blocker) => `- ${blocker}`).join("\n")
-    : unresolvedLaunchChecks.length > 0
-      ? unresolvedLaunchChecks.map((check) => `- ${check.label}: ${check.detail}`).join("\n")
-      : "- 출시 후 관찰 가능한 상태입니다.";
+  const experimentLines = buildPostLaunchExperimentLines(experiments);
+  const riskLines = buildPostLaunchRiskLines(openHighRisks);
+  const blockerLines = buildPostLaunchBlockerLines({
+    releaseDecisionPacket,
+    unresolvedLaunchChecks,
+  });
 
   return `# 출시 후 학습 루프: ${idea.name}
 

@@ -70,7 +70,11 @@ const {
   getReleaseEvidenceImplementationTasks,
 } = await import(completionReportUrl);
 const {
+  buildPostLaunchBlockerLines,
+  buildPostLaunchExperimentLines,
+  buildPostLaunchRiskLines,
   countDonePostLaunchImplementationTasks,
+  formatPostLaunchReleaseRecommendation,
   getOpenHighPostLaunchRisks,
   getUnresolvedPostLaunchChecks,
 } = await import(postLaunchUrl);
@@ -337,6 +341,41 @@ assert.deepEqual(
   getUnresolvedPostLaunchChecks([{ ...gateChecks[0], label: "배포 로그", passed: false }]).map((check) => check.label),
   ["배포 로그"],
 );
+assert.match(
+  buildPostLaunchExperimentLines(experiments),
+  /외부 제작 도구가 10분 안에 첫 태스크를 이해/,
+);
+assert.equal(
+  buildPostLaunchExperimentLines([]),
+  "- 출시 후 학습에 연결할 실험이 없습니다. 첫 사용자 5명 관찰 실험을 추가하세요.",
+);
+assert.match(buildPostLaunchRiskLines([{ ...risks[0], status: "open" }]), /원본 저장 전 식별 패턴/);
+assert.equal(buildPostLaunchRiskLines([]), "- 열린 높음/치명 리스크가 없습니다.");
+assert.equal(
+  buildPostLaunchBlockerLines({
+    releaseDecisionPacket: {
+      blockers: ["배포 로그"],
+      recommendation: "research_more",
+    },
+    unresolvedLaunchChecks: [],
+  }),
+  "- 배포 로그",
+);
+assert.match(
+  buildPostLaunchBlockerLines({
+    releaseDecisionPacket: null,
+    unresolvedLaunchChecks: [{ ...gateChecks[0], passed: false }],
+  }),
+  /핵심 저장 흐름/,
+);
+assert.equal(
+  buildPostLaunchBlockerLines({
+    releaseDecisionPacket: null,
+    unresolvedLaunchChecks: [],
+  }),
+  "- 출시 후 관찰 가능한 상태입니다.",
+);
+assert.equal(formatPostLaunchReleaseRecommendation(null), "미계산");
 const backendCandidateScores = [
   {
     cautions: [],
