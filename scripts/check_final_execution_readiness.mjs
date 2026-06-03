@@ -30,6 +30,7 @@ const {
   buildFinalExecutionPrimaryPackageAction,
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
+  buildFinalExecutionTaskPreviewLists,
   buildFinalExecutionTaskPreview,
   compareFinalExecutionConnectionUsedAtValues,
   formatFinalExecutionProjectKey,
@@ -196,6 +197,28 @@ assert.match(emptyHealth.detail, /Cursor 연결 파일/);
 
 const implementationTasks = Array.from({ length: 7 }, (_, index) => ({ id: `task-${index + 1}` }));
 const fallbackTasks = Array.from({ length: 7 }, (_, index) => ({ title: `fallback-${index + 1}` }));
+const implementationPreviewLists = buildFinalExecutionTaskPreviewLists({
+  fallbackTasks,
+  implementationTasks,
+  limit: 2,
+});
+assert.deepEqual(
+  implementationPreviewLists.taskPreview.map((task) => task.id),
+  ["task-1", "task-2"],
+);
+assert.deepEqual(implementationPreviewLists.fallbackTaskPreview, []);
+assert.equal(implementationPreviewLists.visibleTaskCount, 2);
+const fallbackPreviewLists = buildFinalExecutionTaskPreviewLists({
+  fallbackTasks,
+  implementationTasks: [],
+  limit: 2,
+});
+assert.deepEqual(fallbackPreviewLists.taskPreview, []);
+assert.deepEqual(
+  fallbackPreviewLists.fallbackTaskPreview.map((task) => task.title),
+  ["fallback-1", "fallback-2"],
+);
+assert.equal(fallbackPreviewLists.visibleTaskCount, 2);
 const livePreview = buildFinalExecutionTaskPreview({
   buildDeliveryMode: "external_tool",
   externalToolLabel: "Cursor",

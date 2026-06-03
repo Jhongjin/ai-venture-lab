@@ -43,6 +43,11 @@ export type FinalExecutionTaskPreview = {
   taskListDescription: string;
 };
 
+export type FinalExecutionTaskPreviewLists = Pick<
+  FinalExecutionTaskPreview,
+  "fallbackTaskPreview" | "taskPreview" | "visibleTaskCount"
+>;
+
 export type FinalExecutionLaunchDisplayState = {
   activeCursorSyncConnections: CursorSyncConnection[];
   finalExecutionConnectionHealthDetail: string;
@@ -532,9 +537,11 @@ export function buildFinalExecutionTaskPreview({
   isLiveExternalDelivery: boolean;
   limit?: number;
 }): FinalExecutionTaskPreview {
-  const taskPreview = implementationTasks.slice(0, limit);
-  const fallbackTaskPreview = implementationTasks.length === 0 ? fallbackTasks.slice(0, limit) : [];
-  const visibleTaskCount = implementationTasks.length > 0 ? taskPreview.length : fallbackTaskPreview.length;
+  const previewLists = buildFinalExecutionTaskPreviewLists({
+    fallbackTasks,
+    implementationTasks,
+    limit,
+  });
   const taskListDescription =
     buildDeliveryMode === "external_tool"
       ? isLiveExternalDelivery
@@ -543,10 +550,28 @@ export function buildFinalExecutionTaskPreview({
       : "내부 개발 패키지에 이 작업 목록이 포함됩니다. 내부 제작 도구가 연결되면 이 순서를 기준으로 이어집니다.";
 
   return {
+    ...previewLists,
+    taskListDescription,
+  };
+}
+
+export function buildFinalExecutionTaskPreviewLists({
+  fallbackTasks,
+  implementationTasks,
+  limit = 6,
+}: {
+  fallbackTasks: ImplementationTaskDraft[];
+  implementationTasks: ImplementationTask[];
+  limit?: number;
+}): FinalExecutionTaskPreviewLists {
+  const taskPreview = implementationTasks.slice(0, limit);
+  const fallbackTaskPreview = implementationTasks.length === 0 ? fallbackTasks.slice(0, limit) : [];
+  const visibleTaskCount = implementationTasks.length > 0 ? taskPreview.length : fallbackTaskPreview.length;
+
+  return {
     taskPreview,
     fallbackTaskPreview,
     visibleTaskCount,
-    taskListDescription,
   };
 }
 
