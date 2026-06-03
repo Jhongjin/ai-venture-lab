@@ -46,6 +46,7 @@ const {
   buildExternalToolProjectInfoSection,
   buildExternalToolRecordProgressCommandBlock,
   buildExternalToolRecordProgressExampleCommand,
+  buildExternalToolSetupCommandBlock,
   buildExternalToolSyncSecuritySection,
   buildExternalToolTaskBody,
   buildFallbackExternalToolTaskSection,
@@ -70,6 +71,11 @@ assert.equal(
   '```powershell\nnode .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"\n```',
 );
 assert.match(buildExternalToolRecordProgressCommandBlock(".claude"), /```powershell[\s\S]+\.claude\/venture-lab-cli\.mjs/);
+assert.equal(
+  buildExternalToolSetupCommandBlock("고객 문의 자동 정리 콘솔", "cursor-setup"),
+  "```powershell\npowershell -ExecutionPolicy Bypass -File .\\고객-문의-자동-정리-콘솔-cursor-setup.ps1\n```",
+);
+assert.match(buildExternalToolSetupCommandBlock("고객 문의 자동 정리 콘솔", "antigravity-setup"), /antigravity-setup\.ps1/);
 const connectorDrafts = buildExternalToolConnectorDrafts();
 assert.match(connectorDrafts.cursorMcpConfigDraft, /ai-venture-lab/);
 assert.match(connectorDrafts.cursorMcpServerDraft, /venture:\/\/package/);

@@ -72,6 +72,12 @@ ${buildExternalToolRecordProgressExampleCommand(toolFolder)}
 \`\`\``;
 }
 
+export function buildExternalToolSetupCommandBlock(ideaName: string, fileKind: string) {
+  return `\`\`\`powershell
+powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(ideaName, fileKind, "ps1")}
+\`\`\``;
+}
+
 export function buildSavedExternalToolTaskSection(task: ImplementationTask, index: number) {
   const taskCode = getCursorTaskCode(index);
 
@@ -264,9 +270,7 @@ export function buildCursorGuideMarkdown({
 2. Venture Lab에서 받은 \`*-cursor-setup.ps1\` 파일을 프로젝트 루트에 둡니다.
 3. PowerShell에서 먼저 아래 설치 명령을 실행합니다.
 
-\`\`\`powershell
-powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "cursor-setup", "ps1")}
-\`\`\`
+${buildExternalToolSetupCommandBlock(idea.name, "cursor-setup")}
 
 4. 설치가 끝난 뒤 같은 터미널에서 아래 확인 명령을 실행해 T-001 첫 작업이 읽히는지 확인합니다.
 
@@ -416,9 +420,7 @@ export function buildCodexGuideMarkdown({
 1. 실제 개발할 프로젝트 폴더에 Venture Lab에서 받은 \`*-codex-setup.ps1\` 파일을 둡니다.
 2. 프로젝트 루트에서 아래 명령을 실행합니다.
 
-\`\`\`powershell
-powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "codex-setup", "ps1")}
-\`\`\`
+${buildExternalToolSetupCommandBlock(idea.name, "codex-setup")}
 
 3. 터미널에서 \`node .codex/venture-lab-cli.mjs next-task\`를 실행해 결과에 T-001이 보이는지 확인합니다.
 4. T-001이 보이면 Codex에서 같은 프로젝트 폴더를 열고 \`AI_VENTURE_CODEX_START.md\` 내용을 첫 메시지로 넣습니다.
@@ -558,9 +560,7 @@ export function buildClaudeGuideMarkdown({
 1. 실제 개발할 프로젝트 폴더에 Venture Lab에서 받은 \`*-claude-code-setup.ps1\` 파일을 둡니다.
 2. 프로젝트 루트에서 아래 명령을 실행합니다.
 
-\`\`\`powershell
-powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "claude-code-setup", "ps1")}
-\`\`\`
+${buildExternalToolSetupCommandBlock(idea.name, "claude-code-setup")}
 
 3. 터미널에서 \`node .claude/venture-lab-cli.mjs next-task\`를 실행해 결과에 T-001이 보이는지 확인합니다.
 4. T-001이 보이면 Claude Code를 같은 프로젝트 루트에서 열고 \`/mcp\`에서 \`ai-venture-lab\` 연결을 확인합니다.
@@ -668,9 +668,7 @@ export function buildAntigravityGuideMarkdown({
 1. 실제 개발할 프로젝트 폴더에 Venture Lab에서 받은 \`*-antigravity-setup.ps1\` 파일을 둡니다.
 2. 프로젝트 루트에서 아래 명령을 실행합니다.
 
-\`\`\`powershell
-powershell -ExecutionPolicy Bypass -File .\\${toDownloadFileName(idea.name, "antigravity-setup", "ps1")}
-\`\`\`
+${buildExternalToolSetupCommandBlock(idea.name, "antigravity-setup")}
 
 3. 터미널에서 \`node .antigravity/venture-lab-cli.mjs next-task\`를 실행해 결과에 T-001이 보이는지 확인합니다.
 4. T-001이 보이면 Antigravity에서 같은 프로젝트 폴더를 열고 \`.antigravity/mcp_config.json\`과 \`AGENTS.ai-venture-lab.md\`를 프로젝트 지침으로 확인합니다.
