@@ -91,6 +91,27 @@ export function getValidationExperimentsByStatus<Status extends Experiment["stat
   return experiments.filter((experiment) => experiment.status === status);
 }
 
+export function buildValidationEvidenceCoachSearchText({
+  artifacts,
+  idea,
+  state,
+}: {
+  artifacts: VentureArtifact[];
+  idea: Idea;
+  state: Pick<ValidationPlanningState, "next_evidence" | "risk_summary" | "signal">;
+}) {
+  return [
+    idea.name,
+    idea.one_liner,
+    idea.target_user,
+    idea.buyer,
+    state.signal,
+    state.risk_summary,
+    state.next_evidence,
+    ...artifacts.map((artifact) => `${artifact.title} ${artifact.body}`),
+  ].join(" ");
+}
+
 export function buildValidationPlan({
   idea,
   state,
@@ -276,16 +297,11 @@ export function buildValidationEvidenceCoach({
   decisions: Decision[];
 }): ValidationEvidenceCoach {
   const domain = inferIdeaDomain(idea, state);
-  const combinedText = [
-    idea.name,
-    idea.one_liner,
-    idea.target_user,
-    idea.buyer,
-    state.signal,
-    state.risk_summary,
-    state.next_evidence,
-    ...artifacts.map((artifact) => `${artifact.title} ${artifact.body}`),
-  ].join(" ");
+  const combinedText = buildValidationEvidenceCoachSearchText({
+    artifacts,
+    idea,
+    state,
+  });
   const doneExperiments = getValidationExperimentsByStatus(experiments, "done");
   const runningExperiments = getValidationExperimentsByStatus(experiments, "running");
   const evidenceArtifacts = getValidationEvidenceArtifacts(artifacts);

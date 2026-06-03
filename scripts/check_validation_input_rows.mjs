@@ -55,6 +55,7 @@ const {
 } = await import(moduleUrl);
 const {
   buildIdeaDomainText,
+  buildValidationEvidenceCoachSearchText,
   buildValidationPlanningReviewState,
   getOpenHighValidationRisks,
   getValidationEvidenceArtifacts,
@@ -150,6 +151,14 @@ assert.match(ideaDomainText, /운영팀/);
 assert.match(ideaDomainText, /반복 검증 자동화 수요/);
 assert.match(ideaDomainText, /범위 확장 주의/);
 assert.match(ideaDomainText, /5명 인터뷰/);
+const evidenceCoachSearchText = buildValidationEvidenceCoachSearchText({
+  artifacts: [{ title: "수요 인터뷰", body: "사용자 5명 중 3명이 반복 문제를 말함" }],
+  idea: validationIdea,
+  state: validationState,
+});
+assert.match(evidenceCoachSearchText, /AI Venture Lab/);
+assert.match(evidenceCoachSearchText, /수요 인터뷰/);
+assert.match(evidenceCoachSearchText, /사용자 5명 중 3명/);
 const validationReviewState = buildValidationPlanningReviewState({
   artifacts: [],
   decisions: [],
