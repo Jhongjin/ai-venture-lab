@@ -461,6 +461,7 @@ import { emitVentureEvent, subscribeToVentureEvents, type VentureEventListenerEn
 import {
   buildImplementationTaskAutoRefreshMessage,
   buildImplementationTaskManualRefreshMessage,
+  buildNextImplementationTaskActionDetail,
   buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskRefreshSummary,
   buildImplementationTaskReviewState,
@@ -5267,13 +5268,10 @@ export function IdeaWorkbench({
                           </span>
                         </div>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
-                          {nextImplementationTask.status === "blocked"
-                            ? "막힌 상태입니다. 먼저 막힌 이유와 해소 증거를 기록하세요."
-                            : nextImplementationTask.status === "doing"
-                              ? "이미 진행 중입니다. 완료 증거를 붙이고 완료로 이동하세요."
-                              : nextImplementationDependencyStatus && !nextImplementationDependencyStatus.ready
-                                ? "선행 조건에 막혀 있습니다. 아래 실행 순서 점검에서 먼저 완료할 태스크를 확인하세요."
-                                : "바로 시작하기 좋은 다음 태스크입니다. 진행 시작 후 증거를 남기세요."}
+                          {buildNextImplementationTaskActionDetail({
+                            dependencyStatus: nextImplementationDependencyStatus,
+                            task: nextImplementationTask,
+                          })}
                         </p>
                         {nextImplementationDependencyStatus?.blockers.length ? (
                           <div className="avl-surface-muted mt-2 px-3 py-2 text-xs font-semibold leading-5 text-slate-700">

@@ -261,6 +261,28 @@ export function isBlockedImplementationTask(task: Pick<ImplementationTask, "stat
   return task.status === "blocked";
 }
 
+export function buildNextImplementationTaskActionDetail({
+  dependencyStatus,
+  task,
+}: {
+  dependencyStatus: Pick<ImplementationDependencyStatus, "ready"> | null;
+  task: Pick<ImplementationTask, "status">;
+}) {
+  if (task.status === "blocked") {
+    return "막힌 상태입니다. 먼저 막힌 이유와 해소 증거를 기록하세요.";
+  }
+
+  if (task.status === "doing") {
+    return "이미 진행 중입니다. 완료 증거를 붙이고 완료로 이동하세요.";
+  }
+
+  if (dependencyStatus && !dependencyStatus.ready) {
+    return "선행 조건에 막혀 있습니다. 아래 실행 순서 점검에서 먼저 완료할 태스크를 확인하세요.";
+  }
+
+  return "바로 시작하기 좋은 다음 태스크입니다. 진행 시작 후 증거를 남기세요.";
+}
+
 export function getCompletedImplementationTasksWithEvidence(tasks: ImplementationTask[]) {
   return tasks.filter((task) => isDoneImplementationTask(task) && Boolean(task.evidence.trim()));
 }

@@ -28,6 +28,7 @@ const {
   buildImplementationDependencyPrerequisiteStatus,
   buildImplementationDependencyStatuses,
   buildImplementationPrerequisiteBlocker,
+  buildNextImplementationTaskActionDetail,
   getBlockedImplementationTaskDependencyBlockers,
   getCompletedImplementationTaskTypes,
   getImplementationTaskTypes,
@@ -144,12 +145,40 @@ assert.deepEqual(getBlockedImplementationTaskDependencyBlockers(blockedFrontendT
   blockedImplementationTaskDependencyMessage,
 ]);
 assert.deepEqual(getBlockedImplementationTaskDependencyBlockers(readyTask), []);
+assert.equal(
+  buildNextImplementationTaskActionDetail({
+    dependencyStatus: null,
+    task: blockedFrontendTask,
+  }),
+  "막힌 상태입니다. 먼저 막힌 이유와 해소 증거를 기록하세요.",
+);
+assert.equal(
+  buildNextImplementationTaskActionDetail({
+    dependencyStatus: null,
+    task: { ...readyTask, status: "doing" },
+  }),
+  "이미 진행 중입니다. 완료 증거를 붙이고 완료로 이동하세요.",
+);
 
 const dependencyMetadataStatuses = buildImplementationDependencyStatuses([doneTask, designTodoTask, blockedFrontendTask]);
 const blockedFrontendStatus = dependencyMetadataStatuses.find((item) => item.task.id === blockedFrontendTask.id);
 assert.equal(blockedFrontendStatus.ready, false);
 assert.equal(blockedFrontendStatus.blockers[0], blockedImplementationTaskDependencyMessage);
 assert.equal(blockedFrontendStatus.blockers.includes("백엔드 태스크 생성 필요"), true);
+assert.equal(
+  buildNextImplementationTaskActionDetail({
+    dependencyStatus: blockedFrontendStatus,
+    task: readyTask,
+  }),
+  "선행 조건에 막혀 있습니다. 아래 실행 순서 점검에서 먼저 완료할 태스크를 확인하세요.",
+);
+assert.equal(
+  buildNextImplementationTaskActionDetail({
+    dependencyStatus: { ready: true },
+    task: readyTask,
+  }),
+  "바로 시작하기 좋은 다음 태스크입니다. 진행 시작 후 증거를 남기세요.",
+);
 
 const statuses = [
   {
