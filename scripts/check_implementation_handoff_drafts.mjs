@@ -67,6 +67,14 @@ const {
   buildImplementationBacklogTaskLines,
   buildImplementationTaskBlockerHintSection,
 } = await import(implementationTaskMarkdownUrl);
+const {
+  buildRolePromptArtifactLines,
+  buildRolePromptExperimentLines,
+  buildRolePromptInstructionLines,
+  buildRolePromptRiskLines,
+  buildRolePromptRoleSections,
+  buildRolePromptTaskLines,
+} = await import(rolePromptPackUrl);
 const { buildImplementationHandoffArtifactSaveDrafts, buildImplementationHandoffDraftState } = await import(moduleUrl);
 
 const idea = {
@@ -242,6 +250,16 @@ assert.equal(
   }),
   "현재 필터 조건에 맞는 실행 태스크가 없습니다.",
 );
+assert.match(buildRolePromptArtifactLines(artifacts), /AI Venture Lab 제품 기획서/);
+assert.equal(buildRolePromptArtifactLines([]), "- 저장된 제작 자료가 없습니다.");
+assert.match(buildRolePromptRiskLines(risks), /민감 데이터 노출/);
+assert.equal(buildRolePromptRiskLines([]), "- 연결된 리스크가 없습니다.");
+assert.match(buildRolePromptExperimentLines(experiments), /첫 작업을 외부 도구가 바로 이해/);
+assert.equal(buildRolePromptExperimentLines([]), "- 연결된 실험이 없습니다.");
+assert.match(buildRolePromptTaskLines(tasks), /T-001 워크벤치 첫 화면/);
+assert.equal(buildRolePromptTaskLines([]), "- 아직 구현 태스크가 없습니다.");
+assert.match(buildRolePromptInstructionLines("build"), /제품 기획서와 첫 제작 범위/);
+assert.match(buildRolePromptRoleSections(runs), /제작 자료 전달/);
 
 const draftState = buildImplementationHandoffDraftState({
   artifacts,

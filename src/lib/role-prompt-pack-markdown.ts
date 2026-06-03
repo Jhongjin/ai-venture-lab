@@ -70,6 +70,93 @@ const promptInstructions: Record<OrchestrationPhase, string[]> = {
   ],
 };
 
+export function buildRolePromptArtifactLines(artifacts: VentureArtifact[]) {
+  if (artifacts.length === 0) {
+    return "- 저장된 제작 자료가 없습니다.";
+  }
+
+  return artifacts
+    .slice(0, 12)
+    .map(
+      (artifact) =>
+        `- ${artifactLabels[artifact.artifact_type]} v${artifact.version ?? 1}: ${
+          artifact.title || "제목 없음"
+        } (${artifactStatusLabels[artifact.status]})`,
+    )
+    .join("\n");
+}
+
+export function buildRolePromptRiskLines(risks: Risk[]) {
+  if (risks.length === 0) {
+    return "- 연결된 리스크가 없습니다.";
+  }
+
+  return risks
+    .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`)
+    .join("\n");
+}
+
+export function buildRolePromptExperimentLines(experiments: Experiment[]) {
+  if (experiments.length === 0) {
+    return "- 연결된 실험이 없습니다.";
+  }
+
+  return experiments
+    .map(
+      (experiment) =>
+        `- ${experiment.name}: ${experimentStatusLabels[experiment.status]} / ${
+          experiment.success_metric || "성공 지표 미정"
+        }`,
+    )
+    .join("\n");
+}
+
+export function buildRolePromptTaskLines(implementationTasks: ImplementationTask[]) {
+  if (implementationTasks.length === 0) {
+    return "- 아직 구현 태스크가 없습니다.";
+  }
+
+  return implementationTasks
+    .slice(0, 12)
+    .map(
+      (task) =>
+        `- ${task.title}: ${implementationTaskTypeLabels[task.task_type]} / ${
+          implementationTaskPriorityLabels[task.priority]
+        } / ${implementationTaskStatusLabels[task.status]}`,
+    )
+    .join("\n");
+}
+
+export function buildRolePromptInstructionLines(phase: OrchestrationPhase) {
+  return promptInstructions[phase].map((instruction) => `- ${instruction}`).join("\n");
+}
+
+export function buildRolePromptRoleSections(runs: OrchestrationRun[]) {
+  const runByPhase = new Map(runs.map((run) => [run.phase, run]));
+
+  return orchestrationPhaseConfigs
+    .map((config) => {
+      const run = runByPhase.get(config.phase);
+      const instructionLines = buildRolePromptInstructionLines(config.phase);
+
+      return `## ${config.label} / ${config.ownerRole}
+
+역할 목표: ${run?.objective || config.objective}
+현재 상태: ${run ? runStatusLabels[run.status] : "아직 실행 순서 묶음에 생성되지 않음"}
+
+작업 안내:
+${instructionLines}
+
+반환 형식:
+- 결론
+- 근거
+- 차단 항목
+- 다음 액션
+- 저장 또는 승인해야 할 제작 자료`;
+    })
+    .join("\n\n");
+}
+
 export function buildRolePromptPackMarkdown({
   idea,
   state,
@@ -88,70 +175,11 @@ export function buildRolePromptPackMarkdown({
   implementationTasks: ImplementationTask[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const artifactLines =
-    artifacts.length > 0
-      ? artifacts
-          .slice(0, 12)
-          .map(
-            (artifact) =>
-              `- ${artifactLabels[artifact.artifact_type]} v${artifact.version ?? 1}: ${
-                artifact.title || "제목 없음"
-              } (${artifactStatusLabels[artifact.status]})`,
-          )
-          .join("\n")
-      : "- 저장된 제작 자료가 없습니다.";
-  const riskLines =
-    risks.length > 0
-      ? risks
-          .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`)
-          .join("\n")
-      : "- 연결된 리스크가 없습니다.";
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .map(
-            (experiment) =>
-              `- ${experiment.name}: ${experimentStatusLabels[experiment.status]} / ${
-                experiment.success_metric || "성공 지표 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 연결된 실험이 없습니다.";
-  const taskLines =
-    implementationTasks.length > 0
-      ? implementationTasks
-          .slice(0, 12)
-          .map(
-            (task) =>
-              `- ${task.title}: ${implementationTaskTypeLabels[task.task_type]} / ${
-                implementationTaskPriorityLabels[task.priority]
-              } / ${implementationTaskStatusLabels[task.status]}`,
-          )
-          .join("\n")
-      : "- 아직 구현 태스크가 없습니다.";
-
-  const runByPhase = new Map(runs.map((run) => [run.phase, run]));
-  const rolePrompts = orchestrationPhaseConfigs
-    .map((config) => {
-      const run = runByPhase.get(config.phase);
-      const instructionLines = promptInstructions[config.phase].map((instruction) => `- ${instruction}`).join("\n");
-
-      return `## ${config.label} / ${config.ownerRole}
-
-역할 목표: ${run?.objective || config.objective}
-현재 상태: ${run ? runStatusLabels[run.status] : "아직 실행 순서 묶음에 생성되지 않음"}
-
-작업 안내:
-${instructionLines}
-
-반환 형식:
-- 결론
-- 근거
-- 차단 항목
-- 다음 액션
-- 저장 또는 승인해야 할 제작 자료`;
-    })
-    .join("\n\n");
+  const artifactLines = buildRolePromptArtifactLines(artifacts);
+  const riskLines = buildRolePromptRiskLines(risks);
+  const experimentLines = buildRolePromptExperimentLines(experiments);
+  const taskLines = buildRolePromptTaskLines(implementationTasks);
+  const rolePrompts = buildRolePromptRoleSections(runs);
 
   return `# 역할별 작업 안내 묶음: ${idea.name}
 
