@@ -21,6 +21,51 @@ export function getFirstMetricMvpScopeExperiment(experiments: Experiment[]) {
   return experiments.find((experiment) => experiment.success_metric.trim()) ?? experiments[0] ?? null;
 }
 
+export function buildMvpSpecExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments.map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
+    : "- 개발 전에 측정 가능한 실험을 하나 정의합니다.";
+}
+
+export function buildMvpSliceExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments
+        .slice(0, 5)
+        .map(
+          (experiment) =>
+            `- ${experiment.name} (${experimentStatusLabels[experiment.status] ?? experiment.status}): ${
+              experiment.success_metric || "성공 지표 미정"
+            }`,
+        )
+        .join("\n")
+    : "- 아직 연결된 실험이 없습니다. 먼저 인터뷰, 랜딩, 수동 운영 테스트 중 하나를 만듭니다.";
+}
+
+export function buildMvpSliceHighRiskLines(risks: Risk[]) {
+  const highRiskLines = getHighMvpScopeRisks(risks).map(
+    (risk) =>
+      `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
+        risk.mitigation || "완화 조건 미정"
+      }`,
+  );
+
+  return highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 높음/치명 리스크가 없습니다.";
+}
+
+export function buildMvpSliceApprovedArtifactLines(artifacts: VentureArtifact[]) {
+  const approvedArtifactLines = getApprovedMvpScopeArtifacts(artifacts)
+    .slice(0, 6)
+    .map((artifact) => `- ${artifactLabels[artifact.artifact_type]}: ${artifact.title}`);
+
+  return approvedArtifactLines.length > 0 ? approvedArtifactLines.join("\n") : "- 승인된 제품 제작 자료가 없습니다. 제품 기획서, 디자인 기준, 기술 명세 중 최소 하나를 승인하세요.";
+}
+
+export function getMvpSlicePrimaryMetric(experiments: Experiment[], state: MvpScopeState) {
+  const firstExperiment = getFirstMetricMvpScopeExperiment(experiments);
+
+  return firstExperiment?.success_metric || state.next_evidence || "사용자가 핵심 여정을 완료하고 다음 테스트 또는 구매 의향을 남깁니다.";
+}
+
 export function buildMvpSpecMarkdown({
   idea,
   state,
@@ -37,12 +82,7 @@ export function buildMvpSpecMarkdown({
   const designRun = getMvpScopeRunByPhase(runs, "design");
   const qaRun = getMvpScopeRunByPhase(runs, "qa");
   const securityRun = getMvpScopeRunByPhase(runs, "security");
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`)
-          .join("\n")
-      : "- 개발 전에 측정 가능한 실험을 하나 정의합니다.";
+  const experimentLines = buildMvpSpecExperimentLines(experiments);
 
   return `# 첫 제작 범위: ${idea.name}
 
@@ -170,29 +210,10 @@ export function buildMvpSlicePlanMarkdown({
   artifacts: VentureArtifact[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .slice(0, 5)
-          .map(
-            (experiment) =>
-              `- ${experiment.name} (${experimentStatusLabels[experiment.status] ?? experiment.status}): ${
-                experiment.success_metric || "성공 지표 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 아직 연결된 실험이 없습니다. 먼저 인터뷰, 랜딩, 수동 운영 테스트 중 하나를 만듭니다.";
-  const highRiskLines = getHighMvpScopeRisks(risks).map(
-    (risk) =>
-      `- ${risk.title} (${riskSeverityLabels[risk.severity]}, ${riskStatusLabels[risk.status] ?? risk.status}): ${
-        risk.mitigation || "완화 조건 미정"
-      }`,
-  );
-  const approvedArtifactLines = getApprovedMvpScopeArtifacts(artifacts)
-    .slice(0, 6)
-    .map((artifact) => `- ${artifactLabels[artifact.artifact_type]}: ${artifact.title}`);
-  const firstExperiment = getFirstMetricMvpScopeExperiment(experiments);
-  const primaryMetric = firstExperiment?.success_metric || state.next_evidence || "사용자가 핵심 여정을 완료하고 다음 테스트 또는 구매 의향을 남깁니다.";
+  const experimentLines = buildMvpSliceExperimentLines(experiments);
+  const highRiskLines = buildMvpSliceHighRiskLines(risks);
+  const approvedArtifactLines = buildMvpSliceApprovedArtifactLines(artifacts);
+  const primaryMetric = getMvpSlicePrimaryMetric(experiments, state);
 
   return `# 첫 제작 범위 플랜: ${idea.name}
 
@@ -219,11 +240,11 @@ ${experimentLines}
 
 ### 승인된 제작 자료
 
-${approvedArtifactLines.length > 0 ? approvedArtifactLines.join("\n") : "- 승인된 제품 제작 자료가 없습니다. 제품 기획서, 디자인 기준, 기술 명세 중 최소 하나를 승인하세요."}
+${approvedArtifactLines}
 
 ### 높은 리스크
 
-${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 높음/치명 리스크가 없습니다."}
+${highRiskLines}
 
 ## 0단계. 수동 검증
 

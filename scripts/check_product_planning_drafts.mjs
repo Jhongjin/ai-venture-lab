@@ -58,9 +58,14 @@ const {
   hasAppDevelopmentPlanArtifactType,
 } = await import(appDevelopmentPlanUrl);
 const {
+  buildMvpSliceApprovedArtifactLines,
+  buildMvpSliceExperimentLines,
+  buildMvpSliceHighRiskLines,
+  buildMvpSpecExperimentLines,
   getApprovedMvpScopeArtifacts,
   getFirstMetricMvpScopeExperiment,
   getHighMvpScopeRisks,
+  getMvpSlicePrimaryMetric,
   getMvpScopeRunByPhase,
 } = await import(mvpScopeUrl);
 const {
@@ -223,6 +228,22 @@ assert.deepEqual(
   getApprovedMvpScopeArtifacts(artifacts).map((artifact) => artifact.id),
   ["artifact-1"],
 );
+assert.match(buildMvpSpecExperimentLines(experiments), /운영자 인터뷰/);
+assert.equal(buildMvpSpecExperimentLines([]), "- 개발 전에 측정 가능한 실험을 하나 정의합니다.");
+assert.match(buildMvpSliceExperimentLines(experiments), /외부 도구 전달 자료가 바로 실행 가능한지 확인/);
+assert.equal(
+  buildMvpSliceExperimentLines([]),
+  "- 아직 연결된 실험이 없습니다. 먼저 인터뷰, 랜딩, 수동 운영 테스트 중 하나를 만듭니다.",
+);
+assert.match(buildMvpSliceHighRiskLines(risks), /원문 저장 전 식별자 제거/);
+assert.equal(buildMvpSliceHighRiskLines([]), "- 높음/치명 리스크가 없습니다.");
+assert.match(buildMvpSliceApprovedArtifactLines(artifacts), /AI Venture Lab 제품 기획서/);
+assert.equal(
+  buildMvpSliceApprovedArtifactLines([]),
+  "- 승인된 제품 제작 자료가 없습니다. 제품 기획서, 디자인 기준, 기술 명세 중 최소 하나를 승인하세요.",
+);
+assert.equal(getMvpSlicePrimaryMetric(experiments, state), "외부 도구 전달 자료가 바로 실행 가능한지 확인");
+assert.equal(getMvpSlicePrimaryMetric([], { ...state, next_evidence: "다음 증거" }), "다음 증거");
 assert.equal(
   getFirstMetricMvpScopeExperiment([
     { ...experiments[0], id: "exp-empty", success_metric: "" },
