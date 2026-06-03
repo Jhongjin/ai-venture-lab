@@ -52,6 +52,8 @@ const {
   buildCursorSetupDownloadConfig,
   buildLiveExternalToolSetupDownloadDraft,
   buildLiveToolSetupPowerShell,
+  buildSetupFileRows,
+  escapePowerShellSingleQuoted,
 } = await import(moduleUrl);
 
 const idea = {
@@ -61,6 +63,12 @@ const idea = {
 const productSurface = {
   label: "운영 콘솔",
 };
+
+assert.equal(escapePowerShellSingleQuoted("a'b"), "a''b");
+assert.equal(
+  buildSetupFileRows([{ base64: "abc", path: ".cursor/rules/owner's-rule.mdc" }]),
+  "  @{ Path = '.cursor/rules/owner''s-rule.mdc'; Base64 = 'abc' }",
+);
 
 const cursorConfig = buildCursorSetupDownloadConfig({
   cursorMcpConfigDraft: "cursor mcp config",

@@ -88,11 +88,11 @@ export type AntigravitySetupDownloadConfigDrafts = {
   finalAgentRunPackageDraft: string;
 };
 
-function escapePowerShellSingleQuoted(value: string) {
+export function escapePowerShellSingleQuoted(value: string) {
   return value.replace(/'/g, "''");
 }
 
-function buildSetupFileRows(files: SetupFile[]) {
+export function buildSetupFileRows(files: ExternalToolEncodedSetupFile[]) {
   return files.map((file) => `  @{ Path = '${escapePowerShellSingleQuoted(file.path)}'; Base64 = '${file.base64}' }`).join("\n");
 }
 
