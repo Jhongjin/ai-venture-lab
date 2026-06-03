@@ -31,6 +31,7 @@ const {
   buildStep8LearningDisplayState,
   buildStep8LearningSummary,
   buildStep8ProgressSummary,
+  sortStep8ProgressTasks,
 } = await import(moduleUrl);
 
 function task({ evidence = "", id, sortOrder, status, taskType, title }) {
@@ -154,12 +155,21 @@ assert.match(learningSummary.learningPrimaryActionText, /T-002 첫 화면 제작
 const progressSummary = buildStep8ProgressSummary({
   evidenceByTaskId: {},
   nextImplementationTaskId: context.nextTaskId,
-  tasks,
+  tasks: [tasks[2], tasks[0], tasks[1]],
 });
 assert.equal(progressSummary.progressTitle, "다음 작업 하나만 확인");
+assert.deepEqual(sortStep8ProgressTasks([tasks[2], tasks[0], tasks[1]]).map((item) => item.id), [
+  "task-planning",
+  "task-frontend",
+  "task-qa",
+]);
 assert.deepEqual(
   progressSummary.progressItems.filter((item) => item.isNext).map((item) => item.code),
   ["T-002"],
+);
+assert.deepEqual(
+  progressSummary.progressItems.map((item) => item.id),
+  ["task-planning", "task-frontend", "task-qa"],
 );
 assert.equal(progressSummary.progressItems[0].isDone, true);
 

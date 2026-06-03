@@ -409,8 +409,7 @@ export function buildStep8ProgressSummary({
   nextImplementationTaskId: string | null;
   tasks: ReadonlyArray<ImplementationTask>;
 }): Step8ProgressSummary {
-  const progressItems = [...tasks]
-    .sort((a, b) => a.sort_order - b.sort_order)
+  const progressItems = sortStep8ProgressTasks(tasks)
     .map((task, index) => {
       const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
       const checklist = getImplementationEvidenceChecklist(task, evidence);
@@ -465,4 +464,8 @@ export function buildStep8ProgressSummary({
     progressItems,
     progressTitle,
   };
+}
+
+export function sortStep8ProgressTasks(tasks: ReadonlyArray<ImplementationTask>) {
+  return [...tasks].sort((a, b) => a.sort_order - b.sort_order);
 }
