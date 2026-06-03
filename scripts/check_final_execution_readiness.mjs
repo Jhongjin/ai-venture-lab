@@ -39,6 +39,7 @@ const {
   hasFinalExecutionWorkOrder,
   selectFinalExecutionLiveToolKey,
   selectFinalExecutionLiveSetupDownload,
+  summarizeFinalExecutionReadinessChecks,
 } = await import(moduleUrl);
 
 const { productSurfaceProfiles } = await import(productSurfaceUrl);
@@ -92,6 +93,26 @@ const readiness = buildFinalExecutionReadiness({
 });
 assert.equal(readiness.canEnterLaunch, true);
 assert.equal(readiness.score, 100);
+assert.deepEqual(summarizeFinalExecutionReadinessChecks(readiness.checks), {
+  passedCount: 3,
+  score: 100,
+  nextBlocker: null,
+  canEnterLaunch: true,
+});
+const blockedReadinessSummary = summarizeFinalExecutionReadinessChecks([
+  { label: "제작 패키지 저장", passed: true, detail: "ready" },
+  { label: "작업 순서 준비", passed: false, detail: "missing" },
+]);
+assert.equal(blockedReadinessSummary.passedCount, 1);
+assert.equal(blockedReadinessSummary.score, 50);
+assert.equal(blockedReadinessSummary.nextBlocker.label, "작업 순서 준비");
+assert.equal(blockedReadinessSummary.canEnterLaunch, false);
+assert.deepEqual(summarizeFinalExecutionReadinessChecks([]), {
+  passedCount: 0,
+  score: 0,
+  nextBlocker: null,
+  canEnterLaunch: false,
+});
 
 const connections = [
   {

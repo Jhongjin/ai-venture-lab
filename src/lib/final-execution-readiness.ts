@@ -192,13 +192,23 @@ export function buildFinalExecutionReadiness({
         },
       ]
     : [];
+  const summary = summarizeFinalExecutionReadinessChecks(checks);
+
+  return {
+    checks,
+    ...summary,
+  };
+}
+
+export function summarizeFinalExecutionReadinessChecks(
+  checks: FinalExecutionReadinessCheck[],
+): Omit<FinalExecutionReadiness, "checks"> {
   const passedCount = checks.filter((check) => check.passed).length;
   const score = checks.length === 0 ? 0 : Math.round((passedCount / checks.length) * 100);
   const nextBlocker = checks.find((check) => !check.passed) ?? null;
   const canEnterLaunch = checks.length > 0 && !nextBlocker;
 
   return {
-    checks,
     passedCount,
     score,
     nextBlocker,
