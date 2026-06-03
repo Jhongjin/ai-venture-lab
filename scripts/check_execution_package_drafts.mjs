@@ -69,7 +69,11 @@ const moduleUrl = transpileModuleUrl("src/lib/execution-package-drafts.ts", [
 ]);
 
 const { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftState } = await import(moduleUrl);
-const { getApprovedAgentRunPackageArtifacts } = await import(agentRunPackageArtifactsUrl);
+const {
+  compareApprovedAgentRunPackageArtifactsByCreatedAt,
+  getAgentRunPackageArtifactCreatedAtTime,
+  getApprovedAgentRunPackageArtifacts,
+} = await import(agentRunPackageArtifactsUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -154,6 +158,32 @@ assert.deepEqual(
     { id: "newer-approved", status: "approved", created_at: "2026-06-02T00:00:00.000Z" },
   ]).map((artifact) => artifact.id),
   ["newer-approved", "older-approved"],
+);
+assert.equal(
+  getAgentRunPackageArtifactCreatedAtTime({ created_at: "2026-06-02T00:00:00.000Z" }),
+  Date.parse("2026-06-02T00:00:00.000Z"),
+);
+assert.equal(getAgentRunPackageArtifactCreatedAtTime({ created_at: "not-a-date" }), 0);
+assert.equal(
+  compareApprovedAgentRunPackageArtifactsByCreatedAt(
+    { created_at: "2026-06-01T00:00:00.000Z" },
+    { created_at: "2026-06-02T00:00:00.000Z" },
+  ) > 0,
+  true,
+);
+assert.equal(
+  compareApprovedAgentRunPackageArtifactsByCreatedAt(
+    { created_at: "2026-06-02T00:00:00.000Z" },
+    { created_at: "2026-06-01T00:00:00.000Z" },
+  ) < 0,
+  true,
+);
+assert.equal(
+  compareApprovedAgentRunPackageArtifactsByCreatedAt(
+    { created_at: "not-a-date" },
+    { created_at: "not-a-date" },
+  ),
+  0,
 );
 
 const agentRunPackageSource = readFileSync(
