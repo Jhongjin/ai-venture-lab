@@ -632,6 +632,13 @@ export function buildImplementationTaskCardSummary(
   };
 }
 
+export function getImplementationTasksByStatus(
+  tasks: ImplementationTask[],
+  status: ImplementationTaskStatus,
+): ImplementationTask[] {
+  return tasks.filter((task) => task.status === status);
+}
+
 export function buildImplementationTaskBoardColumns({
   evidenceByTaskId,
   statuses,
@@ -643,9 +650,9 @@ export function buildImplementationTaskBoardColumns({
 }): ImplementationTaskBoardColumn[] {
   return statuses.map((status) => ({
     status,
-    taskSummaries: tasks
-      .filter((task) => task.status === status)
-      .map((task) => buildImplementationTaskCardSummary(task, evidenceByTaskId)),
+    taskSummaries: getImplementationTasksByStatus(tasks, status).map((task) =>
+      buildImplementationTaskCardSummary(task, evidenceByTaskId),
+    ),
   }));
 }
 

@@ -3,7 +3,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-metadata.ts")).href;
-const { buildImplementationTaskBoardColumns, getVisibleImplementationTaskStatuses } = await import(moduleUrl);
+const { buildImplementationTaskBoardColumns, getImplementationTasksByStatus, getVisibleImplementationTaskStatuses } =
+  await import(moduleUrl);
 
 function task({ evidence = "", id, ownerRole = "", priority = "medium", status, taskType }) {
   return {
@@ -41,6 +42,11 @@ const tasks = [
 
 assert.deepEqual(getVisibleImplementationTaskStatuses("all"), ["todo", "doing", "blocked", "done"]);
 assert.deepEqual(getVisibleImplementationTaskStatuses("blocked"), ["blocked"]);
+assert.deepEqual(
+  getImplementationTasksByStatus(tasks, "todo").map((item) => item.id),
+  ["task-frontend"],
+);
+assert.deepEqual(getImplementationTasksByStatus(tasks, "doing"), []);
 
 const columns = buildImplementationTaskBoardColumns({
   evidenceByTaskId: {
