@@ -23,6 +23,11 @@ const {
   getImplementationTaskCreatedAtTime,
   getNextImplementationTaskForRefresh,
   getOpenImplementationTasksForAction,
+  hasImplementationTaskEvidenceGap,
+  matchesImplementationTaskEvidenceFilter,
+  matchesImplementationTaskFilters,
+  matchesImplementationTaskOwnerFilter,
+  matchesImplementationTaskStatusFilter,
   resolveImplementationOwnerFilter,
   selectAgentRunPackageTasks,
   sortImplementationOwnerRoles,
@@ -137,6 +142,8 @@ assert.deepEqual(
   }).map((item) => item.id),
   ["task-backend"],
 );
+assert.equal(matchesImplementationTaskStatusFilter(tasks[1], "doing"), true);
+assert.equal(matchesImplementationTaskStatusFilter(tasks[1], "done"), false);
 
 assert.deepEqual(
   filterImplementationTasks({
@@ -148,6 +155,8 @@ assert.deepEqual(
   }).map((item) => item.id),
   ["task-qa"],
 );
+assert.equal(matchesImplementationTaskOwnerFilter(tasks[2], "owner 미정"), true);
+assert.equal(matchesImplementationTaskOwnerFilter(tasks[2], "backend"), false);
 
 assert.deepEqual(
   filterImplementationTasks({
@@ -158,6 +167,15 @@ assert.deepEqual(
     tasks,
   }).map((item) => item.id),
   ["task-frontend"],
+);
+assert.equal(hasImplementationTaskEvidenceGap(tasks[0], {}), true);
+assert.equal(
+  matchesImplementationTaskEvidenceFilter({
+    evidenceByTaskId: {},
+    evidenceFilter: "missing",
+    task: tasks[0],
+  }),
+  true,
 );
 
 assert.deepEqual(
@@ -171,6 +189,29 @@ assert.deepEqual(
     tasks,
   }).map((item) => item.id),
   ["task-frontend", "task-design"],
+);
+assert.equal(hasImplementationTaskEvidenceGap(tasks[0], { "task-frontend": "commit abc pnpm smoke 저장 로딩" }), false);
+assert.equal(
+  matchesImplementationTaskEvidenceFilter({
+    evidenceByTaskId: {
+      "task-frontend": "commit abc pnpm smoke 저장 로딩",
+    },
+    evidenceFilter: "complete",
+    task: tasks[0],
+  }),
+  true,
+);
+assert.equal(
+  matchesImplementationTaskFilters({
+    evidenceByTaskId: {
+      "task-frontend": "commit abc pnpm smoke 저장 로딩",
+    },
+    evidenceFilter: "complete",
+    ownerFilter: "frontend",
+    statusFilter: "todo",
+    task: tasks[0],
+  }),
+  true,
 );
 
 assert.deepEqual(

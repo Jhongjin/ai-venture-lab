@@ -391,17 +391,76 @@ export function filterImplementationTasks({
   tasks: ImplementationTask[];
 }) {
   return tasks.filter((task) => {
-    const currentEvidence = getImplementationTaskEvidence(task, evidenceByTaskId);
-    const hasEvidenceGap = getImplementationEvidenceChecklist(task, currentEvidence).some((item) => !item.passed);
-    const matchesStatus = statusFilter === "all" || task.status === statusFilter;
-    const matchesOwner = ownerFilter === "all" || getImplementationTaskOwnerRole(task) === ownerFilter;
-    const matchesEvidence =
-      evidenceFilter === "all" ||
-      (evidenceFilter === "missing" && hasEvidenceGap) ||
-      (evidenceFilter === "complete" && !hasEvidenceGap);
-
-    return matchesStatus && matchesOwner && matchesEvidence;
+    return matchesImplementationTaskFilters({
+      evidenceByTaskId,
+      evidenceFilter,
+      ownerFilter,
+      statusFilter,
+      task,
+    });
   });
+}
+
+export function matchesImplementationTaskFilters({
+  evidenceByTaskId,
+  evidenceFilter,
+  ownerFilter,
+  statusFilter,
+  task,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  evidenceFilter: ImplementationEvidenceFilter;
+  ownerFilter: string;
+  statusFilter: ImplementationStatusFilter;
+  task: ImplementationTask;
+}) {
+  return (
+    matchesImplementationTaskStatusFilter(task, statusFilter) &&
+    matchesImplementationTaskOwnerFilter(task, ownerFilter) &&
+    matchesImplementationTaskEvidenceFilter({
+      evidenceByTaskId,
+      evidenceFilter,
+      task,
+    })
+  );
+}
+
+export function matchesImplementationTaskStatusFilter(
+  task: ImplementationTask,
+  statusFilter: ImplementationStatusFilter,
+) {
+  return statusFilter === "all" || task.status === statusFilter;
+}
+
+export function matchesImplementationTaskOwnerFilter(task: ImplementationTask, ownerFilter: string) {
+  return ownerFilter === "all" || getImplementationTaskOwnerRole(task) === ownerFilter;
+}
+
+export function matchesImplementationTaskEvidenceFilter({
+  evidenceByTaskId,
+  evidenceFilter,
+  task,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  evidenceFilter: ImplementationEvidenceFilter;
+  task: ImplementationTask;
+}) {
+  if (evidenceFilter === "all") {
+    return true;
+  }
+
+  const hasEvidenceGap = hasImplementationTaskEvidenceGap(task, evidenceByTaskId);
+
+  return evidenceFilter === "missing" ? hasEvidenceGap : !hasEvidenceGap;
+}
+
+export function hasImplementationTaskEvidenceGap(
+  task: ImplementationTask,
+  evidenceByTaskId: Record<string, string>,
+) {
+  const currentEvidence = getImplementationTaskEvidence(task, evidenceByTaskId);
+
+  return getImplementationEvidenceChecklist(task, currentEvidence).some((item) => !item.passed);
 }
 
 function getImplementationTaskEvidence(task: ImplementationTask, evidenceByTaskId: Record<string, string>) {
