@@ -21,10 +21,14 @@ export const workspaceRecordTables = [
   "implementation_tasks",
 ] as const;
 
+export function buildDefaultWorkspaceSlug(userId: string) {
+  return `ai-venture-lab-${userId.slice(0, 8)}`;
+}
+
 export function buildDefaultWorkspaceInsertRow({ userId }: { userId: string }): OrganizationInsert {
   return {
     name: defaultWorkspaceName,
-    slug: `ai-venture-lab-${userId.slice(0, 8)}`,
+    slug: buildDefaultWorkspaceSlug(userId),
     created_by: userId,
   };
 }

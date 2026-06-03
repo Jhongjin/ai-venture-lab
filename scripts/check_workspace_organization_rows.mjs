@@ -7,6 +7,7 @@ const {
   addableOrganizationRoles,
   buildAddOrganizationMemberParams,
   buildAttachPersonalRecordsPatch,
+  buildDefaultWorkspaceSlug,
   buildDefaultWorkspaceInsertRow,
   buildRemoveOrganizationMemberParams,
   buildUpdateOrganizationMemberRoleParams,
@@ -32,6 +33,8 @@ assert.deepEqual(workspaceRecordTables, [
   "venture_artifacts",
   "implementation_tasks",
 ]);
+assert.equal(buildDefaultWorkspaceSlug("user-1234567890"), "ai-venture-lab-user-123");
+assert.equal(buildDefaultWorkspaceSlug("abc"), "ai-venture-lab-abc");
 assert.deepEqual(buildDefaultWorkspaceInsertRow({ userId: "user-1234567890" }), {
   created_by: "user-1234567890",
   name: "AI Venture Lab",
