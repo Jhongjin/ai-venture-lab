@@ -19,6 +19,7 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildWorkbenchRiskStatusCounts,
   compareWorkbenchArtifactsByCreatedAtDesc,
   compareWorkbenchImplementationTasksByCreatedAtAsc,
   compareWorkbenchImplementationTasksByOrder,
@@ -60,6 +61,11 @@ assert.deepEqual(
   getOpenIdeaRisks(getSelectedIdeaRisks(risks, ideaId)).map((risk) => risk.id),
   ["selected-mitigating"],
 );
+assert.deepEqual(buildWorkbenchRiskStatusCounts(getSelectedRisks(risks, ideaId)), {
+  total: 3,
+  open: 1,
+  mitigating: 1,
+});
 
 const decisions = Array.from({ length: 5 }, (_, index) => ({ id: `decision-${index + 1}`, idea_id: ideaId }));
 assert.deepEqual(

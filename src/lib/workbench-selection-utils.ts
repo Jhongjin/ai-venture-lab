@@ -21,6 +21,14 @@ export function getOpenIdeaRisks(risks: Risk[]) {
   return risks.filter((risk) => risk.status !== "closed");
 }
 
+export function buildWorkbenchRiskStatusCounts(risks: Risk[]) {
+  return {
+    total: risks.length,
+    open: risks.filter((risk) => risk.status === "open").length,
+    mitigating: risks.filter((risk) => risk.status === "mitigating").length,
+  };
+}
+
 export function getSelectedDecisions(decisions: Decision[], ideaId: string | null | undefined, limit = 4) {
   return decisions.filter((entry) => entry.idea_id === ideaId).slice(0, limit);
 }

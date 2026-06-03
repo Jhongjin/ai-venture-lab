@@ -289,7 +289,10 @@ import {
   type RiskDraft,
   type RunDraft,
 } from "@/lib/workbench-draft-defaults";
-import { getSelectedWorkbenchCollections } from "@/lib/workbench-selection-utils";
+import {
+  buildWorkbenchRiskStatusCounts,
+  getSelectedWorkbenchCollections,
+} from "@/lib/workbench-selection-utils";
 import {
   buildCursorProgressEmptyInputMessage,
   buildCursorProgressFileLoadedMessage,
@@ -935,6 +938,7 @@ export function IdeaWorkbench({
       }),
     [artifacts, decisionLog, experiments, implementationTasks, orchestrationRuns, risks, selectedIdea?.id, telemetryEvents],
   );
+  const riskStatusCounts = buildWorkbenchRiskStatusCounts(selectedRisks);
   const {
     isCreditSystemReady,
     isCreditSystemMissing,
@@ -6345,19 +6349,15 @@ export function IdeaWorkbench({
               <div className="avl-surface-muted mt-4 grid gap-3 px-4 py-3 sm:grid-cols-3">
                 <div>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">현재 위험 수</div>
-                  <div className="mt-1 text-lg font-semibold text-slate-950">{selectedRisks.length}개</div>
+                  <div className="mt-1 text-lg font-semibold text-slate-950">{riskStatusCounts.total}개</div>
                 </div>
                 <div>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">열린 위험</div>
-                  <div className="mt-1 text-lg font-semibold text-slate-950">
-                    {selectedRisks.filter((risk) => risk.status === "open").length}개
-                  </div>
+                  <div className="mt-1 text-lg font-semibold text-slate-950">{riskStatusCounts.open}개</div>
                 </div>
                 <div>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">대응 중</div>
-                  <div className="mt-1 text-lg font-semibold text-slate-950">
-                    {selectedRisks.filter((risk) => risk.status === "mitigating").length}개
-                  </div>
+                  <div className="mt-1 text-lg font-semibold text-slate-950">{riskStatusCounts.mitigating}개</div>
                 </div>
               </div>
               <div className="mt-4">
