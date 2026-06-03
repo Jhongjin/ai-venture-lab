@@ -64,6 +64,7 @@ const {
   canCopyStep8LearningReport,
   compareStep8ProgressTasks,
   formatStep8TaskCodePrefix,
+  getStep8ImplementationTaskCode,
   sortStep8ProgressTasks,
 } = await import(moduleUrl);
 
@@ -179,6 +180,9 @@ const context = buildStep8ImplementationTaskContext({
 });
 assert.equal(context.nextTask.id, "task-frontend");
 assert.equal(context.nextTaskCode, "T-002");
+assert.equal(getStep8ImplementationTaskCode({ task: tasks[1], tasks }), "T-002");
+assert.equal(getStep8ImplementationTaskCode({ task: { id: "missing-task" }, tasks }), null);
+assert.equal(getStep8ImplementationTaskCode({ task: null, tasks }), null);
 assert.equal(context.nextTaskId, "task-frontend");
 assert.equal(context.readyStatuses.length, 1);
 assert.equal(context.waitingStatuses.length, 1);

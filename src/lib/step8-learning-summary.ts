@@ -161,18 +161,29 @@ export function buildStep8ImplementationTaskContext({
     openTasks,
   });
   const nextTask = readinessQueues.nextTask;
-  const nextTaskIndex = nextTask ? tasks.findIndex((task) => task.id === nextTask.id) : -1;
 
   return {
     completedTasks: progressStats.completedTasks,
     nextDependencyStatus: readinessQueues.nextDependencyStatus,
     nextTask,
-    nextTaskCode: nextTaskIndex >= 0 ? getCursorTaskCode(nextTaskIndex) : null,
+    nextTaskCode: getStep8ImplementationTaskCode({ task: nextTask, tasks }),
     nextTaskId: nextTask?.id ?? null,
     readyStatuses: readinessQueues.readyStatuses,
     totalCount: progressStats.totalCount,
     waitingStatuses: readinessQueues.waitingStatuses,
   };
+}
+
+export function getStep8ImplementationTaskCode({
+  task,
+  tasks,
+}: {
+  task: Pick<ImplementationTask, "id"> | null;
+  tasks: Pick<ImplementationTask, "id">[];
+}) {
+  const taskIndex = task ? tasks.findIndex((item) => item.id === task.id) : -1;
+
+  return taskIndex >= 0 ? getCursorTaskCode(taskIndex) : null;
 }
 
 export function buildStep8LearningSummary({
