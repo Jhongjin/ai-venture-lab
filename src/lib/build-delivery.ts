@@ -20,6 +20,11 @@ export type BuildDeliveryPreference = {
   externalTool: ExternalBuildToolKey;
 };
 
+export type BuildDeliveryPreferenceArtifact = {
+  body?: string | null;
+  created_at?: string | null;
+};
+
 export type FinalExternalToolOverride = {
   ideaId: string | null;
   key: ExternalBuildToolKey;
@@ -317,14 +322,20 @@ export function getBuildDeliveryPreferenceFromText(text: string | null | undefin
   });
 }
 
-export function getBuildDeliveryPreferenceFromArtifacts(
-  artifacts: Array<{ body?: string | null; created_at?: string | null }>,
-) {
-  const sortedArtifacts = [...artifacts].sort(
-    (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
-  );
+function getBuildDeliveryPreferenceArtifactTime(artifact: BuildDeliveryPreferenceArtifact) {
+  const timestamp = new Date(artifact.created_at ?? 0).getTime();
 
-  for (const artifact of sortedArtifacts) {
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+export function sortBuildDeliveryPreferenceArtifacts(artifacts: BuildDeliveryPreferenceArtifact[]) {
+  return [...artifacts].sort(
+    (a, b) => getBuildDeliveryPreferenceArtifactTime(b) - getBuildDeliveryPreferenceArtifactTime(a),
+  );
+}
+
+export function getBuildDeliveryPreferenceFromArtifacts(artifacts: BuildDeliveryPreferenceArtifact[]) {
+  for (const artifact of sortBuildDeliveryPreferenceArtifacts(artifacts)) {
     const preference = getBuildDeliveryPreferenceFromText(artifact.body);
 
     if (preference) {

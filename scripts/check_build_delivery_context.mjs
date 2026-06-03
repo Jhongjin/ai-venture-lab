@@ -3,7 +3,13 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/build-delivery.ts")).href;
-const { getBuildDeliveryActionPhrase, normalizeBuildDeliveryPreference, resolveBuildDeliveryContext } = await import(moduleUrl);
+const {
+  getBuildDeliveryActionPhrase,
+  getBuildDeliveryPreferenceFromArtifacts,
+  normalizeBuildDeliveryPreference,
+  resolveBuildDeliveryContext,
+  sortBuildDeliveryPreferenceArtifacts,
+} = await import(moduleUrl);
 
 const preference = normalizeBuildDeliveryPreference({
   mode: "external_tool",
@@ -71,5 +77,33 @@ assert.equal(
   }),
   "Venture Lab에서 계속 진행합니다",
 );
+
+const deliveryArtifacts = [
+  {
+    body: "build_delivery_mode: external_tool\nexternal_tool: cursor",
+    created_at: "2026-06-01T00:00:00.000Z",
+    id: "older",
+  },
+  {
+    body: "build_delivery_mode: venture_lab\nexternal_tool: codex",
+    created_at: "2026-06-03T00:00:00.000Z",
+    id: "newer",
+  },
+  {
+    body: "not a delivery preference",
+    created_at: "2026-06-04T00:00:00.000Z",
+    id: "ignored-newest",
+  },
+];
+assert.deepEqual(sortBuildDeliveryPreferenceArtifacts(deliveryArtifacts).map((artifact) => artifact.id), [
+  "ignored-newest",
+  "newer",
+  "older",
+]);
+assert.deepEqual(deliveryArtifacts.map((artifact) => artifact.id), ["older", "newer", "ignored-newest"]);
+assert.deepEqual(getBuildDeliveryPreferenceFromArtifacts(deliveryArtifacts), {
+  mode: "venture_lab",
+  externalTool: "codex",
+});
 
 console.log("Build delivery context smoke passed.");
