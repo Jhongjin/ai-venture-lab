@@ -61,7 +61,7 @@ export function inferIdeaDomain(idea: Idea, state: Pick<ValidationPlanningState,
   return "generic";
 }
 
-function includesAnyNormalized(text: string, terms: string[]) {
+export function includesAnyNormalized(text: string, terms: string[]) {
   const normalized = text.toLowerCase();
 
   return terms.some((term) => normalized.includes(term.toLowerCase()));

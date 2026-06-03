@@ -53,7 +53,14 @@ const {
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
 } = await import(moduleUrl);
-const { buildValidationPlanningReviewState, getValidationPlanExperimentPreview } = await import(validationPlanningUrl);
+const { buildValidationPlanningReviewState, getValidationPlanExperimentPreview, includesAnyNormalized } =
+  await import(validationPlanningUrl);
+
+assert.equal(includesAnyNormalized("반복 검증 자동화 수요", ["반복"]), true);
+assert.equal(includesAnyNormalized("Weekly validation demand", ["weekly"]), true);
+assert.equal(includesAnyNormalized("Weekly validation demand", ["WEEKLY"]), true);
+assert.equal(includesAnyNormalized("검증 자동화 수요", ["결제", "구독"]), false);
+assert.equal(includesAnyNormalized("검증 자동화 수요", []), false);
 
 assert.deepEqual(
   getValidationPlanExperimentPreview([
