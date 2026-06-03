@@ -89,7 +89,14 @@ const {
   isFirebaseQaBackend,
 } = await import(qaAcceptanceUrl);
 const {
+  buildMvpBuildArtifactQueueLines,
+  buildMvpBuildSurfaceExclusionLine,
+  buildMvpBuildTaskSnapshotLines,
+  buildReadyMvpBuildTaskLines,
+  buildWaitingMvpBuildTaskLines,
+  formatMvpBuildLaunchInstruction,
   getApprovedMvpBuildArtifacts,
+  getNextMvpBuildReleaseBlocker,
   getOpenMvpBuildDependencyStatuses,
   getReadyMvpBuildDependencyStatuses,
   getRecommendedMvpBuildBackend,
@@ -286,6 +293,34 @@ assert.deepEqual(
   ["task-waiting"],
 );
 assert.equal(getApprovedMvpBuildArtifacts(artifactReviewQueue).length, 2);
+assert.match(buildMvpBuildSurfaceExclusionLine("web_site"), /내부 운영 콘솔/);
+assert.match(buildMvpBuildSurfaceExclusionLine("operator_console"), /마케팅 랜딩 페이지/);
+assert.equal(
+  getNextMvpBuildReleaseBlocker({
+    blockers: ["배포 로그"],
+    recommendation: "research_more",
+  }),
+  "배포 로그",
+);
+assert.equal(getNextMvpBuildReleaseBlocker(null), "출시 판단 패킷이 아직 없습니다.");
+assert.match(
+  formatMvpBuildLaunchInstruction({
+    blockers: [],
+    recommendation: "ship",
+  }),
+  /출시 하드닝/,
+);
+assert.match(formatMvpBuildLaunchInstruction(null), /공개 출시 작업은 보류/);
+assert.match(buildReadyMvpBuildTaskLines([openDependencyStatusFixtures[0]]), /제작 패키지 리뷰 화면/);
+assert.equal(
+  buildReadyMvpBuildTaskLines([]),
+  "1. 바로 시작 가능한 태스크가 없습니다. 선행 조건 또는 제작 자료 승인을 먼저 닫습니다.",
+);
+assert.match(buildWaitingMvpBuildTaskLines([openDependencyStatusFixtures[1]]), /대기 해소/);
+assert.equal(buildWaitingMvpBuildTaskLines([]), "- 선행 조건 때문에 대기 중인 태스크가 없습니다.");
+assert.match(buildMvpBuildTaskSnapshotLines(implementationTasks), /출시 권한 경계 점검/);
+assert.equal(buildMvpBuildTaskSnapshotLines([]), "- 구현 태스크가 없습니다. 먼저 기본 태스크를 생성하세요.");
+assert.match(buildMvpBuildArtifactQueueLines(artifactReviewQueue), /\[x\] 출시 체크리스트/);
 assert.equal(countPassedReleaseDecisionChecks(gateChecks), 2);
 assert.equal(countApprovedReleaseDecisionArtifacts(artifactReviewQueue), 2);
 assert.equal(countDoneReleaseDecisionTasks(implementationTasks), 2);

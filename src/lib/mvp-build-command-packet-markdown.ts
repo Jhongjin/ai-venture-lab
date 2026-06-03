@@ -57,6 +57,66 @@ export function getApprovedMvpBuildArtifacts(artifactReviewQueue: MvpBuildArtifa
   return artifactReviewQueue.filter((item) => item.status === "approved");
 }
 
+export function buildMvpBuildSurfaceExclusionLine(productSurfaceKey: string) {
+  return productSurfaceKey === "web_site"
+    ? "- 복잡한 내부 운영 콘솔이나 다단계 CRM 자동화를 첫 슬라이스에 끼워 넣지 않는다."
+    : "- 마케팅 랜딩 페이지 중심으로 만들지 않는다.";
+}
+
+export function getNextMvpBuildReleaseBlocker(releaseDecisionPacket: MvpBuildReleaseDecisionPacket | null) {
+  return releaseDecisionPacket?.blockers[0] ?? "출시 판단 패킷이 아직 없습니다.";
+}
+
+export function formatMvpBuildLaunchInstruction(releaseDecisionPacket: MvpBuildReleaseDecisionPacket | null) {
+  return releaseDecisionPacket?.recommendation === "ship"
+    ? "출시 하드닝까지 진행 가능하지만 Production 반영 전 smoke, inspect URL, 롤백 기준을 완료 보고에 남깁니다."
+    : "공개 출시 작업은 보류하고, 아래 차단 항목을 해소하는 첫 제작/검증 범위만 구현합니다.";
+}
+
+export function buildReadyMvpBuildTaskLines(readyTasks: MvpBuildDependencyStatus[]) {
+  if (readyTasks.length === 0) {
+    return "1. 바로 시작 가능한 태스크가 없습니다. 선행 조건 또는 제작 자료 승인을 먼저 닫습니다.";
+  }
+
+  return readyTasks
+    .map(
+      (status, index) =>
+        `${index + 1}. ${status.task.title} / ${implementationTaskTypeLabels[status.task.task_type]} / ${implementationTaskPriorityLabels[status.task.priority]}\n   - 수용 기준: ${status.task.acceptance_criteria.trim() || "미정"}\n   - 다음 행동: ${status.nextAction}`,
+    )
+    .join("\n");
+}
+
+export function buildWaitingMvpBuildTaskLines(waitingTasks: MvpBuildDependencyStatus[]) {
+  if (waitingTasks.length === 0) {
+    return "- 선행 조건 때문에 대기 중인 태스크가 없습니다.";
+  }
+
+  return waitingTasks
+    .map(
+      (status) => `- ${status.task.title}: ${status.blockers.join(", ") || status.gate}\n  - 대기 해소: ${status.nextAction}`,
+    )
+    .join("\n");
+}
+
+export function buildMvpBuildTaskSnapshotLines(implementationTasks: ImplementationTask[]) {
+  if (implementationTasks.length === 0) {
+    return "- 구현 태스크가 없습니다. 먼저 기본 태스크를 생성하세요.";
+  }
+
+  return implementationTasks
+    .map(
+      (task) =>
+        `- ${task.title}: ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / ${implementationTaskPriorityLabels[task.priority]}`,
+    )
+    .join("\n");
+}
+
+export function buildMvpBuildArtifactQueueLines(artifactReviewQueue: MvpBuildArtifactReviewItem[]) {
+  return artifactReviewQueue
+    .map((item) => `- [${item.status === "approved" ? "x" : " "}] ${item.label}: ${item.detail}`)
+    .join("\n");
+}
+
 export function buildMvpBuildCommandPacketMarkdown({
   idea,
   state,
@@ -82,49 +142,16 @@ export function buildMvpBuildCommandPacketMarkdown({
 }) {
   const recommendedBackend = getRecommendedMvpBuildBackend(backendCandidateScores);
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const surfaceExclusionLine =
-    productSurface.key === "web_site"
-      ? "- 복잡한 내부 운영 콘솔이나 다단계 CRM 자동화를 첫 슬라이스에 끼워 넣지 않는다."
-      : "- 마케팅 랜딩 페이지 중심으로 만들지 않는다.";
+  const surfaceExclusionLine = buildMvpBuildSurfaceExclusionLine(productSurface.key);
   const readyTasks = getReadyMvpBuildDependencyStatuses(dependencyStatuses);
   const waitingTasks = getWaitingMvpBuildDependencyStatuses(dependencyStatuses);
   const approvedArtifacts = getApprovedMvpBuildArtifacts(artifactReviewQueue);
-  const nextReleaseBlocker = releaseDecisionPacket?.blockers[0] ?? "출시 판단 패킷이 아직 없습니다.";
-  const launchInstruction =
-    releaseDecisionPacket?.recommendation === "ship"
-      ? "출시 하드닝까지 진행 가능하지만 Production 반영 전 smoke, inspect URL, 롤백 기준을 완료 보고에 남깁니다."
-      : "공개 출시 작업은 보류하고, 아래 차단 항목을 해소하는 첫 제작/검증 범위만 구현합니다.";
-  const readyTaskLines =
-    readyTasks.length > 0
-      ? readyTasks
-          .map(
-            (status, index) =>
-              `${index + 1}. ${status.task.title} / ${implementationTaskTypeLabels[status.task.task_type]} / ${implementationTaskPriorityLabels[status.task.priority]}\n   - 수용 기준: ${status.task.acceptance_criteria.trim() || "미정"}\n   - 다음 행동: ${status.nextAction}`,
-          )
-          .join("\n")
-      : "1. 바로 시작 가능한 태스크가 없습니다. 선행 조건 또는 제작 자료 승인을 먼저 닫습니다.";
-  const waitingTaskLines =
-    waitingTasks.length > 0
-      ? waitingTasks
-          .map(
-            (status) =>
-              `- ${status.task.title}: ${status.blockers.join(", ") || status.gate}\n  - 대기 해소: ${status.nextAction}`,
-          )
-          .join("\n")
-      : "- 선행 조건 때문에 대기 중인 태스크가 없습니다.";
-  const taskSnapshotLines =
-    implementationTasks.length > 0
-      ? implementationTasks
-          .map(
-            (task) =>
-              `- ${task.title}: ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]} / ${implementationTaskPriorityLabels[task.priority]}`,
-          )
-          .join("\n")
-      : "- 구현 태스크가 없습니다. 먼저 기본 태스크를 생성하세요.";
-  const artifactQueueLines =
-    artifactReviewQueue
-      .map((item) => `- [${item.status === "approved" ? "x" : " "}] ${item.label}: ${item.detail}`)
-      .join("\n");
+  const nextReleaseBlocker = getNextMvpBuildReleaseBlocker(releaseDecisionPacket);
+  const launchInstruction = formatMvpBuildLaunchInstruction(releaseDecisionPacket);
+  const readyTaskLines = buildReadyMvpBuildTaskLines(readyTasks);
+  const waitingTaskLines = buildWaitingMvpBuildTaskLines(waitingTasks);
+  const taskSnapshotLines = buildMvpBuildTaskSnapshotLines(implementationTasks);
+  const artifactQueueLines = buildMvpBuildArtifactQueueLines(artifactReviewQueue);
 
   return `# 제작 시작 안내 묶음: ${idea.name}
 
