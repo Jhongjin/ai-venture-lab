@@ -59,10 +59,28 @@ const moduleUrl = transpileModuleUrl("src/lib/release-package-drafts.ts", [
 
 const { buildReleasePackageArtifactSaveDrafts, buildReleasePackageDraftState } = await import(moduleUrl);
 const {
+  buildReleaseDecisionArtifactQueueLines,
+  buildReleaseDecisionArtifactSnapshotLines,
+  buildReleaseDecisionBlockers,
+  buildReleaseDecisionBulletLines,
+  buildReleaseDecisionDecisionLines,
+  buildReleaseDecisionExperimentLines,
+  buildReleaseDecisionGateLines,
+  buildReleaseDecisionGreenSignals,
+  buildReleaseDecisionRequiredActions,
+  buildReleaseDecisionRiskLines,
+  buildReleaseDecisionRunLines,
+  buildReleaseDecisionTaskLines,
   countApprovedReleaseDecisionArtifacts,
   countDoneReleaseDecisionTasks,
   countPassedReleaseDecisionChecks,
+  formatReleaseDecisionConfidenceLabel,
+  formatReleaseDecisionHeadline,
+  getBlockedReleaseDecisionTasks,
   getDoneReleaseDecisionRuns,
+  getFailedReleaseDecisionChecks,
+  getOpenHighReleaseDecisionRisks,
+  getUnapprovedReleaseDecisionArtifacts,
 } = await import(releaseDecisionUrl);
 const {
   buildDevelopmentCompletionTaskStats,
@@ -332,6 +350,90 @@ assert.deepEqual(
   getDoneReleaseDecisionRuns(runs).map((run) => run.id),
   ["run-1"],
 );
+const draftArtifactReviewQueue = [
+  ...artifactReviewQueue,
+  { status: "draft", label: "MVP 범위", detail: "승인 필요" },
+];
+assert.deepEqual(
+  getOpenHighReleaseDecisionRisks([{ ...risks[0], id: "risk-open", status: "open" }]).map((risk) => risk.id),
+  ["risk-open"],
+);
+assert.deepEqual(
+  getBlockedReleaseDecisionTasks([{ ...implementationTasks[0], id: "task-blocked", status: "blocked" }]).map((task) => task.id),
+  ["task-blocked"],
+);
+assert.deepEqual(
+  getFailedReleaseDecisionChecks([{ ...gateChecks[0], passed: false }]).map((check) => check.label),
+  ["핵심 저장 흐름"],
+);
+assert.deepEqual(
+  getUnapprovedReleaseDecisionArtifacts(draftArtifactReviewQueue).map((item) => item.label),
+  ["MVP 범위"],
+);
+assert.match(
+  buildReleaseDecisionBlockers({
+    blockedTasks: [{ ...implementationTasks[0], status: "blocked" }],
+    failedImplementationChecks: [{ ...gateChecks[1], passed: false }],
+    nextLaunchBlocker: { ...gateChecks[0], passed: false },
+    openHighRisks: [{ ...risks[0], status: "open" }],
+    unapprovedArtifacts: getUnapprovedReleaseDecisionArtifacts(draftArtifactReviewQueue),
+  }).join("\n"),
+  /제작 자료 승인: MVP 범위/,
+);
+assert.match(
+  buildReleaseDecisionGreenSignals({
+    artifactReviewProgress: 100,
+    artifactReviewQueue,
+    completedRunCount: 1,
+    completedTaskCount: 2,
+    implementationGateChecks: gateChecks,
+    implementationGateScore: 100,
+    implementationTaskCount: implementationTasks.length,
+    latestDecision: null,
+    launchReadiness: gateChecks,
+    launchReadinessScore: 100,
+    runCount: runs.length,
+  }).join("\n"),
+  /최근 판단 기록 없음/,
+);
+assert.match(
+  buildReleaseDecisionRequiredActions({
+    failedImplementationChecks: [],
+    nextLaunchBlocker: null,
+    openHighRisks: [],
+    releaseReady: true,
+    unapprovedArtifacts: [],
+  }).join("\n"),
+  /Production smoke/,
+);
+assert.match(
+  buildReleaseDecisionRequiredActions({
+    failedImplementationChecks: [],
+    nextLaunchBlocker: null,
+    openHighRisks: [],
+    releaseReady: false,
+    unapprovedArtifacts: getUnapprovedReleaseDecisionArtifacts(draftArtifactReviewQueue),
+  }).join("\n"),
+  /MVP 범위부터 확인/,
+);
+assert.equal(formatReleaseDecisionConfidenceLabel("medium"), "보통");
+assert.match(formatReleaseDecisionHeadline("pivot"), /전환이 우선/);
+assert.match(buildReleaseDecisionGateLines(gateChecks, "- 없음"), /\[x\] 핵심 저장 흐름/);
+assert.equal(buildReleaseDecisionGateLines([], "- 없음"), "- 없음");
+assert.match(buildReleaseDecisionArtifactQueueLines(artifactReviewQueue), /\[x\] 출시 체크리스트/);
+assert.equal(buildReleaseDecisionArtifactQueueLines([]), "- 승인 큐가 없습니다.");
+assert.match(buildReleaseDecisionRiskLines(risks), /원본 대화 식별 정보 노출/);
+assert.equal(buildReleaseDecisionRiskLines([]), "- 연결된 리스크가 없습니다.");
+assert.match(buildReleaseDecisionExperimentLines(experiments), /제작 패키지 전달 테스트/);
+assert.equal(buildReleaseDecisionExperimentLines([]), "- 연결된 실험이 없습니다.");
+assert.match(buildReleaseDecisionTaskLines(implementationTasks), /commit abc123/);
+assert.equal(buildReleaseDecisionTaskLines([]), "- 구현 태스크가 없습니다.");
+assert.match(buildReleaseDecisionRunLines(runs), /prototype-builder/);
+assert.equal(buildReleaseDecisionRunLines([]), "- 실행 기록이 없습니다.");
+assert.match(buildReleaseDecisionArtifactSnapshotLines(artifacts), /출시 체크리스트 v1/);
+assert.equal(buildReleaseDecisionArtifactSnapshotLines([]), "- 저장된 제작 자료가 없습니다.");
+assert.equal(buildReleaseDecisionBulletLines(["차단 없음"]), "- 차단 없음");
+assert.equal(buildReleaseDecisionBulletLines([], "- 비어 있음"), "- 비어 있음");
 assert.equal(countDonePostLaunchImplementationTasks(implementationTasks), 2);
 assert.deepEqual(
   getOpenHighPostLaunchRisks([{ ...risks[0], id: "risk-open", status: "open" }]).map((risk) => risk.id),
@@ -443,6 +545,8 @@ const decisions = [
     reason: "출시 전 패키지와 권한 경계가 닫혔습니다.",
   },
 ];
+assert.match(buildReleaseDecisionDecisionLines(decisions), /출시 전 패키지와 권한 경계/);
+assert.equal(buildReleaseDecisionDecisionLines([]), "- 판단 기록이 없습니다.");
 
 const draftState = buildReleasePackageDraftState({
   appBlueprint: "# 앱 구조 요약\n\n운영 콘솔 중심",

@@ -52,6 +52,185 @@ export function getDoneReleaseDecisionRuns(runs: OrchestrationRun[]) {
   return runs.filter((run) => run.status === "done");
 }
 
+export function getOpenHighReleaseDecisionRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+}
+
+export function getBlockedReleaseDecisionTasks(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.filter((task) => task.status === "blocked");
+}
+
+export function getFailedReleaseDecisionChecks(checks: ReleaseDecisionGateCheck[]) {
+  return checks.filter((check) => !check.passed);
+}
+
+export function getUnapprovedReleaseDecisionArtifacts(queue: ArtifactReviewItem[]) {
+  return queue.filter((item) => item.status !== "approved");
+}
+
+export function buildReleaseDecisionBlockers({
+  nextLaunchBlocker,
+  openHighRisks,
+  blockedTasks,
+  failedImplementationChecks,
+  unapprovedArtifacts,
+}: {
+  nextLaunchBlocker: ReleaseDecisionGateCheck | null;
+  openHighRisks: Risk[];
+  blockedTasks: ImplementationTask[];
+  failedImplementationChecks: ReleaseDecisionGateCheck[];
+  unapprovedArtifacts: ArtifactReviewItem[];
+}) {
+  return [
+    ...(nextLaunchBlocker ? [`출시 준비도: ${nextLaunchBlocker.label} - ${nextLaunchBlocker.detail}`] : []),
+    ...openHighRisks.map(
+      (risk) => `높은 리스크: ${risk.title} (${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status})`,
+    ),
+    ...blockedTasks.map((task) => `차단 태스크: ${task.title} (${implementationTaskTypeLabels[task.task_type]})`),
+    ...failedImplementationChecks.map((check) => `개발 완료 점검: ${check.label} - ${check.detail}`),
+    ...unapprovedArtifacts.slice(0, 4).map((item) => `제작 자료 승인: ${item.label} - ${item.detail}`),
+  ].slice(0, 8);
+}
+
+export function buildReleaseDecisionGreenSignals({
+  launchReadinessScore,
+  launchReadiness,
+  implementationGateScore,
+  implementationGateChecks,
+  artifactReviewProgress,
+  artifactReviewQueue,
+  completedTaskCount,
+  implementationTaskCount,
+  completedRunCount,
+  runCount,
+  latestDecision,
+}: {
+  launchReadinessScore: number;
+  launchReadiness: ReleaseDecisionGateCheck[];
+  implementationGateScore: number;
+  implementationGateChecks: ReleaseDecisionGateCheck[];
+  artifactReviewProgress: number;
+  artifactReviewQueue: ArtifactReviewItem[];
+  completedTaskCount: number;
+  implementationTaskCount: number;
+  completedRunCount: number;
+  runCount: number;
+  latestDecision: Decision | null;
+}) {
+  return [
+    `출시 준비도 ${launchReadinessScore}% (${countPassedReleaseDecisionChecks(launchReadiness)}/${launchReadiness.length})`,
+    `개발 완료 점검 ${implementationGateScore}% (${countPassedReleaseDecisionChecks(implementationGateChecks)}/${implementationGateChecks.length})`,
+    `제작 자료 승인 ${artifactReviewProgress}% (${countApprovedReleaseDecisionArtifacts(artifactReviewQueue)}/${artifactReviewQueue.length})`,
+    `구현 태스크 ${completedTaskCount}/${implementationTaskCount} 완료`,
+    `실행 단계 ${completedRunCount}/${runCount} 완료`,
+    latestDecision ? `최근 판단 기록: ${decisionLabels[latestDecision.decision]} - ${latestDecision.reason || "근거 미기록"}` : "최근 판단 기록 없음",
+  ].filter(Boolean);
+}
+
+export function buildReleaseDecisionRequiredActions({
+  releaseReady,
+  unapprovedArtifacts,
+  failedImplementationChecks,
+  openHighRisks,
+  nextLaunchBlocker,
+}: {
+  releaseReady: boolean;
+  unapprovedArtifacts: ArtifactReviewItem[];
+  failedImplementationChecks: ReleaseDecisionGateCheck[];
+  openHighRisks: Risk[];
+  nextLaunchBlocker: ReleaseDecisionGateCheck | null;
+}) {
+  return releaseReady
+    ? [
+        "`판단 기록`에서 최종 판단을 `진행`으로 기록합니다.",
+        "`출시 판단 패킷`을 제작 자료로 저장하고 승인합니다.",
+        "Production smoke, Vercel inspect URL, 롤백 기준을 릴리스 노트에 남깁니다.",
+      ]
+    : [
+        ...(unapprovedArtifacts.length > 0 ? [`AI가 저장한 자료에서 ${unapprovedArtifacts[0].label}부터 확인하거나 보완합니다.`] : []),
+        ...(failedImplementationChecks.length > 0 ? [`앱 개발 > 완료와 핸드오프에서 ${failedImplementationChecks[0].label} 항목을 먼저 해소합니다.`] : []),
+        ...(openHighRisks.length > 0 ? [`리스크 탭에서 ${openHighRisks[0].title}의 종료 또는 수용 판단을 기록합니다.`] : []),
+        ...(nextLaunchBlocker ? [`출시 준비도에서 ${nextLaunchBlocker.label} 항목을 해소합니다.`] : []),
+        "`판단 기록`에 보류 사유와 다음 확인 행동을 남깁니다.",
+      ];
+}
+
+export function formatReleaseDecisionConfidenceLabel(confidence: ReleaseDecisionConfidence) {
+  return confidence === "high" ? "높음" : confidence === "medium" ? "보통" : "낮음";
+}
+
+export function formatReleaseDecisionHeadline(recommendation: DecisionStatus) {
+  return recommendation === "ship"
+    ? "핵심 출시 점검이 끝나 진행 판단을 기록할 수 있습니다."
+    : recommendation === "pivot"
+      ? "현재 범위로는 출시보다 세그먼트, 문제, 첫 제작 범위 전환이 우선입니다."
+      : recommendation === "kill"
+        ? "추가 자원을 투입하기 전에 중단 판단을 검토해야 합니다."
+        : "출시 전 보완해야 할 증거 또는 실행 점검이 남아 있습니다.";
+}
+
+export function buildReleaseDecisionGateLines(checks: ReleaseDecisionGateCheck[], emptyLine: string) {
+  return checks.length > 0
+    ? checks.map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`).join("\n")
+    : emptyLine;
+}
+
+export function buildReleaseDecisionArtifactQueueLines(artifactReviewQueue: ArtifactReviewItem[]) {
+  return artifactReviewQueue.length > 0
+    ? artifactReviewQueue.map((item) => `- [${item.status === "approved" ? "x" : " "}] ${item.label}: ${item.detail}`).join("\n")
+    : "- 승인 큐가 없습니다.";
+}
+
+export function buildReleaseDecisionRiskLines(risks: Risk[]) {
+  return risks.length > 0
+    ? risks.map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`).join("\n")
+    : "- 연결된 리스크가 없습니다.";
+}
+
+export function buildReleaseDecisionExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments
+        .map((experiment) => `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${experiment.success_metric || "성공 지표 미정"}`)
+        .join("\n")
+    : "- 연결된 실험이 없습니다.";
+}
+
+export function buildReleaseDecisionTaskLines(implementationTasks: ImplementationTask[]) {
+  return implementationTasks.length > 0
+    ? implementationTasks
+        .map(
+          (task) =>
+            `- [${task.status === "done" ? "x" : " "}] ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]}\n  - 증거: ${task.evidence.trim() || "미기록"}`,
+        )
+        .join("\n")
+    : "- 구현 태스크가 없습니다.";
+}
+
+export function buildReleaseDecisionRunLines(runs: OrchestrationRun[]) {
+  return runs.length > 0
+    ? runs.map((run) => `- ${phaseLabels[run.phase]}: ${runStatusLabels[run.status]} / ${run.owner_role || "담당 미정"}`).join("\n")
+    : "- 실행 기록이 없습니다.";
+}
+
+export function buildReleaseDecisionDecisionLines(decisions: Decision[]) {
+  return decisions.length > 0
+    ? decisions.map((decision) => `- ${decisionLabels[decision.decision]}: ${decision.reason || "근거 미기록"}`).join("\n")
+    : "- 판단 기록이 없습니다.";
+}
+
+export function buildReleaseDecisionArtifactSnapshotLines(artifacts: VentureArtifact[]) {
+  return artifacts.length > 0
+    ? artifacts
+        .slice(0, 12)
+        .map((artifact) => `- ${artifactLabels[artifact.artifact_type]} v${artifact.version ?? 1}: ${artifactStatusLabels[artifact.status]}`)
+        .join("\n")
+    : "- 저장된 제작 자료가 없습니다.";
+}
+
+export function buildReleaseDecisionBulletLines(items: string[], emptyLine = "") {
+  return items.length > 0 ? items.map((item) => `- ${item}`).join("\n") : emptyLine;
+}
+
 export function buildReleaseDecisionPacket({
   idea,
   state,
@@ -89,10 +268,10 @@ export function buildReleaseDecisionPacket({
   implementationTasks: ImplementationTask[];
   decisions: Decision[];
 }): ReleaseDecisionPacket {
-  const openHighRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
-  const blockedTasks = implementationTasks.filter((task) => task.status === "blocked");
-  const failedImplementationChecks = implementationGateChecks.filter((check) => !check.passed);
-  const unapprovedArtifacts = artifactReviewQueue.filter((item) => item.status !== "approved");
+  const openHighRisks = getOpenHighReleaseDecisionRisks(risks);
+  const blockedTasks = getBlockedReleaseDecisionTasks(implementationTasks);
+  const failedImplementationChecks = getFailedReleaseDecisionChecks(implementationGateChecks);
+  const unapprovedArtifacts = getUnapprovedReleaseDecisionArtifacts(artifactReviewQueue);
   const completedTaskCount = countDoneReleaseDecisionTasks(implementationTasks);
   const completedRuns = getDoneReleaseDecisionRuns(runs);
   const latestDecision = decisions[0] ?? null;
@@ -118,38 +297,33 @@ export function buildReleaseDecisionPacket({
     recommendation = scoreRecommendation === "pending" ? "research_more" : scoreRecommendation;
   }
 
-  const blockers = [
-    ...(nextLaunchBlocker ? [`출시 준비도: ${nextLaunchBlocker.label} - ${nextLaunchBlocker.detail}`] : []),
-    ...openHighRisks.map(
-      (risk) => `높은 리스크: ${risk.title} (${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status})`,
-    ),
-    ...blockedTasks.map((task) => `차단 태스크: ${task.title} (${implementationTaskTypeLabels[task.task_type]})`),
-    ...failedImplementationChecks.map((check) => `개발 완료 점검: ${check.label} - ${check.detail}`),
-    ...unapprovedArtifacts.slice(0, 4).map((item) => `제작 자료 승인: ${item.label} - ${item.detail}`),
-  ].slice(0, 8);
-
-  const greenSignals = [
-    `출시 준비도 ${launchReadinessScore}% (${countPassedReleaseDecisionChecks(launchReadiness)}/${launchReadiness.length})`,
-    `개발 완료 점검 ${implementationGateScore}% (${countPassedReleaseDecisionChecks(implementationGateChecks)}/${implementationGateChecks.length})`,
-    `제작 자료 승인 ${artifactReviewProgress}% (${countApprovedReleaseDecisionArtifacts(artifactReviewQueue)}/${artifactReviewQueue.length})`,
-    `구현 태스크 ${completedTaskCount}/${implementationTasks.length} 완료`,
-    `실행 단계 ${completedRuns.length}/${runs.length} 완료`,
-    latestDecision ? `최근 판단 기록: ${decisionLabels[latestDecision.decision]} - ${latestDecision.reason || "근거 미기록"}` : "최근 판단 기록 없음",
-  ].filter(Boolean);
-
-  const requiredActions = releaseReady
-    ? [
-        "`판단 기록`에서 최종 판단을 `진행`으로 기록합니다.",
-        "`출시 판단 패킷`을 제작 자료로 저장하고 승인합니다.",
-        "Production smoke, Vercel inspect URL, 롤백 기준을 릴리스 노트에 남깁니다.",
-      ]
-    : [
-        ...(unapprovedArtifacts.length > 0 ? [`AI가 저장한 자료에서 ${unapprovedArtifacts[0].label}부터 확인하거나 보완합니다.`] : []),
-        ...(failedImplementationChecks.length > 0 ? [`앱 개발 > 완료와 핸드오프에서 ${failedImplementationChecks[0].label} 항목을 먼저 해소합니다.`] : []),
-        ...(openHighRisks.length > 0 ? [`리스크 탭에서 ${openHighRisks[0].title}의 종료 또는 수용 판단을 기록합니다.`] : []),
-        ...(nextLaunchBlocker ? [`출시 준비도에서 ${nextLaunchBlocker.label} 항목을 해소합니다.`] : []),
-        "`판단 기록`에 보류 사유와 다음 확인 행동을 남깁니다.",
-      ];
+  const blockers = buildReleaseDecisionBlockers({
+    nextLaunchBlocker,
+    openHighRisks,
+    blockedTasks,
+    failedImplementationChecks,
+    unapprovedArtifacts,
+  });
+  const greenSignals = buildReleaseDecisionGreenSignals({
+    launchReadinessScore,
+    launchReadiness,
+    implementationGateScore,
+    implementationGateChecks,
+    artifactReviewProgress,
+    artifactReviewQueue,
+    completedTaskCount,
+    implementationTaskCount: implementationTasks.length,
+    completedRunCount: completedRuns.length,
+    runCount: runs.length,
+    latestDecision,
+  });
+  const requiredActions = buildReleaseDecisionRequiredActions({
+    releaseReady,
+    unapprovedArtifacts,
+    failedImplementationChecks,
+    openHighRisks,
+    nextLaunchBlocker,
+  });
 
   const confidence: ReleaseDecisionConfidence =
     releaseReady || (launchReadinessScore >= 90 && blockers.length <= 1)
@@ -157,64 +331,20 @@ export function buildReleaseDecisionPacket({
       : launchReadinessScore >= 65 || implementationGateScore >= 70
         ? "medium"
         : "low";
-  const confidenceLabel = confidence === "high" ? "높음" : confidence === "medium" ? "보통" : "낮음";
-  const headline =
-    recommendation === "ship"
-      ? "핵심 출시 점검이 끝나 진행 판단을 기록할 수 있습니다."
-      : recommendation === "pivot"
-        ? "현재 범위로는 출시보다 세그먼트, 문제, 첫 제작 범위 전환이 우선입니다."
-        : recommendation === "kill"
-          ? "추가 자원을 투입하기 전에 중단 판단을 검토해야 합니다."
-          : "출시 전 보완해야 할 증거 또는 실행 점검이 남아 있습니다.";
-  const launchLines =
-    launchReadiness.length > 0
-      ? launchReadiness.map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`).join("\n")
-      : "- 출시 준비도 항목이 없습니다.";
-  const implementationLines =
-    implementationGateChecks.length > 0
-      ? implementationGateChecks.map((check) => `- [${check.passed ? "x" : " "}] ${check.label}: ${check.detail}`).join("\n")
-      : "- 개발 완료 점검 항목이 없습니다.";
-  const artifactLines =
-    artifactReviewQueue.length > 0
-      ? artifactReviewQueue
-          .map((item) => `- [${item.status === "approved" ? "x" : " "}] ${item.label}: ${item.detail}`)
-          .join("\n")
-      : "- 승인 큐가 없습니다.";
-  const riskLines =
-    risks.length > 0
-      ? risks.map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${riskStatusLabels[risk.status] ?? risk.status}`).join("\n")
-      : "- 연결된 리스크가 없습니다.";
-  const experimentLines =
-    experiments.length > 0
-      ? experiments.map((experiment) => `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
-      : "- 연결된 실험이 없습니다.";
-  const taskLines =
-    implementationTasks.length > 0
-      ? implementationTasks
-          .map(
-            (task) =>
-              `- [${task.status === "done" ? "x" : " "}] ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskStatusLabels[task.status]}\n  - 증거: ${task.evidence.trim() || "미기록"}`,
-          )
-          .join("\n")
-      : "- 구현 태스크가 없습니다.";
-  const runLines =
-    runs.length > 0
-      ? runs.map((run) => `- ${phaseLabels[run.phase]}: ${runStatusLabels[run.status]} / ${run.owner_role || "담당 미정"}`).join("\n")
-      : "- 실행 기록이 없습니다.";
-  const decisionLines =
-    decisions.length > 0
-      ? decisions.map((decision) => `- ${decisionLabels[decision.decision]}: ${decision.reason || "근거 미기록"}`).join("\n")
-      : "- 판단 기록이 없습니다.";
-  const artifactSnapshotLines =
-    artifacts.length > 0
-      ? artifacts
-          .slice(0, 12)
-          .map((artifact) => `- ${artifactLabels[artifact.artifact_type]} v${artifact.version ?? 1}: ${artifactStatusLabels[artifact.status]}`)
-          .join("\n")
-      : "- 저장된 제작 자료가 없습니다.";
-  const blockersMarkdown = blockers.length > 0 ? blockers.map((item) => `- ${item}`).join("\n") : "- 차단 항목 없음";
-  const greenSignalsMarkdown = greenSignals.map((item) => `- ${item}`).join("\n");
-  const actionsMarkdown = requiredActions.map((item) => `- ${item}`).join("\n");
+  const confidenceLabel = formatReleaseDecisionConfidenceLabel(confidence);
+  const headline = formatReleaseDecisionHeadline(recommendation);
+  const launchLines = buildReleaseDecisionGateLines(launchReadiness, "- 출시 준비도 항목이 없습니다.");
+  const implementationLines = buildReleaseDecisionGateLines(implementationGateChecks, "- 개발 완료 점검 항목이 없습니다.");
+  const artifactLines = buildReleaseDecisionArtifactQueueLines(artifactReviewQueue);
+  const riskLines = buildReleaseDecisionRiskLines(risks);
+  const experimentLines = buildReleaseDecisionExperimentLines(experiments);
+  const taskLines = buildReleaseDecisionTaskLines(implementationTasks);
+  const runLines = buildReleaseDecisionRunLines(runs);
+  const decisionLines = buildReleaseDecisionDecisionLines(decisions);
+  const artifactSnapshotLines = buildReleaseDecisionArtifactSnapshotLines(artifacts);
+  const blockersMarkdown = buildReleaseDecisionBulletLines(blockers, "- 차단 항목 없음");
+  const greenSignalsMarkdown = buildReleaseDecisionBulletLines(greenSignals);
+  const actionsMarkdown = buildReleaseDecisionBulletLines(requiredActions);
 
   return {
     recommendation,
