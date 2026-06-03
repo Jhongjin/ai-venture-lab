@@ -3,6 +3,10 @@ import type { Idea, OrchestrationRun } from "@/lib/venture-data";
 
 type DesignBriefState = Pick<Idea, "next_evidence" | "product_surface">;
 
+export function getDesignBriefRun(runs: OrchestrationRun[]) {
+  return runs.find((run) => run.phase === "design");
+}
+
 export function buildDesignBriefMarkdown({
   idea,
   state,
@@ -13,7 +17,7 @@ export function buildDesignBriefMarkdown({
   runs: OrchestrationRun[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const designRun = runs.find((run) => run.phase === "design");
+  const designRun = getDesignBriefRun(runs);
 
   return `# 디자인 기준: ${idea.name}
 
