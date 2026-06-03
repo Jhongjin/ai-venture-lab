@@ -425,6 +425,17 @@ assert.equal(nextProgressItem.isNext, true);
 assert.equal(nextProgressItem.statusDetail, "다음으로 이어서 처리할 작업입니다.");
 assert.equal(nextProgressItem.showMissingEvidence, true);
 assert.equal(
+  buildStep8ProgressDisplayItem({
+    evidenceByTaskId: {
+      "task-frontend": "commit abc pnpm smoke 저장 로딩",
+    },
+    index: 1,
+    nextImplementationTaskId: context.nextTaskId,
+    task: tasks[1],
+  }).passedCount,
+  4,
+);
+assert.equal(
   buildStep8ProgressStatusDetail({
     evidence: "",
     isNext: false,

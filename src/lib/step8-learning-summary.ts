@@ -6,6 +6,7 @@ import {
   getImplementationTaskReadinessQueues,
   getBlockedImplementationTaskHint,
   getImplementationEvidenceChecklist,
+  getImplementationTaskEvidence,
   getOpenImplementationTasksForAction,
   implementationTaskStatusLabels,
   implementationTaskStatusTone,
@@ -806,7 +807,7 @@ export function buildStep8ProgressDisplayItem({
   nextImplementationTaskId: string | null;
   task: ImplementationTask;
 }): Step8ProgressDisplayItem {
-  const evidence = evidenceByTaskId[task.id] ?? task.evidence ?? "";
+  const evidence = getImplementationTaskEvidence(task, evidenceByTaskId);
   const checklist = getImplementationEvidenceChecklist(task, evidence);
   const passedCount = checklist.filter((item) => item.passed).length;
   const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
