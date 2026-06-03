@@ -7,6 +7,7 @@ import {
   getBlockedImplementationTaskHint,
   getImplementationEvidenceChecklist,
   getImplementationTaskEvidence,
+  getMissingImplementationEvidenceChecklistLabels,
   getOpenImplementationTasksForAction,
   implementationTaskStatusLabels,
   implementationTaskStatusTone,
@@ -86,6 +87,12 @@ export type Step8ProgressSummary = {
   progressDetail: string;
   progressItems: Step8ProgressDisplayItem[];
   progressTitle: string;
+};
+
+export type Step8ProgressEvidenceSummary = {
+  missingLabels: string[];
+  passedCount: number;
+  totalCount: number;
 };
 
 export type Step8LearningDisplayState = Step8LearningSummary &
@@ -808,9 +815,7 @@ export function buildStep8ProgressDisplayItem({
   task: ImplementationTask;
 }): Step8ProgressDisplayItem {
   const evidence = getImplementationTaskEvidence(task, evidenceByTaskId);
-  const checklist = getImplementationEvidenceChecklist(task, evidence);
-  const passedCount = checklist.filter((item) => item.passed).length;
-  const missingLabels = checklist.filter((item) => !item.passed).map((item) => item.label);
+  const evidenceSummary = buildStep8ProgressEvidenceSummary({ evidence, task });
   const isNext = nextImplementationTaskId === task.id;
 
   return {
@@ -820,12 +825,29 @@ export function buildStep8ProgressDisplayItem({
     statusDetail: buildStep8ProgressStatusDetail({ evidence, isNext, task }),
     statusLabel: implementationTaskStatusLabels[task.status],
     statusTone: implementationTaskStatusTone[task.status],
-    passedCount,
-    totalCount: checklist.length,
-    missingLabels,
+    passedCount: evidenceSummary.passedCount,
+    totalCount: evidenceSummary.totalCount,
+    missingLabels: evidenceSummary.missingLabels,
     isNext,
     isDone: task.status === "done",
-    showMissingEvidence: missingLabels.length > 0 && task.status !== "done",
+    showMissingEvidence: evidenceSummary.missingLabels.length > 0 && task.status !== "done",
+  };
+}
+
+export function buildStep8ProgressEvidenceSummary({
+  evidence,
+  task,
+}: {
+  evidence: string;
+  task: ImplementationTask;
+}): Step8ProgressEvidenceSummary {
+  const checklist = getImplementationEvidenceChecklist(task, evidence);
+  const missingLabels = getMissingImplementationEvidenceChecklistLabels(checklist);
+
+  return {
+    missingLabels,
+    passedCount: checklist.length - missingLabels.length,
+    totalCount: checklist.length,
   };
 }
 

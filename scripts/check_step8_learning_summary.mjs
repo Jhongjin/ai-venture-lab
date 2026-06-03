@@ -58,6 +58,7 @@ const {
   buildStep8LearningSummary,
   buildStep8ProgressDetail,
   buildStep8ProgressDisplayItem,
+  buildStep8ProgressEvidenceSummary,
   buildStep8ProgressSummary,
   buildStep8ProgressStatusDetail,
   buildStep8ProgressTitle,
@@ -424,6 +425,17 @@ assert.equal(nextProgressItem.code, "T-002");
 assert.equal(nextProgressItem.isNext, true);
 assert.equal(nextProgressItem.statusDetail, "다음으로 이어서 처리할 작업입니다.");
 assert.equal(nextProgressItem.showMissingEvidence, true);
+assert.deepEqual(
+  buildStep8ProgressEvidenceSummary({
+    evidence: "",
+    task: tasks[1],
+  }),
+  {
+    missingLabels: ["커밋/PR", "검증 결과", "사용자 여정", "상태 UX"],
+    passedCount: 0,
+    totalCount: 4,
+  },
+);
 assert.equal(
   buildStep8ProgressDisplayItem({
     evidenceByTaskId: {
