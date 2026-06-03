@@ -89,6 +89,11 @@ const {
   getOpenHighDevelopmentKickoffRisks,
 } = await import(developmentKickoffUrl);
 const {
+  buildAgentRunPackageBlockerLines,
+  buildAgentRunPackageExperimentLines,
+  buildAgentRunPackageRiskLines,
+  buildAgentRunPackageSourceLines,
+  buildAgentRunPackageTaskLines,
   getFailedAgentRunPackageChecks,
   getMissingAgentRunEvidenceLabels,
   getOpenHighAgentRunPackageRisks,
@@ -349,6 +354,22 @@ assert.deepEqual(
   getOpenHighAgentRunPackageRisks([{ ...risks[0], id: "risk-open", status: "open" }]).map((risk) => risk.id),
   ["risk-open"],
 );
+assert.match(buildAgentRunPackageSourceLines(artifacts), /AI Venture Lab 제품 기획서/);
+assert.equal(
+  buildAgentRunPackageSourceLines([]),
+  "- 승인된 제작 자료가 없습니다. 실행 전 제품 기획서, 첫 제작 범위, 디자인 기준, 기술 명세 중 필요한 항목을 승인하세요.",
+);
+assert.match(buildAgentRunPackageTaskLines(tasks), /T-001 제작 패키지 리뷰 화면/);
+assert.equal(
+  buildAgentRunPackageTaskLines([]),
+  "- 현재 실행할 개발 태스크가 없습니다. 기본 태스크를 생성하거나 필터를 초기화하세요.",
+);
+assert.match(buildAgentRunPackageBlockerLines([{ ...gateChecks[0], passed: false }]), /승인 제작 자료/);
+assert.equal(buildAgentRunPackageBlockerLines(gateChecks), "- 개발 착수 점검이 통과 상태입니다.");
+assert.match(buildAgentRunPackageRiskLines([{ ...risks[0], status: "open" }]), /원본 저장 전 식별자 제거/);
+assert.equal(buildAgentRunPackageRiskLines([]), "- 열린 높음/치명 리스크가 없습니다.");
+assert.match(buildAgentRunPackageExperimentLines(experiments), /첫 태스크 이해와 실행/);
+assert.equal(buildAgentRunPackageExperimentLines([]), "- 연결된 실험이 없습니다.");
 assert.equal(countPassedDevelopmentKickoffChecks(gateChecks), 2);
 assert.deepEqual(
   getFailedDevelopmentKickoffChecks([{ ...gateChecks[0], label: "범위 잠금", passed: false }]).map((check) => check.label),

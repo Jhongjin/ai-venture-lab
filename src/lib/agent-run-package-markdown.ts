@@ -46,6 +46,80 @@ export function getOpenHighAgentRunPackageRisks(risks: Risk[]) {
   return risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
 }
 
+export function buildAgentRunPackageSourceLines(approvedArtifacts: VentureArtifact[]) {
+  if (approvedArtifacts.length === 0) {
+    return "- 승인된 제작 자료가 없습니다. 실행 전 제품 기획서, 첫 제작 범위, 디자인 기준, 기술 명세 중 필요한 항목을 승인하세요.";
+  }
+
+  return approvedArtifacts
+    .slice(0, 10)
+    .map(
+      (artifact) =>
+        `- ${artifactLabels[artifact.artifact_type]} / ${artifactSourceLabels[artifact.source] ?? artifact.source}: ${
+          artifact.title || "제목 없음"
+        } / v${artifact.version ?? 1}`,
+    )
+    .join("\n");
+}
+
+export function buildAgentRunPackageTaskLines(tasks: ImplementationTask[]) {
+  if (tasks.length === 0) {
+    return "- 현재 실행할 개발 태스크가 없습니다. 기본 태스크를 생성하거나 필터를 초기화하세요.";
+  }
+
+  return sortImplementationTasksForAction(tasks)
+    .slice(0, 8)
+    .map((task, index) => {
+      const checklist = getImplementationEvidenceChecklist(task, task.evidence ?? "");
+      const missingLabels = getMissingAgentRunEvidenceLabels(checklist);
+
+      return [
+        `${index + 1}. ${task.title}`,
+        `   - 유형/상태/우선순위: ${implementationTaskTypeLabels[task.task_type]} / ${
+          implementationTaskStatusLabels[task.status]
+        } / ${implementationTaskPriorityLabels[task.priority]}`,
+        `   - 담당 역할: ${task.owner_role || "owner 미정"}`,
+        `   - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n     ") || "미정"}`,
+        `   - 증거 공백: ${missingLabels.length > 0 ? missingLabels.join(", ") : "없음"}`,
+      ].join("\n");
+    })
+    .join("\n");
+}
+
+export function buildAgentRunPackageBlockerLines(readinessChecks: AgentRunPackageGateCheck[]) {
+  const blockerLines = getFailedAgentRunPackageChecks(readinessChecks).map(
+    (check) => `- ${check.label}: ${check.detail}`,
+  );
+
+  return blockerLines.length > 0 ? blockerLines.join("\n") : "- 개발 착수 점검이 통과 상태입니다.";
+}
+
+export function buildAgentRunPackageRiskLines(openHighRisks: Risk[]) {
+  if (openHighRisks.length === 0) {
+    return "- 열린 높음/치명 리스크가 없습니다.";
+  }
+
+  return openHighRisks
+    .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`)
+    .join("\n");
+}
+
+export function buildAgentRunPackageExperimentLines(experiments: Experiment[]) {
+  if (experiments.length === 0) {
+    return "- 연결된 실험이 없습니다.";
+  }
+
+  return experiments
+    .slice(0, 5)
+    .map(
+      (experiment) =>
+        `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
+          experiment.success_metric || "성공 지표 미정"
+        }`,
+    )
+    .join("\n");
+}
+
 export function buildAgentRunPackageMarkdown({
   idea,
   state,
@@ -74,56 +148,12 @@ export function buildAgentRunPackageMarkdown({
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceGuidance = implementationSurfaceTaskGuidance[productSurface.key];
   const approvedArtifacts = getApprovedAgentRunPackageArtifacts(artifacts);
-  const sourceLines =
-    approvedArtifacts.length > 0
-      ? approvedArtifacts
-          .slice(0, 10)
-          .map(
-            (artifact) =>
-              `- ${artifactLabels[artifact.artifact_type]} / ${artifactSourceLabels[artifact.source] ?? artifact.source}: ${
-                artifact.title || "제목 없음"
-              } / v${artifact.version ?? 1}`,
-          )
-          .join("\n")
-      : "- 승인된 제작 자료가 없습니다. 실행 전 제품 기획서, 첫 제작 범위, 디자인 기준, 기술 명세 중 필요한 항목을 승인하세요.";
-  const taskLines =
-    tasks.length > 0
-      ? sortImplementationTasksForAction(tasks)
-          .slice(0, 8)
-          .map((task, index) => {
-            const checklist = getImplementationEvidenceChecklist(task, task.evidence ?? "");
-            const missingLabels = getMissingAgentRunEvidenceLabels(checklist);
-
-            return [
-              `${index + 1}. ${task.title}`,
-              `   - 유형/상태/우선순위: ${implementationTaskTypeLabels[task.task_type]} / ${
-                implementationTaskStatusLabels[task.status]
-              } / ${implementationTaskPriorityLabels[task.priority]}`,
-              `   - 담당 역할: ${task.owner_role || "owner 미정"}`,
-              `   - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n     ") || "미정"}`,
-              `   - 증거 공백: ${missingLabels.length > 0 ? missingLabels.join(", ") : "없음"}`,
-            ].join("\n");
-          })
-          .join("\n")
-      : "- 현재 실행할 개발 태스크가 없습니다. 기본 태스크를 생성하거나 필터를 초기화하세요.";
-  const blockerLines = getFailedAgentRunPackageChecks(readinessChecks).map(
-    (check) => `- ${check.label}: ${check.detail}`,
-  );
-  const riskLines = getOpenHighAgentRunPackageRisks(risks).map(
-    (risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`,
-  );
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .slice(0, 5)
-          .map(
-            (experiment) =>
-              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
-                experiment.success_metric || "성공 지표 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 연결된 실험이 없습니다.";
+  const openHighRisks = getOpenHighAgentRunPackageRisks(risks);
+  const sourceLines = buildAgentRunPackageSourceLines(approvedArtifacts);
+  const taskLines = buildAgentRunPackageTaskLines(tasks);
+  const blockerLines = buildAgentRunPackageBlockerLines(readinessChecks);
+  const riskLines = buildAgentRunPackageRiskLines(openHighRisks);
+  const experimentLines = buildAgentRunPackageExperimentLines(experiments);
 
   return `# 제작 패키지: ${idea.name}
 
@@ -154,7 +184,7 @@ ${sourceLines}
 
 ## 시작 전 미해결 점검
 
-${blockerLines.length > 0 ? blockerLines.join("\n") : "- 개발 착수 점검이 통과 상태입니다."}
+${blockerLines}
 
 ## 실행 태스크
 
@@ -166,7 +196,7 @@ ${experimentLines}
 
 ## 열린 높은 리스크
 
-${riskLines.length > 0 ? riskLines.join("\n") : "- 열린 높음/치명 리스크가 없습니다."}
+${riskLines}
 
 ## 범위 규칙
 
