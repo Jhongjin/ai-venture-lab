@@ -13,6 +13,7 @@ const {
   countDoneWorkbenchRuns,
   countWorkbenchHighRiskItems,
   hasDevelopmentProcessArtifact,
+  hasCompletedWorkbenchExperiment,
   hasDoneWorkbenchRunForPhase,
   summarizeGateChecks,
 } = await import(moduleUrl);
@@ -223,6 +224,8 @@ const runs = [
 assert.equal(hasDoneWorkbenchRunForPhase(runs, "design"), true);
 assert.equal(hasDoneWorkbenchRunForPhase(runs, "qa"), false);
 assert.equal(countDoneWorkbenchRuns(runs), 2);
+assert.equal(hasCompletedWorkbenchExperiment([{ status: "planned" }, { status: "done" }]), true);
+assert.equal(hasCompletedWorkbenchExperiment([{ status: "planned" }, { status: "running" }]), false);
 assert.equal(hasDevelopmentProcessArtifact([{ source: "manual" }, { source: "development_process" }]), true);
 assert.equal(hasDevelopmentProcessArtifact([{ source: null }]), false);
 

@@ -20,6 +20,10 @@ export type WorkbenchRunLike = {
   status: string;
 };
 
+export type WorkbenchExperimentLike = {
+  status: string;
+};
+
 export type WorkbenchArtifactLike = {
   source: string | null;
 };
@@ -62,6 +66,10 @@ export function hasDoneWorkbenchRunForPhase(runs: ReadonlyArray<WorkbenchRunLike
 
 export function countDoneWorkbenchRuns(runs: ReadonlyArray<WorkbenchRunLike>) {
   return runs.filter((run) => run.status === "done").length;
+}
+
+export function hasCompletedWorkbenchExperiment(experiments: ReadonlyArray<WorkbenchExperimentLike>) {
+  return experiments.some((experiment) => experiment.status === "done");
 }
 
 export function hasDevelopmentProcessArtifact(artifacts: ReadonlyArray<WorkbenchArtifactLike>) {
@@ -532,7 +540,7 @@ export function buildWorkbenchGateReadinessState({
   decision: WorkbenchDecisionStatus;
   decisionCount: number;
   decisionLabel: string;
-  experiments: ReadonlyArray<{ status: string }>;
+  experiments: ReadonlyArray<WorkbenchExperimentLike>;
   hasApprovedDesignBriefArtifact: boolean;
   hasApprovedMvpSpecArtifact: boolean;
   hasApprovedPrdArtifact: boolean;
@@ -564,7 +572,7 @@ export function buildWorkbenchGateReadinessState({
   runs: ReadonlyArray<WorkbenchRunLike>;
   targetUser: string;
 }): WorkbenchGateReadinessState {
-  const hasCompletedExperiment = experiments.some((experiment) => experiment.status === "done");
+  const hasCompletedExperiment = hasCompletedWorkbenchExperiment(experiments);
   const { highRiskCount, unresolvedHighRiskCount } = countWorkbenchHighRiskItems(risks);
   const prdReadinessChecks = hasEditableIdeaContext
     ? buildPrdReadinessChecks({
