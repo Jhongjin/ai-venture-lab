@@ -81,7 +81,13 @@ const {
   getRecommendedMvpScaffoldBackend,
   usesFirebaseMvpScaffoldBackend,
 } = await import(scaffoldManifestUrl);
-const { getTechSpecBuildRun, getTechSpecSecurityRun } = await import(techSpecUrl);
+const {
+  buildTechSpecExperimentLines,
+  formatTechSpecBuildOutput,
+  formatTechSpecSecurityOutput,
+  getTechSpecBuildRun,
+  getTechSpecSecurityRun,
+} = await import(techSpecUrl);
 const { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } = await import(moduleUrl);
 
 const idea = {
@@ -272,6 +278,31 @@ assert.equal(
   "run-security",
 );
 assert.equal(getTechSpecBuildRun([]), undefined);
+assert.match(buildTechSpecExperimentLines(experiments), /첫 화면에서 다음 행동을 이해/);
+assert.equal(buildTechSpecExperimentLines([]), "- 측정 가능한 실험을 하나 정의합니다.");
+assert.equal(
+  formatTechSpecSecurityOutput({
+    riskSummary: "조직 권한과 개인정보 경계 필요",
+    securityRun: { ...runs[0], output: "보안 실행 결과", phase: "security" },
+  }),
+  "보안 실행 결과",
+);
+assert.equal(
+  formatTechSpecSecurityOutput({
+    riskSummary: "조직 권한과 개인정보 경계 필요",
+    securityRun: undefined,
+  }),
+  "조직 권한과 개인정보 경계 필요",
+);
+assert.equal(
+  formatTechSpecSecurityOutput({
+    riskSummary: "",
+    securityRun: undefined,
+  }),
+  "보안 제작 자료가 아직 없습니다.",
+);
+assert.equal(formatTechSpecBuildOutput({ ...runs[0], output: "데이터 모델 작성", phase: "build" }), "데이터 모델 작성");
+assert.match(formatTechSpecBuildOutput(undefined), /개발 실행 결과가 아직 없습니다/);
 
 const draftState = buildDesignArchitectureDraftState({
   backendCandidateScores,

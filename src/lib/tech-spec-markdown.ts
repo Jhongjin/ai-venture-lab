@@ -12,6 +12,26 @@ export function getTechSpecSecurityRun(runs: OrchestrationRun[]) {
   return runs.find((run) => run.phase === "security");
 }
 
+export function buildTechSpecExperimentLines(experiments: Experiment[]) {
+  return experiments.length > 0
+    ? experiments.map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
+    : "- 측정 가능한 실험을 하나 정의합니다.";
+}
+
+export function formatTechSpecSecurityOutput({
+  securityRun,
+  riskSummary,
+}: {
+  securityRun: OrchestrationRun | undefined;
+  riskSummary: string | null | undefined;
+}) {
+  return securityRun?.output || riskSummary || "보안 제작 자료가 아직 없습니다.";
+}
+
+export function formatTechSpecBuildOutput(buildRun: OrchestrationRun | undefined) {
+  return buildRun?.output || "개발 실행 결과가 아직 없습니다. 데이터 모델, API 경계, UI 상태를 먼저 작성하세요.";
+}
+
 export function buildTechSpecMarkdown({
   idea,
   state,
@@ -26,10 +46,9 @@ export function buildTechSpecMarkdown({
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const buildRun = getTechSpecBuildRun(runs);
   const securityRun = getTechSpecSecurityRun(runs);
-  const experimentLines =
-    experiments.length > 0
-      ? experiments.map((experiment) => `- ${experiment.name}: ${experiment.success_metric || "성공 지표 미정"}`).join("\n")
-      : "- 측정 가능한 실험을 하나 정의합니다.";
+  const experimentLines = buildTechSpecExperimentLines(experiments);
+  const securityOutput = formatTechSpecSecurityOutput({ securityRun, riskSummary: state.risk_summary });
+  const buildOutput = formatTechSpecBuildOutput(buildRun);
 
   return `# 기술 명세: ${idea.name}
 
@@ -75,7 +94,7 @@ ${experimentLines}
 
 ## 보안과 개인정보
 
-${securityRun?.output || state.risk_summary || "보안 제작 자료가 아직 없습니다."}
+${securityOutput}
 
 - 비밀값은 서버 환경변수에만 둡니다.
 - 클라이언트 공개 키와 서버 전용 키를 분리합니다.
@@ -91,7 +110,7 @@ ${securityRun?.output || state.risk_summary || "보안 제작 자료가 아직 �
 
 ## 구현 메모
 
-${buildRun?.output || "개발 실행 결과가 아직 없습니다. 데이터 모델, API 경계, UI 상태를 먼저 작성하세요."}
+${buildOutput}
 
 ## 검증 명령
 
