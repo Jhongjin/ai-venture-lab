@@ -8,7 +8,9 @@ const {
   buildImplementationEvidenceSummaries,
   compareBlockedImplementationSummaries,
   compareImplementationEvidenceSummaries,
+  getBlockedImplementationSummaryPreview,
   getCompletedImplementationTasksWithEvidence,
+  getImplementationEvidenceIssuePreview,
   getImplementationEvidenceIssues,
 } = await import(moduleUrl);
 
@@ -90,6 +92,12 @@ assert.deepEqual(
   getImplementationEvidenceIssues(evidenceSummaries).map((summary) => summary.task.id),
   ["task-frontend", "task-deploy", "task-qa"],
 );
+assert.deepEqual(
+  getImplementationEvidenceIssuePreview(getImplementationEvidenceIssues(evidenceSummaries), 2).map(
+    (summary) => summary.task.id,
+  ),
+  ["task-frontend", "task-deploy"],
+);
 
 const overriddenEvidenceSummaries = buildImplementationEvidenceSummaries({
   evidenceByTaskId: {
@@ -109,5 +117,8 @@ assert.deepEqual(blockedSummaries[0].missing, ["Vercel 로그", "롤백 기준"]
 assert.equal(blockedSummaries[1].hint.ownerRole, "qa-runner");
 assert.deepEqual(blockedSummaries[1].missing, ["스모크 경로", "실패/회귀"]);
 assert.equal(compareBlockedImplementationSummaries(blockedSummaries[0], blockedSummaries[1]) < 0, true);
+assert.deepEqual(getBlockedImplementationSummaryPreview(blockedSummaries, 1).map((summary) => summary.task.id), [
+  "task-deploy",
+]);
 
 console.log("Implementation task evidence summary smoke passed.");

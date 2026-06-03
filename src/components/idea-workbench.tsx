@@ -480,9 +480,13 @@ import {
   buildImplementationTaskRefreshSummary,
   buildImplementationTaskReviewState,
   formatImplementationTaskRefreshTime,
+  getBlockedImplementationSummaryPreview,
   getCompletedImplementationTasksWithEvidence,
+  getImplementationDependencyStatusPreview,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
+  getImplementationEvidenceIssuePreview,
+  getOpenImplementationTaskPreview,
   implementationStatusFilterLabels,
   implementationStatusFilterOptions,
   implementationTaskExecutionOrder,
@@ -5352,7 +5356,7 @@ export function IdeaWorkbench({
                   </span>
                 </div>
                 <div className="mt-3 grid gap-2">
-                  {selectedOpenImplementationTasks.slice(0, 5).map((task, index) => (
+                  {getOpenImplementationTaskPreview(selectedOpenImplementationTasks).map((task, index) => (
                     <div key={task.id} className="avl-surface-muted p-3">
                       <div className="flex flex-wrap items-center gap-2">
                           <span className="avl-pill avl-pill-neutral inline-flex h-6 w-6 items-center justify-center px-0 text-xs">
@@ -5438,7 +5442,7 @@ export function IdeaWorkbench({
                   <div className="border border-slate-200 bg-slate-50 p-3">
                     <div className="text-sm font-semibold text-slate-950">바로 시작 가능</div>
                     <div className="mt-3 grid gap-2">
-                      {readyImplementationDependencyStatuses.slice(0, 4).map((status) => (
+                      {getImplementationDependencyStatusPreview(readyImplementationDependencyStatuses).map((status) => (
                         <div key={status.task.id} className="avl-surface-muted px-3 py-2">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-semibold text-slate-950">{status.task.title}</span>
@@ -5460,7 +5464,7 @@ export function IdeaWorkbench({
                   <div className="border border-slate-200 bg-slate-50 p-3">
                     <div className="text-sm font-semibold text-slate-950">선행 조건 대기</div>
                     <div className="mt-3 grid gap-2">
-                      {waitingImplementationDependencyStatuses.slice(0, 4).map((status) => (
+                      {getImplementationDependencyStatusPreview(waitingImplementationDependencyStatuses).map((status) => (
                         <div key={status.task.id} className="avl-surface-muted px-3 py-2">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-semibold text-slate-950">{status.task.title}</span>
@@ -5536,7 +5540,7 @@ export function IdeaWorkbench({
                 </div>
 
                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
-                  {blockedImplementationSummaries.slice(0, 4).map((summary) => (
+                  {getBlockedImplementationSummaryPreview(blockedImplementationSummaries).map((summary) => (
                     <div key={summary.task.id} className="border border-rose-200 bg-rose-50 px-3 py-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>
@@ -5585,7 +5589,7 @@ export function IdeaWorkbench({
 
                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
                   {implementationEvidenceIssues.length > 0 ? (
-                    implementationEvidenceIssues.slice(0, 4).map((summary) => (
+                    getImplementationEvidenceIssuePreview(implementationEvidenceIssues).map((summary) => (
                       <div key={summary.task.id} className="border border-amber-200 bg-amber-50 px-3 py-2">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>

@@ -195,6 +195,10 @@ export function getOpenImplementationTasksForAction(tasks: ImplementationTask[])
   return sortImplementationTasksForAction(tasks.filter((task) => task.status !== "done"));
 }
 
+export function getOpenImplementationTaskPreview(tasks: ImplementationTask[], limit = 5) {
+  return tasks.slice(0, limit);
+}
+
 export function selectAgentRunPackageTasks(filteredTasks: ImplementationTask[], openTasks: ImplementationTask[]) {
   const filteredOpenTasks = filteredTasks.filter((task) => task.status !== "done");
 
@@ -363,6 +367,10 @@ export function getImplementationTaskReadinessQueues({
     nextTask,
     nextDependencyStatus,
   };
+}
+
+export function getImplementationDependencyStatusPreview(statuses: ImplementationDependencyStatus[], limit = 4) {
+  return statuses.slice(0, limit);
 }
 
 export function getImplementationEvidenceChecklist(task: ImplementationTask, evidence: string) {
@@ -566,6 +574,10 @@ export function getImplementationEvidenceIssues(summaries: ImplementationEvidenc
   return summaries.filter((summary) => summary.missing.length > 0);
 }
 
+export function getImplementationEvidenceIssuePreview(summaries: ImplementationEvidenceSummary[], limit = 4) {
+  return summaries.slice(0, limit);
+}
+
 export function compareBlockedImplementationSummaries(
   a: BlockedImplementationSummary,
   b: BlockedImplementationSummary,
@@ -592,6 +604,10 @@ export function buildBlockedImplementationSummaries({
       missing: getMissingImplementationEvidenceLabels(task, evidenceByTaskId).missing,
     }))
     .sort(compareBlockedImplementationSummaries);
+}
+
+export function getBlockedImplementationSummaryPreview(summaries: BlockedImplementationSummary[], limit = 4) {
+  return summaries.slice(0, limit);
 }
 
 export function getVisibleImplementationTaskStatuses(statusFilter: ImplementationStatusFilter): ImplementationTaskStatus[] {

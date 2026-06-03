@@ -31,7 +31,9 @@ const {
   buildNextImplementationTaskActionDetail,
   getBlockedImplementationTaskDependencyBlockers,
   getCompletedImplementationTaskTypes,
+  getImplementationDependencyStatusPreview,
   getImplementationTaskTypes,
+  getOpenImplementationTaskPreview,
 } = await import(implementationTaskMetadataUrl);
 const workbenchLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-labels.ts")).href;
 const moduleUrl = transpileModuleUrl("src/lib/implementation-dependency-plan.ts", [
@@ -119,6 +121,10 @@ const completedTypes = getCompletedImplementationTaskTypes([readyTask, doneTask,
 assert.equal(taskTypes.has("frontend"), true);
 assert.equal(completedTypes.has("planning"), true);
 assert.equal(completedTypes.has("frontend"), false);
+assert.deepEqual(getOpenImplementationTaskPreview([readyTask, designTodoTask, blockedFrontendTask], 2).map((task) => task.id), [
+  "task-1",
+  "task-design",
+]);
 assert.equal(
   buildImplementationPrerequisiteBlocker({
     prerequisite: "design",
@@ -200,6 +206,8 @@ const statuses = [
     task: doneTask,
   },
 ];
+assert.deepEqual(getImplementationDependencyStatusPreview(statuses, 1).map((status) => status.task.id), ["task-1"]);
+assert.deepEqual(getImplementationDependencyStatusPreview(statuses).map((status) => status.task.id), ["task-1", "task-2"]);
 
 const markdown = buildImplementationDependencyPlanMarkdown({ idea, state, statuses });
 const draft = buildImplementationDependencyPlanDraft({ idea, state, statuses });
