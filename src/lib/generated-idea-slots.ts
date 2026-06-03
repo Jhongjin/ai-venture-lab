@@ -95,6 +95,18 @@ function createGeneratedIdeaSlot(idea: AiGeneratedSampleIdea | null, index: numb
   };
 }
 
+export function formatGeneratedIdeaSurfaceLabel(idea: AiGeneratedSampleIdea) {
+  return getGeneratedIdeaProductSurface(idea)?.label ?? "웹 서비스";
+}
+
+export function formatGeneratedIdeaFirstBuild(idea: AiGeneratedSampleIdea) {
+  return (
+    idea.firstBuild ||
+    getGeneratedIdeaProductSurface(idea)?.firstBuild ||
+    "로그인, 입력, 결과 확인, 저장까지 이어지는 첫 제작 흐름"
+  );
+}
+
 export function createExtractionRunMeta({
   engine,
   model,
@@ -154,15 +166,13 @@ export function mergeGeneratedIdeaSlots({
 }
 
 export function formatGeneratedIdeaSource(idea: AiGeneratedSampleIdea, index: number) {
-  const productSurface = getGeneratedIdeaProductSurface(idea);
-
   return `아이디어 ${index + 1}: ${idea.title}
 문제: ${idea.pain}
 해결: ${idea.solution}
 대상: ${idea.targetUser}
 구매자: ${idea.buyer}
-예상 결과물: ${productSurface?.label ?? "웹 서비스"}
-첫 결과물 범위: ${idea.firstBuild || productSurface?.firstBuild || "로그인, 입력, 결과 확인, 저장까지 이어지는 첫 제작 흐름"}
+예상 결과물: ${formatGeneratedIdeaSurfaceLabel(idea)}
+첫 결과물 범위: ${formatGeneratedIdeaFirstBuild(idea)}
 먼저 확인할 것: ${idea.firstValidation}`;
 }
 

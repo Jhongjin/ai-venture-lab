@@ -25,6 +25,8 @@ const {
   buildGeneratedIdeaSourceFromSlots,
   createExtractionRunMeta,
   formatGeneratedIdeaSource,
+  formatGeneratedIdeaFirstBuild,
+  formatGeneratedIdeaSurfaceLabel,
   generatedIdeaToExistingContext,
   getExtractIdeasUrl,
   getGenerateSampleIdeasUrl,
@@ -42,6 +44,11 @@ const generatedIdea = {
   productSurface: "operator_console",
   firstBuild: "메모 입력, 후보 선택, 제작 자료 저장",
 };
+
+assert.equal(formatGeneratedIdeaSurfaceLabel(generatedIdea), "운영 콘솔");
+assert.equal(formatGeneratedIdeaFirstBuild(generatedIdea), "메모 입력, 후보 선택, 제작 자료 저장");
+assert.equal(formatGeneratedIdeaSurfaceLabel({ ...generatedIdea, productSurface: "unknown" }), "웹 서비스");
+assert.match(formatGeneratedIdeaFirstBuild({ ...generatedIdea, firstBuild: "", productSurface: "web_app" }), /Next\.js 기반/);
 
 assert.deepEqual(generatedIdeaToExistingContext(generatedIdea), {
   name: "AI Venture Lab",
