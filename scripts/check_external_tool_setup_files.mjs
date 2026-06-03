@@ -8,7 +8,13 @@ const {
   buildClaudeExternalToolSetupFiles,
   buildCodexExternalToolSetupFiles,
   buildCursorExternalToolSetupFiles,
+  buildExternalToolProgressFile,
 } = await import(moduleUrl);
+
+assert.deepEqual(buildExternalToolProgressFile(".tool/progress.json"), {
+  body: "[]\n",
+  path: ".tool/progress.json",
+});
 
 const cursorFiles = buildCursorExternalToolSetupFiles({
   finalAgentRunPackageDraft: "package",

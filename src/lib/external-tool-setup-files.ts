@@ -3,6 +3,12 @@ export type ExternalToolSetupFileDraft = {
   path: string;
 };
 
+const externalToolProgressFileBody = "[]\n";
+
+export function buildExternalToolProgressFile(path: string): ExternalToolSetupFileDraft {
+  return { path, body: externalToolProgressFileBody };
+}
+
 export function buildCursorExternalToolSetupFiles({
   finalAgentRunPackageDraft,
   guideDraft,
@@ -32,7 +38,7 @@ export function buildCursorExternalToolSetupFiles({
     { path: ".cursor/venture-lab-cli.mjs", body: mcpServerDraft },
     { path: ".cursor/venture-lab-mcp-server.mjs", body: mcpServerDraft },
     { path: ".cursor/venture-lab-sync.json", body: syncConfigDraft },
-    { path: ".cursor/venture-lab-progress.json", body: "[]\n" },
+    buildExternalToolProgressFile(".cursor/venture-lab-progress.json"),
   ];
 }
 
@@ -61,7 +67,7 @@ export function buildCodexExternalToolSetupFiles({
     { path: "README_VENTURE_LAB_CODEX.md", body: guideDraft },
     { path: ".codex/venture-lab-cli.mjs", body: cliScriptDraft },
     { path: ".codex/venture-lab-sync.json", body: syncConfigDraft },
-    { path: ".codex/venture-lab-progress.json", body: "[]\n" },
+    buildExternalToolProgressFile(".codex/venture-lab-progress.json"),
   ];
 }
 
@@ -93,7 +99,7 @@ export function buildClaudeExternalToolSetupFiles({
     { path: ".mcp.json", body: mcpConfigDraft },
     { path: ".claude/venture-lab-cli.mjs", body: cliScriptDraft },
     { path: ".claude/venture-lab-sync.json", body: syncConfigDraft },
-    { path: ".claude/venture-lab-progress.json", body: "[]\n" },
+    buildExternalToolProgressFile(".claude/venture-lab-progress.json"),
   ];
 }
 
@@ -128,6 +134,6 @@ export function buildAntigravityExternalToolSetupFiles({
     { path: ".antigravity/mcp_config.json", body: mcpConfigDraft },
     { path: ".antigravity/venture-lab-cli.mjs", body: cliScriptDraft },
     { path: ".antigravity/venture-lab-sync.json", body: syncConfigDraft },
-    { path: ".antigravity/venture-lab-progress.json", body: "[]\n" },
+    buildExternalToolProgressFile(".antigravity/venture-lab-progress.json"),
   ];
 }
