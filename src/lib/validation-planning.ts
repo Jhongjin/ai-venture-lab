@@ -25,6 +25,10 @@ export type ValidationEvidenceCoach = {
   prompt: string;
 };
 
+export function getValidationPlanExperimentPreview(experiments: ValidationPlanExperimentDraft[], limit = 2) {
+  return experiments.slice(0, limit);
+}
+
 export function inferIdeaDomain(idea: Idea, state: Pick<ValidationPlanningState, "next_evidence" | "risk_summary" | "signal">): IdeaDomain {
   const text = `${idea.name} ${idea.one_liner} ${idea.target_user} ${idea.buyer} ${state.signal} ${state.risk_summary} ${state.next_evidence}`;
 

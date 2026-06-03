@@ -4,6 +4,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-input-rows.ts")).href;
+const validationPlanningUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-planning.ts")).href;
 const {
   buildDecisionInsertRow,
   buildDecisionRecordedMessage,
@@ -52,6 +53,26 @@ const {
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
 } = await import(moduleUrl);
+const { getValidationPlanExperimentPreview } = await import(validationPlanningUrl);
+
+assert.deepEqual(
+  getValidationPlanExperimentPreview([
+    { name: "문제 인터뷰", success_metric: "5명 중 3명 반복 문제 확인" },
+    { name: "랜딩 테스트", success_metric: "30명 중 5명 등록" },
+    { name: "가격 테스트", success_metric: "2명 이상 지불 의향" },
+  ]).map((experiment) => experiment.name),
+  ["문제 인터뷰", "랜딩 테스트"],
+);
+assert.deepEqual(
+  getValidationPlanExperimentPreview(
+    [
+      { name: "문제 인터뷰", success_metric: "5명 중 3명 반복 문제 확인" },
+      { name: "랜딩 테스트", success_metric: "30명 중 5명 등록" },
+    ],
+    1,
+  ).map((experiment) => experiment.name),
+  ["문제 인터뷰"],
+);
 
 assert.deepEqual(
   validationExperimentGuideRows.map((row) => row.title),

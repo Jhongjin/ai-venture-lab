@@ -138,7 +138,11 @@ import {
   buildStep8ImplementationDerivedState,
 } from "@/lib/step8-learning-summary";
 import { buildStep6ExecutionBridgeDisplayState } from "@/lib/step6-execution-bridge-state";
-import { buildValidationEvidenceCoach, buildValidationPlan } from "@/lib/validation-planning";
+import {
+  buildValidationEvidenceCoach,
+  buildValidationPlan,
+  getValidationPlanExperimentPreview,
+} from "@/lib/validation-planning";
 import { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } from "@/lib/design-architecture-drafts";
 import {
   artifactLabels,
@@ -6568,7 +6572,7 @@ export function IdeaWorkbench({
                         ) : null}
                       </div>
                       <div className="mt-3 grid gap-2 md:grid-cols-2">
-                        {validationPlan.experiments.slice(0, 2).map((experiment) => (
+                        {getValidationPlanExperimentPreview(validationPlan.experiments).map((experiment) => (
                           <div
                             key={experiment.name}
                             className="border border-sky-200 bg-white p-3"
