@@ -39,6 +39,7 @@ const {
   buildDevelopmentAutopilotFailedMessage,
   buildDevelopmentAutopilotLoginRequiredMessage,
   buildDevelopmentAutopilotPreparedMessage,
+  buildDevelopmentAutoTaskDraftLine,
   buildDevelopmentAutoWorkbenchState,
   buildDevelopmentFinalPackageDrafts,
 } = await import(moduleUrl);
@@ -85,6 +86,19 @@ assert.equal(state.developmentAutoBuildBridgeCards[0].items[0], "AI 정리 화�
 assert.equal(state.developmentAutoOutputItems.length, 3);
 assert.match(state.developmentAutoTaskDraftLines, /T-001 시작 화면/);
 assert.match(state.developmentAutoTaskDraftLines, /프론트/);
+assert.match(
+  buildDevelopmentAutoTaskDraftLine(
+    {
+      acceptance_criteria: "첫 화면 확인\n저장 완료 확인",
+      owner_role: "builder",
+      priority: "high",
+      task_type: "frontend",
+      title: "T-001 시작 화면",
+    },
+    0,
+  ),
+  /저장 완료 확인/,
+);
 assert.match(state.developmentAutoSummaryDraft, /# 제작 실행 요약: AI Venture Lab/);
 assert.match(state.developmentAutoSummaryDraft, /첫 버전은 결제 없이 진행/);
 assert.match(state.developmentAutoSummaryDraft, /Cursor/);

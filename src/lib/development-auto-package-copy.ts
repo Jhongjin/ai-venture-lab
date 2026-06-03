@@ -227,13 +227,12 @@ export function buildDevelopmentAutoTaskDraftLines(implementationTaskDrafts: Rea
     return "1. 핵심 제작 범위, 디자인, 데이터/권한, QA, 배포 점검 순서로 작업을 나눕니다.";
   }
 
-  return implementationTaskDrafts
-    .map(
-      (task, index) =>
-        `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${task.owner_role}
-   - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n     ") || "미정"}`,
-    )
-    .join("\n");
+  return implementationTaskDrafts.map(buildDevelopmentAutoTaskDraftLine).join("\n");
+}
+
+export function buildDevelopmentAutoTaskDraftLine(task: ImplementationTaskDraft, index: number) {
+  return `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${implementationTaskPriorityLabels[task.priority]} / ${task.owner_role}
+   - 수용 기준: ${task.acceptance_criteria.replace(/\n/g, "\n     ") || "미정"}`;
 }
 
 export function buildDevelopmentAutoSummaryDraft({
