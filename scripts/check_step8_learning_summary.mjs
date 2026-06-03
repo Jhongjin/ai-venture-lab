@@ -31,6 +31,7 @@ const {
   buildStep8LearningDisplayState,
   buildStep8LearningSummary,
   buildStep8ProgressSummary,
+  canCopyStep8LearningReport,
   compareStep8ProgressTasks,
   formatStep8TaskCodePrefix,
   sortStep8ProgressTasks,
@@ -200,5 +201,8 @@ assert.equal(displayState.learningDecisionCards[0].label, "완료된 것");
 assert.equal(displayState.learningPrimaryCtaLabel, "리포트 복사");
 assert.equal(displayState.progressTitle, "제작 작업 완료");
 assert.equal(displayState.progressItems.length, 3);
+assert.equal(canCopyStep8LearningReport({ nextImplementationTask: null, productSignalCount: 1 }), true);
+assert.equal(canCopyStep8LearningReport({ nextImplementationTask: tasks[1], productSignalCount: 1 }), false);
+assert.equal(canCopyStep8LearningReport({ nextImplementationTask: null, productSignalCount: 0 }), false);
 
 console.log("Step 8 learning summary smoke passed.");

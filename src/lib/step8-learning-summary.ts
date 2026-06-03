@@ -400,8 +400,18 @@ export function buildStep8LearningDisplayState({
   return {
     ...learningSummary,
     ...progressSummary,
-    canCopyLearningReport: productSignalCount > 0 && !nextImplementationTask,
+    canCopyLearningReport: canCopyStep8LearningReport({ nextImplementationTask, productSignalCount }),
   };
+}
+
+export function canCopyStep8LearningReport({
+  nextImplementationTask,
+  productSignalCount,
+}: {
+  nextImplementationTask: Pick<ImplementationTask, "title"> | null;
+  productSignalCount: number;
+}) {
+  return productSignalCount > 0 && !nextImplementationTask;
 }
 
 export function buildStep8ProgressSummary({
