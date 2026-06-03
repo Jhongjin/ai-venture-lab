@@ -9,6 +9,7 @@ const {
   PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE,
   PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE,
   formatUpgradeInterestCount,
+  getUpgradeInterestDedupeSinceIso,
   getTopUpgradeInterestCountLabel,
   getUpgradeInterestIntentLabel,
   getUpgradeInterestSourceLabel,
@@ -23,6 +24,10 @@ assert.equal(normalizeUpgradeInterestIntent("unknown"), "repeated_production_pac
 assert.equal(getUpgradeInterestSourceLabel("step5_credit_panel"), "STEP 5 크레딧 부족");
 assert.equal(getUpgradeInterestIntentLabel("repeated_production_packages"), "반복 제작");
 assert.equal(formatUpgradeInterestCount(12345), "12,345");
+assert.equal(
+  getUpgradeInterestDedupeSinceIso(Date.parse("2026-06-03T00:00:00.000Z")),
+  "2026-06-02T00:00:00.000Z",
+);
 assert.equal(
   getTopUpgradeInterestCountLabel(
     {
@@ -49,6 +54,14 @@ assert.equal(
   summaryComponentSource.includes(".sort("),
   false,
   "profile-upgrade-interest-summary should use upgrade-interest helpers for count sorting",
+);
+
+const profileActionPath = path.join(process.cwd(), "src/app/profile/actions.ts");
+const profileActionSource = fs.readFileSync(profileActionPath, "utf8");
+assert.equal(
+  profileActionSource.includes("new Date("),
+  false,
+  "profile actions should delegate Pro interest dedupe time calculation to upgrade-interest helpers",
 );
 
 console.log("Upgrade interest utils smoke passed.");

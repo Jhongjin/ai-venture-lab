@@ -3,10 +3,10 @@
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { FREE_MONTHLY_CREDITS, IDEA_BUILD_PASS_CREDITS } from "@/lib/billing";
 import {
-  UPGRADE_INTEREST_DEDUPE_WINDOW_MS,
   UPGRADE_INTEREST_EVENT_CATEGORY,
   UPGRADE_INTEREST_EVENT_NAME,
   UPGRADE_INTEREST_PLAN,
+  getUpgradeInterestDedupeSinceIso,
   normalizeUpgradeInterestIntent,
   normalizeUpgradeInterestSource,
 } from "@/lib/upgrade-interest";
@@ -51,7 +51,7 @@ export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput)
     };
   }
 
-  const dedupeSince = new Date(Date.now() - UPGRADE_INTEREST_DEDUPE_WINDOW_MS).toISOString();
+  const dedupeSince = getUpgradeInterestDedupeSinceIso();
   const { data: recentEvents, error: recentEventError } = await supabase
     .from("telemetry_events")
     .select("id")

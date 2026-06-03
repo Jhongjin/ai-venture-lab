@@ -52,6 +52,10 @@ export function formatUpgradeInterestCount(value: number) {
   return value.toLocaleString("ko-KR");
 }
 
+export function getUpgradeInterestDedupeSinceIso(currentTimeMs = Date.now()) {
+  return new Date(currentTimeMs - UPGRADE_INTEREST_DEDUPE_WINDOW_MS).toISOString();
+}
+
 export function getTopUpgradeInterestCountLabel(
   counts: Record<string, number>,
   getLabel: (key: string) => string,
