@@ -12,7 +12,13 @@ const {
   buildTelemetryWindowCounts,
   countTelemetryEventsByName,
   filterProductTelemetryEvents,
+  formatTelemetryProperties,
+  getDefinedTelemetryPropertyEntries,
+  getDisplayableTelemetryPropertyEntries,
   getProductTelemetryMaxCount,
+  getTelemetryEventTime,
+  getTelemetryReferenceTime,
+  isTelemetryEventWithinWindow,
   sanitizeTelemetryProperties,
 } = await import(moduleUrl);
 
@@ -40,6 +46,10 @@ assert.deepEqual(sanitizeTelemetryProperties({ kept: "yes", missing: undefined, 
   count: 2,
   kept: "yes",
 });
+assert.deepEqual(getDefinedTelemetryPropertyEntries({ kept: "yes", missing: undefined, count: 2 }), [
+  ["kept", "yes"],
+  ["count", 2],
+]);
 assert.deepEqual(
   buildTelemetryEventInsertRow({
     eventCategory: "experiment",
@@ -56,6 +66,39 @@ assert.deepEqual(
     organization_id: "org-1",
     properties: { count: 1 },
   },
+);
+
+assert.deepEqual(getDisplayableTelemetryPropertyEntries(null), []);
+assert.deepEqual(
+  getDisplayableTelemetryPropertyEntries({
+    kept: "yes",
+    missing: undefined,
+    nested: { ignored: true },
+    empty: null,
+    count: 2,
+    flag: true,
+    extra: "fourth",
+    clipped: "fifth",
+  }),
+  [
+    ["kept", "yes"],
+    ["count", 2],
+    ["flag", true],
+    ["extra", "fourth"],
+  ],
+);
+assert.equal(
+  formatTelemetryProperties({
+    kept: "yes",
+    missing: undefined,
+    nested: { ignored: true },
+    empty: null,
+    count: 2,
+    flag: true,
+    extra: "fourth",
+    clipped: "fifth",
+  }),
+  "kept: yes · count: 2 · flag: true · extra: fourth",
 );
 assert.deepEqual(
   buildTelemetryEventInsertRow({
@@ -99,8 +142,18 @@ const taxonomyRows = buildProductTelemetryTaxonomyRows(counts);
 assert.equal(taxonomyRows.find((row) => row.eventName === "product_page_view").count, 2);
 assert.equal(taxonomyRows.find((row) => row.eventName === "product_feedback").count, 1);
 
+const invalidEvent = event({ id: "broken", name: "product_error", occurredAt: "not-a-date" });
+const referenceTime = getTelemetryReferenceTime([...events, invalidEvent]);
+assert.equal(getTelemetryEventTime(events[0]), Date.parse("2026-06-30T00:00:00.000Z"));
+assert.equal(referenceTime, Date.parse("2026-06-30T00:00:00.000Z"));
+assert.equal(isTelemetryEventWithinWindow(events[1], referenceTime, 7), true);
+assert.equal(isTelemetryEventWithinWindow(events[2], referenceTime, 7), false);
+assert.equal(isTelemetryEventWithinWindow(invalidEvent, referenceTime, 30), false);
+assert.equal(getTelemetryReferenceTime([invalidEvent]), -Infinity);
+
 const windowCounts = buildTelemetryWindowCounts(events);
 assert.deepEqual(windowCounts, { sevenDays: 3, fourteenDays: 4, thirtyDays: 4 });
+assert.equal(buildTelemetryWindowCounts([invalidEvent]).sevenDays, 0);
 
 const cards = buildLearningSignalCards({
   openRiskCount: 2,
