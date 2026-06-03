@@ -74,6 +74,10 @@ export function includesAnyNormalized(text: string, terms: string[]) {
   return terms.some((term) => normalized.includes(term.toLowerCase()));
 }
 
+export function getOpenHighValidationRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+}
+
 export function buildValidationPlan({
   idea,
   state,
@@ -88,7 +92,7 @@ export function buildValidationPlan({
   missing: string[];
 }) {
   const domain = inferIdeaDomain(idea, state);
-  const openHighRiskCount = risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed").length;
+  const openHighRiskCount = getOpenHighValidationRisks(risks).length;
   const status =
     missing.length > 0
       ? "증거 공백 해소"
@@ -274,7 +278,7 @@ export function buildValidationEvidenceCoach({
   const evidenceArtifacts = artifacts.filter((artifact) =>
     ["evidence_capture", "experiment_result", "validation_summary", "market_scan"].includes(artifact.source || ""),
   );
-  const openHighRisks = risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+  const openHighRisks = getOpenHighValidationRisks(risks);
   const domainQuestions: Record<IdeaDomain, string[]> = {
     care: [
       "가족, 센터, 요양보호사 중 누가 오늘 가장 답답해하는지 실제 사례를 시간순으로 묻기",

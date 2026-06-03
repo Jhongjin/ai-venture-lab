@@ -56,6 +56,7 @@ const {
 const {
   buildIdeaDomainText,
   buildValidationPlanningReviewState,
+  getOpenHighValidationRisks,
   getValidationPlanExperimentPreview,
   includesAnyNormalized,
 } = await import(validationPlanningUrl);
@@ -65,6 +66,15 @@ assert.equal(includesAnyNormalized("Weekly validation demand", ["weekly"]), true
 assert.equal(includesAnyNormalized("Weekly validation demand", ["WEEKLY"]), true);
 assert.equal(includesAnyNormalized("검증 자동화 수요", ["결제", "구독"]), false);
 assert.equal(includesAnyNormalized("검증 자동화 수요", []), false);
+assert.deepEqual(
+  getOpenHighValidationRisks([
+    { id: "risk-1", severity: "high", status: "open" },
+    { id: "risk-2", severity: "critical", status: "mitigated" },
+    { id: "risk-3", severity: "critical", status: "closed" },
+    { id: "risk-4", severity: "medium", status: "open" },
+  ]).map((risk) => risk.id),
+  ["risk-1", "risk-2"],
+);
 
 assert.deepEqual(
   getValidationPlanExperimentPreview([
