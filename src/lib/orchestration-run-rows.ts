@@ -116,6 +116,13 @@ export function buildManualOrchestrationRunRow<Phase extends string>({
   };
 }
 
+export function getOrchestrationRunPhaseConfig<Phase extends string>(
+  runConfigs: OrchestrationRunPhaseConfig<Phase>[],
+  phase: Phase,
+) {
+  return runConfigs.find((item) => item.phase === phase) ?? null;
+}
+
 export function buildOrchestrationRunPhaseDraft<Phase extends string>({
   currentDraft,
   nextPhase,
@@ -125,7 +132,7 @@ export function buildOrchestrationRunPhaseDraft<Phase extends string>({
   nextPhase: Phase;
   runConfigs: OrchestrationRunPhaseConfig<Phase>[];
 }): OrchestrationRunDraft<Phase> {
-  const config = runConfigs.find((item) => item.phase === nextPhase);
+  const config = getOrchestrationRunPhaseConfig(runConfigs, nextPhase);
 
   return {
     phase: nextPhase,

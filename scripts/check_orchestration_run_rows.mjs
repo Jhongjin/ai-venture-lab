@@ -28,6 +28,7 @@ const {
   buildOrchestrationRunbookCreatedMessage,
   buildOrchestrationRunbookLoginRequiredMessage,
   getMissingOrchestrationRunConfigs,
+  getOrchestrationRunPhaseConfig,
 } = await import(moduleUrl);
 
 const manualRow = buildManualOrchestrationRunRow({
@@ -39,6 +40,13 @@ const manualRow = buildManualOrchestrationRunRow({
     phase: "product",
   },
 });
+
+const phaseConfigs = [
+  { objective: "전략 판단", ownerRole: "strategy-reviewer", phase: "strategy" },
+  { objective: "시장 검증", ownerRole: "researcher", phase: "research" },
+];
+assert.deepEqual(getOrchestrationRunPhaseConfig(phaseConfigs, "research"), phaseConfigs[1]);
+assert.equal(getOrchestrationRunPhaseConfig(phaseConfigs, "launch"), null);
 
 assert.deepEqual(manualRow, {
   idea_id: "idea-1",
