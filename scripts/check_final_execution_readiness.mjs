@@ -34,7 +34,9 @@ const {
   compareFinalExecutionConnectionUsedAtValues,
   formatFinalExecutionProjectKey,
   getFinalExecutionConnectionUsedAtTime,
+  getFinalExecutionActiveConnections,
   getLatestFinalExecutionConnectionUsedAt,
+  getFinalExecutionVisibleConnections,
   hasFinalExecutionPackage,
   hasFinalExecutionWorkOrder,
   selectFinalExecutionLiveToolKey,
@@ -154,6 +156,21 @@ assert.equal(
 );
 assert.equal(getLatestFinalExecutionConnectionUsedAt(connections), "2026-06-01T04:00:00.000Z");
 assert.equal(getLatestFinalExecutionConnectionUsedAt([{ lastUsedAt: null }, { lastUsedAt: "" }]), null);
+assert.deepEqual(
+  getFinalExecutionVisibleConnections({ connections, externalToolKey: "cursor" }).map((connection) => connection.id),
+  ["older-active", "newer-active"],
+);
+assert.deepEqual(
+  getFinalExecutionActiveConnections([
+    ...connections,
+    {
+      ...connections[0],
+      id: "revoked-cursor",
+      status: "revoked",
+    },
+  ]).map((connection) => connection.id),
+  ["older-active", "newer-active", "codex-active"],
+);
 
 const health = buildFinalExecutionConnectionHealth({
   connections,

@@ -480,8 +480,8 @@ export function buildFinalExecutionConnectionHealth({
   externalToolKey: string;
   externalToolLabel: string;
 }): FinalExecutionConnectionHealth {
-  const visibleConnections = connections.filter((connection) => connection.tool === externalToolKey);
-  const activeConnections = visibleConnections.filter((connection) => connection.status === "active");
+  const visibleConnections = getFinalExecutionVisibleConnections({ connections, externalToolKey });
+  const activeConnections = getFinalExecutionActiveConnections(visibleConnections);
   const latestUsedAt = getLatestFinalExecutionConnectionUsedAt(activeConnections);
   const title =
     activeConnections.length === 0
@@ -501,6 +501,20 @@ export function buildFinalExecutionConnectionHealth({
     title,
     detail,
   };
+}
+
+export function getFinalExecutionVisibleConnections({
+  connections,
+  externalToolKey,
+}: {
+  connections: CursorSyncConnection[];
+  externalToolKey: string;
+}) {
+  return connections.filter((connection) => connection.tool === externalToolKey);
+}
+
+export function getFinalExecutionActiveConnections(connections: CursorSyncConnection[]) {
+  return connections.filter((connection) => connection.status === "active");
 }
 
 export function buildFinalExecutionTaskPreview({
