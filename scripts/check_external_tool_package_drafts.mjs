@@ -44,6 +44,7 @@ const moduleUrl = transpileToDataUrl(source, modulePath);
 const {
   buildExternalToolProjectContextLines,
   buildExternalToolProjectInfoSection,
+  buildExternalToolRecordProgressCommandBlock,
   buildExternalToolRecordProgressExampleCommand,
   buildExternalToolSyncSecuritySection,
   buildExternalToolTaskBody,
@@ -64,6 +65,11 @@ assert.equal(
 );
 assert.match(buildExternalToolRecordProgressExampleCommand(".claude"), /\.claude\/venture-lab-cli\.mjs/);
 assert.match(buildExternalToolRecordProgressExampleCommand(".antigravity"), /--task T-001/);
+assert.equal(
+  buildExternalToolRecordProgressCommandBlock(".codex"),
+  '```powershell\nnode .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"\n```',
+);
+assert.match(buildExternalToolRecordProgressCommandBlock(".claude"), /```powershell[\s\S]+\.claude\/venture-lab-cli\.mjs/);
 const connectorDrafts = buildExternalToolConnectorDrafts();
 assert.match(connectorDrafts.cursorMcpConfigDraft, /ai-venture-lab/);
 assert.match(connectorDrafts.cursorMcpServerDraft, /venture:\/\/package/);
