@@ -19,7 +19,7 @@ type MvpBuildReleaseDecisionPacket = {
   blockers: string[];
 };
 
-type MvpBuildDependencyStatus = {
+export type MvpBuildDependencyStatus = {
   task: ImplementationTask;
   ready: boolean;
   blockers: string[];
@@ -27,11 +27,35 @@ type MvpBuildDependencyStatus = {
   nextAction: string;
 };
 
-type MvpBuildArtifactReviewItem = {
+export type MvpBuildArtifactReviewItem = {
   status: string;
   label: string;
   detail: string;
 };
+
+export function getRecommendedMvpBuildBackend(backendCandidateScores: MvpBuildBackendCandidate[]) {
+  return backendCandidateScores[0]?.label ?? "Supabase";
+}
+
+export function getOpenMvpBuildDependencyStatuses(dependencyStatuses: MvpBuildDependencyStatus[]) {
+  return dependencyStatuses.filter((status) => status.task.status !== "done");
+}
+
+export function getReadyMvpBuildDependencyStatuses(dependencyStatuses: MvpBuildDependencyStatus[]) {
+  return getOpenMvpBuildDependencyStatuses(dependencyStatuses)
+    .filter((status) => status.ready)
+    .slice(0, 5);
+}
+
+export function getWaitingMvpBuildDependencyStatuses(dependencyStatuses: MvpBuildDependencyStatus[]) {
+  return getOpenMvpBuildDependencyStatuses(dependencyStatuses)
+    .filter((status) => !status.ready)
+    .slice(0, 5);
+}
+
+export function getApprovedMvpBuildArtifacts(artifactReviewQueue: MvpBuildArtifactReviewItem[]) {
+  return artifactReviewQueue.filter((item) => item.status === "approved");
+}
 
 export function buildMvpBuildCommandPacketMarkdown({
   idea,
@@ -56,16 +80,15 @@ export function buildMvpBuildCommandPacketMarkdown({
   backendCandidateScores: MvpBuildBackendCandidate[];
   artifactReviewQueue: MvpBuildArtifactReviewItem[];
 }) {
-  const recommendedBackend = backendCandidateScores[0]?.label ?? "Supabase";
+  const recommendedBackend = getRecommendedMvpBuildBackend(backendCandidateScores);
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const surfaceExclusionLine =
     productSurface.key === "web_site"
       ? "- 복잡한 내부 운영 콘솔이나 다단계 CRM 자동화를 첫 슬라이스에 끼워 넣지 않는다."
       : "- 마케팅 랜딩 페이지 중심으로 만들지 않는다.";
-  const openDependencyStatuses = dependencyStatuses.filter((status) => status.task.status !== "done");
-  const readyTasks = openDependencyStatuses.filter((status) => status.ready).slice(0, 5);
-  const waitingTasks = openDependencyStatuses.filter((status) => !status.ready).slice(0, 5);
-  const approvedArtifacts = artifactReviewQueue.filter((item) => item.status === "approved");
+  const readyTasks = getReadyMvpBuildDependencyStatuses(dependencyStatuses);
+  const waitingTasks = getWaitingMvpBuildDependencyStatuses(dependencyStatuses);
+  const approvedArtifacts = getApprovedMvpBuildArtifacts(artifactReviewQueue);
   const nextReleaseBlocker = releaseDecisionPacket?.blockers[0] ?? "출시 판단 패킷이 아직 없습니다.";
   const launchInstruction =
     releaseDecisionPacket?.recommendation === "ship"

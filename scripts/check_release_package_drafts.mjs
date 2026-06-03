@@ -82,6 +82,13 @@ const {
   getRecommendedQaBackend,
   isFirebaseQaBackend,
 } = await import(qaAcceptanceUrl);
+const {
+  getApprovedMvpBuildArtifacts,
+  getOpenMvpBuildDependencyStatuses,
+  getReadyMvpBuildDependencyStatuses,
+  getRecommendedMvpBuildBackend,
+  getWaitingMvpBuildDependencyStatuses,
+} = await import(mvpBuildCommandUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -256,6 +263,23 @@ const artifactReviewQueue = [
   { status: "approved", label: "출시 체크리스트", detail: "프로덕션 smoke와 롤백 기준 확인" },
   { status: "approved", label: "제작 도구 전달 자료", detail: "첫 지시문과 작업 목록 확인" },
 ];
+const openDependencyStatusFixtures = [
+  { ...dependencyStatuses[0], ready: true, task: { ...implementationTasks[0], id: "task-ready", status: "todo" } },
+  { ...dependencyStatuses[1], ready: false, task: { ...implementationTasks[1], id: "task-waiting", status: "blocked" } },
+];
+assert.deepEqual(
+  getOpenMvpBuildDependencyStatuses(openDependencyStatusFixtures).map((status) => status.task.id),
+  ["task-ready", "task-waiting"],
+);
+assert.deepEqual(
+  getReadyMvpBuildDependencyStatuses(openDependencyStatusFixtures).map((status) => status.task.id),
+  ["task-ready"],
+);
+assert.deepEqual(
+  getWaitingMvpBuildDependencyStatuses(openDependencyStatusFixtures).map((status) => status.task.id),
+  ["task-waiting"],
+);
+assert.equal(getApprovedMvpBuildArtifacts(artifactReviewQueue).length, 2);
 assert.equal(countPassedReleaseDecisionChecks(gateChecks), 2);
 assert.equal(countApprovedReleaseDecisionArtifacts(artifactReviewQueue), 2);
 assert.equal(countDoneReleaseDecisionTasks(implementationTasks), 2);
@@ -282,6 +306,8 @@ const backendCandidateScores = [
     summary: "워크스페이스 기반 제품 OS에 적합",
   },
 ];
+assert.equal(getRecommendedMvpBuildBackend(backendCandidateScores), "Supabase");
+assert.equal(getRecommendedMvpBuildBackend([]), "Supabase");
 assert.equal(getRecommendedQaBackend(backendCandidateScores), "Supabase");
 assert.equal(getRecommendedQaBackend([]), "Supabase");
 assert.equal(isFirebaseQaBackend("Firebase"), true);
