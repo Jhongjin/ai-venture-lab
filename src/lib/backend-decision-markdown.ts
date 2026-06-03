@@ -25,6 +25,29 @@ type BackendExecutionPlanMarkdown = {
   rollback: string;
 };
 
+export function buildBackendDecisionCandidateRows(candidates: BackendDecisionCandidate[]) {
+  return candidates
+    .map((candidate) => `| ${candidate.label} | ${candidate.score} | ${candidate.strengths[0]} | ${candidate.cautions[0]} |`)
+    .join("\n");
+}
+
+export function buildBackendExecutionPlanEnvLines(envVars: string[]) {
+  return envVars.map((envVar) => `- ${envVar}`).join("\n");
+}
+
+export function buildBackendExecutionPlanCheckSections(checks: BackendExecutionPlanMarkdown["checks"]) {
+  return checks
+    .map(
+      (check) => `### ${check.label}
+
+- 구분: ${check.tone === "required" ? "필수" : "권장"}
+- 확인: ${check.detail}
+- 증거: ${check.evidence}
+`,
+    )
+    .join("\n");
+}
+
 export function buildBackendDecisionMarkdown({
   idea,
   state,
@@ -36,12 +59,7 @@ export function buildBackendDecisionMarkdown({
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
   const recommended = candidates[0];
-  const candidateRows = candidates
-    .map(
-      (candidate) =>
-        `| ${candidate.label} | ${candidate.score} | ${candidate.strengths[0]} | ${candidate.cautions[0]} |`,
-    )
-    .join("\n");
+  const candidateRows = buildBackendDecisionCandidateRows(candidates);
 
   return `# 백엔드 결정: ${idea.name}
 
@@ -110,20 +128,11 @@ export function buildBackendExecutionPlanMarkdown({
 
 ## 환경변수
 
-${plan.envVars.map((envVar) => `- ${envVar}`).join("\n")}
+${buildBackendExecutionPlanEnvLines(plan.envVars)}
 
 ## 권한/보안 체크
 
-${plan.checks
-  .map(
-    (check) => `### ${check.label}
-
-- 구분: ${check.tone === "required" ? "필수" : "권장"}
-- 확인: ${check.detail}
-- 증거: ${check.evidence}
-`,
-  )
-  .join("\n")}
+${buildBackendExecutionPlanCheckSections(plan.checks)}
 
 ## 로컬 검증 명령
 

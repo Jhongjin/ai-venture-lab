@@ -33,6 +33,11 @@ const backendPlanningUrl = transpileModuleUrl("src/lib/backend-planning.ts", [
   ['from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`],
 ]);
 const { compareBackendCandidateScores, sortBackendCandidateScores } = await import(backendPlanningUrl);
+const {
+  buildBackendDecisionCandidateRows,
+  buildBackendExecutionPlanCheckSections,
+  buildBackendExecutionPlanEnvLines,
+} = await import(backendDecisionMarkdownUrl);
 const moduleUrl = transpileModuleUrl("src/lib/backend-planning-drafts.ts", [
   ['from "@/lib/backend-decision-markdown";', `from ${JSON.stringify(backendDecisionMarkdownUrl)};`],
   ['from "@/lib/backend-execution-plan-rows";', `from ${JSON.stringify(backendExecutionPlanRowsUrl)};`],
@@ -119,6 +124,12 @@ const draftState = buildBackendPlanningDraftState({
 });
 
 assert.equal(draftState.backendCandidateScores[0].label, "Supabase");
+assert.match(buildBackendDecisionCandidateRows(draftState.backendCandidateScores), /Supabase/);
+assert.equal(buildBackendDecisionCandidateRows([]), "");
+assert.match(buildBackendExecutionPlanEnvLines(draftState.backendExecutionPlan.envVars), /NEXT_PUBLIC_SUPABASE_URL/);
+assert.equal(buildBackendExecutionPlanEnvLines([]), "");
+assert.match(buildBackendExecutionPlanCheckSections(draftState.backendExecutionPlan.checks), /RLS 활성화/);
+assert.equal(buildBackendExecutionPlanCheckSections([]), "");
 assert.deepEqual(
   sortBackendCandidateScores([
     { label: "Low", score: 25 },
