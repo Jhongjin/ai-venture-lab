@@ -20,6 +20,10 @@ export type ManualIdeaInput = {
   target_user: string;
 };
 
+export function formatManualIdeaArtifactValue(value: string, fallback: string) {
+  return value || fallback;
+}
+
 export function buildManualIdeaInsertRow({
   form,
   organizationId,
@@ -72,9 +76,9 @@ export function buildManualIdeaDirectionArtifactBody({
 
 ## 아이디어
 
-- 한 줄 설명: ${oneLiner || "미정"}
-- 대상 사용자: ${targetUser || "미정"}
-- 구매자: ${buyer || "미정"}
+- 한 줄 설명: ${formatManualIdeaArtifactValue(oneLiner, "미정")}
+- 대상 사용자: ${formatManualIdeaArtifactValue(targetUser, "미정")}
+- 구매자: ${formatManualIdeaArtifactValue(buyer, "미정")}
 
 ${productSurfaceMarkdown}
 
@@ -82,7 +86,7 @@ ${buildDeliveryMarkdown}
 
 ## 다음 확인
 
-${nextEvidence || "사업성 평가에서 AI가 필요한 검증 질문을 다시 정리합니다."}
+${formatManualIdeaArtifactValue(nextEvidence, "사업성 평가에서 AI가 필요한 검증 질문을 다시 정리합니다.")}
 `;
 }
 

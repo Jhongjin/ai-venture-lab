@@ -29,7 +29,11 @@ const {
   buildManualIdeaDirectionArtifactRow,
   buildManualIdeaDirectionArtifactRowFromProfiles,
   buildManualIdeaInsertRow,
+  formatManualIdeaArtifactValue,
 } = await import(moduleUrl);
+
+assert.equal(formatManualIdeaArtifactValue("운영팀", "미정"), "운영팀");
+assert.equal(formatManualIdeaArtifactValue("", "미정"), "미정");
 
 const insertRow = buildManualIdeaInsertRow({
   form: {
