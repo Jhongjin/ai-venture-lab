@@ -239,6 +239,32 @@ export function getExternalBuildToolProfile(preference: BuildDeliveryPreference)
   return externalBuildToolProfiles[preference.externalTool] ?? externalBuildToolProfiles.cursor;
 }
 
+export function getFinalExternalToolOverrideKey({
+  finalExternalToolOverride,
+  selectedIdeaId,
+}: {
+  finalExternalToolOverride: FinalExternalToolOverride;
+  selectedIdeaId: string | null;
+}) {
+  return finalExternalToolOverride?.ideaId === selectedIdeaId ? finalExternalToolOverride.key : null;
+}
+
+export function hasActiveFinalExternalToolOverride({
+  buildDeliveryMode,
+  finalExternalToolOverrideKey,
+  persistedExternalBuildToolKey,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  finalExternalToolOverrideKey: ExternalBuildToolKey | null;
+  persistedExternalBuildToolKey: ExternalBuildToolKey;
+}) {
+  return (
+    buildDeliveryMode === "external_tool" &&
+    Boolean(finalExternalToolOverrideKey) &&
+    finalExternalToolOverrideKey !== persistedExternalBuildToolKey
+  );
+}
+
 export function resolveBuildDeliveryContext({
   finalExternalToolOverride,
   preference,
@@ -250,16 +276,19 @@ export function resolveBuildDeliveryContext({
 }): BuildDeliveryContext {
   const buildDeliveryMode = preference.mode;
   const persistedExternalBuildTool = getExternalBuildToolProfile(preference);
-  const finalExternalToolOverrideKey =
-    finalExternalToolOverride?.ideaId === selectedIdeaId ? finalExternalToolOverride.key : null;
+  const finalExternalToolOverrideKey = getFinalExternalToolOverrideKey({
+    finalExternalToolOverride,
+    selectedIdeaId,
+  });
   const activeExternalBuildTool =
     buildDeliveryMode === "external_tool" && finalExternalToolOverrideKey
       ? externalBuildToolProfiles[finalExternalToolOverrideKey]
       : persistedExternalBuildTool;
-  const hasFinalExternalToolOverride =
-    buildDeliveryMode === "external_tool" &&
-    Boolean(finalExternalToolOverrideKey) &&
-    finalExternalToolOverrideKey !== persistedExternalBuildTool.key;
+  const hasFinalExternalToolOverride = hasActiveFinalExternalToolOverride({
+    buildDeliveryMode,
+    finalExternalToolOverrideKey,
+    persistedExternalBuildToolKey: persistedExternalBuildTool.key,
+  });
   const activeBuildDeliveryPhrase = getBuildDeliveryActionPhrase({
     buildDeliveryMode,
     externalToolLabel: activeExternalBuildTool.label,

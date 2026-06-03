@@ -8,6 +8,8 @@ const {
   getBuildDeliveryActionPhrase,
   getBuildDeliveryPreferenceArtifactTime,
   getBuildDeliveryPreferenceFromArtifacts,
+  getFinalExternalToolOverrideKey,
+  hasActiveFinalExternalToolOverride,
   normalizeBuildDeliveryPreference,
   resolveBuildDeliveryContext,
   sortBuildDeliveryPreferenceArtifacts,
@@ -46,6 +48,44 @@ const staleOverrideContext = resolveBuildDeliveryContext({
 assert.equal(staleOverrideContext.finalExternalToolOverrideKey, null);
 assert.equal(staleOverrideContext.activeExternalBuildTool.key, "cursor");
 assert.equal(staleOverrideContext.hasFinalExternalToolOverride, false);
+assert.equal(
+  getFinalExternalToolOverrideKey({
+    finalExternalToolOverride: { ideaId: "idea-1", key: "codex" },
+    selectedIdeaId: "idea-1",
+  }),
+  "codex",
+);
+assert.equal(
+  getFinalExternalToolOverrideKey({
+    finalExternalToolOverride: { ideaId: "other-idea", key: "codex" },
+    selectedIdeaId: "idea-1",
+  }),
+  null,
+);
+assert.equal(
+  hasActiveFinalExternalToolOverride({
+    buildDeliveryMode: "external_tool",
+    finalExternalToolOverrideKey: "codex",
+    persistedExternalBuildToolKey: "cursor",
+  }),
+  true,
+);
+assert.equal(
+  hasActiveFinalExternalToolOverride({
+    buildDeliveryMode: "venture_lab",
+    finalExternalToolOverrideKey: "codex",
+    persistedExternalBuildToolKey: "cursor",
+  }),
+  false,
+);
+assert.equal(
+  hasActiveFinalExternalToolOverride({
+    buildDeliveryMode: "external_tool",
+    finalExternalToolOverrideKey: "cursor",
+    persistedExternalBuildToolKey: "cursor",
+  }),
+  false,
+);
 
 const internalContext = resolveBuildDeliveryContext({
   finalExternalToolOverride: {
