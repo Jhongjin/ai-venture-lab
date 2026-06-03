@@ -45,6 +45,63 @@ export function getOpenHighDevelopmentKickoffRisks(risks: Risk[]) {
   return risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
 }
 
+export function buildDevelopmentKickoffHighRiskLines(openHighRisks: Risk[]) {
+  if (openHighRisks.length === 0) {
+    return "- 열린 높음/치명 리스크가 없습니다.";
+  }
+
+  return openHighRisks
+    .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`)
+    .join("\n");
+}
+
+export function buildDevelopmentKickoffExperimentLines(experiments: Experiment[]) {
+  if (experiments.length === 0) {
+    return "- 연결된 실험이 없습니다. 개발 전 성공 지표를 먼저 고정하세요.";
+  }
+
+  return experiments
+    .slice(0, 4)
+    .map(
+      (experiment) =>
+        `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
+          experiment.success_metric || "성공 지표 미정"
+        }`,
+    )
+    .join("\n");
+}
+
+export function buildDevelopmentKickoffTaskLines(taskDrafts: ImplementationTaskDraft[]) {
+  if (taskDrafts.length === 0) {
+    return "생성 가능한 기본 태스크가 없습니다.";
+  }
+
+  return taskDrafts
+    .map(
+      (task, index) =>
+        `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${
+          implementationTaskPriorityLabels[task.priority]
+        } / ${task.owner_role}`,
+    )
+    .join("\n");
+}
+
+export function buildDevelopmentKickoffBlockedLines(failedChecks: DevelopmentKickoffGateCheck[]) {
+  if (failedChecks.length === 0) {
+    return "- 개발 착수 전 필수 점검이 통과 상태입니다.";
+  }
+
+  return failedChecks.map((check) => `- ${check.label}: ${check.detail}`).join("\n");
+}
+
+export function buildDevelopmentKickoffApprovedInputLines(approvedProductArtifacts: VentureArtifact[]) {
+  if (approvedProductArtifacts.length === 0) {
+    return "- 승인된 제품/기술 제작 자료가 없습니다.";
+  }
+
+  return approvedProductArtifacts.map((artifact) => `- ${artifactLabels[artifact.artifact_type]}: ${artifact.title}`).join("\n");
+}
+
 export function buildDevelopmentKickoffMarkdown({
   idea,
   state,
@@ -67,36 +124,12 @@ export function buildDevelopmentKickoffMarkdown({
   const failedChecks = getFailedDevelopmentKickoffChecks(readinessChecks);
   const mvpSliceArtifact = getMvpSliceDevelopmentKickoffArtifact(artifacts);
   const approvedProductArtifacts = getApprovedDevelopmentKickoffProductArtifacts(artifacts);
-  const highRiskLines = getOpenHighDevelopmentKickoffRisks(risks).map(
-    (risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`,
-  );
-  const experimentLines =
-    experiments.length > 0
-      ? experiments
-          .slice(0, 4)
-          .map(
-            (experiment) =>
-              `- ${experiment.name}: ${experimentStatusLabels[experiment.status] ?? experiment.status} / ${
-                experiment.success_metric || "성공 지표 미정"
-              }`,
-          )
-          .join("\n")
-      : "- 연결된 실험이 없습니다. 개발 전 성공 지표를 먼저 고정하세요.";
-  const taskLines =
-    taskDrafts.length > 0
-      ? taskDrafts
-          .map(
-            (task, index) =>
-              `${index + 1}. ${task.title} / ${implementationTaskTypeLabels[task.task_type]} / ${
-                implementationTaskPriorityLabels[task.priority]
-              } / ${task.owner_role}`,
-          )
-          .join("\n")
-      : "생성 가능한 기본 태스크가 없습니다.";
-  const blockedLines =
-    failedChecks.length > 0
-      ? failedChecks.map((check) => `- ${check.label}: ${check.detail}`).join("\n")
-      : "- 개발 착수 전 필수 점검이 통과 상태입니다.";
+  const openHighRisks = getOpenHighDevelopmentKickoffRisks(risks);
+  const highRiskLines = buildDevelopmentKickoffHighRiskLines(openHighRisks);
+  const experimentLines = buildDevelopmentKickoffExperimentLines(experiments);
+  const taskLines = buildDevelopmentKickoffTaskLines(taskDrafts);
+  const blockedLines = buildDevelopmentKickoffBlockedLines(failedChecks);
+  const approvedInputLines = buildDevelopmentKickoffApprovedInputLines(approvedProductArtifacts);
 
   return `# 제작 시작 요약: ${idea.name}
 
@@ -129,11 +162,7 @@ ${blockedLines}
 
 ## 승인된 입력
 
-${
-  approvedProductArtifacts.length > 0
-    ? approvedProductArtifacts.map((artifact) => `- ${artifactLabels[artifact.artifact_type]}: ${artifact.title}`).join("\n")
-    : "- 승인된 제품/기술 제작 자료가 없습니다."
-}
+${approvedInputLines}
 
 ## 검증과 실험 기준
 
@@ -141,7 +170,7 @@ ${experimentLines}
 
 ## 높은 리스크
 
-${highRiskLines.length > 0 ? highRiskLines.join("\n") : "- 열린 높음/치명 리스크가 없습니다."}
+${highRiskLines}
 
 ## 기본 구현 태스크 후보
 

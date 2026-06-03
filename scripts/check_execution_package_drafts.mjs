@@ -82,6 +82,11 @@ const {
   hasLaunchChecklistArtifactType,
 } = await import(launchChecklistUrl);
 const {
+  buildDevelopmentKickoffApprovedInputLines,
+  buildDevelopmentKickoffBlockedLines,
+  buildDevelopmentKickoffExperimentLines,
+  buildDevelopmentKickoffHighRiskLines,
+  buildDevelopmentKickoffTaskLines,
   countPassedDevelopmentKickoffChecks,
   getApprovedDevelopmentKickoffProductArtifacts,
   getFailedDevelopmentKickoffChecks,
@@ -384,6 +389,19 @@ assert.deepEqual(
   getOpenHighDevelopmentKickoffRisks([{ ...risks[0], id: "risk-open", status: "open" }]).map((risk) => risk.id),
   ["risk-open"],
 );
+assert.match(buildDevelopmentKickoffApprovedInputLines(artifacts), /AI Venture Lab 제품 기획서/);
+assert.equal(buildDevelopmentKickoffApprovedInputLines([]), "- 승인된 제품/기술 제작 자료가 없습니다.");
+assert.match(buildDevelopmentKickoffBlockedLines([{ ...gateChecks[0], passed: false }]), /승인 제작 자료/);
+assert.equal(buildDevelopmentKickoffBlockedLines([]), "- 개발 착수 전 필수 점검이 통과 상태입니다.");
+assert.match(buildDevelopmentKickoffExperimentLines(experiments), /첫 태스크 이해와 실행/);
+assert.equal(
+  buildDevelopmentKickoffExperimentLines([]),
+  "- 연결된 실험이 없습니다. 개발 전 성공 지표를 먼저 고정하세요.",
+);
+assert.match(buildDevelopmentKickoffHighRiskLines([{ ...risks[0], status: "open" }]), /원본 저장 전 식별자 제거/);
+assert.equal(buildDevelopmentKickoffHighRiskLines([]), "- 열린 높음/치명 리스크가 없습니다.");
+assert.match(buildDevelopmentKickoffTaskLines(taskDrafts), /범위 잠금/);
+assert.equal(buildDevelopmentKickoffTaskLines([]), "생성 가능한 기본 태스크가 없습니다.");
 const externalBuildTool = {
   automationLabel: "자동 동기화 지원",
   description: "테스트용 외부 제작 도구",
