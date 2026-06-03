@@ -53,7 +53,7 @@ const {
   validationEvidenceCoachGuideRows,
   validationExperimentGuideRows,
 } = await import(moduleUrl);
-const { getValidationPlanExperimentPreview } = await import(validationPlanningUrl);
+const { buildValidationPlanningReviewState, getValidationPlanExperimentPreview } = await import(validationPlanningUrl);
 
 assert.deepEqual(
   getValidationPlanExperimentPreview([
@@ -72,6 +72,59 @@ assert.deepEqual(
     1,
   ).map((experiment) => experiment.name),
   ["문제 인터뷰"],
+);
+const validationIdea = {
+  buyer: "운영팀",
+  frequency: 4,
+  id: "idea-1",
+  name: "AI Venture Lab",
+  next_evidence: "5명 인터뷰",
+  one_liner: "아이디어를 검증 패키지로 바꿉니다.",
+  problem_intensity: 4,
+  reachability: 4,
+  risk_summary: "범위 확장 주의",
+  signal: "반복 검증 자동화 수요",
+  target_user: "창업자",
+  willingness_to_pay: 3,
+};
+const validationState = {
+  frequency: validationIdea.frequency,
+  next_evidence: validationIdea.next_evidence,
+  problem_intensity: validationIdea.problem_intensity,
+  reachability: validationIdea.reachability,
+  risk_summary: validationIdea.risk_summary,
+  signal: validationIdea.signal,
+  willingness_to_pay: validationIdea.willingness_to_pay,
+};
+const validationReviewState = buildValidationPlanningReviewState({
+  artifacts: [],
+  decisions: [],
+  experiments: [],
+  idea: validationIdea,
+  missing: [],
+  risks: [],
+  score: 20,
+  state: validationState,
+});
+assert.equal(validationReviewState.validationPlan.status, "추가 조사");
+assert.equal(validationReviewState.recommendedValidationExperiment.name, "구독 감사 리포트 수동 검증");
+assert.equal(validationReviewState.validationEvidenceCoach.nextFocus.label, "구매자와 지불");
+assert.deepEqual(
+  buildValidationPlanningReviewState({
+    artifacts: [],
+    decisions: [],
+    experiments: [],
+    idea: null,
+    missing: [],
+    risks: [],
+    score: 20,
+    state: validationState,
+  }),
+  {
+    recommendedValidationExperiment: null,
+    validationEvidenceCoach: null,
+    validationPlan: null,
+  },
 );
 
 assert.deepEqual(

@@ -1,6 +1,6 @@
 import type { Decision, Experiment, Idea, Risk, VentureArtifact } from "@/lib/venture-data";
 
-type ValidationPlanningState = Pick<
+export type ValidationPlanningState = Pick<
   Idea,
   "frequency" | "next_evidence" | "problem_intensity" | "reachability" | "risk_summary" | "signal" | "willingness_to_pay"
 >;
@@ -23,6 +23,12 @@ export type ValidationEvidenceCoach = {
   checks: ValidationEvidenceCheck[];
   nextFocus: ValidationEvidenceCheck | null;
   prompt: string;
+};
+
+export type ValidationPlanningReviewState = {
+  validationEvidenceCoach: ValidationEvidenceCoach | null;
+  validationPlan: ReturnType<typeof buildValidationPlan> | null;
+  recommendedValidationExperiment: ValidationPlanExperimentDraft | null;
 };
 
 export function getValidationPlanExperimentPreview(experiments: ValidationPlanExperimentDraft[], limit = 2) {
@@ -386,5 +392,55 @@ ${(domainQuestions[domain] ?? domainQuestions.generic).map((question) => `- ${qu
     checks,
     nextFocus,
     prompt,
+  };
+}
+
+export function buildValidationPlanningReviewState({
+  artifacts,
+  decisions,
+  experiments,
+  idea,
+  missing,
+  risks,
+  score,
+  state,
+}: {
+  artifacts: VentureArtifact[];
+  decisions: Decision[];
+  experiments: Experiment[];
+  idea: Idea | null;
+  missing: string[];
+  risks: Risk[];
+  score: number;
+  state: ValidationPlanningState | null;
+}): ValidationPlanningReviewState {
+  if (!idea || !state) {
+    return {
+      validationEvidenceCoach: null,
+      validationPlan: null,
+      recommendedValidationExperiment: null,
+    };
+  }
+
+  const validationPlan = buildValidationPlan({
+    idea,
+    state,
+    score,
+    risks,
+    missing,
+  });
+
+  return {
+    validationEvidenceCoach: buildValidationEvidenceCoach({
+      artifacts,
+      decisions,
+      experiments,
+      idea,
+      risks,
+      score,
+      state,
+    }),
+    validationPlan,
+    recommendedValidationExperiment: validationPlan.experiments[0] ?? null,
   };
 }

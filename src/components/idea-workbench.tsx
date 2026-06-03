@@ -141,8 +141,7 @@ import {
 } from "@/lib/step8-learning-summary";
 import { buildStep6ExecutionBridgeDisplayState } from "@/lib/step6-execution-bridge-state";
 import {
-  buildValidationEvidenceCoach,
-  buildValidationPlan,
+  buildValidationPlanningReviewState,
   getValidationPlanExperimentPreview,
 } from "@/lib/validation-planning";
 import { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } from "@/lib/design-architecture-drafts";
@@ -1418,27 +1417,16 @@ export function IdeaWorkbench({
     riskCount: selectedIdeaRisks.length,
     state: editState,
   });
-  const validationPlan = selectedIdea && editState
-    ? buildValidationPlan({
-        idea: selectedIdea,
-        state: editState,
-        score: currentScore,
-        risks: selectedIdeaRisks,
-        missing,
-      })
-    : null;
-  const recommendedValidationExperiment = validationPlan?.experiments[0] ?? null;
-  const validationEvidenceCoach = selectedIdea && editState
-    ? buildValidationEvidenceCoach({
-        idea: selectedIdea,
-        state: editState,
-        score: currentScore,
-        risks: selectedIdeaRisks,
-        experiments: selectedExperiments,
-        artifacts: selectedArtifactRecords,
-        decisions: selectedDecisions,
-      })
-    : null;
+  const { recommendedValidationExperiment, validationEvidenceCoach, validationPlan } = buildValidationPlanningReviewState({
+    artifacts: selectedArtifactRecords,
+    decisions: selectedDecisions,
+    experiments: selectedExperiments,
+    idea: selectedIdea,
+    missing,
+    risks: selectedIdeaRisks,
+    score: currentScore,
+    state: editState,
+  });
   const {
     evidenceNoteDraft,
     experimentResultNoteDraft,
