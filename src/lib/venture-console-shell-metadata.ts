@@ -532,16 +532,34 @@ export function buildVentureConsoleTaskStatuses({
     "workbench:artifacts": `${artifactCount}개`,
     "workbench:development": implementationTaskCount > 0 ? `${implementationTaskCount}개` : "준비",
     "workbench:orchestration": `${runCount}개`,
-    "workbench:launch": launchReadiness.canEnterLaunch
-      ? "준비 완료"
-      : launchReadiness.nextLaunchBlockerLabel ?? `${launchReadiness.launchReadinessScore}%`,
-    "workbench:learning":
-      implementationTaskCount > 0
-        ? `${completedImplementationTaskCount}/${implementationTaskCount}`
-        : telemetryEventCount > 0
-          ? `${telemetryEventCount}개`
-          : "대기",
+    "workbench:launch": formatWorkbenchLaunchStatus(launchReadiness),
+    "workbench:learning": formatWorkbenchLearningStatus({
+      completedImplementationTaskCount,
+      implementationTaskCount,
+      telemetryEventCount,
+    }),
   };
+}
+
+export function formatWorkbenchLaunchStatus(launchReadiness: ShellTaskStatusContext["launchReadiness"]) {
+  return launchReadiness.canEnterLaunch
+    ? "준비 완료"
+    : launchReadiness.nextLaunchBlockerLabel ?? `${launchReadiness.launchReadinessScore}%`;
+}
+
+export function formatWorkbenchLearningStatus({
+  completedImplementationTaskCount,
+  implementationTaskCount,
+  telemetryEventCount,
+}: Pick<
+  ShellTaskStatusContext,
+  "completedImplementationTaskCount" | "implementationTaskCount" | "telemetryEventCount"
+>) {
+  return implementationTaskCount > 0
+    ? `${completedImplementationTaskCount}/${implementationTaskCount}`
+    : telemetryEventCount > 0
+      ? `${telemetryEventCount}개`
+      : "대기";
 }
 
 export function getExecutiveFocus({

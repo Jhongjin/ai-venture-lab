@@ -7,6 +7,8 @@ const {
   buildVentureConsoleTaskStatuses,
   buildVentureConsoleProgressState,
   firstRunGuideSteps,
+  formatWorkbenchLaunchStatus,
+  formatWorkbenchLearningStatus,
   getActiveConsoleTask,
   getActiveWorkbenchTask,
   getCurrentStepBlocker,
@@ -237,6 +239,23 @@ assert.equal(blockedStatuses["workbench:risk"], "4개");
 assert.equal(blockedStatuses["workbench:development"], "준비");
 assert.equal(blockedStatuses["workbench:launch"], "제작 패키지 저장");
 assert.equal(blockedStatuses["workbench:learning"], "2개");
+assert.equal(formatWorkbenchLaunchStatus(blockedStatusContext.launchReadiness), "제작 패키지 저장");
+assert.equal(
+  formatWorkbenchLaunchStatus({
+    canEnterLaunch: false,
+    launchReadinessScore: 65,
+    nextLaunchBlockerLabel: null,
+  }),
+  "65%",
+);
+assert.equal(
+  formatWorkbenchLearningStatus({
+    completedImplementationTaskCount: 0,
+    implementationTaskCount: 0,
+    telemetryEventCount: 2,
+  }),
+  "2개",
+);
 
 const readyStatuses = buildVentureConsoleTaskStatuses({
   ...blockedStatusContext,
@@ -259,5 +278,29 @@ assert.equal(readyStatuses["workbench:archive"], "1개");
 assert.equal(readyStatuses["workbench:development"], "4개");
 assert.equal(readyStatuses["workbench:launch"], "준비 완료");
 assert.equal(readyStatuses["workbench:learning"], "3/4");
+assert.equal(
+  formatWorkbenchLaunchStatus({
+    canEnterLaunch: true,
+    launchReadinessScore: 100,
+    nextLaunchBlockerLabel: null,
+  }),
+  "준비 완료",
+);
+assert.equal(
+  formatWorkbenchLearningStatus({
+    completedImplementationTaskCount: 3,
+    implementationTaskCount: 4,
+    telemetryEventCount: 0,
+  }),
+  "3/4",
+);
+assert.equal(
+  formatWorkbenchLearningStatus({
+    completedImplementationTaskCount: 0,
+    implementationTaskCount: 0,
+    telemetryEventCount: 0,
+  }),
+  "대기",
+);
 
 console.log("Venture console shell metadata smoke passed.");
