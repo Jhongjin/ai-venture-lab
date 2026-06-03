@@ -81,6 +81,13 @@ const {
   hasApprovedLaunchChecklistArtifactType,
   hasLaunchChecklistArtifactType,
 } = await import(launchChecklistUrl);
+const {
+  countPassedDevelopmentKickoffChecks,
+  getApprovedDevelopmentKickoffProductArtifacts,
+  getFailedDevelopmentKickoffChecks,
+  getMvpSliceDevelopmentKickoffArtifact,
+  getOpenHighDevelopmentKickoffRisks,
+} = await import(developmentKickoffUrl);
 
 const timestamp = "2026-06-02T00:00:00.000Z";
 const idea = {
@@ -326,6 +333,20 @@ const gateChecks = [
   { label: "승인 제작 자료", passed: true, detail: "필수 자료 승인 완료" },
   { label: "리스크 경계", passed: true, detail: "고위험 리스크 종료" },
 ];
+assert.equal(countPassedDevelopmentKickoffChecks(gateChecks), 2);
+assert.deepEqual(
+  getFailedDevelopmentKickoffChecks([{ ...gateChecks[0], label: "범위 잠금", passed: false }]).map((check) => check.label),
+  ["범위 잠금"],
+);
+assert.equal(getMvpSliceDevelopmentKickoffArtifact(artifacts)?.id, "artifact-mvp");
+assert.deepEqual(
+  getApprovedDevelopmentKickoffProductArtifacts(artifacts).map((artifact) => artifact.id),
+  ["artifact-prd", "artifact-mvp"],
+);
+assert.deepEqual(
+  getOpenHighDevelopmentKickoffRisks([{ ...risks[0], id: "risk-open", status: "open" }]).map((risk) => risk.id),
+  ["risk-open"],
+);
 const externalBuildTool = {
   automationLabel: "자동 동기화 지원",
   description: "테스트용 외부 제작 도구",

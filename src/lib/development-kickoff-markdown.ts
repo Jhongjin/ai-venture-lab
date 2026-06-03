@@ -15,11 +15,35 @@ import {
 
 type DevelopmentKickoffState = Pick<Idea, "stage" | "decision" | "next_evidence" | "product_surface">;
 
-type DevelopmentKickoffGateCheck = {
+export type DevelopmentKickoffGateCheck = {
   label: string;
   passed: boolean;
   detail: string;
 };
+
+export function countPassedDevelopmentKickoffChecks(readinessChecks: DevelopmentKickoffGateCheck[]) {
+  return readinessChecks.filter((check) => check.passed).length;
+}
+
+export function getFailedDevelopmentKickoffChecks(readinessChecks: DevelopmentKickoffGateCheck[]) {
+  return readinessChecks.filter((check) => !check.passed);
+}
+
+export function getMvpSliceDevelopmentKickoffArtifact(artifacts: VentureArtifact[]) {
+  return artifacts.find((artifact) => artifact.source === "mvp_slice_plan") ?? null;
+}
+
+export function getApprovedDevelopmentKickoffProductArtifacts(artifacts: VentureArtifact[]) {
+  return artifacts.filter(
+    (artifact) =>
+      artifact.status === "approved" &&
+      ["prd", "mvp_spec", "design_brief", "tech_spec", "backend_decision"].includes(artifact.artifact_type),
+  );
+}
+
+export function getOpenHighDevelopmentKickoffRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed");
+}
 
 export function buildDevelopmentKickoffMarkdown({
   idea,
@@ -39,17 +63,13 @@ export function buildDevelopmentKickoffMarkdown({
   artifacts: VentureArtifact[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const passedCount = readinessChecks.filter((check) => check.passed).length;
-  const failedChecks = readinessChecks.filter((check) => !check.passed);
-  const mvpSliceArtifact = artifacts.find((artifact) => artifact.source === "mvp_slice_plan");
-  const approvedProductArtifacts = artifacts.filter(
-    (artifact) =>
-      artifact.status === "approved" &&
-      ["prd", "mvp_spec", "design_brief", "tech_spec", "backend_decision"].includes(artifact.artifact_type),
+  const passedCount = countPassedDevelopmentKickoffChecks(readinessChecks);
+  const failedChecks = getFailedDevelopmentKickoffChecks(readinessChecks);
+  const mvpSliceArtifact = getMvpSliceDevelopmentKickoffArtifact(artifacts);
+  const approvedProductArtifacts = getApprovedDevelopmentKickoffProductArtifacts(artifacts);
+  const highRiskLines = getOpenHighDevelopmentKickoffRisks(risks).map(
+    (risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`,
   );
-  const highRiskLines = risks
-    .filter((risk) => ["high", "critical"].includes(risk.severity) && risk.status !== "closed")
-    .map((risk) => `- ${risk.title}: ${riskSeverityLabels[risk.severity]} / ${risk.mitigation || "완화 조건 미정"}`);
   const experimentLines =
     experiments.length > 0
       ? experiments
