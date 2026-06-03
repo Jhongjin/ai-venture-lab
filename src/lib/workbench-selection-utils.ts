@@ -1,6 +1,7 @@
 import type {
   Decision,
   Experiment,
+  Idea,
   ImplementationTask,
   OrchestrationRun,
   Risk,
@@ -8,6 +9,32 @@ import type {
   VentureArtifact,
 } from "@/lib/venture-data";
 import { phaseOrder } from "@/lib/workbench-labels";
+
+export type WorkbenchSelectedIdeaContext = {
+  hasEditableIdeaContext: boolean;
+  ideaId: string | null;
+  ideaName: string | null;
+  marketScanContextIdeaId: string | null;
+  marketScanProductSurface: string | null;
+};
+
+export function buildWorkbenchSelectedIdeaContext({
+  idea,
+  state,
+}: {
+  idea: Pick<Idea, "id" | "name" | "product_surface"> | null;
+  state: { product_surface: string | null } | null;
+}): WorkbenchSelectedIdeaContext {
+  const hasEditableIdeaContext = Boolean(idea && state);
+
+  return {
+    hasEditableIdeaContext,
+    ideaId: idea?.id ?? null,
+    ideaName: idea?.name ?? null,
+    marketScanContextIdeaId: hasEditableIdeaContext ? idea?.id ?? null : null,
+    marketScanProductSurface: hasEditableIdeaContext ? state?.product_surface ?? idea?.product_surface ?? "undecided" : null,
+  };
+}
 
 export function getSelectedRisks(risks: Risk[], ideaId: string | null | undefined) {
   return risks.filter((risk) => risk.idea_id === ideaId || risk.idea_id === null);

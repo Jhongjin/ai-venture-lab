@@ -301,6 +301,7 @@ import {
   type RunDraft,
 } from "@/lib/workbench-draft-defaults";
 import {
+  buildWorkbenchSelectedIdeaContext,
   buildWorkbenchRiskStatusCounts,
   getSelectedWorkbenchCollections,
 } from "@/lib/workbench-selection-utils";
@@ -959,6 +960,10 @@ export function IdeaWorkbench({
       }),
     [artifacts, decisionLog, experiments, implementationTasks, orchestrationRuns, risks, selectedIdea?.id, telemetryEvents],
   );
+  const selectedIdeaContext = buildWorkbenchSelectedIdeaContext({
+    idea: selectedIdea,
+    state: editState,
+  });
   const riskStatusCounts = buildWorkbenchRiskStatusCounts(selectedRisks);
   const {
     isCreditSystemReady,
@@ -979,11 +984,11 @@ export function IdeaWorkbench({
     () =>
       getCreditAccessState({
         creditSummary,
-        selectedIdeaId: selectedIdea?.id ?? null,
+        selectedIdeaId: selectedIdeaContext.ideaId,
         hasUser: Boolean(user),
         isCreditSummaryLoading,
       }),
-    [creditSummary, isCreditSummaryLoading, selectedIdea?.id, user],
+    [creditSummary, isCreditSummaryLoading, selectedIdeaContext.ideaId, user],
   );
   const buildDeliveryPreference = useMemo(
     () => getBuildDeliveryPreferenceFromArtifacts(selectedArtifactRecords),
@@ -1003,7 +1008,7 @@ export function IdeaWorkbench({
   } = resolveBuildDeliveryContext({
     finalExternalToolOverride,
     preference: buildDeliveryPreference,
-    selectedIdeaId: selectedIdea?.id ?? null,
+    selectedIdeaId: selectedIdeaContext.ideaId,
   });
   const {
     approvedCount: approvedArtifactReviewCount,
@@ -1080,7 +1085,7 @@ export function IdeaWorkbench({
     productTelemetryFunnelSaveDraft,
     telemetryAdapterGuideSaveDraft,
   } = buildTelemetryArtifactSaveDrafts({
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     learningTelemetryReportDraft,
     productTelemetryFunnelDraft,
     telemetryAdapterGuideDraft,
@@ -1140,7 +1145,7 @@ export function IdeaWorkbench({
   });
   const implementationDependencyPlanSaveDraft = buildImplementationDependencyPlanArtifactSaveDraft({
     body: implementationDependencyPlanDraft,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
   });
   const {
     activeImplementationOwnerFilter,
@@ -1455,7 +1460,7 @@ export function IdeaWorkbench({
     validationSummarySaveDraft,
   } = buildValidationPackageArtifactSaveDrafts({
     ideaBrief,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     researchBriefDraft,
     validationSprintDraft,
     validationSummaryDraft,
@@ -1463,7 +1468,7 @@ export function IdeaWorkbench({
   const evidenceNoteSaveDraft = buildValidationEvidenceArtifactSaveDraft({
     evidenceNoteDraft,
     evidenceTitle: evidenceDraft.title,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
   });
   const experimentResultNoteSaveDraft = buildExperimentResultArtifactSaveDraft({
     experimentName: selectedExperimentForResult?.name ?? null,
@@ -1485,7 +1490,7 @@ export function IdeaWorkbench({
     state: editState,
   });
   const { mvpSlicePlanSaveDraft, mvpSpecSaveDraft, prdSaveDraft } = buildProductPlanningArtifactSaveDrafts({
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     mvpSlicePlanDraft,
     mvpSpecDraft,
     prdDraft,
@@ -1506,7 +1511,7 @@ export function IdeaWorkbench({
   const { backendDecisionSaveDraft, backendExecutionPlanSaveDraft } = buildBackendPlanningArtifactSaveDrafts({
     backendDecisionDraft,
     backendExecutionPlanDraft,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
   });
   const {
     appBlueprintDraft,
@@ -1525,7 +1530,7 @@ export function IdeaWorkbench({
   });
   const { appBlueprintSaveDraft, scaffoldManifestSaveDraft } = buildDesignArchitectureArtifactSaveDrafts({
     appBlueprintDraft,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     scaffoldManifestDraft,
   });
   const {
@@ -1557,7 +1562,7 @@ export function IdeaWorkbench({
     rolePromptPackSaveDraft,
   } = buildImplementationHandoffArtifactSaveDrafts({
     filteredImplementationRunPromptDraft,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     implementationHandoffDraft,
     rolePromptPackDraft,
   });
@@ -1615,9 +1620,8 @@ export function IdeaWorkbench({
     isLoading: isMarketScanLoading,
     mode: marketScanMode,
     productSurfaceLabel: activeProductSurface.label,
-    selectedIdeaId: selectedIdea && editState ? selectedIdea.id : null,
-    selectedProductSurface:
-      selectedIdea && editState ? editState.product_surface ?? selectedIdea.product_surface ?? "undecided" : null,
+    selectedIdeaId: selectedIdeaContext.marketScanContextIdeaId,
+    selectedProductSurface: selectedIdeaContext.marketScanProductSurface,
   });
   const validationPackageStatusRows = buildValidationPackageStatusRows({
     hasIdeaBriefArtifact,
@@ -1663,7 +1667,7 @@ export function IdeaWorkbench({
     hasDesignBriefArtifact,
     hasDesignStateCoverage,
     hasDevRunbookArtifact,
-    hasEditableIdeaContext: Boolean(selectedIdea && editState),
+    hasEditableIdeaContext: selectedIdeaContext.hasEditableIdeaContext,
     hasEnvironmentChecklist,
     hasEvidenceCaptureArtifact,
     hasExperimentResultArtifact,
@@ -1673,7 +1677,7 @@ export function IdeaWorkbench({
     hasPrdArtifact,
     hasReleaseOpsChecklist,
     hasResearchNoteArtifact,
-    hasSelectedIdea: Boolean(selectedIdea),
+    hasSelectedIdea: Boolean(selectedIdeaContext.ideaId),
     hasTechSpecArtifact,
     hasValidationSprintArtifact,
     hasValidationSummaryArtifact,
@@ -1723,7 +1727,7 @@ export function IdeaWorkbench({
   } = buildExecutionPackageArtifactSaveDrafts({
     agentRunPackageDraft,
     developmentKickoffDraft,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     launchChecklistDraft,
     prdHandoffDraft,
   });
@@ -1733,7 +1737,7 @@ export function IdeaWorkbench({
     backendExecutionPlanDraft,
     designBriefDraft,
     developmentPlanDraft,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     scaffoldManifestDraft,
     techSpecDraft,
   });
@@ -1760,7 +1764,7 @@ export function IdeaWorkbench({
     externalBuildTool: activeExternalBuildTool,
     firstBuildBridge,
     hasValidationSummaryArtifact,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     implementationTaskDrafts,
     productSurface: activeProductSurface,
   });
@@ -1774,7 +1778,7 @@ export function IdeaWorkbench({
     developmentAutoSummaryDraft,
     developmentPlanDraft,
     externalBuildTool: activeExternalBuildTool,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     productSurface: activeProductSurface,
     taskDraftLines: developmentAutoTaskDraftLines,
   });
@@ -1793,9 +1797,9 @@ export function IdeaWorkbench({
     hasAgentRunPackageArtifact,
     hasDevelopmentHandoffPackageArtifact,
     hasDevelopmentPlanArtifact,
-    hasIdeaContext: Boolean(selectedIdea && editState),
+    hasIdeaContext: selectedIdeaContext.hasEditableIdeaContext,
     hasManualDevelopmentPackageFallback,
-    ideaId: selectedIdea?.id ?? null,
+    ideaId: selectedIdeaContext.ideaId,
     implementationTaskCount: selectedImplementationTasks.length,
     runCount: selectedRuns.length,
   });
@@ -1819,7 +1823,7 @@ export function IdeaWorkbench({
         launchReadinessScore,
         nextLaunchBlockerDetail: nextLaunchBlocker?.detail ?? null,
         nextLaunchBlockerLabel: nextLaunchBlocker?.label ?? null,
-        selectedIdeaId: selectedIdea?.id ?? null,
+        selectedIdeaId: selectedIdeaContext.ideaId,
       }),
     );
   }, [
@@ -1840,7 +1844,7 @@ export function IdeaWorkbench({
     nextLaunchBlocker?.label,
     onStepReadinessChange,
     selectedExperiments.length,
-    selectedIdea?.id,
+    selectedIdeaContext.ideaId,
   ]);
   const {
     developmentCompletionReportDraft,
@@ -1878,7 +1882,7 @@ export function IdeaWorkbench({
     qaAcceptanceMatrixSaveDraft,
   } = buildReleasePackageArtifactSaveDrafts({
     developmentCompletionReportDraft,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     mvpBuildCommandPacketDraft,
     postLaunchLearningLoopDraft,
     qaAcceptanceMatrixDraft,
@@ -1936,7 +1940,7 @@ export function IdeaWorkbench({
       cursor: cursorGuideDraft,
     },
     handoffFileSuffix: activeExternalBuildTool.handoffFileSuffix,
-    ideaName: selectedIdea?.name ?? null,
+    ideaName: selectedIdeaContext.ideaName,
     mcpConfigDrafts: {
       antigravity: antigravityMcpConfigDraft,
       claude_code: claudeMcpConfigDraft,
@@ -6056,7 +6060,7 @@ export function IdeaWorkbench({
                 buildDeliveryMode={buildDeliveryMode}
                 hasFinalExternalToolOverride={hasFinalExternalToolOverride}
                 onSelectExternalTool={(toolKey) =>
-                  setFinalExternalToolOverride({ ideaId: selectedIdea?.id ?? null, key: toolKey })
+                  setFinalExternalToolOverride({ ideaId: selectedIdeaContext.ideaId, key: toolKey })
                 }
               />
 
@@ -6065,7 +6069,7 @@ export function IdeaWorkbench({
                   activeToolLabel={activeExternalBuildTool.label}
                   isLiveExternalDelivery={isLiveExternalDelivery}
                   onSwitchToCursor={() =>
-                    setFinalExternalToolOverride({ ideaId: selectedIdea?.id ?? null, key: "cursor" })
+                    setFinalExternalToolOverride({ ideaId: selectedIdeaContext.ideaId, key: "cursor" })
                   }
                 >
                   <FinalExecutionPackagePanel

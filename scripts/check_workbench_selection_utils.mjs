@@ -19,6 +19,7 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildWorkbenchSelectedIdeaContext,
   buildWorkbenchRiskStatusCounts,
   compareWorkbenchArtifactsByCreatedAtDesc,
   compareWorkbenchImplementationTasksByCreatedAtAsc,
@@ -42,6 +43,34 @@ const {
 
 const ideaId = "idea-1";
 const otherIdeaId = "idea-2";
+
+assert.deepEqual(
+  buildWorkbenchSelectedIdeaContext({
+    idea: { id: ideaId, name: "AI Venture Lab", product_surface: "operator_console" },
+    state: { product_surface: "automation" },
+  }),
+  {
+    hasEditableIdeaContext: true,
+    ideaId,
+    ideaName: "AI Venture Lab",
+    marketScanContextIdeaId: ideaId,
+    marketScanProductSurface: "automation",
+  },
+);
+assert.deepEqual(
+  buildWorkbenchSelectedIdeaContext({
+    idea: { id: ideaId, name: "AI Venture Lab", product_surface: null },
+    state: { product_surface: null },
+  }).marketScanProductSurface,
+  "undecided",
+);
+assert.deepEqual(buildWorkbenchSelectedIdeaContext({ idea: null, state: { product_surface: "automation" } }), {
+  hasEditableIdeaContext: false,
+  ideaId: null,
+  ideaName: null,
+  marketScanContextIdeaId: null,
+  marketScanProductSurface: null,
+});
 
 const risks = [
   { id: "global-open", idea_id: null, status: "open" },
