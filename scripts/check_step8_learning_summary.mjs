@@ -42,6 +42,7 @@ const {
   buildStep8ExternalSyncReviewRows,
   buildStep8ImplementationDerivedState,
   buildStep8ImplementationTaskContext,
+  buildStep8LearningDecisionCards,
   buildStep8LearningDecisionDetail,
   buildStep8LearningDecisionLabel,
   buildStep8LearningDecisionOptions,
@@ -53,6 +54,7 @@ const {
   buildStep8LearningOneSentenceOutcome,
   buildStep8LearningPrimaryActionSummary,
   buildStep8LearningRemainingSummary,
+  buildStep8LearningSimpleReviewRows,
   buildStep8LearningSummary,
   buildStep8ProgressDetail,
   buildStep8ProgressDisplayItem,
@@ -234,6 +236,48 @@ assert.deepEqual(
 assert.equal(learningSummary.learningDecisionCards[0].label, "완료된 것");
 assert.equal(learningSummary.learningDecisionCards[1].value, "T-002 남음");
 assert.equal(learningSummary.learningDecisionLabel, "다음 작업 완료");
+assert.deepEqual(
+  buildStep8LearningDecisionCards({
+    learningCompletedValue: "1/3 작업",
+    learningCompletedDetail: "완료 보고가 저장된 제작 작업입니다.",
+    learningRemainingValue: "T-002 남음",
+    learningRemainingDetail: "첫 화면 제작만 이어서 처리하면 됩니다.",
+    learningDecisionLabel: "다음 작업 완료",
+    learningDecisionDetail: buildStep8LearningDecisionDetail("다음 작업 완료"),
+  }),
+  [
+    {
+      label: "완료된 것",
+      value: "1/3 작업",
+      detail: "완료 보고가 저장된 제작 작업입니다.",
+    },
+    {
+      label: "이어 할 것",
+      value: "T-002 남음",
+      detail: "첫 화면 제작만 이어서 처리하면 됩니다.",
+    },
+    {
+      label: "지금 판단",
+      value: "다음 작업 완료",
+      detail: buildStep8LearningDecisionDetail("다음 작업 완료"),
+    },
+  ],
+);
+assert.deepEqual(
+  buildStep8LearningSimpleReviewRows({
+    learningCompletedValue: "1/3 작업",
+    learningCompletedDetail: "완료 보고가 저장된 제작 작업입니다.",
+    learningRemainingValue: "T-002 남음",
+    learningRemainingDetail: "첫 화면 제작만 이어서 처리하면 됩니다.",
+    learningDecisionLabel: "다음 작업 완료",
+    learningDecisionDetail: buildStep8LearningDecisionDetail("다음 작업 완료"),
+  }),
+  [
+    ["완료", "1/3 작업", "완료 보고가 저장된 제작 작업입니다."],
+    ["이어 할 것", "T-002 남음", "첫 화면 제작만 이어서 처리하면 됩니다."],
+    ["판단", "다음 작업 완료", buildStep8LearningDecisionDetail("다음 작업 완료")],
+  ],
+);
 assert.deepEqual(
   buildStep8LearningCompletedSummary({
     completedImplementationTaskCount: 1,

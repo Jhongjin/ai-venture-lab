@@ -249,28 +249,22 @@ export function buildStep8LearningSummary({
   const learningCompletedDetail = learningCompletedSummary.detail;
   const learningRemainingValue = learningRemainingSummary.value;
   const learningRemainingDetail = learningRemainingSummary.detail;
-  const learningDecisionCards = [
-    {
-      label: "완료된 것",
-      value: learningCompletedValue,
-      detail: learningCompletedDetail,
-    },
-    {
-      label: "이어 할 것",
-      value: learningRemainingValue,
-      detail: learningRemainingDetail,
-    },
-    {
-      label: "지금 판단",
-      value: learningDecisionLabel,
-      detail: learningDecisionDetail,
-    },
-  ];
-  const learningSimpleReviewRows: Step8ReviewRow[] = [
-    ["완료", learningCompletedValue, learningCompletedDetail],
-    ["이어 할 것", learningRemainingValue, learningRemainingDetail],
-    ["판단", learningDecisionLabel, learningDecisionDetail],
-  ];
+  const learningDecisionCards = buildStep8LearningDecisionCards({
+    learningCompletedDetail,
+    learningCompletedValue,
+    learningDecisionDetail,
+    learningDecisionLabel,
+    learningRemainingDetail,
+    learningRemainingValue,
+  });
+  const learningSimpleReviewRows = buildStep8LearningSimpleReviewRows({
+    learningCompletedDetail,
+    learningCompletedValue,
+    learningDecisionDetail,
+    learningDecisionLabel,
+    learningRemainingDetail,
+    learningRemainingValue,
+  });
   const learningJudgmentQuestion = buildStep8LearningJudgmentQuestion({
     hasNextImplementationTask: Boolean(nextImplementationTask),
     openRiskCount,
@@ -367,6 +361,62 @@ export function buildStep8LearningNavigationHint({
         title: "최종 실행은 STEP 7에서 확인합니다",
         detail: "성과 확인 화면 안에서는 단계를 자동 이동하지 않습니다. 최종 실행 자료는 STEP 7에서 확인하세요.",
       };
+}
+
+export function buildStep8LearningDecisionCards({
+  learningCompletedDetail,
+  learningCompletedValue,
+  learningDecisionDetail,
+  learningDecisionLabel,
+  learningRemainingDetail,
+  learningRemainingValue,
+}: {
+  learningCompletedDetail: string;
+  learningCompletedValue: string;
+  learningDecisionDetail: string;
+  learningDecisionLabel: Step8LearningDecisionLabel;
+  learningRemainingDetail: string;
+  learningRemainingValue: string;
+}): Step8OutcomeCard[] {
+  return [
+    {
+      label: "완료된 것",
+      value: learningCompletedValue,
+      detail: learningCompletedDetail,
+    },
+    {
+      label: "이어 할 것",
+      value: learningRemainingValue,
+      detail: learningRemainingDetail,
+    },
+    {
+      label: "지금 판단",
+      value: learningDecisionLabel,
+      detail: learningDecisionDetail,
+    },
+  ];
+}
+
+export function buildStep8LearningSimpleReviewRows({
+  learningCompletedDetail,
+  learningCompletedValue,
+  learningDecisionDetail,
+  learningDecisionLabel,
+  learningRemainingDetail,
+  learningRemainingValue,
+}: {
+  learningCompletedDetail: string;
+  learningCompletedValue: string;
+  learningDecisionDetail: string;
+  learningDecisionLabel: Step8LearningDecisionLabel;
+  learningRemainingDetail: string;
+  learningRemainingValue: string;
+}): Step8ReviewRow[] {
+  return [
+    ["완료", learningCompletedValue, learningCompletedDetail],
+    ["이어 할 것", learningRemainingValue, learningRemainingDetail],
+    ["판단", learningDecisionLabel, learningDecisionDetail],
+  ];
 }
 
 export function buildStep8LearningPrimaryActionSummary({
