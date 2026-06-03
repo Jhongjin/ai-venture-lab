@@ -3,7 +3,11 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-package-save-jobs.ts")).href;
-const { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } = await import(moduleUrl);
+const {
+  buildValidationPackageSaveJobs,
+  buildValidationPackageStatusRows,
+  buildValidationSummaryDisabledNote,
+} = await import(moduleUrl);
 
 const statusRows = buildValidationPackageStatusRows({
   hasIdeaBriefArtifact: true,
@@ -20,6 +24,30 @@ assert.deepEqual(
     ["7일 검증 계획", false],
     ["검증 완료 요약", true],
   ],
+);
+assert.equal(
+  buildValidationSummaryDisabledNote({
+    canSaveValidationSummary: false,
+    hasValidationSummaryArtifact: false,
+    requirements: statusRows,
+  }),
+  "검증 완료 요약은 조사 요약, 7일 검증 계획 저장 후 활성화됩니다.",
+);
+assert.equal(
+  buildValidationSummaryDisabledNote({
+    canSaveValidationSummary: true,
+    hasValidationSummaryArtifact: false,
+    requirements: statusRows,
+  }),
+  undefined,
+);
+assert.equal(
+  buildValidationSummaryDisabledNote({
+    canSaveValidationSummary: true,
+    hasValidationSummaryArtifact: true,
+    requirements: statusRows,
+  }),
+  "검증 완료 요약이 저장되었습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다.",
 );
 
 const jobs = buildValidationPackageSaveJobs({

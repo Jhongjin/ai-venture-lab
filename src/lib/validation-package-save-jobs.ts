@@ -82,3 +82,25 @@ export function buildValidationPackageSaveJobs({
     },
   ];
 }
+
+export function buildValidationSummaryDisabledNote({
+  canSaveValidationSummary,
+  hasValidationSummaryArtifact,
+  requirements,
+}: {
+  canSaveValidationSummary: boolean;
+  hasValidationSummaryArtifact: boolean;
+  requirements: ValidationPackageStatusRow[];
+}) {
+  if (hasValidationSummaryArtifact) {
+    return "검증 완료 요약이 저장되었습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다.";
+  }
+
+  if (canSaveValidationSummary) {
+    return undefined;
+  }
+
+  const missingLabels = requirements.filter((requirement) => !requirement.passed).map((requirement) => requirement.label);
+
+  return `검증 완료 요약은 ${missingLabels.join(", ")} 저장 후 활성화됩니다.`;
+}

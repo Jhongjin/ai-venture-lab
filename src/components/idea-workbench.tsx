@@ -464,7 +464,11 @@ import {
   buildValidationPackageSaveLoginRequiredMessage,
   buildValidationPackageSavedMessage,
 } from "@/lib/validation-package-drafts";
-import { buildValidationPackageSaveJobs, buildValidationPackageStatusRows } from "@/lib/validation-package-save-jobs";
+import {
+  buildValidationPackageSaveJobs,
+  buildValidationPackageStatusRows,
+  buildValidationSummaryDisabledNote,
+} from "@/lib/validation-package-save-jobs";
 import { emitVentureEvent, subscribeToVentureEvents, type VentureEventListenerEntry } from "@/lib/venture-events";
 import {
   buildImplementationTaskAutoRefreshMessage,
@@ -7312,16 +7316,11 @@ export function IdeaWorkbench({
           onSave={() => savePreparedArtifactDraft(validationSummarySaveDraft)}
           saveLabel={hasValidationSummaryArtifact ? "저장 완료" : "검증 자료 저장"}
           saveDisabled={isBusy || !user || !canSaveValidationSummary || hasValidationSummaryArtifact || !validationSummarySaveDraft}
-          disabledNote={
-            hasValidationSummaryArtifact
-              ? "검증 완료 요약이 저장되었습니다. 하단 다음 단계 버튼으로 제작 패키지에 들어갈 수 있습니다."
-              : canSaveValidationSummary
-              ? undefined
-              : `검증 완료 요약은 ${validationSummaryRequirements
-                  .filter((requirement) => !requirement.passed)
-                  .map((requirement) => requirement.label)
-                  .join(", ")} 저장 후 활성화됩니다.`
-          }
+          disabledNote={buildValidationSummaryDisabledNote({
+            canSaveValidationSummary,
+            hasValidationSummaryArtifact,
+            requirements: validationSummaryRequirements,
+          })}
           actionMode="hidden"
         />
 
