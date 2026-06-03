@@ -75,6 +75,10 @@ const {
   getApprovedAgentRunPackageArtifacts,
 } = await import(agentRunPackageArtifactsUrl);
 const {
+  buildLaunchChecklistExperimentLines,
+  buildLaunchChecklistPhaseLines,
+  buildLaunchChecklistProductArtifactLines,
+  buildLaunchChecklistRiskLines,
   countDoneLaunchChecklistImplementationTasks,
   getDoneLaunchChecklistPhases,
   getLaunchChecklistHighRisks,
@@ -335,6 +339,14 @@ assert.deepEqual(
   getLaunchChecklistHighRisks(risks).map((risk) => risk.id),
   ["risk-1"],
 );
+assert.match(buildLaunchChecklistProductArtifactLines({ artifacts, implementationTasks: tasks }), /구현 태스크 완료 \(1\/2\)/);
+assert.match(buildLaunchChecklistProductArtifactLines({ artifacts: [], implementationTasks: [] }), /제품 기획서 저장/);
+assert.match(buildLaunchChecklistPhaseLines(getDoneLaunchChecklistPhases(runs)), /\[x\] 개발 실행 완료/);
+assert.match(buildLaunchChecklistPhaseLines(new Set()), /\[ \] 전략 실행 완료/);
+assert.match(buildLaunchChecklistExperimentLines(experiments), /첫 태스크 이해와 실행/);
+assert.equal(buildLaunchChecklistExperimentLines([]), "- [ ] 측정 가능한 실험을 하나 추가합니다.");
+assert.match(buildLaunchChecklistRiskLines(risks), /원본 대화 식별 정보 \(high, closed\)/);
+assert.equal(buildLaunchChecklistRiskLines([]), "- [x] 현재 높음/매우 높은 연결 리스크가 없습니다.");
 const taskDrafts = [
   {
     acceptance_criteria: "첫 제작 범위를 잠그고 제외 범위를 확인한다.",
