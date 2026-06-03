@@ -18,7 +18,13 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
-const { candidateSimilarityScore, findBestCandidateMatch, findSimilarIdea } = await import(moduleUrl);
+const {
+  candidateSimilarityScore,
+  compareCandidateMatchesByScore,
+  findBestCandidateMatch,
+  findSimilarIdea,
+  sortCandidateMatchesByScore,
+} = await import(moduleUrl);
 
 const candidate = {
   id: "candidate-care-console",
@@ -71,6 +77,15 @@ const replayMiss = {
 };
 
 assert.ok(candidateSimilarityScore(candidate, replayMatch) > candidateSimilarityScore(candidate, replayMiss));
+assert.deepEqual(
+  sortCandidateMatchesByScore([
+    { id: "weak", score: 12 },
+    { id: "strong", score: 82 },
+    { id: "medium", score: 43 },
+  ]).map((item) => item.id),
+  ["strong", "medium", "weak"],
+);
+assert.equal(compareCandidateMatchesByScore({ score: 82 }, { score: 12 }) < 0, true);
 assert.equal(findBestCandidateMatch(candidate, [replayMiss, replayMatch])?.item.id, "ai-care-console");
 assert.equal(findBestCandidateMatch(candidate, [replayMiss, replayMatch], new Set(["ai-care-console"]))?.item.id, "ai-video-tool");
 
