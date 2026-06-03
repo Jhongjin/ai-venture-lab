@@ -17,6 +17,18 @@ type ValidationPackageState = Pick<
   "stage" | "decision" | "signal" | "risk_summary" | "next_evidence" | "product_surface"
 >;
 
+export function getValidationPackageResearchRuns(runs: OrchestrationRun[]) {
+  return runs.filter((run) => ["strategy", "research"].includes(run.phase));
+}
+
+export function getHighValidationSprintRisks(risks: Risk[]) {
+  return risks.filter((risk) => ["high", "critical"].includes(risk.severity));
+}
+
+export function getPrimaryValidationSprintExperiment(experiments: Experiment[]) {
+  return experiments[0] ?? null;
+}
+
 export function buildIdeaBriefMarkdown({
   idea,
   state,
@@ -110,16 +122,11 @@ export function buildResearchBriefMarkdown({
           )
           .join("\n")
       : "- 아직 실험이 없습니다. 5명 인터뷰, 랜딩/대기자, 수동 컨시어지, 가격 민감도 테스트 중 하나를 선택하세요.";
+  const researchRuns = getValidationPackageResearchRuns(runs);
   const researchRunLines =
-    runs.filter((run) => ["strategy", "research"].includes(run.phase)).length > 0
-      ? runs
-          .filter((run) => ["strategy", "research"].includes(run.phase))
-          .map(
-            (run) =>
-              `### ${phaseLabels[run.phase]} (${runStatusLabels[run.status]})\n\n목표: ${
-                run.objective || "미정"
-              }\n\n제작 자료:\n\n${run.output || "미정"}`,
-          )
+    researchRuns.length > 0
+      ? researchRuns
+          .map((run) => `### ${phaseLabels[run.phase]} (${runStatusLabels[run.status]})\n\n목표: ${run.objective || "미정"}\n\n제작 자료:\n\n${run.output || "미정"}`)
           .join("\n\n")
       : "전략/조사 실행 기록이 아직 없습니다.";
 
@@ -260,10 +267,10 @@ export function buildValidationSprintMarkdown({
   experiments: Experiment[];
 }) {
   const productSurface = resolveProductSurfaceForIdea(idea, state);
-  const highRiskLines = risks
-    .filter((risk) => ["high", "critical"].includes(risk.severity))
-    .map((risk) => `- ${risk.title}: ${risk.mitigation || "완화 방안 미정"}`);
-  const primaryExperiment = experiments[0];
+  const highRiskLines = getHighValidationSprintRisks(risks).map(
+    (risk) => `- ${risk.title}: ${risk.mitigation || "완화 방안 미정"}`,
+  );
+  const primaryExperiment = getPrimaryValidationSprintExperiment(experiments);
 
   return `# 7일 검증 계획: ${idea.name}
 

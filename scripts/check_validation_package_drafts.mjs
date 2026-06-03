@@ -38,6 +38,8 @@ const moduleUrl = transpileModuleUrl("src/lib/validation-package-drafts.ts", [
   ['from "@/lib/validation-package-markdown";', `from ${JSON.stringify(validationPackageUrl)};`],
 ]);
 
+const { getHighValidationSprintRisks, getPrimaryValidationSprintExperiment, getValidationPackageResearchRuns } =
+  await import(validationPackageUrl);
 const {
   buildExperimentResultArtifactSaveDraft,
   buildExperimentResultSavedMessage,
@@ -170,6 +172,24 @@ const decisions = [
     score: 25,
   },
 ];
+
+assert.deepEqual(
+  getValidationPackageResearchRuns([
+    runs[0],
+    {
+      ...runs[0],
+      id: "run-research",
+      phase: "research",
+    },
+  ]).map((run) => run.id),
+  ["run-research"],
+);
+assert.deepEqual(
+  getHighValidationSprintRisks(risks).map((risk) => risk.id),
+  ["risk-1"],
+);
+assert.equal(getPrimaryValidationSprintExperiment(experiments)?.id, "exp-1");
+assert.equal(getPrimaryValidationSprintExperiment([]), null);
 
 const draftState = buildValidationPackageDraftState({
   artifacts,
