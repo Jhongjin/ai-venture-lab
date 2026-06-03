@@ -16,6 +16,15 @@ const { outputText: externalProgressOutput } = ts.transpileModule(externalProgre
 });
 const externalProgressUrl = `data:text/javascript;base64,${Buffer.from(externalProgressOutput).toString("base64")}`;
 const implementationMetadataUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-metadata.ts")).href;
+const {
+  buildImplementationTaskProgressStats,
+  buildImplementationTaskTypeStats,
+  countBlockedImplementationTasks,
+  createInitialImplementationTaskTypeStats,
+  getDoneImplementationTasks,
+  isBlockedImplementationTask,
+  isDoneImplementationTask,
+} = await import(implementationMetadataUrl);
 const modulePath = path.join(process.cwd(), "src/lib/step8-learning-summary.ts");
 const source = readFileSync(modulePath, "utf8")
   .replace('from "@/lib/external-progress-import";', `from ${JSON.stringify(externalProgressUrl)};`)
@@ -84,6 +93,40 @@ const tasks = [
     title: "스모크 점검",
   }),
 ];
+const initialTypeStats = createInitialImplementationTaskTypeStats();
+assert.equal(initialTypeStats.planning.total, 0);
+assert.equal(initialTypeStats.frontend.done, 0);
+assert.equal(isDoneImplementationTask(tasks[0]), true);
+assert.equal(isDoneImplementationTask(tasks[1]), false);
+assert.equal(isBlockedImplementationTask(tasks[2]), false);
+assert.equal(getDoneImplementationTasks(tasks).length, 1);
+assert.equal(countBlockedImplementationTasks(tasks), 0);
+
+const progressStats = buildImplementationTaskProgressStats(tasks);
+assert.equal(progressStats.completedCount, 1);
+assert.equal(progressStats.blockedCount, 0);
+assert.equal(progressStats.totalCount, 3);
+assert.deepEqual(progressStats.completedTasks.map((item) => item.id), ["task-planning"]);
+assert.equal(progressStats.byType.planning.done, 1);
+assert.equal(progressStats.byType.planning.total, 1);
+assert.equal(progressStats.byType.frontend.done, 0);
+assert.equal(progressStats.byType.frontend.total, 1);
+
+const blockedTasks = [
+  ...tasks,
+  task({
+    id: "task-blocked",
+    sortOrder: 4,
+    status: "blocked",
+    taskType: "security",
+    title: "권한 점검",
+  }),
+];
+assert.equal(isBlockedImplementationTask(blockedTasks[3]), true);
+assert.equal(countBlockedImplementationTasks(blockedTasks), 1);
+assert.equal(buildImplementationTaskProgressStats(blockedTasks).blockedCount, 1);
+assert.equal(buildImplementationTaskTypeStats(blockedTasks).security.total, 1);
+
 const dependencyStatuses = [
   {
     blockers: [],

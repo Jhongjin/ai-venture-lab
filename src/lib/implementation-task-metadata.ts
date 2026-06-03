@@ -214,36 +214,55 @@ export function compareImplementationTasksByExecutionOrder(a: ImplementationTask
 }
 
 export function buildImplementationTaskProgressStats(tasks: ImplementationTask[]): ImplementationTaskProgressStats {
-  const byType = Object.fromEntries(
-    implementationTaskTypes.map((taskType) => [taskType, { done: 0, total: 0 }]),
-  ) as ImplementationTaskProgressStats["byType"];
-  const completedTasks: ImplementationTask[] = [];
-  let blockedCount = 0;
+  const completedTasks = getDoneImplementationTasks(tasks);
+
+  return {
+    blockedCount: countBlockedImplementationTasks(tasks),
+    completedCount: completedTasks.length,
+    completedTasks,
+    totalCount: tasks.length,
+    byType: buildImplementationTaskTypeStats(tasks),
+  };
+}
+
+export function buildImplementationTaskTypeStats(tasks: ImplementationTask[]): ImplementationTaskProgressStats["byType"] {
+  const byType = createInitialImplementationTaskTypeStats();
 
   for (const task of tasks) {
     byType[task.task_type].total += 1;
 
-    if (task.status === "done") {
+    if (isDoneImplementationTask(task)) {
       byType[task.task_type].done += 1;
-      completedTasks.push(task);
-    }
-
-    if (task.status === "blocked") {
-      blockedCount += 1;
     }
   }
 
-  return {
-    blockedCount,
-    completedCount: completedTasks.length,
-    completedTasks,
-    totalCount: tasks.length,
-    byType,
-  };
+  return byType;
+}
+
+export function createInitialImplementationTaskTypeStats(): ImplementationTaskProgressStats["byType"] {
+  return Object.fromEntries(
+    implementationTaskTypes.map((taskType) => [taskType, { done: 0, total: 0 }]),
+  ) as ImplementationTaskProgressStats["byType"];
+}
+
+export function getDoneImplementationTasks(tasks: ImplementationTask[]) {
+  return tasks.filter(isDoneImplementationTask);
+}
+
+export function countBlockedImplementationTasks(tasks: ImplementationTask[]) {
+  return tasks.filter(isBlockedImplementationTask).length;
+}
+
+export function isDoneImplementationTask(task: Pick<ImplementationTask, "status">) {
+  return task.status === "done";
+}
+
+export function isBlockedImplementationTask(task: Pick<ImplementationTask, "status">) {
+  return task.status === "blocked";
 }
 
 export function getCompletedImplementationTasksWithEvidence(tasks: ImplementationTask[]) {
-  return tasks.filter((task) => task.status === "done" && Boolean(task.evidence.trim()));
+  return tasks.filter((task) => isDoneImplementationTask(task) && Boolean(task.evidence.trim()));
 }
 
 export function buildImplementationTaskRefreshLoginRequiredMessage() {
@@ -283,7 +302,7 @@ export function buildImplementationTaskRefreshSummary(tasks: ImplementationTask[
 }
 
 export function countDoneImplementationTasks(tasks: ImplementationTask[]) {
-  return tasks.filter((task) => task.status === "done").length;
+  return tasks.filter(isDoneImplementationTask).length;
 }
 
 export function getNextImplementationTaskForRefresh(tasks: ImplementationTask[]) {
