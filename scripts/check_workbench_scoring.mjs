@@ -30,6 +30,7 @@ const {
   buildWorkbenchScoringNotePanelState,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringReviewCards,
+  buildWorkbenchScoringReviewPanelState,
   buildWorkbenchScoringSaveButtonState,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSavePatch,
@@ -200,6 +201,18 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("사업성 평가를 저장하면 AI가 다음 검증"),
   "IdeaWorkbench should keep scoring next-judgment copy in the shared helper.",
+);
+assert.deepEqual(buildWorkbenchScoringReviewPanelState(), {
+  description: "AI가 먼저 채운 값을 확인하세요. 다르게 보이는 항목만 조정하면 되고, 단계와 판단은 저장할 때 자동으로 정리됩니다.",
+  eyebrow: "사업성 평가 확인",
+});
+assert.ok(
+  !ideaWorkbenchSource.includes("사업성 평가 확인"),
+  "IdeaWorkbench should keep scoring review-panel eyebrow in the shared helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("AI가 먼저 채운 값을 확인하세요"),
+  "IdeaWorkbench should keep scoring review-panel description in the shared helper.",
 );
 
 const savePatch = buildWorkbenchScoringSavePatch({

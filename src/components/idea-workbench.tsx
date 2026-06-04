@@ -126,6 +126,7 @@ import {
   buildWorkbenchScoringNotePanelState,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringReviewCards,
+  buildWorkbenchScoringReviewPanelState,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSaveButtonState,
   buildWorkbenchScoringSavePatch,
@@ -1454,6 +1455,7 @@ export function IdeaWorkbench({
   const scoringCurrentScoreCard = buildWorkbenchScoringCurrentScoreCard({ currentScore });
   const scoringNextActionCard = buildWorkbenchScoringNextActionCard();
   const scoringNotePanelState = buildWorkbenchScoringNotePanelState();
+  const scoringReviewPanelState = buildWorkbenchScoringReviewPanelState();
   const scoringHelpSections = buildWorkbenchScoringHelpSections();
   const scoringInputFieldConfigs = editState
     ? buildWorkbenchScoreInputFieldConfigs({
@@ -4459,10 +4461,8 @@ export function IdeaWorkbench({
 
               <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
                 <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
-                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">사업성 평가 확인</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    AI가 먼저 채운 값을 확인하세요. 다르게 보이는 항목만 조정하면 되고, 단계와 판단은 저장할 때 자동으로 정리됩니다.
-                  </p>
+                  <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{scoringReviewPanelState.eyebrow}</div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{scoringReviewPanelState.description}</p>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     {scoringReviewCards.map((card) => (
                       <div key={card.label} className="border border-slate-200 bg-white p-4">

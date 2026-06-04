@@ -54,6 +54,10 @@ export type WorkbenchScoringNotePanelState = {
   description: string;
   summaryLabel: string;
 };
+export type WorkbenchScoringReviewPanelState = {
+  description: string;
+  eyebrow: string;
+};
 export type WorkbenchScoringHelpSectionState = {
   body: string | null;
   items: string[];
@@ -161,6 +165,13 @@ export function buildWorkbenchScoringNotePanelState(): WorkbenchScoringNotePanel
   return {
     description: "AI가 만든 초안을 직접 보완하고 싶을 때만 여기를 수정하세요.",
     summaryLabel: "추가 메모 열기",
+  };
+}
+
+export function buildWorkbenchScoringReviewPanelState(): WorkbenchScoringReviewPanelState {
+  return {
+    description: "AI가 먼저 채운 값을 확인하세요. 다르게 보이는 항목만 조정하면 되고, 단계와 판단은 저장할 때 자동으로 정리됩니다.",
+    eyebrow: "사업성 평가 확인",
   };
 }
 
