@@ -32,6 +32,11 @@ export type WorkbenchEmptySelectionState = {
 export type WorkbenchEditPermissionState = {
   canEdit: boolean;
 };
+export type WorkbenchDiscardedIdeaListItemState = {
+  canManage: boolean;
+  display: WorkbenchIdeaDisplayState;
+  idea: Idea;
+};
 export type WorkbenchIdeaListItemState = {
   display: WorkbenchIdeaDisplayState;
   idea: Idea;
@@ -349,6 +354,24 @@ export function getSelectedWorkbenchIdea(nextIdeas: Idea[], selectedIdeaId: stri
 
 export function getWorkbenchComparisonIdeas(visibleIdeas: Idea[], selectedIdeaId: string, limit = 4) {
   return visibleIdeas.filter((idea) => idea.id !== selectedIdeaId).slice(0, limit);
+}
+
+export function buildWorkbenchDiscardedIdeaListItemStates({
+  discardedIdeas,
+  getIdeaDisplayState,
+}: {
+  discardedIdeas: Idea[];
+  getIdeaDisplayState: (idea: Idea) => WorkbenchIdeaDisplayState;
+}): WorkbenchDiscardedIdeaListItemState[] {
+  return discardedIdeas.map((idea) => {
+    const display = getIdeaDisplayState(idea);
+
+    return {
+      canManage: display.accessDisplay.isManageable,
+      display,
+      idea,
+    };
+  });
 }
 
 export function buildWorkbenchIdeaListItemStates({

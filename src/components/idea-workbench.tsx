@@ -58,6 +58,7 @@ import { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftStat
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchDiscardedIdeaListItemStates,
   buildWorkbenchEditPermissionState,
   buildWorkbenchEmptySelectionState,
   buildWorkbenchIdeaDiscardConfirmMessage,
@@ -2216,6 +2217,10 @@ export function IdeaWorkbench({
     selectedIdeaId: selectedIdea.id,
     visibleIdeas,
   });
+  const discardedIdeaListItems = buildWorkbenchDiscardedIdeaListItemStates({
+    discardedIdeas,
+    getIdeaDisplayState,
+  });
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -4317,48 +4322,44 @@ export function IdeaWorkbench({
                   삭제한 아이디어는 이곳에 남겨둡니다. 다시 이어갈 수 있고, 필요할 때만 완전히 삭제합니다.
                 </p>
               </div>
-              <div className="avl-pill avl-pill-neutral px-3 py-2 text-sm">{discardedIdeas.length}개</div>
+              <div className="avl-pill avl-pill-neutral px-3 py-2 text-sm">{discardedIdeaListItems.length}개</div>
             </div>
 
             <div className="mt-5 grid gap-3">
-              {discardedIdeas.length > 0 ? (
-                discardedIdeas.map((idea) => {
-                  const ideaDisplay = getIdeaDisplayState(idea);
-
-                  return (
-                    <div key={idea.id} className="border border-slate-200 bg-slate-50 p-4">
-                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                        <div className="min-w-0">
-                          <div className="avl-pill avl-pill-warning mb-2">삭제됨</div>
-                          <h3 className="text-base font-semibold text-slate-950">{idea.name}</h3>
-                          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
-                        </div>
-                        {ideaDisplay.accessDisplay.isManageable ? (
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => void restoreIdeaRecord(idea)}
-                              disabled={isBusy}
-                              className="avl-btn avl-btn-secondary h-10 px-3 text-sm disabled:opacity-50"
-                            >
-                              <RefreshCw size={15} />
-                              되살리기
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => void deleteIdeaRecord(idea)}
-                              disabled={isBusy}
-                              className="avl-btn avl-btn-danger h-10 px-3 text-sm disabled:opacity-50"
-                            >
-                              <Trash2 size={15} />
-                              완전 삭제
-                            </button>
-                          </div>
-                        ) : null}
+              {discardedIdeaListItems.length > 0 ? (
+                discardedIdeaListItems.map(({ canManage, idea }) => (
+                  <div key={idea.id} className="border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="min-w-0">
+                        <div className="avl-pill avl-pill-warning mb-2">삭제됨</div>
+                        <h3 className="text-base font-semibold text-slate-950">{idea.name}</h3>
+                        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
                       </div>
+                      {canManage ? (
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => void restoreIdeaRecord(idea)}
+                            disabled={isBusy}
+                            className="avl-btn avl-btn-secondary h-10 px-3 text-sm disabled:opacity-50"
+                          >
+                            <RefreshCw size={15} />
+                            되살리기
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void deleteIdeaRecord(idea)}
+                            disabled={isBusy}
+                            className="avl-btn avl-btn-danger h-10 px-3 text-sm disabled:opacity-50"
+                          >
+                            <Trash2 size={15} />
+                            완전 삭제
+                          </button>
+                        </div>
+                      ) : null}
                     </div>
-                  );
-                })
+                  </div>
+                ))
               ) : (
                 <div className="border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-6 text-slate-600">
                   삭제한 아이디어가 없습니다. 진행 중인 아이디어에서 삭제를 누르면 이곳으로 이동합니다.

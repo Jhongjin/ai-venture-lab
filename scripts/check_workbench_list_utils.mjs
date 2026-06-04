@@ -9,6 +9,7 @@ const {
   appendRecords,
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchDiscardedIdeaListItemStates,
   buildWorkbenchEditPermissionState,
   buildWorkbenchEmptySelectionState,
   buildWorkbenchIdeaDiscardConfirmMessage,
@@ -204,6 +205,10 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("visibleIdeas.map((idea) => {"),
   "IdeaWorkbench should use the shared visible idea list item helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("discardedIdeas.map((idea) => {"),
+  "IdeaWorkbench should use the shared discarded idea list item helper.",
 );
 assert.deepEqual(
   buildWorkbenchEditPermissionState({
@@ -429,6 +434,28 @@ assert.deepEqual(
     getIdeaDisplayState: getPanelDisplayState,
     selectedIdeaId: "owned-new",
     visibleIdeas: [],
+  }),
+  [],
+);
+const discardedIdeaListItemStates = buildWorkbenchDiscardedIdeaListItemStates({
+  discardedIdeas: [ideas[4], ideas[2]],
+  getIdeaDisplayState: getPanelDisplayState,
+});
+assert.deepEqual(
+  discardedIdeaListItemStates.map(({ canManage, idea: record }) => ({
+    canManage,
+    id: record.id,
+  })),
+  [
+    { canManage: true, id: "deleted" },
+    { canManage: false, id: "hidden" },
+  ],
+);
+assert.equal(discardedIdeaListItemStates[0].display.productSurface.label, "업무 자동화");
+assert.deepEqual(
+  buildWorkbenchDiscardedIdeaListItemStates({
+    discardedIdeas: [],
+    getIdeaDisplayState: getPanelDisplayState,
   }),
   [],
 );
