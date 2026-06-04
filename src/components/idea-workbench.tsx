@@ -132,6 +132,7 @@ import {
   buildWorkbenchScoringCurrentScoreCard,
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringHelpSections,
+  buildWorkbenchScoringInputControlState,
   buildWorkbenchScoringNextActionCard,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringNotePanelState,
@@ -1515,6 +1516,7 @@ export function IdeaWorkbench({
     isBusy,
     isScoreEvaluationSaved,
   });
+  const scoringInputControlState = buildWorkbenchScoringInputControlState({ canEdit });
   const scoringRecommendationPanelState = buildWorkbenchScoringRecommendationPanelState({
     missing,
     scoreDecisionLabel: decisionLabels[scoreSaveDecision],
@@ -4752,7 +4754,7 @@ export function IdeaWorkbench({
                         label={fieldConfig.label}
                         description={fieldConfig.description}
                         value={fieldConfig.value}
-                        disabled={!canEdit}
+                        disabled={scoringInputControlState.fieldsDisabled}
                         onChange={(value) => updateEditStateField(fieldConfig.field, value)}
                       />
                     ))}
@@ -4802,7 +4804,7 @@ export function IdeaWorkbench({
                       key={fieldConfig.field}
                       label={fieldConfig.label}
                       value={fieldConfig.value}
-                      disabled={!canEdit}
+                      disabled={scoringInputControlState.fieldsDisabled}
                       onChange={(value) => updateEditStateField(fieldConfig.field, value)}
                     />
                   ))}

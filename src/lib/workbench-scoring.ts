@@ -64,6 +64,9 @@ export type WorkbenchScoringHelpSectionState = {
   title: string;
   variant: "muted" | "plain";
 };
+export type WorkbenchScoringInputControlState = {
+  fieldsDisabled: boolean;
+};
 
 const workbenchScoreInputFields: Array<Pick<WorkbenchScoreInputFieldConfig, "field" | "label">> = [
   { field: "problem_intensity", label: "문제 강도" },
@@ -172,6 +175,12 @@ export function buildWorkbenchScoringReviewPanelState(): WorkbenchScoringReviewP
   return {
     description: "AI가 먼저 채운 값을 확인하세요. 다르게 보이는 항목만 조정하면 되고, 단계와 판단은 저장할 때 자동으로 정리됩니다.",
     eyebrow: "사업성 평가 확인",
+  };
+}
+
+export function buildWorkbenchScoringInputControlState({ canEdit }: { canEdit: boolean }): WorkbenchScoringInputControlState {
+  return {
+    fieldsDisabled: !canEdit,
   };
 }
 

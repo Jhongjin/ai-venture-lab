@@ -25,6 +25,7 @@ const {
   buildWorkbenchScoringCurrentScoreCard,
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringHelpSections,
+  buildWorkbenchScoringInputControlState,
   buildWorkbenchScoringNextActionCard,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringNotePanelState,
@@ -213,6 +214,20 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("AI가 먼저 채운 값을 확인하세요"),
   "IdeaWorkbench should keep scoring review-panel description in the shared helper.",
+);
+assert.deepEqual(buildWorkbenchScoringInputControlState({ canEdit: true }), {
+  fieldsDisabled: false,
+});
+assert.deepEqual(buildWorkbenchScoringInputControlState({ canEdit: false }), {
+  fieldsDisabled: true,
+});
+assert.ok(
+  ideaWorkbenchSource.includes("scoringInputControlState.fieldsDisabled"),
+  "IdeaWorkbench should render scoring input disabled state from shared helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={!canEdit}"),
+  "IdeaWorkbench should not render scoring input disabled state inline.",
 );
 
 const savePatch = buildWorkbenchScoringSavePatch({
