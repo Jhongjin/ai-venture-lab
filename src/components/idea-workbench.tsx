@@ -367,6 +367,7 @@ import {
   type DevelopmentAutoFlowState,
 } from "@/lib/development-auto-package-copy";
 import {
+  buildDevelopmentAutopilotActionControlState,
   buildDevelopmentAutopilotArtifactTelemetryProperties,
   buildDevelopmentAutopilotRowCounts,
   buildDevelopmentAutopilotRows,
@@ -1047,6 +1048,11 @@ export function IdeaWorkbench({
       }),
     [creditSummary, isCreditSummaryLoading, selectedIdeaContext.ideaId, user],
   );
+  const developmentAutopilotActionControlState = buildDevelopmentAutopilotActionControlState({
+    canUseFullProductionPackage,
+    hasUser: Boolean(user),
+    isBusy,
+  });
   const buildDeliveryPreference = useMemo(
     () => getBuildDeliveryPreferenceFromArtifacts(selectedArtifactRecords),
     [selectedArtifactRecords],
@@ -5056,11 +5062,11 @@ export function IdeaWorkbench({
             <button
               type="button"
               onClick={runAiExecutionAutopilot}
-              disabled={isBusy || !user || !canUseFullProductionPackage}
+              disabled={developmentAutopilotActionControlState.disabled}
               className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
             >
               <Layers3 size={18} />
-              제작 패키지 정리
+              {developmentAutopilotActionControlState.label}
             </button>
           </div>
 

@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/development-autopilot-rows.ts")).href;
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 const {
+  buildDevelopmentAutopilotActionControlState,
   buildDevelopmentAutopilotArtifactTelemetryProperties,
   buildDevelopmentAutopilotRowCounts,
   buildDevelopmentAutopilotRows,
@@ -174,5 +177,42 @@ assert.deepEqual(
     source_artifact: "no",
   },
 );
+
+assert.deepEqual(
+  buildDevelopmentAutopilotActionControlState({
+    canUseFullProductionPackage: true,
+    hasUser: true,
+    isBusy: false,
+  }),
+  {
+    disabled: false,
+    label: "제작 패키지 정리",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutopilotActionControlState({
+    canUseFullProductionPackage: false,
+    hasUser: true,
+    isBusy: false,
+  }),
+  {
+    disabled: true,
+    label: "제작 패키지 정리",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutopilotActionControlState({
+    canUseFullProductionPackage: true,
+    hasUser: false,
+    isBusy: true,
+  }),
+  {
+    disabled: true,
+    label: "제작 패키지 정리",
+  },
+);
+
+assert.match(ideaWorkbenchSource, /developmentAutopilotActionControlState\.disabled/);
+assert.match(ideaWorkbenchSource, /developmentAutopilotActionControlState\.label/);
 
 console.log("Development autopilot rows smoke passed.");

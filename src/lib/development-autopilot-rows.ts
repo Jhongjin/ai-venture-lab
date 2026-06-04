@@ -67,6 +67,26 @@ export type DevelopmentAutopilotRowGroups = {
   taskRows: ReadonlyArray<unknown>;
 };
 
+export type DevelopmentAutopilotActionControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export function buildDevelopmentAutopilotActionControlState({
+  canUseFullProductionPackage,
+  hasUser,
+  isBusy,
+}: {
+  canUseFullProductionPackage: boolean;
+  hasUser: boolean;
+  isBusy: boolean;
+}): DevelopmentAutopilotActionControlState {
+  return {
+    disabled: isBusy || !hasUser || !canUseFullProductionPackage,
+    label: "제작 패키지 정리",
+  };
+}
+
 export function buildDevelopmentAutopilotRowCounts({
   artifactRows,
   runRows,
