@@ -401,6 +401,26 @@ export function buildFinalExecutionPackageReadinessState({
   };
 }
 
+export function selectFinalExecutionMcpConfigDraft({
+  isAntigravityExternalDelivery,
+  isClaudeCodeExternalDelivery,
+  isCursorExternalDelivery,
+  mcpConfigDrafts,
+}: Pick<
+  FinalExecutionLiveDeliveryFlags,
+  "isAntigravityExternalDelivery" | "isClaudeCodeExternalDelivery" | "isCursorExternalDelivery"
+> & {
+  mcpConfigDrafts: Record<LiveExternalToolKey, string>;
+}) {
+  return isAntigravityExternalDelivery
+    ? mcpConfigDrafts.antigravity
+    : isClaudeCodeExternalDelivery
+      ? mcpConfigDrafts.claude_code
+      : isCursorExternalDelivery
+        ? mcpConfigDrafts.cursor
+        : "";
+}
+
 export function buildFinalExecutionLiveToolContext({
   buildDeliveryMode,
   externalToolKey,
@@ -430,6 +450,12 @@ export function buildFinalExecutionLiveToolContext({
     isLiveExternalDelivery,
   } = liveDeliveryFlags;
   const selectedLiveToolKey = selectFinalExecutionLiveToolKey(liveDeliveryFlags);
+  const mcpConfigDraft = selectFinalExecutionMcpConfigDraft({
+    isAntigravityExternalDelivery,
+    isClaudeCodeExternalDelivery,
+    isCursorExternalDelivery,
+    mcpConfigDrafts,
+  });
   const folder = liveExternalToolFolders[selectedLiveToolKey];
   const setupFileName = ideaName
     ? toDownloadFileName(ideaName, handoffFileSuffix, "ps1")
@@ -443,13 +469,7 @@ export function buildFinalExecutionLiveToolContext({
     isCodexExternalDelivery,
     isCursorExternalDelivery,
     isLiveExternalDelivery,
-    mcpConfigDraft: isAntigravityExternalDelivery
-      ? mcpConfigDrafts.antigravity
-      : isClaudeCodeExternalDelivery
-        ? mcpConfigDrafts.claude_code
-        : isCursorExternalDelivery
-          ? mcpConfigDrafts.cursor
-          : "",
+    mcpConfigDraft,
     nextTaskCommand: `node ${folder}/venture-lab-cli.mjs next-task`,
     progressPath: `${folder}/venture-lab-progress.json`,
     setupCommand: `powershell -ExecutionPolicy Bypass -File .\\${setupFileName}`,

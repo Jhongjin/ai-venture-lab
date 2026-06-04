@@ -44,6 +44,7 @@ const {
   hasFinalExecutionWorkOrder,
   selectFinalExecutionLiveToolKey,
   selectFinalExecutionLiveSetupDownload,
+  selectFinalExecutionMcpConfigDraft,
   summarizeFinalExecutionReadinessChecks,
 } = await import(moduleUrl);
 
@@ -395,6 +396,24 @@ assert.deepEqual(liveToolDraftMaps.guideDrafts, {
 });
 assert.equal(liveToolDraftMaps.mcpConfigDrafts.codex, "");
 assert.equal(liveToolDraftMaps.startPromptDrafts.antigravity, "antigravity start");
+assert.equal(
+  selectFinalExecutionMcpConfigDraft({
+    isAntigravityExternalDelivery: true,
+    isClaudeCodeExternalDelivery: false,
+    isCursorExternalDelivery: false,
+    mcpConfigDrafts: liveToolDraftMaps.mcpConfigDrafts,
+  }),
+  "antigravity mcp",
+);
+assert.equal(
+  selectFinalExecutionMcpConfigDraft({
+    isAntigravityExternalDelivery: false,
+    isClaudeCodeExternalDelivery: false,
+    isCursorExternalDelivery: false,
+    mcpConfigDrafts: liveToolDraftMaps.mcpConfigDrafts,
+  }),
+  "",
+);
 
 const cursorLiveContext = buildFinalExecutionLiveToolContext({
   buildDeliveryMode: "external_tool",
