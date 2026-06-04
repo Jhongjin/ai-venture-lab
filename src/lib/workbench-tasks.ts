@@ -22,6 +22,15 @@ export type WorkbenchTaskSummary = {
   description: string;
   status: string;
 };
+export type WorkbenchTaskNavigationItemState = {
+  descriptionLabel: string;
+  isActive: boolean;
+  isLocked: boolean;
+  statusLabel: string;
+  statusPillTone: "avl-pill-info" | "avl-pill-warning" | "avl-pill-neutral";
+  stepNumber: number;
+  task: WorkbenchTaskSummary;
+};
 
 export type WorkbenchExperienceMode = "guided" | "full";
 
@@ -184,6 +193,31 @@ export function getVisibleWorkbenchTaskSummaries(
   experienceMode: WorkbenchExperienceMode,
 ) {
   return experienceMode === "guided" ? tasks.filter((task) => guidedWorkbenchTaskIdSet.has(task.id)) : tasks;
+}
+
+export function buildWorkbenchTaskNavigationItemStates({
+  activeTask,
+  canEnterLaunch,
+  tasks,
+}: {
+  activeTask: WorkbenchTask;
+  canEnterLaunch: boolean;
+  tasks: WorkbenchTaskSummary[];
+}): WorkbenchTaskNavigationItemState[] {
+  return tasks.map((task, index) => {
+    const isActive = activeTask === task.id;
+    const isLocked = task.id === "launch" && !canEnterLaunch && !isActive;
+
+    return {
+      descriptionLabel: isLocked ? "준비 완료 후 열립니다" : task.description,
+      isActive,
+      isLocked,
+      statusLabel: isLocked ? "잠김" : task.status,
+      statusPillTone: isActive ? "avl-pill-info" : isLocked ? "avl-pill-warning" : "avl-pill-neutral",
+      stepNumber: index + 1,
+      task,
+    };
+  });
 }
 
 export function buildWorkbenchTaskNavigationState({

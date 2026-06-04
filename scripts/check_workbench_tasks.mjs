@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-tasks.ts")).href;
 const {
   WORKBENCH_TASK_IDS,
+  buildWorkbenchTaskNavigationItemStates,
   buildWorkbenchTaskNavigationState,
   buildWorkbenchTaskSummaries,
   getVisibleWorkbenchTaskSummaries,
@@ -12,9 +14,15 @@ const {
   isWorkbenchTask,
 } = await import(moduleUrl);
 
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
+
 assert.equal(WORKBENCH_TASK_IDS.length, 11);
 assert.equal(isWorkbenchTask("development"), true);
 assert.equal(isWorkbenchTask("unknown"), false);
+assert.ok(
+  !ideaWorkbenchSource.includes('const isTaskLocked = task.id === "launch"'),
+  "IdeaWorkbench should use the shared task navigation item helper.",
+);
 
 assert.deepEqual(getWorkbenchIdeaProgress({ decision: "kill", stage: "launch" }), {
   label: "삭제됨",
@@ -84,6 +92,66 @@ const inProgressTasks = buildWorkbenchTaskSummaries({
 assert.equal(inProgressTasks.find((task) => task.id === "development")?.status, "2/3");
 assert.equal(inProgressTasks.find((task) => task.id === "launch")?.status, "준비 완료");
 assert.equal(inProgressTasks.find((task) => task.id === "learning")?.status, "6개");
+
+const lockedTaskItems = buildWorkbenchTaskNavigationItemStates({
+  activeTask: "score",
+  canEnterLaunch: false,
+  tasks,
+});
+const lockedLaunchItem = lockedTaskItems.find((item) => item.task.id === "launch");
+assert.deepEqual(
+  {
+    descriptionLabel: lockedLaunchItem?.descriptionLabel,
+    isActive: lockedLaunchItem?.isActive,
+    isLocked: lockedLaunchItem?.isLocked,
+    statusLabel: lockedLaunchItem?.statusLabel,
+    statusPillTone: lockedLaunchItem?.statusPillTone,
+  },
+  {
+    descriptionLabel: "준비 완료 후 열립니다",
+    isActive: false,
+    isLocked: true,
+    statusLabel: "잠김",
+    statusPillTone: "avl-pill-warning",
+  },
+);
+const activeLaunchItem = buildWorkbenchTaskNavigationItemStates({
+  activeTask: "launch",
+  canEnterLaunch: false,
+  tasks,
+}).find((item) => item.task.id === "launch");
+assert.deepEqual(
+  {
+    isActive: activeLaunchItem?.isActive,
+    isLocked: activeLaunchItem?.isLocked,
+    statusLabel: activeLaunchItem?.statusLabel,
+    statusPillTone: activeLaunchItem?.statusPillTone,
+  },
+  {
+    isActive: true,
+    isLocked: false,
+    statusLabel: "64%",
+    statusPillTone: "avl-pill-info",
+  },
+);
+const readyLaunchItem = buildWorkbenchTaskNavigationItemStates({
+  activeTask: "score",
+  canEnterLaunch: true,
+  tasks: inProgressTasks,
+}).find((item) => item.task.id === "launch");
+assert.deepEqual(
+  {
+    isLocked: readyLaunchItem?.isLocked,
+    statusLabel: readyLaunchItem?.statusLabel,
+    statusPillTone: readyLaunchItem?.statusPillTone,
+  },
+  {
+    isLocked: false,
+    statusLabel: "준비 완료",
+    statusPillTone: "avl-pill-neutral",
+  },
+);
+assert.equal(lockedTaskItems[0].stepNumber, 1);
 
 const guidedTasks = getVisibleWorkbenchTaskSummaries(tasks, "guided");
 assert.deepEqual(

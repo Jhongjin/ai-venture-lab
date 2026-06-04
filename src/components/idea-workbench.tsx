@@ -510,6 +510,7 @@ import {
   type ImplementationStatusFilter,
 } from "@/lib/implementation-task-metadata";
 import {
+  buildWorkbenchTaskNavigationItemStates,
   buildWorkbenchTaskNavigationState,
   getWorkbenchIdeaProgress,
   type WorkbenchTask,
@@ -2025,6 +2026,11 @@ export function IdeaWorkbench({
     runCount: selectedRuns.length,
     telemetryEventCount: selectedTelemetryEvents.length,
     experienceMode,
+  });
+  const visibleWorkbenchTaskItems = buildWorkbenchTaskNavigationItemStates({
+    activeTask,
+    canEnterLaunch,
+    tasks: visibleWorkbenchTasks,
   });
   async function refreshSelectedIdeaImplementationTasks(options: { source?: "auto" | "manual" } = {}) {
     const isAutoRefresh = options.source === "auto";
@@ -4062,41 +4068,37 @@ export function IdeaWorkbench({
             <p className="mt-1 text-sm leading-6 text-slate-500">단계를 고르면 오른쪽 작업 화면만 바뀝니다.</p>
           </div>
           <div className="grid gap-2">
-            {visibleWorkbenchTasks.map((task, index) => {
-              const isTaskLocked = task.id === "launch" && !canEnterLaunch && activeTask !== "launch";
+            {visibleWorkbenchTaskItems.map((taskItem) => {
+              const { descriptionLabel, isActive, isLocked, statusLabel, statusPillTone, stepNumber, task } = taskItem;
 
               return (
                 <button
                   key={task.id}
                   type="button"
                   onClick={() => updateActiveTask(task.id)}
-                  disabled={isTaskLocked}
-                  aria-current={activeTask === task.id ? "step" : undefined}
+                  disabled={isLocked}
+                  aria-current={isActive ? "step" : undefined}
                   className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-55 ${
-                    activeTask === task.id
+                    isActive
                       ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
                       : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-slate-300 hover:bg-white"
                   }`}
                 >
                   <span
                     className={`avl-step-dot h-8 w-8 text-sm ${
-                      activeTask === task.id ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-700"
+                      isActive ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-700"
                     }`}
                   >
-                    {index + 1}
+                    {stepNumber}
                   </span>
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold">{task.label}</span>
                     <span className="mt-0.5 block text-xs leading-5 text-slate-500">
-                      {isTaskLocked ? "준비 완료 후 열립니다" : task.description}
+                      {descriptionLabel}
                     </span>
                   </span>
-                  <span
-                    className={`avl-pill ${
-                      activeTask === task.id ? "avl-pill-info" : isTaskLocked ? "avl-pill-warning" : "avl-pill-neutral"
-                    }`}
-                  >
-                    {isTaskLocked ? "잠김" : task.status}
+                  <span className={`avl-pill ${statusPillTone}`}>
+                    {statusLabel}
                   </span>
                 </button>
               );
