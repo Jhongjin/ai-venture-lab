@@ -118,6 +118,7 @@ import {
 import {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSaveButtonState,
   buildWorkbenchScoringSavePatch,
@@ -1434,6 +1435,11 @@ export function IdeaWorkbench({
     canEdit,
     isBusy,
     isScoreEvaluationSaved,
+  });
+  const scoringRecommendationPanelState = buildWorkbenchScoringRecommendationPanelState({
+    missing,
+    scoreDecisionLabel: decisionLabels[scoreSaveDecision],
+    scoreRecommendation,
   });
   const { recommendedValidationExperiment, validationEvidenceCoach, validationPlan } = buildValidationPlanningReviewState({
     artifacts: selectedArtifactRecords,
@@ -4427,7 +4433,7 @@ export function IdeaWorkbench({
                 activeProductSurfaceLabel={activeProductSurface.label}
                 currentScore={currentScore}
                 isScoreEvaluationSaved={isScoreEvaluationSaved}
-                scoreDecisionLabel={decisionLabels[scoreSaveDecision]}
+                scoreDecisionLabel={scoringRecommendationPanelState.scoreDecisionLabel}
               />
 
               <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
@@ -4446,7 +4452,7 @@ export function IdeaWorkbench({
                     </div>
                     <div className="border border-slate-200 bg-white p-4">
                       <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
-                      <div className="mt-2 text-base font-semibold text-slate-950">{decisionLabels[scoreSaveDecision]}</div>
+                      <div className="mt-2 text-base font-semibold text-slate-950">{scoringRecommendationPanelState.scoreDecisionLabel}</div>
                       <p className="mt-2 text-xs leading-5 text-slate-500">
                         아래 평가값으로 계산한 추천입니다. 평가가 낮아도 자동 삭제하지 않고, 삭제는 사용자가 직접 선택합니다.
                       </p>
@@ -4522,27 +4528,21 @@ export function IdeaWorkbench({
                 <div className="grid gap-4">
                   <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
-                    <div className="mt-3 text-3xl font-semibold text-slate-950">{decisionLabels[scoreSaveDecision]}</div>
+                    <div className="mt-3 text-3xl font-semibold text-slate-950">{scoringRecommendationPanelState.scoreDecisionLabel}</div>
                     <p className="mt-2 text-sm leading-5 text-slate-600">
                       현재 평가값으로 계산한 추천입니다. 저장하면 AI가 이 판단을 기준으로 다음 단계를 준비합니다.
                     </p>
-                    {scoreRecommendation === "kill" ? (
+                    {scoringRecommendationPanelState.shouldShowKillWarning ? (
                       <p className="mt-3 border-l border-amber-300 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
                         현재 평가만 보면 중단에 가깝지만, 아이디어를 바로 삭제하지는 않습니다. 삭제는 상단 삭제 버튼을 눌렀을 때만 진행됩니다.
                       </p>
                     ) : null}
                     <div className="mt-4 flex flex-wrap gap-2">
-                      {missing.length > 0 ? (
-                        missing.map((item) => (
-                            <span key={item} className="avl-pill avl-pill-warning">
-                              {item}
-                            </span>
-                        ))
-                      ) : (
-                          <span className="avl-pill avl-pill-success">
-                            기획 전환 준비 완료
-                          </span>
-                      )}
+                      {scoringRecommendationPanelState.readinessPills.map((pill) => (
+                        <span key={pill.label} className={`avl-pill ${pill.toneClassName}`}>
+                          {pill.label}
+                        </span>
+                      ))}
                     </div>
                   </div>
 

@@ -22,6 +22,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringSaveButtonState,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSavePatch,
@@ -158,6 +159,37 @@ assert.equal(
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || !canEdit || isScoreEvaluationSaved}"),
   "IdeaWorkbench should use the shared scoring save button helper.",
+);
+assert.deepEqual(
+  buildWorkbenchScoringRecommendationPanelState({
+    missing: ["수요 신호", "연결된 리스크"],
+    scoreDecisionLabel: "추가 조사",
+    scoreRecommendation: "research_more",
+  }),
+  {
+    readinessPills: [
+      { label: "수요 신호", toneClassName: "avl-pill-warning" },
+      { label: "연결된 리스크", toneClassName: "avl-pill-warning" },
+    ],
+    scoreDecisionLabel: "추가 조사",
+    shouldShowKillWarning: false,
+  },
+);
+assert.deepEqual(
+  buildWorkbenchScoringRecommendationPanelState({
+    missing: [],
+    scoreDecisionLabel: "중단",
+    scoreRecommendation: "kill",
+  }),
+  {
+    readinessPills: [{ label: "기획 전환 준비 완료", toneClassName: "avl-pill-success" }],
+    scoreDecisionLabel: "중단",
+    shouldShowKillWarning: true,
+  },
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('scoreRecommendation === "kill"'),
+  "IdeaWorkbench should use the shared scoring recommendation panel helper.",
 );
 const savedIdea = { ...idea, ...savePatch };
 assert.equal(

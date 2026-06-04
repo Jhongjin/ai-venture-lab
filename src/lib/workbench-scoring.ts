@@ -118,6 +118,15 @@ export type WorkbenchScoringSaveButtonState = {
   label: string;
   toneClassName: "avl-btn-primary" | "avl-btn-secondary";
 };
+export type WorkbenchScoringReadinessPill = {
+  label: string;
+  toneClassName: "avl-pill-success" | "avl-pill-warning";
+};
+export type WorkbenchScoringRecommendationPanelState = {
+  readinessPills: WorkbenchScoringReadinessPill[];
+  scoreDecisionLabel: string;
+  shouldShowKillWarning: boolean;
+};
 
 export function buildWorkbenchScoringSaveButtonState({
   canEdit,
@@ -133,6 +142,25 @@ export function buildWorkbenchScoringSaveButtonState({
     icon: isBusy ? "loading" : isScoreEvaluationSaved ? "saved" : "save",
     label: isScoreEvaluationSaved ? "저장 완료" : "사업성 평가 저장",
     toneClassName: isScoreEvaluationSaved ? "avl-btn-secondary" : "avl-btn-primary",
+  };
+}
+
+export function buildWorkbenchScoringRecommendationPanelState({
+  missing,
+  scoreDecisionLabel,
+  scoreRecommendation,
+}: {
+  missing: string[];
+  scoreDecisionLabel: string;
+  scoreRecommendation: DecisionStatus;
+}): WorkbenchScoringRecommendationPanelState {
+  return {
+    readinessPills:
+      missing.length > 0
+        ? missing.map((label) => ({ label, toneClassName: "avl-pill-warning" as const }))
+        : [{ label: "기획 전환 준비 완료", toneClassName: "avl-pill-success" }],
+    scoreDecisionLabel,
+    shouldShowKillWarning: scoreRecommendation === "kill",
   };
 }
 
