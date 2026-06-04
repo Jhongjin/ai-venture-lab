@@ -342,6 +342,7 @@ import {
 } from "@/lib/development-auto-package-copy";
 import {
   buildDevelopmentAutopilotArtifactTelemetryProperties,
+  buildDevelopmentAutopilotRowCounts,
   buildDevelopmentAutopilotRows,
   buildDevelopmentAutopilotRunbookTelemetryProperties,
   buildDevelopmentAutopilotTaskTelemetryProperties,
@@ -3011,7 +3012,13 @@ export function IdeaWorkbench({
       sourceArtifactId: implementationTaskSourceArtifact?.id ?? null,
     });
 
-    if (missingRuns.length === 0 && artifactRows.length === 0 && taskRows.length === 0) {
+    const rowCounts = buildDevelopmentAutopilotRowCounts({
+      artifactRows,
+      runRows: missingRuns,
+      taskRows,
+    });
+
+    if (!rowCounts.hasRows) {
       setMessage(buildDevelopmentAutopilotAlreadyPreparedMessage());
       return;
     }
@@ -3094,13 +3101,13 @@ export function IdeaWorkbench({
           insertedTaskCount: insertedTasks.length,
         }),
       );
-      setMessage(
-        buildDevelopmentAutopilotPreparedMessage({
-          artifactCount: insertedArtifacts.length,
-          runCount: insertedRuns.length,
-          taskCount: insertedTasks.length,
-        }),
-      );
+      const insertedCounts = buildDevelopmentAutopilotRowCounts({
+        artifactRows: insertedArtifacts,
+        runRows: insertedRuns,
+        taskRows: insertedTasks,
+      });
+
+      setMessage(buildDevelopmentAutopilotPreparedMessage(insertedCounts));
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : buildDevelopmentAutopilotFailedMessage());

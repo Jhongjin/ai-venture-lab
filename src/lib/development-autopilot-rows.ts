@@ -61,6 +61,29 @@ export type DevelopmentAutopilotRows = {
   taskRows: DevelopmentAutopilotTaskRow[];
 };
 
+export type DevelopmentAutopilotRowGroups = {
+  artifactRows: ReadonlyArray<unknown>;
+  runRows: ReadonlyArray<unknown>;
+  taskRows: ReadonlyArray<unknown>;
+};
+
+export function buildDevelopmentAutopilotRowCounts({
+  artifactRows,
+  runRows,
+  taskRows,
+}: DevelopmentAutopilotRowGroups) {
+  const artifactCount = artifactRows.length;
+  const runCount = runRows.length;
+  const taskCount = taskRows.length;
+
+  return {
+    artifactCount,
+    hasRows: artifactCount > 0 || runCount > 0 || taskCount > 0,
+    runCount,
+    taskCount,
+  };
+}
+
 export function getDevelopmentAutopilotNextPanel({
   existingTaskCount,
   insertedTaskCount,

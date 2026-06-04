@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/development-autopilot-rows.ts")).href;
 const {
   buildDevelopmentAutopilotArtifactTelemetryProperties,
+  buildDevelopmentAutopilotRowCounts,
   buildDevelopmentAutopilotRows,
   buildDevelopmentAutopilotRunbookTelemetryProperties,
   buildDevelopmentAutopilotTaskTelemetryProperties,
@@ -92,6 +93,19 @@ assert.deepEqual(
   ]),
   [["New QA Task", "qa", "medium", "todo", "artifact-source-1", 1]],
 );
+assert.deepEqual(
+  buildDevelopmentAutopilotRowCounts({
+    artifactRows: rows.artifactRows,
+    runRows: rows.missingRuns,
+    taskRows: rows.taskRows,
+  }),
+  {
+    artifactCount: 2,
+    hasRows: true,
+    runCount: 1,
+    taskCount: 1,
+  },
+);
 
 const emptyRows = buildDevelopmentAutopilotRows({
   artifactDrafts: [{ artifactType: "tech_spec", body: "", source: "development_process", title: "Empty" }],
@@ -115,6 +129,19 @@ const emptyRows = buildDevelopmentAutopilotRows({
 assert.equal(emptyRows.missingRuns.length, 0);
 assert.equal(emptyRows.artifactRows.length, 0);
 assert.equal(emptyRows.taskRows.length, 0);
+assert.deepEqual(
+  buildDevelopmentAutopilotRowCounts({
+    artifactRows: emptyRows.artifactRows,
+    runRows: emptyRows.missingRuns,
+    taskRows: emptyRows.taskRows,
+  }),
+  {
+    artifactCount: 0,
+    hasRows: false,
+    runCount: 0,
+    taskCount: 0,
+  },
+);
 assert.equal(getDevelopmentAutopilotNextPanel({ existingTaskCount: 0, insertedTaskCount: 0 }), "setup");
 assert.equal(getDevelopmentAutopilotNextPanel({ existingTaskCount: 1, insertedTaskCount: 0 }), "tasks");
 assert.equal(getDevelopmentAutopilotNextPanel({ existingTaskCount: 0, insertedTaskCount: 1 }), "tasks");
