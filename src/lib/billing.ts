@@ -1,4 +1,4 @@
-import { isPlainRecord } from "@/lib/record-utils";
+import { getApiMessage, isPlainRecord } from "@/lib/record-utils";
 
 export const FREE_MONTHLY_CREDITS = 100;
 export const IDEA_BUILD_PASS_CREDITS = 30;
@@ -73,6 +73,12 @@ export type BuildPassUnlockResult = {
   creditMessage: string;
 };
 
+export type CreditSummaryReadState = {
+  creditMessage: string | null;
+  creditSummary: CreditSummary | null;
+  ok: boolean;
+};
+
 export type CreditPeriodLedgerTotals = {
   granted: number;
   spent: number;
@@ -143,6 +149,30 @@ export function isCreditSummary(value: unknown): value is CreditSummary {
     Array.isArray(value.buildPasses) &&
     Array.isArray(value.ledgerEntries)
   );
+}
+
+export function buildCreditSummaryReadState({
+  payload,
+  responseOk,
+}: {
+  payload: unknown;
+  responseOk: boolean;
+}): CreditSummaryReadState {
+  if (!responseOk || !isCreditSummary(payload)) {
+    const fallback = responseOk ? buildCreditSummaryReadFailedMessage() : buildCreditSummaryLoadFailedMessage();
+
+    return {
+      creditMessage: getApiMessage(payload, fallback),
+      creditSummary: null,
+      ok: false,
+    };
+  }
+
+  return {
+    creditMessage: payload.message,
+    creditSummary: payload,
+    ok: true,
+  };
 }
 
 export function getBuildPassUnlockResult(

@@ -227,9 +227,8 @@ import {
   buildBuildPassUnlockRequestPayload,
   buildBuildPassUnlockRetryMessage,
   buildBuildPassUnlockSuccessMessage,
-  buildCreditSummaryLoadFailedMessage,
   buildCreditSummaryLoadRetryMessage,
-  buildCreditSummaryReadFailedMessage,
+  buildCreditSummaryReadState,
   getBuildPassUnlockUrl,
   getBuildPassRequirementMessage,
   getBuildPassUnlockResult,
@@ -762,17 +761,16 @@ export function IdeaWorkbench({
         input: getCreditSummaryUrl(),
       });
 
-      if (!response.ok || !isCreditSummary(payload)) {
-        const fallback = response.ok
-          ? buildCreditSummaryReadFailedMessage()
-          : buildCreditSummaryLoadFailedMessage();
-        setCreditMessage(getApiMessage(payload, fallback));
+      const creditSummaryState = buildCreditSummaryReadState({ payload, responseOk: response.ok });
+
+      if (!creditSummaryState.ok) {
+        setCreditMessage(creditSummaryState.creditMessage);
         return null;
       }
 
-      setCreditSummary(payload);
-      setCreditMessage(payload.message);
-      return payload;
+      setCreditSummary(creditSummaryState.creditSummary);
+      setCreditMessage(creditSummaryState.creditMessage);
+      return creditSummaryState.creditSummary;
     } catch {
       setCreditMessage(buildCreditSummaryLoadRetryMessage());
       return null;

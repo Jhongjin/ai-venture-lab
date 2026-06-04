@@ -29,6 +29,7 @@ const {
   buildCreditSummaryLoadFailedMessage,
   buildCreditSummaryLoadRetryMessage,
   buildCreditSummaryReadFailedMessage,
+  buildCreditSummaryReadState,
   getBuildPassUnlockUrl,
   getBuildPassRequirementMessage,
   getBuildPassUnlockResult,
@@ -49,6 +50,35 @@ assert.equal(getBuildPassUnlockUrl(), "/api/billing/build-pass");
 assert.equal(buildCreditSummaryReadFailedMessage(), "크레딧 상태를 읽지 못했습니다.");
 assert.equal(buildCreditSummaryLoadFailedMessage(), "크레딧 상태를 불러오지 못했습니다.");
 assert.equal(buildCreditSummaryLoadRetryMessage(), "크레딧 상태를 불러오지 못했습니다. 잠시 후 다시 시도하세요.");
+
+const readyCreditSummary = {
+  balance: 70,
+  buildPassCost: 30,
+  buildPasses: [],
+  freeArtifactLimit: 4,
+  fullArtifactCount: 10,
+  ledgerEntries: [],
+  message: "크레딧 상태를 확인했습니다.",
+  monthlyGrant: 100,
+  periodKey: "2026-06",
+  plan: "free",
+  status: "ready",
+};
+assert.deepEqual(buildCreditSummaryReadState({ payload: readyCreditSummary, responseOk: true }), {
+  creditMessage: "크레딧 상태를 확인했습니다.",
+  creditSummary: readyCreditSummary,
+  ok: true,
+});
+assert.deepEqual(buildCreditSummaryReadState({ payload: { message: "필드가 부족합니다." }, responseOk: true }), {
+  creditMessage: "필드가 부족합니다.",
+  creditSummary: null,
+  ok: false,
+});
+assert.deepEqual(buildCreditSummaryReadState({ payload: { error: "크레딧 API 오류" }, responseOk: false }), {
+  creditMessage: "크레딧 API 오류",
+  creditSummary: null,
+  ok: false,
+});
 
 assert.equal(
   getBuildPassRequirementMessage({ buildPassCost: 30, isChecking: true, mode: "delivery_bundle" }),
