@@ -61,6 +61,7 @@ const {
   buildPowerShellWriteHostLines,
   buildSetupPowerShellGitignoreBlock,
   buildSetupPowerShellFileWriteBlock,
+  buildSetupPowerShellHeader,
   buildSetupFileRows,
   escapePowerShellSingleQuoted,
 } = await import(moduleUrl);
@@ -80,6 +81,10 @@ assert.deepEqual(buildExternalToolSetupIgnoreEntries(".cursor"), [
 ]);
 assert.equal(buildPowerShellStringArray(["one", "two"]), '@("one", "two")');
 assert.equal(buildPowerShellWriteHostLines(["", "Ready."]), 'Write-Host ""\nWrite-Host "Ready."');
+assert.equal(
+  buildSetupPowerShellHeader({ idea, projectKey: "PROJECT-1", toolLabel: "Codex" }),
+  "# AI Venture Lab Codex connection setup\n# Project: AI Venture Lab\n# Key: PROJECT-1",
+);
 assert.equal(
   buildSetupFileRows([{ base64: "abc", path: ".cursor/rules/owner's-rule.mdc" }]),
   "  @{ Path = '.cursor/rules/owner''s-rule.mdc'; Base64 = 'abc' }",

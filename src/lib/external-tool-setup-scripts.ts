@@ -155,6 +155,20 @@ export function buildPowerShellWriteHostLines(lines: string[]) {
   return lines.map((line) => `Write-Host "${line}"`).join("\n");
 }
 
+export function buildSetupPowerShellHeader({
+  idea,
+  projectKey,
+  toolLabel,
+}: {
+  idea: Pick<Idea, "name">;
+  projectKey: string;
+  toolLabel: string;
+}) {
+  return `# AI Venture Lab ${toolLabel} connection setup
+# Project: ${idea.name}
+# Key: ${projectKey}`;
+}
+
 export function buildLiveExternalToolSetupDownloadDraft({
   config,
   encodeSetupFiles,
@@ -344,9 +358,7 @@ export function buildCursorSetupPowerShell({
   projectKey: string;
   files: SetupFile[];
 }) {
-  return `# AI Venture Lab Cursor connection setup
-# Project: ${idea.name}
-# Key: ${projectKey}
+  return `${buildSetupPowerShellHeader({ idea, projectKey, toolLabel: "Cursor" })}
 
 ${buildSetupPowerShellFileWriteBlock(files)}
 
@@ -372,9 +384,7 @@ export function buildCodexSetupPowerShell({
   projectKey: string;
   files: SetupFile[];
 }) {
-  return `# AI Venture Lab Codex connection setup
-# Project: ${idea.name}
-# Key: ${projectKey}
+  return `${buildSetupPowerShellHeader({ idea, projectKey, toolLabel: "Codex" })}
 
 ${buildSetupPowerShellFileWriteBlock(files)}
 
@@ -405,9 +415,7 @@ export function buildLiveToolSetupPowerShell({
   folder: string;
   startFileName: string;
 }) {
-  return `# AI Venture Lab ${toolLabel} connection setup
-# Project: ${idea.name}
-# Key: ${projectKey}
+  return `${buildSetupPowerShellHeader({ idea, projectKey, toolLabel })}
 
 ${buildSetupPowerShellFileWriteBlock(files)}
 
