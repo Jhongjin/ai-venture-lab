@@ -70,6 +70,7 @@ import {
   buildWorkbenchIdeaRestoreFailedMessage,
   buildWorkbenchIdeaRestoredMessage,
   buildWorkbenchIdeaDisplayState,
+  buildWorkbenchIdeaListItemStates,
   buildWorkbenchIdeaVisibilityState,
   buildWorkbenchSelectedIdeaPanelState,
   canManageWorkbenchRecord,
@@ -2204,6 +2205,11 @@ export function IdeaWorkbench({
   });
   const selectedIdeaDisplay = selectedIdeaPanelState.selectedIdeaDisplay;
   const comparisonIdeas = selectedIdeaPanelState.comparisonIdeas;
+  const visibleIdeaListItems = buildWorkbenchIdeaListItemStates({
+    getIdeaDisplayState,
+    selectedIdeaId: selectedIdea.id,
+    visibleIdeas,
+  });
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -3983,71 +3989,65 @@ export function IdeaWorkbench({
         </div>
 
         <div className="grid gap-3">
-          {visibleIdeas.length > 0 ? (
-            visibleIdeas.map((idea) => {
-              const ideaDisplay = getIdeaDisplayState(idea);
-
-              return (
-                <div
-                  key={idea.id}
-                  className={`border p-4 text-left transition ${
-                    idea.id === selectedIdea.id
-                      ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
-                      : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
-                  }`}
+          {visibleIdeaListItems.length > 0 ? (
+            visibleIdeaListItems.map(({ display: ideaDisplay, idea, isSelected, stagePillTone }) => (
+              <div
+                key={idea.id}
+                className={`border p-4 text-left transition ${
+                  isSelected
+                    ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
+                    : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedIdeaId(idea.id);
+                    setEditState(toEditState(idea));
+                    updateActiveTask("score");
+                  }}
+                  className="w-full text-left"
                 >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedIdeaId(idea.id);
-                      setEditState(toEditState(idea));
-                      updateActiveTask("score");
-                    }}
-                    className="w-full text-left"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="font-semibold text-slate-950">
-                        {idea.name}
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        <span
-                          className={`avl-pill ${
-                            idea.id === selectedIdea.id ? "avl-pill-info" : "avl-pill-neutral"
-                          }`}
-                        >
-                          {stageLabels[idea.stage]}
-                        </span>
-                        <span className="avl-pill avl-pill-info">
-                          {ideaDisplay.productSurface.label}
-                        </span>
-                        <span className={`avl-pill ${ideaDisplay.accessDisplay.pillTone}`}>
-                          {ideaDisplay.accessDisplay.label}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {idea.one_liner || idea.signal}
-                    </p>
-                    <p className="mt-2 text-xs leading-5 text-slate-500">
-                      {ideaDisplay.productSurface.firstBuild}
-                    </p>
-                  </button>
-                  {ideaDisplay.accessDisplay.isManageable ? (
-                    <div className="mt-3 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => void discardIdeaRecord(idea)}
-                        disabled={isBusy}
-                        className="avl-btn avl-btn-danger h-9 px-3 text-xs disabled:opacity-50"
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-semibold text-slate-950">
+                      {idea.name}
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      <span
+                        className={`avl-pill ${stagePillTone}`}
                       >
-                        <Trash2 size={14} />
-                        삭제
-                      </button>
+                        {stageLabels[idea.stage]}
+                      </span>
+                      <span className="avl-pill avl-pill-info">
+                        {ideaDisplay.productSurface.label}
+                      </span>
+                      <span className={`avl-pill ${ideaDisplay.accessDisplay.pillTone}`}>
+                        {ideaDisplay.accessDisplay.label}
+                      </span>
                     </div>
-                  ) : null}
-                </div>
-              );
-            })
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {idea.one_liner || idea.signal}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                    {ideaDisplay.productSurface.firstBuild}
+                  </p>
+                </button>
+                {ideaDisplay.accessDisplay.isManageable ? (
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => void discardIdeaRecord(idea)}
+                      disabled={isBusy}
+                      className="avl-btn avl-btn-danger h-9 px-3 text-xs disabled:opacity-50"
+                    >
+                      <Trash2 size={14} />
+                      삭제
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ))
           ) : (
             <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
               이 필터에 맞는 아이디어가 아직 없습니다.

@@ -15,6 +15,7 @@ const {
   buildWorkbenchIdeaDiscardFailedMessage,
   buildWorkbenchIdeaDiscardedMessage,
   buildWorkbenchIdeaDisplayState,
+  buildWorkbenchIdeaListItemStates,
   buildWorkbenchIdeaPermanentDeleteConfirmMessage,
   buildWorkbenchIdeaPermanentDeleteFailedMessage,
   buildWorkbenchIdeaRemovalCompletionState,
@@ -199,6 +200,10 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {"),
   "IdeaWorkbench should use the shared selected-idea panel helper instead of a JSX IIFE.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("visibleIdeas.map((idea) => {"),
+  "IdeaWorkbench should use the shared visible idea list item helper.",
 );
 assert.deepEqual(
   buildWorkbenchEditPermissionState({
@@ -400,6 +405,32 @@ assert.deepEqual(
     selectedIdeaDisplay: null,
     shouldShow: false,
   },
+);
+const visibleIdeaListItemStates = buildWorkbenchIdeaListItemStates({
+  getIdeaDisplayState: getPanelDisplayState,
+  selectedIdeaId: "owned-new",
+  visibleIdeas: [ideas[1], ideas[0], ideas[3]],
+});
+assert.deepEqual(
+  visibleIdeaListItemStates.map(({ idea: record, isSelected, stagePillTone }) => ({
+    id: record.id,
+    isSelected,
+    stagePillTone,
+  })),
+  [
+    { id: "owned-new", isSelected: true, stagePillTone: "avl-pill-info" },
+    { id: "shared-old", isSelected: false, stagePillTone: "avl-pill-neutral" },
+    { id: "admin", isSelected: false, stagePillTone: "avl-pill-neutral" },
+  ],
+);
+assert.equal(visibleIdeaListItemStates[0].display.accessDisplay.label, "내 기록");
+assert.deepEqual(
+  buildWorkbenchIdeaListItemStates({
+    getIdeaDisplayState: getPanelDisplayState,
+    selectedIdeaId: "owned-new",
+    visibleIdeas: [],
+  }),
+  [],
 );
 assert.equal(
   isRemovedWorkbenchIdeaSelected({

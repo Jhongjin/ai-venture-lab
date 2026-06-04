@@ -32,6 +32,12 @@ export type WorkbenchEmptySelectionState = {
 export type WorkbenchEditPermissionState = {
   canEdit: boolean;
 };
+export type WorkbenchIdeaListItemState = {
+  display: WorkbenchIdeaDisplayState;
+  idea: Idea;
+  isSelected: boolean;
+  stagePillTone: "avl-pill-info" | "avl-pill-neutral";
+};
 export type WorkbenchSelectedIdeaPanelState =
   | {
       comparisonIdeas: Idea[];
@@ -343,6 +349,27 @@ export function getSelectedWorkbenchIdea(nextIdeas: Idea[], selectedIdeaId: stri
 
 export function getWorkbenchComparisonIdeas(visibleIdeas: Idea[], selectedIdeaId: string, limit = 4) {
   return visibleIdeas.filter((idea) => idea.id !== selectedIdeaId).slice(0, limit);
+}
+
+export function buildWorkbenchIdeaListItemStates({
+  getIdeaDisplayState,
+  selectedIdeaId,
+  visibleIdeas,
+}: {
+  getIdeaDisplayState: (idea: Idea) => WorkbenchIdeaDisplayState;
+  selectedIdeaId: string;
+  visibleIdeas: Idea[];
+}): WorkbenchIdeaListItemState[] {
+  return visibleIdeas.map((idea) => {
+    const isSelected = idea.id === selectedIdeaId;
+
+    return {
+      display: getIdeaDisplayState(idea),
+      idea,
+      isSelected,
+      stagePillTone: isSelected ? "avl-pill-info" : "avl-pill-neutral",
+    };
+  });
 }
 
 export function buildWorkbenchSelectedIdeaPanelState({
