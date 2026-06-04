@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-sync-connection.ts")).href;
 const {
   buildExternalToolConnectionCreatedState,
+  buildExternalToolConnectionRefreshState,
   compareCursorSyncConnectionsByCreatedAt,
   filterCursorSyncConnectionsByTool,
   getCursorSyncConnectionCreatedAtTime,
@@ -101,6 +102,57 @@ assert.deepEqual(
   {
     connection: null,
     message: "서버가 만든 연결 메시지",
+    registryStatus: "missing",
+  },
+);
+assert.deepEqual(
+  buildExternalToolConnectionRefreshState({
+    checkedMessage: "Cursor 연결 상태를 확인했습니다.",
+    fallbackMessage: "Cursor 연결 파일은 만들 수 있습니다.",
+    payload: {
+      registryStatus: "ready",
+      tokens: connections,
+    },
+    tool: "cursor",
+  }),
+  {
+    connections: [connections[0], connections[1], connections[2]],
+    message: "Cursor 연결 상태를 확인했습니다.",
+    registryStatus: "ready",
+  },
+);
+assert.deepEqual(
+  buildExternalToolConnectionRefreshState({
+    checkedMessage: "Cursor 연결 상태를 확인했습니다.",
+    fallbackMessage: "Cursor 연결 파일은 만들 수 있습니다.",
+    payload: {
+      registryStatus: "ready",
+      tokens: connections,
+    },
+    quiet: true,
+    tool: "cursor",
+  }),
+  {
+    connections: [connections[0], connections[1], connections[2]],
+    message: null,
+    registryStatus: "ready",
+  },
+);
+assert.deepEqual(
+  buildExternalToolConnectionRefreshState({
+    checkedMessage: "Codex 연결 상태를 확인했습니다.",
+    fallbackMessage: "Codex 연결 파일은 만들 수 있습니다.",
+    payload: {
+      message: "서버 refresh 메시지",
+      registryStatus: "missing",
+      tokens: connections,
+    },
+    quiet: true,
+    tool: "codex",
+  }),
+  {
+    connections: [connections[3]],
+    message: "서버 refresh 메시지",
     registryStatus: "missing",
   },
 );

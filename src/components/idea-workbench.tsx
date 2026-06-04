@@ -210,8 +210,8 @@ import {
 } from "@/lib/external-tool-setup-scripts";
 import {
   buildExternalToolConnectionCreatedState,
+  buildExternalToolConnectionRefreshState,
   cursorSyncRegistrySetupNotice,
-  filterCursorSyncConnectionsByTool,
   getExternalToolConnectionStatusFallbackMessage,
   getExternalToolSyncPreparingMessage,
   getExternalToolSyncSetupErrorMessage,
@@ -2137,16 +2137,19 @@ export function IdeaWorkbench({
         throw new Error(payload.error || buildExternalToolConnectionCheckFailedMessage(activeExternalBuildTool.label));
       }
 
-      setCursorSyncRegistryStatus(payload.registryStatus ?? null);
-      setCursorSyncConnections(filterCursorSyncConnectionsByTool(payload.tokens ?? [], activeExternalBuildTool.key));
+      const connectionRefreshState = buildExternalToolConnectionRefreshState({
+        checkedMessage: buildExternalToolConnectionCheckedMessage(activeExternalBuildTool.label),
+        fallbackMessage: getExternalToolConnectionStatusFallbackMessage(activeExternalBuildTool.label),
+        payload,
+        quiet,
+        tool: activeExternalBuildTool.key,
+      });
 
-      if (!quiet || payload.registryStatus !== "ready") {
-        setCursorSyncConnectionMessage(
-          payload.message ??
-            (payload.registryStatus === "ready"
-              ? buildExternalToolConnectionCheckedMessage(activeExternalBuildTool.label)
-              : getExternalToolConnectionStatusFallbackMessage(activeExternalBuildTool.label)),
-        );
+      setCursorSyncRegistryStatus(connectionRefreshState.registryStatus);
+      setCursorSyncConnections(connectionRefreshState.connections);
+
+      if (connectionRefreshState.message !== null) {
+        setCursorSyncConnectionMessage(connectionRefreshState.message);
       }
     } catch (error) {
       const errorMessage =
