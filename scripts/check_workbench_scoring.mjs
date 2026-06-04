@@ -26,6 +26,7 @@ const {
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringNextActionCard,
   buildWorkbenchScoringNoteFieldConfigs,
+  buildWorkbenchScoringNotePanelState,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringReviewCards,
   buildWorkbenchScoringSaveButtonState,
@@ -156,6 +157,18 @@ assert.deepEqual(buildWorkbenchScoringNextActionCard(), {
 assert.ok(
   !ideaWorkbenchSource.includes("사업성 평가를 저장하면 됩니다"),
   "IdeaWorkbench should keep scoring next-action card copy in the shared helper.",
+);
+assert.deepEqual(buildWorkbenchScoringNotePanelState(), {
+  description: "AI가 만든 초안을 직접 보완하고 싶을 때만 여기를 수정하세요.",
+  summaryLabel: "추가 메모 열기",
+});
+assert.ok(
+  !ideaWorkbenchSource.includes("추가 메모 열기"),
+  "IdeaWorkbench should keep scoring note-panel summary copy in the shared helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("AI가 만든 초안을 직접 보완하고 싶을 때만"),
+  "IdeaWorkbench should keep scoring note-panel description in the shared helper.",
 );
 
 const savePatch = buildWorkbenchScoringSavePatch({

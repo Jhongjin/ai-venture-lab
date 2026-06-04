@@ -50,6 +50,10 @@ export type WorkbenchScoringReviewCardState = {
   label: string;
   value: string;
 };
+export type WorkbenchScoringNotePanelState = {
+  description: string;
+  summaryLabel: string;
+};
 
 const workbenchScoreInputFields: Array<Pick<WorkbenchScoreInputFieldConfig, "field" | "label">> = [
   { field: "problem_intensity", label: "문제 강도" },
@@ -144,6 +148,13 @@ export function buildWorkbenchScoringNextActionCard(): WorkbenchScoringReviewCar
       "AI가 채운 값을 그대로 쓰거나 필요한 부분만 수정한 뒤 저장하세요. 다음 단계의 실험과 리스크 초안은 AI가 이어서 준비합니다.",
     label: "다음 행동",
     value: "사업성 평가를 저장하면 됩니다",
+  };
+}
+
+export function buildWorkbenchScoringNotePanelState(): WorkbenchScoringNotePanelState {
+  return {
+    description: "AI가 만든 초안을 직접 보완하고 싶을 때만 여기를 수정하세요.",
+    summaryLabel: "추가 메모 열기",
   };
 }
 

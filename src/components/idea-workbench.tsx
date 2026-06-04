@@ -122,6 +122,7 @@ import {
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringNextActionCard,
   buildWorkbenchScoringNoteFieldConfigs,
+  buildWorkbenchScoringNotePanelState,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringReviewCards,
   buildWorkbenchScoringSavedMessage,
@@ -1451,6 +1452,7 @@ export function IdeaWorkbench({
   });
   const scoringCurrentScoreCard = buildWorkbenchScoringCurrentScoreCard({ currentScore });
   const scoringNextActionCard = buildWorkbenchScoringNextActionCard();
+  const scoringNotePanelState = buildWorkbenchScoringNotePanelState();
   const scoringInputFieldConfigs = editState
     ? buildWorkbenchScoreInputFieldConfigs({
         descriptions: scoreFieldDescriptions,
@@ -4522,10 +4524,10 @@ export function IdeaWorkbench({
               </div>
 
               <details className="mt-5 border border-slate-200 bg-slate-50 p-4">
-                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">추가 메모 열기</summary>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  AI가 만든 초안을 직접 보완하고 싶을 때만 여기를 수정하세요.
-                </p>
+                <summary className="cursor-pointer list-none text-sm font-semibold text-slate-900">
+                  {scoringNotePanelState.summaryLabel}
+                </summary>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{scoringNotePanelState.description}</p>
                 <div className="mt-4 grid gap-4 md:grid-cols-3">
                   {scoringNoteFieldConfigs.map((fieldConfig) => (
                     <TextArea
