@@ -34,6 +34,8 @@ import {
 import {
   artifactReviewIntensityTone,
   buildArtifactReviewMemo,
+  buildArtifactReviewStatusControlState,
+  buildArtifactReviewStatusNoteControlState,
   buildArtifactReviewSummaryState,
   formatArtifactReviewSectionPreview,
   getArtifactReviewChecksPreview,
@@ -7856,6 +7858,11 @@ export function IdeaWorkbench({
                 const status = artifact.status ?? "draft";
                 const versionSummary = artifactVersionSummaries.get(artifact.id);
                 const reviewSummary = artifactReviewSummaries.get(artifact.id);
+                const canManageArtifact = canManageRecord(artifact);
+                const artifactStatusNoteControlState = buildArtifactReviewStatusNoteControlState({
+                  canManage: canManageArtifact,
+                  isBusy,
+                });
 
                 return (
                           <div key={artifact.id} className="avl-surface-muted p-4">
@@ -7947,17 +7954,27 @@ export function IdeaWorkbench({
                             리뷰 메모
                           </button>
                         ) : null}
-                        {artifactStatusOptions.map((nextStatus) => (
-                          <button
-                            key={nextStatus}
-                            type="button"
-                            onClick={() => updateArtifactStatus(artifact, nextStatus)}
-                            disabled={isBusy || !canManageRecord(artifact) || status === nextStatus}
-                            className="avl-btn avl-btn-secondary px-3 text-xs disabled:opacity-45"
-                          >
-                            {artifactStatusLabels[nextStatus]}
-                          </button>
-                        ))}
+                        {artifactStatusOptions.map((nextStatus) => {
+                          const artifactStatusControlState = buildArtifactReviewStatusControlState({
+                            canManage: canManageArtifact,
+                            currentStatus: status,
+                            isBusy,
+                            nextStatus,
+                            statusLabel: artifactStatusLabels[nextStatus],
+                          });
+
+                          return (
+                            <button
+                              key={nextStatus}
+                              type="button"
+                              onClick={() => updateArtifactStatus(artifact, nextStatus)}
+                              disabled={artifactStatusControlState.disabled}
+                              className="avl-btn avl-btn-secondary px-3 text-xs disabled:opacity-45"
+                            >
+                              {artifactStatusControlState.label}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                     <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
@@ -7968,8 +7985,8 @@ export function IdeaWorkbench({
                           setArtifactStatusNotes((current) => setRecordKey(current, artifact.id, event.target.value))
                         }
                         rows={2}
-                        disabled={isBusy || !canManageRecord(artifact)}
-                        placeholder="승인 근거, 리뷰어 코멘트, 보관 사유"
+                        disabled={artifactStatusNoteControlState.disabled}
+                        placeholder={artifactStatusNoteControlState.placeholder}
                         className="avl-textarea mt-2 w-full resize-y text-sm normal-case leading-5 tracking-normal text-slate-800 disabled:bg-slate-100"
                       />
                     </label>

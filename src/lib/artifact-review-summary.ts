@@ -22,6 +22,16 @@ export type ArtifactVersionSummary = {
   removed: number;
 };
 
+export type ArtifactReviewActionControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type ArtifactReviewStatusNoteControlState = {
+  disabled: boolean;
+  placeholder: string;
+};
+
 export const artifactReviewIntensityTone: Record<ArtifactReviewIntensity, string> = {
   new: "avl-pill avl-pill-info",
   minor: "avl-pill avl-pill-success",
@@ -195,6 +205,38 @@ export function formatArtifactReviewSectionPreview(sections: string[], limit = 4
 
 export function getArtifactReviewChecksPreview(checks: string[], limit = 3) {
   return checks.slice(0, limit);
+}
+
+export function buildArtifactReviewStatusControlState<Status extends string>({
+  canManage,
+  currentStatus,
+  isBusy,
+  nextStatus,
+  statusLabel,
+}: {
+  canManage: boolean;
+  currentStatus: Status;
+  isBusy: boolean;
+  nextStatus: Status;
+  statusLabel: string;
+}): ArtifactReviewActionControlState {
+  return {
+    disabled: isBusy || !canManage || currentStatus === nextStatus,
+    label: statusLabel,
+  };
+}
+
+export function buildArtifactReviewStatusNoteControlState({
+  canManage,
+  isBusy,
+}: {
+  canManage: boolean;
+  isBusy: boolean;
+}): ArtifactReviewStatusNoteControlState {
+  return {
+    disabled: isBusy || !canManage,
+    placeholder: "승인 근거, 리뷰어 코멘트, 보관 사유",
+  };
 }
 
 export function buildArtifactReviewMemo(artifact: VentureArtifact, summary: ArtifactReviewSummary) {

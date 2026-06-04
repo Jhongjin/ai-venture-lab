@@ -11,6 +11,7 @@ const source = readFileSync(modulePath, "utf8").replace(
   'from "@/lib/artifact-labels";',
   `from ${JSON.stringify(artifactLabelsUrl)};`,
 );
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 const { outputText } = ts.transpileModule(source, {
   compilerOptions: {
     module: ts.ModuleKind.ESNext,
@@ -21,6 +22,8 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildArtifactReviewMemo,
+  buildArtifactReviewStatusControlState,
+  buildArtifactReviewStatusNoteControlState,
   buildArtifactReviewSummaryState,
   buildArtifactReviewSummaries,
   buildArtifactVersionSummaries,
@@ -228,6 +231,50 @@ assert.equal(formatArtifactReviewSectionPreview([]), "없음");
 assert.equal(formatArtifactReviewSectionPreview(["A", "B"], 1), "A");
 assert.deepEqual(getArtifactReviewChecksPreview(["a", "b", "c", "d"]), ["a", "b", "c"]);
 assert.deepEqual(getArtifactReviewChecksPreview(["a", "b", "c", "d"], 2), ["a", "b"]);
+assert.deepEqual(buildArtifactReviewStatusControlState({
+  canManage: true,
+  currentStatus: "draft",
+  isBusy: false,
+  nextStatus: "approved",
+  statusLabel: "승인",
+}), {
+  disabled: false,
+  label: "승인",
+});
+assert.deepEqual(buildArtifactReviewStatusControlState({
+  canManage: true,
+  currentStatus: "draft",
+  isBusy: false,
+  nextStatus: "draft",
+  statusLabel: "초안",
+}), {
+  disabled: true,
+  label: "초안",
+});
+assert.deepEqual(buildArtifactReviewStatusControlState({
+  canManage: false,
+  currentStatus: "draft",
+  isBusy: true,
+  nextStatus: "archived",
+  statusLabel: "보관",
+}), {
+  disabled: true,
+  label: "보관",
+});
+assert.deepEqual(buildArtifactReviewStatusNoteControlState({
+  canManage: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  placeholder: "승인 근거, 리뷰어 코멘트, 보관 사유",
+});
+assert.deepEqual(buildArtifactReviewStatusNoteControlState({
+  canManage: false,
+  isBusy: true,
+}), {
+  disabled: true,
+  placeholder: "승인 근거, 리뷰어 코멘트, 보관 사유",
+});
 
 const memo = buildArtifactReviewMemo(artifacts[2], reviewSummaries.get("prd-v3"));
 assert.match(memo, /이전 비교: v2/);
@@ -354,6 +401,22 @@ assert.equal(
 assert.equal(
   buildArtifactReviewPanelFocusMessage({ itemLabel: "제품 기획서", panel: "product" }),
   "제품 기획서 생성을 위해 기획서 화면으로 이동했습니다.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || !canManageRecord(artifact) || status === nextStatus}"),
+  "IdeaWorkbench should render artifact status disabled state from shared review control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || !canManageRecord(artifact)}"),
+  "IdeaWorkbench should render artifact status note disabled state from shared review control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactStatusControlState.disabled"),
+  "IdeaWorkbench should render artifact status button disabled state from shared review control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactStatusNoteControlState.placeholder"),
+  "IdeaWorkbench should render artifact status note placeholder from shared review control.",
 );
 
 console.log("Artifact review summary smoke passed.");
