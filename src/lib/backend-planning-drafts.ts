@@ -27,6 +27,16 @@ export type BackendPlanningArtifactSaveDraft = {
   title: string;
 };
 
+export type BackendPlanningArtifactSaveControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type BackendPlanningArtifactSaveControlStates = {
+  backendDecision: BackendPlanningArtifactSaveControlState;
+  backendExecutionPlan: BackendPlanningArtifactSaveControlState;
+};
+
 export function buildBackendPlanningArtifactSaveDrafts({
   backendDecisionDraft,
   backendExecutionPlanDraft,
@@ -54,6 +64,29 @@ export function buildBackendPlanningArtifactSaveDrafts({
             title: `${ideaName} 백엔드 실행 체크리스트`,
           }
         : null,
+  };
+}
+
+export function buildBackendPlanningArtifactSaveControlStates({
+  backendDecisionSaveDraft,
+  backendExecutionPlanSaveDraft,
+  hasUser,
+  isBusy,
+}: {
+  backendDecisionSaveDraft: BackendPlanningArtifactSaveDraft | null;
+  backendExecutionPlanSaveDraft: BackendPlanningArtifactSaveDraft | null;
+  hasUser: boolean;
+  isBusy: boolean;
+}): BackendPlanningArtifactSaveControlStates {
+  return {
+    backendDecision: {
+      disabled: isBusy || !hasUser || !backendDecisionSaveDraft,
+      label: "결정 저장",
+    },
+    backendExecutionPlan: {
+      disabled: isBusy || !hasUser || !backendExecutionPlanSaveDraft,
+      label: "체크리스트 저장",
+    },
   };
 }
 

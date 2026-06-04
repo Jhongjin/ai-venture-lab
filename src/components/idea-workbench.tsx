@@ -54,7 +54,11 @@ import {
   buildArtifactStatusUpdatePatch,
   countApprovedArtifacts,
 } from "@/lib/artifact-library-utils";
-import { buildBackendPlanningArtifactSaveDrafts, buildBackendPlanningDraftState } from "@/lib/backend-planning-drafts";
+import {
+  buildBackendPlanningArtifactSaveControlStates,
+  buildBackendPlanningArtifactSaveDrafts,
+  buildBackendPlanningDraftState,
+} from "@/lib/backend-planning-drafts";
 import { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftState } from "@/lib/execution-package-drafts";
 import {
   buildDiscardIdeaPatch,
@@ -1608,6 +1612,12 @@ export function IdeaWorkbench({
     backendDecisionDraft,
     backendExecutionPlanDraft,
     ideaName: selectedIdeaContext.ideaName,
+  });
+  const backendPlanningArtifactSaveControlStates = buildBackendPlanningArtifactSaveControlStates({
+    backendDecisionSaveDraft,
+    backendExecutionPlanSaveDraft,
+    hasUser: Boolean(user),
+    isBusy,
   });
   const {
     appBlueprintDraft,
@@ -5028,11 +5038,11 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() => savePreparedArtifactDraft(backendDecisionSaveDraft)}
-                  disabled={isBusy || !user || !backendDecisionSaveDraft}
+                  disabled={backendPlanningArtifactSaveControlStates.backendDecision.disabled}
                   className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
-                  결정 저장
+                  {backendPlanningArtifactSaveControlStates.backendDecision.label}
                 </button>
               </div>
             </div>
@@ -5087,11 +5097,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => savePreparedArtifactDraft(backendExecutionPlanSaveDraft)}
-                      disabled={isBusy || !user || !backendExecutionPlanSaveDraft}
+                      disabled={backendPlanningArtifactSaveControlStates.backendExecutionPlan.disabled}
                       className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
-                      체크리스트 저장
+                      {backendPlanningArtifactSaveControlStates.backendExecutionPlan.label}
                     </button>
                   </div>
                 </div>

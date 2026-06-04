@@ -25,6 +25,7 @@ const backendExecutionPlanRowsUrl = pathToFileURL(
   path.join(process.cwd(), "src/lib/backend-execution-plan-rows.ts"),
 ).href;
 const firstBuildBridgeUrl = pathToFileURL(path.join(process.cwd(), "src/lib/first-build-bridge.ts")).href;
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 const backendDecisionMarkdownUrl = transpileModuleUrl("src/lib/backend-decision-markdown.ts", [
   ['from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`],
@@ -45,7 +46,11 @@ const moduleUrl = transpileModuleUrl("src/lib/backend-planning-drafts.ts", [
   ['from "@/lib/first-build-bridge";', `from ${JSON.stringify(firstBuildBridgeUrl)};`],
 ]);
 
-const { buildBackendPlanningArtifactSaveDrafts, buildBackendPlanningDraftState } = await import(moduleUrl);
+const {
+  buildBackendPlanningArtifactSaveControlStates,
+  buildBackendPlanningArtifactSaveDrafts,
+  buildBackendPlanningDraftState,
+} = await import(moduleUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -162,6 +167,44 @@ assert.equal(saveDrafts.backendExecutionPlanSaveDraft.artifactType, "backend_dec
 assert.equal(saveDrafts.backendExecutionPlanSaveDraft.title, "AI Venture Lab 백엔드 실행 체크리스트");
 assert.equal(saveDrafts.backendExecutionPlanSaveDraft.source, "backend_execution_checklist");
 assert.match(saveDrafts.backendExecutionPlanSaveDraft.body, /# 백엔드 실행 체크리스트: AI Venture Lab/);
+assert.deepEqual(buildBackendPlanningArtifactSaveControlStates({
+  backendDecisionSaveDraft: saveDrafts.backendDecisionSaveDraft,
+  backendExecutionPlanSaveDraft: saveDrafts.backendExecutionPlanSaveDraft,
+  hasUser: true,
+  isBusy: false,
+}), {
+  backendDecision: {
+    disabled: false,
+    label: "결정 저장",
+  },
+  backendExecutionPlan: {
+    disabled: false,
+    label: "체크리스트 저장",
+  },
+});
+assert.deepEqual(buildBackendPlanningArtifactSaveControlStates({
+  backendDecisionSaveDraft: null,
+  backendExecutionPlanSaveDraft: null,
+  hasUser: false,
+  isBusy: true,
+}), {
+  backendDecision: {
+    disabled: true,
+    label: "결정 저장",
+  },
+  backendExecutionPlan: {
+    disabled: true,
+    label: "체크리스트 저장",
+  },
+});
+assert.ok(
+  ideaWorkbenchSource.includes("backendPlanningArtifactSaveControlStates.backendDecision.disabled"),
+  "IdeaWorkbench should render backend decision save disabled state from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("backendPlanningArtifactSaveControlStates.backendExecutionPlan.disabled"),
+  "IdeaWorkbench should render backend execution plan save disabled state from shared helper.",
+);
 
 assert.deepEqual(
   buildBackendPlanningArtifactSaveDrafts({
