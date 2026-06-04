@@ -1716,6 +1716,30 @@ export function IdeaWorkbench({
     hasUser: Boolean(user),
     isBusy,
   });
+  const validationPackagePrdSaveControl = buildValidationPackageDraftSaveControlState({
+    defaultLabel: "제작 자료 저장",
+    draftBody: prdSaveDraft,
+    hasArtifact: hasPrdArtifact,
+    hasUser: Boolean(user),
+    isBusy,
+    savedDisabledNote: "제품 기획서가 저장되어 상단 진행 상태에 반영되었습니다.",
+  });
+  const validationPackageMvpSlicePlanSaveControl = buildValidationPackageDraftSaveControlState({
+    defaultLabel: "제작 자료 저장",
+    draftBody: mvpSlicePlanSaveDraft,
+    hasArtifact: hasMvpSlicePlanArtifact,
+    hasUser: Boolean(user),
+    isBusy,
+    savedDisabledNote: "첫 제작 범위 플랜이 저장되어 상단 진행 상태에 반영되었습니다.",
+  });
+  const validationPackageMvpSpecSaveControl = buildValidationPackageDraftSaveControlState({
+    defaultLabel: "제작 자료 저장",
+    draftBody: mvpSpecSaveDraft,
+    hasArtifact: hasMvpScopeArtifact,
+    hasUser: Boolean(user),
+    isBusy,
+    savedDisabledNote: "첫 제작 범위 초안이 저장되어 상단 진행 상태에 반영되었습니다.",
+  });
   const validationPackageHeaderState = buildValidationPackageHeaderState({
     isGuided: experienceMode === "guided",
     panelDescription: artifactPanelDescriptions[artifactPanel],
@@ -1854,6 +1878,14 @@ export function IdeaWorkbench({
     ideaName: selectedIdeaContext.ideaName,
     launchChecklistDraft,
     prdHandoffDraft,
+  });
+  const validationPackageLaunchChecklistSaveControl = buildValidationPackageDraftSaveControlState({
+    defaultLabel: "제작 자료 저장",
+    draftBody: launchChecklistSaveDraft,
+    hasArtifact: hasLaunchChecklistArtifact,
+    hasUser: Boolean(user),
+    isBusy,
+    savedDisabledNote: "출시 체크리스트가 저장되어 상단 진행 상태에 반영되었습니다.",
   });
   const { developmentArtifactDrafts, developmentPackageDrafts } = buildDevelopmentPackageDraftState({
     appBlueprintDraft,
@@ -7435,9 +7467,9 @@ export function IdeaWorkbench({
           copyLabel="기획서 복사"
           onCopy={() => copyDraft(prdDraft, "제품 기획서 초안")}
           onSave={() => savePreparedArtifactDraft(prdSaveDraft)}
-          saveLabel={hasPrdArtifact ? "저장 완료" : "제작 자료 저장"}
-          saveDisabled={isBusy || !user || hasPrdArtifact || !prdSaveDraft}
-          disabledNote={hasPrdArtifact ? "제품 기획서가 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
+          saveLabel={validationPackagePrdSaveControl.label}
+          saveDisabled={validationPackagePrdSaveControl.disabled}
+          disabledNote={validationPackagePrdSaveControl.disabledNote}
         />
 
         <div
@@ -7453,9 +7485,9 @@ export function IdeaWorkbench({
             copyLabel="플랜 복사"
             onCopy={() => copyDraft(mvpSlicePlanDraft, "첫 제작 범위 플랜")}
             onSave={() => savePreparedArtifactDraft(mvpSlicePlanSaveDraft)}
-            saveLabel={hasMvpSlicePlanArtifact ? "저장 완료" : "제작 자료 저장"}
-            saveDisabled={isBusy || !user || hasMvpSlicePlanArtifact || !mvpSlicePlanSaveDraft}
-            disabledNote={hasMvpSlicePlanArtifact ? "첫 제작 범위 플랜이 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
+            saveLabel={validationPackageMvpSlicePlanSaveControl.label}
+            saveDisabled={validationPackageMvpSlicePlanSaveControl.disabled}
+            disabledNote={validationPackageMvpSlicePlanSaveControl.disabledNote}
           />
 
           <DraftDocumentCard
@@ -7467,9 +7499,9 @@ export function IdeaWorkbench({
             copyLabel="명세 복사"
             onCopy={() => copyDraft(mvpSpecDraft, "첫 제작 범위")}
             onSave={() => savePreparedArtifactDraft(mvpSpecSaveDraft)}
-            saveLabel={hasMvpScopeArtifact ? "저장 완료" : "제작 자료 저장"}
-            saveDisabled={isBusy || !user || hasMvpScopeArtifact || !mvpSpecSaveDraft}
-            disabledNote={hasMvpScopeArtifact ? "첫 제작 범위 초안이 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
+            saveLabel={validationPackageMvpSpecSaveControl.label}
+            saveDisabled={validationPackageMvpSpecSaveControl.disabled}
+            disabledNote={validationPackageMvpSpecSaveControl.disabledNote}
           />
 
           <DraftDocumentCard
@@ -7481,9 +7513,9 @@ export function IdeaWorkbench({
             copyLabel="체크리스트 복사"
             onCopy={() => copyDraft(launchChecklistDraft, "출시 체크리스트")}
             onSave={() => savePreparedArtifactDraft(launchChecklistSaveDraft)}
-            saveLabel={hasLaunchChecklistArtifact ? "저장 완료" : "제작 자료 저장"}
-            saveDisabled={isBusy || !user || hasLaunchChecklistArtifact || !launchChecklistSaveDraft}
-            disabledNote={hasLaunchChecklistArtifact ? "출시 체크리스트가 저장되어 상단 진행 상태에 반영되었습니다." : undefined}
+            saveLabel={validationPackageLaunchChecklistSaveControl.label}
+            saveDisabled={validationPackageLaunchChecklistSaveControl.disabled}
+            disabledNote={validationPackageLaunchChecklistSaveControl.disabledNote}
           />
         </div>
 

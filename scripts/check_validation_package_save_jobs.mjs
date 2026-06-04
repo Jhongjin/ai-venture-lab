@@ -252,6 +252,42 @@ assert.ok(
   "IdeaWorkbench should render validation summary save disabled state from shared save-control state.",
 );
 assert.ok(
+  !ideaWorkbenchSource.includes('saveLabel={hasPrdArtifact ? "저장 완료" : "제작 자료 저장"}'),
+  "IdeaWorkbench should render PRD save labels from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("saveDisabled={isBusy || !user || hasPrdArtifact || !prdSaveDraft}"),
+  "IdeaWorkbench should render PRD save disabled state from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('saveLabel={hasMvpSlicePlanArtifact ? "저장 완료" : "제작 자료 저장"}'),
+  "IdeaWorkbench should render MVP slice plan save labels from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes(
+    "saveDisabled={isBusy || !user || hasMvpSlicePlanArtifact || !mvpSlicePlanSaveDraft}",
+  ),
+  "IdeaWorkbench should render MVP slice plan save disabled state from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('saveLabel={hasMvpScopeArtifact ? "저장 완료" : "제작 자료 저장"}'),
+  "IdeaWorkbench should render MVP spec save labels from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("saveDisabled={isBusy || !user || hasMvpScopeArtifact || !mvpSpecSaveDraft}"),
+  "IdeaWorkbench should render MVP spec save disabled state from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('saveLabel={hasLaunchChecklistArtifact ? "저장 완료" : "제작 자료 저장"}'),
+  "IdeaWorkbench should render launch checklist save labels from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes(
+    "saveDisabled={isBusy || !user || hasLaunchChecklistArtifact || !launchChecklistSaveDraft}",
+  ),
+  "IdeaWorkbench should render launch checklist save disabled state from shared save-control state.",
+);
+assert.ok(
   !ideaWorkbenchSource.includes("검증 자료 한 번에 저장"),
   "IdeaWorkbench should keep validation package save button labels in the shared helper.",
 );
