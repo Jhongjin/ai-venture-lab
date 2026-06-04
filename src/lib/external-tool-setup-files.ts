@@ -9,11 +9,30 @@ export type ExternalToolSetupFileDraft = {
   body: string;
   path: string;
 };
+export type ExternalToolCoreSetupFilesInput = {
+  finalAgentRunPackageDraft: string;
+  startPromptDraft: string;
+  startPromptPath: string;
+  taskPackageDraft: string;
+};
 
 const externalToolProgressFileBody = "[]\n";
 
 export function buildExternalToolProgressFile(path: string): ExternalToolSetupFileDraft {
   return { path, body: externalToolProgressFileBody };
+}
+
+export function buildExternalToolCoreSetupFiles({
+  finalAgentRunPackageDraft,
+  startPromptDraft,
+  startPromptPath,
+  taskPackageDraft,
+}: ExternalToolCoreSetupFilesInput): ExternalToolSetupFileDraft[] {
+  return [
+    { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
+    { path: "AI_VENTURE_TASKS.md", body: taskPackageDraft },
+    { path: startPromptPath, body: startPromptDraft },
+  ];
 }
 
 export function buildCursorExternalToolSetupFiles({
@@ -36,9 +55,12 @@ export function buildCursorExternalToolSetupFiles({
   taskPackageDraft: string;
 }): ExternalToolSetupFileDraft[] {
   return [
-    { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
-    { path: "AI_VENTURE_TASKS.md", body: taskPackageDraft },
-    { path: "AI_VENTURE_CURSOR_START.md", body: startPromptDraft },
+    ...buildExternalToolCoreSetupFiles({
+      finalAgentRunPackageDraft,
+      startPromptDraft,
+      startPromptPath: "AI_VENTURE_CURSOR_START.md",
+      taskPackageDraft,
+    }),
     { path: "README_VENTURE_LAB_CURSOR.md", body: guideDraft },
     { path: ".cursor/rules/ai-venture-lab.mdc", body: ruleDraft },
     { path: ".cursor/mcp.json", body: mcpConfigDraft },
@@ -67,9 +89,12 @@ export function buildCodexExternalToolSetupFiles({
   taskPackageDraft: string;
 }): ExternalToolSetupFileDraft[] {
   return [
-    { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
-    { path: "AI_VENTURE_TASKS.md", body: taskPackageDraft },
-    { path: "AI_VENTURE_CODEX_START.md", body: startPromptDraft },
+    ...buildExternalToolCoreSetupFiles({
+      finalAgentRunPackageDraft,
+      startPromptDraft,
+      startPromptPath: "AI_VENTURE_CODEX_START.md",
+      taskPackageDraft,
+    }),
     { path: "AGENTS.ai-venture-lab.md", body: agentInstructionsDraft },
     { path: "README_VENTURE_LAB_CODEX.md", body: guideDraft },
     { path: buildExternalToolCliFilePath(".codex"), body: cliScriptDraft },
@@ -98,9 +123,12 @@ export function buildClaudeExternalToolSetupFiles({
   taskPackageDraft: string;
 }): ExternalToolSetupFileDraft[] {
   return [
-    { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
-    { path: "AI_VENTURE_TASKS.md", body: taskPackageDraft },
-    { path: "AI_VENTURE_CLAUDE_START.md", body: startPromptDraft },
+    ...buildExternalToolCoreSetupFiles({
+      finalAgentRunPackageDraft,
+      startPromptDraft,
+      startPromptPath: "AI_VENTURE_CLAUDE_START.md",
+      taskPackageDraft,
+    }),
     { path: "CLAUDE.md", body: instructionsDraft },
     { path: "README_VENTURE_LAB_CLAUDE.md", body: guideDraft },
     { path: ".mcp.json", body: mcpConfigDraft },
@@ -132,9 +160,12 @@ export function buildAntigravityExternalToolSetupFiles({
   taskPackageDraft: string;
 }): ExternalToolSetupFileDraft[] {
   return [
-    { path: "AI_VENTURE_PACKAGE.md", body: finalAgentRunPackageDraft },
-    { path: "AI_VENTURE_TASKS.md", body: taskPackageDraft },
-    { path: "AI_VENTURE_ANTIGRAVITY_START.md", body: startPromptDraft },
+    ...buildExternalToolCoreSetupFiles({
+      finalAgentRunPackageDraft,
+      startPromptDraft,
+      startPromptPath: "AI_VENTURE_ANTIGRAVITY_START.md",
+      taskPackageDraft,
+    }),
     { path: "AI_VENTURE_ACCEPTANCE.md", body: acceptanceDraft },
     { path: "AGENTS.ai-venture-lab.md", body: agentInstructionsDraft },
     { path: "README_VENTURE_LAB_ANTIGRAVITY.md", body: guideDraft },

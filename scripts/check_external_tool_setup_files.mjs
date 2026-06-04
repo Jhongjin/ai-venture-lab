@@ -25,6 +25,7 @@ const {
   buildClaudeExternalToolSetupFiles,
   buildCodexExternalToolSetupFiles,
   buildCursorExternalToolSetupFiles,
+  buildExternalToolCoreSetupFiles,
   buildExternalToolProgressFile,
 } = await import(moduleUrl);
 
@@ -32,6 +33,19 @@ assert.deepEqual(buildExternalToolProgressFile(".tool/progress.json"), {
   body: "[]\n",
   path: ".tool/progress.json",
 });
+assert.deepEqual(
+  buildExternalToolCoreSetupFiles({
+    finalAgentRunPackageDraft: "package",
+    startPromptDraft: "start",
+    startPromptPath: "AI_VENTURE_TOOL_START.md",
+    taskPackageDraft: "tasks",
+  }),
+  [
+    { path: "AI_VENTURE_PACKAGE.md", body: "package" },
+    { path: "AI_VENTURE_TASKS.md", body: "tasks" },
+    { path: "AI_VENTURE_TOOL_START.md", body: "start" },
+  ],
+);
 
 const cursorFiles = buildCursorExternalToolSetupFiles({
   finalAgentRunPackageDraft: "package",
