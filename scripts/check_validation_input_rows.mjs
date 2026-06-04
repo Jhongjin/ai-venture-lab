@@ -9,6 +9,7 @@ const {
   buildDecisionInsertRow,
   buildDecisionRecordedMessage,
   buildDecisionRecordedTelemetryProperties,
+  buildDecisionRecordControlState,
   buildDecisionRecordFailedMessage,
   buildDecisionRecordPermissionDeniedMessage,
   buildDecisionTemplateReason,
@@ -43,6 +44,7 @@ const {
   buildRiskCreatedMessage,
   buildRiskCreatedTelemetryProperties,
   buildRiskCreateLoginRequiredMessage,
+  buildRiskDraftInputControlState,
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
@@ -284,6 +286,34 @@ assert.deepEqual(buildRiskCreateControlState({
   disabled: true,
   label: "리스크 추가",
 });
+assert.deepEqual(buildRiskDraftInputControlState({
+  hasUser: true,
+}), {
+  fieldsDisabled: false,
+});
+assert.deepEqual(buildRiskDraftInputControlState({
+  hasUser: false,
+}), {
+  fieldsDisabled: true,
+});
+assert.deepEqual(buildDecisionRecordControlState({
+  canEdit: true,
+  decisionLabel: "진행",
+  isBusy: false,
+}), {
+  reasonDisabled: false,
+  saveDisabled: false,
+  saveLabel: "진행 기록",
+});
+assert.deepEqual(buildDecisionRecordControlState({
+  canEdit: false,
+  decisionLabel: "추가 조사",
+  isBusy: true,
+}), {
+  reasonDisabled: true,
+  saveDisabled: true,
+  saveLabel: "추가 조사 기록",
+});
 assert.deepEqual(buildRiskStatusControlState({
   canManage: true,
   currentStatus: "open",
@@ -393,8 +423,28 @@ assert.ok(
   "IdeaWorkbench should render risk create disabled state from shared input control.",
 );
 assert.ok(
+  ideaWorkbenchSource.includes("riskDraftInputControlState.fieldsDisabled"),
+  "IdeaWorkbench should render risk draft field disabled state from shared input control.",
+);
+assert.ok(
   ideaWorkbenchSource.includes("riskStatusControlState.disabled"),
   "IdeaWorkbench should render risk status button disabled state from shared input control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || !canEdit}"),
+  "IdeaWorkbench should render decision record disabled state from shared input control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("{decisionLabels[editState.decision]} 기록"),
+  "IdeaWorkbench should render decision record label from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("decisionRecordControlState.saveDisabled"),
+  "IdeaWorkbench should render decision record save disabled state from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("decisionRecordControlState.saveLabel"),
+  "IdeaWorkbench should render decision record save label from shared input control.",
 );
 assert.ok(
   ideaWorkbenchSource.includes("validationExperimentManualSaveControlState.disabled"),

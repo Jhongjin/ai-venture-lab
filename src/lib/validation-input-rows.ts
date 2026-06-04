@@ -62,6 +62,10 @@ export type EvidenceNoteSaveControlState = {
   label: string;
 };
 
+export type RiskDraftInputControlState = {
+  fieldsDisabled: boolean;
+};
+
 export type RiskCreateControlState = {
   disabled: boolean;
   label: string;
@@ -75,6 +79,12 @@ export type RiskStatusControlState = {
 export type ValidationExperimentManualSaveControlState = {
   disabled: boolean;
   label: string;
+};
+
+export type DecisionRecordControlState = {
+  reasonDisabled: boolean;
+  saveDisabled: boolean;
+  saveLabel: string;
 };
 
 export type RiskStatusUpdatePatch<Status extends string> = {
@@ -150,6 +160,12 @@ export function buildRiskCreateControlState({
   };
 }
 
+export function buildRiskDraftInputControlState({ hasUser }: { hasUser: boolean }): RiskDraftInputControlState {
+  return {
+    fieldsDisabled: !hasUser,
+  };
+}
+
 export function buildDecisionRecordedMessage() {
   return "판단을 기록했습니다.";
 }
@@ -160,6 +176,22 @@ export function buildDecisionRecordPermissionDeniedMessage() {
 
 export function buildDecisionRecordFailedMessage() {
   return "판단을 기록하지 못했습니다.";
+}
+
+export function buildDecisionRecordControlState({
+  canEdit,
+  decisionLabel,
+  isBusy,
+}: {
+  canEdit: boolean;
+  decisionLabel: string;
+  isBusy: boolean;
+}): DecisionRecordControlState {
+  return {
+    reasonDisabled: !canEdit,
+    saveDisabled: isBusy || !canEdit,
+    saveLabel: `${decisionLabel} 기록`,
+  };
 }
 
 export function buildValidationExperimentSavedMessage() {

@@ -455,6 +455,7 @@ import {
   buildDecisionInsertRow,
   buildDecisionRecordedMessage,
   buildDecisionRecordedTelemetryProperties,
+  buildDecisionRecordControlState,
   buildDecisionRecordFailedMessage,
   buildDecisionRecordPermissionDeniedMessage,
   buildDecisionTemplateReason,
@@ -490,6 +491,7 @@ import {
   buildRiskCreatedMessage,
   buildRiskCreatedTelemetryProperties,
   buildRiskCreateLoginRequiredMessage,
+  buildRiskDraftInputControlState,
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
@@ -1559,6 +1561,14 @@ export function IdeaWorkbench({
   });
   const riskCreateControlState = buildRiskCreateControlState({
     hasUser: Boolean(user),
+    isBusy,
+  });
+  const riskDraftInputControlState = buildRiskDraftInputControlState({
+    hasUser: Boolean(user),
+  });
+  const decisionRecordControlState = buildDecisionRecordControlState({
+    canEdit,
+    decisionLabel: editState ? decisionLabels[editState.decision] : "판단",
     isBusy,
   });
   const validationExperimentManualSaveControlState = buildValidationExperimentManualSaveControlState({
@@ -6596,7 +6606,7 @@ export function IdeaWorkbench({
                   value={riskDraft.severity}
                   options={riskSeverityOptions}
                   labels={riskSeverityLabels}
-                  disabled={!user}
+                  disabled={riskDraftInputControlState.fieldsDisabled}
                   onChange={(value) => updateRiskDraftField("severity", value as RiskSeverity)}
                 />
               </div>
@@ -6618,7 +6628,7 @@ export function IdeaWorkbench({
                 <TextArea
                   label="완화 방안"
                   value={riskDraft.mitigation}
-                  disabled={!user}
+                  disabled={riskDraftInputControlState.fieldsDisabled}
                   onChange={(value) => updateRiskDraftField("mitigation", value)}
                 />
               </div>
@@ -6723,18 +6733,18 @@ export function IdeaWorkbench({
                 <TextArea
                   label="판단 근거"
                   value={decisionReason}
-                  disabled={!canEdit}
+                  disabled={decisionRecordControlState.reasonDisabled}
                   onChange={(value) => setDecisionReason(value)}
                 />
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={recordDecision}
-                    disabled={isBusy || !canEdit}
+                    disabled={decisionRecordControlState.saveDisabled}
                     className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                   >
                     <CheckCircle2 size={18} />
-                    {decisionLabels[editState.decision]} 기록
+                    {decisionRecordControlState.saveLabel}
                   </button>
                 </div>
                 <div className="avl-surface-muted px-4 py-3 text-sm leading-5 text-slate-600">
