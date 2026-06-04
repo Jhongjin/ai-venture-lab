@@ -63,6 +63,7 @@ const {
   buildStep8ProgressItems,
   buildStep8ProgressSummary,
   buildStep8ProgressStatusDetail,
+  buildStep8ProgressStatusState,
   buildStep8ProgressTitle,
   canCopyStep8LearningReport,
   compareStep8ProgressTasks,
@@ -468,6 +469,23 @@ assert.deepEqual(
     missingLabels: ["커밋/PR", "검증 결과", "사용자 여정", "상태 UX"],
     passedCount: 0,
     totalCount: 4,
+  },
+);
+assert.deepEqual(
+  buildStep8ProgressStatusState({
+    evidence: "",
+    evidenceSummary: {
+      missingLabels: ["커밋/PR"],
+    },
+    isNext: true,
+    task: tasks[1],
+  }),
+  {
+    isDone: false,
+    showMissingEvidence: true,
+    statusDetail: "다음으로 이어서 처리할 작업입니다.",
+    statusLabel: "진행 중",
+    statusTone: "avl-pill avl-pill-info",
   },
 );
 assert.equal(

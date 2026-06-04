@@ -104,6 +104,11 @@ export type Step8ProgressEvidenceSummary = {
   totalCount: number;
 };
 
+export type Step8ProgressStatusState = Pick<
+  Step8ProgressDisplayItem,
+  "isDone" | "showMissingEvidence" | "statusDetail" | "statusLabel" | "statusTone"
+>;
+
 export type Step8LearningDisplayState = Step8LearningSummary &
   Step8ProgressSummary & {
     canCopyLearningReport: boolean;
@@ -878,20 +883,22 @@ export function buildStep8ProgressDisplayItem({
   const evidence = getImplementationTaskEvidence(task, evidenceByTaskId);
   const evidenceSummary = buildStep8ProgressEvidenceSummary({ evidence, task });
   const isNext = nextImplementationTaskId === task.id;
+  const statusState = buildStep8ProgressStatusState({
+    evidence,
+    evidenceSummary,
+    isNext,
+    task,
+  });
 
   return {
     id: task.id,
     code: getCursorTaskCode(index),
     title: task.title,
-    statusDetail: buildStep8ProgressStatusDetail({ evidence, isNext, task }),
-    statusLabel: implementationTaskStatusLabels[task.status],
-    statusTone: implementationTaskStatusTone[task.status],
+    ...statusState,
     passedCount: evidenceSummary.passedCount,
     totalCount: evidenceSummary.totalCount,
     missingLabels: evidenceSummary.missingLabels,
     isNext,
-    isDone: task.status === "done",
-    showMissingEvidence: evidenceSummary.missingLabels.length > 0 && task.status !== "done",
   };
 }
 
@@ -909,6 +916,26 @@ export function buildStep8ProgressEvidenceSummary({
     missingLabels,
     passedCount: checklist.length - missingLabels.length,
     totalCount: checklist.length,
+  };
+}
+
+export function buildStep8ProgressStatusState({
+  evidence,
+  evidenceSummary,
+  isNext,
+  task,
+}: {
+  evidence: string;
+  evidenceSummary: Pick<Step8ProgressEvidenceSummary, "missingLabels">;
+  isNext: boolean;
+  task: ImplementationTask;
+}): Step8ProgressStatusState {
+  return {
+    isDone: task.status === "done",
+    showMissingEvidence: evidenceSummary.missingLabels.length > 0 && task.status !== "done",
+    statusDetail: buildStep8ProgressStatusDetail({ evidence, isNext, task }),
+    statusLabel: implementationTaskStatusLabels[task.status],
+    statusTone: implementationTaskStatusTone[task.status],
   };
 }
 
