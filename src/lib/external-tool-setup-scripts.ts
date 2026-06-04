@@ -133,6 +133,24 @@ foreach ($file in $files) {
 }`;
 }
 
+export function buildSetupPowerShellGitignoreBlock(folder: string) {
+  return `$gitignorePath = Join-Path $root ".gitignore"
+$ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(folder))}
+
+if (-not (Test-Path -LiteralPath $gitignorePath)) {
+  New-Item -ItemType File -Path $gitignorePath -Force | Out-Null
+}
+
+$existingIgnore = Get-Content -LiteralPath $gitignorePath -Raw -ErrorAction SilentlyContinue
+
+foreach ($entry in $ignoreEntries) {
+  if (-not $existingIgnore -or $existingIgnore -notmatch [regex]::Escape($entry)) {
+    Add-Content -LiteralPath $gitignorePath -Value $entry
+    Write-Host "gitignored $entry"
+  }
+}`;
+}
+
 export function buildLiveExternalToolSetupDownloadDraft({
   config,
   encodeSetupFiles,
@@ -328,21 +346,7 @@ export function buildCursorSetupPowerShell({
 
 ${buildSetupPowerShellFileWriteBlock(files)}
 
-$gitignorePath = Join-Path $root ".gitignore"
-$ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(".cursor"))}
-
-if (-not (Test-Path -LiteralPath $gitignorePath)) {
-  New-Item -ItemType File -Path $gitignorePath -Force | Out-Null
-}
-
-$existingIgnore = Get-Content -LiteralPath $gitignorePath -Raw -ErrorAction SilentlyContinue
-
-foreach ($entry in $ignoreEntries) {
-  if (-not $existingIgnore -or $existingIgnore -notmatch [regex]::Escape($entry)) {
-    Add-Content -LiteralPath $gitignorePath -Value $entry
-    Write-Host "gitignored $entry"
-  }
-}
+${buildSetupPowerShellGitignoreBlock(".cursor")}
 
 Write-Host ""
 Write-Host "AI Venture Lab Cursor connection files are ready."
@@ -368,21 +372,7 @@ export function buildCodexSetupPowerShell({
 
 ${buildSetupPowerShellFileWriteBlock(files)}
 
-$gitignorePath = Join-Path $root ".gitignore"
-$ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(".codex"))}
-
-if (-not (Test-Path -LiteralPath $gitignorePath)) {
-  New-Item -ItemType File -Path $gitignorePath -Force | Out-Null
-}
-
-$existingIgnore = Get-Content -LiteralPath $gitignorePath -Raw -ErrorAction SilentlyContinue
-
-foreach ($entry in $ignoreEntries) {
-  if (-not $existingIgnore -or $existingIgnore -notmatch [regex]::Escape($entry)) {
-    Add-Content -LiteralPath $gitignorePath -Value $entry
-    Write-Host "gitignored $entry"
-  }
-}
+${buildSetupPowerShellGitignoreBlock(".codex")}
 
 Write-Host ""
 Write-Host "AI Venture Lab Codex connection files are ready."
@@ -413,21 +403,7 @@ export function buildLiveToolSetupPowerShell({
 
 ${buildSetupPowerShellFileWriteBlock(files)}
 
-$gitignorePath = Join-Path $root ".gitignore"
-$ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(folder))}
-
-if (-not (Test-Path -LiteralPath $gitignorePath)) {
-  New-Item -ItemType File -Path $gitignorePath -Force | Out-Null
-}
-
-$existingIgnore = Get-Content -LiteralPath $gitignorePath -Raw -ErrorAction SilentlyContinue
-
-foreach ($entry in $ignoreEntries) {
-  if (-not $existingIgnore -or $existingIgnore -notmatch [regex]::Escape($entry)) {
-    Add-Content -LiteralPath $gitignorePath -Value $entry
-    Write-Host "gitignored $entry"
-  }
-}
+${buildSetupPowerShellGitignoreBlock(folder)}
 
 Write-Host ""
 Write-Host "AI Venture Lab ${toolLabel} connection files are ready."

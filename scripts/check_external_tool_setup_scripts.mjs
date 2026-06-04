@@ -58,6 +58,7 @@ const {
   buildLiveExternalToolSetupDownloadDraft,
   buildLiveToolSetupPowerShell,
   buildPowerShellStringArray,
+  buildSetupPowerShellGitignoreBlock,
   buildSetupPowerShellFileWriteBlock,
   buildSetupFileRows,
   escapePowerShellSingleQuoted,
@@ -84,6 +85,10 @@ assert.equal(
 assert.match(
   buildSetupPowerShellFileWriteBlock([{ base64: "abc", path: "AI_VENTURE_PACKAGE.md" }]),
   /Write-Host "created \$\(\$file.Path\)"/,
+);
+assert.match(
+  buildSetupPowerShellGitignoreBlock(".codex"),
+  /\$ignoreEntries = @\(".codex\/venture-lab-sync.json", ".codex\/venture-lab-progress.json"\)/,
 );
 
 const cursorConfig = buildCursorSetupDownloadConfig({
