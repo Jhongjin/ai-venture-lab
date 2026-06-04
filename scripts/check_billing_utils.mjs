@@ -42,7 +42,9 @@ const {
   getProductionCreditProPathItems,
   getProductionCreditShortfallCopy,
   getProductionCreditSpendConfidenceItems,
+  getProductionCreditStatusPill,
   getProductionCreditSystemNotice,
+  getProductionCreditUnlockButtonState,
 } = await import(moduleUrl);
 
 assert.equal(buildBuildPassUnlockLoginRequiredMessage(), "제작 패스를 열려면 먼저 로그인하세요.");
@@ -223,6 +225,10 @@ assert.ok(
   !productionCreditPanelSource.includes('creditStatus === "unavailable"'),
   "ProductionCreditPanel should not branch on unavailable credit status copy directly.",
 );
+assert.ok(
+  !productionCreditPanelSource.includes('isBuildPassUnlocking ? "여는 중"'),
+  "ProductionCreditPanel should use the shared billing unlock-button helper.",
+);
 
 assert.deepEqual(
   getProductionCreditPackageClarityItems({
@@ -351,6 +357,81 @@ assert.equal(
     isCreditSystemMissing: false,
   }),
   null,
+);
+assert.deepEqual(
+  getProductionCreditStatusPill({
+    freeArtifactLimit: 4,
+    fullArtifactCount: 10,
+    hasSelectedIdeaBuildPass: true,
+    isCreditSystemReady: true,
+  }),
+  {
+    icon: "check",
+    label: "제작 패스 열림",
+    tone: "success",
+  },
+);
+assert.deepEqual(
+  getProductionCreditStatusPill({
+    freeArtifactLimit: 4,
+    fullArtifactCount: 10,
+    hasSelectedIdeaBuildPass: false,
+    isCreditSystemReady: true,
+  }),
+  {
+    icon: null,
+    label: "Free 4/10",
+    tone: "neutral",
+  },
+);
+assert.deepEqual(
+  getProductionCreditStatusPill({
+    freeArtifactLimit: 4,
+    fullArtifactCount: 10,
+    hasSelectedIdeaBuildPass: false,
+    isCreditSystemReady: false,
+  }),
+  {
+    icon: null,
+    label: "준비 중",
+    tone: "warning",
+  },
+);
+assert.deepEqual(
+  getProductionCreditUnlockButtonState({
+    buildPassCost: 30,
+    hasEnoughCreditsForBuildPass: true,
+    isBuildPassUnlocking: false,
+    isCreditSummaryLoading: false,
+  }),
+  {
+    isDisabled: false,
+    label: "30크레딧으로 제작 패스 열기",
+  },
+);
+assert.deepEqual(
+  getProductionCreditUnlockButtonState({
+    buildPassCost: 30,
+    hasEnoughCreditsForBuildPass: true,
+    isBuildPassUnlocking: true,
+    isCreditSummaryLoading: false,
+  }),
+  {
+    isDisabled: true,
+    label: "여는 중",
+  },
+);
+assert.deepEqual(
+  getProductionCreditUnlockButtonState({
+    buildPassCost: 30,
+    hasEnoughCreditsForBuildPass: false,
+    isBuildPassUnlocking: false,
+    isCreditSummaryLoading: false,
+  }),
+  {
+    isDisabled: true,
+    label: "30크레딧으로 제작 패스 열기",
+  },
 );
 
 assert.deepEqual(

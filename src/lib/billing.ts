@@ -127,6 +127,31 @@ export type ProductionCreditSystemNotice =
     }
   | null;
 
+export type ProductionCreditStatusPillInput = {
+  freeArtifactLimit: number;
+  fullArtifactCount: number;
+  hasSelectedIdeaBuildPass: boolean;
+  isCreditSystemReady: boolean;
+};
+
+export type ProductionCreditStatusPill = {
+  icon: "check" | null;
+  label: string;
+  tone: "neutral" | "success" | "warning";
+};
+
+export type ProductionCreditUnlockButtonStateInput = {
+  buildPassCost: number;
+  hasEnoughCreditsForBuildPass: boolean;
+  isBuildPassUnlocking: boolean;
+  isCreditSummaryLoading: boolean;
+};
+
+export type ProductionCreditUnlockButtonState = {
+  isDisabled: boolean;
+  label: string;
+};
+
 export type BuildPassUnlockResult = {
   alreadyUnlocked: boolean;
   chargedCredits: number;
@@ -521,6 +546,47 @@ export function getProductionCreditSystemNotice({
   }
 
   return null;
+}
+
+export function getProductionCreditStatusPill({
+  freeArtifactLimit,
+  fullArtifactCount,
+  hasSelectedIdeaBuildPass,
+  isCreditSystemReady,
+}: ProductionCreditStatusPillInput): ProductionCreditStatusPill {
+  if (hasSelectedIdeaBuildPass) {
+    return {
+      icon: "check",
+      label: "제작 패스 열림",
+      tone: "success",
+    };
+  }
+
+  if (isCreditSystemReady) {
+    return {
+      icon: null,
+      label: `Free ${freeArtifactLimit}/${fullArtifactCount}`,
+      tone: "neutral",
+    };
+  }
+
+  return {
+    icon: null,
+    label: "준비 중",
+    tone: "warning",
+  };
+}
+
+export function getProductionCreditUnlockButtonState({
+  buildPassCost,
+  hasEnoughCreditsForBuildPass,
+  isBuildPassUnlocking,
+  isCreditSummaryLoading,
+}: ProductionCreditUnlockButtonStateInput): ProductionCreditUnlockButtonState {
+  return {
+    isDisabled: isBuildPassUnlocking || isCreditSummaryLoading || !hasEnoughCreditsForBuildPass,
+    label: isBuildPassUnlocking ? "여는 중" : `${buildPassCost}크레딧으로 제작 패스 열기`,
+  };
 }
 
 export type BillingErrorLike = {

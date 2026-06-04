@@ -17,7 +17,9 @@ import {
   getProductionCreditProPathItems,
   getProductionCreditShortfallCopy,
   getProductionCreditSpendConfidenceItems,
+  getProductionCreditStatusPill,
   getProductionCreditSystemNotice,
+  getProductionCreditUnlockButtonState,
   type CreditSystemStatus,
 } from "@/lib/billing";
 
@@ -90,6 +92,24 @@ export function ProductionCreditPanel({
     creditMessage,
     creditStatus,
     isCreditSystemMissing,
+  });
+  const statusPill = getProductionCreditStatusPill({
+    freeArtifactLimit,
+    fullArtifactCount,
+    hasSelectedIdeaBuildPass,
+    isCreditSystemReady,
+  });
+  const statusPillClassName =
+    statusPill.tone === "success"
+      ? "avl-pill avl-pill-success"
+      : statusPill.tone === "neutral"
+        ? "avl-pill avl-pill-neutral"
+        : "avl-pill avl-pill-warning";
+  const unlockButtonState = getProductionCreditUnlockButtonState({
+    buildPassCost,
+    hasEnoughCreditsForBuildPass,
+    isBuildPassUnlocking,
+    isCreditSummaryLoading,
   });
   const spendConfidenceItems = getProductionCreditSpendConfidenceItems({
     buildPassCost,
@@ -251,28 +271,22 @@ export function ProductionCreditPanel({
             </p>
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
-            {hasSelectedIdeaBuildPass ? (
-              <span className="avl-pill avl-pill-success">
+            <span className={statusPillClassName}>
+              {statusPill.icon === "check" ? (
                 <CheckCircle2 size={14} />
-                제작 패스 열림
-              </span>
-            ) : isCreditSystemReady ? (
-              <span className="avl-pill avl-pill-neutral">
-                Free {freeArtifactLimit}/{fullArtifactCount}
-              </span>
-            ) : (
-              <span className="avl-pill avl-pill-warning">준비 중</span>
-            )}
+              ) : null}
+              {statusPill.label}
+            </span>
           </div>
           {needsSelectedIdeaBuildPass ? (
             <button
               type="button"
               onClick={onUnlockBuildPass}
-              disabled={isBuildPassUnlocking || isCreditSummaryLoading || !hasEnoughCreditsForBuildPass}
+              disabled={unlockButtonState.isDisabled}
               className="avl-btn avl-btn-primary mt-3 h-10 w-full justify-center px-3 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <LockKeyhole size={16} />
-              {isBuildPassUnlocking ? "여는 중" : `${buildPassCost}크레딧으로 제작 패스 열기`}
+              {unlockButtonState.label}
             </button>
           ) : null}
           {needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass ? (
