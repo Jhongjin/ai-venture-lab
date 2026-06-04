@@ -169,6 +169,31 @@ export function buildSetupPowerShellHeader({
 # Key: ${projectKey}`;
 }
 
+export function buildSetupPowerShellScript({
+  idea,
+  projectKey,
+  toolLabel,
+  files,
+  folder,
+  footerLines,
+}: {
+  idea: Pick<Idea, "name">;
+  projectKey: string;
+  toolLabel: string;
+  files: SetupFile[];
+  folder: string;
+  footerLines: string[];
+}) {
+  return `${buildSetupPowerShellHeader({ idea, projectKey, toolLabel })}
+
+${buildSetupPowerShellFileWriteBlock(files)}
+
+${buildSetupPowerShellGitignoreBlock(folder)}
+
+${buildPowerShellWriteHostLines(footerLines)}
+`;
+}
+
 export function buildLiveExternalToolSetupDownloadDraft({
   config,
   encodeSetupFiles,
@@ -358,21 +383,21 @@ export function buildCursorSetupPowerShell({
   projectKey: string;
   files: SetupFile[];
 }) {
-  return `${buildSetupPowerShellHeader({ idea, projectKey, toolLabel: "Cursor" })}
-
-${buildSetupPowerShellFileWriteBlock(files)}
-
-${buildSetupPowerShellGitignoreBlock(".cursor")}
-
-${buildPowerShellWriteHostLines([
-  "",
-  "AI Venture Lab Cursor connection files are ready.",
-  `Next check command: node ${buildExternalToolCliFilePath(".cursor")} next-task`,
-  "Only after that command shows T-001, reopen Cursor and enable ai-venture-lab in Settings > MCP > Workspace MCP Servers.",
-  "After Cursor MCP shows Enabled, paste AI_VENTURE_CURSOR_START.md into Composer.",
-  "When Cursor calls venture_record_progress, Venture Lab task status will be updated automatically.",
-])}
-`;
+  return buildSetupPowerShellScript({
+    idea,
+    projectKey,
+    files,
+    folder: ".cursor",
+    toolLabel: "Cursor",
+    footerLines: [
+      "",
+      "AI Venture Lab Cursor connection files are ready.",
+      `Next check command: node ${buildExternalToolCliFilePath(".cursor")} next-task`,
+      "Only after that command shows T-001, reopen Cursor and enable ai-venture-lab in Settings > MCP > Workspace MCP Servers.",
+      "After Cursor MCP shows Enabled, paste AI_VENTURE_CURSOR_START.md into Composer.",
+      "When Cursor calls venture_record_progress, Venture Lab task status will be updated automatically.",
+    ],
+  });
 }
 
 export function buildCodexSetupPowerShell({
@@ -384,20 +409,20 @@ export function buildCodexSetupPowerShell({
   projectKey: string;
   files: SetupFile[];
 }) {
-  return `${buildSetupPowerShellHeader({ idea, projectKey, toolLabel: "Codex" })}
-
-${buildSetupPowerShellFileWriteBlock(files)}
-
-${buildSetupPowerShellGitignoreBlock(".codex")}
-
-${buildPowerShellWriteHostLines([
-  "",
-  "AI Venture Lab Codex connection files are ready.",
-  `Check: node ${buildExternalToolCliFilePath(".codex")} next-task`,
-  "After it shows T-001, open this project in Codex and paste AI_VENTURE_CODEX_START.md as the first message.",
-  "When Codex runs record-progress, Venture Lab task status will be updated automatically.",
-])}
-`;
+  return buildSetupPowerShellScript({
+    idea,
+    projectKey,
+    files,
+    folder: ".codex",
+    toolLabel: "Codex",
+    footerLines: [
+      "",
+      "AI Venture Lab Codex connection files are ready.",
+      `Check: node ${buildExternalToolCliFilePath(".codex")} next-task`,
+      "After it shows T-001, open this project in Codex and paste AI_VENTURE_CODEX_START.md as the first message.",
+      "When Codex runs record-progress, Venture Lab task status will be updated automatically.",
+    ],
+  });
 }
 
 export function buildLiveToolSetupPowerShell({
@@ -415,18 +440,18 @@ export function buildLiveToolSetupPowerShell({
   folder: string;
   startFileName: string;
 }) {
-  return `${buildSetupPowerShellHeader({ idea, projectKey, toolLabel })}
-
-${buildSetupPowerShellFileWriteBlock(files)}
-
-${buildSetupPowerShellGitignoreBlock(folder)}
-
-${buildPowerShellWriteHostLines([
-  "",
-  `AI Venture Lab ${toolLabel} connection files are ready.`,
-  `Check: node ${buildExternalToolCliFilePath(folder)} next-task`,
-  `After it shows T-001, open this project in ${toolLabel} and paste ${startFileName} as the first message.`,
-  `When ${toolLabel} records progress, Venture Lab task status will be updated automatically.`,
-])}
-`;
+  return buildSetupPowerShellScript({
+    idea,
+    projectKey,
+    files,
+    folder,
+    toolLabel,
+    footerLines: [
+      "",
+      `AI Venture Lab ${toolLabel} connection files are ready.`,
+      `Check: node ${buildExternalToolCliFilePath(folder)} next-task`,
+      `After it shows T-001, open this project in ${toolLabel} and paste ${startFileName} as the first message.`,
+      `When ${toolLabel} records progress, Venture Lab task status will be updated automatically.`,
+    ],
+  });
 }

@@ -62,6 +62,7 @@ const {
   buildSetupPowerShellGitignoreBlock,
   buildSetupPowerShellFileWriteBlock,
   buildSetupPowerShellHeader,
+  buildSetupPowerShellScript,
   buildSetupFileRows,
   escapePowerShellSingleQuoted,
 } = await import(moduleUrl);
@@ -84,6 +85,17 @@ assert.equal(buildPowerShellWriteHostLines(["", "Ready."]), 'Write-Host ""\nWrit
 assert.equal(
   buildSetupPowerShellHeader({ idea, projectKey: "PROJECT-1", toolLabel: "Codex" }),
   "# AI Venture Lab Codex connection setup\n# Project: AI Venture Lab\n# Key: PROJECT-1",
+);
+assert.match(
+  buildSetupPowerShellScript({
+    files: [{ base64: "abc", path: ".codex/venture-lab-cli.mjs" }],
+    folder: ".codex",
+    footerLines: ["", "Ready."],
+    idea,
+    projectKey: "PROJECT-1",
+    toolLabel: "Codex",
+  }),
+  /# AI Venture Lab Codex connection setup[\s\S]*\$ignoreEntries = @\(".codex\/venture-lab-sync.json", ".codex\/venture-lab-progress.json"\)[\s\S]*Write-Host "Ready\."/,
 );
 assert.equal(
   buildSetupFileRows([{ base64: "abc", path: ".cursor/rules/owner's-rule.mdc" }]),
