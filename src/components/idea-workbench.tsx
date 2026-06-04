@@ -4455,14 +4455,14 @@ export function IdeaWorkbench({
           </div>
           <div className="grid gap-2">
             {visibleWorkbenchTaskItems.map((taskItem) => {
-              const { descriptionLabel, isActive, isLocked, statusLabel, statusPillTone, stepNumber, task } = taskItem;
+              const { descriptionLabel, isActive, isDisabled, statusLabel, statusPillTone, stepNumber, task } = taskItem;
 
               return (
                 <button
                   key={task.id}
                   type="button"
                   onClick={() => updateActiveTask(task.id)}
-                  disabled={isLocked}
+                  disabled={isDisabled}
                   aria-current={isActive ? "step" : undefined}
                   className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-55 ${
                     isActive

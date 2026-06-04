@@ -25,6 +25,7 @@ export type WorkbenchTaskSummary = {
 export type WorkbenchTaskNavigationItemState = {
   descriptionLabel: string;
   isActive: boolean;
+  isDisabled: boolean;
   isLocked: boolean;
   statusLabel: string;
   statusPillTone: "avl-pill-info" | "avl-pill-warning" | "avl-pill-neutral";
@@ -211,6 +212,7 @@ export function buildWorkbenchTaskNavigationItemStates({
     return {
       descriptionLabel: isLocked ? "준비 완료 후 열립니다" : task.description,
       isActive,
+      isDisabled: isLocked,
       isLocked,
       statusLabel: isLocked ? "잠김" : task.status,
       statusPillTone: isActive ? "avl-pill-info" : isLocked ? "avl-pill-warning" : "avl-pill-neutral",

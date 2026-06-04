@@ -27,6 +27,10 @@ assert.ok(
   !ideaWorkbenchSource.includes("nextImplementationTaskStartControlState?."),
   "IdeaWorkbench should always get a concrete next-task start control state.",
 );
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isLocked}"),
+  "IdeaWorkbench should render task navigation disabled state from the shared item state.",
+);
 
 assert.deepEqual(getWorkbenchIdeaProgress({ decision: "kill", stage: "launch" }), {
   label: "삭제됨",
@@ -107,6 +111,7 @@ assert.deepEqual(
   {
     descriptionLabel: lockedLaunchItem?.descriptionLabel,
     isActive: lockedLaunchItem?.isActive,
+    isDisabled: lockedLaunchItem?.isDisabled,
     isLocked: lockedLaunchItem?.isLocked,
     statusLabel: lockedLaunchItem?.statusLabel,
     statusPillTone: lockedLaunchItem?.statusPillTone,
@@ -114,6 +119,7 @@ assert.deepEqual(
   {
     descriptionLabel: "준비 완료 후 열립니다",
     isActive: false,
+    isDisabled: true,
     isLocked: true,
     statusLabel: "잠김",
     statusPillTone: "avl-pill-warning",
@@ -127,12 +133,14 @@ const activeLaunchItem = buildWorkbenchTaskNavigationItemStates({
 assert.deepEqual(
   {
     isActive: activeLaunchItem?.isActive,
+    isDisabled: activeLaunchItem?.isDisabled,
     isLocked: activeLaunchItem?.isLocked,
     statusLabel: activeLaunchItem?.statusLabel,
     statusPillTone: activeLaunchItem?.statusPillTone,
   },
   {
     isActive: true,
+    isDisabled: false,
     isLocked: false,
     statusLabel: "64%",
     statusPillTone: "avl-pill-info",
@@ -145,11 +153,13 @@ const readyLaunchItem = buildWorkbenchTaskNavigationItemStates({
 }).find((item) => item.task.id === "launch");
 assert.deepEqual(
   {
+    isDisabled: readyLaunchItem?.isDisabled,
     isLocked: readyLaunchItem?.isLocked,
     statusLabel: readyLaunchItem?.statusLabel,
     statusPillTone: readyLaunchItem?.statusPillTone,
   },
   {
+    isDisabled: false,
     isLocked: false,
     statusLabel: "준비 완료",
     statusPillTone: "avl-pill-neutral",
