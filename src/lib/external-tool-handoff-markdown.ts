@@ -300,7 +300,7 @@ export function buildCursorGuideMarkdown({
 - \`.cursor/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
 - \`.cursor/venture-lab-mcp-server.mjs\`: 기존 설정 호환용 MCP 실행 파일
 - \`${buildExternalToolSyncFilePath(".cursor")}\`: Venture Lab 자동 반영 토큰과 서버 주소
-- \`.cursor/venture-lab-progress.json\`: Cursor 작업 진행 기록
+- \`${buildExternalToolProgressFilePath(".cursor")}\`: Cursor 작업 진행 기록
 
 ## 실행 순서
 
@@ -451,7 +451,7 @@ export function buildCodexGuideMarkdown({
 - \`README_VENTURE_LAB_CODEX.md\`: 이 연결 가이드
 - \`.codex/venture-lab-cli.mjs\`: 로컬 CLI 연결 파일
 - \`${buildExternalToolSyncFilePath(".codex")}\`: Venture Lab 자동 반영 토큰과 서버 주소
-- \`.codex/venture-lab-progress.json\`: Codex 작업 진행 기록
+- \`${buildExternalToolProgressFilePath(".codex")}\`: Codex 작업 진행 기록
 
 ## 실행 순서
 
@@ -591,7 +591,7 @@ export function buildClaudeGuideMarkdown({
 - \`.mcp.json\`: 프로젝트 전용 MCP 서버 설정
 - \`.claude/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
 - \`${buildExternalToolSyncFilePath(".claude")}\`: Venture Lab 자동 반영 토큰과 서버 주소
-- \`.claude/venture-lab-progress.json\`: Claude Code 작업 진행 기록
+- \`${buildExternalToolProgressFilePath(".claude")}\`: Claude Code 작업 진행 기록
 
 ## 실행 순서
 
@@ -699,7 +699,7 @@ export function buildAntigravityGuideMarkdown({
 - \`.antigravity/mcp_config.json\`: Antigravity MCP 설정 후보
 - \`.antigravity/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
 - \`${buildExternalToolSyncFilePath(".antigravity")}\`: Venture Lab 자동 반영 토큰과 서버 주소
-- \`.antigravity/venture-lab-progress.json\`: Antigravity 작업 진행 기록
+- \`${buildExternalToolProgressFilePath(".antigravity")}\`: Antigravity 작업 진행 기록
 
 ## 실행 순서
 
