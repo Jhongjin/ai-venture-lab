@@ -106,6 +106,11 @@ export type FinalExecutionLiveToolDraftMaps = {
   startPromptDrafts: Record<LiveExternalToolKey, string>;
 };
 
+export type FinalExecutionSelectedLiveToolDrafts = Pick<
+  FinalExecutionLiveToolContext,
+  "folder" | "guideDraft" | "mcpConfigDraft" | "startPromptDraft"
+>;
+
 export type FinalExecutionLiveSetupDownloadMap<Download> = Partial<Record<LiveExternalToolKey, Download>>;
 
 export type FinalExecutionLiveToolCommandContext = Pick<
@@ -514,29 +519,48 @@ export function buildFinalExecutionLiveToolContext({
     isCursorExternalDelivery,
     isLiveExternalDelivery,
   } = liveDeliveryFlags;
-  const selectedLiveToolKey = selectFinalExecutionLiveToolKey(liveDeliveryFlags);
-  const mcpConfigDraft = selectFinalExecutionMcpConfigDraft({
-    isAntigravityExternalDelivery,
-    isClaudeCodeExternalDelivery,
-    isCursorExternalDelivery,
+  const selectedLiveToolDrafts = buildFinalExecutionSelectedLiveToolDrafts({
+    guideDrafts,
+    liveDeliveryFlags,
     mcpConfigDrafts,
+    startPromptDrafts,
   });
-  const folder = liveExternalToolFolders[selectedLiveToolKey];
   const commandContext = buildFinalExecutionLiveToolCommandContext({
-    folder,
+    folder: selectedLiveToolDrafts.folder,
     handoffFileSuffix,
     ideaName,
   });
 
   return {
     ...commandContext,
-    guideDraft: guideDrafts[selectedLiveToolKey],
+    ...selectedLiveToolDrafts,
     isAntigravityExternalDelivery,
     isClaudeCodeExternalDelivery,
     isCodexExternalDelivery,
     isCursorExternalDelivery,
     isLiveExternalDelivery,
-    mcpConfigDraft,
+  };
+}
+
+export function buildFinalExecutionSelectedLiveToolDrafts({
+  guideDrafts,
+  liveDeliveryFlags,
+  mcpConfigDrafts,
+  startPromptDrafts,
+}: FinalExecutionLiveToolDraftMaps & {
+  liveDeliveryFlags: FinalExecutionLiveDeliveryFlags;
+}): FinalExecutionSelectedLiveToolDrafts {
+  const selectedLiveToolKey = selectFinalExecutionLiveToolKey(liveDeliveryFlags);
+
+  return {
+    folder: liveExternalToolFolders[selectedLiveToolKey],
+    guideDraft: guideDrafts[selectedLiveToolKey],
+    mcpConfigDraft: selectFinalExecutionMcpConfigDraft({
+      isAntigravityExternalDelivery: liveDeliveryFlags.isAntigravityExternalDelivery,
+      isClaudeCodeExternalDelivery: liveDeliveryFlags.isClaudeCodeExternalDelivery,
+      isCursorExternalDelivery: liveDeliveryFlags.isCursorExternalDelivery,
+      mcpConfigDrafts,
+    }),
     startPromptDraft: startPromptDrafts[selectedLiveToolKey],
   };
 }

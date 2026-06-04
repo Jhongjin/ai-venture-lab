@@ -37,6 +37,7 @@ const {
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
   buildFinalExecutionReadinessChecks,
+  buildFinalExecutionSelectedLiveToolDrafts,
   buildFinalExecutionTaskListDescription,
   buildFinalExecutionTaskPreviewLists,
   buildFinalExecutionTaskPreview,
@@ -491,6 +492,21 @@ assert.equal(
     mcpConfigDrafts: liveToolDraftMaps.mcpConfigDrafts,
   }),
   "",
+);
+assert.deepEqual(
+  buildFinalExecutionSelectedLiveToolDrafts({
+    ...liveToolDraftMaps,
+    liveDeliveryFlags: buildFinalExecutionLiveDeliveryFlags({
+      buildDeliveryMode: "external_tool",
+      externalToolKey: "codex",
+    }),
+  }),
+  {
+    folder: ".codex",
+    guideDraft: "codex guide",
+    mcpConfigDraft: "",
+    startPromptDraft: "codex start",
+  },
 );
 
 const cursorLiveContext = buildFinalExecutionLiveToolContext({
