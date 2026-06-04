@@ -55,6 +55,7 @@ const {
   buildCodexSetupDownloadConfig,
   buildCursorSetupPowerShell,
   buildCursorSetupDownloadConfig,
+  buildExternalToolSetupDownloadConfigs,
   buildLiveExternalToolSetupDownloadDraft,
   buildLiveToolSetupPowerShell,
   buildPowerShellStringArray,
@@ -149,6 +150,34 @@ assert.deepEqual(
 );
 assert.deepEqual(
   [cursorConfig.fileSuffix, codexConfig.fileSuffix, claudeConfig.fileSuffix, antigravityConfig.fileSuffix],
+  ["cursor-setup", "codex-setup", "claude-code-setup", "antigravity-setup"],
+);
+const setupConfigs = buildExternalToolSetupDownloadConfigs({
+  antigravityAcceptanceDraft: "antigravity acceptance",
+  antigravityAgentInstructionsDraft: "antigravity instructions",
+  antigravityCliScriptDraft: "antigravity cli",
+  antigravityMcpConfigDraft: "antigravity mcp",
+  antigravityStartPromptDraft: "antigravity start",
+  antigravityTaskPackageDraft: "antigravity tasks",
+  claudeCliScriptDraft: "claude cli",
+  claudeInstructionsDraft: "claude instructions",
+  claudeMcpConfigDraft: "claude mcp",
+  claudeStartPromptDraft: "claude start",
+  claudeTaskPackageDraft: "claude tasks",
+  codexAgentInstructionsDraft: "codex instructions",
+  codexCliScriptDraft: "codex cli",
+  codexStartPromptDraft: "codex start",
+  codexTaskPackageDraft: "codex tasks",
+  cursorMcpConfigDraft: "cursor mcp config",
+  cursorMcpServerDraft: "cursor server",
+  cursorRuleDraft: "cursor rule",
+  cursorStartPromptDraft: "cursor start",
+  cursorTaskPackageDraft: "cursor tasks",
+  finalAgentRunPackageDraft: "agent package",
+});
+assert.deepEqual(Object.keys(setupConfigs).sort(), ["antigravity", "claude_code", "codex", "cursor"]);
+assert.deepEqual(
+  [setupConfigs.cursor.fileSuffix, setupConfigs.codex.fileSuffix, setupConfigs.claude_code.fileSuffix, setupConfigs.antigravity.fileSuffix],
   ["cursor-setup", "codex-setup", "claude-code-setup", "antigravity-setup"],
 );
 assert.match(cursorConfig.successMessage, /venture_record_progress/);

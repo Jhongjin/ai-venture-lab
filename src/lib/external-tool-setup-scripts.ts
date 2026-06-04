@@ -93,6 +93,13 @@ export type AntigravitySetupDownloadConfigDrafts = {
   finalAgentRunPackageDraft: string;
 };
 
+export type ExternalToolSetupDownloadConfigDrafts = AntigravitySetupDownloadConfigDrafts &
+  ClaudeSetupDownloadConfigDrafts &
+  CodexSetupDownloadConfigDrafts &
+  CursorSetupDownloadConfigDrafts;
+
+export type ExternalToolSetupDownloadConfigs = Record<LiveExternalToolSetupKey, ExternalToolSetupDownloadConfig>;
+
 export function escapePowerShellSingleQuoted(value: string) {
   return value.replace(/'/g, "''");
 }
@@ -371,6 +378,17 @@ export function buildAntigravitySetupDownloadConfig({
       folder: ".antigravity",
       startFileName: "AI_VENTURE_ANTIGRAVITY_START.md",
     }),
+  };
+}
+
+export function buildExternalToolSetupDownloadConfigs(
+  drafts: ExternalToolSetupDownloadConfigDrafts,
+): ExternalToolSetupDownloadConfigs {
+  return {
+    antigravity: buildAntigravitySetupDownloadConfig(drafts),
+    claude_code: buildClaudeSetupDownloadConfig(drafts),
+    codex: buildCodexSetupDownloadConfig(drafts),
+    cursor: buildCursorSetupDownloadConfig(drafts),
   };
 }
 

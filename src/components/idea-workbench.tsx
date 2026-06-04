@@ -203,10 +203,7 @@ import {
 } from "@/lib/external-tool-connector-config";
 import { buildExternalToolPackageDrafts } from "@/lib/external-tool-package-drafts";
 import {
-  buildAntigravitySetupDownloadConfig,
-  buildClaudeSetupDownloadConfig,
-  buildCodexSetupDownloadConfig,
-  buildCursorSetupDownloadConfig,
+  buildExternalToolSetupDownloadConfigs,
   buildLiveExternalToolSetupDownloadDraft,
   type ExternalToolSetupDownloadConfig,
   type LiveExternalToolSetupKey,
@@ -1920,6 +1917,29 @@ export function IdeaWorkbench({
     productSurface: activeProductSurface,
     projectKey: finalExecutionProjectKey,
     tasks: selectedImplementationTasks,
+  });
+  const externalToolSetupDownloadConfigs = buildExternalToolSetupDownloadConfigs({
+    antigravityAcceptanceDraft,
+    antigravityAgentInstructionsDraft,
+    antigravityCliScriptDraft,
+    antigravityMcpConfigDraft,
+    antigravityStartPromptDraft,
+    antigravityTaskPackageDraft,
+    claudeCliScriptDraft,
+    claudeInstructionsDraft,
+    claudeMcpConfigDraft,
+    claudeStartPromptDraft,
+    claudeTaskPackageDraft,
+    codexAgentInstructionsDraft,
+    codexCliScriptDraft,
+    codexStartPromptDraft,
+    codexTaskPackageDraft,
+    cursorMcpConfigDraft,
+    cursorMcpServerDraft,
+    cursorRuleDraft,
+    cursorStartPromptDraft,
+    cursorTaskPackageDraft,
+    finalAgentRunPackageDraft,
   });
   const {
     folder: liveExternalToolFolder,
@@ -3759,55 +3779,19 @@ export function IdeaWorkbench({
   }
 
   async function downloadCursorSetupScript() {
-    return downloadLiveExternalToolSetupScript(
-      buildCursorSetupDownloadConfig({
-        cursorMcpConfigDraft,
-        cursorMcpServerDraft,
-        cursorRuleDraft,
-        cursorStartPromptDraft,
-        cursorTaskPackageDraft,
-        finalAgentRunPackageDraft,
-      }),
-    );
+    return downloadLiveExternalToolSetupScript(externalToolSetupDownloadConfigs.cursor);
   }
 
   async function downloadCodexSetupScript() {
-    return downloadLiveExternalToolSetupScript(
-      buildCodexSetupDownloadConfig({
-        codexAgentInstructionsDraft,
-        codexCliScriptDraft,
-        codexStartPromptDraft,
-        codexTaskPackageDraft,
-        finalAgentRunPackageDraft,
-      }),
-    );
+    return downloadLiveExternalToolSetupScript(externalToolSetupDownloadConfigs.codex);
   }
 
   async function downloadClaudeSetupScript() {
-    return downloadLiveExternalToolSetupScript(
-      buildClaudeSetupDownloadConfig({
-        claudeCliScriptDraft,
-        claudeInstructionsDraft,
-        claudeMcpConfigDraft,
-        claudeStartPromptDraft,
-        claudeTaskPackageDraft,
-        finalAgentRunPackageDraft,
-      }),
-    );
+    return downloadLiveExternalToolSetupScript(externalToolSetupDownloadConfigs.claude_code);
   }
 
   async function downloadAntigravitySetupScript() {
-    return downloadLiveExternalToolSetupScript(
-      buildAntigravitySetupDownloadConfig({
-        antigravityAcceptanceDraft,
-        antigravityAgentInstructionsDraft,
-        antigravityCliScriptDraft,
-        antigravityMcpConfigDraft,
-        antigravityStartPromptDraft,
-        antigravityTaskPackageDraft,
-        finalAgentRunPackageDraft,
-      }),
-    );
+    return downloadLiveExternalToolSetupScript(externalToolSetupDownloadConfigs.antigravity);
   }
 
   function downloadFinalExecutionPrimaryPackage() {
