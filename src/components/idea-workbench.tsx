@@ -157,7 +157,7 @@ import { resolveProductSurfaceForIdea as inferIdeaProductSurface } from "@/lib/p
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
 import { fetchApiJson } from "@/lib/api-client";
 import { buildJsonPostRequestInit } from "@/lib/api-request-utils";
-import { cleanInlineText, getApiMessage, isPlainRecord } from "@/lib/record-utils";
+import { cleanInlineText, isPlainRecord } from "@/lib/record-utils";
 import {
   getBuildDeliveryPreferenceFromArtifacts,
   resolveBuildDeliveryContext,
@@ -221,8 +221,8 @@ import {
 } from "@/lib/external-tool-sync-connection";
 import {
   buildBuildPassAlreadyUnlockedMessage,
+  buildBuildPassUnlockState,
   buildBuildPassUnlockedTelemetryProperties,
-  buildBuildPassUnlockFailedMessage,
   buildBuildPassUnlockLoginRequiredMessage,
   buildBuildPassUnlockRequestPayload,
   buildBuildPassUnlockRetryMessage,
@@ -231,10 +231,8 @@ import {
   buildCreditSummaryReadState,
   getBuildPassUnlockUrl,
   getBuildPassRequirementMessage,
-  getBuildPassUnlockResult,
   getCreditAccessState,
   getCreditSummaryUrl,
-  isCreditSummary,
   type CreditSummary,
 } from "@/lib/billing";
 import {
@@ -2896,24 +2894,28 @@ export function IdeaWorkbench({
         input: getBuildPassUnlockUrl(),
       });
 
-      if (isCreditSummary(payload)) {
-        setCreditSummary(payload);
+      const unlockState = buildBuildPassUnlockState({
+        fallbackBuildPassCost: buildPassCost,
+        payload,
+        responseOk: response.ok,
+      });
+
+      if (unlockState.creditSummary) {
+        setCreditSummary(unlockState.creditSummary);
       }
 
-      if (!response.ok || !isCreditSummary(payload)) {
-        setCreditMessage(getApiMessage(payload, buildBuildPassUnlockFailedMessage()));
+      if (!unlockState.ok) {
+        setCreditMessage(unlockState.creditMessage);
         return;
       }
 
-      const unlockResult = getBuildPassUnlockResult(payload, buildPassCost);
-
-      setCreditMessage(unlockResult.creditMessage);
+      setCreditMessage(unlockState.creditMessage);
       setMessage(buildBuildPassUnlockSuccessMessage());
       await recordTelemetryEvent({
         eventName: "production_package_build_pass_unlocked",
         eventCategory: "development",
         properties: buildBuildPassUnlockedTelemetryProperties({
-          chargedCredits: unlockResult.chargedCredits,
+          chargedCredits: unlockState.chargedCredits,
           ideaId: selectedIdea.id,
         }),
       });

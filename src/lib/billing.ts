@@ -73,6 +73,22 @@ export type BuildPassUnlockResult = {
   creditMessage: string;
 };
 
+export type BuildPassUnlockState =
+  | {
+      alreadyUnlocked: boolean;
+      chargedCredits: number;
+      creditMessage: string;
+      creditSummary: CreditSummary;
+      ok: true;
+    }
+  | {
+      alreadyUnlocked: false;
+      chargedCredits: null;
+      creditMessage: string;
+      creditSummary: CreditSummary | null;
+      ok: false;
+    };
+
 export type CreditSummaryReadState = {
   creditMessage: string | null;
   creditSummary: CreditSummary | null;
@@ -171,6 +187,38 @@ export function buildCreditSummaryReadState({
   return {
     creditMessage: payload.message,
     creditSummary: payload,
+    ok: true,
+  };
+}
+
+export function buildBuildPassUnlockState({
+  fallbackBuildPassCost,
+  payload,
+  responseOk,
+}: {
+  fallbackBuildPassCost: number;
+  payload: unknown;
+  responseOk: boolean;
+}): BuildPassUnlockState {
+  const creditSummary = isCreditSummary(payload) ? payload : null;
+
+  if (!responseOk || !creditSummary) {
+    return {
+      alreadyUnlocked: false,
+      chargedCredits: null,
+      creditMessage: getApiMessage(payload, buildBuildPassUnlockFailedMessage()),
+      creditSummary,
+      ok: false,
+    };
+  }
+
+  const unlockResult = getBuildPassUnlockResult(creditSummary, fallbackBuildPassCost);
+
+  return {
+    alreadyUnlocked: unlockResult.alreadyUnlocked,
+    chargedCredits: unlockResult.chargedCredits,
+    creditMessage: unlockResult.creditMessage,
+    creditSummary,
     ok: true,
   };
 }

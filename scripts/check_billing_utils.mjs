@@ -20,6 +20,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildBuildPassAlreadyUnlockedMessage,
+  buildBuildPassUnlockState,
   buildBuildPassUnlockedTelemetryProperties,
   buildBuildPassUnlockFailedMessage,
   buildBuildPassUnlockLoginRequiredMessage,
@@ -79,6 +80,34 @@ assert.deepEqual(buildCreditSummaryReadState({ payload: { error: "크레딧 API 
   creditSummary: null,
   ok: false,
 });
+assert.deepEqual(
+  buildBuildPassUnlockState({
+    fallbackBuildPassCost: 30,
+    payload: { ...readyCreditSummary, chargedCredits: 30 },
+    responseOk: true,
+  }),
+  {
+    alreadyUnlocked: false,
+    chargedCredits: 30,
+    creditMessage: "30크레딧을 사용해 전체 제작 패키지를 열었습니다.",
+    creditSummary: { ...readyCreditSummary, chargedCredits: 30 },
+    ok: true,
+  },
+);
+assert.deepEqual(
+  buildBuildPassUnlockState({
+    fallbackBuildPassCost: 30,
+    payload: { error: "제작 패스 차감 실패" },
+    responseOk: false,
+  }),
+  {
+    alreadyUnlocked: false,
+    chargedCredits: null,
+    creditMessage: "제작 패스 차감 실패",
+    creditSummary: null,
+    ok: false,
+  },
+);
 
 assert.equal(
   getBuildPassRequirementMessage({ buildPassCost: 30, isChecking: true, mode: "delivery_bundle" }),
