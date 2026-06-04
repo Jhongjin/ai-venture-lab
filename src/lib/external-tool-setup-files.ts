@@ -22,6 +22,19 @@ export function buildExternalToolProgressFile(path: string): ExternalToolSetupFi
   return { path, body: externalToolProgressFileBody };
 }
 
+export function buildExternalToolSyncSetupFiles({
+  syncConfigDraft,
+  toolFolder,
+}: {
+  syncConfigDraft: string;
+  toolFolder: string;
+}): ExternalToolSetupFileDraft[] {
+  return [
+    { path: buildExternalToolSyncFilePath(toolFolder), body: syncConfigDraft },
+    buildExternalToolProgressFile(buildExternalToolProgressFilePath(toolFolder)),
+  ];
+}
+
 export function buildExternalToolCoreSetupFiles({
   finalAgentRunPackageDraft,
   startPromptDraft,
@@ -66,8 +79,7 @@ export function buildCursorExternalToolSetupFiles({
     { path: ".cursor/mcp.json", body: mcpConfigDraft },
     { path: buildExternalToolCliFilePath(".cursor"), body: mcpServerDraft },
     { path: buildCursorMcpServerFilePath(), body: mcpServerDraft },
-    { path: buildExternalToolSyncFilePath(".cursor"), body: syncConfigDraft },
-    buildExternalToolProgressFile(buildExternalToolProgressFilePath(".cursor")),
+    ...buildExternalToolSyncSetupFiles({ syncConfigDraft, toolFolder: ".cursor" }),
   ];
 }
 
@@ -98,8 +110,7 @@ export function buildCodexExternalToolSetupFiles({
     { path: "AGENTS.ai-venture-lab.md", body: agentInstructionsDraft },
     { path: "README_VENTURE_LAB_CODEX.md", body: guideDraft },
     { path: buildExternalToolCliFilePath(".codex"), body: cliScriptDraft },
-    { path: buildExternalToolSyncFilePath(".codex"), body: syncConfigDraft },
-    buildExternalToolProgressFile(buildExternalToolProgressFilePath(".codex")),
+    ...buildExternalToolSyncSetupFiles({ syncConfigDraft, toolFolder: ".codex" }),
   ];
 }
 
@@ -133,8 +144,7 @@ export function buildClaudeExternalToolSetupFiles({
     { path: "README_VENTURE_LAB_CLAUDE.md", body: guideDraft },
     { path: ".mcp.json", body: mcpConfigDraft },
     { path: buildExternalToolCliFilePath(".claude"), body: cliScriptDraft },
-    { path: buildExternalToolSyncFilePath(".claude"), body: syncConfigDraft },
-    buildExternalToolProgressFile(buildExternalToolProgressFilePath(".claude")),
+    ...buildExternalToolSyncSetupFiles({ syncConfigDraft, toolFolder: ".claude" }),
   ];
 }
 
@@ -171,7 +181,6 @@ export function buildAntigravityExternalToolSetupFiles({
     { path: "README_VENTURE_LAB_ANTIGRAVITY.md", body: guideDraft },
     { path: ".antigravity/mcp_config.json", body: mcpConfigDraft },
     { path: buildExternalToolCliFilePath(".antigravity"), body: cliScriptDraft },
-    { path: buildExternalToolSyncFilePath(".antigravity"), body: syncConfigDraft },
-    buildExternalToolProgressFile(buildExternalToolProgressFilePath(".antigravity")),
+    ...buildExternalToolSyncSetupFiles({ syncConfigDraft, toolFolder: ".antigravity" }),
   ];
 }

@@ -27,6 +27,7 @@ const {
   buildCursorExternalToolSetupFiles,
   buildExternalToolCoreSetupFiles,
   buildExternalToolProgressFile,
+  buildExternalToolSyncSetupFiles,
 } = await import(moduleUrl);
 
 assert.deepEqual(buildExternalToolProgressFile(".tool/progress.json"), {
@@ -46,6 +47,10 @@ assert.deepEqual(
     { path: "AI_VENTURE_TOOL_START.md", body: "start" },
   ],
 );
+assert.deepEqual(buildExternalToolSyncSetupFiles({ syncConfigDraft: "sync", toolFolder: ".tool" }), [
+  { path: ".tool/venture-lab-sync.json", body: "sync" },
+  { path: ".tool/venture-lab-progress.json", body: "[]\n" },
+]);
 
 const cursorFiles = buildCursorExternalToolSetupFiles({
   finalAgentRunPackageDraft: "package",
