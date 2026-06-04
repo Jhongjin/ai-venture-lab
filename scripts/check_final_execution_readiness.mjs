@@ -30,6 +30,7 @@ const {
   buildFinalExecutionLiveToolCommandContext,
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionLiveToolDraftMaps,
+  buildFinalExecutionLiveSetupDownloadMap,
   buildFinalExecutionPackageReadinessState,
   buildFinalExecutionPackageDownloadAction,
   buildFinalExecutionPrimaryPackageAction,
@@ -542,6 +543,20 @@ const liveDownloads = {
   codex: "codex-download",
   cursor: "cursor-download",
 };
+assert.deepEqual(
+  buildFinalExecutionLiveSetupDownloadMap({
+    antigravityDownload: "antigravity-download",
+    claudeCodeDownload: "claude-download",
+    codexDownload: "codex-download",
+    cursorDownload: "cursor-download",
+  }),
+  {
+    antigravity: "antigravity-download",
+    claude_code: "claude-download",
+    codex: "codex-download",
+    cursor: "cursor-download",
+  },
+);
 assert.equal(
   selectFinalExecutionLiveSetupDownload({
     externalToolKey: "cursor",

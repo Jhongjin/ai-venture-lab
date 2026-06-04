@@ -106,6 +106,8 @@ export type FinalExecutionLiveToolDraftMaps = {
   startPromptDrafts: Record<LiveExternalToolKey, string>;
 };
 
+export type FinalExecutionLiveSetupDownloadMap<Download> = Partial<Record<LiveExternalToolKey, Download>>;
+
 export type FinalExecutionLiveToolCommandContext = Pick<
   FinalExecutionLiveToolContext,
   "folder" | "nextTaskCommand" | "progressPath" | "setupCommand" | "setupFileName"
@@ -546,13 +548,32 @@ export function selectFinalExecutionLiveSetupDownload<Download>({
 }: {
   externalToolKey: ExternalBuildToolKey;
   isLiveExternalDelivery: boolean;
-  liveSetupDownloads: Partial<Record<LiveExternalToolKey, Download>>;
+  liveSetupDownloads: FinalExecutionLiveSetupDownloadMap<Download>;
 }): Download | null {
   if (!isLiveExternalDelivery || externalToolKey === "generic_mcp") {
     return null;
   }
 
   return liveSetupDownloads[externalToolKey] ?? null;
+}
+
+export function buildFinalExecutionLiveSetupDownloadMap<Download>({
+  antigravityDownload,
+  claudeCodeDownload,
+  codexDownload,
+  cursorDownload,
+}: {
+  antigravityDownload: Download;
+  claudeCodeDownload: Download;
+  codexDownload: Download;
+  cursorDownload: Download;
+}): FinalExecutionLiveSetupDownloadMap<Download> {
+  return {
+    antigravity: antigravityDownload,
+    claude_code: claudeCodeDownload,
+    codex: codexDownload,
+    cursor: cursorDownload,
+  };
 }
 
 export function buildFinalExecutionPrimaryPackageAction<Download>({
@@ -570,7 +591,7 @@ export function buildFinalExecutionPrimaryPackageAction<Download>({
   handoffFileSuffix: string;
   ideaName: string;
   isLiveExternalDelivery: boolean;
-  liveSetupDownloads: Partial<Record<LiveExternalToolKey, Download>>;
+  liveSetupDownloads: FinalExecutionLiveSetupDownloadMap<Download>;
 }): FinalExecutionPrimaryPackageAction<Download> {
   const liveSetupDownload = selectFinalExecutionLiveSetupDownload({
     externalToolKey,

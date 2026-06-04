@@ -183,6 +183,7 @@ import {
   buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionLiveToolDraftMaps,
+  buildFinalExecutionLiveSetupDownloadMap,
   buildFinalExecutionPackageReadinessState,
   buildFinalExecutionPrimaryPackageAction,
 } from "@/lib/final-execution-readiness";
@@ -3792,12 +3793,12 @@ export function IdeaWorkbench({
   }
 
   function downloadFinalExecutionPrimaryPackage() {
-    const liveSetupDownloads: Partial<Record<ExternalBuildToolKey, () => Promise<void>>> = {
-      antigravity: downloadAntigravitySetupScript,
-      claude_code: downloadClaudeSetupScript,
-      codex: downloadCodexSetupScript,
-      cursor: downloadCursorSetupScript,
-    };
+    const liveSetupDownloads = buildFinalExecutionLiveSetupDownloadMap({
+      antigravityDownload: downloadAntigravitySetupScript,
+      claudeCodeDownload: downloadClaudeSetupScript,
+      codexDownload: downloadCodexSetupScript,
+      cursorDownload: downloadCursorSetupScript,
+    });
     const primaryPackageAction = buildFinalExecutionPrimaryPackageAction({
       externalToolKey: activeExternalBuildTool.key,
       externalToolLabel: activeExternalBuildTool.label,
