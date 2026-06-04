@@ -10,6 +10,10 @@ export type ValidationPackageStatusRow = {
   label: string;
   passed: boolean;
 };
+export type ValidationPackageStatusDisplayRow = ValidationPackageStatusRow & {
+  statusClassName: string;
+  statusLabel: string;
+};
 export type ValidationPackageSaveButtonState = {
   disabled: boolean;
   label: string;
@@ -43,6 +47,16 @@ export function buildValidationPackageStatusRows({
     { label: "7일 검증 계획", passed: hasValidationSprintArtifact },
     { label: "검증 완료 요약", passed: hasValidationSummaryArtifact },
   ];
+}
+
+export function buildValidationPackageStatusDisplayRows(
+  rows: ReadonlyArray<ValidationPackageStatusRow>,
+): ValidationPackageStatusDisplayRow[] {
+  return rows.map((row) => ({
+    ...row,
+    statusClassName: row.passed ? "text-emerald-700" : "text-slate-700",
+    statusLabel: row.passed ? "저장 완료" : "저장 필요",
+  }));
 }
 
 export function buildValidationPackageSaveJob({

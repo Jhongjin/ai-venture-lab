@@ -10,6 +10,7 @@ const {
   buildValidationPackageSaveJob,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
+  buildValidationPackageStatusDisplayRows,
   buildValidationPackageStatusRows,
   buildValidationSummaryDisabledNote,
   getPendingValidationPackageSaveJobs,
@@ -31,6 +32,28 @@ assert.deepEqual(
     ["7일 검증 계획", false],
     ["검증 완료 요약", true],
   ],
+);
+assert.deepEqual(
+  buildValidationPackageStatusDisplayRows(statusRows).map((row) => [
+    row.label,
+    row.passed,
+    row.statusLabel,
+    row.statusClassName,
+  ]),
+  [
+    ["아이디어 요약", true, "저장 완료", "text-emerald-700"],
+    ["조사 요약", false, "저장 필요", "text-slate-700"],
+    ["7일 검증 계획", false, "저장 필요", "text-slate-700"],
+    ["검증 완료 요약", true, "저장 완료", "text-emerald-700"],
+  ],
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('row.passed ? "저장 완료" : "저장 필요"'),
+  "IdeaWorkbench should render validation package status labels from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('row.passed ? "text-emerald-700" : "text-slate-700"'),
+  "IdeaWorkbench should render validation package status tone from shared display state.",
 );
 assert.equal(
   buildValidationSummaryDisabledNote({
