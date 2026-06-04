@@ -1,6 +1,11 @@
 import type { ExternalBuildToolKey } from "@/lib/build-delivery";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import {
+  buildExternalToolCliFilePath,
+  buildExternalToolProgressFilePath,
+  buildExternalToolSyncFilePath,
+} from "@/lib/external-tool-file-paths";
+import {
   buildAntigravityExternalToolSetupFiles,
   buildClaudeExternalToolSetupFiles,
   buildCodexExternalToolSetupFiles,
@@ -94,6 +99,14 @@ export function escapePowerShellSingleQuoted(value: string) {
 
 export function buildSetupFileRows(files: ExternalToolEncodedSetupFile[]) {
   return files.map((file) => `  @{ Path = '${escapePowerShellSingleQuoted(file.path)}'; Base64 = '${file.base64}' }`).join("\n");
+}
+
+export function buildExternalToolSetupIgnoreEntries(folder: string) {
+  return [buildExternalToolSyncFilePath(folder), buildExternalToolProgressFilePath(folder)];
+}
+
+export function buildPowerShellStringArray(values: string[]) {
+  return `@(${values.map((value) => `"${value}"`).join(", ")})`;
 }
 
 export function buildLiveExternalToolSetupDownloadDraft({
@@ -312,7 +325,7 @@ foreach ($file in $files) {
 }
 
 $gitignorePath = Join-Path $root ".gitignore"
-$ignoreEntries = @(".cursor/venture-lab-sync.json", ".cursor/venture-lab-progress.json")
+$ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(".cursor"))}
 
 if (-not (Test-Path -LiteralPath $gitignorePath)) {
   New-Item -ItemType File -Path $gitignorePath -Force | Out-Null
@@ -329,7 +342,7 @@ foreach ($entry in $ignoreEntries) {
 
 Write-Host ""
 Write-Host "AI Venture Lab Cursor connection files are ready."
-Write-Host "Next check command: node .cursor/venture-lab-cli.mjs next-task"
+Write-Host "Next check command: node ${buildExternalToolCliFilePath(".cursor")} next-task"
 Write-Host "Only after that command shows T-001, reopen Cursor and enable ai-venture-lab in Settings > MCP > Workspace MCP Servers."
 Write-Host "After Cursor MCP shows Enabled, paste AI_VENTURE_CURSOR_START.md into Composer."
 Write-Host "When Cursor calls venture_record_progress, Venture Lab task status will be updated automatically."
@@ -372,7 +385,7 @@ foreach ($file in $files) {
 }
 
 $gitignorePath = Join-Path $root ".gitignore"
-$ignoreEntries = @(".codex/venture-lab-sync.json", ".codex/venture-lab-progress.json")
+$ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(".codex"))}
 
 if (-not (Test-Path -LiteralPath $gitignorePath)) {
   New-Item -ItemType File -Path $gitignorePath -Force | Out-Null
@@ -389,7 +402,7 @@ foreach ($entry in $ignoreEntries) {
 
 Write-Host ""
 Write-Host "AI Venture Lab Codex connection files are ready."
-Write-Host "Check: node .codex/venture-lab-cli.mjs next-task"
+Write-Host "Check: node ${buildExternalToolCliFilePath(".codex")} next-task"
 Write-Host "After it shows T-001, open this project in Codex and paste AI_VENTURE_CODEX_START.md as the first message."
 Write-Host "When Codex runs record-progress, Venture Lab task status will be updated automatically."
 `;
@@ -437,7 +450,7 @@ foreach ($file in $files) {
 }
 
 $gitignorePath = Join-Path $root ".gitignore"
-$ignoreEntries = @("${folder}/venture-lab-sync.json", "${folder}/venture-lab-progress.json")
+$ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(folder))}
 
 if (-not (Test-Path -LiteralPath $gitignorePath)) {
   New-Item -ItemType File -Path $gitignorePath -Force | Out-Null
@@ -454,7 +467,7 @@ foreach ($entry in $ignoreEntries) {
 
 Write-Host ""
 Write-Host "AI Venture Lab ${toolLabel} connection files are ready."
-Write-Host "Check: node ${folder}/venture-lab-cli.mjs next-task"
+Write-Host "Check: node ${buildExternalToolCliFilePath(folder)} next-task"
 Write-Host "After it shows T-001, open this project in ${toolLabel} and paste ${startFileName} as the first message."
 Write-Host "When ${toolLabel} records progress, Venture Lab task status will be updated automatically."
 `;

@@ -44,10 +44,12 @@ export function buildCursorGuideMarkdown(args) {
 `).toString("base64")}`;
 const moduleUrl = transpileModuleUrl("src/lib/external-tool-setup-scripts.ts", [
   ['from "@/lib/download-file-name";', `from ${JSON.stringify(downloadFileNameUrl)};`],
+  ['from "@/lib/external-tool-file-paths";', `from ${JSON.stringify(externalToolFilePathsUrl)};`],
   ['from "@/lib/external-tool-setup-files";', `from ${JSON.stringify(setupFilesUrl)};`],
   ['from "@/lib/external-tool-handoff-markdown";', `from ${JSON.stringify(handoffMarkdownStubUrl)};`],
 ]);
 const {
+  buildExternalToolSetupIgnoreEntries,
   buildAntigravitySetupDownloadConfig,
   buildClaudeSetupDownloadConfig,
   buildCodexSetupDownloadConfig,
@@ -55,6 +57,7 @@ const {
   buildCursorSetupDownloadConfig,
   buildLiveExternalToolSetupDownloadDraft,
   buildLiveToolSetupPowerShell,
+  buildPowerShellStringArray,
   buildSetupFileRows,
   escapePowerShellSingleQuoted,
 } = await import(moduleUrl);
@@ -68,6 +71,11 @@ const productSurface = {
 };
 
 assert.equal(escapePowerShellSingleQuoted("a'b"), "a''b");
+assert.deepEqual(buildExternalToolSetupIgnoreEntries(".cursor"), [
+  ".cursor/venture-lab-sync.json",
+  ".cursor/venture-lab-progress.json",
+]);
+assert.equal(buildPowerShellStringArray(["one", "two"]), '@("one", "two")');
 assert.equal(
   buildSetupFileRows([{ base64: "abc", path: ".cursor/rules/owner's-rule.mdc" }]),
   "  @{ Path = '.cursor/rules/owner''s-rule.mdc'; Base64 = 'abc' }",
