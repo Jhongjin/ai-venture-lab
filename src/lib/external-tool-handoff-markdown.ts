@@ -54,6 +54,10 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 ${formatExternalToolSyncExpiryText(syncExpiresAt)}`;
 }
 
+export function buildExternalToolSyncFilePath(toolFolder: string) {
+  return `${toolFolder}/venture-lab-sync.json`;
+}
+
 export function buildExternalToolSyncSecuritySection(syncFilePath: string) {
   return `## 보안 주의
 
@@ -295,7 +299,7 @@ export function buildCursorGuideMarkdown({
 - \`.cursor/mcp.json\`: 프로젝트 전용 MCP 서버 설정
 - \`.cursor/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
 - \`.cursor/venture-lab-mcp-server.mjs\`: 기존 설정 호환용 MCP 실행 파일
-- \`.cursor/venture-lab-sync.json\`: Venture Lab 자동 반영 토큰과 서버 주소
+- \`${buildExternalToolSyncFilePath(".cursor")}\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`.cursor/venture-lab-progress.json\`: Cursor 작업 진행 기록
 
 ## 실행 순서
@@ -327,7 +331,7 @@ ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncEx
 
 \`venture_record_progress\` 도구는 같은 내용을 Venture Lab 서버에도 보냅니다. 서버는 연결 파일에 포함된 토큰으로 해당 아이디어의 제작 작업 상태만 저장하거나 갱신합니다.
 
-${buildExternalToolSyncSecuritySection(".cursor/venture-lab-sync.json")}
+${buildExternalToolSyncSecuritySection(buildExternalToolSyncFilePath(".cursor"))}
 `;
 }
 
@@ -446,7 +450,7 @@ export function buildCodexGuideMarkdown({
 - \`AGENTS.ai-venture-lab.md\`: Codex가 참고할 프로젝트 작업 규칙
 - \`README_VENTURE_LAB_CODEX.md\`: 이 연결 가이드
 - \`.codex/venture-lab-cli.mjs\`: 로컬 CLI 연결 파일
-- \`.codex/venture-lab-sync.json\`: Venture Lab 자동 반영 토큰과 서버 주소
+- \`${buildExternalToolSyncFilePath(".codex")}\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`.codex/venture-lab-progress.json\`: Codex 작업 진행 기록
 
 ## 실행 순서
@@ -465,7 +469,7 @@ ${buildExternalToolSetupCommandBlock(idea.name, "codex-setup")}
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
-${buildExternalToolSyncSecuritySection(".codex/venture-lab-sync.json")}
+${buildExternalToolSyncSecuritySection(buildExternalToolSyncFilePath(".codex"))}
 `;
 }
 
@@ -586,7 +590,7 @@ export function buildClaudeGuideMarkdown({
 - \`README_VENTURE_LAB_CLAUDE.md\`: 이 연결 가이드
 - \`.mcp.json\`: 프로젝트 전용 MCP 서버 설정
 - \`.claude/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
-- \`.claude/venture-lab-sync.json\`: Venture Lab 자동 반영 토큰과 서버 주소
+- \`${buildExternalToolSyncFilePath(".claude")}\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`.claude/venture-lab-progress.json\`: Claude Code 작업 진행 기록
 
 ## 실행 순서
@@ -605,7 +609,7 @@ ${buildExternalToolSetupCommandBlock(idea.name, "claude-code-setup")}
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
-${buildExternalToolSyncSecuritySection(".claude/venture-lab-sync.json")}
+${buildExternalToolSyncSecuritySection(buildExternalToolSyncFilePath(".claude"))}
 `;
 }
 
@@ -694,7 +698,7 @@ export function buildAntigravityGuideMarkdown({
 - \`README_VENTURE_LAB_ANTIGRAVITY.md\`: 이 연결 가이드
 - \`.antigravity/mcp_config.json\`: Antigravity MCP 설정 후보
 - \`.antigravity/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
-- \`.antigravity/venture-lab-sync.json\`: Venture Lab 자동 반영 토큰과 서버 주소
+- \`${buildExternalToolSyncFilePath(".antigravity")}\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`.antigravity/venture-lab-progress.json\`: Antigravity 작업 진행 기록
 
 ## 실행 순서
@@ -713,7 +717,7 @@ ${buildExternalToolSetupCommandBlock(idea.name, "antigravity-setup")}
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
-${buildExternalToolSyncSecuritySection(".antigravity/venture-lab-sync.json")}
+${buildExternalToolSyncSecuritySection(buildExternalToolSyncFilePath(".antigravity"))}
 `;
 }
 

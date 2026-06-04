@@ -51,6 +51,7 @@ const {
   buildExternalToolRecordProgressCommandBlock,
   buildExternalToolRecordProgressExampleCommand,
   buildExternalToolSetupCommandBlock,
+  buildExternalToolSyncFilePath,
   buildExternalToolSyncSecuritySection,
   buildExternalToolTaskBody,
   buildFallbackExternalToolTaskSections,
@@ -82,6 +83,8 @@ assert.match(buildExternalToolRecordProgressExampleCommand(".claude"), /\.claude
 assert.match(buildExternalToolRecordProgressExampleCommand(".antigravity"), /--task T-001/);
 assert.equal(buildExternalToolNextTaskCommand(".codex"), "node .codex/venture-lab-cli.mjs next-task");
 assert.equal(buildExternalToolNextTaskCommand(".antigravity"), "node .antigravity/venture-lab-cli.mjs next-task");
+assert.equal(buildExternalToolSyncFilePath(".cursor"), ".cursor/venture-lab-sync.json");
+assert.equal(buildExternalToolSyncFilePath(".claude"), ".claude/venture-lab-sync.json");
 assert.equal(buildExternalToolProgressFilePath(".cursor"), ".cursor/venture-lab-progress.json");
 assert.equal(
   buildExternalToolBackupProgressImportInstruction({ toolFolder: ".codex" }),
@@ -219,6 +222,7 @@ const drafts = buildExternalToolPackageDrafts({
 assert.match(drafts.cursorTaskPackageDraft, /T-001/);
 assert.match(drafts.cursorStartPromptDraft, /고객 문의 자동 정리 콘솔/);
 assert.match(drafts.cursorGuideDraft, /node \.cursor\/venture-lab-cli\.mjs next-task/);
+assert.match(drafts.cursorGuideDraft, /\.cursor\/venture-lab-sync\.json/);
 assert.match(drafts.cursorGuideDraft, /\.cursor\/venture-lab-progress\.json/);
 assert.match(drafts.cursorRuleDraft, /AI Venture Lab/);
 assert.match(drafts.cursorMcpConfigDraft, /ai-venture-lab/);
@@ -227,18 +231,21 @@ assert.match(drafts.codexAgentInstructionsDraft, /Codex/);
 assert.match(drafts.codexAgentInstructionsDraft, /node \.codex\/venture-lab-cli\.mjs record-progress --task T-001/);
 assert.match(drafts.codexStartPromptDraft, /node \.codex\/venture-lab-cli\.mjs next-task/);
 assert.match(drafts.codexGuideDraft, /node \.codex\/venture-lab-cli\.mjs record-progress/);
+assert.match(drafts.codexGuideDraft, /\.codex\/venture-lab-sync\.json/);
 assert.match(drafts.codexGuideDraft, /\.codex\/venture-lab-progress\.json/);
 assert.match(drafts.codexCliScriptDraft, /\.codex/);
 assert.match(drafts.claudeInstructionsDraft, /Claude Code/);
 assert.match(drafts.claudeInstructionsDraft, /node \.claude\/venture-lab-cli\.mjs record-progress --task T-001/);
 assert.match(drafts.claudeGuideDraft, /node \.claude\/venture-lab-cli\.mjs next-task/);
 assert.match(drafts.claudeGuideDraft, /node \.claude\/venture-lab-cli\.mjs record-progress/);
+assert.match(drafts.claudeGuideDraft, /\.claude\/venture-lab-sync\.json/);
 assert.match(drafts.claudeGuideDraft, /\.claude\/venture-lab-progress\.json/);
 assert.match(drafts.claudeMcpConfigDraft, /\.claude\/venture-lab-cli\.mjs/);
 assert.match(drafts.antigravityAcceptanceDraft, /AI Venture Lab Acceptance Criteria/);
 assert.match(drafts.antigravityAcceptanceDraft, /node \.antigravity\/venture-lab-cli\.mjs record-progress/);
 assert.match(drafts.antigravityStartPromptDraft, /node \.antigravity\/venture-lab-cli\.mjs next-task/);
 assert.match(drafts.antigravityGuideDraft, /node \.antigravity\/venture-lab-cli\.mjs record-progress/);
+assert.match(drafts.antigravityGuideDraft, /\.antigravity\/venture-lab-sync\.json/);
 assert.match(drafts.antigravityGuideDraft, /\.antigravity\/venture-lab-progress\.json/);
 assert.match(drafts.antigravityCliScriptDraft, /\.antigravity/);
 
