@@ -468,6 +468,7 @@ import {
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
+  buildValidationExperimentManualSaveControlState,
   buildValidationExperimentNameRequiredMessage,
   buildValidationExperimentSavedMessage,
   buildValidationExperimentSaveLoginRequiredMessage,
@@ -1506,6 +1507,10 @@ export function IdeaWorkbench({
     isBusy,
   });
   const riskCreateControlState = buildRiskCreateControlState({
+    hasUser: Boolean(user),
+    isBusy,
+  });
+  const validationExperimentManualSaveControlState = buildValidationExperimentManualSaveControlState({
     hasUser: Boolean(user),
     isBusy,
   });
@@ -6751,11 +6756,11 @@ export function IdeaWorkbench({
                         />
                         <button
                           type="submit"
-                          disabled={isBusy || !user}
+                          disabled={validationExperimentManualSaveControlState.disabled}
                           className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                         >
                           <Beaker size={18} />
-                          수정한 계획 저장
+                          {validationExperimentManualSaveControlState.label}
                         </button>
                       </div>
                     </form>

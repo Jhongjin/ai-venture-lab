@@ -48,6 +48,7 @@ const {
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
+  buildValidationExperimentManualSaveControlState,
   buildValidationExperimentNameRequiredMessage,
   buildValidationExperimentSavedMessage,
   buildValidationExperimentSaveLoginRequiredMessage,
@@ -218,6 +219,20 @@ assert.deepEqual(buildRiskCreateControlState({
   disabled: true,
   label: "리스크 추가",
 });
+assert.deepEqual(buildValidationExperimentManualSaveControlState({
+  hasUser: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  label: "수정한 계획 저장",
+});
+assert.deepEqual(buildValidationExperimentManualSaveControlState({
+  hasUser: false,
+  isBusy: true,
+}), {
+  disabled: true,
+  label: "수정한 계획 저장",
+});
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || !user || selectedExperiments.length > 0}"),
   "IdeaWorkbench should render recommended validation experiment save disabled state from shared control.",
@@ -265,6 +280,10 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("riskCreateControlState.disabled"),
   "IdeaWorkbench should render risk create disabled state from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationExperimentManualSaveControlState.disabled"),
+  "IdeaWorkbench should render manual validation experiment save disabled state from shared input control.",
 );
 const validationIdea = {
   buyer: "운영팀",

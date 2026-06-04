@@ -54,6 +54,11 @@ export type RiskCreateControlState = {
   label: string;
 };
 
+export type ValidationExperimentManualSaveControlState = {
+  disabled: boolean;
+  label: string;
+};
+
 export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
 };
@@ -149,6 +154,19 @@ export function buildValidationExperimentSaveLoginRequiredMessage() {
 
 export function buildValidationExperimentNameRequiredMessage() {
   return "검증 계획 이름은 필수입니다.";
+}
+
+export function buildValidationExperimentManualSaveControlState({
+  hasUser,
+  isBusy,
+}: {
+  hasUser: boolean;
+  isBusy: boolean;
+}): ValidationExperimentManualSaveControlState {
+  return {
+    disabled: isBusy || !hasUser,
+    label: "수정한 계획 저장",
+  };
 }
 
 export function buildRecommendedValidationExperimentSavedMessage() {
