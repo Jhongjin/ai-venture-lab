@@ -1,3 +1,4 @@
+import { buildExternalToolCliFilePath } from "@/lib/external-tool-file-paths";
 import type { Idea } from "@/lib/venture-data";
 
 export type CursorSyncConfig = {
@@ -85,7 +86,7 @@ export function buildClaudeMcpConfigJson() {
         "ai-venture-lab": {
           type: "stdio",
           command: "node",
-          args: [".claude/venture-lab-cli.mjs", "mcp"],
+          args: [buildExternalToolCliFilePath(".claude"), "mcp"],
         },
       },
     },
@@ -102,7 +103,7 @@ export function buildAntigravityMcpConfigJson() {
         "ai-venture-lab": {
           type: "stdio",
           command: "node",
-          args: [".antigravity/venture-lab-cli.mjs", "mcp"],
+          args: [buildExternalToolCliFilePath(".antigravity"), "mcp"],
         },
       },
     },
@@ -118,7 +119,7 @@ export function buildCursorMcpConfigJson() {
       mcpServers: {
         "ai-venture-lab": {
           command: "node",
-          args: [".cursor/venture-lab-cli.mjs", "mcp"],
+          args: [buildExternalToolCliFilePath(".cursor"), "mcp"],
         },
       },
     },

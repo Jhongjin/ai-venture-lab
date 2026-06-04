@@ -1,8 +1,25 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import ts from "typescript";
 
-const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-connector-config.ts")).href;
+function transpileToDataUrl(source, fileName) {
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+    fileName,
+  });
+
+  return `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
+}
+
+const externalToolFilePathsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-file-paths.ts")).href;
+const modulePath = path.join(process.cwd(), "src/lib/external-tool-connector-config.ts");
+const source = readFileSync(modulePath, "utf8").replace(
+  'from "@/lib/external-tool-file-paths";',
+  `from ${JSON.stringify(externalToolFilePathsUrl)};`,
+);
+const moduleUrl = transpileToDataUrl(source, modulePath);
 const {
   buildAntigravityMcpConfigJson,
   buildClaudeMcpConfigJson,

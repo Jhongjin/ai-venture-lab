@@ -18,8 +18,14 @@ const downloadFileNameUrl = pathToFileURL(path.join(process.cwd(), "src/lib/down
 const externalToolFilePathsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-file-paths.ts")).href;
 const implementationMetadataUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-metadata.ts")).href;
 const cliScriptsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-cli-scripts.ts")).href;
-const connectorConfigUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-connector-config.ts")).href;
 const cursorMcpServerUrl = pathToFileURL(path.join(process.cwd(), "src/lib/cursor-mcp-server-script.ts")).href;
+
+const connectorConfigPath = path.join(process.cwd(), "src/lib/external-tool-connector-config.ts");
+const connectorConfigSource = readFileSync(connectorConfigPath, "utf8").replace(
+  'from "@/lib/external-tool-file-paths";',
+  `from ${JSON.stringify(externalToolFilePathsUrl)};`,
+);
+const connectorConfigUrl = transpileToDataUrl(connectorConfigSource, connectorConfigPath);
 
 const externalProgressPath = path.join(process.cwd(), "src/lib/external-progress-import.ts");
 const externalProgressSource = readFileSync(externalProgressPath, "utf8").replace(
