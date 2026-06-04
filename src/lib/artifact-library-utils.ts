@@ -10,6 +10,11 @@ export type ArtifactDraftIdeaSummary = {
   organization_id: string | null;
 };
 
+export type ArtifactDraftSaveControlState = {
+  disabled: boolean;
+  label: string;
+};
+
 export function buildArtifactSavedMessage({ artifactLabel, version }: { artifactLabel: string; version: number }) {
   return `${artifactLabel} v${version}을 저장했습니다.`;
 }
@@ -24,6 +29,21 @@ export function buildArtifactSaveEmptyBodyMessage() {
 
 export function buildArtifactLibraryFocusMessage(itemLabel: string) {
   return `${itemLabel} 제작 자료를 보관함에서 확인하세요.`;
+}
+
+export function buildArtifactDraftSaveControlState({
+  hasUser,
+  isBusy,
+  label = "저장",
+}: {
+  hasUser: boolean;
+  isBusy: boolean;
+  label?: string;
+}): ArtifactDraftSaveControlState {
+  return {
+    disabled: isBusy || !hasUser,
+    label,
+  };
 }
 
 export function buildArtifactStatusChangedMessage({

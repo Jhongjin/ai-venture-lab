@@ -40,6 +40,7 @@ import {
 } from "@/lib/artifact-review-summary";
 import {
   buildArtifactDraftSavePlan,
+  buildArtifactDraftSaveControlState,
   buildArtifactLibraryViewState,
   buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
@@ -1071,6 +1072,10 @@ export function IdeaWorkbench({
     [artifactSourceFilter, artifactStatusFilter, artifactTypeFilter, selectedArtifactRecords],
   );
   const approvedSelectedArtifactCount = countApprovedArtifacts(selectedArtifactRecords);
+  const artifactDraftSaveControlState = buildArtifactDraftSaveControlState({
+    hasUser: Boolean(user),
+    isBusy,
+  });
   const step6ExecutionBridgeDisplayState = buildStep6ExecutionBridgeDisplayState({
     buildDeliveryMode,
     externalToolLabel: activeExternalBuildTool.label,
@@ -5254,11 +5259,11 @@ export function IdeaWorkbench({
                   <button
                     type="button"
                     onClick={() => savePreparedArtifactDraft(draft)}
-                    disabled={isBusy || !user}
+                    disabled={artifactDraftSaveControlState.disabled}
                     className="avl-btn avl-btn-primary h-9 rounded-[0.125rem] px-3 text-xs disabled:opacity-50"
                   >
                     <Save size={15} />
-                    저장
+                    {artifactDraftSaveControlState.label}
                   </button>
                 </div>
               </div>

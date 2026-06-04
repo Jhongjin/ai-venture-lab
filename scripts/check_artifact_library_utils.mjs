@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import ts from "typescript";
 
 const modulePath = path.join(process.cwd(), "src/lib/artifact-library-utils.ts");
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 const artifactLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/artifact-labels.ts")).href;
 const source = readFileSync(modulePath, "utf8").replace(
   'from "@/lib/artifact-labels";',
@@ -22,6 +23,7 @@ const { artifactStatusOptions, artifactTypeOptions } = await import(artifactLabe
 const {
   buildArtifactDraftInsertRow,
   buildArtifactDraftSavePlan,
+  buildArtifactDraftSaveControlState,
   buildArtifactLibraryViewState,
   buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
@@ -60,6 +62,25 @@ assert.equal(buildArtifactSavedMessage({ artifactLabel: "제품 기획서", vers
 assert.equal(buildArtifactSaveLoginRequiredMessage(), "제작 자료를 저장하려면 먼저 로그인하세요.");
 assert.equal(buildArtifactSaveEmptyBodyMessage(), "저장할 제작 자료 본문이 비어 있습니다.");
 assert.equal(buildArtifactLibraryFocusMessage("제품 기획서"), "제품 기획서 제작 자료를 보관함에서 확인하세요.");
+assert.deepEqual(buildArtifactDraftSaveControlState({
+  hasUser: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  label: "저장",
+});
+assert.deepEqual(buildArtifactDraftSaveControlState({
+  hasUser: false,
+  isBusy: true,
+  label: "요약 저장",
+}), {
+  disabled: true,
+  label: "요약 저장",
+});
+assert.ok(
+  ideaWorkbenchSource.includes("artifactDraftSaveControlState.disabled"),
+  "IdeaWorkbench should render development artifact draft save disabled state from shared helper.",
+);
 assert.equal(
   buildArtifactStatusChangedMessage({ artifactLabel: "제품 기획서", statusLabel: "승인" }),
   "제품 기획서 상태를 승인(으)로 변경했습니다.",
