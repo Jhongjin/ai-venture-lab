@@ -20,6 +20,7 @@ const {
   buildExternalToolSyncConfigDraft,
   buildExternalToolSyncConnectionsUrl,
   getExternalToolBuildSyncTokenUrl,
+  isExternalToolSyncConfigPayload,
 } = await import(moduleUrl);
 
 assert.match(buildCursorMcpConfigJson(), /\.cursor\/venture-lab-cli\.mjs/);
@@ -48,6 +49,21 @@ assert.deepEqual(
 assert.equal(getExternalToolBuildSyncTokenUrl(), "/api/build-sync/token");
 assert.equal(buildExternalToolSyncConnectionsUrl("idea 1/2"), "/api/build-sync/tokens?ideaId=idea%201%2F2");
 assert.equal(buildExternalToolSyncConnectionRevokeUrl("token 1/2"), "/api/build-sync/tokens/token%201%2F2");
+assert.equal(
+  isExternalToolSyncConfigPayload({
+    endpoint: "https://example.test/api/build-sync/progress",
+    expiresAt: "2026-06-02T00:00:00.000Z",
+    token: "token.payload",
+  }),
+  true,
+);
+assert.equal(
+  isExternalToolSyncConfigPayload({
+    endpoint: "https://example.test/api/build-sync/progress",
+    token: "token.payload",
+  }),
+  false,
+);
 
 const syncConfig = JSON.parse(
   buildExternalToolSyncConfigDraft({

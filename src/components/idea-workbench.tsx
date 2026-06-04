@@ -199,6 +199,7 @@ import {
   buildExternalToolSyncConfigDraft,
   buildExternalToolSyncConnectionsUrl,
   getExternalToolBuildSyncTokenUrl,
+  isExternalToolSyncConfigPayload,
 } from "@/lib/external-tool-connector-config";
 import { buildExternalToolPackageDrafts } from "@/lib/external-tool-package-drafts";
 import {
@@ -3691,7 +3692,7 @@ export function IdeaWorkbench({
       input: getExternalToolBuildSyncTokenUrl(),
     });
 
-    if (!response.ok || !payload.token || !payload.endpoint || !payload.expiresAt) {
+    if (!response.ok || !isExternalToolSyncConfigPayload(payload)) {
       throw new Error(payload.error || getExternalToolSyncSetupErrorMessage(toolLabel));
     }
 

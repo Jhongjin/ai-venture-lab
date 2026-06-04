@@ -60,6 +60,12 @@ export function buildExternalToolBuildSyncTokenRequestPayload({
   return { ideaId, tool };
 }
 
+export function isExternalToolSyncConfigPayload<T extends Partial<ExternalToolSyncConfigPayload> | null | undefined>(
+  payload: T,
+): payload is T & ExternalToolSyncConfigPayload {
+  return Boolean(payload?.endpoint && payload.expiresAt && payload.token);
+}
+
 export function getExternalToolBuildSyncTokenUrl() {
   return "/api/build-sync/token";
 }
