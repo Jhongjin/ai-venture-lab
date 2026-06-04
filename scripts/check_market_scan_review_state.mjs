@@ -16,6 +16,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   buildMarketScanActionControlState,
   buildMarketScanArtifactSaveDraft,
+  buildMarketScanDraftPanelState,
   buildMarketScanEvidenceDraft,
   buildMarketScanExperimentResultPatch,
   buildMarketScanRequestPayload,
@@ -183,6 +184,20 @@ assert.equal(webDraftState.status.label, "웹 조사 준비");
 assert.equal(webDraftState.actionLabel, "다시 정리");
 assert.match(webDraftState.sourceBoundaryText, /공개 출처 1개/);
 assert.deepEqual(
+  buildMarketScanDraftPanelState({
+    draft: webDraftState.visibleDraft,
+    isEstimate: webDraftState.isVisibleEstimate,
+  }),
+  {
+    alertClassName: "border-blue-100 bg-blue-50 text-slate-700",
+    alertMessage:
+      "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
+    confidenceLabel: "보통",
+    confidenceSuffix: "",
+    isVisible: true,
+  },
+);
+assert.deepEqual(
   buildMarketScanActionControlState({
     actionLabel: webDraftState.actionLabel,
     hasCurrentArtifact: webDraftState.hasArtifact,
@@ -318,6 +333,20 @@ assert.equal(estimateState.status.label, "추정 초안");
 assert.equal(estimateState.actionLabel, "웹 조사 다시 시도");
 assert.equal(estimateState.isVisibleEstimate, true);
 assert.match(estimateState.sourceBoundaryText, /웹 조사 다시 시도/);
+assert.deepEqual(
+  buildMarketScanDraftPanelState({
+    draft: estimateState.visibleDraft,
+    isEstimate: estimateState.isVisibleEstimate,
+  }),
+  {
+    alertClassName: "border-amber-200 bg-amber-50 text-amber-950",
+    alertMessage:
+      "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요.",
+    confidenceLabel: "보통",
+    confidenceSuffix: " · 추정 초안",
+    isVisible: true,
+  },
+);
 
 const estimateRows = buildMarketScanReviewRows({
   decisionLabels,
@@ -385,6 +414,20 @@ assert.equal(idleState.showSavedNotice, false);
 assert.equal(idleState.showOutdatedNotice, false);
 assert.equal(idleState.status.label, "자동 대기");
 assert.equal(idleState.actionLabel, "AI 자동 점검 실행");
+assert.deepEqual(
+  buildMarketScanDraftPanelState({
+    draft: idleState.visibleDraft,
+    isEstimate: idleState.isVisibleEstimate,
+  }),
+  {
+    alertClassName: "border-blue-100 bg-blue-50 text-slate-700",
+    alertMessage:
+      "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
+    confidenceLabel: "",
+    confidenceSuffix: "",
+    isVisible: false,
+  },
+);
 assert.deepEqual(
   buildMarketScanActionControlState({
     actionLabel: idleState.actionLabel,

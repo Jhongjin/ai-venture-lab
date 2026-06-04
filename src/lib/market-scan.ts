@@ -199,6 +199,14 @@ export type MarketScanActionControlState = {
   manualDisabled: boolean;
 };
 
+export type MarketScanDraftPanelState = {
+  alertClassName: string;
+  alertMessage: string;
+  confidenceLabel: string;
+  confidenceSuffix: string;
+  isVisible: boolean;
+};
+
 export type MarketScanReviewRows = {
   decisionRows: Array<{ helper: string; label: string; value: string }>;
   marketDetailRows: Array<{ detail: string; title: string }>;
@@ -225,6 +233,26 @@ export function buildMarketScanActionControlState({
     iconClassName: isLoading ? "animate-spin" : "",
     label: actionLabel,
     manualDisabled: isLoading || !hasSelectedIdea || !hasEditableState,
+  };
+}
+
+export function buildMarketScanDraftPanelState({
+  draft,
+  isEstimate,
+}: {
+  draft: MarketScanDraft | null;
+  isEstimate: boolean;
+}): MarketScanDraftPanelState {
+  return {
+    alertClassName: isEstimate
+      ? "border-amber-200 bg-amber-50 text-amber-950"
+      : "border-blue-100 bg-blue-50 text-slate-700",
+    alertMessage: isEstimate
+      ? "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요."
+      : "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
+    confidenceLabel: draft ? getMarketScanLevelLabel(draft.confidence) : "",
+    confidenceSuffix: isEstimate ? " · 추정 초안" : "",
+    isVisible: Boolean(draft),
   };
 }
 

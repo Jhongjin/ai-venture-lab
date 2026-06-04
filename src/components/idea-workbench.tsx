@@ -276,6 +276,7 @@ import {
   buildMarketScanActionControlState,
   buildMarketScanEvidenceDraft,
   buildMarketScanExperimentResultPatch,
+  buildMarketScanDraftPanelState,
   buildMarketScanRequestPayload,
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
@@ -1843,6 +1844,10 @@ export function IdeaWorkbench({
     hasSelectedIdea: Boolean(selectedIdea),
     hasVisibleDraft: Boolean(visibleMarketScanDraft),
     isLoading: isMarketScanLoading,
+  });
+  const marketScanDraftPanelState = buildMarketScanDraftPanelState({
+    draft: visibleMarketScanDraft,
+    isEstimate: isVisibleMarketScanEstimate,
   });
   const validationPackageStatusRows = buildValidationPackageStatusRows({
     hasIdeaBriefArtifact,
@@ -7175,18 +7180,12 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
-            {visibleMarketScanDraft ? (
+            {marketScanDraftPanelState.isVisible && visibleMarketScanDraft ? (
               <div className="mt-4 grid gap-4">
                 <div
-                  className={`border px-4 py-3 text-sm leading-6 ${
-                    isVisibleMarketScanEstimate
-                      ? "border-amber-200 bg-amber-50 text-amber-950"
-                      : "border-blue-100 bg-blue-50 text-slate-700"
-                  }`}
+                  className={`border px-4 py-3 text-sm leading-6 ${marketScanDraftPanelState.alertClassName}`}
                 >
-                  {isVisibleMarketScanEstimate
-                    ? "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요."
-                    : "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다."}
+                  {marketScanDraftPanelState.alertMessage}
                 </div>
                 <div data-smoke="market-scan-source-boundary" className="border border-slate-200 bg-white px-4 py-3">
                   <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">근거 기준</div>
@@ -7237,13 +7236,8 @@ export function IdeaWorkbench({
                       {decisionLabels[visibleMarketScanDraft.recommendation]}
                     </div>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      신뢰도{" "}
-                      {visibleMarketScanDraft.confidence === "high"
-                        ? "높음"
-                        : visibleMarketScanDraft.confidence === "medium"
-                          ? "보통"
-                          : "낮음"}
-                      {marketScanMode === "local_estimate" ? " · 추정 초안" : ""}
+                      신뢰도 {marketScanDraftPanelState.confidenceLabel}
+                      {marketScanDraftPanelState.confidenceSuffix}
                     </p>
                   </div>
                 </div>
