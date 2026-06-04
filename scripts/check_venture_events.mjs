@@ -32,7 +32,13 @@ async function listFiles(directory) {
 
 const helperBody = await readFile(path.join(root, helperRelativePath), "utf8");
 const helperModuleUrl = pathToFileURL(path.join(root, helperRelativePath)).href;
-const { buildWorkbenchVentureEventListeners, emitVentureEvent, subscribeToVentureEvents } = await import(helperModuleUrl);
+const {
+  buildWorkbenchVentureEventListeners,
+  emitVentureEvent,
+  getVentureEventRecordDetail,
+  getVentureEventRecordListDetail,
+  subscribeToVentureEvents,
+} = await import(helperModuleUrl);
 
 const dispatchedEvents = [];
 const addedListeners = [];
@@ -97,6 +103,29 @@ assert.deepEqual(
     "venture:telemetry-created",
   ],
 );
+assert.deepEqual(
+  getVentureEventRecordDetail({
+    detail: { id: "record-1", value: "saved" },
+  }),
+  { id: "record-1", value: "saved" },
+);
+assert.equal(
+  getVentureEventRecordDetail({
+    detail: { value: "missing-id" },
+  }),
+  null,
+);
+assert.deepEqual(
+  getVentureEventRecordListDetail({
+    detail: [
+      { id: "record-1" },
+      { id: "record-2" },
+    ],
+  }),
+  [{ id: "record-1" }, { id: "record-2" }],
+);
+assert.deepEqual(getVentureEventRecordListDetail({ detail: [] }), []);
+assert.deepEqual(getVentureEventRecordListDetail({ detail: { id: "record-1" } }), []);
 
 emitVentureEvent("venture:test", { id: "T-001" });
 assert.equal(dispatchedEvents.length, 1);
@@ -114,6 +143,14 @@ assert.ok(
 assert.ok(
   helperBody.includes("export function buildWorkbenchVentureEventListeners"),
   `${helperRelativePath} must export buildWorkbenchVentureEventListeners.`,
+);
+assert.ok(
+  helperBody.includes("export function getVentureEventRecordDetail"),
+  `${helperRelativePath} must export getVentureEventRecordDetail.`,
+);
+assert.ok(
+  helperBody.includes("export function getVentureEventRecordListDetail"),
+  `${helperRelativePath} must export getVentureEventRecordListDetail.`,
 );
 assert.ok(
   helperBody.includes("window.dispatchEvent("),

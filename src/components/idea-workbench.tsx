@@ -471,7 +471,13 @@ import {
   buildValidationPackageStatusRows,
   buildValidationSummaryDisabledNote,
 } from "@/lib/validation-package-save-jobs";
-import { buildWorkbenchVentureEventListeners, emitVentureEvent, subscribeToVentureEvents } from "@/lib/venture-events";
+import {
+  buildWorkbenchVentureEventListeners,
+  emitVentureEvent,
+  getVentureEventRecordDetail,
+  getVentureEventRecordListDetail,
+  subscribeToVentureEvents,
+} from "@/lib/venture-events";
 import {
   buildImplementationTaskAutoRefreshMessage,
   buildImplementationTaskManualRefreshMessage,
@@ -824,9 +830,9 @@ export function IdeaWorkbench({
       event: Event,
       setter: (updater: (current: T[]) => T[]) => void,
     ) {
-      const record = (event as CustomEvent<T>).detail;
+      const record = getVentureEventRecordDetail<T>(event);
 
-      if (!record?.id) {
+      if (!record) {
         return;
       }
 
@@ -837,9 +843,9 @@ export function IdeaWorkbench({
       event: Event,
       setter: (updater: (current: T[]) => T[]) => void,
     ) {
-      const records = (event as CustomEvent<T[]>).detail;
+      const records = getVentureEventRecordListDetail<T>(event);
 
-      if (!Array.isArray(records) || records.length === 0) {
+      if (records.length === 0) {
         return;
       }
 
@@ -847,9 +853,9 @@ export function IdeaWorkbench({
     }
 
     function handleIdeaCreated(event: Event) {
-      const createdIdea = (event as CustomEvent<Idea>).detail;
+      const createdIdea = getVentureEventRecordDetail<Idea>(event);
 
-      if (!createdIdea?.id) {
+      if (!createdIdea) {
         return;
       }
 

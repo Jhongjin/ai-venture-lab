@@ -22,6 +22,18 @@ export function emitVentureEvent<T>(eventName: string, detail: T) {
   window.dispatchEvent(new CustomEvent<T>(eventName, { detail }));
 }
 
+export function getVentureEventRecordDetail<T extends { id: string }>(event: Event): T | null {
+  const record = (event as CustomEvent<T>).detail;
+
+  return record?.id ? record : null;
+}
+
+export function getVentureEventRecordListDetail<T extends { id: string }>(event: Event): T[] {
+  const records = (event as CustomEvent<T[]>).detail;
+
+  return Array.isArray(records) && records.length > 0 ? records : [];
+}
+
 export function buildWorkbenchVentureEventListeners({
   artifactCreated,
   artifactUpdated,
