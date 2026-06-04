@@ -54,6 +54,14 @@ export type ValidationPackageProductReadinessNotice = {
   toneClassName: string;
   title: string;
 };
+export type ValidationPackageReadinessCheck = {
+  detail: string;
+  label: string;
+  passed: boolean;
+};
+export type ValidationPackageReadinessCheckDisplayRow = ValidationPackageReadinessCheck & {
+  iconClassName: string;
+};
 
 export function buildValidationPackageStatusRows({
   hasIdeaBriefArtifact,
@@ -286,6 +294,15 @@ export function buildValidationPackageProductReadinessNotice(
     title: "기획서로 넘어갈 준비가 되었습니다.",
     toneClassName: "border-emerald-200 bg-emerald-50 text-emerald-950",
   };
+}
+
+export function buildValidationPackageReadinessCheckDisplayRows(
+  checks: ReadonlyArray<ValidationPackageReadinessCheck>,
+): ValidationPackageReadinessCheckDisplayRow[] {
+  return checks.map((check) => ({
+    ...check,
+    iconClassName: check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400",
+  }));
 }
 
 export function buildValidationSummaryDisabledNote({

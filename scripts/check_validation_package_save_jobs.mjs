@@ -10,6 +10,7 @@ const {
   buildValidationPackagePanelClassName,
   buildValidationPackagePanelTabStates,
   buildValidationPackageProductReadinessNotice,
+  buildValidationPackageReadinessCheckDisplayRows,
   buildValidationPackageSaveJob,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
@@ -442,6 +443,23 @@ assert.deepEqual(buildValidationPackageProductReadinessNotice(null), {
   title: "기획서로 넘어갈 준비가 되었습니다.",
   toneClassName: "border-emerald-200 bg-emerald-50 text-emerald-950",
 });
+assert.deepEqual(buildValidationPackageReadinessCheckDisplayRows([
+  { detail: "저장됨", label: "아이디어 요약", passed: true },
+  { detail: "저장 필요", label: "조사 요약", passed: false },
+]), [
+  {
+    detail: "저장됨",
+    iconClassName: "mt-0.5 shrink-0 text-emerald-600",
+    label: "아이디어 요약",
+    passed: true,
+  },
+  {
+    detail: "저장 필요",
+    iconClassName: "mt-0.5 shrink-0 text-slate-400",
+    label: "조사 요약",
+    passed: false,
+  },
+]);
 assert.ok(
   !ideaWorkbenchSource.includes(
     'nextPrdBlocker ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"',
@@ -451,6 +469,18 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("다음 보완 항목: {nextPrdBlocker.label}"),
   "IdeaWorkbench should render product readiness blocker title from shared state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("prdReadinessChecks.map((check)"),
+  "IdeaWorkbench should render product readiness checks from shared display rows.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationPackageProductReadinessCheckRows.map((check)"),
+  "IdeaWorkbench should render product readiness checks from shared display rows.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("className={check.iconClassName}"),
+  "IdeaWorkbench should render product readiness check icon tone from shared row state.",
 );
 
 console.log("Validation package save jobs smoke passed.");

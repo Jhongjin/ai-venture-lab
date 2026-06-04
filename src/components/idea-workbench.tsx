@@ -484,6 +484,7 @@ import {
   buildValidationPackagePanelClassName,
   buildValidationPackagePanelTabStates,
   buildValidationPackageProductReadinessNotice,
+  buildValidationPackageReadinessCheckDisplayRows,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
   buildValidationPackageStatusDisplayRows,
@@ -1839,6 +1840,7 @@ export function IdeaWorkbench({
     targetUser: selectedIdea?.target_user ?? "",
   });
   const validationPackageProductReadinessNotice = buildValidationPackageProductReadinessNotice(nextPrdBlocker);
+  const validationPackageProductReadinessCheckRows = buildValidationPackageReadinessCheckDisplayRows(prdReadinessChecks);
   const {
     agentRunPackageDraft,
     agentRunPackageTasks,
@@ -7410,12 +7412,12 @@ export function IdeaWorkbench({
           </div>
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {prdReadinessChecks.map((check) => (
-                <div key={check.label} className="border border-slate-200 bg-slate-50 p-3">
+            {validationPackageProductReadinessCheckRows.map((check) => (
+              <div key={check.label} className="border border-slate-200 bg-slate-50 p-3">
                 <div className="flex items-start gap-2">
                   <CheckCircle2
                     size={18}
-                    className={check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400"}
+                    className={check.iconClassName}
                   />
                   <div>
                     <div className="text-sm font-semibold text-slate-950">{check.label}</div>
