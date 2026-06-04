@@ -20,6 +20,7 @@ const {
   buildImplementationTaskStatusPatch,
   buildImplementationTaskStatusChangedMessage,
   buildImplementationTaskStatusUpdatePermissionDeniedMessage,
+  buildImplementationTaskVisibilityState,
   buildImplementationTasksAlreadyExistMessage,
   buildImplementationTasksCreateLoginRequiredMessage,
   buildImplementationTasksCreatedMessage,
@@ -207,6 +208,69 @@ assert.deepEqual(buildImplementationTaskCreateControlStates({
     label: "태스크 추가",
   },
 });
+assert.deepEqual(buildImplementationTaskVisibilityState({
+  blockedSummaryCount: 0,
+  dependencyStatusCount: 2,
+  evidenceIssueCount: 0,
+  evidenceSummaryCount: 1,
+  experienceMode: "guided",
+  filteredTaskCount: 2,
+  selectedTaskCount: 3,
+}), {
+  hasAnyTasks: true,
+  showBlockedPanel: false,
+  showDependencyPanel: false,
+  showEvidenceIssuePreview: false,
+  showEvidencePanel: false,
+  showFilteredTaskBoard: false,
+  showFilteredTaskEmptyState: false,
+  showFullTaskOverview: false,
+  showGuidedTaskPreview: true,
+  showNoTasksMessage: false,
+  showNextActionPanel: true,
+});
+assert.deepEqual(buildImplementationTaskVisibilityState({
+  blockedSummaryCount: 1,
+  dependencyStatusCount: 2,
+  evidenceIssueCount: 1,
+  evidenceSummaryCount: 2,
+  experienceMode: "full",
+  filteredTaskCount: 0,
+  selectedTaskCount: 3,
+}), {
+  hasAnyTasks: true,
+  showBlockedPanel: true,
+  showDependencyPanel: true,
+  showEvidenceIssuePreview: true,
+  showEvidencePanel: true,
+  showFilteredTaskBoard: false,
+  showFilteredTaskEmptyState: true,
+  showFullTaskOverview: true,
+  showGuidedTaskPreview: false,
+  showNoTasksMessage: false,
+  showNextActionPanel: true,
+});
+assert.deepEqual(buildImplementationTaskVisibilityState({
+  blockedSummaryCount: 0,
+  dependencyStatusCount: 0,
+  evidenceIssueCount: 0,
+  evidenceSummaryCount: 0,
+  experienceMode: "full",
+  filteredTaskCount: 0,
+  selectedTaskCount: 0,
+}), {
+  hasAnyTasks: false,
+  showBlockedPanel: false,
+  showDependencyPanel: false,
+  showEvidenceIssuePreview: false,
+  showEvidencePanel: false,
+  showFilteredTaskBoard: false,
+  showFilteredTaskEmptyState: false,
+  showFullTaskOverview: false,
+  showGuidedTaskPreview: false,
+  showNoTasksMessage: true,
+  showNextActionPanel: false,
+});
 assert.deepEqual(buildImplementationTaskStartControlState({
   canManage: true,
   isBusy: false,
@@ -285,6 +349,18 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("buildImplementationTaskStatusControlState"),
   "IdeaWorkbench should resolve implementation task status button state from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("implementationTaskVisibilityState.showGuidedTaskPreview"),
+  "IdeaWorkbench should render guided implementation task preview from shared visibility state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("implementationTaskVisibilityState.showFilteredTaskBoard"),
+  "IdeaWorkbench should render implementation task board from shared visibility state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("implementationTaskVisibilityState.showNoTasksMessage"),
+  "IdeaWorkbench should render implementation task empty state from shared visibility state.",
 );
 assert.equal(buildManualImplementationTaskCreatedMessage(), "제작 할 일을 추가했습니다.");
 assert.equal(buildManualImplementationTaskLoginRequiredMessage(), "제작 할 일을 추가하려면 먼저 로그인하세요.");

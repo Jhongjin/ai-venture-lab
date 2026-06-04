@@ -411,6 +411,7 @@ import {
   buildImplementationTaskStatusControlState,
   buildImplementationTaskStatusTelemetryProperties,
   buildImplementationTaskStatusUpdatePermissionDeniedMessage,
+  buildImplementationTaskVisibilityState,
   buildImplementationTasksAlreadyExistMessage,
   buildImplementationTasksCreateLoginRequiredMessage,
   buildImplementationTasksCreatedMessage,
@@ -1264,6 +1265,15 @@ export function IdeaWorkbench({
       }),
     [implementationEvidenceFilter, implementationOwnerFilter, implementationStatusFilter, implementationTaskEvidence, selectedImplementationTasks],
   );
+  const implementationTaskVisibilityState = buildImplementationTaskVisibilityState({
+    blockedSummaryCount: blockedImplementationSummaries.length,
+    dependencyStatusCount: implementationDependencyStatuses.length,
+    evidenceIssueCount: implementationEvidenceIssues.length,
+    evidenceSummaryCount: implementationEvidenceSummaries.length,
+    experienceMode,
+    filteredTaskCount: filteredImplementationTasks.length,
+    selectedTaskCount: selectedImplementationTasks.length,
+  });
 
   const { artifactReviewSummaries, artifactVersionSummaries } = useMemo(
     () => buildArtifactReviewSummaryState(selectedArtifactRecords),
@@ -5578,7 +5588,7 @@ export function IdeaWorkbench({
               </form>
             ) : null}
 
-            {selectedImplementationTasks.length > 0 ? (
+            {implementationTaskVisibilityState.showNextActionPanel ? (
               <div className="avl-card mt-4 p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
@@ -5651,7 +5661,7 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
-            {experienceMode === "guided" && selectedImplementationTasks.length > 0 ? (
+            {implementationTaskVisibilityState.showGuidedTaskPreview ? (
               <div className="avl-card mt-4 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -5686,7 +5696,7 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
-            {experienceMode === "full" && implementationDependencyStatuses.length > 0 ? (
+            {implementationTaskVisibilityState.showDependencyPanel ? (
               <div className="avl-surface-muted mt-4 p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
@@ -5834,7 +5844,7 @@ export function IdeaWorkbench({
               </div>
             </div>
 
-            {experienceMode === "full" && blockedImplementationSummaries.length > 0 ? (
+            {implementationTaskVisibilityState.showBlockedPanel ? (
               <div className="avl-surface-muted mt-4 border-rose-200 bg-rose-50 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -5882,7 +5892,7 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
-            {experienceMode === "full" && implementationEvidenceSummaries.length > 0 ? (
+            {implementationTaskVisibilityState.showEvidencePanel ? (
               <div className="avl-surface-muted mt-4 border-amber-200 bg-amber-50 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -5897,7 +5907,7 @@ export function IdeaWorkbench({
                 </div>
 
                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
-                  {implementationEvidenceIssues.length > 0 ? (
+                  {implementationTaskVisibilityState.showEvidenceIssuePreview ? (
                     getImplementationEvidenceIssuePreview(implementationEvidenceIssues).map((summary) => (
                       <div key={summary.task.id} className="border border-amber-200 bg-amber-50 px-3 py-2">
                         <div className="flex flex-wrap items-center gap-2">
@@ -5921,7 +5931,7 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
-            {experienceMode === "full" && selectedImplementationTasks.length > 0 ? (
+            {implementationTaskVisibilityState.showFullTaskOverview ? (
               <div className="avl-card mt-4 p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -6010,13 +6020,13 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
-            {experienceMode === "full" && selectedImplementationTasks.length > 0 && filteredImplementationTasks.length === 0 ? (
+            {implementationTaskVisibilityState.showFilteredTaskEmptyState ? (
               <div className="avl-surface-muted mt-4 border-dashed p-4 text-sm leading-6 text-slate-600">
                 현재 필터 조건에 맞는 태스크가 없습니다. 필터를 초기화하거나 다른 조건으로 좁혀 보세요.
               </div>
             ) : null}
 
-            {experienceMode === "full" && filteredImplementationTasks.length > 0 ? (
+            {implementationTaskVisibilityState.showFilteredTaskBoard ? (
               <div className="mt-4 grid gap-3 xl:grid-cols-4">
                 {implementationTaskBoardColumns.map(({ status, taskSummaries }) => (
                   <section key={status} className="border border-slate-200 bg-white min-h-44 p-3">
@@ -6134,7 +6144,7 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
-            {selectedImplementationTasks.length === 0 ? (
+            {implementationTaskVisibilityState.showNoTasksMessage ? (
               <p className="mt-3 text-sm leading-6 text-slate-600">
                 먼저 기획서, 첫 제작 범위, 기술 명세, 제작 실행 계획을 저장한 뒤 기본 할 일을 만들면 구현 작업이 자동으로 분해됩니다.
               </p>

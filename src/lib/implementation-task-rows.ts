@@ -44,6 +44,22 @@ export type ImplementationTaskEvidenceEditControlState = {
   placeholder: string;
 };
 
+export type ImplementationTaskExperienceMode = "guided" | "full";
+
+export type ImplementationTaskVisibilityState = {
+  hasAnyTasks: boolean;
+  showBlockedPanel: boolean;
+  showDependencyPanel: boolean;
+  showEvidenceIssuePreview: boolean;
+  showEvidencePanel: boolean;
+  showFilteredTaskBoard: boolean;
+  showFilteredTaskEmptyState: boolean;
+  showFullTaskOverview: boolean;
+  showGuidedTaskPreview: boolean;
+  showNoTasksMessage: boolean;
+  showNextActionPanel: boolean;
+};
+
 export type ImplementationTaskTableError = {
   code?: string | null;
   message: string;
@@ -82,6 +98,41 @@ export function buildImplementationTaskCreateControlStates({
       disabled,
       label: "태스크 추가",
     },
+  };
+}
+
+export function buildImplementationTaskVisibilityState({
+  blockedSummaryCount,
+  dependencyStatusCount,
+  evidenceIssueCount,
+  evidenceSummaryCount,
+  experienceMode,
+  filteredTaskCount,
+  selectedTaskCount,
+}: {
+  blockedSummaryCount: number;
+  dependencyStatusCount: number;
+  evidenceIssueCount: number;
+  evidenceSummaryCount: number;
+  experienceMode: ImplementationTaskExperienceMode;
+  filteredTaskCount: number;
+  selectedTaskCount: number;
+}): ImplementationTaskVisibilityState {
+  const hasAnyTasks = selectedTaskCount > 0;
+  const isFullMode = experienceMode === "full";
+
+  return {
+    hasAnyTasks,
+    showBlockedPanel: isFullMode && blockedSummaryCount > 0,
+    showDependencyPanel: isFullMode && dependencyStatusCount > 0,
+    showEvidenceIssuePreview: isFullMode && evidenceSummaryCount > 0 && evidenceIssueCount > 0,
+    showEvidencePanel: isFullMode && evidenceSummaryCount > 0,
+    showFilteredTaskBoard: isFullMode && filteredTaskCount > 0,
+    showFilteredTaskEmptyState: isFullMode && hasAnyTasks && filteredTaskCount === 0,
+    showFullTaskOverview: isFullMode && hasAnyTasks,
+    showGuidedTaskPreview: experienceMode === "guided" && hasAnyTasks,
+    showNoTasksMessage: !hasAnyTasks,
+    showNextActionPanel: hasAnyTasks,
   };
 }
 
