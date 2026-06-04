@@ -483,6 +483,7 @@ import {
   buildValidationPackageHeaderState,
   buildValidationPackagePanelClassName,
   buildValidationPackagePanelTabStates,
+  buildValidationPackageProductReadinessNotice,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
   buildValidationPackageStatusDisplayRows,
@@ -1837,6 +1838,7 @@ export function IdeaWorkbench({
     runs: selectedRuns,
     targetUser: selectedIdea?.target_user ?? "",
   });
+  const validationPackageProductReadinessNotice = buildValidationPackageProductReadinessNotice(nextPrdBlocker);
   const {
     agentRunPackageDraft,
     agentRunPackageTasks,
@@ -7393,21 +7395,10 @@ export function IdeaWorkbench({
                 검증 근거가 제품 요구사항으로 넘어갈 만큼 정리되었는지 먼저 확인합니다.
               </p>
               <div
-                className={`border mt-4 px-4 py-3 text-sm leading-5 ${
-                  nextPrdBlocker ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"
-                }`}
+                className={`border mt-4 px-4 py-3 text-sm leading-5 ${validationPackageProductReadinessNotice.toneClassName}`}
               >
-                {nextPrdBlocker ? (
-                  <>
-                    <span className="font-semibold">다음 보완 항목: {nextPrdBlocker.label}</span>
-                    <span className="block">{nextPrdBlocker.detail}</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="font-semibold">기획서로 넘어갈 준비가 되었습니다.</span>
-                    <span className="block">검증 완료 요약을 기준으로 제품 범위를 좁혀 저장하세요.</span>
-                  </>
-                )}
+                <span className="font-semibold">{validationPackageProductReadinessNotice.title}</span>
+                <span className="block">{validationPackageProductReadinessNotice.detail}</span>
               </div>
             </div>
             <div className="border border-slate-200 bg-white px-5 py-4 text-right text-slate-950">

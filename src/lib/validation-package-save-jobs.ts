@@ -45,6 +45,15 @@ export type ValidationPackagePanelClassNameInput = {
   requiresValidationSummary?: boolean;
   visibleClassName?: string;
 };
+export type ValidationPackageProductReadinessBlocker = {
+  detail: string;
+  label: string;
+} | null;
+export type ValidationPackageProductReadinessNotice = {
+  detail: string;
+  toneClassName: string;
+  title: string;
+};
 
 export function buildValidationPackageStatusRows({
   hasIdeaBriefArtifact,
@@ -259,6 +268,24 @@ export function buildValidationPackagePanelClassName({
   const hasRequiredSummary = !requiresValidationSummary || hasValidationSummaryArtifact;
 
   return isArtifactsTask && isVisiblePanel && hasRequiredSummary ? visibleClassName : "hidden";
+}
+
+export function buildValidationPackageProductReadinessNotice(
+  nextPrdBlocker: ValidationPackageProductReadinessBlocker,
+): ValidationPackageProductReadinessNotice {
+  if (nextPrdBlocker) {
+    return {
+      detail: nextPrdBlocker.detail,
+      title: `다음 보완 항목: ${nextPrdBlocker.label}`,
+      toneClassName: "border-amber-200 bg-amber-50 text-amber-950",
+    };
+  }
+
+  return {
+    detail: "검증 완료 요약을 기준으로 제품 범위를 좁혀 저장하세요.",
+    title: "기획서로 넘어갈 준비가 되었습니다.",
+    toneClassName: "border-emerald-200 bg-emerald-50 text-emerald-950",
+  };
 }
 
 export function buildValidationSummaryDisabledNote({

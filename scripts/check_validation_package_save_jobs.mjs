@@ -9,6 +9,7 @@ const {
   buildValidationPackageHeaderState,
   buildValidationPackagePanelClassName,
   buildValidationPackagePanelTabStates,
+  buildValidationPackageProductReadinessNotice,
   buildValidationPackageSaveJob,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
@@ -427,6 +428,29 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes('artifactPanel === "library" ? "" : "hidden"'),
   "IdeaWorkbench should render validation package library panel visibility from shared class state.",
+);
+assert.deepEqual(buildValidationPackageProductReadinessNotice({
+  detail: "조사 요약 저장 필요",
+  label: "조사 요약",
+}), {
+  detail: "조사 요약 저장 필요",
+  title: "다음 보완 항목: 조사 요약",
+  toneClassName: "border-amber-200 bg-amber-50 text-amber-950",
+});
+assert.deepEqual(buildValidationPackageProductReadinessNotice(null), {
+  detail: "검증 완료 요약을 기준으로 제품 범위를 좁혀 저장하세요.",
+  title: "기획서로 넘어갈 준비가 되었습니다.",
+  toneClassName: "border-emerald-200 bg-emerald-50 text-emerald-950",
+});
+assert.ok(
+  !ideaWorkbenchSource.includes(
+    'nextPrdBlocker ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"',
+  ),
+  "IdeaWorkbench should render product readiness notice tone from shared state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("다음 보완 항목: {nextPrdBlocker.label}"),
+  "IdeaWorkbench should render product readiness blocker title from shared state.",
 );
 
 console.log("Validation package save jobs smoke passed.");
