@@ -22,6 +22,7 @@ const {
   buildWorkbenchIdeaRestoreFailedMessage,
   buildWorkbenchIdeaRestoredMessage,
   buildWorkbenchIdeaVisibilityState,
+  buildWorkbenchSelectedIdeaPanelState,
   buildWorkbenchIdeasBulkDiscardConfirmMessage,
   buildWorkbenchIdeasBulkDiscardFailedMessage,
   buildWorkbenchIdeasBulkPermanentDeleteConfirmMessage,
@@ -195,6 +196,10 @@ assert.ok(
   !ideaWorkbenchSource.includes("const canEdit = Boolean"),
   "IdeaWorkbench should use the shared edit-permission helper.",
 );
+assert.ok(
+  !ideaWorkbenchSource.includes("visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {"),
+  "IdeaWorkbench should use the shared selected-idea panel helper instead of a JSX IIFE.",
+);
 assert.deepEqual(
   buildWorkbenchEditPermissionState({
     memberships: [],
@@ -342,6 +347,59 @@ assert.deepEqual(
 assert.deepEqual(
   getWorkbenchComparisonIdeas([ideas[1], ideas[0], ideas[3]], "owned-new", 1).map((record) => record.id),
   ["shared-old"],
+);
+const getPanelDisplayState = (record) =>
+  buildWorkbenchIdeaDisplayState({
+    getRecordAccessState: getAccess,
+    getProductSurface: () => ({
+      description: "반복 업무를 자동으로 처리하는 흐름입니다.",
+      firstBuild: "자동화 설정과 결과 확인 흐름",
+      handoffHint: "작업 목록과 자동 실행 조건을 넘깁니다.",
+      harnessFocus: "자동화 입력/결과 확인을 검증합니다.",
+      iaHint: "설정, 실행, 결과 화면을 둡니다.",
+      key: "automation",
+      label: "업무 자동화",
+      promptFocus: "반복 업무 자동 실행을 우선 반영합니다.",
+      shortLabel: "자동화",
+      stackHint: "API와 스케줄러를 비교합니다.",
+    }),
+    getProgress: () => ({
+      label: "STEP 5 제작 패키지",
+      task: "development",
+    }),
+    idea: record,
+  });
+const selectedIdeaPanelState = buildWorkbenchSelectedIdeaPanelState({
+  getIdeaDisplayState: getPanelDisplayState,
+  selectedIdea: ideas[1],
+  visibleIdeas: [ideas[1], ideas[0], ideas[3]],
+});
+assert.equal(selectedIdeaPanelState.shouldShow, true);
+assert.equal(selectedIdeaPanelState.selectedIdeaDisplay.productSurface.label, "업무 자동화");
+assert.deepEqual(selectedIdeaPanelState.comparisonIdeas.map((record) => record.id), ["shared-old", "admin"]);
+assert.deepEqual(
+  buildWorkbenchSelectedIdeaPanelState({
+    getIdeaDisplayState: getPanelDisplayState,
+    selectedIdea: ideas[4],
+    visibleIdeas: [ideas[4]],
+  }),
+  {
+    comparisonIdeas: [],
+    selectedIdeaDisplay: null,
+    shouldShow: false,
+  },
+);
+assert.deepEqual(
+  buildWorkbenchSelectedIdeaPanelState({
+    getIdeaDisplayState: getPanelDisplayState,
+    selectedIdea: ideas[1],
+    visibleIdeas: [],
+  }),
+  {
+    comparisonIdeas: [],
+    selectedIdeaDisplay: null,
+    shouldShow: false,
+  },
 );
 assert.equal(
   isRemovedWorkbenchIdeaSelected({

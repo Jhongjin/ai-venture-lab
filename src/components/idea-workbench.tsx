@@ -71,6 +71,7 @@ import {
   buildWorkbenchIdeaRestoredMessage,
   buildWorkbenchIdeaDisplayState,
   buildWorkbenchIdeaVisibilityState,
+  buildWorkbenchSelectedIdeaPanelState,
   canManageWorkbenchRecord,
   appendRecord,
   appendRecords,
@@ -78,7 +79,6 @@ import {
   getInitialSelectedWorkbenchIdeaId,
   getInitialWorkbenchTask,
   getSelectedWorkbenchIdea,
-  getWorkbenchComparisonIdeas,
   getWorkbenchRecordAccessState,
   getWorkbenchIdeaDiscardSelectionState,
   getWorkbenchIdeaRemovalSelectionState,
@@ -2197,6 +2197,13 @@ export function IdeaWorkbench({
     selectedIdea,
     workbenchTasks,
   });
+  const selectedIdeaPanelState = buildWorkbenchSelectedIdeaPanelState({
+    getIdeaDisplayState,
+    selectedIdea,
+    visibleIdeas,
+  });
+  const selectedIdeaDisplay = selectedIdeaPanelState.selectedIdeaDisplay;
+  const comparisonIdeas = selectedIdeaPanelState.comparisonIdeas;
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -4150,18 +4157,14 @@ export function IdeaWorkbench({
                 </div>
               </div>
 
-              {visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {
-                const selectedIdeaDisplay = getIdeaDisplayState(selectedIdea);
-                const comparisonIdeas = getWorkbenchComparisonIdeas(visibleIdeas, selectedIdea.id);
-
-                return (
-                  <div className="mt-6 grid gap-4">
+              {selectedIdeaPanelState.shouldShow && selectedIdeaDisplay ? (
+                <div className="mt-6 grid gap-4">
                     <div className="grid gap-4">
                       <div className="border border-slate-200 bg-slate-50 p-5">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선택한 아이디어</div>
-                          <h3 className="mt-2 text-[20px] font-semibold text-slate-950">{selectedIdea.name}</h3>
+                            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">선택한 아이디어</div>
+                            <h3 className="mt-2 text-[20px] font-semibold text-slate-950">{selectedIdea.name}</h3>
                             <p className="mt-3 max-w-2xl text-sm leading-5 text-slate-600">
                               {selectedIdea.one_liner || selectedIdea.signal}
                             </p>
@@ -4292,9 +4295,8 @@ export function IdeaWorkbench({
                         )}
                       </div>
                     </div>
-                  </div>
-                );
-              })() : (
+                </div>
+              ) : (
                 <div className="mt-6 border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-7 text-slate-600">
                   진행 중인 아이디어가 없습니다. 새 아이디어를 도출하거나, 삭제한 아이디어에서 되살릴 항목을 확인하세요.
                 </div>

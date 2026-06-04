@@ -32,6 +32,17 @@ export type WorkbenchEmptySelectionState = {
 export type WorkbenchEditPermissionState = {
   canEdit: boolean;
 };
+export type WorkbenchSelectedIdeaPanelState =
+  | {
+      comparisonIdeas: Idea[];
+      selectedIdeaDisplay: WorkbenchIdeaDisplayState;
+      shouldShow: true;
+    }
+  | {
+      comparisonIdeas: [];
+      selectedIdeaDisplay: null;
+      shouldShow: false;
+    };
 
 const ideaStageOrder: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const ideaStageRank = new Map(ideaStageOrder.map((stage, index) => [stage, index]));
@@ -332,6 +343,30 @@ export function getSelectedWorkbenchIdea(nextIdeas: Idea[], selectedIdeaId: stri
 
 export function getWorkbenchComparisonIdeas(visibleIdeas: Idea[], selectedIdeaId: string, limit = 4) {
   return visibleIdeas.filter((idea) => idea.id !== selectedIdeaId).slice(0, limit);
+}
+
+export function buildWorkbenchSelectedIdeaPanelState({
+  getIdeaDisplayState,
+  selectedIdea,
+  visibleIdeas,
+}: {
+  getIdeaDisplayState: (idea: Idea) => WorkbenchIdeaDisplayState;
+  selectedIdea: Idea | null | undefined;
+  visibleIdeas: Idea[];
+}): WorkbenchSelectedIdeaPanelState {
+  if (!selectedIdea || visibleIdeas.length === 0 || isDiscardedIdea(selectedIdea)) {
+    return {
+      comparisonIdeas: [],
+      selectedIdeaDisplay: null,
+      shouldShow: false,
+    };
+  }
+
+  return {
+    comparisonIdeas: getWorkbenchComparisonIdeas(visibleIdeas, selectedIdea.id),
+    selectedIdeaDisplay: getIdeaDisplayState(selectedIdea),
+    shouldShow: true,
+  };
 }
 
 export function isRemovedWorkbenchIdeaSelected({
