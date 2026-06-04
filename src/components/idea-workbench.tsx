@@ -209,12 +209,12 @@ import {
   type LiveExternalToolSetupKey,
 } from "@/lib/external-tool-setup-scripts";
 import {
+  buildExternalToolConnectionCreatedState,
   cursorSyncRegistrySetupNotice,
   filterCursorSyncConnectionsByTool,
   getExternalToolConnectionStatusFallbackMessage,
   getExternalToolSyncPreparingMessage,
   getExternalToolSyncSetupErrorMessage,
-  resolveExternalToolConnectionCreatedMessage,
   upsertCursorSyncConnection,
   type CursorSyncConnection,
   type CursorSyncRegistryStatus,
@@ -3720,19 +3720,15 @@ export function IdeaWorkbench({
       throw new Error(payload.error || getExternalToolSyncSetupErrorMessage(toolLabel));
     }
 
-    setCursorSyncRegistryStatus(payload.registryStatus ?? null);
+    const connectionCreatedState = buildExternalToolConnectionCreatedState({ payload, toolLabel });
+    const createdConnection = connectionCreatedState.connection;
+    setCursorSyncRegistryStatus(connectionCreatedState.registryStatus);
 
-    if (payload.connection) {
-      setCursorSyncConnections((current) => upsertCursorSyncConnection(current, payload.connection as CursorSyncConnection));
+    if (createdConnection) {
+      setCursorSyncConnections((current) => upsertCursorSyncConnection(current, createdConnection));
     }
 
-    setCursorSyncConnectionMessage(
-      resolveExternalToolConnectionCreatedMessage({
-        message: payload.message,
-        registryStatus: payload.registryStatus,
-        toolLabel,
-      }),
-    );
+    setCursorSyncConnectionMessage(connectionCreatedState.message);
 
     return payload as ExternalToolBuildSyncTokenPayload;
   }

@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-sync-connection.ts")).href;
 const {
+  buildExternalToolConnectionCreatedState,
   compareCursorSyncConnectionsByCreatedAt,
   filterCursorSyncConnectionsByTool,
   getCursorSyncConnectionCreatedAtTime,
@@ -76,6 +77,32 @@ assert.equal(
     toolLabel: "Cursor",
   }),
   getExternalToolConnectionFallbackMessage("Cursor"),
+);
+const createdConnectionState = buildExternalToolConnectionCreatedState({
+  payload: {
+    connection: connections[1],
+    registryStatus: "ready",
+  },
+  toolLabel: "Cursor",
+});
+assert.deepEqual(createdConnectionState, {
+  connection: connections[1],
+  message: getExternalToolConnectionCreatedMessage("Cursor"),
+  registryStatus: "ready",
+});
+assert.deepEqual(
+  buildExternalToolConnectionCreatedState({
+    payload: {
+      message: "서버가 만든 연결 메시지",
+      registryStatus: "missing",
+    },
+    toolLabel: "Codex",
+  }),
+  {
+    connection: null,
+    message: "서버가 만든 연결 메시지",
+    registryStatus: "missing",
+  },
 );
 
 const upsertedNew = upsertCursorSyncConnection(

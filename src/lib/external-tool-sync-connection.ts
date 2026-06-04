@@ -14,6 +14,18 @@ export type CursorSyncConnection = {
   revokedAt: string | null;
 };
 
+export type ExternalToolConnectionCreatedPayload = {
+  connection?: CursorSyncConnection | null;
+  message?: string | null;
+  registryStatus?: CursorSyncRegistryStatus | null;
+};
+
+export type ExternalToolConnectionCreatedState = {
+  connection: CursorSyncConnection | null;
+  message: string;
+  registryStatus: CursorSyncRegistryStatus | null;
+};
+
 const cursorSyncRegistryFallbackMessage = "개별 연결 끊기는 연결 기록 설정 후 열립니다.";
 
 export const cursorSyncRegistrySetupNotice =
@@ -55,6 +67,26 @@ export function resolveExternalToolConnectionCreatedMessage({
   return registryStatus === "ready"
     ? getExternalToolConnectionCreatedMessage(toolLabel)
     : getExternalToolConnectionFallbackMessage(toolLabel);
+}
+
+export function buildExternalToolConnectionCreatedState({
+  payload,
+  toolLabel,
+}: {
+  payload: ExternalToolConnectionCreatedPayload;
+  toolLabel: string;
+}): ExternalToolConnectionCreatedState {
+  const registryStatus = payload.registryStatus ?? null;
+
+  return {
+    connection: payload.connection ?? null,
+    message: resolveExternalToolConnectionCreatedMessage({
+      message: payload.message,
+      registryStatus,
+      toolLabel,
+    }),
+    registryStatus,
+  };
 }
 
 export function getCursorSyncConnectionCreatedAtTime(connection: Pick<CursorSyncConnection, "createdAt">) {
