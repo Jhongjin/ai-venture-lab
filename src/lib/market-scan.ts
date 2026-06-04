@@ -204,7 +204,10 @@ export type MarketScanDraftPanelState = {
   alertMessage: string;
   confidenceLabel: string;
   confidenceSuffix: string;
+  highStrengthPublicSourceCount: number;
   isVisible: boolean;
+  publicSourceCount: number;
+  publicSourceSummaryText: string;
   showCompetitorMap: boolean;
   showEntryBarrierChecks: boolean;
   showMarketSignals: boolean;
@@ -249,6 +252,7 @@ export function buildMarketScanDraftPanelState({
   isEstimate: boolean;
 }): MarketScanDraftPanelState {
   const publicSources = draft ? getPublicMarketScanSources(draft.sources) : [];
+  const highStrengthPublicSourceCount = countHighStrengthMarketScanSources(publicSources);
 
   return {
     alertClassName: isEstimate
@@ -259,7 +263,10 @@ export function buildMarketScanDraftPanelState({
       : "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
     confidenceLabel: draft ? getMarketScanLevelLabel(draft.confidence) : "",
     confidenceSuffix: isEstimate ? " · 추정 초안" : "",
+    highStrengthPublicSourceCount,
     isVisible: Boolean(draft),
+    publicSourceCount: publicSources.length,
+    publicSourceSummaryText: `근거 강도 높음 ${highStrengthPublicSourceCount}개 / 전체 ${publicSources.length}개`,
     showCompetitorMap: Boolean(draft?.competitor_map.length),
     showEntryBarrierChecks: Boolean(draft?.entry_barrier_checks.length),
     showMarketSignals: Boolean(draft?.market_signals.length),

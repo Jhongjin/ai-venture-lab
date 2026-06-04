@@ -281,7 +281,6 @@ import {
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
   buildVisibleMarketScanReviewRows,
-  countHighStrengthMarketScanSources,
   getMarketScanUrl,
   getMarketScanLevelLabel,
   getMarketScanSourceStrengthTone,
@@ -1962,9 +1961,8 @@ export function IdeaWorkbench({
     decisionLabels,
     draft: visibleMarketScanDraft,
     isEstimate: isVisibleMarketScanEstimate,
-    publicSourceCount: visibleMarketScanPublicSources.length,
+    publicSourceCount: marketScanDraftPanelState.publicSourceCount,
   });
-  const highStrengthMarketScanSourceCount = countHighStrengthMarketScanSources(visibleMarketScanPublicSources);
   const {
     buildReadinessChecks,
     buildReadinessScore,
@@ -7300,7 +7298,7 @@ export function IdeaWorkbench({
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">공개 출처</div>
                     <div className="text-xs text-slate-500">
-                      근거 강도 높음 {highStrengthMarketScanSourceCount}개 / 전체 {visibleMarketScanPublicSources.length}개
+                      {marketScanDraftPanelState.publicSourceSummaryText}
                     </div>
                   </div>
                   {marketScanDraftPanelState.showPublicSources ? (
