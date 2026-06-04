@@ -62,6 +62,10 @@ export type ValidationPackageReadinessCheck = {
 export type ValidationPackageReadinessCheckDisplayRow = ValidationPackageReadinessCheck & {
   iconClassName: string;
 };
+export type ValidationPackageReadinessScoreSummary = {
+  progressLabel: string;
+  scoreLabel: string;
+};
 
 export function buildValidationPackageStatusRows({
   hasIdeaBriefArtifact,
@@ -303,6 +307,21 @@ export function buildValidationPackageReadinessCheckDisplayRows(
     ...check,
     iconClassName: check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400",
   }));
+}
+
+export function buildValidationPackageReadinessScoreSummary({
+  passedCount,
+  score,
+  totalCount,
+}: {
+  passedCount: number;
+  score: number;
+  totalCount: number;
+}): ValidationPackageReadinessScoreSummary {
+  return {
+    progressLabel: `통과 ${passedCount}/${totalCount}`,
+    scoreLabel: `${score}%`,
+  };
 }
 
 export function buildValidationSummaryDisabledNote({

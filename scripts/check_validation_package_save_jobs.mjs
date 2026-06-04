@@ -11,6 +11,7 @@ const {
   buildValidationPackagePanelTabStates,
   buildValidationPackageProductReadinessNotice,
   buildValidationPackageReadinessCheckDisplayRows,
+  buildValidationPackageReadinessScoreSummary,
   buildValidationPackageSaveJob,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
@@ -460,6 +461,14 @@ assert.deepEqual(buildValidationPackageReadinessCheckDisplayRows([
     passed: false,
   },
 ]);
+assert.deepEqual(buildValidationPackageReadinessScoreSummary({
+  passedCount: 7,
+  score: 78,
+  totalCount: 9,
+}), {
+  progressLabel: "통과 7/9",
+  scoreLabel: "78%",
+});
 assert.ok(
   !ideaWorkbenchSource.includes(
     'nextPrdBlocker ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"',
@@ -481,6 +490,18 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("className={check.iconClassName}"),
   "IdeaWorkbench should render product readiness check icon tone from shared row state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("통과 {passedPrdReadinessCount}/{prdReadinessChecks.length}"),
+  "IdeaWorkbench should render product readiness progress text from shared score summary.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("{prdReadinessScore}%"),
+  "IdeaWorkbench should render product readiness score text from shared score summary.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationPackageProductReadinessScoreSummary.progressLabel"),
+  "IdeaWorkbench should render product readiness progress text from shared score summary.",
 );
 
 console.log("Validation package save jobs smoke passed.");

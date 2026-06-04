@@ -485,6 +485,7 @@ import {
   buildValidationPackagePanelTabStates,
   buildValidationPackageProductReadinessNotice,
   buildValidationPackageReadinessCheckDisplayRows,
+  buildValidationPackageReadinessScoreSummary,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
   buildValidationPackageStatusDisplayRows,
@@ -1841,6 +1842,11 @@ export function IdeaWorkbench({
   });
   const validationPackageProductReadinessNotice = buildValidationPackageProductReadinessNotice(nextPrdBlocker);
   const validationPackageProductReadinessCheckRows = buildValidationPackageReadinessCheckDisplayRows(prdReadinessChecks);
+  const validationPackageProductReadinessScoreSummary = buildValidationPackageReadinessScoreSummary({
+    passedCount: passedPrdReadinessCount,
+    score: prdReadinessScore,
+    totalCount: prdReadinessChecks.length,
+  });
   const {
     agentRunPackageDraft,
     agentRunPackageTasks,
@@ -7405,9 +7411,9 @@ export function IdeaWorkbench({
             </div>
             <div className="border border-slate-200 bg-white px-5 py-4 text-right text-slate-950">
               <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">
-                통과 {passedPrdReadinessCount}/{prdReadinessChecks.length}
+                {validationPackageProductReadinessScoreSummary.progressLabel}
               </div>
-              <div className="mt-1 text-3xl font-semibold">{prdReadinessScore}%</div>
+              <div className="mt-1 text-3xl font-semibold">{validationPackageProductReadinessScoreSummary.scoreLabel}</div>
             </div>
           </div>
 
