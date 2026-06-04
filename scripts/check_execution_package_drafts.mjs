@@ -33,6 +33,7 @@ const productSurfaceImplementationUrl = pathToFileURL(
   path.join(process.cwd(), "src/lib/product-surface-implementation.ts"),
 ).href;
 const workbenchLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-labels.ts")).href;
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 const externalGuideUrl = transpileModuleUrl("src/lib/external-production-package-guide.ts", [
   ['from "@/lib/build-delivery";', `from ${JSON.stringify(buildDeliveryUrl)};`],
@@ -68,7 +69,11 @@ const moduleUrl = transpileModuleUrl("src/lib/execution-package-drafts.ts", [
   ['from "@/lib/prd-markdown";', `from ${JSON.stringify(prdHandoffUrl)};`],
 ]);
 
-const { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftState } = await import(moduleUrl);
+const {
+  buildExecutionPackageArtifactSaveControlStates,
+  buildExecutionPackageArtifactSaveDrafts,
+  buildExecutionPackageDraftState,
+} = await import(moduleUrl);
 const {
   compareApprovedAgentRunPackageArtifactsByCreatedAt,
   getAgentRunPackageArtifactCreatedAtTime,
@@ -489,6 +494,44 @@ assert.equal(saveDrafts.launchChecklistSaveDraft.artifactType, "launch_checklist
 assert.equal(saveDrafts.launchChecklistSaveDraft.title, "AI Venture Lab 출시 체크리스트");
 assert.equal(saveDrafts.launchChecklistSaveDraft.source, "workbench");
 assert.match(saveDrafts.launchChecklistSaveDraft.body, /# 출시 체크리스트: AI Venture Lab/);
+assert.deepEqual(buildExecutionPackageArtifactSaveControlStates({
+  agentRunPackageSaveDraft: saveDrafts.agentRunPackageSaveDraft,
+  developmentKickoffSaveDraft: saveDrafts.developmentKickoffSaveDraft,
+  hasUser: true,
+  isBusy: false,
+}), {
+  agentRunPackage: {
+    disabled: false,
+    label: "제작 자료 저장",
+  },
+  developmentKickoff: {
+    disabled: false,
+    label: "요약 저장",
+  },
+});
+assert.deepEqual(buildExecutionPackageArtifactSaveControlStates({
+  agentRunPackageSaveDraft: null,
+  developmentKickoffSaveDraft: null,
+  hasUser: false,
+  isBusy: true,
+}), {
+  agentRunPackage: {
+    disabled: true,
+    label: "제작 자료 저장",
+  },
+  developmentKickoff: {
+    disabled: true,
+    label: "요약 저장",
+  },
+});
+assert.ok(
+  ideaWorkbenchSource.includes("executionPackageArtifactSaveControlStates.developmentKickoff.disabled"),
+  "IdeaWorkbench should render development kickoff save disabled state from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("executionPackageArtifactSaveControlStates.agentRunPackage.disabled"),
+  "IdeaWorkbench should render agent run package save disabled state from shared helper.",
+);
 
 assert.deepEqual(
   buildExecutionPackageArtifactSaveDrafts({

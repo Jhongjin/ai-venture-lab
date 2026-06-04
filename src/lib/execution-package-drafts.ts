@@ -39,6 +39,16 @@ export type ExecutionPackageArtifactSaveDraft = {
   title: string;
 };
 
+export type ExecutionPackageArtifactSaveControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type ExecutionPackageArtifactSaveControlStates = {
+  agentRunPackage: ExecutionPackageArtifactSaveControlState;
+  developmentKickoff: ExecutionPackageArtifactSaveControlState;
+};
+
 export function buildExecutionPackageArtifactSaveDrafts({
   agentRunPackageDraft,
   developmentKickoffDraft,
@@ -89,6 +99,29 @@ export function buildExecutionPackageArtifactSaveDrafts({
             title: `${ideaName} 기획서 전환 전달 내용`,
           }
         : null,
+  };
+}
+
+export function buildExecutionPackageArtifactSaveControlStates({
+  agentRunPackageSaveDraft,
+  developmentKickoffSaveDraft,
+  hasUser,
+  isBusy,
+}: {
+  agentRunPackageSaveDraft: ExecutionPackageArtifactSaveDraft | null;
+  developmentKickoffSaveDraft: ExecutionPackageArtifactSaveDraft | null;
+  hasUser: boolean;
+  isBusy: boolean;
+}): ExecutionPackageArtifactSaveControlStates {
+  return {
+    agentRunPackage: {
+      disabled: isBusy || !hasUser || !agentRunPackageSaveDraft,
+      label: "제작 자료 저장",
+    },
+    developmentKickoff: {
+      disabled: isBusy || !hasUser || !developmentKickoffSaveDraft,
+      label: "요약 저장",
+    },
   };
 }
 

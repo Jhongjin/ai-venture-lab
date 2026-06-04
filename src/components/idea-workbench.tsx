@@ -59,7 +59,11 @@ import {
   buildBackendPlanningArtifactSaveDrafts,
   buildBackendPlanningDraftState,
 } from "@/lib/backend-planning-drafts";
-import { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftState } from "@/lib/execution-package-drafts";
+import {
+  buildExecutionPackageArtifactSaveControlStates,
+  buildExecutionPackageArtifactSaveDrafts,
+  buildExecutionPackageDraftState,
+} from "@/lib/execution-package-drafts";
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
@@ -1956,6 +1960,12 @@ export function IdeaWorkbench({
     ideaName: selectedIdeaContext.ideaName,
     launchChecklistDraft,
     prdHandoffDraft,
+  });
+  const executionPackageArtifactSaveControlStates = buildExecutionPackageArtifactSaveControlStates({
+    agentRunPackageSaveDraft,
+    developmentKickoffSaveDraft,
+    hasUser: Boolean(user),
+    isBusy,
   });
   const validationPackageProductHandoffActionControls = buildValidationPackageProductHandoffActionControls({
     copyDraftBody: prdHandoffDraft,
@@ -5346,11 +5356,11 @@ export function IdeaWorkbench({
                   <button
                     type="button"
                     onClick={() => savePreparedArtifactDraft(developmentKickoffSaveDraft)}
-                    disabled={isBusy || !user || !developmentKickoffSaveDraft}
+                    disabled={executionPackageArtifactSaveControlStates.developmentKickoff.disabled}
                     className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                   >
                     <Save size={16} />
-                    요약 저장
+                    {executionPackageArtifactSaveControlStates.developmentKickoff.label}
                   </button>
                 </div>
               </div>
@@ -5674,11 +5684,11 @@ export function IdeaWorkbench({
                   <button
                     type="button"
                     onClick={() => savePreparedArtifactDraft(agentRunPackageSaveDraft)}
-                    disabled={isBusy || !user || !agentRunPackageSaveDraft}
+                    disabled={executionPackageArtifactSaveControlStates.agentRunPackage.disabled}
                     className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                   >
                     <Save size={16} />
-                    제작 자료 저장
+                    {executionPackageArtifactSaveControlStates.agentRunPackage.label}
                   </button>
                 </div>
               </div>
