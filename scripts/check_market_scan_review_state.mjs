@@ -225,6 +225,7 @@ assert.deepEqual(buildMarketScanPublicSourceDisplayItems(draft.sources), [
 ]);
 assert.deepEqual(
   buildMarketScanDraftPanelState({
+    decisionLabels,
     draft: webDraftState.visibleDraft,
     isEstimate: webDraftState.isVisibleEstimate,
   }),
@@ -232,6 +233,7 @@ assert.deepEqual(
     alertClassName: "border-blue-100 bg-blue-50 text-slate-700",
     alertMessage:
       "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
+    alternativesText: draft.alternatives,
     competitorItems: [
       {
         competitor: draft.competitor_map[0],
@@ -267,6 +269,7 @@ assert.deepEqual(
       },
     ],
     publicSourceSummaryText: "근거 강도 높음 1개 / 전체 1개",
+    recommendationLabel: "추가 조사",
     researchQueryItems: [
       {
         key: "automation os competitors-0",
@@ -418,6 +421,7 @@ assert.equal(estimateState.isVisibleEstimate, true);
 assert.match(estimateState.sourceBoundaryText, /웹 조사 다시 시도/);
 assert.deepEqual(
   buildMarketScanDraftPanelState({
+    decisionLabels,
     draft: estimateState.visibleDraft,
     isEstimate: estimateState.isVisibleEstimate,
   }),
@@ -425,6 +429,7 @@ assert.deepEqual(
     alertClassName: "border-amber-200 bg-amber-50 text-amber-950",
     alertMessage:
       "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요.",
+    alternativesText: draft.alternatives,
     competitorItems: [
       {
         competitor: draft.competitor_map[0],
@@ -460,6 +465,7 @@ assert.deepEqual(
       },
     ],
     publicSourceSummaryText: "근거 강도 높음 1개 / 전체 1개",
+    recommendationLabel: "추가 조사",
     researchQueryItems: [
       {
         key: "automation os competitors-0",
@@ -542,6 +548,7 @@ assert.equal(idleState.status.label, "자동 대기");
 assert.equal(idleState.actionLabel, "AI 자동 점검 실행");
 assert.deepEqual(
   buildMarketScanDraftPanelState({
+    decisionLabels,
     draft: idleState.visibleDraft,
     isEstimate: idleState.isVisibleEstimate,
   }),
@@ -549,6 +556,7 @@ assert.deepEqual(
     alertClassName: "border-blue-100 bg-blue-50 text-slate-700",
     alertMessage:
       "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
+    alternativesText: "",
     competitorItems: [],
     confidenceLabel: "",
     confidenceSuffix: "",
@@ -559,6 +567,7 @@ assert.deepEqual(
     publicSourceCount: 0,
     publicSourceItems: [],
     publicSourceSummaryText: "근거 강도 높음 0개 / 전체 0개",
+    recommendationLabel: "",
     researchQueryItems: [],
     showCompetitorMap: false,
     showEntryBarrierChecks: false,

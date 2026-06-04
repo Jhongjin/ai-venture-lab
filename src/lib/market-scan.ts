@@ -202,6 +202,7 @@ export type MarketScanActionControlState = {
 export type MarketScanDraftPanelState = {
   alertClassName: string;
   alertMessage: string;
+  alternativesText: string;
   confidenceLabel: string;
   confidenceSuffix: string;
   competitorItems: MarketScanCompetitorDisplayItem[];
@@ -212,6 +213,7 @@ export type MarketScanDraftPanelState = {
   publicSourceCount: number;
   publicSourceItems: MarketScanPublicSourceDisplayItem[];
   publicSourceSummaryText: string;
+  recommendationLabel: string;
   researchQueryItems: MarketScanResearchQueryDisplayItem[];
   showCompetitorMap: boolean;
   showEntryBarrierChecks: boolean;
@@ -330,9 +332,11 @@ export function buildMarketScanResearchQueryDisplayItems(
 }
 
 export function buildMarketScanDraftPanelState({
+  decisionLabels,
   draft,
   isEstimate,
 }: {
+  decisionLabels: MarketScanDecisionLabels;
   draft: MarketScanDraft | null;
   isEstimate: boolean;
 }): MarketScanDraftPanelState {
@@ -351,6 +355,7 @@ export function buildMarketScanDraftPanelState({
     alertMessage: isEstimate
       ? "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요."
       : "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
+    alternativesText: draft?.alternatives ?? "",
     competitorItems,
     confidenceLabel: draft ? getMarketScanLevelLabel(draft.confidence) : "",
     confidenceSuffix: isEstimate ? " · 추정 초안" : "",
@@ -361,6 +366,7 @@ export function buildMarketScanDraftPanelState({
     publicSourceCount: publicSources.length,
     publicSourceItems,
     publicSourceSummaryText: `근거 강도 높음 ${highStrengthPublicSourceCount}개 / 전체 ${publicSources.length}개`,
+    recommendationLabel: draft ? decisionLabels[draft.recommendation] : "",
     researchQueryItems,
     showCompetitorMap: competitorItems.length > 0,
     showEntryBarrierChecks: entryBarrierItems.length > 0,

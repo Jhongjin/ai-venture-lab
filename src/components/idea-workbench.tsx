@@ -1841,6 +1841,7 @@ export function IdeaWorkbench({
     isLoading: isMarketScanLoading,
   });
   const marketScanDraftPanelState = buildMarketScanDraftPanelState({
+    decisionLabels,
     draft: visibleMarketScanDraft,
     isEstimate: isVisibleMarketScanEstimate,
   });
@@ -7222,12 +7223,12 @@ export function IdeaWorkbench({
                 </div>
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
                   <div className="avl-surface-muted px-4 py-3 text-sm leading-6 text-slate-600">
-                    <span className="font-semibold text-slate-950">대체재와 차별화:</span> {visibleMarketScanDraft.alternatives}
+                    <span className="font-semibold text-slate-950">대체재와 차별화:</span> {marketScanDraftPanelState.alternativesText}
                   </div>
                   <div className="border border-slate-200 bg-white px-4 py-3">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
                     <div className="mt-2 text-lg font-semibold text-slate-950">
-                      {decisionLabels[visibleMarketScanDraft.recommendation]}
+                      {marketScanDraftPanelState.recommendationLabel}
                     </div>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
                       신뢰도 {marketScanDraftPanelState.confidenceLabel}
