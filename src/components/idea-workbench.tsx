@@ -117,6 +117,7 @@ import {
 } from "@/lib/workbench-list-utils";
 import {
   buildWorkbenchScoreEvaluationState,
+  buildWorkbenchScoreInputFieldConfigs,
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringSavedMessage,
@@ -1441,6 +1442,12 @@ export function IdeaWorkbench({
     scoreDecisionLabel: decisionLabels[scoreSaveDecision],
     scoreRecommendation,
   });
+  const scoringInputFieldConfigs = editState
+    ? buildWorkbenchScoreInputFieldConfigs({
+        descriptions: scoreFieldDescriptions,
+        state: editState,
+      })
+    : [];
   const { recommendedValidationExperiment, validationEvidenceCoach, validationPlan } = buildValidationPlanningReviewState({
     artifacts: selectedArtifactRecords,
     decisions: selectedDecisions,
@@ -4466,55 +4473,16 @@ export function IdeaWorkbench({
                   />
 
                   <div className="mt-5 grid gap-3 md:grid-cols-2">
-                    <ScoreInput
-                      label="문제 강도"
-                      description={scoreFieldDescriptions.problem_intensity}
-                      value={editState.problem_intensity}
-                      disabled={!canEdit}
-                      onChange={(value) => updateEditStateField("problem_intensity", value)}
-                    />
-                    <ScoreInput
-                      label="발생 빈도"
-                      description={scoreFieldDescriptions.frequency}
-                      value={editState.frequency}
-                      disabled={!canEdit}
-                      onChange={(value) => updateEditStateField("frequency", value)}
-                    />
-                    <ScoreInput
-                      label="도달 가능성"
-                      description={scoreFieldDescriptions.reachability}
-                      value={editState.reachability}
-                      disabled={!canEdit}
-                      onChange={(value) => updateEditStateField("reachability", value)}
-                    />
-                    <ScoreInput
-                      label="지불 의향"
-                      description={scoreFieldDescriptions.willingness_to_pay}
-                      value={editState.willingness_to_pay}
-                      disabled={!canEdit}
-                      onChange={(value) => updateEditStateField("willingness_to_pay", value)}
-                    />
-                    <ScoreInput
-                      label="첫 제작 속도"
-                      description={scoreFieldDescriptions.mvp_speed}
-                      value={editState.mvp_speed}
-                      disabled={!canEdit}
-                      onChange={(value) => updateEditStateField("mvp_speed", value)}
-                    />
-                    <ScoreInput
-                      label="차별성"
-                      description={scoreFieldDescriptions.differentiation}
-                      value={editState.differentiation}
-                      disabled={!canEdit}
-                      onChange={(value) => updateEditStateField("differentiation", value)}
-                    />
-                    <ScoreInput
-                      label="리스크 감점"
-                      description={scoreFieldDescriptions.regulatory_risk}
-                      value={editState.regulatory_risk}
-                      disabled={!canEdit}
-                      onChange={(value) => updateEditStateField("regulatory_risk", value)}
-                    />
+                    {scoringInputFieldConfigs.map((fieldConfig) => (
+                      <ScoreInput
+                        key={fieldConfig.field}
+                        label={fieldConfig.label}
+                        description={fieldConfig.description}
+                        value={fieldConfig.value}
+                        disabled={!canEdit}
+                        onChange={(value) => updateEditStateField(fieldConfig.field, value)}
+                      />
+                    ))}
                     <div className="border border-slate-200 bg-white p-4">
                       <div className="text-xs font-semibold tracking-[0.14em] text-slate-700">현재 평가</div>
                       <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>

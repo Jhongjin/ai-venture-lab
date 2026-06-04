@@ -24,6 +24,32 @@ export type WorkbenchEditState = Pick<
   | "willingness_to_pay"
 >;
 
+export type WorkbenchScoreInputField =
+  | "problem_intensity"
+  | "frequency"
+  | "reachability"
+  | "willingness_to_pay"
+  | "mvp_speed"
+  | "differentiation"
+  | "regulatory_risk";
+
+export type WorkbenchScoreInputFieldConfig = {
+  description: string;
+  field: WorkbenchScoreInputField;
+  label: string;
+  value: WorkbenchEditState[WorkbenchScoreInputField];
+};
+
+const workbenchScoreInputFields: Array<Pick<WorkbenchScoreInputFieldConfig, "field" | "label">> = [
+  { field: "problem_intensity", label: "문제 강도" },
+  { field: "frequency", label: "발생 빈도" },
+  { field: "reachability", label: "도달 가능성" },
+  { field: "willingness_to_pay", label: "지불 의향" },
+  { field: "mvp_speed", label: "첫 제작 속도" },
+  { field: "differentiation", label: "차별성" },
+  { field: "regulatory_risk", label: "리스크 감점" },
+];
+
 export function toWorkbenchEditState(idea: Idea): WorkbenchEditState {
   return {
     stage: idea.stage,
@@ -40,6 +66,21 @@ export function toWorkbenchEditState(idea: Idea): WorkbenchEditState {
     next_evidence: idea.next_evidence,
     product_surface: resolveProductSurfaceForIdea(idea).key,
   };
+}
+
+export function buildWorkbenchScoreInputFieldConfigs({
+  descriptions,
+  state,
+}: {
+  descriptions: Record<WorkbenchScoreInputField, string>;
+  state: WorkbenchEditState;
+}): WorkbenchScoreInputFieldConfig[] {
+  return workbenchScoreInputFields.map(({ field, label }) => ({
+    description: descriptions[field],
+    field,
+    label,
+    value: state[field],
+  }));
 }
 
 export function scoreWorkbenchState(state: WorkbenchEditState) {

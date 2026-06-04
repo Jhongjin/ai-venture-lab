@@ -21,6 +21,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildWorkbenchScoreEvaluationState,
+  buildWorkbenchScoreInputFieldConfigs,
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringSaveButtonState,
@@ -65,6 +66,38 @@ assert.equal(editState.product_surface, "automation");
 assert.equal(scoreWorkbenchState(editState), 25);
 assert.equal(recommendationForScore(25), "ship");
 assert.equal(saveDecisionForScore("kill"), "research_more");
+const scoreInputFieldConfigs = buildWorkbenchScoreInputFieldConfigs({
+  descriptions: {
+    problem_intensity: "문제 설명",
+    frequency: "빈도 설명",
+    reachability: "도달 설명",
+    willingness_to_pay: "지불 설명",
+    mvp_speed: "속도 설명",
+    differentiation: "차별 설명",
+    regulatory_risk: "리스크 설명",
+  },
+  state: editState,
+});
+assert.deepEqual(
+  scoreInputFieldConfigs.map(({ description, field, label, value }) => ({ description, field, label, value })),
+  [
+    { description: "문제 설명", field: "problem_intensity", label: "문제 강도", value: 5 },
+    { description: "빈도 설명", field: "frequency", label: "발생 빈도", value: 4 },
+    { description: "도달 설명", field: "reachability", label: "도달 가능성", value: 4 },
+    { description: "지불 설명", field: "willingness_to_pay", label: "지불 의향", value: 4 },
+    { description: "속도 설명", field: "mvp_speed", label: "첫 제작 속도", value: 5 },
+    { description: "차별 설명", field: "differentiation", label: "차별성", value: 4 },
+    { description: "리스크 설명", field: "regulatory_risk", label: "리스크 감점", value: 1 },
+  ],
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('label="문제 강도"'),
+  "IdeaWorkbench should render score inputs from shared field configs.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("scoreFieldDescriptions.problem_intensity"),
+  "IdeaWorkbench should not address score field descriptions inline.",
+);
 
 const savePatch = buildWorkbenchScoringSavePatch({
   decision: "ship",
