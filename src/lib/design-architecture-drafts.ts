@@ -22,6 +22,16 @@ export type DesignArchitectureArtifactSaveDraft = {
   title: string;
 };
 
+export type DesignArchitectureArtifactSaveControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type DesignArchitectureArtifactSaveControlStates = {
+  appBlueprint: DesignArchitectureArtifactSaveControlState;
+  scaffoldManifest: DesignArchitectureArtifactSaveControlState;
+};
+
 const emptyDesignArchitectureDraftState: DesignArchitectureDraftState = {
   appBlueprintDraft: "",
   designBriefDraft: "",
@@ -58,6 +68,29 @@ export function buildDesignArchitectureArtifactSaveDrafts({
             title: `${ideaName} 첫 제작 시작 구조`,
           }
         : null,
+  };
+}
+
+export function buildDesignArchitectureArtifactSaveControlStates({
+  appBlueprintSaveDraft,
+  hasUser,
+  isBusy,
+  scaffoldManifestSaveDraft,
+}: {
+  appBlueprintSaveDraft: DesignArchitectureArtifactSaveDraft | null;
+  hasUser: boolean;
+  isBusy: boolean;
+  scaffoldManifestSaveDraft: DesignArchitectureArtifactSaveDraft | null;
+}): DesignArchitectureArtifactSaveControlStates {
+  return {
+    appBlueprint: {
+      disabled: isBusy || !hasUser || !appBlueprintSaveDraft,
+      label: "청사진 저장",
+    },
+    scaffoldManifest: {
+      disabled: isBusy || !hasUser || !scaffoldManifestSaveDraft,
+      label: "구조 저장",
+    },
   };
 }
 

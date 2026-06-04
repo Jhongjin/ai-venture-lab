@@ -166,7 +166,11 @@ import {
   buildValidationPlanningReviewState,
   getValidationPlanExperimentPreview,
 } from "@/lib/validation-planning";
-import { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } from "@/lib/design-architecture-drafts";
+import {
+  buildDesignArchitectureArtifactSaveControlStates,
+  buildDesignArchitectureArtifactSaveDrafts,
+  buildDesignArchitectureDraftState,
+} from "@/lib/design-architecture-drafts";
 import {
   artifactLabels,
   artifactSourceLabels,
@@ -1638,6 +1642,12 @@ export function IdeaWorkbench({
     appBlueprintDraft,
     ideaName: selectedIdeaContext.ideaName,
     scaffoldManifestDraft,
+  });
+  const designArchitectureArtifactSaveControlStates = buildDesignArchitectureArtifactSaveControlStates({
+    appBlueprintSaveDraft,
+    hasUser: Boolean(user),
+    isBusy,
+    scaffoldManifestSaveDraft,
   });
   const {
     cursorHandoffTaskDrafts,
@@ -5181,11 +5191,11 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() => savePreparedArtifactDraft(appBlueprintSaveDraft)}
-                  disabled={isBusy || !user || !appBlueprintSaveDraft}
+                  disabled={designArchitectureArtifactSaveControlStates.appBlueprint.disabled}
                   className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
-                  청사진 저장
+                  {designArchitectureArtifactSaveControlStates.appBlueprint.label}
                 </button>
               </div>
             </div>
@@ -5228,11 +5238,11 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() => savePreparedArtifactDraft(scaffoldManifestSaveDraft)}
-                  disabled={isBusy || !user || !scaffoldManifestSaveDraft}
+                  disabled={designArchitectureArtifactSaveControlStates.scaffoldManifest.disabled}
                   className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                 >
                   <Save size={16} />
-                  구조 저장
+                  {designArchitectureArtifactSaveControlStates.scaffoldManifest.label}
                 </button>
               </div>
             </div>

@@ -28,6 +28,7 @@ const productSurfaceImplementationUrl = pathToFileURL(
   path.join(process.cwd(), "src/lib/product-surface-implementation.ts"),
 ).href;
 const workbenchLabelsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-labels.ts")).href;
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 const appBlueprintUrl = transpileModuleUrl("src/lib/app-blueprint-markdown.ts", [
   ['from "@/lib/product-surface-implementation";', `from ${JSON.stringify(productSurfaceImplementationUrl)};`],
@@ -88,7 +89,11 @@ const {
   getTechSpecBuildRun,
   getTechSpecSecurityRun,
 } = await import(techSpecUrl);
-const { buildDesignArchitectureArtifactSaveDrafts, buildDesignArchitectureDraftState } = await import(moduleUrl);
+const {
+  buildDesignArchitectureArtifactSaveControlStates,
+  buildDesignArchitectureArtifactSaveDrafts,
+  buildDesignArchitectureDraftState,
+} = await import(moduleUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -336,6 +341,44 @@ assert.equal(saveDrafts.scaffoldManifestSaveDraft.artifactType, "dev_runbook");
 assert.equal(saveDrafts.scaffoldManifestSaveDraft.title, "AI Venture Lab 첫 제작 시작 구조");
 assert.equal(saveDrafts.scaffoldManifestSaveDraft.source, "scaffold_manifest");
 assert.match(saveDrafts.scaffoldManifestSaveDraft.body, /# 첫 제작 뼈대 안내서: AI Venture Lab/);
+assert.deepEqual(buildDesignArchitectureArtifactSaveControlStates({
+  appBlueprintSaveDraft: saveDrafts.appBlueprintSaveDraft,
+  hasUser: true,
+  isBusy: false,
+  scaffoldManifestSaveDraft: saveDrafts.scaffoldManifestSaveDraft,
+}), {
+  appBlueprint: {
+    disabled: false,
+    label: "청사진 저장",
+  },
+  scaffoldManifest: {
+    disabled: false,
+    label: "구조 저장",
+  },
+});
+assert.deepEqual(buildDesignArchitectureArtifactSaveControlStates({
+  appBlueprintSaveDraft: null,
+  hasUser: false,
+  isBusy: true,
+  scaffoldManifestSaveDraft: null,
+}), {
+  appBlueprint: {
+    disabled: true,
+    label: "청사진 저장",
+  },
+  scaffoldManifest: {
+    disabled: true,
+    label: "구조 저장",
+  },
+});
+assert.ok(
+  ideaWorkbenchSource.includes("designArchitectureArtifactSaveControlStates.appBlueprint.disabled"),
+  "IdeaWorkbench should render app blueprint save disabled state from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("designArchitectureArtifactSaveControlStates.scaffoldManifest.disabled"),
+  "IdeaWorkbench should render scaffold manifest save disabled state from shared helper.",
+);
 
 assert.deepEqual(
   buildDesignArchitectureArtifactSaveDrafts({
