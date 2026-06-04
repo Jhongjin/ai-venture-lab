@@ -40,6 +40,7 @@ const {
   getProductionCreditPackageClarityItems,
   getProductionCreditProInterestReasonItems,
   getProductionCreditProPathItems,
+  getProductionCreditShortfallCopy,
   getProductionCreditSpendConfidenceItems,
 } = await import(moduleUrl);
 
@@ -205,6 +206,14 @@ assert.ok(
   !productionCreditPanelSource.includes("const proInterestReasonItems = ["),
   "ProductionCreditPanel should use the shared billing Pro interest reason helper.",
 );
+assert.ok(
+  !productionCreditPanelSource.includes("buildPassShortfall"),
+  "ProductionCreditPanel should use the shared billing shortfall copy helper.",
+);
+assert.ok(
+  !productionCreditPanelSource.includes("formatKoreanNumber"),
+  "ProductionCreditPanel should not format shortfall idle messages directly.",
+);
 
 assert.deepEqual(
   getProductionCreditPackageClarityItems({
@@ -260,6 +269,39 @@ assert.deepEqual(getProductionCreditProInterestReasonItems(), [
   ["외부 도구", "작업 상태 자동 반영을 계속 써야 할 때"],
   ["시장 근거", "출처 기반 시장 점검을 반복해야 할 때"],
 ]);
+assert.deepEqual(
+  getProductionCreditShortfallCopy({
+    buildPassCost: 30,
+    creditBalance: 12,
+  }),
+  {
+    shortfallCredits: 18,
+    shortfallMessage: "다음 제작 패스까지 18크레딧 부족합니다.",
+    upgradeInterestIdleMessage: "18크레딧 부족한 상태를 Pro 관심 기록으로 남깁니다.",
+  },
+);
+assert.deepEqual(
+  getProductionCreditShortfallCopy({
+    buildPassCost: 30,
+    creditBalance: 70,
+  }),
+  {
+    shortfallCredits: null,
+    shortfallMessage: null,
+    upgradeInterestIdleMessage: "부족한 크레딧 상태를 Pro 관심 기록으로 남깁니다.",
+  },
+);
+assert.deepEqual(
+  getProductionCreditShortfallCopy({
+    buildPassCost: 30,
+    creditBalance: null,
+  }),
+  {
+    shortfallCredits: null,
+    shortfallMessage: null,
+    upgradeInterestIdleMessage: "부족한 크레딧 상태를 Pro 관심 기록으로 남깁니다.",
+  },
+);
 
 assert.deepEqual(
   getProductionCreditSpendConfidenceItems({

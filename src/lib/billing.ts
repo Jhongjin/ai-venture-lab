@@ -103,6 +103,17 @@ export type ProductionCreditProPathInput = {
   needsSelectedIdeaBuildPass: boolean;
 };
 
+export type ProductionCreditShortfallCopyInput = {
+  buildPassCost: number;
+  creditBalance: number | null;
+};
+
+export type ProductionCreditShortfallCopy = {
+  shortfallCredits: number | null;
+  shortfallMessage: string | null;
+  upgradeInterestIdleMessage: string;
+};
+
 export type BuildPassUnlockResult = {
   alreadyUnlocked: boolean;
   chargedCredits: number;
@@ -447,6 +458,27 @@ export function getProductionCreditProInterestReasonItems(): ProductionCreditDis
     ["외부 도구", "작업 상태 자동 반영을 계속 써야 할 때"],
     ["시장 근거", "출처 기반 시장 점검을 반복해야 할 때"],
   ];
+}
+
+export function getProductionCreditShortfallCopy({
+  buildPassCost,
+  creditBalance,
+}: ProductionCreditShortfallCopyInput): ProductionCreditShortfallCopy {
+  const shortfallCredits = getBuildPassShortfall(creditBalance, buildPassCost);
+
+  if (shortfallCredits === null) {
+    return {
+      shortfallCredits,
+      shortfallMessage: null,
+      upgradeInterestIdleMessage: "부족한 크레딧 상태를 Pro 관심 기록으로 남깁니다.",
+    };
+  }
+
+  return {
+    shortfallCredits,
+    shortfallMessage: `다음 제작 패스까지 ${formatCompactCreditAmount(shortfallCredits)} 부족합니다.`,
+    upgradeInterestIdleMessage: `${formatKoreanNumber(shortfallCredits)}크레딧 부족한 상태를 Pro 관심 기록으로 남깁니다.`,
+  };
 }
 
 export type BillingErrorLike = {

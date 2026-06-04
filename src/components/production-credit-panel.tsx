@@ -10,14 +10,12 @@ import {
 import {
   PRO_UPGRADE_VALUE_TEXT,
   formatBuildPassCount,
-  formatCompactCreditAmount,
-  formatKoreanNumber,
-  getBuildPassShortfall,
   getProductionCreditExecutionValuePathItems,
   getProductionCreditNextAction,
   getProductionCreditPackageClarityItems,
   getProductionCreditProInterestReasonItems,
   getProductionCreditProPathItems,
+  getProductionCreditShortfallCopy,
   getProductionCreditSpendConfidenceItems,
   type CreditSystemStatus,
 } from "@/lib/billing";
@@ -83,7 +81,10 @@ export function ProductionCreditPanel({
   const remainingBuildPassLabel = isCreditSummaryLoading
     ? "확인 중"
     : formatBuildPassCount(remainingBuildPassCount);
-  const buildPassShortfall = getBuildPassShortfall(creditBalance, buildPassCost);
+  const shortfallCopy = getProductionCreditShortfallCopy({
+    buildPassCost,
+    creditBalance,
+  });
   const spendConfidenceItems = getProductionCreditSpendConfidenceItems({
     buildPassCost,
     creditBalance,
@@ -273,9 +274,9 @@ export function ProductionCreditPanel({
           {needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass ? (
             <div data-smoke="step5-upgrade-interest" className="mt-3 border border-amber-200 bg-amber-50 p-3">
               <p className="text-xs font-semibold text-amber-800">잔여 크레딧이 부족합니다.</p>
-              {buildPassShortfall !== null ? (
+              {shortfallCopy.shortfallMessage ? (
                 <p data-smoke="step5-credit-shortfall" className="mt-1 text-sm font-semibold leading-6 text-amber-950">
-                  다음 제작 패스까지 {formatCompactCreditAmount(buildPassShortfall)} 부족합니다.
+                  {shortfallCopy.shortfallMessage}
                 </p>
               ) : null}
               <p className="mt-1 text-xs leading-5 text-amber-950">
@@ -302,11 +303,7 @@ export function ProductionCreditPanel({
                 ))}
               </div>
               <UpgradeInterestButton
-                idleMessage={
-                  buildPassShortfall !== null
-                    ? `${formatKoreanNumber(buildPassShortfall)}크레딧 부족한 상태를 Pro 관심 기록으로 남깁니다.`
-                    : "부족한 크레딧 상태를 Pro 관심 기록으로 남깁니다."
-                }
+                idleMessage={shortfallCopy.upgradeInterestIdleMessage}
                 intent="insufficient_credits_for_build_pass"
                 source="step5_credit_panel"
                 wrapperClassName="mt-3 flex flex-col gap-2"
