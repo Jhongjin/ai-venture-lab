@@ -19,9 +19,9 @@ type Step5PackageReviewProps = {
 };
 
 const step5ReviewFocusItems = [
-  ["만들 것", "결과물과 개발 방식"],
-  ["범위", "할 일과 제외할 일"],
-  ["첫 작업", "T-001로 시작"],
+  ["만들 것", "결과물/개발 방식"],
+  ["범위", "포함/제외"],
+  ["첫 작업", "T-001"],
 ] as const;
 
 export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCards }: Step5PackageReviewProps) {
@@ -33,9 +33,9 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
     <div className="mt-5 grid gap-4">
       <div className="border border-slate-200 bg-slate-50 p-4">
         <div className="avl-kicker">지금 확인할 것</div>
-        <h4 className="mt-2 text-base font-semibold text-slate-950">세 가지만 확인하세요</h4>
+        <h4 className="mt-2 text-base font-semibold text-slate-950">3개만 확인</h4>
         <p className="mt-1 text-sm leading-6 text-slate-600">
-          맞으면 저장하세요.
+          맞으면 저장.
         </p>
         <div data-smoke="step5-review-save-focus" className="mt-3 grid gap-px bg-blue-200 md:grid-cols-3">
           {step5ReviewFocusItems.map(([label, detail]) => (
@@ -49,7 +49,7 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
           data-smoke="step5-save-does-not-move"
           className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
         >
-          저장은 이동이 아닙니다. 이동은 하단 다음 버튼에서 합니다.
+          저장해도 이동하지 않습니다. 이동은 하단 다음 버튼입니다.
         </div>
         <details data-smoke="step5-review-details-optional" className="mt-4">
           <summary className="cursor-pointer border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950">
