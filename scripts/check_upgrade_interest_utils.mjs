@@ -17,11 +17,30 @@ const {
   getTopUpgradeInterestCountLabel,
   getUpgradeInterestIntentLabel,
   getUpgradeInterestSourceLabel,
+  normalizeUpgradeInterestInput,
   normalizeUpgradeInterestIntent,
   normalizeUpgradeInterestSource,
   sortUpgradeInterestCountEntries,
 } = await import(moduleUrl);
 
+assert.deepEqual(normalizeUpgradeInterestInput(undefined), {
+  intent: "repeated_production_packages",
+  source: "profile_credit_summary",
+});
+assert.deepEqual(normalizeUpgradeInterestInput({ intent: "unknown", source: "unknown" }), {
+  intent: "repeated_production_packages",
+  source: "profile_credit_summary",
+});
+assert.deepEqual(
+  normalizeUpgradeInterestInput({
+    intent: "insufficient_credits_for_build_pass",
+    source: "step5_credit_panel",
+  }),
+  {
+    intent: "insufficient_credits_for_build_pass",
+    source: "step5_credit_panel",
+  },
+);
 assert.equal(normalizeUpgradeInterestSource("step5_credit_panel"), "step5_credit_panel");
 assert.equal(normalizeUpgradeInterestSource("unknown"), "profile_credit_summary");
 assert.equal(normalizeUpgradeInterestIntent("insufficient_credits_for_build_pass"), "insufficient_credits_for_build_pass");
@@ -155,6 +174,16 @@ assert.equal(
   profileActionSource.includes("new Date("),
   false,
   "profile actions should delegate Pro interest dedupe time calculation to upgrade-interest helpers",
+);
+assert.equal(
+  profileActionSource.includes("normalizeUpgradeInterestSource"),
+  false,
+  "profile actions should delegate Pro interest source normalization to upgrade-interest helpers",
+);
+assert.equal(
+  profileActionSource.includes("normalizeUpgradeInterestIntent"),
+  false,
+  "profile actions should delegate Pro interest intent normalization to upgrade-interest helpers",
 );
 assert.equal(
   profileActionSource.includes("UPGRADE_INTEREST_PLAN"),

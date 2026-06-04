@@ -8,26 +8,14 @@ import {
   buildUpgradeInterestDedupeProperties,
   buildUpgradeInterestTelemetryProperties,
   getUpgradeInterestDedupeSinceIso,
-  normalizeUpgradeInterestIntent,
-  normalizeUpgradeInterestSource,
+  normalizeUpgradeInterestInput,
+  type UpgradeInterestInput,
 } from "@/lib/upgrade-interest";
 
 type UpgradeInterestResult = {
   ok: boolean;
   message: string;
 };
-
-type UpgradeInterestInput = {
-  intent?: string;
-  source?: string;
-};
-
-function normalizeUpgradeInterestInput(input: UpgradeInterestInput | undefined) {
-  const source = normalizeUpgradeInterestSource(input?.source);
-  const intent = normalizeUpgradeInterestIntent(input?.intent);
-
-  return { intent, source };
-}
 
 export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput): Promise<UpgradeInterestResult> {
   const supabase = await getSupabaseServerClient();

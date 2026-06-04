@@ -15,6 +15,16 @@ export const upgradeInterestIntents = ["insufficient_credits_for_build_pass", "r
 export type UpgradeInterestSource = (typeof upgradeInterestSources)[number];
 export type UpgradeInterestIntent = (typeof upgradeInterestIntents)[number];
 
+export type UpgradeInterestInput = {
+  intent?: string;
+  source?: string;
+};
+
+export type NormalizedUpgradeInterestInput = {
+  intent: UpgradeInterestIntent;
+  source: UpgradeInterestSource;
+};
+
 export type UpgradeInterestDedupeProperties = {
   source: UpgradeInterestSource;
   plan: typeof UPGRADE_INTEREST_PLAN;
@@ -79,6 +89,15 @@ export function normalizeUpgradeInterestSource(value: string | undefined): Upgra
 
 export function normalizeUpgradeInterestIntent(value: string | undefined): UpgradeInterestIntent {
   return isOneOf(upgradeInterestIntents, value) ? value : fallbackIntent;
+}
+
+export function normalizeUpgradeInterestInput(
+  input: UpgradeInterestInput | undefined,
+): NormalizedUpgradeInterestInput {
+  const source = normalizeUpgradeInterestSource(input?.source);
+  const intent = normalizeUpgradeInterestIntent(input?.intent);
+
+  return { intent, source };
 }
 
 export function getUpgradeInterestSourceLabel(source: string) {
