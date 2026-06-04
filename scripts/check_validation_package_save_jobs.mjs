@@ -9,6 +9,7 @@ const {
   buildValidationPackageHeaderState,
   buildValidationPackagePanelClassName,
   buildValidationPackagePanelTabStates,
+  buildValidationPackageProductHandoffActionControls,
   buildValidationPackageProductReadinessNotice,
   buildValidationPackageReadinessCheckDisplayRows,
   buildValidationPackageReadinessScoreSummary,
@@ -469,6 +470,36 @@ assert.deepEqual(buildValidationPackageReadinessScoreSummary({
   progressLabel: "통과 7/9",
   scoreLabel: "78%",
 });
+assert.deepEqual(buildValidationPackageProductHandoffActionControls({
+  copyDraftBody: "handoff",
+  hasUser: true,
+  isBusy: false,
+  saveDraftBody: "save",
+}), {
+  copy: {
+    disabled: false,
+    label: "전달 내용 복사",
+  },
+  save: {
+    disabled: false,
+    label: "전달 내용 저장",
+  },
+});
+assert.deepEqual(buildValidationPackageProductHandoffActionControls({
+  copyDraftBody: "",
+  hasUser: false,
+  isBusy: true,
+  saveDraftBody: "",
+}), {
+  copy: {
+    disabled: true,
+    label: "전달 내용 복사",
+  },
+  save: {
+    disabled: true,
+    label: "전달 내용 저장",
+  },
+});
 assert.ok(
   !ideaWorkbenchSource.includes(
     'nextPrdBlocker ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"',
@@ -502,6 +533,18 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("validationPackageProductReadinessScoreSummary.progressLabel"),
   "IdeaWorkbench should render product readiness progress text from shared score summary.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={!prdHandoffDraft}"),
+  "IdeaWorkbench should render product handoff copy disabled state from shared controls.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || !user || !prdHandoffSaveDraft}"),
+  "IdeaWorkbench should render product handoff save disabled state from shared controls.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationPackageProductHandoffActionControls.copy.disabled"),
+  "IdeaWorkbench should render product handoff copy disabled state from shared controls.",
 );
 
 console.log("Validation package save jobs smoke passed.");

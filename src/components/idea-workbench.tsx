@@ -483,6 +483,7 @@ import {
   buildValidationPackageHeaderState,
   buildValidationPackagePanelClassName,
   buildValidationPackagePanelTabStates,
+  buildValidationPackageProductHandoffActionControls,
   buildValidationPackageProductReadinessNotice,
   buildValidationPackageReadinessCheckDisplayRows,
   buildValidationPackageReadinessScoreSummary,
@@ -1888,6 +1889,12 @@ export function IdeaWorkbench({
     ideaName: selectedIdeaContext.ideaName,
     launchChecklistDraft,
     prdHandoffDraft,
+  });
+  const validationPackageProductHandoffActionControls = buildValidationPackageProductHandoffActionControls({
+    copyDraftBody: prdHandoffDraft,
+    hasUser: Boolean(user),
+    isBusy,
+    saveDraftBody: prdHandoffSaveDraft,
   });
   const validationPackageLaunchChecklistSaveControl = buildValidationPackageDraftSaveControlState({
     defaultLabel: "제작 자료 저장",
@@ -7438,20 +7445,20 @@ export function IdeaWorkbench({
             <button
               type="button"
               onClick={() => copyDraft(prdHandoffDraft, "기획서 전환 전달 내용")}
-              disabled={!prdHandoffDraft}
+              disabled={validationPackageProductHandoffActionControls.copy.disabled}
               className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
             >
               <Clipboard size={16} />
-                  전달 내용 복사
+              {validationPackageProductHandoffActionControls.copy.label}
             </button>
             <button
               type="button"
               onClick={() => savePreparedArtifactDraft(prdHandoffSaveDraft)}
-              disabled={isBusy || !user || !prdHandoffSaveDraft}
+              disabled={validationPackageProductHandoffActionControls.save.disabled}
               className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
             >
               <Save size={16} />
-              전달 내용 저장
+              {validationPackageProductHandoffActionControls.save.label}
             </button>
           </div>
         </div>

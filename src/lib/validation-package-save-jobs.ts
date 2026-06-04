@@ -66,6 +66,14 @@ export type ValidationPackageReadinessScoreSummary = {
   progressLabel: string;
   scoreLabel: string;
 };
+export type ValidationPackageProductHandoffActionControl = {
+  disabled: boolean;
+  label: string;
+};
+export type ValidationPackageProductHandoffActionControls = {
+  copy: ValidationPackageProductHandoffActionControl;
+  save: ValidationPackageProductHandoffActionControl;
+};
 
 export function buildValidationPackageStatusRows({
   hasIdeaBriefArtifact,
@@ -321,6 +329,29 @@ export function buildValidationPackageReadinessScoreSummary({
   return {
     progressLabel: `통과 ${passedCount}/${totalCount}`,
     scoreLabel: `${score}%`,
+  };
+}
+
+export function buildValidationPackageProductHandoffActionControls({
+  copyDraftBody,
+  hasUser,
+  isBusy,
+  saveDraftBody,
+}: {
+  copyDraftBody: unknown;
+  hasUser: boolean;
+  isBusy: boolean;
+  saveDraftBody: unknown;
+}): ValidationPackageProductHandoffActionControls {
+  return {
+    copy: {
+      disabled: !copyDraftBody,
+      label: "전달 내용 복사",
+    },
+    save: {
+      disabled: isBusy || !hasUser || !saveDraftBody,
+      label: "전달 내용 저장",
+    },
   };
 }
 
