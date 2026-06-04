@@ -18,6 +18,13 @@ export type ValidationPackageHeaderState = {
   description: string;
   title: string;
 };
+export type ValidationPackagePanelTabState = {
+  disabled: boolean;
+  isActive: boolean;
+  label: string;
+  panel: "validation" | "product";
+  stepLabel: string;
+};
 
 export function buildValidationPackageStatusRows({
   hasIdeaBriefArtifact,
@@ -157,6 +164,31 @@ export function buildValidationPackageHeaderState({
       : panelDescription,
     title: "검증 자료 저장",
   };
+}
+
+export function buildValidationPackagePanelTabStates({
+  activePanel,
+  hasValidationSummaryArtifact,
+}: {
+  activePanel: ValidationPackagePanelTabState["panel"] | "library";
+  hasValidationSummaryArtifact: boolean;
+}): ValidationPackagePanelTabState[] {
+  return [
+    {
+      disabled: false,
+      isActive: activePanel === "validation",
+      label: "검증 자료 저장",
+      panel: "validation",
+      stepLabel: "STEP 4-1",
+    },
+    {
+      disabled: !hasValidationSummaryArtifact,
+      isActive: activePanel === "product",
+      label: hasValidationSummaryArtifact ? "기획서 만들기" : "검증 요약 저장 후 열림",
+      panel: "product",
+      stepLabel: "STEP 4-2",
+    },
+  ];
 }
 
 export function buildValidationSummaryDisabledNote({

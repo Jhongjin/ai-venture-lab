@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-package-save-jobs.ts")).href;
 const {
   buildValidationPackageHeaderState,
+  buildValidationPackagePanelTabStates,
   buildValidationPackageSaveJob,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
@@ -167,6 +168,46 @@ assert.deepEqual(
 assert.ok(
   !ideaWorkbenchSource.includes("AI가 아이디어 요약, 조사 요약"),
   "IdeaWorkbench should keep validation package guided header copy in the shared helper.",
+);
+assert.deepEqual(buildValidationPackagePanelTabStates({ activePanel: "validation", hasValidationSummaryArtifact: false }), [
+  {
+    disabled: false,
+    isActive: true,
+    label: "검증 자료 저장",
+    panel: "validation",
+    stepLabel: "STEP 4-1",
+  },
+  {
+    disabled: true,
+    isActive: false,
+    label: "검증 요약 저장 후 열림",
+    panel: "product",
+    stepLabel: "STEP 4-2",
+  },
+]);
+assert.deepEqual(buildValidationPackagePanelTabStates({ activePanel: "product", hasValidationSummaryArtifact: true }), [
+  {
+    disabled: false,
+    isActive: false,
+    label: "검증 자료 저장",
+    panel: "validation",
+    stepLabel: "STEP 4-1",
+  },
+  {
+    disabled: false,
+    isActive: true,
+    label: "기획서 만들기",
+    panel: "product",
+    stepLabel: "STEP 4-2",
+  },
+]);
+assert.ok(
+  !ideaWorkbenchSource.includes("STEP 4-1"),
+  "IdeaWorkbench should render validation package tabs from shared state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("검증 요약 저장 후 열림"),
+  "IdeaWorkbench should keep validation package tab labels in the shared helper.",
 );
 
 console.log("Validation package save jobs smoke passed.");

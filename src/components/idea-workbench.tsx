@@ -480,6 +480,7 @@ import {
 } from "@/lib/validation-package-drafts";
 import {
   buildValidationPackageHeaderState,
+  buildValidationPackagePanelTabStates,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
   buildValidationPackageStatusRows,
@@ -1682,6 +1683,10 @@ export function IdeaWorkbench({
   const validationPackageHeaderState = buildValidationPackageHeaderState({
     isGuided: experienceMode === "guided",
     panelDescription: artifactPanelDescriptions[artifactPanel],
+  });
+  const validationPackagePanelTabs = buildValidationPackagePanelTabStates({
+    activePanel: artifactPanel,
+    hasValidationSummaryArtifact,
   });
   const visibleMarketScanReviewRows = buildVisibleMarketScanReviewRows({
     decisionLabels,
@@ -7110,33 +7115,22 @@ export function IdeaWorkbench({
                 {validationPackageSaveButtonState.label}
               </button>
               <div className={experienceMode === "guided" ? "hidden" : "grid gap-2 sm:grid-cols-2"}>
-              <button
-                type="button"
-                onClick={() => setArtifactPanel("validation")}
-                className={`border px-4 py-3 text-left transition ${
-                  artifactPanel === "validation"
-                    ? "border-slate-950 bg-slate-950 text-white"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
-                }`}
-              >
-                <div className="text-xs font-semibold tracking-[0.14em] opacity-70">STEP 4-1</div>
-                <div className="mt-1 text-sm font-semibold">검증 자료 저장</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setArtifactPanel("product")}
-                disabled={!hasValidationSummaryArtifact}
-                className={`border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
-                  artifactPanel === "product"
-                    ? "border-slate-950 bg-slate-950 text-white"
-                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
-                }`}
-              >
-                <div className="text-xs font-semibold tracking-[0.14em] opacity-70">STEP 4-2</div>
-                <div className="mt-1 text-sm font-semibold">
-                  {hasValidationSummaryArtifact ? "기획서 만들기" : "검증 요약 저장 후 열림"}
-                </div>
-              </button>
+                {validationPackagePanelTabs.map((tab) => (
+                  <button
+                    key={tab.panel}
+                    type="button"
+                    onClick={() => setArtifactPanel(tab.panel)}
+                    disabled={tab.disabled}
+                    className={`border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
+                      tab.isActive
+                        ? "border-slate-950 bg-slate-950 text-white"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
+                    }`}
+                  >
+                    <div className="text-xs font-semibold tracking-[0.14em] opacity-70">{tab.stepLabel}</div>
+                    <div className="mt-1 text-sm font-semibold">{tab.label}</div>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
