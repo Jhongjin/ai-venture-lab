@@ -208,9 +208,11 @@ export type MarketScanDraftPanelState = {
   entryBarrierItems: MarketScanEntryBarrierDisplayItem[];
   highStrengthPublicSourceCount: number;
   isVisible: boolean;
+  marketSignalItems: MarketScanSignalDisplayItem[];
   publicSourceCount: number;
   publicSourceItems: MarketScanPublicSourceDisplayItem[];
   publicSourceSummaryText: string;
+  researchQueryItems: MarketScanResearchQueryDisplayItem[];
   showCompetitorMap: boolean;
   showEntryBarrierChecks: boolean;
   showMarketSignals: boolean;
@@ -228,6 +230,16 @@ export type MarketScanEntryBarrierDisplayItem = {
   barrier: MarketScanBarrier;
   key: string;
   severityLabel: string;
+};
+
+export type MarketScanSignalDisplayItem = {
+  key: string;
+  signal: MarketScanSignal;
+};
+
+export type MarketScanResearchQueryDisplayItem = {
+  key: string;
+  query: string;
 };
 
 export type MarketScanPublicSourceDisplayItem = {
@@ -299,6 +311,24 @@ export function buildMarketScanEntryBarrierDisplayItems(
   }));
 }
 
+export function buildMarketScanSignalDisplayItems(
+  signals: ReadonlyArray<MarketScanSignal>,
+): MarketScanSignalDisplayItem[] {
+  return signals.map((signal) => ({
+    key: signal.label,
+    signal,
+  }));
+}
+
+export function buildMarketScanResearchQueryDisplayItems(
+  queries: ReadonlyArray<string>,
+): MarketScanResearchQueryDisplayItem[] {
+  return queries.map((query, index) => ({
+    key: `${query}-${index}`,
+    query,
+  }));
+}
+
 export function buildMarketScanDraftPanelState({
   draft,
   isEstimate,
@@ -308,8 +338,10 @@ export function buildMarketScanDraftPanelState({
 }): MarketScanDraftPanelState {
   const competitorItems = draft ? buildMarketScanCompetitorDisplayItems(draft.competitor_map) : [];
   const entryBarrierItems = draft ? buildMarketScanEntryBarrierDisplayItems(draft.entry_barrier_checks) : [];
+  const marketSignalItems = draft ? buildMarketScanSignalDisplayItems(draft.market_signals) : [];
   const publicSourceItems = draft ? buildMarketScanPublicSourceDisplayItems(draft.sources) : [];
   const publicSources = publicSourceItems.map((item) => item.source);
+  const researchQueryItems = draft ? buildMarketScanResearchQueryDisplayItems(draft.research_queries) : [];
   const highStrengthPublicSourceCount = countHighStrengthMarketScanSources(publicSources);
 
   return {
@@ -325,14 +357,16 @@ export function buildMarketScanDraftPanelState({
     entryBarrierItems,
     highStrengthPublicSourceCount,
     isVisible: Boolean(draft),
+    marketSignalItems,
     publicSourceCount: publicSources.length,
     publicSourceItems,
     publicSourceSummaryText: `근거 강도 높음 ${highStrengthPublicSourceCount}개 / 전체 ${publicSources.length}개`,
+    researchQueryItems,
     showCompetitorMap: competitorItems.length > 0,
     showEntryBarrierChecks: entryBarrierItems.length > 0,
-    showMarketSignals: Boolean(draft?.market_signals.length),
+    showMarketSignals: marketSignalItems.length > 0,
     showPublicSources: publicSources.length > 0,
-    showResearchQueries: Boolean(draft?.research_queries.length),
+    showResearchQueries: researchQueryItems.length > 0,
   };
 }
 

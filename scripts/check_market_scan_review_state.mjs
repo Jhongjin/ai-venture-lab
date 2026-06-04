@@ -23,9 +23,11 @@ const {
   buildMarketScanEntryBarrierDisplayItems,
   buildMarketScanPublicSourceDisplayItems,
   buildMarketScanRequestPayload,
+  buildMarketScanResearchQueryDisplayItems,
   buildMarketScanReviewRows,
   buildMarketScanReviewState,
   buildMarketScanRunCompletedMessage,
+  buildMarketScanSignalDisplayItems,
   buildVisibleMarketScanReviewRows,
   countHighStrengthMarketScanSources,
   getMarketScanUrl,
@@ -200,6 +202,18 @@ assert.deepEqual(buildMarketScanEntryBarrierDisplayItems(draft.entry_barrier_che
     severityLabel: "보통",
   },
 ]);
+assert.deepEqual(buildMarketScanSignalDisplayItems(draft.market_signals), [
+  {
+    key: "검색 신호",
+    signal: draft.market_signals[0],
+  },
+]);
+assert.deepEqual(buildMarketScanResearchQueryDisplayItems(draft.research_queries), [
+  {
+    key: "automation os competitors-0",
+    query: "automation os competitors",
+  },
+]);
 assert.deepEqual(buildMarketScanPublicSourceDisplayItems(draft.sources), [
   {
     key: "https://example.com/source-0",
@@ -236,6 +250,12 @@ assert.deepEqual(
     ],
     highStrengthPublicSourceCount: 1,
     isVisible: true,
+    marketSignalItems: [
+      {
+        key: "검색 신호",
+        signal: draft.market_signals[0],
+      },
+    ],
     publicSourceCount: 1,
     publicSourceItems: [
       {
@@ -247,6 +267,12 @@ assert.deepEqual(
       },
     ],
     publicSourceSummaryText: "근거 강도 높음 1개 / 전체 1개",
+    researchQueryItems: [
+      {
+        key: "automation os competitors-0",
+        query: "automation os competitors",
+      },
+    ],
     showCompetitorMap: true,
     showEntryBarrierChecks: true,
     showMarketSignals: true,
@@ -417,6 +443,12 @@ assert.deepEqual(
     ],
     highStrengthPublicSourceCount: 1,
     isVisible: true,
+    marketSignalItems: [
+      {
+        key: "검색 신호",
+        signal: draft.market_signals[0],
+      },
+    ],
     publicSourceCount: 1,
     publicSourceItems: [
       {
@@ -428,6 +460,12 @@ assert.deepEqual(
       },
     ],
     publicSourceSummaryText: "근거 강도 높음 1개 / 전체 1개",
+    researchQueryItems: [
+      {
+        key: "automation os competitors-0",
+        query: "automation os competitors",
+      },
+    ],
     showCompetitorMap: true,
     showEntryBarrierChecks: true,
     showMarketSignals: true,
@@ -517,9 +555,11 @@ assert.deepEqual(
     entryBarrierItems: [],
     highStrengthPublicSourceCount: 0,
     isVisible: false,
+    marketSignalItems: [],
     publicSourceCount: 0,
     publicSourceItems: [],
     publicSourceSummaryText: "근거 강도 높음 0개 / 전체 0개",
+    researchQueryItems: [],
     showCompetitorMap: false,
     showEntryBarrierChecks: false,
     showMarketSignals: false,

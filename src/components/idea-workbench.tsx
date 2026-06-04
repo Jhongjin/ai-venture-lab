@@ -7204,8 +7204,8 @@ export function IdeaWorkbench({
                 </div>
                 {marketScanDraftPanelState.showMarketSignals ? (
                   <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-                    {visibleMarketScanDraft.market_signals.map((signal) => (
-                      <div key={signal.label} className="border border-emerald-100 bg-emerald-50 px-3 py-3">
+                    {marketScanDraftPanelState.marketSignalItems.map(({ key, signal }) => (
+                      <div key={key} className="border border-emerald-100 bg-emerald-50 px-3 py-3">
                         <div className="text-xs font-semibold tracking-[0.12em] text-emerald-700">{signal.label}</div>
                         <p className="mt-1 text-xs leading-5 text-slate-700">{signal.finding}</p>
                       </div>
@@ -7282,8 +7282,8 @@ export function IdeaWorkbench({
                   <div className="border border-slate-200 bg-slate-50 px-4 py-3">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">추가로 확인할 질문</div>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {visibleMarketScanDraft.research_queries.map((query) => (
-                        <span key={query} className="avl-pill avl-pill-neutral text-xs">
+                      {marketScanDraftPanelState.researchQueryItems.map(({ key, query }) => (
+                        <span key={key} className="avl-pill avl-pill-neutral text-xs">
                           {query}
                         </span>
                       ))}
