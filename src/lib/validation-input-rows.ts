@@ -33,6 +33,19 @@ export type ExperimentResultInputControlState = {
   saveDisabled: boolean;
 };
 
+export type ExperimentActionControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type ExperimentStatusControlState = ExperimentActionControlState & {
+  buttonClassName: string;
+  detail: string;
+  detailClassName: string;
+  isSelected: boolean;
+  title: string;
+};
+
 export type DecisionTemplateSource = {
   hypotheses: string[];
   nextAction: string;
@@ -207,6 +220,49 @@ export function buildExperimentDeleteConfirmMessage(experimentName: string) {
 
 export function buildExperimentStatusChangedMessage({ statusLabel }: { statusLabel: string }) {
   return `실험 상태를 ${statusLabel}(으)로 변경했습니다.`;
+}
+
+export function buildExperimentStatusControlState<Status extends string>({
+  canManage,
+  currentStatus,
+  isBusy,
+  nextStatus,
+  statusGuide,
+  statusLabel,
+}: {
+  canManage: boolean;
+  currentStatus: Status;
+  isBusy: boolean;
+  nextStatus: Status;
+  statusGuide: string;
+  statusLabel: string;
+}): ExperimentStatusControlState {
+  const isSelected = currentStatus === nextStatus;
+
+  return {
+    buttonClassName: isSelected
+      ? "border-slate-950 bg-slate-950 text-white"
+      : "border-slate-200 bg-white text-slate-600 hover:border-slate-400",
+    detail: statusGuide,
+    detailClassName: isSelected ? "text-slate-200" : "text-slate-500",
+    disabled: isBusy || !canManage || isSelected,
+    isSelected,
+    label: statusLabel,
+    title: statusGuide,
+  };
+}
+
+export function buildExperimentDeleteControlState({
+  canManage,
+  isBusy,
+}: {
+  canManage: boolean;
+  isBusy: boolean;
+}): ExperimentActionControlState {
+  return {
+    disabled: isBusy || !canManage,
+    label: "삭제",
+  };
 }
 
 export function buildExperimentDeletedMessage() {

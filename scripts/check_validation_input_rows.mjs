@@ -20,6 +20,7 @@ const {
   buildEvidenceNoteSaveControlState,
   buildEvidenceNoteTitleRequiredMessage,
   buildExperimentCreatedTelemetryProperties,
+  buildExperimentDeleteControlState,
   buildExperimentDeleteConfirmMessage,
   buildExperimentDeletedTelemetryProperties,
   buildExperimentDeletedMessage,
@@ -32,6 +33,7 @@ const {
   buildExperimentResultRequiredMessage,
   buildExperimentResultSavedTelemetryProperties,
   buildExperimentStatusChangedMessage,
+  buildExperimentStatusControlState,
   buildExperimentStatusTelemetryProperties,
   buildExperimentStatusUpdatePatch,
   buildExperimentUpdatePermissionDeniedMessage,
@@ -192,6 +194,68 @@ assert.deepEqual(buildExperimentResultInputControlState({
   fieldsDisabled: false,
   saveDisabled: true,
 });
+assert.deepEqual(buildExperimentStatusControlState({
+  canManage: true,
+  currentStatus: "planned",
+  isBusy: false,
+  nextStatus: "running",
+  statusGuide: "검증을 진행 중입니다.",
+  statusLabel: "진행 중",
+}), {
+  buttonClassName: "border-slate-200 bg-white text-slate-600 hover:border-slate-400",
+  detail: "검증을 진행 중입니다.",
+  detailClassName: "text-slate-500",
+  disabled: false,
+  isSelected: false,
+  label: "진행 중",
+  title: "검증을 진행 중입니다.",
+});
+assert.deepEqual(buildExperimentStatusControlState({
+  canManage: true,
+  currentStatus: "planned",
+  isBusy: false,
+  nextStatus: "planned",
+  statusGuide: "아직 시작 전입니다.",
+  statusLabel: "예정",
+}), {
+  buttonClassName: "border-slate-950 bg-slate-950 text-white",
+  detail: "아직 시작 전입니다.",
+  detailClassName: "text-slate-200",
+  disabled: true,
+  isSelected: true,
+  label: "예정",
+  title: "아직 시작 전입니다.",
+});
+assert.deepEqual(buildExperimentStatusControlState({
+  canManage: false,
+  currentStatus: "planned",
+  isBusy: true,
+  nextStatus: "done",
+  statusGuide: "결과가 충분합니다.",
+  statusLabel: "완료",
+}), {
+  buttonClassName: "border-slate-200 bg-white text-slate-600 hover:border-slate-400",
+  detail: "결과가 충분합니다.",
+  detailClassName: "text-slate-500",
+  disabled: true,
+  isSelected: false,
+  label: "완료",
+  title: "결과가 충분합니다.",
+});
+assert.deepEqual(buildExperimentDeleteControlState({
+  canManage: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  label: "삭제",
+});
+assert.deepEqual(buildExperimentDeleteControlState({
+  canManage: false,
+  isBusy: true,
+}), {
+  disabled: true,
+  label: "삭제",
+});
 assert.deepEqual(buildEvidenceNoteSaveControlState({
   hasUser: true,
   isBusy: false,
@@ -303,6 +367,22 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("experimentResultInputControlState.saveDisabled"),
   "IdeaWorkbench should render experiment result save disabled state from shared input control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || !canManageRecord(experiment) || isSelected}"),
+  "IdeaWorkbench should render experiment status disabled state from shared input control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || !canManageRecord(experiment)}"),
+  "IdeaWorkbench should render experiment delete disabled state from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("experimentStatusControlState.disabled"),
+  "IdeaWorkbench should render experiment status button disabled state from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("experimentDeleteControlState.disabled"),
+  "IdeaWorkbench should render experiment delete disabled state from shared input control.",
 );
 assert.ok(
   ideaWorkbenchSource.includes("evidenceNoteSaveControlState.disabled"),

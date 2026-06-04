@@ -464,6 +464,7 @@ import {
   buildEvidenceNoteSaveControlState,
   buildEvidenceNoteTitleRequiredMessage,
   buildExperimentCreatedTelemetryProperties,
+  buildExperimentDeleteControlState,
   buildExperimentDeleteConfirmMessage,
   buildExperimentDeletedTelemetryProperties,
   buildExperimentDeletedMessage,
@@ -476,6 +477,7 @@ import {
   buildExperimentResultRequiredMessage,
   buildExperimentResultSavedTelemetryProperties,
   buildExperimentStatusChangedMessage,
+  buildExperimentStatusControlState,
   buildExperimentStatusTelemetryProperties,
   buildExperimentStatusUpdatePatch,
   buildExperimentUpdatePermissionDeniedMessage,
@@ -6885,7 +6887,14 @@ export function IdeaWorkbench({
                   </p>
                 </div>
                 {selectedExperiments.length > 0 ? (
-                  selectedExperiments.map((experiment, index) => (
+                  selectedExperiments.map((experiment, index) => {
+                    const canManageExperiment = canManageRecord(experiment);
+                    const experimentDeleteControlState = buildExperimentDeleteControlState({
+                      canManage: canManageExperiment,
+                      isBusy,
+                    });
+
+                    return (
                     <div key={experiment.id} className="border border-slate-200 bg-slate-50 p-4">
                       <div className="grid gap-4 border-l-4 border-sky-300 pl-4">
                         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -6913,24 +6922,27 @@ export function IdeaWorkbench({
                             <div className="text-xs font-semibold tracking-[0.12em] text-slate-500">상태 변경 기준</div>
                             <div className="mt-2 grid gap-2 md:grid-cols-3">
                               {experimentStatusOptions.map((status) => {
-                                const isSelected = experiment.status === status;
+                                const experimentStatusControlState = buildExperimentStatusControlState({
+                                  canManage: canManageExperiment,
+                                  currentStatus: experiment.status,
+                                  isBusy,
+                                  nextStatus: status,
+                                  statusGuide: experimentStatusGuides[status],
+                                  statusLabel: experimentStatusLabels[status] ?? status,
+                                });
 
                                 return (
                                   <button
                                     key={status}
                                     type="button"
-                                    title={experimentStatusGuides[status]}
+                                    title={experimentStatusControlState.title}
                                     onClick={() => updateExperimentStatus(experiment, status)}
-                                    disabled={isBusy || !canManageRecord(experiment) || isSelected}
-                                    className={`border p-3 text-left text-xs transition disabled:opacity-100 ${
-                                      isSelected
-                                        ? "border-slate-950 bg-slate-950 text-white"
-                                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-400"
-                                    }`}
+                                    disabled={experimentStatusControlState.disabled}
+                                    className={`border p-3 text-left text-xs transition disabled:opacity-100 ${experimentStatusControlState.buttonClassName}`}
                                   >
-                                    <div className="text-sm font-semibold">{experimentStatusLabels[status] ?? status}</div>
-                                    <p className={`mt-1 leading-5 ${isSelected ? "text-slate-200" : "text-slate-500"}`}>
-                                      {experimentStatusGuides[status]}
+                                    <div className="text-sm font-semibold">{experimentStatusControlState.label}</div>
+                                    <p className={`mt-1 leading-5 ${experimentStatusControlState.detailClassName}`}>
+                                      {experimentStatusControlState.detail}
                                     </p>
                                   </button>
                                 );
@@ -6941,17 +6953,18 @@ export function IdeaWorkbench({
                             <button
                               type="button"
                               onClick={() => void deleteExperiment(experiment)}
-                              disabled={isBusy || !canManageRecord(experiment)}
+                              disabled={experimentDeleteControlState.disabled}
                               className="avl-btn avl-btn-danger h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                             >
                               <Trash2 size={13} />
-                              삭제
+                              {experimentDeleteControlState.label}
                             </button>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 ) : (
                     <div className="avl-surface-muted border-dashed p-4 text-sm text-slate-600">
                       아직 저장한 하위 검증 계획이 없습니다. 위의 AI 추천 검증 계획을 저장하면 다음 단계가 열립니다.
