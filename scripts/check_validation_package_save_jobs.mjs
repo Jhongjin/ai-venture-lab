@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-package-save-jobs.ts")).href;
 const {
   buildValidationPackageHeaderState,
+  buildValidationPackagePanelClassName,
   buildValidationPackagePanelTabStates,
   buildValidationPackageSaveJob,
   buildValidationPackageSaveJobs,
@@ -231,6 +232,79 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("검증 요약 저장 후 열림"),
   "IdeaWorkbench should keep validation package tab labels in the shared helper.",
+);
+assert.equal(
+  buildValidationPackagePanelClassName({
+    activePanel: "validation",
+    isArtifactsTask: true,
+    isGuided: true,
+    panel: "validation",
+  }),
+  "",
+);
+assert.equal(
+  buildValidationPackagePanelClassName({
+    activePanel: "product",
+    hasValidationSummaryArtifact: true,
+    isArtifactsTask: true,
+    isGuided: true,
+    panel: "product",
+    requiresValidationSummary: true,
+  }),
+  "hidden",
+);
+assert.equal(
+  buildValidationPackagePanelClassName({
+    activePanel: "product",
+    hasValidationSummaryArtifact: false,
+    isArtifactsTask: true,
+    isGuided: false,
+    panel: "product",
+    requiresValidationSummary: true,
+  }),
+  "hidden",
+);
+assert.equal(
+  buildValidationPackagePanelClassName({
+    activePanel: "product",
+    hasValidationSummaryArtifact: true,
+    isArtifactsTask: true,
+    isGuided: false,
+    panel: "product",
+    requiresValidationSummary: true,
+    visibleClassName: "grid gap-6 xl:grid-cols-2",
+  }),
+  "grid gap-6 xl:grid-cols-2",
+);
+assert.equal(
+  buildValidationPackagePanelClassName({
+    activePanel: "library",
+    isArtifactsTask: true,
+    isGuided: false,
+    panel: "library",
+  }),
+  "",
+);
+assert.equal(
+  buildValidationPackagePanelClassName({
+    activePanel: "validation",
+    isArtifactsTask: false,
+    isGuided: false,
+    panel: "validation",
+  }),
+  "hidden",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('activeTask === "artifacts" && (experienceMode === "guided" || artifactPanel === "validation")'),
+  "IdeaWorkbench should render validation package validation panel visibility from shared class state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('artifactPanel === "product" &&\n            hasValidationSummaryArtifact'),
+  "IdeaWorkbench should render validation package product panel visibility from shared class state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('artifactPanel === "library" ? "" : "hidden"'),
+  "IdeaWorkbench should render validation package library panel visibility from shared class state.",
 );
 
 console.log("Validation package save jobs smoke passed.");

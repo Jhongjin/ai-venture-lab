@@ -1,3 +1,5 @@
+import type { ArtifactPanel } from "./artifact-review-queue";
+
 export type ValidationPackageSaveJob = {
   artifactType: "idea_brief" | "research_note";
   body: string;
@@ -28,6 +30,15 @@ export type ValidationPackagePanelTabState = {
   label: string;
   panel: "validation" | "product";
   stepLabel: string;
+};
+export type ValidationPackagePanelClassNameInput = {
+  activePanel: ArtifactPanel;
+  hasValidationSummaryArtifact?: boolean;
+  isArtifactsTask: boolean;
+  isGuided: boolean;
+  panel: ArtifactPanel;
+  requiresValidationSummary?: boolean;
+  visibleClassName?: string;
 };
 
 export function buildValidationPackageStatusRows({
@@ -203,6 +214,22 @@ export function buildValidationPackagePanelTabStates({
       stepLabel: "STEP 4-2",
     },
   ];
+}
+
+export function buildValidationPackagePanelClassName({
+  activePanel,
+  hasValidationSummaryArtifact = true,
+  isArtifactsTask,
+  isGuided,
+  panel,
+  requiresValidationSummary = false,
+  visibleClassName = "",
+}: ValidationPackagePanelClassNameInput): string {
+  const isVisiblePanel =
+    panel === "validation" ? isGuided || activePanel === "validation" : !isGuided && activePanel === panel;
+  const hasRequiredSummary = !requiresValidationSummary || hasValidationSummaryArtifact;
+
+  return isArtifactsTask && isVisiblePanel && hasRequiredSummary ? visibleClassName : "hidden";
 }
 
 export function buildValidationSummaryDisabledNote({
