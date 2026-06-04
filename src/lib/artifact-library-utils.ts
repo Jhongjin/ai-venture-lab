@@ -70,6 +70,41 @@ export function buildArtifactDraftInsertRow({
   };
 }
 
+export function buildArtifactDraftSavePlan({
+  artifacts,
+  artifactType,
+  body,
+  idea,
+  source,
+  statusNote,
+  title,
+  version,
+}: {
+  artifacts: ReadonlyArray<Pick<VentureArtifact, "artifact_type" | "version">>;
+  artifactType: VentureArtifactType;
+  body: string;
+  idea: ArtifactDraftIdeaSummary;
+  source: string;
+  statusNote?: string;
+  title: string;
+  version?: number;
+}) {
+  const nextVersion = version ?? getNextArtifactVersion(artifacts, artifactType);
+
+  return {
+    row: buildArtifactDraftInsertRow({
+      artifactType,
+      body,
+      idea,
+      source,
+      statusNote,
+      title,
+      version: nextVersion,
+    }),
+    version: nextVersion,
+  };
+}
+
 export function buildArtifactSavedTelemetryPayload({
   artifact,
   source,
@@ -249,7 +284,10 @@ export function buildArtifactLibraryViewState({
   };
 }
 
-export function getNextArtifactVersion(artifacts: ReadonlyArray<VentureArtifact>, artifactType: VentureArtifactType) {
+export function getNextArtifactVersion(
+  artifacts: ReadonlyArray<Pick<VentureArtifact, "artifact_type" | "version">>,
+  artifactType: VentureArtifactType,
+) {
   return (
     Math.max(
       0,

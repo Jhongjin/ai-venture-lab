@@ -21,6 +21,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const { artifactStatusOptions, artifactTypeOptions } = await import(artifactLabelsUrl);
 const {
   buildArtifactDraftInsertRow,
+  buildArtifactDraftSavePlan,
   buildArtifactLibraryViewState,
   buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
@@ -216,6 +217,43 @@ assert.equal(
     version: 1,
   }).status_note,
   "검증 자료 자동 저장에서 생성한 초안입니다.",
+);
+const savePlan = buildArtifactDraftSavePlan({
+  artifacts: [
+    { artifact_type: "prd", version: 1 },
+    { artifact_type: "prd", version: 3 },
+    { artifact_type: "tech_spec", version: 9 },
+  ],
+  artifactType: "prd",
+  body: "# PRD v4",
+  idea: { id: "idea-3", organization_id: "org-1" },
+  source: "workbench",
+  statusNote: "사용자가 저장한 초안입니다.",
+  title: "AI Venture Lab PRD",
+});
+assert.equal(savePlan.version, 4);
+assert.deepEqual(savePlan.row, {
+  artifact_type: "prd",
+  body: "# PRD v4",
+  idea_id: "idea-3",
+  organization_id: "org-1",
+  source: "workbench",
+  status: "draft",
+  status_note: "사용자가 저장한 초안입니다.",
+  title: "AI Venture Lab PRD",
+  version: 4,
+});
+assert.equal(
+  buildArtifactDraftSavePlan({
+    artifacts: [],
+    artifactType: "tech_spec",
+    body: "# Tech",
+    idea: { id: "idea-4", organization_id: null },
+    source: "app_blueprint",
+    title: "Tech",
+    version: 7,
+  }).version,
+  7,
 );
 
 assert.deepEqual(

@@ -39,7 +39,7 @@ import {
   getArtifactReviewChecksPreview,
 } from "@/lib/artifact-review-summary";
 import {
-  buildArtifactDraftInsertRow,
+  buildArtifactDraftSavePlan,
   buildArtifactLibraryViewState,
   buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
@@ -52,7 +52,6 @@ import {
   buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
   countApprovedArtifacts,
-  getNextArtifactVersion,
 } from "@/lib/artifact-library-utils";
 import { buildBackendPlanningArtifactSaveDrafts, buildBackendPlanningDraftState } from "@/lib/backend-planning-drafts";
 import { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftState } from "@/lib/execution-package-drafts";
@@ -2746,23 +2745,22 @@ export function IdeaWorkbench({
       return false;
     }
 
-    const nextVersion = options.version ?? getNextArtifactVersion(selectedArtifactRecords, artifactType);
+    const savePlan = buildArtifactDraftSavePlan({
+      artifacts: selectedArtifactRecords,
+      artifactType,
+      body,
+      idea: selectedIdea,
+      source,
+      statusNote: options.statusNote,
+      title,
+      version: options.version,
+    });
 
     setIsBusy(true);
     setMessage(null);
     const { data, error } = await supabase
       .from("venture_artifacts")
-      .insert(
-        buildArtifactDraftInsertRow({
-          artifactType,
-          body,
-          idea: selectedIdea,
-          source,
-          statusNote: options.statusNote,
-          title,
-          version: nextVersion,
-        }),
-      )
+      .insert(savePlan.row)
       .select()
       .single();
     setIsBusy(false);
@@ -2781,7 +2779,7 @@ export function IdeaWorkbench({
       properties: artifactSavedTelemetry.properties,
     });
     if (!options.quiet) {
-      setMessage(buildArtifactSavedMessage({ artifactLabel: artifactLabels[artifactType], version: nextVersion }));
+      setMessage(buildArtifactSavedMessage({ artifactLabel: artifactLabels[artifactType], version: savePlan.version }));
     }
     router.refresh();
     return true;
