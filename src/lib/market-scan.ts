@@ -207,12 +207,21 @@ export type MarketScanDraftPanelState = {
   highStrengthPublicSourceCount: number;
   isVisible: boolean;
   publicSourceCount: number;
+  publicSourceItems: MarketScanPublicSourceDisplayItem[];
   publicSourceSummaryText: string;
   showCompetitorMap: boolean;
   showEntryBarrierChecks: boolean;
   showMarketSignals: boolean;
   showPublicSources: boolean;
   showResearchQueries: boolean;
+};
+
+export type MarketScanPublicSourceDisplayItem = {
+  key: string;
+  source: MarketScanSource;
+  sourceTypeLabel: string;
+  strengthLabel: string;
+  strengthTone: string;
 };
 
 export type MarketScanReviewRows = {
@@ -244,6 +253,18 @@ export function buildMarketScanActionControlState({
   };
 }
 
+export function buildMarketScanPublicSourceDisplayItems(
+  sources: ReadonlyArray<MarketScanSource>,
+): MarketScanPublicSourceDisplayItem[] {
+  return getPublicMarketScanSources(sources).map((source, index) => ({
+    key: `${source.url || source.title}-${index}`,
+    source,
+    sourceTypeLabel: marketScanSourceTypeLabels[source.source_type],
+    strengthLabel: getMarketScanLevelLabel(source.strength),
+    strengthTone: getMarketScanSourceStrengthTone(source.strength),
+  }));
+}
+
 export function buildMarketScanDraftPanelState({
   draft,
   isEstimate,
@@ -251,7 +272,8 @@ export function buildMarketScanDraftPanelState({
   draft: MarketScanDraft | null;
   isEstimate: boolean;
 }): MarketScanDraftPanelState {
-  const publicSources = draft ? getPublicMarketScanSources(draft.sources) : [];
+  const publicSourceItems = draft ? buildMarketScanPublicSourceDisplayItems(draft.sources) : [];
+  const publicSources = publicSourceItems.map((item) => item.source);
   const highStrengthPublicSourceCount = countHighStrengthMarketScanSources(publicSources);
 
   return {
@@ -266,6 +288,7 @@ export function buildMarketScanDraftPanelState({
     highStrengthPublicSourceCount,
     isVisible: Boolean(draft),
     publicSourceCount: publicSources.length,
+    publicSourceItems,
     publicSourceSummaryText: `근거 강도 높음 ${highStrengthPublicSourceCount}개 / 전체 ${publicSources.length}개`,
     showCompetitorMap: Boolean(draft?.competitor_map.length),
     showEntryBarrierChecks: Boolean(draft?.entry_barrier_checks.length),

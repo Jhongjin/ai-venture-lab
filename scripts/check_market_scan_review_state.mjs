@@ -19,6 +19,7 @@ const {
   buildMarketScanDraftPanelState,
   buildMarketScanEvidenceDraft,
   buildMarketScanExperimentResultPatch,
+  buildMarketScanPublicSourceDisplayItems,
   buildMarketScanRequestPayload,
   buildMarketScanReviewRows,
   buildMarketScanReviewState,
@@ -183,6 +184,15 @@ assert.equal(countHighStrengthMarketScanSources(webDraftState.publicSources), 1)
 assert.equal(webDraftState.status.label, "웹 조사 준비");
 assert.equal(webDraftState.actionLabel, "다시 정리");
 assert.match(webDraftState.sourceBoundaryText, /공개 출처 1개/);
+assert.deepEqual(buildMarketScanPublicSourceDisplayItems(draft.sources), [
+  {
+    key: "https://example.com/source-0",
+    source: draft.sources[0],
+    sourceTypeLabel: "직접 출처",
+    strengthLabel: "높음",
+    strengthTone: "avl-pill-success",
+  },
+]);
 assert.deepEqual(
   buildMarketScanDraftPanelState({
     draft: webDraftState.visibleDraft,
@@ -197,6 +207,15 @@ assert.deepEqual(
     highStrengthPublicSourceCount: 1,
     isVisible: true,
     publicSourceCount: 1,
+    publicSourceItems: [
+      {
+        key: "https://example.com/source-0",
+        source: draft.sources[0],
+        sourceTypeLabel: "직접 출처",
+        strengthLabel: "높음",
+        strengthTone: "avl-pill-success",
+      },
+    ],
     publicSourceSummaryText: "근거 강도 높음 1개 / 전체 1개",
     showCompetitorMap: true,
     showEntryBarrierChecks: true,
@@ -355,6 +374,15 @@ assert.deepEqual(
     highStrengthPublicSourceCount: 1,
     isVisible: true,
     publicSourceCount: 1,
+    publicSourceItems: [
+      {
+        key: "https://example.com/source-0",
+        source: draft.sources[0],
+        sourceTypeLabel: "직접 출처",
+        strengthLabel: "높음",
+        strengthTone: "avl-pill-success",
+      },
+    ],
     publicSourceSummaryText: "근거 강도 높음 1개 / 전체 1개",
     showCompetitorMap: true,
     showEntryBarrierChecks: true,
@@ -444,6 +472,7 @@ assert.deepEqual(
     highStrengthPublicSourceCount: 0,
     isVisible: false,
     publicSourceCount: 0,
+    publicSourceItems: [],
     publicSourceSummaryText: "근거 강도 높음 0개 / 전체 0개",
     showCompetitorMap: false,
     showEntryBarrierChecks: false,

@@ -283,8 +283,6 @@ import {
   buildVisibleMarketScanReviewRows,
   getMarketScanUrl,
   getMarketScanLevelLabel,
-  getMarketScanSourceStrengthTone,
-  marketScanSourceTypeLabels,
   normalizeMarketScanDraft,
   type MarketScanDraft,
 } from "@/lib/market-scan";
@@ -1820,7 +1818,6 @@ export function IdeaWorkbench({
     hasArtifact: hasMarketScanArtifact,
     hasOutdatedArtifact: hasOutdatedMarketScanArtifact,
     isVisibleEstimate: isVisibleMarketScanEstimate,
-    publicSources: visibleMarketScanPublicSources,
     showOutdatedNotice: showOutdatedMarketScanNotice,
     showSavedNotice: showSavedMarketScanNotice,
     sourceBoundaryText: marketScanSourceBoundaryText,
@@ -7303,26 +7300,26 @@ export function IdeaWorkbench({
                   </div>
                   {marketScanDraftPanelState.showPublicSources ? (
                     <div className="grid gap-2">
-                      {visibleMarketScanPublicSources.map((source, index) => (
-                        <div key={`${source.url}-${index}`} className="border border-slate-200 bg-white px-3 py-2 text-xs leading-5">
-                          <div className="mb-1 flex flex-wrap gap-2">
-                            <span className={`avl-pill ${getMarketScanSourceStrengthTone(source.strength)} text-[11px]`}>
-                              근거 강도 {getMarketScanLevelLabel(source.strength)}
-                            </span>
-                            <span className="avl-pill avl-pill-neutral text-[11px]">
-                              {marketScanSourceTypeLabels[source.source_type]}
-                            </span>
+                      {marketScanDraftPanelState.publicSourceItems.map(
+                        ({ key, source, sourceTypeLabel, strengthLabel, strengthTone }) => (
+                          <div key={key} className="border border-slate-200 bg-white px-3 py-2 text-xs leading-5">
+                            <div className="mb-1 flex flex-wrap gap-2">
+                              <span className={`avl-pill ${strengthTone} text-[11px]`}>
+                                근거 강도 {strengthLabel}
+                              </span>
+                              <span className="avl-pill avl-pill-neutral text-[11px]">{sourceTypeLabel}</span>
+                            </div>
+                            {source.url ? (
+                              <a href={source.url} target="_blank" rel="noreferrer" className="font-semibold text-slate-950 underline-offset-2 hover:underline">
+                                {source.title || source.url}
+                              </a>
+                            ) : (
+                              <span className="font-semibold text-slate-950">{source.title}</span>
+                            )}
+                            {source.reason ? <p className="mt-1 text-slate-500">{source.reason}</p> : null}
                           </div>
-                          {source.url ? (
-                            <a href={source.url} target="_blank" rel="noreferrer" className="font-semibold text-slate-950 underline-offset-2 hover:underline">
-                              {source.title || source.url}
-                            </a>
-                          ) : (
-                            <span className="font-semibold text-slate-950">{source.title}</span>
-                          )}
-                          {source.reason ? <p className="mt-1 text-slate-500">{source.reason}</p> : null}
-                        </div>
-                      ))}
+                        ),
+                      )}
                     </div>
                   ) : (
                     <div className="text-sm text-slate-500">
