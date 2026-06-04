@@ -204,6 +204,8 @@ export type MarketScanDraftPanelState = {
   alertMessage: string;
   confidenceLabel: string;
   confidenceSuffix: string;
+  competitorItems: MarketScanCompetitorDisplayItem[];
+  entryBarrierItems: MarketScanEntryBarrierDisplayItem[];
   highStrengthPublicSourceCount: number;
   isVisible: boolean;
   publicSourceCount: number;
@@ -214,6 +216,18 @@ export type MarketScanDraftPanelState = {
   showMarketSignals: boolean;
   showPublicSources: boolean;
   showResearchQueries: boolean;
+};
+
+export type MarketScanCompetitorDisplayItem = {
+  competitor: MarketScanCompetitor;
+  key: string;
+  threatLabel: string;
+};
+
+export type MarketScanEntryBarrierDisplayItem = {
+  barrier: MarketScanBarrier;
+  key: string;
+  severityLabel: string;
 };
 
 export type MarketScanPublicSourceDisplayItem = {
@@ -265,6 +279,26 @@ export function buildMarketScanPublicSourceDisplayItems(
   }));
 }
 
+export function buildMarketScanCompetitorDisplayItems(
+  competitors: ReadonlyArray<MarketScanCompetitor>,
+): MarketScanCompetitorDisplayItem[] {
+  return competitors.map((competitor) => ({
+    competitor,
+    key: `${competitor.name}-${competitor.category}`,
+    threatLabel: getMarketScanLevelLabel(competitor.threat),
+  }));
+}
+
+export function buildMarketScanEntryBarrierDisplayItems(
+  barriers: ReadonlyArray<MarketScanBarrier>,
+): MarketScanEntryBarrierDisplayItem[] {
+  return barriers.map((barrier) => ({
+    barrier,
+    key: barrier.label,
+    severityLabel: getMarketScanLevelLabel(barrier.severity),
+  }));
+}
+
 export function buildMarketScanDraftPanelState({
   draft,
   isEstimate,
@@ -272,6 +306,8 @@ export function buildMarketScanDraftPanelState({
   draft: MarketScanDraft | null;
   isEstimate: boolean;
 }): MarketScanDraftPanelState {
+  const competitorItems = draft ? buildMarketScanCompetitorDisplayItems(draft.competitor_map) : [];
+  const entryBarrierItems = draft ? buildMarketScanEntryBarrierDisplayItems(draft.entry_barrier_checks) : [];
   const publicSourceItems = draft ? buildMarketScanPublicSourceDisplayItems(draft.sources) : [];
   const publicSources = publicSourceItems.map((item) => item.source);
   const highStrengthPublicSourceCount = countHighStrengthMarketScanSources(publicSources);
@@ -283,15 +319,17 @@ export function buildMarketScanDraftPanelState({
     alertMessage: isEstimate
       ? "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요."
       : "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
+    competitorItems,
     confidenceLabel: draft ? getMarketScanLevelLabel(draft.confidence) : "",
     confidenceSuffix: isEstimate ? " · 추정 초안" : "",
+    entryBarrierItems,
     highStrengthPublicSourceCount,
     isVisible: Boolean(draft),
     publicSourceCount: publicSources.length,
     publicSourceItems,
     publicSourceSummaryText: `근거 강도 높음 ${highStrengthPublicSourceCount}개 / 전체 ${publicSources.length}개`,
-    showCompetitorMap: Boolean(draft?.competitor_map.length),
-    showEntryBarrierChecks: Boolean(draft?.entry_barrier_checks.length),
+    showCompetitorMap: competitorItems.length > 0,
+    showEntryBarrierChecks: entryBarrierItems.length > 0,
     showMarketSignals: Boolean(draft?.market_signals.length),
     showPublicSources: publicSources.length > 0,
     showResearchQueries: Boolean(draft?.research_queries.length),

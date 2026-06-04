@@ -14,11 +14,13 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildMarketScanCompetitorDisplayItems,
   buildMarketScanActionControlState,
   buildMarketScanArtifactSaveDraft,
   buildMarketScanDraftPanelState,
   buildMarketScanEvidenceDraft,
   buildMarketScanExperimentResultPatch,
+  buildMarketScanEntryBarrierDisplayItems,
   buildMarketScanPublicSourceDisplayItems,
   buildMarketScanRequestPayload,
   buildMarketScanReviewRows,
@@ -184,6 +186,20 @@ assert.equal(countHighStrengthMarketScanSources(webDraftState.publicSources), 1)
 assert.equal(webDraftState.status.label, "웹 조사 준비");
 assert.equal(webDraftState.actionLabel, "다시 정리");
 assert.match(webDraftState.sourceBoundaryText, /공개 출처 1개/);
+assert.deepEqual(buildMarketScanCompetitorDisplayItems(draft.competitor_map), [
+  {
+    competitor: draft.competitor_map[0],
+    key: "Spreadsheet-manual",
+    threatLabel: "보통",
+  },
+]);
+assert.deepEqual(buildMarketScanEntryBarrierDisplayItems(draft.entry_barrier_checks), [
+  {
+    barrier: draft.entry_barrier_checks[0],
+    key: "데이터 연결",
+    severityLabel: "보통",
+  },
+]);
 assert.deepEqual(buildMarketScanPublicSourceDisplayItems(draft.sources), [
   {
     key: "https://example.com/source-0",
@@ -202,8 +218,22 @@ assert.deepEqual(
     alertClassName: "border-blue-100 bg-blue-50 text-slate-700",
     alertMessage:
       "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
+    competitorItems: [
+      {
+        competitor: draft.competitor_map[0],
+        key: "Spreadsheet-manual",
+        threatLabel: "보통",
+      },
+    ],
     confidenceLabel: "보통",
     confidenceSuffix: "",
+    entryBarrierItems: [
+      {
+        barrier: draft.entry_barrier_checks[0],
+        key: "데이터 연결",
+        severityLabel: "보통",
+      },
+    ],
     highStrengthPublicSourceCount: 1,
     isVisible: true,
     publicSourceCount: 1,
@@ -369,8 +399,22 @@ assert.deepEqual(
     alertClassName: "border-amber-200 bg-amber-50 text-amber-950",
     alertMessage:
       "이 결과는 웹 출처가 붙지 않은 추정 초안입니다. OpenAI 웹 조사가 가능해지면 다시 실행해 출처 포함 리서치 노트로 보강하세요.",
+    competitorItems: [
+      {
+        competitor: draft.competitor_map[0],
+        key: "Spreadsheet-manual",
+        threatLabel: "보통",
+      },
+    ],
     confidenceLabel: "보통",
     confidenceSuffix: " · 추정 초안",
+    entryBarrierItems: [
+      {
+        barrier: draft.entry_barrier_checks[0],
+        key: "데이터 연결",
+        severityLabel: "보통",
+      },
+    ],
     highStrengthPublicSourceCount: 1,
     isVisible: true,
     publicSourceCount: 1,
@@ -467,8 +511,10 @@ assert.deepEqual(
     alertClassName: "border-blue-100 bg-blue-50 text-slate-700",
     alertMessage:
       "이 결과는 현재 아이디어에 연결되는 자동 점검 초안입니다. 저장 권한이 있으면 리서치 노트로 자동 저장되고, 제작 패키지에 들어갈 리서치 근거로 함께 묶입니다.",
+    competitorItems: [],
     confidenceLabel: "",
     confidenceSuffix: "",
+    entryBarrierItems: [],
     highStrengthPublicSourceCount: 0,
     isVisible: false,
     publicSourceCount: 0,

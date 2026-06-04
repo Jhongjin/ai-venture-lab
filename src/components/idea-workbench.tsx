@@ -282,7 +282,6 @@ import {
   buildMarketScanRunCompletedMessage,
   buildVisibleMarketScanReviewRows,
   getMarketScanUrl,
-  getMarketScanLevelLabel,
   normalizeMarketScanDraft,
   type MarketScanDraft,
 } from "@/lib/market-scan";
@@ -7241,13 +7240,13 @@ export function IdeaWorkbench({
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">경쟁/대체재</div>
                     <div className="mt-3 grid gap-2">
                       {marketScanDraftPanelState.showCompetitorMap ? (
-                        visibleMarketScanDraft.competitor_map.map((competitor) => (
-                          <div key={`${competitor.name}-${competitor.category}`} className="border border-slate-100 bg-slate-50 px-3 py-2">
+                        marketScanDraftPanelState.competitorItems.map(({ competitor, key, threatLabel }) => (
+                          <div key={key} className="border border-slate-100 bg-slate-50 px-3 py-2">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-sm font-semibold text-slate-950">{competitor.name}</span>
                               <span className="avl-pill avl-pill-neutral text-[11px]">{competitor.category}</span>
                               <span className="avl-pill avl-pill-info text-[11px]">
-                                위협 {getMarketScanLevelLabel(competitor.threat)}
+                                위협 {threatLabel}
                               </span>
                             </div>
                             <p className="mt-1 text-xs leading-5 text-slate-600">{competitor.note}</p>
@@ -7262,12 +7261,12 @@ export function IdeaWorkbench({
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">진입장벽 체크</div>
                     <div className="mt-3 grid gap-2">
                       {marketScanDraftPanelState.showEntryBarrierChecks ? (
-                        visibleMarketScanDraft.entry_barrier_checks.map((barrier) => (
-                          <div key={barrier.label} className="border border-slate-100 bg-slate-50 px-3 py-2">
+                        marketScanDraftPanelState.entryBarrierItems.map(({ barrier, key, severityLabel }) => (
+                          <div key={key} className="border border-slate-100 bg-slate-50 px-3 py-2">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-sm font-semibold text-slate-950">{barrier.label}</span>
                               <span className="avl-pill avl-pill-warning text-[11px]">
-                                {getMarketScanLevelLabel(barrier.severity)}
+                                {severityLabel}
                               </span>
                             </div>
                             <p className="mt-1 text-xs leading-5 text-slate-600">{barrier.note}</p>
