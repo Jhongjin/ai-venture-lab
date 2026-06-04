@@ -24,7 +24,7 @@ export function Step8NextTaskFocus({
           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-700">이어 할 것</div>
           <div className="mt-2 text-sm font-semibold text-slate-950">상태만 확인</div>
           <p className="mt-1 text-xs leading-5 text-slate-600">
-            막힘, 건너뜀, 상태 누락만 봅니다. 실행은 STEP 7에서 계속합니다.
+            막힘/건너뜀/누락만 봅니다. 실행은 STEP 7.
           </p>
         </div>
       );
@@ -49,7 +49,7 @@ export function Step8NextTaskFocus({
         {nextTaskTitle}
       </div>
       <p className="mt-1 text-xs leading-5 text-slate-600">
-        실행은 STEP 7에서 계속합니다. 여기서는 반영만 봅니다.
+        실행은 STEP 7. 여기서는 반영만 봅니다.
       </p>
     </div>
   );

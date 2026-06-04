@@ -298,8 +298,8 @@ const contracts = [
       "남은 작업 없음",
       "완료 근거와 오늘 판단만 봅니다.",
       "상태만 확인",
-      "막힘, 건너뜀, 상태 누락만 봅니다.",
-      "실행은 STEP 7에서 계속합니다.",
+      "막힘/건너뜀/누락만 봅니다.",
+      "실행은 STEP 7.",
       "여기서는 반영만 봅니다.",
     ],
   },
@@ -309,8 +309,8 @@ const contracts = [
       'data-smoke="step8-single-decision-rule"',
       'data-smoke="step8-decision-options"',
       'data-smoke="step8-action-ladder-details"',
-      "확인 순서 보기",
-      "판단 후보 보기",
+      "순서 보기",
+      "후보 보기",
     ],
   },
   {
@@ -322,8 +322,8 @@ const contracts = [
     tokens: [
       'data-smoke="step8-confirm-not-run-header"',
       "완료된 것, 이어 할 것, 지금 판단만 봅니다.",
-      "STEP 8에서는 실행하지 않습니다.",
-      "완료 보고와 다음 판단 하나만 확인합니다.",
+      "실행은 STEP 7.",
+      "여기서는 반영과 판단만 확인합니다.",
     ],
   },
   {

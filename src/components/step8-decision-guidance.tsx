@@ -5,9 +5,9 @@ type Step8DecisionGuidanceProps = {
 };
 
 const step8ActionLadderItems = [
-  ["1. 완료된 것", "끝난 작업만 확인"],
-  ["2. 이어 할 것", "이어 할 작업 하나만 선택"],
-  ["3. 지금 판단", "진행, 보류, 전환 중 선택"],
+  ["1. 완료된 것", "끝난 작업"],
+  ["2. 이어 할 것", "다음 하나"],
+  ["3. 지금 판단", "진행/보류/전환"],
 ] as const;
 
 export function Step8DecisionGuidance({ decisionOptions }: Step8DecisionGuidanceProps) {
@@ -17,11 +17,11 @@ export function Step8DecisionGuidance({ decisionOptions }: Step8DecisionGuidance
         data-smoke="step8-single-decision-rule"
         className="mt-3 border border-blue-200 bg-white px-3 py-2 text-sm font-semibold leading-6 text-blue-950"
       >
-        판단은 하나만 고릅니다. 부족하면 다음 작업 하나만 남기세요.
+        판단 하나, 다음 작업 하나만 남기세요.
       </div>
       <details data-smoke="step8-decision-options" className="mt-3 border border-blue-200 bg-white px-3 py-2">
-        <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">판단 후보 보기</summary>
-        <div className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 고를 판단 후보</div>
+        <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">후보 보기</summary>
+        <div className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 고를 후보</div>
         <div className="mt-2 grid gap-2 sm:grid-cols-3">
           {decisionOptions.map((option, index) => (
             <div key={option} className="flex min-h-11 items-center gap-2 border border-blue-100 bg-blue-50 px-2.5 py-2">
@@ -34,7 +34,7 @@ export function Step8DecisionGuidance({ decisionOptions }: Step8DecisionGuidance
         </div>
       </details>
       <details data-smoke="step8-action-ladder-details" className="mt-3 border border-blue-200 bg-white px-3 py-2">
-        <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">확인 순서 보기</summary>
+        <summary className="cursor-pointer list-none text-sm font-semibold text-blue-950">순서 보기</summary>
         <div data-smoke="step8-action-ladder" className="mt-3 grid gap-px bg-blue-200 sm:grid-cols-3">
           {step8ActionLadderItems.map(([label, detail]) => (
             <div key={label} className="bg-white px-3 py-2">
