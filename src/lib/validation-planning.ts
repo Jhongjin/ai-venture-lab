@@ -30,9 +30,28 @@ export type ValidationPlanningReviewState = {
   validationPlan: ReturnType<typeof buildValidationPlan> | null;
   recommendedValidationExperiment: ValidationPlanExperimentDraft | null;
 };
+export type RecommendedValidationExperimentSaveControl = {
+  disabled: boolean;
+  label: string;
+};
 
 export function getValidationPlanExperimentPreview(experiments: ValidationPlanExperimentDraft[], limit = 2) {
   return experiments.slice(0, limit);
+}
+
+export function buildRecommendedValidationExperimentSaveControl({
+  hasSavedExperiment,
+  hasUser,
+  isBusy,
+}: {
+  hasSavedExperiment: boolean;
+  hasUser: boolean;
+  isBusy: boolean;
+}): RecommendedValidationExperimentSaveControl {
+  return {
+    disabled: isBusy || !hasUser || hasSavedExperiment,
+    label: hasSavedExperiment ? "검증 계획 저장 완료" : "AI 추천 검증 계획 저장",
+  };
 }
 
 export function buildIdeaDomainText(

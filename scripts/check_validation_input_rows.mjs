@@ -54,6 +54,7 @@ const {
   validationExperimentGuideRows,
 } = await import(moduleUrl);
 const {
+  buildRecommendedValidationExperimentSaveControl,
   buildIdeaDomainText,
   buildValidationEvidenceCoachSearchText,
   buildValidationPlanningReviewState,
@@ -63,6 +64,8 @@ const {
   getValidationPlanExperimentPreview,
   includesAnyNormalized,
 } = await import(validationPlanningUrl);
+
+const ideaWorkbenchSource = fs.readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 assert.equal(includesAnyNormalized("반복 검증 자동화 수요", ["반복"]), true);
 assert.equal(includesAnyNormalized("Weekly validation demand", ["weekly"]), true);
@@ -119,6 +122,42 @@ assert.deepEqual(
     1,
   ).map((experiment) => experiment.name),
   ["문제 인터뷰"],
+);
+assert.deepEqual(buildRecommendedValidationExperimentSaveControl({
+  hasSavedExperiment: false,
+  hasUser: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  label: "AI 추천 검증 계획 저장",
+});
+assert.deepEqual(buildRecommendedValidationExperimentSaveControl({
+  hasSavedExperiment: true,
+  hasUser: true,
+  isBusy: false,
+}), {
+  disabled: true,
+  label: "검증 계획 저장 완료",
+});
+assert.deepEqual(buildRecommendedValidationExperimentSaveControl({
+  hasSavedExperiment: false,
+  hasUser: false,
+  isBusy: true,
+}), {
+  disabled: true,
+  label: "AI 추천 검증 계획 저장",
+});
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || !user || selectedExperiments.length > 0}"),
+  "IdeaWorkbench should render recommended validation experiment save disabled state from shared control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('selectedExperiments.length > 0 ? "검증 계획 저장 완료" : "AI 추천 검증 계획 저장"'),
+  "IdeaWorkbench should render recommended validation experiment save label from shared control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("recommendedValidationExperimentSaveControl.disabled"),
+  "IdeaWorkbench should render recommended validation experiment save disabled state from shared control.",
 );
 const validationIdea = {
   buyer: "운영팀",

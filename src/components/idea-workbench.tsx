@@ -155,6 +155,7 @@ import {
 } from "@/lib/step8-learning-summary";
 import { buildStep6ExecutionBridgeDisplayState } from "@/lib/step6-execution-bridge-state";
 import {
+  buildRecommendedValidationExperimentSaveControl,
   buildValidationPlanningReviewState,
   getValidationPlanExperimentPreview,
 } from "@/lib/validation-planning";
@@ -1484,6 +1485,11 @@ export function IdeaWorkbench({
     risks: selectedIdeaRisks,
     score: currentScore,
     state: editState,
+  });
+  const recommendedValidationExperimentSaveControl = buildRecommendedValidationExperimentSaveControl({
+    hasSavedExperiment: selectedExperiments.length > 0,
+    hasUser: Boolean(user),
+    isBusy,
   });
   const {
     evidenceNoteDraft,
@@ -6669,11 +6675,11 @@ export function IdeaWorkbench({
                           <button
                             type="button"
                             onClick={() => void saveRecommendedExperiment(recommendedValidationExperiment)}
-                            disabled={isBusy || !user || selectedExperiments.length > 0}
+                            disabled={recommendedValidationExperimentSaveControl.disabled}
                             className="avl-btn avl-btn-primary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             <Save size={17} />
-                            {selectedExperiments.length > 0 ? "검증 계획 저장 완료" : "AI 추천 검증 계획 저장"}
+                            {recommendedValidationExperimentSaveControl.label}
                           </button>
                         ) : null}
                       </div>
