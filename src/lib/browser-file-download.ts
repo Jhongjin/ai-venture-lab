@@ -11,6 +11,11 @@ export type BrowserDraftDownloadOptions = {
   mimeType?: string;
 };
 
+export type BrowserDraftCopyOptions = {
+  body: string;
+  label: string;
+};
+
 export type BrowserSetupFileDraft = {
   path: string;
   body: string;
@@ -27,6 +32,14 @@ export async function copyBrowserText(body: string) {
 
   await navigator.clipboard.writeText(body);
   return true;
+}
+
+export async function copyBrowserDraft({ body, label }: BrowserDraftCopyOptions) {
+  if (!(await copyBrowserText(body))) {
+    return null;
+  }
+
+  return buildClipboardCopyMessage(label);
 }
 
 export function buildDownloadPreparedMessage(label: string) {

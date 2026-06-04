@@ -6,6 +6,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/browser-file-d
 const {
   buildClipboardCopyMessage,
   buildDownloadPreparedMessage,
+  copyBrowserDraft,
   copyBrowserText,
   triggerBrowserDraftDownload,
   triggerBrowserTextDownload,
@@ -109,5 +110,12 @@ assert.equal(await copyBrowserText(""), false);
 assert.equal(clipboardText, "");
 assert.equal(await copyBrowserText("복사할 문서"), true);
 assert.equal(clipboardText, "복사할 문서");
+assert.equal(await copyBrowserDraft({ body: "", label: "제작 패키지" }), null);
+assert.equal(clipboardText, "복사할 문서");
+assert.equal(
+  await copyBrowserDraft({ body: "복사할 제작 패키지", label: "제작 패키지" }),
+  "제작 패키지을 클립보드에 복사했습니다.",
+);
+assert.equal(clipboardText, "복사할 제작 패키지");
 
 console.log("Browser file download smoke passed.");

@@ -164,7 +164,7 @@ import {
   type ExternalBuildToolKey,
 } from "@/lib/build-delivery";
 import {
-  buildClipboardCopyMessage,
+  copyBrowserDraft,
   copyBrowserText,
   encodeBrowserSetupFiles,
   triggerBrowserDraftDownload,
@@ -3650,12 +3650,10 @@ export function IdeaWorkbench({
   }
 
   async function copyDraft(body: string, label: string) {
-    if (!body) {
-      return;
-    }
+    const copiedMessage = await copyBrowserDraft({ body, label });
 
-    if (await copyBrowserText(body)) {
-      setCopyMessage(buildClipboardCopyMessage(label));
+    if (copiedMessage) {
+      setCopyMessage(copiedMessage);
     }
   }
 
