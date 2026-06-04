@@ -10,6 +10,10 @@ export type ValidationPackageStatusRow = {
   label: string;
   passed: boolean;
 };
+export type ValidationPackageSaveButtonState = {
+  disabled: boolean;
+  label: string;
+};
 
 export function buildValidationPackageStatusRows({
   hasIdeaBriefArtifact,
@@ -113,6 +117,27 @@ export function buildValidationPackageSaveJobs({
 
 export function getPendingValidationPackageSaveJobs(jobs: ReadonlyArray<ValidationPackageSaveJob>) {
   return jobs.filter((job) => !job.done);
+}
+
+export function buildValidationPackageSaveButtonState({
+  hasUser,
+  isBusy,
+  isSavingValidationBundle,
+  isValidationBundleSaved,
+}: {
+  hasUser: boolean;
+  isBusy: boolean;
+  isSavingValidationBundle: boolean;
+  isValidationBundleSaved: boolean;
+}): ValidationPackageSaveButtonState {
+  return {
+    disabled: isBusy || isSavingValidationBundle || !hasUser || isValidationBundleSaved,
+    label: isSavingValidationBundle
+      ? "저장 중"
+      : isValidationBundleSaved
+        ? "검증 자료 저장 완료"
+        : "검증 자료 한 번에 저장",
+  };
 }
 
 export function buildValidationSummaryDisabledNote({

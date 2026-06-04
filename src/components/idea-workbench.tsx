@@ -480,6 +480,7 @@ import {
 } from "@/lib/validation-package-drafts";
 import {
   buildValidationPackageSaveJobs,
+  buildValidationPackageSaveButtonState,
   buildValidationPackageStatusRows,
   buildValidationSummaryDisabledNote,
   getPendingValidationPackageSaveJobs,
@@ -1670,6 +1671,12 @@ export function IdeaWorkbench({
     hasResearchBriefArtifact,
     hasValidationSprintArtifact,
     hasValidationSummaryArtifact,
+  });
+  const validationPackageSaveButtonState = buildValidationPackageSaveButtonState({
+    hasUser: Boolean(user),
+    isBusy,
+    isSavingValidationBundle,
+    isValidationBundleSaved,
   });
   const visibleMarketScanReviewRows = buildVisibleMarketScanReviewRows({
     decisionLabels,
@@ -7095,15 +7102,11 @@ export function IdeaWorkbench({
               <button
                 type="button"
                 onClick={() => void saveValidationPackageDrafts()}
-                disabled={isBusy || isSavingValidationBundle || !user || isValidationBundleSaved}
+                disabled={validationPackageSaveButtonState.disabled}
                 className="avl-btn avl-btn-primary px-4 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Save size={17} />
-                {isSavingValidationBundle
-                  ? "저장 중"
-                  : isValidationBundleSaved
-                    ? "검증 자료 저장 완료"
-                    : "검증 자료 한 번에 저장"}
+                {validationPackageSaveButtonState.label}
               </button>
               <div className={experienceMode === "guided" ? "hidden" : "grid gap-2 sm:grid-cols-2"}>
               <button

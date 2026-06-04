@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -6,10 +7,12 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-pac
 const {
   buildValidationPackageSaveJob,
   buildValidationPackageSaveJobs,
+  buildValidationPackageSaveButtonState,
   buildValidationPackageStatusRows,
   buildValidationSummaryDisabledNote,
   getPendingValidationPackageSaveJobs,
 } = await import(moduleUrl);
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 const statusRows = buildValidationPackageStatusRows({
   hasIdeaBriefArtifact: true,
@@ -96,5 +99,49 @@ assert.deepEqual(
   ["workbench", "validation_sprint"],
 );
 assert.deepEqual(getPendingValidationPackageSaveJobs(jobs).map((job) => job.done), [false, false]);
+assert.deepEqual(
+  buildValidationPackageSaveButtonState({
+    hasUser: true,
+    isBusy: false,
+    isSavingValidationBundle: false,
+    isValidationBundleSaved: false,
+  }),
+  { disabled: false, label: "검증 자료 한 번에 저장" },
+);
+assert.deepEqual(
+  buildValidationPackageSaveButtonState({
+    hasUser: true,
+    isBusy: false,
+    isSavingValidationBundle: true,
+    isValidationBundleSaved: false,
+  }),
+  { disabled: true, label: "저장 중" },
+);
+assert.deepEqual(
+  buildValidationPackageSaveButtonState({
+    hasUser: true,
+    isBusy: false,
+    isSavingValidationBundle: false,
+    isValidationBundleSaved: true,
+  }),
+  { disabled: true, label: "검증 자료 저장 완료" },
+);
+assert.equal(
+  buildValidationPackageSaveButtonState({
+    hasUser: false,
+    isBusy: false,
+    isSavingValidationBundle: false,
+    isValidationBundleSaved: false,
+  }).disabled,
+  true,
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || isSavingValidationBundle || !user || isValidationBundleSaved}"),
+  "IdeaWorkbench should use the shared validation package save button state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("검증 자료 한 번에 저장"),
+  "IdeaWorkbench should keep validation package save button labels in the shared helper.",
+);
 
 console.log("Validation package save jobs smoke passed.");
