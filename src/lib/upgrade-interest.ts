@@ -100,6 +100,26 @@ export function normalizeUpgradeInterestInput(
   return { intent, source };
 }
 
+export function buildUpgradeInterestStorageUnavailableMessage() {
+  return "관심 등록을 저장할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+}
+
+export function buildUpgradeInterestLoginRequiredMessage() {
+  return "로그인 후 다시 시도해 주세요.";
+}
+
+export function buildUpgradeInterestAlreadyRecordedMessage() {
+  return "이미 Pro 관심이 기록됐습니다. 중복 저장 없이 유지합니다.";
+}
+
+export function buildUpgradeInterestSaveFailedMessage() {
+  return "관심 등록을 저장하지 못했습니다. 다시 눌러 주세요.";
+}
+
+export function buildUpgradeInterestSavedMessage() {
+  return "Pro 관심이 기록됐습니다. 결제 없이 필요 시점을 남겼습니다.";
+}
+
 export function getUpgradeInterestSourceLabel(source: string) {
   return upgradeInterestSourceLabels[source as UpgradeInterestSource] ?? "위치 미확인";
 }

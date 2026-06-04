@@ -8,7 +8,12 @@ const {
   PRO_INTEREST_DEMAND_SIGNAL_MESSAGE,
   PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE,
   PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE,
+  buildUpgradeInterestAlreadyRecordedMessage,
   buildUpgradeInterestDedupeProperties,
+  buildUpgradeInterestLoginRequiredMessage,
+  buildUpgradeInterestSaveFailedMessage,
+  buildUpgradeInterestSavedMessage,
+  buildUpgradeInterestStorageUnavailableMessage,
   buildUpgradeInterestSummaryDisplayState,
   buildUpgradeInterestTelemetryProperties,
   compareUpgradeInterestCountEntries,
@@ -45,6 +50,14 @@ assert.equal(normalizeUpgradeInterestSource("step5_credit_panel"), "step5_credit
 assert.equal(normalizeUpgradeInterestSource("unknown"), "profile_credit_summary");
 assert.equal(normalizeUpgradeInterestIntent("insufficient_credits_for_build_pass"), "insufficient_credits_for_build_pass");
 assert.equal(normalizeUpgradeInterestIntent("unknown"), "repeated_production_packages");
+assert.equal(
+  buildUpgradeInterestStorageUnavailableMessage(),
+  "관심 등록을 저장할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+);
+assert.equal(buildUpgradeInterestLoginRequiredMessage(), "로그인 후 다시 시도해 주세요.");
+assert.equal(buildUpgradeInterestAlreadyRecordedMessage(), "이미 Pro 관심이 기록됐습니다. 중복 저장 없이 유지합니다.");
+assert.equal(buildUpgradeInterestSaveFailedMessage(), "관심 등록을 저장하지 못했습니다. 다시 눌러 주세요.");
+assert.equal(buildUpgradeInterestSavedMessage(), "Pro 관심이 기록됐습니다. 결제 없이 필요 시점을 남겼습니다.");
 assert.equal(getUpgradeInterestSourceLabel("step5_credit_panel"), "STEP 5 크레딧 부족");
 assert.equal(getUpgradeInterestIntentLabel("repeated_production_packages"), "반복 제작");
 assert.equal(formatUpgradeInterestCount(12345), "12,345");
@@ -194,6 +207,11 @@ assert.equal(
   profileActionSource.includes("credit_model"),
   false,
   "profile actions should delegate Pro interest credit model properties to upgrade-interest helpers",
+);
+assert.equal(
+  /[가-힣]/.test(profileActionSource),
+  false,
+  "profile actions should delegate Pro interest user-facing Korean copy to upgrade-interest helpers",
 );
 
 console.log("Upgrade interest utils smoke passed.");
