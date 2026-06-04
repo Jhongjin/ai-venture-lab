@@ -31,6 +31,7 @@ const {
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionLiveToolDraftMaps,
   buildFinalExecutionPackageReadinessState,
+  buildFinalExecutionPackageDownloadAction,
   buildFinalExecutionPrimaryPackageAction,
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
@@ -591,5 +592,14 @@ assert.equal(fallbackPrimaryAction.kind, "package_download");
 assert.equal(fallbackPrimaryAction.body, "# Generic package");
 assert.equal(fallbackPrimaryAction.label, "범용 MCP 전달 시작 패키지");
 assert.equal(fallbackPrimaryAction.fileName, "ai-venture-lab-mcp-handoff-package.md");
+assert.deepEqual(
+  buildFinalExecutionPackageDownloadAction({
+    externalToolLabel: "범용 MCP 전달",
+    externalToolRunPackageDraft: "# Generic package",
+    handoffFileSuffix: "mcp-handoff-package",
+    ideaName: "AI Venture Lab",
+  }),
+  fallbackPrimaryAction,
+);
 
 console.log("Final execution readiness smoke passed.");

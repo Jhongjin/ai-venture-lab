@@ -71,6 +71,11 @@ export type FinalExecutionPrimaryPackageAction<Download> =
       label: string;
     };
 
+export type FinalExecutionPackageDownloadAction = Extract<
+  FinalExecutionPrimaryPackageAction<unknown>,
+  { kind: "package_download" }
+>;
+
 export type FinalExecutionLiveToolContext = {
   folder: string;
   guideDraft: string;
@@ -580,6 +585,25 @@ export function buildFinalExecutionPrimaryPackageAction<Download>({
     };
   }
 
+  return buildFinalExecutionPackageDownloadAction({
+    externalToolLabel,
+    externalToolRunPackageDraft,
+    handoffFileSuffix,
+    ideaName,
+  });
+}
+
+export function buildFinalExecutionPackageDownloadAction({
+  externalToolLabel,
+  externalToolRunPackageDraft,
+  handoffFileSuffix,
+  ideaName,
+}: {
+  externalToolLabel: string;
+  externalToolRunPackageDraft: string;
+  handoffFileSuffix: string;
+  ideaName: string;
+}): FinalExecutionPackageDownloadAction {
   return {
     body: externalToolRunPackageDraft,
     fileName: toDownloadFileName(ideaName, handoffFileSuffix),
