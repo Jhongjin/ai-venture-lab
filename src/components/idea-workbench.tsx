@@ -491,6 +491,7 @@ import {
   buildValidationPackageSaveButtonState,
   buildValidationPackageStatusDisplayRows,
   buildValidationPackageStatusRows,
+  buildValidationPackageSummaryCopyControl,
   buildValidationSummaryDisabledNote,
   getPendingValidationPackageSaveJobs,
 } from "@/lib/validation-package-save-jobs";
@@ -1719,6 +1720,9 @@ export function IdeaWorkbench({
     hasArtifact: hasValidationSummaryArtifact,
     hasUser: Boolean(user),
     isBusy,
+  });
+  const validationPackageSummaryCopyControl = buildValidationPackageSummaryCopyControl({
+    canSaveValidationSummary,
   });
   const validationPackagePrdSaveControl = buildValidationPackageDraftSaveControlState({
     defaultLabel: "제작 자료 저장",
@@ -7385,9 +7389,9 @@ export function IdeaWorkbench({
           description="아이디어 요약, 조사 요약, 7일 검증 계획이 모두 저장된 뒤 마지막으로 저장하는 요약입니다."
           body={validationSummaryDraft}
           rows={16}
-          copyLabel="요약 복사"
+          copyLabel={validationPackageSummaryCopyControl.label}
           onCopy={() => copyDraft(validationSummaryDraft, "검증 완료 요약")}
-          copyDisabled={!canSaveValidationSummary}
+          copyDisabled={validationPackageSummaryCopyControl.disabled}
           onSave={() => savePreparedArtifactDraft(validationSummarySaveDraft)}
           saveLabel={validationPackageSummarySaveControl.label}
           saveDisabled={validationPackageSummarySaveControl.disabled}

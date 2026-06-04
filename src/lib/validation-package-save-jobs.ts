@@ -74,6 +74,10 @@ export type ValidationPackageProductHandoffActionControls = {
   copy: ValidationPackageProductHandoffActionControl;
   save: ValidationPackageProductHandoffActionControl;
 };
+export type ValidationPackageSummaryCopyControl = {
+  disabled: boolean;
+  label: string;
+};
 
 export function buildValidationPackageStatusRows({
   hasIdeaBriefArtifact,
@@ -352,6 +356,17 @@ export function buildValidationPackageProductHandoffActionControls({
       disabled: isBusy || !hasUser || !saveDraftBody,
       label: "전달 내용 저장",
     },
+  };
+}
+
+export function buildValidationPackageSummaryCopyControl({
+  canSaveValidationSummary,
+}: {
+  canSaveValidationSummary: boolean;
+}): ValidationPackageSummaryCopyControl {
+  return {
+    disabled: !canSaveValidationSummary,
+    label: "요약 복사",
   };
 }
 

@@ -18,6 +18,7 @@ const {
   buildValidationPackageSaveButtonState,
   buildValidationPackageStatusDisplayRows,
   buildValidationPackageStatusRows,
+  buildValidationPackageSummaryCopyControl,
   buildValidationSummaryDisabledNote,
   getPendingValidationPackageSaveJobs,
 } = await import(moduleUrl);
@@ -500,6 +501,18 @@ assert.deepEqual(buildValidationPackageProductHandoffActionControls({
     label: "전달 내용 저장",
   },
 });
+assert.deepEqual(buildValidationPackageSummaryCopyControl({
+  canSaveValidationSummary: true,
+}), {
+  disabled: false,
+  label: "요약 복사",
+});
+assert.deepEqual(buildValidationPackageSummaryCopyControl({
+  canSaveValidationSummary: false,
+}), {
+  disabled: true,
+  label: "요약 복사",
+});
 assert.ok(
   !ideaWorkbenchSource.includes(
     'nextPrdBlocker ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"',
@@ -545,6 +558,14 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("validationPackageProductHandoffActionControls.copy.disabled"),
   "IdeaWorkbench should render product handoff copy disabled state from shared controls.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("copyDisabled={!canSaveValidationSummary}"),
+  "IdeaWorkbench should render validation summary copy disabled state from shared controls.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationPackageSummaryCopyControl.disabled"),
+  "IdeaWorkbench should render validation summary copy disabled state from shared controls.",
 );
 
 console.log("Validation package save jobs smoke passed.");
