@@ -43,6 +43,7 @@ const source = readFileSync(modulePath, "utf8")
 const moduleUrl = transpileToDataUrl(source, modulePath);
 const {
   buildExternalToolBackupProgressImportInstruction,
+  buildExternalToolCliFilePath,
   buildExternalToolProjectContextLines,
   buildExternalToolProjectInfoSection,
   buildExternalToolNextTaskCommand,
@@ -87,6 +88,8 @@ assert.equal(buildExternalToolSyncFilePath(".cursor"), ".cursor/venture-lab-sync
 assert.equal(buildExternalToolSyncFilePath(".claude"), ".claude/venture-lab-sync.json");
 assert.equal(buildExternalToolProgressFilePath(".cursor"), ".cursor/venture-lab-progress.json");
 assert.equal(buildExternalToolProgressFilePath(".antigravity"), ".antigravity/venture-lab-progress.json");
+assert.equal(buildExternalToolCliFilePath(".cursor"), ".cursor/venture-lab-cli.mjs");
+assert.equal(buildExternalToolCliFilePath(".codex"), ".codex/venture-lab-cli.mjs");
 assert.equal(
   buildExternalToolBackupProgressImportInstruction({ toolFolder: ".codex" }),
   "자동 반영이 실패한 경우에만 `.codex/venture-lab-progress.json` 내용을 백업 가져오기에 붙여넣습니다.",

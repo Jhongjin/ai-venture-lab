@@ -66,8 +66,12 @@ export function buildExternalToolSyncSecuritySection(syncFilePath: string) {
 - 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.`;
 }
 
+export function buildExternalToolCliFilePath(toolFolder: string) {
+  return `${toolFolder}/venture-lab-cli.mjs`;
+}
+
 export function buildExternalToolRecordProgressCommand(toolFolder: string) {
-  return `node ${toolFolder}/venture-lab-cli.mjs record-progress`;
+  return `node ${buildExternalToolCliFilePath(toolFolder)} record-progress`;
 }
 
 export function buildExternalToolRecordProgressExampleCommand(toolFolder: string) {
@@ -75,7 +79,7 @@ export function buildExternalToolRecordProgressExampleCommand(toolFolder: string
 }
 
 export function buildExternalToolNextTaskCommand(toolFolder: string) {
-  return `node ${toolFolder}/venture-lab-cli.mjs next-task`;
+  return `node ${buildExternalToolCliFilePath(toolFolder)} next-task`;
 }
 
 export function buildExternalToolProgressFilePath(toolFolder: string) {
@@ -297,7 +301,7 @@ export function buildCursorGuideMarkdown({
 - \`AI_VENTURE_CURSOR_START.md\`: Cursor Composer에 붙여 넣을 시작 지시문
 - \`.cursor/rules/ai-venture-lab.mdc\`: Cursor가 항상 참고할 프로젝트 규칙
 - \`.cursor/mcp.json\`: 프로젝트 전용 MCP 서버 설정
-- \`.cursor/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
+- \`${buildExternalToolCliFilePath(".cursor")}\`: 로컬 CLI 겸 MCP 브리지
 - \`.cursor/venture-lab-mcp-server.mjs\`: 기존 설정 호환용 MCP 실행 파일
 - \`${buildExternalToolSyncFilePath(".cursor")}\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`${buildExternalToolProgressFilePath(".cursor")}\`: Cursor 작업 진행 기록
@@ -348,7 +352,7 @@ export function buildCodexTaskMarkdown({
 }) {
   return buildCursorTaskMarkdown({ idea, productSurface, tasks, fallbackTasks })
     .replace(/^# Cursor 작업 목록/, "# Codex 작업 목록")
-    .replaceAll("Cursor의 `venture_record_progress` 도구", "Codex의 `.codex/venture-lab-cli.mjs record-progress` 명령")
+    .replaceAll("Cursor의 `venture_record_progress` 도구", `Codex의 \`${buildExternalToolCliFilePath(".codex")} record-progress\` 명령`)
     .replaceAll("Cursor MCP의 `venture_record_progress` 도구", "Codex CLI의 `record-progress` 명령")
     .replaceAll("Cursor 진행 결과", "Codex 진행 결과")
     .replaceAll("Cursor", "Codex");
@@ -449,7 +453,7 @@ export function buildCodexGuideMarkdown({
 - \`AI_VENTURE_CODEX_START.md\`: Codex 첫 메시지로 넣을 시작 지시문
 - \`AGENTS.ai-venture-lab.md\`: Codex가 참고할 프로젝트 작업 규칙
 - \`README_VENTURE_LAB_CODEX.md\`: 이 연결 가이드
-- \`.codex/venture-lab-cli.mjs\`: 로컬 CLI 연결 파일
+- \`${buildExternalToolCliFilePath(".codex")}\`: 로컬 CLI 연결 파일
 - \`${buildExternalToolSyncFilePath(".codex")}\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`${buildExternalToolProgressFilePath(".codex")}\`: Codex 작업 진행 기록
 
@@ -589,7 +593,7 @@ export function buildClaudeGuideMarkdown({
 - \`CLAUDE.md\`: Claude Code가 참고할 프로젝트 작업 규칙
 - \`README_VENTURE_LAB_CLAUDE.md\`: 이 연결 가이드
 - \`.mcp.json\`: 프로젝트 전용 MCP 서버 설정
-- \`.claude/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
+- \`${buildExternalToolCliFilePath(".claude")}\`: 로컬 CLI 겸 MCP 브리지
 - \`${buildExternalToolSyncFilePath(".claude")}\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`${buildExternalToolProgressFilePath(".claude")}\`: Claude Code 작업 진행 기록
 
@@ -697,7 +701,7 @@ export function buildAntigravityGuideMarkdown({
 - \`AGENTS.ai-venture-lab.md\`: 프로젝트 작업 규칙
 - \`README_VENTURE_LAB_ANTIGRAVITY.md\`: 이 연결 가이드
 - \`.antigravity/mcp_config.json\`: Antigravity MCP 설정 후보
-- \`.antigravity/venture-lab-cli.mjs\`: 로컬 CLI 겸 MCP 브리지
+- \`${buildExternalToolCliFilePath(".antigravity")}\`: 로컬 CLI 겸 MCP 브리지
 - \`${buildExternalToolSyncFilePath(".antigravity")}\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`${buildExternalToolProgressFilePath(".antigravity")}\`: Antigravity 작업 진행 기록
 
