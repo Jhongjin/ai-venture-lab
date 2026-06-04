@@ -138,6 +138,15 @@ export function buildWorkbenchScoringCurrentScoreCard({
   };
 }
 
+export function buildWorkbenchScoringNextActionCard(): WorkbenchScoringReviewCardState {
+  return {
+    description:
+      "AI가 채운 값을 그대로 쓰거나 필요한 부분만 수정한 뒤 저장하세요. 다음 단계의 실험과 리스크 초안은 AI가 이어서 준비합니다.",
+    label: "다음 행동",
+    value: "사업성 평가를 저장하면 됩니다",
+  };
+}
+
 export function scoreWorkbenchState(state: WorkbenchEditState) {
   return (
     state.problem_intensity +

@@ -24,6 +24,7 @@ const {
   buildWorkbenchScoreInputFieldConfigs,
   buildWorkbenchScoringCurrentScoreCard,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringNextActionCard,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringReviewCards,
@@ -145,6 +146,16 @@ assert.deepEqual(buildWorkbenchScoringCurrentScoreCard({ currentScore: 25 }), {
 assert.ok(
   !ideaWorkbenchSource.includes("위 6개 항목에서 리스크"),
   "IdeaWorkbench should keep current-score card copy in the shared helper.",
+);
+assert.deepEqual(buildWorkbenchScoringNextActionCard(), {
+  description:
+    "AI가 채운 값을 그대로 쓰거나 필요한 부분만 수정한 뒤 저장하세요. 다음 단계의 실험과 리스크 초안은 AI가 이어서 준비합니다.",
+  label: "다음 행동",
+  value: "사업성 평가를 저장하면 됩니다",
+});
+assert.ok(
+  !ideaWorkbenchSource.includes("사업성 평가를 저장하면 됩니다"),
+  "IdeaWorkbench should keep scoring next-action card copy in the shared helper.",
 );
 
 const savePatch = buildWorkbenchScoringSavePatch({

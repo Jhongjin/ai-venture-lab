@@ -120,6 +120,7 @@ import {
   buildWorkbenchScoreInputFieldConfigs,
   buildWorkbenchScoringCurrentScoreCard,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringNextActionCard,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringReviewCards,
@@ -1449,6 +1450,7 @@ export function IdeaWorkbench({
     scoreDecisionLabel: scoringRecommendationPanelState.scoreDecisionLabel,
   });
   const scoringCurrentScoreCard = buildWorkbenchScoringCurrentScoreCard({ currentScore });
+  const scoringNextActionCard = buildWorkbenchScoringNextActionCard();
   const scoringInputFieldConfigs = editState
     ? buildWorkbenchScoreInputFieldConfigs({
         descriptions: scoreFieldDescriptions,
@@ -4512,11 +4514,9 @@ export function IdeaWorkbench({
                   </div>
 
                   <div className="border border-slate-200 bg-white p-4">
-                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">다음 행동</div>
-                    <div className="mt-2 text-sm font-semibold text-slate-950">사업성 평가를 저장하면 됩니다</div>
-                    <p className="mt-2 text-sm leading-5 text-slate-600">
-                      AI가 채운 값을 그대로 쓰거나 필요한 부분만 수정한 뒤 저장하세요. 다음 단계의 실험과 리스크 초안은 AI가 이어서 준비합니다.
-                    </p>
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{scoringNextActionCard.label}</div>
+                    <div className="mt-2 text-sm font-semibold text-slate-950">{scoringNextActionCard.value}</div>
+                    <p className="mt-2 text-sm leading-5 text-slate-600">{scoringNextActionCard.description}</p>
                   </div>
                 </div>
               </div>
