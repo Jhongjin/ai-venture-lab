@@ -17,6 +17,7 @@ import {
   getProductionCreditProPathItems,
   getProductionCreditShortfallCopy,
   getProductionCreditSpendConfidenceItems,
+  getProductionCreditSystemNotice,
   type CreditSystemStatus,
 } from "@/lib/billing";
 
@@ -84,6 +85,11 @@ export function ProductionCreditPanel({
   const shortfallCopy = getProductionCreditShortfallCopy({
     buildPassCost,
     creditBalance,
+  });
+  const creditSystemNotice = getProductionCreditSystemNotice({
+    creditMessage,
+    creditStatus,
+    isCreditSystemMissing,
   });
   const spendConfidenceItems = getProductionCreditSpendConfidenceItems({
     buildPassCost,
@@ -215,16 +221,14 @@ export function ProductionCreditPanel({
                 </div>
               </div>
             </div>
-            {isCreditSystemMissing ? (
-              <p className="mt-2 text-sm font-semibold text-amber-700">
-                크레딧 DB 준비 전이라 지금 배포에서는 기존 제작 흐름을 그대로 유지합니다.
+            {creditSystemNotice ? (
+              <p
+                className={`mt-2 text-sm font-semibold ${
+                  creditSystemNotice.tone === "warning" ? "text-amber-700" : "text-slate-700"
+                }`}
+              >
+                {creditSystemNotice.message}
               </p>
-            ) : creditStatus === "unavailable" ? (
-              <p className="mt-2 text-sm font-semibold text-amber-700">
-                크레딧 상태를 확인하지 못해 이번 세션에서는 제작 흐름을 막지 않습니다.
-              </p>
-            ) : creditMessage ? (
-              <p className="mt-2 text-sm font-semibold text-slate-700">{creditMessage}</p>
             ) : null}
           </div>
         </div>

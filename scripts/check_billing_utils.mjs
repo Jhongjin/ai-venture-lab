@@ -42,6 +42,7 @@ const {
   getProductionCreditProPathItems,
   getProductionCreditShortfallCopy,
   getProductionCreditSpendConfidenceItems,
+  getProductionCreditSystemNotice,
 } = await import(moduleUrl);
 
 assert.equal(buildBuildPassUnlockLoginRequiredMessage(), "제작 패스를 열려면 먼저 로그인하세요.");
@@ -214,6 +215,14 @@ assert.ok(
   !productionCreditPanelSource.includes("formatKoreanNumber"),
   "ProductionCreditPanel should not format shortfall idle messages directly.",
 );
+assert.ok(
+  !productionCreditPanelSource.includes("크레딧 DB 준비 전이라 지금 배포"),
+  "ProductionCreditPanel should use the shared billing system notice helper.",
+);
+assert.ok(
+  !productionCreditPanelSource.includes('creditStatus === "unavailable"'),
+  "ProductionCreditPanel should not branch on unavailable credit status copy directly.",
+);
 
 assert.deepEqual(
   getProductionCreditPackageClarityItems({
@@ -301,6 +310,47 @@ assert.deepEqual(
     shortfallMessage: null,
     upgradeInterestIdleMessage: "부족한 크레딧 상태를 Pro 관심 기록으로 남깁니다.",
   },
+);
+assert.deepEqual(
+  getProductionCreditSystemNotice({
+    creditMessage: "크레딧 상태를 확인했습니다.",
+    creditStatus: "ready",
+    isCreditSystemMissing: false,
+  }),
+  {
+    message: "크레딧 상태를 확인했습니다.",
+    tone: "neutral",
+  },
+);
+assert.deepEqual(
+  getProductionCreditSystemNotice({
+    creditMessage: "크레딧 상태를 확인했습니다.",
+    creditStatus: "missing",
+    isCreditSystemMissing: true,
+  }),
+  {
+    message: "크레딧 DB 준비 전이라 지금 배포에서는 기존 제작 흐름을 그대로 유지합니다.",
+    tone: "warning",
+  },
+);
+assert.deepEqual(
+  getProductionCreditSystemNotice({
+    creditMessage: "크레딧 상태를 확인했습니다.",
+    creditStatus: "unavailable",
+    isCreditSystemMissing: false,
+  }),
+  {
+    message: "크레딧 상태를 확인하지 못해 이번 세션에서는 제작 흐름을 막지 않습니다.",
+    tone: "warning",
+  },
+);
+assert.equal(
+  getProductionCreditSystemNotice({
+    creditMessage: null,
+    creditStatus: "ready",
+    isCreditSystemMissing: false,
+  }),
+  null,
 );
 
 assert.deepEqual(

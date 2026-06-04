@@ -114,6 +114,19 @@ export type ProductionCreditShortfallCopy = {
   upgradeInterestIdleMessage: string;
 };
 
+export type ProductionCreditSystemNoticeInput = {
+  creditMessage: string | null;
+  creditStatus: CreditSystemStatus | null | undefined;
+  isCreditSystemMissing: boolean;
+};
+
+export type ProductionCreditSystemNotice =
+  | {
+      message: string;
+      tone: "neutral" | "warning";
+    }
+  | null;
+
 export type BuildPassUnlockResult = {
   alreadyUnlocked: boolean;
   chargedCredits: number;
@@ -479,6 +492,35 @@ export function getProductionCreditShortfallCopy({
     shortfallMessage: `다음 제작 패스까지 ${formatCompactCreditAmount(shortfallCredits)} 부족합니다.`,
     upgradeInterestIdleMessage: `${formatKoreanNumber(shortfallCredits)}크레딧 부족한 상태를 Pro 관심 기록으로 남깁니다.`,
   };
+}
+
+export function getProductionCreditSystemNotice({
+  creditMessage,
+  creditStatus,
+  isCreditSystemMissing,
+}: ProductionCreditSystemNoticeInput): ProductionCreditSystemNotice {
+  if (isCreditSystemMissing) {
+    return {
+      message: "크레딧 DB 준비 전이라 지금 배포에서는 기존 제작 흐름을 그대로 유지합니다.",
+      tone: "warning",
+    };
+  }
+
+  if (creditStatus === "unavailable") {
+    return {
+      message: "크레딧 상태를 확인하지 못해 이번 세션에서는 제작 흐름을 막지 않습니다.",
+      tone: "warning",
+    };
+  }
+
+  if (creditMessage) {
+    return {
+      message: creditMessage,
+      tone: "neutral",
+    };
+  }
+
+  return null;
 }
 
 export type BillingErrorLike = {
