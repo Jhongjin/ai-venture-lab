@@ -45,6 +45,11 @@ export type WorkbenchScoringNoteFieldConfig = {
   label: string;
   value: WorkbenchEditState[WorkbenchScoringNoteField];
 };
+export type WorkbenchScoringReviewCardState = {
+  description: string;
+  label: string;
+  value: string;
+};
 
 const workbenchScoreInputFields: Array<Pick<WorkbenchScoreInputFieldConfig, "field" | "label">> = [
   { field: "problem_intensity", label: "문제 강도" },
@@ -100,6 +105,25 @@ export function buildWorkbenchScoringNoteFieldConfigs(state: WorkbenchEditState)
     label,
     value: state[field],
   }));
+}
+
+export function buildWorkbenchScoringReviewCards({
+  scoreDecisionLabel,
+}: {
+  scoreDecisionLabel: string;
+}): WorkbenchScoringReviewCardState[] {
+  return [
+    {
+      description: "지금 화면에서는 사용자가 고르지 않습니다. 저장하면 이 아이디어는 사업성 평가 단계로 기록됩니다.",
+      label: "저장되는 단계",
+      value: "STEP 2 사업성 평가",
+    },
+    {
+      description: "아래 평가값으로 계산한 추천입니다. 평가가 낮아도 자동 삭제하지 않고, 삭제는 사용자가 직접 선택합니다.",
+      label: "AI 추천 판단",
+      value: scoreDecisionLabel,
+    },
+  ];
 }
 
 export function scoreWorkbenchState(state: WorkbenchEditState) {

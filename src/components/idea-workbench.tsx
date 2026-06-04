@@ -121,6 +121,7 @@ import {
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringRecommendationPanelState,
+  buildWorkbenchScoringReviewCards,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSaveButtonState,
   buildWorkbenchScoringSavePatch,
@@ -1442,6 +1443,9 @@ export function IdeaWorkbench({
     missing,
     scoreDecisionLabel: decisionLabels[scoreSaveDecision],
     scoreRecommendation,
+  });
+  const scoringReviewCards = buildWorkbenchScoringReviewCards({
+    scoreDecisionLabel: scoringRecommendationPanelState.scoreDecisionLabel,
   });
   const scoringInputFieldConfigs = editState
     ? buildWorkbenchScoreInputFieldConfigs({
@@ -4452,20 +4456,13 @@ export function IdeaWorkbench({
                     AI가 먼저 채운 값을 확인하세요. 다르게 보이는 항목만 조정하면 되고, 단계와 판단은 저장할 때 자동으로 정리됩니다.
                   </p>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
-                    <div className="border border-slate-200 bg-white p-4">
-                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">저장되는 단계</div>
-                      <div className="mt-2 text-base font-semibold text-slate-950">STEP 2 사업성 평가</div>
-                      <p className="mt-2 text-xs leading-5 text-slate-500">
-                        지금 화면에서는 사용자가 고르지 않습니다. 저장하면 이 아이디어는 사업성 평가 단계로 기록됩니다.
-                      </p>
-                    </div>
-                    <div className="border border-slate-200 bg-white p-4">
-                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
-                      <div className="mt-2 text-base font-semibold text-slate-950">{scoringRecommendationPanelState.scoreDecisionLabel}</div>
-                      <p className="mt-2 text-xs leading-5 text-slate-500">
-                        아래 평가값으로 계산한 추천입니다. 평가가 낮아도 자동 삭제하지 않고, 삭제는 사용자가 직접 선택합니다.
-                      </p>
-                    </div>
+                    {scoringReviewCards.map((card) => (
+                      <div key={card.label} className="border border-slate-200 bg-white p-4">
+                        <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{card.label}</div>
+                        <div className="mt-2 text-base font-semibold text-slate-950">{card.value}</div>
+                        <p className="mt-2 text-xs leading-5 text-slate-500">{card.description}</p>
+                      </div>
+                    ))}
                   </div>
 
                   <ProductSurfaceSelector

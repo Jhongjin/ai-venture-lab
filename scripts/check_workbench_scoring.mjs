@@ -25,6 +25,7 @@ const {
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringRecommendationPanelState,
+  buildWorkbenchScoringReviewCards,
   buildWorkbenchScoringSaveButtonState,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSavePatch,
@@ -114,6 +115,26 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("value={editState.signal}"),
   "IdeaWorkbench should not bind scoring note field values inline.",
+);
+assert.deepEqual(buildWorkbenchScoringReviewCards({ scoreDecisionLabel: "추가 조사" }), [
+  {
+    description: "지금 화면에서는 사용자가 고르지 않습니다. 저장하면 이 아이디어는 사업성 평가 단계로 기록됩니다.",
+    label: "저장되는 단계",
+    value: "STEP 2 사업성 평가",
+  },
+  {
+    description: "아래 평가값으로 계산한 추천입니다. 평가가 낮아도 자동 삭제하지 않고, 삭제는 사용자가 직접 선택합니다.",
+    label: "AI 추천 판단",
+    value: "추가 조사",
+  },
+]);
+assert.ok(
+  !ideaWorkbenchSource.includes("STEP 2 사업성 평가"),
+  "IdeaWorkbench should render scoring review cards from shared state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("아래 평가값으로 계산한 추천입니다"),
+  "IdeaWorkbench should keep scoring review-card copy in the shared helper.",
 );
 
 const savePatch = buildWorkbenchScoringSavePatch({
