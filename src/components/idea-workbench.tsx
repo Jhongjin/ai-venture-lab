@@ -58,6 +58,7 @@ import { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftStat
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchEditPermissionState,
   buildWorkbenchEmptySelectionState,
   buildWorkbenchIdeaDiscardConfirmMessage,
   buildWorkbenchIdeaDiscardFailedMessage,
@@ -1178,14 +1179,11 @@ export function IdeaWorkbench({
     [selectedArtifactRecords],
   );
 
-  const canEdit = Boolean(
-    selectedIdea &&
-      canManageWorkbenchRecord({
-        memberships,
-        record: selectedIdea,
-        user,
-      }),
-  );
+  const { canEdit } = buildWorkbenchEditPermissionState({
+    memberships,
+    selectedIdea,
+    user,
+  });
   const getRecordAccessState = useCallback(
     (record: { created_by: string | null; organization_id: string | null }) =>
       getWorkbenchRecordAccessState({ memberships, record, user }),

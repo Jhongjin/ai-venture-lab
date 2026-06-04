@@ -9,6 +9,7 @@ const {
   appendRecords,
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchEditPermissionState,
   buildWorkbenchEmptySelectionState,
   buildWorkbenchIdeaDiscardConfirmMessage,
   buildWorkbenchIdeaDiscardFailedMessage,
@@ -189,6 +190,42 @@ assert.deepEqual(
 assert.ok(
   !ideaWorkbenchSource.includes("const hasSelectableIdeas = visibleIdeas.length > 0"),
   "IdeaWorkbench should use the shared empty-selection helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("const canEdit = Boolean"),
+  "IdeaWorkbench should use the shared edit-permission helper.",
+);
+assert.deepEqual(
+  buildWorkbenchEditPermissionState({
+    memberships: [],
+    selectedIdea: { created_by: "viewer-1", organization_id: null },
+    user: { id: "viewer-1" },
+  }),
+  { canEdit: true },
+);
+assert.deepEqual(
+  buildWorkbenchEditPermissionState({
+    memberships: [{ organization_id: "org-1", role: "admin", user_id: "viewer-1" }],
+    selectedIdea: { created_by: "owner-2", organization_id: "org-1" },
+    user: { id: "viewer-1" },
+  }),
+  { canEdit: true },
+);
+assert.deepEqual(
+  buildWorkbenchEditPermissionState({
+    memberships: [{ organization_id: "org-1", role: "member", user_id: "viewer-1" }],
+    selectedIdea: { created_by: "owner-2", organization_id: "org-1" },
+    user: { id: "viewer-1" },
+  }),
+  { canEdit: false },
+);
+assert.deepEqual(
+  buildWorkbenchEditPermissionState({
+    memberships: [],
+    selectedIdea: null,
+    user: { id: "viewer-1" },
+  }),
+  { canEdit: false },
 );
 assert.equal(
   buildWorkbenchIdeaDiscardFailedMessage({ errorMessage: "permission denied", ideaName: "AI Venture Lab" }),

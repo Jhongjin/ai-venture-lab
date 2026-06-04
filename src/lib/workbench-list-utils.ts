@@ -29,6 +29,9 @@ export type WorkbenchEmptySelectionState = {
   hasSelectableIdeas: boolean;
   shouldShowEmptyState: boolean;
 };
+export type WorkbenchEditPermissionState = {
+  canEdit: boolean;
+};
 
 const ideaStageOrder: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const ideaStageRank = new Map(ideaStageOrder.map((stage, index) => [stage, index]));
@@ -237,6 +240,20 @@ export function canManageWorkbenchRecord(args: {
 }) {
   const accessState = getWorkbenchRecordAccessState(args);
   return accessState === "owned" || accessState === "workspace_admin";
+}
+
+export function buildWorkbenchEditPermissionState({
+  memberships,
+  selectedIdea,
+  user,
+}: {
+  memberships: WorkbenchAccessMembership[];
+  selectedIdea: WorkbenchAccessRecord | null | undefined;
+  user: WorkbenchAccessViewer;
+}): WorkbenchEditPermissionState {
+  return {
+    canEdit: Boolean(selectedIdea && canManageWorkbenchRecord({ memberships, record: selectedIdea, user })),
+  };
 }
 
 export function getWorkbenchRecordAccessDisplay(accessState: WorkbenchRecordAccessState): WorkbenchRecordAccessDisplay {
