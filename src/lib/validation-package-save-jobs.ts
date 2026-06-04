@@ -14,6 +14,10 @@ export type ValidationPackageSaveButtonState = {
   disabled: boolean;
   label: string;
 };
+export type ValidationPackageHeaderState = {
+  description: string;
+  title: string;
+};
 
 export function buildValidationPackageStatusRows({
   hasIdeaBriefArtifact,
@@ -137,6 +141,21 @@ export function buildValidationPackageSaveButtonState({
       : isValidationBundleSaved
         ? "검증 자료 저장 완료"
         : "검증 자료 한 번에 저장",
+  };
+}
+
+export function buildValidationPackageHeaderState({
+  isGuided,
+  panelDescription,
+}: {
+  isGuided: boolean;
+  panelDescription: string;
+}): ValidationPackageHeaderState {
+  return {
+    description: isGuided
+      ? "AI가 아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 한 번에 저장합니다."
+      : panelDescription,
+    title: "검증 자료 저장",
   };
 }
 

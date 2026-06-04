@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-package-save-jobs.ts")).href;
 const {
+  buildValidationPackageHeaderState,
   buildValidationPackageSaveJob,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
@@ -142,6 +143,30 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("검증 자료 한 번에 저장"),
   "IdeaWorkbench should keep validation package save button labels in the shared helper.",
+);
+assert.deepEqual(
+  buildValidationPackageHeaderState({
+    isGuided: true,
+    panelDescription: "개별 패널 설명",
+  }),
+  {
+    description: "AI가 아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 한 번에 저장합니다.",
+    title: "검증 자료 저장",
+  },
+);
+assert.deepEqual(
+  buildValidationPackageHeaderState({
+    isGuided: false,
+    panelDescription: "개별 패널 설명",
+  }),
+  {
+    description: "개별 패널 설명",
+    title: "검증 자료 저장",
+  },
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("AI가 아이디어 요약, 조사 요약"),
+  "IdeaWorkbench should keep validation package guided header copy in the shared helper.",
 );
 
 console.log("Validation package save jobs smoke passed.");

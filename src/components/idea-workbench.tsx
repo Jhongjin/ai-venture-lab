@@ -479,6 +479,7 @@ import {
   buildValidationPackageSavedMessage,
 } from "@/lib/validation-package-drafts";
 import {
+  buildValidationPackageHeaderState,
   buildValidationPackageSaveJobs,
   buildValidationPackageSaveButtonState,
   buildValidationPackageStatusRows,
@@ -1677,6 +1678,10 @@ export function IdeaWorkbench({
     isBusy,
     isSavingValidationBundle,
     isValidationBundleSaved,
+  });
+  const validationPackageHeaderState = buildValidationPackageHeaderState({
+    isGuided: experienceMode === "guided",
+    panelDescription: artifactPanelDescriptions[artifactPanel],
   });
   const visibleMarketScanReviewRows = buildVisibleMarketScanReviewRows({
     decisionLabels,
@@ -7091,12 +7096,8 @@ export function IdeaWorkbench({
         <div className={activeTask === "artifacts" ? "avl-card p-4" : "hidden"}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">검증 자료 저장</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                {experienceMode === "guided"
-                  ? "AI가 아이디어 요약, 조사 요약, 7일 검증 계획, 검증 완료 요약을 한 번에 저장합니다."
-                  : artifactPanelDescriptions[artifactPanel]}
-              </p>
+              <h2 className="text-lg font-semibold text-slate-950">{validationPackageHeaderState.title}</h2>
+              <p className="mt-1 text-sm text-slate-500">{validationPackageHeaderState.description}</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
               <button
