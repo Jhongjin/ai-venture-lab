@@ -17,6 +17,7 @@ const {
   buildEvidenceCoachPromptLoadedMessage,
   buildEvidenceNoteEmptySaveDraftMessage,
   buildEvidenceNoteEvidenceRequiredMessage,
+  buildEvidenceNoteSaveControlState,
   buildEvidenceNoteTitleRequiredMessage,
   buildExperimentCreatedTelemetryProperties,
   buildExperimentDeleteConfirmMessage,
@@ -188,6 +189,20 @@ assert.deepEqual(buildExperimentResultInputControlState({
   fieldsDisabled: false,
   saveDisabled: true,
 });
+assert.deepEqual(buildEvidenceNoteSaveControlState({
+  hasUser: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  label: "근거 저장",
+});
+assert.deepEqual(buildEvidenceNoteSaveControlState({
+  hasUser: false,
+  isBusy: true,
+}), {
+  disabled: true,
+  label: "근거 저장",
+});
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || !user || selectedExperiments.length > 0}"),
   "IdeaWorkbench should render recommended validation experiment save disabled state from shared control.",
@@ -227,6 +242,10 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("experimentResultInputControlState.saveDisabled"),
   "IdeaWorkbench should render experiment result save disabled state from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("evidenceNoteSaveControlState.disabled"),
+  "IdeaWorkbench should render evidence note save disabled state from shared input control.",
 );
 const validationIdea = {
   buyer: "운영팀",

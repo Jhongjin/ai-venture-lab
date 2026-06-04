@@ -436,6 +436,7 @@ import {
   buildEvidenceCoachPromptLoadedMessage,
   buildEvidenceNoteEmptySaveDraftMessage,
   buildEvidenceNoteEvidenceRequiredMessage,
+  buildEvidenceNoteSaveControlState,
   buildEvidenceNoteTitleRequiredMessage,
   buildExperimentCreatedTelemetryProperties,
   buildExperimentDeleteConfirmMessage,
@@ -1496,6 +1497,10 @@ export function IdeaWorkbench({
   });
   const experimentResultInputControlState = buildExperimentResultInputControlState({
     hasExperiments: selectedExperiments.length > 0,
+    hasUser: Boolean(user),
+    isBusy,
+  });
+  const evidenceNoteSaveControlState = buildEvidenceNoteSaveControlState({
     hasUser: Boolean(user),
     isBusy,
   });
@@ -7388,11 +7393,11 @@ export function IdeaWorkbench({
               </p>
               <button
                 type="submit"
-                disabled={isBusy || !user}
+                disabled={evidenceNoteSaveControlState.disabled}
                 className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
               >
                 <Save size={18} />
-                근거 저장
+                {evidenceNoteSaveControlState.label}
               </button>
             </div>
           </form>

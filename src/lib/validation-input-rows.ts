@@ -44,6 +44,10 @@ export type EvidenceCoachExperimentResultPatch = {
   experiment_id: string;
   next_action: string;
 };
+export type EvidenceNoteSaveControlState = {
+  disabled: boolean;
+  label: string;
+};
 
 export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
@@ -193,6 +197,19 @@ export function buildDecisionTemplateLoadedMessage() {
 
 export function buildEvidenceCoachPromptLoadedMessage() {
   return "보완할 질문을 아래 결과 기록의 다음 행동 입력칸에 넣었습니다. 단계 이동은 하단 다음 단계 버튼에서만 진행됩니다.";
+}
+
+export function buildEvidenceNoteSaveControlState({
+  hasUser,
+  isBusy,
+}: {
+  hasUser: boolean;
+  isBusy: boolean;
+}): EvidenceNoteSaveControlState {
+  return {
+    disabled: isBusy || !hasUser,
+    label: "근거 저장",
+  };
 }
 
 export function buildDecisionTemplateReason(plan: DecisionTemplateSource) {
