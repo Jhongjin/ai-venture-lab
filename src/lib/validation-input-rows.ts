@@ -54,6 +54,11 @@ export type RiskCreateControlState = {
   label: string;
 };
 
+export type RiskStatusControlState = {
+  disabled: boolean;
+  label: string;
+};
+
 export type ValidationExperimentManualSaveControlState = {
   disabled: boolean;
   label: string;
@@ -217,6 +222,25 @@ export function getNextExperimentResultSelectionId(
 
 export function buildRiskStatusChangedMessage({ statusLabel }: { statusLabel: string }) {
   return `리스크 상태를 ${statusLabel}(으)로 변경했습니다.`;
+}
+
+export function buildRiskStatusControlState<Status extends string>({
+  canManage,
+  currentStatus,
+  isBusy,
+  nextStatus,
+  statusLabel,
+}: {
+  canManage: boolean;
+  currentStatus: Status;
+  isBusy: boolean;
+  nextStatus: Status;
+  statusLabel: string;
+}): RiskStatusControlState {
+  return {
+    disabled: isBusy || !canManage || currentStatus === nextStatus,
+    label: statusLabel,
+  };
 }
 
 export function buildRiskStatusUpdatePermissionDeniedMessage() {

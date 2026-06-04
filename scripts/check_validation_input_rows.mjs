@@ -44,6 +44,7 @@ const {
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
+  buildRiskStatusControlState,
   buildRiskStatusTelemetryProperties,
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
@@ -219,6 +220,36 @@ assert.deepEqual(buildRiskCreateControlState({
   disabled: true,
   label: "리스크 추가",
 });
+assert.deepEqual(buildRiskStatusControlState({
+  canManage: true,
+  currentStatus: "open",
+  isBusy: false,
+  nextStatus: "mitigating",
+  statusLabel: "완화 중",
+}), {
+  disabled: false,
+  label: "완화 중",
+});
+assert.deepEqual(buildRiskStatusControlState({
+  canManage: true,
+  currentStatus: "open",
+  isBusy: false,
+  nextStatus: "open",
+  statusLabel: "열려 있음",
+}), {
+  disabled: true,
+  label: "열려 있음",
+});
+assert.deepEqual(buildRiskStatusControlState({
+  canManage: false,
+  currentStatus: "open",
+  isBusy: true,
+  nextStatus: "closed",
+  statusLabel: "종료",
+}), {
+  disabled: true,
+  label: "종료",
+});
 assert.deepEqual(buildValidationExperimentManualSaveControlState({
   hasUser: true,
   isBusy: false,
@@ -280,6 +311,10 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("riskCreateControlState.disabled"),
   "IdeaWorkbench should render risk create disabled state from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("riskStatusControlState.disabled"),
+  "IdeaWorkbench should render risk status button disabled state from shared input control.",
 );
 assert.ok(
   ideaWorkbenchSource.includes("validationExperimentManualSaveControlState.disabled"),

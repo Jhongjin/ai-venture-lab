@@ -489,6 +489,7 @@ import {
   buildRiskInsertRow,
   buildRiskSuggestionLoadedMessage,
   buildRiskStatusChangedMessage,
+  buildRiskStatusControlState,
   buildRiskStatusTelemetryProperties,
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
@@ -6654,17 +6655,27 @@ export function IdeaWorkbench({
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {riskStatusOptions.map((status) => (
-                            <button
-                              key={status}
-                              type="button"
-                              onClick={() => updateRiskStatus(risk, status)}
-                              disabled={isBusy || !canManageRecord(risk) || risk.status === status}
-                              className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
-                            >
-                              {riskStatusLabels[status] ?? status}
-                            </button>
-                          ))}
+                          {riskStatusOptions.map((status) => {
+                            const riskStatusControlState = buildRiskStatusControlState({
+                              canManage: canManageRecord(risk),
+                              currentStatus: risk.status,
+                              isBusy,
+                              nextStatus: status,
+                              statusLabel: riskStatusLabels[status] ?? status,
+                            });
+
+                            return (
+                              <button
+                                key={status}
+                                type="button"
+                                onClick={() => updateRiskStatus(risk, status)}
+                                disabled={riskStatusControlState.disabled}
+                                className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
+                              >
+                                {riskStatusControlState.label}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                       <p className="mt-2 text-sm leading-6 text-slate-600">{risk.mitigation}</p>
