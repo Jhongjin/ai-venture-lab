@@ -70,7 +70,8 @@ const {
   buildSavedExternalToolTaskSection,
   formatExternalToolSyncExpiryText,
 } = await import(handoffUrl);
-const { buildExternalToolConnectorDrafts, buildExternalToolPackageDrafts } = await import(moduleUrl);
+const { buildExternalToolConnectorDrafts, buildExternalToolIdeaPackageDrafts, buildExternalToolPackageDrafts } =
+  await import(moduleUrl);
 
 assert.equal(formatExternalToolSyncExpiryText(), "");
 assert.equal(
@@ -225,6 +226,24 @@ assert.equal(
   buildExternalToolTaskBody({ fallbackTasks: [], tasks: [] }),
   "아직 저장된 제작 작업이 없습니다. Venture Lab STEP 6에서 작업 순서를 먼저 생성하세요.",
 );
+const emptyIdeaDrafts = buildExternalToolIdeaPackageDrafts({
+  fallbackTasks,
+  idea: null,
+  productSurface,
+  projectKey: "venture-empty",
+  tasks,
+});
+assert.equal(emptyIdeaDrafts.cursorTaskPackageDraft, "");
+assert.equal(emptyIdeaDrafts.antigravityAcceptanceDraft, "");
+const ideaDrafts = buildExternalToolIdeaPackageDrafts({
+  fallbackTasks,
+  idea,
+  productSurface,
+  projectKey: "venture-idea-1",
+  tasks,
+});
+assert.match(ideaDrafts.cursorTaskPackageDraft, /T-001/);
+assert.match(ideaDrafts.antigravityAcceptanceDraft, /AI Venture Lab Acceptance Criteria/);
 
 const drafts = buildExternalToolPackageDrafts({
   fallbackTasks,

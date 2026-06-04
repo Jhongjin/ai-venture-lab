@@ -54,6 +54,46 @@ export type ExternalToolPackageDrafts = {
   cursorStartPromptDraft: string;
   cursorTaskPackageDraft: string;
 };
+export type ExternalToolIdeaPackageDrafts = Pick<
+  ExternalToolPackageDrafts,
+  | "antigravityAcceptanceDraft"
+  | "antigravityAgentInstructionsDraft"
+  | "antigravityGuideDraft"
+  | "antigravityStartPromptDraft"
+  | "antigravityTaskPackageDraft"
+  | "claudeGuideDraft"
+  | "claudeInstructionsDraft"
+  | "claudeStartPromptDraft"
+  | "claudeTaskPackageDraft"
+  | "codexAgentInstructionsDraft"
+  | "codexGuideDraft"
+  | "codexStartPromptDraft"
+  | "codexTaskPackageDraft"
+  | "cursorGuideDraft"
+  | "cursorRuleDraft"
+  | "cursorStartPromptDraft"
+  | "cursorTaskPackageDraft"
+>;
+
+const emptyExternalToolIdeaPackageDrafts: ExternalToolIdeaPackageDrafts = {
+  antigravityAcceptanceDraft: "",
+  antigravityAgentInstructionsDraft: "",
+  antigravityGuideDraft: "",
+  antigravityStartPromptDraft: "",
+  antigravityTaskPackageDraft: "",
+  claudeGuideDraft: "",
+  claudeInstructionsDraft: "",
+  claudeStartPromptDraft: "",
+  claudeTaskPackageDraft: "",
+  codexAgentInstructionsDraft: "",
+  codexGuideDraft: "",
+  codexStartPromptDraft: "",
+  codexTaskPackageDraft: "",
+  cursorGuideDraft: "",
+  cursorRuleDraft: "",
+  cursorStartPromptDraft: "",
+  cursorTaskPackageDraft: "",
+};
 
 export function buildExternalToolConnectorDrafts() {
   return {
@@ -61,6 +101,44 @@ export function buildExternalToolConnectorDrafts() {
     cursorMcpServerDraft: buildCursorMcpServerScript(),
     claudeMcpConfigDraft: buildClaudeMcpConfigJson(),
     antigravityMcpConfigDraft: buildAntigravityMcpConfigJson(),
+  };
+}
+
+export function buildExternalToolIdeaPackageDrafts({
+  fallbackTasks,
+  idea,
+  productSurface,
+  projectKey,
+  tasks,
+}: {
+  fallbackTasks: ImplementationTaskDraft[];
+  idea: Idea | null;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+  tasks: ImplementationTask[];
+}): ExternalToolIdeaPackageDrafts {
+  if (!idea) {
+    return emptyExternalToolIdeaPackageDrafts;
+  }
+
+  return {
+    cursorTaskPackageDraft: buildCursorTaskMarkdown({ idea, productSurface, tasks, fallbackTasks }),
+    cursorStartPromptDraft: buildCursorStartPromptMarkdown({ idea, productSurface, projectKey }),
+    cursorRuleDraft: buildCursorRulesMarkdown({ idea, productSurface }),
+    cursorGuideDraft: buildCursorGuideMarkdown({ idea, productSurface, projectKey }),
+    codexTaskPackageDraft: buildCodexTaskMarkdown({ idea, productSurface, tasks, fallbackTasks }),
+    codexStartPromptDraft: buildCodexStartPromptMarkdown({ idea, productSurface, projectKey }),
+    codexAgentInstructionsDraft: buildCodexAgentInstructionsMarkdown({ idea, productSurface }),
+    codexGuideDraft: buildCodexGuideMarkdown({ idea, productSurface, projectKey }),
+    claudeTaskPackageDraft: buildClaudeTaskMarkdown({ idea, productSurface, tasks, fallbackTasks }),
+    claudeStartPromptDraft: buildClaudeStartPromptMarkdown({ idea, productSurface, projectKey }),
+    claudeInstructionsDraft: buildClaudeInstructionsMarkdown({ idea, productSurface }),
+    claudeGuideDraft: buildClaudeGuideMarkdown({ idea, productSurface, projectKey }),
+    antigravityTaskPackageDraft: buildAntigravityTaskMarkdown({ idea, productSurface, tasks, fallbackTasks }),
+    antigravityStartPromptDraft: buildAntigravityStartPromptMarkdown({ idea, productSurface, projectKey }),
+    antigravityAgentInstructionsDraft: buildAntigravityAgentInstructionsMarkdown({ idea, productSurface }),
+    antigravityAcceptanceDraft: buildAntigravityAcceptanceMarkdown({ idea, productSurface }),
+    antigravityGuideDraft: buildAntigravityGuideMarkdown({ idea, productSurface, projectKey }),
   };
 }
 
@@ -79,38 +157,15 @@ export function buildExternalToolPackageDrafts({
 }): ExternalToolPackageDrafts {
   const { antigravityMcpConfigDraft, claudeMcpConfigDraft, cursorMcpConfigDraft, cursorMcpServerDraft } =
     buildExternalToolConnectorDrafts();
+  const ideaDrafts = buildExternalToolIdeaPackageDrafts({ fallbackTasks, idea, productSurface, projectKey, tasks });
 
   return {
-    cursorTaskPackageDraft: idea
-      ? buildCursorTaskMarkdown({ idea, productSurface, tasks, fallbackTasks })
-      : "",
-    cursorStartPromptDraft: idea ? buildCursorStartPromptMarkdown({ idea, productSurface, projectKey }) : "",
-    cursorRuleDraft: idea ? buildCursorRulesMarkdown({ idea, productSurface }) : "",
-    cursorGuideDraft: idea ? buildCursorGuideMarkdown({ idea, productSurface, projectKey }) : "",
+    ...ideaDrafts,
     cursorMcpConfigDraft,
     cursorMcpServerDraft,
-    codexTaskPackageDraft: idea
-      ? buildCodexTaskMarkdown({ idea, productSurface, tasks, fallbackTasks })
-      : "",
-    codexStartPromptDraft: idea ? buildCodexStartPromptMarkdown({ idea, productSurface, projectKey }) : "",
-    codexAgentInstructionsDraft: idea ? buildCodexAgentInstructionsMarkdown({ idea, productSurface }) : "",
-    codexGuideDraft: idea ? buildCodexGuideMarkdown({ idea, productSurface, projectKey }) : "",
     codexCliScriptDraft: buildCodexCliScript(cursorMcpServerDraft),
-    claudeTaskPackageDraft: idea
-      ? buildClaudeTaskMarkdown({ idea, productSurface, tasks, fallbackTasks })
-      : "",
-    claudeStartPromptDraft: idea ? buildClaudeStartPromptMarkdown({ idea, productSurface, projectKey }) : "",
-    claudeInstructionsDraft: idea ? buildClaudeInstructionsMarkdown({ idea, productSurface }) : "",
-    claudeGuideDraft: idea ? buildClaudeGuideMarkdown({ idea, productSurface, projectKey }) : "",
     claudeMcpConfigDraft,
     claudeCliScriptDraft: buildClaudeCliScript(cursorMcpServerDraft),
-    antigravityTaskPackageDraft: idea
-      ? buildAntigravityTaskMarkdown({ idea, productSurface, tasks, fallbackTasks })
-      : "",
-    antigravityStartPromptDraft: idea ? buildAntigravityStartPromptMarkdown({ idea, productSurface, projectKey }) : "",
-    antigravityAgentInstructionsDraft: idea ? buildAntigravityAgentInstructionsMarkdown({ idea, productSurface }) : "",
-    antigravityAcceptanceDraft: idea ? buildAntigravityAcceptanceMarkdown({ idea, productSurface }) : "",
-    antigravityGuideDraft: idea ? buildAntigravityGuideMarkdown({ idea, productSurface, projectKey }) : "",
     antigravityMcpConfigDraft,
     antigravityCliScriptDraft: buildAntigravityCliScript(cursorMcpServerDraft),
   };
