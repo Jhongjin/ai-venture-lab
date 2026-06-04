@@ -39,6 +39,24 @@ export function getExternalToolConnectionStatusFallbackMessage(toolLabel: string
   return `${toolLabel} 연결 파일은 만들 수 있지만, ${cursorSyncRegistryFallbackMessage}`;
 }
 
+export function resolveExternalToolConnectionCreatedMessage({
+  message,
+  registryStatus,
+  toolLabel,
+}: {
+  message?: string | null;
+  registryStatus?: CursorSyncRegistryStatus | null;
+  toolLabel: string;
+}) {
+  if (message != null) {
+    return message;
+  }
+
+  return registryStatus === "ready"
+    ? getExternalToolConnectionCreatedMessage(toolLabel)
+    : getExternalToolConnectionFallbackMessage(toolLabel);
+}
+
 export function getCursorSyncConnectionCreatedAtTime(connection: Pick<CursorSyncConnection, "createdAt">) {
   return new Date(connection.createdAt).getTime();
 }

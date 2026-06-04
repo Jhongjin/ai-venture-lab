@@ -214,11 +214,10 @@ import {
 import {
   cursorSyncRegistrySetupNotice,
   filterCursorSyncConnectionsByTool,
-  getExternalToolConnectionCreatedMessage,
-  getExternalToolConnectionFallbackMessage,
   getExternalToolConnectionStatusFallbackMessage,
   getExternalToolSyncPreparingMessage,
   getExternalToolSyncSetupErrorMessage,
+  resolveExternalToolConnectionCreatedMessage,
   upsertCursorSyncConnection,
   type CursorSyncConnection,
   type CursorSyncRegistryStatus,
@@ -3703,10 +3702,11 @@ export function IdeaWorkbench({
     }
 
     setCursorSyncConnectionMessage(
-      payload.message ??
-        (payload.registryStatus === "ready"
-          ? getExternalToolConnectionCreatedMessage(toolLabel)
-          : getExternalToolConnectionFallbackMessage(toolLabel)),
+      resolveExternalToolConnectionCreatedMessage({
+        message: payload.message,
+        registryStatus: payload.registryStatus,
+        toolLabel,
+      }),
     );
 
     return payload as ExternalToolBuildSyncTokenPayload;

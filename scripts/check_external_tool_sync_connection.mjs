@@ -7,6 +7,9 @@ const {
   compareCursorSyncConnectionsByCreatedAt,
   filterCursorSyncConnectionsByTool,
   getCursorSyncConnectionCreatedAtTime,
+  getExternalToolConnectionCreatedMessage,
+  getExternalToolConnectionFallbackMessage,
+  resolveExternalToolConnectionCreatedMessage,
   sortCursorSyncConnectionsByCreatedAt,
   upsertCursorSyncConnection,
 } = await import(moduleUrl);
@@ -51,6 +54,28 @@ assert.equal(
     { createdAt: "2026-06-02T00:00:00.000Z" },
   ),
   0,
+);
+assert.equal(
+  resolveExternalToolConnectionCreatedMessage({
+    message: "서버 메시지",
+    registryStatus: "missing",
+    toolLabel: "Cursor",
+  }),
+  "서버 메시지",
+);
+assert.equal(
+  resolveExternalToolConnectionCreatedMessage({
+    registryStatus: "ready",
+    toolLabel: "Cursor",
+  }),
+  getExternalToolConnectionCreatedMessage("Cursor"),
+);
+assert.equal(
+  resolveExternalToolConnectionCreatedMessage({
+    registryStatus: "missing",
+    toolLabel: "Cursor",
+  }),
+  getExternalToolConnectionFallbackMessage("Cursor"),
 );
 
 const upsertedNew = upsertCursorSyncConnection(
