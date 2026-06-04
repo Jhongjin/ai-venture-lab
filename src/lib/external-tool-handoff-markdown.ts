@@ -66,6 +66,10 @@ export function buildExternalToolRecordProgressExampleCommand(toolFolder: string
   return `node ${toolFolder}/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"`;
 }
 
+export function buildExternalToolNextTaskCommand(toolFolder: string) {
+  return `node ${toolFolder}/venture-lab-cli.mjs next-task`;
+}
+
 export function buildExternalToolRecordProgressCommandBlock(toolFolder: string) {
   return `\`\`\`powershell
 ${buildExternalToolRecordProgressExampleCommand(toolFolder)}
@@ -285,7 +289,7 @@ ${buildExternalToolSetupCommandBlock(idea.name, "cursor-setup")}
 4. 설치가 끝난 뒤 같은 터미널에서 아래 확인 명령을 실행해 T-001 첫 작업이 읽히는지 확인합니다.
 
 \`\`\`bash
-node .cursor/venture-lab-cli.mjs next-task
+${buildExternalToolNextTaskCommand(".cursor")}
 \`\`\`
 
 5. 확인 명령 결과에 T-001이 보이면 Cursor를 새로고침하거나 다시 열고, Settings > MCP의 \`Workspace MCP Servers\`에서 \`ai-venture-lab\`을 켭니다. 처음 1회는 Cursor 보안 확인 때문에 수동 활성화가 필요할 수 있습니다.
@@ -352,7 +356,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 ## 진행 방식
 
 1. 제작 패키지에서 포함 범위와 제외 범위를 확인합니다.
-2. \`node .codex/venture-lab-cli.mjs next-task\`로 첫 번째 미완료 작업을 확인합니다.
+2. \`${buildExternalToolNextTaskCommand(".codex")}\`로 첫 번째 미완료 작업을 확인합니다.
 3. 구현 전 변경할 파일과 검증 명령을 짧게 계획합니다.
 4. 한 번에 하나의 작업만 구현하고 테스트 또는 품질 명령을 실행합니다.
 5. 작업 완료 후 아래 형식으로 Venture Lab에 진행 결과를 기록합니다.
@@ -393,7 +397,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface })}
 - 패키지에 없는 큰 기능은 임의로 추가하지 않습니다.
 - 변경 전 포함 범위, 제외 범위, 수용 기준을 확인합니다.
 - 작업이 끝나면 변경 파일, 검증 명령, 남은 리스크를 보고합니다.
-- 다음 작업은 \`node .codex/venture-lab-cli.mjs next-task\`로 확인합니다.
+- 다음 작업은 \`${buildExternalToolNextTaskCommand(".codex")}\`로 확인합니다.
 - 완료 보고는 \`node .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..." --verification "..."\` 형식으로 남깁니다.
 - \`record-progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`.codex/venture-lab-progress.json\`을 백업으로 사용합니다.
 `;
@@ -432,7 +436,7 @@ export function buildCodexGuideMarkdown({
 
 ${buildExternalToolSetupCommandBlock(idea.name, "codex-setup")}
 
-3. 터미널에서 \`node .codex/venture-lab-cli.mjs next-task\`를 실행해 결과에 T-001이 보이는지 확인합니다.
+3. 터미널에서 \`${buildExternalToolNextTaskCommand(".codex")}\`를 실행해 결과에 T-001이 보이는지 확인합니다.
 4. T-001이 보이면 Codex에서 같은 프로젝트 폴더를 열고 \`AI_VENTURE_CODEX_START.md\` 내용을 첫 메시지로 넣습니다.
 5. Codex에게 T-001부터 한 번에 하나씩 구현하라고 지시합니다.
 6. 작업을 마치면 Codex가 \`.codex/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남기게 합니다.
@@ -491,7 +495,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 
 1. 제작 패키지에서 포함 범위와 제외 범위를 확인합니다.
 2. Claude Code에서 \`/mcp\`를 열어 \`ai-venture-lab\` 연결을 확인합니다.
-3. \`node .claude/venture-lab-cli.mjs next-task\`로 첫 번째 미완료 작업을 확인합니다.
+3. \`${buildExternalToolNextTaskCommand(".claude")}\`로 첫 번째 미완료 작업을 확인합니다.
 4. 구현 전 변경할 파일과 검증 명령을 짧게 계획합니다.
 5. 한 번에 하나의 작업만 구현하고 테스트 또는 품질 명령을 실행합니다.
 6. 작업 완료 후 \`venture_record_progress\` 도구 또는 아래 명령으로 Venture Lab에 진행 결과를 기록합니다.
@@ -533,7 +537,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface })}
 - 변경 전 포함 범위, 제외 범위, 수용 기준을 확인합니다.
 - 작업이 끝나면 변경 파일, 검증 명령, 남은 리스크를 보고합니다.
 - Claude Code의 \`/mcp\`에서 \`ai-venture-lab\` 서버가 보이면 \`venture_next_task\`와 \`venture_record_progress\`를 사용합니다.
-- CLI로 진행할 때는 \`node .claude/venture-lab-cli.mjs next-task\`와 \`node .claude/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..."\`를 사용합니다.
+- CLI로 진행할 때는 \`${buildExternalToolNextTaskCommand(".claude")}\`와 \`node .claude/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..."\`를 사용합니다.
 - \`record-progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`.claude/venture-lab-progress.json\`을 백업으로 사용합니다.
 `;
 }
@@ -572,7 +576,7 @@ export function buildClaudeGuideMarkdown({
 
 ${buildExternalToolSetupCommandBlock(idea.name, "claude-code-setup")}
 
-3. 터미널에서 \`node .claude/venture-lab-cli.mjs next-task\`를 실행해 결과에 T-001이 보이는지 확인합니다.
+3. 터미널에서 \`${buildExternalToolNextTaskCommand(".claude")}\`를 실행해 결과에 T-001이 보이는지 확인합니다.
 4. T-001이 보이면 Claude Code를 같은 프로젝트 루트에서 열고 \`/mcp\`에서 \`ai-venture-lab\` 연결을 확인합니다.
 5. \`AI_VENTURE_CLAUDE_START.md\` 내용을 첫 메시지로 넣습니다.
 6. 작업을 마치면 \`venture_record_progress\` 도구 또는 \`.claude/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남깁니다.
@@ -631,7 +635,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 ## 진행 방식
 
 1. 제작 패키지에서 포함 범위와 제외 범위를 확인합니다.
-2. \`node .antigravity/venture-lab-cli.mjs next-task\`로 첫 번째 미완료 작업을 확인합니다.
+2. \`${buildExternalToolNextTaskCommand(".antigravity")}\`로 첫 번째 미완료 작업을 확인합니다.
 3. 구현 전 변경할 파일과 검증 명령을 짧게 계획합니다.
 4. 한 번에 하나의 작업만 구현하고 테스트 또는 품질 명령을 실행합니다.
 5. 작업 완료 후 아래 명령으로 Venture Lab에 진행 결과를 기록합니다.
@@ -680,7 +684,7 @@ export function buildAntigravityGuideMarkdown({
 
 ${buildExternalToolSetupCommandBlock(idea.name, "antigravity-setup")}
 
-3. 터미널에서 \`node .antigravity/venture-lab-cli.mjs next-task\`를 실행해 결과에 T-001이 보이는지 확인합니다.
+3. 터미널에서 \`${buildExternalToolNextTaskCommand(".antigravity")}\`를 실행해 결과에 T-001이 보이는지 확인합니다.
 4. T-001이 보이면 Antigravity에서 같은 프로젝트 폴더를 열고 \`.antigravity/mcp_config.json\`과 \`AGENTS.ai-venture-lab.md\`를 프로젝트 지침으로 확인합니다.
 5. \`AI_VENTURE_ANTIGRAVITY_START.md\` 내용을 Agent 첫 메시지로 넣습니다.
 6. 작업을 마치면 \`.antigravity/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남깁니다.
