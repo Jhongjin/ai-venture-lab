@@ -78,6 +78,13 @@ export type ExternalToolCliPackageDrafts = Pick<
   ExternalToolPackageDrafts,
   "antigravityCliScriptDraft" | "claudeCliScriptDraft" | "codexCliScriptDraft"
 >;
+export type ExternalToolPackageDraftInput = {
+  fallbackTasks: ImplementationTaskDraft[];
+  idea: Idea | null;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+  tasks: ImplementationTask[];
+};
 
 const emptyExternalToolIdeaPackageDrafts: ExternalToolIdeaPackageDrafts = {
   antigravityAcceptanceDraft: "",
@@ -122,13 +129,7 @@ export function buildExternalToolIdeaPackageDrafts({
   productSurface,
   projectKey,
   tasks,
-}: {
-  fallbackTasks: ImplementationTaskDraft[];
-  idea: Idea | null;
-  productSurface: ProductSurfaceProfile;
-  projectKey: string;
-  tasks: ImplementationTask[];
-}): ExternalToolIdeaPackageDrafts {
+}: ExternalToolPackageDraftInput): ExternalToolIdeaPackageDrafts {
   if (!idea) {
     return emptyExternalToolIdeaPackageDrafts;
   }
@@ -160,13 +161,7 @@ export function buildExternalToolPackageDrafts({
   productSurface,
   projectKey,
   tasks,
-}: {
-  fallbackTasks: ImplementationTaskDraft[];
-  idea: Idea | null;
-  productSurface: ProductSurfaceProfile;
-  projectKey: string;
-  tasks: ImplementationTask[];
-}): ExternalToolPackageDrafts {
+}: ExternalToolPackageDraftInput): ExternalToolPackageDrafts {
   const { antigravityMcpConfigDraft, claudeMcpConfigDraft, cursorMcpConfigDraft, cursorMcpServerDraft } =
     buildExternalToolConnectorDrafts();
   const ideaDrafts = buildExternalToolIdeaPackageDrafts({ fallbackTasks, idea, productSurface, projectKey, tasks });
