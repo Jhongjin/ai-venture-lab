@@ -20,6 +20,11 @@ export type ValidationPackageSaveButtonState = {
   disabled: boolean;
   label: string;
 };
+export type ValidationPackageDraftSaveControlState = {
+  disabled: boolean;
+  disabledNote?: string;
+  label: string;
+};
 export type ValidationPackageHeaderState = {
   description: string;
   title: string;
@@ -173,6 +178,30 @@ export function buildValidationPackageSaveButtonState({
       : isValidationBundleSaved
         ? "검증 자료 저장 완료"
         : "검증 자료 한 번에 저장",
+  };
+}
+
+export function buildValidationPackageDraftSaveControlState({
+  defaultLabel,
+  draftBody,
+  extraDisabled = false,
+  hasArtifact,
+  hasUser,
+  isBusy,
+  savedDisabledNote,
+}: {
+  defaultLabel: string;
+  draftBody: unknown;
+  extraDisabled?: boolean;
+  hasArtifact: boolean;
+  hasUser: boolean;
+  isBusy: boolean;
+  savedDisabledNote?: string;
+}): ValidationPackageDraftSaveControlState {
+  return {
+    disabled: isBusy || !hasUser || extraDisabled || hasArtifact || !draftBody,
+    disabledNote: hasArtifact ? savedDisabledNote : undefined,
+    label: hasArtifact ? "저장 완료" : defaultLabel,
   };
 }
 

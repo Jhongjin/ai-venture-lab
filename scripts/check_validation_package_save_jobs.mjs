@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/validation-package-save-jobs.ts")).href;
 const {
+  buildValidationPackageDraftSaveControlState,
   buildValidationPackageHeaderState,
   buildValidationPackagePanelClassName,
   buildValidationPackagePanelTabStates,
@@ -161,9 +162,94 @@ assert.equal(
   }).disabled,
   true,
 );
+assert.deepEqual(buildValidationPackageDraftSaveControlState({
+  defaultLabel: "제작 자료 저장",
+  draftBody: "# idea",
+  hasArtifact: false,
+  hasUser: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  disabledNote: undefined,
+  label: "제작 자료 저장",
+});
+assert.deepEqual(buildValidationPackageDraftSaveControlState({
+  defaultLabel: "제작 자료 저장",
+  draftBody: "# idea",
+  hasArtifact: true,
+  hasUser: true,
+  isBusy: false,
+  savedDisabledNote: "아이디어 요약이 저장되어 상단 상태에 반영되었습니다.",
+}), {
+  disabled: true,
+  disabledNote: "아이디어 요약이 저장되어 상단 상태에 반영되었습니다.",
+  label: "저장 완료",
+});
+assert.equal(buildValidationPackageDraftSaveControlState({
+  defaultLabel: "제작 자료 저장",
+  draftBody: "# idea",
+  hasArtifact: false,
+  hasUser: false,
+  isBusy: false,
+}).disabled, true);
+assert.equal(buildValidationPackageDraftSaveControlState({
+  defaultLabel: "제작 자료 저장",
+  draftBody: "",
+  hasArtifact: false,
+  hasUser: true,
+  isBusy: false,
+}).disabled, true);
+assert.deepEqual(buildValidationPackageDraftSaveControlState({
+  defaultLabel: "검증 자료 저장",
+  draftBody: "# summary",
+  extraDisabled: true,
+  hasArtifact: false,
+  hasUser: true,
+  isBusy: false,
+}), {
+  disabled: true,
+  disabledNote: undefined,
+  label: "검증 자료 저장",
+});
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || isSavingValidationBundle || !user || isValidationBundleSaved}"),
   "IdeaWorkbench should use the shared validation package save button state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('saveLabel={hasIdeaBriefArtifact ? "저장 완료" : "제작 자료 저장"}'),
+  "IdeaWorkbench should render idea brief save labels from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("saveDisabled={isBusy || !user || hasIdeaBriefArtifact || !ideaBriefSaveDraft}"),
+  "IdeaWorkbench should render idea brief save disabled state from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('saveLabel={hasResearchBriefArtifact ? "저장 완료" : "제작 자료 저장"}'),
+  "IdeaWorkbench should render research brief save labels from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("saveDisabled={isBusy || !user || hasResearchBriefArtifact || !researchBriefSaveDraft}"),
+  "IdeaWorkbench should render research brief save disabled state from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('saveLabel={hasValidationSprintArtifact ? "저장 완료" : "제작 자료 저장"}'),
+  "IdeaWorkbench should render validation sprint save labels from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes(
+    "saveDisabled={isBusy || !user || hasValidationSprintArtifact || !validationSprintSaveDraft}",
+  ),
+  "IdeaWorkbench should render validation sprint save disabled state from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('saveLabel={hasValidationSummaryArtifact ? "저장 완료" : "검증 자료 저장"}'),
+  "IdeaWorkbench should render validation summary save labels from shared save-control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes(
+    "saveDisabled={isBusy || !user || !canSaveValidationSummary || hasValidationSummaryArtifact || !validationSummarySaveDraft}",
+  ),
+  "IdeaWorkbench should render validation summary save disabled state from shared save-control state.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("검증 자료 한 번에 저장"),
