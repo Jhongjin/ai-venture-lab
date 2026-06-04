@@ -28,6 +28,10 @@ export type ExperimentResultTelemetryInput<Decision extends string> = {
   nextDecision: Decision;
   result: string;
 };
+export type ExperimentResultInputControlState = {
+  fieldsDisabled: boolean;
+  saveDisabled: boolean;
+};
 
 export type DecisionTemplateSource = {
   hypotheses: string[];
@@ -127,6 +131,21 @@ export function buildValidationExperimentNameRequiredMessage() {
 
 export function buildRecommendedValidationExperimentSavedMessage() {
   return "AI 추천 검증 계획을 저장했습니다. 시장·경쟁 점검은 자동으로 정리되고, 이동은 하단 다음 단계 버튼에서만 진행됩니다.";
+}
+
+export function buildExperimentResultInputControlState({
+  hasExperiments,
+  hasUser,
+  isBusy,
+}: {
+  hasExperiments: boolean;
+  hasUser: boolean;
+  isBusy: boolean;
+}): ExperimentResultInputControlState {
+  return {
+    fieldsDisabled: !hasExperiments,
+    saveDisabled: isBusy || !hasUser || !hasExperiments,
+  };
 }
 
 export function buildExperimentUpdatePermissionDeniedMessage() {

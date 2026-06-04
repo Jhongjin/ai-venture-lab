@@ -443,6 +443,7 @@ import {
   buildExperimentDeletedMessage,
   buildExperimentDeletePermissionDeniedMessage,
   buildExperimentInsertRow,
+  buildExperimentResultInputControlState,
   buildExperimentResultEmptySaveDraftMessage,
   buildExperimentResultExperimentRequiredMessage,
   buildExperimentResultLearningRequiredMessage,
@@ -1490,6 +1491,11 @@ export function IdeaWorkbench({
   });
   const recommendedValidationExperimentSaveControl = buildRecommendedValidationExperimentSaveControl({
     hasSavedExperiment: selectedExperiments.length > 0,
+    hasUser: Boolean(user),
+    isBusy,
+  });
+  const experimentResultInputControlState = buildExperimentResultInputControlState({
+    hasExperiments: selectedExperiments.length > 0,
     hasUser: Boolean(user),
     isBusy,
   });
@@ -7153,7 +7159,7 @@ export function IdeaWorkbench({
                   어떤 검증인가요
                   <select
                     value={selectedExperimentForResult?.id ?? ""}
-                    disabled={selectedExperiments.length === 0}
+                    disabled={experimentResultInputControlState.fieldsDisabled}
                     onChange={(event) =>
                       setExperimentResultDraft((current) => setRecordField(current, "experiment_id", event.target.value))
                     }
@@ -7179,7 +7185,7 @@ export function IdeaWorkbench({
                   options={decisionOptions}
                   labels={decisionLabels}
                   description="이 결과를 보고 아이디어를 계속 진행할지, 추가 조사할지, 전환/중단할지 고릅니다."
-                  disabled={selectedExperiments.length === 0}
+                  disabled={experimentResultInputControlState.fieldsDisabled}
                   onChange={(value) =>
                     setExperimentResultDraft((current) => setRecordField(current, "next_decision", value))
                   }
@@ -7191,7 +7197,7 @@ export function IdeaWorkbench({
                   value={experimentResultDraft.result}
                   placeholder="예) 5명 중 3명이 같은 문제를 겪고 있었고, 2명은 월 구독 의향을 보였습니다."
                   description="실제로 확인한 사실을 숫자와 반응 중심으로 적습니다."
-                  disabled={selectedExperiments.length === 0}
+                  disabled={experimentResultInputControlState.fieldsDisabled}
                   onChange={(value) => setExperimentResultDraft((current) => setRecordField(current, "result", value))}
                 />
                 <TextArea
@@ -7199,7 +7205,7 @@ export function IdeaWorkbench({
                   value={experimentResultDraft.learning}
                   placeholder="예) 문제는 있지만 기능보다 신뢰와 개인정보 설명이 먼저 필요했습니다."
                   description="결과를 보고 새로 알게 된 의미를 적습니다."
-                  disabled={selectedExperiments.length === 0}
+                  disabled={experimentResultInputControlState.fieldsDisabled}
                   onChange={(value) => setExperimentResultDraft((current) => setRecordField(current, "learning", value))}
                 />
               </div>
@@ -7208,13 +7214,13 @@ export function IdeaWorkbench({
                 value={experimentResultDraft.next_action}
                 placeholder="예) 개인정보 저장 방식을 설명한 랜딩 페이지로 2차 확인"
                 description="이 결과 다음에 바로 할 한 가지 행동만 적습니다."
-                disabled={selectedExperiments.length === 0}
+                disabled={experimentResultInputControlState.fieldsDisabled}
                 onChange={(value) => setExperimentResultDraft((current) => setRecordField(current, "next_action", value))}
               />
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  disabled={isBusy || !user || selectedExperiments.length === 0}
+                  disabled={experimentResultInputControlState.saveDisabled}
                   className="avl-btn avl-btn-primary px-4 disabled:opacity-50"
                 >
                   <Save size={18} />

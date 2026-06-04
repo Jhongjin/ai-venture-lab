@@ -24,6 +24,7 @@ const {
   buildExperimentDeletedMessage,
   buildExperimentDeletePermissionDeniedMessage,
   buildExperimentInsertRow,
+  buildExperimentResultInputControlState,
   buildExperimentResultEmptySaveDraftMessage,
   buildExperimentResultExperimentRequiredMessage,
   buildExperimentResultLearningRequiredMessage,
@@ -163,6 +164,30 @@ assert.equal(
   "핵심 근거가 충분합니다. 실행한 검증 결과를 기록한 뒤 하단 다음 단계 버튼으로 이동하세요.",
 );
 assert.equal(buildValidationEvidenceCoachScoreLabel(83), "83%");
+assert.deepEqual(buildExperimentResultInputControlState({
+  hasExperiments: true,
+  hasUser: true,
+  isBusy: false,
+}), {
+  fieldsDisabled: false,
+  saveDisabled: false,
+});
+assert.deepEqual(buildExperimentResultInputControlState({
+  hasExperiments: false,
+  hasUser: true,
+  isBusy: false,
+}), {
+  fieldsDisabled: true,
+  saveDisabled: true,
+});
+assert.deepEqual(buildExperimentResultInputControlState({
+  hasExperiments: true,
+  hasUser: false,
+  isBusy: true,
+}), {
+  fieldsDisabled: false,
+  saveDisabled: true,
+});
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || !user || selectedExperiments.length > 0}"),
   "IdeaWorkbench should render recommended validation experiment save disabled state from shared control.",
@@ -190,6 +215,18 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("validationEvidenceCoachScoreLabel"),
   "IdeaWorkbench should render validation evidence coach score label from shared helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || !user || selectedExperiments.length === 0}"),
+  "IdeaWorkbench should render experiment result save disabled state from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("experimentResultInputControlState.fieldsDisabled"),
+  "IdeaWorkbench should render experiment result field disabled state from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("experimentResultInputControlState.saveDisabled"),
+  "IdeaWorkbench should render experiment result save disabled state from shared input control.",
 );
 const validationIdea = {
   buyer: "운영팀",
