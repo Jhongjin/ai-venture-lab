@@ -45,8 +45,10 @@ const moduleUrl = transpileModuleUrl("src/lib/implementation-dependency-plan.ts"
   ['from "@/lib/implementation-task-metadata";', `from ${JSON.stringify(implementationTaskMetadataUrl)};`],
   ['from "@/lib/workbench-labels";', `from ${JSON.stringify(workbenchLabelsUrl)};`],
 ]);
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 const {
+  buildImplementationDependencyPlanActionControlStates,
   buildImplementationDependencyPlanArtifactSaveDraft,
   buildImplementationDependencyPlanDraft,
   buildImplementationDependencyPlanMarkdown,
@@ -253,7 +255,64 @@ assert.equal(saveDraft.artifactType, "dev_runbook");
 assert.equal(saveDraft.title, "AI Venture Lab 개발 실행 순서 점검");
 assert.equal(saveDraft.source, "implementation_dependency_plan");
 assert.match(saveDraft.body, /# 개발 실행 순서 점검: AI Venture Lab/);
+assert.deepEqual(
+  buildImplementationDependencyPlanActionControlStates({
+    draft,
+    hasUser: true,
+    isBusy: false,
+    saveDraft,
+  }),
+  {
+    copy: {
+      disabled: false,
+      label: "순서 복사",
+    },
+    save: {
+      disabled: false,
+      label: "순서 저장",
+    },
+  },
+);
+assert.deepEqual(
+  buildImplementationDependencyPlanActionControlStates({
+    draft: "",
+    hasUser: true,
+    isBusy: false,
+    saveDraft: null,
+  }),
+  {
+    copy: {
+      disabled: true,
+      label: "순서 복사",
+    },
+    save: {
+      disabled: true,
+      label: "순서 저장",
+    },
+  },
+);
+assert.equal(
+  buildImplementationDependencyPlanActionControlStates({
+    draft,
+    hasUser: false,
+    isBusy: false,
+    saveDraft,
+  }).save.disabled,
+  true,
+);
+assert.equal(
+  buildImplementationDependencyPlanActionControlStates({
+    draft,
+    hasUser: true,
+    isBusy: true,
+    saveDraft,
+  }).save.disabled,
+  true,
+);
 assert.equal(buildImplementationDependencyPlanArtifactSaveDraft({ body: "", ideaName: null }), null);
 assert.equal(buildImplementationDependencyPlanDraft({ idea: null, state: null, statuses }), "");
+
+assert.match(ideaWorkbenchSource, /implementationDependencyPlanActionControlStates\.copy\.disabled/);
+assert.match(ideaWorkbenchSource, /implementationDependencyPlanActionControlStates\.save\.disabled/);
 
 console.log("Implementation dependency plan smoke passed.");

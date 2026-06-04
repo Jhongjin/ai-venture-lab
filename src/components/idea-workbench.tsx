@@ -380,6 +380,7 @@ import {
   scaffoldManifestGuideRows,
 } from "@/lib/development-package-drafts";
 import {
+  buildImplementationDependencyPlanActionControlStates,
   buildImplementationDependencyPlanArtifactSaveDraft,
   buildImplementationDependencyPlanDraft,
 } from "@/lib/implementation-dependency-plan";
@@ -1202,6 +1203,12 @@ export function IdeaWorkbench({
   const implementationDependencyPlanSaveDraft = buildImplementationDependencyPlanArtifactSaveDraft({
     body: implementationDependencyPlanDraft,
     ideaName: selectedIdeaContext.ideaName,
+  });
+  const implementationDependencyPlanActionControlStates = buildImplementationDependencyPlanActionControlStates({
+    draft: implementationDependencyPlanDraft,
+    hasUser: Boolean(user),
+    isBusy,
+    saveDraft: implementationDependencyPlanSaveDraft,
   });
   const {
     activeImplementationOwnerFilter,
@@ -5577,20 +5584,20 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => copyDraft(implementationDependencyPlanDraft, "개발 실행 순서 점검")}
-                      disabled={!implementationDependencyPlanDraft}
+                      disabled={implementationDependencyPlanActionControlStates.copy.disabled}
                       className="avl-btn avl-btn-secondary h-9 px-3 text-xs disabled:opacity-50"
                     >
                       <Clipboard size={15} />
-                      순서 복사
+                      {implementationDependencyPlanActionControlStates.copy.label}
                     </button>
                     <button
                       type="button"
                       onClick={() => savePreparedArtifactDraft(implementationDependencyPlanSaveDraft)}
-                      disabled={isBusy || !user || !implementationDependencyPlanSaveDraft}
+                      disabled={implementationDependencyPlanActionControlStates.save.disabled}
                       className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:opacity-50"
                     >
                       <Save size={15} />
-                      순서 저장
+                      {implementationDependencyPlanActionControlStates.save.label}
                     </button>
                   </div>
                 </div>

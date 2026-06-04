@@ -17,6 +17,39 @@ export type ImplementationDependencyPlanArtifactSaveDraft = {
   title: string;
 };
 
+export type ImplementationDependencyPlanActionControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type ImplementationDependencyPlanActionControlStates = {
+  copy: ImplementationDependencyPlanActionControlState;
+  save: ImplementationDependencyPlanActionControlState;
+};
+
+export function buildImplementationDependencyPlanActionControlStates({
+  draft,
+  hasUser,
+  isBusy,
+  saveDraft,
+}: {
+  draft: string;
+  hasUser: boolean;
+  isBusy: boolean;
+  saveDraft: ImplementationDependencyPlanArtifactSaveDraft | null;
+}): ImplementationDependencyPlanActionControlStates {
+  return {
+    copy: {
+      disabled: !draft,
+      label: "순서 복사",
+    },
+    save: {
+      disabled: isBusy || !hasUser || !saveDraft,
+      label: "순서 저장",
+    },
+  };
+}
+
 export function buildImplementationDependencyPlanArtifactSaveDraft({
   body,
   ideaName,
