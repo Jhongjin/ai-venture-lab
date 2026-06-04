@@ -70,8 +70,12 @@ const {
   buildSavedExternalToolTaskSection,
   formatExternalToolSyncExpiryText,
 } = await import(handoffUrl);
-const { buildExternalToolConnectorDrafts, buildExternalToolIdeaPackageDrafts, buildExternalToolPackageDrafts } =
-  await import(moduleUrl);
+const {
+  buildExternalToolCliPackageDrafts,
+  buildExternalToolConnectorDrafts,
+  buildExternalToolIdeaPackageDrafts,
+  buildExternalToolPackageDrafts,
+} = await import(moduleUrl);
 
 assert.equal(formatExternalToolSyncExpiryText(), "");
 assert.equal(
@@ -127,6 +131,10 @@ assert.match(connectorDrafts.cursorMcpConfigDraft, /ai-venture-lab/);
 assert.match(connectorDrafts.cursorMcpServerDraft, /venture:\/\/package/);
 assert.match(connectorDrafts.claudeMcpConfigDraft, /\.claude\/venture-lab-cli\.mjs/);
 assert.match(connectorDrafts.antigravityMcpConfigDraft, /\.antigravity\/venture-lab-cli\.mjs/);
+const cliDrafts = buildExternalToolCliPackageDrafts(connectorDrafts.cursorMcpServerDraft);
+assert.match(cliDrafts.codexCliScriptDraft, /\.codex/);
+assert.match(cliDrafts.claudeCliScriptDraft, /\.claude/);
+assert.match(cliDrafts.antigravityCliScriptDraft, /\.antigravity/);
 
 const idea = {
   buyer: "운영팀 리더",

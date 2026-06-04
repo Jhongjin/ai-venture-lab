@@ -74,6 +74,10 @@ export type ExternalToolIdeaPackageDrafts = Pick<
   | "cursorStartPromptDraft"
   | "cursorTaskPackageDraft"
 >;
+export type ExternalToolCliPackageDrafts = Pick<
+  ExternalToolPackageDrafts,
+  "antigravityCliScriptDraft" | "claudeCliScriptDraft" | "codexCliScriptDraft"
+>;
 
 const emptyExternalToolIdeaPackageDrafts: ExternalToolIdeaPackageDrafts = {
   antigravityAcceptanceDraft: "",
@@ -101,6 +105,14 @@ export function buildExternalToolConnectorDrafts() {
     cursorMcpServerDraft: buildCursorMcpServerScript(),
     claudeMcpConfigDraft: buildClaudeMcpConfigJson(),
     antigravityMcpConfigDraft: buildAntigravityMcpConfigJson(),
+  };
+}
+
+export function buildExternalToolCliPackageDrafts(cursorMcpServerDraft: string): ExternalToolCliPackageDrafts {
+  return {
+    codexCliScriptDraft: buildCodexCliScript(cursorMcpServerDraft),
+    claudeCliScriptDraft: buildClaudeCliScript(cursorMcpServerDraft),
+    antigravityCliScriptDraft: buildAntigravityCliScript(cursorMcpServerDraft),
   };
 }
 
@@ -158,15 +170,16 @@ export function buildExternalToolPackageDrafts({
   const { antigravityMcpConfigDraft, claudeMcpConfigDraft, cursorMcpConfigDraft, cursorMcpServerDraft } =
     buildExternalToolConnectorDrafts();
   const ideaDrafts = buildExternalToolIdeaPackageDrafts({ fallbackTasks, idea, productSurface, projectKey, tasks });
+  const cliDrafts = buildExternalToolCliPackageDrafts(cursorMcpServerDraft);
 
   return {
     ...ideaDrafts,
     cursorMcpConfigDraft,
     cursorMcpServerDraft,
-    codexCliScriptDraft: buildCodexCliScript(cursorMcpServerDraft),
+    codexCliScriptDraft: cliDrafts.codexCliScriptDraft,
     claudeMcpConfigDraft,
-    claudeCliScriptDraft: buildClaudeCliScript(cursorMcpServerDraft),
+    claudeCliScriptDraft: cliDrafts.claudeCliScriptDraft,
     antigravityMcpConfigDraft,
-    antigravityCliScriptDraft: buildAntigravityCliScript(cursorMcpServerDraft),
+    antigravityCliScriptDraft: cliDrafts.antigravityCliScriptDraft,
   };
 }
