@@ -29,6 +29,10 @@ export type WorkbenchEmptySelectionState = {
   hasSelectableIdeas: boolean;
   shouldShowEmptyState: boolean;
 };
+export type WorkbenchIdeaActionControlState = {
+  disabled: boolean;
+  label: string;
+};
 export type WorkbenchEditPermissionState = {
   canEdit: boolean;
 };
@@ -128,6 +132,19 @@ export function buildWorkbenchEmptySelectionState({
   return {
     hasSelectableIdeas: visibleIdeaCount > 0,
     shouldShowEmptyState: !selectedIdea || !editState,
+  };
+}
+
+export function buildWorkbenchIdeaActionControlState({
+  isBusy,
+  label,
+}: {
+  isBusy: boolean;
+  label: string;
+}): WorkbenchIdeaActionControlState {
+  return {
+    disabled: isBusy,
+    label,
   };
 }
 

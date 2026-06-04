@@ -95,6 +95,7 @@ import {
   getWorkbenchRecordAccessState,
   getWorkbenchIdeaDiscardSelectionState,
   getWorkbenchIdeaRemovalSelectionState,
+  buildWorkbenchIdeaActionControlState,
   isDiscardedIdea,
   mergeRecordMap,
   omitRecordKey,
@@ -1269,6 +1270,18 @@ export function IdeaWorkbench({
     memberships,
     selectedIdea,
     user,
+  });
+  const workbenchIdeaDiscardControlState = buildWorkbenchIdeaActionControlState({
+    isBusy,
+    label: "삭제",
+  });
+  const workbenchIdeaRestoreControlState = buildWorkbenchIdeaActionControlState({
+    isBusy,
+    label: "되살리기",
+  });
+  const workbenchIdeaPermanentDeleteControlState = buildWorkbenchIdeaActionControlState({
+    isBusy,
+    label: "완전 삭제",
   });
   const scoringEditGuidanceMessage = buildWorkbenchScoringEditGuidanceMessage({ canEdit });
   const getRecordAccessState = useCallback(
@@ -4354,11 +4367,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => void discardIdeaRecord(idea)}
-                      disabled={isBusy}
+                      disabled={workbenchIdeaDiscardControlState.disabled}
                       className="avl-btn avl-btn-danger h-9 px-3 text-xs disabled:opacity-50"
                     >
                       <Trash2 size={14} />
-                      삭제
+                      {workbenchIdeaDiscardControlState.label}
                     </button>
                   </div>
                 ) : null}
@@ -4526,11 +4539,11 @@ export function IdeaWorkbench({
                             <button
                               type="button"
                               onClick={() => void discardIdeaRecord(selectedIdea)}
-                              disabled={isBusy}
+                              disabled={workbenchIdeaDiscardControlState.disabled}
                               className="avl-btn avl-btn-danger h-11 px-4 disabled:opacity-50"
                             >
                               <Trash2 size={16} />
-                              삭제
+                              {workbenchIdeaDiscardControlState.label}
                             </button>
                           ) : null}
                         </div>
@@ -4589,11 +4602,11 @@ export function IdeaWorkbench({
                                     <button
                                       type="button"
                                       onClick={() => void discardIdeaRecord(idea)}
-                                      disabled={isBusy}
+                                      disabled={workbenchIdeaDiscardControlState.disabled}
                                       className="avl-btn avl-btn-danger h-8 px-3 text-xs disabled:opacity-50"
                                     >
                                       <Trash2 size={13} />
-                                      삭제
+                                      {workbenchIdeaDiscardControlState.label}
                                     </button>
                                   ) : null}
                                 </div>
@@ -4645,20 +4658,20 @@ export function IdeaWorkbench({
                           <button
                             type="button"
                             onClick={() => void restoreIdeaRecord(idea)}
-                            disabled={isBusy}
+                            disabled={workbenchIdeaRestoreControlState.disabled}
                             className="avl-btn avl-btn-secondary h-10 px-3 text-sm disabled:opacity-50"
                           >
                             <RefreshCw size={15} />
-                            되살리기
+                            {workbenchIdeaRestoreControlState.label}
                           </button>
                           <button
                             type="button"
                             onClick={() => void deleteIdeaRecord(idea)}
-                            disabled={isBusy}
+                            disabled={workbenchIdeaPermanentDeleteControlState.disabled}
                             className="avl-btn avl-btn-danger h-10 px-3 text-sm disabled:opacity-50"
                           >
                             <Trash2 size={15} />
-                            완전 삭제
+                            {workbenchIdeaPermanentDeleteControlState.label}
                           </button>
                         </div>
                       ) : null}
@@ -4696,11 +4709,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => void discardIdeaRecord(selectedIdea)}
-                      disabled={isBusy}
+                      disabled={workbenchIdeaDiscardControlState.disabled}
                       className="avl-btn avl-btn-danger h-11 px-4 disabled:opacity-50"
                     >
                       <Trash2 size={18} />
-                      삭제
+                      {workbenchIdeaDiscardControlState.label}
                     </button>
                   ) : null}
                   <button

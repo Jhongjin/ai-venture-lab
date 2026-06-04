@@ -15,6 +15,7 @@ const {
   buildWorkbenchIdeaDiscardConfirmMessage,
   buildWorkbenchIdeaDiscardFailedMessage,
   buildWorkbenchIdeaDiscardedMessage,
+  buildWorkbenchIdeaActionControlState,
   buildWorkbenchIdeaDisplayState,
   buildWorkbenchIdeaListItemStates,
   buildWorkbenchIdeaPermanentDeleteConfirmMessage,
@@ -197,6 +198,32 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("const canEdit = Boolean"),
   "IdeaWorkbench should use the shared edit-permission helper.",
+);
+assert.deepEqual(buildWorkbenchIdeaActionControlState({
+  isBusy: false,
+  label: "삭제",
+}), {
+  disabled: false,
+  label: "삭제",
+});
+assert.deepEqual(buildWorkbenchIdeaActionControlState({
+  isBusy: true,
+  label: "되살리기",
+}), {
+  disabled: true,
+  label: "되살리기",
+});
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy}"),
+  "IdeaWorkbench should render idea action disabled state from shared action controls.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("workbenchIdeaDiscardControlState.disabled"),
+  "IdeaWorkbench should render idea discard disabled state from shared action controls.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("workbenchIdeaRestoreControlState.label"),
+  "IdeaWorkbench should render idea restore label from shared action controls.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("visibleIdeas.length > 0 && selectedIdea && !isDiscardedIdea(selectedIdea) ? (() => {"),
