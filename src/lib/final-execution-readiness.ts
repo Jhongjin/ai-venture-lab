@@ -229,7 +229,44 @@ export function buildFinalExecutionReadiness({
   implementationTaskCount: number;
   runCount: number;
 }): FinalExecutionReadiness {
-  const checks: FinalExecutionReadinessCheck[] = hasIdeaContext
+  const checks = buildFinalExecutionReadinessChecks({
+    activeBuildDeliveryLabel,
+    buildDeliveryMode,
+    externalToolLabel,
+    hasFinalExecutionPackage,
+    hasFinalExecutionWorkOrder,
+    hasIdeaContext,
+    implementationTaskCount,
+    runCount,
+  });
+  const summary = summarizeFinalExecutionReadinessChecks(checks);
+
+  return {
+    checks,
+    ...summary,
+  };
+}
+
+export function buildFinalExecutionReadinessChecks({
+  activeBuildDeliveryLabel,
+  buildDeliveryMode,
+  externalToolLabel,
+  hasFinalExecutionPackage,
+  hasFinalExecutionWorkOrder,
+  hasIdeaContext,
+  implementationTaskCount,
+  runCount,
+}: {
+  activeBuildDeliveryLabel: string;
+  buildDeliveryMode: BuildDeliveryMode;
+  externalToolLabel: string;
+  hasFinalExecutionPackage: boolean;
+  hasFinalExecutionWorkOrder: boolean;
+  hasIdeaContext: boolean;
+  implementationTaskCount: number;
+  runCount: number;
+}): FinalExecutionReadinessCheck[] {
+  return hasIdeaContext
     ? [
         {
           label: "제작 패키지 저장",
@@ -255,12 +292,6 @@ export function buildFinalExecutionReadiness({
         },
       ]
     : [];
-  const summary = summarizeFinalExecutionReadinessChecks(checks);
-
-  return {
-    checks,
-    ...summary,
-  };
 }
 
 export function summarizeFinalExecutionReadinessChecks(

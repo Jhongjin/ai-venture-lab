@@ -34,6 +34,7 @@ const {
   buildFinalExecutionPrimaryPackageAction,
   buildFinalExecutionPackageState,
   buildFinalExecutionReadiness,
+  buildFinalExecutionReadinessChecks,
   buildFinalExecutionTaskListDescription,
   buildFinalExecutionTaskPreviewLists,
   buildFinalExecutionTaskPreview,
@@ -102,6 +103,36 @@ const readiness = buildFinalExecutionReadiness({
 });
 assert.equal(readiness.canEnterLaunch, true);
 assert.equal(readiness.score, 100);
+assert.deepEqual(
+  buildFinalExecutionReadinessChecks({
+    activeBuildDeliveryLabel: "Cursor",
+    buildDeliveryMode: "external_tool",
+    externalToolLabel: "Cursor",
+    hasFinalExecutionPackage: true,
+    hasFinalExecutionWorkOrder: true,
+    hasIdeaContext: true,
+    implementationTaskCount: 4,
+    runCount: 3,
+  }).map((check) => [check.label, check.passed]),
+  [
+    ["제작 패키지 저장", true],
+    ["작업 순서 준비", true],
+    ["개발 방식 확정", true],
+  ],
+);
+assert.deepEqual(
+  buildFinalExecutionReadinessChecks({
+    activeBuildDeliveryLabel: "",
+    buildDeliveryMode: "venture_lab",
+    externalToolLabel: "Venture Lab",
+    hasFinalExecutionPackage: false,
+    hasFinalExecutionWorkOrder: false,
+    hasIdeaContext: false,
+    implementationTaskCount: 0,
+    runCount: 0,
+  }),
+  [],
+);
 assert.deepEqual(summarizeFinalExecutionReadinessChecks(readiness.checks), {
   passedCount: 3,
   score: 100,
