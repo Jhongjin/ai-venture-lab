@@ -1,6 +1,10 @@
 import type { ExternalBuildToolKey } from "@/lib/build-delivery";
 import { toDownloadFileName } from "@/lib/download-file-name";
 import {
+  buildExternalToolSyncConfigDraft,
+  type ExternalToolSyncConfigPayload,
+} from "@/lib/external-tool-connector-config";
+import {
   buildExternalToolCliFilePath,
   buildExternalToolProgressFilePath,
   buildExternalToolSyncFilePath,
@@ -55,6 +59,11 @@ export type LiveExternalToolSetupDownloadDraft = {
   fileName: string;
   label: string;
   mimeType: "text/plain;charset=utf-8";
+};
+
+export type LiveExternalToolSetupDownloadPlan = {
+  downloadDraft: LiveExternalToolSetupDownloadDraft;
+  syncConfigDraft: string;
 };
 
 export type CursorSetupDownloadConfigDrafts = {
@@ -236,6 +245,42 @@ export function buildLiveExternalToolSetupDownloadDraft({
     fileName: toDownloadFileName(idea.name, config.fileSuffix, "ps1"),
     label: config.fileLabel,
     mimeType: "text/plain;charset=utf-8",
+  };
+}
+
+export function buildLiveExternalToolSetupDownloadPlan({
+  config,
+  encodeSetupFiles,
+  idea,
+  payload,
+  productSurface,
+  projectKey,
+}: {
+  config: ExternalToolSetupDownloadConfig;
+  encodeSetupFiles: (files: ExternalToolSetupFileDraft[]) => ExternalToolEncodedSetupFile[];
+  idea: Idea;
+  payload: ExternalToolSyncConfigPayload;
+  productSurface: ProductSurfaceProfile;
+  projectKey: string;
+}): LiveExternalToolSetupDownloadPlan {
+  const syncConfigDraft = buildExternalToolSyncConfigDraft({
+    idea,
+    payload,
+    projectKey,
+    tool: config.tool,
+  });
+
+  return {
+    downloadDraft: buildLiveExternalToolSetupDownloadDraft({
+      config,
+      encodeSetupFiles,
+      idea,
+      productSurface,
+      projectKey,
+      syncConfigDraft,
+      syncExpiresAt: payload.expiresAt,
+    }),
+    syncConfigDraft,
   };
 }
 

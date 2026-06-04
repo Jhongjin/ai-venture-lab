@@ -22,6 +22,9 @@ function transpileModuleUrl(modulePath, replacements = []) {
 
 const downloadFileNameUrl = pathToFileURL(path.join(process.cwd(), "src/lib/download-file-name.ts")).href;
 const externalToolFilePathsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-file-paths.ts")).href;
+const connectorConfigUrl = transpileModuleUrl("src/lib/external-tool-connector-config.ts", [
+  ['from "@/lib/external-tool-file-paths";', `from ${JSON.stringify(externalToolFilePathsUrl)};`],
+]);
 const setupFilesUrl = transpileModuleUrl("src/lib/external-tool-setup-files.ts", [
   ['from "@/lib/external-tool-file-paths";', `from ${JSON.stringify(externalToolFilePathsUrl)};`],
 ]);
@@ -44,6 +47,7 @@ export function buildCursorGuideMarkdown(args) {
 `).toString("base64")}`;
 const moduleUrl = transpileModuleUrl("src/lib/external-tool-setup-scripts.ts", [
   ['from "@/lib/download-file-name";', `from ${JSON.stringify(downloadFileNameUrl)};`],
+  ['from "@/lib/external-tool-connector-config";', `from ${JSON.stringify(connectorConfigUrl)};`],
   ['from "@/lib/external-tool-file-paths";', `from ${JSON.stringify(externalToolFilePathsUrl)};`],
   ['from "@/lib/external-tool-setup-files";', `from ${JSON.stringify(setupFilesUrl)};`],
   ['from "@/lib/external-tool-handoff-markdown";', `from ${JSON.stringify(handoffMarkdownStubUrl)};`],
@@ -57,6 +61,7 @@ const {
   buildCursorSetupDownloadConfig,
   buildExternalToolSetupDownloadConfigs,
   buildLiveExternalToolSetupDownloadDraft,
+  buildLiveExternalToolSetupDownloadPlan,
   buildLiveToolSetupPowerShell,
   buildPowerShellStringArray,
   buildPowerShellWriteHostLines,
@@ -215,6 +220,32 @@ assert.match(downloadDraft.body, /AI_VENTURE_PACKAGE.md/);
 assert.match(downloadDraft.body, /README_VENTURE_LAB_CURSOR.md/);
 assert.match(downloadDraft.body, /encoded:cursor-guide:AI Venture Lab:운영 콘솔:PROJECT-1:2026-06-02T00:00:00.000Z/);
 assert.match(downloadDraft.body, /.cursor\/venture-lab-sync.json/);
+
+const downloadPlan = buildLiveExternalToolSetupDownloadPlan({
+  config: cursorConfig,
+  encodeSetupFiles: (files) => files.map((file) => ({ base64: `encoded:${file.body}`, path: file.path })),
+  idea,
+  payload: {
+    endpoint: "https://example.test/api/build-sync/progress",
+    expiresAt: "2026-06-02T00:00:00.000Z",
+    token: "token.fake",
+  },
+  productSurface,
+  projectKey: "PROJECT-1",
+});
+assert.equal(downloadPlan.downloadDraft.fileName, "ai-venture-lab-cursor-setup.ps1");
+assert.match(downloadPlan.downloadDraft.body, /AI Venture Lab Cursor connection setup/);
+assert.match(downloadPlan.downloadDraft.body, /.cursor\/venture-lab-sync.json/);
+assert.deepEqual(JSON.parse(downloadPlan.syncConfigDraft), {
+  createdAt: JSON.parse(downloadPlan.syncConfigDraft).createdAt,
+  endpoint: "https://example.test/api/build-sync/progress",
+  expiresAt: "2026-06-02T00:00:00.000Z",
+  ideaId: "idea-1",
+  ideaName: "AI Venture Lab",
+  projectKey: "PROJECT-1",
+  token: "token.fake",
+  tool: "cursor",
+});
 
 const cursorScript = buildCursorSetupPowerShell({
   files: [{ base64: "abc", path: ".cursor/rules/ai-venture-lab.mdc" }],

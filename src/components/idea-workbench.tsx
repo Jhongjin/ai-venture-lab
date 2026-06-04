@@ -197,7 +197,6 @@ import {
   buildExternalToolConnectionRevokedMessage,
   buildExternalToolConnectionRevokingMessage,
   buildExternalToolSyncConnectionRevokeUrl,
-  buildExternalToolSyncConfigDraft,
   buildExternalToolSyncConnectionsUrl,
   getExternalToolBuildSyncTokenUrl,
   isExternalToolSyncConfigPayload,
@@ -205,7 +204,7 @@ import {
 import { buildExternalToolPackageDrafts } from "@/lib/external-tool-package-drafts";
 import {
   buildExternalToolSetupDownloadConfigs,
-  buildLiveExternalToolSetupDownloadDraft,
+  buildLiveExternalToolSetupDownloadPlan,
   type ExternalToolSetupDownloadConfig,
   type LiveExternalToolSetupKey,
 } from "@/lib/external-tool-setup-scripts";
@@ -3758,20 +3757,13 @@ export function IdeaWorkbench({
         toolLabel: config.toolLabel,
       });
 
-      const syncConfigDraft = buildExternalToolSyncConfigDraft({
-        idea: selectedIdea,
-        payload,
-        projectKey: finalExecutionProjectKey,
-        tool: config.tool,
-      });
-      const downloadDraft = buildLiveExternalToolSetupDownloadDraft({
+      const { downloadDraft } = buildLiveExternalToolSetupDownloadPlan({
         config,
         encodeSetupFiles: encodeBrowserSetupFiles,
         idea: selectedIdea,
+        payload,
         productSurface: activeProductSurface,
         projectKey: finalExecutionProjectKey,
-        syncConfigDraft,
-        syncExpiresAt: payload.expiresAt,
       });
 
       downloadDraftFile(downloadDraft.body, downloadDraft.label, downloadDraft.fileName, downloadDraft.mimeType);
