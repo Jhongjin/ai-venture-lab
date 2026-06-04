@@ -831,14 +831,11 @@ export function buildStep8ProgressSummary({
   nextImplementationTaskId: string | null;
   tasks: ReadonlyArray<ImplementationTask>;
 }): Step8ProgressSummary {
-  const progressItems = sortStep8ProgressTasks(tasks).map((task, index) =>
-    buildStep8ProgressDisplayItem({
-      evidenceByTaskId,
-      index,
-      nextImplementationTaskId,
-      task,
-    }),
-  );
+  const progressItems = buildStep8ProgressItems({
+    evidenceByTaskId,
+    nextImplementationTaskId,
+    tasks,
+  });
   const hasNextTask = Boolean(nextImplementationTaskId);
 
   return {
@@ -846,6 +843,25 @@ export function buildStep8ProgressSummary({
     progressItems,
     progressTitle: buildStep8ProgressTitle({ hasNextTask, progressItems }),
   };
+}
+
+export function buildStep8ProgressItems({
+  evidenceByTaskId,
+  nextImplementationTaskId,
+  tasks,
+}: {
+  evidenceByTaskId: Record<string, string>;
+  nextImplementationTaskId: string | null;
+  tasks: ReadonlyArray<ImplementationTask>;
+}): Step8ProgressDisplayItem[] {
+  return sortStep8ProgressTasks(tasks).map((task, index) =>
+    buildStep8ProgressDisplayItem({
+      evidenceByTaskId,
+      index,
+      nextImplementationTaskId,
+      task,
+    }),
+  );
 }
 
 export function buildStep8ProgressDisplayItem({

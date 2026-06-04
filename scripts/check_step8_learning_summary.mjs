@@ -60,6 +60,7 @@ const {
   buildStep8ProgressDetail,
   buildStep8ProgressDisplayItem,
   buildStep8ProgressEvidenceSummary,
+  buildStep8ProgressItems,
   buildStep8ProgressSummary,
   buildStep8ProgressStatusDetail,
   buildStep8ProgressTitle,
@@ -433,6 +434,18 @@ assert.deepEqual(sortStep8ProgressTasks([tasks[2], tasks[0], tasks[1]]).map((ite
   "task-frontend",
   "task-qa",
 ]);
+assert.deepEqual(
+  buildStep8ProgressItems({
+    evidenceByTaskId: {},
+    nextImplementationTaskId: context.nextTaskId,
+    tasks: [tasks[2], tasks[0], tasks[1]],
+  }).map((item) => [item.id, item.code, item.isNext]),
+  [
+    ["task-planning", "T-001", false],
+    ["task-frontend", "T-002", true],
+    ["task-qa", "T-003", false],
+  ],
+);
 assert.equal(compareStep8ProgressTasks(tasks[0], tasks[1]), -1);
 assert.equal(compareStep8ProgressTasks(tasks[2], tasks[1]), 1);
 assert.equal(compareStep8ProgressTasks(tasks[1], { sort_order: 2 }), 0);
