@@ -112,6 +112,30 @@ export function buildWorkbenchScoringEditGuidanceMessage({ canEdit }: { canEdit:
     : "이 기록은 보기 전용입니다. 본인이 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다.";
 }
 
+export type WorkbenchScoringSaveButtonState = {
+  disabled: boolean;
+  icon: "loading" | "saved" | "save";
+  label: string;
+  toneClassName: "avl-btn-primary" | "avl-btn-secondary";
+};
+
+export function buildWorkbenchScoringSaveButtonState({
+  canEdit,
+  isBusy,
+  isScoreEvaluationSaved,
+}: {
+  canEdit: boolean;
+  isBusy: boolean;
+  isScoreEvaluationSaved: boolean;
+}): WorkbenchScoringSaveButtonState {
+  return {
+    disabled: isBusy || !canEdit || isScoreEvaluationSaved,
+    icon: isBusy ? "loading" : isScoreEvaluationSaved ? "saved" : "save",
+    label: isScoreEvaluationSaved ? "저장 완료" : "사업성 평가 저장",
+    toneClassName: isScoreEvaluationSaved ? "avl-btn-secondary" : "avl-btn-primary",
+  };
+}
+
 export type WorkbenchScoreEvaluationState = {
   activeProductSurface: ProductSurfaceProfile;
   currentScore: number;

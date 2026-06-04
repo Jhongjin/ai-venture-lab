@@ -119,6 +119,7 @@ import {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringSavedMessage,
+  buildWorkbenchScoringSaveButtonState,
   buildWorkbenchScoringSavePatch,
   buildWorkbenchScoringTelemetryProperties,
   toWorkbenchEditState as toEditState,
@@ -1428,6 +1429,11 @@ export function IdeaWorkbench({
     idea: selectedIdea,
     riskCount: selectedIdeaRisks.length,
     state: editState,
+  });
+  const scoringSaveButtonState = buildWorkbenchScoringSaveButtonState({
+    canEdit,
+    isBusy,
+    isScoreEvaluationSaved,
   });
   const { recommendedValidationExperiment, validationEvidenceCoach, validationPlan } = buildValidationPlanningReviewState({
     artifacts: selectedArtifactRecords,
@@ -4402,19 +4408,17 @@ export function IdeaWorkbench({
                   ) : null}
                   <button
                     type="submit"
-                    disabled={isBusy || !canEdit || isScoreEvaluationSaved}
-                    className={`avl-btn h-11 px-4 disabled:opacity-60 ${
-                      isScoreEvaluationSaved ? "avl-btn-secondary" : "avl-btn-primary"
-                    }`}
+                    disabled={scoringSaveButtonState.disabled}
+                    className={`avl-btn h-11 px-4 disabled:opacity-60 ${scoringSaveButtonState.toneClassName}`}
                   >
-                    {isBusy ? (
+                    {scoringSaveButtonState.icon === "loading" ? (
                       <RefreshCw className="animate-spin" size={18} />
-                    ) : isScoreEvaluationSaved ? (
+                    ) : scoringSaveButtonState.icon === "saved" ? (
                       <CheckCircle2 size={18} />
                     ) : (
                       <Save size={18} />
                     )}
-                    {isScoreEvaluationSaved ? "저장 완료" : "사업성 평가 저장"}
+                    {scoringSaveButtonState.label}
                   </button>
                 </div>
               </div>

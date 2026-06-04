@@ -22,6 +22,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringSaveButtonState,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSavePatch,
   buildWorkbenchScoringTelemetryProperties,
@@ -106,6 +107,57 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("이 기록은 보기 전용입니다. 본인이 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."),
   "IdeaWorkbench should use the shared read-only scoring guidance helper.",
+);
+assert.deepEqual(
+  buildWorkbenchScoringSaveButtonState({
+    canEdit: true,
+    isBusy: false,
+    isScoreEvaluationSaved: false,
+  }),
+  {
+    disabled: false,
+    icon: "save",
+    label: "사업성 평가 저장",
+    toneClassName: "avl-btn-primary",
+  },
+);
+assert.deepEqual(
+  buildWorkbenchScoringSaveButtonState({
+    canEdit: true,
+    isBusy: false,
+    isScoreEvaluationSaved: true,
+  }),
+  {
+    disabled: true,
+    icon: "saved",
+    label: "저장 완료",
+    toneClassName: "avl-btn-secondary",
+  },
+);
+assert.deepEqual(
+  buildWorkbenchScoringSaveButtonState({
+    canEdit: true,
+    isBusy: true,
+    isScoreEvaluationSaved: false,
+  }),
+  {
+    disabled: true,
+    icon: "loading",
+    label: "사업성 평가 저장",
+    toneClassName: "avl-btn-primary",
+  },
+);
+assert.equal(
+  buildWorkbenchScoringSaveButtonState({
+    canEdit: false,
+    isBusy: false,
+    isScoreEvaluationSaved: false,
+  }).disabled,
+  true,
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("disabled={isBusy || !canEdit || isScoreEvaluationSaved}"),
+  "IdeaWorkbench should use the shared scoring save button helper.",
 );
 const savedIdea = { ...idea, ...savePatch };
 assert.equal(
