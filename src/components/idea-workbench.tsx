@@ -505,6 +505,7 @@ import {
   buildRiskTitleRequiredMessage,
   buildValidationExperimentManualSaveControlState,
   buildValidationExperimentNameRequiredMessage,
+  buildValidationRecordListVisibilityState,
   buildValidationExperimentSavedMessage,
   buildValidationExperimentSaveLoginRequiredMessage,
   experimentResultGuideRows,
@@ -1563,13 +1564,18 @@ export function IdeaWorkbench({
     score: currentScore,
     state: editState,
   });
+  const validationRecordListVisibilityState = buildValidationRecordListVisibilityState({
+    decisionCount: selectedDecisions.length,
+    experimentCount: selectedExperiments.length,
+    riskCount: selectedRisks.length,
+  });
   const recommendedValidationExperimentSaveControl = buildRecommendedValidationExperimentSaveControl({
-    hasSavedExperiment: selectedExperiments.length > 0,
+    hasSavedExperiment: validationRecordListVisibilityState.hasExperiments,
     hasUser: Boolean(user),
     isBusy,
   });
   const experimentResultInputControlState = buildExperimentResultInputControlState({
-    hasExperiments: selectedExperiments.length > 0,
+    hasExperiments: validationRecordListVisibilityState.hasExperiments,
     hasUser: Boolean(user),
     isBusy,
   });
@@ -6731,7 +6737,7 @@ export function IdeaWorkbench({
                 </div>
               </div>
               <div className="mt-4 grid gap-3">
-                {selectedRisks.length > 0 ? (
+                {validationRecordListVisibilityState.showRiskList ? (
                   selectedRisks.map((risk) => (
                     <div key={risk.id} className="avl-surface-muted p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -6840,7 +6846,7 @@ export function IdeaWorkbench({
               <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">판단 기록</div>
               <h3 className="mt-1 text-lg font-semibold text-slate-950">기록된 판단</h3>
               <div className="mt-4 grid gap-2">
-                {selectedDecisions.length > 0 ? (
+                {validationRecordListVisibilityState.showDecisionList ? (
                   selectedDecisions.map((entry) => (
                     <div key={entry.id} className="avl-surface-muted p-4 text-sm text-slate-600">
                       <span className="font-semibold text-slate-950">{decisionLabels[entry.decision]}</span>
@@ -6871,7 +6877,7 @@ export function IdeaWorkbench({
                 </div>
                 <Step3ValidationGateBridge
                   hasMarketScanArtifact={hasMarketScanArtifact}
-                  hasSavedExperiment={selectedExperiments.length > 0}
+                  hasSavedExperiment={validationRecordListVisibilityState.hasExperiments}
                   isMarketScanLoading={isMarketScanLoading}
                   isMarketScanOutdated={hasOutdatedMarketScanArtifact}
                 />
@@ -6974,7 +6980,7 @@ export function IdeaWorkbench({
                     아래 항목은 모두 <span className="font-semibold text-slate-950">{selectedIdea.name}</span> 아이디어에 연결된 검증입니다.
                   </p>
                 </div>
-                {selectedExperiments.length > 0 ? (
+                {validationRecordListVisibilityState.showExperimentList ? (
                   selectedExperiments.map((experiment, index) => {
                     const canManageExperiment = canManageRecord(experiment);
                     const experimentDeleteControlState = buildExperimentDeleteControlState({
@@ -7380,7 +7386,7 @@ export function IdeaWorkbench({
                     }
                     className="avl-select h-11 text-sm font-normal text-slate-950 disabled:bg-slate-100 disabled:text-slate-500"
                   >
-                    {selectedExperiments.length > 0 ? (
+                    {validationRecordListVisibilityState.showExperimentList ? (
                       selectedExperiments.map((experiment) => (
                         <option key={experiment.id} value={experiment.id}>
                           {experiment.name}

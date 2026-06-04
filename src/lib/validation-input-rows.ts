@@ -87,6 +87,13 @@ export type DecisionRecordControlState = {
   saveLabel: string;
 };
 
+export type ValidationRecordListVisibilityState = {
+  hasExperiments: boolean;
+  showDecisionList: boolean;
+  showExperimentList: boolean;
+  showRiskList: boolean;
+};
+
 export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
 };
@@ -235,6 +242,25 @@ export function buildExperimentResultInputControlState({
   return {
     fieldsDisabled: !hasExperiments,
     saveDisabled: isBusy || !hasUser || !hasExperiments,
+  };
+}
+
+export function buildValidationRecordListVisibilityState({
+  decisionCount,
+  experimentCount,
+  riskCount,
+}: {
+  decisionCount: number;
+  experimentCount: number;
+  riskCount: number;
+}): ValidationRecordListVisibilityState {
+  const hasExperiments = experimentCount > 0;
+
+  return {
+    hasExperiments,
+    showDecisionList: decisionCount > 0,
+    showExperimentList: hasExperiments,
+    showRiskList: riskCount > 0,
   };
 }
 

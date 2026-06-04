@@ -55,6 +55,7 @@ const {
   buildRiskTitleRequiredMessage,
   buildValidationExperimentManualSaveControlState,
   buildValidationExperimentNameRequiredMessage,
+  buildValidationRecordListVisibilityState,
   buildValidationExperimentSavedMessage,
   buildValidationExperimentSaveLoginRequiredMessage,
   experimentResultGuideRows,
@@ -196,6 +197,32 @@ assert.deepEqual(buildExperimentResultInputControlState({
   fieldsDisabled: false,
   saveDisabled: true,
 });
+assert.deepEqual(
+  buildValidationRecordListVisibilityState({
+    decisionCount: 1,
+    experimentCount: 2,
+    riskCount: 3,
+  }),
+  {
+    hasExperiments: true,
+    showDecisionList: true,
+    showExperimentList: true,
+    showRiskList: true,
+  },
+);
+assert.deepEqual(
+  buildValidationRecordListVisibilityState({
+    decisionCount: 0,
+    experimentCount: 0,
+    riskCount: 0,
+  }),
+  {
+    hasExperiments: false,
+    showDecisionList: false,
+    showExperimentList: false,
+    showRiskList: false,
+  },
+);
 assert.deepEqual(buildExperimentStatusControlState({
   canManage: true,
   currentStatus: "planned",
