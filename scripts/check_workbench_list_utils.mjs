@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -8,6 +9,7 @@ const {
   appendRecords,
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchEmptySelectionState,
   buildWorkbenchIdeaDiscardConfirmMessage,
   buildWorkbenchIdeaDiscardFailedMessage,
   buildWorkbenchIdeaDiscardedMessage,
@@ -78,6 +80,8 @@ const {
   workbenchStorageConnectionRequiredMessage,
   workbenchStorageNotConfiguredMessage,
 } = await import(moduleUrl);
+
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 function idea({
   access,
@@ -160,6 +164,32 @@ assert.deepEqual(buildRestoreIdeaPatch("2026-06-01T00:00:00.000Z"), {
   stage: "score",
   updated_at: "2026-06-01T00:00:00.000Z",
 });
+assert.deepEqual(
+  buildWorkbenchEmptySelectionState({
+    editState: null,
+    selectedIdea: ideas[0],
+    visibleIdeaCount: 3,
+  }),
+  {
+    hasSelectableIdeas: true,
+    shouldShowEmptyState: true,
+  },
+);
+assert.deepEqual(
+  buildWorkbenchEmptySelectionState({
+    editState: {},
+    selectedIdea: ideas[0],
+    visibleIdeaCount: 0,
+  }),
+  {
+    hasSelectableIdeas: false,
+    shouldShowEmptyState: false,
+  },
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("const hasSelectableIdeas = visibleIdeas.length > 0"),
+  "IdeaWorkbench should use the shared empty-selection helper.",
+);
 assert.equal(
   buildWorkbenchIdeaDiscardFailedMessage({ errorMessage: "permission denied", ideaName: "AI Venture Lab" }),
   "AI Venture Lab 아이디어를 삭제 목록으로 옮기지 못했습니다: permission denied",

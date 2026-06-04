@@ -25,6 +25,10 @@ export type WorkbenchIdeaDisplayState = {
   productSurface: ProductSurfaceProfile;
   progress: WorkbenchIdeaProgress;
 };
+export type WorkbenchEmptySelectionState = {
+  hasSelectableIdeas: boolean;
+  shouldShowEmptyState: boolean;
+};
 
 const ideaStageOrder: IdeaStage[] = ["intake", "research", "score", "prd", "prototype", "qa", "launch", "paused"];
 const ideaStageRank = new Map(ideaStageOrder.map((stage, index) => [stage, index]));
@@ -84,6 +88,21 @@ export function buildRestoreIdeaPatch(now = new Date().toISOString()) {
     decision: "research_more" as const,
     stage: "score" as const,
     updated_at: now,
+  };
+}
+
+export function buildWorkbenchEmptySelectionState({
+  editState,
+  selectedIdea,
+  visibleIdeaCount,
+}: {
+  editState: unknown;
+  selectedIdea: unknown;
+  visibleIdeaCount: number;
+}): WorkbenchEmptySelectionState {
+  return {
+    hasSelectableIdeas: visibleIdeaCount > 0,
+    shouldShowEmptyState: !selectedIdea || !editState,
   };
 }
 

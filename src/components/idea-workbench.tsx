@@ -58,6 +58,7 @@ import { buildExecutionPackageArtifactSaveDrafts, buildExecutionPackageDraftStat
 import {
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
+  buildWorkbenchEmptySelectionState,
   buildWorkbenchIdeaDiscardConfirmMessage,
   buildWorkbenchIdeaDiscardFailedMessage,
   buildWorkbenchIdeaDiscardedMessage,
@@ -2171,10 +2172,17 @@ export function IdeaWorkbench({
   }, [activeTask, isLiveExternalDelivery, selectedIdea?.id, user?.id, activeExternalBuildTool.key]);
 
   if (!selectedIdea || !editState) {
-    const hasSelectableIdeas = visibleIdeas.length > 0;
+    const emptySelectionState = buildWorkbenchEmptySelectionState({
+      editState,
+      selectedIdea,
+      visibleIdeaCount: visibleIdeas.length,
+    });
 
     return (
-      <WorkbenchEmptyState hasSelectableIdeas={hasSelectableIdeas} onSelectIdeas={() => updateActiveTask("select")} />
+      <WorkbenchEmptyState
+        hasSelectableIdeas={emptySelectionState.hasSelectableIdeas}
+        onSelectIdeas={() => updateActiveTask("select")}
+      />
     );
   }
 
