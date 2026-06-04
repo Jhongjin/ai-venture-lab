@@ -33,6 +33,7 @@ const {
   buildExternalToolConnectionRevokeLoginRequiredMessage,
   buildExternalToolConnectionRevokedMessage,
   buildExternalToolConnectionRevokingMessage,
+  buildExternalToolMcpConfigJson,
   buildExternalToolSyncConnectionRevokeUrl,
   buildExternalToolSyncConfigDraft,
   buildExternalToolSyncConnectionsUrl,
@@ -43,6 +44,26 @@ const {
 assert.match(buildCursorMcpConfigJson(), /\.cursor\/venture-lab-cli\.mjs/);
 assert.match(buildClaudeMcpConfigJson(), /\.claude\/venture-lab-cli\.mjs/);
 assert.match(buildAntigravityMcpConfigJson(), /\.antigravity\/venture-lab-cli\.mjs/);
+assert.deepEqual(JSON.parse(buildExternalToolMcpConfigJson({ cliPath: ".tool/venture-lab-cli.mjs" })), {
+  mcpServers: {
+    "ai-venture-lab": {
+      args: [".tool/venture-lab-cli.mjs", "mcp"],
+      command: "node",
+    },
+  },
+});
+assert.deepEqual(
+  JSON.parse(buildExternalToolMcpConfigJson({ cliPath: ".tool/venture-lab-cli.mjs", includeType: true })),
+  {
+    mcpServers: {
+      "ai-venture-lab": {
+        args: [".tool/venture-lab-cli.mjs", "mcp"],
+        command: "node",
+        type: "stdio",
+      },
+    },
+  },
+);
 assert.equal(buildExternalToolConnectionCheckingMessage("Cursor"), "Cursor 연결 상태를 확인하는 중입니다...");
 assert.equal(buildExternalToolConnectionCheckFailedMessage("Cursor"), "Cursor 연결 상태를 확인하지 못했습니다.");
 assert.equal(buildExternalToolConnectionCheckedMessage("Cursor"), "Cursor 연결 상태를 확인했습니다.");

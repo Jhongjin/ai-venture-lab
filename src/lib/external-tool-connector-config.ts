@@ -79,54 +79,47 @@ export function buildExternalToolSyncConnectionRevokeUrl(connectionId: string) {
   return `/api/build-sync/tokens/${encodeURIComponent(connectionId)}`;
 }
 
-export function buildClaudeMcpConfigJson() {
+export function buildExternalToolMcpConfigJson({
+  cliPath,
+  includeType = false,
+}: {
+  cliPath: string;
+  includeType?: boolean;
+}) {
+  const serverConfig = includeType
+    ? { type: "stdio", command: "node", args: [cliPath, "mcp"] }
+    : { command: "node", args: [cliPath, "mcp"] };
+
   return `${JSON.stringify(
     {
       mcpServers: {
-        "ai-venture-lab": {
-          type: "stdio",
-          command: "node",
-          args: [buildExternalToolCliFilePath(".claude"), "mcp"],
-        },
+        "ai-venture-lab": serverConfig,
       },
     },
     null,
     2,
   )}
 `;
+}
+
+export function buildClaudeMcpConfigJson() {
+  return buildExternalToolMcpConfigJson({
+    cliPath: buildExternalToolCliFilePath(".claude"),
+    includeType: true,
+  });
 }
 
 export function buildAntigravityMcpConfigJson() {
-  return `${JSON.stringify(
-    {
-      mcpServers: {
-        "ai-venture-lab": {
-          type: "stdio",
-          command: "node",
-          args: [buildExternalToolCliFilePath(".antigravity"), "mcp"],
-        },
-      },
-    },
-    null,
-    2,
-  )}
-`;
+  return buildExternalToolMcpConfigJson({
+    cliPath: buildExternalToolCliFilePath(".antigravity"),
+    includeType: true,
+  });
 }
 
 export function buildCursorMcpConfigJson() {
-  return `${JSON.stringify(
-    {
-      mcpServers: {
-        "ai-venture-lab": {
-          command: "node",
-          args: [buildExternalToolCliFilePath(".cursor"), "mcp"],
-        },
-      },
-    },
-    null,
-    2,
-  )}
-`;
+  return buildExternalToolMcpConfigJson({
+    cliPath: buildExternalToolCliFilePath(".cursor"),
+  });
 }
 
 export function buildCursorSyncConfigJson(config: CursorSyncConfig) {
