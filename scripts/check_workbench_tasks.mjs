@@ -23,6 +23,10 @@ assert.ok(
   !ideaWorkbenchSource.includes('const isTaskLocked = task.id === "launch"'),
   "IdeaWorkbench should use the shared task navigation item helper.",
 );
+assert.ok(
+  !ideaWorkbenchSource.includes("nextImplementationTaskStartControlState?."),
+  "IdeaWorkbench should always get a concrete next-task start control state.",
+);
 
 assert.deepEqual(getWorkbenchIdeaProgress({ decision: "kill", stage: "launch" }), {
   label: "삭제됨",

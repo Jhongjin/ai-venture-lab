@@ -1191,12 +1191,10 @@ export function IdeaWorkbench({
     totalImplementationTaskCount: totalLearningImplementationTasks,
     waitingImplementationDependencyStatuses,
   } = useMemo(() => buildStep8ImplementationDerivedState(selectedImplementationTasks), [selectedImplementationTasks]);
-  const nextImplementationTaskStartControlState = nextImplementationTask
-    ? buildImplementationTaskStartControlState({
-        canManage: canManageRecord(nextImplementationTask),
-        isBusy,
-      })
-    : null;
+  const nextImplementationTaskStartControlState = buildImplementationTaskStartControlState({
+    canManage: nextImplementationTask ? canManageRecord(nextImplementationTask) : false,
+    isBusy,
+  });
   const {
     canCopyLearningReport,
     externalSyncCheckedText,
@@ -5616,10 +5614,10 @@ export function IdeaWorkbench({
                           <button
                             type="button"
                             onClick={() => updateImplementationTaskStatus(nextImplementationTask, "doing")}
-                            disabled={nextImplementationTaskStartControlState?.disabled ?? true}
+                            disabled={nextImplementationTaskStartControlState.disabled}
                             className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:opacity-50"
                           >
-                            {nextImplementationTaskStartControlState?.label ?? "진행 시작"}
+                            {nextImplementationTaskStartControlState.label}
                           </button>
                         ) : null}
                         <button

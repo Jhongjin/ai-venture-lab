@@ -275,7 +275,7 @@ assert.ok(
   "IdeaWorkbench should render manual implementation task create disabled state from shared helper.",
 );
 assert.ok(
-  ideaWorkbenchSource.includes("nextImplementationTaskStartControlState?.disabled"),
+  ideaWorkbenchSource.includes("nextImplementationTaskStartControlState.disabled"),
   "IdeaWorkbench should render next implementation task start disabled state from shared helper.",
 );
 assert.ok(
