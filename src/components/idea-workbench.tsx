@@ -363,6 +363,8 @@ import {
   buildDevelopmentAutoPackageSavedMessage,
   buildDevelopmentAutoPackageNextVersions,
   buildDevelopmentAutoPackageSaveJobs,
+  buildDevelopmentAutoPackageSaveControlState,
+  buildDevelopmentAutoPackageStartControlState,
   buildDevelopmentAutopilotAlreadyPreparedMessage,
   buildDevelopmentAutopilotFailedMessage,
   buildDevelopmentAutopilotLoginRequiredMessage,
@@ -1066,6 +1068,10 @@ export function IdeaWorkbench({
     canUseFullProductionPackage,
     hasUser: Boolean(user),
     isBusy,
+  });
+  const developmentAutoPackageStartControlState = buildDevelopmentAutoPackageStartControlState({
+    canUseFullProductionPackage,
+    isCreditSystemChecking,
   });
   const buildDeliveryPreference = useMemo(
     () => getBuildDeliveryPreferenceFromArtifacts(selectedArtifactRecords),
@@ -2127,6 +2133,15 @@ export function IdeaWorkbench({
     ideaName: selectedIdeaContext.ideaName,
     productSurface: activeProductSurface,
     taskDraftLines: developmentAutoTaskDraftLines,
+  });
+  const developmentAutoPackageSaveControlState = buildDevelopmentAutoPackageSaveControlState({
+    agentRunPackageDraft,
+    canUseFullProductionPackage,
+    designGenerationPromptDraft,
+    developmentPlanDraft,
+    hasSavedDevelopmentAutoPackage,
+    hasUser: Boolean(user),
+    isBusy,
   });
   const {
     canEnterLaunch,
@@ -5004,10 +5019,10 @@ export function IdeaWorkbench({
                 {effectiveDevelopmentAutoFlowState === "idle" ? (
                   <div
                     className={`mt-5 flex flex-col gap-3 border p-4 sm:flex-row sm:items-center sm:justify-between ${
-                      canUseFullProductionPackage ? "border-blue-200 bg-blue-50" : "border-amber-200 bg-amber-50"
+                      developmentAutoPackageStartControlState.panelClassName
                     }`}
                   >
-                    <p className={`text-sm leading-6 ${canUseFullProductionPackage ? "text-blue-950" : "text-amber-950"}`}>
+                    <p className={`text-sm leading-6 ${developmentAutoPackageStartControlState.messageClassName}`}>
                       {canUseFullProductionPackage
                         ? "시작하면 AI가 필요한 내용을 순서대로 묶고, 저장 전 확인할 최종 제작 요약을 바로 보여줍니다."
                         : getBuildPassRequirementMessage({
@@ -5019,11 +5034,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={startDevelopmentAutoPackage}
-                      disabled={!canUseFullProductionPackage}
+                      disabled={developmentAutoPackageStartControlState.disabled}
                       className="avl-btn avl-btn-primary h-11 px-4 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Layers3 size={18} />
-                      AI 제작 패키지 만들기
+                      {developmentAutoPackageStartControlState.label}
                     </button>
                   </div>
                 ) : null}
@@ -5069,21 +5084,17 @@ export function IdeaWorkbench({
                       <button
                         type="button"
                         onClick={saveDevelopmentAutoPackage}
-                        disabled={
-                          isBusy ||
-                          !user ||
-                          hasSavedDevelopmentAutoPackage ||
-                          !canUseFullProductionPackage ||
-                          !designGenerationPromptDraft ||
-                          !developmentPlanDraft ||
-                          !agentRunPackageDraft
-                        }
+                        disabled={developmentAutoPackageSaveControlState.disabled}
                         className={`avl-btn h-11 px-4 disabled:cursor-not-allowed disabled:opacity-50 ${
-                          hasSavedDevelopmentAutoPackage ? "avl-btn-secondary" : "avl-btn-primary"
+                          developmentAutoPackageSaveControlState.buttonToneClassName
                         }`}
                       >
-                        {hasSavedDevelopmentAutoPackage ? <CheckCircle2 size={18} /> : <Save size={18} />}
-                        {hasSavedDevelopmentAutoPackage ? "제작 패키지 저장 완료" : "제작 패키지 저장"}
+                        {developmentAutoPackageSaveControlState.icon === "saved" ? (
+                          <CheckCircle2 size={18} />
+                        ) : (
+                          <Save size={18} />
+                        )}
+                        {developmentAutoPackageSaveControlState.label}
                       </button>
                     </div>
                     <div className="mt-4 grid gap-3 md:grid-cols-3">

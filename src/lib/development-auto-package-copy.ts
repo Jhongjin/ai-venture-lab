@@ -34,8 +34,75 @@ export type DevelopmentAutoPanel = "setup" | "tasks" | "handoff";
 
 export type DevelopmentExperienceMode = "guided" | "full";
 
+export type DevelopmentAutoPackageStartControlState = {
+  disabled: boolean;
+  label: string;
+  messageClassName: string;
+  panelClassName: string;
+};
+
+export type DevelopmentAutoPackageSaveControlState = {
+  buttonToneClassName: string;
+  disabled: boolean;
+  icon: "save" | "saved";
+  label: string;
+};
+
 export function buildDevelopmentAutoPackageSavedMessage() {
   return "제작 패키지를 저장했습니다. 실제 파일 받기와 제작 도구 연동은 최종 실행 단계에서 열립니다.";
+}
+
+export function buildDevelopmentAutoPackageStartControlState({
+  canUseFullProductionPackage,
+  isCreditSystemChecking,
+}: {
+  canUseFullProductionPackage: boolean;
+  isCreditSystemChecking: boolean;
+}): DevelopmentAutoPackageStartControlState {
+  let label = "AI 제작 패키지 만들기";
+
+  if (!canUseFullProductionPackage) {
+    label = isCreditSystemChecking ? "이용 가능 여부 확인 중" : "이용권 확인 후 만들기";
+  }
+
+  return {
+    disabled: !canUseFullProductionPackage,
+    label,
+    messageClassName: canUseFullProductionPackage ? "text-blue-950" : "text-amber-950",
+    panelClassName: canUseFullProductionPackage ? "border-blue-200 bg-blue-50" : "border-amber-200 bg-amber-50",
+  };
+}
+
+export function buildDevelopmentAutoPackageSaveControlState({
+  agentRunPackageDraft,
+  canUseFullProductionPackage,
+  designGenerationPromptDraft,
+  developmentPlanDraft,
+  hasSavedDevelopmentAutoPackage,
+  hasUser,
+  isBusy,
+}: {
+  agentRunPackageDraft: string;
+  canUseFullProductionPackage: boolean;
+  designGenerationPromptDraft: string;
+  developmentPlanDraft: string;
+  hasSavedDevelopmentAutoPackage: boolean;
+  hasUser: boolean;
+  isBusy: boolean;
+}): DevelopmentAutoPackageSaveControlState {
+  return {
+    buttonToneClassName: hasSavedDevelopmentAutoPackage ? "avl-btn-secondary" : "avl-btn-primary",
+    disabled:
+      isBusy ||
+      !hasUser ||
+      hasSavedDevelopmentAutoPackage ||
+      !canUseFullProductionPackage ||
+      !designGenerationPromptDraft ||
+      !developmentPlanDraft ||
+      !agentRunPackageDraft,
+    icon: hasSavedDevelopmentAutoPackage ? "saved" : "save",
+    label: hasSavedDevelopmentAutoPackage ? "제작 패키지 저장 완료" : "제작 패키지 저장",
+  };
 }
 
 export function buildDevelopmentAutopilotPreparedMessage({

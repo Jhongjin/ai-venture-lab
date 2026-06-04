@@ -36,6 +36,8 @@ const {
   buildDevelopmentAutoPackageNextVersions,
   buildDevelopmentAutoPackageSaveJobs,
   buildDevelopmentAutoPackageCopyState,
+  buildDevelopmentAutoPackageSaveControlState,
+  buildDevelopmentAutoPackageStartControlState,
   buildDevelopmentAutopilotAlreadyPreparedMessage,
   buildDevelopmentAutopilotFailedMessage,
   buildDevelopmentAutopilotLoginRequiredMessage,
@@ -119,6 +121,110 @@ assert.equal(
   "이미 제작 전달 묶음에 필요한 문서와 할 일이 준비되어 있습니다.",
 );
 assert.equal(buildDevelopmentAutopilotFailedMessage(), "제작 전달 묶음을 만들지 못했습니다.");
+assert.deepEqual(
+  buildDevelopmentAutoPackageStartControlState({
+    canUseFullProductionPackage: true,
+    isCreditSystemChecking: false,
+  }),
+  {
+    disabled: false,
+    label: "AI 제작 패키지 만들기",
+    messageClassName: "text-blue-950",
+    panelClassName: "border-blue-200 bg-blue-50",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutoPackageStartControlState({
+    canUseFullProductionPackage: false,
+    isCreditSystemChecking: true,
+  }),
+  {
+    disabled: true,
+    label: "이용 가능 여부 확인 중",
+    messageClassName: "text-amber-950",
+    panelClassName: "border-amber-200 bg-amber-50",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutoPackageStartControlState({
+    canUseFullProductionPackage: false,
+    isCreditSystemChecking: false,
+  }),
+  {
+    disabled: true,
+    label: "이용권 확인 후 만들기",
+    messageClassName: "text-amber-950",
+    panelClassName: "border-amber-200 bg-amber-50",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutoPackageSaveControlState({
+    agentRunPackageDraft: "제작 도구 전달 자료",
+    canUseFullProductionPackage: true,
+    designGenerationPromptDraft: "디자인 기준",
+    developmentPlanDraft: "제작 실행 계획",
+    hasSavedDevelopmentAutoPackage: false,
+    hasUser: true,
+    isBusy: false,
+  }),
+  {
+    buttonToneClassName: "avl-btn-primary",
+    disabled: false,
+    icon: "save",
+    label: "제작 패키지 저장",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutoPackageSaveControlState({
+    agentRunPackageDraft: "제작 도구 전달 자료",
+    canUseFullProductionPackage: true,
+    designGenerationPromptDraft: "디자인 기준",
+    developmentPlanDraft: "제작 실행 계획",
+    hasSavedDevelopmentAutoPackage: true,
+    hasUser: true,
+    isBusy: false,
+  }),
+  {
+    buttonToneClassName: "avl-btn-secondary",
+    disabled: true,
+    icon: "saved",
+    label: "제작 패키지 저장 완료",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutoPackageSaveControlState({
+    agentRunPackageDraft: "",
+    canUseFullProductionPackage: true,
+    designGenerationPromptDraft: "디자인 기준",
+    developmentPlanDraft: "제작 실행 계획",
+    hasSavedDevelopmentAutoPackage: false,
+    hasUser: true,
+    isBusy: false,
+  }),
+  {
+    buttonToneClassName: "avl-btn-primary",
+    disabled: true,
+    icon: "save",
+    label: "제작 패키지 저장",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutoPackageSaveControlState({
+    agentRunPackageDraft: "제작 도구 전달 자료",
+    canUseFullProductionPackage: false,
+    designGenerationPromptDraft: "디자인 기준",
+    developmentPlanDraft: "제작 실행 계획",
+    hasSavedDevelopmentAutoPackage: false,
+    hasUser: false,
+    isBusy: true,
+  }),
+  {
+    buttonToneClassName: "avl-btn-primary",
+    disabled: true,
+    icon: "save",
+    label: "제작 패키지 저장",
+  },
+);
 
 const emptyState = buildDevelopmentAutoPackageCopyState({
   developmentAutoNote: "",
