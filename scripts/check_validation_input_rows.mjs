@@ -56,6 +56,7 @@ const {
 const {
   buildRecommendedValidationExperimentSaveControl,
   buildIdeaDomainText,
+  buildValidationEvidenceCoachNextFocusMessage,
   buildValidationEvidenceCoachSearchText,
   buildValidationPlanningReviewState,
   getOpenHighValidationRisks,
@@ -147,6 +148,19 @@ assert.deepEqual(buildRecommendedValidationExperimentSaveControl({
   disabled: true,
   label: "AI 추천 검증 계획 저장",
 });
+assert.equal(
+  buildValidationEvidenceCoachNextFocusMessage({
+    action: "최근 30일 발생 횟수를 물어보세요.",
+    detail: "문제가 반복되는지 확인합니다.",
+    label: "문제 빈도",
+    passed: false,
+  }),
+  "문제 빈도: 최근 30일 발생 횟수를 물어보세요.",
+);
+assert.equal(
+  buildValidationEvidenceCoachNextFocusMessage(null),
+  "핵심 근거가 충분합니다. 실행한 검증 결과를 기록한 뒤 하단 다음 단계 버튼으로 이동하세요.",
+);
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || !user || selectedExperiments.length > 0}"),
   "IdeaWorkbench should render recommended validation experiment save disabled state from shared control.",
@@ -158,6 +172,14 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("recommendedValidationExperimentSaveControl.disabled"),
   "IdeaWorkbench should render recommended validation experiment save disabled state from shared control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("validationEvidenceCoach.nextFocus ?"),
+  "IdeaWorkbench should render validation evidence coach next-focus message from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationEvidenceCoachNextFocusMessage"),
+  "IdeaWorkbench should render validation evidence coach next-focus message from shared helper.",
 );
 const validationIdea = {
   buyer: "운영팀",

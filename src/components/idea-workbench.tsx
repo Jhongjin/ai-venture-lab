@@ -156,6 +156,7 @@ import {
 import { buildStep6ExecutionBridgeDisplayState } from "@/lib/step6-execution-bridge-state";
 import {
   buildRecommendedValidationExperimentSaveControl,
+  buildValidationEvidenceCoachNextFocusMessage,
   buildValidationPlanningReviewState,
   getValidationPlanExperimentPreview,
 } from "@/lib/validation-planning";
@@ -1491,6 +1492,9 @@ export function IdeaWorkbench({
     hasUser: Boolean(user),
     isBusy,
   });
+  const validationEvidenceCoachNextFocusMessage = buildValidationEvidenceCoachNextFocusMessage(
+    validationEvidenceCoach?.nextFocus ?? null,
+  );
   const {
     evidenceNoteDraft,
     experimentResultNoteDraft,
@@ -6848,9 +6852,7 @@ export function IdeaWorkbench({
                     더 뽑고 싶을 때만 여는 추가 확인 영역입니다. 버튼을 눌러도 다음 단계로 이동하지 않습니다.
                   </p>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {validationEvidenceCoach.nextFocus
-                      ? `${validationEvidenceCoach.nextFocus.label}: ${validationEvidenceCoach.nextFocus.action}`
-                      : "핵심 근거가 충분합니다. 실행한 검증 결과를 기록한 뒤 하단 다음 단계 버튼으로 이동하세요."}
+                    {validationEvidenceCoachNextFocusMessage}
                   </p>
                 </div>
                 <div className="bg-slate-950 px-3 py-2 text-right text-white">
