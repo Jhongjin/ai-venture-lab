@@ -34,6 +34,16 @@ export type ImplementationTaskCreateControlStates = {
   manualTask: ImplementationTaskCreateControlState;
 };
 
+export type ImplementationTaskActionControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type ImplementationTaskEvidenceEditControlState = {
+  disabled: boolean;
+  placeholder: string;
+};
+
 export type ImplementationTaskTableError = {
   code?: string | null;
   message: string;
@@ -72,6 +82,68 @@ export function buildImplementationTaskCreateControlStates({
       disabled,
       label: "태스크 추가",
     },
+  };
+}
+
+export function buildImplementationTaskStartControlState({
+  canManage,
+  isBusy,
+}: {
+  canManage: boolean;
+  isBusy: boolean;
+}): ImplementationTaskActionControlState {
+  return {
+    disabled: isBusy || !canManage,
+    label: "진행 시작",
+  };
+}
+
+export function buildImplementationTaskEvidenceEditControlState({
+  canManage,
+  isBusy,
+}: {
+  canManage: boolean;
+  isBusy: boolean;
+}): ImplementationTaskEvidenceEditControlState {
+  return {
+    disabled: isBusy || !canManage,
+    placeholder: "완료 증거, PR/커밋, 스모크 결과, 남은 리스크",
+  };
+}
+
+export function buildImplementationTaskEvidenceSaveControlState({
+  canManage,
+  currentEvidence,
+  draftEvidence,
+  isBusy,
+}: {
+  canManage: boolean;
+  currentEvidence: string | null | undefined;
+  draftEvidence: string;
+  isBusy: boolean;
+}): ImplementationTaskActionControlState {
+  return {
+    disabled: isBusy || !canManage || draftEvidence === (currentEvidence ?? ""),
+    label: "증거 저장",
+  };
+}
+
+export function buildImplementationTaskStatusControlState({
+  canManage,
+  currentStatus,
+  isBusy,
+  nextStatus,
+  statusLabel,
+}: {
+  canManage: boolean;
+  currentStatus: ImplementationTaskStatus;
+  isBusy: boolean;
+  nextStatus: ImplementationTaskStatus;
+  statusLabel: string;
+}): ImplementationTaskActionControlState {
+  return {
+    disabled: isBusy || !canManage || currentStatus === nextStatus,
+    label: statusLabel,
   };
 }
 

@@ -397,9 +397,13 @@ import {
   buildImplementationTaskEvidenceTelemetryProperties,
   buildImplementationTaskCreatedTelemetryProperties,
   buildImplementationTaskCreateControlStates,
+  buildImplementationTaskEvidenceEditControlState,
   buildImplementationTaskInsertRows,
+  buildImplementationTaskEvidenceSaveControlState,
   buildImplementationTaskStatusPatch,
   buildImplementationTaskStatusChangedMessage,
+  buildImplementationTaskStartControlState,
+  buildImplementationTaskStatusControlState,
   buildImplementationTaskStatusTelemetryProperties,
   buildImplementationTaskStatusUpdatePermissionDeniedMessage,
   buildImplementationTasksAlreadyExistMessage,
@@ -1170,6 +1174,12 @@ export function IdeaWorkbench({
     totalImplementationTaskCount: totalLearningImplementationTasks,
     waitingImplementationDependencyStatuses,
   } = useMemo(() => buildStep8ImplementationDerivedState(selectedImplementationTasks), [selectedImplementationTasks]);
+  const nextImplementationTaskStartControlState = nextImplementationTask
+    ? buildImplementationTaskStartControlState({
+        canManage: canManageRecord(nextImplementationTask),
+        isBusy,
+      })
+    : null;
   const {
     canCopyLearningReport,
     externalSyncCheckedText,
@@ -5515,10 +5525,10 @@ export function IdeaWorkbench({
                           <button
                             type="button"
                             onClick={() => updateImplementationTaskStatus(nextImplementationTask, "doing")}
-                            disabled={isBusy || !canManageRecord(nextImplementationTask)}
+                            disabled={nextImplementationTaskStartControlState?.disabled ?? true}
                             className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:opacity-50"
                           >
-                            진행 시작
+                            {nextImplementationTaskStartControlState?.label ?? "진행 시작"}
                           </button>
                         ) : null}
                         <button
@@ -5923,6 +5933,17 @@ export function IdeaWorkbench({
                     <div className="grid gap-3">
                       {taskSummaries.length > 0 ? (
                         taskSummaries.map(({ blockedHint, evidence, evidenceChecklist, missingEvidenceLabels, passedEvidenceCount, task }) => {
+                          const canManageTask = canManageRecord(task);
+                          const evidenceEditControlState = buildImplementationTaskEvidenceEditControlState({
+                            canManage: canManageTask,
+                            isBusy,
+                          });
+                          const evidenceSaveControlState = buildImplementationTaskEvidenceSaveControlState({
+                            canManage: canManageTask,
+                            currentEvidence: task.evidence,
+                            draftEvidence: evidence,
+                            isBusy,
+                          });
 
                           return (
                           <div key={task.id} className="avl-surface-muted p-3">
@@ -5950,9 +5971,9 @@ export function IdeaWorkbench({
                               onChange={(event) =>
                                 setImplementationTaskEvidence((current) => setRecordKey(current, task.id, event.target.value))
                               }
-                              disabled={isBusy || !canManageRecord(task)}
+                              disabled={evidenceEditControlState.disabled}
                               rows={3}
-                              placeholder="완료 증거, PR/커밋, 스모크 결과, 남은 리스크"
+                              placeholder={evidenceEditControlState.placeholder}
                               className="avl-textarea mt-3 w-full resize-y text-sm leading-6 text-slate-800 disabled:text-slate-500"
                             />
                             <div
@@ -5975,26 +5996,32 @@ export function IdeaWorkbench({
                               <button
                                 type="button"
                                 onClick={() => saveImplementationTaskEvidence(task)}
-                                disabled={
-                                  isBusy ||
-                                  !canManageRecord(task) ||
-                                  evidence === (task.evidence ?? "")
-                                }
+                                disabled={evidenceSaveControlState.disabled}
                                 className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                               >
-                                증거 저장
+                                {evidenceSaveControlState.label}
                               </button>
-                              {implementationTaskStatuses.map((nextStatus) => (
-                                <button
-                                  key={nextStatus}
-                                  type="button"
-                                  onClick={() => updateImplementationTaskStatus(task, nextStatus)}
-                                  disabled={isBusy || !canManageRecord(task) || task.status === nextStatus}
-                                  className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
-                                >
-                                  {implementationTaskStatusLabels[nextStatus]}
-                                </button>
-                              ))}
+                              {implementationTaskStatuses.map((nextStatus) => {
+                                const statusControlState = buildImplementationTaskStatusControlState({
+                                  canManage: canManageTask,
+                                  currentStatus: task.status,
+                                  isBusy,
+                                  nextStatus,
+                                  statusLabel: implementationTaskStatusLabels[nextStatus],
+                                });
+
+                                return (
+                                  <button
+                                    key={nextStatus}
+                                    type="button"
+                                    onClick={() => updateImplementationTaskStatus(task, nextStatus)}
+                                    disabled={statusControlState.disabled}
+                                    className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
+                                  >
+                                    {statusControlState.label}
+                                  </button>
+                                );
+                              })}
                             </div>
                           </div>
                           );

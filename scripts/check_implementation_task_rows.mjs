@@ -7,11 +7,15 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation
 const {
   buildImplementationTaskCreatedTelemetryProperties,
   buildImplementationTaskCreateControlStates,
+  buildImplementationTaskEvidenceEditControlState,
   buildImplementationTaskEvidenceTelemetryProperties,
+  buildImplementationTaskEvidenceSaveControlState,
   buildImplementationTaskEvidenceSavePermissionDeniedMessage,
   buildImplementationTaskEvidenceSavedMessage,
   buildImplementationTaskEvidencePatch,
   buildImplementationTaskInsertRows,
+  buildImplementationTaskStartControlState,
+  buildImplementationTaskStatusControlState,
   buildImplementationTaskStatusTelemetryProperties,
   buildImplementationTaskStatusPatch,
   buildImplementationTaskStatusChangedMessage,
@@ -203,6 +207,65 @@ assert.deepEqual(buildImplementationTaskCreateControlStates({
     label: "태스크 추가",
   },
 });
+assert.deepEqual(buildImplementationTaskStartControlState({
+  canManage: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  label: "진행 시작",
+});
+assert.deepEqual(buildImplementationTaskStartControlState({
+  canManage: false,
+  isBusy: true,
+}), {
+  disabled: true,
+  label: "진행 시작",
+});
+assert.deepEqual(buildImplementationTaskEvidenceEditControlState({
+  canManage: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  placeholder: "완료 증거, PR/커밋, 스모크 결과, 남은 리스크",
+});
+assert.deepEqual(buildImplementationTaskEvidenceSaveControlState({
+  canManage: true,
+  currentEvidence: "old evidence",
+  draftEvidence: "new evidence",
+  isBusy: false,
+}), {
+  disabled: false,
+  label: "증거 저장",
+});
+assert.deepEqual(buildImplementationTaskEvidenceSaveControlState({
+  canManage: true,
+  currentEvidence: "old evidence",
+  draftEvidence: "old evidence",
+  isBusy: false,
+}), {
+  disabled: true,
+  label: "증거 저장",
+});
+assert.deepEqual(buildImplementationTaskStatusControlState({
+  canManage: true,
+  currentStatus: "todo",
+  isBusy: false,
+  nextStatus: "doing",
+  statusLabel: "진행 중",
+}), {
+  disabled: false,
+  label: "진행 중",
+});
+assert.deepEqual(buildImplementationTaskStatusControlState({
+  canManage: true,
+  currentStatus: "doing",
+  isBusy: false,
+  nextStatus: "doing",
+  statusLabel: "진행 중",
+}), {
+  disabled: true,
+  label: "진행 중",
+});
 assert.ok(
   ideaWorkbenchSource.includes("implementationTaskCreateControlStates.defaultTasks.disabled"),
   "IdeaWorkbench should render default implementation task create disabled state from shared helper.",
@@ -210,6 +273,18 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("implementationTaskCreateControlStates.manualTask.disabled"),
   "IdeaWorkbench should render manual implementation task create disabled state from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("nextImplementationTaskStartControlState?.disabled"),
+  "IdeaWorkbench should render next implementation task start disabled state from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("buildImplementationTaskEvidenceSaveControlState"),
+  "IdeaWorkbench should resolve implementation task evidence save state from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("buildImplementationTaskStatusControlState"),
+  "IdeaWorkbench should resolve implementation task status button state from shared helper.",
 );
 assert.equal(buildManualImplementationTaskCreatedMessage(), "제작 할 일을 추가했습니다.");
 assert.equal(buildManualImplementationTaskLoginRequiredMessage(), "제작 할 일을 추가하려면 먼저 로그인하세요.");
