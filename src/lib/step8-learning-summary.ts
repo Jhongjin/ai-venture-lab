@@ -77,6 +77,16 @@ export type Step8ExternalSyncSummary = Pick<
   | "externalSyncReviewRows"
 >;
 
+export type Step8LearningReviewSummary = Pick<
+  Step8LearningSummary,
+  | "learningCompletedDetail"
+  | "learningCompletedValue"
+  | "learningDecisionCards"
+  | "learningRemainingDetail"
+  | "learningRemainingValue"
+  | "learningSimpleReviewRows"
+>;
+
 export type Step8ProgressDisplayItem = {
   code: string;
   id: string;
@@ -267,36 +277,22 @@ export function buildStep8LearningSummary({
     openRiskCount,
     productSignalCount,
   });
-  const learningCompletedSummary = buildStep8LearningCompletedSummary({
+  const {
+    learningCompletedDetail,
+    learningCompletedValue,
+    learningDecisionCards,
+    learningRemainingDetail,
+    learningRemainingValue,
+    learningSimpleReviewRows,
+  } = buildStep8LearningReviewSummary({
     completedImplementationTaskCount,
-    productSignalCount,
-    totalImplementationTaskCount,
-  });
-  const learningRemainingSummary = buildStep8LearningRemainingSummary({
+    learningDecisionDetail,
+    learningDecisionLabel,
     nextImplementationTask,
     nextImplementationTaskCode,
     openRiskCount,
     productSignalCount,
-  });
-  const learningCompletedValue = learningCompletedSummary.value;
-  const learningCompletedDetail = learningCompletedSummary.detail;
-  const learningRemainingValue = learningRemainingSummary.value;
-  const learningRemainingDetail = learningRemainingSummary.detail;
-  const learningDecisionCards = buildStep8LearningDecisionCards({
-    learningCompletedDetail,
-    learningCompletedValue,
-    learningDecisionDetail,
-    learningDecisionLabel,
-    learningRemainingDetail,
-    learningRemainingValue,
-  });
-  const learningSimpleReviewRows = buildStep8LearningSimpleReviewRows({
-    learningCompletedDetail,
-    learningCompletedValue,
-    learningDecisionDetail,
-    learningDecisionLabel,
-    learningRemainingDetail,
-    learningRemainingValue,
+    totalImplementationTaskCount,
   });
   const learningJudgmentQuestion = buildStep8LearningJudgmentQuestion({
     hasNextImplementationTask: Boolean(nextImplementationTask),
@@ -443,6 +439,67 @@ export function buildStep8LearningSimpleReviewRows({
     ["이어 할 것", learningRemainingValue, learningRemainingDetail],
     ["판단", learningDecisionLabel, learningDecisionDetail],
   ];
+}
+
+export function buildStep8LearningReviewSummary({
+  completedImplementationTaskCount,
+  learningDecisionDetail,
+  learningDecisionLabel,
+  nextImplementationTask,
+  nextImplementationTaskCode,
+  openRiskCount,
+  productSignalCount,
+  totalImplementationTaskCount,
+}: {
+  completedImplementationTaskCount: number;
+  learningDecisionDetail: string;
+  learningDecisionLabel: Step8LearningDecisionLabel;
+  nextImplementationTask: Pick<ImplementationTask, "title"> | null;
+  nextImplementationTaskCode: string | null;
+  openRiskCount: number;
+  productSignalCount: number;
+  totalImplementationTaskCount: number;
+}): Step8LearningReviewSummary {
+  const learningCompletedSummary = buildStep8LearningCompletedSummary({
+    completedImplementationTaskCount,
+    productSignalCount,
+    totalImplementationTaskCount,
+  });
+  const learningRemainingSummary = buildStep8LearningRemainingSummary({
+    nextImplementationTask,
+    nextImplementationTaskCode,
+    openRiskCount,
+    productSignalCount,
+  });
+  const learningCompletedValue = learningCompletedSummary.value;
+  const learningCompletedDetail = learningCompletedSummary.detail;
+  const learningRemainingValue = learningRemainingSummary.value;
+  const learningRemainingDetail = learningRemainingSummary.detail;
+  const learningDecisionCards = buildStep8LearningDecisionCards({
+    learningCompletedDetail,
+    learningCompletedValue,
+    learningDecisionDetail,
+    learningDecisionLabel,
+    learningRemainingDetail,
+    learningRemainingValue,
+  });
+  const learningSimpleReviewRows = buildStep8LearningSimpleReviewRows({
+    learningCompletedDetail,
+    learningCompletedValue,
+    learningDecisionDetail,
+    learningDecisionLabel,
+    learningRemainingDetail,
+    learningRemainingValue,
+  });
+
+  return {
+    learningCompletedDetail,
+    learningCompletedValue,
+    learningDecisionCards,
+    learningRemainingDetail,
+    learningRemainingValue,
+    learningSimpleReviewRows,
+  };
 }
 
 export function buildStep8LearningPrimaryActionSummary({

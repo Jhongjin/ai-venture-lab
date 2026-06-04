@@ -55,6 +55,7 @@ const {
   buildStep8LearningOneSentenceOutcome,
   buildStep8LearningPrimaryActionSummary,
   buildStep8LearningRemainingSummary,
+  buildStep8LearningReviewSummary,
   buildStep8LearningSimpleReviewRows,
   buildStep8LearningSummary,
   buildStep8ProgressDetail,
@@ -285,6 +286,46 @@ assert.deepEqual(
     ["이어 할 것", "T-002 남음", "첫 화면 제작만 이어서 처리하면 됩니다."],
     ["판단", "다음 작업 완료", buildStep8LearningDecisionDetail("다음 작업 완료")],
   ],
+);
+assert.deepEqual(
+  buildStep8LearningReviewSummary({
+    completedImplementationTaskCount: 1,
+    learningDecisionDetail: buildStep8LearningDecisionDetail("다음 작업 완료"),
+    learningDecisionLabel: "다음 작업 완료",
+    nextImplementationTask: context.nextTask,
+    nextImplementationTaskCode: context.nextTaskCode,
+    openRiskCount: 0,
+    productSignalCount: 0,
+    totalImplementationTaskCount: 3,
+  }),
+  {
+    learningCompletedDetail: "완료 보고가 저장된 제작 작업입니다.",
+    learningCompletedValue: "1/3 작업",
+    learningDecisionCards: [
+      {
+        label: "완료된 것",
+        value: "1/3 작업",
+        detail: "완료 보고가 저장된 제작 작업입니다.",
+      },
+      {
+        label: "이어 할 것",
+        value: "T-002 남음",
+        detail: "첫 화면 제작만 이어서 처리하면 됩니다.",
+      },
+      {
+        label: "지금 판단",
+        value: "다음 작업 완료",
+        detail: buildStep8LearningDecisionDetail("다음 작업 완료"),
+      },
+    ],
+    learningRemainingDetail: "첫 화면 제작만 이어서 처리하면 됩니다.",
+    learningRemainingValue: "T-002 남음",
+    learningSimpleReviewRows: [
+      ["완료", "1/3 작업", "완료 보고가 저장된 제작 작업입니다."],
+      ["이어 할 것", "T-002 남음", "첫 화면 제작만 이어서 처리하면 됩니다."],
+      ["판단", "다음 작업 완료", buildStep8LearningDecisionDetail("다음 작업 완료")],
+    ],
+  },
 );
 assert.deepEqual(
   buildStep8LearningCompletedSummary({
