@@ -16,10 +16,34 @@ export type BrowserDraftCopyOptions = {
   label: string;
 };
 
+export type BrowserDraftActionControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type BrowserDraftActionControlOptions = {
+  body?: string | null;
+  disabledLabel?: string;
+  readyLabel: string;
+};
+
 export type BrowserSetupFileDraft = {
   path: string;
   body: string;
 };
+
+export function buildBrowserDraftActionControlState({
+  body,
+  disabledLabel,
+  readyLabel,
+}: BrowserDraftActionControlOptions): BrowserDraftActionControlState {
+  const hasDraftBody = Boolean(body);
+
+  return {
+    disabled: !hasDraftBody,
+    label: hasDraftBody ? readyLabel : (disabledLabel ?? readyLabel),
+  };
+}
 
 export function buildClipboardCopyMessage(label: string) {
   return `${label}을 클립보드에 복사했습니다.`;

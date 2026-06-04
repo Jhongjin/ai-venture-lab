@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/browser-file-download.ts")).href;
 const {
+  buildBrowserDraftActionControlState,
   buildClipboardCopyMessage,
   buildDownloadPreparedMessage,
   copyBrowserDraft,
@@ -14,6 +15,29 @@ const {
 
 assert.equal(buildClipboardCopyMessage("개발 패키지"), "개발 패키지을 클립보드에 복사했습니다.");
 assert.equal(buildDownloadPreparedMessage("Cursor 연결 파일"), "Cursor 연결 파일 파일을 준비했습니다.");
+assert.deepEqual(
+  buildBrowserDraftActionControlState({
+    body: "",
+    disabledLabel: "안내 없음",
+    readyLabel: "안내 복사",
+  }),
+  { disabled: true, label: "안내 없음" },
+);
+assert.deepEqual(
+  buildBrowserDraftActionControlState({
+    body: "# Ready",
+    disabledLabel: "안내 없음",
+    readyLabel: "안내 복사",
+  }),
+  { disabled: false, label: "안내 복사" },
+);
+assert.deepEqual(
+  buildBrowserDraftActionControlState({
+    body: null,
+    readyLabel: "결과 복사",
+  }),
+  { disabled: true, label: "결과 복사" },
+);
 
 let objectUrlCreated = false;
 let anchorClicked = false;

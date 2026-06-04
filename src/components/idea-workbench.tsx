@@ -199,6 +199,7 @@ import {
   type ExternalBuildToolKey,
 } from "@/lib/build-delivery";
 import {
+  buildBrowserDraftActionControlState,
   copyBrowserDraft,
   copyBrowserText,
   encodeBrowserSetupFiles,
@@ -1640,6 +1641,11 @@ export function IdeaWorkbench({
     experimentName: selectedExperimentForResult?.name ?? null,
     experimentResultNoteDraft,
   });
+  const experimentResultNoteCopyControlState = buildBrowserDraftActionControlState({
+    body: experimentResultNoteDraft,
+    disabledLabel: "결과 없음",
+    readyLabel: "결과 복사",
+  });
   const {
     developmentPlanDraft,
     mvpSlicePlanDraft,
@@ -1685,6 +1691,11 @@ export function IdeaWorkbench({
     hasUser: Boolean(user),
     isBusy,
   });
+  const backendExecutionPlanCopyControlState = buildBrowserDraftActionControlState({
+    body: backendExecutionPlanDraft,
+    disabledLabel: "체크리스트 없음",
+    readyLabel: "체크리스트 복사",
+  });
   const {
     appBlueprintDraft,
     designBriefDraft,
@@ -1710,6 +1721,16 @@ export function IdeaWorkbench({
     hasUser: Boolean(user),
     isBusy,
     scaffoldManifestSaveDraft,
+  });
+  const appBlueprintCopyControlState = buildBrowserDraftActionControlState({
+    body: appBlueprintDraft,
+    disabledLabel: "청사진 없음",
+    readyLabel: "청사진 복사",
+  });
+  const scaffoldManifestCopyControlState = buildBrowserDraftActionControlState({
+    body: scaffoldManifestDraft,
+    disabledLabel: "구조 없음",
+    readyLabel: "구조 복사",
   });
   const {
     cursorHandoffTaskDrafts,
@@ -2032,6 +2053,16 @@ export function IdeaWorkbench({
     hasUser: Boolean(user),
     isBusy,
   });
+  const developmentKickoffCopyControlState = buildBrowserDraftActionControlState({
+    body: developmentKickoffDraft,
+    disabledLabel: "요약 없음",
+    readyLabel: "요약 복사",
+  });
+  const agentRunPackageCopyControlState = buildBrowserDraftActionControlState({
+    body: agentRunPackageDraft,
+    disabledLabel: "자료 없음",
+    readyLabel: "자료 복사",
+  });
   const validationPackageProductHandoffActionControls = buildValidationPackageProductHandoffActionControls({
     copyDraftBody: prdHandoffDraft,
     hasUser: Boolean(user),
@@ -2209,6 +2240,16 @@ export function IdeaWorkbench({
     mvpBuildCommandPacketSaveDraft,
     postLaunchLearningLoopSaveDraft,
     qaAcceptanceMatrixSaveDraft,
+  });
+  const mvpBuildCommandPacketCopyControlState = buildBrowserDraftActionControlState({
+    body: mvpBuildCommandPacketDraft,
+    disabledLabel: "안내 없음",
+    readyLabel: "안내 복사",
+  });
+  const qaAcceptanceMatrixCopyControlState = buildBrowserDraftActionControlState({
+    body: qaAcceptanceMatrixDraft,
+    disabledLabel: "점검표 없음",
+    readyLabel: "점검표 복사",
   });
   const finalExecutionProjectKey = finalExecutionPackageState.projectKey;
   const {
@@ -5181,11 +5222,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => copyDraft(backendExecutionPlanDraft, "백엔드 실행 체크리스트")}
-                      disabled={!backendExecutionPlanDraft}
+                      disabled={backendExecutionPlanCopyControlState.disabled}
                       className="avl-btn avl-btn-secondary h-10 px-3 disabled:opacity-50"
                     >
                       <Clipboard size={16} />
-                      체크리스트 복사
+                      {backendExecutionPlanCopyControlState.label}
                     </button>
                     <button
                       type="button"
@@ -5265,11 +5306,11 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() => copyDraft(appBlueprintDraft, "앱 구조 청사진")}
-                  disabled={!appBlueprintDraft}
+                  disabled={appBlueprintCopyControlState.disabled}
                   className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
-                  청사진 복사
+                  {appBlueprintCopyControlState.label}
                 </button>
                 <button
                   type="button"
@@ -5312,11 +5353,11 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() => copyDraft(scaffoldManifestDraft, "첫 제작 시작 구조")}
-                  disabled={!scaffoldManifestDraft}
+                  disabled={scaffoldManifestCopyControlState.disabled}
                   className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
-                  구조 복사
+                  {scaffoldManifestCopyControlState.label}
                 </button>
                 <button
                   type="button"
@@ -5420,11 +5461,11 @@ export function IdeaWorkbench({
                   <button
                     type="button"
                     onClick={() => copyDraft(developmentKickoffDraft, "제작 시작 요약")}
-                    disabled={!developmentKickoffDraft}
+                    disabled={developmentKickoffCopyControlState.disabled}
                     className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                   >
                     <Clipboard size={16} />
-                    요약 복사
+                    {developmentKickoffCopyControlState.label}
                   </button>
                   <button
                     type="button"
@@ -5748,11 +5789,11 @@ export function IdeaWorkbench({
                   <button
                     type="button"
                     onClick={() => copyDraft(agentRunPackageDraft, "제작 패키지")}
-                    disabled={!agentRunPackageDraft}
+                    disabled={agentRunPackageCopyControlState.disabled}
                     className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
                   >
                     <Clipboard size={16} />
-                    자료 복사
+                    {agentRunPackageCopyControlState.label}
                   </button>
                   <button
                     type="button"
@@ -6198,11 +6239,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => copyDraft(mvpBuildCommandPacketDraft, "제작 시작 안내 묶음")}
-                      disabled={!mvpBuildCommandPacketDraft}
+                      disabled={mvpBuildCommandPacketCopyControlState.disabled}
                       className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Clipboard size={16} />
-                      안내 복사
+                      {mvpBuildCommandPacketCopyControlState.label}
                     </button>
                     <button
                       type="button"
@@ -6236,11 +6277,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => copyDraft(qaAcceptanceMatrixDraft, "품질 점검표")}
-                      disabled={!qaAcceptanceMatrixDraft}
+                      disabled={qaAcceptanceMatrixCopyControlState.disabled}
                       className="avl-btn avl-btn-secondary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Clipboard size={16} />
-                      점검표 복사
+                      {qaAcceptanceMatrixCopyControlState.label}
                     </button>
                     <button
                       type="button"
@@ -7303,11 +7344,11 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() => copyDraft(experimentResultNoteDraft, "검증 결과")}
-                  disabled={!experimentResultNoteDraft}
+                  disabled={experimentResultNoteCopyControlState.disabled}
                   className="avl-btn avl-btn-secondary px-3 disabled:opacity-50"
                 >
                   <Clipboard size={16} />
-                  결과 복사
+                  {experimentResultNoteCopyControlState.label}
                 </button>
               </div>
             <div className="grid gap-4">
