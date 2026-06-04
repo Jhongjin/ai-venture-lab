@@ -471,7 +471,7 @@ import {
   buildValidationPackageStatusRows,
   buildValidationSummaryDisabledNote,
 } from "@/lib/validation-package-save-jobs";
-import { emitVentureEvent, subscribeToVentureEvents, type VentureEventListenerEntry } from "@/lib/venture-events";
+import { buildWorkbenchVentureEventListeners, emitVentureEvent, subscribeToVentureEvents } from "@/lib/venture-events";
 import {
   buildImplementationTaskAutoRefreshMessage,
   buildImplementationTaskManualRefreshMessage,
@@ -874,23 +874,23 @@ export function IdeaWorkbench({
     const handleTasksCreated = (event: Event) => handleRecordListEvent<ImplementationTask>(event, setImplementationTasks);
     const handleTaskUpdated = (event: Event) => handleRecordEvent<ImplementationTask>(event, setImplementationTasks);
     const handleTelemetryCreated = (event: Event) => handleRecordEvent<TelemetryEvent>(event, setTelemetryEvents);
-    const ventureEventListeners: VentureEventListenerEntry[] = [
-      ["venture:idea-created", handleIdeaCreated],
-      ["venture:idea-updated", handleIdeaUpdated],
-      ["venture:risk-created", handleRiskCreated],
-      ["venture:risk-updated", handleRiskUpdated],
-      ["venture:experiment-created", handleExperimentCreated],
-      ["venture:experiment-updated", handleExperimentUpdated],
-      ["venture:run-created", handleRunCreated],
-      ["venture:runs-created", handleRunsCreated],
-      ["venture:run-updated", handleRunUpdated],
-      ["venture:artifact-created", handleArtifactCreated],
-      ["venture:artifact-updated", handleArtifactUpdated],
-      ["venture:task-created", handleTaskCreated],
-      ["venture:tasks-created", handleTasksCreated],
-      ["venture:task-updated", handleTaskUpdated],
-      ["venture:telemetry-created", handleTelemetryCreated],
-    ];
+    const ventureEventListeners = buildWorkbenchVentureEventListeners({
+      artifactCreated: handleArtifactCreated,
+      artifactUpdated: handleArtifactUpdated,
+      experimentCreated: handleExperimentCreated,
+      experimentUpdated: handleExperimentUpdated,
+      ideaCreated: handleIdeaCreated,
+      ideaUpdated: handleIdeaUpdated,
+      riskCreated: handleRiskCreated,
+      riskUpdated: handleRiskUpdated,
+      runCreated: handleRunCreated,
+      runsCreated: handleRunsCreated,
+      runUpdated: handleRunUpdated,
+      taskCreated: handleTaskCreated,
+      tasksCreated: handleTasksCreated,
+      taskUpdated: handleTaskUpdated,
+      telemetryCreated: handleTelemetryCreated,
+    });
 
     return subscribeToVentureEvents(ventureEventListeners);
   }, [updateActiveTask]);

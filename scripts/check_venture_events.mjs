@@ -32,7 +32,7 @@ async function listFiles(directory) {
 
 const helperBody = await readFile(path.join(root, helperRelativePath), "utf8");
 const helperModuleUrl = pathToFileURL(path.join(root, helperRelativePath)).href;
-const { emitVentureEvent, subscribeToVentureEvents } = await import(helperModuleUrl);
+const { buildWorkbenchVentureEventListeners, emitVentureEvent, subscribeToVentureEvents } = await import(helperModuleUrl);
 
 const dispatchedEvents = [];
 const addedListeners = [];
@@ -60,6 +60,43 @@ const cleanup = subscribeToVentureEvents([["venture:test", smokeHandler]]);
 assert.deepEqual(addedListeners, [["venture:test", smokeHandler]]);
 cleanup();
 assert.deepEqual(removedListeners, [["venture:test", smokeHandler]]);
+const workbenchListeners = buildWorkbenchVentureEventListeners({
+  artifactCreated: smokeHandler,
+  artifactUpdated: smokeHandler,
+  experimentCreated: smokeHandler,
+  experimentUpdated: smokeHandler,
+  ideaCreated: smokeHandler,
+  ideaUpdated: smokeHandler,
+  riskCreated: smokeHandler,
+  riskUpdated: smokeHandler,
+  runCreated: smokeHandler,
+  runsCreated: smokeHandler,
+  runUpdated: smokeHandler,
+  taskCreated: smokeHandler,
+  tasksCreated: smokeHandler,
+  taskUpdated: smokeHandler,
+  telemetryCreated: smokeHandler,
+});
+assert.deepEqual(
+  workbenchListeners.map(([eventName]) => eventName),
+  [
+    "venture:idea-created",
+    "venture:idea-updated",
+    "venture:risk-created",
+    "venture:risk-updated",
+    "venture:experiment-created",
+    "venture:experiment-updated",
+    "venture:run-created",
+    "venture:runs-created",
+    "venture:run-updated",
+    "venture:artifact-created",
+    "venture:artifact-updated",
+    "venture:task-created",
+    "venture:tasks-created",
+    "venture:task-updated",
+    "venture:telemetry-created",
+  ],
+);
 
 emitVentureEvent("venture:test", { id: "T-001" });
 assert.equal(dispatchedEvents.length, 1);
@@ -73,6 +110,10 @@ assert.ok(
 assert.ok(
   helperBody.includes("export function subscribeToVentureEvents"),
   `${helperRelativePath} must export subscribeToVentureEvents.`,
+);
+assert.ok(
+  helperBody.includes("export function buildWorkbenchVentureEventListeners"),
+  `${helperRelativePath} must export buildWorkbenchVentureEventListeners.`,
 );
 assert.ok(
   helperBody.includes("window.dispatchEvent("),
