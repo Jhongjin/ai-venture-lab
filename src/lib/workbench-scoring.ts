@@ -106,6 +106,12 @@ export function buildWorkbenchScoringSavedMessage({ usedProductSurfaceFallback }
     : "사업성 평가를 저장했습니다.";
 }
 
+export function buildWorkbenchScoringEditGuidanceMessage({ canEdit }: { canEdit: boolean }) {
+  return canEdit
+    ? "아래 값은 AI가 원문을 분석해 먼저 채운 추천값입니다. 그대로 저장해도 되고, 다르게 판단되면 직접 수정하세요."
+    : "이 기록은 보기 전용입니다. 본인이 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다.";
+}
+
 export type WorkbenchScoreEvaluationState = {
   activeProductSurface: ProductSurfaceProfile;
   currentScore: number;

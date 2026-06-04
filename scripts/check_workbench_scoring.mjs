@@ -10,6 +10,7 @@ const workbenchListUtilsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/wo
 const source = readFileSync(modulePath, "utf8")
   .replaceAll('from "@/lib/product-surface";', `from ${JSON.stringify(productSurfaceUrl)};`)
   .replaceAll('from "@/lib/workbench-list-utils";', `from ${JSON.stringify(workbenchListUtilsUrl)};`);
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 const { outputText } = ts.transpileModule(source, {
   compilerOptions: {
     module: ts.ModuleKind.ESNext,
@@ -20,6 +21,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildWorkbenchScoreEvaluationState,
+  buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSavePatch,
   buildWorkbenchScoringTelemetryProperties,
@@ -88,6 +90,22 @@ assert.equal(
 assert.equal(
   buildWorkbenchScoringSavedMessage({ usedProductSurfaceFallback: true }),
   "사업성 평가는 저장했습니다. 결과물 형태는 DB 마이그레이션 적용 후 저장됩니다.",
+);
+assert.equal(
+  buildWorkbenchScoringEditGuidanceMessage({ canEdit: true }),
+  "아래 값은 AI가 원문을 분석해 먼저 채운 추천값입니다. 그대로 저장해도 되고, 다르게 판단되면 직접 수정하세요.",
+);
+assert.equal(
+  buildWorkbenchScoringEditGuidanceMessage({ canEdit: false }),
+  "이 기록은 보기 전용입니다. 본인이 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("아래 값은 AI가 원문을 분석해 먼저 채운 추천값입니다."),
+  "IdeaWorkbench should use the shared scoring guidance helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("이 기록은 보기 전용입니다. 본인이 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."),
+  "IdeaWorkbench should use the shared read-only scoring guidance helper.",
 );
 const savedIdea = { ...idea, ...savePatch };
 assert.equal(

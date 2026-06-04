@@ -117,6 +117,7 @@ import {
 } from "@/lib/workbench-list-utils";
 import {
   buildWorkbenchScoreEvaluationState,
+  buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSavePatch,
   buildWorkbenchScoringTelemetryProperties,
@@ -1187,6 +1188,7 @@ export function IdeaWorkbench({
     selectedIdea,
     user,
   });
+  const scoringEditGuidanceMessage = buildWorkbenchScoringEditGuidanceMessage({ canEdit });
   const getRecordAccessState = useCallback(
     (record: { created_by: string | null; organization_id: string | null }) =>
       getWorkbenchRecordAccessState({ memberships, record, user }),
@@ -4383,9 +4385,7 @@ export function IdeaWorkbench({
                     {selectedIdea.one_liner || selectedIdea.signal}
                   </p>
                   <p className="mt-2 text-sm leading-5 text-slate-500">
-                    {canEdit
-                      ? "아래 값은 AI가 원문을 분석해 먼저 채운 추천값입니다. 그대로 저장해도 되고, 다르게 판단되면 직접 수정하세요."
-                      : "이 기록은 보기 전용입니다. 본인이 만든 아이디어나 팀 관리자 권한이 있는 기록만 편집할 수 있습니다."}
+                    {scoringEditGuidanceMessage}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
