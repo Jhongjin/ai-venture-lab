@@ -26,6 +26,7 @@ const {
   buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveDeliveryFlags,
   buildFinalExecutionLiveToolContext,
+  buildFinalExecutionLiveToolDraftMaps,
   buildFinalExecutionPackageReadinessState,
   buildFinalExecutionPrimaryPackageAction,
   buildFinalExecutionPackageState,
@@ -373,29 +374,34 @@ assert.equal(packageReadinessState.launchReadinessScore, 100);
 assert.equal(packageReadinessState.passedLaunchReadinessCount, 3);
 assert.equal(packageReadinessState.nextLaunchBlocker, null);
 
+const liveToolDraftMaps = buildFinalExecutionLiveToolDraftMaps({
+  antigravityGuideDraft: "antigravity guide",
+  antigravityMcpConfigDraft: "antigravity mcp",
+  antigravityStartPromptDraft: "antigravity start",
+  claudeGuideDraft: "claude guide",
+  claudeMcpConfigDraft: "claude mcp",
+  claudeStartPromptDraft: "claude start",
+  codexGuideDraft: "codex guide",
+  codexStartPromptDraft: "codex start",
+  cursorGuideDraft: "cursor guide",
+  cursorMcpConfigDraft: "cursor mcp",
+  cursorStartPromptDraft: "cursor start",
+});
+assert.deepEqual(liveToolDraftMaps.guideDrafts, {
+  antigravity: "antigravity guide",
+  claude_code: "claude guide",
+  codex: "codex guide",
+  cursor: "cursor guide",
+});
+assert.equal(liveToolDraftMaps.mcpConfigDrafts.codex, "");
+assert.equal(liveToolDraftMaps.startPromptDrafts.antigravity, "antigravity start");
+
 const cursorLiveContext = buildFinalExecutionLiveToolContext({
   buildDeliveryMode: "external_tool",
   externalToolKey: "cursor",
-  guideDrafts: {
-    antigravity: "antigravity guide",
-    claude_code: "claude guide",
-    codex: "codex guide",
-    cursor: "cursor guide",
-  },
+  ...liveToolDraftMaps,
   handoffFileSuffix: "cursor-setup",
   ideaName: "Great App",
-  mcpConfigDrafts: {
-    antigravity: "antigravity mcp",
-    claude_code: "claude mcp",
-    codex: "",
-    cursor: "cursor mcp",
-  },
-  startPromptDrafts: {
-    antigravity: "antigravity start",
-    claude_code: "claude start",
-    codex: "codex start",
-    cursor: "cursor start",
-  },
 });
 assert.equal(cursorLiveContext.isLiveExternalDelivery, true);
 assert.equal(cursorLiveContext.isCursorExternalDelivery, true);
@@ -412,26 +418,9 @@ const codexLiveContext = buildFinalExecutionLiveToolContext({
   ...cursorLiveContext,
   buildDeliveryMode: "external_tool",
   externalToolKey: "codex",
-  guideDrafts: {
-    antigravity: "antigravity guide",
-    claude_code: "claude guide",
-    codex: "codex guide",
-    cursor: "cursor guide",
-  },
+  ...liveToolDraftMaps,
   handoffFileSuffix: "codex-setup",
   ideaName: null,
-  mcpConfigDrafts: {
-    antigravity: "antigravity mcp",
-    claude_code: "claude mcp",
-    codex: "",
-    cursor: "cursor mcp",
-  },
-  startPromptDrafts: {
-    antigravity: "antigravity start",
-    claude_code: "claude start",
-    codex: "codex start",
-    cursor: "cursor start",
-  },
 });
 assert.equal(codexLiveContext.isLiveExternalDelivery, true);
 assert.equal(codexLiveContext.isCodexExternalDelivery, true);
@@ -444,26 +433,9 @@ const genericContext = buildFinalExecutionLiveToolContext({
   ...codexLiveContext,
   buildDeliveryMode: "external_tool",
   externalToolKey: "generic_mcp",
-  guideDrafts: {
-    antigravity: "antigravity guide",
-    claude_code: "claude guide",
-    codex: "codex guide",
-    cursor: "cursor guide",
-  },
+  ...liveToolDraftMaps,
   handoffFileSuffix: "mcp-package",
   ideaName: "Generic",
-  mcpConfigDrafts: {
-    antigravity: "antigravity mcp",
-    claude_code: "claude mcp",
-    codex: "",
-    cursor: "cursor mcp",
-  },
-  startPromptDrafts: {
-    antigravity: "antigravity start",
-    claude_code: "claude start",
-    codex: "codex start",
-    cursor: "cursor start",
-  },
 });
 assert.equal(genericContext.isLiveExternalDelivery, false);
 assert.equal(genericContext.folder, ".cursor");

@@ -95,6 +95,12 @@ export type FinalExecutionLiveDeliveryFlags = {
   isLiveExternalDelivery: boolean;
 };
 
+export type FinalExecutionLiveToolDraftMaps = {
+  guideDrafts: Record<LiveExternalToolKey, string>;
+  mcpConfigDrafts: Record<LiveExternalToolKey, string>;
+  startPromptDrafts: Record<LiveExternalToolKey, string>;
+};
+
 export function buildFinalExecutionDecisionSentence({
   buildDeliveryPhrase,
   productSurface,
@@ -150,6 +156,53 @@ export function selectFinalExecutionLiveToolKey({
       : isCodexExternalDelivery
         ? "codex"
         : "cursor";
+}
+
+export function buildFinalExecutionLiveToolDraftMaps({
+  antigravityGuideDraft,
+  antigravityMcpConfigDraft,
+  antigravityStartPromptDraft,
+  claudeGuideDraft,
+  claudeMcpConfigDraft,
+  claudeStartPromptDraft,
+  codexGuideDraft,
+  codexStartPromptDraft,
+  cursorGuideDraft,
+  cursorMcpConfigDraft,
+  cursorStartPromptDraft,
+}: {
+  antigravityGuideDraft: string;
+  antigravityMcpConfigDraft: string;
+  antigravityStartPromptDraft: string;
+  claudeGuideDraft: string;
+  claudeMcpConfigDraft: string;
+  claudeStartPromptDraft: string;
+  codexGuideDraft: string;
+  codexStartPromptDraft: string;
+  cursorGuideDraft: string;
+  cursorMcpConfigDraft: string;
+  cursorStartPromptDraft: string;
+}): FinalExecutionLiveToolDraftMaps {
+  return {
+    guideDrafts: {
+      antigravity: antigravityGuideDraft,
+      claude_code: claudeGuideDraft,
+      codex: codexGuideDraft,
+      cursor: cursorGuideDraft,
+    },
+    mcpConfigDrafts: {
+      antigravity: antigravityMcpConfigDraft,
+      claude_code: claudeMcpConfigDraft,
+      codex: "",
+      cursor: cursorMcpConfigDraft,
+    },
+    startPromptDrafts: {
+      antigravity: antigravityStartPromptDraft,
+      claude_code: claudeStartPromptDraft,
+      codex: codexStartPromptDraft,
+      cursor: cursorStartPromptDraft,
+    },
+  };
 }
 
 export function buildFinalExecutionReadiness({

@@ -182,6 +182,7 @@ import {
   buildFinalExecutionDecisionSentence,
   buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveToolContext,
+  buildFinalExecutionLiveToolDraftMaps,
   buildFinalExecutionPackageReadinessState,
   buildFinalExecutionPrimaryPackageAction,
 } from "@/lib/final-execution-readiness";
@@ -1941,6 +1942,19 @@ export function IdeaWorkbench({
     cursorTaskPackageDraft,
     finalAgentRunPackageDraft,
   });
+  const finalExecutionLiveToolDraftMaps = buildFinalExecutionLiveToolDraftMaps({
+    antigravityGuideDraft,
+    antigravityMcpConfigDraft,
+    antigravityStartPromptDraft,
+    claudeGuideDraft,
+    claudeMcpConfigDraft,
+    claudeStartPromptDraft,
+    codexGuideDraft,
+    codexStartPromptDraft,
+    cursorGuideDraft,
+    cursorMcpConfigDraft,
+    cursorStartPromptDraft,
+  });
   const {
     folder: liveExternalToolFolder,
     guideDraft: liveExternalToolGuideDraft,
@@ -1954,26 +1968,9 @@ export function IdeaWorkbench({
   } = buildFinalExecutionLiveToolContext({
     buildDeliveryMode,
     externalToolKey: activeExternalBuildTool.key,
-    guideDrafts: {
-      antigravity: antigravityGuideDraft,
-      claude_code: claudeGuideDraft,
-      codex: codexGuideDraft,
-      cursor: cursorGuideDraft,
-    },
+    ...finalExecutionLiveToolDraftMaps,
     handoffFileSuffix: activeExternalBuildTool.handoffFileSuffix,
     ideaName: selectedIdeaContext.ideaName,
-    mcpConfigDrafts: {
-      antigravity: antigravityMcpConfigDraft,
-      claude_code: claudeMcpConfigDraft,
-      codex: "",
-      cursor: cursorMcpConfigDraft,
-    },
-    startPromptDrafts: {
-      antigravity: antigravityStartPromptDraft,
-      claude_code: claudeStartPromptDraft,
-      codex: codexStartPromptDraft,
-      cursor: cursorStartPromptDraft,
-    },
   });
   const finalExecutionDecisionSentence = buildFinalExecutionDecisionSentence({
     buildDeliveryPhrase: activeBuildDeliveryPhrase,
