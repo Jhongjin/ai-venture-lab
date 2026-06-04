@@ -219,9 +219,11 @@ export type WorkbenchScoringReadinessPill = {
   toneClassName: "avl-pill-success" | "avl-pill-warning";
 };
 export type WorkbenchScoringRecommendationPanelState = {
+  description: string;
+  eyebrow: string;
+  killWarningMessage: string | null;
   readinessPills: WorkbenchScoringReadinessPill[];
   scoreDecisionLabel: string;
-  shouldShowKillWarning: boolean;
 };
 
 export function buildWorkbenchScoringSaveButtonState({
@@ -251,12 +253,17 @@ export function buildWorkbenchScoringRecommendationPanelState({
   scoreRecommendation: DecisionStatus;
 }): WorkbenchScoringRecommendationPanelState {
   return {
+    description: "현재 평가값으로 계산한 추천입니다. 저장하면 AI가 이 판단을 기준으로 다음 단계를 준비합니다.",
+    eyebrow: "AI 추천 판단",
+    killWarningMessage:
+      scoreRecommendation === "kill"
+        ? "현재 평가만 보면 중단에 가깝지만, 아이디어를 바로 삭제하지는 않습니다. 삭제는 상단 삭제 버튼을 눌렀을 때만 진행됩니다."
+        : null,
     readinessPills:
       missing.length > 0
         ? missing.map((label) => ({ label, toneClassName: "avl-pill-warning" as const }))
         : [{ label: "기획 전환 준비 완료", toneClassName: "avl-pill-success" }],
     scoreDecisionLabel,
-    shouldShowKillWarning: scoreRecommendation === "kill",
   };
 }
 

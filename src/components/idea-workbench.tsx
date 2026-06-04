@@ -4494,14 +4494,12 @@ export function IdeaWorkbench({
 
                 <div className="grid gap-4">
                   <div className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
-                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">AI 추천 판단</div>
+                    <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">{scoringRecommendationPanelState.eyebrow}</div>
                     <div className="mt-3 text-3xl font-semibold text-slate-950">{scoringRecommendationPanelState.scoreDecisionLabel}</div>
-                    <p className="mt-2 text-sm leading-5 text-slate-600">
-                      현재 평가값으로 계산한 추천입니다. 저장하면 AI가 이 판단을 기준으로 다음 단계를 준비합니다.
-                    </p>
-                    {scoringRecommendationPanelState.shouldShowKillWarning ? (
+                    <p className="mt-2 text-sm leading-5 text-slate-600">{scoringRecommendationPanelState.description}</p>
+                    {scoringRecommendationPanelState.killWarningMessage ? (
                       <p className="mt-3 border-l border-amber-300 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
-                        현재 평가만 보면 중단에 가깝지만, 아이디어를 바로 삭제하지는 않습니다. 삭제는 상단 삭제 버튼을 눌렀을 때만 진행됩니다.
+                        {scoringRecommendationPanelState.killWarningMessage}
                       </p>
                     ) : null}
                     <div className="mt-4 flex flex-wrap gap-2">

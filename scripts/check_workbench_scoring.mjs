@@ -248,12 +248,14 @@ assert.deepEqual(
     scoreRecommendation: "research_more",
   }),
   {
+    description: "현재 평가값으로 계산한 추천입니다. 저장하면 AI가 이 판단을 기준으로 다음 단계를 준비합니다.",
+    eyebrow: "AI 추천 판단",
+    killWarningMessage: null,
     readinessPills: [
       { label: "수요 신호", toneClassName: "avl-pill-warning" },
       { label: "연결된 리스크", toneClassName: "avl-pill-warning" },
     ],
     scoreDecisionLabel: "추가 조사",
-    shouldShowKillWarning: false,
   },
 );
 assert.deepEqual(
@@ -263,14 +265,25 @@ assert.deepEqual(
     scoreRecommendation: "kill",
   }),
   {
+    description: "현재 평가값으로 계산한 추천입니다. 저장하면 AI가 이 판단을 기준으로 다음 단계를 준비합니다.",
+    eyebrow: "AI 추천 판단",
+    killWarningMessage:
+      "현재 평가만 보면 중단에 가깝지만, 아이디어를 바로 삭제하지는 않습니다. 삭제는 상단 삭제 버튼을 눌렀을 때만 진행됩니다.",
     readinessPills: [{ label: "기획 전환 준비 완료", toneClassName: "avl-pill-success" }],
     scoreDecisionLabel: "중단",
-    shouldShowKillWarning: true,
   },
 );
 assert.ok(
   !ideaWorkbenchSource.includes('scoreRecommendation === "kill"'),
   "IdeaWorkbench should use the shared scoring recommendation panel helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("현재 평가값으로 계산한 추천입니다"),
+  "IdeaWorkbench should keep scoring recommendation description in the shared helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("현재 평가만 보면 중단에 가깝지만"),
+  "IdeaWorkbench should keep scoring recommendation warning copy in the shared helper.",
 );
 const savedIdea = { ...idea, ...savePatch };
 assert.equal(
