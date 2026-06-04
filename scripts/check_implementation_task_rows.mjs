@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-rows.ts")).href;
 const {
   buildImplementationTaskCreatedTelemetryProperties,
+  buildImplementationTaskCreateControlStates,
   buildImplementationTaskEvidenceTelemetryProperties,
   buildImplementationTaskEvidenceSavePermissionDeniedMessage,
   buildImplementationTaskEvidenceSavedMessage,
@@ -25,6 +27,8 @@ const {
   getImplementationTaskTableErrorMessage,
   getMissingImplementationTaskDrafts,
 } = await import(moduleUrl);
+
+const ideaWorkbenchSource = fs.readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 const drafts = [
   {
@@ -173,6 +177,40 @@ assert.deepEqual(
 assert.equal(buildImplementationTasksCreatedMessage(2), "2개의 제작 할 일을 만들었습니다.");
 assert.equal(buildImplementationTasksCreateLoginRequiredMessage(), "제작 할 일을 만들려면 먼저 로그인하세요.");
 assert.equal(buildImplementationTasksAlreadyExistMessage(), "이 아이디어에는 이미 기본 제작 할 일이 있습니다.");
+assert.deepEqual(buildImplementationTaskCreateControlStates({
+  hasUser: true,
+  isBusy: false,
+}), {
+  defaultTasks: {
+    disabled: false,
+    label: "기본 태스크 생성",
+  },
+  manualTask: {
+    disabled: false,
+    label: "태스크 추가",
+  },
+});
+assert.deepEqual(buildImplementationTaskCreateControlStates({
+  hasUser: false,
+  isBusy: true,
+}), {
+  defaultTasks: {
+    disabled: true,
+    label: "기본 태스크 생성",
+  },
+  manualTask: {
+    disabled: true,
+    label: "태스크 추가",
+  },
+});
+assert.ok(
+  ideaWorkbenchSource.includes("implementationTaskCreateControlStates.defaultTasks.disabled"),
+  "IdeaWorkbench should render default implementation task create disabled state from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("implementationTaskCreateControlStates.manualTask.disabled"),
+  "IdeaWorkbench should render manual implementation task create disabled state from shared helper.",
+);
 assert.equal(buildManualImplementationTaskCreatedMessage(), "제작 할 일을 추가했습니다.");
 assert.equal(buildManualImplementationTaskLoginRequiredMessage(), "제작 할 일을 추가하려면 먼저 로그인하세요.");
 assert.equal(buildManualImplementationTaskTitleRequiredMessage(), "제작 할 일 제목은 필수입니다.");

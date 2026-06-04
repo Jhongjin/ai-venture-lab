@@ -380,6 +380,7 @@ import {
   buildImplementationTaskEvidencePatch,
   buildImplementationTaskEvidenceTelemetryProperties,
   buildImplementationTaskCreatedTelemetryProperties,
+  buildImplementationTaskCreateControlStates,
   buildImplementationTaskInsertRows,
   buildImplementationTaskStatusPatch,
   buildImplementationTaskStatusChangedMessage,
@@ -1511,6 +1512,10 @@ export function IdeaWorkbench({
     isBusy,
   });
   const validationExperimentManualSaveControlState = buildValidationExperimentManualSaveControlState({
+    hasUser: Boolean(user),
+    isBusy,
+  });
+  const implementationTaskCreateControlStates = buildImplementationTaskCreateControlStates({
     hasUser: Boolean(user),
     isBusy,
   });
@@ -5336,11 +5341,11 @@ export function IdeaWorkbench({
               <button
                 type="button"
                 onClick={createImplementationTasks}
-                disabled={isBusy || !user}
+                disabled={implementationTaskCreateControlStates.defaultTasks.disabled}
                 className="avl-btn avl-btn-primary h-10 px-3 disabled:opacity-50"
               >
                 <ClipboardList size={16} />
-                기본 태스크 생성
+                {implementationTaskCreateControlStates.defaultTasks.label}
               </button>
             </div>
 
@@ -5388,11 +5393,11 @@ export function IdeaWorkbench({
                   />
                   <button
                     type="submit"
-                    disabled={isBusy || !user}
+                    disabled={implementationTaskCreateControlStates.manualTask.disabled}
                     className="avl-btn avl-btn-primary h-11 px-4 disabled:opacity-50"
                   >
                     <Save size={16} />
-                    태스크 추가
+                    {implementationTaskCreateControlStates.manualTask.label}
                   </button>
                 </div>
               </form>

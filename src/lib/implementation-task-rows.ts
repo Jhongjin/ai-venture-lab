@@ -24,6 +24,16 @@ export type ImplementationTaskStatusPatch<Status extends string> = {
   status: Status;
 };
 
+export type ImplementationTaskCreateControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type ImplementationTaskCreateControlStates = {
+  defaultTasks: ImplementationTaskCreateControlState;
+  manualTask: ImplementationTaskCreateControlState;
+};
+
 export type ImplementationTaskTableError = {
   code?: string | null;
   message: string;
@@ -42,6 +52,27 @@ export function buildImplementationTasksCreateLoginRequiredMessage() {
 
 export function buildImplementationTasksAlreadyExistMessage() {
   return "이 아이디어에는 이미 기본 제작 할 일이 있습니다.";
+}
+
+export function buildImplementationTaskCreateControlStates({
+  hasUser,
+  isBusy,
+}: {
+  hasUser: boolean;
+  isBusy: boolean;
+}): ImplementationTaskCreateControlStates {
+  const disabled = isBusy || !hasUser;
+
+  return {
+    defaultTasks: {
+      disabled,
+      label: "기본 태스크 생성",
+    },
+    manualTask: {
+      disabled,
+      label: "태스크 추가",
+    },
+  };
 }
 
 export function buildManualImplementationTaskCreatedMessage() {
