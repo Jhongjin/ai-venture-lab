@@ -195,6 +195,11 @@ assert.deepEqual(
     confidenceLabel: "보통",
     confidenceSuffix: "",
     isVisible: true,
+    showCompetitorMap: true,
+    showEntryBarrierChecks: true,
+    showMarketSignals: true,
+    showPublicSources: true,
+    showResearchQueries: true,
   },
 );
 assert.deepEqual(
@@ -345,6 +350,11 @@ assert.deepEqual(
     confidenceLabel: "보통",
     confidenceSuffix: " · 추정 초안",
     isVisible: true,
+    showCompetitorMap: true,
+    showEntryBarrierChecks: true,
+    showMarketSignals: true,
+    showPublicSources: true,
+    showResearchQueries: true,
   },
 );
 
@@ -426,6 +436,11 @@ assert.deepEqual(
     confidenceLabel: "",
     confidenceSuffix: "",
     isVisible: false,
+    showCompetitorMap: false,
+    showEntryBarrierChecks: false,
+    showMarketSignals: false,
+    showPublicSources: false,
+    showResearchQueries: false,
   },
 );
 assert.deepEqual(

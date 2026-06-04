@@ -7208,7 +7208,7 @@ export function IdeaWorkbench({
                     </div>
                   ))}
                 </div>
-                {visibleMarketScanDraft.market_signals.length > 0 ? (
+                {marketScanDraftPanelState.showMarketSignals ? (
                   <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
                     {visibleMarketScanDraft.market_signals.map((signal) => (
                       <div key={signal.label} className="border border-emerald-100 bg-emerald-50 px-3 py-3">
@@ -7245,7 +7245,7 @@ export function IdeaWorkbench({
                   <div className="border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">경쟁/대체재</div>
                     <div className="mt-3 grid gap-2">
-                      {visibleMarketScanDraft.competitor_map.length > 0 ? (
+                      {marketScanDraftPanelState.showCompetitorMap ? (
                         visibleMarketScanDraft.competitor_map.map((competitor) => (
                           <div key={`${competitor.name}-${competitor.category}`} className="border border-slate-100 bg-slate-50 px-3 py-2">
                             <div className="flex flex-wrap items-center gap-2">
@@ -7266,7 +7266,7 @@ export function IdeaWorkbench({
                   <div className="border border-slate-200 bg-white p-4">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">진입장벽 체크</div>
                     <div className="mt-3 grid gap-2">
-                      {visibleMarketScanDraft.entry_barrier_checks.length > 0 ? (
+                      {marketScanDraftPanelState.showEntryBarrierChecks ? (
                         visibleMarketScanDraft.entry_barrier_checks.map((barrier) => (
                           <div key={barrier.label} className="border border-slate-100 bg-slate-50 px-3 py-2">
                             <div className="flex flex-wrap items-center gap-2">
@@ -7284,7 +7284,7 @@ export function IdeaWorkbench({
                     </div>
                   </div>
                 </div>
-                {visibleMarketScanDraft.research_queries.length > 0 ? (
+                {marketScanDraftPanelState.showResearchQueries ? (
                   <div className="border border-slate-200 bg-slate-50 px-4 py-3">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">추가로 확인할 질문</div>
                     <div className="mt-2 flex flex-wrap gap-2">
@@ -7303,7 +7303,7 @@ export function IdeaWorkbench({
                       근거 강도 높음 {highStrengthMarketScanSourceCount}개 / 전체 {visibleMarketScanPublicSources.length}개
                     </div>
                   </div>
-                  {visibleMarketScanPublicSources.length > 0 ? (
+                  {marketScanDraftPanelState.showPublicSources ? (
                     <div className="grid gap-2">
                       {visibleMarketScanPublicSources.map((source, index) => (
                         <div key={`${source.url}-${index}`} className="border border-slate-200 bg-white px-3 py-2 text-xs leading-5">

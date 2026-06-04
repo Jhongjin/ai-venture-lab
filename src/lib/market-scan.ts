@@ -205,6 +205,11 @@ export type MarketScanDraftPanelState = {
   confidenceLabel: string;
   confidenceSuffix: string;
   isVisible: boolean;
+  showCompetitorMap: boolean;
+  showEntryBarrierChecks: boolean;
+  showMarketSignals: boolean;
+  showPublicSources: boolean;
+  showResearchQueries: boolean;
 };
 
 export type MarketScanReviewRows = {
@@ -243,6 +248,8 @@ export function buildMarketScanDraftPanelState({
   draft: MarketScanDraft | null;
   isEstimate: boolean;
 }): MarketScanDraftPanelState {
+  const publicSources = draft ? getPublicMarketScanSources(draft.sources) : [];
+
   return {
     alertClassName: isEstimate
       ? "border-amber-200 bg-amber-50 text-amber-950"
@@ -253,6 +260,11 @@ export function buildMarketScanDraftPanelState({
     confidenceLabel: draft ? getMarketScanLevelLabel(draft.confidence) : "",
     confidenceSuffix: isEstimate ? " · 추정 초안" : "",
     isVisible: Boolean(draft),
+    showCompetitorMap: Boolean(draft?.competitor_map.length),
+    showEntryBarrierChecks: Boolean(draft?.entry_barrier_checks.length),
+    showMarketSignals: Boolean(draft?.market_signals.length),
+    showPublicSources: publicSources.length > 0,
+    showResearchQueries: Boolean(draft?.research_queries.length),
   };
 }
 
