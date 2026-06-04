@@ -14,6 +14,7 @@ const { outputText } = ts.transpileModule(source, {
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
+  buildMarketScanActionControlState,
   buildMarketScanArtifactSaveDraft,
   buildMarketScanEvidenceDraft,
   buildMarketScanExperimentResultPatch,
@@ -177,6 +178,22 @@ assert.equal(countHighStrengthMarketScanSources(webDraftState.publicSources), 1)
 assert.equal(webDraftState.status.label, "웹 조사 준비");
 assert.equal(webDraftState.actionLabel, "다시 정리");
 assert.match(webDraftState.sourceBoundaryText, /공개 출처 1개/);
+assert.deepEqual(
+  buildMarketScanActionControlState({
+    actionLabel: webDraftState.actionLabel,
+    hasCurrentArtifact: webDraftState.hasArtifact,
+    hasEditableState: true,
+    hasSelectedIdea: true,
+    hasVisibleDraft: Boolean(webDraftState.visibleDraft),
+    isLoading: false,
+  }),
+  {
+    autoRunnerDisabled: true,
+    iconClassName: "",
+    label: "다시 정리",
+    manualDisabled: false,
+  },
+);
 
 const reviewRows = buildMarketScanReviewRows({
   decisionLabels,
@@ -329,6 +346,22 @@ const loadingState = buildMarketScanReviewState({
 });
 assert.equal(loadingState.status.label, "정리 중");
 assert.equal(loadingState.actionLabel, "정리 중");
+assert.deepEqual(
+  buildMarketScanActionControlState({
+    actionLabel: loadingState.actionLabel,
+    hasCurrentArtifact: loadingState.hasArtifact,
+    hasEditableState: true,
+    hasSelectedIdea: true,
+    hasVisibleDraft: Boolean(loadingState.visibleDraft),
+    isLoading: true,
+  }),
+  {
+    autoRunnerDisabled: true,
+    iconClassName: "animate-spin",
+    label: "정리 중",
+    manualDisabled: true,
+  },
+);
 
 const idleState = buildMarketScanReviewState({
   artifacts: [],
@@ -344,5 +377,21 @@ assert.equal(idleState.contextKey, null);
 assert.equal(idleState.visibleDraft, null);
 assert.equal(idleState.status.label, "자동 대기");
 assert.equal(idleState.actionLabel, "AI 자동 점검 실행");
+assert.deepEqual(
+  buildMarketScanActionControlState({
+    actionLabel: idleState.actionLabel,
+    hasCurrentArtifact: idleState.hasArtifact,
+    hasEditableState: false,
+    hasSelectedIdea: false,
+    hasVisibleDraft: Boolean(idleState.visibleDraft),
+    isLoading: false,
+  }),
+  {
+    autoRunnerDisabled: false,
+    iconClassName: "",
+    label: "AI 자동 점검 실행",
+    manualDisabled: true,
+  },
+);
 
 console.log("Market scan review state smoke passed.");

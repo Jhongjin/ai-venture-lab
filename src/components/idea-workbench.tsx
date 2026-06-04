@@ -273,6 +273,7 @@ import {
 } from "@/lib/billing";
 import {
   buildMarketScanArtifactSaveDraft,
+  buildMarketScanActionControlState,
   buildMarketScanEvidenceDraft,
   buildMarketScanExperimentResultPatch,
   buildMarketScanRequestPayload,
@@ -1834,6 +1835,14 @@ export function IdeaWorkbench({
     productSurfaceLabel: activeProductSurface.label,
     selectedIdeaId: selectedIdeaContext.marketScanContextIdeaId,
     selectedProductSurface: selectedIdeaContext.marketScanProductSurface,
+  });
+  const marketScanActionControlState = buildMarketScanActionControlState({
+    actionLabel: marketScanActionLabel,
+    hasCurrentArtifact: hasMarketScanArtifact,
+    hasEditableState: Boolean(editState),
+    hasSelectedIdea: Boolean(selectedIdea),
+    hasVisibleDraft: Boolean(visibleMarketScanDraft),
+    isLoading: isMarketScanLoading,
   });
   const validationPackageStatusRows = buildValidationPackageStatusRows({
     hasIdeaBriefArtifact,
@@ -4343,7 +4352,7 @@ export function IdeaWorkbench({
       <MarketScanAutoRunner
         active={activeTask === "experiment"}
         autoKey={marketScanContextKey}
-        disabled={Boolean(visibleMarketScanDraft) || isMarketScanLoading || hasMarketScanArtifact}
+        disabled={marketScanActionControlState.autoRunnerDisabled}
         onRun={runMarketScan}
       />
       {showSidebar ? (
@@ -7140,11 +7149,11 @@ export function IdeaWorkbench({
                 <button
                   type="button"
                   onClick={() => void runMarketScan()}
-                  disabled={isMarketScanLoading || !selectedIdea || !editState}
+                  disabled={marketScanActionControlState.manualDisabled}
                   className="avl-btn avl-btn-secondary justify-center px-4 disabled:opacity-50"
                 >
-                  <RefreshCw size={16} className={isMarketScanLoading ? "animate-spin" : ""} />
-                  {marketScanActionLabel}
+                  <RefreshCw size={16} className={marketScanActionControlState.iconClassName} />
+                  {marketScanActionControlState.label}
                 </button>
               </div>
             </div>

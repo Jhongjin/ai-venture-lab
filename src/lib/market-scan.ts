@@ -190,11 +190,41 @@ export type MarketScanReviewState = {
   visibleDraft: MarketScanDraft | null;
 };
 
+export type MarketScanActionControlState = {
+  autoRunnerDisabled: boolean;
+  iconClassName: string;
+  label: string;
+  manualDisabled: boolean;
+};
+
 export type MarketScanReviewRows = {
   decisionRows: Array<{ helper: string; label: string; value: string }>;
   marketDetailRows: Array<{ detail: string; title: string }>;
   overviewRows: Array<{ label: string; value: string }>;
 };
+
+export function buildMarketScanActionControlState({
+  actionLabel,
+  hasCurrentArtifact,
+  hasEditableState,
+  hasSelectedIdea,
+  hasVisibleDraft,
+  isLoading,
+}: {
+  actionLabel: string;
+  hasCurrentArtifact: boolean;
+  hasEditableState: boolean;
+  hasSelectedIdea: boolean;
+  hasVisibleDraft: boolean;
+  isLoading: boolean;
+}): MarketScanActionControlState {
+  return {
+    autoRunnerDisabled: hasVisibleDraft || isLoading || hasCurrentArtifact,
+    iconClassName: isLoading ? "animate-spin" : "",
+    label: actionLabel,
+    manualDisabled: isLoading || !hasSelectedIdea || !hasEditableState,
+  };
+}
 
 export function buildMarketScanReviewRows({
   decisionLabels,
