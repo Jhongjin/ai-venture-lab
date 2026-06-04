@@ -47,6 +47,7 @@ const {
   buildStep8LearningDecisionDetail,
   buildStep8LearningDecisionLabel,
   buildStep8LearningDecisionOptions,
+  buildStep8LearningDecisionSummary,
   buildStep8LearningCompletedSummary,
   buildStep8LearningDisplayState,
   buildStep8LearningJudgmentQuestion,
@@ -236,6 +237,19 @@ assert.equal(
   "다음 작업 완료",
 );
 assert.match(buildStep8LearningDecisionDetail("다음 작업 완료"), /완료되지 않은 제작 작업/);
+assert.deepEqual(
+  buildStep8LearningDecisionSummary({
+    completedImplementationTaskCount: 1,
+    openRiskCount: 0,
+    productSignalCount: 0,
+    totalImplementationTaskCount: 3,
+  }),
+  {
+    learningDecisionDetail:
+      "아직 완료되지 않은 제작 작업이 있습니다. 선택한 외부 개발 도구나 내부 제작 흐름에서 다음 작업을 끝내고 결과를 다시 반영하세요.",
+    learningDecisionLabel: "다음 작업 완료",
+  },
+);
 assert.deepEqual(
   buildStep8LearningDecisionOptions({
     hasNextImplementationTask: true,

@@ -87,6 +87,11 @@ export type Step8LearningReviewSummary = Pick<
   | "learningSimpleReviewRows"
 >;
 
+export type Step8LearningDecisionSummary = Pick<
+  Step8LearningSummary,
+  "learningDecisionDetail" | "learningDecisionLabel"
+>;
+
 export type Step8LearningJudgmentSummary = Pick<
   Step8LearningSummary,
   "learningDecisionOptions" | "learningJudgmentQuestion" | "learningNextJudgmentBrief"
@@ -258,13 +263,12 @@ export function buildStep8LearningSummary({
   totalImplementationTaskCount: number;
 }): Step8LearningSummary {
   const taskPrefix = formatStep8TaskCodePrefix(nextImplementationTaskCode);
-  const learningDecisionLabel = buildStep8LearningDecisionLabel({
+  const { learningDecisionDetail, learningDecisionLabel } = buildStep8LearningDecisionSummary({
     completedImplementationTaskCount,
     openRiskCount,
     productSignalCount,
     totalImplementationTaskCount,
   });
-  const learningDecisionDetail = buildStep8LearningDecisionDetail(learningDecisionLabel);
   const {
     learningOneSentenceOutcome,
     learningPrimaryActionDetail,
@@ -500,6 +504,30 @@ export function buildStep8LearningReviewSummary({
     learningRemainingDetail,
     learningRemainingValue,
     learningSimpleReviewRows,
+  };
+}
+
+export function buildStep8LearningDecisionSummary({
+  completedImplementationTaskCount,
+  openRiskCount,
+  productSignalCount,
+  totalImplementationTaskCount,
+}: {
+  completedImplementationTaskCount: number;
+  openRiskCount: number;
+  productSignalCount: number;
+  totalImplementationTaskCount: number;
+}): Step8LearningDecisionSummary {
+  const learningDecisionLabel = buildStep8LearningDecisionLabel({
+    completedImplementationTaskCount,
+    openRiskCount,
+    productSignalCount,
+    totalImplementationTaskCount,
+  });
+
+  return {
+    learningDecisionDetail: buildStep8LearningDecisionDetail(learningDecisionLabel),
+    learningDecisionLabel,
   };
 }
 
