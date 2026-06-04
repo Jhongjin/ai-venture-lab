@@ -49,6 +49,11 @@ export type EvidenceNoteSaveControlState = {
   label: string;
 };
 
+export type RiskCreateControlState = {
+  disabled: boolean;
+  label: string;
+};
+
 export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
 };
@@ -107,6 +112,19 @@ export function buildRiskCreateLoginRequiredMessage() {
 
 export function buildRiskTitleRequiredMessage() {
   return "리스크 제목은 필수입니다.";
+}
+
+export function buildRiskCreateControlState({
+  hasUser,
+  isBusy,
+}: {
+  hasUser: boolean;
+  isBusy: boolean;
+}): RiskCreateControlState {
+  return {
+    disabled: isBusy || !hasUser,
+    label: "리스크 추가",
+  };
 }
 
 export function buildDecisionRecordedMessage() {

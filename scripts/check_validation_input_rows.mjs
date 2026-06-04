@@ -37,6 +37,7 @@ const {
   buildExperimentUpdatePermissionDeniedMessage,
   buildIdeaDecisionUpdatePatch,
   buildRecommendedValidationExperimentSavedMessage,
+  buildRiskCreateControlState,
   buildRiskCreatedMessage,
   buildRiskCreatedTelemetryProperties,
   buildRiskCreateLoginRequiredMessage,
@@ -203,6 +204,20 @@ assert.deepEqual(buildEvidenceNoteSaveControlState({
   disabled: true,
   label: "근거 저장",
 });
+assert.deepEqual(buildRiskCreateControlState({
+  hasUser: true,
+  isBusy: false,
+}), {
+  disabled: false,
+  label: "리스크 추가",
+});
+assert.deepEqual(buildRiskCreateControlState({
+  hasUser: false,
+  isBusy: true,
+}), {
+  disabled: true,
+  label: "리스크 추가",
+});
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || !user || selectedExperiments.length > 0}"),
   "IdeaWorkbench should render recommended validation experiment save disabled state from shared control.",
@@ -246,6 +261,10 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("evidenceNoteSaveControlState.disabled"),
   "IdeaWorkbench should render evidence note save disabled state from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("riskCreateControlState.disabled"),
+  "IdeaWorkbench should render risk create disabled state from shared input control.",
 );
 const validationIdea = {
   buyer: "운영팀",

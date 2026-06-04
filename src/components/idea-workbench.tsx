@@ -457,6 +457,7 @@ import {
   buildIdeaDecisionUpdatePatch,
   getNextExperimentResultSelectionId,
   buildRecommendedValidationExperimentSavedMessage,
+  buildRiskCreateControlState,
   buildRiskCreatedMessage,
   buildRiskCreatedTelemetryProperties,
   buildRiskCreateLoginRequiredMessage,
@@ -1501,6 +1502,10 @@ export function IdeaWorkbench({
     isBusy,
   });
   const evidenceNoteSaveControlState = buildEvidenceNoteSaveControlState({
+    hasUser: Boolean(user),
+    isBusy,
+  });
+  const riskCreateControlState = buildRiskCreateControlState({
     hasUser: Boolean(user),
     isBusy,
   });
@@ -6511,11 +6516,11 @@ export function IdeaWorkbench({
               <div className="mt-5 flex flex-wrap gap-2">
                 <button
                   type="submit"
-                  disabled={isBusy || !user}
+                  disabled={riskCreateControlState.disabled}
                   className="avl-btn avl-btn-danger px-4 disabled:opacity-50"
                 >
                   <Flag size={18} />
-                  리스크 추가
+                  {riskCreateControlState.label}
                 </button>
               </div>
                 <div className="avl-surface-muted mt-4 px-4 py-3 text-sm leading-5 text-slate-600">
