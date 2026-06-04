@@ -54,6 +54,12 @@ export type WorkbenchScoringNotePanelState = {
   description: string;
   summaryLabel: string;
 };
+export type WorkbenchScoringHelpSectionState = {
+  body: string | null;
+  items: string[];
+  title: string;
+  variant: "muted" | "plain";
+};
 
 const workbenchScoreInputFields: Array<Pick<WorkbenchScoreInputFieldConfig, "field" | "label">> = [
   { field: "problem_intensity", label: "문제 강도" },
@@ -156,6 +162,27 @@ export function buildWorkbenchScoringNotePanelState(): WorkbenchScoringNotePanel
     description: "AI가 만든 초안을 직접 보완하고 싶을 때만 여기를 수정하세요.",
     summaryLabel: "추가 메모 열기",
   };
+}
+
+export function buildWorkbenchScoringHelpSections(): WorkbenchScoringHelpSectionState[] {
+  return [
+    {
+      body: null,
+      items: [
+        "처음 값은 AI가 원문을 보고 채운 추천값입니다. 그대로 써도 되고 직접 바꿔도 됩니다.",
+        "작게 만들기 쉽지만 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.",
+        "리스크 감점이 높다면 검증 계획보다 개인정보, 법무, 운영 리스크를 먼저 확인하세요.",
+      ],
+      title: "평가값 읽는 법",
+      variant: "muted",
+    },
+    {
+      body: "사업성 평가를 저장하면 AI가 다음 검증 계획에서 첫 확인 방법과 성공 기준을 이어서 준비합니다. 여기서는 현재 평가값만 확인하면 충분합니다.",
+      items: [],
+      title: "다음 판단",
+      variant: "plain",
+    },
+  ];
 }
 
 export function scoreWorkbenchState(state: WorkbenchEditState) {

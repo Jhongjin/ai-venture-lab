@@ -24,6 +24,7 @@ const {
   buildWorkbenchScoreInputFieldConfigs,
   buildWorkbenchScoringCurrentScoreCard,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringHelpSections,
   buildWorkbenchScoringNextActionCard,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringNotePanelState,
@@ -169,6 +170,36 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("AI가 만든 초안을 직접 보완하고 싶을 때만"),
   "IdeaWorkbench should keep scoring note-panel description in the shared helper.",
+);
+assert.deepEqual(buildWorkbenchScoringHelpSections(), [
+  {
+    body: null,
+    items: [
+      "처음 값은 AI가 원문을 보고 채운 추천값입니다. 그대로 써도 되고 직접 바꿔도 됩니다.",
+      "작게 만들기 쉽지만 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.",
+      "리스크 감점이 높다면 검증 계획보다 개인정보, 법무, 운영 리스크를 먼저 확인하세요.",
+    ],
+    title: "평가값 읽는 법",
+    variant: "muted",
+  },
+  {
+    body: "사업성 평가를 저장하면 AI가 다음 검증 계획에서 첫 확인 방법과 성공 기준을 이어서 준비합니다. 여기서는 현재 평가값만 확인하면 충분합니다.",
+    items: [],
+    title: "다음 판단",
+    variant: "plain",
+  },
+]);
+assert.ok(
+  !ideaWorkbenchSource.includes("평가값 읽는 법"),
+  "IdeaWorkbench should render scoring help sections from shared state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("처음 값은 AI가 원문"),
+  "IdeaWorkbench should keep scoring help bullets in the shared helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("사업성 평가를 저장하면 AI가 다음 검증"),
+  "IdeaWorkbench should keep scoring next-judgment copy in the shared helper.",
 );
 
 const savePatch = buildWorkbenchScoringSavePatch({

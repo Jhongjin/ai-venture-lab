@@ -120,6 +120,7 @@ import {
   buildWorkbenchScoreInputFieldConfigs,
   buildWorkbenchScoringCurrentScoreCard,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringHelpSections,
   buildWorkbenchScoringNextActionCard,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringNotePanelState,
@@ -1453,6 +1454,7 @@ export function IdeaWorkbench({
   const scoringCurrentScoreCard = buildWorkbenchScoringCurrentScoreCard({ currentScore });
   const scoringNextActionCard = buildWorkbenchScoringNextActionCard();
   const scoringNotePanelState = buildWorkbenchScoringNotePanelState();
+  const scoringHelpSections = buildWorkbenchScoringHelpSections();
   const scoringInputFieldConfigs = editState
     ? buildWorkbenchScoreInputFieldConfigs({
         descriptions: scoreFieldDescriptions,
@@ -4543,21 +4545,29 @@ export function IdeaWorkbench({
             </section>
 
             <div className="grid gap-4">
-              <section className="border border-slate-200 bg-slate-50 p-5 text-slate-900">
-                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">평가값 읽는 법</div>
-                <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
-                  <li>- 처음 값은 AI가 원문을 보고 채운 추천값입니다. 그대로 써도 되고 직접 바꿔도 됩니다.</li>
-                  <li>- 작게 만들기 쉽지만 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.</li>
-                  <li>- 리스크 감점이 높다면 검증 계획보다 개인정보, 법무, 운영 리스크를 먼저 확인하세요.</li>
-                </ul>
-              </section>
-
-              <section className="border border-slate-200 bg-white p-5">
-                <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">다음 판단</div>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  사업성 평가를 저장하면 AI가 다음 검증 계획에서 첫 확인 방법과 성공 기준을 이어서 준비합니다. 여기서는 현재 평가값만 확인하면 충분합니다.
-                </p>
-              </section>
+              {scoringHelpSections.map((section) => (
+                <section
+                  key={section.title}
+                  className={`border border-slate-200 p-5 ${section.variant === "muted" ? "bg-slate-50 text-slate-900" : "bg-white"}`}
+                >
+                  <div
+                    className={`text-xs font-semibold tracking-[0.14em] text-slate-500 ${
+                      section.variant === "muted" ? "uppercase" : ""
+                    }`}
+                  >
+                    {section.title}
+                  </div>
+                  {section.items.length > 0 ? (
+                    <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
+                      {section.items.map((item) => (
+                        <li key={item}>- {item}</li>
+                      ))}
+                    </ul>
+                  ) : section.body ? (
+                    <p className="mt-3 text-sm leading-6 text-slate-600">{section.body}</p>
+                  ) : null}
+                </section>
+              ))}
             </div>
           </div>
         </form>
