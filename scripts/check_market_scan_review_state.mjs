@@ -5,6 +5,7 @@ import ts from "typescript";
 
 const modulePath = path.join(process.cwd(), "src/lib/market-scan.ts");
 const source = readFileSync(modulePath, "utf8");
+const workbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 const { outputText } = ts.transpileModule(source, {
   compilerOptions: {
     module: ts.ModuleKind.ESNext,
@@ -591,6 +592,32 @@ assert.deepEqual(
     label: "AI 자동 점검 실행",
     manualDisabled: true,
   },
+);
+
+assert.equal(
+  workbenchSource.includes("visibleMarketScanDraft."),
+  false,
+  "market scan panel should read draft display values through marketScanDraftPanelState",
+);
+assert.equal(
+  workbenchSource.includes("visibleMarketScanPublicSources"),
+  false,
+  "market scan public sources should render through marketScanDraftPanelState display items",
+);
+assert.equal(
+  workbenchSource.includes("getMarketScanLevelLabel"),
+  false,
+  "market scan level labels should be prepared by market-scan helpers before rendering",
+);
+assert.equal(
+  workbenchSource.includes("getMarketScanSourceStrengthTone"),
+  false,
+  "market scan source strength tone should be prepared by display items before rendering",
+);
+assert.equal(
+  workbenchSource.includes("marketScanSourceTypeLabels"),
+  false,
+  "market scan source type labels should be prepared by display items before rendering",
 );
 
 console.log("Market scan review state smoke passed.");
