@@ -22,6 +22,8 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const {
   buildFinalExecutionConnectionHealth,
+  buildFinalExecutionConnectionHealthDetail,
+  buildFinalExecutionConnectionHealthTitle,
   buildFinalExecutionDecisionSentence,
   buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveDeliveryFlags,
@@ -190,6 +192,34 @@ assert.equal(health.activeConnections.length, 2);
 assert.equal(health.latestUsedAt, "2026-06-01T03:00:00.000Z");
 assert.match(health.title, /^최근 자동 반영 /);
 assert.match(health.detail, /자동 반영됩니다/);
+assert.equal(
+  buildFinalExecutionConnectionHealthTitle({
+    activeConnectionCount: 0,
+    latestUsedAt: null,
+  }),
+  "연결 파일을 받으면 자동 반영이 준비됩니다",
+);
+assert.match(
+  buildFinalExecutionConnectionHealthTitle({
+    activeConnectionCount: 1,
+    latestUsedAt: "2026-06-01T03:00:00.000Z",
+  }),
+  /^최근 자동 반영 /,
+);
+assert.equal(
+  buildFinalExecutionConnectionHealthDetail({
+    activeConnectionCount: 0,
+    externalToolLabel: "Codex",
+  }),
+  "Codex 연결 파일을 받은 뒤 설치 명령과 확인 명령을 실행하세요.",
+);
+assert.equal(
+  buildFinalExecutionConnectionHealthDetail({
+    activeConnectionCount: 1,
+    externalToolLabel: "Codex",
+  }),
+  "외부 도구가 진행 기록 명령을 실행하면 Venture Lab 작업표와 STEP 8에 자동 반영됩니다.",
+);
 
 const emptyHealth = buildFinalExecutionConnectionHealth({
   connections: [],

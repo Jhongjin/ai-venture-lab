@@ -574,6 +574,32 @@ export function getLatestFinalExecutionConnectionUsedAt(connections: Array<Pick<
   );
 }
 
+export function buildFinalExecutionConnectionHealthTitle({
+  activeConnectionCount,
+  latestUsedAt,
+}: {
+  activeConnectionCount: number;
+  latestUsedAt: string | null;
+}) {
+  return activeConnectionCount === 0
+    ? "연결 파일을 받으면 자동 반영이 준비됩니다"
+    : latestUsedAt
+      ? `최근 자동 반영 ${formatTelemetryTime(latestUsedAt)}`
+      : "연결됨, 아직 자동 반영 전";
+}
+
+export function buildFinalExecutionConnectionHealthDetail({
+  activeConnectionCount,
+  externalToolLabel,
+}: {
+  activeConnectionCount: number;
+  externalToolLabel: string;
+}) {
+  return activeConnectionCount === 0
+    ? `${externalToolLabel} 연결 파일을 받은 뒤 설치 명령과 확인 명령을 실행하세요.`
+    : "외부 도구가 진행 기록 명령을 실행하면 Venture Lab 작업표와 STEP 8에 자동 반영됩니다.";
+}
+
 export function buildFinalExecutionConnectionHealth({
   connections,
   externalToolKey,
@@ -586,16 +612,14 @@ export function buildFinalExecutionConnectionHealth({
   const visibleConnections = getFinalExecutionVisibleConnections({ connections, externalToolKey });
   const activeConnections = getFinalExecutionActiveConnections(visibleConnections);
   const latestUsedAt = getLatestFinalExecutionConnectionUsedAt(activeConnections);
-  const title =
-    activeConnections.length === 0
-      ? "연결 파일을 받으면 자동 반영이 준비됩니다"
-      : latestUsedAt
-        ? `최근 자동 반영 ${formatTelemetryTime(latestUsedAt)}`
-        : "연결됨, 아직 자동 반영 전";
-  const detail =
-    activeConnections.length === 0
-      ? `${externalToolLabel} 연결 파일을 받은 뒤 설치 명령과 확인 명령을 실행하세요.`
-      : "외부 도구가 진행 기록 명령을 실행하면 Venture Lab 작업표와 STEP 8에 자동 반영됩니다.";
+  const title = buildFinalExecutionConnectionHealthTitle({
+    activeConnectionCount: activeConnections.length,
+    latestUsedAt,
+  });
+  const detail = buildFinalExecutionConnectionHealthDetail({
+    activeConnectionCount: activeConnections.length,
+    externalToolLabel,
+  });
 
   return {
     visibleConnections,
