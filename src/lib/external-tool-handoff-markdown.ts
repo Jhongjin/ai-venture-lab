@@ -120,17 +120,27 @@ export function buildExternalToolTaskBody({
   fallbackTasks?: ImplementationTaskDraft[];
   tasks: ImplementationTask[];
 }) {
-  const sortedTasks = sortImplementationTasksForExecution(tasks);
+  const savedTaskSections = buildSavedExternalToolTaskSections(tasks);
 
-  if (sortedTasks.length > 0) {
-    return sortedTasks.map(buildSavedExternalToolTaskSection).join("\n\n");
+  if (savedTaskSections) {
+    return savedTaskSections;
   }
 
-  if (fallbackTasks.length > 0) {
-    return fallbackTasks.map(buildFallbackExternalToolTaskSection).join("\n\n");
+  const fallbackTaskSections = buildFallbackExternalToolTaskSections(fallbackTasks);
+
+  if (fallbackTaskSections) {
+    return fallbackTaskSections;
   }
 
   return "아직 저장된 제작 작업이 없습니다. Venture Lab STEP 6에서 작업 순서를 먼저 생성하세요.";
+}
+
+export function buildSavedExternalToolTaskSections(tasks: ImplementationTask[]) {
+  return sortImplementationTasksForExecution(tasks).map(buildSavedExternalToolTaskSection).join("\n\n");
+}
+
+export function buildFallbackExternalToolTaskSections(fallbackTasks: ImplementationTaskDraft[]) {
+  return fallbackTasks.map(buildFallbackExternalToolTaskSection).join("\n\n");
 }
 
 export function buildCursorTaskMarkdown({
