@@ -50,6 +50,7 @@ const {
   buildStep8LearningCompletedSummary,
   buildStep8LearningDisplayState,
   buildStep8LearningJudgmentQuestion,
+  buildStep8LearningJudgmentSummary,
   buildStep8LearningNavigationHint,
   buildStep8LearningNextJudgmentBrief,
   buildStep8LearningOneSentenceOutcome,
@@ -367,6 +368,18 @@ assert.match(
     productSignalCount: 0,
   }),
   /완료 여부만 확인/,
+);
+assert.deepEqual(
+  buildStep8LearningJudgmentSummary({
+    hasNextImplementationTask: true,
+    openRiskCount: 0,
+    productSignalCount: 0,
+  }),
+  {
+    learningDecisionOptions: ["작업 계속", "막힘 해결", "완료 보고 반영"],
+    learningJudgmentQuestion: "이 작업을 완료로 볼 근거가 있나요?",
+    learningNextJudgmentBrief: "이어 할 작업의 완료 여부만 확인하면 됩니다. 상세 리포트는 아직 열지 않아도 됩니다.",
+  },
 );
 assert.equal(learningSummary.learningJudgmentQuestion, "이 작업을 완료로 볼 근거가 있나요?");
 assert.deepEqual(

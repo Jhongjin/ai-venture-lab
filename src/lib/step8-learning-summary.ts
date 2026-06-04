@@ -87,6 +87,11 @@ export type Step8LearningReviewSummary = Pick<
   | "learningSimpleReviewRows"
 >;
 
+export type Step8LearningJudgmentSummary = Pick<
+  Step8LearningSummary,
+  "learningDecisionOptions" | "learningJudgmentQuestion" | "learningNextJudgmentBrief"
+>;
+
 export type Step8ProgressDisplayItem = {
   code: string;
   id: string;
@@ -272,11 +277,6 @@ export function buildStep8LearningSummary({
   });
   const learningPrimaryNavigationHintTitle = learningPrimaryNavigationHint.title;
   const learningPrimaryNavigationHintDetail = learningPrimaryNavigationHint.detail;
-  const learningDecisionOptions = buildStep8LearningDecisionOptions({
-    hasNextImplementationTask: Boolean(nextImplementationTask),
-    openRiskCount,
-    productSignalCount,
-  });
   const {
     learningCompletedDetail,
     learningCompletedValue,
@@ -294,16 +294,12 @@ export function buildStep8LearningSummary({
     productSignalCount,
     totalImplementationTaskCount,
   });
-  const learningJudgmentQuestion = buildStep8LearningJudgmentQuestion({
-    hasNextImplementationTask: Boolean(nextImplementationTask),
-    openRiskCount,
-    productSignalCount,
-  });
-  const learningNextJudgmentBrief = buildStep8LearningNextJudgmentBrief({
-    hasNextImplementationTask: Boolean(nextImplementationTask),
-    openRiskCount,
-    productSignalCount,
-  });
+  const { learningDecisionOptions, learningJudgmentQuestion, learningNextJudgmentBrief } =
+    buildStep8LearningJudgmentSummary({
+      hasNextImplementationTask: Boolean(nextImplementationTask),
+      openRiskCount,
+      productSignalCount,
+    });
   const {
     externalSyncCheckedText,
     externalSyncCompletedText,
@@ -499,6 +495,34 @@ export function buildStep8LearningReviewSummary({
     learningRemainingDetail,
     learningRemainingValue,
     learningSimpleReviewRows,
+  };
+}
+
+export function buildStep8LearningJudgmentSummary({
+  hasNextImplementationTask,
+  openRiskCount,
+  productSignalCount,
+}: {
+  hasNextImplementationTask: boolean;
+  openRiskCount: number;
+  productSignalCount: number;
+}): Step8LearningJudgmentSummary {
+  return {
+    learningDecisionOptions: buildStep8LearningDecisionOptions({
+      hasNextImplementationTask,
+      openRiskCount,
+      productSignalCount,
+    }),
+    learningJudgmentQuestion: buildStep8LearningJudgmentQuestion({
+      hasNextImplementationTask,
+      openRiskCount,
+      productSignalCount,
+    }),
+    learningNextJudgmentBrief: buildStep8LearningNextJudgmentBrief({
+      hasNextImplementationTask,
+      openRiskCount,
+      productSignalCount,
+    }),
   };
 }
 
