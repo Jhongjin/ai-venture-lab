@@ -2,12 +2,16 @@
 
 import { Clipboard, Save } from "lucide-react";
 
+type FinalExecutionLearningCriteriaActionControlState = {
+  disabled: boolean;
+  label: string;
+};
+
 type FinalExecutionLearningCriteriaProps = {
-  isBusy: boolean;
   learningDraft: string;
   onCopyCriteria: () => void;
   onSaveCriteria: () => void;
-  userCanSave: boolean;
+  saveControlState: FinalExecutionLearningCriteriaActionControlState;
 };
 
 const learningCriteriaItems = [
@@ -17,11 +21,10 @@ const learningCriteriaItems = [
 ] as const;
 
 export function FinalExecutionLearningCriteria({
-  isBusy,
   learningDraft,
   onCopyCriteria,
   onSaveCriteria,
-  userCanSave,
+  saveControlState,
 }: FinalExecutionLearningCriteriaProps) {
   return (
     <section className="border border-slate-200 bg-white p-4">
@@ -44,11 +47,11 @@ export function FinalExecutionLearningCriteria({
           <button
             type="button"
             onClick={onSaveCriteria}
-            disabled={isBusy || !userCanSave || !learningDraft}
+            disabled={saveControlState.disabled}
             className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
           >
             <Save size={16} />
-            기준 저장
+            {saveControlState.label}
           </button>
         </div>
       </div>

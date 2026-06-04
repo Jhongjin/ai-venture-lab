@@ -438,7 +438,11 @@ import {
   buildMissingOrchestrationRunRows,
 } from "@/lib/orchestration-run-rows";
 import { buildProductPlanningArtifactSaveDrafts, buildProductPlanningDraftState } from "@/lib/product-planning-drafts";
-import { buildReleasePackageArtifactSaveDrafts, buildReleasePackageDraftState } from "@/lib/release-package-drafts";
+import {
+  buildReleasePackageArtifactSaveControlStates,
+  buildReleasePackageArtifactSaveDrafts,
+  buildReleasePackageDraftState,
+} from "@/lib/release-package-drafts";
 import { buildRunOutputTemplate } from "@/lib/run-output-template";
 import {
   buildDecisionInsertRow,
@@ -2151,6 +2155,14 @@ export function IdeaWorkbench({
     mvpBuildCommandPacketDraft,
     postLaunchLearningLoopDraft,
     qaAcceptanceMatrixDraft,
+  });
+  const releasePackageArtifactSaveControlStates = buildReleasePackageArtifactSaveControlStates({
+    developmentCompletionReportSaveDraft,
+    hasUser: Boolean(user),
+    isBusy,
+    mvpBuildCommandPacketSaveDraft,
+    postLaunchLearningLoopSaveDraft,
+    qaAcceptanceMatrixSaveDraft,
   });
   const finalExecutionProjectKey = finalExecutionPackageState.projectKey;
   const {
@@ -6046,11 +6058,11 @@ export function IdeaWorkbench({
               <button
                 type="button"
                 onClick={() => savePreparedArtifactDraft(developmentCompletionReportSaveDraft)}
-                disabled={isBusy || !user || !developmentCompletionReportSaveDraft}
+                disabled={releasePackageArtifactSaveControlStates.developmentCompletionReport.disabled}
                 className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
               >
                 <Save size={16} />
-                보고서 저장
+                {releasePackageArtifactSaveControlStates.developmentCompletionReport.label}
               </button>
             </div>
           </div>
@@ -6132,11 +6144,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => savePreparedArtifactDraft(mvpBuildCommandPacketSaveDraft)}
-                      disabled={isBusy || !user || !mvpBuildCommandPacketSaveDraft}
+                      disabled={releasePackageArtifactSaveControlStates.mvpBuildCommandPacket.disabled}
                       className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
-                      안내 저장
+                      {releasePackageArtifactSaveControlStates.mvpBuildCommandPacket.label}
                     </button>
                   </div>
                 </div>
@@ -6170,11 +6182,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => savePreparedArtifactDraft(qaAcceptanceMatrixSaveDraft)}
-                      disabled={isBusy || !user || !qaAcceptanceMatrixSaveDraft}
+                      disabled={releasePackageArtifactSaveControlStates.qaAcceptanceMatrix.disabled}
                       className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
-                      점검표 저장
+                      {releasePackageArtifactSaveControlStates.qaAcceptanceMatrix.label}
                     </button>
                   </div>
                 </div>
@@ -6366,11 +6378,10 @@ export function IdeaWorkbench({
               ) : null}
 
               <FinalExecutionLearningCriteria
-                isBusy={isBusy}
                 learningDraft={postLaunchLearningLoopDraft}
                 onCopyCriteria={() => copyDraft(postLaunchLearningLoopDraft, "출시 후 성과 확인")}
                 onSaveCriteria={() => savePreparedArtifactDraft(postLaunchLearningLoopSaveDraft)}
-                userCanSave={Boolean(user)}
+                saveControlState={releasePackageArtifactSaveControlStates.postLaunchLearningLoop}
               />
             </div>
           ) : null}

@@ -56,8 +56,17 @@ const moduleUrl = transpileModuleUrl("src/lib/release-package-drafts.ts", [
   ['from "@/lib/qa-acceptance-matrix-markdown";', `from ${JSON.stringify(qaAcceptanceUrl)};`],
   ['from "@/lib/release-decision-packet";', `from ${JSON.stringify(releaseDecisionUrl)};`],
 ]);
+const finalExecutionLearningCriteriaSource = readFileSync(
+  path.join(process.cwd(), "src/components/final-execution-learning-criteria.tsx"),
+  "utf8",
+);
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
-const { buildReleasePackageArtifactSaveDrafts, buildReleasePackageDraftState } = await import(moduleUrl);
+const {
+  buildReleasePackageArtifactSaveControlStates,
+  buildReleasePackageArtifactSaveDrafts,
+  buildReleasePackageDraftState,
+} = await import(moduleUrl);
 const {
   buildReleaseDecisionArtifactQueueLines,
   buildReleaseDecisionArtifactSnapshotLines,
@@ -633,6 +642,57 @@ assert.equal(saveDrafts.postLaunchLearningLoopSaveDraft.source, "post_launch_lea
 assert.match(saveDrafts.postLaunchLearningLoopSaveDraft.body, /# 출시 후 학습 루프: AI Venture Lab/);
 
 assert.deepEqual(
+  buildReleasePackageArtifactSaveControlStates({
+    ...saveDrafts,
+    hasUser: true,
+    isBusy: false,
+  }),
+  {
+    developmentCompletionReport: {
+      disabled: false,
+      label: "보고서 저장",
+    },
+    mvpBuildCommandPacket: {
+      disabled: false,
+      label: "안내 저장",
+    },
+    postLaunchLearningLoop: {
+      disabled: false,
+      label: "기준 저장",
+    },
+    qaAcceptanceMatrix: {
+      disabled: false,
+      label: "점검표 저장",
+    },
+  },
+);
+assert.deepEqual(
+  buildReleasePackageArtifactSaveControlStates({
+    ...saveDrafts,
+    hasUser: false,
+    isBusy: false,
+  }).developmentCompletionReport,
+  {
+    disabled: true,
+    label: "보고서 저장",
+  },
+);
+assert.deepEqual(
+  buildReleasePackageArtifactSaveControlStates({
+    developmentCompletionReportSaveDraft: null,
+    hasUser: true,
+    isBusy: true,
+    mvpBuildCommandPacketSaveDraft: saveDrafts.mvpBuildCommandPacketSaveDraft,
+    postLaunchLearningLoopSaveDraft: saveDrafts.postLaunchLearningLoopSaveDraft,
+    qaAcceptanceMatrixSaveDraft: saveDrafts.qaAcceptanceMatrixSaveDraft,
+  }).mvpBuildCommandPacket,
+  {
+    disabled: true,
+    label: "안내 저장",
+  },
+);
+
+assert.deepEqual(
   buildReleasePackageArtifactSaveDrafts({
     developmentCompletionReportDraft: "",
     ideaName: null,
@@ -680,5 +740,12 @@ assert.deepEqual(emptyDraftState, {
   qaAcceptanceMatrixDraft: "",
   releaseDecisionPacket: null,
 });
+
+assert.match(ideaWorkbenchSource, /releasePackageArtifactSaveControlStates\.developmentCompletionReport\.disabled/);
+assert.match(ideaWorkbenchSource, /releasePackageArtifactSaveControlStates\.mvpBuildCommandPacket\.disabled/);
+assert.match(ideaWorkbenchSource, /releasePackageArtifactSaveControlStates\.qaAcceptanceMatrix\.disabled/);
+assert.match(ideaWorkbenchSource, /releasePackageArtifactSaveControlStates\.postLaunchLearningLoop/);
+assert.match(finalExecutionLearningCriteriaSource, /disabled=\{saveControlState\.disabled\}/);
+assert.match(finalExecutionLearningCriteriaSource, /\{saveControlState\.label\}/);
 
 console.log("Release package drafts smoke passed.");

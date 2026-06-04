@@ -39,6 +39,18 @@ export type ReleasePackageArtifactSaveDraft = {
   title: string;
 };
 
+export type ReleasePackageArtifactSaveControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type ReleasePackageArtifactSaveControlStates = {
+  developmentCompletionReport: ReleasePackageArtifactSaveControlState;
+  mvpBuildCommandPacket: ReleasePackageArtifactSaveControlState;
+  postLaunchLearningLoop: ReleasePackageArtifactSaveControlState;
+  qaAcceptanceMatrix: ReleasePackageArtifactSaveControlState;
+};
+
 const emptyReleasePackageDraftState: ReleasePackageDraftState = {
   developmentCompletionReportDraft: "",
   mvpBuildCommandPacketDraft: "",
@@ -46,6 +58,41 @@ const emptyReleasePackageDraftState: ReleasePackageDraftState = {
   qaAcceptanceMatrixDraft: "",
   releaseDecisionPacket: null,
 };
+
+export function buildReleasePackageArtifactSaveControlStates({
+  developmentCompletionReportSaveDraft,
+  hasUser,
+  isBusy,
+  mvpBuildCommandPacketSaveDraft,
+  postLaunchLearningLoopSaveDraft,
+  qaAcceptanceMatrixSaveDraft,
+}: {
+  developmentCompletionReportSaveDraft: ReleasePackageArtifactSaveDraft | null;
+  hasUser: boolean;
+  isBusy: boolean;
+  mvpBuildCommandPacketSaveDraft: ReleasePackageArtifactSaveDraft | null;
+  postLaunchLearningLoopSaveDraft: ReleasePackageArtifactSaveDraft | null;
+  qaAcceptanceMatrixSaveDraft: ReleasePackageArtifactSaveDraft | null;
+}): ReleasePackageArtifactSaveControlStates {
+  return {
+    developmentCompletionReport: {
+      disabled: isBusy || !hasUser || !developmentCompletionReportSaveDraft,
+      label: "보고서 저장",
+    },
+    mvpBuildCommandPacket: {
+      disabled: isBusy || !hasUser || !mvpBuildCommandPacketSaveDraft,
+      label: "안내 저장",
+    },
+    postLaunchLearningLoop: {
+      disabled: isBusy || !hasUser || !postLaunchLearningLoopSaveDraft,
+      label: "기준 저장",
+    },
+    qaAcceptanceMatrix: {
+      disabled: isBusy || !hasUser || !qaAcceptanceMatrixSaveDraft,
+      label: "점검표 저장",
+    },
+  };
+}
 
 export function buildReleasePackageArtifactSaveDrafts({
   developmentCompletionReportDraft,
