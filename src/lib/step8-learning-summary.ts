@@ -68,6 +68,15 @@ export type Step8LearningSummary = {
   externalSyncReviewRows: Step8ReviewRow[];
 };
 
+export type Step8ExternalSyncSummary = Pick<
+  Step8LearningSummary,
+  | "externalSyncCheckedText"
+  | "externalSyncCompletedText"
+  | "externalSyncNextTaskText"
+  | "externalSyncOutcomeSentence"
+  | "externalSyncReviewRows"
+>;
+
 export type Step8ProgressDisplayItem = {
   code: string;
   id: string;
@@ -294,25 +303,18 @@ export function buildStep8LearningSummary({
     openRiskCount,
     productSignalCount,
   });
-  const externalSyncCompletedText = buildStep8ExternalSyncCompletedText({
-    completedImplementationTaskCount,
-    totalImplementationTaskCount,
-  });
-  const externalSyncNextTaskText = buildStep8ExternalSyncNextTaskText({
-    nextImplementationTask,
-    taskPrefix,
-    totalImplementationTaskCount,
-  });
-  const externalSyncCheckedText = taskSyncUpdatedAt ?? "화면을 열면 자동 확인";
-  const externalSyncOutcomeSentence = buildStep8ExternalSyncOutcomeSentence({
-    externalSyncCompletedText,
-    externalSyncNextTaskText,
-    totalImplementationTaskCount,
-  });
-  const externalSyncReviewRows = buildStep8ExternalSyncReviewRows({
+  const {
     externalSyncCheckedText,
     externalSyncCompletedText,
     externalSyncNextTaskText,
+    externalSyncOutcomeSentence,
+    externalSyncReviewRows,
+  } = buildStep8ExternalSyncSummary({
+    completedImplementationTaskCount,
+    nextImplementationTask,
+    taskPrefix,
+    taskSyncUpdatedAt,
+    totalImplementationTaskCount,
   });
 
   return {
@@ -619,6 +621,49 @@ export function buildStep8ExternalSyncNextTaskText({
   }
 
   return totalImplementationTaskCount > 0 ? "모든 작업 완료" : "STEP 6 작업 순서 생성";
+}
+
+export function buildStep8ExternalSyncSummary({
+  completedImplementationTaskCount,
+  nextImplementationTask,
+  taskPrefix,
+  taskSyncUpdatedAt,
+  totalImplementationTaskCount,
+}: {
+  completedImplementationTaskCount: number;
+  nextImplementationTask: Pick<ImplementationTask, "title"> | null;
+  taskPrefix: string;
+  taskSyncUpdatedAt: string | null;
+  totalImplementationTaskCount: number;
+}): Step8ExternalSyncSummary {
+  const externalSyncCompletedText = buildStep8ExternalSyncCompletedText({
+    completedImplementationTaskCount,
+    totalImplementationTaskCount,
+  });
+  const externalSyncNextTaskText = buildStep8ExternalSyncNextTaskText({
+    nextImplementationTask,
+    taskPrefix,
+    totalImplementationTaskCount,
+  });
+  const externalSyncCheckedText = taskSyncUpdatedAt ?? "화면을 열면 자동 확인";
+  const externalSyncOutcomeSentence = buildStep8ExternalSyncOutcomeSentence({
+    externalSyncCompletedText,
+    externalSyncNextTaskText,
+    totalImplementationTaskCount,
+  });
+  const externalSyncReviewRows = buildStep8ExternalSyncReviewRows({
+    externalSyncCheckedText,
+    externalSyncCompletedText,
+    externalSyncNextTaskText,
+  });
+
+  return {
+    externalSyncCheckedText,
+    externalSyncCompletedText,
+    externalSyncNextTaskText,
+    externalSyncOutcomeSentence,
+    externalSyncReviewRows,
+  };
 }
 
 export function buildStep8ExternalSyncOutcomeSentence({

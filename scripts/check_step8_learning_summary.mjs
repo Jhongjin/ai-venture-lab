@@ -40,6 +40,7 @@ const {
   buildStep8ExternalSyncNextTaskText,
   buildStep8ExternalSyncOutcomeSentence,
   buildStep8ExternalSyncReviewRows,
+  buildStep8ExternalSyncSummary,
   buildStep8ImplementationDerivedState,
   buildStep8ImplementationTaskContext,
   buildStep8LearningDecisionCards,
@@ -394,6 +395,26 @@ assert.deepEqual(
     externalSyncNextTaskText: "T-002 첫 화면 제작",
   })[0],
   ["반영 결과", "1/3 작업", "외부 도구 완료 보고가 반영된 작업 수입니다."],
+);
+assert.deepEqual(
+  buildStep8ExternalSyncSummary({
+    completedImplementationTaskCount: 1,
+    nextImplementationTask: context.nextTask,
+    taskPrefix: context.nextTaskCode ? `${context.nextTaskCode} ` : "",
+    taskSyncUpdatedAt: "2026-06-01 09:00",
+    totalImplementationTaskCount: 3,
+  }),
+  {
+    externalSyncCheckedText: "2026-06-01 09:00",
+    externalSyncCompletedText: "1/3 작업",
+    externalSyncNextTaskText: "T-002 첫 화면 제작",
+    externalSyncOutcomeSentence: "자동 반영 기준으로 완료 1/3 작업, 다음은 T-002 첫 화면 제작입니다.",
+    externalSyncReviewRows: [
+      ["반영 결과", "1/3 작업", "외부 도구 완료 보고가 반영된 작업 수입니다."],
+      ["다음 작업", "T-002 첫 화면 제작", "이 작업만 이어서 처리하면 됩니다."],
+      ["최근 확인", "2026-06-01 09:00", "최종 실행과 성과 확인 화면에서 자동으로 다시 읽습니다."],
+    ],
+  },
 );
 assert.equal(learningSummary.externalSyncCompletedText, "1/3 작업");
 assert.equal(learningSummary.externalSyncNextTaskText, "T-002 첫 화면 제작");
