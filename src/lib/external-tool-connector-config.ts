@@ -25,6 +25,9 @@ export type ExternalToolSyncConfigDraftInput = {
   projectKey: string;
   tool: CursorSyncConfig["tool"];
 };
+export type ExternalToolSyncConfigBuildInput = ExternalToolSyncConfigDraftInput & {
+  createdAt: string;
+};
 
 export function buildExternalToolConnectionCheckingMessage(toolLabel: string) {
   return `${toolLabel} 연결 상태를 확인하는 중입니다...`;
@@ -127,14 +130,14 @@ export function buildCursorSyncConfigJson(config: CursorSyncConfig) {
 `;
 }
 
-export function buildExternalToolSyncConfigDraft({
-  createdAt = new Date().toISOString(),
+export function buildExternalToolSyncConfig({
+  createdAt,
   idea,
   payload,
   projectKey,
   tool,
-}: ExternalToolSyncConfigDraftInput) {
-  return buildCursorSyncConfigJson({
+}: ExternalToolSyncConfigBuildInput): CursorSyncConfig {
+  return {
     projectKey,
     ideaId: idea.id,
     ideaName: idea.name,
@@ -143,5 +146,23 @@ export function buildExternalToolSyncConfigDraft({
     token: payload.token,
     expiresAt: payload.expiresAt,
     createdAt,
-  });
+  };
+}
+
+export function buildExternalToolSyncConfigDraft({
+  createdAt = new Date().toISOString(),
+  idea,
+  payload,
+  projectKey,
+  tool,
+}: ExternalToolSyncConfigDraftInput) {
+  return buildCursorSyncConfigJson(
+    buildExternalToolSyncConfig({
+      createdAt,
+      idea,
+      payload,
+      projectKey,
+      tool,
+    }),
+  );
 }

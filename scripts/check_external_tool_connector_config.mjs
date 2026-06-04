@@ -34,6 +34,7 @@ const {
   buildExternalToolConnectionRevokedMessage,
   buildExternalToolConnectionRevokingMessage,
   buildExternalToolMcpConfigJson,
+  buildExternalToolSyncConfig,
   buildExternalToolSyncConnectionRevokeUrl,
   buildExternalToolSyncConfigDraft,
   buildExternalToolSyncConnectionsUrl,
@@ -103,19 +104,18 @@ assert.equal(
   false,
 );
 
-const syncConfig = JSON.parse(
-  buildExternalToolSyncConfigDraft({
-    createdAt: "2026-06-01T00:00:00.000Z",
-    idea: { id: "idea-1", name: "Operator OS" },
-    payload: {
-      endpoint: "https://example.test/api/build-sync/progress",
-      expiresAt: "2026-06-02T00:00:00.000Z",
-      token: "token.payload",
-    },
-    projectKey: "operator-os",
-    tool: "codex",
-  }),
-);
+const syncConfigInput = {
+  createdAt: "2026-06-01T00:00:00.000Z",
+  idea: { id: "idea-1", name: "Operator OS" },
+  payload: {
+    endpoint: "https://example.test/api/build-sync/progress",
+    expiresAt: "2026-06-02T00:00:00.000Z",
+    token: "token.payload",
+  },
+  projectKey: "operator-os",
+  tool: "codex",
+};
+const syncConfig = buildExternalToolSyncConfig(syncConfigInput);
 
 assert.deepEqual(syncConfig, {
   createdAt: "2026-06-01T00:00:00.000Z",
@@ -127,6 +127,7 @@ assert.deepEqual(syncConfig, {
   token: "token.payload",
   tool: "codex",
 });
+assert.deepEqual(JSON.parse(buildExternalToolSyncConfigDraft(syncConfigInput)), syncConfig);
 
 assert.equal(
   buildCursorSyncConfigJson(syncConfig),
