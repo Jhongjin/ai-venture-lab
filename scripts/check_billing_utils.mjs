@@ -35,7 +35,11 @@ const {
   getBuildPassRequirementMessage,
   getBuildPassUnlockResult,
   getCreditSummaryUrl,
+  getProductionCreditExecutionValuePathItems,
   getProductionCreditNextAction,
+  getProductionCreditPackageClarityItems,
+  getProductionCreditProInterestReasonItems,
+  getProductionCreditProPathItems,
   getProductionCreditSpendConfidenceItems,
 } = await import(moduleUrl);
 
@@ -193,6 +197,69 @@ assert.ok(
   !productionCreditPanelSource.includes("balanceAfterBuildPass"),
   "ProductionCreditPanel should use the shared billing spend-confidence helper.",
 );
+assert.ok(
+  !productionCreditPanelSource.includes("freeMonthlyPassCapacity"),
+  "ProductionCreditPanel should use the shared billing Pro path helper.",
+);
+assert.ok(
+  !productionCreditPanelSource.includes("const proInterestReasonItems = ["),
+  "ProductionCreditPanel should use the shared billing Pro interest reason helper.",
+);
+
+assert.deepEqual(
+  getProductionCreditPackageClarityItems({
+    buildPassCost: 30,
+    freeArtifactLimit: 4,
+    fullArtifactCount: 10,
+  }),
+  [
+    ["Free", "기본 4/10단계로 판단 자료 확보"],
+    ["제작 패스", "30크레딧으로 전체 10단계 실행 패키지 저장"],
+    ["최종 실행", "작업 순서와 외부 개발 도구 연결 파일로 이어짐"],
+  ],
+);
+assert.deepEqual(
+  getProductionCreditExecutionValuePathItems({
+    freeArtifactLimit: 4,
+    fullArtifactCount: 10,
+  }),
+  [
+    ["1. 전체 자료 열기", "Free 4/10에서 전체 10단계로 확장"],
+    ["2. AI 패키지 저장", "기획서, 화면 구조, 기술 방향을 한 번에 묶어 저장"],
+    ["3. 최종 실행 연결", "Cursor, Codex, Claude Code, Antigravity 전달 파일 받기"],
+  ],
+);
+assert.deepEqual(
+  getProductionCreditProPathItems({
+    buildPassCost: 30,
+    hasEnoughCreditsForBuildPass: true,
+    monthlyCreditGrant: 100,
+    needsSelectedIdeaBuildPass: true,
+  }),
+  [
+    ["Free 기준", "월 100크레딧으로 제작 패스 최대 3개"],
+    ["Pro가 필요한 순간", "반복 제작 패키지, 외부 개발 도구 자동 반영, 출처 기반 시장 점검이 계속 필요할 때"],
+    ["지금 행동", "충분하면 제작 패스를 열고 실행 패키지로 이동"],
+  ],
+);
+assert.deepEqual(
+  getProductionCreditProPathItems({
+    buildPassCost: 30,
+    hasEnoughCreditsForBuildPass: false,
+    monthlyCreditGrant: 100,
+    needsSelectedIdeaBuildPass: true,
+  }),
+  [
+    ["Free 기준", "월 100크레딧으로 제작 패스 최대 3개"],
+    ["Pro가 필요한 순간", "반복 제작 패키지, 외부 개발 도구 자동 반영, 출처 기반 시장 점검이 계속 필요할 때"],
+    ["지금 행동", "부족하면 결제 없이 Pro 관심 기록으로 남김"],
+  ],
+);
+assert.deepEqual(getProductionCreditProInterestReasonItems(), [
+  ["반복 제작", "이번 달 제작 패스를 더 열어야 할 때"],
+  ["외부 도구", "작업 상태 자동 반영을 계속 써야 할 때"],
+  ["시장 근거", "출처 기반 시장 점검을 반복해야 할 때"],
+]);
 
 assert.deepEqual(
   getProductionCreditSpendConfidenceItems({

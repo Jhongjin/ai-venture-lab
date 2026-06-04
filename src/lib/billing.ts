@@ -85,6 +85,24 @@ export type ProductionCreditSpendConfidenceInput = {
   hasSelectedIdeaBuildPass: boolean;
 };
 
+export type ProductionCreditPackageClarityInput = {
+  buildPassCost: number;
+  freeArtifactLimit: number;
+  fullArtifactCount: number;
+};
+
+export type ProductionCreditExecutionValuePathInput = {
+  freeArtifactLimit: number;
+  fullArtifactCount: number;
+};
+
+export type ProductionCreditProPathInput = {
+  buildPassCost: number;
+  hasEnoughCreditsForBuildPass: boolean;
+  monthlyCreditGrant: number;
+  needsSelectedIdeaBuildPass: boolean;
+};
+
 export type BuildPassUnlockResult = {
   alreadyUnlocked: boolean;
   chargedCredits: number;
@@ -377,6 +395,57 @@ export function getProductionCreditSpendConfidenceItems({
           : "잔여 크레딧 보충 필요",
     ],
     ["다시 이어가기", "저장 후 작업 순서와 최종 실행에서 같은 패키지를 계속 씁니다."],
+  ];
+}
+
+export function getProductionCreditPackageClarityItems({
+  buildPassCost,
+  freeArtifactLimit,
+  fullArtifactCount,
+}: ProductionCreditPackageClarityInput): ProductionCreditDisplayItem[] {
+  return [
+    ["Free", `기본 ${freeArtifactLimit}/${fullArtifactCount}단계로 판단 자료 확보`],
+    ["제작 패스", `${buildPassCost}크레딧으로 전체 ${fullArtifactCount}단계 실행 패키지 저장`],
+    ["최종 실행", "작업 순서와 외부 개발 도구 연결 파일로 이어짐"],
+  ];
+}
+
+export function getProductionCreditExecutionValuePathItems({
+  freeArtifactLimit,
+  fullArtifactCount,
+}: ProductionCreditExecutionValuePathInput): ProductionCreditDisplayItem[] {
+  return [
+    ["1. 전체 자료 열기", `Free ${freeArtifactLimit}/${fullArtifactCount}에서 전체 ${fullArtifactCount}단계로 확장`],
+    ["2. AI 패키지 저장", "기획서, 화면 구조, 기술 방향을 한 번에 묶어 저장"],
+    ["3. 최종 실행 연결", "Cursor, Codex, Claude Code, Antigravity 전달 파일 받기"],
+  ];
+}
+
+export function getProductionCreditProPathItems({
+  buildPassCost,
+  hasEnoughCreditsForBuildPass,
+  monthlyCreditGrant,
+  needsSelectedIdeaBuildPass,
+}: ProductionCreditProPathInput): ProductionCreditDisplayItem[] {
+  const freeMonthlyPassCapacity = getMonthlyBuildPassCapacity(monthlyCreditGrant, buildPassCost);
+
+  return [
+    ["Free 기준", `월 ${monthlyCreditGrant}크레딧으로 제작 패스 최대 ${freeMonthlyPassCapacity}개`],
+    ["Pro가 필요한 순간", `${PRO_UPGRADE_VALUE_TEXT}이 계속 필요할 때`],
+    [
+      "지금 행동",
+      needsSelectedIdeaBuildPass && !hasEnoughCreditsForBuildPass
+        ? "부족하면 결제 없이 Pro 관심 기록으로 남김"
+        : "충분하면 제작 패스를 열고 실행 패키지로 이동",
+    ],
+  ];
+}
+
+export function getProductionCreditProInterestReasonItems(): ProductionCreditDisplayItem[] {
+  return [
+    ["반복 제작", "이번 달 제작 패스를 더 열어야 할 때"],
+    ["외부 도구", "작업 상태 자동 반영을 계속 써야 할 때"],
+    ["시장 근거", "출처 기반 시장 점검을 반복해야 할 때"],
   ];
 }
 
