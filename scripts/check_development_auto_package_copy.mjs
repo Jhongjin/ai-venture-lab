@@ -33,6 +33,7 @@ const { externalBuildToolProfiles } = await import(buildDeliveryUrl);
 const { productSurfaceProfiles } = await import(productSurfaceUrl);
 const {
   buildDevelopmentAutoPackageSavedMessage,
+  buildDevelopmentAutoPackageNextVersions,
   buildDevelopmentAutoPackageSaveJobs,
   buildDevelopmentAutoPackageCopyState,
   buildDevelopmentAutopilotAlreadyPreparedMessage,
@@ -206,6 +207,20 @@ const finalDrafts = buildDevelopmentFinalPackageDrafts({
 assert.match(finalDrafts.finalDevelopmentPlanDraft, /상세 실행 계획/);
 assert.match(finalDrafts.finalAgentRunPackageDraft, /# 제작 패키지: AI Venture Lab/);
 assert.match(finalDrafts.externalToolRunPackageDraft, /# Cursor 시작 패키지: AI Venture Lab/);
+
+assert.deepEqual(
+  buildDevelopmentAutoPackageNextVersions([
+    { artifact_type: "design_brief", version: 1 },
+    { artifact_type: "design_brief", version: 3 },
+    { artifact_type: "dev_runbook", version: null },
+    { artifact_type: "dev_runbook", version: 5 },
+    { artifact_type: "prd", version: 99 },
+  ]),
+  {
+    nextDesignBriefVersion: 4,
+    nextDevRunbookVersion: 6,
+  },
+);
 
 const saveJobs = buildDevelopmentAutoPackageSaveJobs({
   designGenerationPromptDraft: "디자인 기준",

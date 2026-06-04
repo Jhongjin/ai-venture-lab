@@ -418,6 +418,34 @@ export type DevelopmentAutoPackageSaveJob = {
   version: number;
 };
 
+export type DevelopmentAutoPackageVersionArtifact = {
+  artifact_type: string;
+  version?: number | null;
+};
+
+export function buildDevelopmentAutoPackageNextVersions(
+  artifacts: ReadonlyArray<DevelopmentAutoPackageVersionArtifact>,
+) {
+  return {
+    nextDesignBriefVersion: getNextDevelopmentAutoPackageVersion(artifacts, "design_brief"),
+    nextDevRunbookVersion: getNextDevelopmentAutoPackageVersion(artifacts, "dev_runbook"),
+  };
+}
+
+function getNextDevelopmentAutoPackageVersion(
+  artifacts: ReadonlyArray<DevelopmentAutoPackageVersionArtifact>,
+  artifactType: DevelopmentAutoPackageSaveJob["artifactType"],
+) {
+  return (
+    Math.max(
+      0,
+      ...artifacts
+        .filter((artifact) => artifact.artifact_type === artifactType)
+        .map((artifact) => artifact.version ?? 1),
+    ) + 1
+  );
+}
+
 export function buildDevelopmentAutoPackageSaveJobs({
   designGenerationPromptDraft,
   finalAgentRunPackageDraft,

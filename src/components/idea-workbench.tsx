@@ -330,6 +330,7 @@ import {
 } from "@/lib/external-progress-import";
 import {
   buildDevelopmentAutoPackageSavedMessage,
+  buildDevelopmentAutoPackageNextVersions,
   buildDevelopmentAutoPackageSaveJobs,
   buildDevelopmentAutopilotAlreadyPreparedMessage,
   buildDevelopmentAutopilotFailedMessage,
@@ -2945,8 +2946,8 @@ export function IdeaWorkbench({
       return;
     }
 
-    const nextDesignBriefVersion = getNextArtifactVersion(selectedArtifactRecords, "design_brief");
-    const nextDevRunbookVersion = getNextArtifactVersion(selectedArtifactRecords, "dev_runbook");
+    const { nextDesignBriefVersion, nextDevRunbookVersion } =
+      buildDevelopmentAutoPackageNextVersions(selectedArtifactRecords);
     const saveJobs = buildDevelopmentAutoPackageSaveJobs({
       designGenerationPromptDraft,
       finalAgentRunPackageDraft,
