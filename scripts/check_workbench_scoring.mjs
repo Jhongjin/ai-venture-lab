@@ -23,6 +23,7 @@ const {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoreInputFieldConfigs,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringSaveButtonState,
   buildWorkbenchScoringSavedMessage,
@@ -97,6 +98,22 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("scoreFieldDescriptions.problem_intensity"),
   "IdeaWorkbench should not address score field descriptions inline.",
+);
+assert.deepEqual(
+  buildWorkbenchScoringNoteFieldConfigs(editState).map(({ field, label, value }) => ({ field, label, value })),
+  [
+    { field: "signal", label: "수요 신호", value: "반복 정리 업무" },
+    { field: "risk_summary", label: "리스크 요약", value: "개인정보 가림 필요" },
+    { field: "next_evidence", label: "추가로 확인할 내용", value: "인터뷰 3명" },
+  ],
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('label="수요 신호"'),
+  "IdeaWorkbench should render scoring note inputs from shared field configs.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("value={editState.signal}"),
+  "IdeaWorkbench should not bind scoring note field values inline.",
 );
 
 const savePatch = buildWorkbenchScoringSavePatch({

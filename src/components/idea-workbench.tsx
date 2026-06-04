@@ -119,6 +119,7 @@ import {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoreInputFieldConfigs,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringRecommendationPanelState,
   buildWorkbenchScoringSavedMessage,
   buildWorkbenchScoringSaveButtonState,
@@ -1448,6 +1449,7 @@ export function IdeaWorkbench({
         state: editState,
       })
     : [];
+  const scoringNoteFieldConfigs = editState ? buildWorkbenchScoringNoteFieldConfigs(editState) : [];
   const { recommendedValidationExperiment, validationEvidenceCoach, validationPlan } = buildValidationPlanningReviewState({
     artifacts: selectedArtifactRecords,
     decisions: selectedDecisions,
@@ -4530,24 +4532,15 @@ export function IdeaWorkbench({
                   AI가 만든 초안을 직접 보완하고 싶을 때만 여기를 수정하세요.
                 </p>
                 <div className="mt-4 grid gap-4 md:grid-cols-3">
-                  <TextArea
-                    label="수요 신호"
-                    value={editState.signal}
-                    disabled={!canEdit}
-                    onChange={(value) => updateEditStateField("signal", value)}
-                  />
-                  <TextArea
-                    label="리스크 요약"
-                    value={editState.risk_summary}
-                    disabled={!canEdit}
-                    onChange={(value) => updateEditStateField("risk_summary", value)}
-                  />
-                  <TextArea
-                    label="추가로 확인할 내용"
-                    value={editState.next_evidence}
-                    disabled={!canEdit}
-                    onChange={(value) => updateEditStateField("next_evidence", value)}
-                  />
+                  {scoringNoteFieldConfigs.map((fieldConfig) => (
+                    <TextArea
+                      key={fieldConfig.field}
+                      label={fieldConfig.label}
+                      value={fieldConfig.value}
+                      disabled={!canEdit}
+                      onChange={(value) => updateEditStateField(fieldConfig.field, value)}
+                    />
+                  ))}
                 </div>
               </details>
             </section>

@@ -39,6 +39,12 @@ export type WorkbenchScoreInputFieldConfig = {
   label: string;
   value: WorkbenchEditState[WorkbenchScoreInputField];
 };
+export type WorkbenchScoringNoteField = "signal" | "risk_summary" | "next_evidence";
+export type WorkbenchScoringNoteFieldConfig = {
+  field: WorkbenchScoringNoteField;
+  label: string;
+  value: WorkbenchEditState[WorkbenchScoringNoteField];
+};
 
 const workbenchScoreInputFields: Array<Pick<WorkbenchScoreInputFieldConfig, "field" | "label">> = [
   { field: "problem_intensity", label: "문제 강도" },
@@ -48,6 +54,11 @@ const workbenchScoreInputFields: Array<Pick<WorkbenchScoreInputFieldConfig, "fie
   { field: "mvp_speed", label: "첫 제작 속도" },
   { field: "differentiation", label: "차별성" },
   { field: "regulatory_risk", label: "리스크 감점" },
+];
+const workbenchScoringNoteFields: Array<Pick<WorkbenchScoringNoteFieldConfig, "field" | "label">> = [
+  { field: "signal", label: "수요 신호" },
+  { field: "risk_summary", label: "리스크 요약" },
+  { field: "next_evidence", label: "추가로 확인할 내용" },
 ];
 
 export function toWorkbenchEditState(idea: Idea): WorkbenchEditState {
@@ -77,6 +88,14 @@ export function buildWorkbenchScoreInputFieldConfigs({
 }): WorkbenchScoreInputFieldConfig[] {
   return workbenchScoreInputFields.map(({ field, label }) => ({
     description: descriptions[field],
+    field,
+    label,
+    value: state[field],
+  }));
+}
+
+export function buildWorkbenchScoringNoteFieldConfigs(state: WorkbenchEditState): WorkbenchScoringNoteFieldConfig[] {
+  return workbenchScoringNoteFields.map(({ field, label }) => ({
     field,
     label,
     value: state[field],
