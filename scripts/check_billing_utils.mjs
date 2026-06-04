@@ -35,6 +35,7 @@ const {
   getBuildPassRequirementMessage,
   getBuildPassUnlockResult,
   getCreditSummaryUrl,
+  getProductionCreditNextAction,
 } = await import(moduleUrl);
 
 assert.equal(buildBuildPassUnlockLoginRequiredMessage(), "제작 패스를 열려면 먼저 로그인하세요.");
@@ -117,6 +118,77 @@ assert.equal(
   getBuildPassRequirementMessage({ buildPassCost: 30, isChecking: false, mode: "ai_package_start" }),
   "30크레딧 제작 패스를 열면 AI 제작 패키지와 외부 개발 도구 연결을 이어갈 수 있습니다.",
 );
+
+const baseProductionCreditNextActionInput = {
+  creditStatus: null,
+  hasEnoughCreditsForBuildPass: false,
+  hasSelectedIdeaBuildPass: false,
+  isCreditSummaryLoading: false,
+  isCreditSystemMissing: false,
+  isCreditSystemReady: false,
+  needsSelectedIdeaBuildPass: false,
+};
+assert.equal(
+  getProductionCreditNextAction({
+    ...baseProductionCreditNextActionInput,
+    isCreditSummaryLoading: true,
+  }),
+  "크레딧 상태를 확인하는 중입니다.",
+);
+assert.equal(
+  getProductionCreditNextAction({
+    ...baseProductionCreditNextActionInput,
+    hasSelectedIdeaBuildPass: true,
+  }),
+  "제작 패스가 열렸습니다. 아래 AI 제작 패키지 만들기를 누르세요.",
+);
+assert.equal(
+  getProductionCreditNextAction({
+    ...baseProductionCreditNextActionInput,
+    hasEnoughCreditsForBuildPass: true,
+    needsSelectedIdeaBuildPass: true,
+  }),
+  "먼저 제작 패스를 여세요. 그다음 AI 제작 패키지 만들기가 열립니다.",
+);
+assert.equal(
+  getProductionCreditNextAction({
+    ...baseProductionCreditNextActionInput,
+    needsSelectedIdeaBuildPass: true,
+  }),
+  "잔여 크레딧이 부족해 제작 패스를 열 수 없습니다.",
+);
+assert.equal(
+  getProductionCreditNextAction({
+    ...baseProductionCreditNextActionInput,
+    isCreditSystemMissing: true,
+  }),
+  "크레딧 DB 준비 전이라 아래 제작 흐름을 그대로 진행하세요.",
+);
+assert.equal(
+  getProductionCreditNextAction({
+    ...baseProductionCreditNextActionInput,
+    creditStatus: "unavailable",
+  }),
+  "크레딧 확인 실패 상태라 이번 세션은 아래 제작 흐름을 그대로 진행하세요.",
+);
+assert.equal(
+  getProductionCreditNextAction({
+    ...baseProductionCreditNextActionInput,
+    isCreditSystemReady: true,
+  }),
+  "아이디어를 선택하면 제작 패스를 열 수 있습니다.",
+);
+assert.equal(getProductionCreditNextAction(baseProductionCreditNextActionInput), "아래 제작 흐름을 진행하세요.");
+
+const productionCreditPanelSource = readFileSync(
+  path.join(process.cwd(), "src/components/production-credit-panel.tsx"),
+  "utf8",
+);
+assert.ok(
+  !productionCreditPanelSource.includes("function getNextCreditAction"),
+  "ProductionCreditPanel should use the shared billing next-action helper.",
+);
+
 assert.deepEqual(
   getBuildPassUnlockResult(
     {

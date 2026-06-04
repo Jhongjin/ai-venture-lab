@@ -15,6 +15,7 @@ import {
   getBalanceAfterBuildPass,
   getBuildPassShortfall,
   getMonthlyBuildPassCapacity,
+  getProductionCreditNextAction,
   type CreditSystemStatus,
 } from "@/lib/billing";
 
@@ -48,55 +49,6 @@ type ProductionCreditPanelProps = {
   onUnlockBuildPass: () => void;
 };
 
-function getNextCreditAction({
-  creditStatus,
-  hasEnoughCreditsForBuildPass,
-  hasSelectedIdeaBuildPass,
-  isCreditSummaryLoading,
-  isCreditSystemMissing,
-  isCreditSystemReady,
-  needsSelectedIdeaBuildPass,
-}: Pick<
-  ProductionCreditPanelProps,
-  | "creditStatus"
-  | "hasEnoughCreditsForBuildPass"
-  | "hasSelectedIdeaBuildPass"
-  | "isCreditSummaryLoading"
-  | "isCreditSystemMissing"
-  | "isCreditSystemReady"
-  | "needsSelectedIdeaBuildPass"
->) {
-  if (isCreditSummaryLoading) {
-    return "크레딧 상태를 확인하는 중입니다.";
-  }
-
-  if (hasSelectedIdeaBuildPass) {
-    return "제작 패스가 열렸습니다. 아래 AI 제작 패키지 만들기를 누르세요.";
-  }
-
-  if (needsSelectedIdeaBuildPass && hasEnoughCreditsForBuildPass) {
-    return "먼저 제작 패스를 여세요. 그다음 AI 제작 패키지 만들기가 열립니다.";
-  }
-
-  if (needsSelectedIdeaBuildPass) {
-    return "잔여 크레딧이 부족해 제작 패스를 열 수 없습니다.";
-  }
-
-  if (isCreditSystemMissing) {
-    return "크레딧 DB 준비 전이라 아래 제작 흐름을 그대로 진행하세요.";
-  }
-
-  if (creditStatus === "unavailable") {
-    return "크레딧 확인 실패 상태라 이번 세션은 아래 제작 흐름을 그대로 진행하세요.";
-  }
-
-  if (isCreditSystemReady) {
-    return "아이디어를 선택하면 제작 패스를 열 수 있습니다.";
-  }
-
-  return "아래 제작 흐름을 진행하세요.";
-}
-
 export function ProductionCreditPanel({
   buildPassCost,
   creditBalance,
@@ -116,7 +68,7 @@ export function ProductionCreditPanel({
   needsSelectedIdeaBuildPass,
   onUnlockBuildPass,
 }: ProductionCreditPanelProps) {
-  const nextCreditAction = getNextCreditAction({
+  const nextCreditAction = getProductionCreditNextAction({
     creditStatus,
     hasEnoughCreditsForBuildPass,
     hasSelectedIdeaBuildPass,
