@@ -57,6 +57,7 @@ const {
   buildRecommendedValidationExperimentSaveControl,
   buildIdeaDomainText,
   buildValidationEvidenceCoachNextFocusMessage,
+  buildValidationEvidenceCoachScoreLabel,
   buildValidationEvidenceCoachSearchText,
   buildValidationPlanningReviewState,
   getOpenHighValidationRisks,
@@ -161,6 +162,7 @@ assert.equal(
   buildValidationEvidenceCoachNextFocusMessage(null),
   "핵심 근거가 충분합니다. 실행한 검증 결과를 기록한 뒤 하단 다음 단계 버튼으로 이동하세요.",
 );
+assert.equal(buildValidationEvidenceCoachScoreLabel(83), "83%");
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || !user || selectedExperiments.length > 0}"),
   "IdeaWorkbench should render recommended validation experiment save disabled state from shared control.",
@@ -180,6 +182,14 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("validationEvidenceCoachNextFocusMessage"),
   "IdeaWorkbench should render validation evidence coach next-focus message from shared helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("{validationEvidenceCoach.score}%"),
+  "IdeaWorkbench should render validation evidence coach score label from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationEvidenceCoachScoreLabel"),
+  "IdeaWorkbench should render validation evidence coach score label from shared helper.",
 );
 const validationIdea = {
   buyer: "운영팀",

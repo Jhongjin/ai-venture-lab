@@ -157,6 +157,7 @@ import { buildStep6ExecutionBridgeDisplayState } from "@/lib/step6-execution-bri
 import {
   buildRecommendedValidationExperimentSaveControl,
   buildValidationEvidenceCoachNextFocusMessage,
+  buildValidationEvidenceCoachScoreLabel,
   buildValidationPlanningReviewState,
   getValidationPlanExperimentPreview,
 } from "@/lib/validation-planning";
@@ -1495,6 +1496,7 @@ export function IdeaWorkbench({
   const validationEvidenceCoachNextFocusMessage = buildValidationEvidenceCoachNextFocusMessage(
     validationEvidenceCoach?.nextFocus ?? null,
   );
+  const validationEvidenceCoachScoreLabel = buildValidationEvidenceCoachScoreLabel(validationEvidenceCoach?.score ?? 0);
   const {
     evidenceNoteDraft,
     experimentResultNoteDraft,
@@ -6857,7 +6859,7 @@ export function IdeaWorkbench({
                 </div>
                 <div className="bg-slate-950 px-3 py-2 text-right text-white">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">근거</div>
-                  <div className="text-2xl font-semibold">{validationEvidenceCoach.score}%</div>
+                  <div className="text-2xl font-semibold">{validationEvidenceCoachScoreLabel}</div>
                 </div>
               </div>
               <div className="mt-4 grid gap-px bg-slate-200 md:grid-cols-3">

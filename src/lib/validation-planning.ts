@@ -60,6 +60,10 @@ export function buildValidationEvidenceCoachNextFocusMessage(nextFocus: Validati
     : "핵심 근거가 충분합니다. 실행한 검증 결과를 기록한 뒤 하단 다음 단계 버튼으로 이동하세요.";
 }
 
+export function buildValidationEvidenceCoachScoreLabel(score: number) {
+  return `${score}%`;
+}
+
 export function buildIdeaDomainText(
   idea: Idea,
   state: Pick<ValidationPlanningState, "next_evidence" | "risk_summary" | "signal">,
