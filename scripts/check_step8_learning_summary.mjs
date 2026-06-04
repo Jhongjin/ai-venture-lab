@@ -55,6 +55,7 @@ const {
   buildStep8LearningNextJudgmentBrief,
   buildStep8LearningOneSentenceOutcome,
   buildStep8LearningPrimaryActionSummary,
+  buildStep8LearningPrimarySummary,
   buildStep8LearningRemainingSummary,
   buildStep8LearningReviewSummary,
   buildStep8LearningSimpleReviewRows,
@@ -407,6 +408,27 @@ assert.match(
     taskPrefix: "T-002 ",
   }).detail,
   /내부 제작 흐름/,
+);
+assert.deepEqual(
+  buildStep8LearningPrimarySummary({
+    buildDeliveryMode: "external_tool",
+    externalToolLabel: "Codex",
+    nextImplementationTask: context.nextTask,
+    openRiskCount: 0,
+    productSignalCount: 0,
+    recentSignalCount: 0,
+    taskPrefix: "T-002 ",
+  }),
+  {
+    learningOneSentenceOutcome: "T-002 첫 화면 제작 완료 보고가 반영되면 다음 판단으로 넘어갈 수 있습니다.",
+    learningPrimaryActionDetail: "Codex에서 완료 보고가 들어오면 여기 요약이 갱신됩니다.",
+    learningPrimaryActionLabel: "이어 할 것",
+    learningPrimaryActionText: "T-002 첫 화면 제작만 이어갑니다. 실행은 STEP 7에서 계속합니다.",
+    learningPrimaryCtaLabel: "리포트 복사",
+    learningPrimaryNavigationHintDetail:
+      "이 화면은 완료와 다음 판단만 보여줍니다. 단계 이동은 왼쪽 단계 메뉴나 하단 단계 버튼에서 진행하세요.",
+    learningPrimaryNavigationHintTitle: "다음 작업은 STEP 7에서 이어갑니다",
+  },
 );
 assert.equal(
   buildStep8LearningOneSentenceOutcome({

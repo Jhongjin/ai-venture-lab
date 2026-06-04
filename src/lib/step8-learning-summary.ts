@@ -92,6 +92,17 @@ export type Step8LearningJudgmentSummary = Pick<
   "learningDecisionOptions" | "learningJudgmentQuestion" | "learningNextJudgmentBrief"
 >;
 
+export type Step8LearningPrimarySummary = Pick<
+  Step8LearningSummary,
+  | "learningOneSentenceOutcome"
+  | "learningPrimaryActionDetail"
+  | "learningPrimaryActionLabel"
+  | "learningPrimaryActionText"
+  | "learningPrimaryCtaLabel"
+  | "learningPrimaryNavigationHintDetail"
+  | "learningPrimaryNavigationHintTitle"
+>;
+
 export type Step8ProgressDisplayItem = {
   code: string;
   id: string;
@@ -254,29 +265,23 @@ export function buildStep8LearningSummary({
     totalImplementationTaskCount,
   });
   const learningDecisionDetail = buildStep8LearningDecisionDetail(learningDecisionLabel);
-  const learningPrimaryActionSummary = buildStep8LearningPrimaryActionSummary({
+  const {
+    learningOneSentenceOutcome,
+    learningPrimaryActionDetail,
+    learningPrimaryActionLabel,
+    learningPrimaryActionText,
+    learningPrimaryCtaLabel,
+    learningPrimaryNavigationHintDetail,
+    learningPrimaryNavigationHintTitle,
+  } = buildStep8LearningPrimarySummary({
     buildDeliveryMode,
     externalToolLabel,
     nextImplementationTask,
+    openRiskCount,
     productSignalCount,
     recentSignalCount,
     taskPrefix,
   });
-  const learningPrimaryActionLabel = learningPrimaryActionSummary.label;
-  const learningPrimaryActionText = learningPrimaryActionSummary.text;
-  const learningPrimaryActionDetail = learningPrimaryActionSummary.detail;
-  const learningOneSentenceOutcome = buildStep8LearningOneSentenceOutcome({
-    nextImplementationTask,
-    openRiskCount,
-    productSignalCount,
-    taskPrefix,
-  });
-  const learningPrimaryCtaLabel = "리포트 복사";
-  const learningPrimaryNavigationHint = buildStep8LearningNavigationHint({
-    hasNextImplementationTask: Boolean(nextImplementationTask),
-  });
-  const learningPrimaryNavigationHintTitle = learningPrimaryNavigationHint.title;
-  const learningPrimaryNavigationHintDetail = learningPrimaryNavigationHint.detail;
   const {
     learningCompletedDetail,
     learningCompletedValue,
@@ -495,6 +500,51 @@ export function buildStep8LearningReviewSummary({
     learningRemainingDetail,
     learningRemainingValue,
     learningSimpleReviewRows,
+  };
+}
+
+export function buildStep8LearningPrimarySummary({
+  buildDeliveryMode,
+  externalToolLabel,
+  nextImplementationTask,
+  openRiskCount,
+  productSignalCount,
+  recentSignalCount,
+  taskPrefix,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  externalToolLabel: string;
+  nextImplementationTask: Pick<ImplementationTask, "title"> | null;
+  openRiskCount: number;
+  productSignalCount: number;
+  recentSignalCount: number;
+  taskPrefix: string;
+}): Step8LearningPrimarySummary {
+  const learningPrimaryActionSummary = buildStep8LearningPrimaryActionSummary({
+    buildDeliveryMode,
+    externalToolLabel,
+    nextImplementationTask,
+    productSignalCount,
+    recentSignalCount,
+    taskPrefix,
+  });
+  const learningPrimaryNavigationHint = buildStep8LearningNavigationHint({
+    hasNextImplementationTask: Boolean(nextImplementationTask),
+  });
+
+  return {
+    learningOneSentenceOutcome: buildStep8LearningOneSentenceOutcome({
+      nextImplementationTask,
+      openRiskCount,
+      productSignalCount,
+      taskPrefix,
+    }),
+    learningPrimaryActionDetail: learningPrimaryActionSummary.detail,
+    learningPrimaryActionLabel: learningPrimaryActionSummary.label,
+    learningPrimaryActionText: learningPrimaryActionSummary.text,
+    learningPrimaryCtaLabel: "리포트 복사",
+    learningPrimaryNavigationHintDetail: learningPrimaryNavigationHint.detail,
+    learningPrimaryNavigationHintTitle: learningPrimaryNavigationHint.title,
   };
 }
 
