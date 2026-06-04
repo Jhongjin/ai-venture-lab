@@ -1,10 +1,8 @@
 import type { UpgradeInterestSummary } from "@/lib/upgrade-interest-server";
 import {
   PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE,
+  buildUpgradeInterestSummaryDisplayState,
   formatUpgradeInterestCount,
-  getUpgradeInterestIntentLabel,
-  getUpgradeInterestSourceLabel,
-  getTopUpgradeInterestCountLabel,
 } from "@/lib/upgrade-interest";
 
 type ProfileUpgradeInterestSummaryProps = {
@@ -12,21 +10,8 @@ type ProfileUpgradeInterestSummaryProps = {
 };
 
 export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInterestSummaryProps) {
-  const latestEvent = summary.latestEvents[0] ?? null;
-  const topSourceLabel = getTopUpgradeInterestCountLabel(summary.sourceCounts, getUpgradeInterestSourceLabel, "아직 없음");
-  const topIntentLabel = getTopUpgradeInterestCountLabel(summary.intentCounts, getUpgradeInterestIntentLabel, "아직 없음");
-  const demandQualityLabel =
-    summary.totalCount === 0
-      ? "아직 관심을 남기지 않음"
-      : summary.totalCount >= 2
-        ? "반복 제작 필요가 보임"
-        : "첫 관심 기록됨";
-  const nextDemandAction =
-    summary.totalCount === 0
-      ? "제작 패스가 부족하거나 반복 제작이 필요할 때 Pro 관심만 먼저 남길 수 있습니다."
-      : summary.totalCount >= 2
-        ? "비슷한 순간에 Pro가 다시 필요해지면, 결제 오픈 전에 포함 범위를 더 명확히 정합니다."
-        : "다음에도 크레딧 부족이나 반복 제작 상황이 생기는지 기록만 이어서 봅니다.";
+  const { demandQualityLabel, latestEventLabel, nextDemandAction, topIntentLabel, topSourceLabel } =
+    buildUpgradeInterestSummaryDisplayState(summary);
 
   return (
     <section data-smoke="profile-upgrade-interest-summary" className="mt-8 border border-slate-200 bg-white p-4">
@@ -95,13 +80,7 @@ export function ProfileUpgradeInterestSummary({ summary }: ProfileUpgradeInteres
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="text-xs font-semibold text-slate-500">최근 기록</div>
-            <p className="mt-1 text-sm leading-6 text-slate-700">
-              {latestEvent
-                ? `${getUpgradeInterestSourceLabel(latestEvent.source)} · ${getUpgradeInterestIntentLabel(
-                    latestEvent.intent,
-                  )} · ${latestEvent.occurredAt.slice(0, 10)}`
-                : "아직 Pro 관심 등록이 없습니다."}
-            </p>
+            <p className="mt-1 text-sm leading-6 text-slate-700">{latestEventLabel}</p>
           </div>
           <span className="avl-pill avl-pill-neutral shrink-0">
             저장 범위 {formatUpgradeInterestCount(summary.uniqueActorCount)}계정

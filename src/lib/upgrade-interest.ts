@@ -15,6 +15,27 @@ export const upgradeInterestIntents = ["insufficient_credits_for_build_pass", "r
 export type UpgradeInterestSource = (typeof upgradeInterestSources)[number];
 export type UpgradeInterestIntent = (typeof upgradeInterestIntents)[number];
 
+export type UpgradeInterestSummaryDisplayEvent = {
+  intent: string;
+  occurredAt: string;
+  source: string;
+};
+
+export type UpgradeInterestSummaryDisplayInput = {
+  intentCounts: Record<string, number>;
+  latestEvents: UpgradeInterestSummaryDisplayEvent[];
+  sourceCounts: Record<string, number>;
+  totalCount: number;
+};
+
+export type UpgradeInterestSummaryDisplayState = {
+  demandQualityLabel: string;
+  latestEventLabel: string;
+  nextDemandAction: string;
+  topIntentLabel: string;
+  topSourceLabel: string;
+};
+
 const fallbackSource: UpgradeInterestSource = "profile_credit_summary";
 const fallbackIntent: UpgradeInterestIntent = "repeated_production_packages";
 
@@ -76,4 +97,37 @@ export function getTopUpgradeInterestCountLabel(
   }
 
   return `${getLabel(topKey)} ${formatUpgradeInterestCount(topValue)}회`;
+}
+
+export function buildUpgradeInterestSummaryDisplayState(
+  summary: UpgradeInterestSummaryDisplayInput,
+): UpgradeInterestSummaryDisplayState {
+  const latestEvent = summary.latestEvents[0] ?? null;
+  const topSourceLabel = getTopUpgradeInterestCountLabel(summary.sourceCounts, getUpgradeInterestSourceLabel, "아직 없음");
+  const topIntentLabel = getTopUpgradeInterestCountLabel(summary.intentCounts, getUpgradeInterestIntentLabel, "아직 없음");
+  const demandQualityLabel =
+    summary.totalCount === 0
+      ? "아직 관심을 남기지 않음"
+      : summary.totalCount >= 2
+        ? "반복 제작 필요가 보임"
+        : "첫 관심 기록됨";
+  const nextDemandAction =
+    summary.totalCount === 0
+      ? "제작 패스가 부족하거나 반복 제작이 필요할 때 Pro 관심만 먼저 남길 수 있습니다."
+      : summary.totalCount >= 2
+        ? "비슷한 순간에 Pro가 다시 필요해지면, 결제 오픈 전에 포함 범위를 더 명확히 정합니다."
+        : "다음에도 크레딧 부족이나 반복 제작 상황이 생기는지 기록만 이어서 봅니다.";
+  const latestEventLabel = latestEvent
+    ? `${getUpgradeInterestSourceLabel(latestEvent.source)} · ${getUpgradeInterestIntentLabel(
+        latestEvent.intent,
+      )} · ${latestEvent.occurredAt.slice(0, 10)}`
+    : "아직 Pro 관심 등록이 없습니다.";
+
+  return {
+    demandQualityLabel,
+    latestEventLabel,
+    nextDemandAction,
+    topIntentLabel,
+    topSourceLabel,
+  };
 }
