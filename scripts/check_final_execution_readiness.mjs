@@ -25,6 +25,7 @@ const {
   buildFinalExecutionDecisionSentence,
   buildFinalExecutionLaunchDisplayState,
   buildFinalExecutionLiveDeliveryFlags,
+  buildFinalExecutionLiveToolCommandContext,
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionLiveToolDraftMaps,
   buildFinalExecutionPackageReadinessState,
@@ -396,6 +397,20 @@ assert.deepEqual(liveToolDraftMaps.guideDrafts, {
 });
 assert.equal(liveToolDraftMaps.mcpConfigDrafts.codex, "");
 assert.equal(liveToolDraftMaps.startPromptDrafts.antigravity, "antigravity start");
+assert.deepEqual(
+  buildFinalExecutionLiveToolCommandContext({
+    folder: ".cursor",
+    handoffFileSuffix: "cursor-setup",
+    ideaName: "Great App",
+  }),
+  {
+    folder: ".cursor",
+    nextTaskCommand: "node .cursor/venture-lab-cli.mjs next-task",
+    progressPath: ".cursor/venture-lab-progress.json",
+    setupCommand: "powershell -ExecutionPolicy Bypass -File .\\great-app-cursor-setup.ps1",
+    setupFileName: "great-app-cursor-setup.ps1",
+  },
+);
 assert.equal(
   selectFinalExecutionMcpConfigDraft({
     isAntigravityExternalDelivery: true,

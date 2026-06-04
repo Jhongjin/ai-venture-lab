@@ -101,6 +101,11 @@ export type FinalExecutionLiveToolDraftMaps = {
   startPromptDrafts: Record<LiveExternalToolKey, string>;
 };
 
+export type FinalExecutionLiveToolCommandContext = Pick<
+  FinalExecutionLiveToolContext,
+  "folder" | "nextTaskCommand" | "progressPath" | "setupCommand" | "setupFileName"
+>;
+
 export function buildFinalExecutionDecisionSentence({
   buildDeliveryPhrase,
   productSurface,
@@ -421,6 +426,28 @@ export function selectFinalExecutionMcpConfigDraft({
         : "";
 }
 
+export function buildFinalExecutionLiveToolCommandContext({
+  folder,
+  handoffFileSuffix,
+  ideaName,
+}: {
+  folder: string;
+  handoffFileSuffix: string;
+  ideaName: string | null;
+}): FinalExecutionLiveToolCommandContext {
+  const setupFileName = ideaName
+    ? toDownloadFileName(ideaName, handoffFileSuffix, "ps1")
+    : `${handoffFileSuffix}.ps1`;
+
+  return {
+    folder,
+    nextTaskCommand: `node ${folder}/venture-lab-cli.mjs next-task`,
+    progressPath: `${folder}/venture-lab-progress.json`,
+    setupCommand: `powershell -ExecutionPolicy Bypass -File .\\${setupFileName}`,
+    setupFileName,
+  };
+}
+
 export function buildFinalExecutionLiveToolContext({
   buildDeliveryMode,
   externalToolKey,
@@ -457,12 +484,14 @@ export function buildFinalExecutionLiveToolContext({
     mcpConfigDrafts,
   });
   const folder = liveExternalToolFolders[selectedLiveToolKey];
-  const setupFileName = ideaName
-    ? toDownloadFileName(ideaName, handoffFileSuffix, "ps1")
-    : `${handoffFileSuffix}.ps1`;
+  const commandContext = buildFinalExecutionLiveToolCommandContext({
+    folder,
+    handoffFileSuffix,
+    ideaName,
+  });
 
   return {
-    folder,
+    ...commandContext,
     guideDraft: guideDrafts[selectedLiveToolKey],
     isAntigravityExternalDelivery,
     isClaudeCodeExternalDelivery,
@@ -470,10 +499,6 @@ export function buildFinalExecutionLiveToolContext({
     isCursorExternalDelivery,
     isLiveExternalDelivery,
     mcpConfigDraft,
-    nextTaskCommand: `node ${folder}/venture-lab-cli.mjs next-task`,
-    progressPath: `${folder}/venture-lab-progress.json`,
-    setupCommand: `powershell -ExecutionPolicy Bypass -File .\\${setupFileName}`,
-    setupFileName,
     startPromptDraft: startPromptDrafts[selectedLiveToolKey],
   };
 }
