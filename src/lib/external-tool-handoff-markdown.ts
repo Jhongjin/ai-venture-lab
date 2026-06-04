@@ -70,6 +70,22 @@ export function buildExternalToolNextTaskCommand(toolFolder: string) {
   return `node ${toolFolder}/venture-lab-cli.mjs next-task`;
 }
 
+export function buildExternalToolProgressFilePath(toolFolder: string) {
+  return `${toolFolder}/venture-lab-progress.json`;
+}
+
+export function buildExternalToolBackupProgressImportInstruction({
+  includeFinalExecutionTarget = false,
+  toolFolder,
+}: {
+  includeFinalExecutionTarget?: boolean;
+  toolFolder: string;
+}) {
+  const target = includeFinalExecutionTarget ? "최종 실행 화면의 백업 가져오기에" : "백업 가져오기에";
+
+  return `자동 반영이 실패한 경우에만 \`${buildExternalToolProgressFilePath(toolFolder)}\` 내용을 ${target} 붙여넣습니다.`;
+}
+
 export function buildExternalToolRecordProgressCommandBlock(toolFolder: string) {
   return `\`\`\`powershell
 ${buildExternalToolRecordProgressExampleCommand(toolFolder)}
@@ -208,7 +224,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 3. 구현 전 변경할 파일과 검증 명령을 짧게 계획합니다.
 4. 작업 완료 후 테스트 또는 품질 명령을 실행합니다.
 5. 연결 도구가 보이면 \`venture_record_progress\`에 작업 결과를 기록합니다.
-6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
+6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다. ${buildExternalToolBackupProgressImportInstruction({ toolFolder: ".cursor" })}
 
 ${externalStartPromptIntentSentence}
 `;
@@ -247,7 +263,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface })}
 - 변경 전 포함 범위, 제외 범위, 수용 기준을 확인합니다.
 - 작업이 끝나면 변경 파일, 검증 명령, 남은 리스크를 보고합니다.
 - 연결 도구가 보이면 \`venture_next_task\`로 다음 작업을 확인하고 \`venture_record_progress\`로 진행 결과를 남깁니다.
-- \`venture_record_progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`.cursor/venture-lab-progress.json\`을 백업으로 사용합니다.
+- \`venture_record_progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`${buildExternalToolProgressFilePath(".cursor")}\`을 백업으로 사용합니다.
 `;
 }
 
@@ -297,13 +313,13 @@ ${buildExternalToolNextTaskCommand(".cursor")}
 7. \`AI_VENTURE_CURSOR_START.md\` 내용을 Cursor Composer 첫 메시지로 붙여 넣고 첫 작업을 시작합니다.
 8. 작업을 마치면 Cursor에게 \`venture_record_progress\` 도구로 완료 보고를 남기라고 지시합니다.
 9. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
-10. 자동 반영이 실패한 경우에만 \`.cursor/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
+10. ${buildExternalToolBackupProgressImportInstruction({ includeFinalExecutionTarget: true, toolFolder: ".cursor" })}
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
 ## 현재 동기화 범위
 
-이번 연결은 Cursor 프로젝트 안에 파일, 로컬 MCP 브리지, 프로젝트 전용 자동 반영 토큰을 설치합니다. Cursor는 제작 패키지, 작업 목록, 시작 지시문을 바로 읽을 수 있고, 진행 기록은 \`.cursor/venture-lab-progress.json\`에 남깁니다.
+이번 연결은 Cursor 프로젝트 안에 파일, 로컬 MCP 브리지, 프로젝트 전용 자동 반영 토큰을 설치합니다. Cursor는 제작 패키지, 작업 목록, 시작 지시문을 바로 읽을 수 있고, 진행 기록은 \`${buildExternalToolProgressFilePath(".cursor")}\`에 남깁니다.
 
 \`venture_record_progress\` 도구는 같은 내용을 Venture Lab 서버에도 보냅니다. 서버는 연결 파일에 포함된 토큰으로 해당 아이디어의 제작 작업 상태만 저장하거나 갱신합니다.
 
@@ -364,7 +380,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 ${buildExternalToolRecordProgressCommandBlock(".codex")}
 
 6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
-7. 자동 반영이 실패한 경우에만 \`.codex/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
+7. ${buildExternalToolBackupProgressImportInstruction({ toolFolder: ".codex" })}
 
 ${externalStartPromptIntentSentence}
 `;
@@ -399,7 +415,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface })}
 - 작업이 끝나면 변경 파일, 검증 명령, 남은 리스크를 보고합니다.
 - 다음 작업은 \`${buildExternalToolNextTaskCommand(".codex")}\`로 확인합니다.
 - 완료 보고는 \`node .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..." --verification "..."\` 형식으로 남깁니다.
-- \`record-progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`.codex/venture-lab-progress.json\`을 백업으로 사용합니다.
+- \`record-progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`${buildExternalToolProgressFilePath(".codex")}\`을 백업으로 사용합니다.
 `;
 }
 
@@ -441,7 +457,7 @@ ${buildExternalToolSetupCommandBlock(idea.name, "codex-setup")}
 5. Codex에게 T-001부터 한 번에 하나씩 구현하라고 지시합니다.
 6. 작업을 마치면 Codex가 \`.codex/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남기게 합니다.
 7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
-8. 자동 반영이 실패한 경우에만 \`.codex/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
+8. ${buildExternalToolBackupProgressImportInstruction({ includeFinalExecutionTarget: true, toolFolder: ".codex" })}
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
@@ -503,7 +519,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 ${buildExternalToolRecordProgressCommandBlock(".claude")}
 
 7. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
-8. 자동 반영이 실패한 경우에만 \`.claude/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
+8. ${buildExternalToolBackupProgressImportInstruction({ toolFolder: ".claude" })}
 
 ${externalStartPromptIntentSentence}
 `;
@@ -538,7 +554,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface })}
 - 작업이 끝나면 변경 파일, 검증 명령, 남은 리스크를 보고합니다.
 - Claude Code의 \`/mcp\`에서 \`ai-venture-lab\` 서버가 보이면 \`venture_next_task\`와 \`venture_record_progress\`를 사용합니다.
 - CLI로 진행할 때는 \`${buildExternalToolNextTaskCommand(".claude")}\`와 \`node .claude/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "..."\`를 사용합니다.
-- \`record-progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`.claude/venture-lab-progress.json\`을 백업으로 사용합니다.
+- \`record-progress\`는 로컬 기록과 Venture Lab 서버 반영을 함께 처리합니다. 실패하면 \`${buildExternalToolProgressFilePath(".claude")}\`을 백업으로 사용합니다.
 `;
 }
 
@@ -581,7 +597,7 @@ ${buildExternalToolSetupCommandBlock(idea.name, "claude-code-setup")}
 5. \`AI_VENTURE_CLAUDE_START.md\` 내용을 첫 메시지로 넣습니다.
 6. 작업을 마치면 \`venture_record_progress\` 도구 또는 \`.claude/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남깁니다.
 7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
-8. 자동 반영이 실패한 경우에만 \`.claude/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
+8. ${buildExternalToolBackupProgressImportInstruction({ includeFinalExecutionTarget: true, toolFolder: ".claude" })}
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 
@@ -643,7 +659,7 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 ${buildExternalToolRecordProgressCommandBlock(".antigravity")}
 
 6. 기록이 끝나면 Venture Lab 최종 실행 화면을 새로고침해 서버에 반영된 작업 상태를 확인합니다.
-7. 자동 반영이 실패한 경우에만 \`.antigravity/venture-lab-progress.json\` 내용을 백업 가져오기에 붙여넣습니다.
+7. ${buildExternalToolBackupProgressImportInstruction({ toolFolder: ".antigravity" })}
 
 ${externalStartPromptIntentSentence}
 `;
@@ -689,7 +705,7 @@ ${buildExternalToolSetupCommandBlock(idea.name, "antigravity-setup")}
 5. \`AI_VENTURE_ANTIGRAVITY_START.md\` 내용을 Agent 첫 메시지로 넣습니다.
 6. 작업을 마치면 \`.antigravity/venture-lab-cli.mjs record-progress\` 명령으로 완료 보고를 남깁니다.
 7. Venture Lab 최종 실행 화면을 새로고침하면 서버에 반영된 작업 상태를 확인할 수 있습니다.
-8. 자동 반영이 실패한 경우에만 \`.antigravity/venture-lab-progress.json\` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.
+8. ${buildExternalToolBackupProgressImportInstruction({ includeFinalExecutionTarget: true, toolFolder: ".antigravity" })}
 
 ${buildExternalToolProjectInfoSection({ idea, productSurface, projectKey, syncExpiresAt })}
 

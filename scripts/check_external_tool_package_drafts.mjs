@@ -42,9 +42,11 @@ const source = readFileSync(modulePath, "utf8")
   .replace('from "@/lib/external-tool-handoff-markdown";', `from ${JSON.stringify(handoffUrl)};`);
 const moduleUrl = transpileToDataUrl(source, modulePath);
 const {
+  buildExternalToolBackupProgressImportInstruction,
   buildExternalToolProjectContextLines,
   buildExternalToolProjectInfoSection,
   buildExternalToolNextTaskCommand,
+  buildExternalToolProgressFilePath,
   buildExternalToolRecordProgressCommandBlock,
   buildExternalToolRecordProgressExampleCommand,
   buildExternalToolSetupCommandBlock,
@@ -71,6 +73,18 @@ assert.match(buildExternalToolRecordProgressExampleCommand(".claude"), /\.claude
 assert.match(buildExternalToolRecordProgressExampleCommand(".antigravity"), /--task T-001/);
 assert.equal(buildExternalToolNextTaskCommand(".codex"), "node .codex/venture-lab-cli.mjs next-task");
 assert.equal(buildExternalToolNextTaskCommand(".antigravity"), "node .antigravity/venture-lab-cli.mjs next-task");
+assert.equal(buildExternalToolProgressFilePath(".cursor"), ".cursor/venture-lab-progress.json");
+assert.equal(
+  buildExternalToolBackupProgressImportInstruction({ toolFolder: ".codex" }),
+  "자동 반영이 실패한 경우에만 `.codex/venture-lab-progress.json` 내용을 백업 가져오기에 붙여넣습니다.",
+);
+assert.equal(
+  buildExternalToolBackupProgressImportInstruction({
+    includeFinalExecutionTarget: true,
+    toolFolder: ".claude",
+  }),
+  "자동 반영이 실패한 경우에만 `.claude/venture-lab-progress.json` 내용을 최종 실행 화면의 백업 가져오기에 붙여넣습니다.",
+);
 assert.equal(
   buildExternalToolRecordProgressCommandBlock(".codex"),
   '```powershell\nnode .codex/venture-lab-cli.mjs record-progress --task T-001 --status done --summary "완료한 내용" --file src/app/page.tsx --verification "pnpm build passed"\n```',
@@ -196,17 +210,21 @@ const drafts = buildExternalToolPackageDrafts({
 assert.match(drafts.cursorTaskPackageDraft, /T-001/);
 assert.match(drafts.cursorStartPromptDraft, /고객 문의 자동 정리 콘솔/);
 assert.match(drafts.cursorGuideDraft, /node \.cursor\/venture-lab-cli\.mjs next-task/);
+assert.match(drafts.cursorGuideDraft, /\.cursor\/venture-lab-progress\.json/);
 assert.match(drafts.cursorRuleDraft, /AI Venture Lab/);
 assert.match(drafts.cursorMcpConfigDraft, /ai-venture-lab/);
 assert.match(drafts.cursorMcpServerDraft, /venture:\/\/tasks/);
 assert.match(drafts.codexAgentInstructionsDraft, /Codex/);
 assert.match(drafts.codexStartPromptDraft, /node \.codex\/venture-lab-cli\.mjs next-task/);
+assert.match(drafts.codexGuideDraft, /\.codex\/venture-lab-progress\.json/);
 assert.match(drafts.codexCliScriptDraft, /\.codex/);
 assert.match(drafts.claudeInstructionsDraft, /Claude Code/);
 assert.match(drafts.claudeGuideDraft, /node \.claude\/venture-lab-cli\.mjs next-task/);
+assert.match(drafts.claudeGuideDraft, /\.claude\/venture-lab-progress\.json/);
 assert.match(drafts.claudeMcpConfigDraft, /\.claude\/venture-lab-cli\.mjs/);
 assert.match(drafts.antigravityAcceptanceDraft, /AI Venture Lab Acceptance Criteria/);
 assert.match(drafts.antigravityStartPromptDraft, /node \.antigravity\/venture-lab-cli\.mjs next-task/);
+assert.match(drafts.antigravityGuideDraft, /\.antigravity\/venture-lab-progress\.json/);
 assert.match(drafts.antigravityCliScriptDraft, /\.antigravity/);
 
 const emptyDrafts = buildExternalToolPackageDrafts({
