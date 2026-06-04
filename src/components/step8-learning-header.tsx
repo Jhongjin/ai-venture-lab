@@ -12,7 +12,7 @@ export function Step8LearningHeader() {
         </div>
         <h2 className="text-lg font-semibold text-slate-950">성과 확인</h2>
         <p className="mt-1 text-sm leading-6 text-slate-500">
-          완료된 것, 이어 할 것, 지금 판단만 먼저 봅니다. 리포트는 필요할 때만 엽니다.
+          완료된 것, 이어 할 것, 지금 판단만 봅니다. 리포트는 필요할 때 엽니다.
         </p>
         <div
           data-smoke="step8-confirm-not-run-header"

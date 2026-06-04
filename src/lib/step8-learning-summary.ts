@@ -456,7 +456,7 @@ export function buildStep8LearningPrimaryActionSummary({
   if (nextImplementationTask) {
     return {
       label: "이어 할 것",
-      text: `${taskPrefix}${nextImplementationTask.title}만 이어갑니다. 실행은 STEP 7/외부 도구에서 계속합니다.`,
+      text: `${taskPrefix}${nextImplementationTask.title}만 이어갑니다. 실행은 STEP 7에서 계속합니다.`,
       detail:
         buildDeliveryMode === "external_tool"
           ? `${externalToolLabel}에서 완료 보고가 들어오면 여기 요약이 갱신됩니다.`
@@ -895,9 +895,9 @@ export function buildStep8ProgressDetail({
   progressItems: Step8ProgressDisplayItem[];
 }) {
   return hasNextTask
-    ? "오늘은 표시된 다음 작업 하나만 봅니다. 전체 목록은 필요할 때만 엽니다."
+    ? "오늘은 다음 작업 하나만 봅니다. 전체 목록은 필요할 때 엽니다."
     : areAllStep8ProgressItemsDone(progressItems)
-      ? "남은 제작 작업은 없습니다. 완료 근거와 오늘 판단만 확인합니다."
+      ? "남은 제작 작업은 없습니다. 완료 근거와 오늘 판단만 봅니다."
       : progressItems.length > 0
         ? "막힘, 건너뜀, 상태 누락만 확인합니다."
         : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 이어 할 것, 지금 판단이 여기에 표시됩니다.";
