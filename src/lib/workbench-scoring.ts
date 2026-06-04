@@ -126,6 +126,18 @@ export function buildWorkbenchScoringReviewCards({
   ];
 }
 
+export function buildWorkbenchScoringCurrentScoreCard({
+  currentScore,
+}: {
+  currentScore: number;
+}): WorkbenchScoringReviewCardState {
+  return {
+    description: "위 6개 항목에서 리스크를 반영한 참고값입니다. 저장하면 AI가 다음 검증 계획의 기준으로 사용합니다.",
+    label: "현재 평가",
+    value: String(currentScore),
+  };
+}
+
 export function scoreWorkbenchState(state: WorkbenchEditState) {
   return (
     state.problem_intensity +

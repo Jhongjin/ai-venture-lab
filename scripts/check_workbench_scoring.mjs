@@ -22,6 +22,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoreInputFieldConfigs,
+  buildWorkbenchScoringCurrentScoreCard,
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringRecommendationPanelState,
@@ -135,6 +136,15 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("아래 평가값으로 계산한 추천입니다"),
   "IdeaWorkbench should keep scoring review-card copy in the shared helper.",
+);
+assert.deepEqual(buildWorkbenchScoringCurrentScoreCard({ currentScore: 25 }), {
+  description: "위 6개 항목에서 리스크를 반영한 참고값입니다. 저장하면 AI가 다음 검증 계획의 기준으로 사용합니다.",
+  label: "현재 평가",
+  value: "25",
+});
+assert.ok(
+  !ideaWorkbenchSource.includes("위 6개 항목에서 리스크"),
+  "IdeaWorkbench should keep current-score card copy in the shared helper.",
 );
 
 const savePatch = buildWorkbenchScoringSavePatch({

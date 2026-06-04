@@ -118,6 +118,7 @@ import {
 import {
   buildWorkbenchScoreEvaluationState,
   buildWorkbenchScoreInputFieldConfigs,
+  buildWorkbenchScoringCurrentScoreCard,
   buildWorkbenchScoringEditGuidanceMessage,
   buildWorkbenchScoringNoteFieldConfigs,
   buildWorkbenchScoringRecommendationPanelState,
@@ -1447,6 +1448,7 @@ export function IdeaWorkbench({
   const scoringReviewCards = buildWorkbenchScoringReviewCards({
     scoreDecisionLabel: scoringRecommendationPanelState.scoreDecisionLabel,
   });
+  const scoringCurrentScoreCard = buildWorkbenchScoringCurrentScoreCard({ currentScore });
   const scoringInputFieldConfigs = editState
     ? buildWorkbenchScoreInputFieldConfigs({
         descriptions: scoreFieldDescriptions,
@@ -4483,11 +4485,9 @@ export function IdeaWorkbench({
                       />
                     ))}
                     <div className="border border-slate-200 bg-white p-4">
-                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-700">현재 평가</div>
-                      <div className="mt-2 text-3xl font-semibold text-slate-950">{currentScore}</div>
-                      <p className="mt-2 text-sm leading-5 text-slate-600">
-                        위 6개 항목에서 리스크를 반영한 참고값입니다. 저장하면 AI가 다음 검증 계획의 기준으로 사용합니다.
-                      </p>
+                      <div className="text-xs font-semibold tracking-[0.14em] text-slate-700">{scoringCurrentScoreCard.label}</div>
+                      <div className="mt-2 text-3xl font-semibold text-slate-950">{scoringCurrentScoreCard.value}</div>
+                      <p className="mt-2 text-sm leading-5 text-slate-600">{scoringCurrentScoreCard.description}</p>
                     </div>
                   </div>
                 </div>
