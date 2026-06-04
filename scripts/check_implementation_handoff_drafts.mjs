@@ -58,6 +58,7 @@ const moduleUrl = transpileModuleUrl("src/lib/implementation-handoff-drafts.ts",
   ['from "@/lib/implementation-task-markdown";', `from ${JSON.stringify(implementationTaskMarkdownUrl)};`],
   ['from "@/lib/role-prompt-pack-markdown";', `from ${JSON.stringify(rolePromptPackUrl)};`],
 ]);
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 const {
   buildImplementationHandoffArtifactLines,
@@ -81,7 +82,11 @@ const {
   buildRolePromptRoleSections,
   buildRolePromptTaskLines,
 } = await import(rolePromptPackUrl);
-const { buildImplementationHandoffArtifactSaveDrafts, buildImplementationHandoffDraftState } = await import(moduleUrl);
+const {
+  buildImplementationHandoffArtifactSaveControlStates,
+  buildImplementationHandoffArtifactSaveDrafts,
+  buildImplementationHandoffDraftState,
+} = await import(moduleUrl);
 
 const idea = {
   buyer: "운영팀",
@@ -319,6 +324,52 @@ assert.equal(saveDrafts.rolePromptPackSaveDraft.source, "development_process");
 assert.match(saveDrafts.rolePromptPackSaveDraft.body, /# 역할별 작업 안내 묶음: AI Venture Lab/);
 
 assert.deepEqual(
+  buildImplementationHandoffArtifactSaveControlStates({
+    ...saveDrafts,
+    hasUser: true,
+    isBusy: false,
+  }),
+  {
+    filteredImplementationRunPrompt: {
+      disabled: false,
+      label: "저장",
+    },
+    implementationHandoff: {
+      disabled: false,
+      label: "저장",
+    },
+    rolePromptPack: {
+      disabled: false,
+      label: "저장",
+    },
+  },
+);
+assert.deepEqual(
+  buildImplementationHandoffArtifactSaveControlStates({
+    ...saveDrafts,
+    hasUser: false,
+    isBusy: false,
+  }).implementationHandoff,
+  {
+    disabled: true,
+    label: "저장",
+  },
+);
+assert.deepEqual(
+  buildImplementationHandoffArtifactSaveControlStates({
+    filteredImplementationRunPromptSaveDraft: null,
+    hasUser: true,
+    implementationHandoffSaveDraft: saveDrafts.implementationHandoffSaveDraft,
+    isBusy: true,
+    rolePromptPackSaveDraft: saveDrafts.rolePromptPackSaveDraft,
+  }).filteredImplementationRunPrompt,
+  {
+    disabled: true,
+    label: "저장",
+  },
+);
+
+assert.deepEqual(
   buildImplementationHandoffArtifactSaveDrafts({
     filteredImplementationRunPromptDraft: "",
     ideaName: null,
@@ -356,5 +407,12 @@ assert.deepEqual(emptyDraftState, {
   implementationTaskTicketDraft: "",
   rolePromptPackDraft: "",
 });
+
+assert.match(
+  ideaWorkbenchSource,
+  /implementationHandoffArtifactSaveControlStates\.filteredImplementationRunPrompt\.disabled/,
+);
+assert.match(ideaWorkbenchSource, /implementationHandoffArtifactSaveControlStates\.implementationHandoff\.disabled/);
+assert.match(ideaWorkbenchSource, /implementationHandoffArtifactSaveControlStates\.rolePromptPack\.disabled/);
 
 console.log("Implementation handoff drafts smoke passed.");

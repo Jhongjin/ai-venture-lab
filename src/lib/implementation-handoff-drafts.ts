@@ -28,6 +28,17 @@ export type ImplementationHandoffArtifactSaveDraft = {
   title: string;
 };
 
+export type ImplementationHandoffArtifactSaveControlState = {
+  disabled: boolean;
+  label: string;
+};
+
+export type ImplementationHandoffArtifactSaveControlStates = {
+  filteredImplementationRunPrompt: ImplementationHandoffArtifactSaveControlState;
+  implementationHandoff: ImplementationHandoffArtifactSaveControlState;
+  rolePromptPack: ImplementationHandoffArtifactSaveControlState;
+};
+
 const emptyImplementationHandoffDraftState: ImplementationHandoffDraftState = {
   cursorHandoffTaskDrafts: [],
   filteredImplementationBacklogDraft: "",
@@ -38,6 +49,35 @@ const emptyImplementationHandoffDraftState: ImplementationHandoffDraftState = {
   implementationTaskTicketDraft: "",
   rolePromptPackDraft: "",
 };
+
+export function buildImplementationHandoffArtifactSaveControlStates({
+  filteredImplementationRunPromptSaveDraft,
+  hasUser,
+  implementationHandoffSaveDraft,
+  isBusy,
+  rolePromptPackSaveDraft,
+}: {
+  filteredImplementationRunPromptSaveDraft: ImplementationHandoffArtifactSaveDraft | null;
+  hasUser: boolean;
+  implementationHandoffSaveDraft: ImplementationHandoffArtifactSaveDraft | null;
+  isBusy: boolean;
+  rolePromptPackSaveDraft: ImplementationHandoffArtifactSaveDraft | null;
+}): ImplementationHandoffArtifactSaveControlStates {
+  return {
+    filteredImplementationRunPrompt: {
+      disabled: isBusy || !hasUser || !filteredImplementationRunPromptSaveDraft,
+      label: "저장",
+    },
+    implementationHandoff: {
+      disabled: isBusy || !hasUser || !implementationHandoffSaveDraft,
+      label: "저장",
+    },
+    rolePromptPack: {
+      disabled: isBusy || !hasUser || !rolePromptPackSaveDraft,
+      label: "저장",
+    },
+  };
+}
 
 export function buildImplementationHandoffArtifactSaveDrafts({
   filteredImplementationRunPromptDraft,

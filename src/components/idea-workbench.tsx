@@ -384,6 +384,7 @@ import {
   buildImplementationDependencyPlanDraft,
 } from "@/lib/implementation-dependency-plan";
 import {
+  buildImplementationHandoffArtifactSaveControlStates,
   buildImplementationHandoffArtifactSaveDrafts,
   buildImplementationHandoffDraftState,
 } from "@/lib/implementation-handoff-drafts";
@@ -1685,6 +1686,13 @@ export function IdeaWorkbench({
     ideaName: selectedIdeaContext.ideaName,
     implementationHandoffDraft,
     rolePromptPackDraft,
+  });
+  const implementationHandoffArtifactSaveControlStates = buildImplementationHandoffArtifactSaveControlStates({
+    filteredImplementationRunPromptSaveDraft,
+    hasUser: Boolean(user),
+    implementationHandoffSaveDraft,
+    isBusy,
+    rolePromptPackSaveDraft,
   });
   const {
     canEnterDevelopmentFromValidationDocs,
@@ -5859,11 +5867,11 @@ export function IdeaWorkbench({
 
                         savePreparedArtifactDraft(filteredImplementationRunPromptSaveDraft);
                       }}
-                      disabled={isBusy || !user || !filteredImplementationRunPromptSaveDraft}
+                      disabled={implementationHandoffArtifactSaveControlStates.filteredImplementationRunPrompt.disabled}
                       className="avl-btn avl-btn-secondary h-11 w-full px-3 disabled:opacity-50 lg:w-auto"
                     >
                       <Save size={15} />
-                      저장
+                      {implementationHandoffArtifactSaveControlStates.filteredImplementationRunPrompt.label}
                     </button>
                   </div>
                 </div>
@@ -6079,11 +6087,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => savePreparedArtifactDraft(implementationHandoffSaveDraft)}
-                      disabled={isBusy || !user || !implementationHandoffSaveDraft}
+                      disabled={implementationHandoffArtifactSaveControlStates.implementationHandoff.disabled}
                       className="avl-btn avl-btn-primary h-10 rounded-[0.125rem] px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
-                      저장
+                      {implementationHandoffArtifactSaveControlStates.implementationHandoff.label}
                     </button>
                   </div>
                 </div>
@@ -6192,11 +6200,11 @@ export function IdeaWorkbench({
                     <button
                       type="button"
                       onClick={() => savePreparedArtifactDraft(rolePromptPackSaveDraft)}
-                      disabled={isBusy || !user || !rolePromptPackSaveDraft}
+                      disabled={implementationHandoffArtifactSaveControlStates.rolePromptPack.disabled}
                       className="avl-btn avl-btn-primary px-3 disabled:opacity-50"
                     >
                       <Save size={16} />
-                      저장
+                      {implementationHandoffArtifactSaveControlStates.rolePromptPack.label}
                     </button>
                   </div>
                 </div>
