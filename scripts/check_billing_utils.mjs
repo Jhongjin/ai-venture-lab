@@ -36,6 +36,7 @@ const {
   getBuildPassUnlockResult,
   getCreditSummaryUrl,
   getProductionCreditNextAction,
+  getProductionCreditSpendConfidenceItems,
 } = await import(moduleUrl);
 
 assert.equal(buildBuildPassUnlockLoginRequiredMessage(), "제작 패스를 열려면 먼저 로그인하세요.");
@@ -187,6 +188,47 @@ const productionCreditPanelSource = readFileSync(
 assert.ok(
   !productionCreditPanelSource.includes("function getNextCreditAction"),
   "ProductionCreditPanel should use the shared billing next-action helper.",
+);
+assert.ok(
+  !productionCreditPanelSource.includes("balanceAfterBuildPass"),
+  "ProductionCreditPanel should use the shared billing spend-confidence helper.",
+);
+
+assert.deepEqual(
+  getProductionCreditSpendConfidenceItems({
+    buildPassCost: 30,
+    creditBalance: 70,
+    hasSelectedIdeaBuildPass: false,
+  }),
+  [
+    ["사용 범위", "현재 선택한 아이디어에만 제작 패스를 기록합니다."],
+    ["쓴 뒤 잔여", "40크레딧 남음"],
+    ["다시 이어가기", "저장 후 작업 순서와 최종 실행에서 같은 패키지를 계속 씁니다."],
+  ],
+);
+assert.deepEqual(
+  getProductionCreditSpendConfidenceItems({
+    buildPassCost: 30,
+    creditBalance: 70,
+    hasSelectedIdeaBuildPass: true,
+  }),
+  [
+    ["사용 범위", "이미 이 아이디어에 제작 패스가 열렸습니다."],
+    ["쓴 뒤 잔여", "추가 차감 없음"],
+    ["다시 이어가기", "저장 후 작업 순서와 최종 실행에서 같은 패키지를 계속 씁니다."],
+  ],
+);
+assert.deepEqual(
+  getProductionCreditSpendConfidenceItems({
+    buildPassCost: 30,
+    creditBalance: null,
+    hasSelectedIdeaBuildPass: false,
+  }),
+  [
+    ["사용 범위", "현재 선택한 아이디어에만 제작 패스를 기록합니다."],
+    ["쓴 뒤 잔여", "잔여 크레딧 보충 필요"],
+    ["다시 이어가기", "저장 후 작업 순서와 최종 실행에서 같은 패키지를 계속 씁니다."],
+  ],
 );
 
 assert.deepEqual(

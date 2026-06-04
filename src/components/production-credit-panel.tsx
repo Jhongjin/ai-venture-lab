@@ -12,10 +12,10 @@ import {
   formatBuildPassCount,
   formatCompactCreditAmount,
   formatKoreanNumber,
-  getBalanceAfterBuildPass,
   getBuildPassShortfall,
   getMonthlyBuildPassCapacity,
   getProductionCreditNextAction,
+  getProductionCreditSpendConfidenceItems,
   type CreditSystemStatus,
 } from "@/lib/billing";
 
@@ -81,22 +81,11 @@ export function ProductionCreditPanel({
     ? "확인 중"
     : formatBuildPassCount(remainingBuildPassCount);
   const buildPassShortfall = getBuildPassShortfall(creditBalance, buildPassCost);
-  const balanceAfterBuildPass = getBalanceAfterBuildPass(creditBalance, buildPassCost);
-  const spendConfidenceItems = [
-    [
-      "사용 범위",
-      hasSelectedIdeaBuildPass ? "이미 이 아이디어에 제작 패스가 열렸습니다." : "현재 선택한 아이디어에만 제작 패스를 기록합니다.",
-    ],
-    [
-      "쓴 뒤 잔여",
-      hasSelectedIdeaBuildPass
-        ? "추가 차감 없음"
-        : balanceAfterBuildPass !== null
-          ? `${formatCompactCreditAmount(balanceAfterBuildPass)} 남음`
-          : "잔여 크레딧 보충 필요",
-    ],
-    ["다시 이어가기", "저장 후 작업 순서와 최종 실행에서 같은 패키지를 계속 씁니다."],
-  ] as const;
+  const spendConfidenceItems = getProductionCreditSpendConfidenceItems({
+    buildPassCost,
+    creditBalance,
+    hasSelectedIdeaBuildPass,
+  });
   const packageClarityItems = [
     ["Free", `기본 ${freeArtifactLimit}/${fullArtifactCount}단계로 판단 자료 확보`],
     ["제작 패스", `${buildPassCost}크레딧으로 전체 ${fullArtifactCount}단계 실행 패키지 저장`],
