@@ -185,6 +185,8 @@ export type MarketScanReviewState = {
   hasOutdatedArtifact: boolean;
   isVisibleEstimate: boolean;
   publicSources: MarketScanSource[];
+  showOutdatedNotice: boolean;
+  showSavedNotice: boolean;
   sourceBoundaryText: string;
   status: MarketScanReviewStatus;
   visibleDraft: MarketScanDraft | null;
@@ -333,6 +335,8 @@ export function buildMarketScanReviewState({
   const visibleDraft = contextKey && draftKey === contextKey ? draft : null;
   const isVisibleEstimate = mode === "local_estimate" && Boolean(visibleDraft);
   const publicSources = visibleDraft ? getPublicMarketScanSources(visibleDraft.sources) : [];
+  const showSavedNotice = hasArtifact && !visibleDraft && !isLoading;
+  const showOutdatedNotice = hasOutdatedArtifact && !visibleDraft && !isLoading;
   const sourceBoundaryText = visibleDraft
     ? isVisibleEstimate
       ? "제작 패키지 근거로 쓰기 전, 웹 조사 다시 시도로 공개 출처를 붙이는 것이 안전합니다."
@@ -393,6 +397,8 @@ export function buildMarketScanReviewState({
     hasOutdatedArtifact,
     isVisibleEstimate,
     publicSources,
+    showOutdatedNotice,
+    showSavedNotice,
     sourceBoundaryText,
     status,
     visibleDraft,

@@ -1821,6 +1821,8 @@ export function IdeaWorkbench({
     hasOutdatedArtifact: hasOutdatedMarketScanArtifact,
     isVisibleEstimate: isVisibleMarketScanEstimate,
     publicSources: visibleMarketScanPublicSources,
+    showOutdatedNotice: showOutdatedMarketScanNotice,
+    showSavedNotice: showSavedMarketScanNotice,
     sourceBoundaryText: marketScanSourceBoundaryText,
     status: marketScanStatus,
     visibleDraft: visibleMarketScanDraft,
@@ -7160,13 +7162,13 @@ export function IdeaWorkbench({
               <div className="mt-3 border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{marketScanError}</div>
             ) : null}
 
-            {hasMarketScanArtifact && !visibleMarketScanDraft && !isMarketScanLoading ? (
+            {showSavedMarketScanNotice ? (
               <div className="mt-4 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-900">
                 시장·경쟁 점검이 이미 저장되어 있습니다. 새로 확인할 내용이 없다면 하단 다음 단계 버튼으로 제작 자료를 이어가면 됩니다.
               </div>
             ) : null}
 
-            {hasOutdatedMarketScanArtifact && !visibleMarketScanDraft && !isMarketScanLoading ? (
+            {showOutdatedMarketScanNotice ? (
               <div className="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
                 이전 결과물 형태로 저장된 시장·경쟁 점검이 있습니다. 현재 결과물 형태인 {activeProductSurface.label} 기준으로
                 다시 정리한 뒤 다음 단계가 열립니다.

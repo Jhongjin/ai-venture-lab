@@ -142,6 +142,8 @@ const savedState = buildMarketScanReviewState({
 });
 assert.equal(savedState.hasArtifact, true);
 assert.equal(savedState.hasOutdatedArtifact, false);
+assert.equal(savedState.showSavedNotice, true);
+assert.equal(savedState.showOutdatedNotice, false);
 assert.equal(savedState.status.label, "저장 완료");
 assert.equal(savedState.actionLabel, "다시 정리");
 
@@ -157,6 +159,8 @@ const outdatedState = buildMarketScanReviewState({
 });
 assert.equal(outdatedState.hasArtifact, false);
 assert.equal(outdatedState.hasOutdatedArtifact, true);
+assert.equal(outdatedState.showSavedNotice, false);
+assert.equal(outdatedState.showOutdatedNotice, true);
 assert.equal(outdatedState.status.label, "다시 정리 필요");
 assert.equal(outdatedState.actionLabel, "현재 결과물 형태로 다시 정리");
 
@@ -346,6 +350,8 @@ const loadingState = buildMarketScanReviewState({
 });
 assert.equal(loadingState.status.label, "정리 중");
 assert.equal(loadingState.actionLabel, "정리 중");
+assert.equal(loadingState.showSavedNotice, false);
+assert.equal(loadingState.showOutdatedNotice, false);
 assert.deepEqual(
   buildMarketScanActionControlState({
     actionLabel: loadingState.actionLabel,
@@ -375,6 +381,8 @@ const idleState = buildMarketScanReviewState({
 });
 assert.equal(idleState.contextKey, null);
 assert.equal(idleState.visibleDraft, null);
+assert.equal(idleState.showSavedNotice, false);
+assert.equal(idleState.showOutdatedNotice, false);
 assert.equal(idleState.status.label, "자동 대기");
 assert.equal(idleState.actionLabel, "AI 자동 점검 실행");
 assert.deepEqual(
