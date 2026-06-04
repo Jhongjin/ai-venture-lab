@@ -5,7 +5,8 @@ import { FREE_MONTHLY_CREDITS, IDEA_BUILD_PASS_CREDITS } from "@/lib/billing";
 import {
   UPGRADE_INTEREST_EVENT_CATEGORY,
   UPGRADE_INTEREST_EVENT_NAME,
-  UPGRADE_INTEREST_PLAN,
+  buildUpgradeInterestDedupeProperties,
+  buildUpgradeInterestTelemetryProperties,
   getUpgradeInterestDedupeSinceIso,
   normalizeUpgradeInterestIntent,
   normalizeUpgradeInterestSource,
@@ -59,7 +60,7 @@ export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput)
     .eq("event_name", UPGRADE_INTEREST_EVENT_NAME)
     .eq("event_category", UPGRADE_INTEREST_EVENT_CATEGORY)
     .gte("occurred_at", dedupeSince)
-    .contains("properties", { source, intent, plan: UPGRADE_INTEREST_PLAN })
+    .contains("properties", buildUpgradeInterestDedupeProperties({ intent, source }))
     .limit(1);
 
   if (!recentEventError && recentEvents && recentEvents.length > 0) {
@@ -73,15 +74,12 @@ export async function recordProfileUpgradeInterest(input?: UpgradeInterestInput)
     actor_id: user.id,
     event_name: UPGRADE_INTEREST_EVENT_NAME,
     event_category: UPGRADE_INTEREST_EVENT_CATEGORY,
-    properties: {
-      source,
-      plan: UPGRADE_INTEREST_PLAN,
+    properties: buildUpgradeInterestTelemetryProperties({
+      buildPassCost: IDEA_BUILD_PASS_CREDITS,
+      freeMonthlyCredits: FREE_MONTHLY_CREDITS,
       intent,
-      credit_model: {
-        free_monthly_credits: FREE_MONTHLY_CREDITS,
-        build_pass_cost: IDEA_BUILD_PASS_CREDITS,
-      },
-    },
+      source,
+    }),
   });
 
   if (insertError) {

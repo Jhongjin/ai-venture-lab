@@ -15,6 +15,26 @@ export const upgradeInterestIntents = ["insufficient_credits_for_build_pass", "r
 export type UpgradeInterestSource = (typeof upgradeInterestSources)[number];
 export type UpgradeInterestIntent = (typeof upgradeInterestIntents)[number];
 
+export type UpgradeInterestDedupeProperties = {
+  source: UpgradeInterestSource;
+  plan: typeof UPGRADE_INTEREST_PLAN;
+  intent: UpgradeInterestIntent;
+};
+
+export type UpgradeInterestTelemetryProperties = UpgradeInterestDedupeProperties & {
+  credit_model: {
+    free_monthly_credits: number;
+    build_pass_cost: number;
+  };
+};
+
+export type UpgradeInterestTelemetryPropertiesInput = {
+  buildPassCost: number;
+  freeMonthlyCredits: number;
+  intent: UpgradeInterestIntent;
+  source: UpgradeInterestSource;
+};
+
 export type UpgradeInterestSummaryDisplayEvent = {
   intent: string;
   occurredAt: string;
@@ -97,6 +117,35 @@ export function getTopUpgradeInterestCountLabel(
   }
 
   return `${getLabel(topKey)} ${formatUpgradeInterestCount(topValue)}회`;
+}
+
+export function buildUpgradeInterestDedupeProperties({
+  intent,
+  source,
+}: {
+  intent: UpgradeInterestIntent;
+  source: UpgradeInterestSource;
+}): UpgradeInterestDedupeProperties {
+  return {
+    source,
+    plan: UPGRADE_INTEREST_PLAN,
+    intent,
+  };
+}
+
+export function buildUpgradeInterestTelemetryProperties({
+  buildPassCost,
+  freeMonthlyCredits,
+  intent,
+  source,
+}: UpgradeInterestTelemetryPropertiesInput): UpgradeInterestTelemetryProperties {
+  return {
+    ...buildUpgradeInterestDedupeProperties({ intent, source }),
+    credit_model: {
+      free_monthly_credits: freeMonthlyCredits,
+      build_pass_cost: buildPassCost,
+    },
+  };
 }
 
 export function buildUpgradeInterestSummaryDisplayState(

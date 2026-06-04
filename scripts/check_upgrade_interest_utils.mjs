@@ -8,7 +8,9 @@ const {
   PRO_INTEREST_DEMAND_SIGNAL_MESSAGE,
   PRO_INTEREST_NO_CHECKOUT_BOUNDARY_MESSAGE,
   PRO_INTEREST_PAUSED_CHECKOUT_MESSAGE,
+  buildUpgradeInterestDedupeProperties,
   buildUpgradeInterestSummaryDisplayState,
+  buildUpgradeInterestTelemetryProperties,
   compareUpgradeInterestCountEntries,
   formatUpgradeInterestCount,
   getUpgradeInterestDedupeSinceIso,
@@ -59,6 +61,34 @@ assert.equal(getTopUpgradeInterestCountLabel({}, getUpgradeInterestIntentLabel, 
 assert.equal(
   getTopUpgradeInterestCountLabel({ repeated_production_packages: 0 }, getUpgradeInterestIntentLabel, "아직 없음"),
   "아직 없음",
+);
+assert.deepEqual(
+  buildUpgradeInterestDedupeProperties({
+    intent: "insufficient_credits_for_build_pass",
+    source: "step5_credit_panel",
+  }),
+  {
+    intent: "insufficient_credits_for_build_pass",
+    plan: "pro",
+    source: "step5_credit_panel",
+  },
+);
+assert.deepEqual(
+  buildUpgradeInterestTelemetryProperties({
+    buildPassCost: 30,
+    freeMonthlyCredits: 100,
+    intent: "repeated_production_packages",
+    source: "profile_credit_summary",
+  }),
+  {
+    credit_model: {
+      build_pass_cost: 30,
+      free_monthly_credits: 100,
+    },
+    intent: "repeated_production_packages",
+    plan: "pro",
+    source: "profile_credit_summary",
+  },
 );
 assert.deepEqual(
   buildUpgradeInterestSummaryDisplayState({
@@ -125,6 +155,16 @@ assert.equal(
   profileActionSource.includes("new Date("),
   false,
   "profile actions should delegate Pro interest dedupe time calculation to upgrade-interest helpers",
+);
+assert.equal(
+  profileActionSource.includes("UPGRADE_INTEREST_PLAN"),
+  false,
+  "profile actions should delegate Pro interest plan properties to upgrade-interest helpers",
+);
+assert.equal(
+  profileActionSource.includes("credit_model"),
+  false,
+  "profile actions should delegate Pro interest credit model properties to upgrade-interest helpers",
 );
 
 console.log("Upgrade interest utils smoke passed.");
