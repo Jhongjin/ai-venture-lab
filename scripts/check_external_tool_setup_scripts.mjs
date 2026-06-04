@@ -21,7 +21,10 @@ function transpileModuleUrl(modulePath, replacements = []) {
 }
 
 const downloadFileNameUrl = pathToFileURL(path.join(process.cwd(), "src/lib/download-file-name.ts")).href;
-const setupFilesUrl = transpileModuleUrl("src/lib/external-tool-setup-files.ts");
+const externalToolFilePathsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-file-paths.ts")).href;
+const setupFilesUrl = transpileModuleUrl("src/lib/external-tool-setup-files.ts", [
+  ['from "@/lib/external-tool-file-paths";', `from ${JSON.stringify(externalToolFilePathsUrl)};`],
+]);
 const handoffMarkdownStubUrl = `data:text/javascript;base64,${Buffer.from(`
 function formatGuide(tool, args) {
   return tool + "-guide:" + args.idea.name + ":" + args.productSurface.label + ":" + args.projectKey + ":" + args.syncExpiresAt;

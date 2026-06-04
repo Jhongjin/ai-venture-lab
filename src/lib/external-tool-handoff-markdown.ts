@@ -1,4 +1,10 @@
 import { toDownloadFileName } from "@/lib/download-file-name";
+import {
+  buildCursorMcpServerFilePath,
+  buildExternalToolCliFilePath,
+  buildExternalToolProgressFilePath,
+  buildExternalToolSyncFilePath,
+} from "@/lib/external-tool-file-paths";
 import { getCursorTaskCode, type ImplementationTaskDraft } from "@/lib/external-progress-import";
 import {
   implementationTaskPriorityLabels,
@@ -8,6 +14,13 @@ import {
 } from "@/lib/implementation-task-metadata";
 import type { ProductSurfaceProfile } from "@/lib/product-surface";
 import type { Idea, ImplementationTask } from "@/lib/venture-data";
+
+export {
+  buildCursorMcpServerFilePath,
+  buildExternalToolCliFilePath,
+  buildExternalToolProgressFilePath,
+  buildExternalToolSyncFilePath,
+};
 
 const implementationTaskCompletionReportTemplate = `### 완료 보고 형식
 
@@ -54,20 +67,12 @@ ${buildExternalToolProjectContextLines({ idea, productSurface, projectKey })}
 ${formatExternalToolSyncExpiryText(syncExpiresAt)}`;
 }
 
-export function buildExternalToolSyncFilePath(toolFolder: string) {
-  return `${toolFolder}/venture-lab-sync.json`;
-}
-
 export function buildExternalToolSyncSecuritySection(syncFilePath: string) {
   return `## 보안 주의
 
 - \`${syncFilePath}\`에는 프로젝트 전용 토큰이 들어 있습니다.
 - 설치 스크립트가 이 파일과 진행 기록 파일을 \`.gitignore\`에 추가합니다.
 - 이 파일을 Git, Slack, 문서, 스크린샷에 공유하지 마세요.`;
-}
-
-export function buildExternalToolCliFilePath(toolFolder: string) {
-  return `${toolFolder}/venture-lab-cli.mjs`;
 }
 
 export function buildExternalToolRecordProgressCommand(toolFolder: string) {
@@ -80,10 +85,6 @@ export function buildExternalToolRecordProgressExampleCommand(toolFolder: string
 
 export function buildExternalToolNextTaskCommand(toolFolder: string) {
   return `node ${buildExternalToolCliFilePath(toolFolder)} next-task`;
-}
-
-export function buildExternalToolProgressFilePath(toolFolder: string) {
-  return `${toolFolder}/venture-lab-progress.json`;
 }
 
 export function buildExternalToolBackupProgressImportInstruction({
@@ -302,7 +303,7 @@ export function buildCursorGuideMarkdown({
 - \`.cursor/rules/ai-venture-lab.mdc\`: Cursor가 항상 참고할 프로젝트 규칙
 - \`.cursor/mcp.json\`: 프로젝트 전용 MCP 서버 설정
 - \`${buildExternalToolCliFilePath(".cursor")}\`: 로컬 CLI 겸 MCP 브리지
-- \`.cursor/venture-lab-mcp-server.mjs\`: 기존 설정 호환용 MCP 실행 파일
+- \`${buildCursorMcpServerFilePath()}\`: 기존 설정 호환용 MCP 실행 파일
 - \`${buildExternalToolSyncFilePath(".cursor")}\`: Venture Lab 자동 반영 토큰과 서버 주소
 - \`${buildExternalToolProgressFilePath(".cursor")}\`: Cursor 작업 진행 기록
 

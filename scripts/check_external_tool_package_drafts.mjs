@@ -15,6 +15,7 @@ function transpileToDataUrl(source, fileName) {
 
 const recordUtilsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/record-utils.ts")).href;
 const downloadFileNameUrl = pathToFileURL(path.join(process.cwd(), "src/lib/download-file-name.ts")).href;
+const externalToolFilePathsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-file-paths.ts")).href;
 const implementationMetadataUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-metadata.ts")).href;
 const cliScriptsUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-cli-scripts.ts")).href;
 const connectorConfigUrl = pathToFileURL(path.join(process.cwd(), "src/lib/external-tool-connector-config.ts")).href;
@@ -30,6 +31,7 @@ const externalProgressUrl = transpileToDataUrl(externalProgressSource, externalP
 const handoffPath = path.join(process.cwd(), "src/lib/external-tool-handoff-markdown.ts");
 const handoffSource = readFileSync(handoffPath, "utf8")
   .replace('from "@/lib/download-file-name";', `from ${JSON.stringify(downloadFileNameUrl)};`)
+  .replace('from "@/lib/external-tool-file-paths";', `from ${JSON.stringify(externalToolFilePathsUrl)};`)
   .replace('from "@/lib/external-progress-import";', `from ${JSON.stringify(externalProgressUrl)};`)
   .replace('from "@/lib/implementation-task-metadata";', `from ${JSON.stringify(implementationMetadataUrl)};`);
 const handoffUrl = transpileToDataUrl(handoffSource, handoffPath);
@@ -44,6 +46,7 @@ const moduleUrl = transpileToDataUrl(source, modulePath);
 const {
   buildExternalToolBackupProgressImportInstruction,
   buildExternalToolCliFilePath,
+  buildCursorMcpServerFilePath,
   buildExternalToolProjectContextLines,
   buildExternalToolProjectInfoSection,
   buildExternalToolNextTaskCommand,
@@ -90,6 +93,7 @@ assert.equal(buildExternalToolProgressFilePath(".cursor"), ".cursor/venture-lab-
 assert.equal(buildExternalToolProgressFilePath(".antigravity"), ".antigravity/venture-lab-progress.json");
 assert.equal(buildExternalToolCliFilePath(".cursor"), ".cursor/venture-lab-cli.mjs");
 assert.equal(buildExternalToolCliFilePath(".codex"), ".codex/venture-lab-cli.mjs");
+assert.equal(buildCursorMcpServerFilePath(), ".cursor/venture-lab-mcp-server.mjs");
 assert.equal(
   buildExternalToolBackupProgressImportInstruction({ toolFolder: ".codex" }),
   "자동 반영이 실패한 경우에만 `.codex/venture-lab-progress.json` 내용을 백업 가져오기에 붙여넣습니다.",

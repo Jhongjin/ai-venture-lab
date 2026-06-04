@@ -1,3 +1,10 @@
+import {
+  buildCursorMcpServerFilePath,
+  buildExternalToolCliFilePath,
+  buildExternalToolProgressFilePath,
+  buildExternalToolSyncFilePath,
+} from "@/lib/external-tool-file-paths";
+
 export type ExternalToolSetupFileDraft = {
   body: string;
   path: string;
@@ -35,10 +42,10 @@ export function buildCursorExternalToolSetupFiles({
     { path: "README_VENTURE_LAB_CURSOR.md", body: guideDraft },
     { path: ".cursor/rules/ai-venture-lab.mdc", body: ruleDraft },
     { path: ".cursor/mcp.json", body: mcpConfigDraft },
-    { path: ".cursor/venture-lab-cli.mjs", body: mcpServerDraft },
-    { path: ".cursor/venture-lab-mcp-server.mjs", body: mcpServerDraft },
-    { path: ".cursor/venture-lab-sync.json", body: syncConfigDraft },
-    buildExternalToolProgressFile(".cursor/venture-lab-progress.json"),
+    { path: buildExternalToolCliFilePath(".cursor"), body: mcpServerDraft },
+    { path: buildCursorMcpServerFilePath(), body: mcpServerDraft },
+    { path: buildExternalToolSyncFilePath(".cursor"), body: syncConfigDraft },
+    buildExternalToolProgressFile(buildExternalToolProgressFilePath(".cursor")),
   ];
 }
 
@@ -65,9 +72,9 @@ export function buildCodexExternalToolSetupFiles({
     { path: "AI_VENTURE_CODEX_START.md", body: startPromptDraft },
     { path: "AGENTS.ai-venture-lab.md", body: agentInstructionsDraft },
     { path: "README_VENTURE_LAB_CODEX.md", body: guideDraft },
-    { path: ".codex/venture-lab-cli.mjs", body: cliScriptDraft },
-    { path: ".codex/venture-lab-sync.json", body: syncConfigDraft },
-    buildExternalToolProgressFile(".codex/venture-lab-progress.json"),
+    { path: buildExternalToolCliFilePath(".codex"), body: cliScriptDraft },
+    { path: buildExternalToolSyncFilePath(".codex"), body: syncConfigDraft },
+    buildExternalToolProgressFile(buildExternalToolProgressFilePath(".codex")),
   ];
 }
 
@@ -97,9 +104,9 @@ export function buildClaudeExternalToolSetupFiles({
     { path: "CLAUDE.md", body: instructionsDraft },
     { path: "README_VENTURE_LAB_CLAUDE.md", body: guideDraft },
     { path: ".mcp.json", body: mcpConfigDraft },
-    { path: ".claude/venture-lab-cli.mjs", body: cliScriptDraft },
-    { path: ".claude/venture-lab-sync.json", body: syncConfigDraft },
-    buildExternalToolProgressFile(".claude/venture-lab-progress.json"),
+    { path: buildExternalToolCliFilePath(".claude"), body: cliScriptDraft },
+    { path: buildExternalToolSyncFilePath(".claude"), body: syncConfigDraft },
+    buildExternalToolProgressFile(buildExternalToolProgressFilePath(".claude")),
   ];
 }
 
@@ -132,8 +139,8 @@ export function buildAntigravityExternalToolSetupFiles({
     { path: "AGENTS.ai-venture-lab.md", body: agentInstructionsDraft },
     { path: "README_VENTURE_LAB_ANTIGRAVITY.md", body: guideDraft },
     { path: ".antigravity/mcp_config.json", body: mcpConfigDraft },
-    { path: ".antigravity/venture-lab-cli.mjs", body: cliScriptDraft },
-    { path: ".antigravity/venture-lab-sync.json", body: syncConfigDraft },
-    buildExternalToolProgressFile(".antigravity/venture-lab-progress.json"),
+    { path: buildExternalToolCliFilePath(".antigravity"), body: cliScriptDraft },
+    { path: buildExternalToolSyncFilePath(".antigravity"), body: syncConfigDraft },
+    buildExternalToolProgressFile(buildExternalToolProgressFilePath(".antigravity")),
   ];
 }
