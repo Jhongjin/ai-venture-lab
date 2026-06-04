@@ -109,6 +109,30 @@ export function buildPowerShellStringArray(values: string[]) {
   return `@(${values.map((value) => `"${value}"`).join(", ")})`;
 }
 
+export function buildSetupPowerShellFileWriteBlock(files: SetupFile[]) {
+  const fileRows = buildSetupFileRows(files);
+
+  return `$ErrorActionPreference = 'Stop'
+$root = Get-Location
+$files = @(
+${fileRows}
+)
+
+foreach ($file in $files) {
+  $target = Join-Path $root $file.Path
+  $directory = Split-Path -Parent $target
+
+  if ($directory -and -not (Test-Path -LiteralPath $directory)) {
+    New-Item -ItemType Directory -Path $directory -Force | Out-Null
+  }
+
+  $bytes = [Convert]::FromBase64String($file.Base64)
+  $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+  [System.IO.File]::WriteAllText($target, $text, [System.Text.UTF8Encoding]::new($false))
+  Write-Host "created $($file.Path)"
+}`;
+}
+
 export function buildLiveExternalToolSetupDownloadDraft({
   config,
   encodeSetupFiles,
@@ -298,31 +322,11 @@ export function buildCursorSetupPowerShell({
   projectKey: string;
   files: SetupFile[];
 }) {
-  const fileRows = buildSetupFileRows(files);
-
   return `# AI Venture Lab Cursor connection setup
 # Project: ${idea.name}
 # Key: ${projectKey}
 
-$ErrorActionPreference = 'Stop'
-$root = Get-Location
-$files = @(
-${fileRows}
-)
-
-foreach ($file in $files) {
-  $target = Join-Path $root $file.Path
-  $directory = Split-Path -Parent $target
-
-  if ($directory -and -not (Test-Path -LiteralPath $directory)) {
-    New-Item -ItemType Directory -Path $directory -Force | Out-Null
-  }
-
-  $bytes = [Convert]::FromBase64String($file.Base64)
-  $text = [System.Text.Encoding]::UTF8.GetString($bytes)
-  [System.IO.File]::WriteAllText($target, $text, [System.Text.UTF8Encoding]::new($false))
-  Write-Host "created $($file.Path)"
-}
+${buildSetupPowerShellFileWriteBlock(files)}
 
 $gitignorePath = Join-Path $root ".gitignore"
 $ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(".cursor"))}
@@ -358,31 +362,11 @@ export function buildCodexSetupPowerShell({
   projectKey: string;
   files: SetupFile[];
 }) {
-  const fileRows = buildSetupFileRows(files);
-
   return `# AI Venture Lab Codex connection setup
 # Project: ${idea.name}
 # Key: ${projectKey}
 
-$ErrorActionPreference = 'Stop'
-$root = Get-Location
-$files = @(
-${fileRows}
-)
-
-foreach ($file in $files) {
-  $target = Join-Path $root $file.Path
-  $directory = Split-Path -Parent $target
-
-  if ($directory -and -not (Test-Path -LiteralPath $directory)) {
-    New-Item -ItemType Directory -Path $directory -Force | Out-Null
-  }
-
-  $bytes = [Convert]::FromBase64String($file.Base64)
-  $text = [System.Text.Encoding]::UTF8.GetString($bytes)
-  [System.IO.File]::WriteAllText($target, $text, [System.Text.UTF8Encoding]::new($false))
-  Write-Host "created $($file.Path)"
-}
+${buildSetupPowerShellFileWriteBlock(files)}
 
 $gitignorePath = Join-Path $root ".gitignore"
 $ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(".codex"))}
@@ -423,31 +407,11 @@ export function buildLiveToolSetupPowerShell({
   folder: string;
   startFileName: string;
 }) {
-  const fileRows = buildSetupFileRows(files);
-
   return `# AI Venture Lab ${toolLabel} connection setup
 # Project: ${idea.name}
 # Key: ${projectKey}
 
-$ErrorActionPreference = 'Stop'
-$root = Get-Location
-$files = @(
-${fileRows}
-)
-
-foreach ($file in $files) {
-  $target = Join-Path $root $file.Path
-  $directory = Split-Path -Parent $target
-
-  if ($directory -and -not (Test-Path -LiteralPath $directory)) {
-    New-Item -ItemType Directory -Path $directory -Force | Out-Null
-  }
-
-  $bytes = [Convert]::FromBase64String($file.Base64)
-  $text = [System.Text.Encoding]::UTF8.GetString($bytes)
-  [System.IO.File]::WriteAllText($target, $text, [System.Text.UTF8Encoding]::new($false))
-  Write-Host "created $($file.Path)"
-}
+${buildSetupPowerShellFileWriteBlock(files)}
 
 $gitignorePath = Join-Path $root ".gitignore"
 $ignoreEntries = ${buildPowerShellStringArray(buildExternalToolSetupIgnoreEntries(folder))}

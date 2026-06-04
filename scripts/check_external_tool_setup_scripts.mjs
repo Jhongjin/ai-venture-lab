@@ -58,6 +58,7 @@ const {
   buildLiveExternalToolSetupDownloadDraft,
   buildLiveToolSetupPowerShell,
   buildPowerShellStringArray,
+  buildSetupPowerShellFileWriteBlock,
   buildSetupFileRows,
   escapePowerShellSingleQuoted,
 } = await import(moduleUrl);
@@ -79,6 +80,10 @@ assert.equal(buildPowerShellStringArray(["one", "two"]), '@("one", "two")');
 assert.equal(
   buildSetupFileRows([{ base64: "abc", path: ".cursor/rules/owner's-rule.mdc" }]),
   "  @{ Path = '.cursor/rules/owner''s-rule.mdc'; Base64 = 'abc' }",
+);
+assert.match(
+  buildSetupPowerShellFileWriteBlock([{ base64: "abc", path: "AI_VENTURE_PACKAGE.md" }]),
+  /Write-Host "created \$\(\$file.Path\)"/,
 );
 
 const cursorConfig = buildCursorSetupDownloadConfig({
