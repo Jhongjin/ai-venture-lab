@@ -8,6 +8,7 @@ const {
   buildValidationPackageSaveJobs,
   buildValidationPackageStatusRows,
   buildValidationSummaryDisabledNote,
+  getPendingValidationPackageSaveJobs,
 } = await import(moduleUrl);
 
 const statusRows = buildValidationPackageStatusRows({
@@ -91,8 +92,9 @@ assert.deepEqual(
 );
 
 assert.deepEqual(
-  jobs.filter((job) => !job.done).map((job) => job.source),
+  getPendingValidationPackageSaveJobs(jobs).map((job) => job.source),
   ["workbench", "validation_sprint"],
 );
+assert.deepEqual(getPendingValidationPackageSaveJobs(jobs).map((job) => job.done), [false, false]);
 
 console.log("Validation package save jobs smoke passed.");

@@ -472,6 +472,7 @@ import {
   buildValidationPackageSaveJobs,
   buildValidationPackageStatusRows,
   buildValidationSummaryDisabledNote,
+  getPendingValidationPackageSaveJobs,
 } from "@/lib/validation-package-save-jobs";
 import {
   buildWorkbenchVentureEventListeners,
@@ -2802,24 +2803,21 @@ export function IdeaWorkbench({
     }
 
     setIsSavingValidationBundle(true);
-    const jobs = buildValidationPackageSaveJobs({
-      hasIdeaBriefArtifact,
-      hasResearchBriefArtifact,
-      hasValidationSprintArtifact,
-      hasValidationSummaryArtifact,
-      ideaBrief,
-      ideaName: selectedIdea.name,
-      researchBriefDraft,
-      validationSprintDraft,
-      validationSummaryDraft,
-    });
+    const pendingJobs = getPendingValidationPackageSaveJobs(
+      buildValidationPackageSaveJobs({
+        hasIdeaBriefArtifact,
+        hasResearchBriefArtifact,
+        hasValidationSprintArtifact,
+        hasValidationSummaryArtifact,
+        ideaBrief,
+        ideaName: selectedIdea.name,
+        researchBriefDraft,
+        validationSprintDraft,
+        validationSummaryDraft,
+      }),
+    );
 
-    let savedCount = 0;
-    for (const job of jobs) {
-      if (job.done) {
-        continue;
-      }
-
+    for (const job of pendingJobs) {
       const saved = await savePreparedArtifactDraft(job, {
         quiet: true,
         statusNote: "검증 자료 자동 저장에서 생성한 초안입니다.",
@@ -2829,12 +2827,10 @@ export function IdeaWorkbench({
         setIsSavingValidationBundle(false);
         return;
       }
-
-      savedCount += 1;
     }
 
     setIsSavingValidationBundle(false);
-    setMessage(buildValidationPackageSavedMessage(savedCount));
+    setMessage(buildValidationPackageSavedMessage(pendingJobs.length));
   }
 
   async function startDevelopmentAutoPackage() {

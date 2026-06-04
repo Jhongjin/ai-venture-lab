@@ -111,6 +111,10 @@ export function buildValidationPackageSaveJobs({
   ];
 }
 
+export function getPendingValidationPackageSaveJobs(jobs: ReadonlyArray<ValidationPackageSaveJob>) {
+  return jobs.filter((job) => !job.done);
+}
+
 export function buildValidationSummaryDisabledNote({
   canSaveValidationSummary,
   hasValidationSummaryArtifact,
