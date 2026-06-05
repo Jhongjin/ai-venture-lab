@@ -1719,6 +1719,7 @@ export function IdeaWorkbench({
   const {
     backendCandidateScores,
     backendDecisionDraft,
+    backendExecutionCheckDisplayRows,
     backendExecutionPlan,
     backendExecutionPlanDraft,
     backendExecutionPlanSummaryRows,
@@ -5319,17 +5320,13 @@ export function IdeaWorkbench({
                   <div className="avl-surface-muted p-3">
                     <div className="text-sm font-semibold text-slate-950">검증 체크</div>
                     <div className="mt-3 grid gap-2">
-                      {backendExecutionPlan.checks.map((check) => (
+                      {backendExecutionCheckDisplayRows.map((check) => (
                         <div key={check.label} className="border border-slate-200 bg-white p-3">
                           <div className="flex flex-wrap items-center gap-2">
                             <span
-                          className={`avl-pill ${
-                                check.tone === "required"
-                                  ? "avl-pill-danger"
-                                  : "avl-pill-info"
-                              }`}
+                          className={`avl-pill ${check.toneClassName}`}
                             >
-                              {check.tone === "required" ? "필수" : "권장"}
+                              {check.toneLabel}
                             </span>
                             <span className="text-sm font-semibold text-slate-950">{check.label}</span>
                           </div>

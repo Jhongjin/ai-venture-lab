@@ -47,6 +47,7 @@ const moduleUrl = transpileModuleUrl("src/lib/backend-planning-drafts.ts", [
 ]);
 
 const {
+  buildBackendExecutionCheckDisplayRows,
   buildBackendPlanningArtifactSaveControlStates,
   buildBackendPlanningArtifactSaveDrafts,
   buildBackendPlanningDraftState,
@@ -146,6 +147,37 @@ assert.deepEqual(
 assert.equal(compareBackendCandidateScores({ score: 82 }, { score: 25 }) < 0, true);
 assert.match(draftState.backendDecisionDraft, /# 백엔드 결정: AI Venture Lab/);
 assert.equal(draftState.backendExecutionPlan?.backend.label, "Supabase");
+assert.deepEqual(
+  draftState.backendExecutionCheckDisplayRows.slice(0, 2).map((check) => [
+    check.label,
+    check.toneClassName,
+    check.toneLabel,
+  ]),
+  [
+    ["RLS 활성화", "avl-pill-danger", "필수"],
+    ["Service role 차단 경계", "avl-pill-danger", "필수"],
+  ],
+);
+assert.deepEqual(
+  buildBackendExecutionCheckDisplayRows([
+    {
+      detail: "권한 경계를 반드시 확인합니다.",
+      evidence: "허용/차단 결과",
+      label: "권한 점검",
+      tone: "required",
+    },
+    {
+      detail: "가격과 region을 남깁니다.",
+      evidence: "가격 메모",
+      label: "운영 메모",
+      tone: "recommended",
+    },
+  ]).map((check) => [check.label, check.toneClassName, check.toneLabel]),
+  [
+    ["권한 점검", "avl-pill-danger", "필수"],
+    ["운영 메모", "avl-pill-info", "권장"],
+  ],
+);
 assert.match(draftState.backendExecutionPlanDraft, /# 백엔드 실행 체크리스트: AI Venture Lab/);
 assert.deepEqual(
   draftState.backendExecutionPlanSummaryRows.map((row) => row.label),
@@ -205,6 +237,14 @@ assert.ok(
   ideaWorkbenchSource.includes("backendPlanningArtifactSaveControlStates.backendExecutionPlan.disabled"),
   "IdeaWorkbench should render backend execution plan save disabled state from shared helper.",
 );
+assert.ok(
+  ideaWorkbenchSource.includes("backendExecutionCheckDisplayRows.map"),
+  "IdeaWorkbench should render backend execution checks from shared display rows.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('check.tone === "required"'),
+  "IdeaWorkbench should not keep JSX-local backend execution check tone rendering.",
+);
 
 assert.deepEqual(
   buildBackendPlanningArtifactSaveDrafts({
@@ -227,6 +267,7 @@ const emptyDraftState = buildBackendPlanningDraftState({
 assert.deepEqual(emptyDraftState, {
   backendCandidateScores: [],
   backendDecisionDraft: "",
+  backendExecutionCheckDisplayRows: [],
   backendExecutionPlan: null,
   backendExecutionPlanDraft: "",
   backendExecutionPlanSummaryRows: [],

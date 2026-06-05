@@ -4,6 +4,7 @@ import {
   buildBackendCandidateScores,
   buildBackendExecutionPlan,
   type BackendCandidateScore,
+  type BackendExecutionCheck,
   type BackendExecutionPlan,
 } from "@/lib/backend-planning";
 import { buildFirstBuildBridge, type FirstBuildBridge } from "@/lib/first-build-bridge";
@@ -14,10 +15,16 @@ import type { BackendExecutionPlanSummaryRow } from "@/lib/backend-execution-pla
 export type BackendPlanningDraftState = {
   backendCandidateScores: BackendCandidateScore[];
   backendDecisionDraft: string;
+  backendExecutionCheckDisplayRows: BackendExecutionCheckDisplayRow[];
   backendExecutionPlan: BackendExecutionPlan | null;
   backendExecutionPlanDraft: string;
   backendExecutionPlanSummaryRows: BackendExecutionPlanSummaryRow[];
   firstBuildBridge: FirstBuildBridge | null;
+};
+
+export type BackendExecutionCheckDisplayRow = BackendExecutionCheck & {
+  toneClassName: string;
+  toneLabel: string;
 };
 
 export type BackendPlanningArtifactSaveDraft = {
@@ -90,6 +97,16 @@ export function buildBackendPlanningArtifactSaveControlStates({
   };
 }
 
+export function buildBackendExecutionCheckDisplayRows(
+  checks: ReadonlyArray<BackendExecutionCheck>,
+): BackendExecutionCheckDisplayRow[] {
+  return checks.map((check) => ({
+    ...check,
+    toneClassName: check.tone === "required" ? "avl-pill-danger" : "avl-pill-info",
+    toneLabel: check.tone === "required" ? "필수" : "권장",
+  }));
+}
+
 export function buildBackendPlanningDraftState({
   experiments,
   idea,
@@ -105,6 +122,7 @@ export function buildBackendPlanningDraftState({
     return {
       backendCandidateScores: [],
       backendDecisionDraft: "",
+      backendExecutionCheckDisplayRows: [],
       backendExecutionPlan: null,
       backendExecutionPlanDraft: "",
       backendExecutionPlanSummaryRows: [],
@@ -121,6 +139,9 @@ export function buildBackendPlanningDraftState({
   const backendExecutionPlan = backendCandidateScores[0]
     ? buildBackendExecutionPlan(backendCandidateScores[0])
     : null;
+  const backendExecutionCheckDisplayRows = backendExecutionPlan
+    ? buildBackendExecutionCheckDisplayRows(backendExecutionPlan.checks)
+    : [];
 
   return {
     backendCandidateScores,
@@ -129,6 +150,7 @@ export function buildBackendPlanningDraftState({
       state,
       candidates: backendCandidateScores,
     }),
+    backendExecutionCheckDisplayRows,
     backendExecutionPlan,
     backendExecutionPlanDraft: backendExecutionPlan
       ? buildBackendExecutionPlanMarkdown({
