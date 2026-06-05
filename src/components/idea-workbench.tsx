@@ -186,7 +186,6 @@ import {
   artifactStatusLabels,
   artifactStatusOptions,
   artifactStatusTone,
-  artifactTypeOptions,
 } from "@/lib/artifact-labels";
 import { resolveProductSurfaceForIdea as inferIdeaProductSurface } from "@/lib/product-surface";
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
@@ -1097,8 +1096,9 @@ export function IdeaWorkbench({
   } = useMemo(() => buildArtifactReviewWorkflowState(selectedArtifactRecords), [selectedArtifactRecords]);
   const {
     activeArtifactSourceFilter,
-    artifactSourceFilterLabels,
-    artifactSourceOptions,
+    artifactSourceFilterOptions,
+    artifactStatusFilterOptions,
+    artifactTypeFilterOptions,
     recentDevelopmentHandoffArtifacts,
     selectedArtifacts,
   } = useMemo(
@@ -7765,10 +7765,9 @@ export function IdeaWorkbench({
                   onChange={(event) => setArtifactTypeFilter(event.target.value as VentureArtifactType | "all")}
                   className="avl-select h-10 text-sm normal-case tracking-normal text-slate-800"
                 >
-                  <option value="all">전체 유형</option>
-                  {artifactTypeOptions.map((value) => (
-                    <option key={value} value={value}>
-                      {artifactLabels[value]}
+                  {artifactTypeFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
@@ -7780,10 +7779,9 @@ export function IdeaWorkbench({
                   onChange={(event) => setArtifactStatusFilter(event.target.value as VentureArtifactStatus | "all")}
                   className="avl-select h-10 text-sm normal-case tracking-normal text-slate-800"
                 >
-                  <option value="all">전체 상태</option>
-                  {artifactStatusOptions.map((status) => (
-                    <option key={status} value={status}>
-                      {artifactStatusLabels[status]}
+                  {artifactStatusFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
@@ -7795,9 +7793,9 @@ export function IdeaWorkbench({
                   onChange={(event) => setArtifactSourceFilter(event.target.value)}
                   className="avl-select h-10 text-sm normal-case tracking-normal text-slate-800"
                 >
-                  {artifactSourceOptions.map((source) => (
-                    <option key={source} value={source}>
-                      {artifactSourceFilterLabels[source]}
+                  {artifactSourceFilterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>

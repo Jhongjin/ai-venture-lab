@@ -1,9 +1,20 @@
 import type { VentureArtifactStatus, VentureArtifactType } from "@/lib/supabase/types";
 import type { VentureArtifact } from "@/lib/venture-data";
-import { artifactSourceLabels } from "@/lib/artifact-labels";
+import {
+  artifactLabels,
+  artifactSourceLabels,
+  artifactStatusLabels,
+  artifactStatusOptions,
+  artifactTypeOptions,
+} from "@/lib/artifact-labels";
 
 export type ArtifactTypeFilter = VentureArtifactType | "all";
 export type ArtifactStatusFilter = VentureArtifactStatus | "all";
+
+export type ArtifactLibraryFilterOption<TValue extends string = string> = {
+  label: string;
+  value: TValue;
+};
 
 export type ArtifactDraftIdeaSummary = {
   id: string;
@@ -242,6 +253,27 @@ export function buildArtifactSourceFilterLabels(sourceOptions: string[]) {
   ) as Record<string, string>;
 }
 
+export function buildArtifactTypeFilterOptions(): Array<ArtifactLibraryFilterOption<ArtifactTypeFilter>> {
+  return [
+    { label: "전체 유형", value: "all" },
+    ...artifactTypeOptions.map((value) => ({ label: artifactLabels[value], value })),
+  ];
+}
+
+export function buildArtifactStatusFilterOptions(): Array<ArtifactLibraryFilterOption<ArtifactStatusFilter>> {
+  return [
+    { label: "전체 상태", value: "all" },
+    ...artifactStatusOptions.map((value) => ({ label: artifactStatusLabels[value], value })),
+  ];
+}
+
+export function buildArtifactSourceFilterOptions(
+  sourceOptions: string[],
+  sourceLabels = buildArtifactSourceFilterLabels(sourceOptions),
+): ArtifactLibraryFilterOption[] {
+  return sourceOptions.map((value) => ({ label: sourceLabels[value] ?? value, value }));
+}
+
 export function resolveArtifactSourceFilter(sourceOptions: string[], sourceFilter: string) {
   return sourceOptions.includes(sourceFilter) ? sourceFilter : "all";
 }
@@ -288,12 +320,16 @@ export function buildArtifactLibraryViewState({
   typeFilter: ArtifactTypeFilter;
 }) {
   const artifactSourceOptions = buildArtifactSourceOptions(artifacts);
+  const artifactSourceFilterLabels = buildArtifactSourceFilterLabels(artifactSourceOptions);
   const activeArtifactSourceFilter = resolveArtifactSourceFilter(artifactSourceOptions, sourceFilter);
 
   return {
     activeArtifactSourceFilter,
-    artifactSourceFilterLabels: buildArtifactSourceFilterLabels(artifactSourceOptions),
+    artifactSourceFilterLabels,
+    artifactSourceFilterOptions: buildArtifactSourceFilterOptions(artifactSourceOptions, artifactSourceFilterLabels),
     artifactSourceOptions,
+    artifactStatusFilterOptions: buildArtifactStatusFilterOptions(),
+    artifactTypeFilterOptions: buildArtifactTypeFilterOptions(),
     recentDevelopmentHandoffArtifacts: getRecentDevelopmentHandoffArtifacts(artifacts),
     selectedArtifacts: filterArtifactLibrary({
       artifacts,

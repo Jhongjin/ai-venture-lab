@@ -32,11 +32,14 @@ const {
   buildArtifactSavedTelemetryPayload,
   buildArtifactSavedMessage,
   buildArtifactSourceFilterLabels,
+  buildArtifactSourceFilterOptions,
   buildArtifactSourceOptions,
+  buildArtifactStatusFilterOptions,
   buildArtifactStatusChangedMessage,
   buildArtifactStatusTelemetryProperties,
   buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
+  buildArtifactTypeFilterOptions,
   countApprovedArtifacts,
   compareArtifactSources,
   filterArtifactLibrary,
@@ -62,6 +65,17 @@ assert.equal(buildArtifactSavedMessage({ artifactLabel: "제품 기획서", vers
 assert.equal(buildArtifactSaveLoginRequiredMessage(), "제작 자료를 저장하려면 먼저 로그인하세요.");
 assert.equal(buildArtifactSaveEmptyBodyMessage(), "저장할 제작 자료 본문이 비어 있습니다.");
 assert.equal(buildArtifactLibraryFocusMessage("제품 기획서"), "제품 기획서 제작 자료를 보관함에서 확인하세요.");
+assert.deepEqual(buildArtifactTypeFilterOptions().slice(0, 3), [
+  { label: "전체 유형", value: "all" },
+  { label: "아이디어 요약", value: "idea_brief" },
+  { label: "리서치 노트", value: "research_note" },
+]);
+assert.deepEqual(buildArtifactStatusFilterOptions(), [
+  { label: "전체 상태", value: "all" },
+  { label: "초안", value: "draft" },
+  { label: "승인됨", value: "approved" },
+  { label: "보관됨", value: "archived" },
+]);
 assert.deepEqual(buildArtifactDraftSaveControlState({
   hasUser: true,
   isBusy: false,
@@ -409,6 +423,11 @@ const labels = buildArtifactSourceFilterLabels(sourceOptions);
 assert.equal(labels.all, "전체 출처");
 assert.equal(labels.filtered_implementation_run, "선별 제작 자료");
 assert.equal(labels.manual, "수동");
+assert.deepEqual(buildArtifactSourceFilterOptions(["all", "manual", "unknown_source"]), [
+  { label: "전체 출처", value: "all" },
+  { label: "수동", value: "manual" },
+  { label: "unknown_source", value: "unknown_source" },
+]);
 
 assert.equal(resolveArtifactSourceFilter(sourceOptions, "workbench"), "workbench");
 assert.equal(resolveArtifactSourceFilter(sourceOptions, "stale-source"), "all");
@@ -448,6 +467,12 @@ const libraryViewState = buildArtifactLibraryViewState({
 assert.equal(libraryViewState.activeArtifactSourceFilter, "all");
 assert.deepEqual(libraryViewState.artifactSourceOptions, sourceOptions);
 assert.equal(libraryViewState.artifactSourceFilterLabels.manual, "수동");
+assert.deepEqual(libraryViewState.artifactSourceFilterOptions.slice(0, 2), [
+  { label: "전체 출처", value: "all" },
+  { label: "제작 도구 전달 자료", value: "agent_run_package" },
+]);
+assert.deepEqual(libraryViewState.artifactTypeFilterOptions[0], { label: "전체 유형", value: "all" });
+assert.deepEqual(libraryViewState.artifactStatusFilterOptions[0], { label: "전체 상태", value: "all" });
 assert.deepEqual(libraryViewState.selectedArtifacts.map((item) => item.id), ["manual-prd"]);
 assert.deepEqual(
   libraryViewState.recentDevelopmentHandoffArtifacts.map((item) => item.id),
@@ -487,5 +512,25 @@ assert.equal(flags.hasDevelopmentDesignPackageArtifact, true);
 assert.equal(flags.hasDevelopmentExecutionPackageArtifact, true);
 assert.equal(flags.hasDevelopmentHandoffPackageArtifact, true);
 assert.equal(flags.canEnterOrchestrationFromDevelopmentDocs, true);
+assert.ok(
+  !ideaWorkbenchSource.includes("artifactTypeOptions.map((value)"),
+  "IdeaWorkbench should render artifact type filter options from shared library view state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("artifactSourceOptions.map((source)"),
+  "IdeaWorkbench should render artifact source filter options from shared library view state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactTypeFilterOptions.map"),
+  "IdeaWorkbench should use shared artifact type filter options.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactStatusFilterOptions.map"),
+  "IdeaWorkbench should use shared artifact status filter options.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactSourceFilterOptions.map"),
+  "IdeaWorkbench should use shared artifact source filter options.",
+);
 
 console.log("Artifact library utils smoke passed.");
