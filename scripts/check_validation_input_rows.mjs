@@ -69,6 +69,7 @@ const {
   buildValidationEvidenceCoachNextFocusMessage,
   buildValidationEvidenceCoachScoreLabel,
   buildValidationEvidenceCoachSearchText,
+  buildValidationPlanningDisplayState,
   buildValidationPlanningReviewState,
   getOpenHighValidationRisks,
   getValidationEvidenceArtifacts,
@@ -158,6 +159,20 @@ assert.deepEqual(buildRecommendedValidationExperimentSaveControl({
 }), {
   disabled: true,
   label: "AI 추천 검증 계획 저장",
+});
+assert.deepEqual(buildValidationPlanningDisplayState({
+  hasValidationPlan: true,
+}), {
+  manualExperimentDetailsClassName: "border border-slate-200 border-t-0 bg-white p-4",
+  showDecisionTemplateCallout: true,
+  showRecommendedPlanCard: true,
+});
+assert.deepEqual(buildValidationPlanningDisplayState({
+  hasValidationPlan: false,
+}), {
+  manualExperimentDetailsClassName: "border border-slate-200 bg-white p-4",
+  showDecisionTemplateCallout: false,
+  showRecommendedPlanCard: false,
 });
 assert.equal(
   buildValidationEvidenceCoachNextFocusMessage({
@@ -476,6 +491,22 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("validationExperimentManualSaveControlState.disabled"),
   "IdeaWorkbench should render manual validation experiment save disabled state from shared input control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('validationPlan ? "border-t-0" : ""'),
+  "IdeaWorkbench should render validation plan manual details class from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationPlanningDisplayState.showDecisionTemplateCallout"),
+  "IdeaWorkbench should render decision template callout visibility from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationPlanningDisplayState.showRecommendedPlanCard"),
+  "IdeaWorkbench should render recommended validation plan visibility from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationPlanningDisplayState.manualExperimentDetailsClassName"),
+  "IdeaWorkbench should render manual validation details class from shared display state.",
 );
 const validationIdea = {
   buyer: "운영팀",

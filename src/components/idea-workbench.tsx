@@ -176,6 +176,7 @@ import {
   buildRecommendedValidationExperimentSaveControl,
   buildValidationEvidenceCoachNextFocusMessage,
   buildValidationEvidenceCoachScoreLabel,
+  buildValidationPlanningDisplayState,
   buildValidationPlanningReviewState,
   getValidationPlanExperimentPreview,
 } from "@/lib/validation-planning";
@@ -1605,6 +1606,12 @@ export function IdeaWorkbench({
     score: currentScore,
     state: editState,
   });
+  const validationPlanningDisplayState = buildValidationPlanningDisplayState({
+    hasValidationPlan: Boolean(validationPlan),
+  });
+  const validationPlanExperimentPreview = validationPlan
+    ? getValidationPlanExperimentPreview(validationPlan.experiments)
+    : [];
   const validationRecordListVisibilityState = buildValidationRecordListVisibilityState({
     decisionCount: selectedDecisions.length,
     experimentCount: selectedExperiments.length,
@@ -6791,7 +6798,7 @@ export function IdeaWorkbench({
                 <CheckCircle2 className="text-emerald-600" size={22} />
               </div>
               <div className="grid gap-4">
-                {validationPlan ? (
+                {validationPlanningDisplayState.showDecisionTemplateCallout ? (
                   <div className="border border-emerald-100 bg-emerald-50 px-4 py-3">
                     <div className="text-xs font-semibold tracking-[0.14em] text-emerald-700">AI 판단 근거</div>
                     <p className="mt-2 text-sm leading-5 text-emerald-950">
@@ -6888,7 +6895,7 @@ export function IdeaWorkbench({
                 </div>
 
                 <div className="grid gap-0">
-                  {validationPlan ? (
+                  {validationPlanningDisplayState.showRecommendedPlanCard ? (
                     <div className="border border-sky-100 bg-sky-50 px-4 py-3">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
@@ -6911,7 +6918,7 @@ export function IdeaWorkbench({
                         ) : null}
                       </div>
                       <div className="mt-3 grid gap-2 md:grid-cols-2">
-                        {getValidationPlanExperimentPreview(validationPlan.experiments).map((experiment) => (
+                        {validationPlanExperimentPreview.map((experiment) => (
                           <div
                             key={experiment.name}
                             className="border border-sky-200 bg-white p-3"
@@ -6925,9 +6932,7 @@ export function IdeaWorkbench({
                   ) : null}
 
                   <details
-                    className={`border border-slate-200 bg-white p-4 ${
-                      validationPlan ? "border-t-0" : ""
-                    }`}
+                    className={validationPlanningDisplayState.manualExperimentDetailsClassName}
                   >
                     <summary className="cursor-pointer list-none">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

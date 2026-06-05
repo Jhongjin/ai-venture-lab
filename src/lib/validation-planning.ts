@@ -34,9 +34,28 @@ export type RecommendedValidationExperimentSaveControl = {
   disabled: boolean;
   label: string;
 };
+export type ValidationPlanningDisplayState = {
+  manualExperimentDetailsClassName: string;
+  showDecisionTemplateCallout: boolean;
+  showRecommendedPlanCard: boolean;
+};
 
 export function getValidationPlanExperimentPreview(experiments: ValidationPlanExperimentDraft[], limit = 2) {
   return experiments.slice(0, limit);
+}
+
+export function buildValidationPlanningDisplayState({
+  hasValidationPlan,
+}: {
+  hasValidationPlan: boolean;
+}): ValidationPlanningDisplayState {
+  return {
+    manualExperimentDetailsClassName: hasValidationPlan
+      ? "border border-slate-200 border-t-0 bg-white p-4"
+      : "border border-slate-200 bg-white p-4",
+    showDecisionTemplateCallout: hasValidationPlan,
+    showRecommendedPlanCard: hasValidationPlan,
+  };
 }
 
 export function buildRecommendedValidationExperimentSaveControl({
