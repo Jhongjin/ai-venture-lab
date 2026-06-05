@@ -53,7 +53,7 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
         </div>
         <details data-smoke="step5-review-details-optional" className="mt-4">
           <summary className="cursor-pointer border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950">
-            자세한 요약
+            요약 보기
           </summary>
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             {summaryCards.map((card) => (
@@ -67,7 +67,7 @@ export function Step5PackageReview({ bridgeCards, note, onNoteChange, summaryCar
         </details>
         <details data-smoke="step5-review-bridge-optional" className="mt-3">
           <summary className="cursor-pointer border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950">
-            다음 연결
+            연결 보기
           </summary>
           <div className="mt-3 grid gap-3 lg:grid-cols-3">
             {bridgeCards.map((card) => (
