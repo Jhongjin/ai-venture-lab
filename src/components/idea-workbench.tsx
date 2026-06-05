@@ -512,6 +512,7 @@ import {
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
+  buildValidationExperimentListItemStates,
   buildValidationExperimentManualSaveControlState,
   buildValidationExperimentNameRequiredMessage,
   buildValidationRecordListVisibilityState,
@@ -1619,6 +1620,7 @@ export function IdeaWorkbench({
     experimentCount: selectedExperiments.length,
     riskCount: selectedRisks.length,
   });
+  const validationExperimentListItemStates = buildValidationExperimentListItemStates(selectedExperiments);
   const recommendedValidationExperimentSaveControl = buildRecommendedValidationExperimentSaveControl({
     hasSavedExperiment: validationRecordListVisibilityState.hasExperiments,
     hasUser: Boolean(user),
@@ -6989,7 +6991,7 @@ export function IdeaWorkbench({
                   </p>
                 </div>
                 {validationRecordListVisibilityState.showExperimentList ? (
-                  selectedExperiments.map((experiment, index) => {
+                  validationExperimentListItemStates.map(({ experiment, stepLabel }) => {
                     const canManageExperiment = canManageRecord(experiment);
                     const experimentDeleteControlState = buildExperimentDeleteControlState({
                       canManage: canManageExperiment,
@@ -7002,7 +7004,7 @@ export function IdeaWorkbench({
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="avl-step-dot bg-slate-950 text-white">{index + 1}</span>
+                              <span className="avl-step-dot bg-slate-950 text-white">{stepLabel}</span>
                               <span className="avl-pill avl-pill-info">하위 검증</span>
                               <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
                                 상위 아이디어 · {selectedIdea.name}

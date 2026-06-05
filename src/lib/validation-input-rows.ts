@@ -93,6 +93,10 @@ export type ValidationRecordListVisibilityState = {
   showExperimentList: boolean;
   showRiskList: boolean;
 };
+export type ValidationExperimentListItemState<Experiment> = {
+  experiment: Experiment;
+  stepLabel: string;
+};
 
 export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
@@ -265,6 +269,15 @@ export function buildValidationRecordListVisibilityState({
     showExperimentList: hasExperiments,
     showRiskList: riskCount > 0,
   };
+}
+
+export function buildValidationExperimentListItemStates<Experiment>(
+  experiments: readonly Experiment[],
+): ValidationExperimentListItemState<Experiment>[] {
+  return experiments.map((experiment, index) => ({
+    experiment,
+    stepLabel: String(index + 1),
+  }));
 }
 
 export function buildExperimentUpdatePermissionDeniedMessage() {

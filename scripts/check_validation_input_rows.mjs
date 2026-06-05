@@ -53,6 +53,7 @@ const {
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
+  buildValidationExperimentListItemStates,
   buildValidationExperimentManualSaveControlState,
   buildValidationExperimentNameRequiredMessage,
   buildValidationRecordListVisibilityState,
@@ -238,6 +239,17 @@ assert.deepEqual(
     showRiskList: false,
   },
 );
+assert.deepEqual(
+  buildValidationExperimentListItemStates([
+    { id: "experiment-1", name: "문제 인터뷰" },
+    { id: "experiment-2", name: "랜딩 테스트" },
+  ]),
+  [
+    { experiment: { id: "experiment-1", name: "문제 인터뷰" }, stepLabel: "1" },
+    { experiment: { id: "experiment-2", name: "랜딩 테스트" }, stepLabel: "2" },
+  ],
+);
+assert.deepEqual(buildValidationExperimentListItemStates([]), []);
 assert.deepEqual(buildExperimentStatusControlState({
   canManage: true,
   currentStatus: "planned",
@@ -491,6 +503,18 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("validationExperimentManualSaveControlState.disabled"),
   "IdeaWorkbench should render manual validation experiment save disabled state from shared input control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("selectedExperiments.map((experiment, index)"),
+  "IdeaWorkbench should render saved validation experiments from shared list item state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("index + 1"),
+  "IdeaWorkbench should render saved validation experiment step labels from shared list item state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationExperimentListItemStates.map"),
+  "IdeaWorkbench should map saved validation experiment item state.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes('validationPlan ? "border-t-0" : ""'),
