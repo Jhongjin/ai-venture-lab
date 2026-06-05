@@ -1236,10 +1236,12 @@ export function IdeaWorkbench({
     progressDetail: learningProgressDetail,
     progressItems: step8ProgressItems,
     progressTitle: learningProgressTitle,
+    showTelemetryAdapterGuide,
   } = buildStep8LearningDisplayState({
     buildDeliveryMode,
     completedImplementationTaskCount: completedLearningImplementationTasks.length,
     evidenceByTaskId: implementationTaskEvidence,
+    experienceMode,
     externalToolLabel: activeExternalBuildTool.label,
     nextImplementationTask,
     nextImplementationTaskCode,
@@ -6553,7 +6555,7 @@ export function IdeaWorkbench({
             totalCount={totalLearningImplementationTasks}
           />
 
-          {experienceMode === "guided" ? null : (
+          {showTelemetryAdapterGuide ? (
             <Step8TelemetryAdapterGuide
               canSave={Boolean(user)}
               ideaId={selectedIdea.id}
@@ -6566,7 +6568,7 @@ export function IdeaWorkbench({
               telemetryNextRouteSnippet={telemetryNextRouteSnippet}
               telemetrySmokeCommandSnippet={telemetrySmokeCommandSnippet}
             />
-          )}
+          ) : null}
 
           <Step8OperatorReport
             canSave={Boolean(user)}

@@ -36,6 +36,7 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 const {
   areAllStep8ProgressItemsDone,
   buildStep8ExternalSyncCompletedText,
@@ -57,6 +58,7 @@ const {
   buildStep8LearningNavigationHint,
   buildStep8LearningNextJudgmentBrief,
   buildStep8LearningOneSentenceOutcome,
+  buildStep8LearningModeDisplayState,
   buildStep8LearningPrimaryActionSummary,
   buildStep8LearningPrimarySummary,
   buildStep8LearningRemainingSummary,
@@ -704,6 +706,7 @@ const displayState = buildStep8LearningDisplayState({
   buildDeliveryMode: "external_tool",
   completedImplementationTaskCount: 3,
   evidenceByTaskId: {},
+  experienceMode: "full",
   externalToolLabel: "Codex",
   nextImplementationTask: null,
   nextImplementationTaskCode: null,
@@ -716,6 +719,7 @@ const displayState = buildStep8LearningDisplayState({
   totalImplementationTaskCount: 3,
 });
 assert.equal(displayState.canCopyLearningReport, true);
+assert.equal(displayState.showTelemetryAdapterGuide, true);
 assert.equal(displayState.learningDecisionCards[0].label, "완료된 것");
 assert.equal(displayState.learningPrimaryCtaLabel, "리포트 복사");
 assert.equal(displayState.learningDecisionLabel, "다음 빌드 범위 결정");
@@ -837,6 +841,12 @@ assert.equal(
 assert.deepEqual(buildStep8LearningNavigationHint({ hasNextImplementationTask: false }), {
   title: "최종 실행은 STEP 7에서 확인합니다",
   detail: "성과 확인 화면 안에서는 단계를 자동 이동하지 않습니다. 최종 실행 자료는 STEP 7에서 확인하세요.",
+});
+assert.deepEqual(buildStep8LearningModeDisplayState({ experienceMode: "guided" }), {
+  showTelemetryAdapterGuide: false,
+});
+assert.deepEqual(buildStep8LearningModeDisplayState({ experienceMode: "full" }), {
+  showTelemetryAdapterGuide: true,
 });
 assert.equal(
   buildStep8LearningJudgmentQuestion({
@@ -974,6 +984,14 @@ assert.equal(displayState.progressItems.length, 3);
 assert.equal(canCopyStep8LearningReport({ nextImplementationTask: null, productSignalCount: 1 }), true);
 assert.equal(canCopyStep8LearningReport({ nextImplementationTask: tasks[1], productSignalCount: 1 }), false);
 assert.equal(canCopyStep8LearningReport({ nextImplementationTask: null, productSignalCount: 0 }), false);
+assert.ok(
+  ideaWorkbenchSource.includes("showTelemetryAdapterGuide"),
+  "IdeaWorkbench should render the STEP 8 telemetry adapter guide from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('{experienceMode === "guided" ? null : ('),
+  "IdeaWorkbench should not keep the old inline STEP 8 telemetry adapter guide visibility check.",
+);
 assert.ok(
   step8ProgressSectionSource.includes("buildStep8NextTaskSummary"),
   "Step8ProgressSection should render next task summary through the shared helper.",

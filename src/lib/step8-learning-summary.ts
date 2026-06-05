@@ -156,7 +156,12 @@ export type Step8ProgressDetailsState = {
 export type Step8LearningDisplayState = Step8LearningSummary &
   Step8ProgressSummary & {
     canCopyLearningReport: boolean;
+    showTelemetryAdapterGuide: boolean;
   };
+
+export type Step8LearningModeDisplayState = {
+  showTelemetryAdapterGuide: boolean;
+};
 
 export type Step8ImplementationTaskContext = {
   completedTasks: ImplementationTask[];
@@ -939,6 +944,7 @@ export function buildStep8LearningDisplayState({
   buildDeliveryMode,
   completedImplementationTaskCount,
   evidenceByTaskId,
+  experienceMode,
   externalToolLabel,
   nextImplementationTask,
   nextImplementationTaskCode,
@@ -953,6 +959,7 @@ export function buildStep8LearningDisplayState({
   buildDeliveryMode: BuildDeliveryMode;
   completedImplementationTaskCount: number;
   evidenceByTaskId: Record<string, string>;
+  experienceMode: "guided" | "full";
   externalToolLabel: string;
   nextImplementationTask: Pick<ImplementationTask, "title"> | null;
   nextImplementationTaskCode: string | null;
@@ -986,6 +993,17 @@ export function buildStep8LearningDisplayState({
     ...learningSummary,
     ...progressSummary,
     canCopyLearningReport: canCopyStep8LearningReport({ nextImplementationTask, productSignalCount }),
+    showTelemetryAdapterGuide: buildStep8LearningModeDisplayState({ experienceMode }).showTelemetryAdapterGuide,
+  };
+}
+
+export function buildStep8LearningModeDisplayState({
+  experienceMode,
+}: {
+  experienceMode: "guided" | "full";
+}): Step8LearningModeDisplayState {
+  return {
+    showTelemetryAdapterGuide: experienceMode === "full",
   };
 }
 
