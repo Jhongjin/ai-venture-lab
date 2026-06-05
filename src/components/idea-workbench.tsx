@@ -50,13 +50,13 @@ import {
   buildArtifactReadinessFlags,
   buildArtifactSaveEmptyBodyMessage,
   buildArtifactSaveLoginRequiredMessage,
-  buildArtifactSourceDisplayLabel,
   buildArtifactSavedTelemetryPayload,
   buildArtifactSavedMessage,
   buildArtifactStatusChangedMessage,
   buildArtifactStatusTelemetryProperties,
   buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
+  buildRecentDevelopmentHandoffArtifactDisplayState,
   countApprovedArtifacts,
 } from "@/lib/artifact-library-utils";
 import {
@@ -7886,28 +7886,32 @@ export function IdeaWorkbench({
                 </span>
               </div>
               <div className="mt-3 grid gap-2 lg:grid-cols-3">
-                {recentDevelopmentHandoffArtifacts.map((artifact) => (
-                  <div key={artifact.id} className="border border-slate-200 bg-slate-50 p-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-950">{artifact.title || "제목 없음"}</span>
-                      <span className="avl-pill avl-pill-neutral">
-                        v{artifact.version ?? 1}
-                      </span>
+                {recentDevelopmentHandoffArtifacts.map((artifact) => {
+                  const handoffDisplayState = buildRecentDevelopmentHandoffArtifactDisplayState({
+                    artifact,
+                    createdDateLabel: formatStableKoreanDate(artifact.created_at),
+                  });
+
+                  return (
+                    <div key={artifact.id} className="border border-slate-200 bg-slate-50 p-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-950">{handoffDisplayState.title}</span>
+                        <span className="avl-pill avl-pill-neutral">{handoffDisplayState.versionLabel}</span>
+                      </div>
+                      <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                        {handoffDisplayState.sourceDateSummary}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void copyBrowserText(artifact.body)}
+                        className="avl-btn avl-btn-secondary mt-3 px-2.5 text-xs"
+                      >
+                        <Clipboard size={14} />
+                        전달 내용 복사
+                      </button>
                     </div>
-                    <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      {buildArtifactSourceDisplayLabel(artifact.source)} /{" "}
-                      {formatStableKoreanDate(artifact.created_at)}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => void copyBrowserText(artifact.body)}
-                      className="avl-btn avl-btn-secondary mt-3 px-2.5 text-xs"
-                    >
-                      <Clipboard size={14} />
-                      전달 내용 복사
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ) : null}

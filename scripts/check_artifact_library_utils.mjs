@@ -43,6 +43,7 @@ const {
   buildArtifactStatusUpdatePermissionDeniedMessage,
   buildArtifactStatusUpdatePatch,
   buildArtifactTypeFilterOptions,
+  buildRecentDevelopmentHandoffArtifactDisplayState,
   countApprovedArtifacts,
   compareArtifactSources,
   filterArtifactLibrary,
@@ -525,6 +526,21 @@ assert.deepEqual(
   getRecentDevelopmentHandoffArtifacts(artifacts).map((item) => item.id),
   ["handoff-filtered", "handoff-process"],
 );
+assert.deepEqual(
+  buildRecentDevelopmentHandoffArtifactDisplayState({
+    artifact: {
+      ...artifacts[0],
+      title: "",
+      version: null,
+    },
+    createdDateLabel: "2026. 06. 01.",
+  }),
+  {
+    sourceDateSummary: "선별 제작 자료 / 2026. 06. 01.",
+    title: "제목 없음",
+    versionLabel: "v1",
+  },
+);
 
 const libraryViewState = buildArtifactLibraryViewState({
   artifacts,
@@ -605,8 +621,12 @@ assert.ok(
   "IdeaWorkbench should render artifact source display labels from shared helper.",
 );
 assert.ok(
-  ideaWorkbenchSource.includes("buildArtifactSourceDisplayLabel(artifact.source)"),
-  "IdeaWorkbench should use shared artifact source display label helper.",
+  ideaWorkbenchSource.includes("buildRecentDevelopmentHandoffArtifactDisplayState"),
+  "IdeaWorkbench should render recent handoff artifact cards from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("buildArtifactSourceDisplayLabel(artifact.source)"),
+  "IdeaWorkbench should not keep artifact source/date display calculations inline.",
 );
 assert.ok(
   ideaWorkbenchSource.includes("buildArtifactLibraryItemDisplayState"),
@@ -619,6 +639,10 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("artifactDisplayState.statusLabel"),
   "IdeaWorkbench should render selected artifact status label from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('artifact.title || "제목 없음"'),
+  "IdeaWorkbench should not keep artifact title fallback calculations inline.",
 );
 
 console.log("Artifact library utils smoke passed.");

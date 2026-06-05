@@ -39,6 +39,12 @@ export type ArtifactLibraryItemDisplayState = {
   versionLabel: string;
 };
 
+export type RecentDevelopmentHandoffArtifactDisplayState = {
+  sourceDateSummary: string;
+  title: string;
+  versionLabel: string;
+};
+
 export function buildArtifactSavedMessage({ artifactLabel, version }: { artifactLabel: string; version: number }) {
   return `${artifactLabel} v${version}을 저장했습니다.`;
 }
@@ -365,6 +371,23 @@ export function getRecentDevelopmentHandoffArtifacts(artifacts: VentureArtifact[
         ["filtered_implementation_run", "development_process"].includes(artifact.source || ""),
     )
     .slice(0, limit);
+}
+
+export function buildRecentDevelopmentHandoffArtifactDisplayState({
+  artifact,
+  createdDateLabel,
+}: {
+  artifact: Pick<VentureArtifact, "source" | "title" | "version">;
+  createdDateLabel: string;
+}): RecentDevelopmentHandoffArtifactDisplayState {
+  return {
+    sourceDateSummary: buildArtifactLibraryItemSourceDateSummary({
+      createdDateLabel,
+      sourceLabel: buildArtifactSourceDisplayLabel(artifact.source),
+    }),
+    title: artifact.title || "제목 없음",
+    versionLabel: `v${artifact.version ?? 1}`,
+  };
 }
 
 export function buildArtifactLibraryViewState({
