@@ -57,12 +57,20 @@ assert.ok(
   "IdeaWorkbench should render the sidebar panel from shared display state.",
 );
 assert.ok(
+  ideaWorkbenchSource.includes("workbenchShellDisplayState.isMarketScanAutoRunnerActive"),
+  "IdeaWorkbench should render the market-scan auto runner active state from shared display state.",
+);
+assert.ok(
   !ideaWorkbenchSource.includes('showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"'),
   "IdeaWorkbench should not keep the old inline shell grid class branch.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("{showSidebar ? ("),
   "IdeaWorkbench should not keep the old inline sidebar visibility branch.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('active={activeTask === "experiment"}'),
+  "IdeaWorkbench should not keep the old inline market-scan auto runner active branch.",
 );
 
 assert.deepEqual(getWorkbenchIdeaProgress({ decision: "kill", stage: "launch" }), {
@@ -200,11 +208,13 @@ assert.deepEqual(
 );
 assert.equal(lockedTaskItems[0].stepNumber, 1);
 
-assert.deepEqual(buildWorkbenchShellDisplayState({ showSidebar: true }), {
+assert.deepEqual(buildWorkbenchShellDisplayState({ activeTask: "experiment", showSidebar: true }), {
+  isMarketScanAutoRunnerActive: true,
   sectionClassName: "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]",
   showSidebarPanel: true,
 });
-assert.deepEqual(buildWorkbenchShellDisplayState({ showSidebar: false }), {
+assert.deepEqual(buildWorkbenchShellDisplayState({ activeTask: "score", showSidebar: false }), {
+  isMarketScanAutoRunnerActive: false,
   sectionClassName: "grid gap-6",
   showSidebarPanel: false,
 });

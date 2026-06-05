@@ -51,6 +51,7 @@ export type WorkbenchTaskPanelClassNames = {
 };
 
 export type WorkbenchShellDisplayState = {
+  isMarketScanAutoRunnerActive: boolean;
   sectionClassName: string;
   showSidebarPanel: boolean;
 };
@@ -258,11 +259,14 @@ export function buildWorkbenchTaskNavigationState({
 }
 
 export function buildWorkbenchShellDisplayState({
+  activeTask,
   showSidebar,
 }: {
+  activeTask: WorkbenchTask;
   showSidebar: boolean;
 }): WorkbenchShellDisplayState {
   return {
+    isMarketScanAutoRunnerActive: activeTask === "experiment",
     sectionClassName: showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6",
     showSidebarPanel: showSidebar,
   };

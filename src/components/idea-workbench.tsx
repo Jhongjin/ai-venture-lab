@@ -1980,7 +1980,7 @@ export function IdeaWorkbench({
     isGuided: experienceMode === "guided",
   });
   const workbenchTaskPanelClassNames = buildWorkbenchTaskPanelClassNames({ activeTask });
-  const workbenchShellDisplayState = buildWorkbenchShellDisplayState({ showSidebar });
+  const workbenchShellDisplayState = buildWorkbenchShellDisplayState({ activeTask, showSidebar });
   const visibleMarketScanReviewRows = buildVisibleMarketScanReviewRows({
     decisionLabels,
     draft: visibleMarketScanDraft,
@@ -4419,7 +4419,7 @@ export function IdeaWorkbench({
   return (
     <section className={workbenchShellDisplayState.sectionClassName}>
       <MarketScanAutoRunner
-        active={activeTask === "experiment"}
+        active={workbenchShellDisplayState.isMarketScanAutoRunnerActive}
         autoKey={marketScanContextKey}
         disabled={marketScanActionControlState.autoRunnerDisabled}
         onRun={runMarketScan}
