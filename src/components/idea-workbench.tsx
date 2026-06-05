@@ -26,6 +26,7 @@ import {
   buildArtifactReviewDevelopmentFocusMessage,
   buildArtifactReviewPanelFocusMessage,
   buildArtifactReviewWorkflowState,
+  buildDevelopmentPanelClassName,
   buildDevelopmentPanelTabStates,
   developmentPanelDescriptions,
   type ArtifactPanel,
@@ -5032,7 +5033,12 @@ export function IdeaWorkbench({
           />
 
           {experienceMode === "guided" ? (
-            <div className={visibleDevelopmentPanel === "setup" ? "" : "hidden"}>
+            <div
+              className={buildDevelopmentPanelClassName({
+                activePanel: visibleDevelopmentPanel,
+                panel: "setup",
+              })}
+            >
               <section className="border border-slate-200 bg-white p-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
@@ -5482,9 +5488,11 @@ export function IdeaWorkbench({
           ) : null}
 
           <div
-            className={`avl-card mt-5 p-4 ${
-              visibleDevelopmentPanel === "tasks" ? "" : "hidden"
-            }`}
+            className={buildDevelopmentPanelClassName({
+              activePanel: visibleDevelopmentPanel,
+              baseClassName: "avl-card mt-5 p-4",
+              panel: "tasks",
+            })}
           >
             <div className="avl-card mb-4 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -6133,7 +6141,12 @@ export function IdeaWorkbench({
             ) : null}
           </div>
 
-          <div className={visibleDevelopmentPanel === "handoff" ? "" : "hidden"}>
+          <div
+            className={buildDevelopmentPanelClassName({
+              activePanel: visibleDevelopmentPanel,
+              panel: "handoff",
+            })}
+          >
           <div className="avl-card mt-5 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>

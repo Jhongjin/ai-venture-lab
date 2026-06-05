@@ -116,6 +116,18 @@ export function buildDevelopmentPanelTabStates(activePanel: DevelopmentPanel): D
   });
 }
 
+export function buildDevelopmentPanelClassName({
+  activePanel,
+  baseClassName = "",
+  panel,
+}: {
+  activePanel: DevelopmentPanel;
+  baseClassName?: string;
+  panel: DevelopmentPanel;
+}) {
+  return [baseClassName, activePanel === panel ? "" : "hidden"].filter(Boolean).join(" ");
+}
+
 export function buildArtifactReviewDevelopmentFocusMessage(itemLabel: string) {
   return `${itemLabel} 생성을 위해 개발 프로세스 화면으로 이동했습니다.`;
 }

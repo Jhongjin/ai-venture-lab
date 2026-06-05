@@ -43,6 +43,7 @@ const {
   buildArtifactReviewProgressState,
   buildArtifactReviewQueue,
   buildArtifactReviewWorkflowState,
+  buildDevelopmentPanelClassName,
   buildDevelopmentPanelTabStates,
   compareArtifactsByReviewRecency,
   getLatestArtifactByType,
@@ -438,6 +439,29 @@ assert.deepEqual(
   ],
 );
 assert.match(buildDevelopmentPanelTabStates("tasks")[1].className, /bg-white/);
+assert.equal(
+  buildDevelopmentPanelClassName({
+    activePanel: "tasks",
+    baseClassName: "avl-card mt-5 p-4",
+    panel: "tasks",
+  }),
+  "avl-card mt-5 p-4",
+);
+assert.equal(
+  buildDevelopmentPanelClassName({
+    activePanel: "setup",
+    baseClassName: "avl-card mt-5 p-4",
+    panel: "tasks",
+  }),
+  "avl-card mt-5 p-4 hidden",
+);
+assert.equal(
+  buildDevelopmentPanelClassName({
+    activePanel: "setup",
+    panel: "handoff",
+  }),
+  "hidden",
+);
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || !canManageRecord(artifact) || status === nextStatus}"),
   "IdeaWorkbench should render artifact status disabled state from shared review control.",
@@ -461,6 +485,14 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("developmentPanelTabStates.map"),
   "IdeaWorkbench should use shared development panel tab states.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("buildDevelopmentPanelClassName"),
+  "IdeaWorkbench should use shared development panel class names.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('visibleDevelopmentPanel === "tasks" ? "" : "hidden"'),
+  "IdeaWorkbench should not keep development panel visibility class calculations inline.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("getArtifactReviewStatusDisplay("),
