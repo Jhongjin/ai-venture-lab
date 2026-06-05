@@ -49,6 +49,7 @@ const moduleUrl = transpileModuleUrl("src/lib/backend-planning-drafts.ts", [
 const {
   buildBackendCandidateDisplayRows,
   buildBackendExecutionCheckDisplayRows,
+  buildBackendExecutionPlanPanelState,
   buildBackendPlanningArtifactSaveControlStates,
   buildBackendPlanningArtifactSaveDrafts,
   buildBackendPlanningDraftState,
@@ -166,6 +167,16 @@ assert.deepEqual(
 assert.equal(compareBackendCandidateScores({ score: 82 }, { score: 25 }) < 0, true);
 assert.match(draftState.backendDecisionDraft, /# 백엔드 결정: AI Venture Lab/);
 assert.equal(draftState.backendExecutionPlan?.backend.label, "Supabase");
+assert.deepEqual(buildBackendExecutionPlanPanelState(draftState.backendExecutionPlan), {
+  backendLabel: "Supabase",
+  plan: draftState.backendExecutionPlan,
+  showPanel: true,
+});
+assert.deepEqual(buildBackendExecutionPlanPanelState(null), {
+  backendLabel: "",
+  plan: null,
+  showPanel: false,
+});
 assert.deepEqual(
   draftState.backendExecutionCheckDisplayRows.slice(0, 2).map((check) => [
     check.label,
@@ -261,6 +272,18 @@ assert.ok(
   "IdeaWorkbench should render backend execution checks from shared display rows.",
 );
 assert.ok(
+  !ideaWorkbenchSource.includes("backendExecutionPlan ?"),
+  "IdeaWorkbench should render backend execution plan panel visibility from shared panel state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("backendExecutionPlanPanelState.showPanel"),
+  "IdeaWorkbench should use shared backend execution plan panel visibility.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("backendExecutionPlanPanelState.backendLabel"),
+  "IdeaWorkbench should use shared backend execution plan backend label.",
+);
+assert.ok(
   ideaWorkbenchSource.includes("backendCandidateDisplayRows.map"),
   "IdeaWorkbench should render backend candidate cards from shared display rows.",
 );
@@ -298,6 +321,11 @@ assert.deepEqual(emptyDraftState, {
   backendExecutionCheckDisplayRows: [],
   backendExecutionPlan: null,
   backendExecutionPlanDraft: "",
+  backendExecutionPlanPanelState: {
+    backendLabel: "",
+    plan: null,
+    showPanel: false,
+  },
   backendExecutionPlanSummaryRows: [],
   firstBuildBridge: null,
 });

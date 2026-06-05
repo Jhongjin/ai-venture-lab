@@ -19,9 +19,22 @@ export type BackendPlanningDraftState = {
   backendExecutionCheckDisplayRows: BackendExecutionCheckDisplayRow[];
   backendExecutionPlan: BackendExecutionPlan | null;
   backendExecutionPlanDraft: string;
+  backendExecutionPlanPanelState: BackendExecutionPlanPanelState;
   backendExecutionPlanSummaryRows: BackendExecutionPlanSummaryRow[];
   firstBuildBridge: FirstBuildBridge | null;
 };
+
+export type BackendExecutionPlanPanelState =
+  | {
+      backendLabel: string;
+      plan: BackendExecutionPlan;
+      showPanel: true;
+    }
+  | {
+      backendLabel: "";
+      plan: null;
+      showPanel: false;
+    };
 
 export type BackendExecutionCheckDisplayRow = BackendExecutionCheck & {
   toneClassName: string;
@@ -112,6 +125,22 @@ export function buildBackendExecutionCheckDisplayRows(
   }));
 }
 
+export function buildBackendExecutionPlanPanelState(
+  plan: BackendExecutionPlan | null,
+): BackendExecutionPlanPanelState {
+  return plan
+    ? {
+        backendLabel: plan.backend.label,
+        plan,
+        showPanel: true,
+      }
+    : {
+        backendLabel: "",
+        plan: null,
+        showPanel: false,
+      };
+}
+
 export function buildBackendCandidateDisplayRows(
   candidates: ReadonlyArray<BackendCandidateScore>,
 ): BackendCandidateDisplayRow[] {
@@ -140,6 +169,7 @@ export function buildBackendPlanningDraftState({
       backendExecutionCheckDisplayRows: [],
       backendExecutionPlan: null,
       backendExecutionPlanDraft: "",
+      backendExecutionPlanPanelState: buildBackendExecutionPlanPanelState(null),
       backendExecutionPlanSummaryRows: [],
       firstBuildBridge: null,
     };
@@ -175,6 +205,7 @@ export function buildBackendPlanningDraftState({
           plan: backendExecutionPlan,
         })
       : "",
+    backendExecutionPlanPanelState: buildBackendExecutionPlanPanelState(backendExecutionPlan),
     backendExecutionPlanSummaryRows: backendExecutionPlan
       ? buildBackendExecutionPlanSummaryRows(backendExecutionPlan)
       : [],

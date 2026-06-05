@@ -1741,8 +1741,8 @@ export function IdeaWorkbench({
     backendCandidateScores,
     backendDecisionDraft,
     backendExecutionCheckDisplayRows,
-    backendExecutionPlan,
     backendExecutionPlanDraft,
+    backendExecutionPlanPanelState,
     backendExecutionPlanSummaryRows,
     firstBuildBridge,
   } = buildBackendPlanningDraftState({
@@ -5295,7 +5295,7 @@ export function IdeaWorkbench({
               ))}
             </div>
 
-            {backendExecutionPlan ? (
+            {backendExecutionPlanPanelState.showPanel ? (
               <div className="avl-card mt-4 p-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
@@ -5304,7 +5304,7 @@ export function IdeaWorkbench({
                     </div>
                     <h4 className="mt-1 text-base font-semibold text-slate-950">백엔드 실행 체크리스트</h4>
                     <p className="mt-1 text-sm leading-6 text-slate-600">
-                      현재 권장안은 {backendExecutionPlan.backend.label}입니다. 개발 착수 전에 환경변수, 권한 규칙,
+                      현재 권장안은 {backendExecutionPlanPanelState.backendLabel}입니다. 개발 착수 전에 환경변수, 권한 규칙,
                       허용/차단 검증, 운영 롤백 기준을 같은 문서로 남깁니다.
                     </p>
                   </div>
@@ -5334,7 +5334,7 @@ export function IdeaWorkbench({
                   <div className="avl-surface-muted p-3">
                     <div className="text-sm font-semibold text-slate-950">필수 환경변수</div>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {backendExecutionPlan.envVars.map((envVar) => (
+                      {backendExecutionPlanPanelState.plan.envVars.map((envVar) => (
                         <span
                           key={envVar}
                           className="avl-pill avl-pill-neutral font-mono"
