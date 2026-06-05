@@ -4,6 +4,7 @@ import type { IdeaStage, OrganizationRole } from "@/lib/supabase/types";
 import type { WorkbenchIdeaProgress, WorkbenchTask } from "@/lib/workbench-tasks";
 
 export type WorkbenchIdeaFilterMode = "all" | "mine" | "read_only";
+export type WorkbenchIdeaFilterButtonPlacement = "sidebar" | "panel";
 export type WorkbenchRecordAccessState = "owned" | "workspace_admin" | "workspace_member" | "hidden";
 export type WorkbenchRecordAccessDisplay = {
   accessState: WorkbenchRecordAccessState;
@@ -35,6 +36,11 @@ export type WorkbenchIdeaActionControlState = {
 };
 export type WorkbenchEditPermissionState = {
   canEdit: boolean;
+};
+export type WorkbenchIdeaFilterButtonState = {
+  className: string;
+  isActive: boolean;
+  mode: WorkbenchIdeaFilterMode;
 };
 export type WorkbenchDiscardedIdeaListItemState = {
   canManage: boolean;
@@ -102,6 +108,42 @@ export function isDiscardedIdea(idea: Idea) {
 
 export function isWorkbenchAdminRole(role: OrganizationRole) {
   return workbenchAdminRoles.has(role);
+}
+
+export function buildWorkbenchIdeaFilterButtonClassName({
+  isActive,
+  placement,
+}: {
+  isActive: boolean;
+  placement: WorkbenchIdeaFilterButtonPlacement;
+}) {
+  const baseClassName =
+    placement === "sidebar"
+      ? "h-9 rounded-[0.125rem] text-sm font-semibold transition"
+      : "h-10 text-sm font-semibold transition";
+  const toneClassName = isActive
+    ? "bg-white text-slate-950 shadow-sm"
+    : "text-slate-500 hover:text-slate-900";
+
+  return `${baseClassName} ${toneClassName}`;
+}
+
+export function buildWorkbenchIdeaFilterButtonStates({
+  activeMode,
+  placement,
+}: {
+  activeMode: WorkbenchIdeaFilterMode;
+  placement: WorkbenchIdeaFilterButtonPlacement;
+}): WorkbenchIdeaFilterButtonState[] {
+  return workbenchIdeaFilterModes.map((mode) => {
+    const isActive = activeMode === mode;
+
+    return {
+      className: buildWorkbenchIdeaFilterButtonClassName({ isActive, placement }),
+      isActive,
+      mode,
+    };
+  });
 }
 
 export function buildDiscardIdeaPatch(now = new Date().toISOString()) {

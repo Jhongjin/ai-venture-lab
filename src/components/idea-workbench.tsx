@@ -87,6 +87,7 @@ import {
   buildWorkbenchIdeaRestoreFailedMessage,
   buildWorkbenchIdeaRestoredMessage,
   buildWorkbenchIdeaDisplayState,
+  buildWorkbenchIdeaFilterButtonStates,
   buildWorkbenchIdeaListItemStates,
   buildWorkbenchIdeaVisibilityState,
   buildWorkbenchSelectedIdeaPanelState,
@@ -123,7 +124,6 @@ import {
   workbenchIdeaCreatedSelectedMessage,
   workbenchIdeaDeleteLoginRequiredMessage,
   workbenchIdeaDeletePermissionDeniedMessage,
-  workbenchIdeaFilterModes,
   workbenchIdeaReadOnlyMessage,
   workbenchIdeaRestoreLoginRequiredMessage,
   workbenchIdeaRestorePermissionDeniedMessage,
@@ -2661,6 +2661,14 @@ export function IdeaWorkbench({
     selectedIdeaId: selectedIdea.id,
     visibleIdeas,
   });
+  const sidebarIdeaFilterButtonStates = buildWorkbenchIdeaFilterButtonStates({
+    activeMode: filterMode,
+    placement: "sidebar",
+  });
+  const panelIdeaFilterButtonStates = buildWorkbenchIdeaFilterButtonStates({
+    activeMode: filterMode,
+    placement: "panel",
+  });
   const discardedIdeaListItems = buildWorkbenchDiscardedIdeaListItemStates({
     discardedIdeas,
     getIdeaDisplayState,
@@ -4429,16 +4437,14 @@ export function IdeaWorkbench({
         </div>
 
         <div className="avl-segmented mb-4 grid grid-cols-3 gap-2 p-1">
-          {workbenchIdeaFilterModes.map((value) => (
+          {sidebarIdeaFilterButtonStates.map((buttonState) => (
             <button
-              key={value}
+              key={buttonState.mode}
               type="button"
-              onClick={() => setFilterMode(value)}
-                className={`h-9 rounded-[0.125rem] text-sm font-semibold transition ${
-                  filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
-                }`}
+              onClick={() => setFilterMode(buttonState.mode)}
+                className={buttonState.className}
               >
-              {filterModeLabels[value]}
+              {filterModeLabels[buttonState.mode]}
             </button>
           ))}
         </div>
@@ -4570,16 +4576,14 @@ export function IdeaWorkbench({
               <h3 className="mt-2 text-base font-semibold text-slate-950">검토 아이디어</h3>
 
               <div className="mt-4 avl-segmented grid grid-cols-3 gap-2 p-1">
-                {workbenchIdeaFilterModes.map((value) => (
+                {panelIdeaFilterButtonStates.map((buttonState) => (
                   <button
-                    key={value}
+                    key={buttonState.mode}
                     type="button"
-                    onClick={() => setFilterMode(value)}
-                    className={`h-10 text-sm font-semibold transition ${
-                      filterMode === value ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"
-                    }`}
+                    onClick={() => setFilterMode(buttonState.mode)}
+                    className={buttonState.className}
                   >
-                    {filterModeLabels[value]}
+                    {filterModeLabels[buttonState.mode]}
                   </button>
                 ))}
               </div>

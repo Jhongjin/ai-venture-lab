@@ -17,6 +17,8 @@ const {
   buildWorkbenchIdeaDiscardedMessage,
   buildWorkbenchIdeaActionControlState,
   buildWorkbenchIdeaDisplayState,
+  buildWorkbenchIdeaFilterButtonClassName,
+  buildWorkbenchIdeaFilterButtonStates,
   buildWorkbenchIdeaListItemStates,
   buildWorkbenchIdeaPermanentDeleteConfirmMessage,
   buildWorkbenchIdeaPermanentDeleteFailedMessage,
@@ -141,6 +143,54 @@ assert.equal(isWorkbenchAdminRole("owner"), true);
 assert.equal(isWorkbenchAdminRole("admin"), true);
 assert.equal(isWorkbenchAdminRole("member"), false);
 assert.deepEqual(workbenchIdeaFilterModes, ["all", "mine", "read_only"]);
+assert.equal(
+  buildWorkbenchIdeaFilterButtonClassName({ isActive: true, placement: "sidebar" }),
+  "h-9 rounded-[0.125rem] text-sm font-semibold transition bg-white text-slate-950 shadow-sm",
+);
+assert.equal(
+  buildWorkbenchIdeaFilterButtonClassName({ isActive: false, placement: "panel" }),
+  "h-10 text-sm font-semibold transition text-slate-500 hover:text-slate-900",
+);
+assert.deepEqual(
+  buildWorkbenchIdeaFilterButtonStates({ activeMode: "mine", placement: "sidebar" }).map((buttonState) => ({
+    className: buttonState.className,
+    isActive: buttonState.isActive,
+    mode: buttonState.mode,
+  })),
+  [
+    {
+      className: "h-9 rounded-[0.125rem] text-sm font-semibold transition text-slate-500 hover:text-slate-900",
+      isActive: false,
+      mode: "all",
+    },
+    {
+      className: "h-9 rounded-[0.125rem] text-sm font-semibold transition bg-white text-slate-950 shadow-sm",
+      isActive: true,
+      mode: "mine",
+    },
+    {
+      className: "h-9 rounded-[0.125rem] text-sm font-semibold transition text-slate-500 hover:text-slate-900",
+      isActive: false,
+      mode: "read_only",
+    },
+  ],
+);
+assert.ok(
+  ideaWorkbenchSource.includes("sidebarIdeaFilterButtonStates.map"),
+  "IdeaWorkbench should render sidebar filter buttons from shared state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("panelIdeaFilterButtonStates.map"),
+  "IdeaWorkbench should render panel filter buttons from shared state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("workbenchIdeaFilterModes.map"),
+  "IdeaWorkbench should not render filter buttons by mapping raw filter modes.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("filterMode === value"),
+  "IdeaWorkbench should not calculate filter button active classes inline.",
+);
 assert.equal(workbenchIdeaCreatedSelectedMessage, "새 아이디어를 실행 보드에 바로 추가하고 선택했습니다.");
 assert.equal(workbenchIdeaDeleteLoginRequiredMessage, "아이디어를 삭제하려면 먼저 로그인해 주세요.");
 assert.equal(workbenchIdeaDeletePermissionDeniedMessage, "이 아이디어를 삭제할 권한이 없습니다.");
