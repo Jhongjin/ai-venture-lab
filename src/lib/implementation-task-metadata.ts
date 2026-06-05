@@ -86,7 +86,11 @@ export type ImplementationTaskCardSummary = {
   evidenceQualityLabel: string;
   evidenceQualityMessage: string;
   evidenceQualityToneClass: string;
+  ownerRoleLabel: string;
   passedEvidenceCount: number;
+  priorityLabel: string;
+  priorityToneClass: string;
+  taskTypeLabel: string;
   missingEvidenceLabels: string[];
   blockedActionText: string;
   blockedHint: ReturnType<typeof getBlockedImplementationTaskHint> | null;
@@ -700,7 +704,11 @@ export function buildImplementationTaskCardSummary(
     }),
     evidenceQualityMessage: buildImplementationTaskEvidenceQualityMessage(missingEvidenceLabels),
     evidenceQualityToneClass: getImplementationTaskEvidenceQualityToneClass(missingEvidenceLabels),
+    ownerRoleLabel: getImplementationTaskOwnerRole(task),
     passedEvidenceCount: evidenceState.passedCount,
+    priorityLabel: implementationTaskPriorityLabels[task.priority],
+    priorityToneClass: implementationTaskPriorityTone[task.priority],
+    taskTypeLabel: implementationTaskTypeLabels[task.task_type],
     missingEvidenceLabels,
     blockedActionText: blockedHint?.nextAction ?? "",
     blockedHint,

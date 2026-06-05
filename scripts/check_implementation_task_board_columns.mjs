@@ -79,6 +79,10 @@ assert.equal(todoSummary.showBlockedHint, false);
 assert.equal(todoSummary.evidenceQualityLabel, "증거 품질 4/4");
 assert.equal(todoSummary.evidenceQualityMessage, "필수 증거 힌트가 모두 포함되어 있습니다.");
 assert.equal(todoSummary.evidenceQualityToneClass, "border-emerald-100 bg-emerald-50 text-emerald-900");
+assert.equal(todoSummary.ownerRoleLabel, "frontend");
+assert.equal(todoSummary.priorityLabel, "보통");
+assert.equal(todoSummary.priorityToneClass, "avl-pill avl-pill-warning");
+assert.equal(todoSummary.taskTypeLabel, "프론트");
 
 const blockedSummary = columns.find((column) => column.status === "blocked").taskSummaries[0];
 assert.equal(blockedSummary.task.id, "task-deploy");
@@ -89,6 +93,10 @@ assert.deepEqual(blockedSummary.missingEvidenceLabels, ["Vercel 로그", "롤백
 assert.equal(blockedSummary.evidenceQualityLabel, "증거 품질 3/5");
 assert.equal(blockedSummary.evidenceQualityMessage, "보완 필요: Vercel 로그, 롤백 기준");
 assert.equal(blockedSummary.evidenceQualityToneClass, "border-amber-100 bg-amber-50 text-amber-900");
+assert.equal(blockedSummary.ownerRoleLabel, "owner 미정");
+assert.equal(blockedSummary.priorityLabel, "높음");
+assert.equal(blockedSummary.priorityToneClass, "avl-pill avl-pill-danger");
+assert.equal(blockedSummary.taskTypeLabel, "배포");
 
 assert.ok(
   ideaWorkbenchSource.includes("showTaskCards ?"),
@@ -99,12 +107,24 @@ assert.ok(
   "IdeaWorkbench should render evidence quality copy from shared card summary state.",
 );
 assert.ok(
+  ideaWorkbenchSource.includes("taskTypeLabel"),
+  "IdeaWorkbench should render implementation task type labels from shared card summary state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("ownerRoleLabel"),
+  "IdeaWorkbench should render implementation task owner labels from shared card summary state.",
+);
+assert.ok(
   !ideaWorkbenchSource.includes("taskSummaries.length > 0"),
   "IdeaWorkbench should not decide implementation board column visibility with inline task summary counts.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("missingEvidenceLabels.length === 0"),
   "IdeaWorkbench should not decide implementation evidence quality copy with inline missing-label counts.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("implementationTaskTypeLabels[task.task_type]"),
+  "IdeaWorkbench should not resolve implementation board task type labels inline.",
 );
 
 console.log("Implementation task board columns smoke passed.");

@@ -6043,8 +6043,12 @@ export function IdeaWorkbench({
                           evidenceQualityLabel,
                           evidenceQualityMessage,
                           evidenceQualityToneClass,
+                          ownerRoleLabel,
+                          priorityLabel,
+                          priorityToneClass,
                           showBlockedHint,
                           task,
+                          taskTypeLabel,
                         }) => {
                           const canManageTask = canManageRecord(task);
                           const taskCardControlStates = buildImplementationTaskCardControlStates({
@@ -6062,14 +6066,14 @@ export function IdeaWorkbench({
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-sm font-semibold text-slate-950">{task.title}</span>
                               <span className="avl-pill avl-pill-neutral">
-                                {implementationTaskTypeLabels[task.task_type]}
+                                {taskTypeLabel}
                               </span>
-                              <span className={implementationTaskPriorityTone[task.priority]}>
-                                {implementationTaskPriorityLabels[task.priority]}
+                              <span className={priorityToneClass}>
+                                {priorityLabel}
                               </span>
                             </div>
                             <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                              {task.owner_role || "owner 미정"}
+                              {ownerRoleLabel}
                             </div>
                             {showBlockedHint ? (
                               <div className="mt-2 border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-900">
