@@ -137,6 +137,41 @@ export type BlockedImplementationSummary = {
   missing: string[];
 };
 
+export type BlockedImplementationPreviewItem = {
+  escalation: string;
+  id: string;
+  missingEvidenceText: string;
+  nextAction: string;
+  ownerRoleLabel: string;
+  priorityLabel: string;
+  showMissingEvidence: boolean;
+  title: string;
+  unblockEvidence: string;
+};
+
+export type BlockedImplementationPanelDisplayState = {
+  countLabel: string;
+  itemCount: number;
+  items: BlockedImplementationPreviewItem[];
+};
+
+export type ImplementationEvidenceIssuePreviewItem = {
+  evidenceScoreLabel: string;
+  id: string;
+  missingEvidenceText: string;
+  taskTypeLabel: string;
+  title: string;
+};
+
+export type ImplementationEvidencePanelDisplayState = {
+  countLabel: string;
+  emptyMessage: string;
+  issueCount: number;
+  items: ImplementationEvidenceIssuePreviewItem[];
+  showIssuePreview: boolean;
+  totalCount: number;
+};
+
 export type ImplementationTaskCardSummary = {
   task: ImplementationTask;
   evidence: string;
@@ -801,6 +836,35 @@ export function getImplementationEvidenceIssuePreview(summaries: ImplementationE
   return summaries.slice(0, limit);
 }
 
+export function buildImplementationEvidenceIssuePreviewItem(
+  summary: ImplementationEvidenceSummary,
+): ImplementationEvidenceIssuePreviewItem {
+  return {
+    evidenceScoreLabel: `${summary.passedCount}/${summary.totalCount}`,
+    id: summary.task.id,
+    missingEvidenceText: `보완 필요: ${summary.missing.join(", ")}`,
+    taskTypeLabel: implementationTaskTypeLabels[summary.task.task_type],
+    title: summary.task.title,
+  };
+}
+
+export function buildImplementationEvidencePanelDisplayState({
+  issueSummaries,
+  totalSummaryCount,
+}: {
+  issueSummaries: ImplementationEvidenceSummary[];
+  totalSummaryCount: number;
+}): ImplementationEvidencePanelDisplayState {
+  return {
+    countLabel: `보완 필요 ${issueSummaries.length}/${totalSummaryCount}`,
+    emptyMessage: "현재 모든 태스크의 근거가 채워져 있습니다.",
+    issueCount: issueSummaries.length,
+    items: getImplementationEvidenceIssuePreview(issueSummaries).map(buildImplementationEvidenceIssuePreviewItem),
+    showIssuePreview: issueSummaries.length > 0,
+    totalCount: totalSummaryCount,
+  };
+}
+
 export function compareBlockedImplementationSummaries(
   a: BlockedImplementationSummary,
   b: BlockedImplementationSummary,
@@ -831,6 +895,34 @@ export function buildBlockedImplementationSummaries({
 
 export function getBlockedImplementationSummaryPreview(summaries: BlockedImplementationSummary[], limit = 4) {
   return summaries.slice(0, limit);
+}
+
+export function buildBlockedImplementationPreviewItem(
+  summary: BlockedImplementationSummary,
+): BlockedImplementationPreviewItem {
+  const missingEvidenceText = summary.missing.join(", ");
+
+  return {
+    escalation: summary.hint.escalation,
+    id: summary.task.id,
+    missingEvidenceText: `추가 증거 필요: ${missingEvidenceText}`,
+    nextAction: summary.hint.nextAction,
+    ownerRoleLabel: `담당 ${summary.hint.ownerRole}`,
+    priorityLabel: implementationTaskPriorityLabels[summary.task.priority],
+    showMissingEvidence: missingEvidenceText.length > 0,
+    title: summary.task.title,
+    unblockEvidence: summary.hint.unblockEvidence,
+  };
+}
+
+export function buildBlockedImplementationPanelDisplayState(
+  summaries: BlockedImplementationSummary[],
+): BlockedImplementationPanelDisplayState {
+  return {
+    countLabel: `차단 ${summaries.length}개`,
+    itemCount: summaries.length,
+    items: getBlockedImplementationSummaryPreview(summaries).map(buildBlockedImplementationPreviewItem),
+  };
 }
 
 export function getVisibleImplementationTaskStatuses(statusFilter: ImplementationStatusFilter): ImplementationTaskStatus[] {

@@ -547,18 +547,18 @@ import {
 import {
   buildImplementationTaskAutoRefreshMessage,
   buildImplementationTaskManualRefreshMessage,
+  buildBlockedImplementationPanelDisplayState,
   buildImplementationDependencyPreviewState,
+  buildImplementationEvidencePanelDisplayState,
   buildOpenImplementationTaskPreviewState,
   buildNextImplementationTaskDisplayState,
   buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskRefreshSummary,
   buildImplementationTaskReviewState,
   formatImplementationTaskRefreshTime,
-  getBlockedImplementationSummaryPreview,
   getCompletedImplementationTasksWithEvidence,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
-  getImplementationEvidenceIssuePreview,
   implementationStatusFilterLabels,
   implementationStatusFilterOptions,
   implementationTaskPriorities,
@@ -1281,6 +1281,12 @@ export function IdeaWorkbench({
     experienceMode,
     filteredTaskCount: filteredImplementationTasks.length,
     selectedTaskCount: selectedImplementationTasks.length,
+  });
+  const blockedImplementationPanelDisplayState =
+    buildBlockedImplementationPanelDisplayState(blockedImplementationSummaries);
+  const implementationEvidencePanelDisplayState = buildImplementationEvidencePanelDisplayState({
+    issueSummaries: implementationEvidenceIssues,
+    totalSummaryCount: implementationEvidenceSummaries.length,
   });
 
   const { artifactReviewSummaries, artifactVersionSummaries } = useMemo(
@@ -5843,37 +5849,31 @@ export function IdeaWorkbench({
                     </p>
                   </div>
                   <div className="avl-pill avl-pill-danger px-3 py-2">
-                    차단 {blockedImplementationSummaries.length}개
+                    {blockedImplementationPanelDisplayState.countLabel}
                   </div>
                 </div>
 
                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
-                  {getBlockedImplementationSummaryPreview(blockedImplementationSummaries).map((summary) => (
-                    <div key={summary.task.id} className="border border-rose-200 bg-rose-50 px-3 py-2">
+                  {blockedImplementationPanelDisplayState.items.map((item) => (
+                    <div key={item.id} className="border border-rose-200 bg-rose-50 px-3 py-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>
-                        <span className="avl-pill avl-pill-danger">
-                          {implementationTaskPriorityLabels[summary.task.priority]}
-                        </span>
-                        <span className="avl-pill avl-pill-neutral">
-                          담당 {summary.hint.ownerRole}
-                        </span>
+                        <span className="text-sm font-semibold text-slate-950">{item.title}</span>
+                        <span className="avl-pill avl-pill-danger">{item.priorityLabel}</span>
+                        <span className="avl-pill avl-pill-neutral">{item.ownerRoleLabel}</span>
                       </div>
                       <div className="mt-2 grid gap-2 text-xs leading-5 text-slate-700">
                         <p>
-                          <span className="font-semibold text-slate-950">다음 액션:</span> {summary.hint.nextAction}
+                          <span className="font-semibold text-slate-950">다음 액션:</span> {item.nextAction}
                         </p>
                         <p>
-                          <span className="font-semibold text-slate-950">해소 증거:</span> {summary.hint.unblockEvidence}
+                          <span className="font-semibold text-slate-950">해소 증거:</span> {item.unblockEvidence}
                         </p>
                         <p>
-                          <span className="font-semibold text-slate-950">에스컬레이션:</span> {summary.hint.escalation}
+                          <span className="font-semibold text-slate-950">에스컬레이션:</span> {item.escalation}
                         </p>
                       </div>
-                      {summary.missing.length > 0 ? (
-                          <div className="avl-pill avl-pill-warning mt-2 inline-flex">
-                            추가 증거 필요: {summary.missing.join(", ")}
-                          </div>
+                      {item.showMissingEvidence ? (
+                        <div className="avl-pill avl-pill-warning mt-2 inline-flex">{item.missingEvidenceText}</div>
                       ) : null}
                     </div>
                   ))}
@@ -5891,29 +5891,25 @@ export function IdeaWorkbench({
                     </p>
                   </div>
                   <div className="avl-pill avl-pill-warning px-3 py-2">
-                    보완 필요 {implementationEvidenceIssues.length}/{implementationEvidenceSummaries.length}
+                    {implementationEvidencePanelDisplayState.countLabel}
                   </div>
                 </div>
 
                 <div className="mt-3 grid gap-2 lg:grid-cols-2">
-                  {implementationTaskVisibilityState.showEvidenceIssuePreview ? (
-                    getImplementationEvidenceIssuePreview(implementationEvidenceIssues).map((summary) => (
-                      <div key={summary.task.id} className="border border-amber-200 bg-amber-50 px-3 py-2">
+                  {implementationEvidencePanelDisplayState.showIssuePreview ? (
+                    implementationEvidencePanelDisplayState.items.map((item) => (
+                      <div key={item.id} className="border border-amber-200 bg-amber-50 px-3 py-2">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-950">{summary.task.title}</span>
-                          <span className="avl-pill avl-pill-warning">
-                            {summary.passedCount}/{summary.totalCount}
-                          </span>
-                          <span className="avl-pill avl-pill-neutral">
-                            {implementationTaskTypeLabels[summary.task.task_type]}
-                          </span>
+                          <span className="text-sm font-semibold text-slate-950">{item.title}</span>
+                          <span className="avl-pill avl-pill-warning">{item.evidenceScoreLabel}</span>
+                          <span className="avl-pill avl-pill-neutral">{item.taskTypeLabel}</span>
                         </div>
-                        <p className="mt-1 text-xs leading-5 text-slate-600">보완 필요: {summary.missing.join(", ")}</p>
+                        <p className="mt-1 text-xs leading-5 text-slate-600">{item.missingEvidenceText}</p>
                       </div>
                     ))
                   ) : (
                     <div className="border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-                      현재 모든 태스크의 근거가 채워져 있습니다.
+                      {implementationEvidencePanelDisplayState.emptyMessage}
                     </div>
                   )}
                 </div>

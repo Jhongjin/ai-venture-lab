@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-metadata.ts")).href;
 const {
+  buildBlockedImplementationPanelDisplayState,
   buildBlockedImplementationSummaries,
+  buildImplementationEvidencePanelDisplayState,
   buildImplementationEvidenceSummaries,
   buildImplementationTaskEvidenceState,
   compareBlockedImplementationSummaries,
@@ -16,6 +19,7 @@ const {
   getImplementationTaskEvidence,
   getMissingImplementationEvidenceChecklistLabels,
 } = await import(moduleUrl);
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 function task({ evidence = "", id, ownerRole = "", priority = "medium", sortOrder = 1, status, taskType }) {
   return {
@@ -126,6 +130,29 @@ assert.deepEqual(
   ),
   ["task-frontend", "task-deploy"],
 );
+const evidencePanelDisplayState = buildImplementationEvidencePanelDisplayState({
+  issueSummaries: getImplementationEvidenceIssues(evidenceSummaries),
+  totalSummaryCount: evidenceSummaries.length,
+});
+assert.equal(evidencePanelDisplayState.countLabel, "보완 필요 3/4");
+assert.equal(evidencePanelDisplayState.showIssuePreview, true);
+assert.equal(evidencePanelDisplayState.emptyMessage, "현재 모든 태스크의 근거가 채워져 있습니다.");
+assert.deepEqual(evidencePanelDisplayState.items.slice(0, 2), [
+  {
+    evidenceScoreLabel: "0/4",
+    id: "task-frontend",
+    missingEvidenceText: "보완 필요: 커밋/PR, 검증 결과, 사용자 여정, 상태 UX",
+    taskTypeLabel: "프론트",
+    title: "frontend task",
+  },
+  {
+    evidenceScoreLabel: "3/5",
+    id: "task-deploy",
+    missingEvidenceText: "보완 필요: Vercel 로그, 롤백 기준",
+    taskTypeLabel: "배포",
+    title: "deploy task",
+  },
+]);
 
 const overriddenEvidenceSummaries = buildImplementationEvidenceSummaries({
   evidenceByTaskId: {
@@ -148,5 +175,53 @@ assert.equal(compareBlockedImplementationSummaries(blockedSummaries[0], blockedS
 assert.deepEqual(getBlockedImplementationSummaryPreview(blockedSummaries, 1).map((summary) => summary.task.id), [
   "task-deploy",
 ]);
+assert.deepEqual(buildBlockedImplementationPanelDisplayState(blockedSummaries), {
+  countLabel: "차단 2개",
+  itemCount: 2,
+  items: [
+    {
+      escalation: "운영 장애 가능성이 있으면 직전 정상 배포로 되돌리는 기준을 우선 기록합니다.",
+      id: "task-deploy",
+      missingEvidenceText: "추가 증거 필요: Vercel 로그, 롤백 기준",
+      nextAction: "Preview/Production 배포 상태, 환경변수, Vercel 로그를 먼저 확인하세요.",
+      ownerRoleLabel: "담당 release-manager",
+      priorityLabel: "높음",
+      showMissingEvidence: true,
+      title: "deploy task",
+      unblockEvidence: "배포 URL, Vercel inspect 또는 로그, production smoke, 롤백 기준을 남깁니다.",
+    },
+    {
+      escalation: "반복 실패면 해당 구현 담당자에게 재배정합니다.",
+      id: "task-qa",
+      missingEvidenceText: "추가 증거 필요: 스모크 경로, 실패/회귀",
+      nextAction: "실패한 경로를 재현 가능한 한 줄 시나리오로 줄이세요.",
+      ownerRoleLabel: "담당 qa-runner",
+      priorityLabel: "낮음",
+      showMissingEvidence: true,
+      title: "qa task",
+      unblockEvidence: "실패 재현, 수정 커밋, 재실행 결과, 남은 회귀 리스크를 남깁니다.",
+    },
+  ],
+});
+assert.ok(
+  ideaWorkbenchSource.includes("blockedImplementationPanelDisplayState.countLabel"),
+  "IdeaWorkbench should render blocked queue count from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("implementationEvidencePanelDisplayState.countLabel"),
+  "IdeaWorkbench should render evidence queue count from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("getBlockedImplementationSummaryPreview(blockedImplementationSummaries)"),
+  "IdeaWorkbench should not build blocked summary preview items inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("getImplementationEvidenceIssuePreview(implementationEvidenceIssues)"),
+  "IdeaWorkbench should not build evidence issue preview items inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("summary.missing.join"),
+  "IdeaWorkbench should not join evidence issue labels inline.",
+);
 
 console.log("Implementation task evidence summary smoke passed.");
