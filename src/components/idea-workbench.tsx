@@ -6028,18 +6028,26 @@ export function IdeaWorkbench({
 
             {implementationTaskVisibilityState.showFilteredTaskBoard ? (
               <div className="mt-4 grid gap-3 xl:grid-cols-4">
-                {implementationTaskBoardColumns.map(({ status, taskSummaries }) => (
+                {implementationTaskBoardColumns.map(({ emptyMessage, showTaskCards, status, taskCount, taskSummaries }) => (
                   <section key={status} className="border border-slate-200 bg-white min-h-44 p-3">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <span className={implementationTaskStatusTone[status]}>
                         {implementationTaskStatusLabels[status]}
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">{taskSummaries.length}개</span>
+                      <span className="text-xs font-semibold text-slate-500">{taskCount}개</span>
                     </div>
 
                     <div className="grid gap-3">
-                      {taskSummaries.length > 0 ? (
-                        taskSummaries.map(({ blockedHint, evidence, evidenceChecklist, missingEvidenceLabels, passedEvidenceCount, task }) => {
+                      {showTaskCards ? (
+                        taskSummaries.map(({
+                          blockedActionText,
+                          evidence,
+                          evidenceQualityLabel,
+                          evidenceQualityMessage,
+                          evidenceQualityToneClass,
+                          showBlockedHint,
+                          task,
+                        }) => {
                           const canManageTask = canManageRecord(task);
                           const evidenceEditControlState = buildImplementationTaskEvidenceEditControlState({
                             canManage: canManageTask,
@@ -6066,10 +6074,10 @@ export function IdeaWorkbench({
                             <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                               {task.owner_role || "owner 미정"}
                             </div>
-                            {blockedHint ? (
+                            {showBlockedHint ? (
                               <div className="mt-2 border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-900">
                                 <div className="font-semibold">차단 해소 다음 액션</div>
-                                <div className="mt-1">{blockedHint.nextAction}</div>
+                                <div className="mt-1">{blockedActionText}</div>
                               </div>
                             ) : null}
                             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{task.acceptance_criteria}</p>
@@ -6084,20 +6092,10 @@ export function IdeaWorkbench({
                               className="avl-textarea mt-3 w-full resize-y text-sm leading-6 text-slate-800 disabled:text-slate-500"
                             />
                             <div
-                              className={`mt-2 border px-3 py-2 text-xs leading-5 ${
-                                missingEvidenceLabels.length === 0
-                                  ? "border-emerald-100 bg-emerald-50 text-emerald-900"
-                                  : "border-amber-100 bg-amber-50 text-amber-900"
-                              }`}
+                              className={`mt-2 border px-3 py-2 text-xs leading-5 ${evidenceQualityToneClass}`}
                             >
-                              <div className="font-semibold">
-                                증거 품질 {passedEvidenceCount}/{evidenceChecklist.length}
-                              </div>
-                              <div className="mt-1">
-                                {missingEvidenceLabels.length === 0
-                                  ? "필수 증거 힌트가 모두 포함되어 있습니다."
-                                  : `보완 필요: ${missingEvidenceLabels.join(", ")}`}
-                              </div>
+                              <div className="font-semibold">{evidenceQualityLabel}</div>
+                              <div className="mt-1">{evidenceQualityMessage}</div>
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
                               <button
@@ -6135,7 +6133,7 @@ export function IdeaWorkbench({
                         })
                       ) : (
                         <div className="avl-surface-muted border-dashed p-3 text-sm leading-5 text-slate-500">
-                          아직 {implementationTaskStatusLabels[status]} 상태의 태스크가 없습니다.
+                          {emptyMessage}
                         </div>
                       )}
                     </div>

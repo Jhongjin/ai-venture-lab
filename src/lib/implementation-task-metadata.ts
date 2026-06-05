@@ -83,13 +83,21 @@ export type ImplementationTaskCardSummary = {
   task: ImplementationTask;
   evidence: string;
   evidenceChecklist: ReturnType<typeof getImplementationEvidenceChecklist>;
+  evidenceQualityLabel: string;
+  evidenceQualityMessage: string;
+  evidenceQualityToneClass: string;
   passedEvidenceCount: number;
   missingEvidenceLabels: string[];
+  blockedActionText: string;
   blockedHint: ReturnType<typeof getBlockedImplementationTaskHint> | null;
+  showBlockedHint: boolean;
 };
 
 export type ImplementationTaskBoardColumn = {
+  emptyMessage: string;
+  showTaskCards: boolean;
   status: ImplementationTaskStatus;
+  taskCount: number;
   taskSummaries: ImplementationTaskCardSummary[];
 };
 
@@ -652,19 +660,51 @@ export function getVisibleImplementationTaskStatuses(statusFilter: Implementatio
   return statusFilter === "all" ? implementationTaskStatuses : [statusFilter];
 }
 
+export function buildImplementationTaskEvidenceQualityLabel({
+  passedCount,
+  totalCount,
+}: {
+  passedCount: number;
+  totalCount: number;
+}) {
+  return `증거 품질 ${passedCount}/${totalCount}`;
+}
+
+export function buildImplementationTaskEvidenceQualityMessage(missingEvidenceLabels: string[]) {
+  return missingEvidenceLabels.length === 0
+    ? "필수 증거 힌트가 모두 포함되어 있습니다."
+    : `보완 필요: ${missingEvidenceLabels.join(", ")}`;
+}
+
+export function getImplementationTaskEvidenceQualityToneClass(missingEvidenceLabels: string[]) {
+  return missingEvidenceLabels.length === 0
+    ? "border-emerald-100 bg-emerald-50 text-emerald-900"
+    : "border-amber-100 bg-amber-50 text-amber-900";
+}
+
 export function buildImplementationTaskCardSummary(
   task: ImplementationTask,
   evidenceByTaskId: Record<string, string>,
 ): ImplementationTaskCardSummary {
   const evidenceState = buildImplementationTaskEvidenceState(task, evidenceByTaskId);
+  const missingEvidenceLabels = evidenceState.missingLabels;
+  const blockedHint = task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null;
 
   return {
     task,
     evidence: evidenceState.evidence,
     evidenceChecklist: evidenceState.checklist,
+    evidenceQualityLabel: buildImplementationTaskEvidenceQualityLabel({
+      passedCount: evidenceState.passedCount,
+      totalCount: evidenceState.totalCount,
+    }),
+    evidenceQualityMessage: buildImplementationTaskEvidenceQualityMessage(missingEvidenceLabels),
+    evidenceQualityToneClass: getImplementationTaskEvidenceQualityToneClass(missingEvidenceLabels),
     passedEvidenceCount: evidenceState.passedCount,
-    missingEvidenceLabels: evidenceState.missingLabels,
-    blockedHint: task.status === "blocked" ? getBlockedImplementationTaskHint(task) : null,
+    missingEvidenceLabels,
+    blockedActionText: blockedHint?.nextAction ?? "",
+    blockedHint,
+    showBlockedHint: Boolean(blockedHint),
   };
 }
 
@@ -684,12 +724,19 @@ export function buildImplementationTaskBoardColumns({
   statuses: ImplementationTaskStatus[];
   tasks: ImplementationTask[];
 }): ImplementationTaskBoardColumn[] {
-  return statuses.map((status) => ({
-    status,
-    taskSummaries: getImplementationTasksByStatus(tasks, status).map((task) =>
+  return statuses.map((status) => {
+    const taskSummaries = getImplementationTasksByStatus(tasks, status).map((task) =>
       buildImplementationTaskCardSummary(task, evidenceByTaskId),
-    ),
-  }));
+    );
+
+    return {
+      emptyMessage: `아직 ${implementationTaskStatusLabels[status]} 상태의 태스크가 없습니다.`,
+      showTaskCards: taskSummaries.length > 0,
+      status,
+      taskCount: taskSummaries.length,
+      taskSummaries,
+    };
+  });
 }
 
 export type ImplementationTaskReviewState = {
