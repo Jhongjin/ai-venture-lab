@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/implementation-task-rows.ts")).href;
 const {
+  buildImplementationTaskCardControlStates,
   buildImplementationTaskCreatedTelemetryProperties,
   buildImplementationTaskCreateControlStates,
   buildImplementationTaskEvidenceEditControlState,
@@ -330,6 +331,55 @@ assert.deepEqual(buildImplementationTaskStatusControlState({
   disabled: true,
   label: "진행 중",
 });
+assert.deepEqual(buildImplementationTaskCardControlStates({
+  canManage: true,
+  currentEvidence: "old evidence",
+  currentStatus: "todo",
+  draftEvidence: "new evidence",
+  isBusy: false,
+  statusLabels: {
+    blocked: "막힘",
+    doing: "진행 중",
+    done: "완료",
+    todo: "할 일",
+  },
+  statuses: ["todo", "doing", "blocked", "done"],
+}), {
+  evidenceEdit: {
+    disabled: false,
+    placeholder: "완료 증거, PR/커밋, 스모크 결과, 남은 리스크",
+  },
+  evidenceSave: {
+    disabled: false,
+    label: "증거 저장",
+  },
+  statusActions: [
+    { disabled: true, label: "할 일", status: "todo" },
+    { disabled: false, label: "진행 중", status: "doing" },
+    { disabled: false, label: "막힘", status: "blocked" },
+    { disabled: false, label: "완료", status: "done" },
+  ],
+});
+assert.deepEqual(
+  buildImplementationTaskCardControlStates({
+    canManage: false,
+    currentEvidence: "old evidence",
+    currentStatus: "doing",
+    draftEvidence: "old evidence",
+    isBusy: true,
+    statusLabels: {
+      blocked: "막힘",
+      doing: "진행 중",
+      done: "완료",
+      todo: "할 일",
+    },
+    statuses: ["todo", "doing"],
+  }).statusActions,
+  [
+    { disabled: true, label: "할 일", status: "todo" },
+    { disabled: true, label: "진행 중", status: "doing" },
+  ],
+);
 assert.ok(
   ideaWorkbenchSource.includes("implementationTaskCreateControlStates.defaultTasks.disabled"),
   "IdeaWorkbench should render default implementation task create disabled state from shared helper.",
@@ -343,12 +393,20 @@ assert.ok(
   "IdeaWorkbench should render next implementation task start disabled state from shared helper.",
 );
 assert.ok(
-  ideaWorkbenchSource.includes("buildImplementationTaskEvidenceSaveControlState"),
-  "IdeaWorkbench should resolve implementation task evidence save state from shared helper.",
+  ideaWorkbenchSource.includes("buildImplementationTaskCardControlStates"),
+  "IdeaWorkbench should resolve implementation task board-card controls from shared helper.",
 );
 assert.ok(
-  ideaWorkbenchSource.includes("buildImplementationTaskStatusControlState"),
-  "IdeaWorkbench should resolve implementation task status button state from shared helper.",
+  ideaWorkbenchSource.includes("taskCardControlStates.statusActions.map"),
+  "IdeaWorkbench should render implementation task status buttons from shared card control state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("buildImplementationTaskEvidenceSaveControlState"),
+  "IdeaWorkbench should not resolve board-card evidence save state with an inline helper call.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("buildImplementationTaskStatusControlState"),
+  "IdeaWorkbench should not resolve board-card status actions with inline helper calls.",
 );
 assert.ok(
   ideaWorkbenchSource.includes("implementationTaskVisibilityState.showGuidedTaskPreview"),

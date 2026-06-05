@@ -44,6 +44,16 @@ export type ImplementationTaskEvidenceEditControlState = {
   placeholder: string;
 };
 
+export type ImplementationTaskStatusActionControlState = ImplementationTaskActionControlState & {
+  status: ImplementationTaskStatus;
+};
+
+export type ImplementationTaskCardControlStates = {
+  evidenceEdit: ImplementationTaskEvidenceEditControlState;
+  evidenceSave: ImplementationTaskActionControlState;
+  statusActions: ImplementationTaskStatusActionControlState[];
+};
+
 export type ImplementationTaskExperienceMode = "guided" | "full";
 
 export type ImplementationTaskVisibilityState = {
@@ -195,6 +205,47 @@ export function buildImplementationTaskStatusControlState({
   return {
     disabled: isBusy || !canManage || currentStatus === nextStatus,
     label: statusLabel,
+  };
+}
+
+export function buildImplementationTaskCardControlStates({
+  canManage,
+  currentEvidence,
+  currentStatus,
+  draftEvidence,
+  isBusy,
+  statusLabels,
+  statuses,
+}: {
+  canManage: boolean;
+  currentEvidence: string | null | undefined;
+  currentStatus: ImplementationTaskStatus;
+  draftEvidence: string;
+  isBusy: boolean;
+  statusLabels: Record<ImplementationTaskStatus, string>;
+  statuses: ImplementationTaskStatus[];
+}): ImplementationTaskCardControlStates {
+  return {
+    evidenceEdit: buildImplementationTaskEvidenceEditControlState({
+      canManage,
+      isBusy,
+    }),
+    evidenceSave: buildImplementationTaskEvidenceSaveControlState({
+      canManage,
+      currentEvidence,
+      draftEvidence,
+      isBusy,
+    }),
+    statusActions: statuses.map((nextStatus) => ({
+      status: nextStatus,
+      ...buildImplementationTaskStatusControlState({
+        canManage,
+        currentStatus,
+        isBusy,
+        nextStatus,
+        statusLabel: statusLabels[nextStatus],
+      }),
+    })),
   };
 }
 

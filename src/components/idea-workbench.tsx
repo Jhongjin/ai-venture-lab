@@ -400,15 +400,13 @@ import {
   buildImplementationTaskEvidenceSavedMessage,
   buildImplementationTaskEvidencePatch,
   buildImplementationTaskEvidenceTelemetryProperties,
+  buildImplementationTaskCardControlStates,
   buildImplementationTaskCreatedTelemetryProperties,
   buildImplementationTaskCreateControlStates,
-  buildImplementationTaskEvidenceEditControlState,
   buildImplementationTaskInsertRows,
-  buildImplementationTaskEvidenceSaveControlState,
   buildImplementationTaskStatusPatch,
   buildImplementationTaskStatusChangedMessage,
   buildImplementationTaskStartControlState,
-  buildImplementationTaskStatusControlState,
   buildImplementationTaskStatusTelemetryProperties,
   buildImplementationTaskStatusUpdatePermissionDeniedMessage,
   buildImplementationTaskVisibilityState,
@@ -6049,15 +6047,14 @@ export function IdeaWorkbench({
                           task,
                         }) => {
                           const canManageTask = canManageRecord(task);
-                          const evidenceEditControlState = buildImplementationTaskEvidenceEditControlState({
-                            canManage: canManageTask,
-                            isBusy,
-                          });
-                          const evidenceSaveControlState = buildImplementationTaskEvidenceSaveControlState({
+                          const taskCardControlStates = buildImplementationTaskCardControlStates({
                             canManage: canManageTask,
                             currentEvidence: task.evidence,
+                            currentStatus: task.status,
                             draftEvidence: evidence,
                             isBusy,
+                            statusLabels: implementationTaskStatusLabels,
+                            statuses: implementationTaskStatuses,
                           });
 
                           return (
@@ -6086,9 +6083,9 @@ export function IdeaWorkbench({
                               onChange={(event) =>
                                 setImplementationTaskEvidence((current) => setRecordKey(current, task.id, event.target.value))
                               }
-                              disabled={evidenceEditControlState.disabled}
+                              disabled={taskCardControlStates.evidenceEdit.disabled}
                               rows={3}
-                              placeholder={evidenceEditControlState.placeholder}
+                              placeholder={taskCardControlStates.evidenceEdit.placeholder}
                               className="avl-textarea mt-3 w-full resize-y text-sm leading-6 text-slate-800 disabled:text-slate-500"
                             />
                             <div
@@ -6101,32 +6098,22 @@ export function IdeaWorkbench({
                               <button
                                 type="button"
                                 onClick={() => saveImplementationTaskEvidence(task)}
-                                disabled={evidenceSaveControlState.disabled}
+                                disabled={taskCardControlStates.evidenceSave.disabled}
                                 className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
                               >
-                                {evidenceSaveControlState.label}
+                                {taskCardControlStates.evidenceSave.label}
                               </button>
-                              {implementationTaskStatuses.map((nextStatus) => {
-                                const statusControlState = buildImplementationTaskStatusControlState({
-                                  canManage: canManageTask,
-                                  currentStatus: task.status,
-                                  isBusy,
-                                  nextStatus,
-                                  statusLabel: implementationTaskStatusLabels[nextStatus],
-                                });
-
-                                return (
-                                  <button
-                                    key={nextStatus}
-                                    type="button"
-                                    onClick={() => updateImplementationTaskStatus(task, nextStatus)}
-                                    disabled={statusControlState.disabled}
-                                    className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
-                                  >
-                                    {statusControlState.label}
-                                  </button>
-                                );
-                              })}
+                              {taskCardControlStates.statusActions.map((statusAction) => (
+                                <button
+                                  key={statusAction.status}
+                                  type="button"
+                                  onClick={() => updateImplementationTaskStatus(task, statusAction.status)}
+                                  disabled={statusAction.disabled}
+                                  className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
+                                >
+                                  {statusAction.label}
+                                </button>
+                              ))}
                             </div>
                           </div>
                           );
