@@ -47,6 +47,7 @@ import {
   buildArtifactDraftSavePlan,
   buildArtifactDraftSaveControlState,
   buildArtifactLibraryItemDisplayState,
+  buildArtifactLibraryItemSupplementDisplayState,
   buildArtifactLibraryViewState,
   buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
@@ -7952,6 +7953,13 @@ export function IdeaWorkbench({
                 const status = artifactDisplayState.status;
                 const versionSummary = artifactVersionSummaries.get(artifact.id);
                 const reviewSummary = artifactReviewSummaries.get(artifact.id);
+                const artifactSupplementDisplayState = buildArtifactLibraryItemSupplementDisplayState({
+                  reviewSummary,
+                  statusNoteText: artifactDisplayState.statusNoteText,
+                  versionSummary,
+                });
+                const reviewSummaryCardState = artifactSupplementDisplayState.reviewSummaryCardState;
+                const versionSummaryState = artifactSupplementDisplayState.versionSummaryState;
                 const canManageArtifact = canManageRecord(artifact);
                 const artifactStatusNoteControlState = buildArtifactReviewStatusNoteControlState({
                   canManage: canManageArtifact,
@@ -7982,37 +7990,39 @@ export function IdeaWorkbench({
                         <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                           {artifactDisplayState.sourceDateSummary}
                         </div>
-                        {artifactDisplayState.statusNoteText ? (
+                        {artifactSupplementDisplayState.showStatusNoteText ? (
                           <p className="mt-2 max-w-3xl text-sm leading-5 text-slate-600">
                             {artifactDisplayState.statusNoteText}
                           </p>
                         ) : null}
-                        {versionSummary ? (
+                        {versionSummaryState.showText ? (
                           <p className="mt-2 text-sm leading-5 text-slate-600">
-                            {`v${versionSummary.previous.version ?? 1} 대비 변경: +${versionSummary.added} / -${versionSummary.removed}줄`}
+                            {versionSummaryState.text}
                           </p>
                         ) : null}
-                        {reviewSummary ? (
+                        {reviewSummaryCardState.showCard ? (
                           <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className={artifactReviewIntensityTone[reviewSummary.intensity]}>
-                                리뷰 강도 {reviewSummary.intensityLabel}
+                              <span className={artifactReviewIntensityTone[reviewSummaryCardState.reviewSummary.intensity]}>
+                                리뷰 강도 {reviewSummaryCardState.reviewSummary.intensityLabel}
                               </span>
                               <span className="avl-pill avl-pill-neutral">
-                                비교 {reviewSummary.previous ? `v${reviewSummary.previous.version ?? 1}` : "최초 버전"}
+                                비교 {reviewSummaryCardState.comparisonLabel}
                               </span>
                             </div>
-                            <p className="mt-2 text-sm leading-5 text-slate-600">{reviewSummary.recommendation}</p>
+                            <p className="mt-2 text-sm leading-5 text-slate-600">
+                              {reviewSummaryCardState.reviewSummary.recommendation}
+                            </p>
                             <div className="mt-3 grid gap-3 lg:grid-cols-2">
                               <div className="border border-slate-200 bg-white px-3 py-2">
                                 <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                                   섹션 변화
                                 </div>
                                 <p className="mt-1 text-xs leading-5 text-slate-600">
-                                  추가: {formatArtifactReviewSectionPreview(reviewSummary.addedSections)}
+                                  추가: {formatArtifactReviewSectionPreview(reviewSummaryCardState.reviewSummary.addedSections)}
                                 </p>
                                 <p className="mt-1 text-xs leading-5 text-slate-600">
-                                  삭제: {formatArtifactReviewSectionPreview(reviewSummary.removedSections)}
+                                  삭제: {formatArtifactReviewSectionPreview(reviewSummaryCardState.reviewSummary.removedSections)}
                                 </p>
                               </div>
                               <div className="border border-slate-200 bg-white px-3 py-2">
@@ -8020,7 +8030,7 @@ export function IdeaWorkbench({
                                   승인 전 확인
                                 </div>
                                 <ul className="mt-1 grid gap-1 text-xs leading-5 text-slate-600">
-                                  {getArtifactReviewChecksPreview(reviewSummary.checks).map((check) => (
+                                  {getArtifactReviewChecksPreview(reviewSummaryCardState.reviewSummary.checks).map((check) => (
                                     <li key={check}>- {check}</li>
                                   ))}
                                 </ul>
@@ -8038,10 +8048,15 @@ export function IdeaWorkbench({
                           <Clipboard size={14} />
                           복사
                         </button>
-                        {reviewSummary ? (
+                        {reviewSummaryCardState.showMemoButton ? (
                           <button
                             type="button"
-                            onClick={() => copyDraft(buildArtifactReviewMemo(artifact, reviewSummary), "제작 자료 리뷰 메모")}
+                            onClick={() =>
+                              copyDraft(
+                                buildArtifactReviewMemo(artifact, reviewSummaryCardState.reviewSummary),
+                                "제작 자료 리뷰 메모",
+                              )
+                            }
                             className="avl-btn avl-btn-secondary px-3 text-xs"
                           >
                             <ClipboardList size={14} />

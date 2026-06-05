@@ -45,6 +45,38 @@ export type ArtifactLibraryItemDisplayState = {
   versionLabel: string;
 };
 
+export type ArtifactLibraryVersionSummaryState<TVersionSummary> =
+  | {
+      showText: true;
+      text: string;
+      versionSummary: TVersionSummary;
+    }
+  | {
+      showText: false;
+      text: "";
+      versionSummary: null;
+    };
+
+export type ArtifactLibraryReviewSummaryCardState<TReviewSummary> =
+  | {
+      comparisonLabel: string;
+      reviewSummary: TReviewSummary;
+      showCard: true;
+      showMemoButton: true;
+    }
+  | {
+      comparisonLabel: "";
+      reviewSummary: null;
+      showCard: false;
+      showMemoButton: false;
+    };
+
+export type ArtifactLibraryItemSupplementDisplayState<TVersionSummary, TReviewSummary> = {
+  reviewSummaryCardState: ArtifactLibraryReviewSummaryCardState<TReviewSummary>;
+  showStatusNoteText: boolean;
+  versionSummaryState: ArtifactLibraryVersionSummaryState<TVersionSummary>;
+};
+
 export type RecentDevelopmentHandoffArtifactDisplayState = {
   sourceDateSummary: string;
   title: string;
@@ -116,6 +148,63 @@ export function buildArtifactStatusChangedMessage({
 
 export function buildArtifactStatusUpdatePermissionDeniedMessage() {
   return "문서 작성자 또는 협업 공간 관리자만 이 제작 자료를 수정할 수 있습니다.";
+}
+
+export function buildArtifactLibraryVersionSummaryText({
+  added,
+  previous,
+  removed,
+}: {
+  added: number;
+  previous: { version?: number | null };
+  removed: number;
+}) {
+  return `v${previous.version ?? 1} 대비 변경: +${added} / -${removed}줄`;
+}
+
+export function buildArtifactLibraryReviewComparisonLabel(previous: { version?: number | null } | null | undefined) {
+  return previous ? `v${previous.version ?? 1}` : "최초 버전";
+}
+
+export function buildArtifactLibraryItemSupplementDisplayState<
+  TVersionSummary extends { added: number; previous: { version?: number | null }; removed: number },
+  TReviewSummary extends { previous?: { version?: number | null } | null },
+>({
+  reviewSummary,
+  statusNoteText,
+  versionSummary,
+}: {
+  reviewSummary: TReviewSummary | null | undefined;
+  statusNoteText: string | null;
+  versionSummary: TVersionSummary | null | undefined;
+}): ArtifactLibraryItemSupplementDisplayState<TVersionSummary, TReviewSummary> {
+  return {
+    reviewSummaryCardState: reviewSummary
+      ? {
+          comparisonLabel: buildArtifactLibraryReviewComparisonLabel(reviewSummary.previous),
+          reviewSummary,
+          showCard: true,
+          showMemoButton: true,
+        }
+      : {
+          comparisonLabel: "",
+          reviewSummary: null,
+          showCard: false,
+          showMemoButton: false,
+        },
+    showStatusNoteText: Boolean(statusNoteText),
+    versionSummaryState: versionSummary
+      ? {
+          showText: true,
+          text: buildArtifactLibraryVersionSummaryText(versionSummary),
+          versionSummary,
+        }
+      : {
+          showText: false,
+          text: "",
+          versionSummary: null,
+        },
+  };
 }
 
 export function buildArtifactDraftInsertRow({

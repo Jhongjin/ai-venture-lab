@@ -28,6 +28,7 @@ const {
   buildArtifactLibraryEmptyMessage,
   buildArtifactLibraryItemDisplayState,
   buildArtifactLibraryItemSourceDateSummary,
+  buildArtifactLibraryItemSupplementDisplayState,
   buildArtifactLibraryViewDisplayState,
   buildArtifactLibraryViewState,
   buildArtifactLibraryFocusMessage,
@@ -514,6 +515,91 @@ assert.deepEqual(
     versionLabel: "v1",
   },
 );
+assert.deepEqual(
+  buildArtifactLibraryItemSupplementDisplayState({
+    reviewSummary: {
+      previous: { version: 2 },
+      recommendation: "변경 범위를 확인하세요.",
+    },
+    statusNoteText: "점검 메모: 범위 확인 완료",
+    versionSummary: {
+      added: 4,
+      previous: { version: 2 },
+      removed: 1,
+    },
+  }),
+  {
+    reviewSummaryCardState: {
+      comparisonLabel: "v2",
+      reviewSummary: {
+        previous: { version: 2 },
+        recommendation: "변경 범위를 확인하세요.",
+      },
+      showCard: true,
+      showMemoButton: true,
+    },
+    showStatusNoteText: true,
+    versionSummaryState: {
+      showText: true,
+      text: "v2 대비 변경: +4 / -1줄",
+      versionSummary: {
+        added: 4,
+        previous: { version: 2 },
+        removed: 1,
+      },
+    },
+  },
+);
+assert.deepEqual(
+  buildArtifactLibraryItemSupplementDisplayState({
+    reviewSummary: { previous: null },
+    statusNoteText: "",
+    versionSummary: {
+      added: 0,
+      previous: { version: null },
+      removed: 0,
+    },
+  }),
+  {
+    reviewSummaryCardState: {
+      comparisonLabel: "최초 버전",
+      reviewSummary: { previous: null },
+      showCard: true,
+      showMemoButton: true,
+    },
+    showStatusNoteText: false,
+    versionSummaryState: {
+      showText: true,
+      text: "v1 대비 변경: +0 / -0줄",
+      versionSummary: {
+        added: 0,
+        previous: { version: null },
+        removed: 0,
+      },
+    },
+  },
+);
+assert.deepEqual(
+  buildArtifactLibraryItemSupplementDisplayState({
+    reviewSummary: null,
+    statusNoteText: null,
+    versionSummary: null,
+  }),
+  {
+    reviewSummaryCardState: {
+      comparisonLabel: "",
+      reviewSummary: null,
+      showCard: false,
+      showMemoButton: false,
+    },
+    showStatusNoteText: false,
+    versionSummaryState: {
+      showText: false,
+      text: "",
+      versionSummary: null,
+    },
+  },
+);
 assert.deepEqual(buildArtifactSourceFilterOptions(["all", "manual", "unknown_source"]), [
   { label: "전체 출처", value: "all" },
   { label: "수동", value: "manual" },
@@ -709,6 +795,42 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("artifactDisplayState.statusLabel"),
   "IdeaWorkbench should render selected artifact status label from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("artifactDisplayState.statusNoteText ?"),
+  "IdeaWorkbench should render artifact status-note visibility from shared supplement display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("versionSummary ?"),
+  "IdeaWorkbench should render artifact version-summary visibility from shared supplement display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("reviewSummary ?"),
+  "IdeaWorkbench should render artifact review-summary visibility from shared supplement display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("reviewSummary.previous ?"),
+  "IdeaWorkbench should render artifact review comparison label from shared supplement display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("buildArtifactLibraryItemSupplementDisplayState"),
+  "IdeaWorkbench should build artifact supplement display state from the shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactSupplementDisplayState.showStatusNoteText"),
+  "IdeaWorkbench should use artifact status-note visibility from shared supplement display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("versionSummaryState.showText"),
+  "IdeaWorkbench should use artifact version-summary visibility from shared supplement display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("reviewSummaryCardState.showCard"),
+  "IdeaWorkbench should use artifact review-summary card visibility from shared supplement display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("reviewSummaryCardState.comparisonLabel"),
+  "IdeaWorkbench should use artifact review comparison label from shared supplement display state.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes('artifact.title || "제목 없음"'),
