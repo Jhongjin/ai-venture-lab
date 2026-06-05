@@ -37,6 +37,8 @@ const {
 } = await import(moduleUrl);
 const {
   buildArtifactReviewDevelopmentFocusMessage,
+  buildArtifactReviewItemDisplayState,
+  buildArtifactReviewItemDisplayStates,
   buildArtifactReviewPanelFocusMessage,
   buildArtifactReviewProgressState,
   buildArtifactReviewQueue,
@@ -312,6 +314,30 @@ assert.equal(progressState.approvedCount, 2);
 assert.equal(progressState.nextItem?.id, "prd");
 assert.equal(progressState.nextItem?.status, "draft");
 assert.equal(progressState.progress, 22);
+assert.deepEqual(buildArtifactReviewItemDisplayState(reviewQueue[0]), {
+  action: "문제, 대상, 구매자, 리스크 요약을 확인 가능한 문서로 저장합니다.",
+  detail: "아이디어 요약이 승인되었습니다.",
+  id: "idea-brief",
+  item: reviewQueue[0],
+  label: "아이디어 요약",
+  statusLabel: "승인",
+  statusNextLabel: "승인",
+  statusPillTone: "avl-pill-success",
+});
+assert.deepEqual(
+  buildArtifactReviewItemDisplayStates(reviewQueue).map((item) => [item.id, item.statusLabel]),
+  [
+    ["idea-brief", "승인"],
+    ["research-note", "승인"],
+    ["prd", "초안"],
+    ["mvp-spec", "없음"],
+    ["backend-decision", "없음"],
+    ["design-brief", "없음"],
+    ["tech-spec", "없음"],
+    ["dev-runbook", "없음"],
+    ["launch-checklist", "없음"],
+  ],
+);
 const workflowState = buildArtifactReviewWorkflowState([
   artifact({
     body: "# Idea",
@@ -435,6 +461,14 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("developmentPanelTabStates.map"),
   "IdeaWorkbench should use shared development panel tab states.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("getArtifactReviewStatusDisplay("),
+  "IdeaWorkbench should render artifact review status labels from shared display states.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactReviewItemDisplayStates.map"),
+  "IdeaWorkbench should use shared artifact review item display states.",
 );
 
 console.log("Artifact review summary smoke passed.");

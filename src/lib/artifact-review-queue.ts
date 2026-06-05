@@ -27,6 +27,17 @@ export type ArtifactReviewProgressState = {
   totalCount: number;
 };
 
+export type ArtifactReviewItemDisplayState = {
+  action: string;
+  detail: string;
+  id: string;
+  item: ArtifactReviewItem;
+  label: string;
+  statusLabel: string;
+  statusNextLabel: string;
+  statusPillTone: string;
+};
+
 export type DevelopmentPanelTabState = {
   className: string;
   isActive: boolean;
@@ -45,6 +56,25 @@ export const artifactReviewStatusDisplays: Record<
 
 export function getArtifactReviewStatusDisplay(status: ArtifactReviewStatus) {
   return artifactReviewStatusDisplays[status];
+}
+
+export function buildArtifactReviewItemDisplayState(item: ArtifactReviewItem): ArtifactReviewItemDisplayState {
+  const statusDisplay = getArtifactReviewStatusDisplay(item.status);
+
+  return {
+    action: item.action,
+    detail: item.detail,
+    id: item.id,
+    item,
+    label: item.label,
+    statusLabel: statusDisplay.label,
+    statusNextLabel: statusDisplay.nextLabel,
+    statusPillTone: statusDisplay.pillTone,
+  };
+}
+
+export function buildArtifactReviewItemDisplayStates(items: ArtifactReviewItem[]): ArtifactReviewItemDisplayState[] {
+  return items.map(buildArtifactReviewItemDisplayState);
 }
 
 export const artifactPanelLabels: Record<ArtifactPanel, string> = {

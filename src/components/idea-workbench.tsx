@@ -21,12 +21,13 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   artifactPanelDescriptions,
+  buildArtifactReviewItemDisplayState,
+  buildArtifactReviewItemDisplayStates,
   buildArtifactReviewDevelopmentFocusMessage,
   buildArtifactReviewPanelFocusMessage,
   buildArtifactReviewWorkflowState,
   buildDevelopmentPanelTabStates,
   developmentPanelDescriptions,
-  getArtifactReviewStatusDisplay,
   type ArtifactPanel,
   type ArtifactReviewItem,
   type DevelopmentPanel,
@@ -1094,6 +1095,10 @@ export function IdeaWorkbench({
     progress: artifactReviewProgress,
     queue: artifactReviewQueue,
   } = useMemo(() => buildArtifactReviewWorkflowState(selectedArtifactRecords), [selectedArtifactRecords]);
+  const nextArtifactReviewItemDisplayState = nextArtifactReviewItem
+    ? buildArtifactReviewItemDisplayState(nextArtifactReviewItem)
+    : null;
+  const artifactReviewItemDisplayStates = buildArtifactReviewItemDisplayStates(artifactReviewQueue);
   const {
     activeArtifactSourceFilter,
     artifactSourceFilterOptions,
@@ -7811,22 +7816,18 @@ export function IdeaWorkbench({
                   <p className="mt-1 text-sm leading-6 text-slate-600">
                     아이디어 검증에서 제작과 출시까지 필요한 자료를 순서대로 확인합니다.
                   </p>
-                  {nextArtifactReviewItem ? (
+                  {nextArtifactReviewItemDisplayState ? (
                     <div className="border border-slate-200 bg-white mt-3 p-3">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-sm font-semibold text-slate-950">
-                          다음 처리: {nextArtifactReviewItem.label}
+                          다음 처리: {nextArtifactReviewItemDisplayState.label}
                         </span>
-                        <span
-                          className={`avl-pill ${
-                            getArtifactReviewStatusDisplay(nextArtifactReviewItem.status).pillTone
-                          }`}
-                        >
-                          {getArtifactReviewStatusDisplay(nextArtifactReviewItem.status).nextLabel}
+                        <span className={`avl-pill ${nextArtifactReviewItemDisplayState.statusPillTone}`}>
+                          {nextArtifactReviewItemDisplayState.statusNextLabel}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm leading-5 text-slate-600">{nextArtifactReviewItem.detail}</p>
-                      <p className="mt-1 text-sm leading-5 text-slate-600">{nextArtifactReviewItem.action}</p>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">{nextArtifactReviewItemDisplayState.detail}</p>
+                      <p className="mt-1 text-sm leading-5 text-slate-600">{nextArtifactReviewItemDisplayState.action}</p>
                     </div>
                   ) : (
                     <div className="mt-3 border border-emerald-200 bg-emerald-50 p-3 text-sm leading-5 text-emerald-900">
@@ -7839,10 +7840,10 @@ export function IdeaWorkbench({
                     승인 {approvedArtifactReviewCount}/{artifactReviewQueue.length}
                   </div>
                   <div className="mt-1 text-3xl font-semibold">{artifactReviewProgress}%</div>
-                  {nextArtifactReviewItem ? (
+                  {nextArtifactReviewItemDisplayState ? (
                     <button
                       type="button"
-                      onClick={() => focusArtifactReviewItem(nextArtifactReviewItem)}
+                      onClick={() => focusArtifactReviewItem(nextArtifactReviewItemDisplayState.item)}
                       className="avl-btn avl-btn-secondary mt-3 h-9 px-3 text-xs"
                     >
                       다음 항목 열기
@@ -7851,24 +7852,20 @@ export function IdeaWorkbench({
                 </div>
               </div>
               <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-                {artifactReviewQueue.map((item) => (
+                {artifactReviewItemDisplayStates.map((displayItem) => (
                   <button
-                    key={item.id}
+                    key={displayItem.id}
                     type="button"
-                    onClick={() => focusArtifactReviewItem(item)}
+                    onClick={() => focusArtifactReviewItem(displayItem.item)}
                     className="border border-slate-200 bg-white px-3 py-2 text-left transition hover:border-slate-300 hover:bg-slate-50"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-slate-950">{item.label}</span>
-                      <span
-                        className={`avl-pill ${
-                          getArtifactReviewStatusDisplay(item.status).pillTone
-                        }`}
-                      >
-                        {getArtifactReviewStatusDisplay(item.status).label}
+                      <span className="text-xs font-semibold text-slate-950">{displayItem.label}</span>
+                      <span className={`avl-pill ${displayItem.statusPillTone}`}>
+                        {displayItem.statusLabel}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs leading-5 text-slate-600">{item.detail}</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-600">{displayItem.detail}</p>
                   </button>
                 ))}
               </div>
