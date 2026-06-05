@@ -288,6 +288,7 @@ import {
 } from "@/lib/market-scan";
 import { buildWorkbenchCurrentActionDisplayState } from "@/lib/workbench-current-action-copy";
 import {
+  buildDevelopmentKickoffReadinessDisplayState,
   buildWorkbenchGateReadinessState,
   buildWorkbenchStepReadinessSnapshot,
   countDoneWorkbenchRuns,
@@ -2049,6 +2050,12 @@ export function IdeaWorkbench({
     risks: selectedIdeaRisks,
     runs: selectedRuns,
     targetUser: selectedIdea?.target_user ?? "",
+  });
+  const developmentKickoffReadinessDisplayState = buildDevelopmentKickoffReadinessDisplayState({
+    buildReadinessScore,
+    nextBuildBlocker,
+    passedBuildReadinessCount,
+    totalBuildReadinessCount: buildReadinessChecks.length,
   });
   const validationPackageProductReadinessNotice = buildValidationPackageProductReadinessNotice(nextPrdBlocker);
   const validationPackageProductReadinessCheckRows = buildValidationPackageReadinessCheckDisplayRows(prdReadinessChecks);
@@ -5491,30 +5498,21 @@ export function IdeaWorkbench({
                   </p>
                   <div
                     className={`mt-3 border px-3 py-2 text-sm leading-6 ${
-                      nextBuildBlocker
-                        ? "border-amber-200 bg-amber-50 text-amber-950"
-                        : "border-emerald-200 bg-emerald-50 text-emerald-950"
+                      developmentKickoffReadinessDisplayState.panelClassName
                     }`}
                   >
-                    {nextBuildBlocker ? (
-                      <>
-                        <span className="font-semibold">다음 확인 항목: {nextBuildBlocker.label}</span>
-                        <span className="block">{nextBuildBlocker.detail}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-semibold">제작 시작에 필요한 입력이 정리됐습니다.</span>
-                        <span className="block">기본 할 일을 만들고 가장 작은 첫 제작 범위부터 진행하세요.</span>
-                      </>
-                    )}
+                    <span className="font-semibold">{developmentKickoffReadinessDisplayState.title}</span>
+                    <span className="block">{developmentKickoffReadinessDisplayState.detail}</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
                   <div className="avl-surface-muted px-4 py-3 text-right text-slate-950">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      준비 {passedBuildReadinessCount}/{buildReadinessChecks.length}
+                      {developmentKickoffReadinessDisplayState.countLabel}
                     </div>
-                    <div className="mt-1 text-3xl font-semibold">{buildReadinessScore}%</div>
+                    <div className="mt-1 text-3xl font-semibold">
+                      {developmentKickoffReadinessDisplayState.scoreLabel}
+                    </div>
                   </div>
                   <button
                     type="button"

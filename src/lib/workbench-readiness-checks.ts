@@ -10,6 +10,14 @@ export type GateCheckSummary = {
   score: number;
 };
 
+export type DevelopmentKickoffReadinessDisplayState = {
+  countLabel: string;
+  detail: string;
+  panelClassName: string;
+  scoreLabel: string;
+  title: string;
+};
+
 export type WorkbenchRiskLike = {
   severity: string;
   status: string;
@@ -57,6 +65,32 @@ export function countWorkbenchHighRiskItems(risks: ReadonlyArray<WorkbenchRiskLi
   return {
     highRiskCount: highRiskItems.length,
     unresolvedHighRiskCount: highRiskItems.filter((risk) => risk.status !== "closed").length,
+  };
+}
+
+export function buildDevelopmentKickoffReadinessDisplayState({
+  buildReadinessScore,
+  nextBuildBlocker,
+  passedBuildReadinessCount,
+  totalBuildReadinessCount,
+}: {
+  buildReadinessScore: number;
+  nextBuildBlocker: GateCheck | null;
+  passedBuildReadinessCount: number;
+  totalBuildReadinessCount: number;
+}): DevelopmentKickoffReadinessDisplayState {
+  return {
+    countLabel: `준비 ${passedBuildReadinessCount}/${totalBuildReadinessCount}`,
+    detail: nextBuildBlocker
+      ? nextBuildBlocker.detail
+      : "기본 할 일을 만들고 가장 작은 첫 제작 범위부터 진행하세요.",
+    panelClassName: nextBuildBlocker
+      ? "border-amber-200 bg-amber-50 text-amber-950"
+      : "border-emerald-200 bg-emerald-50 text-emerald-950",
+    scoreLabel: `${buildReadinessScore}%`,
+    title: nextBuildBlocker
+      ? `다음 확인 항목: ${nextBuildBlocker.label}`
+      : "제작 시작에 필요한 입력이 정리됐습니다.",
   };
 }
 

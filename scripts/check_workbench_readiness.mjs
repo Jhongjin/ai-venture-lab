@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-readiness-checks.ts")).href;
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 const {
+  buildDevelopmentKickoffReadinessDisplayState,
   buildBuildReadinessChecks,
   buildDesignReadinessChecks,
   buildImplementationGateChecks,
@@ -154,6 +157,36 @@ assert.equal(gateState.designReadinessScore, 83);
 assert.equal(gateState.nextBuildBlocker.label, "제품 기획서 승인");
 assert.equal(gateState.implementationGateScore, 20);
 assert.equal(gateState.passedImplementationGateCount, 1);
+assert.deepEqual(
+  buildDevelopmentKickoffReadinessDisplayState({
+    buildReadinessScore: gateState.buildReadinessScore,
+    nextBuildBlocker: gateState.nextBuildBlocker,
+    passedBuildReadinessCount: gateState.passedBuildReadinessCount,
+    totalBuildReadinessCount: gateState.buildReadinessChecks.length,
+  }),
+  {
+    countLabel: "준비 9/12",
+    detail: "제품 기획서 초안은 있고 승인이 필요합니다.",
+    panelClassName: "border-amber-200 bg-amber-50 text-amber-950",
+    scoreLabel: "75%",
+    title: "다음 확인 항목: 제품 기획서 승인",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentKickoffReadinessDisplayState({
+    buildReadinessScore: 100,
+    nextBuildBlocker: null,
+    passedBuildReadinessCount: 12,
+    totalBuildReadinessCount: 12,
+  }),
+  {
+    countLabel: "준비 12/12",
+    detail: "기본 할 일을 만들고 가장 작은 첫 제작 범위부터 진행하세요.",
+    panelClassName: "border-emerald-200 bg-emerald-50 text-emerald-950",
+    scoreLabel: "100%",
+    title: "제작 시작에 필요한 입력이 정리됐습니다.",
+  },
+);
 
 const emptyGateState = buildWorkbenchGateReadinessState({
   ...gateStateInput,
@@ -228,5 +261,17 @@ assert.equal(hasCompletedWorkbenchExperiment([{ status: "planned" }, { status: "
 assert.equal(hasCompletedWorkbenchExperiment([{ status: "planned" }, { status: "running" }]), false);
 assert.equal(hasDevelopmentProcessArtifact([{ source: "manual" }, { source: "development_process" }]), true);
 assert.equal(hasDevelopmentProcessArtifact([{ source: null }]), false);
+assert.ok(
+  ideaWorkbenchSource.includes("developmentKickoffReadinessDisplayState"),
+  "IdeaWorkbench should render development kickoff readiness from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("다음 확인 항목: {nextBuildBlocker.label}"),
+  "IdeaWorkbench should not keep development kickoff blocker title inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("준비 {passedBuildReadinessCount}/{buildReadinessChecks.length}"),
+  "IdeaWorkbench should not keep development kickoff readiness count inline.",
+);
 
 console.log("Workbench readiness smoke passed.");
