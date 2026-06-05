@@ -217,10 +217,21 @@ assert.deepEqual(
     priorityLabel: "높음",
     priorityToneClass: "avl-pill avl-pill-danger",
     showBlockers: true,
+    showStartButton: true,
     statusLabel: "할 일",
     statusToneClass: "avl-pill avl-pill-neutral",
     title: "T-001 제작 패키지 리뷰 화면",
   },
+);
+assert.equal(
+  buildNextImplementationTaskDisplayState({
+    dependencyStatus: null,
+    task: {
+      ...readyTask,
+      status: "doing",
+    },
+  }).showStartButton,
+  false,
 );
 assert.deepEqual(
   buildNextImplementationTaskDisplayState({
@@ -241,12 +252,20 @@ assert.ok(
   "IdeaWorkbench should render next implementation dependency blockers from shared display state.",
 );
 assert.ok(
+  ideaWorkbenchSource.includes("nextImplementationTaskDisplayState.showStartButton"),
+  "IdeaWorkbench should render next implementation start button from shared display state.",
+);
+assert.ok(
   !ideaWorkbenchSource.includes("buildNextImplementationTaskActionDetail({"),
   "IdeaWorkbench should not build next implementation task detail inline.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("nextImplementationDependencyStatus?.blockers.length"),
   "IdeaWorkbench should not decide next implementation blockers inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('nextImplementationTask.status === "todo"'),
+  "IdeaWorkbench should not decide next implementation start visibility inline.",
 );
 
 const statuses = [

@@ -65,6 +65,7 @@ export type NextImplementationTaskDisplayState = {
   priorityLabel: string;
   priorityToneClass: string;
   showBlockers: boolean;
+  showStartButton: boolean;
   statusLabel: string;
   statusToneClass: string;
   title: string;
@@ -342,6 +343,7 @@ export function buildNextImplementationTaskDisplayState({
     priorityLabel: implementationTaskPriorityLabels[task.priority],
     priorityToneClass: implementationTaskPriorityTone[task.priority],
     showBlockers: blockerText.length > 0,
+    showStartButton: task.status === "todo",
     statusLabel: implementationTaskStatusLabels[task.status],
     statusToneClass: implementationTaskStatusTone[task.status],
     title: task.title,

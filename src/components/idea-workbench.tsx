@@ -5627,9 +5627,9 @@ export function IdeaWorkbench({
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {nextImplementationTask ? (
+                    {nextImplementationTask && nextImplementationTaskDisplayState ? (
                       <>
-                        {nextImplementationTask.status === "todo" ? (
+                        {nextImplementationTaskDisplayState.showStartButton ? (
                           <button
                             type="button"
                             onClick={() => updateImplementationTaskStatus(nextImplementationTask, "doing")}
