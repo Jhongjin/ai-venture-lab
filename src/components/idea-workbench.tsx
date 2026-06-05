@@ -565,6 +565,7 @@ import {
   buildImplementationEvidencePanelDisplayState,
   buildOpenImplementationTaskPreviewState,
   buildNextImplementationTaskDisplayState,
+  buildNextImplementationTaskPanelState,
   buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskRefreshSummary,
   buildImplementationTaskReviewState,
@@ -1220,6 +1221,10 @@ export function IdeaWorkbench({
         task: nextImplementationTask,
       })
     : null;
+  const nextImplementationTaskPanelState = buildNextImplementationTaskPanelState({
+    displayState: nextImplementationTaskDisplayState,
+    task: nextImplementationTask,
+  });
   const nextImplementationTaskStartControlState = buildImplementationTaskStartControlState({
     canManage: nextImplementationTask ? canManageRecord(nextImplementationTask) : false,
     isBusy,
@@ -5640,42 +5645,44 @@ export function IdeaWorkbench({
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-950">다음 제작 액션</h4>
-                    {nextImplementationTaskDisplayState ? (
+                    {nextImplementationTaskPanelState.showTaskDetails ? (
                       <>
                         <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <span className="text-base font-semibold text-slate-950">{nextImplementationTaskDisplayState.title}</span>
-                          <span className={nextImplementationTaskDisplayState.statusToneClass}>
-                            {nextImplementationTaskDisplayState.statusLabel}
+                          <span className="text-base font-semibold text-slate-950">
+                            {nextImplementationTaskPanelState.displayState.title}
                           </span>
-                          <span className={nextImplementationTaskDisplayState.priorityToneClass}>
-                            {nextImplementationTaskDisplayState.priorityLabel}
+                          <span className={nextImplementationTaskPanelState.displayState.statusToneClass}>
+                            {nextImplementationTaskPanelState.displayState.statusLabel}
+                          </span>
+                          <span className={nextImplementationTaskPanelState.displayState.priorityToneClass}>
+                            {nextImplementationTaskPanelState.displayState.priorityLabel}
                           </span>
                         </div>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
-                          {nextImplementationTaskDisplayState.actionDetail}
+                          {nextImplementationTaskPanelState.displayState.actionDetail}
                         </p>
-                        {nextImplementationTaskDisplayState.showBlockers ? (
+                        {nextImplementationTaskPanelState.displayState.showBlockers ? (
                           <div className="avl-surface-muted mt-2 px-3 py-2 text-xs font-semibold leading-5 text-slate-700">
-                            선행 조건: {nextImplementationTaskDisplayState.blockerText}
+                            선행 조건: {nextImplementationTaskPanelState.displayState.blockerText}
                           </div>
                         ) : null}
                         <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                          {nextImplementationTaskDisplayState.ownerRoleLabel}
+                          {nextImplementationTaskPanelState.displayState.ownerRoleLabel}
                         </div>
                       </>
                     ) : (
                       <p className="mt-2 text-sm leading-6 text-blue-900">
-                        열린 실행 할 일이 없습니다. 개발 완료 점검과 출시 판단을 확인하세요.
+                        {nextImplementationTaskPanelState.emptyMessage}
                       </p>
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {nextImplementationTask && nextImplementationTaskDisplayState ? (
+                    {nextImplementationTaskPanelState.showTaskActions ? (
                       <>
-                        {nextImplementationTaskDisplayState.showStartButton ? (
+                        {nextImplementationTaskPanelState.displayState.showStartButton ? (
                           <button
                             type="button"
-                            onClick={() => updateImplementationTaskStatus(nextImplementationTask, "doing")}
+                            onClick={() => updateImplementationTaskStatus(nextImplementationTaskPanelState.task, "doing")}
                             disabled={nextImplementationTaskStartControlState.disabled}
                             className="avl-btn avl-btn-primary h-9 px-3 text-xs disabled:opacity-50"
                           >

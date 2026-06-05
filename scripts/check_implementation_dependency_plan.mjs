@@ -32,6 +32,7 @@ const {
   buildImplementationTaskProgressStats,
   buildNextImplementationTaskActionDetail,
   buildNextImplementationTaskDisplayState,
+  buildNextImplementationTaskPanelState,
   buildOpenImplementationTaskPreviewState,
   getBlockedImplementationTaskDependencyBlockers,
   getCompletedImplementationTaskTypes,
@@ -281,6 +282,30 @@ assert.deepEqual(
     title: "T-001 제작 패키지 리뷰 화면",
   },
 );
+const nextTaskDisplayState = buildNextImplementationTaskDisplayState({
+  dependencyStatus: null,
+  task: readyTask,
+});
+assert.deepEqual(buildNextImplementationTaskPanelState({
+  displayState: nextTaskDisplayState,
+  task: readyTask,
+}), {
+  displayState: nextTaskDisplayState,
+  emptyMessage: "열린 실행 할 일이 없습니다. 개발 완료 점검과 출시 판단을 확인하세요.",
+  showTaskActions: true,
+  showTaskDetails: true,
+  task: readyTask,
+});
+assert.deepEqual(buildNextImplementationTaskPanelState({
+  displayState: null,
+  task: null,
+}), {
+  displayState: null,
+  emptyMessage: "열린 실행 할 일이 없습니다. 개발 완료 점검과 출시 판단을 확인하세요.",
+  showTaskActions: false,
+  showTaskDetails: false,
+  task: null,
+});
 assert.equal(
   buildNextImplementationTaskDisplayState({
     dependencyStatus: null,
@@ -302,16 +327,32 @@ assert.deepEqual(
   "owner 미정",
 );
 assert.ok(
-  ideaWorkbenchSource.includes("nextImplementationTaskDisplayState.statusLabel"),
+  ideaWorkbenchSource.includes("nextImplementationTaskPanelState.displayState.statusLabel"),
   "IdeaWorkbench should render next implementation task status from shared display state.",
 );
 assert.ok(
-  ideaWorkbenchSource.includes("nextImplementationTaskDisplayState.blockerText"),
+  ideaWorkbenchSource.includes("nextImplementationTaskPanelState.displayState.blockerText"),
   "IdeaWorkbench should render next implementation dependency blockers from shared display state.",
 );
 assert.ok(
-  ideaWorkbenchSource.includes("nextImplementationTaskDisplayState.showStartButton"),
+  ideaWorkbenchSource.includes("nextImplementationTaskPanelState.displayState.showStartButton"),
   "IdeaWorkbench should render next implementation start button from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("nextImplementationTaskDisplayState ?"),
+  "IdeaWorkbench should render next task details from shared panel state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("nextImplementationTask && nextImplementationTaskDisplayState ?"),
+  "IdeaWorkbench should render next task actions from shared panel state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("nextImplementationTaskPanelState.showTaskDetails"),
+  "IdeaWorkbench should render next task details from shared panel state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("nextImplementationTaskPanelState.showTaskActions"),
+  "IdeaWorkbench should render next task actions from shared panel state.",
 );
 assert.ok(
   ideaWorkbenchSource.includes("implementationOpenTaskPreviewState.countLabel"),

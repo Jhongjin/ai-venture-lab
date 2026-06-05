@@ -71,6 +71,22 @@ export type NextImplementationTaskDisplayState = {
   title: string;
 };
 
+export type NextImplementationTaskPanelState =
+  | {
+      displayState: NextImplementationTaskDisplayState;
+      emptyMessage: string;
+      showTaskActions: true;
+      showTaskDetails: true;
+      task: ImplementationTask;
+    }
+  | {
+      displayState: null;
+      emptyMessage: string;
+      showTaskActions: false;
+      showTaskDetails: false;
+      task: null;
+    };
+
 export type OpenImplementationTaskPreviewItem = {
   acceptanceCriteria: string | null;
   id: string;
@@ -458,6 +474,32 @@ export function buildNextImplementationTaskDisplayState({
     statusToneClass: implementationTaskStatusTone[task.status],
     title: task.title,
   };
+}
+
+export function buildNextImplementationTaskPanelState({
+  displayState,
+  task,
+}: {
+  displayState: NextImplementationTaskDisplayState | null;
+  task: ImplementationTask | null;
+}): NextImplementationTaskPanelState {
+  const emptyMessage = "열린 실행 할 일이 없습니다. 개발 완료 점검과 출시 판단을 확인하세요.";
+
+  return task && displayState
+    ? {
+        displayState,
+        emptyMessage,
+        showTaskActions: true,
+        showTaskDetails: true,
+        task,
+      }
+    : {
+        displayState: null,
+        emptyMessage,
+        showTaskActions: false,
+        showTaskDetails: false,
+        task: null,
+      };
 }
 
 export function getCompletedImplementationTasksWithEvidence(tasks: ImplementationTask[]) {
