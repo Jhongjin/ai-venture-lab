@@ -144,7 +144,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
       state: "visible",
       timeout,
     });
-  await page.locator('[data-smoke="step8-primary-action-now"]').getByText("오늘 확인할 것", { exact: true }).waitFor({
+  await page.locator('[data-smoke="step8-primary-action-now"]').getByText("지금 확인", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });
@@ -230,7 +230,7 @@ async function verifyLearningTaskBoard(page, ideaId) {
     timeout,
   });
   const nextJudgmentBrief = page.locator('[data-smoke="step8-next-judgment-brief"]');
-  await nextJudgmentBrief.getByText("오늘 답할 질문", { exact: true }).waitFor({
+  await nextJudgmentBrief.getByText("판단 질문", { exact: true }).waitFor({
     state: "visible",
     timeout,
   });

@@ -24,7 +24,7 @@ export function Step8ActionHighlights({
   return (
     <>
       <div data-smoke="step8-primary-action-now" className="mt-3 border border-blue-200 bg-white px-3 py-2">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 확인할 것</div>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">지금 확인</div>
         <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{primaryActionText}</p>
         <p className="mt-1 text-xs leading-5 text-slate-600">{primaryActionDetail}</p>
       </div>
@@ -38,7 +38,7 @@ export function Step8ActionHighlights({
             <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{oneSentenceOutcome}</p>
           </div>
           <div data-smoke="step8-next-judgment-brief" className="border border-blue-100 bg-blue-50 px-3 py-2">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">오늘 답할 질문</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">판단 질문</div>
             <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">{judgmentQuestion}</p>
             <p className="mt-1 text-xs leading-5 text-slate-600">{nextJudgmentBrief}</p>
           </div>
