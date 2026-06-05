@@ -512,6 +512,7 @@ import {
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
+  buildValidationDecisionListItemStates,
   buildValidationExperimentListItemStates,
   buildValidationExperimentManualSaveControlState,
   buildValidationExperimentNameRequiredMessage,
@@ -1600,19 +1601,24 @@ export function IdeaWorkbench({
       })
     : [];
   const scoringNoteFieldConfigs = editState ? buildWorkbenchScoringNoteFieldConfigs(editState) : [];
-  const { recommendedValidationExperiment, validationEvidenceCoach, validationPlan } = buildValidationPlanningReviewState({
-    artifacts: selectedArtifactRecords,
-    decisions: selectedDecisions,
-    experiments: selectedExperiments,
-    idea: selectedIdea,
-    missing,
-    risks: selectedIdeaRisks,
-    score: currentScore,
-    state: editState,
-  });
+  const { recommendedValidationExperiment, recommendedValidationRisk, validationEvidenceCoach, validationPlan } =
+    buildValidationPlanningReviewState({
+      artifacts: selectedArtifactRecords,
+      decisions: selectedDecisions,
+      experiments: selectedExperiments,
+      idea: selectedIdea,
+      missing,
+      risks: selectedIdeaRisks,
+      score: currentScore,
+      state: editState,
+    });
   const validationPlanningDisplayState = buildValidationPlanningDisplayState({
     hasValidationPlan: Boolean(validationPlan),
+    recommendedValidationExperiment,
+    suggestedRisk: recommendedValidationRisk,
   });
+  const recommendedExperimentActionState = validationPlanningDisplayState.recommendedExperimentActionState;
+  const riskSuggestionCardState = validationPlanningDisplayState.riskSuggestionCardState;
   const validationPlanExperimentPreview = validationPlan
     ? getValidationPlanExperimentPreview(validationPlan.experiments)
     : [];
@@ -1622,6 +1628,7 @@ export function IdeaWorkbench({
     riskCount: selectedRisks.length,
   });
   const validationExperimentListItemStates = buildValidationExperimentListItemStates(selectedExperiments);
+  const validationDecisionListItemStates = buildValidationDecisionListItemStates(selectedDecisions);
   const recommendedValidationExperimentSaveControl = buildRecommendedValidationExperimentSaveControl({
     hasSavedExperiment: validationRecordListVisibilityState.hasExperiments,
     hasUser: Boolean(user),
@@ -6670,7 +6677,7 @@ export function IdeaWorkbench({
                 </div>
                 <ShieldAlert className="text-rose-600" size={22} />
               </div>
-              {validationPlan?.risks[0] ? (
+              {riskSuggestionCardState.showCard ? (
                 <div className="mb-4 border border-rose-100 bg-rose-50 px-4 py-3">
                   <div className="text-xs font-semibold tracking-[0.14em] text-rose-700">AI 추천 리스크</div>
                   <p className="mt-2 text-sm leading-5 text-rose-950">
@@ -6678,7 +6685,7 @@ export function IdeaWorkbench({
                   </p>
                   <button
                     type="button"
-                    onClick={() => loadRiskSuggestion(validationPlan.risks[0])}
+                    onClick={() => loadRiskSuggestion(riskSuggestionCardState.risk)}
                     className="avl-btn avl-btn-secondary mt-3 h-9 px-3 text-xs"
                   >
                     핵심 리스크 가져오기
@@ -6860,10 +6867,10 @@ export function IdeaWorkbench({
               <h3 className="mt-1 text-lg font-semibold text-slate-950">기록된 판단</h3>
               <div className="mt-4 grid gap-2">
                 {validationRecordListVisibilityState.showDecisionList ? (
-                  selectedDecisions.map((entry) => (
+                  validationDecisionListItemStates.map(({ entry, reasonSummary }) => (
                     <div key={entry.id} className="avl-surface-muted p-4 text-sm text-slate-600">
                       <span className="font-semibold text-slate-950">{decisionLabels[entry.decision]}</span>
-                      {entry.reason ? ` - ${entry.reason}` : ""}
+                      {reasonSummary}
                     </div>
                   ))
                 ) : (
@@ -6917,10 +6924,10 @@ export function IdeaWorkbench({
                             다음 단계 이동은 하단 버튼에서만 열립니다.
                           </p>
                         </div>
-                        {recommendedValidationExperiment ? (
+                        {recommendedExperimentActionState.showSaveButton ? (
                           <button
                             type="button"
-                            onClick={() => void saveRecommendedExperiment(recommendedValidationExperiment)}
+                            onClick={() => void saveRecommendedExperiment(recommendedExperimentActionState.experiment)}
                             disabled={recommendedValidationExperimentSaveControl.disabled}
                             className="avl-btn avl-btn-primary shrink-0 px-4 disabled:cursor-not-allowed disabled:opacity-50"
                           >

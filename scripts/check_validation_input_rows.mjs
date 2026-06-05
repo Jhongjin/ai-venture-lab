@@ -53,6 +53,8 @@ const {
   buildRiskStatusUpdatePermissionDeniedMessage,
   buildRiskStatusUpdatePatch,
   buildRiskTitleRequiredMessage,
+  buildValidationDecisionListItemStates,
+  buildValidationDecisionReasonSummary,
   buildValidationExperimentListItemStates,
   buildValidationExperimentManualSaveControlState,
   buildValidationExperimentNameRequiredMessage,
@@ -163,8 +165,34 @@ assert.deepEqual(buildRecommendedValidationExperimentSaveControl({
 });
 assert.deepEqual(buildValidationPlanningDisplayState({
   hasValidationPlan: true,
+  recommendedValidationExperiment: {
+    name: "5명 인터뷰",
+    success_metric: "5명 중 3명 이상 반복 문제 확인",
+  },
+  suggestedRisk: {
+    area: "시장",
+    mitigation: "수동 인터뷰로 먼저 확인",
+    severity: "high",
+    title: "문제 빈도 불확실",
+  },
 }), {
   manualExperimentDetailsClassName: "border border-slate-200 border-t-0 bg-white p-4",
+  recommendedExperimentActionState: {
+    experiment: {
+      name: "5명 인터뷰",
+      success_metric: "5명 중 3명 이상 반복 문제 확인",
+    },
+    showSaveButton: true,
+  },
+  riskSuggestionCardState: {
+    risk: {
+      area: "시장",
+      mitigation: "수동 인터뷰로 먼저 확인",
+      severity: "high",
+      title: "문제 빈도 불확실",
+    },
+    showCard: true,
+  },
   showDecisionTemplateCallout: true,
   showRecommendedPlanCard: true,
 });
@@ -172,9 +200,35 @@ assert.deepEqual(buildValidationPlanningDisplayState({
   hasValidationPlan: false,
 }), {
   manualExperimentDetailsClassName: "border border-slate-200 bg-white p-4",
+  recommendedExperimentActionState: {
+    experiment: null,
+    showSaveButton: false,
+  },
+  riskSuggestionCardState: {
+    risk: null,
+    showCard: false,
+  },
   showDecisionTemplateCallout: false,
   showRecommendedPlanCard: false,
 });
+assert.equal(buildValidationDecisionReasonSummary("근거 충분"), " - 근거 충분");
+assert.equal(buildValidationDecisionReasonSummary(""), "");
+assert.deepEqual(
+  buildValidationDecisionListItemStates([
+    { decision: "ship", id: "decision-1", reason: "근거 충분" },
+    { decision: "research_more", id: "decision-2", reason: "" },
+  ]),
+  [
+    {
+      entry: { decision: "ship", id: "decision-1", reason: "근거 충분" },
+      reasonSummary: " - 근거 충분",
+    },
+    {
+      entry: { decision: "research_more", id: "decision-2", reason: "" },
+      reasonSummary: "",
+    },
+  ],
+);
 assert.equal(
   buildValidationEvidenceCoachNextFocusMessage({
     action: "최근 30일 발생 횟수를 물어보세요.",
@@ -532,6 +586,34 @@ assert.ok(
   ideaWorkbenchSource.includes("validationPlanningDisplayState.manualExperimentDetailsClassName"),
   "IdeaWorkbench should render manual validation details class from shared display state.",
 );
+assert.ok(
+  !ideaWorkbenchSource.includes("validationPlan?.risks[0]"),
+  "IdeaWorkbench should render validation risk suggestion visibility from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("riskSuggestionCardState.showCard"),
+  "IdeaWorkbench should use validation risk suggestion card state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("entry.reason ?"),
+  "IdeaWorkbench should render decision reason summaries from shared list item state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("validationDecisionListItemStates.map"),
+  "IdeaWorkbench should map decision list item state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("reasonSummary"),
+  "IdeaWorkbench should render decision reason summaries from shared list item state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("recommendedValidationExperiment ? ("),
+  "IdeaWorkbench should render recommended experiment save-button visibility from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("recommendedExperimentActionState.showSaveButton"),
+  "IdeaWorkbench should use recommended experiment action state.",
+);
 const validationIdea = {
   buyer: "운영팀",
   frequency: 4,
@@ -583,6 +665,7 @@ const validationReviewState = buildValidationPlanningReviewState({
 });
 assert.equal(validationReviewState.validationPlan.status, "추가 조사");
 assert.equal(validationReviewState.recommendedValidationExperiment.name, "구독 감사 리포트 수동 검증");
+assert.equal(validationReviewState.recommendedValidationRisk.title, "결제 데이터와 계정 접근");
 assert.equal(validationReviewState.validationEvidenceCoach.nextFocus.label, "구매자와 지불");
 assert.deepEqual(
   buildValidationPlanningReviewState({
@@ -597,6 +680,7 @@ assert.deepEqual(
   }),
   {
     recommendedValidationExperiment: null,
+    recommendedValidationRisk: null,
     validationEvidenceCoach: null,
     validationPlan: null,
   },

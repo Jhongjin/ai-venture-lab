@@ -97,6 +97,10 @@ export type ValidationExperimentListItemState<Experiment> = {
   experiment: Experiment;
   stepLabel: string;
 };
+export type ValidationDecisionListItemState<DecisionEntry> = {
+  entry: DecisionEntry;
+  reasonSummary: string;
+};
 
 export type RiskStatusUpdatePatch<Status extends string> = {
   status: Status;
@@ -277,6 +281,19 @@ export function buildValidationExperimentListItemStates<Experiment>(
   return experiments.map((experiment, index) => ({
     experiment,
     stepLabel: String(index + 1),
+  }));
+}
+
+export function buildValidationDecisionReasonSummary(reason: string | null | undefined) {
+  return reason ? ` - ${reason}` : "";
+}
+
+export function buildValidationDecisionListItemStates<DecisionEntry extends { reason?: string | null }>(
+  decisions: readonly DecisionEntry[],
+): ValidationDecisionListItemState<DecisionEntry>[] {
+  return decisions.map((entry) => ({
+    entry,
+    reasonSummary: buildValidationDecisionReasonSummary(entry.reason),
   }));
 }
 

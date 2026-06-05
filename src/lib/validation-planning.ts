@@ -26,6 +26,7 @@ export type ValidationEvidenceCoach = {
 };
 
 export type ValidationPlanningReviewState = {
+  recommendedValidationRisk: ValidationPlanRiskDraft | null;
   validationEvidenceCoach: ValidationEvidenceCoach | null;
   validationPlan: ReturnType<typeof buildValidationPlan> | null;
   recommendedValidationExperiment: ValidationPlanExperimentDraft | null;
@@ -34,8 +35,28 @@ export type RecommendedValidationExperimentSaveControl = {
   disabled: boolean;
   label: string;
 };
+export type ValidationPlanningRiskSuggestionCardState =
+  | {
+      risk: ValidationPlanRiskDraft;
+      showCard: true;
+    }
+  | {
+      risk: null;
+      showCard: false;
+    };
+export type ValidationPlanningRecommendedExperimentActionState =
+  | {
+      experiment: ValidationPlanExperimentDraft;
+      showSaveButton: true;
+    }
+  | {
+      experiment: null;
+      showSaveButton: false;
+    };
 export type ValidationPlanningDisplayState = {
   manualExperimentDetailsClassName: string;
+  recommendedExperimentActionState: ValidationPlanningRecommendedExperimentActionState;
+  riskSuggestionCardState: ValidationPlanningRiskSuggestionCardState;
   showDecisionTemplateCallout: boolean;
   showRecommendedPlanCard: boolean;
 };
@@ -46,13 +67,35 @@ export function getValidationPlanExperimentPreview(experiments: ValidationPlanEx
 
 export function buildValidationPlanningDisplayState({
   hasValidationPlan,
+  recommendedValidationExperiment = null,
+  suggestedRisk = null,
 }: {
   hasValidationPlan: boolean;
+  recommendedValidationExperiment?: ValidationPlanExperimentDraft | null;
+  suggestedRisk?: ValidationPlanRiskDraft | null;
 }): ValidationPlanningDisplayState {
   return {
     manualExperimentDetailsClassName: hasValidationPlan
       ? "border border-slate-200 border-t-0 bg-white p-4"
       : "border border-slate-200 bg-white p-4",
+    recommendedExperimentActionState: recommendedValidationExperiment
+      ? {
+          experiment: recommendedValidationExperiment,
+          showSaveButton: true,
+        }
+      : {
+          experiment: null,
+          showSaveButton: false,
+        },
+    riskSuggestionCardState: suggestedRisk
+      ? {
+          risk: suggestedRisk,
+          showCard: true,
+        }
+      : {
+          risk: null,
+          showCard: false,
+        },
     showDecisionTemplateCallout: hasValidationPlan,
     showRecommendedPlanCard: hasValidationPlan,
   };
@@ -502,6 +545,7 @@ export function buildValidationPlanningReviewState({
 }): ValidationPlanningReviewState {
   if (!idea || !state) {
     return {
+      recommendedValidationRisk: null,
       validationEvidenceCoach: null,
       validationPlan: null,
       recommendedValidationExperiment: null,
@@ -517,6 +561,7 @@ export function buildValidationPlanningReviewState({
   });
 
   return {
+    recommendedValidationRisk: validationPlan.risks[0] ?? null,
     validationEvidenceCoach: buildValidationEvidenceCoach({
       artifacts,
       decisions,
