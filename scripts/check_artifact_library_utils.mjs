@@ -24,6 +24,8 @@ const {
   buildArtifactDraftInsertRow,
   buildArtifactDraftSavePlan,
   buildArtifactDraftSaveControlState,
+  buildArtifactLibraryItemDisplayState,
+  buildArtifactLibraryItemSourceDateSummary,
   buildArtifactLibraryViewState,
   buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
@@ -428,6 +430,67 @@ assert.equal(buildArtifactSourceDisplayLabel("agent_run_package"), "제작 도�
 assert.equal(buildArtifactSourceDisplayLabel("unknown_source"), "unknown_source");
 assert.equal(buildArtifactSourceDisplayLabel(""), "수동");
 assert.equal(buildArtifactSourceDisplayLabel(null), "수동");
+assert.equal(
+  buildArtifactLibraryItemSourceDateSummary({
+    approvedDateLabel: "2026. 06. 02.",
+    createdDateLabel: "2026. 06. 01.",
+    sourceLabel: "실행 보드",
+  }),
+  "실행 보드 / 2026. 06. 01. / 승인 2026. 06. 02.",
+);
+assert.equal(
+  buildArtifactLibraryItemSourceDateSummary({
+    approvedDateLabel: null,
+    createdDateLabel: "2026. 06. 01.",
+    sourceLabel: "수동",
+  }),
+  "수동 / 2026. 06. 01.",
+);
+assert.deepEqual(
+  buildArtifactLibraryItemDisplayState({
+    approvedDateLabel: "2026. 06. 02.",
+    artifact: {
+      ...artifacts[0],
+      status: "approved",
+      status_note: "범위 확인 완료",
+    },
+    createdDateLabel: "2026. 06. 01.",
+  }),
+  {
+    showFilteredImplementationRunBadge: true,
+    sourceDateSummary: "선별 제작 자료 / 2026. 06. 01. / 승인 2026. 06. 02.",
+    status: "approved",
+    statusLabel: "승인됨",
+    statusNoteText: "점검 메모: 범위 확인 완료",
+    statusTone: "avl-pill avl-pill-success",
+    title: "Artifact handoff-filtered",
+    typeLabel: "제작 실행 계획",
+    versionLabel: "v1",
+  },
+);
+assert.deepEqual(
+  buildArtifactLibraryItemDisplayState({
+    artifact: {
+      ...artifacts[2],
+      source: "",
+      status: null,
+      title: "",
+      version: null,
+    },
+    createdDateLabel: "2026. 06. 01.",
+  }),
+  {
+    showFilteredImplementationRunBadge: false,
+    sourceDateSummary: "수동 / 2026. 06. 01.",
+    status: "draft",
+    statusLabel: "초안",
+    statusNoteText: null,
+    statusTone: "avl-pill avl-pill-neutral",
+    title: "제목 없음",
+    typeLabel: "제품 기획서",
+    versionLabel: "v1",
+  },
+);
 assert.deepEqual(buildArtifactSourceFilterOptions(["all", "manual", "unknown_source"]), [
   { label: "전체 출처", value: "all" },
   { label: "수동", value: "manual" },
@@ -544,6 +607,18 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("buildArtifactSourceDisplayLabel(artifact.source)"),
   "IdeaWorkbench should use shared artifact source display label helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("buildArtifactLibraryItemDisplayState"),
+  "IdeaWorkbench should render selected artifact cards from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('const status = artifact.status ?? "draft";'),
+  "IdeaWorkbench should not keep selected artifact status fallback calculations inline.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactDisplayState.statusLabel"),
+  "IdeaWorkbench should render selected artifact status label from shared display state.",
 );
 
 console.log("Artifact library utils smoke passed.");

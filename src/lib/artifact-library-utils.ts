@@ -5,6 +5,7 @@ import {
   artifactSourceLabels,
   artifactStatusLabels,
   artifactStatusOptions,
+  artifactStatusTone,
   artifactTypeOptions,
 } from "@/lib/artifact-labels";
 
@@ -24,6 +25,18 @@ export type ArtifactDraftIdeaSummary = {
 export type ArtifactDraftSaveControlState = {
   disabled: boolean;
   label: string;
+};
+
+export type ArtifactLibraryItemDisplayState = {
+  showFilteredImplementationRunBadge: boolean;
+  sourceDateSummary: string;
+  status: VentureArtifactStatus;
+  statusLabel: string;
+  statusNoteText: string | null;
+  statusTone: string;
+  title: string;
+  typeLabel: string;
+  versionLabel: string;
 };
 
 export function buildArtifactSavedMessage({ artifactLabel, version }: { artifactLabel: string; version: number }) {
@@ -255,6 +268,48 @@ export function buildArtifactSourceFilterLabels(sourceOptions: string[]) {
 
 export function buildArtifactSourceDisplayLabel(source: string | null | undefined) {
   return artifactSourceLabels[source || "manual"] ?? source ?? "수동";
+}
+
+export function buildArtifactLibraryItemDisplayState({
+  approvedDateLabel = null,
+  artifact,
+  createdDateLabel,
+}: {
+  approvedDateLabel?: string | null;
+  artifact: Pick<VentureArtifact, "artifact_type" | "source" | "status" | "status_note" | "title" | "version">;
+  createdDateLabel: string;
+}): ArtifactLibraryItemDisplayState {
+  const status = artifact.status ?? "draft";
+
+  return {
+    showFilteredImplementationRunBadge: artifact.source === "filtered_implementation_run",
+    sourceDateSummary: buildArtifactLibraryItemSourceDateSummary({
+      approvedDateLabel,
+      createdDateLabel,
+      sourceLabel: buildArtifactSourceDisplayLabel(artifact.source),
+    }),
+    status,
+    statusLabel: artifactStatusLabels[status],
+    statusNoteText: artifact.status_note ? `점검 메모: ${artifact.status_note}` : null,
+    statusTone: artifactStatusTone[status],
+    title: artifact.title || "제목 없음",
+    typeLabel: artifactLabels[artifact.artifact_type],
+    versionLabel: `v${artifact.version ?? 1}`,
+  };
+}
+
+export function buildArtifactLibraryItemSourceDateSummary({
+  approvedDateLabel,
+  createdDateLabel,
+  sourceLabel,
+}: {
+  approvedDateLabel?: string | null;
+  createdDateLabel: string;
+  sourceLabel: string;
+}) {
+  return approvedDateLabel
+    ? `${sourceLabel} / ${createdDateLabel} / 승인 ${approvedDateLabel}`
+    : `${sourceLabel} / ${createdDateLabel}`;
 }
 
 export function buildArtifactTypeFilterOptions(): Array<ArtifactLibraryFilterOption<ArtifactTypeFilter>> {

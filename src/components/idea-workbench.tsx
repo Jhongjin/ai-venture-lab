@@ -44,6 +44,7 @@ import {
 import {
   buildArtifactDraftSavePlan,
   buildArtifactDraftSaveControlState,
+  buildArtifactLibraryItemDisplayState,
   buildArtifactLibraryViewState,
   buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
@@ -186,7 +187,6 @@ import {
   artifactStatusDefaultNotes,
   artifactStatusLabels,
   artifactStatusOptions,
-  artifactStatusTone,
 } from "@/lib/artifact-labels";
 import { resolveProductSurfaceForIdea as inferIdeaProductSurface } from "@/lib/product-surface";
 import { isMissingProductSurfaceColumnError, omitProductSurface } from "@/lib/product-surface-db";
@@ -7914,7 +7914,12 @@ export function IdeaWorkbench({
           <div className="grid gap-3">
             {selectedArtifacts.length > 0 ? (
               selectedArtifacts.map((artifact) => {
-                const status = artifact.status ?? "draft";
+                const artifactDisplayState = buildArtifactLibraryItemDisplayState({
+                  approvedDateLabel: artifact.approved_at ? formatStableKoreanDate(artifact.approved_at) : null,
+                  artifact,
+                  createdDateLabel: formatStableKoreanDate(artifact.created_at),
+                });
+                const status = artifactDisplayState.status;
                 const versionSummary = artifactVersionSummaries.get(artifact.id);
                 const reviewSummary = artifactReviewSummaries.get(artifact.id);
                 const canManageArtifact = canManageRecord(artifact);
@@ -7928,29 +7933,29 @@ export function IdeaWorkbench({
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-950">{artifact.title || "제목 없음"}</span>
+                          <span className="text-sm font-semibold text-slate-950">{artifactDisplayState.title}</span>
                           <span className="avl-pill avl-pill-neutral">
-                            {artifactLabels[artifact.artifact_type]}
+                            {artifactDisplayState.typeLabel}
                           </span>
-                          <span className={artifactStatusTone[status]}>
-                            {artifactStatusLabels[status]}
+                          <span className={artifactDisplayState.statusTone}>
+                            {artifactDisplayState.statusLabel}
                           </span>
                           <span className="avl-pill avl-pill-neutral">
-                            v{artifact.version ?? 1}
+                            {artifactDisplayState.versionLabel}
                           </span>
-                          {artifact.source === "filtered_implementation_run" ? (
+                          {artifactDisplayState.showFilteredImplementationRunBadge ? (
                             <span className="avl-pill avl-pill-info">
                               필터 저장본
                             </span>
                           ) : null}
                         </div>
                         <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                          {buildArtifactSourceDisplayLabel(artifact.source)} /{" "}
-                          {formatStableKoreanDate(artifact.created_at)}
-                          {artifact.approved_at ? ` / 승인 ${formatStableKoreanDate(artifact.approved_at)}` : ""}
+                          {artifactDisplayState.sourceDateSummary}
                         </div>
-                        {artifact.status_note ? (
-                          <p className="mt-2 max-w-3xl text-sm leading-5 text-slate-600">점검 메모: {artifact.status_note}</p>
+                        {artifactDisplayState.statusNoteText ? (
+                          <p className="mt-2 max-w-3xl text-sm leading-5 text-slate-600">
+                            {artifactDisplayState.statusNoteText}
+                          </p>
                         ) : null}
                         {versionSummary ? (
                           <p className="mt-2 text-sm leading-5 text-slate-600">
