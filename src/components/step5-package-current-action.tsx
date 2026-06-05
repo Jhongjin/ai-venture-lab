@@ -1,7 +1,7 @@
 const step5PackageCurrentActionItems = [
   ["1. 만들기", "AI 제작 패키지 만들기"],
-  ["2. 확인", "요약만 보고 필요한 메모 추가"],
-  ["3. 저장 후 이동", "저장 완료 후 하단 다음 단계 버튼으로 STEP 6 이동"],
+  ["2. 확인", "요약만 보고 메모 추가"],
+  ["3. 저장", "저장 후 하단 다음 버튼"],
 ] as const;
 
 type Step5PackageCurrentActionProps = {
@@ -19,14 +19,14 @@ export function Step5PackageCurrentAction({
         <div>
           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-700">지금 할 일</div>
           <h3 className="mt-2 text-base font-semibold text-slate-950">
-            AI가 개발 시작 기준을 만들면 요약만 확인하고 저장합니다.
+            AI가 만들면 요약만 보고 저장합니다.
           </h3>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-700">
-            저장된 패키지는 STEP 6 작업 순서와 STEP 7 연결 파일의 기준이 됩니다. 문서 보관용이 아니라 외부 개발
-            도구나 내부 개발을 시작하기 위한 실행 패키지입니다. 파일 받기와 도구 연결은 최종 실행에서만 열립니다.
+            저장하면 STEP 6 작업 순서, STEP 7 연결 파일의 기준이 됩니다. 파일 받기와 도구 연결은 최종 실행에서만
+            열립니다.
           </p>
           <p data-smoke="step5-ai-prepares-user-confirms" className="mt-2 text-xs font-semibold leading-5 text-emerald-950">
-            AI가 먼저 기획서, 제작 범위, 첫 작업을 정리합니다. 사용자는 요약을 확인하고 저장만 하면 됩니다.
+            AI가 먼저 제작 기준을 정리합니다. 사용자는 요약 확인 후 저장만 합니다.
           </p>
         </div>
         <span className="avl-pill avl-pill-success w-fit">다음: 작업 순서</span>
