@@ -42,6 +42,7 @@ import {
   getArtifactReviewChecksPreview,
 } from "@/lib/artifact-review-summary";
 import {
+  buildArtifactDraftCardDisplayState,
   buildArtifactDraftSavePlan,
   buildArtifactDraftSaveControlState,
   buildArtifactLibraryItemDisplayState,
@@ -5440,31 +5441,35 @@ export function IdeaWorkbench({
           </div>
 
           <div className="mt-5 grid gap-3 lg:grid-cols-3">
-            {developmentArtifactDrafts.map((draft) => (
-              <div key={draft.artifactType} className="avl-surface-muted p-4">
-                <div className="text-sm font-semibold text-slate-950">{artifactLabels[draft.artifactType]}</div>
-                <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600">{draft.description}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => copyDraft(draft.body, artifactLabels[draft.artifactType])}
-                    className="avl-btn avl-btn-secondary h-9 rounded-[0.125rem] px-3 text-xs"
-                  >
-                    <Clipboard size={15} />
-                    복사
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => savePreparedArtifactDraft(draft)}
-                    disabled={artifactDraftSaveControlState.disabled}
-                    className="avl-btn avl-btn-primary h-9 rounded-[0.125rem] px-3 text-xs disabled:opacity-50"
-                  >
-                    <Save size={15} />
-                    {artifactDraftSaveControlState.label}
-                  </button>
+            {developmentArtifactDrafts.map((draft) => {
+              const draftDisplayState = buildArtifactDraftCardDisplayState(draft);
+
+              return (
+                <div key={draft.title} className="avl-surface-muted p-4">
+                  <div className="text-sm font-semibold text-slate-950">{draftDisplayState.label}</div>
+                  <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600">{draftDisplayState.description}</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => copyDraft(draft.body, draftDisplayState.copyLabel)}
+                      className="avl-btn avl-btn-secondary h-9 rounded-[0.125rem] px-3 text-xs"
+                    >
+                      <Clipboard size={15} />
+                      복사
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => savePreparedArtifactDraft(draft)}
+                      disabled={artifactDraftSaveControlState.disabled}
+                      className="avl-btn avl-btn-primary h-9 rounded-[0.125rem] px-3 text-xs disabled:opacity-50"
+                    >
+                      <Save size={15} />
+                      {artifactDraftSaveControlState.label}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           </>
           ) : null}

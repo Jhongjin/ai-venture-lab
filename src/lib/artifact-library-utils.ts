@@ -27,6 +27,12 @@ export type ArtifactDraftSaveControlState = {
   label: string;
 };
 
+export type ArtifactDraftCardDisplayState = {
+  copyLabel: string;
+  description: string;
+  label: string;
+};
+
 export type ArtifactLibraryItemDisplayState = {
   showFilteredImplementationRunBadge: boolean;
   sourceDateSummary: string;
@@ -72,6 +78,22 @@ export function buildArtifactDraftSaveControlState({
 }): ArtifactDraftSaveControlState {
   return {
     disabled: isBusy || !hasUser,
+    label,
+  };
+}
+
+export function buildArtifactDraftCardDisplayState({
+  artifactType,
+  description,
+}: {
+  artifactType: VentureArtifactType;
+  description: string;
+}): ArtifactDraftCardDisplayState {
+  const label = artifactLabels[artifactType];
+
+  return {
+    copyLabel: label,
+    description,
     label,
   };
 }

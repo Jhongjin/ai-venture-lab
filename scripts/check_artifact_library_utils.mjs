@@ -21,6 +21,7 @@ const { outputText } = ts.transpileModule(source, {
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
 const { artifactStatusOptions, artifactTypeOptions } = await import(artifactLabelsUrl);
 const {
+  buildArtifactDraftCardDisplayState,
   buildArtifactDraftInsertRow,
   buildArtifactDraftSavePlan,
   buildArtifactDraftSaveControlState,
@@ -104,6 +105,17 @@ assert.deepEqual(buildArtifactDraftSaveControlState({
   disabled: true,
   label: "요약 저장",
 });
+assert.deepEqual(
+  buildArtifactDraftCardDisplayState({
+    artifactType: "backend_decision",
+    description: "백엔드 선택 기준",
+  }),
+  {
+    copyLabel: "백엔드 결정",
+    description: "백엔드 선택 기준",
+    label: "백엔드 결정",
+  },
+);
 assert.ok(
   ideaWorkbenchSource.includes("artifactDraftSaveControlState.disabled"),
   "IdeaWorkbench should render development artifact draft save disabled state from shared helper.",
@@ -661,6 +673,18 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("현재 필터에 맞는 제작 자료가 없습니다."),
   "IdeaWorkbench should not keep artifact library empty copy inline.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("buildArtifactDraftCardDisplayState"),
+  "IdeaWorkbench should render development artifact draft cards from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("artifactLabels[draft.artifactType]"),
+  "IdeaWorkbench should not keep development artifact draft label lookups inline.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("key={draft.title}"),
+  "Development artifact draft cards should use unique title-based keys because backend decision drafts share a type.",
 );
 
 console.log("Artifact library utils smoke passed.");
