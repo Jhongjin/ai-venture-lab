@@ -48,6 +48,23 @@ export type DevelopmentAutoPackageSaveControlState = {
   label: string;
 };
 
+export type DevelopmentAutoPackageStatusNotice = {
+  className: string;
+  text: string;
+};
+
+export type DevelopmentAutoGuidedPanelDisplayState = {
+  runningProgressLabel: string;
+  runningStepLabel: string;
+  saveStatusLabel: string;
+  saveStatusNotice: DevelopmentAutoPackageStatusNotice | null;
+  showReviewPanel: boolean;
+  showRunningPanel: boolean;
+  showSavePanel: boolean;
+  showStartPanel: boolean;
+  startPanelMessage: string;
+};
+
 export function buildDevelopmentAutoPackageSavedMessage() {
   return "제작 패키지를 저장했습니다. 실제 파일 받기와 제작 도구 연동은 최종 실행 단계에서 열립니다.";
 }
@@ -102,6 +119,50 @@ export function buildDevelopmentAutoPackageSaveControlState({
       !agentRunPackageDraft,
     icon: hasSavedDevelopmentAutoPackage ? "saved" : "save",
     label: hasSavedDevelopmentAutoPackage ? "제작 패키지 저장 완료" : "제작 패키지 저장",
+  };
+}
+
+export function buildDevelopmentAutoGuidedPanelDisplayState({
+  activeStepIndex,
+  blockedSaveMessage,
+  blockedStartMessage,
+  canUseFullProductionPackage,
+  effectiveFlowState,
+  hasSavedDevelopmentAutoPackage,
+  progressSteps,
+}: {
+  activeStepIndex: number;
+  blockedSaveMessage: string;
+  blockedStartMessage: string;
+  canUseFullProductionPackage: boolean;
+  effectiveFlowState: DevelopmentAutoEffectiveFlowState;
+  hasSavedDevelopmentAutoPackage: boolean;
+  progressSteps: ReadonlyArray<DevelopmentAutoProgressStep>;
+}): DevelopmentAutoGuidedPanelDisplayState {
+  const saveStatusNotice = hasSavedDevelopmentAutoPackage
+    ? {
+        className: "text-emerald-700",
+        text: "제작 패키지가 저장되었습니다. 실제 파일 받기와 외부 제작 도구 연동은 최종 실행 단계에서 열립니다.",
+      }
+    : !canUseFullProductionPackage
+      ? {
+          className: "text-amber-700",
+          text: blockedSaveMessage,
+        }
+      : null;
+
+  return {
+    runningProgressLabel: `${Math.min(activeStepIndex + 1, progressSteps.length)}/${progressSteps.length}`,
+    runningStepLabel: progressSteps[activeStepIndex]?.label ?? "제작 패키지를 정리하는 중",
+    saveStatusLabel: hasSavedDevelopmentAutoPackage ? "저장 완료" : "저장 전",
+    saveStatusNotice,
+    showReviewPanel: effectiveFlowState === "review",
+    showRunningPanel: effectiveFlowState === "running",
+    showSavePanel: effectiveFlowState !== "idle" && effectiveFlowState !== "running",
+    showStartPanel: effectiveFlowState === "idle",
+    startPanelMessage: canUseFullProductionPackage
+      ? "시작하면 AI가 제작 요약을 만들고, 저장 전 확인 화면을 바로 보여줍니다."
+      : blockedStartMessage,
   };
 }
 

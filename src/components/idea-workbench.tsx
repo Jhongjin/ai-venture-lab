@@ -361,6 +361,7 @@ import {
   type CursorProgressDisplayItem,
 } from "@/lib/external-progress-import";
 import {
+  buildDevelopmentAutoGuidedPanelDisplayState,
   buildDevelopmentAutoPackageSavedMessage,
   buildDevelopmentAutoPackageNextVersions,
   buildDevelopmentAutoPackageSaveJobs,
@@ -2176,6 +2177,23 @@ export function IdeaWorkbench({
     hasSavedDevelopmentAutoPackage,
     hasUser: Boolean(user),
     isBusy,
+  });
+  const developmentAutoGuidedPanelDisplayState = buildDevelopmentAutoGuidedPanelDisplayState({
+    activeStepIndex: developmentAutoStepIndex,
+    blockedSaveMessage: getBuildPassRequirementMessage({
+      buildPassCost,
+      isChecking: isCreditSystemChecking,
+      mode: "save_package_gate",
+    }),
+    blockedStartMessage: getBuildPassRequirementMessage({
+      buildPassCost,
+      isChecking: isCreditSystemChecking,
+      mode: "ai_package_panel",
+    }),
+    canUseFullProductionPackage,
+    effectiveFlowState: effectiveDevelopmentAutoFlowState,
+    hasSavedDevelopmentAutoPackage,
+    progressSteps: developmentAutoProgressSteps,
   });
   const {
     canEnterLaunch,
@@ -5023,7 +5041,7 @@ export function IdeaWorkbench({
                   <div className="min-w-36 border border-slate-200 bg-slate-50 p-3 text-sm">
                     <div className="text-xs font-semibold tracking-[0.14em] text-slate-500">저장 상태</div>
                     <div className="mt-2 text-lg font-semibold text-slate-950">
-                      {hasSavedDevelopmentAutoPackage ? "저장 완료" : "저장 전"}
+                      {developmentAutoGuidedPanelDisplayState.saveStatusLabel}
                     </div>
                   </div>
                 </div>
@@ -5043,20 +5061,14 @@ export function IdeaWorkbench({
                   steps={developmentAutoProgressSteps}
                 />
 
-                {effectiveDevelopmentAutoFlowState === "idle" ? (
+                {developmentAutoGuidedPanelDisplayState.showStartPanel ? (
                   <div
                     className={`mt-5 flex flex-col gap-3 border p-4 sm:flex-row sm:items-center sm:justify-between ${
                       developmentAutoPackageStartControlState.panelClassName
                     }`}
                   >
                     <p className={`text-sm leading-6 ${developmentAutoPackageStartControlState.messageClassName}`}>
-                      {canUseFullProductionPackage
-                        ? "시작하면 AI가 제작 요약을 만들고, 저장 전 확인 화면을 바로 보여줍니다."
-                        : getBuildPassRequirementMessage({
-                            buildPassCost,
-                            isChecking: isCreditSystemChecking,
-                            mode: "ai_package_panel",
-                          })}
+                      {developmentAutoGuidedPanelDisplayState.startPanelMessage}
                     </p>
                     <button
                       type="button"
@@ -5070,26 +5082,25 @@ export function IdeaWorkbench({
                   </div>
                 ) : null}
 
-                {effectiveDevelopmentAutoFlowState === "running" ? (
+                {developmentAutoGuidedPanelDisplayState.showRunningPanel ? (
                   <div className="mt-5 border border-blue-200 bg-blue-50 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <div className="text-sm font-semibold text-blue-950">
-                          {developmentAutoProgressSteps[developmentAutoStepIndex]?.label ?? "제작 패키지를 정리하는 중"}
+                          {developmentAutoGuidedPanelDisplayState.runningStepLabel}
                         </div>
                         <p className="mt-1 text-sm leading-6 text-blue-950">
                           화면은 자동으로 확인 단계로 넘어갑니다. 마지막 요약만 보면 됩니다.
                         </p>
                       </div>
                       <span className="avl-pill avl-pill-info">
-                        {Math.min(developmentAutoStepIndex + 1, developmentAutoProgressSteps.length)}/
-                        {developmentAutoProgressSteps.length}
+                        {developmentAutoGuidedPanelDisplayState.runningProgressLabel}
                       </span>
                     </div>
                   </div>
                 ) : null}
 
-                {effectiveDevelopmentAutoFlowState === "review" ? (
+                {developmentAutoGuidedPanelDisplayState.showReviewPanel ? (
                   <Step5PackageReview
                     bridgeCards={developmentAutoBuildBridgeCards}
                     note={developmentAutoNote}
@@ -5098,7 +5109,7 @@ export function IdeaWorkbench({
                   />
                 ) : null}
 
-                {effectiveDevelopmentAutoFlowState !== "idle" && effectiveDevelopmentAutoFlowState !== "running" ? (
+                {developmentAutoGuidedPanelDisplayState.showSavePanel ? (
                   <div className="mt-5 border border-slate-200 bg-slate-50 p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div>
@@ -5132,17 +5143,11 @@ export function IdeaWorkbench({
                         </div>
                       ))}
                     </div>
-                    {hasSavedDevelopmentAutoPackage ? (
-                      <p className="mt-3 text-sm font-semibold text-emerald-700">
-                        제작 패키지가 저장되었습니다. 실제 파일 받기와 외부 제작 도구 연동은 최종 실행 단계에서 열립니다.
-                      </p>
-                    ) : !canUseFullProductionPackage ? (
-                      <p className="mt-3 text-sm font-semibold text-amber-700">
-                        {getBuildPassRequirementMessage({
-                          buildPassCost,
-                          isChecking: isCreditSystemChecking,
-                          mode: "save_package_gate",
-                        })}
+                    {developmentAutoGuidedPanelDisplayState.saveStatusNotice ? (
+                      <p
+                        className={`mt-3 text-sm font-semibold ${developmentAutoGuidedPanelDisplayState.saveStatusNotice.className}`}
+                      >
+                        {developmentAutoGuidedPanelDisplayState.saveStatusNotice.text}
                       </p>
                     ) : null}
                   </div>

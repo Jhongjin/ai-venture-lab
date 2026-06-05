@@ -32,6 +32,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 const { externalBuildToolProfiles } = await import(buildDeliveryUrl);
 const { productSurfaceProfiles } = await import(productSurfaceUrl);
 const {
+  buildDevelopmentAutoGuidedPanelDisplayState,
   buildDevelopmentAutoPackageSavedMessage,
   buildDevelopmentAutoPackageNextVersions,
   buildDevelopmentAutoPackageSaveJobs,
@@ -48,6 +49,7 @@ const {
   getDevelopmentAutoEffectiveFlowState,
   getVisibleDevelopmentAutoPanel,
 } = await import(moduleUrl);
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 
 const input = {
   activeBuildDeliveryDetail: "Cursor 연결 파일과 시작 지시문으로 넘깁니다.",
@@ -224,6 +226,120 @@ assert.deepEqual(
     icon: "save",
     label: "제작 패키지 저장",
   },
+);
+assert.deepEqual(
+  buildDevelopmentAutoGuidedPanelDisplayState({
+    activeStepIndex: 0,
+    blockedSaveMessage: "제작 패스를 열어야 저장할 수 있습니다.",
+    blockedStartMessage: "제작 패스를 열어야 만들 수 있습니다.",
+    canUseFullProductionPackage: true,
+    effectiveFlowState: "idle",
+    hasSavedDevelopmentAutoPackage: false,
+    progressSteps: state.developmentAutoProgressSteps,
+  }),
+  {
+    runningProgressLabel: "1/5",
+    runningStepLabel: "검증 결과 읽는 중",
+    saveStatusLabel: "저장 전",
+    saveStatusNotice: null,
+    showReviewPanel: false,
+    showRunningPanel: false,
+    showSavePanel: false,
+    showStartPanel: true,
+    startPanelMessage: "시작하면 AI가 제작 요약을 만들고, 저장 전 확인 화면을 바로 보여줍니다.",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutoGuidedPanelDisplayState({
+    activeStepIndex: 1,
+    blockedSaveMessage: "제작 패스를 열어야 저장할 수 있습니다.",
+    blockedStartMessage: "제작 패스를 열어야 만들 수 있습니다.",
+    canUseFullProductionPackage: true,
+    effectiveFlowState: "running",
+    hasSavedDevelopmentAutoPackage: false,
+    progressSteps: state.developmentAutoProgressSteps,
+  }),
+  {
+    runningProgressLabel: "2/5",
+    runningStepLabel: "결과물 형태 확인 중",
+    saveStatusLabel: "저장 전",
+    saveStatusNotice: null,
+    showReviewPanel: false,
+    showRunningPanel: true,
+    showSavePanel: false,
+    showStartPanel: false,
+    startPanelMessage: "시작하면 AI가 제작 요약을 만들고, 저장 전 확인 화면을 바로 보여줍니다.",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutoGuidedPanelDisplayState({
+    activeStepIndex: 99,
+    blockedSaveMessage: "제작 패스를 열어야 저장할 수 있습니다.",
+    blockedStartMessage: "제작 패스를 열어야 만들 수 있습니다.",
+    canUseFullProductionPackage: false,
+    effectiveFlowState: "review",
+    hasSavedDevelopmentAutoPackage: false,
+    progressSteps: state.developmentAutoProgressSteps,
+  }),
+  {
+    runningProgressLabel: "5/5",
+    runningStepLabel: "제작 패키지를 정리하는 중",
+    saveStatusLabel: "저장 전",
+    saveStatusNotice: {
+      className: "text-amber-700",
+      text: "제작 패스를 열어야 저장할 수 있습니다.",
+    },
+    showReviewPanel: true,
+    showRunningPanel: false,
+    showSavePanel: true,
+    showStartPanel: false,
+    startPanelMessage: "제작 패스를 열어야 만들 수 있습니다.",
+  },
+);
+assert.deepEqual(
+  buildDevelopmentAutoGuidedPanelDisplayState({
+    activeStepIndex: 0,
+    blockedSaveMessage: "제작 패스를 열어야 저장할 수 있습니다.",
+    blockedStartMessage: "제작 패스를 열어야 만들 수 있습니다.",
+    canUseFullProductionPackage: true,
+    effectiveFlowState: "saved",
+    hasSavedDevelopmentAutoPackage: true,
+    progressSteps: state.developmentAutoProgressSteps,
+  }),
+  {
+    runningProgressLabel: "1/5",
+    runningStepLabel: "검증 결과 읽는 중",
+    saveStatusLabel: "저장 완료",
+    saveStatusNotice: {
+      className: "text-emerald-700",
+      text: "제작 패키지가 저장되었습니다. 실제 파일 받기와 외부 제작 도구 연동은 최종 실행 단계에서 열립니다.",
+    },
+    showReviewPanel: false,
+    showRunningPanel: false,
+    showSavePanel: true,
+    showStartPanel: false,
+    startPanelMessage: "시작하면 AI가 제작 요약을 만들고, 저장 전 확인 화면을 바로 보여줍니다.",
+  },
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('effectiveDevelopmentAutoFlowState === "idle"'),
+  "IdeaWorkbench should render the guided auto-package start panel from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('effectiveDevelopmentAutoFlowState === "running"'),
+  "IdeaWorkbench should render the guided auto-package running panel from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('effectiveDevelopmentAutoFlowState === "review"'),
+  "IdeaWorkbench should render the guided auto-package review panel from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('effectiveDevelopmentAutoFlowState !== "idle"'),
+  "IdeaWorkbench should render the guided auto-package save panel from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('hasSavedDevelopmentAutoPackage ? "저장 완료" : "저장 전"'),
+  "IdeaWorkbench should render the guided auto-package save status label from shared display state.",
 );
 
 const emptyState = buildDevelopmentAutoPackageCopyState({
