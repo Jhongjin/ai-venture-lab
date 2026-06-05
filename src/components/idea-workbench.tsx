@@ -547,6 +547,8 @@ import {
 import {
   buildImplementationTaskAutoRefreshMessage,
   buildImplementationTaskManualRefreshMessage,
+  buildImplementationDependencyPreviewState,
+  buildOpenImplementationTaskPreviewState,
   buildNextImplementationTaskDisplayState,
   buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskRefreshSummary,
@@ -554,17 +556,13 @@ import {
   formatImplementationTaskRefreshTime,
   getBlockedImplementationSummaryPreview,
   getCompletedImplementationTasksWithEvidence,
-  getImplementationDependencyStatusPreview,
   implementationEvidenceFilterLabels,
   implementationEvidenceFilterOptions,
   getImplementationEvidenceIssuePreview,
-  getOpenImplementationTaskPreview,
   implementationStatusFilterLabels,
   implementationStatusFilterOptions,
-  implementationTaskExecutionOrder,
   implementationTaskPriorities,
   implementationTaskPriorityLabels,
-  implementationTaskPriorityTone,
   implementationTaskStatusLabels,
   implementationTaskStatuses,
   implementationTaskStatusTone,
@@ -1188,6 +1186,12 @@ export function IdeaWorkbench({
     totalImplementationTaskCount: totalLearningImplementationTasks,
     waitingImplementationDependencyStatuses,
   } = useMemo(() => buildStep8ImplementationDerivedState(selectedImplementationTasks), [selectedImplementationTasks]);
+  const implementationOpenTaskPreviewState = buildOpenImplementationTaskPreviewState(selectedOpenImplementationTasks);
+  const implementationDependencyPreviewState = buildImplementationDependencyPreviewState({
+    progressStats: implementationTaskProgressStats,
+    readyStatuses: readyImplementationDependencyStatuses,
+    waitingStatuses: waitingImplementationDependencyStatuses,
+  });
   const nextImplementationTaskDisplayState = nextImplementationTask
     ? buildNextImplementationTaskDisplayState({
         dependencyStatus: nextImplementationDependencyStatus,
@@ -5672,25 +5676,21 @@ export function IdeaWorkbench({
                     </p>
                   </div>
                   <span className="avl-pill avl-pill-neutral">
-                    열린 할 일 {selectedOpenImplementationTasks.length}개
+                    {implementationOpenTaskPreviewState.countLabel}
                   </span>
                 </div>
                 <div className="mt-3 grid gap-2">
-                  {getOpenImplementationTaskPreview(selectedOpenImplementationTasks).map((task, index) => (
-                    <div key={task.id} className="avl-surface-muted p-3">
+                  {implementationOpenTaskPreviewState.items.map((item) => (
+                    <div key={item.id} className="avl-surface-muted p-3">
                       <div className="flex flex-wrap items-center gap-2">
-                          <span className="avl-pill avl-pill-neutral inline-flex h-6 w-6 items-center justify-center px-0 text-xs">
-                            {index + 1}
-                          </span>
-                        <span className="text-sm font-semibold text-slate-950">{task.title}</span>
-                        <span className={implementationTaskStatusTone[task.status]}>
-                          {implementationTaskStatusLabels[task.status]}
+                        <span className="avl-pill avl-pill-neutral inline-flex h-6 w-6 items-center justify-center px-0 text-xs">
+                          {item.orderLabel}
                         </span>
-                        <span className={implementationTaskPriorityTone[task.priority]}>
-                          {implementationTaskPriorityLabels[task.priority]}
-                        </span>
+                        <span className="text-sm font-semibold text-slate-950">{item.title}</span>
+                        <span className={item.statusToneClass}>{item.statusLabel}</span>
+                        <span className={item.priorityToneClass}>{item.priorityLabel}</span>
                       </div>
-                      <p className="mt-2 text-sm leading-6 text-slate-600">{task.acceptance_criteria}</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">{item.acceptanceCriteria}</p>
                     </div>
                   ))}
                 </div>
@@ -5712,10 +5712,10 @@ export function IdeaWorkbench({
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <span className="avl-pill avl-pill-neutral">
-                      시작 가능 {readyImplementationDependencyStatuses.length}개
+                      {implementationDependencyPreviewState.readyCountLabel}
                     </span>
                     <span className="avl-pill avl-pill-neutral">
-                      대기 {waitingImplementationDependencyStatuses.length}개
+                      {implementationDependencyPreviewState.waitingCountLabel}
                     </span>
                     <button
                       type="button"
@@ -5739,44 +5739,34 @@ export function IdeaWorkbench({
                 </div>
 
                 <div className="mt-4 grid gap-3 lg:grid-cols-8">
-                  {implementationTaskExecutionOrder.map((taskType, index) => {
-                    const taskTypeStats = implementationTaskProgressStats.byType[taskType];
-
-                    return (
-                      <div key={taskType} className="border border-slate-200 bg-white p-3">
-                        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                          {String(index + 1).padStart(2, "0")}
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-slate-950">
-                          {implementationTaskTypeLabels[taskType]}
-                        </div>
-                        <div className="mt-2 text-xs font-semibold text-slate-500">
-                          {taskTypeStats.done}/{taskTypeStats.total} 완료
-                        </div>
+                  {implementationDependencyPreviewState.taskTypeProgressItems.map((item) => (
+                    <div key={item.taskType} className="border border-slate-200 bg-white p-3">
+                      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                        {item.orderLabel}
                       </div>
-                    );
-                  })}
+                      <div className="mt-1 text-sm font-semibold text-slate-950">{item.label}</div>
+                      <div className="mt-2 text-xs font-semibold text-slate-500">{item.completionLabel}</div>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="mt-4 grid gap-3 lg:grid-cols-2">
                   <div className="border border-slate-200 bg-slate-50 p-3">
                     <div className="text-sm font-semibold text-slate-950">바로 시작 가능</div>
                     <div className="mt-3 grid gap-2">
-                      {getImplementationDependencyStatusPreview(readyImplementationDependencyStatuses).map((status) => (
-                        <div key={status.task.id} className="avl-surface-muted px-3 py-2">
+                      {implementationDependencyPreviewState.readyItems.map((item) => (
+                        <div key={item.id} className="avl-surface-muted px-3 py-2">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-semibold text-slate-950">{status.task.title}</span>
-                            <span className="avl-pill avl-pill-neutral">
-                              {implementationTaskTypeLabels[status.task.task_type]}
-                            </span>
+                            <span className="text-sm font-semibold text-slate-950">{item.title}</span>
+                            <span className="avl-pill avl-pill-neutral">{item.taskTypeLabel}</span>
                           </div>
-                          <p className="mt-1 text-xs leading-5 text-slate-600">{status.nextAction}</p>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">{item.detail}</p>
                         </div>
                       ))}
-                      {readyImplementationDependencyStatuses.length === 0 ? (
-                          <div className="avl-surface-muted border-dashed px-3 py-2 text-sm leading-6 text-slate-700">
-                            먼저 선행 조건을 완료해야 시작 가능한 할 일이 생깁니다.
-                          </div>
+                      {implementationDependencyPreviewState.showReadyEmpty ? (
+                        <div className="avl-surface-muted border-dashed px-3 py-2 text-sm leading-6 text-slate-700">
+                          {implementationDependencyPreviewState.readyEmptyMessage}
+                        </div>
                       ) : null}
                     </div>
                   </div>
@@ -5784,21 +5774,19 @@ export function IdeaWorkbench({
                   <div className="border border-slate-200 bg-slate-50 p-3">
                     <div className="text-sm font-semibold text-slate-950">선행 조건 대기</div>
                     <div className="mt-3 grid gap-2">
-                      {getImplementationDependencyStatusPreview(waitingImplementationDependencyStatuses).map((status) => (
-                        <div key={status.task.id} className="avl-surface-muted px-3 py-2">
+                      {implementationDependencyPreviewState.waitingItems.map((item) => (
+                        <div key={item.id} className="avl-surface-muted px-3 py-2">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-semibold text-slate-950">{status.task.title}</span>
-                            <span className="avl-pill avl-pill-neutral">
-                              {implementationTaskTypeLabels[status.task.task_type]}
-                            </span>
+                            <span className="text-sm font-semibold text-slate-950">{item.title}</span>
+                            <span className="avl-pill avl-pill-neutral">{item.taskTypeLabel}</span>
                           </div>
-                          <p className="mt-1 text-xs leading-5 text-slate-600">{status.blockers.join(", ")}</p>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">{item.detail}</p>
                         </div>
                       ))}
-                      {waitingImplementationDependencyStatuses.length === 0 ? (
-                          <div className="avl-surface-muted border-dashed px-3 py-2 text-sm leading-6 text-slate-700">
-                            선행 조건에 막힌 열린 할 일이 없습니다.
-                          </div>
+                      {implementationDependencyPreviewState.showWaitingEmpty ? (
+                        <div className="avl-surface-muted border-dashed px-3 py-2 text-sm leading-6 text-slate-700">
+                          {implementationDependencyPreviewState.waitingEmptyMessage}
+                        </div>
                       ) : null}
                     </div>
                   </div>

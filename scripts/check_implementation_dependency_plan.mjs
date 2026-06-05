@@ -26,10 +26,13 @@ const implementationTaskMetadataUrl = pathToFileURL(
 const {
   blockedImplementationTaskDependencyMessage,
   buildImplementationDependencyPrerequisiteStatus,
+  buildImplementationDependencyPreviewState,
   buildImplementationDependencyStatuses,
   buildImplementationPrerequisiteBlocker,
+  buildImplementationTaskProgressStats,
   buildNextImplementationTaskActionDetail,
   buildNextImplementationTaskDisplayState,
+  buildOpenImplementationTaskPreviewState,
   getBlockedImplementationTaskDependencyBlockers,
   getCompletedImplementationTaskTypes,
   getImplementationDependencyStatusForTask,
@@ -133,6 +136,32 @@ assert.deepEqual(getOpenImplementationTaskPreview([readyTask, designTodoTask, bl
   "task-1",
   "task-design",
 ]);
+assert.deepEqual(buildOpenImplementationTaskPreviewState([readyTask, designTodoTask, blockedFrontendTask], 2), {
+  countLabel: "열린 할 일 3개",
+  itemCount: 3,
+  items: [
+    {
+      acceptanceCriteria: "첫 화면에서 다음 제작 행동을 확인한다.",
+      id: "task-1",
+      orderLabel: "1",
+      priorityLabel: "높음",
+      priorityToneClass: "avl-pill avl-pill-danger",
+      statusLabel: "할 일",
+      statusToneClass: "avl-pill avl-pill-neutral",
+      title: "T-001 제작 패키지 리뷰 화면",
+    },
+    {
+      acceptanceCriteria: "첫 화면에서 다음 제작 행동을 확인한다.",
+      id: "task-design",
+      orderLabel: "2",
+      priorityLabel: "높음",
+      priorityToneClass: "avl-pill avl-pill-danger",
+      statusLabel: "할 일",
+      statusToneClass: "avl-pill avl-pill-neutral",
+      title: "화면 흐름 확정",
+    },
+  ],
+});
 assert.equal(
   buildImplementationPrerequisiteBlocker({
     prerequisite: "design",
@@ -188,6 +217,35 @@ const blockedFrontendStatus = dependencyMetadataStatuses.find((item) => item.tas
 assert.equal(blockedFrontendStatus.ready, false);
 assert.equal(blockedFrontendStatus.blockers[0], blockedImplementationTaskDependencyMessage);
 assert.equal(blockedFrontendStatus.blockers.includes("백엔드 태스크 생성 필요"), true);
+const dependencyPreviewState = buildImplementationDependencyPreviewState({
+  progressStats: buildImplementationTaskProgressStats([doneTask, designTodoTask, blockedFrontendTask]),
+  readyStatuses: getReadyImplementationDependencyStatuses(dependencyMetadataStatuses),
+  waitingStatuses: getWaitingImplementationDependencyStatuses(dependencyMetadataStatuses),
+});
+assert.equal(dependencyPreviewState.readyCount, 1);
+assert.equal(dependencyPreviewState.readyCountLabel, "시작 가능 1개");
+assert.equal(dependencyPreviewState.waitingCount, 1);
+assert.equal(dependencyPreviewState.waitingCountLabel, "대기 1개");
+assert.deepEqual(dependencyPreviewState.taskTypeProgressItems.slice(0, 2), [
+  {
+    completionLabel: "1/1 완료",
+    label: "기획",
+    orderLabel: "01",
+    taskType: "planning",
+  },
+  {
+    completionLabel: "0/1 완료",
+    label: "디자인",
+    orderLabel: "02",
+    taskType: "design",
+  },
+]);
+assert.equal(dependencyPreviewState.readyItems[0].id, "task-design");
+assert.equal(dependencyPreviewState.readyItems[0].taskTypeLabel, "디자인");
+assert.equal(dependencyPreviewState.waitingItems[0].id, "task-blocked-frontend");
+assert.equal(dependencyPreviewState.waitingItems[0].taskTypeLabel, "프론트");
+assert.equal(dependencyPreviewState.showReadyEmpty, false);
+assert.equal(dependencyPreviewState.showWaitingEmpty, false);
 assert.equal(
   buildNextImplementationTaskActionDetail({
     dependencyStatus: blockedFrontendStatus,
@@ -256,6 +314,14 @@ assert.ok(
   "IdeaWorkbench should render next implementation start button from shared display state.",
 );
 assert.ok(
+  ideaWorkbenchSource.includes("implementationOpenTaskPreviewState.countLabel"),
+  "IdeaWorkbench should render open task preview count from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("implementationDependencyPreviewState.readyCountLabel"),
+  "IdeaWorkbench should render dependency counts from shared preview state.",
+);
+assert.ok(
   !ideaWorkbenchSource.includes("buildNextImplementationTaskActionDetail({"),
   "IdeaWorkbench should not build next implementation task detail inline.",
 );
@@ -266,6 +332,26 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes('nextImplementationTask.status === "todo"'),
   "IdeaWorkbench should not decide next implementation start visibility inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("getOpenImplementationTaskPreview(selectedOpenImplementationTasks)"),
+  "IdeaWorkbench should not build open implementation preview items inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("getImplementationDependencyStatusPreview(readyImplementationDependencyStatuses)"),
+  "IdeaWorkbench should not build ready dependency preview items inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("readyImplementationDependencyStatuses.length === 0"),
+  "IdeaWorkbench should not decide ready dependency empty state inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("status.blockers.join"),
+  "IdeaWorkbench should not render dependency blocker text inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("implementationTaskExecutionOrder.map"),
+  "IdeaWorkbench should not render execution order progress rows inline.",
 );
 
 const statuses = [

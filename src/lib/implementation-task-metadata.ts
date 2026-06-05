@@ -71,6 +71,51 @@ export type NextImplementationTaskDisplayState = {
   title: string;
 };
 
+export type OpenImplementationTaskPreviewItem = {
+  acceptanceCriteria: string | null;
+  id: string;
+  orderLabel: string;
+  priorityLabel: string;
+  priorityToneClass: string;
+  statusLabel: string;
+  statusToneClass: string;
+  title: string;
+};
+
+export type OpenImplementationTaskPreviewState = {
+  countLabel: string;
+  itemCount: number;
+  items: OpenImplementationTaskPreviewItem[];
+};
+
+export type ImplementationTaskTypeProgressDisplayItem = {
+  completionLabel: string;
+  label: string;
+  orderLabel: string;
+  taskType: ImplementationTaskType;
+};
+
+export type ImplementationDependencyStatusDisplayItem = {
+  detail: string;
+  id: string;
+  taskTypeLabel: string;
+  title: string;
+};
+
+export type ImplementationDependencyPreviewState = {
+  readyCount: number;
+  readyCountLabel: string;
+  readyEmptyMessage: string;
+  readyItems: ImplementationDependencyStatusDisplayItem[];
+  showReadyEmpty: boolean;
+  showWaitingEmpty: boolean;
+  taskTypeProgressItems: ImplementationTaskTypeProgressDisplayItem[];
+  waitingCount: number;
+  waitingCountLabel: string;
+  waitingEmptyMessage: string;
+  waitingItems: ImplementationDependencyStatusDisplayItem[];
+};
+
 export type ImplementationEvidenceSummary = {
   task: ImplementationTask;
   missing: string[];
@@ -230,6 +275,33 @@ export function getOpenImplementationTasksForAction(tasks: ImplementationTask[])
 
 export function getOpenImplementationTaskPreview(tasks: ImplementationTask[], limit = 5) {
   return tasks.slice(0, limit);
+}
+
+export function buildOpenImplementationTaskPreviewItem(
+  task: ImplementationTask,
+  index: number,
+): OpenImplementationTaskPreviewItem {
+  return {
+    acceptanceCriteria: task.acceptance_criteria,
+    id: task.id,
+    orderLabel: String(index + 1),
+    priorityLabel: implementationTaskPriorityLabels[task.priority],
+    priorityToneClass: implementationTaskPriorityTone[task.priority],
+    statusLabel: implementationTaskStatusLabels[task.status],
+    statusToneClass: implementationTaskStatusTone[task.status],
+    title: task.title,
+  };
+}
+
+export function buildOpenImplementationTaskPreviewState(
+  tasks: ImplementationTask[],
+  limit = 5,
+): OpenImplementationTaskPreviewState {
+  return {
+    countLabel: `열린 할 일 ${tasks.length}개`,
+    itemCount: tasks.length,
+    items: getOpenImplementationTaskPreview(tasks, limit).map(buildOpenImplementationTaskPreviewItem),
+  };
 }
 
 export function selectAgentRunPackageTasks(filteredTasks: ImplementationTask[], openTasks: ImplementationTask[]) {
@@ -449,6 +521,68 @@ export function getImplementationDependencyStatusForTask(
 
 export function getImplementationDependencyStatusPreview(statuses: ImplementationDependencyStatus[], limit = 4) {
   return statuses.slice(0, limit);
+}
+
+export function buildImplementationTaskTypeProgressDisplayItems(
+  progressStats: ImplementationTaskProgressStats,
+): ImplementationTaskTypeProgressDisplayItem[] {
+  return implementationTaskExecutionOrder.map((taskType, index) => {
+    const taskTypeStats = progressStats.byType[taskType];
+
+    return {
+      completionLabel: `${taskTypeStats.done}/${taskTypeStats.total} 완료`,
+      label: implementationTaskTypeLabels[taskType],
+      orderLabel: String(index + 1).padStart(2, "0"),
+      taskType,
+    };
+  });
+}
+
+export function buildImplementationDependencyStatusDisplayItems({
+  mode,
+  statuses,
+  limit = 4,
+}: {
+  mode: "ready" | "waiting";
+  statuses: ImplementationDependencyStatus[];
+  limit?: number;
+}): ImplementationDependencyStatusDisplayItem[] {
+  return getImplementationDependencyStatusPreview(statuses, limit).map((status) => ({
+    detail: mode === "ready" ? status.nextAction : status.blockers.join(", "),
+    id: status.task.id,
+    taskTypeLabel: implementationTaskTypeLabels[status.task.task_type],
+    title: status.task.title,
+  }));
+}
+
+export function buildImplementationDependencyPreviewState({
+  progressStats,
+  readyStatuses,
+  waitingStatuses,
+}: {
+  progressStats: ImplementationTaskProgressStats;
+  readyStatuses: ImplementationDependencyStatus[];
+  waitingStatuses: ImplementationDependencyStatus[];
+}): ImplementationDependencyPreviewState {
+  return {
+    readyCount: readyStatuses.length,
+    readyCountLabel: `시작 가능 ${readyStatuses.length}개`,
+    readyEmptyMessage: "먼저 선행 조건을 완료해야 시작 가능한 할 일이 생깁니다.",
+    readyItems: buildImplementationDependencyStatusDisplayItems({
+      mode: "ready",
+      statuses: readyStatuses,
+    }),
+    showReadyEmpty: readyStatuses.length === 0,
+    showWaitingEmpty: waitingStatuses.length === 0,
+    taskTypeProgressItems: buildImplementationTaskTypeProgressDisplayItems(progressStats),
+    waitingCount: waitingStatuses.length,
+    waitingCountLabel: `대기 ${waitingStatuses.length}개`,
+    waitingEmptyMessage: "선행 조건에 막힌 열린 할 일이 없습니다.",
+    waitingItems: buildImplementationDependencyStatusDisplayItems({
+      mode: "waiting",
+      statuses: waitingStatuses,
+    }),
+  };
 }
 
 export function getImplementationEvidenceChecklist(task: ImplementationTask, evidence: string) {
