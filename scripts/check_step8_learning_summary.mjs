@@ -26,6 +26,7 @@ const {
   isDoneImplementationTask,
 } = await import(implementationMetadataUrl);
 const modulePath = path.join(process.cwd(), "src/lib/step8-learning-summary.ts");
+const step8ProgressSectionSource = readFileSync(path.join(process.cwd(), "src/components/step8-progress-section.tsx"), "utf8");
 const source = readFileSync(modulePath, "utf8")
   .replace('from "@/lib/external-progress-import";', `from ${JSON.stringify(externalProgressUrl)};`)
   .replace('from "@/lib/implementation-task-metadata";', `from ${JSON.stringify(implementationMetadataUrl)};`);
@@ -61,6 +62,7 @@ const {
   buildStep8LearningReviewSummary,
   buildStep8LearningSimpleReviewRows,
   buildStep8LearningSummary,
+  buildStep8NextTaskSummary,
   buildStep8ProgressDetail,
   buildStep8ProgressDisplayItem,
   buildStep8ProgressEvidenceSummary,
@@ -606,6 +608,42 @@ assert.equal(
   true,
 );
 assert.equal(areAllStep8ProgressItemsDone(progressSummary.progressItems), false);
+assert.equal(
+  buildStep8NextTaskSummary({
+    hasProgressItems: true,
+    isAllTasksComplete: false,
+    nextTaskCode: "T-002",
+    nextTaskTitle: "첫 화면 제작",
+  }),
+  "T-002 첫 화면 제작",
+);
+assert.equal(
+  buildStep8NextTaskSummary({
+    hasProgressItems: true,
+    isAllTasksComplete: false,
+    nextTaskCode: null,
+    nextTaskTitle: null,
+  }),
+  "상태만 확인",
+);
+assert.equal(
+  buildStep8NextTaskSummary({
+    hasProgressItems: true,
+    isAllTasksComplete: true,
+    nextTaskCode: null,
+    nextTaskTitle: null,
+  }),
+  "남은 작업 없음",
+);
+assert.equal(
+  buildStep8NextTaskSummary({
+    hasProgressItems: false,
+    isAllTasksComplete: false,
+    nextTaskCode: null,
+    nextTaskTitle: null,
+  }),
+  "STEP 7에서 첫 작업 시작",
+);
 assert.equal(buildStep8ProgressTitle({ hasNextTask: true, progressItems: progressSummary.progressItems }), "다음 작업 하나만 확인");
 assert.match(
   buildStep8ProgressDetail({ hasNextTask: true, progressItems: progressSummary.progressItems }),
@@ -895,5 +933,13 @@ assert.equal(displayState.progressItems.length, 3);
 assert.equal(canCopyStep8LearningReport({ nextImplementationTask: null, productSignalCount: 1 }), true);
 assert.equal(canCopyStep8LearningReport({ nextImplementationTask: tasks[1], productSignalCount: 1 }), false);
 assert.equal(canCopyStep8LearningReport({ nextImplementationTask: null, productSignalCount: 0 }), false);
+assert.ok(
+  step8ProgressSectionSource.includes("buildStep8NextTaskSummary"),
+  "Step8ProgressSection should render next task summary through the shared helper.",
+);
+assert.ok(
+  !step8ProgressSectionSource.includes("nextTaskCode && nextTaskTitle"),
+  "Step8ProgressSection should not keep the old inline next task summary calculation.",
+);
 
 console.log("Step 8 learning summary smoke passed.");

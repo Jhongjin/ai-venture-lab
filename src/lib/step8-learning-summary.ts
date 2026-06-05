@@ -1150,6 +1150,26 @@ export function buildStep8ProgressDetail({
         : "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 이어 할 것, 지금 판단이 여기에 표시됩니다.";
 }
 
+export function buildStep8NextTaskSummary({
+  hasProgressItems,
+  isAllTasksComplete,
+  nextTaskCode,
+  nextTaskTitle,
+}: {
+  hasProgressItems: boolean;
+  isAllTasksComplete: boolean;
+  nextTaskCode: string | null;
+  nextTaskTitle: string | null;
+}) {
+  return nextTaskCode && nextTaskTitle
+    ? `${nextTaskCode} ${nextTaskTitle}`
+    : hasProgressItems
+      ? isAllTasksComplete
+        ? "남은 작업 없음"
+        : "상태만 확인"
+      : "STEP 7에서 첫 작업 시작";
+}
+
 export function areAllStep8ProgressItemsDone(progressItems: Step8ProgressDisplayItem[]) {
   return progressItems.length > 0 && progressItems.every((item) => item.isDone);
 }

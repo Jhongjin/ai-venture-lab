@@ -2,6 +2,7 @@
 
 import { Step8NextTaskFocus } from "@/components/step8-next-task-focus";
 import { Step8ProgressDetails, type Step8ProgressItem } from "@/components/step8-progress-details";
+import { buildStep8NextTaskSummary } from "@/lib/step8-learning-summary";
 
 export type { Step8ProgressItem };
 
@@ -26,14 +27,12 @@ export function Step8ProgressSection({
 }: Step8ProgressSectionProps) {
   const hasProgressItems = items.length > 0;
   const isAllTasksComplete = totalCount > 0 && completedCount >= totalCount;
-  const nextTaskSummary =
-    nextTaskCode && nextTaskTitle
-      ? `${nextTaskCode} ${nextTaskTitle}`
-      : hasProgressItems
-        ? isAllTasksComplete
-          ? "남은 작업 없음"
-          : "상태만 확인"
-        : "STEP 7에서 첫 작업 시작";
+  const nextTaskSummary = buildStep8NextTaskSummary({
+    hasProgressItems,
+    isAllTasksComplete,
+    nextTaskCode,
+    nextTaskTitle,
+  });
 
   return (
     <section data-smoke="step8-progress-section" className="mt-4 border border-slate-200 bg-white p-4">
