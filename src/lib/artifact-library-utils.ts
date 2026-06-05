@@ -51,6 +51,12 @@ export type RecentDevelopmentHandoffArtifactDisplayState = {
   versionLabel: string;
 };
 
+export type ArtifactLibraryViewDisplayState = {
+  recentDevelopmentHandoffCountLabel: string;
+  showRecentDevelopmentHandoffArtifacts: boolean;
+  showSelectedArtifacts: boolean;
+};
+
 export function buildArtifactSavedMessage({ artifactLabel, version }: { artifactLabel: string; version: number }) {
   return `${artifactLabel} v${version}을 저장했습니다.`;
 }
@@ -416,6 +422,20 @@ export function buildRecentDevelopmentHandoffArtifactDisplayState({
   };
 }
 
+export function buildArtifactLibraryViewDisplayState({
+  recentDevelopmentHandoffArtifactCount,
+  selectedArtifactCount,
+}: {
+  recentDevelopmentHandoffArtifactCount: number;
+  selectedArtifactCount: number;
+}): ArtifactLibraryViewDisplayState {
+  return {
+    recentDevelopmentHandoffCountLabel: `${recentDevelopmentHandoffArtifactCount}개`,
+    showRecentDevelopmentHandoffArtifacts: recentDevelopmentHandoffArtifactCount > 0,
+    showSelectedArtifacts: selectedArtifactCount > 0,
+  };
+}
+
 export function buildArtifactLibraryViewState({
   artifacts,
   sourceFilter,
@@ -430,22 +450,28 @@ export function buildArtifactLibraryViewState({
   const artifactSourceOptions = buildArtifactSourceOptions(artifacts);
   const artifactSourceFilterLabels = buildArtifactSourceFilterLabels(artifactSourceOptions);
   const activeArtifactSourceFilter = resolveArtifactSourceFilter(artifactSourceOptions, sourceFilter);
+  const recentDevelopmentHandoffArtifacts = getRecentDevelopmentHandoffArtifacts(artifacts);
+  const selectedArtifacts = filterArtifactLibrary({
+    artifacts,
+    sourceFilter: activeArtifactSourceFilter,
+    statusFilter,
+    typeFilter,
+  });
 
   return {
     activeArtifactSourceFilter,
     artifactLibraryEmptyMessage: buildArtifactLibraryEmptyMessage({ hasArtifacts: artifacts.length > 0 }),
+    artifactLibraryViewDisplayState: buildArtifactLibraryViewDisplayState({
+      recentDevelopmentHandoffArtifactCount: recentDevelopmentHandoffArtifacts.length,
+      selectedArtifactCount: selectedArtifacts.length,
+    }),
     artifactSourceFilterLabels,
     artifactSourceFilterOptions: buildArtifactSourceFilterOptions(artifactSourceOptions, artifactSourceFilterLabels),
     artifactSourceOptions,
     artifactStatusFilterOptions: buildArtifactStatusFilterOptions(),
     artifactTypeFilterOptions: buildArtifactTypeFilterOptions(),
-    recentDevelopmentHandoffArtifacts: getRecentDevelopmentHandoffArtifacts(artifacts),
-    selectedArtifacts: filterArtifactLibrary({
-      artifacts,
-      sourceFilter: activeArtifactSourceFilter,
-      statusFilter,
-      typeFilter,
-    }),
+    recentDevelopmentHandoffArtifacts,
+    selectedArtifacts,
   };
 }
 

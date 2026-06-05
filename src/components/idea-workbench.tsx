@@ -1115,6 +1115,7 @@ export function IdeaWorkbench({
   const {
     activeArtifactSourceFilter,
     artifactLibraryEmptyMessage,
+    artifactLibraryViewDisplayState,
     artifactSourceFilterOptions,
     artifactStatusFilterOptions,
     artifactTypeFilterOptions,
@@ -7889,7 +7890,7 @@ export function IdeaWorkbench({
               </div>
             </div>
           ) : null}
-          {recentDevelopmentHandoffArtifacts.length > 0 ? (
+          {artifactLibraryViewDisplayState.showRecentDevelopmentHandoffArtifacts ? (
             <div className="mb-4 border border-slate-200 bg-white p-4">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -7900,7 +7901,7 @@ export function IdeaWorkbench({
                   </p>
                 </div>
                 <span className="avl-pill avl-pill-neutral">
-                  {recentDevelopmentHandoffArtifacts.length}개
+                  {artifactLibraryViewDisplayState.recentDevelopmentHandoffCountLabel}
                 </span>
               </div>
               <div className="mt-3 grid gap-2 lg:grid-cols-3">
@@ -7934,7 +7935,7 @@ export function IdeaWorkbench({
             </div>
           ) : null}
           <div className="grid gap-3">
-            {selectedArtifacts.length > 0 ? (
+            {artifactLibraryViewDisplayState.showSelectedArtifacts ? (
               selectedArtifacts.map((artifact) => {
                 const artifactDisplayState = buildArtifactLibraryItemDisplayState({
                   approvedDateLabel: artifact.approved_at ? formatStableKoreanDate(artifact.approved_at) : null,

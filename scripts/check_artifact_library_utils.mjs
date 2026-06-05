@@ -28,6 +28,7 @@ const {
   buildArtifactLibraryEmptyMessage,
   buildArtifactLibraryItemDisplayState,
   buildArtifactLibraryItemSourceDateSummary,
+  buildArtifactLibraryViewDisplayState,
   buildArtifactLibraryViewState,
   buildArtifactLibraryFocusMessage,
   buildArtifactReadinessFlags,
@@ -562,6 +563,28 @@ assert.deepEqual(
     versionLabel: "v1",
   },
 );
+assert.deepEqual(
+  buildArtifactLibraryViewDisplayState({
+    recentDevelopmentHandoffArtifactCount: 2,
+    selectedArtifactCount: 1,
+  }),
+  {
+    recentDevelopmentHandoffCountLabel: "2개",
+    showRecentDevelopmentHandoffArtifacts: true,
+    showSelectedArtifacts: true,
+  },
+);
+assert.deepEqual(
+  buildArtifactLibraryViewDisplayState({
+    recentDevelopmentHandoffArtifactCount: 0,
+    selectedArtifactCount: 0,
+  }),
+  {
+    recentDevelopmentHandoffCountLabel: "0개",
+    showRecentDevelopmentHandoffArtifacts: false,
+    showSelectedArtifacts: false,
+  },
+);
 
 const libraryViewState = buildArtifactLibraryViewState({
   artifacts,
@@ -580,6 +603,11 @@ assert.deepEqual(libraryViewState.artifactSourceFilterOptions.slice(0, 2), [
 assert.deepEqual(libraryViewState.artifactTypeFilterOptions[0], { label: "전체 유형", value: "all" });
 assert.deepEqual(libraryViewState.artifactStatusFilterOptions[0], { label: "전체 상태", value: "all" });
 assert.deepEqual(libraryViewState.selectedArtifacts.map((item) => item.id), ["manual-prd"]);
+assert.deepEqual(libraryViewState.artifactLibraryViewDisplayState, {
+  recentDevelopmentHandoffCountLabel: "2개",
+  showRecentDevelopmentHandoffArtifacts: true,
+  showSelectedArtifacts: true,
+});
 assert.deepEqual(
   libraryViewState.recentDevelopmentHandoffArtifacts.map((item) => item.id),
   ["handoff-filtered", "handoff-process"],
@@ -645,6 +673,26 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("buildRecentDevelopmentHandoffArtifactDisplayState"),
   "IdeaWorkbench should render recent handoff artifact cards from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("recentDevelopmentHandoffArtifacts.length > 0"),
+  "IdeaWorkbench should not keep recent handoff visibility branching inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("selectedArtifacts.length > 0"),
+  "IdeaWorkbench should not keep artifact list visibility branching inline.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactLibraryViewDisplayState.showRecentDevelopmentHandoffArtifacts"),
+  "IdeaWorkbench should render recent handoff visibility from shared view display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactLibraryViewDisplayState.recentDevelopmentHandoffCountLabel"),
+  "IdeaWorkbench should render recent handoff count label from shared view display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactLibraryViewDisplayState.showSelectedArtifacts"),
+  "IdeaWorkbench should render selected artifact visibility from shared view display state.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("buildArtifactSourceDisplayLabel(artifact.source)"),
