@@ -7,6 +7,7 @@ const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-list
 const {
   appendRecord,
   appendRecords,
+  buildWorkbenchComparisonIdeaListItemStates,
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
   buildWorkbenchDiscardedIdeaListItemStates,
@@ -466,6 +467,40 @@ const selectedIdeaPanelState = buildWorkbenchSelectedIdeaPanelState({
 assert.equal(selectedIdeaPanelState.shouldShow, true);
 assert.equal(selectedIdeaPanelState.selectedIdeaDisplay.productSurface.label, "업무 자동화");
 assert.deepEqual(selectedIdeaPanelState.comparisonIdeas.map((record) => record.id), ["shared-old", "admin"]);
+const comparisonIdeaListItemStates = buildWorkbenchComparisonIdeaListItemStates({
+  comparisonIdeas: selectedIdeaPanelState.comparisonIdeas,
+  getIdeaDisplayState: getPanelDisplayState,
+});
+assert.deepEqual(
+  comparisonIdeaListItemStates.map(({ display, idea: record, stepLabel }) => ({
+    id: record.id,
+    progressLabel: display.progress.label,
+    stepLabel,
+  })),
+  [
+    { id: "shared-old", progressLabel: "STEP 5 제작 패키지", stepLabel: "2" },
+    { id: "admin", progressLabel: "STEP 5 제작 패키지", stepLabel: "3" },
+  ],
+);
+assert.deepEqual(
+  buildWorkbenchComparisonIdeaListItemStates({
+    comparisonIdeas: [],
+    getIdeaDisplayState: getPanelDisplayState,
+  }),
+  [],
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("comparisonIdeas.map((idea, index)"),
+  "IdeaWorkbench should render comparison ideas from shared list item state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("index + 2"),
+  "IdeaWorkbench should render comparison idea step labels from shared list item state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("comparisonIdeaListItems.map"),
+  "IdeaWorkbench should map comparison idea item state instead of raw ideas.",
+);
 assert.deepEqual(
   buildWorkbenchSelectedIdeaPanelState({
     getIdeaDisplayState: getPanelDisplayState,

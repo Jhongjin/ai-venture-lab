@@ -72,6 +72,7 @@ import {
   buildExecutionPackageDraftState,
 } from "@/lib/execution-package-drafts";
 import {
+  buildWorkbenchComparisonIdeaListItemStates,
   buildDiscardIdeaPatch,
   buildRestoreIdeaPatch,
   buildWorkbenchDiscardedIdeaListItemStates,
@@ -2665,6 +2666,10 @@ export function IdeaWorkbench({
   });
   const selectedIdeaDisplay = selectedIdeaPanelState.selectedIdeaDisplay;
   const comparisonIdeas = selectedIdeaPanelState.comparisonIdeas;
+  const comparisonIdeaListItems = buildWorkbenchComparisonIdeaListItemStates({
+    comparisonIdeas,
+    getIdeaDisplayState,
+  });
   const visibleIdeaListItems = buildWorkbenchIdeaListItemStates({
     getIdeaDisplayState,
     selectedIdeaId: selectedIdea.id,
@@ -2683,7 +2688,7 @@ export function IdeaWorkbench({
     getIdeaDisplayState,
   });
   const workbenchIdeaListVisibilityDisplayState = buildWorkbenchIdeaListVisibilityDisplayState({
-    comparisonIdeaCount: comparisonIdeas.length,
+    comparisonIdeaCount: comparisonIdeaListItems.length,
     discardedIdeaCount: discardedIdeaListItems.length,
     visibleIdeaCount: visibleIdeaListItems.length,
   });
@@ -4704,10 +4709,7 @@ export function IdeaWorkbench({
 
                       <div className="mt-4 grid gap-3 md:grid-cols-2">
                         {workbenchIdeaListVisibilityDisplayState.showComparisonIdeas ? (
-                          comparisonIdeas.map((idea, index) => {
-                            const comparisonDisplay = getIdeaDisplayState(idea);
-
-                            return (
+                          comparisonIdeaListItems.map(({ display: comparisonDisplay, idea, stepLabel }) => (
                               <div
                                 key={idea.id}
                                 className="border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:bg-slate-50"
@@ -4723,7 +4725,7 @@ export function IdeaWorkbench({
                                 >
                                   <div className="flex items-center justify-between gap-3">
                                     <span className="avl-step-dot h-8 w-8 bg-slate-900 text-sm text-white">
-                                      {index + 2}
+                                      {stepLabel}
                                     </span>
                                     <div className="flex flex-wrap justify-end gap-2">
                                       <span className="avl-pill avl-pill-neutral">{comparisonDisplay.productSurface.shortLabel}</span>
@@ -4751,8 +4753,7 @@ export function IdeaWorkbench({
                                   ) : null}
                                 </div>
                               </div>
-                            );
-                          })
+                            ))
                         ) : (
                           <div className="avl-surface-muted border-dashed p-4 text-sm leading-5 text-slate-600 md:col-span-2">
                             지금은 이 아이디어 한 건만 보면 충분합니다. 새 아이디어를 더 넣거나, 나중에 다른 아이디어를 다시 비교해도 됩니다.

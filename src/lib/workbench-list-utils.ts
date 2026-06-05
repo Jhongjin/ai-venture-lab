@@ -42,6 +42,11 @@ export type WorkbenchIdeaFilterButtonState = {
   isActive: boolean;
   mode: WorkbenchIdeaFilterMode;
 };
+export type WorkbenchComparisonIdeaListItemState = {
+  display: WorkbenchIdeaDisplayState;
+  idea: Idea;
+  stepLabel: string;
+};
 export type WorkbenchDiscardedIdeaListItemState = {
   canManage: boolean;
   display: WorkbenchIdeaDisplayState;
@@ -180,6 +185,20 @@ export function buildWorkbenchIdeaListVisibilityDisplayState({
     showDiscardedIdeaList: discardedIdeaCount > 0,
     showVisibleIdeaList: visibleIdeaCount > 0,
   };
+}
+
+export function buildWorkbenchComparisonIdeaListItemStates({
+  comparisonIdeas,
+  getIdeaDisplayState,
+}: {
+  comparisonIdeas: Idea[];
+  getIdeaDisplayState: (idea: Idea) => WorkbenchIdeaDisplayState;
+}): WorkbenchComparisonIdeaListItemState[] {
+  return comparisonIdeas.map((idea, index) => ({
+    display: getIdeaDisplayState(idea),
+    idea,
+    stepLabel: String(index + 2),
+  }));
 }
 
 export function buildDiscardIdeaPatch(now = new Date().toISOString()) {
