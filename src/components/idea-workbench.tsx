@@ -4472,7 +4472,7 @@ export function IdeaWorkbench({
 
         <div className="grid gap-3">
           {workbenchIdeaListVisibilityDisplayState.showVisibleIdeaList ? (
-            visibleIdeaListItems.map(({ cardClassName, display: ideaDisplay, idea, stagePillTone }) => (
+            visibleIdeaListItems.map(({ cardClassName, display: ideaDisplay, idea, showDiscardAction, stagePillTone }) => (
               <div
                 key={idea.id}
                 className={cardClassName}
@@ -4511,7 +4511,7 @@ export function IdeaWorkbench({
                     {ideaDisplay.productSurface.firstBuild}
                   </p>
                 </button>
-                {ideaDisplay.accessDisplay.isManageable ? (
+                {showDiscardAction ? (
                   <div className="mt-3 flex justify-end">
                     <button
                       type="button"
@@ -4682,7 +4682,7 @@ export function IdeaWorkbench({
                           >
                             이어서 보기
                           </button>
-                          {selectedIdeaDisplay.accessDisplay.isManageable ? (
+                          {selectedIdeaPanelState.showManageActions ? (
                             <button
                               type="button"
                               onClick={() => void discardIdeaRecord(selectedIdea)}
@@ -4711,7 +4711,7 @@ export function IdeaWorkbench({
 
                       <div className="mt-4 grid gap-3 md:grid-cols-2">
                         {workbenchIdeaListVisibilityDisplayState.showComparisonIdeas ? (
-                          comparisonIdeaListItems.map(({ display: comparisonDisplay, idea, stepLabel }) => (
+                          comparisonIdeaListItems.map(({ display: comparisonDisplay, idea, showDiscardAction, stepLabel }) => (
                               <div
                                 key={idea.id}
                                 className="border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:bg-slate-50"
@@ -4742,7 +4742,7 @@ export function IdeaWorkbench({
                                   <span className="avl-pill avl-pill-neutral">
                                     {comparisonDisplay.accessDisplay.label}
                                   </span>
-                                  {comparisonDisplay.accessDisplay.isManageable ? (
+                                  {showDiscardAction ? (
                                     <button
                                       type="button"
                                       onClick={() => void discardIdeaRecord(idea)}
@@ -4790,7 +4790,7 @@ export function IdeaWorkbench({
 
             <div className="mt-5 grid gap-3">
               {workbenchIdeaListVisibilityDisplayState.showDiscardedIdeaList ? (
-                discardedIdeaListItems.map(({ canManage, idea }) => (
+                discardedIdeaListItems.map(({ idea, showManageActions }) => (
                   <div key={idea.id} className="border border-slate-200 bg-slate-50 p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                       <div className="min-w-0">
@@ -4798,7 +4798,7 @@ export function IdeaWorkbench({
                         <h3 className="text-base font-semibold text-slate-950">{idea.name}</h3>
                         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{idea.one_liner || idea.signal}</p>
                       </div>
-                      {canManage ? (
+                      {showManageActions ? (
                         <div className="flex flex-wrap gap-2">
                           <button
                             type="button"

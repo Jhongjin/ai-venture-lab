@@ -466,20 +466,22 @@ const selectedIdeaPanelState = buildWorkbenchSelectedIdeaPanelState({
 });
 assert.equal(selectedIdeaPanelState.shouldShow, true);
 assert.equal(selectedIdeaPanelState.selectedIdeaDisplay.productSurface.label, "업무 자동화");
+assert.equal(selectedIdeaPanelState.showManageActions, true);
 assert.deepEqual(selectedIdeaPanelState.comparisonIdeas.map((record) => record.id), ["shared-old", "admin"]);
 const comparisonIdeaListItemStates = buildWorkbenchComparisonIdeaListItemStates({
   comparisonIdeas: selectedIdeaPanelState.comparisonIdeas,
   getIdeaDisplayState: getPanelDisplayState,
 });
 assert.deepEqual(
-  comparisonIdeaListItemStates.map(({ display, idea: record, stepLabel }) => ({
+  comparisonIdeaListItemStates.map(({ display, idea: record, showDiscardAction, stepLabel }) => ({
     id: record.id,
     progressLabel: display.progress.label,
+    showDiscardAction,
     stepLabel,
   })),
   [
-    { id: "shared-old", progressLabel: "STEP 5 제작 패키지", stepLabel: "2" },
-    { id: "admin", progressLabel: "STEP 5 제작 패키지", stepLabel: "3" },
+    { id: "shared-old", progressLabel: "STEP 5 제작 패키지", showDiscardAction: false, stepLabel: "2" },
+    { id: "admin", progressLabel: "STEP 5 제작 패키지", showDiscardAction: true, stepLabel: "3" },
   ],
 );
 assert.deepEqual(
@@ -492,6 +494,14 @@ assert.deepEqual(
 assert.ok(
   !ideaWorkbenchSource.includes("comparisonIdeas.map((idea, index)"),
   "IdeaWorkbench should render comparison ideas from shared list item state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("accessDisplay.isManageable ? ("),
+  "IdeaWorkbench should render idea manage actions from shared item state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("canManage ? ("),
+  "IdeaWorkbench should render discarded idea manage actions from shared item state.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("index + 2"),
@@ -510,6 +520,7 @@ assert.deepEqual(
   {
     comparisonIdeas: [],
     selectedIdeaDisplay: null,
+    showManageActions: false,
     shouldShow: false,
   },
 );
@@ -522,6 +533,7 @@ assert.deepEqual(
   {
     comparisonIdeas: [],
     selectedIdeaDisplay: null,
+    showManageActions: false,
     shouldShow: false,
   },
 );
@@ -531,10 +543,11 @@ const visibleIdeaListItemStates = buildWorkbenchIdeaListItemStates({
   visibleIdeas: [ideas[1], ideas[0], ideas[3]],
 });
 assert.deepEqual(
-  visibleIdeaListItemStates.map(({ cardClassName, idea: record, isSelected, stagePillTone }) => ({
+  visibleIdeaListItemStates.map(({ cardClassName, idea: record, isSelected, showDiscardAction, stagePillTone }) => ({
     cardClassName,
     id: record.id,
     isSelected,
+    showDiscardAction,
     stagePillTone,
   })),
   [
@@ -542,6 +555,7 @@ assert.deepEqual(
       cardClassName: "border p-4 text-left transition border-blue-200 bg-blue-50 text-slate-950 shadow-sm",
       id: "owned-new",
       isSelected: true,
+      showDiscardAction: true,
       stagePillTone: "avl-pill-info",
     },
     {
@@ -549,6 +563,7 @@ assert.deepEqual(
         "border p-4 text-left transition border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50",
       id: "shared-old",
       isSelected: false,
+      showDiscardAction: false,
       stagePillTone: "avl-pill-neutral",
     },
     {
@@ -556,6 +571,7 @@ assert.deepEqual(
         "border p-4 text-left transition border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50",
       id: "admin",
       isSelected: false,
+      showDiscardAction: true,
       stagePillTone: "avl-pill-neutral",
     },
   ],
@@ -632,13 +648,14 @@ const discardedIdeaListItemStates = buildWorkbenchDiscardedIdeaListItemStates({
   getIdeaDisplayState: getPanelDisplayState,
 });
 assert.deepEqual(
-  discardedIdeaListItemStates.map(({ canManage, idea: record }) => ({
+  discardedIdeaListItemStates.map(({ canManage, idea: record, showManageActions }) => ({
     canManage,
     id: record.id,
+    showManageActions,
   })),
   [
-    { canManage: true, id: "deleted" },
-    { canManage: false, id: "hidden" },
+    { canManage: true, id: "deleted", showManageActions: true },
+    { canManage: false, id: "hidden", showManageActions: false },
   ],
 );
 assert.equal(discardedIdeaListItemStates[0].display.productSurface.label, "업무 자동화");

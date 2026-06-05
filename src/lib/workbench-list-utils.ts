@@ -45,18 +45,21 @@ export type WorkbenchIdeaFilterButtonState = {
 export type WorkbenchComparisonIdeaListItemState = {
   display: WorkbenchIdeaDisplayState;
   idea: Idea;
+  showDiscardAction: boolean;
   stepLabel: string;
 };
 export type WorkbenchDiscardedIdeaListItemState = {
   canManage: boolean;
   display: WorkbenchIdeaDisplayState;
   idea: Idea;
+  showManageActions: boolean;
 };
 export type WorkbenchIdeaListItemState = {
   cardClassName: string;
   display: WorkbenchIdeaDisplayState;
   idea: Idea;
   isSelected: boolean;
+  showDiscardAction: boolean;
   stagePillTone: "avl-pill-info" | "avl-pill-neutral";
 };
 export type WorkbenchIdeaListVisibilityDisplayState = {
@@ -69,11 +72,13 @@ export type WorkbenchSelectedIdeaPanelState =
   | {
       comparisonIdeas: Idea[];
       selectedIdeaDisplay: WorkbenchIdeaDisplayState;
+      showManageActions: boolean;
       shouldShow: true;
     }
   | {
       comparisonIdeas: [];
       selectedIdeaDisplay: null;
+      showManageActions: false;
       shouldShow: false;
     };
 
@@ -194,11 +199,16 @@ export function buildWorkbenchComparisonIdeaListItemStates({
   comparisonIdeas: Idea[];
   getIdeaDisplayState: (idea: Idea) => WorkbenchIdeaDisplayState;
 }): WorkbenchComparisonIdeaListItemState[] {
-  return comparisonIdeas.map((idea, index) => ({
-    display: getIdeaDisplayState(idea),
-    idea,
-    stepLabel: String(index + 2),
-  }));
+  return comparisonIdeas.map((idea, index) => {
+    const display = getIdeaDisplayState(idea);
+
+    return {
+      display,
+      idea,
+      showDiscardAction: display.accessDisplay.isManageable,
+      stepLabel: String(index + 2),
+    };
+  });
 }
 
 export function buildDiscardIdeaPatch(now = new Date().toISOString()) {
@@ -484,6 +494,7 @@ export function buildWorkbenchDiscardedIdeaListItemStates({
       canManage: display.accessDisplay.isManageable,
       display,
       idea,
+      showManageActions: display.accessDisplay.isManageable,
     };
   });
 }
@@ -499,12 +510,14 @@ export function buildWorkbenchIdeaListItemStates({
 }): WorkbenchIdeaListItemState[] {
   return visibleIdeas.map((idea) => {
     const isSelected = idea.id === selectedIdeaId;
+    const display = getIdeaDisplayState(idea);
 
     return {
       cardClassName: buildWorkbenchIdeaListItemCardClassName({ isSelected }),
-      display: getIdeaDisplayState(idea),
+      display,
       idea,
       isSelected,
+      showDiscardAction: display.accessDisplay.isManageable,
       stagePillTone: isSelected ? "avl-pill-info" : "avl-pill-neutral",
     };
   });
@@ -523,13 +536,17 @@ export function buildWorkbenchSelectedIdeaPanelState({
     return {
       comparisonIdeas: [],
       selectedIdeaDisplay: null,
+      showManageActions: false,
       shouldShow: false,
     };
   }
 
+  const selectedIdeaDisplay = getIdeaDisplayState(selectedIdea);
+
   return {
     comparisonIdeas: getWorkbenchComparisonIdeas(visibleIdeas, selectedIdea.id),
-    selectedIdeaDisplay: getIdeaDisplayState(selectedIdea),
+    selectedIdeaDisplay,
+    showManageActions: selectedIdeaDisplay.accessDisplay.isManageable,
     shouldShow: true,
   };
 }
