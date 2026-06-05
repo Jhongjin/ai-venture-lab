@@ -21,7 +21,7 @@ export function Step8SyncBrief({ checkedText, outcomeSentence, reviewRows }: Ste
       <details data-smoke="step8-sync-review-details" className="mt-3 border border-emerald-200 bg-emerald-50 px-3 py-2">
         <summary className="cursor-pointer list-none text-sm font-semibold text-emerald-950">자동 반영 세부 보기</summary>
         <p data-smoke="step8-sync-user-action-boundary" className="mt-2 text-xs leading-5 text-emerald-900">
-          사용자는 새 실행을 시작하지 않습니다. 자동 반영 결과만 확인하고, 누락되면 STEP 7의 백업 가져오기를 사용합니다.
+          새 실행은 시작하지 않습니다. 누락되면 STEP 7 백업 가져오기를 씁니다.
         </p>
         <div className="mt-3">
           <WorkbenchReviewGrid dataSmoke="step8-sync-review" rows={reviewRows} variant="emerald" />
