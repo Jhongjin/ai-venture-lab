@@ -21,6 +21,7 @@ const {
   buildWorkbenchIdeaFilterButtonStates,
   buildWorkbenchIdeaListItemCardClassName,
   buildWorkbenchIdeaListItemStates,
+  buildWorkbenchIdeaListVisibilityDisplayState,
   buildWorkbenchIdeaPermanentDeleteConfirmMessage,
   buildWorkbenchIdeaPermanentDeleteFailedMessage,
   buildWorkbenchIdeaRemovalCompletionState,
@@ -533,9 +534,51 @@ assert.equal(
   buildWorkbenchIdeaListItemCardClassName({ isSelected: false }),
   "border p-4 text-left transition border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50",
 );
+assert.deepEqual(
+  buildWorkbenchIdeaListVisibilityDisplayState({
+    comparisonIdeaCount: 2,
+    discardedIdeaCount: 1,
+    visibleIdeaCount: 3,
+  }),
+  {
+    discardedIdeaCountLabel: "1개",
+    showComparisonIdeas: true,
+    showDiscardedIdeaList: true,
+    showVisibleIdeaList: true,
+  },
+);
+assert.deepEqual(
+  buildWorkbenchIdeaListVisibilityDisplayState({
+    comparisonIdeaCount: 0,
+    discardedIdeaCount: 0,
+    visibleIdeaCount: 0,
+  }),
+  {
+    discardedIdeaCountLabel: "0개",
+    showComparisonIdeas: false,
+    showDiscardedIdeaList: false,
+    showVisibleIdeaList: false,
+  },
+);
 assert.ok(
   ideaWorkbenchSource.includes("cardClassName"),
   "IdeaWorkbench should render idea list item card classes from shared state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("visibleIdeaListItems.length > 0"),
+  "IdeaWorkbench should render sidebar idea list visibility from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("comparisonIdeas.length > 0"),
+  "IdeaWorkbench should render comparison idea visibility from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("discardedIdeaListItems.length > 0"),
+  "IdeaWorkbench should render discarded idea visibility from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("workbenchIdeaListVisibilityDisplayState.discardedIdeaCountLabel"),
+  "IdeaWorkbench should render discarded idea count label from shared display state.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("isSelected"),

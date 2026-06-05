@@ -54,6 +54,12 @@ export type WorkbenchIdeaListItemState = {
   isSelected: boolean;
   stagePillTone: "avl-pill-info" | "avl-pill-neutral";
 };
+export type WorkbenchIdeaListVisibilityDisplayState = {
+  discardedIdeaCountLabel: string;
+  showComparisonIdeas: boolean;
+  showDiscardedIdeaList: boolean;
+  showVisibleIdeaList: boolean;
+};
 export type WorkbenchSelectedIdeaPanelState =
   | {
       comparisonIdeas: Idea[];
@@ -157,6 +163,23 @@ export function buildWorkbenchIdeaListItemCardClassName({
       ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
       : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
   }`;
+}
+
+export function buildWorkbenchIdeaListVisibilityDisplayState({
+  comparisonIdeaCount,
+  discardedIdeaCount,
+  visibleIdeaCount,
+}: {
+  comparisonIdeaCount: number;
+  discardedIdeaCount: number;
+  visibleIdeaCount: number;
+}): WorkbenchIdeaListVisibilityDisplayState {
+  return {
+    discardedIdeaCountLabel: `${discardedIdeaCount}개`,
+    showComparisonIdeas: comparisonIdeaCount > 0,
+    showDiscardedIdeaList: discardedIdeaCount > 0,
+    showVisibleIdeaList: visibleIdeaCount > 0,
+  };
 }
 
 export function buildDiscardIdeaPatch(now = new Date().toISOString()) {

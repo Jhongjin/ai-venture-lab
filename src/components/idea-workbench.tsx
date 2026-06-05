@@ -89,6 +89,7 @@ import {
   buildWorkbenchIdeaDisplayState,
   buildWorkbenchIdeaFilterButtonStates,
   buildWorkbenchIdeaListItemStates,
+  buildWorkbenchIdeaListVisibilityDisplayState,
   buildWorkbenchIdeaVisibilityState,
   buildWorkbenchSelectedIdeaPanelState,
   canManageWorkbenchRecord,
@@ -2681,6 +2682,11 @@ export function IdeaWorkbench({
     discardedIdeas,
     getIdeaDisplayState,
   });
+  const workbenchIdeaListVisibilityDisplayState = buildWorkbenchIdeaListVisibilityDisplayState({
+    comparisonIdeaCount: comparisonIdeas.length,
+    discardedIdeaCount: discardedIdeaListItems.length,
+    visibleIdeaCount: visibleIdeaListItems.length,
+  });
 
   async function saveIdea(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -4458,7 +4464,7 @@ export function IdeaWorkbench({
         </div>
 
         <div className="grid gap-3">
-          {visibleIdeaListItems.length > 0 ? (
+          {workbenchIdeaListVisibilityDisplayState.showVisibleIdeaList ? (
             visibleIdeaListItems.map(({ cardClassName, display: ideaDisplay, idea, stagePillTone }) => (
               <div
                 key={idea.id}
@@ -4697,7 +4703,7 @@ export function IdeaWorkbench({
                       </div>
 
                       <div className="mt-4 grid gap-3 md:grid-cols-2">
-                        {comparisonIdeas.length > 0 ? (
+                        {workbenchIdeaListVisibilityDisplayState.showComparisonIdeas ? (
                           comparisonIdeas.map((idea, index) => {
                             const comparisonDisplay = getIdeaDisplayState(idea);
 
@@ -4774,11 +4780,13 @@ export function IdeaWorkbench({
                   삭제한 아이디어는 이곳에 남겨둡니다. 다시 이어갈 수 있고, 필요할 때만 완전히 삭제합니다.
                 </p>
               </div>
-              <div className="avl-pill avl-pill-neutral px-3 py-2 text-sm">{discardedIdeaListItems.length}개</div>
+              <div className="avl-pill avl-pill-neutral px-3 py-2 text-sm">
+                {workbenchIdeaListVisibilityDisplayState.discardedIdeaCountLabel}
+              </div>
             </div>
 
             <div className="mt-5 grid gap-3">
-              {discardedIdeaListItems.length > 0 ? (
+              {workbenchIdeaListVisibilityDisplayState.showDiscardedIdeaList ? (
                 discardedIdeaListItems.map(({ canManage, idea }) => (
                   <div key={idea.id} className="border border-slate-200 bg-slate-50 p-4">
                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
