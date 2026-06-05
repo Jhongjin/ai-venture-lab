@@ -433,6 +433,7 @@ assert.deepEqual(
     library: "hidden",
     product: "hidden",
     productGrid: "hidden",
+    tabs: "hidden",
     validation: "",
   },
 );
@@ -447,6 +448,7 @@ assert.deepEqual(
     library: "hidden",
     product: "",
     productGrid: "grid gap-6 xl:grid-cols-2",
+    tabs: "grid gap-2 sm:grid-cols-2",
     validation: "hidden",
   },
 );
@@ -461,8 +463,13 @@ assert.deepEqual(
     library: "hidden",
     product: "hidden",
     productGrid: "hidden",
+    tabs: "grid gap-2 sm:grid-cols-2",
     validation: "hidden",
   },
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('experienceMode === "guided" ? "hidden" : "grid gap-2 sm:grid-cols-2"'),
+  "IdeaWorkbench should receive validation package tab visibility class from the shared class-map helper.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("buildValidationPackagePanelClassName({"),

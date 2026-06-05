@@ -7446,7 +7446,7 @@ export function IdeaWorkbench({
                 <Save size={17} />
                 {validationPackageSaveButtonState.label}
               </button>
-              <div className={experienceMode === "guided" ? "hidden" : "grid gap-2 sm:grid-cols-2"}>
+              <div className={validationPackagePanelClassNames.tabs}>
                 {validationPackagePanelTabs.map((tab) => (
                   <button
                     key={tab.panel}

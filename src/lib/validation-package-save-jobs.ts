@@ -50,6 +50,7 @@ export type ValidationPackagePanelClassNames = {
   library: string;
   product: string;
   productGrid: string;
+  tabs: string;
   validation: string;
 };
 export type ValidationPackageProductReadinessBlocker = {
@@ -338,6 +339,7 @@ export function buildValidationPackagePanelClassNames({
       requiresValidationSummary: true,
       visibleClassName: "grid gap-6 xl:grid-cols-2",
     }),
+    tabs: isGuided ? "hidden" : "grid gap-2 sm:grid-cols-2",
     validation: buildValidationPackagePanelClassName({
       activePanel,
       isArtifactsTask,
