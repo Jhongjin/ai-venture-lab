@@ -27,6 +27,13 @@ export type ArtifactReviewProgressState = {
   totalCount: number;
 };
 
+export type DevelopmentPanelTabState = {
+  className: string;
+  isActive: boolean;
+  label: string;
+  panel: DevelopmentPanel;
+};
+
 export const artifactReviewStatusDisplays: Record<
   ArtifactReviewStatus,
   { label: string; nextLabel: string; pillTone: "avl-pill-success" | "avl-pill-warning" | "avl-pill-danger" }
@@ -63,6 +70,21 @@ export const developmentPanelDescriptions: Record<DevelopmentPanel, string> = {
   tasks: "실행할 일을 상태별로 나누고 막힌 항목과 완료 근거를 봅니다.",
   handoff: "끝난 일, 남은 일, 다음 담당자에게 넘길 내용을 한 번에 확인합니다.",
 };
+
+export function buildDevelopmentPanelTabStates(activePanel: DevelopmentPanel): DevelopmentPanelTabState[] {
+  return (Object.keys(developmentPanelLabels) as DevelopmentPanel[]).map((panel) => {
+    const isActive = activePanel === panel;
+
+    return {
+      className: isActive
+        ? "bg-white text-slate-950 shadow-sm"
+        : "text-slate-600 hover:bg-white/70 hover:text-slate-900",
+      isActive,
+      label: developmentPanelLabels[panel],
+      panel,
+    };
+  });
+}
 
 export function buildArtifactReviewDevelopmentFocusMessage(itemLabel: string) {
   return `${itemLabel} 생성을 위해 개발 프로세스 화면으로 이동했습니다.`;

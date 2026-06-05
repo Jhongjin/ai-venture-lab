@@ -24,8 +24,8 @@ import {
   buildArtifactReviewDevelopmentFocusMessage,
   buildArtifactReviewPanelFocusMessage,
   buildArtifactReviewWorkflowState,
+  buildDevelopmentPanelTabStates,
   developmentPanelDescriptions,
-  developmentPanelLabels,
   getArtifactReviewStatusDisplay,
   type ArtifactPanel,
   type ArtifactReviewItem,
@@ -2159,6 +2159,7 @@ export function IdeaWorkbench({
     implementationTaskDrafts,
     productSurface: activeProductSurface,
   });
+  const developmentPanelTabStates = buildDevelopmentPanelTabStates(visibleDevelopmentPanel);
   const {
     externalToolRunPackageDraft,
     finalAgentRunPackageDraft,
@@ -4971,18 +4972,14 @@ export function IdeaWorkbench({
           {experienceMode === "full" ? (
             <div className="mb-5 avl-segmented p-1">
               <div className="grid gap-1 sm:grid-cols-3">
-                {(Object.keys(developmentPanelLabels) as DevelopmentPanel[]).map((panel) => (
+                {developmentPanelTabStates.map((tab) => (
                   <button
-                    key={panel}
+                    key={tab.panel}
                     type="button"
-                    onClick={() => setDevelopmentPanel(panel)}
-                    className={`rounded-[0.125rem] px-3 py-2 text-sm font-semibold transition ${
-                      visibleDevelopmentPanel === panel
-                        ? "bg-white text-slate-950 shadow-sm"
-                        : "text-slate-600 hover:bg-white/70 hover:text-slate-900"
-                    }`}
+                    onClick={() => setDevelopmentPanel(tab.panel)}
+                    className={`rounded-[0.125rem] px-3 py-2 text-sm font-semibold transition ${tab.className}`}
                   >
-                    {developmentPanelLabels[panel]}
+                    {tab.label}
                   </button>
                 ))}
               </div>

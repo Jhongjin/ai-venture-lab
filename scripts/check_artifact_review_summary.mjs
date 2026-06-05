@@ -41,6 +41,7 @@ const {
   buildArtifactReviewProgressState,
   buildArtifactReviewQueue,
   buildArtifactReviewWorkflowState,
+  buildDevelopmentPanelTabStates,
   compareArtifactsByReviewRecency,
   getLatestArtifactByType,
   getArtifactReviewRecencyTime,
@@ -402,6 +403,15 @@ assert.equal(
   buildArtifactReviewPanelFocusMessage({ itemLabel: "제품 기획서", panel: "product" }),
   "제품 기획서 생성을 위해 기획서 화면으로 이동했습니다.",
 );
+assert.deepEqual(
+  buildDevelopmentPanelTabStates("tasks").map(({ isActive, label, panel }) => ({ isActive, label, panel })),
+  [
+    { isActive: false, label: "제작 준비", panel: "setup" },
+    { isActive: true, label: "실행 할 일", panel: "tasks" },
+    { isActive: false, label: "완료 보고", panel: "handoff" },
+  ],
+);
+assert.match(buildDevelopmentPanelTabStates("tasks")[1].className, /bg-white/);
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isBusy || !canManageRecord(artifact) || status === nextStatus}"),
   "IdeaWorkbench should render artifact status disabled state from shared review control.",
@@ -417,6 +427,14 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("artifactStatusNoteControlState.placeholder"),
   "IdeaWorkbench should render artifact status note placeholder from shared review control.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("Object.keys(developmentPanelLabels)"),
+  "IdeaWorkbench should render development panel tabs from shared tab display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("developmentPanelTabStates.map"),
+  "IdeaWorkbench should use shared development panel tab states.",
 );
 
 console.log("Artifact review summary smoke passed.");
