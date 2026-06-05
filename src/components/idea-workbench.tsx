@@ -1101,6 +1101,7 @@ export function IdeaWorkbench({
   const artifactReviewItemDisplayStates = buildArtifactReviewItemDisplayStates(artifactReviewQueue);
   const {
     activeArtifactSourceFilter,
+    artifactLibraryEmptyMessage,
     artifactSourceFilterOptions,
     artifactStatusFilterOptions,
     artifactTypeFilterOptions,
@@ -8062,8 +8063,8 @@ export function IdeaWorkbench({
                 );
               })
             ) : (
-                <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
-                {selectedArtifactRecords.length > 0 ? "현재 필터에 맞는 제작 자료가 없습니다." : "아직 저장된 제작 자료가 없습니다."}
+              <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
+                {artifactLibraryEmptyMessage}
               </div>
             )}
           </div>

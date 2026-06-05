@@ -24,6 +24,7 @@ const {
   buildArtifactDraftInsertRow,
   buildArtifactDraftSavePlan,
   buildArtifactDraftSaveControlState,
+  buildArtifactLibraryEmptyMessage,
   buildArtifactLibraryItemDisplayState,
   buildArtifactLibraryItemSourceDateSummary,
   buildArtifactLibraryViewState,
@@ -69,6 +70,14 @@ assert.equal(buildArtifactSavedMessage({ artifactLabel: "제품 기획서", vers
 assert.equal(buildArtifactSaveLoginRequiredMessage(), "제작 자료를 저장하려면 먼저 로그인하세요.");
 assert.equal(buildArtifactSaveEmptyBodyMessage(), "저장할 제작 자료 본문이 비어 있습니다.");
 assert.equal(buildArtifactLibraryFocusMessage("제품 기획서"), "제품 기획서 제작 자료를 보관함에서 확인하세요.");
+assert.equal(
+  buildArtifactLibraryEmptyMessage({ hasArtifacts: true }),
+  "현재 필터에 맞는 제작 자료가 없습니다.",
+);
+assert.equal(
+  buildArtifactLibraryEmptyMessage({ hasArtifacts: false }),
+  "아직 저장된 제작 자료가 없습니다.",
+);
 assert.deepEqual(buildArtifactTypeFilterOptions().slice(0, 3), [
   { label: "전체 유형", value: "all" },
   { label: "아이디어 요약", value: "idea_brief" },
@@ -549,6 +558,7 @@ const libraryViewState = buildArtifactLibraryViewState({
   typeFilter: "prd",
 });
 assert.equal(libraryViewState.activeArtifactSourceFilter, "all");
+assert.equal(libraryViewState.artifactLibraryEmptyMessage, "현재 필터에 맞는 제작 자료가 없습니다.");
 assert.deepEqual(libraryViewState.artifactSourceOptions, sourceOptions);
 assert.equal(libraryViewState.artifactSourceFilterLabels.manual, "수동");
 assert.deepEqual(libraryViewState.artifactSourceFilterOptions.slice(0, 2), [
@@ -643,6 +653,14 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes('artifact.title || "제목 없음"'),
   "IdeaWorkbench should not keep artifact title fallback calculations inline.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("artifactLibraryEmptyMessage"),
+  "IdeaWorkbench should render artifact library empty copy from shared view state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("현재 필터에 맞는 제작 자료가 없습니다."),
+  "IdeaWorkbench should not keep artifact library empty copy inline.",
 );
 
 console.log("Artifact library utils smoke passed.");

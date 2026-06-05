@@ -339,6 +339,10 @@ export function buildArtifactSourceFilterOptions(
   return sourceOptions.map((value) => ({ label: sourceLabels[value] ?? value, value }));
 }
 
+export function buildArtifactLibraryEmptyMessage({ hasArtifacts }: { hasArtifacts: boolean }) {
+  return hasArtifacts ? "현재 필터에 맞는 제작 자료가 없습니다." : "아직 저장된 제작 자료가 없습니다.";
+}
+
 export function resolveArtifactSourceFilter(sourceOptions: string[], sourceFilter: string) {
   return sourceOptions.includes(sourceFilter) ? sourceFilter : "all";
 }
@@ -407,6 +411,7 @@ export function buildArtifactLibraryViewState({
 
   return {
     activeArtifactSourceFilter,
+    artifactLibraryEmptyMessage: buildArtifactLibraryEmptyMessage({ hasArtifacts: artifacts.length > 0 }),
     artifactSourceFilterLabels,
     artifactSourceFilterOptions: buildArtifactSourceFilterOptions(artifactSourceOptions, artifactSourceFilterLabels),
     artifactSourceOptions,
