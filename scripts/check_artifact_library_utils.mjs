@@ -31,6 +31,7 @@ const {
   buildArtifactSaveLoginRequiredMessage,
   buildArtifactSavedTelemetryPayload,
   buildArtifactSavedMessage,
+  buildArtifactSourceDisplayLabel,
   buildArtifactSourceFilterLabels,
   buildArtifactSourceFilterOptions,
   buildArtifactSourceOptions,
@@ -423,6 +424,10 @@ const labels = buildArtifactSourceFilterLabels(sourceOptions);
 assert.equal(labels.all, "전체 출처");
 assert.equal(labels.filtered_implementation_run, "선별 제작 자료");
 assert.equal(labels.manual, "수동");
+assert.equal(buildArtifactSourceDisplayLabel("agent_run_package"), "제작 도구 전달 자료");
+assert.equal(buildArtifactSourceDisplayLabel("unknown_source"), "unknown_source");
+assert.equal(buildArtifactSourceDisplayLabel(""), "수동");
+assert.equal(buildArtifactSourceDisplayLabel(null), "수동");
 assert.deepEqual(buildArtifactSourceFilterOptions(["all", "manual", "unknown_source"]), [
   { label: "전체 출처", value: "all" },
   { label: "수동", value: "manual" },
@@ -531,6 +536,14 @@ assert.ok(
 assert.ok(
   ideaWorkbenchSource.includes("artifactSourceFilterOptions.map"),
   "IdeaWorkbench should use shared artifact source filter options.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("artifactSourceLabels[artifact.source"),
+  "IdeaWorkbench should render artifact source display labels from shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("buildArtifactSourceDisplayLabel(artifact.source)"),
+  "IdeaWorkbench should use shared artifact source display label helper.",
 );
 
 console.log("Artifact library utils smoke passed.");

@@ -253,6 +253,10 @@ export function buildArtifactSourceFilterLabels(sourceOptions: string[]) {
   ) as Record<string, string>;
 }
 
+export function buildArtifactSourceDisplayLabel(source: string | null | undefined) {
+  return artifactSourceLabels[source || "manual"] ?? source ?? "수동";
+}
+
 export function buildArtifactTypeFilterOptions(): Array<ArtifactLibraryFilterOption<ArtifactTypeFilter>> {
   return [
     { label: "전체 유형", value: "all" },

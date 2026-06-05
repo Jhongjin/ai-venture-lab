@@ -49,6 +49,7 @@ import {
   buildArtifactReadinessFlags,
   buildArtifactSaveEmptyBodyMessage,
   buildArtifactSaveLoginRequiredMessage,
+  buildArtifactSourceDisplayLabel,
   buildArtifactSavedTelemetryPayload,
   buildArtifactSavedMessage,
   buildArtifactStatusChangedMessage,
@@ -182,7 +183,6 @@ import {
 } from "@/lib/design-architecture-drafts";
 import {
   artifactLabels,
-  artifactSourceLabels,
   artifactStatusDefaultNotes,
   artifactStatusLabels,
   artifactStatusOptions,
@@ -7895,7 +7895,7 @@ export function IdeaWorkbench({
                       </span>
                     </div>
                     <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      {artifactSourceLabels[artifact.source || "manual"] ?? artifact.source ?? "수동"} /{" "}
+                      {buildArtifactSourceDisplayLabel(artifact.source)} /{" "}
                       {formatStableKoreanDate(artifact.created_at)}
                     </div>
                     <button
@@ -7945,7 +7945,7 @@ export function IdeaWorkbench({
                           ) : null}
                         </div>
                         <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                          {artifactSourceLabels[artifact.source || "manual"] ?? artifact.source ?? "수동"} /{" "}
+                          {buildArtifactSourceDisplayLabel(artifact.source)} /{" "}
                           {formatStableKoreanDate(artifact.created_at)}
                           {artifact.approved_at ? ` / 승인 ${formatStableKoreanDate(artifact.approved_at)}` : ""}
                         </div>
