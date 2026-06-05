@@ -1,4 +1,5 @@
 import type { ArtifactPanel } from "./artifact-review-queue";
+import type { WorkbenchTask } from "./workbench-tasks";
 
 export type ValidationPackageSaveJob = {
   artifactType: "idea_brief" | "research_note";
@@ -44,6 +45,12 @@ export type ValidationPackagePanelClassNameInput = {
   panel: ArtifactPanel;
   requiresValidationSummary?: boolean;
   visibleClassName?: string;
+};
+export type ValidationPackagePanelClassNames = {
+  library: string;
+  product: string;
+  productGrid: string;
+  validation: string;
 };
 export type ValidationPackageProductReadinessBlocker = {
   detail: string;
@@ -292,6 +299,52 @@ export function buildValidationPackagePanelClassName({
   const hasRequiredSummary = !requiresValidationSummary || hasValidationSummaryArtifact;
 
   return isArtifactsTask && isVisiblePanel && hasRequiredSummary ? visibleClassName : "hidden";
+}
+
+export function buildValidationPackagePanelClassNames({
+  activePanel,
+  activeTask,
+  hasValidationSummaryArtifact,
+  isGuided,
+}: {
+  activePanel: ArtifactPanel;
+  activeTask: WorkbenchTask;
+  hasValidationSummaryArtifact: boolean;
+  isGuided: boolean;
+}): ValidationPackagePanelClassNames {
+  const isArtifactsTask = activeTask === "artifacts";
+
+  return {
+    library: buildValidationPackagePanelClassName({
+      activePanel,
+      isArtifactsTask,
+      isGuided,
+      panel: "library",
+    }),
+    product: buildValidationPackagePanelClassName({
+      activePanel,
+      hasValidationSummaryArtifact,
+      isArtifactsTask,
+      isGuided,
+      panel: "product",
+      requiresValidationSummary: true,
+    }),
+    productGrid: buildValidationPackagePanelClassName({
+      activePanel,
+      hasValidationSummaryArtifact,
+      isArtifactsTask,
+      isGuided,
+      panel: "product",
+      requiresValidationSummary: true,
+      visibleClassName: "grid gap-6 xl:grid-cols-2",
+    }),
+    validation: buildValidationPackagePanelClassName({
+      activePanel,
+      isArtifactsTask,
+      isGuided,
+      panel: "validation",
+    }),
+  };
 }
 
 export function buildValidationPackageProductReadinessNotice(

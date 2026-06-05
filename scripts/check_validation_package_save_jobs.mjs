@@ -8,6 +8,7 @@ const {
   buildValidationPackageDraftSaveControlState,
   buildValidationPackageHeaderState,
   buildValidationPackagePanelClassName,
+  buildValidationPackagePanelClassNames,
   buildValidationPackagePanelTabStates,
   buildValidationPackageProductHandoffActionControls,
   buildValidationPackageProductReadinessNotice,
@@ -420,6 +421,56 @@ assert.equal(
     panel: "validation",
   }),
   "hidden",
+);
+assert.deepEqual(
+  buildValidationPackagePanelClassNames({
+    activePanel: "validation",
+    activeTask: "artifacts",
+    hasValidationSummaryArtifact: false,
+    isGuided: true,
+  }),
+  {
+    library: "hidden",
+    product: "hidden",
+    productGrid: "hidden",
+    validation: "",
+  },
+);
+assert.deepEqual(
+  buildValidationPackagePanelClassNames({
+    activePanel: "product",
+    activeTask: "artifacts",
+    hasValidationSummaryArtifact: true,
+    isGuided: false,
+  }),
+  {
+    library: "hidden",
+    product: "",
+    productGrid: "grid gap-6 xl:grid-cols-2",
+    validation: "hidden",
+  },
+);
+assert.deepEqual(
+  buildValidationPackagePanelClassNames({
+    activePanel: "library",
+    activeTask: "development",
+    hasValidationSummaryArtifact: true,
+    isGuided: false,
+  }),
+  {
+    library: "hidden",
+    product: "hidden",
+    productGrid: "hidden",
+    validation: "hidden",
+  },
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("buildValidationPackagePanelClassName({"),
+  "IdeaWorkbench should receive validation package panel class names from the shared class-map helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('activeTask === "artifacts"'),
+  "IdeaWorkbench should not keep validation package artifacts-task checks inline.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes('activeTask === "artifacts" && (experienceMode === "guided" || artifactPanel === "validation")'),

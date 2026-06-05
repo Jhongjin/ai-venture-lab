@@ -526,7 +526,7 @@ import {
 import {
   buildValidationPackageDraftSaveControlState,
   buildValidationPackageHeaderState,
-  buildValidationPackagePanelClassName,
+  buildValidationPackagePanelClassNames,
   buildValidationPackagePanelTabStates,
   buildValidationPackageProductHandoffActionControls,
   buildValidationPackageProductReadinessNotice,
@@ -1965,34 +1965,11 @@ export function IdeaWorkbench({
     activePanel: artifactPanel,
     hasValidationSummaryArtifact,
   });
-  const validationPackageValidationPanelClassName = buildValidationPackagePanelClassName({
+  const validationPackagePanelClassNames = buildValidationPackagePanelClassNames({
     activePanel: artifactPanel,
-    isArtifactsTask: activeTask === "artifacts",
-    isGuided: experienceMode === "guided",
-    panel: "validation",
-  });
-  const validationPackageProductPanelClassName = buildValidationPackagePanelClassName({
-    activePanel: artifactPanel,
+    activeTask,
     hasValidationSummaryArtifact,
-    isArtifactsTask: activeTask === "artifacts",
     isGuided: experienceMode === "guided",
-    panel: "product",
-    requiresValidationSummary: true,
-  });
-  const validationPackageProductGridClassName = buildValidationPackagePanelClassName({
-    activePanel: artifactPanel,
-    hasValidationSummaryArtifact,
-    isArtifactsTask: activeTask === "artifacts",
-    isGuided: experienceMode === "guided",
-    panel: "product",
-    requiresValidationSummary: true,
-    visibleClassName: "grid gap-6 xl:grid-cols-2",
-  });
-  const validationPackageLibraryPanelClassName = buildValidationPackagePanelClassName({
-    activePanel: artifactPanel,
-    isArtifactsTask: activeTask === "artifacts",
-    isGuided: experienceMode === "guided",
-    panel: "library",
   });
   const workbenchTaskPanelClassNames = buildWorkbenchTaskPanelClassNames({ activeTask });
   const visibleMarketScanReviewRows = buildVisibleMarketScanReviewRows({
@@ -7496,7 +7473,7 @@ export function IdeaWorkbench({
         </div>
 
         <DraftDocumentCard
-          className={validationPackageValidationPanelClassName}
+          className={validationPackagePanelClassNames.validation}
           kicker="validation"
           title="아이디어 요약"
           description="기획서나 조사 문서에 바로 이어 쓸 수 있는 1차 요약입니다."
@@ -7512,7 +7489,7 @@ export function IdeaWorkbench({
         />
 
         <DraftDocumentCard
-          className={validationPackageValidationPanelClassName}
+          className={validationPackagePanelClassNames.validation}
           kicker="research"
           title="조사 요약"
           description="인터뷰, 경쟁/대안, 가격, 규제, 개인정보 확인 내용을 한 문서로 묶습니다."
@@ -7528,7 +7505,7 @@ export function IdeaWorkbench({
         />
 
         <DraftDocumentCard
-          className={validationPackageValidationPanelClassName}
+          className={validationPackagePanelClassNames.validation}
           kicker="7일 검증"
           title="7일 검증 계획"
           description="인터뷰 모집, 대안 조사, 가격 질문, Day 7 판정 기준을 바로 실행할 수 있게 묶습니다."
@@ -7544,7 +7521,7 @@ export function IdeaWorkbench({
         />
 
         <div
-          className={`avl-card p-4 ${validationPackageValidationPanelClassName}`}
+          className={`avl-card p-4 ${validationPackagePanelClassNames.validation}`}
         >
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -7615,7 +7592,7 @@ export function IdeaWorkbench({
         </div>
 
         <DraftDocumentCard
-          className={validationPackageValidationPanelClassName}
+          className={validationPackagePanelClassNames.validation}
           kicker="summary"
           title="검증 완료 요약"
           description="아이디어 요약, 조사 요약, 7일 검증 계획이 모두 저장된 뒤 마지막으로 저장하는 요약입니다."
@@ -7636,7 +7613,7 @@ export function IdeaWorkbench({
         />
 
         <div
-          className={`avl-card p-5 text-slate-900 ${validationPackageProductPanelClassName}`}
+          className={`avl-card p-5 text-slate-900 ${validationPackagePanelClassNames.product}`}
         >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
@@ -7700,7 +7677,7 @@ export function IdeaWorkbench({
         </div>
 
         <DraftDocumentCard
-          className={validationPackageProductPanelClassName}
+          className={validationPackagePanelClassNames.product}
           kicker="product"
           title="제품 기획서 초안"
            description="사업성 평가, 증거, 리스크, 검증 계획, 작업 순서 결과를 바탕으로 생성되는 기획서 초안입니다."
@@ -7715,7 +7692,7 @@ export function IdeaWorkbench({
         />
 
         <div
-          className={validationPackageProductGridClassName}
+          className={validationPackagePanelClassNames.productGrid}
         >
           <DraftDocumentCard
             className="xl:col-span-2"
@@ -7762,7 +7739,7 @@ export function IdeaWorkbench({
         </div>
 
         <div
-          className={`avl-card p-6 ${validationPackageLibraryPanelClassName}`}
+          className={`avl-card p-6 ${validationPackagePanelClassNames.library}`}
         >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div>
