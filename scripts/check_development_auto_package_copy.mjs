@@ -211,6 +211,7 @@ assert.deepEqual(
     disabled: false,
     icon: "save",
     label: "제작 패키지 저장",
+    showSavedIcon: false,
   },
 );
 assert.deepEqual(
@@ -228,6 +229,7 @@ assert.deepEqual(
     disabled: true,
     icon: "saved",
     label: "제작 패키지 저장 완료",
+    showSavedIcon: true,
   },
 );
 assert.deepEqual(
@@ -245,6 +247,7 @@ assert.deepEqual(
     disabled: true,
     icon: "save",
     label: "제작 패키지 저장",
+    showSavedIcon: false,
   },
 );
 assert.deepEqual(
@@ -262,7 +265,16 @@ assert.deepEqual(
     disabled: true,
     icon: "save",
     label: "제작 패키지 저장",
+    showSavedIcon: false,
   },
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('developmentAutoPackageSaveControlState.icon === "saved"'),
+  "IdeaWorkbench should render development auto package saved icon from shared save control state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("developmentAutoPackageSaveControlState.showSavedIcon"),
+  "IdeaWorkbench should use the development auto package saved icon flag.",
 );
 assert.deepEqual(
   buildDevelopmentAutoGuidedPanelDisplayState({

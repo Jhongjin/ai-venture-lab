@@ -46,6 +46,7 @@ export type DevelopmentAutoPackageSaveControlState = {
   disabled: boolean;
   icon: "save" | "saved";
   label: string;
+  showSavedIcon: boolean;
 };
 
 export type DevelopmentAutoPackageStatusNotice = {
@@ -144,6 +145,8 @@ export function buildDevelopmentAutoPackageSaveControlState({
   hasUser: boolean;
   isBusy: boolean;
 }): DevelopmentAutoPackageSaveControlState {
+  const icon = hasSavedDevelopmentAutoPackage ? "saved" : "save";
+
   return {
     buttonToneClassName: hasSavedDevelopmentAutoPackage ? "avl-btn-secondary" : "avl-btn-primary",
     disabled:
@@ -154,8 +157,9 @@ export function buildDevelopmentAutoPackageSaveControlState({
       !designGenerationPromptDraft ||
       !developmentPlanDraft ||
       !agentRunPackageDraft,
-    icon: hasSavedDevelopmentAutoPackage ? "saved" : "save",
+    icon,
     label: hasSavedDevelopmentAutoPackage ? "제작 패키지 저장 완료" : "제작 패키지 저장",
+    showSavedIcon: icon === "saved",
   };
 }
 

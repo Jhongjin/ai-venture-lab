@@ -5165,7 +5165,7 @@ export function IdeaWorkbench({
                           developmentAutoPackageSaveControlState.buttonToneClassName
                         }`}
                       >
-                        {developmentAutoPackageSaveControlState.icon === "saved" ? (
+                        {developmentAutoPackageSaveControlState.showSavedIcon ? (
                           <CheckCircle2 size={18} />
                         ) : (
                           <Save size={18} />
