@@ -28,6 +28,14 @@ export type FinalExecutionPackageState = {
   projectKey: string;
 };
 
+export type FinalExecutionPanelDisplayState = {
+  isExternalTool: boolean;
+  showExternalToolSection: boolean;
+  showInternalPanel: boolean;
+  showLaunchContent: boolean;
+  showSyncPanel: boolean;
+};
+
 export type FinalExecutionConnectionHealth = {
   visibleConnections: CursorSyncConnection[];
   activeConnections: CursorSyncConnection[];
@@ -319,6 +327,24 @@ export function summarizeFinalExecutionReadinessChecks(
     score,
     nextBlocker,
     canEnterLaunch,
+  };
+}
+
+export function buildFinalExecutionPanelDisplayState({
+  buildDeliveryMode,
+  canEnterLaunch,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  canEnterLaunch: boolean;
+}): FinalExecutionPanelDisplayState {
+  const isExternalTool = buildDeliveryMode === "external_tool";
+
+  return {
+    isExternalTool,
+    showExternalToolSection: canEnterLaunch && isExternalTool,
+    showInternalPanel: canEnterLaunch && !isExternalTool,
+    showLaunchContent: canEnterLaunch,
+    showSyncPanel: canEnterLaunch && isExternalTool,
   };
 }
 

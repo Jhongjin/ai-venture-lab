@@ -20,6 +20,7 @@ const { outputText } = ts.transpileModule(source, {
   fileName: modulePath,
 });
 const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toString("base64")}`;
+const ideaWorkbenchSource = readFileSync(path.join(process.cwd(), "src/components/idea-workbench.tsx"), "utf8");
 const {
   buildFinalExecutionConnectionHealth,
   buildFinalExecutionConnectionHealthDetail,
@@ -31,6 +32,7 @@ const {
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionLiveToolDraftMaps,
   buildFinalExecutionLiveSetupDownloadMap,
+  buildFinalExecutionPanelDisplayState,
   buildFinalExecutionPackageReadinessState,
   buildFinalExecutionPackageDownloadAction,
   buildFinalExecutionPrimaryPackageAction,
@@ -156,6 +158,65 @@ assert.deepEqual(summarizeFinalExecutionReadinessChecks([]), {
   nextBlocker: null,
   canEnterLaunch: false,
 });
+assert.deepEqual(
+  buildFinalExecutionPanelDisplayState({
+    buildDeliveryMode: "external_tool",
+    canEnterLaunch: true,
+  }),
+  {
+    isExternalTool: true,
+    showExternalToolSection: true,
+    showInternalPanel: false,
+    showLaunchContent: true,
+    showSyncPanel: true,
+  },
+);
+assert.deepEqual(
+  buildFinalExecutionPanelDisplayState({
+    buildDeliveryMode: "venture_lab",
+    canEnterLaunch: true,
+  }),
+  {
+    isExternalTool: false,
+    showExternalToolSection: false,
+    showInternalPanel: true,
+    showLaunchContent: true,
+    showSyncPanel: false,
+  },
+);
+assert.deepEqual(
+  buildFinalExecutionPanelDisplayState({
+    buildDeliveryMode: "external_tool",
+    canEnterLaunch: false,
+  }),
+  {
+    isExternalTool: true,
+    showExternalToolSection: false,
+    showInternalPanel: false,
+    showLaunchContent: false,
+    showSyncPanel: false,
+  },
+);
+assert.ok(
+  ideaWorkbenchSource.includes("finalExecutionPanelDisplayState.showLaunchContent"),
+  "IdeaWorkbench should render STEP 7 launch content from shared panel display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("finalExecutionPanelDisplayState.showExternalToolSection"),
+  "IdeaWorkbench should render STEP 7 external tool content from shared panel display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("{canEnterLaunch ? ("),
+  "IdeaWorkbench should not keep STEP 7 launch content visibility inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('isExternalTool={buildDeliveryMode === "external_tool"}'),
+  "IdeaWorkbench should not keep STEP 7 quick-start external-tool state inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('{buildDeliveryMode === "external_tool" ? ('),
+  "IdeaWorkbench should not keep STEP 7 external/internal panel visibility inline.",
+);
 
 const connections = [
   {

@@ -221,6 +221,7 @@ import {
   buildFinalExecutionLiveToolContext,
   buildFinalExecutionLiveToolDraftMaps,
   buildFinalExecutionLiveSetupDownloadMap,
+  buildFinalExecutionPanelDisplayState,
   buildFinalExecutionPackageReadinessState,
   buildFinalExecutionPrimaryPackageAction,
 } from "@/lib/final-execution-readiness";
@@ -2217,6 +2218,10 @@ export function IdeaWorkbench({
     ideaId: selectedIdeaContext.ideaId,
     implementationTaskCount: selectedImplementationTasks.length,
     runCount: selectedRuns.length,
+  });
+  const finalExecutionPanelDisplayState = buildFinalExecutionPanelDisplayState({
+    buildDeliveryMode,
+    canEnterLaunch,
   });
 
   useEffect(() => {
@@ -6361,12 +6366,12 @@ export function IdeaWorkbench({
             totalReadinessCount={launchReadiness.length}
           />
 
-          {canEnterLaunch ? (
+          {finalExecutionPanelDisplayState.showLaunchContent ? (
             <div className="grid gap-5">
               <FinalExecutionQuickStart
                 activeExternalBuildTool={activeExternalBuildTool}
                 decisionSentence={finalExecutionDecisionSentence}
-                isExternalTool={buildDeliveryMode === "external_tool"}
+                isExternalTool={finalExecutionPanelDisplayState.isExternalTool}
                 nextTaskCommand={liveExternalToolNextTaskCommand}
                 progressPath={liveExternalToolProgressPath}
               />
@@ -6381,7 +6386,7 @@ export function IdeaWorkbench({
                 }
               />
 
-              {buildDeliveryMode === "external_tool" ? (
+              {finalExecutionPanelDisplayState.showExternalToolSection ? (
                 <FinalExecutionExternalToolSection
                   activeToolLabel={activeExternalBuildTool.label}
                   isLiveExternalDelivery={isLiveExternalDelivery}
@@ -6439,7 +6444,7 @@ export function IdeaWorkbench({
                     toolFolder={liveExternalToolFolder}
                   />
                 </FinalExecutionExternalToolSection>
-              ) : (
+              ) : finalExecutionPanelDisplayState.showInternalPanel ? (
                 <FinalExecutionInternalPanel
                   finalAgentRunPackageDraft={finalAgentRunPackageDraft}
                   onCopyPackage={() => copyDraft(finalAgentRunPackageDraft, "내부 개발 패키지")}
@@ -6451,7 +6456,7 @@ export function IdeaWorkbench({
                     )
                   }
                 />
-              )}
+              ) : null}
 
               <FinalExecutionTaskList
                 description={finalExecutionTaskListDescription}
@@ -6463,7 +6468,7 @@ export function IdeaWorkbench({
                 visibleTaskCount={finalExecutionVisibleTaskCount}
               />
 
-              {buildDeliveryMode === "external_tool" ? (
+              {finalExecutionPanelDisplayState.showSyncPanel ? (
                 <FinalExecutionSyncPanel
                   activeToolLabel={activeExternalBuildTool.label}
                   canUseActions={Boolean(user)}
