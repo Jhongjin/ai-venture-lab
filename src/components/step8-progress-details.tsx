@@ -68,7 +68,7 @@ export function Step8ProgressDetails({ items }: Step8ProgressDetailsProps) {
           <div className="border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
             <div className="font-semibold text-slate-950">성과 확인은 아직 볼 게 없습니다.</div>
             <p className="mt-1">
-              최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 남은 것, 지금 판단할 것이 여기에 표시됩니다.
+              최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 이어 할 것, 지금 판단이 여기에 표시됩니다.
             </p>
             <p className="mt-2 text-xs leading-5 text-slate-500">
               최종 실행 확인은 STEP 7에서 진행하세요. 이 빈 상태는 단계를 자동으로 이동시키지 않습니다.

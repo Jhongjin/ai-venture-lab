@@ -356,10 +356,18 @@ const contracts = [
     tokens: [
       'data-smoke="step8-progress-one-line-summary"',
       "완료 {completedCount}/{totalCount || 0} · 다음",
-      "상태만 확인",
       'data-smoke="step8-empty-primary-action"',
       "먼저 STEP 7에서 연결 파일로 첫 제작 작업을 시작하세요.",
       "완료 보고가 들어오면 완료된 것, 이어 할 것, 지금 판단만 봅니다.",
+    ],
+  },
+  {
+    file: "src/components/step8-progress-details.tsx",
+    tokens: [
+      'data-smoke="step8-progress-details"',
+      "성과 확인은 아직 볼 게 없습니다.",
+      "완료된 것, 이어 할 것, 지금 판단",
+      "이 빈 상태는 단계를 자동으로 이동시키지 않습니다.",
     ],
   },
   {
@@ -370,6 +378,10 @@ const contracts = [
       "최종 실행에서 첫 제작 작업을 넘기면 완료된 것, 이어 할 것, 지금 판단이 여기에 표시됩니다.",
       "실행은 STEP 7에서 계속합니다.",
       "완료 보고가 반영되면 다음 판단으로 넘어갈 수 있습니다.",
+      "buildStep8NextTaskSummary",
+      "상태만 확인",
+      "남은 작업 없음",
+      "STEP 7에서 첫 작업 시작",
     ],
   },
   {
