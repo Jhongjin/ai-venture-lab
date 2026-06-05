@@ -547,7 +547,7 @@ import {
 import {
   buildImplementationTaskAutoRefreshMessage,
   buildImplementationTaskManualRefreshMessage,
-  buildNextImplementationTaskActionDetail,
+  buildNextImplementationTaskDisplayState,
   buildImplementationTaskRefreshLoginRequiredMessage,
   buildImplementationTaskRefreshSummary,
   buildImplementationTaskReviewState,
@@ -1188,6 +1188,12 @@ export function IdeaWorkbench({
     totalImplementationTaskCount: totalLearningImplementationTasks,
     waitingImplementationDependencyStatuses,
   } = useMemo(() => buildStep8ImplementationDerivedState(selectedImplementationTasks), [selectedImplementationTasks]);
+  const nextImplementationTaskDisplayState = nextImplementationTask
+    ? buildNextImplementationTaskDisplayState({
+        dependencyStatus: nextImplementationDependencyStatus,
+        task: nextImplementationTask,
+      })
+    : null;
   const nextImplementationTaskStartControlState = buildImplementationTaskStartControlState({
     canManage: nextImplementationTask ? canManageRecord(nextImplementationTask) : false,
     isBusy,
@@ -5591,30 +5597,27 @@ export function IdeaWorkbench({
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-950">다음 제작 액션</h4>
-                    {nextImplementationTask ? (
+                    {nextImplementationTaskDisplayState ? (
                       <>
                         <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <span className="text-base font-semibold text-slate-950">{nextImplementationTask.title}</span>
-                          <span className={implementationTaskStatusTone[nextImplementationTask.status]}>
-                            {implementationTaskStatusLabels[nextImplementationTask.status]}
+                          <span className="text-base font-semibold text-slate-950">{nextImplementationTaskDisplayState.title}</span>
+                          <span className={nextImplementationTaskDisplayState.statusToneClass}>
+                            {nextImplementationTaskDisplayState.statusLabel}
                           </span>
-                          <span className={implementationTaskPriorityTone[nextImplementationTask.priority]}>
-                            {implementationTaskPriorityLabels[nextImplementationTask.priority]}
+                          <span className={nextImplementationTaskDisplayState.priorityToneClass}>
+                            {nextImplementationTaskDisplayState.priorityLabel}
                           </span>
                         </div>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
-                          {buildNextImplementationTaskActionDetail({
-                            dependencyStatus: nextImplementationDependencyStatus,
-                            task: nextImplementationTask,
-                          })}
+                          {nextImplementationTaskDisplayState.actionDetail}
                         </p>
-                        {nextImplementationDependencyStatus?.blockers.length ? (
+                        {nextImplementationTaskDisplayState.showBlockers ? (
                           <div className="avl-surface-muted mt-2 px-3 py-2 text-xs font-semibold leading-5 text-slate-700">
-                            선행 조건: {nextImplementationDependencyStatus.blockers.join(", ")}
+                            선행 조건: {nextImplementationTaskDisplayState.blockerText}
                           </div>
                         ) : null}
                         <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                          {nextImplementationTask.owner_role || "owner 미정"}
+                          {nextImplementationTaskDisplayState.ownerRoleLabel}
                         </div>
                       </>
                     ) : (

@@ -29,6 +29,7 @@ const {
   buildImplementationDependencyStatuses,
   buildImplementationPrerequisiteBlocker,
   buildNextImplementationTaskActionDetail,
+  buildNextImplementationTaskDisplayState,
   getBlockedImplementationTaskDependencyBlockers,
   getCompletedImplementationTaskTypes,
   getImplementationDependencyStatusForTask,
@@ -200,6 +201,52 @@ assert.equal(
     task: readyTask,
   }),
   "바로 시작하기 좋은 다음 태스크입니다. 진행 시작 후 증거를 남기세요.",
+);
+assert.deepEqual(
+  buildNextImplementationTaskDisplayState({
+    dependencyStatus: {
+      blockers: ["디자인 태스크 완료 필요", "백엔드 태스크 생성 필요"],
+      ready: false,
+    },
+    task: readyTask,
+  }),
+  {
+    actionDetail: "선행 조건에 막혀 있습니다. 아래 실행 순서 점검에서 먼저 완료할 태스크를 확인하세요.",
+    blockerText: "디자인 태스크 완료 필요, 백엔드 태스크 생성 필요",
+    ownerRoleLabel: "prototype-builder",
+    priorityLabel: "높음",
+    priorityToneClass: "avl-pill avl-pill-danger",
+    showBlockers: true,
+    statusLabel: "할 일",
+    statusToneClass: "avl-pill avl-pill-neutral",
+    title: "T-001 제작 패키지 리뷰 화면",
+  },
+);
+assert.deepEqual(
+  buildNextImplementationTaskDisplayState({
+    dependencyStatus: null,
+    task: {
+      ...readyTask,
+      owner_role: "",
+    },
+  }).ownerRoleLabel,
+  "owner 미정",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("nextImplementationTaskDisplayState.statusLabel"),
+  "IdeaWorkbench should render next implementation task status from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("nextImplementationTaskDisplayState.blockerText"),
+  "IdeaWorkbench should render next implementation dependency blockers from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("buildNextImplementationTaskActionDetail({"),
+  "IdeaWorkbench should not build next implementation task detail inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("nextImplementationDependencyStatus?.blockers.length"),
+  "IdeaWorkbench should not decide next implementation blockers inline.",
 );
 
 const statuses = [

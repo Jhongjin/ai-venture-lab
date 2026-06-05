@@ -58,6 +58,18 @@ export type ImplementationTaskReadinessQueues = {
   nextDependencyStatus: ImplementationDependencyStatus | null;
 };
 
+export type NextImplementationTaskDisplayState = {
+  actionDetail: string;
+  blockerText: string;
+  ownerRoleLabel: string;
+  priorityLabel: string;
+  priorityToneClass: string;
+  showBlockers: boolean;
+  statusLabel: string;
+  statusToneClass: string;
+  title: string;
+};
+
 export type ImplementationEvidenceSummary = {
   task: ImplementationTask;
   missing: string[];
@@ -309,6 +321,31 @@ export function buildNextImplementationTaskActionDetail({
   }
 
   return "바로 시작하기 좋은 다음 태스크입니다. 진행 시작 후 증거를 남기세요.";
+}
+
+export function buildNextImplementationTaskDisplayState({
+  dependencyStatus,
+  task,
+}: {
+  dependencyStatus: Pick<ImplementationDependencyStatus, "blockers" | "ready"> | null;
+  task: ImplementationTask;
+}): NextImplementationTaskDisplayState {
+  const blockerText = dependencyStatus?.blockers.join(", ") ?? "";
+
+  return {
+    actionDetail: buildNextImplementationTaskActionDetail({
+      dependencyStatus,
+      task,
+    }),
+    blockerText,
+    ownerRoleLabel: getImplementationTaskOwnerRole(task),
+    priorityLabel: implementationTaskPriorityLabels[task.priority],
+    priorityToneClass: implementationTaskPriorityTone[task.priority],
+    showBlockers: blockerText.length > 0,
+    statusLabel: implementationTaskStatusLabels[task.status],
+    statusToneClass: implementationTaskStatusTone[task.status],
+    title: task.title,
+  };
 }
 
 export function getCompletedImplementationTasksWithEvidence(tasks: ImplementationTask[]) {
