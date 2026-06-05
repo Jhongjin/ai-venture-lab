@@ -24,6 +24,7 @@ const {
   buildWorkbenchScoreInputFieldConfigs,
   buildWorkbenchScoringCurrentScoreCard,
   buildWorkbenchScoringEditGuidanceMessage,
+  buildWorkbenchScoringHelpSectionDisplayState,
   buildWorkbenchScoringHelpSections,
   buildWorkbenchScoringInputControlState,
   buildWorkbenchScoringNextActionCard,
@@ -176,21 +177,33 @@ assert.ok(
 assert.deepEqual(buildWorkbenchScoringHelpSections(), [
   {
     body: null,
+    containerClassName: "border border-slate-200 p-5 bg-slate-50 text-slate-900",
     items: [
       "처음 값은 AI가 원문을 보고 채운 추천값입니다. 그대로 써도 되고 직접 바꿔도 됩니다.",
       "작게 만들기 쉽지만 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.",
       "리스크 감점이 높다면 검증 계획보다 개인정보, 법무, 운영 리스크를 먼저 확인하세요.",
     ],
+    titleClassName: "text-xs font-semibold tracking-[0.14em] text-slate-500 uppercase",
     title: "평가값 읽는 법",
     variant: "muted",
   },
   {
     body: "사업성 평가를 저장하면 AI가 다음 검증 계획에서 첫 확인 방법과 성공 기준을 이어서 준비합니다. 여기서는 현재 평가값만 확인하면 충분합니다.",
+    containerClassName: "border border-slate-200 p-5 bg-white",
     items: [],
+    titleClassName: "text-xs font-semibold tracking-[0.14em] text-slate-500",
     title: "다음 판단",
     variant: "plain",
   },
 ]);
+assert.deepEqual(buildWorkbenchScoringHelpSectionDisplayState({ variant: "muted" }), {
+  containerClassName: "border border-slate-200 p-5 bg-slate-50 text-slate-900",
+  titleClassName: "text-xs font-semibold tracking-[0.14em] text-slate-500 uppercase",
+});
+assert.deepEqual(buildWorkbenchScoringHelpSectionDisplayState({ variant: "plain" }), {
+  containerClassName: "border border-slate-200 p-5 bg-white",
+  titleClassName: "text-xs font-semibold tracking-[0.14em] text-slate-500",
+});
 assert.ok(
   !ideaWorkbenchSource.includes("평가값 읽는 법"),
   "IdeaWorkbench should render scoring help sections from shared state.",
@@ -202,6 +215,18 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("사업성 평가를 저장하면 AI가 다음 검증"),
   "IdeaWorkbench should keep scoring next-judgment copy in the shared helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("section.containerClassName"),
+  "IdeaWorkbench should render scoring help section container classes from shared state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("section.titleClassName"),
+  "IdeaWorkbench should render scoring help section title classes from shared state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('section.variant === "muted"'),
+  "IdeaWorkbench should not keep JSX-local scoring help variant branches.",
 );
 assert.deepEqual(buildWorkbenchScoringReviewPanelState(), {
   description: "AI가 먼저 채운 값을 확인하세요. 다르게 보이는 항목만 조정하면 되고, 단계와 판단은 저장할 때 자동으로 정리됩니다.",

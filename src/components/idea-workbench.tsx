@@ -4951,13 +4951,9 @@ export function IdeaWorkbench({
               {scoringHelpSections.map((section) => (
                 <section
                   key={section.title}
-                  className={`border border-slate-200 p-5 ${section.variant === "muted" ? "bg-slate-50 text-slate-900" : "bg-white"}`}
+                  className={section.containerClassName}
                 >
-                  <div
-                    className={`text-xs font-semibold tracking-[0.14em] text-slate-500 ${
-                      section.variant === "muted" ? "uppercase" : ""
-                    }`}
-                  >
+                  <div className={section.titleClassName}>
                     {section.title}
                   </div>
                   {section.items.length > 0 ? (

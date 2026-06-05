@@ -60,10 +60,16 @@ export type WorkbenchScoringReviewPanelState = {
 };
 export type WorkbenchScoringHelpSectionState = {
   body: string | null;
+  containerClassName: string;
   items: string[];
+  titleClassName: string;
   title: string;
   variant: "muted" | "plain";
 };
+export type WorkbenchScoringHelpSectionDisplayState = Pick<
+  WorkbenchScoringHelpSectionState,
+  "containerClassName" | "titleClassName"
+>;
 export type WorkbenchScoringInputControlState = {
   fieldsDisabled: boolean;
 };
@@ -188,6 +194,7 @@ export function buildWorkbenchScoringHelpSections(): WorkbenchScoringHelpSection
   return [
     {
       body: null,
+      ...buildWorkbenchScoringHelpSectionDisplayState({ variant: "muted" }),
       items: [
         "처음 값은 AI가 원문을 보고 채운 추천값입니다. 그대로 써도 되고 직접 바꿔도 됩니다.",
         "작게 만들기 쉽지만 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.",
@@ -198,11 +205,25 @@ export function buildWorkbenchScoringHelpSections(): WorkbenchScoringHelpSection
     },
     {
       body: "사업성 평가를 저장하면 AI가 다음 검증 계획에서 첫 확인 방법과 성공 기준을 이어서 준비합니다. 여기서는 현재 평가값만 확인하면 충분합니다.",
+      ...buildWorkbenchScoringHelpSectionDisplayState({ variant: "plain" }),
       items: [],
       title: "다음 판단",
       variant: "plain",
     },
   ];
+}
+
+export function buildWorkbenchScoringHelpSectionDisplayState({
+  variant,
+}: {
+  variant: WorkbenchScoringHelpSectionState["variant"];
+}): WorkbenchScoringHelpSectionDisplayState {
+  const isMuted = variant === "muted";
+
+  return {
+    containerClassName: `border border-slate-200 p-5 ${isMuted ? "bg-slate-50 text-slate-900" : "bg-white"}`,
+    titleClassName: `text-xs font-semibold tracking-[0.14em] text-slate-500${isMuted ? " uppercase" : ""}`,
+  };
 }
 
 export function scoreWorkbenchState(state: WorkbenchEditState) {
