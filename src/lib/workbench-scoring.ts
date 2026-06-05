@@ -62,10 +62,16 @@ export type WorkbenchScoringHelpSectionState = {
   body: string | null;
   containerClassName: string;
   items: string[];
+  showBody: boolean;
+  showItems: boolean;
   titleClassName: string;
   title: string;
   variant: "muted" | "plain";
 };
+export type WorkbenchScoringHelpSectionContentState = Pick<
+  WorkbenchScoringHelpSectionState,
+  "showBody" | "showItems"
+>;
 export type WorkbenchScoringHelpSectionDisplayState = Pick<
   WorkbenchScoringHelpSectionState,
   "containerClassName" | "titleClassName"
@@ -191,26 +197,45 @@ export function buildWorkbenchScoringInputControlState({ canEdit }: { canEdit: b
 }
 
 export function buildWorkbenchScoringHelpSections(): WorkbenchScoringHelpSectionState[] {
+  const mutedItems = [
+    "처음 값은 AI가 원문을 보고 채운 추천값입니다. 그대로 써도 되고 직접 바꿔도 됩니다.",
+    "작게 만들기 쉽지만 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.",
+    "리스크 감점이 높다면 검증 계획보다 개인정보, 법무, 운영 리스크를 먼저 확인하세요.",
+  ];
+  const plainBody =
+    "사업성 평가를 저장하면 AI가 다음 검증 계획에서 첫 확인 방법과 성공 기준을 이어서 준비합니다. 여기서는 현재 평가값만 확인하면 충분합니다.";
+
   return [
     {
       body: null,
+      ...buildWorkbenchScoringHelpSectionContentState({ body: null, itemCount: mutedItems.length }),
       ...buildWorkbenchScoringHelpSectionDisplayState({ variant: "muted" }),
-      items: [
-        "처음 값은 AI가 원문을 보고 채운 추천값입니다. 그대로 써도 되고 직접 바꿔도 됩니다.",
-        "작게 만들기 쉽지만 차별성이 낮다면 범위를 줄이거나 대상을 좁히는 쪽이 좋습니다.",
-        "리스크 감점이 높다면 검증 계획보다 개인정보, 법무, 운영 리스크를 먼저 확인하세요.",
-      ],
+      items: mutedItems,
       title: "평가값 읽는 법",
       variant: "muted",
     },
     {
-      body: "사업성 평가를 저장하면 AI가 다음 검증 계획에서 첫 확인 방법과 성공 기준을 이어서 준비합니다. 여기서는 현재 평가값만 확인하면 충분합니다.",
+      body: plainBody,
+      ...buildWorkbenchScoringHelpSectionContentState({ body: plainBody, itemCount: 0 }),
       ...buildWorkbenchScoringHelpSectionDisplayState({ variant: "plain" }),
       items: [],
       title: "다음 판단",
       variant: "plain",
     },
   ];
+}
+
+export function buildWorkbenchScoringHelpSectionContentState({
+  body,
+  itemCount,
+}: {
+  body: string | null;
+  itemCount: number;
+}): WorkbenchScoringHelpSectionContentState {
+  return {
+    showBody: itemCount === 0 && Boolean(body),
+    showItems: itemCount > 0,
+  };
 }
 
 export function buildWorkbenchScoringHelpSectionDisplayState({

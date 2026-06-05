@@ -4979,13 +4979,13 @@ export function IdeaWorkbench({
                   <div className={section.titleClassName}>
                     {section.title}
                   </div>
-                  {section.items.length > 0 ? (
+                  {section.showItems ? (
                     <ul className="mt-3 grid gap-2 text-sm leading-6 text-slate-700">
                       {section.items.map((item) => (
                         <li key={item}>- {item}</li>
                       ))}
                     </ul>
-                  ) : section.body ? (
+                  ) : section.showBody ? (
                     <p className="mt-3 text-sm leading-6 text-slate-600">{section.body}</p>
                   ) : null}
                 </section>
