@@ -9,6 +9,7 @@ const {
   buildValidationPackageHeaderState,
   buildValidationPackagePanelClassName,
   buildValidationPackagePanelClassNames,
+  buildValidationPackagePanelTabButtonClassName,
   buildValidationPackagePanelTabStates,
   buildValidationPackageProductHandoffActionControls,
   buildValidationPackageProductReadinessNotice,
@@ -321,8 +322,18 @@ assert.ok(
   !ideaWorkbenchSource.includes("AI가 아이디어 요약, 조사 요약"),
   "IdeaWorkbench should keep validation package guided header copy in the shared helper.",
 );
+assert.equal(
+  buildValidationPackagePanelTabButtonClassName({ isActive: true }),
+  "border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 border-slate-950 bg-slate-950 text-white",
+);
+assert.equal(
+  buildValidationPackagePanelTabButtonClassName({ isActive: false }),
+  "border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 border-slate-200 bg-white text-slate-700 hover:border-slate-400",
+);
 assert.deepEqual(buildValidationPackagePanelTabStates({ activePanel: "validation", hasValidationSummaryArtifact: false }), [
   {
+    buttonClassName:
+      "border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 border-slate-950 bg-slate-950 text-white",
     disabled: false,
     isActive: true,
     label: "검증 자료 저장",
@@ -330,6 +341,8 @@ assert.deepEqual(buildValidationPackagePanelTabStates({ activePanel: "validation
     stepLabel: "STEP 4-1",
   },
   {
+    buttonClassName:
+      "border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 border-slate-200 bg-white text-slate-700 hover:border-slate-400",
     disabled: true,
     isActive: false,
     label: "검증 요약 저장 후 열림",
@@ -339,6 +352,8 @@ assert.deepEqual(buildValidationPackagePanelTabStates({ activePanel: "validation
 ]);
 assert.deepEqual(buildValidationPackagePanelTabStates({ activePanel: "product", hasValidationSummaryArtifact: true }), [
   {
+    buttonClassName:
+      "border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 border-slate-200 bg-white text-slate-700 hover:border-slate-400",
     disabled: false,
     isActive: false,
     label: "검증 자료 저장",
@@ -346,6 +361,8 @@ assert.deepEqual(buildValidationPackagePanelTabStates({ activePanel: "product", 
     stepLabel: "STEP 4-1",
   },
   {
+    buttonClassName:
+      "border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 border-slate-950 bg-slate-950 text-white",
     disabled: false,
     isActive: true,
     label: "기획서 만들기",
@@ -360,6 +377,14 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("검증 요약 저장 후 열림"),
   "IdeaWorkbench should keep validation package tab labels in the shared helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("tab.isActive"),
+  "IdeaWorkbench should render validation package tab button classes from shared tab state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("tab.buttonClassName"),
+  "IdeaWorkbench should use validation package tab button class state.",
 );
 assert.equal(
   buildValidationPackagePanelClassName({

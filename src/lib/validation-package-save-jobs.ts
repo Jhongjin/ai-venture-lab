@@ -31,6 +31,7 @@ export type ValidationPackageHeaderState = {
   title: string;
 };
 export type ValidationPackagePanelTabState = {
+  buttonClassName: string;
   disabled: boolean;
   isActive: boolean;
   label: string;
@@ -261,6 +262,14 @@ export function buildValidationPackageHeaderState({
   };
 }
 
+export function buildValidationPackagePanelTabButtonClassName({ isActive }: { isActive: boolean }) {
+  return `border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
+    isActive
+      ? "border-slate-950 bg-slate-950 text-white"
+      : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
+  }`;
+}
+
 export function buildValidationPackagePanelTabStates({
   activePanel,
   hasValidationSummaryArtifact,
@@ -268,17 +277,22 @@ export function buildValidationPackagePanelTabStates({
   activePanel: ValidationPackagePanelTabState["panel"] | "library";
   hasValidationSummaryArtifact: boolean;
 }): ValidationPackagePanelTabState[] {
+  const validationTabIsActive = activePanel === "validation";
+  const productTabIsActive = activePanel === "product";
+
   return [
     {
+      buttonClassName: buildValidationPackagePanelTabButtonClassName({ isActive: validationTabIsActive }),
       disabled: false,
-      isActive: activePanel === "validation",
+      isActive: validationTabIsActive,
       label: "검증 자료 저장",
       panel: "validation",
       stepLabel: "STEP 4-1",
     },
     {
+      buttonClassName: buildValidationPackagePanelTabButtonClassName({ isActive: productTabIsActive }),
       disabled: !hasValidationSummaryArtifact,
-      isActive: activePanel === "product",
+      isActive: productTabIsActive,
       label: hasValidationSummaryArtifact ? "기획서 만들기" : "검증 요약 저장 후 열림",
       panel: "product",
       stepLabel: "STEP 4-2",

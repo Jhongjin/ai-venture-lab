@@ -7475,11 +7475,7 @@ export function IdeaWorkbench({
                     type="button"
                     onClick={() => setArtifactPanel(tab.panel)}
                     disabled={tab.disabled}
-                    className={`border px-4 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${
-                      tab.isActive
-                        ? "border-slate-950 bg-slate-950 text-white"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
-                    }`}
+                    className={tab.buttonClassName}
                   >
                     <div className="text-xs font-semibold tracking-[0.14em] opacity-70">{tab.stepLabel}</div>
                     <div className="mt-1 text-sm font-semibold">{tab.label}</div>
