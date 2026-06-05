@@ -7207,7 +7207,7 @@ export function IdeaWorkbench({
               </div>
             ) : null}
 
-            {marketScanDraftPanelState.isVisible && visibleMarketScanDraft ? (
+            {marketScanDraftPanelState.isVisible ? (
               <div className="mt-4 grid gap-4">
                 <div
                   className={`border px-4 py-3 text-sm leading-6 ${marketScanDraftPanelState.alertClassName}`}

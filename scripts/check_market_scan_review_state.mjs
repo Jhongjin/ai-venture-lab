@@ -632,6 +632,11 @@ assert.equal(
   "market scan panel should read draft display values through marketScanDraftPanelState",
 );
 assert.equal(
+  workbenchSource.includes("marketScanDraftPanelState.isVisible && visibleMarketScanDraft"),
+  false,
+  "market scan panel visibility should rely on marketScanDraftPanelState.isVisible",
+);
+assert.equal(
   workbenchSource.includes("visibleMarketScanPublicSources"),
   false,
   "market scan public sources should render through marketScanDraftPanelState display items",
