@@ -287,6 +287,7 @@ const contracts = [
       "오늘 확인할 것",
       "요약 보기",
       "오늘 답할 질문",
+      "완료 보고 후",
       'dataSmoke="step8-simple-review"',
     ],
   },

@@ -48,7 +48,7 @@ export function Step8ActionHighlights({
         </div>
         <div data-smoke="step8-external-completion-bridge" className="mt-3 border border-emerald-200 bg-white px-3 py-2">
           <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
-            외부 도구 완료 보고 후
+            완료 보고 후
           </div>
           <p className="mt-1 text-sm font-semibold leading-6 text-slate-950">
             완료된 것, 이어 할 것, 지금 판단만 봅니다.
