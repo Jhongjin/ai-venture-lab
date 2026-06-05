@@ -9,6 +9,7 @@ const {
   buildWorkbenchTaskNavigationItemStates,
   buildWorkbenchTaskNavigationState,
   buildWorkbenchTaskPanelClassName,
+  buildWorkbenchTaskPanelClassNames,
   buildWorkbenchTaskSummaries,
   getVisibleWorkbenchTaskSummaries,
   getWorkbenchIdeaProgress,
@@ -41,6 +42,10 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes('activeTask === "artifacts" ? "avl-card p-4" : "hidden"'),
   "IdeaWorkbench should use the shared task panel class helper for the artifacts panel.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("buildWorkbenchTaskPanelClassName({"),
+  "IdeaWorkbench should receive the task panel class map from the shared task helper.",
 );
 
 assert.deepEqual(getWorkbenchIdeaProgress({ decision: "kill", stage: "launch" }), {
@@ -211,6 +216,19 @@ assert.equal(
   }),
   "sr-only",
 );
+const developmentPanelClassNames = buildWorkbenchTaskPanelClassNames({
+  activeTask: "development",
+});
+assert.equal(developmentPanelClassNames.development, "avl-card p-5");
+assert.equal(developmentPanelClassNames.select, "hidden");
+assert.equal(developmentPanelClassNames.riskDecision, "hidden");
+
+const decisionPanelClassNames = buildWorkbenchTaskPanelClassNames({
+  activeTask: "decision",
+});
+assert.equal(decisionPanelClassNames.decision, "grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]");
+assert.equal(decisionPanelClassNames.riskDecision, "grid gap-5");
+assert.equal(decisionPanelClassNames.risk, "hidden");
 
 const guidedTasks = getVisibleWorkbenchTaskSummaries(tasks, "guided");
 assert.deepEqual(

@@ -35,6 +35,21 @@ export type WorkbenchTaskNavigationItemState = {
 
 export type WorkbenchExperienceMode = "guided" | "full";
 
+export type WorkbenchTaskPanelClassNames = {
+  archive: string;
+  artifacts: string;
+  decision: string;
+  development: string;
+  experiment: string;
+  launch: string;
+  learning: string;
+  orchestration: string;
+  risk: string;
+  riskDecision: string;
+  score: string;
+  select: string;
+};
+
 export type WorkbenchIdeaProgress = {
   label: string;
   task: WorkbenchTask;
@@ -249,4 +264,73 @@ export function buildWorkbenchTaskPanelClassName({
   visibleClassName: string;
 }) {
   return targetTasks.includes(activeTask) ? visibleClassName : hiddenClassName;
+}
+
+export function buildWorkbenchTaskPanelClassNames({
+  activeTask,
+}: {
+  activeTask: WorkbenchTask;
+}): WorkbenchTaskPanelClassNames {
+  return {
+    archive: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["archive"],
+      visibleClassName: "grid gap-5",
+    }),
+    artifacts: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["artifacts"],
+      visibleClassName: "avl-card p-4",
+    }),
+    decision: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["decision"],
+      visibleClassName: "grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]",
+    }),
+    development: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["development"],
+      visibleClassName: "avl-card p-5",
+    }),
+    experiment: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["experiment"],
+      visibleClassName: "grid gap-4",
+    }),
+    launch: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["launch"],
+      visibleClassName: "avl-card p-4",
+    }),
+    learning: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["learning"],
+      visibleClassName: "avl-card p-4",
+    }),
+    orchestration: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["orchestration"],
+      visibleClassName: "avl-card p-5",
+    }),
+    risk: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["risk"],
+      visibleClassName: "grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_320px]",
+    }),
+    riskDecision: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["risk", "decision"],
+      visibleClassName: "grid gap-5",
+    }),
+    score: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["score"],
+      visibleClassName: "grid gap-5",
+    }),
+    select: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["select"],
+      visibleClassName: "grid gap-5",
+    }),
+  };
 }

@@ -576,7 +576,7 @@ import {
   type ImplementationStatusFilter,
 } from "@/lib/implementation-task-metadata";
 import {
-  buildWorkbenchTaskPanelClassName,
+  buildWorkbenchTaskPanelClassNames,
   buildWorkbenchTaskNavigationItemStates,
   buildWorkbenchTaskNavigationState,
   getWorkbenchIdeaProgress,
@@ -1994,68 +1994,7 @@ export function IdeaWorkbench({
     isGuided: experienceMode === "guided",
     panel: "library",
   });
-  const workbenchTaskPanelClassNames = {
-    archive: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["archive"],
-      visibleClassName: "grid gap-5",
-    }),
-    artifacts: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["artifacts"],
-      visibleClassName: "avl-card p-4",
-    }),
-    decision: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["decision"],
-      visibleClassName: "grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]",
-    }),
-    development: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["development"],
-      visibleClassName: "avl-card p-5",
-    }),
-    experiment: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["experiment"],
-      visibleClassName: "grid gap-4",
-    }),
-    launch: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["launch"],
-      visibleClassName: "avl-card p-4",
-    }),
-    learning: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["learning"],
-      visibleClassName: "avl-card p-4",
-    }),
-    orchestration: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["orchestration"],
-      visibleClassName: "avl-card p-5",
-    }),
-    risk: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["risk"],
-      visibleClassName: "grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_320px]",
-    }),
-    riskDecision: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["risk", "decision"],
-      visibleClassName: "grid gap-5",
-    }),
-    score: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["score"],
-      visibleClassName: "grid gap-5",
-    }),
-    select: buildWorkbenchTaskPanelClassName({
-      activeTask,
-      targetTasks: ["select"],
-      visibleClassName: "grid gap-5",
-    }),
-  } as const;
+  const workbenchTaskPanelClassNames = buildWorkbenchTaskPanelClassNames({ activeTask });
   const visibleMarketScanReviewRows = buildVisibleMarketScanReviewRows({
     decisionLabels,
     draft: visibleMarketScanDraft,
