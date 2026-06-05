@@ -33,8 +33,7 @@ export function Step8PrimaryCta({
           {ctaLabel}
         </button>
         <p data-smoke="step8-report-copy-secondary" className="text-xs font-semibold leading-5 text-blue-950">
-          리포트 복사는 보관이나 공유용이며 단계 이동 버튼이 아닙니다. 실제 작업 실행은 STEP 7 연결 파일과 외부
-          도구에서 계속합니다.
+          리포트 복사는 보관/공유용입니다. 단계 이동 버튼이 아닙니다. 실행은 STEP 7에서 계속합니다.
         </p>
       </div>
     );
