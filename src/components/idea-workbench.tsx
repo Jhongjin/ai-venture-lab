@@ -7326,7 +7326,15 @@ export function IdeaWorkbench({
                   {marketScanDraftPanelState.showPublicSources ? (
                     <div className="grid gap-2">
                       {marketScanDraftPanelState.publicSourceItems.map(
-                        ({ key, source, sourceTypeLabel, strengthLabel, strengthTone }) => (
+                        ({
+                          key,
+                          sourceLinkState,
+                          sourceReasonText,
+                          sourceTypeLabel,
+                          showReason,
+                          strengthLabel,
+                          strengthTone,
+                        }) => (
                           <div key={key} className="border border-slate-200 bg-white px-3 py-2 text-xs leading-5">
                             <div className="mb-1 flex flex-wrap gap-2">
                               <span className={`avl-pill ${strengthTone} text-[11px]`}>
@@ -7334,14 +7342,14 @@ export function IdeaWorkbench({
                               </span>
                               <span className="avl-pill avl-pill-neutral text-[11px]">{sourceTypeLabel}</span>
                             </div>
-                            {source.url ? (
-                              <a href={source.url} target="_blank" rel="noreferrer" className="font-semibold text-slate-950 underline-offset-2 hover:underline">
-                                {source.title || source.url}
+                            {sourceLinkState.showLink ? (
+                              <a href={sourceLinkState.href} target="_blank" rel="noreferrer" className="font-semibold text-slate-950 underline-offset-2 hover:underline">
+                                {sourceLinkState.label}
                               </a>
                             ) : (
-                              <span className="font-semibold text-slate-950">{source.title}</span>
+                              <span className="font-semibold text-slate-950">{sourceLinkState.label}</span>
                             )}
-                            {source.reason ? <p className="mt-1 text-slate-500">{source.reason}</p> : null}
+                            {showReason ? <p className="mt-1 text-slate-500">{sourceReasonText}</p> : null}
                           </div>
                         ),
                       )}

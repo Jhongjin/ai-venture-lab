@@ -247,10 +247,25 @@ export type MarketScanResearchQueryDisplayItem = {
 export type MarketScanPublicSourceDisplayItem = {
   key: string;
   source: MarketScanSource;
+  sourceLinkState: MarketScanPublicSourceLinkState;
+  sourceReasonText: string;
   sourceTypeLabel: string;
+  showReason: boolean;
   strengthLabel: string;
   strengthTone: string;
 };
+
+export type MarketScanPublicSourceLinkState =
+  | {
+      href: string;
+      label: string;
+      showLink: true;
+    }
+  | {
+      href: null;
+      label: string;
+      showLink: false;
+    };
 
 export type MarketScanReviewRows = {
   decisionRows: Array<{ helper: string; label: string; value: string }>;
@@ -287,10 +302,29 @@ export function buildMarketScanPublicSourceDisplayItems(
   return getPublicMarketScanSources(sources).map((source, index) => ({
     key: `${source.url || source.title}-${index}`,
     source,
+    sourceLinkState: buildMarketScanPublicSourceLinkState(source),
+    sourceReasonText: source.reason ?? "",
     sourceTypeLabel: marketScanSourceTypeLabels[source.source_type],
+    showReason: Boolean(source.reason),
     strengthLabel: getMarketScanLevelLabel(source.strength),
     strengthTone: getMarketScanSourceStrengthTone(source.strength),
   }));
+}
+
+export function buildMarketScanPublicSourceLinkState(
+  source: Pick<MarketScanSource, "title" | "url">,
+): MarketScanPublicSourceLinkState {
+  return source.url
+    ? {
+        href: source.url,
+        label: source.title || source.url,
+        showLink: true,
+      }
+    : {
+        href: null,
+        label: source.title,
+        showLink: false,
+      };
 }
 
 export function buildMarketScanCompetitorDisplayItems(

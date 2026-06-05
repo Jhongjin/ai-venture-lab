@@ -23,6 +23,7 @@ const {
   buildMarketScanExperimentResultPatch,
   buildMarketScanEntryBarrierDisplayItems,
   buildMarketScanPublicSourceDisplayItems,
+  buildMarketScanPublicSourceLinkState,
   buildMarketScanRequestPayload,
   buildMarketScanResearchQueryDisplayItems,
   buildMarketScanReviewRows,
@@ -215,11 +216,28 @@ assert.deepEqual(buildMarketScanResearchQueryDisplayItems(draft.research_queries
     query: "automation os competitors",
   },
 ]);
+assert.deepEqual(buildMarketScanPublicSourceLinkState(draft.sources[0]), {
+  href: "https://example.com/source",
+  label: "Public source",
+  showLink: true,
+});
+assert.deepEqual(buildMarketScanPublicSourceLinkState(draft.sources[1]), {
+  href: null,
+  label: "Pasted chat",
+  showLink: false,
+});
 assert.deepEqual(buildMarketScanPublicSourceDisplayItems(draft.sources), [
   {
     key: "https://example.com/source-0",
     source: draft.sources[0],
+    sourceLinkState: {
+      href: "https://example.com/source",
+      label: "Public source",
+      showLink: true,
+    },
+    sourceReasonText: "공개 제품 문서",
     sourceTypeLabel: "직접 출처",
+    showReason: true,
     strengthLabel: "높음",
     strengthTone: "avl-pill-success",
   },
@@ -264,7 +282,14 @@ assert.deepEqual(
       {
         key: "https://example.com/source-0",
         source: draft.sources[0],
+        sourceLinkState: {
+          href: "https://example.com/source",
+          label: "Public source",
+          showLink: true,
+        },
+        sourceReasonText: "공개 제품 문서",
         sourceTypeLabel: "직접 출처",
+        showReason: true,
         strengthLabel: "높음",
         strengthTone: "avl-pill-success",
       },
@@ -460,7 +485,14 @@ assert.deepEqual(
       {
         key: "https://example.com/source-0",
         source: draft.sources[0],
+        sourceLinkState: {
+          href: "https://example.com/source",
+          label: "Public source",
+          showLink: true,
+        },
+        sourceReasonText: "공개 제품 문서",
         sourceTypeLabel: "직접 출처",
+        showReason: true,
         strengthLabel: "높음",
         strengthTone: "avl-pill-success",
       },
@@ -603,6 +635,26 @@ assert.equal(
   workbenchSource.includes("visibleMarketScanPublicSources"),
   false,
   "market scan public sources should render through marketScanDraftPanelState display items",
+);
+assert.equal(
+  workbenchSource.includes("source.url ?"),
+  false,
+  "market scan public source links should render through display item link state",
+);
+assert.equal(
+  workbenchSource.includes("source.reason ?"),
+  false,
+  "market scan public source reasons should render through display item reason state",
+);
+assert.equal(
+  workbenchSource.includes("sourceLinkState.showLink"),
+  true,
+  "market scan public source links should use sourceLinkState",
+);
+assert.equal(
+  workbenchSource.includes("showReason ?"),
+  true,
+  "market scan public source reasons should use display item reason visibility",
 );
 assert.equal(
   workbenchSource.includes("getMarketScanLevelLabel"),
