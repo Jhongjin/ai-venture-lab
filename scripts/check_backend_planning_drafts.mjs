@@ -47,6 +47,7 @@ const moduleUrl = transpileModuleUrl("src/lib/backend-planning-drafts.ts", [
 ]);
 
 const {
+  buildBackendCandidateDisplayRows,
   buildBackendExecutionCheckDisplayRows,
   buildBackendPlanningArtifactSaveControlStates,
   buildBackendPlanningArtifactSaveDrafts,
@@ -130,6 +131,24 @@ const draftState = buildBackendPlanningDraftState({
 });
 
 assert.equal(draftState.backendCandidateScores[0].label, "Supabase");
+assert.deepEqual(
+  draftState.backendCandidateDisplayRows.slice(0, 3).map((candidate) => [candidate.label, candidate.rankLabel]),
+  [
+    ["Supabase", "현재 1순위"],
+    ["Firebase SQL Connect", "비교 후보"],
+    ["Firebase", "비교 후보"],
+  ],
+);
+assert.deepEqual(
+  buildBackendCandidateDisplayRows([
+    { cautions: [], key: "supabase", label: "Supabase", score: 80, strengths: [], summary: "권장" },
+    { cautions: [], key: "firebase", label: "Firebase", score: 70, strengths: [], summary: "비교" },
+  ]).map((candidate) => [candidate.label, candidate.rankLabel]),
+  [
+    ["Supabase", "현재 1순위"],
+    ["Firebase", "비교 후보"],
+  ],
+);
 assert.match(buildBackendDecisionCandidateRows(draftState.backendCandidateScores), /Supabase/);
 assert.equal(buildBackendDecisionCandidateRows([]), "");
 assert.match(buildBackendExecutionPlanEnvLines(draftState.backendExecutionPlan.envVars), /NEXT_PUBLIC_SUPABASE_URL/);
@@ -242,8 +261,16 @@ assert.ok(
   "IdeaWorkbench should render backend execution checks from shared display rows.",
 );
 assert.ok(
+  ideaWorkbenchSource.includes("backendCandidateDisplayRows.map"),
+  "IdeaWorkbench should render backend candidate cards from shared display rows.",
+);
+assert.ok(
   !ideaWorkbenchSource.includes('check.tone === "required"'),
   "IdeaWorkbench should not keep JSX-local backend execution check tone rendering.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('index === 0 ? "현재 1순위" : "비교 후보"'),
+  "IdeaWorkbench should not keep JSX-local backend candidate rank labels.",
 );
 
 assert.deepEqual(
@@ -265,6 +292,7 @@ const emptyDraftState = buildBackendPlanningDraftState({
   state: null,
 });
 assert.deepEqual(emptyDraftState, {
+  backendCandidateDisplayRows: [],
   backendCandidateScores: [],
   backendDecisionDraft: "",
   backendExecutionCheckDisplayRows: [],

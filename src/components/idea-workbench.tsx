@@ -1717,6 +1717,7 @@ export function IdeaWorkbench({
     prdDraft,
   });
   const {
+    backendCandidateDisplayRows,
     backendCandidateScores,
     backendDecisionDraft,
     backendExecutionCheckDisplayRows,
@@ -5244,13 +5245,13 @@ export function IdeaWorkbench({
             </div>
 
             <div className="mt-4 grid gap-3 xl:grid-cols-4">
-              {backendCandidateScores.map((candidate, index) => (
+              {backendCandidateDisplayRows.map((candidate) => (
                 <div key={candidate.key} className="border border-slate-200 bg-white p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-semibold text-slate-950">{candidate.label}</div>
                       <div className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                        {index === 0 ? "현재 1순위" : "비교 후보"}
+                        {candidate.rankLabel}
                       </div>
                     </div>
                     <div className="text-2xl font-semibold text-slate-950">{candidate.score}</div>

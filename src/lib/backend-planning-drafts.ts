@@ -13,6 +13,7 @@ import type { WorkbenchEditState } from "@/lib/workbench-scoring";
 import type { BackendExecutionPlanSummaryRow } from "@/lib/backend-execution-plan-rows";
 
 export type BackendPlanningDraftState = {
+  backendCandidateDisplayRows: BackendCandidateDisplayRow[];
   backendCandidateScores: BackendCandidateScore[];
   backendDecisionDraft: string;
   backendExecutionCheckDisplayRows: BackendExecutionCheckDisplayRow[];
@@ -25,6 +26,10 @@ export type BackendPlanningDraftState = {
 export type BackendExecutionCheckDisplayRow = BackendExecutionCheck & {
   toneClassName: string;
   toneLabel: string;
+};
+
+export type BackendCandidateDisplayRow = BackendCandidateScore & {
+  rankLabel: string;
 };
 
 export type BackendPlanningArtifactSaveDraft = {
@@ -107,6 +112,15 @@ export function buildBackendExecutionCheckDisplayRows(
   }));
 }
 
+export function buildBackendCandidateDisplayRows(
+  candidates: ReadonlyArray<BackendCandidateScore>,
+): BackendCandidateDisplayRow[] {
+  return candidates.map((candidate, index) => ({
+    ...candidate,
+    rankLabel: index === 0 ? "현재 1순위" : "비교 후보",
+  }));
+}
+
 export function buildBackendPlanningDraftState({
   experiments,
   idea,
@@ -120,6 +134,7 @@ export function buildBackendPlanningDraftState({
 }): BackendPlanningDraftState {
   if (!idea || !state) {
     return {
+      backendCandidateDisplayRows: [],
       backendCandidateScores: [],
       backendDecisionDraft: "",
       backendExecutionCheckDisplayRows: [],
@@ -136,6 +151,7 @@ export function buildBackendPlanningDraftState({
     experiments,
     risks,
   });
+  const backendCandidateDisplayRows = buildBackendCandidateDisplayRows(backendCandidateScores);
   const backendExecutionPlan = backendCandidateScores[0]
     ? buildBackendExecutionPlan(backendCandidateScores[0])
     : null;
@@ -144,6 +160,7 @@ export function buildBackendPlanningDraftState({
     : [];
 
   return {
+    backendCandidateDisplayRows,
     backendCandidateScores,
     backendDecisionDraft: buildBackendDecisionMarkdown({
       idea,
