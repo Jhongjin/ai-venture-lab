@@ -19,6 +19,7 @@ const {
   buildWorkbenchIdeaDisplayState,
   buildWorkbenchIdeaFilterButtonClassName,
   buildWorkbenchIdeaFilterButtonStates,
+  buildWorkbenchIdeaListItemCardClassName,
   buildWorkbenchIdeaListItemStates,
   buildWorkbenchIdeaPermanentDeleteConfirmMessage,
   buildWorkbenchIdeaPermanentDeleteFailedMessage,
@@ -494,18 +495,52 @@ const visibleIdeaListItemStates = buildWorkbenchIdeaListItemStates({
   visibleIdeas: [ideas[1], ideas[0], ideas[3]],
 });
 assert.deepEqual(
-  visibleIdeaListItemStates.map(({ idea: record, isSelected, stagePillTone }) => ({
+  visibleIdeaListItemStates.map(({ cardClassName, idea: record, isSelected, stagePillTone }) => ({
+    cardClassName,
     id: record.id,
     isSelected,
     stagePillTone,
   })),
   [
-    { id: "owned-new", isSelected: true, stagePillTone: "avl-pill-info" },
-    { id: "shared-old", isSelected: false, stagePillTone: "avl-pill-neutral" },
-    { id: "admin", isSelected: false, stagePillTone: "avl-pill-neutral" },
+    {
+      cardClassName: "border p-4 text-left transition border-blue-200 bg-blue-50 text-slate-950 shadow-sm",
+      id: "owned-new",
+      isSelected: true,
+      stagePillTone: "avl-pill-info",
+    },
+    {
+      cardClassName:
+        "border p-4 text-left transition border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50",
+      id: "shared-old",
+      isSelected: false,
+      stagePillTone: "avl-pill-neutral",
+    },
+    {
+      cardClassName:
+        "border p-4 text-left transition border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50",
+      id: "admin",
+      isSelected: false,
+      stagePillTone: "avl-pill-neutral",
+    },
   ],
 );
 assert.equal(visibleIdeaListItemStates[0].display.accessDisplay.label, "내 기록");
+assert.equal(
+  buildWorkbenchIdeaListItemCardClassName({ isSelected: true }),
+  "border p-4 text-left transition border-blue-200 bg-blue-50 text-slate-950 shadow-sm",
+);
+assert.equal(
+  buildWorkbenchIdeaListItemCardClassName({ isSelected: false }),
+  "border p-4 text-left transition border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("cardClassName"),
+  "IdeaWorkbench should render idea list item card classes from shared state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("isSelected"),
+  "IdeaWorkbench should not render visible idea list card selected classes inline.",
+);
 assert.deepEqual(
   buildWorkbenchIdeaListItemStates({
     getIdeaDisplayState: getPanelDisplayState,

@@ -48,6 +48,7 @@ export type WorkbenchDiscardedIdeaListItemState = {
   idea: Idea;
 };
 export type WorkbenchIdeaListItemState = {
+  cardClassName: string;
   display: WorkbenchIdeaDisplayState;
   idea: Idea;
   isSelected: boolean;
@@ -144,6 +145,18 @@ export function buildWorkbenchIdeaFilterButtonStates({
       mode,
     };
   });
+}
+
+export function buildWorkbenchIdeaListItemCardClassName({
+  isSelected,
+}: {
+  isSelected: boolean;
+}) {
+  return `border p-4 text-left transition ${
+    isSelected
+      ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
+      : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
+  }`;
 }
 
 export function buildDiscardIdeaPatch(now = new Date().toISOString()) {
@@ -446,6 +459,7 @@ export function buildWorkbenchIdeaListItemStates({
     const isSelected = idea.id === selectedIdeaId;
 
     return {
+      cardClassName: buildWorkbenchIdeaListItemCardClassName({ isSelected }),
       display: getIdeaDisplayState(idea),
       idea,
       isSelected,

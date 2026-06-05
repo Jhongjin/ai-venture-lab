@@ -4451,14 +4451,10 @@ export function IdeaWorkbench({
 
         <div className="grid gap-3">
           {visibleIdeaListItems.length > 0 ? (
-            visibleIdeaListItems.map(({ display: ideaDisplay, idea, isSelected, stagePillTone }) => (
+            visibleIdeaListItems.map(({ cardClassName, display: ideaDisplay, idea, stagePillTone }) => (
               <div
                 key={idea.id}
-                className={`border p-4 text-left transition ${
-                  isSelected
-                    ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
-                    : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
-                }`}
+                className={cardClassName}
               >
                 <button
                   type="button"
