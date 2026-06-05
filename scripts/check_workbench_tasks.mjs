@@ -8,6 +8,7 @@ const {
   WORKBENCH_TASK_IDS,
   buildWorkbenchTaskNavigationItemStates,
   buildWorkbenchTaskNavigationState,
+  buildWorkbenchTaskPanelClassName,
   buildWorkbenchTaskSummaries,
   getVisibleWorkbenchTaskSummaries,
   getWorkbenchIdeaProgress,
@@ -30,6 +31,16 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={isLocked}"),
   "IdeaWorkbench should render task navigation disabled state from the shared item state.",
+);
+assert.ok(
+  !/activeTask === "(?:select|archive|score|development|launch|learning|orchestration|risk|decision|experiment)"\s*\?\s*""\s*:\s*"hidden"/.test(
+    ideaWorkbenchSource,
+  ),
+  "IdeaWorkbench should use the shared task panel class helper for direct active-task visibility.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('activeTask === "artifacts" ? "avl-card p-4" : "hidden"'),
+  "IdeaWorkbench should use the shared task panel class helper for the artifacts panel.",
 );
 
 assert.deepEqual(getWorkbenchIdeaProgress({ decision: "kill", stage: "launch" }), {
@@ -166,6 +177,40 @@ assert.deepEqual(
   },
 );
 assert.equal(lockedTaskItems[0].stepNumber, 1);
+
+assert.equal(
+  buildWorkbenchTaskPanelClassName({
+    activeTask: "development",
+    targetTasks: ["development"],
+    visibleClassName: "avl-card p-5",
+  }),
+  "avl-card p-5",
+);
+assert.equal(
+  buildWorkbenchTaskPanelClassName({
+    activeTask: "development",
+    targetTasks: ["launch"],
+    visibleClassName: "avl-card p-4",
+  }),
+  "hidden",
+);
+assert.equal(
+  buildWorkbenchTaskPanelClassName({
+    activeTask: "decision",
+    targetTasks: ["risk", "decision"],
+    visibleClassName: "grid gap-5",
+  }),
+  "grid gap-5",
+);
+assert.equal(
+  buildWorkbenchTaskPanelClassName({
+    activeTask: "select",
+    hiddenClassName: "sr-only",
+    targetTasks: ["archive"],
+    visibleClassName: "grid gap-5",
+  }),
+  "sr-only",
+);
 
 const guidedTasks = getVisibleWorkbenchTaskSummaries(tasks, "guided");
 assert.deepEqual(

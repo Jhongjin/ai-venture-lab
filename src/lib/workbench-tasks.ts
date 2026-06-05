@@ -236,3 +236,17 @@ export function buildWorkbenchTaskNavigationState({
     workbenchTasks,
   };
 }
+
+export function buildWorkbenchTaskPanelClassName({
+  activeTask,
+  hiddenClassName = "hidden",
+  targetTasks,
+  visibleClassName,
+}: {
+  activeTask: WorkbenchTask;
+  hiddenClassName?: string;
+  targetTasks: ReadonlyArray<WorkbenchTask>;
+  visibleClassName: string;
+}) {
+  return targetTasks.includes(activeTask) ? visibleClassName : hiddenClassName;
+}

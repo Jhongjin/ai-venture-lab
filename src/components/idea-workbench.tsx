@@ -576,6 +576,7 @@ import {
   type ImplementationStatusFilter,
 } from "@/lib/implementation-task-metadata";
 import {
+  buildWorkbenchTaskPanelClassName,
   buildWorkbenchTaskNavigationItemStates,
   buildWorkbenchTaskNavigationState,
   getWorkbenchIdeaProgress,
@@ -1993,6 +1994,68 @@ export function IdeaWorkbench({
     isGuided: experienceMode === "guided",
     panel: "library",
   });
+  const workbenchTaskPanelClassNames = {
+    archive: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["archive"],
+      visibleClassName: "grid gap-5",
+    }),
+    artifacts: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["artifacts"],
+      visibleClassName: "avl-card p-4",
+    }),
+    decision: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["decision"],
+      visibleClassName: "grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]",
+    }),
+    development: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["development"],
+      visibleClassName: "avl-card p-5",
+    }),
+    experiment: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["experiment"],
+      visibleClassName: "grid gap-4",
+    }),
+    launch: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["launch"],
+      visibleClassName: "avl-card p-4",
+    }),
+    learning: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["learning"],
+      visibleClassName: "avl-card p-4",
+    }),
+    orchestration: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["orchestration"],
+      visibleClassName: "avl-card p-5",
+    }),
+    risk: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["risk"],
+      visibleClassName: "grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_320px]",
+    }),
+    riskDecision: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["risk", "decision"],
+      visibleClassName: "grid gap-5",
+    }),
+    score: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["score"],
+      visibleClassName: "grid gap-5",
+    }),
+    select: buildWorkbenchTaskPanelClassName({
+      activeTask,
+      targetTasks: ["select"],
+      visibleClassName: "grid gap-5",
+    }),
+  } as const;
   const visibleMarketScanReviewRows = buildVisibleMarketScanReviewRows({
     decisionLabels,
     draft: visibleMarketScanDraft,
@@ -4548,11 +4611,7 @@ export function IdeaWorkbench({
           productSurfaceLabel={activeProductSurface.label}
         />
 
-        <div
-          className={`grid gap-5 ${
-            activeTask === "select" ? "" : "hidden"
-          }`}
-        >
+        <div className={workbenchTaskPanelClassNames.select}>
           <div className="grid gap-5 xl:grid-cols-[200px_minmax(0,1fr)]">
             <aside className="border border-slate-200 bg-slate-50 p-4">
               <div className="text-[11px] font-semibold text-slate-500">아이디어 목록</div>
@@ -4741,7 +4800,7 @@ export function IdeaWorkbench({
           </div>
         </div>
 
-        <div className={`grid gap-5 ${activeTask === "archive" ? "" : "hidden"}`}>
+        <div className={workbenchTaskPanelClassNames.archive}>
           <section className="avl-card p-5 text-slate-900">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
@@ -4800,7 +4859,7 @@ export function IdeaWorkbench({
 
         <form
           onSubmit={saveIdea}
-          className={`grid gap-5 ${activeTask === "score" ? "" : "hidden"}`}
+          className={workbenchTaskPanelClassNames.score}
         >
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
             <section className="avl-card p-5 text-slate-900">
@@ -4964,11 +5023,7 @@ export function IdeaWorkbench({
           </div>
         </form>
 
-        <div
-          className={`avl-card p-5 ${
-            activeTask === "development" ? "" : "hidden"
-          }`}
-        >
+        <div className={workbenchTaskPanelClassNames.development}>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">제작 패키지 정리</h2>
@@ -6374,7 +6429,7 @@ export function IdeaWorkbench({
           </div>
         </div>
 
-        <div className={`avl-card p-4 ${activeTask === "launch" ? "" : "hidden"}`}>
+        <div className={workbenchTaskPanelClassNames.launch}>
           <FinalExecutionHeader
             canEnterLaunch={canEnterLaunch}
             nextLaunchBlocker={nextLaunchBlocker}
@@ -6522,7 +6577,7 @@ export function IdeaWorkbench({
           ) : null}
         </div>
 
-        <div className={`avl-card p-4 ${activeTask === "learning" ? "" : "hidden"}`}>
+        <div className={workbenchTaskPanelClassNames.learning}>
           <Step8LearningHeader />
 
           <Step8ActionSummary
@@ -6599,11 +6654,7 @@ export function IdeaWorkbench({
           />
         </div>
 
-        <div
-          className={`avl-card p-5 ${
-            activeTask === "orchestration" ? "" : "hidden"
-          }`}
-        >
+        <div className={workbenchTaskPanelClassNames.orchestration}>
           <Step6WorkOrderHeader
             canCreateRunbook={Boolean(user)}
             isBusy={isBusy}
@@ -6651,8 +6702,8 @@ export function IdeaWorkbench({
           />
         </div>
 
-        <div className={activeTask === "risk" || activeTask === "decision" ? "grid gap-5" : "hidden"}>
-          <div className={`grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_320px] ${activeTask === "risk" ? "" : "hidden"}`}>
+        <div className={workbenchTaskPanelClassNames.riskDecision}>
+          <div className={workbenchTaskPanelClassNames.risk}>
             <form onSubmit={addRisk} className="avl-card p-4">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
@@ -6791,7 +6842,7 @@ export function IdeaWorkbench({
             </section>
           </div>
 
-          <div className={`grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] ${activeTask === "decision" ? "" : "hidden"}`}>
+          <div className={workbenchTaskPanelClassNames.decision}>
             <section className="avl-card p-4">
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
@@ -6866,7 +6917,7 @@ export function IdeaWorkbench({
           </div>
         </div>
 
-        <div className={`grid gap-4 ${activeTask === "experiment" ? "" : "hidden"}`}>
+        <div className={workbenchTaskPanelClassNames.experiment}>
           <div className="grid gap-4">
               <section className="avl-card p-4">
                 <div className="mb-5 flex items-center justify-between gap-4">
@@ -7458,7 +7509,7 @@ export function IdeaWorkbench({
           </details>
         </div>
 
-        <div className={activeTask === "artifacts" ? "avl-card p-4" : "hidden"}>
+        <div className={workbenchTaskPanelClassNames.artifacts}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">{validationPackageHeaderState.title}</h2>
