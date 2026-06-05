@@ -65,6 +65,9 @@ assert.deepEqual(
 );
 assert.equal(columns.find((column) => column.status === "doing").taskSummaries.length, 0);
 assert.equal(columns.find((column) => column.status === "doing").taskCount, 0);
+assert.equal(columns.find((column) => column.status === "doing").taskCountLabel, "0개");
+assert.equal(columns.find((column) => column.status === "doing").statusLabel, "진행 중");
+assert.equal(columns.find((column) => column.status === "doing").statusToneClass, "avl-pill avl-pill-info");
 assert.equal(columns.find((column) => column.status === "doing").showTaskCards, false);
 assert.equal(columns.find((column) => column.status === "doing").emptyMessage, "아직 진행 중 상태의 태스크가 없습니다.");
 
@@ -103,6 +106,10 @@ assert.ok(
   "IdeaWorkbench should render implementation board cards from shared column display state.",
 );
 assert.ok(
+  ideaWorkbenchSource.includes("taskCountLabel"),
+  "IdeaWorkbench should render implementation board counts from shared column display state.",
+);
+assert.ok(
   ideaWorkbenchSource.includes("evidenceQualityMessage"),
   "IdeaWorkbench should render evidence quality copy from shared card summary state.",
 );
@@ -117,6 +124,14 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("taskSummaries.length > 0"),
   "IdeaWorkbench should not decide implementation board column visibility with inline task summary counts.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("implementationTaskStatusTone[status]"),
+  "IdeaWorkbench should not resolve implementation board status tone inline.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("{taskCount}개"),
+  "IdeaWorkbench should not build implementation board count labels inline.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("missingEvidenceLabels.length === 0"),

@@ -6013,110 +6013,110 @@ export function IdeaWorkbench({
 
             {implementationTaskVisibilityState.showFilteredTaskBoard ? (
               <div className="mt-4 grid gap-3 xl:grid-cols-4">
-                {implementationTaskBoardColumns.map(({ emptyMessage, showTaskCards, status, taskCount, taskSummaries }) => (
-                  <section key={status} className="border border-slate-200 bg-white min-h-44 p-3">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <span className={implementationTaskStatusTone[status]}>
-                        {implementationTaskStatusLabels[status]}
-                      </span>
-                      <span className="text-xs font-semibold text-slate-500">{taskCount}개</span>
-                    </div>
+                {implementationTaskBoardColumns.map(
+                  ({ emptyMessage, showTaskCards, status, statusLabel, statusToneClass, taskCountLabel, taskSummaries }) => (
+                    <section key={status} className="border border-slate-200 bg-white min-h-44 p-3">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <span className={statusToneClass}>{statusLabel}</span>
+                        <span className="text-xs font-semibold text-slate-500">{taskCountLabel}</span>
+                      </div>
 
-                    <div className="grid gap-3">
-                      {showTaskCards ? (
-                        taskSummaries.map(({
-                          blockedActionText,
-                          evidence,
-                          evidenceQualityLabel,
-                          evidenceQualityMessage,
-                          evidenceQualityToneClass,
-                          ownerRoleLabel,
-                          priorityLabel,
-                          priorityToneClass,
-                          showBlockedHint,
-                          task,
-                          taskTypeLabel,
-                        }) => {
-                          const canManageTask = canManageRecord(task);
-                          const taskCardControlStates = buildImplementationTaskCardControlStates({
-                            canManage: canManageTask,
-                            currentEvidence: task.evidence,
-                            currentStatus: task.status,
-                            draftEvidence: evidence,
-                            isBusy,
-                            statusLabels: implementationTaskStatusLabels,
-                            statuses: implementationTaskStatuses,
-                          });
+                      <div className="grid gap-3">
+                        {showTaskCards ? (
+                          taskSummaries.map(
+                            ({
+                              blockedActionText,
+                              evidence,
+                              evidenceQualityLabel,
+                              evidenceQualityMessage,
+                              evidenceQualityToneClass,
+                              ownerRoleLabel,
+                              priorityLabel,
+                              priorityToneClass,
+                              showBlockedHint,
+                              task,
+                              taskTypeLabel,
+                            }) => {
+                              const canManageTask = canManageRecord(task);
+                              const taskCardControlStates = buildImplementationTaskCardControlStates({
+                                canManage: canManageTask,
+                                currentEvidence: task.evidence,
+                                currentStatus: task.status,
+                                draftEvidence: evidence,
+                                isBusy,
+                                statusLabels: implementationTaskStatusLabels,
+                                statuses: implementationTaskStatuses,
+                              });
 
-                          return (
-                          <div key={task.id} className="avl-surface-muted p-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-sm font-semibold text-slate-950">{task.title}</span>
-                              <span className="avl-pill avl-pill-neutral">
-                                {taskTypeLabel}
-                              </span>
-                              <span className={priorityToneClass}>
-                                {priorityLabel}
-                              </span>
-                            </div>
-                            <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                              {ownerRoleLabel}
-                            </div>
-                            {showBlockedHint ? (
-                              <div className="mt-2 border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-900">
-                                <div className="font-semibold">차단 해소 다음 액션</div>
-                                <div className="mt-1">{blockedActionText}</div>
-                              </div>
-                            ) : null}
-                            <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">{task.acceptance_criteria}</p>
-                            <textarea
-                              value={evidence}
-                              onChange={(event) =>
-                                setImplementationTaskEvidence((current) => setRecordKey(current, task.id, event.target.value))
-                              }
-                              disabled={taskCardControlStates.evidenceEdit.disabled}
-                              rows={3}
-                              placeholder={taskCardControlStates.evidenceEdit.placeholder}
-                              className="avl-textarea mt-3 w-full resize-y text-sm leading-6 text-slate-800 disabled:text-slate-500"
-                            />
-                            <div
-                              className={`mt-2 border px-3 py-2 text-xs leading-5 ${evidenceQualityToneClass}`}
-                            >
-                              <div className="font-semibold">{evidenceQualityLabel}</div>
-                              <div className="mt-1">{evidenceQualityMessage}</div>
-                            </div>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={() => saveImplementationTaskEvidence(task)}
-                                disabled={taskCardControlStates.evidenceSave.disabled}
-                                className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
-                              >
-                                {taskCardControlStates.evidenceSave.label}
-                              </button>
-                              {taskCardControlStates.statusActions.map((statusAction) => (
-                                <button
-                                  key={statusAction.status}
-                                  type="button"
-                                  onClick={() => updateImplementationTaskStatus(task, statusAction.status)}
-                                  disabled={statusAction.disabled}
-                                  className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
-                                >
-                                  {statusAction.label}
-                                </button>
-                              ))}
-                            </div>
+                              return (
+                                <div key={task.id} className="avl-surface-muted p-3">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="text-sm font-semibold text-slate-950">{task.title}</span>
+                                    <span className="avl-pill avl-pill-neutral">{taskTypeLabel}</span>
+                                    <span className={priorityToneClass}>{priorityLabel}</span>
+                                  </div>
+                                  <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                                    {ownerRoleLabel}
+                                  </div>
+                                  {showBlockedHint ? (
+                                    <div className="mt-2 border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-900">
+                                      <div className="font-semibold">차단 해소 다음 액션</div>
+                                      <div className="mt-1">{blockedActionText}</div>
+                                    </div>
+                                  ) : null}
+                                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600">
+                                    {task.acceptance_criteria}
+                                  </p>
+                                  <textarea
+                                    value={evidence}
+                                    onChange={(event) =>
+                                      setImplementationTaskEvidence((current) =>
+                                        setRecordKey(current, task.id, event.target.value),
+                                      )
+                                    }
+                                    disabled={taskCardControlStates.evidenceEdit.disabled}
+                                    rows={3}
+                                    placeholder={taskCardControlStates.evidenceEdit.placeholder}
+                                    className="avl-textarea mt-3 w-full resize-y text-sm leading-6 text-slate-800 disabled:text-slate-500"
+                                  />
+                                  <div className={`mt-2 border px-3 py-2 text-xs leading-5 ${evidenceQualityToneClass}`}>
+                                    <div className="font-semibold">{evidenceQualityLabel}</div>
+                                    <div className="mt-1">{evidenceQualityMessage}</div>
+                                  </div>
+                                  <div className="mt-3 flex flex-wrap gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => saveImplementationTaskEvidence(task)}
+                                      disabled={taskCardControlStates.evidenceSave.disabled}
+                                      className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
+                                    >
+                                      {taskCardControlStates.evidenceSave.label}
+                                    </button>
+                                    {taskCardControlStates.statusActions.map((statusAction) => (
+                                      <button
+                                        key={statusAction.status}
+                                        type="button"
+                                        onClick={() => updateImplementationTaskStatus(task, statusAction.status)}
+                                        disabled={statusAction.disabled}
+                                        className="avl-btn avl-btn-secondary h-8 px-2.5 text-xs shadow-none disabled:opacity-45"
+                                      >
+                                        {statusAction.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            },
+                          )
+                        ) : (
+                          <div className="avl-surface-muted border-dashed p-3 text-sm leading-5 text-slate-500">
+                            {emptyMessage}
                           </div>
-                          );
-                        })
-                      ) : (
-                        <div className="avl-surface-muted border-dashed p-3 text-sm leading-5 text-slate-500">
-                          {emptyMessage}
-                        </div>
-                      )}
-                    </div>
-                  </section>
-                ))}
+                        )}
+                      </div>
+                    </section>
+                  ),
+                )}
               </div>
             ) : null}
 

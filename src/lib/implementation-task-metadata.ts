@@ -194,7 +194,10 @@ export type ImplementationTaskBoardColumn = {
   emptyMessage: string;
   showTaskCards: boolean;
   status: ImplementationTaskStatus;
+  statusLabel: string;
+  statusToneClass: string;
   taskCount: number;
+  taskCountLabel: string;
   taskSummaries: ImplementationTaskCardSummary[];
 };
 
@@ -1006,7 +1009,10 @@ export function buildImplementationTaskBoardColumns({
       emptyMessage: `아직 ${implementationTaskStatusLabels[status]} 상태의 태스크가 없습니다.`,
       showTaskCards: taskSummaries.length > 0,
       status,
+      statusLabel: implementationTaskStatusLabels[status],
+      statusToneClass: implementationTaskStatusTone[status],
       taskCount: taskSummaries.length,
+      taskCountLabel: `${taskSummaries.length}개`,
       taskSummaries,
     };
   });
