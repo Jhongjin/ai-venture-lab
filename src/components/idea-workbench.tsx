@@ -4520,7 +4520,17 @@ export function IdeaWorkbench({
           </div>
           <div className="grid gap-2">
             {visibleWorkbenchTaskItems.map((taskItem) => {
-              const { descriptionLabel, isActive, isDisabled, statusLabel, statusPillTone, stepNumber, task } = taskItem;
+              const {
+                ariaCurrent,
+                buttonClassName,
+                descriptionLabel,
+                isDisabled,
+                statusLabel,
+                statusPillTone,
+                stepDotClassName,
+                stepNumber,
+                task,
+              } = taskItem;
 
               return (
                 <button
@@ -4528,17 +4538,11 @@ export function IdeaWorkbench({
                   type="button"
                   onClick={() => updateActiveTask(task.id)}
                   disabled={isDisabled}
-                  aria-current={isActive ? "step" : undefined}
-                  className={`grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-55 ${
-                    isActive
-                      ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
-                      : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-slate-300 hover:bg-white"
-                  }`}
+                  aria-current={ariaCurrent}
+                  className={buttonClassName}
                 >
                   <span
-                    className={`avl-step-dot h-8 w-8 text-sm ${
-                      isActive ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-700"
-                    }`}
+                    className={stepDotClassName}
                   >
                     {stepNumber}
                   </span>

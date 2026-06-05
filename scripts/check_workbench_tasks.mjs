@@ -72,6 +72,22 @@ assert.ok(
   !ideaWorkbenchSource.includes('active={activeTask === "experiment"}'),
   "IdeaWorkbench should not keep the old inline market-scan auto runner active branch.",
 );
+assert.ok(
+  ideaWorkbenchSource.includes("buttonClassName"),
+  "IdeaWorkbench should render task navigation button classes from shared item state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("stepDotClassName"),
+  "IdeaWorkbench should render task navigation step-dot classes from shared item state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('aria-current={isActive ? "step" : undefined}'),
+  "IdeaWorkbench should render task navigation aria-current from shared item state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('isActive ? "bg-slate-950 text-white"'),
+  "IdeaWorkbench should not keep JSX-local task navigation step-dot classes.",
+);
 
 assert.deepEqual(getWorkbenchIdeaProgress({ decision: "kill", stage: "launch" }), {
   label: "삭제됨",
@@ -150,20 +166,27 @@ const lockedTaskItems = buildWorkbenchTaskNavigationItemStates({
 const lockedLaunchItem = lockedTaskItems.find((item) => item.task.id === "launch");
 assert.deepEqual(
   {
+    ariaCurrent: lockedLaunchItem?.ariaCurrent,
+    buttonClassName: lockedLaunchItem?.buttonClassName,
     descriptionLabel: lockedLaunchItem?.descriptionLabel,
     isActive: lockedLaunchItem?.isActive,
     isDisabled: lockedLaunchItem?.isDisabled,
     isLocked: lockedLaunchItem?.isLocked,
     statusLabel: lockedLaunchItem?.statusLabel,
     statusPillTone: lockedLaunchItem?.statusPillTone,
+    stepDotClassName: lockedLaunchItem?.stepDotClassName,
   },
   {
+    ariaCurrent: undefined,
+    buttonClassName:
+      "grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-55 border-slate-200/80 bg-white/75 text-slate-700 hover:border-slate-300 hover:bg-white",
     descriptionLabel: "준비 완료 후 열립니다",
     isActive: false,
     isDisabled: true,
     isLocked: true,
     statusLabel: "잠김",
     statusPillTone: "avl-pill-warning",
+    stepDotClassName: "avl-step-dot h-8 w-8 text-sm border border-slate-200 bg-white text-slate-700",
   },
 );
 const activeLaunchItem = buildWorkbenchTaskNavigationItemStates({
@@ -173,18 +196,25 @@ const activeLaunchItem = buildWorkbenchTaskNavigationItemStates({
 }).find((item) => item.task.id === "launch");
 assert.deepEqual(
   {
+    ariaCurrent: activeLaunchItem?.ariaCurrent,
+    buttonClassName: activeLaunchItem?.buttonClassName,
     isActive: activeLaunchItem?.isActive,
     isDisabled: activeLaunchItem?.isDisabled,
     isLocked: activeLaunchItem?.isLocked,
     statusLabel: activeLaunchItem?.statusLabel,
     statusPillTone: activeLaunchItem?.statusPillTone,
+    stepDotClassName: activeLaunchItem?.stepDotClassName,
   },
   {
+    ariaCurrent: "step",
+    buttonClassName:
+      "grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-55 border-blue-200 bg-blue-50 text-slate-950 shadow-sm",
     isActive: true,
     isDisabled: false,
     isLocked: false,
     statusLabel: "64%",
     statusPillTone: "avl-pill-info",
+    stepDotClassName: "avl-step-dot h-8 w-8 text-sm bg-slate-950 text-white",
   },
 );
 const readyLaunchItem = buildWorkbenchTaskNavigationItemStates({

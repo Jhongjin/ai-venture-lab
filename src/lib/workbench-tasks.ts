@@ -23,12 +23,15 @@ export type WorkbenchTaskSummary = {
   status: string;
 };
 export type WorkbenchTaskNavigationItemState = {
+  ariaCurrent: "step" | undefined;
+  buttonClassName: string;
   descriptionLabel: string;
   isActive: boolean;
   isDisabled: boolean;
   isLocked: boolean;
   statusLabel: string;
   statusPillTone: "avl-pill-info" | "avl-pill-warning" | "avl-pill-neutral";
+  stepDotClassName: string;
   stepNumber: number;
   task: WorkbenchTaskSummary;
 };
@@ -231,12 +234,21 @@ export function buildWorkbenchTaskNavigationItemStates({
     const isLocked = task.id === "launch" && !canEnterLaunch && !isActive;
 
     return {
+      ariaCurrent: isActive ? "step" : undefined,
+      buttonClassName: `grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-55 ${
+        isActive
+          ? "border-blue-200 bg-blue-50 text-slate-950 shadow-sm"
+          : "border-slate-200/80 bg-white/75 text-slate-700 hover:border-slate-300 hover:bg-white"
+      }`,
       descriptionLabel: isLocked ? "준비 완료 후 열립니다" : task.description,
       isActive,
       isDisabled: isLocked,
       isLocked,
       statusLabel: isLocked ? "잠김" : task.status,
       statusPillTone: isActive ? "avl-pill-info" : isLocked ? "avl-pill-warning" : "avl-pill-neutral",
+      stepDotClassName: `avl-step-dot h-8 w-8 text-sm ${
+        isActive ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-700"
+      }`,
       stepNumber: index + 1,
       task,
     };
