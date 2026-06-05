@@ -115,14 +115,17 @@ export type RiskTelemetrySource<Severity extends string, Status extends string> 
 
 export const validationExperimentGuideRows = [
   {
+    stepLabel: "01",
     title: "무엇을 확인할지",
     detail: "가장 불확실한 한 가지를 고릅니다. 예: 실제로 자주 겪는 문제인지, 돈을 낼 만큼 불편한지.",
   },
   {
+    stepLabel: "02",
     title: "어떻게 확인할지",
     detail: "7일 안에 직접 할 수 있는 행동 하나만 정합니다. 예: 5명 인터뷰, 랜딩/대기자, 직접 테스트.",
   },
   {
+    stepLabel: "03",
     title: "어디까지 보면 될지",
     detail: "몇 명이 어떤 행동을 하면 계속할지, 어떤 반응이면 멈출지 숫자로 정합니다.",
   },

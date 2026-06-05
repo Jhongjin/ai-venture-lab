@@ -582,9 +582,21 @@ assert.deepEqual(
   validationExperimentGuideRows.map((row) => row.title),
   ["무엇을 확인할지", "어떻게 확인할지", "어디까지 보면 될지"],
 );
+assert.deepEqual(
+  validationExperimentGuideRows.map((row) => row.stepLabel),
+  ["01", "02", "03"],
+);
 assert.equal(
   validationExperimentGuideRows[0].detail,
   "가장 불확실한 한 가지를 고릅니다. 예: 실제로 자주 겪는 문제인지, 돈을 낼 만큼 불편한지.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("validationExperimentGuideRows.map((row, index)"),
+  "IdeaWorkbench should render validation guide step labels from shared row data.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("{row.stepLabel}"),
+  "IdeaWorkbench should use validation guide step labels from shared row data.",
 );
 
 assert.deepEqual(

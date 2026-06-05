@@ -6892,10 +6892,10 @@ export function IdeaWorkbench({
                   isMarketScanOutdated={hasOutdatedMarketScanArtifact}
                 />
                 <div className="mb-5 grid gap-px bg-slate-200 md:grid-cols-3">
-                  {validationExperimentGuideRows.map((row, index) => (
+                  {validationExperimentGuideRows.map((row) => (
                     <div key={row.title} className="bg-slate-50 px-4 py-3">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        0{index + 1}
+                        {row.stepLabel}
                       </div>
                       <div className="mt-1 text-sm font-semibold text-slate-950">{row.title}</div>
                       <p className="mt-1 text-xs leading-5 text-slate-600">{row.detail}</p>
