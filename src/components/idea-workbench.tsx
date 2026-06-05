@@ -4992,7 +4992,7 @@ export function IdeaWorkbench({
               <div className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">현재 단계</div>
               <h3 className="mt-2 text-base font-semibold text-slate-950">제작 패키지 자동 정리</h3>
               <p className="mt-1 text-sm leading-6 text-slate-600">
-                AI가 제작 방향과 실행 자료를 순서대로 묶습니다. 사용자는 최종 저장 전 한 번만 확인하면 됩니다.
+                AI가 제작 방향과 실행 자료를 묶습니다. 저장 전 요약만 확인하면 됩니다.
               </p>
             </div>
           )}
@@ -5029,7 +5029,7 @@ export function IdeaWorkbench({
                     <h3 className="mt-2 text-xl font-semibold text-slate-950">AI가 제작 패키지를 한 번에 만듭니다</h3>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                       검증 결과와 결과물 형태를 바탕으로 기획서, 디자인 기준, 기술 방향, 첫 제작 범위를 하나로 묶습니다.
-                      사용자는 요약을 확인하고 필요한 메모만 더한 뒤 저장하면 됩니다.
+                      요약을 확인하고 필요한 메모만 더한 뒤 저장하면 됩니다.
                     </p>
                   </div>
                   <div className="min-w-36 border border-slate-200 bg-slate-50 p-3 text-sm">
@@ -5063,7 +5063,7 @@ export function IdeaWorkbench({
                   >
                     <p className={`text-sm leading-6 ${developmentAutoPackageStartControlState.messageClassName}`}>
                       {canUseFullProductionPackage
-                        ? "시작하면 AI가 필요한 내용을 순서대로 묶고, 저장 전 확인할 최종 제작 요약을 바로 보여줍니다."
+                        ? "시작하면 AI가 제작 요약을 만들고, 저장 전 확인 화면을 바로 보여줍니다."
                         : getBuildPassRequirementMessage({
                             buildPassCost,
                             isChecking: isCreditSystemChecking,
@@ -5090,7 +5090,7 @@ export function IdeaWorkbench({
                           {developmentAutoProgressSteps[developmentAutoStepIndex]?.label ?? "제작 패키지를 정리하는 중"}
                         </div>
                         <p className="mt-1 text-sm leading-6 text-blue-950">
-                          화면은 자동으로 다음 확인 단계로 넘어갑니다. 사용자는 마지막 요약만 확인하면 됩니다.
+                          화면은 자동으로 확인 단계로 넘어갑니다. 마지막 요약만 보면 됩니다.
                         </p>
                       </div>
                       <span className="avl-pill avl-pill-info">
