@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 const moduleUrl = pathToFileURL(path.join(process.cwd(), "src/lib/workbench-tasks.ts")).href;
 const {
   WORKBENCH_TASK_IDS,
+  buildWorkbenchShellDisplayState,
   buildWorkbenchTaskNavigationItemStates,
   buildWorkbenchTaskNavigationState,
   buildWorkbenchTaskPanelClassName,
@@ -46,6 +47,22 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("buildWorkbenchTaskPanelClassName({"),
   "IdeaWorkbench should receive the task panel class map from the shared task helper.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("workbenchShellDisplayState.sectionClassName"),
+  "IdeaWorkbench should render the shell grid class from shared display state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("workbenchShellDisplayState.showSidebarPanel"),
+  "IdeaWorkbench should render the sidebar panel from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"'),
+  "IdeaWorkbench should not keep the old inline shell grid class branch.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("{showSidebar ? ("),
+  "IdeaWorkbench should not keep the old inline sidebar visibility branch.",
 );
 
 assert.deepEqual(getWorkbenchIdeaProgress({ decision: "kill", stage: "launch" }), {
@@ -182,6 +199,15 @@ assert.deepEqual(
   },
 );
 assert.equal(lockedTaskItems[0].stepNumber, 1);
+
+assert.deepEqual(buildWorkbenchShellDisplayState({ showSidebar: true }), {
+  sectionClassName: "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]",
+  showSidebarPanel: true,
+});
+assert.deepEqual(buildWorkbenchShellDisplayState({ showSidebar: false }), {
+  sectionClassName: "grid gap-6",
+  showSidebarPanel: false,
+});
 
 assert.equal(
   buildWorkbenchTaskPanelClassName({

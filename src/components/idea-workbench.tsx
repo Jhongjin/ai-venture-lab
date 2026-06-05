@@ -580,6 +580,7 @@ import {
   type ImplementationStatusFilter,
 } from "@/lib/implementation-task-metadata";
 import {
+  buildWorkbenchShellDisplayState,
   buildWorkbenchTaskPanelClassNames,
   buildWorkbenchTaskNavigationItemStates,
   buildWorkbenchTaskNavigationState,
@@ -1978,6 +1979,7 @@ export function IdeaWorkbench({
     isGuided: experienceMode === "guided",
   });
   const workbenchTaskPanelClassNames = buildWorkbenchTaskPanelClassNames({ activeTask });
+  const workbenchShellDisplayState = buildWorkbenchShellDisplayState({ showSidebar });
   const visibleMarketScanReviewRows = buildVisibleMarketScanReviewRows({
     decisionLabels,
     draft: visibleMarketScanDraft,
@@ -4406,14 +4408,14 @@ export function IdeaWorkbench({
   }
 
   return (
-    <section className={showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
+    <section className={workbenchShellDisplayState.sectionClassName}>
       <MarketScanAutoRunner
         active={activeTask === "experiment"}
         autoKey={marketScanContextKey}
         disabled={marketScanActionControlState.autoRunnerDisabled}
         onRun={runMarketScan}
       />
-      {showSidebar ? (
+      {workbenchShellDisplayState.showSidebarPanel ? (
       <aside className="grid gap-4 lg:sticky lg:top-6 lg:self-start">
         <div className="border border-slate-200 bg-white p-5 text-slate-900">
         <div className="mb-5 flex items-center justify-between gap-4">

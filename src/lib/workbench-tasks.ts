@@ -50,6 +50,11 @@ export type WorkbenchTaskPanelClassNames = {
   select: string;
 };
 
+export type WorkbenchShellDisplayState = {
+  sectionClassName: string;
+  showSidebarPanel: boolean;
+};
+
 export type WorkbenchIdeaProgress = {
   label: string;
   task: WorkbenchTask;
@@ -249,6 +254,17 @@ export function buildWorkbenchTaskNavigationState({
   return {
     visibleWorkbenchTasks,
     workbenchTasks,
+  };
+}
+
+export function buildWorkbenchShellDisplayState({
+  showSidebar,
+}: {
+  showSidebar: boolean;
+}): WorkbenchShellDisplayState {
+  return {
+    sectionClassName: showSidebar ? "grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6",
+    showSidebarPanel: showSidebar,
   };
 }
 
