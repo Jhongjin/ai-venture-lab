@@ -300,6 +300,8 @@ export type WorkbenchScoringSaveButtonState = {
   disabled: boolean;
   icon: "loading" | "saved" | "save";
   label: string;
+  showLoadingIcon: boolean;
+  showSavedIcon: boolean;
   toneClassName: "avl-btn-primary" | "avl-btn-secondary";
 };
 export type WorkbenchScoringReadinessPill = {
@@ -323,10 +325,14 @@ export function buildWorkbenchScoringSaveButtonState({
   isBusy: boolean;
   isScoreEvaluationSaved: boolean;
 }): WorkbenchScoringSaveButtonState {
+  const icon = isBusy ? "loading" : isScoreEvaluationSaved ? "saved" : "save";
+
   return {
     disabled: isBusy || !canEdit || isScoreEvaluationSaved,
-    icon: isBusy ? "loading" : isScoreEvaluationSaved ? "saved" : "save",
+    icon,
     label: isScoreEvaluationSaved ? "저장 완료" : "사업성 평가 저장",
+    showLoadingIcon: icon === "loading",
+    showSavedIcon: icon === "saved",
     toneClassName: isScoreEvaluationSaved ? "avl-btn-secondary" : "avl-btn-primary",
   };
 }

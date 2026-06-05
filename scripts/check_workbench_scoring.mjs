@@ -308,6 +308,8 @@ assert.deepEqual(
     disabled: false,
     icon: "save",
     label: "사업성 평가 저장",
+    showLoadingIcon: false,
+    showSavedIcon: false,
     toneClassName: "avl-btn-primary",
   },
 );
@@ -321,6 +323,8 @@ assert.deepEqual(
     disabled: true,
     icon: "saved",
     label: "저장 완료",
+    showLoadingIcon: false,
+    showSavedIcon: true,
     toneClassName: "avl-btn-secondary",
   },
 );
@@ -334,8 +338,26 @@ assert.deepEqual(
     disabled: true,
     icon: "loading",
     label: "사업성 평가 저장",
+    showLoadingIcon: true,
+    showSavedIcon: false,
     toneClassName: "avl-btn-primary",
   },
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('scoringSaveButtonState.icon === "loading"'),
+  "IdeaWorkbench should render score save loading icon from shared save button state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('scoringSaveButtonState.icon === "saved"'),
+  "IdeaWorkbench should render score save completed icon from shared save button state.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("scoringSaveButtonState.showLoadingIcon"),
+  "IdeaWorkbench should use the score save loading icon flag.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("scoringSaveButtonState.showSavedIcon"),
+  "IdeaWorkbench should use the score save completed icon flag.",
 );
 assert.equal(
   buildWorkbenchScoringSaveButtonState({

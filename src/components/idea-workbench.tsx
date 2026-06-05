@@ -4866,9 +4866,9 @@ export function IdeaWorkbench({
                     disabled={scoringSaveButtonState.disabled}
                     className={`avl-btn h-11 px-4 disabled:opacity-60 ${scoringSaveButtonState.toneClassName}`}
                   >
-                    {scoringSaveButtonState.icon === "loading" ? (
+                    {scoringSaveButtonState.showLoadingIcon ? (
                       <RefreshCw className="animate-spin" size={18} />
-                    ) : scoringSaveButtonState.icon === "saved" ? (
+                    ) : scoringSaveButtonState.showSavedIcon ? (
                       <CheckCircle2 size={18} />
                     ) : (
                       <Save size={18} />
