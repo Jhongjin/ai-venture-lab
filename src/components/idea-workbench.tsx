@@ -290,6 +290,7 @@ import {
 import { buildWorkbenchCurrentActionDisplayState } from "@/lib/workbench-current-action-copy";
 import {
   buildDevelopmentKickoffReadinessDisplayState,
+  buildGateCheckDisplayRows,
   buildWorkbenchGateReadinessState,
   buildWorkbenchStepReadinessSnapshot,
   countDoneWorkbenchRuns,
@@ -2038,6 +2039,7 @@ export function IdeaWorkbench({
     passedBuildReadinessCount,
     totalBuildReadinessCount: buildReadinessChecks.length,
   });
+  const implementationGateCheckDisplayRows = buildGateCheckDisplayRows(implementationGateChecks);
   const validationPackageProductReadinessNotice = buildValidationPackageProductReadinessNotice(nextPrdBlocker);
   const validationPackageProductReadinessCheckRows = buildValidationPackageReadinessCheckDisplayRows(prdReadinessChecks);
   const validationPackageProductReadinessScoreSummary = buildValidationPackageReadinessScoreSummary({
@@ -6141,12 +6143,12 @@ export function IdeaWorkbench({
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-              {implementationGateChecks.map((check) => (
+              {implementationGateCheckDisplayRows.map((check) => (
                 <div key={check.label} className="border border-slate-200 bg-white p-3">
                   <div className="flex items-start gap-2">
                     <CheckCircle2
                       size={18}
-                      className={check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400"}
+                      className={check.iconClassName}
                     />
                     <div>
                       <div className="text-sm font-semibold text-slate-950">{check.label}</div>

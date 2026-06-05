@@ -18,6 +18,10 @@ export type DevelopmentKickoffReadinessDisplayState = {
   title: string;
 };
 
+export type GateCheckDisplayRow = GateCheck & {
+  iconClassName: string;
+};
+
 export type WorkbenchRiskLike = {
   severity: string;
   status: string;
@@ -92,6 +96,13 @@ export function buildDevelopmentKickoffReadinessDisplayState({
       ? `다음 확인 항목: ${nextBuildBlocker.label}`
       : "제작 시작에 필요한 입력이 정리됐습니다.",
   };
+}
+
+export function buildGateCheckDisplayRows(checks: ReadonlyArray<GateCheck>): GateCheckDisplayRow[] {
+  return checks.map((check) => ({
+    ...check,
+    iconClassName: check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400",
+  }));
 }
 
 export function hasDoneWorkbenchRunForPhase(runs: ReadonlyArray<WorkbenchRunLike>, phase: string) {

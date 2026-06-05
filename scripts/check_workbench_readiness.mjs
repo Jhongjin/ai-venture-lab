@@ -9,6 +9,7 @@ const {
   buildDevelopmentKickoffReadinessDisplayState,
   buildBuildReadinessChecks,
   buildDesignReadinessChecks,
+  buildGateCheckDisplayRows,
   buildImplementationGateChecks,
   buildPrdReadinessChecks,
   buildWorkbenchGateReadinessState,
@@ -106,6 +107,26 @@ const implementationSummary = summarizeGateChecks(implementationChecks);
 assert.equal(implementationChecks.find((check) => check.label === "차단된 할 일 없음")?.detail, "1개 할 일이 차단 상태입니다.");
 assert.equal(implementationChecks.find((check) => check.label === "완료 증거 기록")?.passed, false);
 assert.equal(implementationSummary.score, 20);
+assert.deepEqual(
+  buildGateCheckDisplayRows([
+    { detail: "저장됨", label: "아이디어 요약", passed: true },
+    { detail: "저장 필요", label: "조사 요약", passed: false },
+  ]),
+  [
+    {
+      detail: "저장됨",
+      iconClassName: "mt-0.5 shrink-0 text-emerald-600",
+      label: "아이디어 요약",
+      passed: true,
+    },
+    {
+      detail: "저장 필요",
+      iconClassName: "mt-0.5 shrink-0 text-slate-400",
+      label: "조사 요약",
+      passed: false,
+    },
+  ],
+);
 
 const gateStateInput = {
   blockedTaskCount: 1,
@@ -272,6 +293,16 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes("준비 {passedBuildReadinessCount}/{buildReadinessChecks.length}"),
   "IdeaWorkbench should not keep development kickoff readiness count inline.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("implementationGateCheckDisplayRows.map"),
+  "IdeaWorkbench should render implementation gate checks from shared display rows.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes(
+    'className={check.passed ? "mt-0.5 shrink-0 text-emerald-600" : "mt-0.5 shrink-0 text-slate-400"}',
+  ),
+  "IdeaWorkbench should not keep implementation gate check icon classes inline.",
 );
 
 console.log("Workbench readiness smoke passed.");
