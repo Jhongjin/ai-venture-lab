@@ -4859,7 +4859,7 @@ export function IdeaWorkbench({
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {canEdit ? (
+                  {scoringInputControlState.showDiscardButton ? (
                     <button
                       type="button"
                       onClick={() => void discardIdeaRecord(selectedIdea)}

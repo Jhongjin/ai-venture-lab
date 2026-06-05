@@ -78,6 +78,7 @@ export type WorkbenchScoringHelpSectionDisplayState = Pick<
 >;
 export type WorkbenchScoringInputControlState = {
   fieldsDisabled: boolean;
+  showDiscardButton: boolean;
 };
 
 const workbenchScoreInputFields: Array<Pick<WorkbenchScoreInputFieldConfig, "field" | "label">> = [
@@ -193,6 +194,7 @@ export function buildWorkbenchScoringReviewPanelState(): WorkbenchScoringReviewP
 export function buildWorkbenchScoringInputControlState({ canEdit }: { canEdit: boolean }): WorkbenchScoringInputControlState {
   return {
     fieldsDisabled: !canEdit,
+    showDiscardButton: canEdit,
   };
 }
 

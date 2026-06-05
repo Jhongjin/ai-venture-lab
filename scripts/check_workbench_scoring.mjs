@@ -271,13 +271,23 @@ assert.ok(
 );
 assert.deepEqual(buildWorkbenchScoringInputControlState({ canEdit: true }), {
   fieldsDisabled: false,
+  showDiscardButton: true,
 });
 assert.deepEqual(buildWorkbenchScoringInputControlState({ canEdit: false }), {
   fieldsDisabled: true,
+  showDiscardButton: false,
 });
 assert.ok(
   ideaWorkbenchSource.includes("scoringInputControlState.fieldsDisabled"),
   "IdeaWorkbench should render scoring input disabled state from shared helper.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes("canEdit ? ("),
+  "IdeaWorkbench should render scoring header discard visibility from shared input control.",
+);
+assert.ok(
+  ideaWorkbenchSource.includes("scoringInputControlState.showDiscardButton"),
+  "IdeaWorkbench should use shared scoring input control for discard visibility.",
 );
 assert.ok(
   !ideaWorkbenchSource.includes("disabled={!canEdit}"),
