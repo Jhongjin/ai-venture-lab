@@ -140,6 +140,19 @@ export type Step8ProgressStatusState = Pick<
   "isDone" | "showMissingEvidence" | "statusDetail" | "statusLabel" | "statusTone"
 >;
 
+export type Step8ProgressDetailsItemState = Step8ProgressDisplayItem & {
+  evidenceLabel: string;
+  itemClassName: string;
+  missingEvidenceText: string | null;
+  showNextBadge: boolean;
+};
+
+export type Step8ProgressDetailsState = {
+  hasItems: boolean;
+  items: Step8ProgressDetailsItemState[];
+  summaryLabel: string;
+};
+
 export type Step8LearningDisplayState = Step8LearningSummary &
   Step8ProgressSummary & {
     canCopyLearningReport: boolean;
@@ -1168,6 +1181,72 @@ export function buildStep8NextTaskSummary({
         ? "남은 작업 없음"
         : "상태만 확인"
       : "STEP 7에서 첫 작업 시작";
+}
+
+export function buildStep8ProgressDetailsState(
+  items: ReadonlyArray<Step8ProgressDisplayItem>,
+): Step8ProgressDetailsState {
+  const hasItems = items.length > 0;
+
+  return {
+    hasItems,
+    items: items.map(buildStep8ProgressDetailsItemState),
+    summaryLabel: buildStep8ProgressDetailsSummaryLabel({ hasItems }),
+  };
+}
+
+export function buildStep8ProgressDetailsItemState(
+  item: Step8ProgressDisplayItem,
+): Step8ProgressDetailsItemState {
+  return {
+    ...item,
+    evidenceLabel: buildStep8ProgressEvidenceLabel({
+      passedCount: item.passedCount,
+      totalCount: item.totalCount,
+    }),
+    itemClassName: getStep8ProgressItemClassName({
+      isDone: item.isDone,
+      isNext: item.isNext,
+    }),
+    missingEvidenceText: buildStep8ProgressMissingEvidenceText({
+      missingLabels: item.missingLabels,
+      showMissingEvidence: item.showMissingEvidence,
+    }),
+    showNextBadge: item.isNext,
+  };
+}
+
+export function buildStep8ProgressDetailsSummaryLabel({ hasItems }: { hasItems: boolean }) {
+  return hasItems ? "전체 진행표 보기" : "빈 상태 보기";
+}
+
+export function getStep8ProgressItemClassName({
+  isDone,
+  isNext,
+}: Pick<Step8ProgressDisplayItem, "isDone" | "isNext">) {
+  if (isNext) {
+    return "border-blue-200 bg-blue-50";
+  }
+
+  if (isDone) {
+    return "border-emerald-200 bg-emerald-50";
+  }
+
+  return "border-slate-200 bg-slate-50";
+}
+
+export function buildStep8ProgressEvidenceLabel({
+  passedCount,
+  totalCount,
+}: Pick<Step8ProgressDisplayItem, "passedCount" | "totalCount">) {
+  return `근거 ${passedCount}/${totalCount}`;
+}
+
+export function buildStep8ProgressMissingEvidenceText({
+  missingLabels,
+  showMissingEvidence,
+}: Pick<Step8ProgressDisplayItem, "missingLabels" | "showMissingEvidence">) {
+  return showMissingEvidence ? `보완할 근거: ${missingLabels.slice(0, 3).join(", ")}` : null;
 }
 
 export function areAllStep8ProgressItemsDone(progressItems: Step8ProgressDisplayItem[]) {

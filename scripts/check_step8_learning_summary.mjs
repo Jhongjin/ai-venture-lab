@@ -27,6 +27,7 @@ const {
 } = await import(implementationMetadataUrl);
 const modulePath = path.join(process.cwd(), "src/lib/step8-learning-summary.ts");
 const step8ProgressSectionSource = readFileSync(path.join(process.cwd(), "src/components/step8-progress-section.tsx"), "utf8");
+const step8ProgressDetailsSource = readFileSync(path.join(process.cwd(), "src/components/step8-progress-details.tsx"), "utf8");
 const source = readFileSync(modulePath, "utf8")
   .replace('from "@/lib/external-progress-import";', `from ${JSON.stringify(externalProgressUrl)};`)
   .replace('from "@/lib/implementation-task-metadata";', `from ${JSON.stringify(implementationMetadataUrl)};`);
@@ -64,9 +65,14 @@ const {
   buildStep8LearningSummary,
   buildStep8NextTaskSummary,
   buildStep8ProgressDetail,
+  buildStep8ProgressDetailsItemState,
+  buildStep8ProgressDetailsState,
+  buildStep8ProgressDetailsSummaryLabel,
   buildStep8ProgressDisplayItem,
+  buildStep8ProgressEvidenceLabel,
   buildStep8ProgressEvidenceSummary,
   buildStep8ProgressItems,
+  buildStep8ProgressMissingEvidenceText,
   buildStep8ProgressSummary,
   buildStep8ProgressStatusDetail,
   buildStep8ProgressStatusState,
@@ -74,6 +80,7 @@ const {
   canCopyStep8LearningReport,
   compareStep8ProgressTasks,
   formatStep8TaskCodePrefix,
+  getStep8ProgressItemClassName,
   getStep8ImplementationTaskCode,
   sortStep8ProgressTasks,
 } = await import(moduleUrl);
@@ -552,6 +559,40 @@ assert.equal(nextProgressItem.code, "T-002");
 assert.equal(nextProgressItem.isNext, true);
 assert.equal(nextProgressItem.statusDetail, "다음으로 이어서 처리할 작업입니다.");
 assert.equal(nextProgressItem.showMissingEvidence, true);
+const progressDetailsState = buildStep8ProgressDetailsState(progressSummary.progressItems);
+assert.equal(progressDetailsState.hasItems, true);
+assert.equal(progressDetailsState.summaryLabel, "전체 진행표 보기");
+assert.equal(progressDetailsState.items[1].itemClassName, "border-blue-200 bg-blue-50");
+assert.equal(progressDetailsState.items[1].showNextBadge, true);
+assert.equal(progressDetailsState.items[1].evidenceLabel, "근거 0/4");
+assert.equal(progressDetailsState.items[1].missingEvidenceText, "보완할 근거: 커밋/PR, 검증 결과, 사용자 여정");
+assert.deepEqual(buildStep8ProgressDetailsItemState(nextProgressItem), {
+  ...nextProgressItem,
+  evidenceLabel: "근거 0/4",
+  itemClassName: "border-blue-200 bg-blue-50",
+  missingEvidenceText: "보완할 근거: 커밋/PR, 검증 결과, 사용자 여정",
+  showNextBadge: true,
+});
+assert.equal(buildStep8ProgressDetailsSummaryLabel({ hasItems: false }), "빈 상태 보기");
+assert.equal(buildStep8ProgressDetailsSummaryLabel({ hasItems: true }), "전체 진행표 보기");
+assert.equal(getStep8ProgressItemClassName({ isDone: false, isNext: true }), "border-blue-200 bg-blue-50");
+assert.equal(getStep8ProgressItemClassName({ isDone: true, isNext: false }), "border-emerald-200 bg-emerald-50");
+assert.equal(getStep8ProgressItemClassName({ isDone: false, isNext: false }), "border-slate-200 bg-slate-50");
+assert.equal(buildStep8ProgressEvidenceLabel({ passedCount: 0, totalCount: 4 }), "근거 0/4");
+assert.equal(
+  buildStep8ProgressMissingEvidenceText({
+    missingLabels: ["커밋/PR", "검증 결과", "사용자 여정", "상태 UX"],
+    showMissingEvidence: true,
+  }),
+  "보완할 근거: 커밋/PR, 검증 결과, 사용자 여정",
+);
+assert.equal(
+  buildStep8ProgressMissingEvidenceText({
+    missingLabels: ["커밋/PR"],
+    showMissingEvidence: false,
+  }),
+  null,
+);
 assert.deepEqual(
   buildStep8ProgressEvidenceSummary({
     evidence: "",
@@ -940,6 +981,18 @@ assert.ok(
 assert.ok(
   !step8ProgressSectionSource.includes("nextTaskCode && nextTaskTitle"),
   "Step8ProgressSection should not keep the old inline next task summary calculation.",
+);
+assert.ok(
+  step8ProgressDetailsSource.includes("buildStep8ProgressDetailsState"),
+  "Step8ProgressDetails should render details through the shared display-state helper.",
+);
+assert.ok(
+  !step8ProgressDetailsSource.includes("getProgressItemClassName"),
+  "Step8ProgressDetails should not keep JSX-local item class calculations.",
+);
+assert.ok(
+  !step8ProgressDetailsSource.includes("missingLabels.slice"),
+  "Step8ProgressDetails should not keep JSX-local missing-evidence preview calculations.",
 );
 
 console.log("Step 8 learning summary smoke passed.");
