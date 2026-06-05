@@ -45,6 +45,7 @@ const {
   buildDevelopmentAutopilotPreparedMessage,
   buildDevelopmentAutoTaskDraftLine,
   buildDevelopmentAutoWorkbenchState,
+  buildDevelopmentModeDisplayState,
   buildDevelopmentFinalPackageDrafts,
   getDevelopmentAutoEffectiveFlowState,
   getVisibleDevelopmentAutoPanel,
@@ -123,6 +124,42 @@ assert.equal(
   "이미 제작 전달 묶음에 필요한 문서와 할 일이 준비되어 있습니다.",
 );
 assert.equal(buildDevelopmentAutopilotFailedMessage(), "제작 전달 묶음을 만들지 못했습니다.");
+assert.deepEqual(
+  buildDevelopmentModeDisplayState({
+    buildDeliveryMode: "external_tool",
+    experienceMode: "guided",
+    externalToolLabel: "Cursor",
+  }),
+  {
+    deliveryLabel: "Cursor",
+    showCurrentStepPanel: true,
+    showFullPanelDescription: false,
+    showFullPanelTabs: false,
+    showFullDevelopmentPanels: false,
+    showGuidedSetupPanel: true,
+    showManualTaskForm: false,
+    showGuidedHandoffNote: true,
+    showFullHandoffPanels: false,
+  },
+);
+assert.deepEqual(
+  buildDevelopmentModeDisplayState({
+    buildDeliveryMode: "venture_lab",
+    experienceMode: "full",
+    externalToolLabel: "Cursor",
+  }),
+  {
+    deliveryLabel: "내부 진행",
+    showCurrentStepPanel: false,
+    showFullPanelDescription: true,
+    showFullPanelTabs: true,
+    showFullDevelopmentPanels: true,
+    showGuidedSetupPanel: false,
+    showManualTaskForm: true,
+    showGuidedHandoffNote: false,
+    showFullHandoffPanels: true,
+  },
+);
 assert.deepEqual(
   buildDevelopmentAutoPackageStartControlState({
     canUseFullProductionPackage: true,
@@ -340,6 +377,32 @@ assert.ok(
 assert.ok(
   !ideaWorkbenchSource.includes('hasSavedDevelopmentAutoPackage ? "저장 완료" : "저장 전"'),
   "IdeaWorkbench should render the guided auto-package save status label from shared display state.",
+);
+for (const displayStateField of [
+  "showFullPanelTabs",
+  "showCurrentStepPanel",
+  "showFullPanelDescription",
+  "showGuidedSetupPanel",
+  "deliveryLabel",
+  "showFullDevelopmentPanels",
+  "showManualTaskForm",
+  "showGuidedHandoffNote",
+  "showFullHandoffPanels",
+]) {
+  assert.ok(
+    ideaWorkbenchSource.includes(`developmentModeDisplayState.${displayStateField}`),
+    `IdeaWorkbench should render STEP 5 ${displayStateField} from shared display state.`,
+  );
+}
+assert.ok(
+  !ideaWorkbenchSource.includes(
+    'deliveryLabel={buildDeliveryMode === "external_tool" ? activeExternalBuildTool.label : "내부 진행"}',
+  ),
+  "IdeaWorkbench should render the STEP 5 delivery label from shared display state.",
+);
+assert.ok(
+  !ideaWorkbenchSource.includes('experienceMode === "full"'),
+  "IdeaWorkbench should render full STEP 5 panels from shared display state.",
 );
 
 const emptyState = buildDevelopmentAutoPackageCopyState({

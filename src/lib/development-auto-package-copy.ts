@@ -65,8 +65,45 @@ export type DevelopmentAutoGuidedPanelDisplayState = {
   startPanelMessage: string;
 };
 
+export type DevelopmentModeDisplayState = {
+  deliveryLabel: string;
+  showCurrentStepPanel: boolean;
+  showFullPanelDescription: boolean;
+  showFullPanelTabs: boolean;
+  showFullDevelopmentPanels: boolean;
+  showGuidedSetupPanel: boolean;
+  showManualTaskForm: boolean;
+  showGuidedHandoffNote: boolean;
+  showFullHandoffPanels: boolean;
+};
+
 export function buildDevelopmentAutoPackageSavedMessage() {
   return "제작 패키지를 저장했습니다. 실제 파일 받기와 제작 도구 연동은 최종 실행 단계에서 열립니다.";
+}
+
+export function buildDevelopmentModeDisplayState({
+  buildDeliveryMode,
+  experienceMode,
+  externalToolLabel,
+}: {
+  buildDeliveryMode: BuildDeliveryMode;
+  experienceMode: DevelopmentExperienceMode;
+  externalToolLabel: string;
+}): DevelopmentModeDisplayState {
+  const isFullMode = experienceMode === "full";
+  const isGuidedMode = experienceMode === "guided";
+
+  return {
+    deliveryLabel: buildDeliveryMode === "external_tool" ? externalToolLabel : "내부 진행",
+    showCurrentStepPanel: isGuidedMode,
+    showFullPanelDescription: isFullMode,
+    showFullPanelTabs: isFullMode,
+    showFullDevelopmentPanels: isFullMode,
+    showGuidedSetupPanel: isGuidedMode,
+    showManualTaskForm: isFullMode,
+    showGuidedHandoffNote: isGuidedMode,
+    showFullHandoffPanels: isFullMode,
+  };
 }
 
 export function buildDevelopmentAutoPackageStartControlState({

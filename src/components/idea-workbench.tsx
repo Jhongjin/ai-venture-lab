@@ -375,6 +375,7 @@ import {
   buildDevelopmentAutopilotPreparedMessage,
   buildDevelopmentAutoWorkbenchState,
   buildDevelopmentFinalPackageDrafts,
+  buildDevelopmentModeDisplayState,
   type DevelopmentAutoFlowState,
 } from "@/lib/development-auto-package-copy";
 import {
@@ -2158,6 +2159,11 @@ export function IdeaWorkbench({
     productSurface: activeProductSurface,
   });
   const developmentPanelTabStates = buildDevelopmentPanelTabStates(visibleDevelopmentPanel);
+  const developmentModeDisplayState = buildDevelopmentModeDisplayState({
+    buildDeliveryMode,
+    experienceMode,
+    externalToolLabel: activeExternalBuildTool.label,
+  });
   const {
     externalToolRunPackageDraft,
     finalAgentRunPackageDraft,
@@ -4980,7 +4986,7 @@ export function IdeaWorkbench({
             isCreditSystemChecking={isCreditSystemChecking}
           />
 
-          {experienceMode === "full" ? (
+          {developmentModeDisplayState.showFullPanelTabs ? (
             <div className="mb-5 avl-segmented p-1">
               <div className="grid gap-1 sm:grid-cols-3">
                 {developmentPanelTabStates.map((tab) => (
@@ -4995,7 +5001,8 @@ export function IdeaWorkbench({
                 ))}
               </div>
             </div>
-          ) : (
+          ) : null}
+          {developmentModeDisplayState.showCurrentStepPanel ? (
             <div className="avl-surface-muted mb-5 p-4">
               <div className="text-[11px] font-semibold tracking-[0.14em] text-slate-500">현재 단계</div>
               <h3 className="mt-2 text-base font-semibold text-slate-950">제작 패키지 자동 정리</h3>
@@ -5003,8 +5010,8 @@ export function IdeaWorkbench({
                 AI가 제작 방향과 실행 자료를 묶습니다. 저장 전 요약만 확인하면 됩니다.
               </p>
             </div>
-          )}
-          {experienceMode === "full" ? (
+          ) : null}
+          {developmentModeDisplayState.showFullPanelDescription ? (
             <p className="mb-4 text-sm leading-5 text-slate-600">{developmentPanelDescriptions[visibleDevelopmentPanel]}</p>
           ) : null}
 
@@ -5028,7 +5035,7 @@ export function IdeaWorkbench({
             onUnlockBuildPass={unlockSelectedIdeaBuildPass}
           />
 
-          {experienceMode === "guided" ? (
+          {developmentModeDisplayState.showGuidedSetupPanel ? (
             <div
               className={buildDevelopmentPanelClassName({
                 activePanel: visibleDevelopmentPanel,
@@ -5055,7 +5062,7 @@ export function IdeaWorkbench({
 
                 <Step5BuildDirectionSummary
                   decisionSentence={finalExecutionDecisionSentence}
-                  deliveryLabel={buildDeliveryMode === "external_tool" ? activeExternalBuildTool.label : "내부 진행"}
+                  deliveryLabel={developmentModeDisplayState.deliveryLabel}
                 />
 
                 <Step5ExecutionPackageBrief />
@@ -5163,7 +5170,7 @@ export function IdeaWorkbench({
             </div>
           ) : null}
 
-          {experienceMode === "full" ? (
+          {developmentModeDisplayState.showFullDevelopmentPanels ? (
           <>
           <div className="mt-5 grid gap-4 xl:grid-cols-2">
             <GateChecklistPanel
@@ -5545,7 +5552,7 @@ export function IdeaWorkbench({
               </button>
             </div>
 
-            {experienceMode === "full" ? (
+            {developmentModeDisplayState.showManualTaskForm ? (
               <form onSubmit={addImplementationTask} className="avl-card mt-4 p-4">
                 <div className="mb-3">
                   <h4 className="text-sm font-semibold text-slate-950">직접 태스크 추가</h4>
@@ -6185,7 +6192,7 @@ export function IdeaWorkbench({
             </div>
           </div>
 
-            {experienceMode === "guided" ? (
+            {developmentModeDisplayState.showGuidedHandoffNote ? (
               <div className="avl-surface-muted mt-4 p-4">
                 <div className="avl-pill avl-pill-info">AI가 준비한 실행 자료</div>
                 <p className="mt-3 text-sm leading-5 text-slate-600">
@@ -6193,7 +6200,8 @@ export function IdeaWorkbench({
                   역할별 지시서는 필요할 때 펼쳐 확인하세요.
                 </p>
               </div>
-            ) : (
+            ) : null}
+            {developmentModeDisplayState.showFullHandoffPanels ? (
             <>
               <textarea
                 value={developmentPlanDraft}
@@ -6353,7 +6361,7 @@ export function IdeaWorkbench({
                 />
               </div>
             </>
-          )}
+          ) : null}
           </div>
         </div>
 
